@@ -17,7 +17,7 @@ WoW: Forever runs Classic content in the modern Professions window. That window 
 - **Recipe rows** show your chance of a skill-up and what each skill-up costs, coloured by difficulty: `62% · 45s` (in coin icons). The skill a recipe needs can be added in settings. A recipe you can't make yet shows only its requirement, in red.
 - **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar, with your current skill marked, drawn in the style of the profession window's own skill bar.
 - **Cost per skill-up**: reagent cost divided by skill-up chance, on the row and broken down per reagent in the tooltip. See [Prices](#prices).
-- **Sorting** by required skill, skill-up chance or cheapest skill-up, from a *Sort by* section in the recipe list's own Filter menu. A sort lists every recipe in one ordered list (learned first, then unlearned) instead of by category; *Default* brings the categories back. The game's own filters, including *Only skill-ups*, still apply.
+- **Sorting** by required skill, skill-up chance or cheapest skill-up, from a *Sort by* section in the recipe list's own Filter menu. A sort lists every recipe in one ordered list (learned first, then unlearned under the usual divider) instead of by category; *Default* brings the categories back. The game's own filters, including *Only skill-ups*, still apply.
 
 ## Install
 

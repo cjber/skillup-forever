@@ -79,7 +79,6 @@ local SORT_KEYS = {
 
 -- Forever's categories hold one or two recipes each, so sorting inside them changes
 -- nothing. A sort instead flattens the list: learned recipes, then unlearned ones.
-local UNLEARNED_CATEGORY_ID = -2 -- Blizzard uses -1 for Favorites
 local replacing = false
 
 local function CollectRecipes(node, learned, unlearned, seen)
@@ -119,15 +118,11 @@ local function BuildSorted(source, key)
 	for _, info in ipairs(learned) do
 		sorted:Insert({ recipeInfo = info })
 	end
+	-- Blizzard's divider template draws the "Unlearned" label itself.
 	if #unlearned > 0 then
-		if #learned > 0 then
-			sorted:Insert({ isDivider = true, dividerHeight = 30 })
-		end
-		local header = sorted:Insert({
-			categoryInfo = { name = "Unlearned", categoryID = UNLEARNED_CATEGORY_ID, unlearned = true },
-		})
+		sorted:Insert({ isDivider = true, dividerHeight = #learned > 0 and 70 or 30 })
 		for _, info in ipairs(unlearned) do
-			header:Insert({ recipeInfo = info })
+			sorted:Insert({ recipeInfo = info })
 		end
 	end
 	return sorted

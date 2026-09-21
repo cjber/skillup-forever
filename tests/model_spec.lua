@@ -130,4 +130,22 @@ for recipeID, t in pairs(ns.Thresholds) do
 end
 equal(rows > 0, true, "generated table is not empty")
 
+-- Reagent cost is all-or-nothing, and per-skill-up cost scales by 1/chance.
+local prices = { [2589] = 10, [2320] = 25 }
+local function price(itemID)
+	return prices[itemID]
+end
+equal(Model.RecipeCost({ { itemID = 2589, quantity = 2 }, { itemID = 2320, quantity = 1 } }, price), 45, "recipe cost")
+equal(Model.RecipeCost({ { itemID = 2589, quantity = 2 }, { itemID = 1, quantity = 1 } }, price), nil, "unpriced")
+equal(Model.RecipeCost({}, price), 0, "no reagents costs nothing")
+equal(Model.RecipeCost(nil, price), nil, "unknown reagents")
+equal(Model.CostPerSkillUp(45, 0.5), 90, "half chance doubles cost")
+equal(Model.CostPerSkillUp(45, 0), nil, "no skill-up has no cost")
+equal(Model.CostPerSkillUp(nil, 1), nil, "unpriced has no cost")
+equal(Model.ShortMoney(80), "80c", "copper")
+equal(Model.ShortMoney(4549), "45s", "silver")
+equal(Model.ShortMoney(9960), "1g", "rounds up to gold")
+equal(Model.ShortMoney(12345), "1.2g", "gold with a decimal")
+equal(Model.ShortMoney(1234567), "123g", "whole gold")
+
 print("model_spec: " .. checks .. " checks passed; " .. rows .. " generated recipes validated")

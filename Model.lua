@@ -37,3 +37,44 @@ function Model.Chance(t, skill)
 	end
 	return (t[4] - skill) / (t[4] - t[2])
 end
+
+-- Copper for one craft, or nil when any reagent has no known price: a partial
+-- sum would rank a recipe as cheap only because we can't price its reagents.
+function Model.RecipeCost(reagents, price)
+	if not reagents then
+		return nil
+	end
+	local total = 0
+	for _, reagent in ipairs(reagents) do
+		local each = price(reagent.itemID)
+		if not each then
+			return nil
+		end
+		total = total + each * reagent.quantity
+	end
+	return total
+end
+
+-- Expected spend per skill point: one craft costs `cost` and succeeds with `chance`.
+function Model.CostPerSkillUp(cost, chance)
+	if not cost or not chance or chance <= 0 then
+		return nil
+	end
+	return cost / chance
+end
+
+-- Short money for a recipe row: 1.2g, 45s, 80c.
+function Model.ShortMoney(copper)
+	copper = math.floor(copper + 0.5)
+	if copper >= 9950 then
+		local gold = copper / 10000
+		if gold >= 99.5 then
+			return string.format("%dg", math.floor(gold + 0.5))
+		end
+		return (string.format("%.1fg", gold):gsub("%.0g$", "g"))
+	end
+	if copper >= 100 then
+		return string.format("%ds", math.floor(copper / 100 + 0.5))
+	end
+	return string.format("%dc", copper)
+end

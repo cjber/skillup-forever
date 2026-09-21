@@ -142,6 +142,8 @@ local function AddCost(tooltip, recipeID, d)
 	end
 	if d.cost then
 		tooltip:AddDoubleLine("Cost per craft", Money(d.cost), 1, 0.82, 0, 1, 1, 1)
+	else
+		GameTooltip_AddDisabledLine(tooltip, "Visit the auction house or a vendor to price reagents.")
 	end
 	if d.perSkillUp then
 		tooltip:AddDoubleLine("Per skill-up", "~" .. Money(d.perSkillUp), 1, 0.82, 0, 1, 1, 1)

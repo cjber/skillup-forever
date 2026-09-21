@@ -65,7 +65,7 @@ function ns.RegisterSettings()
 		category,
 		Register("scanAuctions", Settings.VarType.Boolean, "Scan the auction house"),
 		"Search the auction house for known reagents when you open it (at most once an hour). "
-			.. "Type /su scan to rescan."
+			.. "Type /su scan to rescan. With Auctionator installed, its prices are used instead."
 	)
 
 	Settings.CreateCheckbox(

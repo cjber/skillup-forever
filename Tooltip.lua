@@ -114,13 +114,41 @@ function ns.FormatAge(timestamp)
 	return math.floor(minutes / 1440) .. "d ago"
 end
 
+local DAY = 86400
+
+-- Seconds since an auction price was seen. Auctionator reports whole days, and
+-- nothing past three weeks.
+function ns.PriceAge(price)
+	if price.source == "scan" then
+		return time() - price.time
+	elseif price.source == "auctionator" then
+		return (price.days or 22) * DAY
+	end
+	error("not an auction price: " .. tostring(price.source))
+end
+
+function ns.PriceAgeText(price)
+	if price.source == "scan" then
+		return ns.FormatAge(price.time)
+	elseif price.source ~= "auctionator" then
+		error("not an auction price: " .. tostring(price.source))
+	elseif price.days == nil then
+		return "over 3 weeks ago"
+	elseif price.days == 0 then
+		return "today"
+	end
+	return price.days .. "d ago"
+end
+
 function ns.PriceSourceText(price)
 	if price.source == "vendor" then
 		return "vendor"
 	elseif price.source == "auctionator" then
-		return "Auctionator"
+		return "Auctionator, " .. ns.PriceAgeText(price)
+	elseif price.source == "scan" then
+		return "AH, " .. ns.PriceAgeText(price)
 	end
-	return "AH, " .. ns.FormatAge(price.time)
+	error("unknown price source: " .. tostring(price.source))
 end
 
 -- One line per reagent with its price and source, then the craft and per-skill-up totals.

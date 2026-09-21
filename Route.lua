@@ -474,26 +474,22 @@ local function RenderReagents(list, reagents)
 	end
 end
 
--- How fresh the auction prices behind this route are: the oldest scan, since that
--- is the one most likely to be wrong. Auctionator keeps its own freshness.
+-- How fresh the auction prices behind this route are: the oldest, since that is
+-- the one most likely to be wrong.
 local function PriceAge(reagents)
-	local oldest, auctionator
+	local oldest
 	for _, item in ipairs(reagents) do
-		local price = item.source == "auction" and ns.Price(item.itemID)
-		if price and price.time then
-			oldest = math.min(oldest or price.time, price.time)
-		elseif price then
-			auctionator = true
+		local price = ns.Price(item.itemID)
+		if price and price.source ~= "vendor" and (not oldest or ns.PriceAge(price) > ns.PriceAge(oldest)) then
+			oldest = price
 		end
 	end
-	if oldest then
-		local stale = time() - oldest > STALE_AFTER
-		local text = "AH prices from " .. ns.FormatAge(oldest) .. (stale and ": rescan at the auction house" or "")
-		return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
-	elseif auctionator then
-		return "AH prices from Auctionator", GRAY_FONT_COLOR
+	if not oldest then
+		return "", GRAY_FONT_COLOR
 	end
-	return "", GRAY_FONT_COLOR
+	local stale = ns.PriceAge(oldest) > STALE_AFTER
+	local text = "AH prices from " .. ns.PriceAgeText(oldest) .. (stale and ": rescan at the auction house" or "")
+	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 
 local function Render()

@@ -35,19 +35,48 @@ local function Auctions()
 	return auctionsTable
 end
 
+local DAY = 86400
+
 local function PricesChanged()
 	priceCache = {}
 	ns.InvalidatePlans()
 	ns.RefreshRecipeList()
+	ns.RefreshRoute()
+	ns.RefreshTracker()
 end
 
-local function AuctionatorPrice(itemID)
+local function AuctionatorAPI()
 	local api = Auctionator and Auctionator.API and Auctionator.API.v1
-	if not (api and api.GetAuctionPriceByItemID) then
+	return api and api.GetAuctionPriceByItemID and api
+end
+
+-- Auctionator's price, and whole days since it was seen (nil past three weeks).
+local function AuctionatorPrice(itemID)
+	local api = AuctionatorAPI()
+	if not api then
 		return nil
 	end
 	local ok, copper = pcall(api.GetAuctionPriceByItemID, addonName, itemID)
-	return ok and type(copper) == "number" and copper or nil
+	if not (ok and type(copper) == "number") then
+		return nil
+	end
+	local okAge, days = pcall(api.GetAuctionAgeByItemID, addonName, itemID)
+	return copper, okAge and type(days) == "number" and days or nil
+end
+
+-- The fresher of our own scan and Auctionator's: { copper, source, time | days }.
+local function AuctionPrice(itemID)
+	local entry = Auctions()[itemID]
+	local ours = entry and entry.copper and { copper = entry.copper, source = "scan", time = entry.time }
+	local copper, days = AuctionatorPrice(itemID)
+	if not copper then
+		return ours
+	end
+	-- Auctionator counts whole days, and stops counting after three weeks.
+	if ours and (days == nil or time() - ours.time < days * DAY) then
+		return ours
+	end
+	return { copper = copper, source = "auctionator", days = days }
 end
 
 -- Cheapest known unit price and where it came from: "vendor", "scan" or "auctionator".
@@ -56,16 +85,11 @@ function ns.Price(itemID)
 	local cached = priceCache[itemID]
 	if cached == nil then
 		local vendor = ns.db.vendor[itemID] or ns.VendorPrices[itemID]
-		local entry = Auctions()[itemID]
-		local scan = entry and entry.copper
-		local ah, ahSource = scan, "scan"
-		if not ah then
-			ah, ahSource = AuctionatorPrice(itemID), "auctionator"
-		end
-		if vendor and (not ah or vendor <= ah) then
+		local ah = AuctionPrice(itemID)
+		if vendor and (not ah or vendor <= ah.copper) then
 			cached = { copper = vendor, source = "vendor" }
 		elseif ah then
-			cached = { copper = ah, source = ahSource, time = scan and entry.time }
+			cached = ah
 		else
 			cached = false
 		end
@@ -171,8 +195,8 @@ function ns.CraftValue(recipeID)
 	if not output then
 		return nil
 	end
-	local entry = Auctions()[output.itemID]
-	local auction = entry and entry.copper or AuctionatorPrice(output.itemID)
+	local ah = AuctionPrice(output.itemID)
+	local auction = ah and ah.copper
 	local each, source = ns.Model.CraftValue(SellPrice(output.itemID), auction, ns.db.craftValue)
 	if not each then
 		return nil
@@ -330,7 +354,8 @@ frame:SetScript("OnEvent", function(_, event)
 	elseif event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
 		RecordMerchant()
 	elseif event == "AUCTION_HOUSE_SHOW" then
-		if ns.db.scanAuctions then
+		-- Auctionator scans as you browse, and its prices are read directly.
+		if ns.db.scanAuctions and not AuctionatorAPI() then
 			C_Timer.After(SCAN_DELAY, function()
 				if AuctionHouseFrame and AuctionHouseFrame:IsShown() then
 					ns.ScanAuctions(false)
@@ -379,5 +404,9 @@ function ns.InitPrices()
 		"GET_ITEM_INFO_RECEIVED",
 	}) do
 		frame:RegisterEvent(event)
+	end
+	local api = AuctionatorAPI()
+	if api and api.RegisterForDBUpdate then
+		api.RegisterForDBUpdate(addonName, PricesChanged)
 	end
 end

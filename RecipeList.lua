@@ -10,7 +10,11 @@ local function FormatRow(d)
 	if not d.chance then
 		return tostring(d.thresholds[1])
 	end
-	return string.format("%d · %d%%", d.thresholds[1], math.floor(d.chance * 100 + 0.5))
+	local text = string.format("%d · %d%%", d.thresholds[1], math.floor(d.chance * 100 + 0.5))
+	if ns.db.showCost and d.perSkillUp then
+		text = text .. " · " .. ns.Model.ShortMoney(d.perSkillUp)
+	end
+	return text
 end
 
 -- The row's own Init sized the label for Blizzard's right-hand widgets only;
@@ -63,6 +67,9 @@ local SORT_KEYS = {
 	chance = function(recipeInfo, ctx)
 		local chance = ns.Describe(recipeInfo, ctx).chance
 		return chance and -chance or math.huge
+	end,
+	cost = function(recipeInfo, ctx)
+		return ns.Describe(recipeInfo, ctx).perSkillUp or math.huge
 	end,
 }
 

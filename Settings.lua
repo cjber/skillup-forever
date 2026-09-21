@@ -33,11 +33,26 @@ function ns.RegisterSettings()
 		"Orange, yellow, green and grey thresholds when hovering a recipe."
 	)
 
+	Settings.CreateCheckbox(
+		category,
+		Register("showCost", Settings.VarType.Boolean, "Show cost per skill-up"),
+		"Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. "
+			.. "Prices come from vendors you've visited, the auction house, or Auctionator."
+	)
+
+	Settings.CreateCheckbox(
+		category,
+		Register("scanAuctions", Settings.VarType.Boolean, "Scan the auction house"),
+		"Search the auction house for known reagents when you open it (at most once an hour). "
+			.. "Type /su scan to rescan."
+	)
+
 	Settings.CreateDropdown(category, Register("sortMode", Settings.VarType.String, "Sort recipes"), function()
 		local container = Settings.CreateControlTextContainer()
 		container:Add("blizzard", "Default")
 		container:Add("skill", "Required skill")
 		container:Add("chance", "Skill-up chance")
+		container:Add("cost", "Cheapest skill-up")
 		return container:GetData()
 	end, "Order of recipes within each category.")
 

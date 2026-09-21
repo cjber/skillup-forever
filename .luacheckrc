@@ -28,7 +28,7 @@ read_globals = {
 	"HandleModifiedItemClick", "IsShiftKeyDown", "CreateScrollBoxLinearView",
 	"GetTrainerTradeskillRankValues", "IsPlayerSpell", "issecretvalue", "Item", "NORMAL_FONT_COLOR",
 	"TooltipDataProcessor", "UnitName", "BuyMerchantItem", "GetMerchantItemMaxStack", "MerchantFrame", "MenuUtil", "Mixin", "ObjectiveTrackerFrame", "ObjectiveTrackerManager", "OBJECTIVE_TRACKER_COLOR", "OBJECTIVE_DASH_STYLE_HIDE",
-	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator",
+	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator", "tContains",
 }
 
 files["Data/Thresholds.lua"] = { max_line_length = false }

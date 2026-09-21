@@ -4,9 +4,33 @@ local _, ns = ...
 
 local FACTION_CODES = { Alliance = "A", Horde = "H" }
 
-local function Usable(npcID)
-	local faction = ns.SourceNPCs[npcID][2]
+local function OurFaction(faction)
 	return faction == "" or faction == FACTION_CODES[UnitFactionGroup("player")]
+end
+
+local function Usable(npcID)
+	return OurFaction(ns.SourceNPCs[npcID][2])
+end
+
+local function Limited(source, npcID)
+	return tContains(source.limited or {}, npcID)
+end
+
+-- Vendors of your faction, those that always have the scroll first.
+local function VendorFor(source)
+	local unlimited, limited = {}, {}
+	for _, npcID in ipairs(source.vendors or {}) do
+		table.insert(Limited(source, npcID) and limited or unlimited, npcID)
+	end
+	return ns.NearestNPC(unlimited, true) or ns.NearestNPC(limited, true)
+end
+
+local function QuestFor(source)
+	for _, questID in ipairs(source.quests or {}) do
+		if OurFaction(ns.SourceQuests[questID][2]) then
+			return questID
+		end
+	end
 end
 
 -- The NPC's zone and map position, resolved by the client from its world spawn so
@@ -78,12 +102,13 @@ function ns.SetWaypoint(npcID)
 end
 
 -- Best way to get the scroll, easiest first: an unlimited vendor, a limited one,
--- a quest, a named drop, a world drop; nil when only the other faction sells it.
+-- a quest, a named drop, a world drop; nil when only the other faction sells it or
+-- may take the quest.
 local function Kind(source)
-	local vendor = source.vendors and ns.NearestNPC(source.vendors, true)
+	local vendor = VendorFor(source)
 	if vendor then
-		return source.limited and 2 or 1, vendor
-	elseif source.quests then
+		return Limited(source, vendor) and 2 or 1, vendor
+	elseif QuestFor(source) then
 		return 3
 	elseif source.drops then
 		return 4, source.drops[1][1]
@@ -154,15 +179,16 @@ end
 
 function ns.AddSourceLines(tooltip, source)
 	for _, npcID in ipairs(source.vendors or {}) do
-		AddNPC(tooltip, "Sold by", npcID, source.limited and "  (limited)" or nil, Usable(npcID))
+		AddNPC(tooltip, "Sold by", npcID, Limited(source, npcID) and "  (limited)" or nil, Usable(npcID))
 	end
 	for _, questID in ipairs(source.quests or {}) do
+		local title, faction = unpack(ns.SourceQuests[questID])
 		GameTooltip_AddColoredDoubleLine(
 			tooltip,
 			"Quest",
-			ns.SourceQuests[questID],
+			title,
 			NORMAL_FONT_COLOR,
-			HIGHLIGHT_FONT_COLOR
+			OurFaction(faction) and HIGHLIGHT_FONT_COLOR or RED_FONT_COLOR
 		)
 	end
 	for _, drop in ipairs(source.drops or {}) do

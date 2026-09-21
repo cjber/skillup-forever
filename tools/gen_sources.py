@@ -36,6 +36,11 @@ TABLES = (
 QUEST_REWARDS = [f"RewItemId{i}" for i in range(1, 5)] + [f"RewChoiceItemId{i}" for i in range(1, 7)]
 # FactionTemplate groups: 1 player, 2 Alliance, 4 Horde.
 ALLIANCE, HORDE = 2, 4
+# ChrRaces bits: Human, Dwarf, Night Elf, Gnome; Orc, Undead, Tauren, Troll.
+ALLIANCE_RACES, HORDE_RACES = 1 | 4 | 8 | 64, 2 | 16 | 32 | 128
+# A scroll this many creatures drop is a world drop, not worth naming three of them. Measured:
+# 211 scrolls drop from under 25 creatures (bosses, a dungeon's trash), world drops from 325-780.
+WORLD_DROP = 100
 
 
 def parse_rows(line):
@@ -204,6 +209,70 @@ def spawn_of(spawns):
     return min(here, key=lambda s: (s[1] - mx) ** 2 + (s[2] - my) ** 2)
 
 
+def race_side(races):
+    """"A" or "H" when only that faction's races may take the quest, else ""."""
+    if races and not races & HORDE_RACES:
+        return "A"
+    if races and not races & ALLIANCE_RACES:
+        return "H"
+    return ""
+
+
+def loot_chances(rows):
+    """(row, chance %) per loot row; 0 is an equal share of what its group's other chances leave."""
+    groups = defaultdict(list)
+    for row in rows:
+        groups[int(row["groupid"])].append(row)
+    for group, members in groups.items():
+        given = [float(row["ChanceOrQuestChance"]) for row in members]
+        shared = given.count(0)
+        rest = max(0.0, 100 - sum(c for c in given if c > 0))
+        for row, chance in zip(members, given):
+            if chance > 0:
+                yield row, chance
+            elif chance == 0:
+                yield row, 100.0 if group == 0 else rest / shared
+
+
+def scroll_drops(tables, scrolls):
+    """Per scroll, {creature: chance %} through direct and referenced loot; and the world drops, scrolls
+    that too many creatures drop to name or that only chests and containers hold."""
+    refs, loot = defaultdict(list), defaultdict(list)
+    for row in tables["reference_loot_template"]:
+        refs[int(row["entry"])].append(row)
+    for row in tables["creature_loot_template"]:
+        loot[int(row["entry"])].append(row)
+
+    def reached(rows, seen):
+        for row in rows:
+            ref = -int(row["mincountOrRef"])
+            if ref > 0 and ref not in seen:
+                seen.add(ref)
+                reached(refs[ref], seen)
+        return seen
+
+    def dropped(rows, scale, seen):
+        for row, chance in loot_chances(rows):
+            ref, share = -int(row["mincountOrRef"]), scale * chance / 100
+            if ref < 0:
+                yield int(row["item"]), share
+            elif ref > 0 and ref not in seen:
+                yield from dropped(refs[ref], share, seen | {ref})
+
+    drops = defaultdict(dict)
+    for entry, rows in loot.items():
+        for item, share in dropped(rows, 1.0, frozenset()):
+            if item in scrolls and share > 0:
+                drops[item][entry] = max(drops[item].get(entry, 0), share * 100)
+    world = {item for item, by in drops.items() if len(by) > WORLD_DROP}
+    creature_refs = set()
+    for rows in loot.values():
+        reached(rows, creature_refs)
+    for ref in refs.keys() - creature_refs:
+        world |= {int(row["item"]) for row in refs[ref] if int(row["item"]) in scrolls} - drops.keys()
+    return {item: by for item, by in drops.items() if item not in world}, world
+
+
 def generate(ids, tables, effect_rows, factions, maps, trainer_lines, items, locks):
     teaches, rank_of = spell_maps(effect_rows)
     scrolls = {}
@@ -230,21 +299,14 @@ def generate(ids, tables, effect_rows, factions, maps, trainer_lines, items, loc
     for entry, creature in creatures.items():
         for item, limited in by_template.get(int(creature["VendorTemplateId"] or 0), {}).items():
             vendors[item][entry] = limited
-    drops, world = defaultdict(dict), set()
-    for row in tables["creature_loot_template"]:
-        item, chance = int(row["item"]), float(row["ChanceOrQuestChance"])
-        if item in scrolls and int(row["mincountOrRef"]) > 0 and chance > 0:
-            drops[item][int(row["entry"])] = chance
-    for row in tables["reference_loot_template"]:
-        if int(row["item"]) in scrolls:
-            world.add(int(row["item"]))
+    drops, world = scroll_drops(tables, scrolls)
     quests = defaultdict(set)
     titles = {}
     for quest in tables["quest_template"]:
         for column in QUEST_REWARDS:
             if int(quest[column] or 0) in scrolls:
                 quests[int(quest[column])].add(int(quest["entry"]))
-                titles[int(quest["entry"])] = quest["Title"]
+                titles[int(quest["entry"])] = (quest["Title"], race_side(int(quest["RequiredRaces"] or 0)))
 
     spawns = defaultdict(list)
     for row in tables["creature"]:
@@ -268,7 +330,7 @@ def generate(ids, tables, effect_rows, factions, maps, trainer_lines, items, loc
             "skill": int(row["RequiredSkillRank"]),
             "price": int(row["BuyPrice"]) if sold else 0,
             "vendors": sold,
-            "limited": bool(sold) and all(vendors[item][entry] for entry in sold),
+            "limited": [entry for entry in sold if vendors[item][entry]],
             "drops": dropped,
             "world": item in world,
             "quests": sorted(quests.get(item, ())),
@@ -317,7 +379,8 @@ def render(data):
         f"-- recipes={len(sources)}, npcs={len(npcs)}.",
         "local _, ns = ...",
         "-- stylua: ignore",
-        "-- [recipeID] = { item, skill (required base), price (vendor copper), vendors, limited,",
+        "-- [recipeID] = { item, skill (required base), price (vendor copper), vendors, limited (vendors of those",
+        "--   with limited stock),",
         "--   drops = { { npc, chance % } }, world (world drop), quests }",
         "ns.RecipeSources = {",
     ]
@@ -327,9 +390,9 @@ def render(data):
             parts.append(f"price = {s['price']}")
             parts.append("vendors = { " + ", ".join(map(str, s["vendors"])) + " }")
         if s["limited"]:
-            parts.append("limited = true")
+            parts.append("limited = { " + ", ".join(map(str, s["limited"])) + " }")
         if s["drops"]:
-            parts.append("drops = { " + ", ".join(f"{{ {e}, {c:g} }}" for e, c in s["drops"]) + " }")
+            parts.append("drops = { " + ", ".join(f"{{ {e}, {round(c, 2):g} }}" for e, c in s["drops"]) + " }")
         if s["world"]:
             parts.append("world = true")
         if s["quests"]:
@@ -349,8 +412,9 @@ def render(data):
     lines += ["}", "", f"-- [reagent item] = gathering skill line that yields it ({GATHER_CHANCE}%+ of the time)",
               "-- stylua: ignore", "ns.GatheredBy = {"]
     lines += [f"\t[{item}] = {skill}," for item, skill in sorted(data["gathered"].items())]
-    lines += ["}", "", "-- stylua: ignore", "ns.SourceQuests = {"]
-    lines += [f"\t[{q}] = {lua_string(t)}," for q, t in sorted(data["titles"].items())]
+    lines += ["}", "", "-- [quest] = { title, faction (\"A\", \"H\", \"\" for both) }", "-- stylua: ignore",
+              "ns.SourceQuests = {"]
+    lines += [f"\t[{q}] = {{ {lua_string(t)}, \"{f}\" }}," for q, (t, f) in sorted(data["titles"].items())]
     lines += ["}", "", "-- [world map] = dungeon or raid name, for drops the zone map can't show", "-- stylua: ignore",
               "ns.InstanceNames = {"]
     used = {n[2] for n in npcs.values()}

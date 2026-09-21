@@ -8,7 +8,7 @@ Classic profession-levelling numbers inside WoW: Forever's Professions window.<b
 <a href="https://github.com/cjber/skillup-forever/releases/latest"><img src="https://img.shields.io/github/v/release/cjber/skillup-forever" alt="Latest release"></a>
 </p>
 
-WoW: Forever runs Classic content in the modern Professions window. That window shows a recipe's colour, but not the skill it needs, when it turns yellow, green or grey, or how likely your next craft is to give a skill-up. This addon adds that information to the existing window. It does not open a separate frame.
+WoW: Forever runs Classic content in the modern Professions window. That window shows a recipe's colour, but not the skill it needs, when it turns yellow, green or grey, or how likely your next craft is to give a skill-up. This addon adds that information to the existing window, plus a levelling route in a panel attached to its side, the same numbers on the profession trainer, and recipe uses on reagent tooltips.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png" width="640" alt="The Leatherworking window with skill-up chance and cost per skill-up on each recipe row, and a tooltip showing reagent prices and cost per skill-up"></p>
 
@@ -18,6 +18,10 @@ WoW: Forever runs Classic content in the modern Professions window. That window 
 - **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar, with your current skill marked, drawn in the style of the profession window's own skill bar.
 - **Cost per skill-up**: reagent cost divided by skill-up chance, on the row and broken down per reagent in the tooltip. See [Prices](#prices).
 - **Sorting** by required skill, skill-up chance or cheapest skill-up, from a *Sort by* section in the recipe list's own Filter menu. A sort lists every recipe in one ordered list (learned first, then unlearned under the usual divider) instead of by category; *Default* brings the categories back. The game's own filters, including *Only skill-ups*, still apply.
+- **Levelling route**: a panel beside the window lists the cheapest crafts from your skill to a target you type in, from the recipes you know: `~12× Heavy Linen Bandage → 90`, each with its cost, then the total. Each skill point takes the recipe with the lowest cost per skill-up at that point. Recipes with an unpriced reagent are left out and counted, and if nothing you know skills up far enough the route stops there and says so. Close it with its X, and bring it back from the Filter menu or settings.
+- **Shopping list**: the route's reagents, less what's in your bags and bank. With [Auctionator](https://www.curseforge.com/wow/addons/auctionator) installed, one button makes an Auctionator shopping list (`SkillUp: <profession>`, replaced each time) of the auction house reagents and prints the vendor ones. Without it the whole list goes to chat. Hover the button to see it first.
+- **Profession trainer**: each recipe a trainer teaches shows its row text (`62% · 45s`) and the one that most cheapens or extends your route, fee included, is marked `★ best next`. A recipe the addon can't identify for certain shows `?`.
+- **Reagent tooltips**: hovering an item anywhere lists the recipes of your professions that use it and still skill up, with their colour now: `Heavy Linen Bandage    yellow until 115`.
 
 ## Install
 
@@ -33,7 +37,7 @@ Open a profession and the numbers are already there.
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 | `/su scan` | With the auction house open, search it for every known reagent now |
 
-Settings: row text, required skill on rows, tooltip, cost per skill-up, auction house scan, sort order (also in the Filter menu).
+Settings: row text, required skill on rows, tooltip, cost per skill-up, auction house scan, sort order (also in the Filter menu), levelling route (also in the Filter menu), trainer annotations, reagent tooltips.
 
 > **Settings and prices reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working; prices are then relearned each session.
 
@@ -59,7 +63,7 @@ Each recipe has four thresholds: orange (required skill), yellow, green and grey
 | Yellow, green | `(grey − skill) / (grey − yellow)` |
 | Grey, or at your skill cap | 0% |
 
-The colour itself always comes from the game, so the addon never disagrees with the window. The thresholds are generated from the Forever client's own `SkillLineAbility` data (via [wago.tools](https://wago.tools)). Where it agrees with that data, the Skillet-Classic baseline fills in the orange value. A recipe with no data shows `?` rather than a guess.
+The colour itself always comes from the game, so the addon never disagrees with the window. The thresholds are generated from the Forever client's own `SkillLineAbility` data (via [wago.tools](https://wago.tools)). Where it agrees with that data, the Skillet-Classic baseline fills in the orange value. A recipe with no data shows `?` rather than a guess. Reagents, crafted items and trainer recipe names for recipes you haven't opened come from the same data (`SpellReagents`, `SpellEffect`).
 
 **Found a wrong number?** Run `/su audit` with that profession open and [open an issue](https://github.com/cjber/skillup-forever/issues/new) with the output.
 
@@ -74,9 +78,10 @@ stylua --check .                  # format
 luajit tests/model_spec.lua       # threshold and cost maths + generated data
 python3 tools/gen_thresholds.py   # regenerate Data/Thresholds.lua (see tools/README.md)
 python3 tools/gen_vendor.py       # regenerate Data/Vendor.lua
+python3 tools/gen_recipes.py      # regenerate Data/Recipes.lua
 ```
 
-CI runs the three checks on every push. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with the regenerated `Data/Thresholds.lua` and `Data/Vendor.lua`.
+CI runs the three checks on every push. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with the regenerated `Data/Thresholds.lua`, `Data/Vendor.lua` and `Data/Recipes.lua`.
 
 **Releasing:** move the `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
 

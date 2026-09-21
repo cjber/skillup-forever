@@ -4,8 +4,10 @@
 ## Author: cjber
 ## Version: @project-version@
 ## Category: Professions
+## X-License: GPL-3.0-or-later
+## X-Website: https://github.com/cjber/skillup-forever
 ## SavedVariables: SkillUpForeverDB
-## IconTexture: Interface\Icons\Trade_LeatherWorking
+## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
 
 Data\Thresholds.lua

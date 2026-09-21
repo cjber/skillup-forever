@@ -1,0 +1,34 @@
+name: Refresh threshold data
+
+# Opens a PR when wago.tools lists a newer Forever build whose recipe data differs.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pin the newest Forever build
+        id: build
+        run: |
+          build=$(python3 tools/latest_build.py)
+          echo "version=$build" >> "$GITHUB_OUTPUT"
+          sed -i -E "s/^BUILD = \".*\"/BUILD = \"$build\"/; s/^SOURCE_DATE = \".*\"/SOURCE_DATE = \"$(date -u +%F)\"/" tools/gen_thresholds.py
+      - run: python3 tools/gen_thresholds.py
+      - run: sudo apt-get update && sudo apt-get install -y luajit && luajit tests/model_spec.lua
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: data/forever-${{ steps.build.outputs.version }}
+          title: "data: thresholds for Forever ${{ steps.build.outputs.version }}"
+          commit-message: "data: thresholds for Forever ${{ steps.build.outputs.version }}"
+          body: |
+            Regenerated `Data/Thresholds.lua` from the `SkillLineAbility` DB2 of Forever build ${{ steps.build.outputs.version }}.
+
+            Before merging, run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.

@@ -55,7 +55,34 @@ local STYLES = {
 	},
 }
 
+-- Skill-position markers, all atlases shipped in this client; scale = marker
+-- height relative to the bar.
+local MARKERS = {
+	rested = { atlas = "ui-hud-experiencebar-frame-pip-camelot", w = 10, h = 14, scale = 1.3 },
+	capture = { atlas = "worldstate-capturebar-arrow", w = 9, h = 15, scale = 1.4 },
+	widget = { atlas = "genericwidgetbar-marker-plain", w = 23, h = 27, scale = 2 },
+	cast = { atlas = "ui-castingbar-pip-c60", w = 6, h = 30, scale = 1.8 },
+	line = { w = 2, scale = 1, pad = 6 },
+}
+
 local bars = {}
+
+local function ApplyMarker(bar)
+	local key = MARKERS[ns.db.marker] and ns.db.marker or "rested"
+	if bar.markerKey == key then
+		return
+	end
+	bar.markerKey = key
+	local m = MARKERS[key]
+	if m.atlas then
+		local h = bar.height * m.scale
+		bar.marker:SetAtlas(m.atlas)
+		bar.marker:SetSize(h * m.w / m.h, h)
+	else
+		bar.marker:SetColorTexture(1, 1, 1)
+		bar.marker:SetSize(m.w, bar.height + m.pad)
+	end
+end
 
 local function CreateBar(style)
 	local frame = CreateFrame("Frame", nil, UIParent)
@@ -81,8 +108,6 @@ local function CreateBar(style)
 	end
 
 	frame.marker = track:CreateTexture(nil, "OVERLAY", nil, 7)
-	frame.marker:SetColorTexture(1, 1, 1)
-	frame.marker:SetSize(2, height + 6)
 
 	frame.you = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	return frame
@@ -124,6 +149,7 @@ local function LayoutBar(t, skill)
 	bar.labels[1]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, -height - 4)
 
 	local mx = X(skill)
+	ApplyMarker(bar)
 	bar.marker:SetPoint("CENTER", bar, "TOPLEFT", mx, -height / 2)
 	bar.you:SetText("You: " .. skill)
 	bar.you:ClearAllPoints()

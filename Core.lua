@@ -5,6 +5,7 @@ local DEFAULTS = {
 	showTooltip = true,
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance"
 	barStyle = "rank", -- "rank" | "header" | "flat"
+	marker = "rested", -- "rested" | "capture" | "widget" | "cast" | "line"
 }
 
 ns.DEFAULTS = DEFAULTS

@@ -1,23 +1,34 @@
 local _, ns = ...
 
-local BAR_WIDTH, BAR_HEIGHT = 250, 8
+local BAR_WIDTH, BAR_HEIGHT = 250, 14
 local MIN_LABEL_GAP = 18
+-- The fill Blizzard's own profession rank bars use (ProfessionsStatusBarArtTemplate).
+local BAR_TEXTURE = "Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar"
 
 local bar
 
+-- Built on Blizzard's profession rank bar template so the border and fill match
+-- the category bars in the recipe list; the template's own fill is emptied and
+-- the four colour bands are drawn with the same texture, tinted.
 local function CreateBar()
 	local frame = CreateFrame("Frame", nil, UIParent)
-	frame:SetSize(BAR_WIDTH, 38)
+	frame:SetSize(BAR_WIDTH, BAR_HEIGHT + 30)
 
-	local border = frame:CreateTexture(nil, "BACKGROUND")
-	border:SetColorTexture(0, 0, 0, 0.9)
-	border:SetPoint("TOPLEFT", -1, 1)
-	border:SetSize(BAR_WIDTH + 2, BAR_HEIGHT + 2)
+	local status = CreateFrame("StatusBar", nil, frame, "ProfessionsStatusBarArtTemplate")
+	status:SetPoint("TOPLEFT")
+	status:SetSize(BAR_WIDTH, BAR_HEIGHT)
+	status:SetValue(0)
+	frame.status = status
+
+	local background = status:CreateTexture(nil, "BACKGROUND")
+	background:SetAllPoints()
+	background:SetColorTexture(0, 0, 0, 0.6)
 
 	frame.segments = {}
 	for i, color in ipairs({ "orange", "yellow", "green", "grey" }) do
-		local seg = frame:CreateTexture(nil, "ARTWORK")
-		seg:SetColorTexture(ns.COLORS[color]:GetRGB())
+		local seg = status:CreateTexture(nil, "ARTWORK", nil, 1)
+		seg:SetTexture(BAR_TEXTURE)
+		seg:SetVertexColor(ns.COLORS[color]:GetRGB())
 		seg:SetHeight(BAR_HEIGHT)
 		frame.segments[i] = seg
 	end
@@ -27,9 +38,10 @@ local function CreateBar()
 		frame.labels[i] = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	end
 
-	frame.marker = frame:CreateTexture(nil, "OVERLAY")
-	frame.marker:SetColorTexture(1, 1, 1)
-	frame.marker:SetSize(2, BAR_HEIGHT + 6)
+	frame.marker = status:CreateTexture(nil, "OVERLAY", nil, 2)
+	frame.marker:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+	frame.marker:SetBlendMode("ADD")
+	frame.marker:SetSize(16, BAR_HEIGHT * 2.2)
 
 	frame.you = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	return frame
@@ -49,7 +61,7 @@ local function LayoutBar(t, skill)
 	for i, seg in ipairs(bar.segments) do
 		local left, right = X(edges[i]), X(edges[i + 1])
 		seg:SetShown(right > left)
-		seg:SetPoint("TOPLEFT", left, 0)
+		seg:SetPoint("TOPLEFT", bar.status, "TOPLEFT", left, 0)
 		seg:SetWidth(math.max(right - left, 0.1))
 	end
 
@@ -58,20 +70,20 @@ local function LayoutBar(t, skill)
 		local x = X(t[i])
 		label:SetText(t[i])
 		label:ClearAllPoints()
-		label:SetPoint("TOP", bar, "TOPLEFT", x, -BAR_HEIGHT - 3)
+		label:SetPoint("TOP", bar, "TOPLEFT", x, -BAR_HEIGHT - 4)
 		label:SetShown(x - lastX >= MIN_LABEL_GAP)
 		if label:IsShown() then
 			lastX = x
 		end
 	end
 	bar.labels[1]:ClearAllPoints()
-	bar.labels[1]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, -BAR_HEIGHT - 3)
+	bar.labels[1]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, -BAR_HEIGHT - 4)
 
 	local mx = X(skill)
 	bar.marker:SetPoint("CENTER", bar, "TOPLEFT", mx, -BAR_HEIGHT / 2)
 	bar.you:SetText("You: " .. skill)
 	bar.you:ClearAllPoints()
-	bar.you:SetPoint("TOP", bar, "TOPLEFT", math.min(math.max(mx, 24), BAR_WIDTH - 24), -BAR_HEIGHT - 15)
+	bar.you:SetPoint("TOP", bar, "TOPLEFT", math.min(math.max(mx, 24), BAR_WIDTH - 24), -BAR_HEIGHT - 16)
 	return bar
 end
 
@@ -101,6 +113,5 @@ function ns.ShowRecipeTooltip(_, row, data)
 	else
 		GameTooltip_AddDisabledLine(tooltip, "No skill data for this recipe yet.")
 	end
-	GameTooltip_AddDisabledLine(tooltip, ns.TITLE)
 	tooltip:Show()
 end

@@ -9,14 +9,22 @@
 ## X-Curse-Project-ID: 1705762
 ## X-Wago-ID: aNerqn62
 ## SavedVariables: SkillUpForeverDB
+## OptionalDeps: Auctionator, TomTom, Syndicator
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
 
 Data\Thresholds.lua
 Data\Vendor.lua
+Data\Recipes.lua
+Data\Trainer.lua
+Data\Sources.lua
 Model.lua
 Core.lua
 Prices.lua
 Settings.lua
 Tooltip.lua
 RecipeList.lua
+Sources.lua
+Route.lua
+Shopping.lua
+Trainer.lua

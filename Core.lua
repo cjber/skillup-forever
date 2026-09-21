@@ -8,6 +8,15 @@ local DEFAULTS = {
 	scanAuctions = true,
 	craftValue = "vendor", -- "none" | "vendor" | "auction"
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
+	showTrainer = true,
+	showRouteTab = true,
+	reagentTooltip = "route",
+	gatherFree = true,
+	routeTargets = {}, -- [profession skill line] = target base skill
+	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
+	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
+	trackedProfessions = {}, -- [profession skill line] = true: reagents shown in the objective tracker
+	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
 }
 
 ns.DEFAULTS = DEFAULTS
@@ -16,6 +25,11 @@ ns.SORT_OPTIONS = {
 	{ "skill", "Required skill" },
 	{ "chance", "Skill-up chance" },
 	{ "cost", "Cheapest skill-up" },
+}
+ns.REAGENT_TOOLTIP_OPTIONS = {
+	{ "off", "Off" },
+	{ "route", "Tracked routes (Shift for all)" },
+	{ "full", "Every recipe that uses it" },
 }
 ns.TITLE = "SkillUp Forever"
 
@@ -44,13 +58,49 @@ end
 -- are always the base and whatever did load is merged over them.
 local function LoadDB()
 	local loaded = type(SkillUpForeverDB) == "table" and SkillUpForeverDB or {}
+	-- Reagent tooltips were on or off before they had a compact mode.
+	if loaded.showReagentTooltip == false then
+		loaded.reagentTooltip = "off"
+	end
+	loaded.showReagentTooltip = nil
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
-			loaded[key] = value
+			loaded[key] = type(value) == "table" and {} or value
 		end
+	end
+	local mode = loaded.reagentTooltip
+	local valid = false
+	for _, option in ipairs(ns.REAGENT_TOOLTIP_OPTIONS) do
+		valid = valid or option[1] == mode
+	end
+	if not valid then
+		loaded.reagentTooltip = DEFAULTS.reagentTooltip
 	end
 	SkillUpForeverDB = loaded
 	ns.db = loaded
+end
+
+local KNOWN_SKILL_LINES = {}
+for _, skillLine in pairs(ns.ProfessionSkillLines) do
+	KNOWN_SKILL_LINES[skillLine] = true
+end
+
+-- The skill line recipe data uses for a profession. Forever's profession APIs
+-- report other IDs (GetProfessionInfo gave 8167, 8175, ...), so the name is the
+-- key: the bundled enUS names, or the pairing seen when the profession was open.
+local warned = {}
+function ns.ProfessionSkillLine(name, reported)
+	local skillLine = ns.ProfessionSkillLines[name] or ns.db.professionIDs[name]
+	if skillLine then
+		return skillLine
+	end
+	if KNOWN_SKILL_LINES[reported] then
+		return reported
+	end
+	if name and not warned[name] then
+		warned[name] = true
+		ns.Print(string.format("can't identify the profession %s (%s); please report it.", name, tostring(reported)))
+	end
 end
 
 -- Effective skill for difficulty purposes includes racial bonuses; the cap is
@@ -60,12 +110,110 @@ function ns.SkillContext()
 	if not info or not info.skillLevel then
 		return nil
 	end
+	local modifier = info.skillModifier or 0
+	local base = C_TradeSkillUI.GetBaseProfessionInfo()
 	return {
-		skill = info.skillLevel + (info.skillModifier or 0),
+		skillLine = base and ns.ProfessionSkillLine(base.professionName, base.professionID),
+		skill = info.skillLevel + modifier,
+		base = info.skillLevel,
+		modifier = modifier,
+		max = info.maxSkillLevel,
 		name = info.displayName,
 		capped = info.maxSkillLevel and info.maxSkillLevel > 0 and info.skillLevel >= info.maxSkillLevel,
 	}
 end
+
+-- The player's professions by skill line, secondary ones included. GetProfessions
+-- leaves nil gaps for empty slots, so walk its full return count.
+function ns.PlayerProfessions()
+	local professions = {}
+	local function Add(...)
+		for i = 1, select("#", ...) do
+			local index = select(i, ...)
+			if index then
+				local name, icon, rank, maxRank, _, _, reported, modifier = GetProfessionInfo(index)
+				local skillLine = ns.ProfessionSkillLine(name, reported)
+				if skillLine then
+					modifier = modifier or 0
+					professions[skillLine] = {
+						skillLine = skillLine,
+						name = name,
+						icon = icon,
+						base = rank,
+						max = maxRank,
+						modifier = modifier,
+						skill = rank + modifier,
+						capped = maxRank > 0 and rank >= maxRank,
+					}
+				end
+			end
+		end
+	end
+	Add(GetProfessions())
+	return professions
+end
+
+-- Recipes this character has been seen to know in the Professions window, for
+-- places (trainer, item tooltips) that can't ask it. IsPlayerSpell covers
+-- professions not opened yet, and every session while SavedVariables fail to load.
+local function LearnedRecipes()
+	local key = UnitName("player") .. "-" .. GetNormalizedRealmName()
+	ns.db.learned[key] = ns.db.learned[key] or {}
+	return ns.db.learned[key]
+end
+
+local function NoteLearnedRecipes()
+	if not ns.db or C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
+		return
+	end
+	-- A non-English client has no bundled name; learn it from the open profession.
+	local base = C_TradeSkillUI.GetBaseProfessionInfo()
+	if base and base.professionName and KNOWN_SKILL_LINES[base.professionID] then
+		ns.db.professionIDs[base.professionName] = base.professionID
+	end
+	local learned = LearnedRecipes()
+	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
+		local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
+		if info then
+			learned[recipeID] = info.learned or nil
+		end
+	end
+end
+
+-- An unlearned profession takes its recipes with it.
+local function ForgetDroppedProfessions()
+	if not ns.db then
+		return
+	end
+	local professions = ns.PlayerProfessions()
+	-- Skill lines can arrive empty at login; that is not every profession dropped.
+	if not next(professions) then
+		return
+	end
+	local learned = LearnedRecipes()
+	for recipeID in pairs(learned) do
+		local recipe = ns.RecipeData[recipeID]
+		if recipe and not professions[recipe.skillLine] then
+			learned[recipeID] = nil
+		end
+	end
+end
+
+function ns.IsLearned(recipeID)
+	return LearnedRecipes()[recipeID] or IsPlayerSpell(recipeID)
+end
+
+local learnEvents = CreateFrame("Frame")
+learnEvents:RegisterEvent("TRADE_SKILL_LIST_UPDATE")
+learnEvents:RegisterEvent("SKILL_LINES_CHANGED")
+learnEvents:SetScript("OnEvent", function(_, event)
+	if event == "SKILL_LINES_CHANGED" then
+		ForgetDroppedProfessions()
+	else
+		NoteLearnedRecipes()
+	end
+	ns.InvalidatePlans()
+end)
 
 -- Everything a row or tooltip renders for one recipe at the current skill.
 function ns.Describe(recipeInfo, ctx)
@@ -91,6 +239,30 @@ function ns.Describe(recipeInfo, ctx)
 		net = net,
 		perSkillUp = ns.Model.CostPerSkillUp(net, chance),
 	}
+end
+
+-- The compact "skill · chance · cost" text of a recipe row or trainer service.
+function ns.FormatRow(d)
+	if not d.thresholds then
+		return "?"
+	end
+	-- A recipe you can't make yet keeps its requirement: it's the only useful number.
+	if not d.chance then
+		return tostring(d.thresholds[1])
+	end
+	local parts = {}
+	if ns.db.showSkill then
+		parts[#parts + 1] = tostring(d.thresholds[1])
+	end
+	parts[#parts + 1] = string.format("%d%%", math.floor(d.chance * 100 + 0.5))
+	if ns.db.showCost and d.perSkillUp then
+		parts[#parts + 1] = ns.FormatNet(ns.Model.RoundMoney(math.abs(d.perSkillUp)), d.perSkillUp < 0)
+	end
+	return table.concat(parts, " · ")
+end
+
+function ns.RowColor(d)
+	return ns.COLORS[d.chance and d.color or (d.thresholds and "red" or "unknown")]
 end
 
 local function Audit()
@@ -169,8 +341,16 @@ end
 -- case the continuation runs at once — so register it only after our own files
 -- and SavedVariables are in place.
 EventUtil.ContinueOnAddOnLoaded(addonName, function()
+	-- /reload doesn't re-read the .toc, so files added by an update stay unloaded.
+	if not (ns.RecipeData and ns.ProfessionSkillLines and ns.TrainerFees and ns.TrainerRanks and ns.RecipeSources) then
+		ns.Print("|cffff4040files are missing: restart the game (not /reload) after updating.|r")
+		return
+	end
 	LoadDB()
 	ns.InitPrices()
 	ns.RegisterSettings()
+	ns.AttachItemTooltips()
+	ns.InitShopping()
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Professions", ns.AttachRecipeList)
+	EventUtil.ContinueOnAddOnLoaded("Blizzard_TrainerUI", ns.AttachTrainer)
 end)

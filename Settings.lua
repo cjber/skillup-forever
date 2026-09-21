@@ -16,7 +16,10 @@ function ns.RegisterSettings()
 			ns.DEFAULTS[key]
 		)
 		setting:SetValueChangedCallback(function()
+			ns.PricesChanged()
 			ns.RefreshRecipeList()
+			ns.RefreshTrainer()
+			ns.RefreshRouteTab()
 		end)
 		return setting
 	end
@@ -63,7 +66,42 @@ function ns.RegisterSettings()
 		category,
 		Register("scanAuctions", Settings.VarType.Boolean, "Scan the auction house"),
 		"Search the auction house for known reagents when you open it (at most once an hour). "
-			.. "Type /su scan to rescan."
+			.. "Type /su scan to rescan. Items Auctionator priced today are skipped, and its prices are used."
+	)
+
+	Settings.CreateCheckbox(
+		category,
+		Register("gatherFree", Settings.VarType.Boolean, "Reagents you gather are free"),
+		"Price what another of your professions gathers (Light Leather with Skinning, ore with Mining, "
+			.. "herbs with Herbalism) at nothing, so routes use it and the shopping list says to gather it."
+	)
+
+	Settings.CreateCheckbox(
+		category,
+		Register("showRouteTab", Settings.VarType.Boolean, "Show the levelling route tab"),
+		"A side tab on the Professions window with a route to your target skill and its reagents. "
+			.. "Tracked professions stay in the objective tracker either way."
+	)
+
+	Settings.CreateCheckbox(
+		category,
+		Register("showTrainer", Settings.VarType.Boolean, "Annotate trainer recipes"),
+		"Required skill, skill-up chance and cost on profession trainer recipes, "
+			.. "and which one is best to train next for your route."
+	)
+
+	Settings.CreateDropdown(
+		category,
+		Register("reagentTooltip", Settings.VarType.String, "Reagent tooltips"),
+		function()
+			local container = Settings.CreateControlTextContainer()
+			for _, option in ipairs(ns.REAGENT_TOOLTIP_OPTIONS) do
+				container:Add(option[1], option[2])
+			end
+			return container:GetData()
+		end,
+		"What hovering an item says about your professions: how much of it your tracked routes need "
+			.. "(hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."
 	)
 
 	Settings.CreateDropdown(category, Register("sortMode", Settings.VarType.String, "Sort recipes"), function()

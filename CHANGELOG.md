@@ -11,7 +11,42 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
-Nothing yet.
+## [0.3.0] - 2026-09-21
+
+Where to go next, not just what each recipe costs: a route to your target, what to buy for it, and what to
+train.
+
+- **A levelling route page on the Professions window**, for any of your professions. Type a target skill
+  and it lists the cheapest crafts, training recipes where the fee pays for itself, like `12× Heavy Linen Bandage to 90`, each with its cost, and the total. Every
+  skill point takes whichever recipe has the lowest cost per skill-up at that point. Recipes with an
+  unpriced reagent are left out and counted rather than treated as free, and a route that runs out of
+  recipes stops and says where. Hover any step or reagent for details (click a step to open its recipe),
+  and the page shows how old its auction prices are.
+  The target can pass your current cap: the route adds each rank to train on the way, with its fee,
+  the skill the trainer wants and the level it needs.
+  When the recipes you know run out, the route lists the scrolls that would carry it on, from vendors,
+  quests and drops, easiest to get first, with every source's zone and coordinates; click one for a
+  waypoint to the nearest vendor or the likeliest drop (TomTom's arrow when installed).
+  Training steps and vendor reagents show the nearest trainer or vendor of your faction, and a click
+  (or the tracker's menu) sets a waypoint there.
+- **Craft the next step in one click**: a button under the route (and the tracker's menu) crafts the
+  route's first step as many times as it needs and your bags allow, while that profession is open.
+- **Gather it yourself.** Reagents another of your professions gathers (Light Leather with Skinning, ore
+  with Mining, herbs with Herbalism) count as free, so the route uses them and the shopping list says to
+  gather them; turn it off in the settings to price them at market. With Syndicator installed, reagent
+  tooltips show what your other characters hold.
+- **A shopping list from the route.** The page lists every reagent the route needs against what's in your
+  bags and bank. Track it to see the next thing to train and the reagents still missing in the objective tracker, above your quests; at a vendor, one button on the
+  merchant window buys the missing reagents that vendor sells. With Auctionator installed, the auction house
+  reagents still missing become an Auctionator shopping list.
+- **The profession trainer shows the same numbers** as recipe rows, and marks the recipe that most cheapens
+  or extends your route, training fee included, as `Best next` (closes #2).
+- **Reagent tooltips say what your routes need.** Hovering an item shows how much of it each tracked route
+  needs, like `Route: 28/567 · Leatherworking to 150`; hold Shift for every recipe of yours that uses it
+  and still skills up, with its colour now, like `yellow until 115`. A setting shows that full list
+  always, or turns the section off.
+- Recipes you haven't opened in the Professions window now have reagents and crafted items from the game's
+  data, so the trainer and tooltips can price them.
 
 ## [0.2.0] - 2026-09-21
 

@@ -7,7 +7,9 @@ local KEYS_PER_SEARCH = 50
 local SCAN_DELAY = 2
 local SEARCH_TIMEOUT = 10
 
-local recipes = {} -- [recipeID] = { reagents = {...}, output = { itemID, quantity } } or false
+-- [recipeID] = live schematic, else bundled data, else false; cleared when profession data changes.
+local recipes = {}
+local reagentIndex
 local priceCache = {}
 local auctionsTable -- this realm and faction's scanned prices: [itemID] = { copper = n?, time = t }
 -- pending: the current search's items still without a result; asked: all of them.
@@ -33,42 +35,119 @@ local function Auctions()
 	return auctionsTable
 end
 
+local DAY = 86400
+
+-- This character's professions, for what it gathers; kept while priceCache is.
+local professions
+
 local function PricesChanged()
 	priceCache = {}
+	professions = nil
+	ns.InvalidatePlans()
 	ns.RefreshRecipeList()
+	ns.RefreshRoute()
+	ns.RefreshTracker()
+end
+ns.PricesChanged = PricesChanged
+
+-- Skill-ups fire SKILL_LINES_CHANGED too; only learning or dropping a profession
+-- changes what counts as gathered.
+local function ProfessionsChanged()
+	if not professions then
+		return false
+	end
+	local now = ns.PlayerProfessions()
+	for skillLine in pairs(now) do
+		if not professions[skillLine] then
+			return true
+		end
+	end
+	for skillLine in pairs(professions) do
+		if not now[skillLine] then
+			return true
+		end
+	end
+	return false
 end
 
-local function AuctionatorPrice(itemID)
+local function AuctionatorAPI()
 	local api = Auctionator and Auctionator.API and Auctionator.API.v1
-	if not (api and api.GetAuctionPriceByItemID) then
+	return api and api.GetAuctionPriceByItemID and api
+end
+
+-- Auctionator's price, and whole days since it was seen (nil past three weeks).
+local function AuctionatorPrice(itemID)
+	local api = AuctionatorAPI()
+	if not api then
 		return nil
 	end
 	local ok, copper = pcall(api.GetAuctionPriceByItemID, addonName, itemID)
-	return ok and type(copper) == "number" and copper or nil
+	if not (ok and type(copper) == "number") then
+		return nil
+	end
+	local okAge, days = pcall(api.GetAuctionAgeByItemID, addonName, itemID)
+	return copper, okAge and type(days) == "number" and days or nil
 end
 
--- Cheapest known unit price and where it came from: "vendor", "scan" or "auctionator".
--- A price seen at a vendor beats the bundled list, since it includes any reputation discount.
+-- Nothing for our scan to add: Auctionator already priced it today.
+local function AuctionatorSawToday(itemID)
+	local copper, days = AuctionatorPrice(itemID)
+	return copper ~= nil and days == 0
+end
+
+-- The fresher of our own scan and Auctionator's: { copper, source, time | days }.
+local function AuctionPrice(itemID)
+	local entry = Auctions()[itemID]
+	local ours = entry and entry.copper and { copper = entry.copper, source = "scan", time = entry.time }
+	local copper, days = AuctionatorPrice(itemID)
+	if not copper then
+		return ours
+	end
+	-- Auctionator counts whole days, and stops counting after three weeks.
+	if ours and (days == nil or time() - ours.time < days * DAY) then
+		return ours
+	end
+	return { copper = copper, source = "auctionator", days = days }
+end
+
+-- With the setting on, what another of your professions gathers costs nothing.
+local function Gathered(itemID)
+	local skillLine = ns.db.gatherFree and ns.GatheredBy[itemID]
+	if not skillLine then
+		return nil
+	end
+	professions = professions or ns.PlayerProfessions()
+	local profession = professions[skillLine]
+	return profession and { copper = 0, source = "gather", profession = profession.name }
+end
+
+-- Cheapest known unit price and where it came from: "gather", "vendor", "scan" or
+-- "auctionator". A price seen at a vendor beats the bundled list, since it includes
+-- any reputation discount.
 function ns.Price(itemID)
 	local cached = priceCache[itemID]
 	if cached == nil then
 		local vendor = ns.db.vendor[itemID] or ns.VendorPrices[itemID]
-		local entry = Auctions()[itemID]
-		local scan = entry and entry.copper
-		local ah, ahSource = scan, "scan"
-		if not ah then
-			ah, ahSource = AuctionatorPrice(itemID), "auctionator"
-		end
-		if vendor and (not ah or vendor <= ah) then
+		local ah = AuctionPrice(itemID)
+		cached = Gathered(itemID)
+		if cached then
+			priceCache[itemID] = cached
+			return cached
+		elseif vendor and (not ah or vendor <= ah.copper) then
 			cached = { copper = vendor, source = "vendor" }
 		elseif ah then
-			cached = { copper = ah, source = ahSource, time = scan and entry.time }
+			cached = ah
 		else
 			cached = false
 		end
 		priceCache[itemID] = cached
 	end
 	return cached or nil
+end
+
+function ns.PriceSource(itemID)
+	local price = ns.Price(itemID)
+	return price and price.source
 end
 
 local function UnitPrice(itemID)
@@ -82,24 +161,51 @@ local function Recipe(recipeID)
 	local recipe = recipes[recipeID]
 	if recipe == nil then
 		local schematic = C_TradeSkillUI.GetRecipeSchematic(recipeID, false)
-		recipe = false
 		if schematic and schematic.reagentSlotSchematics then
 			recipe = { reagents = {} }
 			for _, slot in ipairs(schematic.reagentSlotSchematics) do
 				local first = slot.reagents and slot.reagents[1]
-				if slot.reagentType == Enum.CraftingReagentType.Basic and first and first.itemID then
+				if slot.reagentType == Enum.CraftingReagentType.Basic then
+					if
+						not (
+							first
+							and first.itemID
+							and first.itemID > 0
+							and slot.quantityRequired
+							and slot.quantityRequired > 0
+						)
+					then
+						recipe = nil
+						break
+					end
 					recipe.reagents[#recipe.reagents + 1] = { itemID = first.itemID, quantity = slot.quantityRequired }
-					ns.db.tracked[first.itemID] = true
 				end
 			end
-			if schematic.outputItemID then
+			if recipe and schematic.outputItemID and schematic.outputItemID > 0 then
 				local quantity = ((schematic.quantityMin or 1) + (schematic.quantityMax or schematic.quantityMin or 1))
 					/ 2
-				recipe.output = { itemID = schematic.outputItemID, quantity = quantity }
-				ns.db.tracked[schematic.outputItemID] = true
+				if quantity > 0 then
+					recipe.output = { itemID = schematic.outputItemID, quantity = quantity }
+				else
+					recipe = nil
+				end
 			end
 		end
+		-- An empty live schematic is what a recipe outside the open profession can
+		-- look like; bundled reagents beat pricing it as free.
+		local bundled = ns.RecipeData and ns.RecipeData[recipeID]
+		if not recipe or (#recipe.reagents == 0 and bundled) then
+			recipe = bundled or false
+		end
 		recipes[recipeID] = recipe
+		if recipe then
+			for _, reagent in ipairs(recipe.reagents) do
+				ns.db.tracked[reagent.itemID] = true
+			end
+			if recipe.output then
+				ns.db.tracked[recipe.output.itemID] = true
+			end
+		end
 	end
 	return recipe or nil
 end
@@ -109,17 +215,24 @@ function ns.Reagents(recipeID)
 	return recipe and recipe.reagents
 end
 
+function ns.UsedIn(itemID)
+	if not reagentIndex and ns.RecipeData then
+		reagentIndex = ns.Model.BuildReagentIndex(ns.RecipeData)
+	end
+	return reagentIndex and reagentIndex[itemID] or {}
+end
+
 local itemInfoPending = false
 
--- Vendor sell price, or nil until the client has the item cached; the refresh
--- once it arrives redraws the rows.
+-- Live vendor sell price wins, including zero. Bundled prices cover uncached
+-- outputs while the item-data request and eventual refresh are still pending.
 local function SellPrice(itemID)
 	local sell = select(11, C_Item.GetItemInfo(itemID))
 	if sell == nil then
 		itemInfoPending = true
 		C_Item.RequestLoadItemDataByID(itemID)
 	end
-	return sell
+	return sell or (ns.ItemSellPrices and ns.ItemSellPrices[itemID])
 end
 
 -- What one craft sells for: { copper, source, each, quantity } or nil.
@@ -129,8 +242,8 @@ function ns.CraftValue(recipeID)
 	if not output then
 		return nil
 	end
-	local entry = Auctions()[output.itemID]
-	local auction = entry and entry.copper or AuctionatorPrice(output.itemID)
+	local ah = AuctionPrice(output.itemID)
+	local auction = ah and ah.copper
 	local each, source = ns.Model.CraftValue(SellPrice(output.itemID), auction, ns.db.craftValue)
 	if not each then
 		return nil
@@ -141,13 +254,22 @@ end
 -- The list only builds the rows on screen, so reagents are learned for the
 -- whole profession up front; otherwise the scan misses anything not scrolled past.
 function ns.LearnReagents()
-	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
+	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs() or {}) do
 		ns.Reagents(recipeID)
 	end
 end
 
 function ns.RecipeCost(recipeID)
 	return ns.Model.RecipeCost(ns.Reagents(recipeID), UnitPrice)
+end
+
+function ns.NetCost(recipeID)
+	local cost = ns.RecipeCost(recipeID)
+	if cost == nil then
+		return nil
+	end
+	local value = ns.CraftValue(recipeID)
+	return cost - (value and value.copper or 0)
 end
 
 -- Vendor prices: recorded per unit for anything bought with plain money.
@@ -253,7 +375,7 @@ function ns.ScanAuctions(force)
 	queue, scanned = {}, 0
 	for itemID in pairs(ns.db.tracked) do
 		local last = auctions[itemID]
-		if force or not last or now - last.time > SCAN_MAX_AGE then
+		if force or ((not last or now - last.time > SCAN_MAX_AGE) and not AuctionatorSawToday(itemID)) then
 			queue[#queue + 1] = itemID
 		end
 	end
@@ -269,7 +391,18 @@ end
 
 local frame = CreateFrame("Frame")
 frame:SetScript("OnEvent", function(_, event)
-	if event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
+	if
+		event == "TRADE_SKILL_DATA_SOURCE_CHANGED"
+		or event == "TRADE_SKILL_LIST_UPDATE"
+		or event == "TRADE_SKILL_SHOW"
+		or event == "NEW_RECIPE_LEARNED"
+	then
+		recipes = {}
+	elseif event == "SKILL_LINES_CHANGED" then
+		if ProfessionsChanged() then
+			PricesChanged()
+		end
+	elseif event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
 		RecordMerchant()
 	elseif event == "AUCTION_HOUSE_SHOW" then
 		if ns.db.scanAuctions then
@@ -307,6 +440,11 @@ function ns.InitPrices()
 	Table(ns.db, "vendor")
 	Table(ns.db, "tracked")
 	for _, event in ipairs({
+		"TRADE_SKILL_DATA_SOURCE_CHANGED",
+		"TRADE_SKILL_LIST_UPDATE",
+		"TRADE_SKILL_SHOW",
+		"NEW_RECIPE_LEARNED",
+		"SKILL_LINES_CHANGED",
 		"MERCHANT_SHOW",
 		"MERCHANT_UPDATE",
 		"AUCTION_HOUSE_SHOW",
@@ -317,5 +455,9 @@ function ns.InitPrices()
 		"GET_ITEM_INFO_RECEIVED",
 	}) do
 		frame:RegisterEvent(event)
+	end
+	local api = AuctionatorAPI()
+	if api and api.RegisterForDBUpdate then
+		api.RegisterForDBUpdate(addonName, PricesChanged)
 	end
 end

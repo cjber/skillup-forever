@@ -21,12 +21,15 @@ Runners-up, if this lands well: a mega-realm LFG chat board (LFG Bulletin Board 
 5. **Settings + AddonCompartment** entry (toggle row text, sort mode).
 6. **`/su audit`** — for every known recipe, compare the colour our table predicts at current skill against the live `relativeDifficulty`; print mismatches. This is how the data gets validated on Forever, cheaply and continuously.
 
-Later: item/reagent tooltips ("used in X, grey at 190" — needs an item→recipe index), "next best recipe to level", macro-body persistence if the SavedVariables bug outlives beta.
+Shipped since: cost per skill-up (0.2.0); levelling route, shopping list, trainer annotations and reagent tooltips (bundled `Data/Recipes.lua` reagent/output/name data). Later: macro-body persistence if the SavedVariables bug outlives beta.
 
 ## Contracts relied on (Forever branch of [Gethe/wow-ui-source](https://github.com/Gethe/wow-ui-source/tree/forever))
 
 | Need | Seam | Status |
 |---|---|---|
+| Trainer services | post-hook `ClassTrainerFrame_InitServiceButton(button, elementData)` + `ClassTrainerFrame_Update`; `GetTrainerServiceInfo/SkillReq/Cost`, `GetTrainerTradeskillRankValues`, `C_Trainer.GetTrainerType()` | Verified in source. Service → recipe via `C_TooltipInfo.GetTrainerService(i).id` then bundled name, **unverified in game** |
+| Item tooltips | `TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, fn)` | Verified in source |
+| Shopping export | `Auctionator.API.v1.ConvertToSearchString` + `CreateShoppingList` | Verified against Auctionator release 339 |
 | Recipe data | `C_TradeSkillUI.GetRecipeInfo` → `relativeDifficulty`, `canSkillUp`, `numSkillUps`, `maxTrivialLevel` | Verified in source; read by `Blizzard_ProfessionsRecipeList.lua`. `maxTrivialLevel` == grey is **unverified** |
 | Row decoration | `ScrollUtil.AddInitializedFrameCallback(ProfessionsFrame.CraftingPage.RecipeList.ScrollBox, fn)`; read `node:GetData().recipeInfo`; own FontString, cleared on recycle | Verified (`Blizzard_SharedXML/Shared/Scroll/ScrollUtil.lua`) |
 | Sort | `Professions.GenerateCraftingDataProvider` builds a tree; on `OnDataProviderReassigned`, `TreeNodeMixin:SetSortComparator` on recipe siblings | Verified (`Blizzard_SharedXML/TreeListDataProvider.lua`); taint safety unverified until tested live |

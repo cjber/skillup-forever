@@ -104,19 +104,53 @@ function ns.FormatNet(copper, profit)
 	return (profit and "|cff40ff40+|r" or "") .. Money(copper)
 end
 
-local function SourceText(price)
-	if price.source == "vendor" then
+function ns.FormatAge(timestamp)
+	local minutes = math.floor((time() - timestamp) / 60)
+	if minutes < 60 then
+		return minutes .. "m ago"
+	elseif minutes < 48 * 60 then
+		return math.floor(minutes / 60) .. "h ago"
+	end
+	return math.floor(minutes / 1440) .. "d ago"
+end
+
+local DAY = 86400
+
+-- Seconds since an auction price was seen. Auctionator reports whole days, and
+-- nothing past three weeks.
+function ns.PriceAge(price)
+	if price.source == "scan" then
+		return time() - price.time
+	elseif price.source == "auctionator" then
+		return (price.days or 22) * DAY
+	end
+	error("not an auction price: " .. tostring(price.source))
+end
+
+function ns.PriceAgeText(price)
+	if price.source == "scan" then
+		return ns.FormatAge(price.time)
+	elseif price.source ~= "auctionator" then
+		error("not an auction price: " .. tostring(price.source))
+	elseif price.days == nil then
+		return "over 3 weeks ago"
+	elseif price.days == 0 then
+		return "today"
+	end
+	return price.days .. "d ago"
+end
+
+function ns.PriceSourceText(price)
+	if price.source == "gather" then
+		return "you gather it (" .. price.profession .. ")"
+	elseif price.source == "vendor" then
 		return "vendor"
 	elseif price.source == "auctionator" then
-		return "Auctionator"
+		return "Auctionator, " .. ns.PriceAgeText(price)
+	elseif price.source == "scan" then
+		return "AH, " .. ns.PriceAgeText(price)
 	end
-	local minutes = math.floor((time() - price.time) / 60)
-	if minutes < 60 then
-		return "AH, " .. minutes .. "m ago"
-	elseif minutes < 48 * 60 then
-		return "AH, " .. math.floor(minutes / 60) .. "h ago"
-	end
-	return "AH, " .. math.floor(minutes / 1440) .. "d ago"
+	error("unknown price source: " .. tostring(price.source))
 end
 
 -- One line per reagent with its price and source, then the craft and per-skill-up totals.
@@ -133,7 +167,7 @@ local function AddCost(tooltip, recipeID, d)
 		if price then
 			tooltip:AddDoubleLine(
 				left,
-				string.format("%s |cff808080(%s)|r", Money(price.copper * reagent.quantity), SourceText(price)),
+				string.format("%s |cff808080(%s)|r", Money(price.copper * reagent.quantity), ns.PriceSourceText(price)),
 				1,
 				1,
 				1,
@@ -179,7 +213,7 @@ local function AddCost(tooltip, recipeID, d)
 	end
 	if d.perSkillUp then
 		local label = d.perSkillUp < 0 and "Profit per skill-up" or "Per skill-up"
-		tooltip:AddDoubleLine(label, "~" .. ns.FormatNet(math.abs(d.perSkillUp), d.perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
+		tooltip:AddDoubleLine(label, ns.FormatNet(math.abs(d.perSkillUp), d.perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
 	end
 end
 
@@ -213,4 +247,128 @@ function ns.ShowRecipeTooltip(_, row, data)
 		AddCost(tooltip, recipeInfo.recipeID, d)
 	end
 	tooltip:Show()
+end
+
+local MAX_USES = 5
+local BAND_NAMES = { "orange", "yellow", "green" }
+
+-- "yellow until 115": the band the recipe is in now and where it ends.
+local function Band(t, skill)
+	if skill < t[1] then
+		return string.format("needs %d", t[1]), ns.COLORS.red
+	end
+	for i, band in ipairs(BAND_NAMES) do
+		if skill < t[i + 1] then
+			return string.format("%s until %d", band, t[i + 1]), ns.COLORS[band]
+		end
+	end
+	return "grey", ns.COLORS.grey
+end
+
+-- Recipes of your professions that still skill up and use this item: learned
+-- ones first, then by the skill they need.
+local function Uses(itemID)
+	local professions = ns.PlayerProfessions()
+	local uses = {}
+	for _, recipeID in ipairs(ns.UsedIn(itemID)) do
+		local profession = professions[ns.RecipeData[recipeID].skillLine]
+		local t = profession and ns.Model.Get(recipeID)
+		if t and profession.skill < t[4] then
+			uses[#uses + 1] = { recipeID = recipeID, t = t, skill = profession.skill, learned = ns.IsLearned(recipeID) }
+		end
+	end
+	table.sort(uses, function(a, b)
+		if a.learned ~= b.learned then
+			return a.learned
+		end
+		if a.t[1] ~= b.t[1] then
+			return a.t[1] < b.t[1]
+		end
+		return a.recipeID < b.recipeID
+	end)
+	return uses
+end
+
+-- "Route: 28/567 · Leatherworking to 150" for each tracked route that needs the item.
+local function AddRouteNeeds(tooltip, itemID)
+	local added = false
+	for _, entry in ipairs(ns.TrackedNeeds()) do
+		for _, item in ipairs(entry.items) do
+			if item.itemID == itemID then
+				if not added then
+					GameTooltip_AddBlankLineToTooltip(tooltip)
+					added = true
+				end
+				local have = ns.Have(itemID)
+				local text = string.format(
+					"Route: %d/%d · %s to %d",
+					math.min(have, item.need),
+					item.need,
+					entry.route.profession,
+					entry.route.target
+				)
+				GameTooltip_AddColoredLine(tooltip, text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
+			end
+		end
+	end
+	return added
+end
+
+local function AddUsedIn(tooltip, uses)
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	GameTooltip_AddNormalLine(tooltip, "Used in")
+	for i, use in ipairs(uses) do
+		if i > MAX_USES then
+			GameTooltip_AddDisabledLine(tooltip, string.format("+%d more", #uses - MAX_USES))
+			break
+		end
+		local band, color = Band(use.t, use.skill)
+		local name = C_Spell.GetSpellName(use.recipeID) or ("recipe " .. use.recipeID)
+		local r, g, b = color:GetRGB()
+		tooltip:AddDoubleLine(use.learned and name or name .. " (unlearned)", band, 1, 1, 1, r, g, b)
+	end
+end
+
+local function AddUses(tooltip, data)
+	local itemID = data and data.id
+	local mode = ns.db.reagentTooltip
+	if mode == "off" or not itemID or tooltip:IsForbidden() then
+		return
+	end
+	if issecretvalue and issecretvalue(itemID) then
+		return
+	end
+	local uses = Uses(itemID)
+	if mode == "route" then
+		local needed = AddRouteNeeds(tooltip, itemID)
+		if IsShiftKeyDown() and #uses > 0 then
+			AddUsedIn(tooltip, uses)
+		elseif needed and #uses > 0 then
+			GameTooltip_AddDisabledLine(tooltip, string.format("Shift: used in %d of your recipes", #uses))
+		end
+	elseif mode == "full" then
+		AddRouteNeeds(tooltip, itemID)
+		if #uses > 0 then
+			AddUsedIn(tooltip, uses)
+		end
+	else
+		error("unknown reagent tooltip mode: " .. tostring(mode))
+	end
+end
+
+-- Shift changes what an item tooltip shows, so redraw the one on screen.
+local function OnModifierChanged(_, _, key)
+	if (key == "LSHIFT" or key == "RSHIFT") and ns.db.reagentTooltip == "route" and GameTooltip:IsShown() then
+		local _, _, itemID = GameTooltip:GetItem()
+		if itemID and GameTooltip.RefreshData then
+			GameTooltip:RefreshData()
+		end
+	end
+end
+
+function ns.AttachItemTooltips()
+	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, AddUses)
+	local events = CreateFrame("Frame")
+	events:RegisterEvent("MODIFIER_STATE_CHANGED")
+	events:SetScript("OnEvent", OnModifierChanged)
 end

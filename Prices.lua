@@ -7,7 +7,8 @@ local KEYS_PER_SEARCH = 50
 local SCAN_DELAY = 2
 local SEARCH_TIMEOUT = 10
 
-local recipes = {} -- [recipeID] = { reagents = {...}, output = { itemID, quantity } } or false
+local recipes = {} -- Valid live schematics only; misses and bundled fallbacks are not cached.
+local reagentIndex
 local priceCache = {}
 local auctionsTable -- this realm and faction's scanned prices: [itemID] = { copper = n?, time = t }
 -- pending: the current search's items still without a result; asked: all of them.
@@ -71,6 +72,11 @@ function ns.Price(itemID)
 	return cached or nil
 end
 
+function ns.PriceSource(itemID)
+	local price = ns.Price(itemID)
+	return price and price.source
+end
+
 local function UnitPrice(itemID)
 	local price = ns.Price(itemID)
 	return price and price.copper
@@ -82,26 +88,48 @@ local function Recipe(recipeID)
 	local recipe = recipes[recipeID]
 	if recipe == nil then
 		local schematic = C_TradeSkillUI.GetRecipeSchematic(recipeID, false)
-		recipe = false
 		if schematic and schematic.reagentSlotSchematics then
 			recipe = { reagents = {} }
 			for _, slot in ipairs(schematic.reagentSlotSchematics) do
 				local first = slot.reagents and slot.reagents[1]
-				if slot.reagentType == Enum.CraftingReagentType.Basic and first and first.itemID then
+				if slot.reagentType == Enum.CraftingReagentType.Basic then
+					if
+						not (
+							first
+							and first.itemID
+							and first.itemID > 0
+							and slot.quantityRequired
+							and slot.quantityRequired > 0
+						)
+					then
+						recipe = nil
+						break
+					end
 					recipe.reagents[#recipe.reagents + 1] = { itemID = first.itemID, quantity = slot.quantityRequired }
-					ns.db.tracked[first.itemID] = true
 				end
 			end
-			if schematic.outputItemID then
+			if recipe and schematic.outputItemID and schematic.outputItemID > 0 then
 				local quantity = ((schematic.quantityMin or 1) + (schematic.quantityMax or schematic.quantityMin or 1))
 					/ 2
-				recipe.output = { itemID = schematic.outputItemID, quantity = quantity }
-				ns.db.tracked[schematic.outputItemID] = true
+				if quantity > 0 then
+					recipe.output = { itemID = schematic.outputItemID, quantity = quantity }
+				else
+					recipe = nil
+				end
 			end
 		end
 		recipes[recipeID] = recipe
+		recipe = recipe or (ns.RecipeData and ns.RecipeData[recipeID])
+		if recipe then
+			for _, reagent in ipairs(recipe.reagents) do
+				ns.db.tracked[reagent.itemID] = true
+			end
+			if recipe.output then
+				ns.db.tracked[recipe.output.itemID] = true
+			end
+		end
 	end
-	return recipe or nil
+	return recipe
 end
 
 function ns.Reagents(recipeID)
@@ -109,17 +137,24 @@ function ns.Reagents(recipeID)
 	return recipe and recipe.reagents
 end
 
+function ns.UsedIn(itemID)
+	if not reagentIndex and ns.RecipeData then
+		reagentIndex = ns.Model.BuildReagentIndex(ns.RecipeData)
+	end
+	return reagentIndex and reagentIndex[itemID] or {}
+end
+
 local itemInfoPending = false
 
--- Vendor sell price, or nil until the client has the item cached; the refresh
--- once it arrives redraws the rows.
+-- Live vendor sell price wins, including zero. Bundled prices cover uncached
+-- outputs while the item-data request and eventual refresh are still pending.
 local function SellPrice(itemID)
 	local sell = select(11, C_Item.GetItemInfo(itemID))
 	if sell == nil then
 		itemInfoPending = true
 		C_Item.RequestLoadItemDataByID(itemID)
 	end
-	return sell
+	return sell or (ns.ItemSellPrices and ns.ItemSellPrices[itemID])
 end
 
 -- What one craft sells for: { copper, source, each, quantity } or nil.
@@ -141,13 +176,23 @@ end
 -- The list only builds the rows on screen, so reagents are learned for the
 -- whole profession up front; otherwise the scan misses anything not scrolled past.
 function ns.LearnReagents()
-	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
+	recipes = {}
+	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs() or {}) do
 		ns.Reagents(recipeID)
 	end
 end
 
 function ns.RecipeCost(recipeID)
 	return ns.Model.RecipeCost(ns.Reagents(recipeID), UnitPrice)
+end
+
+function ns.NetCost(recipeID)
+	local cost = ns.RecipeCost(recipeID)
+	if cost == nil then
+		return nil
+	end
+	local value = ns.CraftValue(recipeID)
+	return cost - (value and value.copper or 0)
 end
 
 -- Vendor prices: recorded per unit for anything bought with plain money.
@@ -269,7 +314,14 @@ end
 
 local frame = CreateFrame("Frame")
 frame:SetScript("OnEvent", function(_, event)
-	if event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
+	if
+		event == "TRADE_SKILL_DATA_SOURCE_CHANGED"
+		or event == "TRADE_SKILL_LIST_UPDATE"
+		or event == "TRADE_SKILL_SHOW"
+		or event == "NEW_RECIPE_LEARNED"
+	then
+		recipes = {}
+	elseif event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
 		RecordMerchant()
 	elseif event == "AUCTION_HOUSE_SHOW" then
 		if ns.db.scanAuctions then
@@ -307,6 +359,10 @@ function ns.InitPrices()
 	Table(ns.db, "vendor")
 	Table(ns.db, "tracked")
 	for _, event in ipairs({
+		"TRADE_SKILL_DATA_SOURCE_CHANGED",
+		"TRADE_SKILL_LIST_UPDATE",
+		"TRADE_SKILL_SHOW",
+		"NEW_RECIPE_LEARNED",
 		"MERCHANT_SHOW",
 		"MERCHANT_UPDATE",
 		"AUCTION_HOUSE_SHOW",

@@ -14,9 +14,13 @@
 
 Data\Thresholds.lua
 Data\Vendor.lua
+Data\Recipes.lua
 Model.lua
 Core.lua
 Prices.lua
 Settings.lua
 Tooltip.lua
 RecipeList.lua
+Route.lua
+Shopping.lua
+Trainer.lua

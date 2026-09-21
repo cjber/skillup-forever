@@ -21,6 +21,11 @@ read_globals = {
 	"UnitFactionGroup", "Menu", "MenuResponse", "C_Timer",
 	"DIFFICULT_DIFFICULTY_COLOR", "EASY_DIFFICULTY_COLOR", "FAIR_DIFFICULTY_COLOR", "GRAY_FONT_COLOR",
 	"HIGHLIGHT_FONT_COLOR", "RED_FONT_COLOR", "TRIVIAL_DIFFICULTY_COLOR",
+	"C_Spell", "C_Trainer", "C_TooltipInfo", "ClassTrainerFrame", "ContinuableContainer", "GameTooltip_AddNormalLine",
+	"GameTooltip_Hide", "GetMoney", "GetNumTrainerServices", "GetProfessionInfo", "GetProfessions",
+	"GetTrainerServiceCost", "GetTrainerServiceInfo", "GetTrainerServiceSkillReq", "GetTrainerServiceStepIndex",
+	"GetTrainerTradeskillRankValues", "IsPlayerSpell", "issecretvalue", "Item", "NORMAL_FONT_COLOR",
+	"TooltipDataProcessor",
 }
 
 files["Data/Thresholds.lua"] = { max_line_length = false }

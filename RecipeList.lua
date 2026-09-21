@@ -2,25 +2,6 @@ local _, ns = ...
 
 local recipeList
 
-local function FormatRow(d)
-	if not d.thresholds then
-		return "?"
-	end
-	-- A recipe you can't make yet keeps its requirement: it's the only useful number.
-	if not d.chance then
-		return tostring(d.thresholds[1])
-	end
-	local parts = {}
-	if ns.db.showSkill then
-		parts[#parts + 1] = tostring(d.thresholds[1])
-	end
-	parts[#parts + 1] = string.format("%d%%", math.floor(d.chance * 100 + 0.5))
-	if ns.db.showCost and d.perSkillUp then
-		parts[#parts + 1] = ns.FormatNet(ns.Model.RoundMoney(math.abs(d.perSkillUp)), d.perSkillUp < 0)
-	end
-	return table.concat(parts, " · ")
-end
-
 -- The row's own Init sized the label for Blizzard's right-hand widgets only;
 -- shrink it again so a long recipe name truncates instead of running under our text.
 local function FitLabel(row, text)
@@ -57,8 +38,8 @@ local function DecorateRow(_, row, node)
 	else
 		text:SetPoint("RIGHT", row, "RIGHT", -4, 0)
 	end
-	text:SetText(FormatRow(d))
-	text:SetTextColor(ns.COLORS[d.chance and d.color or (d.thresholds and "red" or "unknown")]:GetRGB())
+	text:SetText(ns.FormatRow(d))
+	text:SetTextColor(ns.RowColor(d):GetRGB())
 	text:Show()
 	FitLabel(row, text)
 end
@@ -145,13 +126,18 @@ local function ApplySort(scrollBox)
 	replacing = false
 end
 
--- A "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu
+-- A route toggle and "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu
 -- serves other recipe lists, so only the crafting page's dropdown gets it.
-local function AddSortMenu(owner, rootDescription)
+local function AddFilterMenu(owner, rootDescription)
 	if owner ~= recipeList.FilterDropdown then
 		return
 	end
 	rootDescription:CreateDivider()
+	rootDescription:CreateCheckbox("Levelling route", function()
+		return ns.db.showRoute
+	end, function()
+		ns.SetShowRoute(not ns.db.showRoute)
+	end)
 	rootDescription:CreateTitle("Sort by")
 	for _, option in ipairs(ns.SORT_OPTIONS) do
 		rootDescription:CreateRadio(option[2], function(mode)
@@ -171,12 +157,14 @@ function ns.AttachRecipeList()
 	hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ApplySort)
 	hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ns.LearnReagents)
 	EventRegistry:RegisterCallback("Professions.RecipeListOnEnter", ns.ShowRecipeTooltip, ns)
-	Menu.ModifyMenu("MENU_PROFESSIONS_FILTER", AddSortMenu)
+	Menu.ModifyMenu("MENU_PROFESSIONS_FILTER", AddFilterMenu)
+	ns.AttachRoute()
 end
 
 -- Rebuilding through the crafting page re-runs Blizzard's provider, which our
 -- SetDataProvider hook then re-sorts.
 function ns.RefreshRecipeList()
+	ns.RefreshRoute()
 	if recipeList and recipeList:IsVisible() and ProfessionsFrame.professionInfo then
 		ProfessionsFrame.CraftingPage:Init(ProfessionsFrame.professionInfo)
 	end

@@ -8,6 +8,10 @@ local DEFAULTS = {
 	scanAuctions = true,
 	craftValue = "vendor", -- "none" | "vendor" | "auction"
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
+	showRoute = true,
+	showTrainer = true,
+	showReagentTooltip = true,
+	routeTargets = {}, -- [profession name] = target base skill
 }
 
 ns.DEFAULTS = DEFAULTS
@@ -46,7 +50,7 @@ local function LoadDB()
 	local loaded = type(SkillUpForeverDB) == "table" and SkillUpForeverDB or {}
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
-			loaded[key] = value
+			loaded[key] = type(value) == "table" and {} or value
 		end
 	end
 	SkillUpForeverDB = loaded
@@ -60,11 +64,46 @@ function ns.SkillContext()
 	if not info or not info.skillLevel then
 		return nil
 	end
+	local modifier = info.skillModifier or 0
 	return {
-		skill = info.skillLevel + (info.skillModifier or 0),
+		skill = info.skillLevel + modifier,
+		base = info.skillLevel,
+		modifier = modifier,
+		max = info.maxSkillLevel,
 		name = info.displayName,
 		capped = info.maxSkillLevel and info.maxSkillLevel > 0 and info.skillLevel >= info.maxSkillLevel,
 	}
+end
+
+-- The player's professions by skill line, secondary ones included. GetProfessions
+-- leaves nil gaps for empty slots, so walk its full return count.
+function ns.PlayerProfessions()
+	local professions = {}
+	local function Add(...)
+		for i = 1, select("#", ...) do
+			local index = select(i, ...)
+			if index then
+				local name, _, rank, maxRank, _, _, skillLine, modifier = GetProfessionInfo(index)
+				if skillLine then
+					professions[skillLine] = { name = name, base = rank, max = maxRank, skill = rank + (modifier or 0) }
+				end
+			end
+		end
+	end
+	Add(GetProfessions())
+	return professions
+end
+
+-- Recipes seen as learned in the Professions window, for places (trainer, item
+-- tooltips) that can't ask the window. IsPlayerSpell covers ones not seen yet.
+local learnedRecipes = {}
+
+function ns.NoteLearned(recipeID)
+	learnedRecipes[recipeID] = true
+end
+
+function ns.IsLearned(recipeID)
+	return learnedRecipes[recipeID] or IsPlayerSpell(recipeID)
 end
 
 -- Everything a row or tooltip renders for one recipe at the current skill.
@@ -91,6 +130,30 @@ function ns.Describe(recipeInfo, ctx)
 		net = net,
 		perSkillUp = ns.Model.CostPerSkillUp(net, chance),
 	}
+end
+
+-- The compact "skill · chance · cost" text of a recipe row or trainer service.
+function ns.FormatRow(d)
+	if not d.thresholds then
+		return "?"
+	end
+	-- A recipe you can't make yet keeps its requirement: it's the only useful number.
+	if not d.chance then
+		return tostring(d.thresholds[1])
+	end
+	local parts = {}
+	if ns.db.showSkill then
+		parts[#parts + 1] = tostring(d.thresholds[1])
+	end
+	parts[#parts + 1] = string.format("%d%%", math.floor(d.chance * 100 + 0.5))
+	if ns.db.showCost and d.perSkillUp then
+		parts[#parts + 1] = ns.FormatNet(ns.Model.RoundMoney(math.abs(d.perSkillUp)), d.perSkillUp < 0)
+	end
+	return table.concat(parts, " · ")
+end
+
+function ns.RowColor(d)
+	return ns.COLORS[d.chance and d.color or (d.thresholds and "red" or "unknown")]
 end
 
 local function Audit()
@@ -172,5 +235,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	LoadDB()
 	ns.InitPrices()
 	ns.RegisterSettings()
+	ns.AttachItemTooltips()
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Professions", ns.AttachRecipeList)
+	EventUtil.ContinueOnAddOnLoaded("Blizzard_TrainerUI", ns.AttachTrainer)
 end)

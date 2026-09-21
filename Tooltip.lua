@@ -214,3 +214,73 @@ function ns.ShowRecipeTooltip(_, row, data)
 	end
 	tooltip:Show()
 end
+
+local MAX_USES = 5
+local BAND_NAMES = { "orange", "yellow", "green" }
+
+-- "yellow until 115": the band the recipe is in now and where it ends.
+local function Band(t, skill)
+	if skill < t[1] then
+		return string.format("needs %d", t[1]), ns.COLORS.red
+	end
+	for i, band in ipairs(BAND_NAMES) do
+		if skill < t[i + 1] then
+			return string.format("%s until %d", band, t[i + 1]), ns.COLORS[band]
+		end
+	end
+	return "grey", ns.COLORS.grey
+end
+
+-- Recipes of your professions that still skill up and use this item: learned
+-- ones first, then by the skill they need.
+local function Uses(itemID)
+	local professions = ns.PlayerProfessions()
+	local uses = {}
+	for _, recipeID in ipairs(ns.UsedIn(itemID)) do
+		local profession = professions[ns.RecipeData[recipeID].skillLine]
+		local t = profession and ns.Model.Get(recipeID)
+		if t and profession.skill < t[4] then
+			uses[#uses + 1] = { recipeID = recipeID, t = t, skill = profession.skill, learned = ns.IsLearned(recipeID) }
+		end
+	end
+	table.sort(uses, function(a, b)
+		if a.learned ~= b.learned then
+			return a.learned
+		end
+		if a.t[1] ~= b.t[1] then
+			return a.t[1] < b.t[1]
+		end
+		return a.recipeID < b.recipeID
+	end)
+	return uses
+end
+
+local function AddUses(tooltip, data)
+	local itemID = data and data.id
+	if not (ns.db.showReagentTooltip and itemID) or tooltip:IsForbidden() then
+		return
+	end
+	if issecretvalue and issecretvalue(itemID) then
+		return
+	end
+	local uses = Uses(itemID)
+	if #uses == 0 then
+		return
+	end
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	GameTooltip_AddNormalLine(tooltip, "Used in")
+	for i, use in ipairs(uses) do
+		if i > MAX_USES then
+			GameTooltip_AddDisabledLine(tooltip, string.format("+%d more", #uses - MAX_USES))
+			break
+		end
+		local band, color = Band(use.t, use.skill)
+		local name = C_Spell.GetSpellName(use.recipeID) or ("recipe " .. use.recipeID)
+		local r, g, b = color:GetRGB()
+		tooltip:AddDoubleLine(use.learned and name or name .. " (unlearned)", band, 1, 1, 1, r, g, b)
+	end
+end
+
+function ns.AttachItemTooltips()
+	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, AddUses)
+end

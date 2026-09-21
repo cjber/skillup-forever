@@ -80,7 +80,7 @@ end
 -- needs; planned afresh each time, so it follows skill, target, bags and prices.
 function ns.TrackedNeeds()
 	local tracked = {}
-	for skillLine, profession in pairs(ns.PlayerProfessions()) do
+	for skillLine, profession in pairs(ns.RouteProfessions()) do
 		if ns.IsTracked(skillLine) then
 			local route = ns.PlanRoute(profession)
 			tracked[#tracked + 1] = {

@@ -36,6 +36,20 @@ local function NextRanks(profession)
 	return ranks, cap
 end
 
+-- Levelled by gathering, not crafting: their few Forever recipes can't carry a route.
+local GATHERING = { [182] = true, [356] = true, [393] = true } -- Herbalism, Fishing, Skinning
+
+-- The player's professions a route can be planned for.
+function ns.RouteProfessions()
+	local professions = {}
+	for skillLine, profession in pairs(ns.PlayerProfessions()) do
+		if not GATHERING[skillLine] then
+			professions[skillLine] = profession
+		end
+	end
+	return professions
+end
+
 -- The chosen target in base skill, per profession; the trainer plans to it too.
 -- A target already reached gives way to the default. Past the cap is fine up to
 -- the last rank a trainer teaches; the route trains those ranks on the way.
@@ -509,14 +523,14 @@ local function PriceAge(reagents)
 end
 
 local function Render()
-	local profession = selected and ns.PlayerProfessions()[selected]
+	local profession = selected and ns.RouteProfessions()[selected]
 	page.Profession:GenerateMenu()
 	page.Skill:SetShown(profession ~= nil)
 	page.Target:SetShown(profession ~= nil)
 	page.Track:SetEnabled(profession ~= nil)
 	page.Auctionator:Disable()
 	if not profession then
-		page.RouteList:Add("Learn a profession to plan a route.", GRAY_FONT_COLOR)
+		page.RouteList:Message("Learn a crafting profession to plan a route.")
 		page.RouteList:Finish()
 		page.ReagentList:Finish()
 		return
@@ -577,7 +591,15 @@ local function CreateHeader()
 	-- Clear of the portrait, which overhangs the top-left corner.
 	dropdown:SetPoint("TOPLEFT", 76, -32)
 	dropdown:SetupMenu(function(_, root)
-		for skillLine, profession in pairs(ns.PlayerProfessions()) do
+		local professions = {}
+		for _, profession in pairs(ns.RouteProfessions()) do
+			professions[#professions + 1] = profession
+		end
+		table.sort(professions, function(a, b)
+			return a.name < b.name
+		end)
+		for _, profession in ipairs(professions) do
+			local skillLine = profession.skillLine
 			root:CreateRadio(profession.name, function()
 				return skillLine == selected
 			end, function()
@@ -627,7 +649,7 @@ local function CreateButtons()
 	auctionator:SetSize(130, 22)
 	auctionator:SetText("To Auctionator")
 	auctionator:SetScript("OnClick", function()
-		local profession = ns.PlayerProfessions()[selected]
+		local profession = ns.RouteProfessions()[selected]
 		ns.SendToAuctionator(profession.name, ns.RouteReagents(ns.PlanRoute(profession)))
 	end)
 	auctionator:SetShown(ns.HasAuctionator())
@@ -688,7 +710,9 @@ function ns.OpenSkillLine()
 end
 
 local function SelectPage()
-	selected = ns.OpenSkillLine() or selected or next(ns.PlayerProfessions())
+	local professions = ns.RouteProfessions()
+	local open = ns.OpenSkillLine()
+	selected = professions[open] and open or professions[selected] and selected or next(professions)
 	ProfessionsFrame.CraftingPage:Hide()
 	ProfessionsFrame.BookPage:Hide()
 	page:Show()

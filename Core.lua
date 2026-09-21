@@ -341,7 +341,7 @@ end
 -- and SavedVariables are in place.
 EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- /reload doesn't re-read the .toc, so files added by an update stay unloaded.
-	if not (ns.RecipeData and ns.ProfessionSkillLines and ns.TrainerFees and ns.TrainerRanks) then
+	if not (ns.RecipeData and ns.ProfessionSkillLines and ns.TrainerFees and ns.TrainerRanks and ns.RecipeSources) then
 		ns.Print("|cffff4040files are missing: restart the game (not /reload) after updating.|r")
 		return
 	end

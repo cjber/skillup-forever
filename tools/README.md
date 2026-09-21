@@ -5,6 +5,7 @@ python3 tools/gen_thresholds.py
 python3 tools/gen_vendor.py
 python3 tools/gen_recipes.py
 python3 tools/gen_trainer.py
+python3 tools/gen_sources.py
 luacheck Model.lua tests/ --std lua51
 luajit tests/model_spec.lua
 ```
@@ -55,6 +56,16 @@ recipe spells, since Forever's client leaves the teaching spells out.
 Specialisation-gated rows are skipped, and fees recorded at a trainer in game win. It also writes `ns.TrainerRanks`: each profession rank a trainer teaches (the
 taught spell's `SKILL` effect gives the skill line and the new cap), with fee,
 required skill and level. Ranks that come from books or quests are absent.
+
+`gen_sources.py` writes `Data/Sources.lua`: for each recipe taught by a scroll, where
+the scroll comes from, from the same classic-db dump. Scroll items (`item_template`
+class 9) map to recipes through Classic Era's LEARN_SPELL effects, as trainer spells
+do. Vendors come from `npc_vendor` and vendor templates (limited when every vendor
+stocks it in limited supply), the three likeliest creature drops from
+`creature_loot_template`, world drops from `reference_loot_template`, and quest
+rewards from `quest_template`. Each NPC keeps its name, faction (`FactionTemplate`)
+and one world spawn; the client turns that into a zone and map position, so the
+generator needs no zone boundaries. Dungeon spawns carry the instance name from `Map`.
 
 The recipe generator joins `SkillLineAbility` to `SpellReagents` and base-difficulty
 `SpellEffect` rows. Reagents are sorted by item ID and repeated slots combined.

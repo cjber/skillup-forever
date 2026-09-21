@@ -316,7 +316,10 @@ local function AddBands(tooltip, profession, recipeID)
 		return
 	end
 	local training = ns.TrainingFor(profession, recipeID)
-	local learnAt = training and training[2] + profession.modifier or t[1]
+	local scroll = ns.RecipeSources[recipeID]
+	local learnAt = training and training[2] + profession.modifier
+		or scroll and scroll.skill + profession.modifier
+		or t[1]
 	local parts, names = {}, {}
 	for i, name in ipairs(BAND_NAMES) do
 		local from = math.max(t[i], learnAt)
@@ -384,6 +387,62 @@ local function RecipeClick(recipeID)
 		else
 			ns.ShowRecipe(recipeID)
 		end
+	end
+end
+
+local SUGGESTIONS_SHOWN = 8
+
+local function SuggestionTooltip(tooltip, profession, suggestion)
+	local recipeID = suggestion.recipeID
+	RecipeTitle(tooltip, recipeID, RecipeName(recipeID))
+	RequiresLine(tooltip, profession, suggestion.source.skill)
+	AddBands(tooltip, profession, recipeID)
+	local price = ns.ScrollPrice(suggestion.source)
+	if price then
+		AddLine(tooltip, "Scroll", Money(price))
+	end
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	ns.AddSourceLines(tooltip, suggestion.source)
+	if suggestion.npcID then
+		GameTooltip_AddInstructionLine(tooltip, "Click for a waypoint to " .. ns.SourceNPCs[suggestion.npcID][1] .. ".")
+	end
+	GameTooltip_AddInstructionLine(tooltip, "Shift-click to link the scroll.")
+end
+
+local function SuggestionClick(suggestion)
+	return function()
+		if IsModifiedClick("CHATLINK") then
+			local _, link = C_Item.GetItemInfo(suggestion.source.item)
+			if link then
+				ChatEdit_InsertLink(link)
+			end
+		elseif suggestion.npcID then
+			ns.SetWaypoint(suggestion.npcID)
+		end
+	end
+end
+
+-- Where the known recipes run out: the scrolls that would carry the route on.
+local function RenderSuggestions(list, profession, route)
+	local suggestions = ns.RecipeSuggestions(profession, route.reachedSkill)
+	if #suggestions == 0 then
+		return
+	end
+	list:Message("Recipes from vendors, quests and drops that would carry it on:", NORMAL_FONT_COLOR)
+	for i = 1, math.min(#suggestions, SUGGESTIONS_SHOWN) do
+		local suggestion = suggestions[i]
+		local t = ns.Model.Get(suggestion.recipeID)
+		local price = ns.ScrollPrice(suggestion.source)
+		list:Add({
+			icon = C_Item.GetItemIconByID(suggestion.source.item),
+			text = string.format("%s  |cff808080%s|r", RecipeName(suggestion.recipeID), suggestion.kindText),
+			color = ns.COLORS[ns.Model.Color(t, route.reachedSkill)],
+			values = { price and Money(price) or "", tostring(suggestion.reach - profession.modifier) },
+			tooltip = function(tooltip)
+				SuggestionTooltip(tooltip, profession, suggestion)
+			end,
+			click = SuggestionClick(suggestion),
+		})
 	end
 end
 
@@ -469,6 +528,7 @@ local function RenderRoute(list, profession, route)
 	elseif route.stopReason == "no_recipe" then
 		local known = route.excluded.unpriced > 0 and "Nothing priced you know" or "Nothing you know"
 		list:Message(string.format("%s skills up past %d.", known, route.reachedSkill - m), RED_FONT_COLOR)
+		RenderSuggestions(list, profession, route)
 	end
 	if #route.segments > 0 and route.excluded.unpriced > 0 then
 		list:Message(string.format("%d recipes skipped: reagents not priced yet.", route.excluded.unpriced))

@@ -22,6 +22,9 @@ train.
   and the page shows how old its auction prices are.
   The target can pass your current cap: the route adds each rank to train on the way, with its fee,
   the skill the trainer wants and the level it needs.
+  When the recipes you know run out, the route lists the scrolls that would carry it on, from vendors,
+  quests and drops, easiest to get first, with every source's zone and coordinates; click one for a
+  waypoint to the nearest vendor or the likeliest drop (TomTom's arrow when installed).
 - **A shopping list from the route.** The page lists every reagent the route needs against what's in your
   bags and bank. Track it to see the next thing to train and the reagents still missing in the objective tracker, above your quests; at a vendor, one button on the
   merchant window buys the missing reagents that vendor sells. With Auctionator installed, the auction house

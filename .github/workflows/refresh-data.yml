@@ -29,7 +29,7 @@ jobs:
           echo "new=true" >> "$GITHUB_OUTPUT"
           sed -i -E "s/^BUILD = \".*\"/BUILD = \"$build\"/; s/^SOURCE_DATE = \".*\"/SOURCE_DATE = \"$(date -u +%F)\"/" tools/gen_thresholds.py
       - if: steps.build.outputs.new == 'true'
-        run: python3 tools/gen_thresholds.py && python3 tools/gen_vendor.py && python3 tools/gen_recipes.py && python3 tools/gen_trainer.py
+        run: python3 tools/gen_thresholds.py && python3 tools/gen_vendor.py && python3 tools/gen_recipes.py && python3 tools/gen_trainer.py && python3 tools/gen_sources.py
       - if: steps.build.outputs.new == 'true'
         run: sudo apt-get update && sudo apt-get install -y luajit && luajit tests/model_spec.lua
       - if: steps.build.outputs.new == 'true'

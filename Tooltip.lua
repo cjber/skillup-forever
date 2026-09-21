@@ -80,17 +80,17 @@ function ns.ShowRecipeTooltip(_, row, data)
 		return
 	end
 	local recipeInfo = Professions.GetHighestLearnedRecipe(data.recipeInfo) or data.recipeInfo
-	local skill, professionName = ns.CurrentSkill()
-	local d = ns.Describe(recipeInfo, skill)
+	local ctx = ns.SkillContext()
+	local d = ns.Describe(recipeInfo, ctx)
 
 	local tooltip = GameTooltip
 	tooltip:SetOwner(row, "ANCHOR_RIGHT")
 	GameTooltip_SetTitle(tooltip, recipeInfo.name)
 	local t = d.thresholds
 	if t then
-		local reqColor = skill and skill < t[1] and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
-		GameTooltip_AddColoredLine(tooltip, string.format("Requires %s (%d)", professionName or "", t[1]), reqColor)
-		GameTooltip_InsertFrame(tooltip, LayoutBar(t, skill), 4)
+		local reqColor = ctx.skill < t[1] and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
+		GameTooltip_AddColoredLine(tooltip, string.format("Requires %s (%d)", ctx.name or "", t[1]), reqColor)
+		GameTooltip_InsertFrame(tooltip, LayoutBar(t, ctx.skill), 4)
 		if d.chance then
 			GameTooltip_AddColoredLine(
 				tooltip,

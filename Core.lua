@@ -43,35 +43,45 @@ local function LoadDB()
 	ns.db = loaded
 end
 
--- Effective skill for difficulty purposes includes racial bonuses.
-function ns.CurrentSkill()
-	local info = Professions.GetProfessionInfo()
+-- Effective skill for difficulty purposes includes racial bonuses; the cap is
+-- on base skill, and at the cap nothing can skill up whatever its colour.
+function ns.SkillContext()
+	local info = Professions and Professions.GetProfessionInfo()
 	if not info or not info.skillLevel then
-		return nil, nil
+		return nil
 	end
-	return info.skillLevel + (info.skillModifier or 0), info.displayName
+	return {
+		skill = info.skillLevel + (info.skillModifier or 0),
+		name = info.displayName,
+		capped = info.maxSkillLevel and info.maxSkillLevel > 0 and info.skillLevel >= info.maxSkillLevel,
+	}
 end
 
 -- Everything a row or tooltip renders for one recipe at the current skill.
-function ns.Describe(recipeInfo, skill)
+function ns.Describe(recipeInfo, ctx)
 	local thresholds = ns.Model.Get(recipeInfo.recipeID)
 	local liveColor = LIVE_COLOR[recipeInfo.relativeDifficulty]
-	if not thresholds or not skill then
+	if not thresholds or not ctx then
 		return { thresholds = nil, color = liveColor or "unknown" }
+	end
+	local chance = ns.Model.Chance(thresholds, ctx.skill)
+	if chance and (ctx.capped or (recipeInfo.learned and recipeInfo.canSkillUp == false)) then
+		chance = 0
 	end
 	return {
 		thresholds = thresholds,
-		color = liveColor or ns.Model.Color(thresholds, skill),
-		chance = ns.Model.Chance(thresholds, skill),
+		color = liveColor or ns.Model.Color(thresholds, ctx.skill),
+		chance = chance,
 	}
 end
 
 local function Audit()
-	local skill, professionName = ns.CurrentSkill()
-	if not skill or not ProfessionsFrame or not ProfessionsFrame:IsShown() then
+	local ctx = ProfessionsFrame and ProfessionsFrame:IsShown() and ns.SkillContext()
+	if not ctx then
 		ns.Print("open a profession first.")
 		return
 	end
+	local skill = ctx.skill
 	local checked, missing, mismatches = 0, 0, {}
 	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
 		local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
@@ -104,7 +114,7 @@ local function Audit()
 	ns.Print(
 		string.format(
 			"%s at %d: %d checked, %d mismatched, %d without data.",
-			professionName or "?",
+			ctx.name or "?",
 			skill,
 			checked,
 			#mismatches,
@@ -130,11 +140,11 @@ function SkillUpForever_OnAddonCompartmentClick()
 	ns.OpenSettings()
 end
 
+-- Blizzard_Professions may already be loaded (another addon opened it), in which
+-- case the continuation runs at once — so register it only after our own files
+-- and SavedVariables are in place.
 EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	LoadDB()
 	ns.RegisterSettings()
-end)
-
-EventUtil.ContinueOnAddOnLoaded("Blizzard_Professions", function()
-	ns.AttachRecipeList()
+	EventUtil.ContinueOnAddOnLoaded("Blizzard_Professions", ns.AttachRecipeList)
 end)

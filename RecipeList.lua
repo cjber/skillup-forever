@@ -17,7 +17,8 @@ end
 -- shrink it again so a long recipe name truncates instead of running under our text.
 local function FitLabel(row, text)
 	local count = row.Count:IsShown() and row.Count:GetStringWidth() or 0
-	local available = row:GetWidth() - row.SkillUps:GetWidth() - count - text:GetStringWidth() - 14
+	local locked = row.LockedIcon:IsShown() and row.LockedIcon:GetWidth() + 2 or 0
+	local available = row:GetWidth() - row.SkillUps:GetWidth() - count - locked - text:GetStringWidth() - 14
 	if row.Label:GetWidth() > available then
 		row.Label:SetWidth(math.max(available, 40))
 	end
@@ -41,7 +42,7 @@ local function DecorateRow(_, row, node)
 	end
 
 	local recipeInfo = Professions.GetHighestLearnedRecipe(data.recipeInfo) or data.recipeInfo
-	local d = ns.Describe(recipeInfo, ns.CurrentSkill())
+	local d = ns.Describe(recipeInfo, ns.SkillContext())
 	text:ClearAllPoints()
 	if row.LockedIcon:IsShown() then
 		text:SetPoint("RIGHT", row.LockedIcon, "LEFT", -2, 0)
@@ -55,23 +56,23 @@ local function DecorateRow(_, row, node)
 end
 
 local SORT_KEYS = {
-	skill = function(t)
+	skill = function(recipeInfo)
+		local t = ns.Model.Get(recipeInfo.recipeID)
 		return t and t[1] or math.huge
 	end,
-	chance = function(t, skill)
-		local chance = t and ns.Model.Chance(t, skill)
+	chance = function(recipeInfo, ctx)
+		local chance = ns.Describe(recipeInfo, ctx).chance
 		return chance and -chance or math.huge
 	end,
 }
 
 -- Recipes are compared by our key; anything else (categories, padding rows,
 -- ties) falls through to Blizzard's comparator, so structure is untouched.
-local function WrapComparator(original, key, skill)
+local function WrapComparator(original, key, ctx)
 	return function(a, b)
 		local ar, br = a:GetData().recipeInfo, b:GetData().recipeInfo
 		if ar and br then
-			local ka = key(ns.Model.Get(ar.recipeID), skill)
-			local kb = key(ns.Model.Get(br.recipeID), skill)
+			local ka, kb = key(ar, ctx), key(br, ctx)
 			if ka ~= kb then
 				return ka < kb
 			end
@@ -80,15 +81,15 @@ local function WrapComparator(original, key, skill)
 	end
 end
 
-local function SortTree(node, key, skill)
+local function SortTree(node, key, ctx)
 	for _, child in ipairs(node:GetNodes()) do
 		local original = child.sortComparator
 		if original and child:GetData().categoryInfo then
-			local wrapped = WrapComparator(original, key, skill)
+			local wrapped = WrapComparator(original, key, ctx)
 			child:SetSortComparator(wrapped, false, true)
 			table.sort(child:GetNodes(), wrapped)
 		end
-		SortTree(child, key, skill)
+		SortTree(child, key, ctx)
 	end
 end
 
@@ -98,7 +99,7 @@ local function ApplySort(scrollBox)
 	if resorting or not key or not dataProvider or not dataProvider.GetRootNode then
 		return
 	end
-	local ok, err = pcall(SortTree, dataProvider:GetRootNode(), key, ns.CurrentSkill())
+	local ok, err = pcall(SortTree, dataProvider:GetRootNode(), key, ns.SkillContext())
 	if not ok then
 		ns.db.sortMode = "blizzard"
 		ns.Print("sorting failed and has been turned off: " .. tostring(err))

@@ -3,8 +3,9 @@ local _, ns = ...
 local WIDTH = 270
 local MAX_LINES = 12
 local LINE_HEIGHT = 16
+local MAX_REAGENTS = 10
 
-local panel
+local panel, tab
 local route
 local pending = false
 
@@ -42,51 +43,49 @@ local function Money(copper)
 	return ns.FormatNet(ns.Model.RoundMoney(math.abs(copper)), copper < 0)
 end
 
-local function SetLine(index, text, color)
+local function SetLine(index, text, color, count, countColor)
 	local line = panel.lines[index]
 	if not line then
 		line = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		line:SetJustifyH("LEFT")
 		line:SetWordWrap(false)
 		line:SetPoint("TOPLEFT", panel.Label, "BOTTOMLEFT", 0, -12 - (index - 1) * LINE_HEIGHT)
-		line:SetPoint("RIGHT", panel, "RIGHT", -12, 0)
+		line.Count = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		line.Count:SetPoint("TOP", line, "TOP")
+		line.Count:SetPoint("RIGHT", panel, "RIGHT", -12, 0)
 		panel.lines[index] = line
 	end
+	line:SetPoint("RIGHT", panel, "RIGHT", count and -56 or -12, 0)
 	line:SetText(text)
 	line:SetTextColor((color or HIGHLIGHT_FONT_COLOR):GetRGB())
+	line.Count:SetText(count or "")
+	line.Count:SetTextColor((countColor or HIGHLIGHT_FONT_COLOR):GetRGB())
 	line:Show()
+	line.Count:Show()
 end
 
--- Bottom right against the window, below Forever's profession tabs, which hang
--- off its right edge from the top; beyond them when the route is too tall.
+-- The drawer opens beside the tab column, level with our tab's bottom, and
+-- drops as far as needed to stay inside the window's height.
 local function Place()
-	local tabs = { ProfessionsFrame.ProfessionsOverviewTab, unpack(ProfessionsFrame.rightProfessionTabs or {}) }
-	local lowest
-	for _, tab in ipairs(tabs) do
-		local bottom = tab:IsShown() and tab:GetBottom()
-		if bottom and (not lowest or bottom < lowest) then
-			lowest = bottom
-		end
-	end
-	local frameBottom = ProfessionsFrame:GetBottom()
+	local tabBottom, frameTop = tab:GetBottom(), ProfessionsFrame:GetTop()
 	panel:ClearAllPoints()
-	if lowest and frameBottom and frameBottom + panel:GetHeight() + 4 > lowest then
-		panel:SetPoint("BOTTOM", ProfessionsFrame, "BOTTOM")
-		panel:SetPoint("LEFT", tabs[1], "RIGHT", 2, 0)
+	if tabBottom and frameTop and tabBottom + panel:GetHeight() > frameTop then
+		panel:SetPoint("TOP", ProfessionsFrame, "TOP")
 	else
-		panel:SetPoint("BOTTOMLEFT", ProfessionsFrame, "BOTTOMRIGHT", 2, 0)
+		panel:SetPoint("BOTTOM", tab, "BOTTOM")
 	end
+	panel:SetPoint("LEFT", tab, "RIGHT", 0, 0)
 end
 
 local function Render(ctx)
 	local count = 0
-	local function Add(text, color)
+	local function Add(text, color, right, rightColor)
 		count = count + 1
-		SetLine(count, text, color)
+		SetLine(count, text, color, right, rightColor)
 	end
 
 	route = nil
-	panel.Shop:Disable()
+	local reagents = {}
 	if not ctx then
 		Add("Open a profession to plan a route.", GRAY_FONT_COLOR)
 	elseif C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
@@ -110,7 +109,7 @@ local function Render(ctx)
 			local t = ns.Model.Get(segment.recipeID)
 			Add(
 				string.format(
-					"~%d× %s to %d  %s",
+					"%d× %s to %d  %s",
 					segment.crafts,
 					RecipeName(segment.recipeID),
 					segment.toSkill - ctx.modifier,
@@ -120,8 +119,8 @@ local function Render(ctx)
 			)
 		end
 		if #route.segments > 0 then
-			Add("Total  ~" .. Money(route.expectedCost), NORMAL_FONT_COLOR)
-			panel.Shop:Enable()
+			Add("Total  " .. Money(route.expectedCost), NORMAL_FONT_COLOR)
+			reagents = ns.RouteReagents(route)
 		end
 		if #route.segments == 0 and route.excluded.unpriced > 0 then
 			Add("Price reagents at a vendor or the AH.", GRAY_FONT_COLOR)
@@ -133,8 +132,27 @@ local function Render(ctx)
 			Add(string.format("%d recipes skipped: reagents not priced yet.", route.excluded.unpriced), GRAY_FONT_COLOR)
 		end
 	end
+	if #reagents > 0 then
+		Add(" ")
+		Add("Reagents", NORMAL_FONT_COLOR, "have", NORMAL_FONT_COLOR)
+		for i, item in ipairs(reagents) do
+			if i == MAX_REAGENTS then
+				Add(string.format("+%d more reagents", #reagents - i + 1), GRAY_FONT_COLOR)
+				break
+			end
+			local text, have, color = ns.ReagentText(item)
+			Add(text, nil, have, color)
+		end
+		-- A pinned list follows the route it came from as skill and bags change.
+		if ns.db.pinned and ns.db.pinned.profession == route.profession then
+			ns.PinShopping(route)
+		end
+	end
+	panel.Pin:SetEnabled(#reagents > 0)
+	panel.Auctionator:SetEnabled(#reagents > 0)
 	for i = count + 1, #panel.lines do
 		panel.lines[i]:Hide()
+		panel.lines[i].Count:Hide()
 	end
 	panel:SetHeight(108 + count * LINE_HEIGHT)
 	Place()
@@ -179,18 +197,31 @@ local function CreatePanel()
 	end)
 	panel.Target = target
 
-	local shop = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-	shop:SetSize(WIDTH - 32, 22)
-	shop:SetPoint("BOTTOM", 0, 12)
-	shop:SetText(ns.HasAuctionator() and "Send reagents to Auctionator" or "Print shopping list")
-	shop:SetScript("OnClick", function()
-		ns.ExportShopping(route)
+	local pin = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	pin:SetText("Pin list")
+	pin:SetScript("OnClick", function()
+		ns.PinShopping(route)
 	end)
-	shop:SetScript("OnEnter", function(button)
-		ns.ShowShoppingTooltip(button, route)
+	panel.Pin = pin
+
+	-- Only auction house reagents still missing go to the Auctionator list.
+	local auctionator = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	auctionator:SetText("To Auctionator")
+	auctionator:SetScript("OnClick", function()
+		ns.SendToAuctionator(route.profession, ns.RouteReagents(route))
 	end)
-	shop:SetScript("OnLeave", GameTooltip_Hide)
-	panel.Shop = shop
+	panel.Auctionator = auctionator
+
+	if ns.HasAuctionator() then
+		pin:SetSize((WIDTH - 36) / 2, 22)
+		pin:SetPoint("BOTTOMLEFT", 16, 12)
+		auctionator:SetSize((WIDTH - 36) / 2, 22)
+		auctionator:SetPoint("BOTTOMRIGHT", -16, 12)
+	else
+		pin:SetSize(WIDTH - 32, 22)
+		pin:SetPoint("BOTTOM", 0, 12)
+		auctionator:Hide()
+	end
 end
 
 -- Coalesces bursts of list/skill/price updates into one plan.
@@ -218,10 +249,47 @@ function ns.RefreshRoute()
 	end)
 end
 
+function ns.SetShowRoute(shown)
+	ns.db.showRoute = shown
+	tab:SetChecked(shown)
+	ns.RefreshRoute()
+end
+
+-- Directly under the last profession tab Forever shows, in the same tab art.
+local function PlaceTab()
+	local last = ProfessionsFrame.ProfessionsOverviewTab
+	for _, professionTab in ipairs(ProfessionsFrame.rightProfessionTabs or {}) do
+		if professionTab:IsShown() then
+			last = professionTab
+		end
+	end
+	tab:ClearAllPoints()
+	tab:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -2)
+end
+
+local function CreateTab()
+	tab = CreateFrame("Frame", nil, ProfessionsFrame.CraftingPage, "LargeSideTabButtonTemplate")
+	tab.Icon:SetTexture("Interface\\Icons\\INV_Misc_Map_01")
+	tab:SetFillToInterior(true)
+	tab.tooltipText = "Levelling route"
+	tab:EnableMouse(true)
+	tab:SetCustomOnMouseUpHandler(function(_, button, upInside)
+		if button == "LeftButton" and upInside then
+			ns.SetShowRoute(not ns.db.showRoute)
+		end
+	end)
+	tab:SetChecked(ns.db.showRoute)
+	PlaceTab()
+	hooksecurefunc(ProfessionsFrame, "RefreshRightTabs", PlaceTab)
+end
+
 function ns.AttachRoute()
+	CreateTab()
 	ProfessionsFrame:HookScript("OnShow", ns.RefreshRoute)
 	local events = CreateFrame("Frame")
 	events:RegisterEvent("TRADE_SKILL_LIST_UPDATE")
 	events:RegisterEvent("SKILL_LINES_CHANGED")
+	events:RegisterEvent("BAG_UPDATE_DELAYED")
+	events:RegisterEvent("ITEM_DATA_LOAD_RESULT")
 	events:SetScript("OnEvent", ns.RefreshRoute)
 end

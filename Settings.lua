@@ -69,13 +69,6 @@ function ns.RegisterSettings()
 
 	Settings.CreateCheckbox(
 		category,
-		Register("showRoute", Settings.VarType.Boolean, "Show levelling route"),
-		"A panel beside the Professions window with the cheapest crafts from your skill to a target, "
-			.. "and a shopping list for their reagents."
-	)
-
-	Settings.CreateCheckbox(
-		category,
 		Register("showTrainer", Settings.VarType.Boolean, "Annotate trainer recipes"),
 		"Required skill, skill-up chance and cost on profession trainer recipes, "
 			.. "and which one is best to train next for your route."
@@ -101,10 +94,6 @@ end
 -- Through the setting, so the settings panel and its change callback stay in step.
 function ns.SetSortMode(mode)
 	Settings.SetValue("SkillUpForever_sortMode", mode)
-end
-
-function ns.SetShowRoute(shown)
-	Settings.SetValue("SkillUpForever_showRoute", shown)
 end
 
 function ns.OpenSettings()

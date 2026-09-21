@@ -8,11 +8,12 @@ local DEFAULTS = {
 	scanAuctions = true,
 	craftValue = "vendor", -- "none" | "vendor" | "auction"
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
-	showRoute = true,
+	showRoute = false,
 	showTrainer = true,
 	showReagentTooltip = true,
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
+	-- pinned = { profession, items } while a shopping list is pinned (Shopping.lua)
 }
 
 ns.DEFAULTS = DEFAULTS
@@ -283,6 +284,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	ns.InitPrices()
 	ns.RegisterSettings()
 	ns.AttachItemTooltips()
+	ns.InitShopping()
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Professions", ns.AttachRecipeList)
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_TrainerUI", ns.AttachTrainer)
 end)

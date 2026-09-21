@@ -126,18 +126,13 @@ local function ApplySort(scrollBox)
 	replacing = false
 end
 
--- A route toggle and "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu
+-- A "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu
 -- serves other recipe lists, so only the crafting page's dropdown gets it.
 local function AddFilterMenu(owner, rootDescription)
 	if owner ~= recipeList.FilterDropdown then
 		return
 	end
 	rootDescription:CreateDivider()
-	rootDescription:CreateCheckbox("Levelling route", function()
-		return ns.db.showRoute
-	end, function()
-		ns.SetShowRoute(not ns.db.showRoute)
-	end)
 	rootDescription:CreateTitle("Sort by")
 	for _, option in ipairs(ns.SORT_OPTIONS) do
 		rootDescription:CreateRadio(option[2], function(mode)

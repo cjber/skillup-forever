@@ -179,7 +179,7 @@ local function AddCost(tooltip, recipeID, d)
 	end
 	if d.perSkillUp then
 		local label = d.perSkillUp < 0 and "Profit per skill-up" or "Per skill-up"
-		tooltip:AddDoubleLine(label, "~" .. ns.FormatNet(math.abs(d.perSkillUp), d.perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
+		tooltip:AddDoubleLine(label, ns.FormatNet(math.abs(d.perSkillUp), d.perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
 	end
 end
 

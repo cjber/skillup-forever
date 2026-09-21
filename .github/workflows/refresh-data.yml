@@ -1,4 +1,4 @@
-name: Refresh threshold data
+name: Refresh profession data
 
 # Opens a PR when wago.tools lists a newer Forever build whose recipe data differs.
 # Daily: beta builds have shipped several times a week.
@@ -29,16 +29,16 @@ jobs:
           echo "new=true" >> "$GITHUB_OUTPUT"
           sed -i -E "s/^BUILD = \".*\"/BUILD = \"$build\"/; s/^SOURCE_DATE = \".*\"/SOURCE_DATE = \"$(date -u +%F)\"/" tools/gen_thresholds.py
       - if: steps.build.outputs.new == 'true'
-        run: python3 tools/gen_thresholds.py && python3 tools/gen_vendor.py
+        run: python3 tools/gen_thresholds.py && python3 tools/gen_vendor.py && python3 tools/gen_recipes.py
       - if: steps.build.outputs.new == 'true'
         run: sudo apt-get update && sudo apt-get install -y luajit && luajit tests/model_spec.lua
       - if: steps.build.outputs.new == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           branch: data/forever-${{ steps.build.outputs.version }}
-          title: "data: thresholds and vendor prices for Forever ${{ steps.build.outputs.version }}"
-          commit-message: "data: thresholds and vendor prices for Forever ${{ steps.build.outputs.version }}"
+          title: "data: thresholds, recipes and prices for Forever ${{ steps.build.outputs.version }}"
+          commit-message: "data: thresholds, recipes and prices for Forever ${{ steps.build.outputs.version }}"
           body: |
-            Regenerated `Data/Thresholds.lua` and `Data/Vendor.lua` from the `SkillLineAbility` and `ItemSparse` DB2s of Forever build ${{ steps.build.outputs.version }}.
+            Regenerated `Data/Thresholds.lua`, `Data/Vendor.lua` and `Data/Recipes.lua` from the profession, reagent, output, price and spell-name DB2s of Forever build ${{ steps.build.outputs.version }}.
 
             Before merging, run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.

@@ -210,12 +210,13 @@ function Model.ShoppingList(segments, reagentsOf, owned, sourceOf)
 			needed[reagent.itemID] = (needed[reagent.itemID] or 0) + segment.crafts * reagent.quantity
 		end
 	end
-	local list = { vendor = {}, auction = {}, unknown = {} }
+	local list = { gather = {}, vendor = {}, auction = {}, unknown = {} }
 	for itemID, quantity in pairs(needed) do
 		local count = math.max(0, quantity - owned(itemID))
 		if count > 0 then
 			local source = sourceOf(itemID)
-			local bucket = source == "vendor" and list.vendor
+			local bucket = source == "gather" and list.gather
+				or source == "vendor" and list.vendor
 				or (source == "scan" or source == "auctionator") and list.auction
 				or list.unknown
 			bucket[#bucket + 1] = { itemID = itemID, count = count }

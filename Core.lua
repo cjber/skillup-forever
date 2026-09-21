@@ -11,6 +11,7 @@ local DEFAULTS = {
 	showTrainer = true,
 	showRouteTab = true,
 	reagentTooltip = "route",
+	gatherFree = true,
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open

@@ -548,7 +548,7 @@ local function RenderRoute(list, profession, route)
 	end
 end
 
-local SOURCE_TEXT = { vendor = "vendor", auction = "AH", unknown = "no price" }
+local SOURCE_TEXT = { gather = "gather", vendor = "vendor", auction = "AH", unknown = "no price" }
 
 local function ReagentTooltip(tooltip, item)
 	tooltip:SetItemByID(item.itemID)
@@ -556,9 +556,16 @@ local function ReagentTooltip(tooltip, item)
 	local have = ns.Have(item.itemID)
 	AddLine(tooltip, "Have (bags and bank)", tostring(have))
 	AddLine(tooltip, "Route needs", tostring(item.need))
+	for _, alt in ipairs(ns.AltCounts(item.itemID)) do
+		AddLine(tooltip, "On " .. alt.name, tostring(alt.count), GRAY_FONT_COLOR)
+	end
 	local price = ns.Price(item.itemID)
 	if not price then
 		GameTooltip_AddDisabledLine(tooltip, "No price yet: visit a vendor or the auction house.")
+		return
+	end
+	if price.source == "gather" then
+		AddLine(tooltip, "Source", ns.PriceSourceText(price))
 		return
 	end
 	AddLine(tooltip, "Each", string.format("%s |cff808080(%s)|r", Money(price.copper), ns.PriceSourceText(price)))
@@ -642,7 +649,8 @@ local function PriceAge(reagents)
 	local oldest
 	for _, item in ipairs(reagents) do
 		local price = ns.Price(item.itemID)
-		if price and price.source ~= "vendor" and (not oldest or ns.PriceAge(price) > ns.PriceAge(oldest)) then
+		local auction = price and (price.source == "scan" or price.source == "auctionator")
+		if auction and (not oldest or ns.PriceAge(price) > ns.PriceAge(oldest)) then
 			oldest = price
 		end
 	end

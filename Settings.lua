@@ -16,6 +16,7 @@ function ns.RegisterSettings()
 			ns.DEFAULTS[key]
 		)
 		setting:SetValueChangedCallback(function()
+			ns.PricesChanged()
 			ns.RefreshRecipeList()
 			ns.RefreshTrainer()
 			ns.RefreshRouteTab()
@@ -66,6 +67,13 @@ function ns.RegisterSettings()
 		Register("scanAuctions", Settings.VarType.Boolean, "Scan the auction house"),
 		"Search the auction house for known reagents when you open it (at most once an hour). "
 			.. "Type /su scan to rescan. Items Auctionator priced today are skipped, and its prices are used."
+	)
+
+	Settings.CreateCheckbox(
+		category,
+		Register("gatherFree", Settings.VarType.Boolean, "Reagents you gather are free"),
+		"Price what another of your professions gathers (Light Leather with Skinning, ore with Mining, "
+			.. "herbs with Herbalism) at nothing, so routes use it and the shopping list says to gather it."
 	)
 
 	Settings.CreateCheckbox(

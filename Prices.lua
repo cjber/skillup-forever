@@ -37,12 +37,37 @@ end
 
 local DAY = 86400
 
+-- This character's professions, for what it gathers; kept while priceCache is.
+local professions
+
 local function PricesChanged()
 	priceCache = {}
+	professions = nil
 	ns.InvalidatePlans()
 	ns.RefreshRecipeList()
 	ns.RefreshRoute()
 	ns.RefreshTracker()
+end
+ns.PricesChanged = PricesChanged
+
+-- Skill-ups fire SKILL_LINES_CHANGED too; only learning or dropping a profession
+-- changes what counts as gathered.
+local function ProfessionsChanged()
+	if not professions then
+		return false
+	end
+	local now = ns.PlayerProfessions()
+	for skillLine in pairs(now) do
+		if not professions[skillLine] then
+			return true
+		end
+	end
+	for skillLine in pairs(professions) do
+		if not now[skillLine] then
+			return true
+		end
+	end
+	return false
 end
 
 local function AuctionatorAPI()
@@ -85,14 +110,30 @@ local function AuctionPrice(itemID)
 	return { copper = copper, source = "auctionator", days = days }
 end
 
--- Cheapest known unit price and where it came from: "vendor", "scan" or "auctionator".
--- A price seen at a vendor beats the bundled list, since it includes any reputation discount.
+-- With the setting on, what another of your professions gathers costs nothing.
+local function Gathered(itemID)
+	local skillLine = ns.db.gatherFree and ns.GatheredBy[itemID]
+	if not skillLine then
+		return nil
+	end
+	professions = professions or ns.PlayerProfessions()
+	local profession = professions[skillLine]
+	return profession and { copper = 0, source = "gather", profession = profession.name }
+end
+
+-- Cheapest known unit price and where it came from: "gather", "vendor", "scan" or
+-- "auctionator". A price seen at a vendor beats the bundled list, since it includes
+-- any reputation discount.
 function ns.Price(itemID)
 	local cached = priceCache[itemID]
 	if cached == nil then
 		local vendor = ns.db.vendor[itemID] or ns.VendorPrices[itemID]
 		local ah = AuctionPrice(itemID)
-		if vendor and (not ah or vendor <= ah.copper) then
+		cached = Gathered(itemID)
+		if cached then
+			priceCache[itemID] = cached
+			return cached
+		elseif vendor and (not ah or vendor <= ah.copper) then
 			cached = { copper = vendor, source = "vendor" }
 		elseif ah then
 			cached = ah
@@ -357,6 +398,10 @@ frame:SetScript("OnEvent", function(_, event)
 		or event == "NEW_RECIPE_LEARNED"
 	then
 		recipes = {}
+	elseif event == "SKILL_LINES_CHANGED" then
+		if ProfessionsChanged() then
+			PricesChanged()
+		end
 	elseif event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
 		RecordMerchant()
 	elseif event == "AUCTION_HOUSE_SHOW" then
@@ -399,6 +444,7 @@ function ns.InitPrices()
 		"TRADE_SKILL_LIST_UPDATE",
 		"TRADE_SKILL_SHOW",
 		"NEW_RECIPE_LEARNED",
+		"SKILL_LINES_CHANGED",
 		"MERCHANT_SHOW",
 		"MERCHANT_UPDATE",
 		"AUCTION_HOUSE_SHOW",

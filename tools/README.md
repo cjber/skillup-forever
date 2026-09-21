@@ -68,7 +68,11 @@ and one world spawn; the client turns that into a zone and map position, so the
 generator needs no zone boundaries. Dungeon spawns carry the instance name from `Map`.
 It also writes each profession's trainers with the highest rank they teach (their
 `npc_trainer` rank spells), and the vendors that always stock each vendor reagent in
-`Data/Vendor.lua`, for waypoints to the nearest one.
+`Data/Vendor.lua`, for waypoints to the nearest one. `ns.GatheredBy` maps reagents to
+the gathering profession that yields them at least 10% of the time: herb and mining
+nodes (`gameobject_template` chests whose `Lock` needs the skill) and
+`skinning_loot_template`, with reference loot expanded. Rarer finds (gems in veins)
+are left out.
 
 The recipe generator joins `SkillLineAbility` to `SpellReagents` and base-difficulty
 `SpellEffect` rows. Reagents are sorted by item ID and repeated slots combined.

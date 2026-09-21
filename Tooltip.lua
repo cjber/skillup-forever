@@ -141,7 +141,9 @@ function ns.PriceAgeText(price)
 end
 
 function ns.PriceSourceText(price)
-	if price.source == "vendor" then
+	if price.source == "gather" then
+		return "you gather it (" .. price.profession .. ")"
+	elseif price.source == "vendor" then
 		return "vendor"
 	elseif price.source == "auctionator" then
 		return "Auctionator, " .. ns.PriceAgeText(price)

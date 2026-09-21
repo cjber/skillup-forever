@@ -16,6 +16,28 @@ function ns.Have(itemID)
 	return C_Item.GetItemCount(itemID, true)
 end
 
+-- What your other characters on this realm and faction hold (bags, bank, mail),
+-- most first, when Syndicator is installed: they can mail it over.
+function ns.AltCounts(itemID)
+	local api = Syndicator and Syndicator.API
+	if not (api and api.GetInventoryInfoByItemID and api.IsReady and api.IsReady()) then
+		return {}
+	end
+	local info = api.GetInventoryInfoByItemID(itemID, true, true)
+	local me, realm = UnitName("player"), GetNormalizedRealmName()
+	local alts = {}
+	for _, character in ipairs(info and info.characters or {}) do
+		local count = character.bags + character.bank + character.mail
+		if count > 0 and not (character.character == me and character.realmNormalized == realm) then
+			alts[#alts + 1] = { name = character.character, count = count }
+		end
+	end
+	table.sort(alts, function(a, b)
+		return a.count > b.count
+	end)
+	return alts
+end
+
 -- Everything the route uses, as totals: what you have is compared live, so the
 -- list stays right as you buy, craft or bank things.
 function ns.RouteReagents(route)
@@ -23,7 +45,7 @@ function ns.RouteReagents(route)
 		return 0
 	end, ns.PriceSource)
 	local items = {}
-	for _, source in ipairs({ "vendor", "auction", "unknown" }) do
+	for _, source in ipairs({ "gather", "vendor", "auction", "unknown" }) do
 		for _, item in ipairs(list[source]) do
 			items[#items + 1] = { itemID = item.itemID, need = item.count, source = source }
 		end
@@ -42,12 +64,12 @@ end
 
 -- One list per profession, replaced on each export, of the auction house
 -- reagents still missing (emptied when none are). Vendor reagents stay out: an
--- auction search for them would only find resellers.
+-- auction search for them would only find resellers, and gathered ones you get yourself.
 function ns.SendToAuctionator(profession, items)
 	local missing = {}
 	for _, item in ipairs(items) do
 		local count = item.need - ns.Have(item.itemID)
-		if item.source ~= "vendor" and count > 0 then
+		if (item.source == "auction" or item.source == "unknown") and count > 0 then
 			missing[#missing + 1] = { itemID = item.itemID, count = count }
 		end
 	end
@@ -264,7 +286,8 @@ function ModuleMixin:LayoutContents()
 					C_Item.RequestLoadItemDataByID(item.itemID)
 					name = "item " .. item.itemID
 				end
-				block:AddObjective(item.itemID, string.format("%d/%d %s", have, item.need, name))
+				local gather = item.source == "gather" and " |cff808080(gather)|r" or ""
+				block:AddObjective(item.itemID, string.format("%d/%d %s%s", have, item.need, name, gather))
 				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
 				if vendor then
 					block.vendorMissing[#block.vendorMissing + 1] = { name = name, vendor = vendor }

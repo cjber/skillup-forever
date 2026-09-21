@@ -2,103 +2,42 @@ local _, ns = ...
 
 local BAR_WIDTH = 250
 local MIN_LABEL_GAP = 18
-local WHITE = "Interface\\Buttons\\WHITE8X8"
+local BAR_HEIGHT = 12
+-- The fill texture Blizzard's rank bars use; tinted per difficulty band.
+local BAND_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar"
+-- Forever's rested-XP pip, 10x14 native.
+local MARKER_ATLAS = "ui-hud-experiencebar-frame-pip-camelot"
+local MARKER_HEIGHT = BAR_HEIGHT * 1.3
 
--- Each style supplies the band texture/height and dresses the bar's frame; the
--- bands, labels and marker are shared.
-local STYLES = {
-	-- Blizzard's recipe-list category rank bar (ProfessionsStatusBarArtTemplate).
-	rank = {
-		height = 14,
-		texture = "Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar",
-		dress = function(parent, height)
-			local status = CreateFrame("StatusBar", nil, parent, "ProfessionsStatusBarArtTemplate")
-			status:SetPoint("TOPLEFT")
-			status:SetSize(BAR_WIDTH, height)
-			status:SetValue(0)
-			return status
-		end,
-	},
-	-- The profession window's header skill bar, scaled down to tooltip size.
-	header = {
-		height = 12,
-		texture = "Interface\\TargetingFrame\\UI-StatusBar",
-		dress = function(parent, height)
-			local scale = height / 18
-			local holder = CreateFrame("Frame", nil, parent)
-			holder:SetPoint("TOPLEFT")
-			holder:SetSize(BAR_WIDTH, height)
-			local bg = holder:CreateTexture(nil, "BACKGROUND")
-			bg:SetAtlas("Professions-skillbar-bg")
-			bg:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
-			bg:SetSize(BAR_WIDTH + 12 * scale, 29 * scale)
-			local border = holder:CreateTexture(nil, "OVERLAY")
-			border:SetAtlas("Professions-skillbar-frame")
-			border:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
-			border:SetSize(BAR_WIDTH + 10 * scale, 29 * scale)
-			return holder
-		end,
-	},
-	flat = {
-		height = 8,
-		texture = WHITE,
-		dress = function(parent, height)
-			local holder = CreateFrame("Frame", nil, parent)
-			holder:SetPoint("TOPLEFT")
-			holder:SetSize(BAR_WIDTH, height)
-			local border = holder:CreateTexture(nil, "BACKGROUND")
-			border:SetColorTexture(0, 0, 0, 0.9)
-			border:SetPoint("TOPLEFT", -1, 1)
-			border:SetPoint("BOTTOMRIGHT", 1, -1)
-			return holder
-		end,
-	},
-}
+local bar
 
--- Skill-position markers, all atlases shipped in this client; scale = marker
--- height relative to the bar.
-local MARKERS = {
-	rested = { atlas = "ui-hud-experiencebar-frame-pip-camelot", w = 10, h = 14, scale = 1.3 },
-	capture = { atlas = "worldstate-capturebar-arrow", w = 9, h = 15, scale = 1.4 },
-	widget = { atlas = "genericwidgetbar-marker-plain", w = 23, h = 27, scale = 2 },
-	cast = { atlas = "ui-castingbar-pip-c60", w = 6, h = 30, scale = 1.8 },
-	line = { w = 2, scale = 1, pad = 6 },
-}
-
-local bars = {}
-
-local function ApplyMarker(bar)
-	local key = MARKERS[ns.db.marker] and ns.db.marker or "rested"
-	if bar.markerKey == key then
-		return
-	end
-	bar.markerKey = key
-	local m = MARKERS[key]
-	if m.atlas then
-		local h = bar.height * m.scale
-		bar.marker:SetAtlas(m.atlas)
-		bar.marker:SetSize(h * m.w / m.h, h)
-	else
-		bar.marker:SetColorTexture(1, 1, 1)
-		bar.marker:SetSize(m.w, bar.height + m.pad)
-	end
-end
-
-local function CreateBar(style)
+-- The profession window's header skill bar (ProfessionsRankBarTemplate art),
+-- scaled from its native 18px height down to tooltip size.
+local function CreateBar()
 	local frame = CreateFrame("Frame", nil, UIParent)
-	local height = style.height
-	frame:SetSize(BAR_WIDTH, height + 30)
-	frame.height = height
+	frame:SetSize(BAR_WIDTH, BAR_HEIGHT + 30)
 
-	local track = style.dress(frame, height)
+	local track = CreateFrame("Frame", nil, frame)
+	track:SetPoint("TOPLEFT")
+	track:SetSize(BAR_WIDTH, BAR_HEIGHT)
 	frame.track = track
+
+	local scale = BAR_HEIGHT / 18
+	local bg = track:CreateTexture(nil, "BACKGROUND")
+	bg:SetAtlas("Professions-skillbar-bg")
+	bg:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
+	bg:SetSize(BAR_WIDTH + 12 * scale, 29 * scale)
+	local border = track:CreateTexture(nil, "OVERLAY")
+	border:SetAtlas("Professions-skillbar-frame")
+	border:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
+	border:SetSize(BAR_WIDTH + 10 * scale, 29 * scale)
 
 	frame.segments = {}
 	for i, color in ipairs({ "orange", "yellow", "green", "grey" }) do
 		local seg = track:CreateTexture(nil, "ARTWORK", nil, 1)
-		seg:SetTexture(style.texture)
+		seg:SetTexture(BAND_TEXTURE)
 		seg:SetVertexColor(ns.COLORS[color]:GetRGB())
-		seg:SetHeight(height)
+		seg:SetHeight(BAR_HEIGHT)
 		frame.segments[i] = seg
 	end
 
@@ -108,6 +47,8 @@ local function CreateBar(style)
 	end
 
 	frame.marker = track:CreateTexture(nil, "OVERLAY", nil, 7)
+	frame.marker:SetAtlas(MARKER_ATLAS)
+	frame.marker:SetSize(MARKER_HEIGHT * 10 / 14, MARKER_HEIGHT)
 
 	frame.you = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	return frame
@@ -116,10 +57,8 @@ end
 -- Lays the four colour bands out over [orange, grey + tail]; the tail keeps the
 -- grey band visible and gives the marker somewhere to sit once a recipe is grey.
 local function LayoutBar(t, skill)
-	local styleKey = STYLES[ns.db.barStyle] and ns.db.barStyle or "rank"
-	bars[styleKey] = bars[styleKey] or CreateBar(STYLES[styleKey])
-	local bar = bars[styleKey]
-	local height = bar.height
+	bar = bar or CreateBar()
+	local height = BAR_HEIGHT
 	local lo = t[1]
 	local hi = t[4] + math.max(3, math.floor((t[4] - t[1]) * 0.12 + 0.5))
 	local function X(value)
@@ -149,7 +88,6 @@ local function LayoutBar(t, skill)
 	bar.labels[1]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, -height - 4)
 
 	local mx = X(skill)
-	ApplyMarker(bar)
 	bar.marker:SetPoint("CENTER", bar, "TOPLEFT", mx, -height / 2)
 	bar.you:SetText("You: " .. skill)
 	bar.you:ClearAllPoints()

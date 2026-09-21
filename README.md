@@ -15,9 +15,8 @@ WoW: Forever runs Classic content in the modern Professions window. That window 
 ## Features
 
 - **Recipe rows** show the skill a recipe needs and your chance of a skill-up, coloured by difficulty: `125 · 62%`. A recipe you can't make yet shows only the requirement, in red.
-- **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar, with your current skill marked.
+- **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar, with your current skill marked, drawn in the style of the profession window's own skill bar.
 - **Sorting** within each category by required skill or by skill-up chance. Categories and the game's own filters, including *Only skill-ups*, are unchanged.
-- **Choice of style**: three bar styles and five skill markers, all drawn with the game's own art.
 
 ## Install
 
@@ -32,7 +31,7 @@ Open a profession and the numbers are already there.
 | `/su` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 
-Settings: row text on/off, tooltip on/off, sort order, tooltip bar style, tooltip skill marker.
+Settings: row text on/off, tooltip on/off, sort order.
 
 > **Settings reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working.
 

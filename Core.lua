@@ -111,13 +111,14 @@ function ns.PlayerProfessions()
 		for i = 1, select("#", ...) do
 			local index = select(i, ...)
 			if index then
-				local name, _, rank, maxRank, _, _, reported, modifier = GetProfessionInfo(index)
+				local name, icon, rank, maxRank, _, _, reported, modifier = GetProfessionInfo(index)
 				local skillLine = ns.ProfessionSkillLine(name, reported)
 				if skillLine then
 					modifier = modifier or 0
 					professions[skillLine] = {
 						skillLine = skillLine,
 						name = name,
+						icon = icon,
 						base = rank,
 						max = maxRank,
 						modifier = modifier,

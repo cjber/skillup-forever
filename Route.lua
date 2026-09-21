@@ -244,6 +244,7 @@ local function Render()
 		page.ReagentList:Finish()
 		return
 	end
+	ProfessionsFrame:SetPortraitToAsset(profession.icon)
 	page.Skill:SetFormattedText("Skill  %d/%d     Target", profession.base, profession.max)
 	local route = ns.PlanRoute(profession)
 	if not page.Target:HasFocus() then
@@ -293,7 +294,8 @@ end
 local function CreateHeader()
 	local dropdown = CreateFrame("DropdownButton", nil, page, "WowStyle1DropdownTemplate")
 	dropdown:SetWidth(180)
-	dropdown:SetPoint("TOPLEFT", 20, -32)
+	-- Clear of the portrait, which overhangs the top-left corner.
+	dropdown:SetPoint("TOPLEFT", 76, -32)
 	dropdown:SetupMenu(function(_, root)
 		for skillLine, profession in pairs(ns.PlayerProfessions()) do
 			root:CreateRadio(profession.name, function()
@@ -329,8 +331,12 @@ local function CreateButtons()
 	local track = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
 	track:SetSize(130, 22)
 	track:SetScript("OnClick", function()
-		ns.SetTracked(selected, not ns.IsTracked(selected))
+		local tracked = not ns.IsTracked(selected)
+		ns.SetTracked(selected, tracked)
 		Render()
+		if tracked and not ns.TrackerAttached() then
+			ns.Print("tracked, but the objective tracker section isn't attached; please report it.")
+		end
 	end)
 	page.Track = track
 
@@ -367,13 +373,24 @@ local function CreatePage()
 
 	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
 	page.Auctionator:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
-	page:SetScript("OnShow", Render)
+	-- The portrait follows the profession shown here, and is given back on the way out.
+	local portrait
+	page:SetScript("OnShow", function()
+		portrait = ProfessionsFrame:GetPortrait():GetTexture()
+		Render()
+	end)
+	page:SetScript("OnHide", function()
+		if portrait then
+			ProfessionsFrame:SetPortraitToAsset(portrait)
+		end
+	end)
 end
 
 -- The profession on show in the crafting page, when it is one of this character's.
 local function OpenSkillLine()
 	local info = Professions.GetProfessionInfo()
-	local skillLine = info and (info.parentProfessionID or info.professionID)
+	local name = info and (info.parentProfessionName or info.professionName)
+	local skillLine = name and ns.ProfessionSkillLine(name, info.parentProfessionID or info.professionID)
 	return skillLine and ns.PlayerProfessions()[skillLine] and skillLine
 end
 
@@ -418,7 +435,7 @@ end
 
 local function CreateTab()
 	tab = CreateFrame("Frame", nil, ProfessionsFrame, "LargeSideTabButtonTemplate")
-	tab.Icon:SetTexture("Interface\\Icons\\INV_Misc_Map_01")
+	tab.Icon:SetTexture("Interface\\AddOns\\SkillUpForever\\media\\Icon")
 	tab:SetFillToInterior(true)
 	tab.tooltipText = "Levelling route"
 	tab:EnableMouse(true)

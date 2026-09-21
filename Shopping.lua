@@ -200,6 +200,7 @@ end
 
 function ns.SetTracked(skillLine, tracked)
 	ns.db.trackedProfessions[skillLine] = tracked or nil
+	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 	ns.RefreshTracker()
 end
 

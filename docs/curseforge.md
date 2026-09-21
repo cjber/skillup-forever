@@ -1,5 +1,9 @@
 WoW: Forever runs Classic content in the modern Professions window. That window shows a recipe's colour, but not the skill it needs, when it turns yellow, green or grey, or how likely your next craft is to give a skill-up. SkillUp Forever adds that information to the existing window. It does not open a separate frame.
 
+![The Leatherworking window with skill and chance on each row](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png)
+
+![Threshold tooltip](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tooltip.png)
+
 ## Features
 
 - **Recipe rows** show the skill a recipe needs and your chance of a skill-up, coloured by difficulty: `125 · 62%`. A recipe you can't make yet shows only the requirement, in red.

@@ -10,7 +10,12 @@ Classic profession-levelling numbers inside WoW: Forever's Professions window.<b
 
 WoW: Forever runs Classic content in the modern Professions window. That window shows a recipe's colour, but not the skill it needs, when it turns yellow, green or grey, or how likely your next craft is to give a skill-up. This addon adds that information to the existing window. It does not open a separate frame.
 
-![Concept mockup of the recipe list with skill and chance on each row](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/mockup.png)
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png" width="640" alt="The Leatherworking window with skill and skill-up chance on each recipe row, and the threshold tooltip"></p>
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/recipe-list.png" width="300" alt="Recipe rows showing required skill and chance, coloured by difficulty">
+<img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tooltip.png" width="360" alt="Tooltip with the orange, yellow, green and grey thresholds and your skill marked">
+</p>
 
 ## Features
 

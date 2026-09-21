@@ -1,4 +1,4 @@
-<p align="center"><img src="media/icon-400.png" width="96" alt=""></p>
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/media/icon-400.png" width="96" alt=""></p>
 
 <h1 align="center">SkillUp Forever</h1>
 
@@ -10,7 +10,7 @@ Classic profession-levelling numbers inside WoW: Forever's Professions window.<b
 
 WoW: Forever runs Classic content in the modern Professions window. That window shows a recipe's colour, but not the skill it needs, when it turns yellow, green or grey, or how likely your next craft is to give a skill-up. This addon adds that information to the existing window. It does not open a separate frame.
 
-![Concept mockup of the recipe list with skill and chance on each row](docs/mockup.png)
+![Concept mockup of the recipe list with skill and chance on each row](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/mockup.png)
 
 ## Features
 
@@ -20,7 +20,7 @@ WoW: Forever runs Classic content in the modern Professions window. That window 
 
 ## Install
 
-Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forever) or [Wago Addons](https://addons.wago.io), or download the zip from [Releases](https://github.com/cjber/skillup-forever/releases). To install the zip by hand, extract it into `_classic_beta_/Interface/AddOns/` so you end up with `AddOns/SkillUpForever/SkillUpForever.toc`.
+Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forever) or [Wago Addons](https://addons.wago.io/addons/skillup-forever), or download the zip from [Releases](https://github.com/cjber/skillup-forever/releases). To install the zip by hand, extract it into `_classic_beta_/Interface/AddOns/` so you end up with `AddOns/SkillUpForever/SkillUpForever.toc`.
 
 ## Usage
 

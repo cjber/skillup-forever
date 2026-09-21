@@ -7,6 +7,7 @@
 ## X-License: GPL-3.0-or-later
 ## X-Website: https://github.com/cjber/skillup-forever
 ## X-Curse-Project-ID: 1705762
+## X-Wago-ID: aNerqn62
 ## SavedVariables: SkillUpForeverDB
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick

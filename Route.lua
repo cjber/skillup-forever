@@ -157,7 +157,7 @@ end
 -- under fixed headers, scrolling with Blizzard's ScrollBox and minimal scroll bar
 -- once it outgrows the inset. Each row can show a tooltip and act on a click.
 local function CreateList(parent, columns)
-	local list = { rows = {}, count = 0 }
+	local list = { rows = {}, count = 0, height = 0 }
 	local scrollBox = CreateFrame("Frame", nil, parent, "WowScrollBox")
 	scrollBox:SetPoint("TOPLEFT", 4, -HEADER_HEIGHT)
 	scrollBox:SetPoint("BOTTOMRIGHT", -SCROLL_BAR_WIDTH, 4)
@@ -202,11 +202,8 @@ local function CreateList(parent, columns)
 		end
 	end
 
-	local function CreateRow(index)
+	local function CreateRow()
 		local row = CreateFrame("Button", nil, content)
-		row:SetHeight(LINE_HEIGHT)
-		row:SetPoint("TOPLEFT", 0, -(index - 1) * LINE_HEIGHT)
-		row:SetPoint("RIGHT")
 		row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
 		row:SetScript("OnEnter", OnEnter)
 		row:SetScript("OnLeave", GameTooltip_Hide)
@@ -216,7 +213,6 @@ local function CreateList(parent, columns)
 		row.Icon:SetPoint("LEFT", 6, 0)
 		row.Text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 		row.Text:SetJustifyH("LEFT")
-		row.Text:SetWordWrap(false)
 		row.Values = {}
 		for i, column in ipairs(columns) do
 			local value = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -232,14 +228,31 @@ local function CreateList(parent, columns)
 	-- entry: text, color, icon, values (per column), valueColor, tooltip(tooltip), click().
 	function list:Add(entry)
 		self.count = self.count + 1
-		local row = self.rows[self.count] or CreateRow(self.count)
+		local row = self.rows[self.count] or CreateRow()
 		self.rows[self.count] = row
 		row.entry = entry
 		row.Icon:SetTexture(entry.icon)
 		row.Icon:SetShown(entry.icon ~= nil)
+		row.Text:ClearAllPoints()
 		row.Text:SetPoint("LEFT", entry.icon and ICON_SIZE + 12 or 6, 0)
-		row.Text:SetPoint("RIGHT", entry.values and textRight or -4, 0)
+		row.Text:SetWordWrap(entry.wrap == true)
 		row.Text:SetText(entry.text)
+		-- A wrapped message gets an explicit width, so its height is known now: as
+		-- many lines as it needs. Anything else is one line cut at the columns.
+		local height = LINE_HEIGHT
+		local width = scrollBox:GetWidth() - 10
+		if entry.wrap and width > 0 then
+			row.Text:SetWidth(width)
+			height = math.max(LINE_HEIGHT, row.Text:GetStringHeight() + 6)
+		else
+			row.Text:SetWidth(0)
+			row.Text:SetPoint("RIGHT", entry.values and textRight or -4, 0)
+		end
+		row:ClearAllPoints()
+		row:SetPoint("TOPLEFT", 0, -self.height)
+		row:SetPoint("RIGHT")
+		row:SetHeight(height)
+		self.height = self.height + height
 		row.Text:SetTextColor((entry.color or HIGHLIGHT_FONT_COLOR):GetRGB())
 		for i, value in ipairs(row.Values) do
 			value:SetText(entry.values and entry.values[i] or "")
@@ -250,16 +263,16 @@ local function CreateList(parent, columns)
 	end
 
 	function list:Message(text, color)
-		self:Add({ text = text, color = color or GRAY_FONT_COLOR })
+		self:Add({ text = text, color = color or GRAY_FONT_COLOR, wrap = true })
 	end
 
 	function list:Finish()
 		for i = self.count + 1, #self.rows do
 			self.rows[i]:Hide()
 		end
-		content:SetHeight(math.max(self.count * LINE_HEIGHT, 1))
+		content:SetHeight(math.max(self.height, 1))
 		scrollBox:FullUpdate(ScrollBoxConstants.UpdateImmediately)
-		self.count = 0
+		self.count, self.height = 0, 0
 	end
 	return list
 end

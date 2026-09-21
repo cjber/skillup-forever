@@ -275,8 +275,9 @@ local function CreateModule()
 	module = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", UIParent, "ObjectiveTrackerModuleTemplate")
 	Mixin(module, ModuleMixin)
 	module:SetHeader(ModuleMixin.headerText)
-	-- Near the top, so quests filling the tracker can't push it out of sight.
-	module.uiOrder = 1
+	-- Above every Blizzard section (quests start at 1), so quests filling the tracker
+	-- can't push it out of sight.
+	module.uiOrder = -2
 	hooksecurefunc(ObjectiveTrackerManager, "AddContainer", function(_, container)
 		if container == ObjectiveTrackerFrame then
 			Attach()

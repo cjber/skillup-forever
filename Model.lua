@@ -82,12 +82,22 @@ function Model.PlanRoute(snapshot)
 	end
 	while route.reachedSkill < snapshot.target do
 		local skill = route.reachedSkill
-		local best, bestCost, bestChance
+		-- A profit ranks as free: dividing it by a falling chance would otherwise
+		-- favour near-grey crafts that take many times the crafts per point.
+		local best, bestKey, bestChance
 		for _, recipe in ipairs(priced) do
 			local chance = Model.Chance(recipe.thresholds, skill)
-			local cost = Model.CostPerSkillUp(recipe.netCost, chance)
-			if cost and (not best or cost < bestCost or (cost == bestCost and recipe.recipeID < best.recipeID)) then
-				best, bestCost, bestChance = recipe, cost, chance
+			local key = Model.CostPerSkillUp(math.max(recipe.netCost, 0), chance)
+			if
+				key
+				and (
+					not best
+					or key < bestKey
+					or (key == bestKey and chance > bestChance)
+					or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
+				)
+			then
+				best, bestKey, bestChance = recipe, key, chance
 			end
 		end
 		if not best then
@@ -101,7 +111,7 @@ function Model.PlanRoute(snapshot)
 		end
 		segment.toSkill = skill + 1
 		segment.expectedCrafts = segment.expectedCrafts + 1 / bestChance
-		route.expectedCost = route.expectedCost + bestCost
+		route.expectedCost = route.expectedCost + best.netCost / bestChance
 		route.reachedSkill = skill + 1
 	end
 	for _, segment in ipairs(route.segments) do
@@ -189,11 +199,6 @@ function Model.BuildReagentIndex(recipeData)
 		table.sort(recipes)
 	end
 	return index
-end
-
-function Model.MatchTrainerService(names, skillLine, name)
-	local profession = names and names[skillLine]
-	return profession and profession[name] or nil
 end
 
 -- What one crafted item is worth under `mode`, and where that came from. Auction

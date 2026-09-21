@@ -17,6 +17,7 @@ function ns.RegisterSettings()
 		)
 		setting:SetValueChangedCallback(function()
 			ns.RefreshRecipeList()
+			ns.RefreshTrainer()
 		end)
 		return setting
 	end

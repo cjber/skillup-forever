@@ -15,7 +15,6 @@ local function Snapshot(ctx, target)
 	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
 		local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
 		if info and info.learned then
-			ns.NoteLearned(recipeID)
 			local thresholds = info.canSkillUp ~= false and ns.Model.Get(recipeID)
 			if thresholds then
 				local netCost = ns.NetCost(recipeID)
@@ -28,9 +27,10 @@ local function Snapshot(ctx, target)
 end
 
 -- The chosen target in base skill, per profession; the trainer plans to it too.
-function ns.RouteTarget(profession, base, max)
-	local target = ns.db.routeTargets[profession] or base + 25
-	return math.max(base + 1, math.min(target, max))
+-- A target already reached gives way to the default, and nothing passes the cap.
+function ns.RouteTarget(skillLine, base, max)
+	local saved = ns.db.routeTargets[skillLine]
+	return math.min(saved and saved > base and saved or base + 25, max)
 end
 
 local function RecipeName(recipeID)
@@ -74,8 +74,10 @@ local function Render(ctx)
 	elseif ctx.capped then
 		Add(string.format("At the %d cap: train the next rank to continue.", ctx.max), GRAY_FONT_COLOR)
 	else
-		local target = ns.RouteTarget(ctx.name, ctx.base, ctx.max)
-		panel.Target:SetText(tostring(target))
+		local target = ns.RouteTarget(ctx.skillLine, ctx.base, ctx.max)
+		if not panel.Target:HasFocus() then
+			panel.Target:SetText(tostring(target))
+		end
 		local snapshot, netCosts = Snapshot(ctx, target)
 		route = ns.Model.PlanRoute(snapshot)
 		route.profession = ctx.name
@@ -87,7 +89,7 @@ local function Render(ctx)
 			local t = ns.Model.Get(segment.recipeID)
 			Add(
 				string.format(
-					"~%d× %s → %d  %s",
+					"~%d× %s to %d  %s",
 					segment.crafts,
 					RecipeName(segment.recipeID),
 					segment.toSkill - ctx.modifier,
@@ -101,7 +103,8 @@ local function Render(ctx)
 			panel.Shop:Enable()
 		end
 		if route.stopReason == "no_recipe" then
-			Add(string.format("Nothing you know skills up past %d.", route.reachedSkill - ctx.modifier), RED_FONT_COLOR)
+			local known = route.excluded.unpriced > 0 and "Nothing priced you know" or "Nothing you know"
+			Add(string.format("%s skills up past %d.", known, route.reachedSkill - ctx.modifier), RED_FONT_COLOR)
 		end
 		if route.excluded.unpriced > 0 then
 			Add(string.format("%d recipes skipped: reagents not priced yet.", route.excluded.unpriced), GRAY_FONT_COLOR)
@@ -116,8 +119,8 @@ end
 local function CommitTarget(editBox)
 	local ctx = ns.SkillContext()
 	local value = tonumber(editBox:GetText())
-	if ctx and value then
-		ns.db.routeTargets[ctx.name] = value
+	if ctx and ctx.skillLine and value then
+		ns.db.routeTargets[ctx.skillLine] = value
 	end
 	ns.RefreshRoute()
 end

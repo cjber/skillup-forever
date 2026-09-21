@@ -24,7 +24,7 @@ local function TrainerSkillLine(services)
 		local skillName = GetTrainerServiceSkillReq(index)
 		for skillLine, profession in pairs(professions) do
 			if profession.name == skillName then
-				return skillLine, profession.name
+				return skillLine
 			end
 		end
 	end
@@ -44,7 +44,7 @@ local function Snapshot(skillLine, ctx, services)
 			recipes[#recipes + 1] = { recipeID = recipeID, thresholds = thresholds, netCost = ns.NetCost(recipeID) }
 		end
 	end
-	local target = ns.RouteTarget(ctx.name, ctx.base, ctx.max)
+	local target = ns.RouteTarget(skillLine, ctx.base, ctx.max)
 	return { skill = ctx.skill, target = target + ctx.modifier, recipes = recipes }
 end
 
@@ -75,29 +75,29 @@ local function BuildState()
 		local name, kind = GetTrainerServiceInfo(index)
 		services[index] = { name = name, kind = kind, recipeID = TooltipRecipe(index) }
 	end
-	local skillLine, professionName = TrainerSkillLine(services)
+	local skillLine = TrainerSkillLine(services)
 	local rank, maxRank, modifier = GetTrainerTradeskillRankValues()
 	if not (skillLine and rank) then
 		return { services = services }
 	end
+	local names = ns.RecipeNames[skillLine] or {}
 	for _, service in pairs(services) do
 		if not service.recipeID and service.name then
-			local names = ns.RecipeNames[skillLine]
-			service.ambiguous = names and names[service.name] == false
-			service.recipeID = ns.Model.MatchTrainerService(ns.RecipeNames, skillLine, service.name)
+			local match = names[service.name]
+			service.ambiguous = match == false
+			service.recipeID = match or nil
 		end
 	end
 	modifier = modifier or 0
-	local profession = ns.PlayerProfessions()[skillLine]
 	local ctx = {
+		skillLine = skillLine,
 		skill = rank + modifier,
 		base = rank,
 		modifier = modifier,
 		max = maxRank,
-		name = professionName or (profession and profession.name) or "",
 		capped = maxRank > 0 and rank >= maxRank,
 	}
-	local best = ns.Model.RecommendTraining(Snapshot(skillLine, ctx, services), Candidates(services))
+	local best = not ctx.capped and ns.Model.RecommendTraining(Snapshot(skillLine, ctx, services), Candidates(services))
 	return { services = services, ctx = ctx, best = best and best.recipeID }
 end
 
@@ -108,11 +108,8 @@ local function Decorate(button, elementData)
 	end
 	elementData = elementData and (elementData.data or elementData)
 	local index = elementData and elementData.skillIndex
-	if not (index and ns.db.showTrainer and C_Trainer.GetTrainerType() == Enum.TrainerType.Tradeskills) then
-		return
-	end
-	state = state or BuildState()
-	local service = state.services[index]
+	-- No state while a rebuild is pending; the rebuild redecorates.
+	local service = state and index and state.services[index]
 	if not (service and state.ctx and (service.recipeID or service.ambiguous)) then
 		return
 	end
@@ -124,7 +121,7 @@ local function Decorate(button, elementData)
 	end
 	if service.recipeID then
 		local d = ns.Describe({ recipeID = service.recipeID, learned = service.kind == "used" }, state.ctx)
-		local best = service.recipeID == state.best and "|cffffd100★ best next|r · " or ""
+		local best = service.recipeID == state.best and "|cffffd100Best next|r · " or ""
 		text:SetText(best .. ns.FormatRow(d))
 		text:SetTextColor(ns.RowColor(d):GetRGB())
 	else
@@ -134,10 +131,7 @@ local function Decorate(button, elementData)
 	text:Show()
 end
 
--- Blizzard redraws the buttons inside its update, before any handler of ours could
--- see the event, so rebuild afterwards and redecorate what is on screen.
-local function Redecorate()
-	state = nil
+local function DecorateAll()
 	ClassTrainerFrame.ScrollBox:ForEachFrame(function(button)
 		Decorate(button, button:GetElementData())
 	end)
@@ -147,7 +141,28 @@ local function Redecorate()
 	end
 end
 
+-- Blizzard updates once per service name that arrives, and redraws the buttons
+-- inside each update; drop the old state at once and rebuild once, next frame.
+local pending = false
+function ns.RefreshTrainer()
+	state = nil
+	if pending or not (ClassTrainerFrame and ClassTrainerFrame:IsShown()) then
+		return
+	end
+	pending = true
+	C_Timer.After(0, function()
+		pending = false
+		local tradeskill = C_Trainer.GetTrainerType() == Enum.TrainerType.Tradeskills
+		state = ns.db.showTrainer and tradeskill and ClassTrainerFrame:IsShown() and BuildState() or nil
+		DecorateAll()
+	end)
+end
+
 function ns.AttachTrainer()
 	hooksecurefunc("ClassTrainerFrame_InitServiceButton", Decorate)
-	hooksecurefunc("ClassTrainerFrame_Update", Redecorate)
+	hooksecurefunc("ClassTrainerFrame_Update", ns.RefreshTrainer)
+	local events = CreateFrame("Frame")
+	events:RegisterEvent("PLAYER_MONEY")
+	events:RegisterEvent("TRAINER_CLOSED")
+	events:SetScript("OnEvent", ns.RefreshTrainer)
 end

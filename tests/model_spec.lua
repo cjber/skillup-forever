@@ -207,8 +207,8 @@ local profitable = Model.PlanRoute({
 	target = 4,
 	recipes = { candidate(20, flat, -10), candidate(10, { 1, 1, 3, 5 }, -6) },
 })
-equal(profitable.segments[1].recipeID, 10, "negative costs still minimize cost per chance")
-near(profitable.expectedCost, -12, "negative expected cost is retained")
+equal(profitable.segments[1].recipeID, 20, "a profit never rewards a lower chance")
+near(profitable.expectedCost, -10, "negative expected cost is retained")
 local partial = Model.PlanRoute({
 	skill = 1,
 	target = 6,
@@ -309,13 +309,6 @@ equal(index[4][2], 20, "reverse index sorted second")
 equal(index[5][1], 10, "reverse index single recipe")
 equal(index[99], nil, "unreferenced item absent")
 equal(next(Model.BuildReagentIndex({})), nil, "empty reverse index")
-local names = { [165] = { Unique = 10, Ambiguous = false }, [197] = { Unique = 20 } }
-equal(Model.MatchTrainerService(names, 165, "Unique"), 10, "trainer name within profession")
-equal(Model.MatchTrainerService(names, 197, "Unique"), 20, "trainer name across professions")
-equal(Model.MatchTrainerService(names, 165, "Ambiguous"), nil, "ambiguous trainer name")
-equal(Model.MatchTrainerService(names, 165, "Absent"), nil, "missing trainer name")
-equal(Model.MatchTrainerService(names, 333, "Unique"), nil, "missing trainer profession")
-equal(Model.MatchTrainerService(nil, 165, "Unique"), nil, "trainer data not loaded")
 
 -- Exercise the runtime seam with a small API stub: a bundled fallback must not
 -- hide a later live schematic, and unknown reagent data must never be free.
@@ -389,7 +382,9 @@ do
 	equal(runtime.UsedIn(1)[1], 10, "runtime reverse index")
 	equal(#runtime.UsedIn(99), 0, "runtime absent item returns empty array")
 	live[10] = { reagentSlotSchematics = { { reagentType = 1, quantityRequired = 4, reagents = { { itemID = 1 } } } } }
-	equal(runtime.Reagents(10)[1].quantity, 4, "live schematic replaces uncached fallback immediately")
+	equal(runtime.Reagents(10)[1].quantity, 2, "bundled fallback is held until profession data changes")
+	onEvent(frame, "TRADE_SKILL_LIST_UPDATE")
+	equal(runtime.Reagents(10)[1].quantity, 4, "live schematic replaces the fallback after an update")
 	equal(runtime.NetCost(10), 20, "live non-item output replaces bundled item")
 	live[10] = nil
 	onEvent(frame, "TRADE_SKILL_LIST_UPDATE")

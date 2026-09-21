@@ -7,7 +7,8 @@ local KEYS_PER_SEARCH = 50
 local SCAN_DELAY = 2
 local SEARCH_TIMEOUT = 10
 
-local recipes = {} -- Valid live schematics only; misses and bundled fallbacks are not cached.
+-- [recipeID] = live schematic, else bundled data, else false; cleared when profession data changes.
+local recipes = {}
 local reagentIndex
 local priceCache = {}
 local auctionsTable -- this realm and faction's scanned prices: [itemID] = { copper = n?, time = t }
@@ -118,8 +119,13 @@ local function Recipe(recipeID)
 				end
 			end
 		end
+		-- An empty live schematic is what a recipe outside the open profession can
+		-- look like; bundled reagents beat pricing it as free.
+		local bundled = ns.RecipeData and ns.RecipeData[recipeID]
+		if not recipe or (#recipe.reagents == 0 and bundled) then
+			recipe = bundled or false
+		end
 		recipes[recipeID] = recipe
-		recipe = recipe or (ns.RecipeData and ns.RecipeData[recipeID])
 		if recipe then
 			for _, reagent in ipairs(recipe.reagents) do
 				ns.db.tracked[reagent.itemID] = true
@@ -129,7 +135,7 @@ local function Recipe(recipeID)
 			end
 		end
 	end
-	return recipe
+	return recipe or nil
 end
 
 function ns.Reagents(recipeID)
@@ -176,7 +182,6 @@ end
 -- The list only builds the rows on screen, so reagents are learned for the
 -- whole profession up front; otherwise the scan misses anything not scrolled past.
 function ns.LearnReagents()
-	recipes = {}
 	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs() or {}) do
 		ns.Reagents(recipeID)
 	end

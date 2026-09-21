@@ -11,7 +11,8 @@ local DEFAULTS = {
 	showRoute = true,
 	showTrainer = true,
 	showReagentTooltip = true,
-	routeTargets = {}, -- [profession name] = target base skill
+	routeTargets = {}, -- [profession skill line] = target base skill
+	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
 }
 
 ns.DEFAULTS = DEFAULTS
@@ -65,7 +66,9 @@ function ns.SkillContext()
 		return nil
 	end
 	local modifier = info.skillModifier or 0
+	local base = C_TradeSkillUI.GetBaseProfessionInfo()
 	return {
+		skillLine = base and base.professionID,
 		skill = info.skillLevel + modifier,
 		base = info.skillLevel,
 		modifier = modifier,
@@ -94,17 +97,57 @@ function ns.PlayerProfessions()
 	return professions
 end
 
--- Recipes seen as learned in the Professions window, for places (trainer, item
--- tooltips) that can't ask the window. IsPlayerSpell covers ones not seen yet.
-local learnedRecipes = {}
+-- Recipes this character has been seen to know in the Professions window, for
+-- places (trainer, item tooltips) that can't ask it. IsPlayerSpell covers
+-- professions not opened yet, and every session while SavedVariables fail to load.
+local function LearnedRecipes()
+	local key = UnitName("player") .. "-" .. GetNormalizedRealmName()
+	ns.db.learned[key] = ns.db.learned[key] or {}
+	return ns.db.learned[key]
+end
 
-function ns.NoteLearned(recipeID)
-	learnedRecipes[recipeID] = true
+local function NoteLearnedRecipes()
+	if not ns.db or C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
+		return
+	end
+	local learned = LearnedRecipes()
+	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
+		local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
+		if info then
+			learned[recipeID] = info.learned or nil
+		end
+	end
+end
+
+-- An unlearned profession takes its recipes with it.
+local function ForgetDroppedProfessions()
+	if not ns.db then
+		return
+	end
+	local professions = ns.PlayerProfessions()
+	local learned = LearnedRecipes()
+	for recipeID in pairs(learned) do
+		local recipe = ns.RecipeData[recipeID]
+		if recipe and not professions[recipe.skillLine] then
+			learned[recipeID] = nil
+		end
+	end
 end
 
 function ns.IsLearned(recipeID)
-	return learnedRecipes[recipeID] or IsPlayerSpell(recipeID)
+	return LearnedRecipes()[recipeID] or IsPlayerSpell(recipeID)
 end
+
+local learnEvents = CreateFrame("Frame")
+learnEvents:RegisterEvent("TRADE_SKILL_LIST_UPDATE")
+learnEvents:RegisterEvent("SKILL_LINES_CHANGED")
+learnEvents:SetScript("OnEvent", function(_, event)
+	if event == "SKILL_LINES_CHANGED" then
+		ForgetDroppedProfessions()
+	else
+		NoteLearnedRecipes()
+	end
+end)
 
 -- Everything a row or tooltip renders for one recipe at the current skill.
 function ns.Describe(recipeInfo, ctx)

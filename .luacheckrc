@@ -25,7 +25,7 @@ read_globals = {
 	"GameTooltip_Hide", "GetMoney", "GetNumTrainerServices", "GetProfessionInfo", "GetProfessions",
 	"GetTrainerServiceCost", "GetTrainerServiceInfo", "GetTrainerServiceSkillReq", "GetTrainerServiceStepIndex",
 	"GetTrainerTradeskillRankValues", "IsPlayerSpell", "issecretvalue", "Item", "NORMAL_FONT_COLOR",
-	"TooltipDataProcessor",
+	"TooltipDataProcessor", "UnitName",
 }
 
 files["Data/Thresholds.lua"] = { max_line_length = false }

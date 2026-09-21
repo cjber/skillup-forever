@@ -72,8 +72,9 @@ local function WithNames(items, callback)
 	container:ContinueOnLoad(callback)
 end
 
--- One list per profession, replaced on each export. Vendor reagents stay in chat:
--- an auction search for them would only find resellers.
+-- One list per profession, replaced on each export (emptied when nothing is left
+-- to buy there). Vendor reagents stay in chat: an auction search for them would
+-- only find resellers.
 local function SendToAuctionator(profession, needs)
 	local items = {}
 	for _, bucket in ipairs({ needs.auction, needs.unknown }) do
@@ -81,11 +82,13 @@ local function SendToAuctionator(profession, needs)
 			items[#items + 1] = item
 		end
 	end
+	local api = Auctionator.API.v1
+	local name = "SkillUp: " .. profession
 	if #items == 0 then
+		api.CreateShoppingList(CALLER, name, {})
 		return
 	end
 	WithNames(items, function()
-		local api = Auctionator.API.v1
 		local searches = {}
 		for _, item in ipairs(items) do
 			searches[#searches + 1] = api.ConvertToSearchString(
@@ -93,7 +96,6 @@ local function SendToAuctionator(profession, needs)
 				{ searchString = ItemName(item.itemID), isExact = true, quantity = item.count }
 			)
 		end
-		local name = "SkillUp: " .. profession
 		api.CreateShoppingList(CALLER, name, searches)
 		ns.Print(string.format("sent %d reagents to the Auctionator list '%s'.", #searches, name))
 	end)
@@ -106,7 +108,6 @@ function ns.ExportShopping(route)
 	local needs = Needs(route)
 	if #needs.vendor + #needs.auction + #needs.unknown == 0 then
 		ns.Print("you already have every reagent for this route.")
-		return
 	end
 	if ns.HasAuctionator() then
 		SendToAuctionator(route.profession, needs)

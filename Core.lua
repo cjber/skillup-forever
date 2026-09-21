@@ -8,12 +8,11 @@ local DEFAULTS = {
 	scanAuctions = true,
 	craftValue = "vendor", -- "none" | "vendor" | "auction"
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
-	showRoute = false,
 	showTrainer = true,
 	showReagentTooltip = true,
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
-	-- pinned = { profession, items } while a shopping list is pinned (Shopping.lua)
+	tracked = {}, -- [profession skill line] = true: reagents shown in the objective tracker
 }
 
 ns.DEFAULTS = DEFAULTS
@@ -89,7 +88,16 @@ function ns.PlayerProfessions()
 			if index then
 				local name, _, rank, maxRank, _, _, skillLine, modifier = GetProfessionInfo(index)
 				if skillLine then
-					professions[skillLine] = { name = name, base = rank, max = maxRank, skill = rank + (modifier or 0) }
+					modifier = modifier or 0
+					professions[skillLine] = {
+						skillLine = skillLine,
+						name = name,
+						base = rank,
+						max = maxRank,
+						modifier = modifier,
+						skill = rank + modifier,
+						capped = maxRank > 0 and rank >= maxRank,
+					}
 				end
 			end
 		end

@@ -1,10 +1,10 @@
 local _, ns = ...
 
 local CALLER = "SkillUp Forever"
-local ROW_HEIGHT = 16
-local TRACKER_WIDTH = 250
+-- Matches Blizzard's quest sections: a few objectives, then "...".
+local MAX_OBJECTIVES = 8
 
-local tracker
+local module, buyButton
 
 function ns.HasAuctionator()
 	local api = Auctionator and Auctionator.API and Auctionator.API.v1
@@ -89,24 +89,43 @@ function ns.SendToAuctionator(profession, items)
 	end)
 end
 
--- What the open merchant sells for gold from the pinned list, and its cost.
-local function MerchantPurchases()
-	local pinned = ns.db.pinned
-	if not (pinned and MerchantFrame and MerchantFrame:IsShown()) then
-		return {}, 0
+function ns.IsTracked(skillLine)
+	return ns.db.tracked[skillLine] == true
+end
+
+-- Every tracked profession of this character with the reagents its route still
+-- needs; planned afresh each time, so it follows skill, target, bags and prices.
+local function TrackedNeeds()
+	local tracked = {}
+	for skillLine, profession in pairs(ns.PlayerProfessions()) do
+		if ns.IsTracked(skillLine) and not profession.capped then
+			local route = ns.PlanRoute(profession)
+			tracked[#tracked + 1] = { skillLine = skillLine, route = route, items = ns.RouteReagents(route) }
+		end
 	end
-	local need = {}
-	for _, item in ipairs(pinned.items) do
-		need[item.itemID] = item.need - ns.Have(item.itemID)
+	table.sort(tracked, function(a, b)
+		return a.route.profession < b.route.profession
+	end)
+	return tracked
+end
+
+-- What the open merchant sells for gold of the tracked reagents still missing,
+-- and its cost. Two professions sharing a reagent need both amounts.
+local function MerchantPurchases()
+	local missing = {}
+	for _, entry in ipairs(TrackedNeeds()) do
+		for _, item in ipairs(entry.items) do
+			missing[item.itemID] = (missing[item.itemID] or -ns.Have(item.itemID)) + item.need
+		end
 	end
 	local purchases, cost = {}, 0
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
 		local info = C_MerchantFrame.GetItemInfo(index)
-		local missing = itemID and need[itemID]
-		if missing and missing > 0 and info and info.price and info.price > 0 and not info.hasExtendedCost then
+		local count = itemID and missing[itemID]
+		if count and count > 0 and info and info.price and info.price > 0 and not info.hasExtendedCost then
 			local stack = math.max(info.stackCount or 1, 1)
-			local count = math.ceil(missing / stack) * stack
+			count = math.ceil(count / stack) * stack
 			if info.numAvailable and info.numAvailable >= 0 then
 				count = math.min(count, info.numAvailable * stack)
 			end
@@ -139,101 +158,126 @@ local function BuyMissing()
 	end
 end
 
-local function RenderTracker()
-	local pinned = ns.db.pinned
-	if not pinned then
-		if tracker then
-			tracker:Hide()
+local function RefreshBuyButton()
+	if not (MerchantFrame and MerchantFrame:IsShown()) then
+		if buyButton then
+			buyButton:Hide()
 		end
 		return
 	end
-	tracker:SetTitle("Shopping: " .. pinned.profession)
-	for i, item in ipairs(pinned.items) do
-		local row = tracker.rows[i]
-		if not row then
-			row = tracker:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-			row:SetPoint("TOPLEFT", 14, -30 - (i - 1) * ROW_HEIGHT)
-			row:SetPoint("RIGHT", -60, 0)
-			row:SetJustifyH("LEFT")
-			row:SetWordWrap(false)
-			row.Count = tracker:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-			row.Count:SetPoint("RIGHT", tracker, "RIGHT", -14, 0)
-			row.Count:SetPoint("TOP", row, "TOP")
-			tracker.rows[i] = row
-		end
-		local left, right, color = ns.ReagentText(item)
-		row:SetText(left)
-		row.Count:SetText(right)
-		row.Count:SetTextColor(color:GetRGB())
-		row:Show()
-		row.Count:Show()
-	end
-	for i = #pinned.items + 1, #tracker.rows do
-		tracker.rows[i]:Hide()
-		tracker.rows[i].Count:Hide()
-	end
 	local purchases, cost = MerchantPurchases()
-	local height = 44 + #pinned.items * ROW_HEIGHT
-	if #purchases > 0 then
-		tracker.Buy:SetText("Buy missing  " .. C_CurrencyInfo.GetCoinTextureString(cost))
-		tracker.Buy:Show()
-		height = height + 28
-	else
-		tracker.Buy:Hide()
+	if #purchases == 0 then
+		if buyButton then
+			buyButton:Hide()
+		end
+		return
 	end
-	tracker:SetHeight(height)
-	tracker:Show()
+	if not buyButton then
+		buyButton = CreateFrame("Button", nil, MerchantFrame, "UIPanelButtonTemplate")
+		buyButton:SetPoint("BOTTOMRIGHT", MerchantFrame, "TOPRIGHT", 0, 2)
+		buyButton:SetScript("OnClick", BuyMissing)
+	end
+	buyButton:SetText("Buy tracked reagents  " .. C_CurrencyInfo.GetCoinTextureString(cost))
+	buyButton:SetSize(buyButton:GetTextWidth() + 32, 22)
+	buyButton:Show()
 end
 
-local function CreateTracker()
-	tracker = CreateFrame("Frame", "SkillUpForeverShopping", UIParent, "DefaultPanelFlatTemplate")
-	tracker:SetWidth(TRACKER_WIDTH)
-	tracker:SetPoint("RIGHT", UIParent, "RIGHT", -40, 120)
-	tracker:SetMovable(true)
-	tracker:SetClampedToScreen(true)
-	tracker:EnableMouse(true)
-	tracker:RegisterForDrag("LeftButton")
-	tracker:SetScript("OnDragStart", tracker.StartMoving)
-	tracker:SetScript("OnDragStop", tracker.StopMovingOrSizing)
-	tracker.rows = {}
+function ns.RefreshTracker()
+	if module then
+		module:MarkDirty()
+	end
+	RefreshBuyButton()
+end
 
-	local close = CreateFrame("Button", nil, tracker, "UIPanelCloseButtonDefaultAnchors")
-	close:SetScript("OnClick", function()
-		ns.db.pinned = nil
-		RenderTracker()
+function ns.SetTracked(skillLine, tracked)
+	ns.db.tracked[skillLine] = tracked or nil
+	ns.RefreshTracker()
+end
+
+local ModuleMixin = { headerText = "Profession reagents" }
+
+function ModuleMixin:OnBlockHeaderClick(block)
+	MenuUtil.CreateContextMenu(self:GetContextMenuParent(), function(_, root)
+		root:CreateTitle(block.profession)
+		if ns.HasAuctionator() then
+			root:CreateButton("Send missing to Auctionator", function()
+				ns.SendToAuctionator(block.profession, block.items)
+			end)
+		end
+		root:CreateButton("Stop tracking", function()
+			ns.SetTracked(block.id, false)
+			ns.RefreshRoute()
+		end)
 	end)
+end
 
-	local buy = CreateFrame("Button", nil, tracker, "UIPanelButtonTemplate")
-	buy:SetSize(TRACKER_WIDTH - 28, 22)
-	buy:SetPoint("BOTTOM", 0, 12)
-	buy:SetScript("OnClick", BuyMissing)
-	tracker.Buy = buy
+-- Quest style: "12/20 Linen Cloth", greyed once covered, under "Tailoring to 125".
+function ModuleMixin:LayoutContents()
+	for _, entry in ipairs(TrackedNeeds()) do
+		local block = self:GetBlock(entry.skillLine)
+		block.profession, block.items = entry.route.profession, entry.items
+		block:SetHeader(string.format("%s to %d", entry.route.profession, entry.route.target))
+		if #entry.items == 0 then
+			block:AddObjective("Ready", "Reagents in hand")
+		end
+		for index, item in ipairs(entry.items) do
+			if index > MAX_OBJECTIVES then
+				block:AddObjective("Extra", "...", nil, nil, OBJECTIVE_DASH_STYLE_HIDE)
+				break
+			end
+			local have = ns.Have(item.itemID)
+			local name = C_Item.GetItemNameByID(item.itemID)
+			if not name then
+				C_Item.RequestLoadItemDataByID(item.itemID)
+				name = "item " .. item.itemID
+			end
+			local color = have >= item.need and OBJECTIVE_TRACKER_COLOR.Complete or nil
+			local text = string.format("%d/%d %s", math.min(have, item.need), item.need, name)
+			block:AddObjective(item.itemID, text, nil, nil, nil, color)
+		end
+		if not self:LayoutBlock(block) then
+			return
+		end
+	end
+end
 
+-- Attaching is a no-op until Blizzard's manager has added ObjectiveTrackerFrame as a
+-- container. Its Init is scheduled as a closure over the original function, so hooking
+-- Init never fires; AddContainer is looked up on the table and can be hooked.
+local function Attach()
+	ObjectiveTrackerManager:SetModuleContainer(module, ObjectiveTrackerFrame)
+end
+
+local function CreateModule()
+	if not (ObjectiveTrackerManager and ObjectiveTrackerFrame) then
+		ns.Print("the objective tracker isn't available, so tracked reagents can't be shown.")
+		return
+	end
+	module = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", UIParent, "ObjectiveTrackerModuleTemplate")
+	Mixin(module, ModuleMixin)
+	module:SetHeader(ModuleMixin.headerText)
+	module.uiOrder = 1000
+	hooksecurefunc(ObjectiveTrackerManager, "AddContainer", function(_, container)
+		if container == ObjectiveTrackerFrame then
+			Attach()
+		end
+	end)
+	Attach()
+end
+
+function ns.InitShopping()
+	CreateModule()
 	local events = CreateFrame("Frame")
 	for _, event in ipairs({
 		"BAG_UPDATE_DELAYED",
 		"ITEM_DATA_LOAD_RESULT",
+		"SKILL_LINES_CHANGED",
+		"TRADE_SKILL_LIST_UPDATE",
 		"MERCHANT_SHOW",
 		"MERCHANT_UPDATE",
 		"MERCHANT_CLOSED",
 	}) do
 		events:RegisterEvent(event)
 	end
-	events:SetScript("OnEvent", RenderTracker)
-end
-
-function ns.PinShopping(route)
-	ns.db.pinned = { profession = route.profession, items = ns.RouteReagents(route) }
-	if not tracker then
-		CreateTracker()
-	end
-	RenderTracker()
-end
-
--- A list pinned in an earlier session comes back, when SavedVariables load.
-function ns.InitShopping()
-	if ns.db.pinned then
-		CreateTracker()
-		RenderTracker()
-	end
+	events:SetScript("OnEvent", ns.RefreshTracker)
 end

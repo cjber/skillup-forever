@@ -30,22 +30,14 @@ local function TrainerSkillLine(services)
 	end
 end
 
-local function Snapshot(skillLine, ctx, services)
-	local recipes = {}
+local function Known(services)
 	local known = {}
 	for _, service in pairs(services) do
 		if service.recipeID and service.kind == "used" then
 			known[service.recipeID] = true
 		end
 	end
-	for recipeID, recipe in pairs(ns.RecipeData) do
-		local thresholds = recipe.skillLine == skillLine and ns.Model.Get(recipeID)
-		if thresholds and (known[recipeID] or ns.IsLearned(recipeID)) then
-			recipes[#recipes + 1] = { recipeID = recipeID, thresholds = thresholds, netCost = ns.NetCost(recipeID) }
-		end
-	end
-	local target = ns.RouteTarget(skillLine, ctx.base, ctx.max)
-	return { skill = ctx.skill, target = target + ctx.modifier, recipes = recipes }
+	return known
 end
 
 local function Candidates(services)
@@ -97,7 +89,8 @@ local function BuildState()
 		max = maxRank,
 		capped = maxRank > 0 and rank >= maxRank,
 	}
-	local best = not ctx.capped and ns.Model.RecommendTraining(Snapshot(skillLine, ctx, services), Candidates(services))
+	local best = not ctx.capped
+		and ns.Model.RecommendTraining(ns.RouteSnapshot(ctx, Known(services)), Candidates(services))
 	return { services = services, ctx = ctx, best = best and best.recipeID }
 end
 

@@ -4,8 +4,11 @@ local _, ns = ...
 local LINE_HEIGHT = 20
 local HEADER_HEIGHT = 26
 local ICON_SIZE = 16
-local COLUMN_GAP = 10
-local MAX_LINES = 24
+local COLUMN_GAP = 8
+-- Room kept on the right for the scroll bar, so columns line up with or without it.
+local SCROLL_BAR_WIDTH = 18
+-- How far right of centre the route/reagents split sits.
+local ROUTE_SHARE = 50
 local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
 -- A day-old scan is flagged: auction prices move that fast.
 local STALE_AFTER = 24 * 3600
@@ -137,20 +140,39 @@ local function RecipeIcon(recipeID)
 end
 
 -- A table: icon and name, then right-aligned value columns (listed right to left)
--- under small headers. Each row can show a tooltip and act on a click.
+-- under fixed headers, scrolling with Blizzard's ScrollBox and minimal scroll bar
+-- once it outgrows the inset. Each row can show a tooltip and act on a click.
 local function CreateList(parent, columns)
 	local list = { rows = {}, count = 0 }
-	local right = -12
+	local scrollBox = CreateFrame("Frame", nil, parent, "WowScrollBox")
+	scrollBox:SetPoint("TOPLEFT", 4, -HEADER_HEIGHT)
+	scrollBox:SetPoint("BOTTOMRIGHT", -SCROLL_BAR_WIDTH, 4)
+	local scrollBar = CreateFrame("EventFrame", nil, parent, "MinimalScrollBar")
+	scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 4, 0)
+	scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT", 4, 0)
+	scrollBar:SetHideIfUnscrollable(true)
+	-- Created before Init, which moves `scrollable` children into the scroll target;
+	-- the view stretches it to the box's width.
+	local content = CreateFrame("Frame", nil, scrollBox)
+	content.scrollable = true
+	content:SetSize(1, 1)
+	local view = CreateScrollBoxLinearView()
+	view:SetPanExtent(LINE_HEIGHT)
+	ScrollUtil.InitScrollBoxWithScrollBar(scrollBox, scrollBar, view)
+	list.scrollBox = scrollBox
+
+	-- Headers sit on the inset, rows in the content: both measure from the same edge.
+	local right = -4
 	for _, column in ipairs(columns) do
 		local header = parent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-		header:SetPoint("TOPRIGHT", right, -8)
+		header:SetPoint("TOPRIGHT", right - SCROLL_BAR_WIDTH, -8)
 		header:SetWidth(column.width)
 		header:SetJustifyH(column.justify or "RIGHT")
 		header:SetText(column.title)
-		column.right = right + 6
+		column.right = right
 		right = right - column.width - COLUMN_GAP
 	end
-	local textRight = right + 6
+	local textRight = right
 
 	local function OnEnter(row)
 		if row.entry.tooltip then
@@ -167,10 +189,10 @@ local function CreateList(parent, columns)
 	end
 
 	local function CreateRow(index)
-		local row = CreateFrame("Button", nil, parent)
+		local row = CreateFrame("Button", nil, content)
 		row:SetHeight(LINE_HEIGHT)
-		row:SetPoint("TOPLEFT", 6, -HEADER_HEIGHT - (index - 1) * LINE_HEIGHT)
-		row:SetPoint("RIGHT", -6, 0)
+		row:SetPoint("TOPLEFT", 0, -(index - 1) * LINE_HEIGHT)
+		row:SetPoint("RIGHT")
 		row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
 		row:SetScript("OnEnter", OnEnter)
 		row:SetScript("OnLeave", GameTooltip_Hide)
@@ -202,7 +224,7 @@ local function CreateList(parent, columns)
 		row.Icon:SetTexture(entry.icon)
 		row.Icon:SetShown(entry.icon ~= nil)
 		row.Text:SetPoint("LEFT", entry.icon and ICON_SIZE + 12 or 6, 0)
-		row.Text:SetPoint("RIGHT", entry.values and textRight or -6, 0)
+		row.Text:SetPoint("RIGHT", entry.values and textRight or -4, 0)
 		row.Text:SetText(entry.text)
 		row.Text:SetTextColor((entry.color or HIGHLIGHT_FONT_COLOR):GetRGB())
 		for i, value in ipairs(row.Values) do
@@ -221,6 +243,8 @@ local function CreateList(parent, columns)
 		for i = self.count + 1, #self.rows do
 			self.rows[i]:Hide()
 		end
+		content:SetHeight(math.max(self.count * LINE_HEIGHT, 1))
+		scrollBox:FullUpdate(ScrollBoxConstants.UpdateImmediately)
 		self.count = 0
 	end
 	return list
@@ -365,11 +389,7 @@ local function RenderRoute(list, profession, route)
 	for _, step in ipairs(route.training) do
 		training[step.recipeID] = step
 	end
-	for i, segment in ipairs(route.segments) do
-		if list.count >= MAX_LINES - 4 then
-			list:Message(string.format("+%d more steps", #route.segments - i + 1))
-			break
-		end
+	for _, segment in ipairs(route.segments) do
 		AddRanks(segment.toSkill - m)
 		local step = training[segment.recipeID]
 		if step then
@@ -444,11 +464,7 @@ local function RenderReagents(list, reagents)
 		list:Message("Nothing to buy for this route.")
 		return
 	end
-	for i, item in ipairs(reagents) do
-		if i == MAX_LINES then
-			list:Message(string.format("+%d more reagents", #reagents - i + 1))
-			break
-		end
+	for _, item in ipairs(reagents) do
 		local name = C_Item.GetItemNameByID(item.itemID)
 		if not name then
 			-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
@@ -566,6 +582,8 @@ local function CreateHeader()
 				return skillLine == selected
 			end, function()
 				selected = skillLine
+				page.RouteList.scrollBox:ScrollToBegin()
+				page.ReagentList.scrollBox:ScrollToBegin()
 				Render()
 			end)
 		end
@@ -627,15 +645,16 @@ local function CreatePage()
 
 	local route = CreateInset("Route")
 	route:SetPoint("TOPLEFT", 16, -88)
-	route:SetPoint("BOTTOMRIGHT", page, "BOTTOM", -6, 44)
+	-- The route gets the wider half: its names are longer and it has more columns.
+	route:SetPoint("BOTTOMRIGHT", page, "BOTTOM", ROUTE_SHARE - 6, 44)
 	page.RouteList = CreateList(route, {
-		{ title = "Cost", width = 72 },
-		{ title = "To", width = 30 },
-		{ title = "Crafts", width = 40 },
+		{ title = "Cost", width = 64 },
+		{ title = "To", width = 28 },
+		{ title = "Crafts", width = 36 },
 	})
 
 	local reagents = CreateInset("Reagents  (have / need)")
-	reagents:SetPoint("TOPLEFT", page, "TOP", 6, -88)
+	reagents:SetPoint("TOPLEFT", page, "TOP", ROUTE_SHARE + 6, -88)
 	reagents:SetPoint("BOTTOMRIGHT", -16, 44)
 	page.ReagentList = CreateList(reagents, {
 		{ title = "Have", width = 64 },

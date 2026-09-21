@@ -57,6 +57,27 @@ local function SetLine(index, text, color)
 	line:Show()
 end
 
+-- Bottom right against the window, below Forever's profession tabs, which hang
+-- off its right edge from the top; beyond them when the route is too tall.
+local function Place()
+	local tabs = { ProfessionsFrame.ProfessionsOverviewTab, unpack(ProfessionsFrame.rightProfessionTabs or {}) }
+	local lowest
+	for _, tab in ipairs(tabs) do
+		local bottom = tab:IsShown() and tab:GetBottom()
+		if bottom and (not lowest or bottom < lowest) then
+			lowest = bottom
+		end
+	end
+	local frameBottom = ProfessionsFrame:GetBottom()
+	panel:ClearAllPoints()
+	if lowest and frameBottom and frameBottom + panel:GetHeight() + 4 > lowest then
+		panel:SetPoint("BOTTOM", ProfessionsFrame, "BOTTOM")
+		panel:SetPoint("LEFT", tabs[1], "RIGHT", 2, 0)
+	else
+		panel:SetPoint("BOTTOMLEFT", ProfessionsFrame, "BOTTOMRIGHT", 2, 0)
+	end
+end
+
 local function Render(ctx)
 	local count = 0
 	local function Add(text, color)
@@ -103,7 +124,7 @@ local function Render(ctx)
 			panel.Shop:Enable()
 		end
 		if #route.segments == 0 and route.excluded.unpriced > 0 then
-			Add("Price reagents at a vendor or the auction house.", GRAY_FONT_COLOR)
+			Add("Price reagents at a vendor or the AH.", GRAY_FONT_COLOR)
 		elseif route.stopReason == "no_recipe" then
 			local known = route.excluded.unpriced > 0 and "Nothing priced you know" or "Nothing you know"
 			Add(string.format("%s skills up past %d.", known, route.reachedSkill - ctx.modifier), RED_FONT_COLOR)
@@ -116,6 +137,7 @@ local function Render(ctx)
 		panel.lines[i]:Hide()
 	end
 	panel:SetHeight(108 + count * LINE_HEIGHT)
+	Place()
 end
 
 local function CommitTarget(editBox)
@@ -130,10 +152,6 @@ end
 local function CreatePanel()
 	panel = CreateFrame("Frame", nil, ProfessionsFrame.CraftingPage, "DefaultPanelFlatTemplate")
 	panel:SetWidth(WIDTH)
-	-- Forever hangs the profession tabs off the window's right edge; sit beyond them.
-	local tabs = ProfessionsFrame.ProfessionsOverviewTab
-	panel:SetPoint("TOP", ProfessionsFrame, "TOP")
-	panel:SetPoint("LEFT", tabs or ProfessionsFrame, "RIGHT", 2, 0)
 	panel:SetTitle("Levelling route")
 	panel.lines = {}
 

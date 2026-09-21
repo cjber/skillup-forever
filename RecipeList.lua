@@ -123,6 +123,7 @@ function ns.AttachRecipeList()
 	-- and the list is still empty when Blizzard_Professions finishes loading.
 	ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)
 	hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ApplySort)
+	hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ns.LearnReagents)
 	EventRegistry:RegisterCallback("Professions.RecipeListOnEnter", ns.ShowRecipeTooltip, ns)
 end
 

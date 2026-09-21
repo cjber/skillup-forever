@@ -94,6 +94,14 @@ function ns.Reagents(recipeID)
 	return reagents or nil
 end
 
+-- The list only builds the rows on screen, so reagents are learned for the
+-- whole profession up front; otherwise the scan misses anything not scrolled past.
+function ns.LearnReagents()
+	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
+		ns.Reagents(recipeID)
+	end
+end
+
 function ns.RecipeCost(recipeID)
 	return ns.Model.RecipeCost(ns.Reagents(recipeID), UnitPrice)
 end

@@ -28,8 +28,10 @@ train.
   reagents still missing become an Auctionator shopping list.
 - **The profession trainer shows the same numbers** as recipe rows, and marks the recipe that most cheapens
   or extends your route, training fee included, as `Best next` (closes #2).
-- **Reagent tooltips list the recipes that use them.** Any item you hover shows the recipes of your
-  professions that use it and still skill up, with their colour now, like `yellow until 115`.
+- **Reagent tooltips say what your routes need.** Hovering an item shows how much of it each tracked route
+  needs, like `Route: 28/567 · Leatherworking to 150`; hold Shift for every recipe of yours that uses it
+  and still skills up, with its colour now, like `yellow until 115`. A setting shows that full list
+  always, or turns the section off.
 - Recipes you haven't opened in the Professions window now have reagents and crafted items from the game's
   data, so the trainer and tooltips can price them.
 

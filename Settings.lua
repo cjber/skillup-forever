@@ -82,10 +82,18 @@ function ns.RegisterSettings()
 			.. "and which one is best to train next for your route."
 	)
 
-	Settings.CreateCheckbox(
+	Settings.CreateDropdown(
 		category,
-		Register("showReagentTooltip", Settings.VarType.Boolean, "Show recipes on reagent tooltips"),
-		"Which of your recipes use an item, and their colour at your skill, when hovering it anywhere."
+		Register("reagentTooltip", Settings.VarType.String, "Reagent tooltips"),
+		function()
+			local container = Settings.CreateControlTextContainer()
+			for _, option in ipairs(ns.REAGENT_TOOLTIP_OPTIONS) do
+				container:Add(option[1], option[2])
+			end
+			return container:GetData()
+		end,
+		"What hovering an item says about your professions: how much of it your tracked routes need "
+			.. "(hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."
 	)
 
 	Settings.CreateDropdown(category, Register("sortMode", Settings.VarType.String, "Sort recipes"), function()

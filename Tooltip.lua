@@ -259,18 +259,32 @@ local function Uses(itemID)
 	return uses
 end
 
-local function AddUses(tooltip, data)
-	local itemID = data and data.id
-	if not (ns.db.showReagentTooltip and itemID) or tooltip:IsForbidden() then
-		return
+-- "Route: 28/567 · Leatherworking to 150" for each tracked route that needs the item.
+local function AddRouteNeeds(tooltip, itemID)
+	local added = false
+	for _, entry in ipairs(ns.TrackedNeeds()) do
+		for _, item in ipairs(entry.items) do
+			if item.itemID == itemID then
+				if not added then
+					GameTooltip_AddBlankLineToTooltip(tooltip)
+					added = true
+				end
+				local have = ns.Have(itemID)
+				local text = string.format(
+					"Route: %d/%d · %s to %d",
+					math.min(have, item.need),
+					item.need,
+					entry.route.profession,
+					entry.route.target
+				)
+				GameTooltip_AddColoredLine(tooltip, text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
+			end
+		end
 	end
-	if issecretvalue and issecretvalue(itemID) then
-		return
-	end
-	local uses = Uses(itemID)
-	if #uses == 0 then
-		return
-	end
+	return added
+end
+
+local function AddUsedIn(tooltip, uses)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	GameTooltip_AddNormalLine(tooltip, "Used in")
 	for i, use in ipairs(uses) do
@@ -285,6 +299,46 @@ local function AddUses(tooltip, data)
 	end
 end
 
+local function AddUses(tooltip, data)
+	local itemID = data and data.id
+	local mode = ns.db.reagentTooltip
+	if mode == "off" or not itemID or tooltip:IsForbidden() then
+		return
+	end
+	if issecretvalue and issecretvalue(itemID) then
+		return
+	end
+	local uses = Uses(itemID)
+	if mode == "route" then
+		local needed = AddRouteNeeds(tooltip, itemID)
+		if IsShiftKeyDown() and #uses > 0 then
+			AddUsedIn(tooltip, uses)
+		elseif needed and #uses > 0 then
+			GameTooltip_AddDisabledLine(tooltip, string.format("Shift: used in %d of your recipes", #uses))
+		end
+	elseif mode == "full" then
+		AddRouteNeeds(tooltip, itemID)
+		if #uses > 0 then
+			AddUsedIn(tooltip, uses)
+		end
+	else
+		error("unknown reagent tooltip mode: " .. tostring(mode))
+	end
+end
+
+-- Shift changes what an item tooltip shows, so redraw the one on screen.
+local function OnModifierChanged(_, _, key)
+	if (key == "LSHIFT" or key == "RSHIFT") and ns.db.reagentTooltip == "route" and GameTooltip:IsShown() then
+		local _, _, itemID = GameTooltip:GetItem()
+		if itemID and GameTooltip.RefreshData then
+			GameTooltip:RefreshData()
+		end
+	end
+end
+
 function ns.AttachItemTooltips()
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, AddUses)
+	local events = CreateFrame("Frame")
+	events:RegisterEvent("MODIFIER_STATE_CHANGED")
+	events:SetScript("OnEvent", OnModifierChanged)
 end

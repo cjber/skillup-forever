@@ -37,7 +37,7 @@ Open a profession and the numbers are already there.
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 | `/su scan` | With the auction house open, search it for every known reagent now |
 
-Settings: row text, required skill on rows, tooltip, cost per skill-up, auction house scan, sort order (also in the Filter menu), the levelling route tab, trainer annotations, reagent tooltips.
+Settings: row text, required skill on rows, tooltip, cost per skill-up, auction house scan, sort order (also in the Filter menu), the levelling route tab, trainer annotations, reagent tooltips (off, tracked routes with Shift for every use, or every use).
 
 > **Settings and prices reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working; prices are then relearned each session.
 

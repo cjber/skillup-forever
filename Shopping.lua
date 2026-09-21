@@ -78,7 +78,7 @@ end
 
 -- Every tracked profession of this character with the reagents its route still
 -- needs; planned afresh each time, so it follows skill, target, bags and prices.
-local function TrackedNeeds()
+function ns.TrackedNeeds()
 	local tracked = {}
 	for skillLine, profession in pairs(ns.PlayerProfessions()) do
 		if ns.IsTracked(skillLine) then
@@ -101,7 +101,7 @@ end
 -- and its cost. Two professions sharing a reagent need both amounts.
 local function MerchantPurchases()
 	local missing = {}
-	for _, entry in ipairs(TrackedNeeds()) do
+	for _, entry in ipairs(ns.TrackedNeeds()) do
 		for _, item in ipairs(entry.items) do
 			missing[item.itemID] = (missing[item.itemID] or -ns.Have(item.itemID)) + item.need
 		end
@@ -225,7 +225,7 @@ end
 -- Compact, quest style, under "Tailoring to 125": the next thing to train, then
 -- only the reagents still missing, as "12/20 Linen Cloth". The page has the rest.
 function ModuleMixin:LayoutContents()
-	for _, entry in ipairs(TrackedNeeds()) do
+	for _, entry in ipairs(ns.TrackedNeeds()) do
 		local block = self:GetBlock(entry.skillLine)
 		block.profession, block.items = entry.route.profession, entry.items
 		block:SetHeader(string.format("%s to %d", entry.route.profession, entry.route.target))

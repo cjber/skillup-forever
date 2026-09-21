@@ -10,7 +10,7 @@ local DEFAULTS = {
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
 	showTrainer = true,
 	showRouteTab = true,
-	showReagentTooltip = true,
+	reagentTooltip = "route",
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
@@ -24,6 +24,11 @@ ns.SORT_OPTIONS = {
 	{ "skill", "Required skill" },
 	{ "chance", "Skill-up chance" },
 	{ "cost", "Cheapest skill-up" },
+}
+ns.REAGENT_TOOLTIP_OPTIONS = {
+	{ "off", "Off" },
+	{ "route", "Tracked routes (Shift for all)" },
+	{ "full", "Every recipe that uses it" },
 }
 ns.TITLE = "SkillUp Forever"
 
@@ -52,10 +57,23 @@ end
 -- are always the base and whatever did load is merged over them.
 local function LoadDB()
 	local loaded = type(SkillUpForeverDB) == "table" and SkillUpForeverDB or {}
+	-- Reagent tooltips were on or off before they had a compact mode.
+	if loaded.showReagentTooltip == false then
+		loaded.reagentTooltip = "off"
+	end
+	loaded.showReagentTooltip = nil
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
 			loaded[key] = type(value) == "table" and {} or value
 		end
+	end
+	local mode = loaded.reagentTooltip
+	local valid = false
+	for _, option in ipairs(ns.REAGENT_TOOLTIP_OPTIONS) do
+		valid = valid or option[1] == mode
+	end
+	if not valid then
+		loaded.reagentTooltip = DEFAULTS.reagentTooltip
 	end
 	SkillUpForeverDB = loaded
 	ns.db = loaded

@@ -15,7 +15,7 @@ Where to go next, not just what each recipe costs: a route to your target, what 
 train.
 
 - **A levelling route page on the Professions window**, for any of your professions. Type a target skill
-  and it lists the cheapest crafts from the recipes you know, like `12× Heavy Linen Bandage to 90`, each with its cost, and the total. Every
+  and it lists the cheapest crafts, training recipes where the fee pays for itself, like `12× Heavy Linen Bandage to 90`, each with its cost, and the total. Every
   skill point takes whichever recipe has the lowest cost per skill-up at that point. Recipes with an
   unpriced reagent are left out and counted rather than treated as free, and a route that runs out of
   recipes stops and says where.

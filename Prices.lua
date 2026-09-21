@@ -37,6 +37,7 @@ end
 
 local function PricesChanged()
 	priceCache = {}
+	ns.InvalidatePlans()
 	ns.RefreshRecipeList()
 end
 

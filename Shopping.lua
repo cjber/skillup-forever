@@ -90,7 +90,7 @@ function ns.SendToAuctionator(profession, items)
 end
 
 function ns.IsTracked(skillLine)
-	return ns.db.tracked[skillLine] == true
+	return ns.db.trackedProfessions[skillLine] == true
 end
 
 -- Every tracked profession of this character with the reagents its route still
@@ -100,7 +100,12 @@ local function TrackedNeeds()
 	for skillLine, profession in pairs(ns.PlayerProfessions()) do
 		if ns.IsTracked(skillLine) and not profession.capped then
 			local route = ns.PlanRoute(profession)
-			tracked[#tracked + 1] = { skillLine = skillLine, route = route, items = ns.RouteReagents(route) }
+			tracked[#tracked + 1] = {
+				skillLine = skillLine,
+				route = route,
+				items = ns.RouteReagents(route),
+				modifier = profession.modifier,
+			}
 		end
 	end
 	table.sort(tracked, function(a, b)
@@ -190,7 +195,7 @@ function ns.RefreshTracker()
 end
 
 function ns.SetTracked(skillLine, tracked)
-	ns.db.tracked[skillLine] = tracked or nil
+	ns.db.trackedProfessions[skillLine] = tracked or nil
 	ns.RefreshTracker()
 end
 
@@ -217,6 +222,13 @@ function ModuleMixin:LayoutContents()
 		local block = self:GetBlock(entry.skillLine)
 		block.profession, block.items = entry.route.profession, entry.items
 		block:SetHeader(string.format("%s to %d", entry.route.profession, entry.route.target))
+		for _, step in ipairs(entry.route.training) do
+			local name = C_Spell.GetSpellName(step.recipeID) or ("recipe " .. step.recipeID)
+			block:AddObjective(
+				"Train" .. step.recipeID,
+				string.format("Train %s at %d", name, step.atSkill - entry.modifier)
+			)
+		end
 		if #entry.items == 0 then
 			block:AddObjective("Ready", "Reagents in hand")
 		end
@@ -263,6 +275,11 @@ local function CreateModule()
 		end
 	end)
 	Attach()
+	C_Timer.After(5, function()
+		if not ObjectiveTrackerManager:GetContainerForModule(module) then
+			ns.Print("couldn't add tracked reagents to the objective tracker; please report it.")
+		end
+	end)
 end
 
 function ns.InitShopping()

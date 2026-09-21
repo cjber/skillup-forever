@@ -30,10 +30,50 @@ function ns.RouteSnapshot(profession, known)
 	return { skill = profession.skill, target = target + profession.modifier, recipes = recipes }
 end
 
+-- Trainer-taught recipes of this profession not yet learned that could skill up
+-- somewhere between here and the target, at what a trainer was seen to charge or
+-- else the bundled base fee. Nothing is used before the trainer would teach it:
+-- the thresholds' first value is where a recipe turns orange, not where it's taught.
+local function Trainable(profession, snapshot)
+	local services = {}
+	local seen = ns.db.trainer[profession.skillLine] or {}
+	for recipeID, recipe in pairs(ns.RecipeData) do
+		local training = recipe.skillLine == profession.skillLine and (seen[recipeID] or ns.TrainerFees[recipeID])
+		local t = training and not ns.IsLearned(recipeID) and ns.Model.Get(recipeID)
+		if t then
+			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
+			if taught[1] <= snapshot.target and t[4] > snapshot.skill then
+				services[#services + 1] =
+					{ recipeID = recipeID, thresholds = taught, netCost = ns.NetCost(recipeID), fee = training[1] }
+			end
+		end
+	end
+	table.sort(services, function(a, b)
+		return a.recipeID < b.recipeID
+	end)
+	return services
+end
+
+-- Planning with training re-plans once per candidate, so plans are kept until
+-- prices, recipes, fees or targets change; skill is part of the key.
+local plans = {}
+
+function ns.InvalidatePlans()
+	plans = {}
+end
+
 function ns.PlanRoute(profession)
-	local route = ns.Model.PlanRoute(ns.RouteSnapshot(profession))
+	local target = ns.RouteTarget(profession.skillLine, profession.base, profession.max)
+	local key = profession.skill .. ":" .. target
+	local cached = plans[profession.skillLine]
+	if cached and cached.key == key then
+		return cached.route
+	end
+	local snapshot = ns.RouteSnapshot(profession)
+	local route = ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot))
 	route.profession = profession.name
-	route.target = ns.RouteTarget(profession.skillLine, profession.base, profession.max)
+	route.target = target
+	plans[profession.skillLine] = { key = key, route = route }
 	return route
 end
 
@@ -84,10 +124,19 @@ local function RenderRoute(list, profession, route)
 		list:Add(string.format("At the %d cap: train the next rank to continue.", profession.max), GRAY_FONT_COLOR)
 		return
 	end
+	local training = {}
+	for _, step in ipairs(route.training) do
+		training[step.recipeID] = step
+	end
 	for i, segment in ipairs(route.segments) do
-		if i == MAX_LINES - 3 then
+		if list.count >= MAX_LINES - 4 then
 			list:Add(string.format("+%d more steps", #route.segments - i + 1), GRAY_FONT_COLOR)
 			break
+		end
+		local step = training[segment.recipeID]
+		if step then
+			training[segment.recipeID] = nil
+			list:Add("Train " .. RecipeName(step.recipeID), NORMAL_FONT_COLOR, Money(step.fee), NORMAL_FONT_COLOR)
 		end
 		list:Add(
 			string.format(
@@ -101,7 +150,7 @@ local function RenderRoute(list, profession, route)
 		)
 	end
 	if #route.segments > 0 then
-		list:Add("Total", NORMAL_FONT_COLOR, Money(route.expectedCost), NORMAL_FONT_COLOR)
+		list:Add("Total", NORMAL_FONT_COLOR, Money(route.expectedCost + route.trainingCost), NORMAL_FONT_COLOR)
 	end
 	if #route.segments == 0 and route.excluded.unpriced > 0 then
 		list:Add("Price reagents at a vendor or the AH.", GRAY_FONT_COLOR)
@@ -180,6 +229,7 @@ local function CommitTarget(editBox)
 	local value = tonumber(editBox:GetText())
 	if selected and value then
 		ns.db.routeTargets[selected] = value
+		ns.InvalidatePlans()
 		ns.RefreshTracker()
 	end
 	ns.RefreshRoute()

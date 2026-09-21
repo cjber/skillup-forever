@@ -155,6 +155,54 @@ function Model.RecommendTraining(snapshot, services)
 	return best
 end
 
+-- The learned route plus whatever training pays for itself: keep adding the
+-- service RecommendTraining picks (reach first, then savings net of its fee),
+-- then drop any a later addition made unnecessary. Greedy, so not guaranteed
+-- optimal, but each fee is charged once and only for recipes the route uses.
+function Model.PlanWithTraining(snapshot, services)
+	local recipes, remaining = {}, {}
+	for index, recipe in ipairs(snapshot.recipes) do
+		recipes[index] = recipe
+	end
+	for index, service in ipairs(services) do
+		remaining[index] = service
+	end
+	local current = { skill = snapshot.skill, target = snapshot.target, recipes = recipes }
+	local chosen = {}
+	while true do
+		local best = Model.RecommendTraining(current, remaining)
+		if not best then
+			break
+		end
+		for index, service in ipairs(remaining) do
+			if service.recipeID == best.recipeID then
+				recipes[#recipes + 1] = service
+				chosen[service.recipeID] = service
+				table.remove(remaining, index)
+				break
+			end
+		end
+	end
+	local route = Model.PlanRoute(current)
+	local firstUse = {}
+	for _, segment in ipairs(route.segments) do
+		firstUse[segment.recipeID] = firstUse[segment.recipeID] or segment.fromSkill
+	end
+	-- An unused recipe never changes a greedy pick, so dropping it keeps the route.
+	route.training, route.trainingCost = {}, 0
+	for recipeID, service in pairs(chosen) do
+		if firstUse[recipeID] then
+			route.training[#route.training + 1] =
+				{ recipeID = recipeID, fee = service.fee, atSkill = firstUse[recipeID] }
+			route.trainingCost = route.trainingCost + service.fee
+		end
+	end
+	table.sort(route.training, function(a, b)
+		return a.atSkill < b.atSkill or (a.atSkill == b.atSkill and a.recipeID < b.recipeID)
+	end)
+	return route
+end
+
 function Model.ShoppingList(segments, reagentsOf, owned, sourceOf)
 	local needed = {}
 	for _, segment in ipairs(segments) do

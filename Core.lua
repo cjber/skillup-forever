@@ -12,7 +12,9 @@ local DEFAULTS = {
 	showReagentTooltip = true,
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
-	tracked = {}, -- [profession skill line] = true: reagents shown in the objective tracker
+	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
+	trackedProfessions = {}, -- [profession skill line] = true: reagents shown in the objective tracker
+	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
 }
 
 ns.DEFAULTS = DEFAULTS
@@ -58,6 +60,29 @@ local function LoadDB()
 	ns.db = loaded
 end
 
+local KNOWN_SKILL_LINES = {}
+for _, skillLine in pairs(ns.ProfessionSkillLines) do
+	KNOWN_SKILL_LINES[skillLine] = true
+end
+
+-- The skill line recipe data uses for a profession. Forever's profession APIs
+-- report other IDs (GetProfessionInfo gave 8167, 8175, ...), so the name is the
+-- key: the bundled enUS names, or the pairing seen when the profession was open.
+local warned = {}
+function ns.ProfessionSkillLine(name, reported)
+	local skillLine = ns.ProfessionSkillLines[name] or ns.db.professionIDs[name]
+	if skillLine then
+		return skillLine
+	end
+	if KNOWN_SKILL_LINES[reported] then
+		return reported
+	end
+	if name and not warned[name] then
+		warned[name] = true
+		ns.Print(string.format("can't identify the profession %s (%s); please report it.", name, tostring(reported)))
+	end
+end
+
 -- Effective skill for difficulty purposes includes racial bonuses; the cap is
 -- on base skill, and at the cap nothing can skill up whatever its colour.
 function ns.SkillContext()
@@ -68,7 +93,7 @@ function ns.SkillContext()
 	local modifier = info.skillModifier or 0
 	local base = C_TradeSkillUI.GetBaseProfessionInfo()
 	return {
-		skillLine = base and base.professionID,
+		skillLine = base and ns.ProfessionSkillLine(base.professionName, base.professionID),
 		skill = info.skillLevel + modifier,
 		base = info.skillLevel,
 		modifier = modifier,
@@ -86,7 +111,8 @@ function ns.PlayerProfessions()
 		for i = 1, select("#", ...) do
 			local index = select(i, ...)
 			if index then
-				local name, _, rank, maxRank, _, _, skillLine, modifier = GetProfessionInfo(index)
+				local name, _, rank, maxRank, _, _, reported, modifier = GetProfessionInfo(index)
+				local skillLine = ns.ProfessionSkillLine(name, reported)
 				if skillLine then
 					modifier = modifier or 0
 					professions[skillLine] = {
@@ -118,6 +144,11 @@ end
 local function NoteLearnedRecipes()
 	if not ns.db or C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
 		return
+	end
+	-- A non-English client has no bundled name; learn it from the open profession.
+	local base = C_TradeSkillUI.GetBaseProfessionInfo()
+	if base and base.professionName and KNOWN_SKILL_LINES[base.professionID] then
+		ns.db.professionIDs[base.professionName] = base.professionID
 	end
 	local learned = LearnedRecipes()
 	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
@@ -160,6 +191,7 @@ learnEvents:SetScript("OnEvent", function(_, event)
 	else
 		NoteLearnedRecipes()
 	end
+	ns.InvalidatePlans()
 end)
 
 -- Everything a row or tooltip renders for one recipe at the current skill.

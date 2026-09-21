@@ -260,6 +260,23 @@ local reach = Model.RecommendTraining(blockedSnapshot, {
 })
 equal(reach.recipeID, 30, "reaching farther takes priority over savings")
 equal(reach.reachedSkill, 5, "training reaches full target")
+
+local laddered = Model.PlanWithTraining({ skill = 1, target = 10, recipes = { candidate(100, flat, 100) } }, {
+	candidate(10, { 1, 5, 5, 6 }, 10, 50), -- Cheap early on.
+	candidate(20, { 5, 10, 10, 11 }, 10, 50), -- Cheap once learnable at 5.
+	candidate(30, flat, 90, 1000), -- Never worth its fee.
+})
+equal(#laddered.training, 2, "training ladder keeps both cheap recipes")
+equal(laddered.training[1].recipeID, 10, "training ordered by first use")
+equal(laddered.training[1].atSkill, 1, "early recipe trained first")
+equal(laddered.training[2].recipeID, 20, "later recipe trained second")
+equal(laddered.training[2].atSkill >= 5, true, "recipe not used before learnable")
+equal(laddered.trainingCost, 100, "each fee charged once")
+equal(laddered.reachedSkill, 10, "training ladder reaches target")
+local untrained = Model.PlanWithTraining(trainingSnapshot, { candidate(20, flat, nil, 0) })
+equal(#untrained.training, 0, "unpriced training never planned")
+equal(untrained.trainingCost, 0, "no training, no fees")
+near(untrained.expectedCost, Model.PlanRoute(trainingSnapshot).expectedCost, "no training keeps learned route")
 equal(reach.savings < 0, true, "reach recommendation may cost more")
 local partialReach = Model.RecommendTraining(blockedSnapshot, { candidate(20, { 1, 2, 3, 4 }, 100, 500) })
 equal(partialReach.reachedSkill, 4, "improved partial reach is still recommended")

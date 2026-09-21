@@ -6261,3 +6261,20 @@ ns.RecipeNames = {
 		["Field Guide"] = 1262985,
 	},
 }
+
+-- Profession name (source locale) to skill line; the game's own profession
+-- APIs report other IDs on Forever.
+ns.ProfessionSkillLines = {
+	["Alchemy"] = 171,
+	["Blacksmithing"] = 164,
+	["Cooking"] = 185,
+	["Enchanting"] = 333,
+	["Engineering"] = 202,
+	["First Aid"] = 129,
+	["Fishing"] = 356,
+	["Herbalism"] = 182,
+	["Leatherworking"] = 165,
+	["Mining"] = 186,
+	["Skinning"] = 393,
+	["Tailoring"] = 197,
+}

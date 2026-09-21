@@ -4,6 +4,7 @@ Regenerate from the repository root with Python 3 (standard library only):
 python3 tools/gen_thresholds.py
 python3 tools/gen_vendor.py
 python3 tools/gen_recipes.py
+python3 tools/gen_trainer.py
 luacheck Model.lua tests/ --std lua51
 luajit tests/model_spec.lua
 ```
@@ -46,6 +47,12 @@ sha256sum Data/Recipes.lua
 python3 tools/gen_recipes.py --offline
 sha256sum Data/Recipes.lua
 ```
+
+`gen_trainer.py` writes `Data/Trainer.lua`: base trainer fees for recipes with
+thresholds, from the pinned CMaNGOS classic-db `npc_trainer` table (GPL-3.0). Its
+rows name teaching spells; Classic Era's `SpellEffect` (LEARN_SPELL) maps them to
+recipe spells, since Forever's client leaves the teaching spells out.
+Specialisation-gated rows are skipped, and fees recorded at a trainer in game win.
 
 The recipe generator joins `SkillLineAbility` to `SpellReagents` and base-difficulty
 `SpellEffect` rows. Reagents are sorted by item ID and repeated slots combined.

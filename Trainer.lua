@@ -80,6 +80,17 @@ local function BuildState()
 			service.recipeID = match or nil
 		end
 	end
+	-- Every recipe this trainer teaches, its fee and required skill, for routes
+	-- planned away from it (bundled base fees miss discounts and Forever changes).
+	local seen = ns.db.trainer[skillLine] or {}
+	ns.db.trainer[skillLine] = seen
+	for index, service in pairs(services) do
+		if service.recipeID then
+			local _, required = GetTrainerServiceSkillReq(index)
+			seen[service.recipeID] = { GetTrainerServiceCost(index), required or 0 }
+		end
+	end
+	ns.InvalidatePlans()
 	modifier = modifier or 0
 	local ctx = {
 		skillLine = skillLine,

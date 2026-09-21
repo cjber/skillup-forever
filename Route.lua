@@ -102,11 +102,13 @@ local function Render(ctx)
 			Add("Total  ~" .. Money(route.expectedCost), NORMAL_FONT_COLOR)
 			panel.Shop:Enable()
 		end
-		if route.stopReason == "no_recipe" then
+		if #route.segments == 0 and route.excluded.unpriced > 0 then
+			Add("Price reagents at a vendor or the auction house.", GRAY_FONT_COLOR)
+		elseif route.stopReason == "no_recipe" then
 			local known = route.excluded.unpriced > 0 and "Nothing priced you know" or "Nothing you know"
 			Add(string.format("%s skills up past %d.", known, route.reachedSkill - ctx.modifier), RED_FONT_COLOR)
 		end
-		if route.excluded.unpriced > 0 then
+		if #route.segments > 0 and route.excluded.unpriced > 0 then
 			Add(string.format("%d recipes skipped: reagents not priced yet.", route.excluded.unpriced), GRAY_FONT_COLOR)
 		end
 	end
@@ -128,7 +130,10 @@ end
 local function CreatePanel()
 	panel = CreateFrame("Frame", nil, ProfessionsFrame.CraftingPage, "DefaultPanelFlatTemplate")
 	panel:SetWidth(WIDTH)
-	panel:SetPoint("TOPLEFT", ProfessionsFrame, "TOPRIGHT", 2, 0)
+	-- Forever hangs the profession tabs off the window's right edge; sit beyond them.
+	local tabs = ProfessionsFrame.ProfessionsOverviewTab
+	panel:SetPoint("TOP", ProfessionsFrame, "TOP")
+	panel:SetPoint("LEFT", tabs or ProfessionsFrame, "RIGHT", 2, 0)
 	panel:SetTitle("Levelling route")
 	panel.lines = {}
 

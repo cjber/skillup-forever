@@ -16,7 +16,8 @@ WoW: Forever runs Classic content in the modern Professions window. That window 
 
 - **Recipe rows** show the skill a recipe needs and your chance of a skill-up, coloured by difficulty: `125 · 62%`. A recipe you can't make yet shows only the requirement, in red.
 - **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar, with your current skill marked, drawn in the style of the profession window's own skill bar.
-- **Sorting** within each category by required skill or by skill-up chance. Categories and the game's own filters, including *Only skill-ups*, are unchanged.
+- **Cost per skill-up**: reagent cost divided by skill-up chance, at the end of the row (`125 · 62% · 45s`) and broken down per reagent in the tooltip. See [Prices](#prices).
+- **Sorting** within each category by required skill, skill-up chance or cheapest skill-up. Categories and the game's own filters, including *Only skill-ups*, are unchanged.
 
 ## Install
 
@@ -30,10 +31,21 @@ Open a profession and the numbers are already there.
 |---|---|
 | `/su` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
+| `/su scan` | With the auction house open, search it for every known reagent now |
 
-Settings: row text on/off, tooltip on/off, sort order.
+Settings: row text, tooltip, cost per skill-up, auction house scan, sort order.
 
-> **Settings reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working.
+> **Settings and prices reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working; prices are then relearned each session.
+
+## Prices
+
+Cost per craft counts the recipe's required reagents. Each reagent uses the cheapest price the addon knows:
+
+- **Vendor:** recorded whenever you open a vendor that sells it for gold.
+- **Auction house:** when you open the auction house, the addon searches it for the reagents of every recipe you've looked at (at most once an hour; `/su scan` forces it). Your own searches update prices too. Prices are kept per realm and faction.
+- **Auctionator:** used when the addon hasn't scanned a reagent and [Auctionator](https://www.curseforge.com/wow/addons/auctionator) is installed.
+
+Crafted reagents use their auction price, not the cost of making them. A recipe with any unpriced reagent shows no cost, rather than one that looks cheap only because part of it is missing. Cost per skill-up is cost per craft ÷ skill-up chance, so a yellow recipe at 50% costs twice its reagents per point.
 
 ## How the numbers work
 
@@ -57,7 +69,7 @@ ln -s "$PWD" ".../World of Warcraft/_classic_beta_/Interface/AddOns/SkillUpForev
 
 luacheck .                        # lint
 stylua --check .                  # format
-luajit tests/model_spec.lua       # threshold maths + generated data
+luajit tests/model_spec.lua       # threshold and cost maths + generated data
 python3 tools/gen_thresholds.py   # regenerate Data/Thresholds.lua (see tools/README.md)
 ```
 

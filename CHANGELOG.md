@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Cost per skill-up on recipe rows and in the tooltip: reagent cost ÷ skill-up chance, with each reagent's price and where it came from.
+- Prices from vendors you visit, an automatic auction house scan of known reagents (at most hourly, or `/su scan`), and Auctionator when installed.
+- New sort: cheapest skill-up.
+
 ## v0.1.0
 
 First release.

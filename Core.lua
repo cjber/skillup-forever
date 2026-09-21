@@ -3,7 +3,9 @@ local addonName, ns = ...
 local DEFAULTS = {
 	showRowText = true,
 	showTooltip = true,
-	sortMode = "blizzard", -- "blizzard" | "skill" | "chance"
+	showCost = true,
+	scanAuctions = true,
+	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
 }
 
 ns.DEFAULTS = DEFAULTS
@@ -61,8 +63,9 @@ end
 function ns.Describe(recipeInfo, ctx)
 	local thresholds = ns.Model.Get(recipeInfo.recipeID)
 	local liveColor = LIVE_COLOR[recipeInfo.relativeDifficulty]
+	local cost = ns.RecipeCost(recipeInfo.recipeID)
 	if not thresholds or not ctx then
-		return { thresholds = nil, color = liveColor or "unknown" }
+		return { thresholds = nil, color = liveColor or "unknown", cost = cost }
 	end
 	local chance = ns.Model.Chance(thresholds, ctx.skill)
 	if chance and (ctx.capped or (recipeInfo.learned and recipeInfo.canSkillUp == false)) then
@@ -72,6 +75,8 @@ function ns.Describe(recipeInfo, ctx)
 		thresholds = thresholds,
 		color = liveColor or ns.Model.Color(thresholds, ctx.skill),
 		chance = chance,
+		cost = cost,
+		perSkillUp = ns.Model.CostPerSkillUp(cost, chance),
 	}
 end
 
@@ -129,8 +134,15 @@ end
 SLASH_SKILLUPFOREVER1 = "/skillup"
 SLASH_SKILLUPFOREVER2 = "/su"
 SlashCmdList.SKILLUPFOREVER = function(msg)
-	if strtrim(msg or ""):lower() == "audit" then
+	local command = strtrim(msg or ""):lower()
+	if command == "audit" then
 		Audit()
+	elseif command == "scan" then
+		if AuctionHouseFrame and AuctionHouseFrame:IsShown() then
+			ns.ScanAuctions(true)
+		else
+			ns.Print("open the auction house first.")
+		end
 	else
 		ns.OpenSettings()
 	end
@@ -145,6 +157,7 @@ end
 -- and SavedVariables are in place.
 EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	LoadDB()
+	ns.InitPrices()
 	ns.RegisterSettings()
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Professions", ns.AttachRecipeList)
 end)

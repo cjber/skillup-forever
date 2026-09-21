@@ -215,6 +215,13 @@ local ModuleMixin = { headerText = "Profession reagents" }
 function ModuleMixin:OnBlockHeaderClick(block)
 	MenuUtil.CreateContextMenu(self:GetContextMenuParent(), function(_, root)
 		root:CreateTitle(block.profession)
+		-- Only while this profession is open: the client crafts from the open one.
+		local craft = ns.NextCraft(block.professionInfo, block.route)
+		if craft.recipeID then
+			root:CreateButton(craft.text, function()
+				C_TradeSkillUI.CraftRecipe(craft.recipeID, craft.count)
+			end)
+		end
 		local trainer = block.steps[1] and ns.NearestTrainer(block.professionInfo, block.steps[1].cap)
 		if trainer then
 			root:CreateButton("Waypoint to a trainer", function()
@@ -264,7 +271,7 @@ function ModuleMixin:LayoutContents()
 	for _, entry in ipairs(ns.TrackedNeeds()) do
 		local block = self:GetBlock(entry.skillLine)
 		block.profession, block.items = entry.route.profession, entry.items
-		block.professionInfo, block.vendorMissing = entry.professionInfo, {}
+		block.professionInfo, block.vendorMissing, block.route = entry.professionInfo, {}, entry.route
 		block:SetHeader(string.format("%s to %d", entry.route.profession, entry.route.target))
 		local steps = TrainingSteps(entry)
 		block.steps = steps

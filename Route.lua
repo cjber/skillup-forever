@@ -662,6 +662,53 @@ local function PriceAge(reagents)
 	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 
+-- How many times the bags' reagents make this recipe.
+local function Craftable(recipeID)
+	local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
+	if info and info.numAvailable then
+		return info.numAvailable
+	end
+	local count = math.huge
+	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
+		count = math.min(count, math.floor(C_Item.GetItemCount(reagent.itemID) / reagent.quantity))
+	end
+	return count == math.huge and 0 or count
+end
+
+-- The route's first step, as many times as it needs and the bags allow, with
+-- its label; or why it can't be crafted. The profession must be the open one.
+function ns.NextCraft(profession, route)
+	local segment = route.segments[1]
+	if not segment then
+		return { text = "Craft next", reason = "Nothing to craft on this route." }
+	elseif ns.OpenSkillLine() ~= profession.skillLine then
+		return { text = "Craft next", reason = string.format("Open %s to craft from here.", profession.name) }
+	elseif profession.capped and route.ranks[1] then
+		return {
+			text = "Craft next",
+			reason = string.format("Train %s first: you're at your cap.", route.ranks[1].name),
+		}
+	elseif not ns.IsLearned(segment.recipeID) then
+		return { text = "Craft next", reason = string.format("Train %s first.", RecipeName(segment.recipeID)) }
+	end
+	local count = math.min(segment.crafts, Craftable(segment.recipeID))
+	local craft = { text = string.format("Craft %d× %s", math.max(count, 1), RecipeName(segment.recipeID)) }
+	if count > 0 then
+		craft.recipeID, craft.count = segment.recipeID, count
+	else
+		craft.reason = "Missing reagents for this step."
+	end
+	return craft
+end
+
+local function SetCraft(profession, route)
+	local button, craft = page.Craft, ns.NextCraft(profession, route)
+	button.recipeID, button.count, button.reason = craft.recipeID, craft.count, craft.reason
+	button:SetText(craft.text)
+	button:SetSize(math.min(button:GetTextWidth() + 32, 240), 22)
+	button:SetEnabled(button.recipeID ~= nil)
+end
+
 local function Render()
 	local profession = selected and ns.RouteProfessions()[selected]
 	page.Profession:GenerateMenu()
@@ -669,6 +716,7 @@ local function Render()
 	page.Target:SetShown(profession ~= nil)
 	page.Track:SetEnabled(profession ~= nil)
 	page.Auctionator:Disable()
+	page.Craft:SetShown(profession ~= nil)
 	if not profession then
 		page.RouteList:Message("Learn a crafting profession to plan a route.")
 		page.RouteList:Finish()
@@ -695,6 +743,7 @@ local function Render()
 	page.ReagentList:Finish()
 	page.Track:SetText(ns.IsTracked(selected) and "Stop tracking" or "Track")
 	page.Auctionator:SetEnabled(#reagents > 0)
+	SetCraft(profession, route)
 end
 
 -- Coalesces bursts of list/skill/price/bag updates into one plan.
@@ -798,6 +847,24 @@ local function CreateButtons()
 	end)
 	auctionator:SetShown(ns.HasAuctionator())
 	page.Auctionator = auctionator
+
+	-- CraftRecipe needs this click's hardware event, so the craft is set up in Render.
+	local craft = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
+	craft:SetScript("OnClick", function(self)
+		if self.recipeID then
+			C_TradeSkillUI.CraftRecipe(self.recipeID, self.count)
+		end
+	end)
+	craft:SetMotionScriptsWhileDisabled(true)
+	craft:SetScript("OnEnter", function(self)
+		if self.reason then
+			GameTooltip:SetOwner(self, "ANCHOR_TOP")
+			GameTooltip_SetTitle(GameTooltip, self.reason)
+			GameTooltip:Show()
+		end
+	end)
+	craft:SetScript("OnLeave", GameTooltip_Hide)
+	page.Craft = craft
 end
 
 -- Occupies the crafting page's place, as the overview page does.
@@ -832,6 +899,7 @@ local function CreatePage()
 
 	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
 	page.Auctionator:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
+	page.Craft:SetPoint("TOPRIGHT", route, "BOTTOMRIGHT", 0, -10)
 	-- The portrait follows the profession shown here, and is given back on the way out.
 	local portrait
 	page:SetScript("OnShow", function()

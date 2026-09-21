@@ -27,6 +27,8 @@ train.
   waypoint to the nearest vendor or the likeliest drop (TomTom's arrow when installed).
   Training steps and vendor reagents show the nearest trainer or vendor of your faction, and a click
   (or the tracker's menu) sets a waypoint there.
+- **Craft the next step in one click**: a button under the route (and the tracker's menu) crafts the
+  route's first step as many times as it needs and your bags allow, while that profession is open.
 - **Gather it yourself.** Reagents another of your professions gathers (Light Leather with Skinning, ore
   with Mining, herbs with Herbalism) count as free, so the route uses them and the shopping list says to
   gather them; turn it off in the settings to price them at market. With Syndicator installed, reagent

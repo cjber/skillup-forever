@@ -6,14 +6,19 @@ WoW: Forever runs Classic content in the modern Professions window. That window 
 
 ## Features
 
-- **Recipe rows** show the skill a recipe needs and your chance of a skill-up, coloured by difficulty: `125 · 62%`. A recipe you can't make yet shows only the requirement, in red.
-- **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar with your current skill marked, drawn in the style of the profession window's own skill bar.
-- **Sorting** within each category by required skill or by skill-up chance. Categories and the game's own filters, including *Only skill-ups*, are unchanged.
+- **Recipe rows** show your chance of a skill-up and what each skill-up costs, coloured by difficulty: `62% · 45s` (in coin icons). The skill a recipe needs can be added in settings. A recipe you can't make yet shows only its requirement, in red.
+- **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar with your current skill marked, then each reagent's price and where it came from, what the craft sells for, and the cost per skill-up.
+- **Sorting** by required skill, skill-up chance or cheapest skill-up, from a *Sort by* section in the recipe list's own Filter menu. The game's own filters, including *Only skill-ups*, still apply.
+
+## Prices
+
+Each reagent uses the cheapest price the addon knows: about 50 common vendor supplies are priced from the start, vendors you visit update theirs, opening the auction house scans it for your reagents (at most hourly; `/su scan` forces it), and [Auctionator](https://www.curseforge.com/wow/addons/auctionator) fills anything not scanned. What the craft sells for comes off the cost (vendor price by default, auction price optional), and a skill-up that makes money shows a green `+`. A recipe with any unpriced reagent shows no cost rather than a misleadingly cheap one.
 
 ## Usage
 
 Open a profession and the numbers are already there.
 
+- `/su scan`, with the auction house open, rescans reagent prices.
 - `/su` opens the settings (also in Settings > AddOns, or from the addon compartment on the minimap).
 - `/su audit`, with a profession open, compares the bundled thresholds with the colours the game shows and prints any mismatch.
 

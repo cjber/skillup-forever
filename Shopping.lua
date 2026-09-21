@@ -1,8 +1,8 @@
 local _, ns = ...
 
 local CALLER = "SkillUp Forever"
--- Matches Blizzard's quest sections: a few objectives, then "...".
-local MAX_OBJECTIVES = 8
+-- Missing reagents shown per profession before "...".
+local MAX_OBJECTIVES = 6
 
 local module, buyButton
 
@@ -221,39 +221,55 @@ function ModuleMixin:OnBlockHeaderClick(block)
 	end)
 end
 
--- Quest style: "12/20 Linen Cloth", greyed once covered, under "Tailoring to 125".
+-- Where each training happens, in base skill: ranks when the trainer allows them,
+-- recipes where the route first uses them.
+local function TrainingSteps(entry)
+	local steps = {}
+	for _, rank in ipairs(entry.route.ranks) do
+		steps[#steps + 1] = { skill = rank.reqSkill, text = ns.RankText(rank) }
+	end
+	for _, step in ipairs(entry.route.training) do
+		local name = C_Spell.GetSpellName(step.recipeID) or ("recipe " .. step.recipeID)
+		local skill = step.atSkill - entry.modifier
+		steps[#steps + 1] = { skill = skill, text = string.format("Train %s at %d", name, skill) }
+	end
+	table.sort(steps, function(a, b)
+		return a.skill < b.skill
+	end)
+	return steps
+end
+
+-- Compact, quest style, under "Tailoring to 125": the next thing to train, then
+-- only the reagents still missing, as "12/20 Linen Cloth". The page has the rest.
 function ModuleMixin:LayoutContents()
 	for _, entry in ipairs(TrackedNeeds()) do
 		local block = self:GetBlock(entry.skillLine)
 		block.profession, block.items = entry.route.profession, entry.items
 		block:SetHeader(string.format("%s to %d", entry.route.profession, entry.route.target))
-		for _, rank in ipairs(entry.route.ranks) do
-			block:AddObjective("Rank" .. rank.cap, ns.RankText(rank))
+		local steps = TrainingSteps(entry)
+		if #steps > 0 then
+			local more = #steps > 1 and string.format(" |cff808080(+%d more)|r", #steps - 1) or ""
+			block:AddObjective("Train", steps[1].text .. more)
 		end
-		for _, step in ipairs(entry.route.training) do
-			local name = C_Spell.GetSpellName(step.recipeID) or ("recipe " .. step.recipeID)
-			block:AddObjective(
-				"Train" .. step.recipeID,
-				string.format("Train %s at %d", name, step.atSkill - entry.modifier)
-			)
-		end
-		if #entry.items == 0 then
-			block:AddObjective("Ready", "Reagents in hand")
-		end
-		for index, item in ipairs(entry.items) do
-			if index > MAX_OBJECTIVES then
-				block:AddObjective("Extra", "...", nil, nil, OBJECTIVE_DASH_STYLE_HIDE)
-				break
-			end
+		local shown = 0
+		for _, item in ipairs(entry.items) do
 			local have = ns.Have(item.itemID)
-			local name = C_Item.GetItemNameByID(item.itemID)
-			if not name then
-				C_Item.RequestLoadItemDataByID(item.itemID)
-				name = "item " .. item.itemID
+			if have < item.need then
+				if shown == MAX_OBJECTIVES then
+					block:AddObjective("Extra", "...", nil, nil, OBJECTIVE_DASH_STYLE_HIDE)
+					break
+				end
+				shown = shown + 1
+				local name = C_Item.GetItemNameByID(item.itemID)
+				if not name then
+					C_Item.RequestLoadItemDataByID(item.itemID)
+					name = "item " .. item.itemID
+				end
+				block:AddObjective(item.itemID, string.format("%d/%d %s", have, item.need, name))
 			end
-			local color = have >= item.need and OBJECTIVE_TRACKER_COLOR.Complete or nil
-			local text = string.format("%d/%d %s", math.min(have, item.need), item.need, name)
-			block:AddObjective(item.itemID, text, nil, nil, nil, color)
+		end
+		if shown == 0 then
+			block:AddObjective("Ready", "Reagents in hand", nil, nil, nil, OBJECTIVE_TRACKER_COLOR.Complete)
 		end
 		if not self:LayoutBlock(block) then
 			return

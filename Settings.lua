@@ -18,6 +18,7 @@ function ns.RegisterSettings()
 		setting:SetValueChangedCallback(function()
 			ns.RefreshRecipeList()
 			ns.RefreshTrainer()
+			ns.RefreshRouteTab()
 		end)
 		return setting
 	end
@@ -65,6 +66,13 @@ function ns.RegisterSettings()
 		Register("scanAuctions", Settings.VarType.Boolean, "Scan the auction house"),
 		"Search the auction house for known reagents when you open it (at most once an hour). "
 			.. "Type /su scan to rescan."
+	)
+
+	Settings.CreateCheckbox(
+		category,
+		Register("showRouteTab", Settings.VarType.Boolean, "Show the levelling route tab"),
+		"A side tab on the Professions window with a route to your target skill and its reagents. "
+			.. "Tracked professions stay in the objective tracker either way."
 	)
 
 	Settings.CreateCheckbox(

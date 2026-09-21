@@ -22,7 +22,7 @@ train.
   The target can pass your current cap: the route adds each rank to train on the way, with its fee,
   the skill the trainer wants and the level it needs.
 - **A shopping list from the route.** The page lists every reagent the route needs against what's in your
-  bags and bank. Track it to see it in the objective tracker like a quest; at a vendor, one button on the
+  bags and bank. Track it to see the next thing to train and the reagents still missing in the objective tracker, above your quests; at a vendor, one button on the
   merchant window buys the missing reagents that vendor sells. With Auctionator installed, the auction house
   reagents still missing become an Auctionator shopping list.
 - **The profession trainer shows the same numbers** as recipe rows, and marks the recipe that most cheapens

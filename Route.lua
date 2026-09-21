@@ -433,9 +433,21 @@ local function SyncChecks()
 	end
 end
 
+-- The tab can be turned off in settings; an open page goes back to crafting.
+function ns.RefreshRouteTab()
+	if not tab then
+		return
+	end
+	tab:SetShown(ns.db.showRouteTab)
+	if not ns.db.showRouteTab and page:IsShown() then
+		Deselect()
+		ProfessionsFrame.CraftingPage:Show()
+	end
+end
+
 local function CreateTab()
 	tab = CreateFrame("Frame", nil, ProfessionsFrame, "LargeSideTabButtonTemplate")
-	tab.Icon:SetTexture("Interface\\AddOns\\SkillUpForever\\media\\Icon")
+	tab.Icon:SetTexture("Interface\\Icons\\INV_Scroll_03")
 	tab:SetFillToInterior(true)
 	tab.tooltipText = "Levelling route"
 	tab:EnableMouse(true)
@@ -445,6 +457,7 @@ local function CreateTab()
 		end
 	end)
 	PlaceTab()
+	ns.RefreshRouteTab()
 	hooksecurefunc(ProfessionsFrame, "RefreshRightTabs", PlaceTab)
 	hooksecurefunc(ProfessionsFrame, "RightTabSelected", SyncChecks)
 end

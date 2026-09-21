@@ -9,6 +9,7 @@ local DEFAULTS = {
 	craftValue = "vendor", -- "none" | "vendor" | "auction"
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
 	showTrainer = true,
+	showRouteTab = true,
 	showReagentTooltip = true,
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }

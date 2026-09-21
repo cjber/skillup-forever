@@ -1,17 +1,45 @@
 # Changelog
 
-## v0.2.0
+What changed in each release, in the terms someone levelling a profession would notice. Dates are UTC.
 
-Cost per skill-up: which recipes level your profession most cheaply.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the versions follow
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html). The entries are prose rather than bare
+Added/Fixed lists: what matters about a release is why a number on the screen changed.
 
-- Recipe rows show your skill-up chance and what each skill-up costs, in coin icons. The required skill is now an option; recipes you can't make yet still show it.
-- The tooltip lists each reagent with its price and where it came from, what the craft sells for, and the cost (or profit) per skill-up.
-- Cost is reagents minus what the crafted item sells for: vendor price by default, auction price optional. A skill-up that makes money shows a green +.
-- Prices come from about 50 bundled vendor trade supplies, vendors you visit, an auction house scan when you open it (at most hourly, or `/su scan`), and Auctionator when installed.
-- New *Sort by* section in the recipe list's Filter menu, with a new *Cheapest skill-up* order. A sort lists every recipe in one ordered list, learned then unlearned.
-- Fixed: sorting had no visible effect, because Forever's categories hold one or two recipes each.
+Each version's entry is also its release notes on GitHub, CurseForge and Wago. Older entries are kept
+verbatim rather than rewritten as the addon moves.
 
-## v0.1.0
+## [Unreleased]
+
+Nothing yet.
+
+## [0.2.0] - 2026-09-21
+
+What a skill-up costs, so the cheapest way to level is on the screen next to the chance of getting one.
+
+- **Every recipe row shows its cost per skill-up.** That is the reagents, less what the crafted item sells
+  for, divided by the chance of a skill-up, so a yellow recipe at 50% costs twice its reagents per point.
+  It is shown in coin icons after the chance. A skill-up that makes money shows a green +.
+- **The tooltip shows where the number comes from.** Each reagent is listed with its price and its source
+  (a vendor, the auction house and how long ago, or Auctionator), then what the craft sells for, the net
+  cost of one craft and the cost or profit per skill-up. A recipe with any unpriced reagent shows no cost
+  rather than one that looks cheap because part of it is missing, and says how to price it.
+- **Prices are gathered as you play.** About 50 common vendor supplies (thread, vials, flux, dyes, spices)
+  are priced from the start from the game's own data. A vendor you visit updates its prices, reputation
+  discount included. Opening the auction house searches it for the reagents and crafts of every profession
+  you have opened, at most once an hour (`/su scan` forces it), and your own searches update prices too.
+  Auctionator's prices fill anything not scanned.
+- **What a craft sells for counts.** By default its vendor price comes off the cost; a setting can use its
+  auction price instead when that is higher, after the 5% cut, or leave it out.
+- **Sorting is in the Filter menu, and now does something.** A *Sort by* section at the bottom of the recipe
+  list's own Filter menu offers required skill, skill-up chance and the new *Cheapest skill-up*. Forever's
+  categories hold one or two recipes each, so the old sort inside each category never visibly changed the
+  list; a sort now lists every recipe in one ordered list, learned first, then unlearned. *Default* brings
+  the categories back.
+- **Rows lead with the chance.** The required skill is now a setting and off by default. A recipe you can't
+  make yet still shows it in red, since it is the one number that matters there.
+
+## [0.1.0] - 2026-09-21
 
 First release.
 

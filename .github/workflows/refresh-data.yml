@@ -1,9 +1,10 @@
 name: Refresh threshold data
 
 # Opens a PR when wago.tools lists a newer Forever build whose recipe data differs.
+# Daily: beta builds have shipped several times a week.
 on:
   schedule:
-    - cron: "0 6 * * 1"
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -20,10 +21,19 @@ jobs:
         run: |
           build=$(python3 tools/latest_build.py)
           echo "version=$build" >> "$GITHUB_OUTPUT"
+          if grep -q "^BUILD = \"$build\"" tools/gen_thresholds.py; then
+            echo "already on $build"
+            echo "new=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "new=true" >> "$GITHUB_OUTPUT"
           sed -i -E "s/^BUILD = \".*\"/BUILD = \"$build\"/; s/^SOURCE_DATE = \".*\"/SOURCE_DATE = \"$(date -u +%F)\"/" tools/gen_thresholds.py
-      - run: python3 tools/gen_thresholds.py
-      - run: sudo apt-get update && sudo apt-get install -y luajit && luajit tests/model_spec.lua
-      - uses: peter-evans/create-pull-request@v7
+      - if: steps.build.outputs.new == 'true'
+        run: python3 tools/gen_thresholds.py
+      - if: steps.build.outputs.new == 'true'
+        run: sudo apt-get update && sudo apt-get install -y luajit && luajit tests/model_spec.lua
+      - if: steps.build.outputs.new == 'true'
+        uses: peter-evans/create-pull-request@v7
         with:
           branch: data/forever-${{ steps.build.outputs.version }}
           title: "data: thresholds for Forever ${{ steps.build.outputs.version }}"

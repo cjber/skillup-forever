@@ -61,7 +61,7 @@ luajit tests/model_spec.lua       # threshold maths + generated data
 python3 tools/gen_thresholds.py   # regenerate Data/Thresholds.lua (see tools/README.md)
 ```
 
-CI runs the three checks on every push. Each Monday a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with the regenerated `Data/Thresholds.lua`.
+CI runs the three checks on every push. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with the regenerated `Data/Thresholds.lua`.
 
 **Releasing:** add the notes to `CHANGELOG.md`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago.
 

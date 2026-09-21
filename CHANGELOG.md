@@ -19,6 +19,8 @@ train.
   skill point takes whichever recipe has the lowest cost per skill-up at that point. Recipes with an
   unpriced reagent are left out and counted rather than treated as free, and a route that runs out of
   recipes stops and says where.
+  The target can pass your current cap: the route adds each rank to train on the way, with its fee,
+  the skill the trainer wants and the level it needs.
 - **A shopping list from the route.** The page lists every reagent the route needs against what's in your
   bags and bank. Track it to see it in the objective tracker like a quest; at a vendor, one button on the
   merchant window buys the missing reagents that vendor sells. With Auctionator installed, the auction house

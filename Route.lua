@@ -7,11 +7,32 @@ local page, tab
 local selected -- skill line shown on the page
 local pending = false
 
+local RANK_NAMES = { [150] = "Journeyman", [225] = "Expert", [300] = "Artisan" }
+
+-- The ranks a trainer teaches above the current cap, in order, and the highest cap
+-- they reach. It stops at a gap: a rank that comes from a book or quest isn't known.
+local function NextRanks(profession)
+	local byCap = {}
+	for _, rank in ipairs(ns.TrainerRanks[profession.skillLine] or {}) do
+		byCap[rank[1]] = rank
+	end
+	local ranks, cap = {}, profession.max
+	while byCap[cap + 75] do
+		local rank = byCap[cap + 75]
+		ranks[#ranks + 1] =
+			{ name = RANK_NAMES[rank[1]], cap = rank[1], fee = rank[2], reqSkill = rank[3], level = rank[4] }
+		cap = rank[1]
+	end
+	return ranks, cap
+end
+
 -- The chosen target in base skill, per profession; the trainer plans to it too.
--- A target already reached gives way to the default, and nothing passes the cap.
-function ns.RouteTarget(skillLine, base, max)
-	local saved = ns.db.routeTargets[skillLine]
-	return math.min(saved and saved > base and saved or base + 25, max)
+-- A target already reached gives way to the default. Past the cap is fine up to
+-- the last rank a trainer teaches; the route trains those ranks on the way.
+function ns.RouteTarget(profession)
+	local saved = ns.db.routeTargets[profession.skillLine]
+	local _, ceiling = NextRanks(profession)
+	return math.min(saved and saved > profession.base and saved or profession.base + 25, ceiling)
 end
 
 -- The cheapest route to the target from the recipes this character knows, for
@@ -26,7 +47,7 @@ function ns.RouteSnapshot(profession, known)
 			recipes[#recipes + 1] = { recipeID = recipeID, thresholds = thresholds, netCost = ns.NetCost(recipeID) }
 		end
 	end
-	local target = ns.RouteTarget(profession.skillLine, profession.base, profession.max)
+	local target = ns.RouteTarget(profession)
 	return { skill = profession.skill, target = target + profession.modifier, recipes = recipes }
 end
 
@@ -63,8 +84,8 @@ function ns.InvalidatePlans()
 end
 
 function ns.PlanRoute(profession)
-	local target = ns.RouteTarget(profession.skillLine, profession.base, profession.max)
-	local key = profession.skill .. ":" .. target
+	local target = ns.RouteTarget(profession)
+	local key = profession.skill .. ":" .. profession.max .. ":" .. target
 	local cached = plans[profession.skillLine]
 	if cached and cached.key == key then
 		return cached.route
@@ -73,6 +94,14 @@ function ns.PlanRoute(profession)
 	local route = ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot))
 	route.profession = profession.name
 	route.target = target
+	-- Each rank is needed once the route passes the cap below it.
+	route.ranks = {}
+	for _, rank in ipairs(NextRanks(profession)) do
+		if target > rank.cap - 75 then
+			route.ranks[#route.ranks + 1] = rank
+			route.trainingCost = route.trainingCost + rank.fee
+		end
+	end
 	plans[profession.skillLine] = { key = key, route = route }
 	return route
 end
@@ -119,10 +148,27 @@ local function CreateList(parent)
 	return list
 end
 
+function ns.RankText(rank)
+	local text = string.format("Train %s at %d", rank.name, rank.reqSkill)
+	if rank.level > UnitLevel("player") then
+		text = text .. string.format(" (level %d)", rank.level)
+	end
+	return text
+end
+
 local function RenderRoute(list, profession, route)
-	if profession.capped then
-		list:Add(string.format("At the %d cap: train the next rank to continue.", profession.max), GRAY_FONT_COLOR)
+	if profession.capped and #route.ranks == 0 and #route.segments == 0 then
+		list:Add(string.format("At the %d cap: no trainer teaches the next rank.", profession.max), GRAY_FONT_COLOR)
 		return
+	end
+	local nextRank = 1
+	local function AddRanks(toSkill)
+		local rank = route.ranks[nextRank]
+		while rank and toSkill > rank.cap - 75 do
+			list:Add(ns.RankText(rank), NORMAL_FONT_COLOR, Money(rank.fee), NORMAL_FONT_COLOR)
+			nextRank = nextRank + 1
+			rank = route.ranks[nextRank]
+		end
 	end
 	local training = {}
 	for _, step in ipairs(route.training) do
@@ -133,6 +179,7 @@ local function RenderRoute(list, profession, route)
 			list:Add(string.format("+%d more steps", #route.segments - i + 1), GRAY_FONT_COLOR)
 			break
 		end
+		AddRanks(segment.toSkill - profession.modifier)
 		local step = training[segment.recipeID]
 		if step then
 			training[segment.recipeID] = nil
@@ -202,7 +249,7 @@ local function Render()
 	if not page.Target:HasFocus() then
 		page.Target:SetText(tostring(route.target))
 	end
-	local reagents = profession.capped and {} or ns.RouteReagents(route)
+	local reagents = ns.RouteReagents(route)
 	RenderRoute(page.RouteList, profession, route)
 	RenderReagents(page.ReagentList, reagents)
 	page.RouteList:Finish()

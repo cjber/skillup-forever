@@ -52,7 +52,9 @@ sha256sum Data/Recipes.lua
 thresholds, from the pinned CMaNGOS classic-db `npc_trainer` table (GPL-3.0). Its
 rows name teaching spells; Classic Era's `SpellEffect` (LEARN_SPELL) maps them to
 recipe spells, since Forever's client leaves the teaching spells out.
-Specialisation-gated rows are skipped, and fees recorded at a trainer in game win.
+Specialisation-gated rows are skipped, and fees recorded at a trainer in game win. It also writes `ns.TrainerRanks`: each profession rank a trainer teaches (the
+taught spell's `SKILL` effect gives the skill line and the new cap), with fee,
+required skill and level. Ranks that come from books or quests are absent.
 
 The recipe generator joins `SkillLineAbility` to `SpellReagents` and base-difficulty
 `SpellEffect` rows. Reagents are sorted by item ID and repeated slots combined.

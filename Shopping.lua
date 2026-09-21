@@ -98,7 +98,7 @@ end
 local function TrackedNeeds()
 	local tracked = {}
 	for skillLine, profession in pairs(ns.PlayerProfessions()) do
-		if ns.IsTracked(skillLine) and not profession.capped then
+		if ns.IsTracked(skillLine) then
 			local route = ns.PlanRoute(profession)
 			tracked[#tracked + 1] = {
 				skillLine = skillLine,
@@ -222,6 +222,9 @@ function ModuleMixin:LayoutContents()
 		local block = self:GetBlock(entry.skillLine)
 		block.profession, block.items = entry.route.profession, entry.items
 		block:SetHeader(string.format("%s to %d", entry.route.profession, entry.route.target))
+		for _, rank in ipairs(entry.route.ranks) do
+			block:AddObjective("Rank" .. rank.cap, ns.RankText(rank))
+		end
 		for _, step in ipairs(entry.route.training) do
 			local name = C_Spell.GetSpellName(step.recipeID) or ("recipe " .. step.recipeID)
 			block:AddObjective(

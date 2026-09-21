@@ -94,8 +94,8 @@ local function BuildState()
 	modifier = modifier or 0
 	local ctx = {
 		skillLine = skillLine,
-		skill = rank + modifier,
 		base = rank,
+		skill = rank + modifier,
 		modifier = modifier,
 		max = maxRank,
 		capped = maxRank > 0 and rank >= maxRank,

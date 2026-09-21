@@ -367,6 +367,7 @@ local function TrainTooltip(tooltip, profession, step)
 	RequiresLine(tooltip, profession, step.reqSkill)
 	AddLine(tooltip, "First used at", tostring(step.atSkill - profession.modifier))
 	AddBands(tooltip, profession, step.recipeID)
+	ns.AddNearest(tooltip, "Nearest trainer", ns.NearestTrainer(profession, step.reqSkill + 1))
 end
 
 local function RankTooltip(tooltip, profession, rank)
@@ -377,6 +378,17 @@ local function RankTooltip(tooltip, profession, rank)
 	if rank.level > 0 then
 		local color = UnitLevel("player") < rank.level and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
 		AddLine(tooltip, "Requires", string.format("level %d", rank.level), color)
+	end
+	ns.AddNearest(tooltip, "Nearest trainer", ns.NearestTrainer(profession, rank.cap))
+end
+
+-- A waypoint to the nearest trainer teaching up to `cap`.
+local function TrainerClick(profession, cap)
+	return function()
+		local npcID = ns.NearestTrainer(profession, cap)
+		if npcID then
+			ns.SetWaypoint(npcID)
+		end
 	end
 end
 
@@ -466,6 +478,7 @@ local function RenderRoute(list, profession, route)
 				tooltip = function(tooltip)
 					RankTooltip(tooltip, profession, shown)
 				end,
+				click = TrainerClick(profession, shown.cap),
 			})
 			nextRank = nextRank + 1
 			rank = route.ranks[nextRank]
@@ -489,7 +502,7 @@ local function RenderRoute(list, profession, route)
 				tooltip = function(tooltip)
 					TrainTooltip(tooltip, profession, step)
 				end,
-				click = RecipeClick(step.recipeID),
+				click = TrainerClick(profession, step.reqSkill + 1),
 			})
 		end
 		list:Add({
@@ -552,6 +565,9 @@ local function ReagentTooltip(tooltip, item)
 	if have < item.need then
 		AddLine(tooltip, "To buy", Money(price.copper * (item.need - have)))
 	end
+	if item.source == "vendor" then
+		ns.AddNearest(tooltip, "Nearest vendor", ns.NearestVendor(item.itemID))
+	end
 end
 
 -- Reagents of known recipes that still skill up but have no price, which is what
@@ -609,8 +625,11 @@ local function RenderReagents(list, reagents)
 			end,
 			click = function()
 				local _, link = C_Item.GetItemInfo(item.itemID)
-				if link then
+				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
+				if link and IsModifiedClick() then
 					HandleModifiedItemClick(link)
+				elseif vendor then
+					ns.SetWaypoint(vendor)
 				end
 			end,
 		})

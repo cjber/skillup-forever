@@ -25,6 +25,8 @@ train.
   When the recipes you know run out, the route lists the scrolls that would carry it on, from vendors,
   quests and drops, easiest to get first, with every source's zone and coordinates; click one for a
   waypoint to the nearest vendor or the likeliest drop (TomTom's arrow when installed).
+  Training steps and vendor reagents show the nearest trainer or vendor of your faction, and a click
+  (or the tracker's menu) sets a waypoint there.
 - **A shopping list from the route.** The page lists every reagent the route needs against what's in your
   bags and bank. Track it to see the next thing to train and the reagents still missing in the objective tracker, above your quests; at a vendor, one button on the
   merchant window buys the missing reagents that vendor sells. With Auctionator installed, the auction house

@@ -85,6 +85,7 @@ function ns.TrackedNeeds()
 			local route = ns.PlanRoute(profession)
 			tracked[#tracked + 1] = {
 				skillLine = skillLine,
+				professionInfo = profession,
 				route = route,
 				items = ns.RouteReagents(route),
 				modifier = profession.modifier,
@@ -192,6 +193,17 @@ local ModuleMixin = { headerText = "Profession reagents" }
 function ModuleMixin:OnBlockHeaderClick(block)
 	MenuUtil.CreateContextMenu(self:GetContextMenuParent(), function(_, root)
 		root:CreateTitle(block.profession)
+		local trainer = block.steps[1] and ns.NearestTrainer(block.professionInfo, block.steps[1].cap)
+		if trainer then
+			root:CreateButton("Waypoint to a trainer", function()
+				ns.SetWaypoint(trainer)
+			end)
+		end
+		for _, item in ipairs(block.vendorMissing) do
+			root:CreateButton("Waypoint to a vendor: " .. item.name, function()
+				ns.SetWaypoint(item.vendor)
+			end)
+		end
 		if ns.HasAuctionator() then
 			root:CreateButton("Send missing to Auctionator", function()
 				ns.SendToAuctionator(block.profession, block.items)
@@ -209,12 +221,14 @@ end
 local function TrainingSteps(entry)
 	local steps = {}
 	for _, rank in ipairs(entry.route.ranks) do
-		steps[#steps + 1] = { skill = rank.reqSkill, text = ns.RankText(rank) }
+		steps[#steps + 1] = { skill = rank.reqSkill, cap = rank.cap, text = ns.RankText(rank) }
 	end
 	for _, step in ipairs(entry.route.training) do
 		local name = C_Spell.GetSpellName(step.recipeID) or ("recipe " .. step.recipeID)
 		local skill = step.atSkill - entry.modifier
-		steps[#steps + 1] = { skill = skill, text = string.format("Train %s at %d", name, skill) }
+		-- A trainer teaches recipes needing less than the cap they train to.
+		local cap = ns.TrainingFor(entry.professionInfo, step.recipeID)[2] + 1
+		steps[#steps + 1] = { skill = skill, cap = cap, text = string.format("Train %s at %d", name, skill) }
 	end
 	table.sort(steps, function(a, b)
 		return a.skill < b.skill
@@ -228,8 +242,10 @@ function ModuleMixin:LayoutContents()
 	for _, entry in ipairs(ns.TrackedNeeds()) do
 		local block = self:GetBlock(entry.skillLine)
 		block.profession, block.items = entry.route.profession, entry.items
+		block.professionInfo, block.vendorMissing = entry.professionInfo, {}
 		block:SetHeader(string.format("%s to %d", entry.route.profession, entry.route.target))
 		local steps = TrainingSteps(entry)
+		block.steps = steps
 		if #steps > 0 then
 			local more = #steps > 1 and string.format(" |cff808080(+%d more)|r", #steps - 1) or ""
 			block:AddObjective("Train", steps[1].text .. more)
@@ -249,6 +265,10 @@ function ModuleMixin:LayoutContents()
 					name = "item " .. item.itemID
 				end
 				block:AddObjective(item.itemID, string.format("%d/%d %s", have, item.need, name))
+				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
+				if vendor then
+					block.vendorMissing[#block.vendorMissing + 1] = { name = name, vendor = vendor }
+				end
 			end
 		end
 		if shown == 0 then

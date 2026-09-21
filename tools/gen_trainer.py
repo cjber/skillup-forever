@@ -59,7 +59,8 @@ def teach_effects(refresh=False, offline=False):
     return rows
 
 
-def generate(ids, trainer_lines, effect_rows):
+def spell_maps(effect_rows):
+    """Teaching spell -> taught spells, and rank spell -> (skill line, new cap)."""
     teaches = defaultdict(set)
     rank_of = {}
     for row in effect_rows:
@@ -70,6 +71,11 @@ def generate(ids, trainer_lines, effect_rows):
         elif int(row["Effect"]) == SKILL:
             cap = (int(row["EffectBasePoints"]) + 1) * RANK_SKILL
             put_unique(rank_of, int(row["SpellID"]), (int(row["EffectMiscValue_0"]), cap), "rank effect")
+    return teaches, rank_of
+
+
+def generate(ids, trainer_lines, effect_rows):
+    teaches, rank_of = spell_maps(effect_rows)
     # Specialisation-gated rows (condition, required ability) can't be assumed
     # trainable; a recipe offered without a gate anywhere is.
     fees = defaultdict(Counter)

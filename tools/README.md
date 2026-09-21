@@ -66,6 +66,9 @@ stocks it in limited supply), the three likeliest creature drops from
 rewards from `quest_template`. Each NPC keeps its name, faction (`FactionTemplate`)
 and one world spawn; the client turns that into a zone and map position, so the
 generator needs no zone boundaries. Dungeon spawns carry the instance name from `Map`.
+It also writes each profession's trainers with the highest rank they teach (their
+`npc_trainer` rank spells), and the vendors that always stock each vendor reagent in
+`Data/Vendor.lua`, for waypoints to the nearest one.
 
 The recipe generator joins `SkillLineAbility` to `SpellReagents` and base-difficulty
 `SpellEffect` rows. Reagents are sorted by item ID and repeated slots combined.

@@ -172,3 +172,29 @@ function ns.AddSourceLines(tooltip, source)
 		GameTooltip_AddNormalLine(tooltip, "World drop")
 	end
 end
+
+-- The nearest trainer of this profession, of your faction, who teaches up to `cap`.
+function ns.NearestTrainer(profession, cap)
+	local trainers = {}
+	for _, row in ipairs(ns.ProfessionTrainers[profession.skillLine] or {}) do
+		if row[2] >= cap then
+			trainers[#trainers + 1] = row[1]
+		end
+	end
+	return ns.NearestNPC(trainers, true)
+end
+
+function ns.NearestVendor(itemID)
+	local vendors = ns.ReagentVendors[itemID]
+	return vendors and ns.NearestNPC(vendors, true)
+end
+
+-- "Nearest trainer  Name" over its zone and coordinates, and what a click does.
+function ns.AddNearest(tooltip, label, npcID)
+	if not npcID then
+		return
+	end
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	AddNPC(tooltip, label, npcID, nil, true)
+	GameTooltip_AddInstructionLine(tooltip, "Click for a waypoint.")
+end

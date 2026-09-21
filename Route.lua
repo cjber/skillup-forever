@@ -238,9 +238,9 @@ local function AddLine(tooltip, left, right, rightColor)
 	GameTooltip_AddColoredDoubleLine(tooltip, left, right, NORMAL_FONT_COLOR, rightColor or HIGHLIGHT_FONT_COLOR)
 end
 
+-- Not red when short: the route gets there before this step.
 local function RequiresLine(tooltip, profession, reqSkill)
-	local color = profession.base < reqSkill and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
-	AddLine(tooltip, "Requires", string.format("%s (%d)", profession.name, reqSkill), color)
+	AddLine(tooltip, "Requires", string.format("%s (%d)", profession.name, reqSkill))
 end
 
 -- The crafted item's own tooltip when there is one, else the recipe's name.
@@ -255,15 +255,26 @@ local function RecipeTitle(tooltip, recipeID, title)
 	end
 end
 
-local function Bands(t)
-	local c = ns.COLORS
-	return string.format(
-		"%s  %s  %s  %s",
-		c.orange:WrapTextInColorCode("orange " .. t[1]),
-		c.yellow:WrapTextInColorCode("yellow " .. t[2]),
-		c.green:WrapTextInColorCode("green " .. t[3]),
-		c.grey:WrapTextInColorCode("grey " .. t[4])
-	)
+local BAND_NAMES = { "orange", "yellow", "green", "grey" }
+
+-- "Colour from  120  132  145", each number in its band's colour, starting where
+-- the recipe can be learned: the data's first threshold can sit far below that.
+local function AddBands(tooltip, profession, recipeID)
+	local t = ns.Model.Get(recipeID)
+	if not t then
+		return
+	end
+	local training = ns.TrainingFor(profession, recipeID)
+	local learnAt = training and training[2] + profession.modifier or t[1]
+	local parts, names = {}, {}
+	for i, name in ipairs(BAND_NAMES) do
+		local from = math.max(t[i], learnAt)
+		if i == #BAND_NAMES or from < t[i + 1] then
+			parts[#parts + 1] = ns.COLORS[name]:WrapTextInColorCode(tostring(from))
+			names[#names + 1] = ns.COLORS[name]:WrapTextInColorCode(name)
+		end
+	end
+	AddLine(tooltip, table.concat(names, " "), table.concat(parts, "  "))
 end
 
 local function CraftTooltip(tooltip, profession, segment)
@@ -274,10 +285,7 @@ local function CraftTooltip(tooltip, profession, segment)
 		"Crafts",
 		string.format("%d, from %d to %d", segment.crafts, segment.fromSkill - m, segment.toSkill - m)
 	)
-	local t = ns.Model.Get(recipeID)
-	if t then
-		GameTooltip_AddHighlightLine(tooltip, Bands(t))
-	end
+	AddBands(tooltip, profession, recipeID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
 		local name = C_Item.GetItemNameByID(reagent.itemID) or ("item " .. reagent.itemID)
@@ -304,6 +312,7 @@ local function TrainTooltip(tooltip, profession, step)
 	AddLine(tooltip, "Fee", Money(step.fee))
 	RequiresLine(tooltip, profession, step.reqSkill)
 	AddLine(tooltip, "First used at", tostring(step.atSkill - profession.modifier))
+	AddBands(tooltip, profession, step.recipeID)
 end
 
 local function RankTooltip(tooltip, profession, rank)

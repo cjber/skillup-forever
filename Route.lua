@@ -444,7 +444,15 @@ local function RenderRoute(list, profession, route)
 		})
 	end
 	if #route.segments == 0 and route.excluded.unpriced > 0 then
-		list:Message("No prices yet for the reagents listed: open the auction house to scan them.")
+		-- Auctionator knows only what it has scanned, so installing it isn't enough.
+		local how = ns.HasAuctionator() and "open the auction house (or run Auctionator's Full Scan)"
+			or "open the auction house"
+		list:Message(
+			string.format(
+				"Neither SkillUp nor Auctionator has seen these reagents on the auction house yet: %s to price them.",
+				how
+			)
+		)
 	elseif route.stopReason == "no_recipe" then
 		local known = route.excluded.unpriced > 0 and "Nothing priced you know" or "Nothing you know"
 		list:Message(string.format("%s skills up past %d.", known, route.reachedSkill - m), RED_FONT_COLOR)

@@ -63,18 +63,8 @@ function Model.CostPerSkillUp(cost, chance)
 	return cost / chance
 end
 
--- Short money for a recipe row: 1.2g, 45s, 80c.
-function Model.ShortMoney(copper)
-	copper = math.floor(copper + 0.5)
-	if copper >= 9950 then
-		local gold = copper / 10000
-		if gold >= 99.5 then
-			return string.format("%dg", math.floor(gold + 0.5))
-		end
-		return (string.format("%.1fg", gold):gsub("%.0g$", "g"))
-	end
-	if copper >= 100 then
-		return string.format("%ds", math.floor(copper / 100 + 0.5))
-	end
-	return string.format("%dc", copper)
+-- Rounds to the two largest coins so a row stays short: 1g 23s, 45s, 80c.
+function Model.RoundMoney(copper)
+	local unit = copper >= 1000000 and 10000 or copper >= 10000 and 100 or copper >= 100 and 100 or 1
+	return math.max(math.floor(copper / unit + 0.5), 1) * unit
 end

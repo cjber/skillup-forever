@@ -24,7 +24,13 @@ function ns.RegisterSettings()
 	Settings.CreateCheckbox(
 		category,
 		Register("showRowText", Settings.VarType.Boolean, "Show skill on recipe rows"),
-		"Required skill and skill-up chance at the right of each recipe."
+		"Skill-up chance and cost per skill-up at the right of each recipe."
+	)
+
+	Settings.CreateCheckbox(
+		category,
+		Register("showSkill", Settings.VarType.Boolean, "Show required skill on rows"),
+		"Add the skill each recipe needs. Recipes you can't make yet always show it."
 	)
 
 	Settings.CreateCheckbox(

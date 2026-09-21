@@ -2,6 +2,7 @@ local addonName, ns = ...
 
 local DEFAULTS = {
 	showRowText = true,
+	showSkill = false,
 	showTooltip = true,
 	showCost = true,
 	scanAuctions = true,

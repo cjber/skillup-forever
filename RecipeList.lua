@@ -6,14 +6,19 @@ local function FormatRow(d)
 	if not d.thresholds then
 		return "?"
 	end
+	-- A recipe you can't make yet keeps its requirement: it's the only useful number.
 	if not d.chance then
 		return tostring(d.thresholds[1])
 	end
-	local text = string.format("%d · %d%%", d.thresholds[1], math.floor(d.chance * 100 + 0.5))
-	if ns.db.showCost and d.perSkillUp then
-		text = text .. " · " .. ns.Model.ShortMoney(d.perSkillUp)
+	local parts = {}
+	if ns.db.showSkill then
+		parts[#parts + 1] = tostring(d.thresholds[1])
 	end
-	return text
+	parts[#parts + 1] = string.format("%d%%", math.floor(d.chance * 100 + 0.5))
+	if ns.db.showCost and d.perSkillUp then
+		parts[#parts + 1] = C_CurrencyInfo.GetCoinTextureString(ns.Model.RoundMoney(d.perSkillUp))
+	end
+	return table.concat(parts, " · ")
 end
 
 -- The row's own Init sized the label for Blizzard's right-hand widgets only;

@@ -1,7 +1,7 @@
 {
   "runtime.version": "Lua 5.1",
   "diagnostics.globals": ["SkillUpForeverDB", "SLASH_SKILLUPFOREVER1", "SLASH_SKILLUPFOREVER2", "SlashCmdList",
-    "C_TradeSkillUI", "CreateColor", "CreateFrame", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
+    "C_TradeSkillUI", "CreateColor", "CreateFrame", "CreateTreeDataProvider", "ScrollBoxConstants", "strcmputf8i", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
     "GameTooltip", "GameTooltip_AddColoredLine", "GameTooltip_AddDisabledLine", "GameTooltip_InsertFrame",
     "GameTooltip_SetTitle", "hooksecurefunc", "Professions", "ProfessionsFrame", "ScrollUtil",
     "Settings", "strtrim", "UIParent", "DIFFICULT_DIFFICULTY_COLOR", "EASY_DIFFICULTY_COLOR", "FAIR_DIFFICULTY_COLOR",

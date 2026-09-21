@@ -12,7 +12,7 @@ globals = {
 }
 
 read_globals = {
-	"C_TradeSkillUI", "CreateColor", "CreateFrame", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
+	"C_TradeSkillUI", "CreateColor", "CreateFrame", "CreateTreeDataProvider", "ScrollBoxConstants", "strcmputf8i", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
 	"GameTooltip", "GameTooltip_AddColoredLine", "GameTooltip_AddDisabledLine", "GameTooltip_InsertFrame",
 	"GameTooltip_SetTitle", "hooksecurefunc", "Professions", "ProfessionsFrame", "ScrollUtil",
 	"Settings", "strtrim", "UIParent",

@@ -77,48 +77,77 @@ local SORT_KEYS = {
 	end,
 }
 
--- Recipes are compared by our key; anything else (categories, padding rows,
--- ties) falls through to Blizzard's comparator, so structure is untouched.
-local function WrapComparator(original, key, ctx)
-	return function(a, b)
-		local ar, br = a:GetData().recipeInfo, b:GetData().recipeInfo
-		if ar and br then
-			local ka, kb = key(ar, ctx), key(br, ctx)
-			if ka ~= kb then
-				return ka < kb
-			end
+-- Forever's categories hold one or two recipes each, so sorting inside them changes
+-- nothing. A sort instead flattens the list: learned recipes, then unlearned ones.
+local UNLEARNED_CATEGORY_ID = -2 -- Blizzard uses -1 for Favorites
+local replacing = false
+
+local function CollectRecipes(node, learned, unlearned, seen)
+	for _, child in ipairs(node:GetNodes()) do
+		local info = child:GetData().recipeInfo
+		if not info then
+			CollectRecipes(child, learned, unlearned, seen)
+		elseif not info.favoritesInstance and not seen[info.recipeID] then
+			seen[info.recipeID] = true
+			local list = info.learned and learned or unlearned
+			list[#list + 1] = info
 		end
-		return original(a, b)
 	end
 end
 
-local function SortTree(node, key, ctx)
-	for _, child in ipairs(node:GetNodes()) do
-		local original = child.sortComparator
-		if original and child:GetData().categoryInfo then
-			local wrapped = WrapComparator(original, key, ctx)
-			child:SetSortComparator(wrapped, false, true)
-			table.sort(child:GetNodes(), wrapped)
-		end
-		SortTree(child, key, ctx)
+local function SortRecipes(list, key, ctx)
+	local keys = {}
+	for _, info in ipairs(list) do
+		keys[info] = key(info, ctx)
 	end
+	table.sort(list, function(a, b)
+		if keys[a] ~= keys[b] then
+			return keys[a] < keys[b]
+		end
+		return strcmputf8i(a.name, b.name) < 0
+	end)
+end
+
+local function BuildSorted(source, key)
+	local ctx = ns.SkillContext()
+	local learned, unlearned = {}, {}
+	CollectRecipes(source:GetRootNode(), learned, unlearned, {})
+	SortRecipes(learned, key, ctx)
+	SortRecipes(unlearned, key, ctx)
+
+	local sorted = CreateTreeDataProvider()
+	for _, info in ipairs(learned) do
+		sorted:Insert({ recipeInfo = info })
+	end
+	if #unlearned > 0 then
+		if #learned > 0 then
+			sorted:Insert({ isDivider = true, dividerHeight = 30 })
+		end
+		local header = sorted:Insert({
+			categoryInfo = { name = "Unlearned", categoryID = UNLEARNED_CATEGORY_ID, unlearned = true },
+		})
+		for _, info in ipairs(unlearned) do
+			header:Insert({ recipeInfo = info })
+		end
+	end
+	return sorted
 end
 
 local function ApplySort(scrollBox)
 	local key = SORT_KEYS[ns.db.sortMode]
-	local dataProvider = scrollBox:GetDataProvider()
-	if not key or not dataProvider or not dataProvider.GetRootNode then
+	local source = scrollBox:GetDataProvider()
+	if replacing or not key or not source or not source.GetRootNode then
 		return
 	end
-	local ok, err = pcall(SortTree, dataProvider:GetRootNode(), key, ns.SkillContext())
+	local ok, sorted = pcall(BuildSorted, source, key)
 	if not ok then
 		ns.db.sortMode = "blizzard"
-		ns.Print("sorting failed and has been turned off: " .. tostring(err))
+		ns.Print("sorting failed and has been turned off: " .. tostring(sorted))
 		return
 	end
-	-- The provider caches its flattened rows; without this the list keeps drawing
-	-- the order it had before we sorted.
-	dataProvider:Invalidate()
+	replacing = true
+	scrollBox:SetDataProvider(sorted, ScrollBoxConstants.RetainScrollPosition)
+	replacing = false
 end
 
 -- A "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu

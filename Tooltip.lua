@@ -99,6 +99,11 @@ local function Money(copper)
 	return C_CurrencyInfo.GetCoinTextureString(math.floor(copper + 0.5))
 end
 
+-- A profit reads as a green "+"; a cost is just the coins.
+function ns.FormatNet(copper, profit)
+	return (profit and "|cff40ff40+|r" or "") .. Money(copper)
+end
+
 local function SourceText(price)
 	if price.source == "vendor" then
 		return "vendor"
@@ -140,13 +145,41 @@ local function AddCost(tooltip, recipeID, d)
 			tooltip:AddDoubleLine(left, "no price", 1, 1, 1, 0.5, 0.5, 0.5)
 		end
 	end
-	if d.cost then
-		tooltip:AddDoubleLine("Cost per craft", Money(d.cost), 1, 0.82, 0, 1, 1, 1)
-	else
+	if not d.cost then
 		GameTooltip_AddDisabledLine(tooltip, "Visit the auction house or a vendor to price reagents.")
+		return
+	end
+	tooltip:AddDoubleLine("Reagents", Money(d.cost), 1, 0.82, 0, 1, 1, 1)
+	if d.value then
+		local each = d.value.quantity ~= 1 and string.format(" x%g", d.value.quantity) or ""
+		tooltip:AddDoubleLine(
+			"Sells for" .. each,
+			string.format(
+				"%s |cff808080(%s)|r",
+				Money(d.value.copper),
+				d.value.source == "auction" and "AH" or "vendor"
+			),
+			1,
+			0.82,
+			0,
+			1,
+			1,
+			1
+		)
+		tooltip:AddDoubleLine(
+			d.net < 0 and "Profit per craft" or "Net per craft",
+			Money(math.abs(d.net)),
+			1,
+			0.82,
+			0,
+			1,
+			1,
+			1
+		)
 	end
 	if d.perSkillUp then
-		tooltip:AddDoubleLine("Per skill-up", "~" .. Money(d.perSkillUp), 1, 0.82, 0, 1, 1, 1)
+		local label = d.perSkillUp < 0 and "Profit per skill-up" or "Per skill-up"
+		tooltip:AddDoubleLine(label, "~" .. ns.FormatNet(math.abs(d.perSkillUp), d.perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
 	end
 end
 

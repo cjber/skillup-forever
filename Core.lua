@@ -6,6 +6,7 @@ local DEFAULTS = {
 	showTooltip = true,
 	showCost = true,
 	scanAuctions = true,
+	craftValue = "vendor", -- "none" | "vendor" | "auction"
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
 }
 
@@ -71,8 +72,11 @@ function ns.Describe(recipeInfo, ctx)
 	local thresholds = ns.Model.Get(recipeInfo.recipeID)
 	local liveColor = LIVE_COLOR[recipeInfo.relativeDifficulty]
 	local cost = ns.RecipeCost(recipeInfo.recipeID)
+	local value = cost and ns.CraftValue(recipeInfo.recipeID)
+	-- Net of what the craft sells for; negative means each craft makes money.
+	local net = cost and cost - (value and value.copper or 0)
 	if not thresholds or not ctx then
-		return { thresholds = nil, color = liveColor or "unknown", cost = cost }
+		return { thresholds = nil, color = liveColor or "unknown", cost = cost, value = value, net = net }
 	end
 	local chance = ns.Model.Chance(thresholds, ctx.skill)
 	if chance and (ctx.capped or (recipeInfo.learned and recipeInfo.canSkillUp == false)) then
@@ -83,7 +87,9 @@ function ns.Describe(recipeInfo, ctx)
 		color = liveColor or ns.Model.Color(thresholds, ctx.skill),
 		chance = chance,
 		cost = cost,
-		perSkillUp = ns.Model.CostPerSkillUp(cost, chance),
+		value = value,
+		net = net,
+		perSkillUp = ns.Model.CostPerSkillUp(net, chance),
 	}
 end
 

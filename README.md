@@ -45,7 +45,9 @@ Cost per craft counts the recipe's required reagents. Each reagent uses the chea
 - **Auction house:** when you open the auction house, the addon searches it for the reagents of every recipe you've looked at (at most once an hour; `/su scan` forces it). Your own searches update prices too. Prices are kept per realm and faction.
 - **Auctionator:** used when the addon hasn't scanned a reagent and [Auctionator](https://www.curseforge.com/wow/addons/auctionator) is installed.
 
-Crafted reagents use their auction price, not the cost of making them. A recipe with any unpriced reagent shows no cost, rather than one that looks cheap only because part of it is missing. Cost per skill-up is cost per craft ÷ skill-up chance, so a yellow recipe at 50% costs twice its reagents per point.
+What you craft counts too: by default its vendor sell price is taken off the cost, and a setting can use its auction price instead when that's higher (after the 5% cut; it may not sell). A recipe that earns more than it costs shows a green `+` and sorts first under *Cheapest skill-up*.
+
+Crafted reagents use their auction price, not the cost of making them. A recipe with any unpriced reagent shows no cost, rather than one that looks cheap only because part of it is missing. Cost per skill-up is net cost per craft ÷ skill-up chance, so a yellow recipe at 50% costs twice its reagents per point.
 
 ## How the numbers work
 

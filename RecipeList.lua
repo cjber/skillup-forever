@@ -16,7 +16,7 @@ local function FormatRow(d)
 	end
 	parts[#parts + 1] = string.format("%d%%", math.floor(d.chance * 100 + 0.5))
 	if ns.db.showCost and d.perSkillUp then
-		parts[#parts + 1] = C_CurrencyInfo.GetCoinTextureString(ns.Model.RoundMoney(d.perSkillUp))
+		parts[#parts + 1] = ns.FormatNet(ns.Model.RoundMoney(math.abs(d.perSkillUp)), d.perSkillUp < 0)
 	end
 	return table.concat(parts, " · ")
 end

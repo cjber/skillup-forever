@@ -6,6 +6,7 @@
 - Prices for about 50 vendor trade supplies bundled from the client's data, updated by vendors you visit, an automatic auction house scan of known reagents (at most hourly, or `/su scan`), and Auctionator when installed.
 - Rows now show skill-up chance and cost per skill-up (in coin icons); the required skill is an option, and still shows on recipes you can't make yet.
 - Fixed: choosing a sort order had no visible effect, because Forever's categories hold one or two recipes each. A sort now lists all recipes in one ordered list, learned then unlearned.
+- Cost is net of what the craft sells for (vendor price by default, auction price optional); profitable skill-ups show a green +.
 - New sort: cheapest skill-up. Sorting now also sits in the recipe list's Filter menu, under *Sort by*.
 
 ## v0.1.0

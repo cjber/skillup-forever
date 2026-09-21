@@ -7,7 +7,7 @@ local KEYS_PER_SEARCH = 50
 local SCAN_DELAY = 2
 local SEARCH_TIMEOUT = 10
 
-local reagentsByRecipe = {}
+local recipes = {} -- [recipeID] = { reagents = {...}, output = { itemID, quantity } } or false
 local priceCache = {}
 local auctionsTable -- this realm and faction's scanned prices: [itemID] = { copper = n?, time = t }
 -- pending: the current search's items still without a result; asked: all of them.
@@ -77,25 +77,65 @@ local function UnitPrice(itemID)
 end
 
 -- Basic reagents only: optional and finishing slots don't have to be filled.
--- Recording them is what tells the auction scan which items to search.
-function ns.Reagents(recipeID)
-	local reagents = reagentsByRecipe[recipeID]
-	if reagents == nil then
+-- Reagents and crafted items are both tracked, which is what the auction scan searches.
+local function Recipe(recipeID)
+	local recipe = recipes[recipeID]
+	if recipe == nil then
 		local schematic = C_TradeSkillUI.GetRecipeSchematic(recipeID, false)
-		reagents = false
+		recipe = false
 		if schematic and schematic.reagentSlotSchematics then
-			reagents = {}
+			recipe = { reagents = {} }
 			for _, slot in ipairs(schematic.reagentSlotSchematics) do
 				local first = slot.reagents and slot.reagents[1]
 				if slot.reagentType == Enum.CraftingReagentType.Basic and first and first.itemID then
-					reagents[#reagents + 1] = { itemID = first.itemID, quantity = slot.quantityRequired }
-					ns.db.reagents[first.itemID] = true
+					recipe.reagents[#recipe.reagents + 1] = { itemID = first.itemID, quantity = slot.quantityRequired }
+					ns.db.tracked[first.itemID] = true
 				end
 			end
+			if schematic.outputItemID then
+				local quantity = ((schematic.quantityMin or 1) + (schematic.quantityMax or schematic.quantityMin or 1))
+					/ 2
+				recipe.output = { itemID = schematic.outputItemID, quantity = quantity }
+				ns.db.tracked[schematic.outputItemID] = true
+			end
 		end
-		reagentsByRecipe[recipeID] = reagents
+		recipes[recipeID] = recipe
 	end
-	return reagents or nil
+	return recipe or nil
+end
+
+function ns.Reagents(recipeID)
+	local recipe = Recipe(recipeID)
+	return recipe and recipe.reagents
+end
+
+local itemInfoPending = false
+
+-- Vendor sell price, or nil until the client has the item cached; the refresh
+-- once it arrives redraws the rows.
+local function SellPrice(itemID)
+	local sell = select(11, C_Item.GetItemInfo(itemID))
+	if sell == nil then
+		itemInfoPending = true
+		C_Item.RequestLoadItemDataByID(itemID)
+	end
+	return sell
+end
+
+-- What one craft sells for: { copper, source, each, quantity } or nil.
+function ns.CraftValue(recipeID)
+	local recipe = Recipe(recipeID)
+	local output = recipe and recipe.output
+	if not output then
+		return nil
+	end
+	local entry = Auctions()[output.itemID]
+	local auction = entry and entry.copper or AuctionatorPrice(output.itemID)
+	local each, source = ns.Model.CraftValue(SellPrice(output.itemID), auction, ns.db.craftValue)
+	if not each then
+		return nil
+	end
+	return { copper = each * output.quantity, source = source, each = each, quantity = output.quantity }
 end
 
 -- The list only builds the rows on screen, so reagents are learned for the
@@ -135,7 +175,7 @@ local function HarvestBrowseResults()
 	local auctions, now, changed = Auctions(), time(), false
 	for _, result in ipairs(C_AuctionHouse.GetBrowseResults()) do
 		local itemID = result.itemKey.itemID
-		if ns.db.reagents[itemID] and result.minPrice and result.totalQuantity > 0 then
+		if ns.db.tracked[itemID] and result.minPrice and result.totalQuantity > 0 then
 			auctions[itemID] = { copper = result.minPrice, time = now }
 			changed = true
 			if pending and pending[itemID] then
@@ -211,7 +251,7 @@ function ns.ScanAuctions(force)
 	end
 	local auctions, now = Auctions(), time()
 	queue, scanned = {}, 0
-	for itemID in pairs(ns.db.reagents) do
+	for itemID in pairs(ns.db.tracked) do
 		local last = auctions[itemID]
 		if force or not last or now - last.time > SCAN_MAX_AGE then
 			queue[#queue + 1] = itemID
@@ -256,12 +296,16 @@ frame:SetScript("OnEvent", function(_, event)
 		FinishScanIfDone()
 	elseif event == "AUCTION_HOUSE_THROTTLED_SYSTEM_READY" then
 		SendNextSearch()
+	elseif event == "GET_ITEM_INFO_RECEIVED" and itemInfoPending then
+		-- Items arrive in bursts; one redraw covers the burst.
+		itemInfoPending = false
+		C_Timer.After(0.5, PricesChanged)
 	end
 end)
 
 function ns.InitPrices()
 	Table(ns.db, "vendor")
-	Table(ns.db, "reagents")
+	Table(ns.db, "tracked")
 	for _, event in ipairs({
 		"MERCHANT_SHOW",
 		"MERCHANT_UPDATE",
@@ -270,6 +314,7 @@ function ns.InitPrices()
 		"AUCTION_HOUSE_BROWSE_RESULTS_UPDATED",
 		"AUCTION_HOUSE_BROWSE_RESULTS_ADDED",
 		"AUCTION_HOUSE_THROTTLED_SYSTEM_READY",
+		"GET_ITEM_INFO_RECEIVED",
 	}) do
 		frame:RegisterEvent(event)
 	end

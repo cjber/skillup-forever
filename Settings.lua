@@ -46,6 +46,19 @@ function ns.RegisterSettings()
 			.. "Prices come from vendors you've visited, the auction house, or Auctionator."
 	)
 
+	Settings.CreateDropdown(
+		category,
+		Register("craftValue", Settings.VarType.String, "Count what crafts sell for"),
+		function()
+			local container = Settings.CreateControlTextContainer()
+			container:Add("none", "Don't count it")
+			container:Add("vendor", "Vendor sell price")
+			container:Add("auction", "Auction price if higher")
+			return container:GetData()
+		end,
+		"Subtract what the crafted item sells for from its cost. Auction prices are after the 5% cut, and may not sell."
+	)
+
 	Settings.CreateCheckbox(
 		category,
 		Register("scanAuctions", Settings.VarType.Boolean, "Scan the auction house"),

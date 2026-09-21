@@ -63,6 +63,21 @@ function Model.CostPerSkillUp(cost, chance)
 	return cost / chance
 end
 
+-- What one crafted item is worth under `mode`, and where that came from. Auction
+-- value is net of the house's 5% cut and only counts when it beats the vendor.
+local AUCTION_CUT = 0.05
+function Model.CraftValue(sell, auction, mode)
+	if mode == "none" then
+		return nil
+	end
+	local vendor = sell and sell > 0 and sell or nil
+	local resale = mode == "auction" and auction and auction * (1 - AUCTION_CUT) or nil
+	if resale and (not vendor or resale > vendor) then
+		return resale, "auction"
+	end
+	return vendor, vendor and "vendor" or nil
+end
+
 -- Rounds to the two largest coins so a row stays short: 1g 23s, 45s, 80c.
 function Model.RoundMoney(copper)
 	local unit = copper >= 1000000 and 10000 or copper >= 10000 and 100 or copper >= 100 and 100 or 1

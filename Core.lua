@@ -9,6 +9,12 @@ local DEFAULTS = {
 }
 
 ns.DEFAULTS = DEFAULTS
+ns.SORT_OPTIONS = {
+	{ "blizzard", "Default" },
+	{ "skill", "Required skill" },
+	{ "chance", "Skill-up chance" },
+	{ "cost", "Cheapest skill-up" },
+}
 ns.TITLE = "SkillUp Forever"
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.

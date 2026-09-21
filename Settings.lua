@@ -49,14 +49,18 @@ function ns.RegisterSettings()
 
 	Settings.CreateDropdown(category, Register("sortMode", Settings.VarType.String, "Sort recipes"), function()
 		local container = Settings.CreateControlTextContainer()
-		container:Add("blizzard", "Default")
-		container:Add("skill", "Required skill")
-		container:Add("chance", "Skill-up chance")
-		container:Add("cost", "Cheapest skill-up")
+		for _, option in ipairs(ns.SORT_OPTIONS) do
+			container:Add(option[1], option[2])
+		end
 		return container:GetData()
 	end, "Order of recipes within each category.")
 
 	Settings.RegisterAddOnCategory(category)
+end
+
+-- Through the setting, so the settings panel and its change callback stay in step.
+function ns.SetSortMode(mode)
+	Settings.SetValue("SkillUpForever_sortMode", mode)
 end
 
 function ns.OpenSettings()

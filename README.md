@@ -17,7 +17,7 @@ WoW: Forever runs Classic content in the modern Professions window. That window 
 - **Recipe rows** show the skill a recipe needs and your chance of a skill-up, coloured by difficulty: `125 · 62%`. A recipe you can't make yet shows only the requirement, in red.
 - **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar, with your current skill marked, drawn in the style of the profession window's own skill bar.
 - **Cost per skill-up**: reagent cost divided by skill-up chance, at the end of the row (`125 · 62% · 45s`) and broken down per reagent in the tooltip. See [Prices](#prices).
-- **Sorting** within each category by required skill, skill-up chance or cheapest skill-up. Categories and the game's own filters, including *Only skill-ups*, are unchanged.
+- **Sorting** within each category by required skill, skill-up chance or cheapest skill-up, from a *Sort by* section in the recipe list's own Filter menu. Categories and the game's own filters, including *Only skill-ups*, are unchanged.
 
 ## Install
 
@@ -33,7 +33,7 @@ Open a profession and the numbers are already there.
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 | `/su scan` | With the auction house open, search it for every known reagent now |
 
-Settings: row text, tooltip, cost per skill-up, auction house scan, sort order.
+Settings: row text, tooltip, cost per skill-up, auction house scan, sort order (also in the Filter menu).
 
 > **Settings and prices reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working; prices are then relearned each session.
 

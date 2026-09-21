@@ -18,7 +18,7 @@ read_globals = {
 	"Settings", "strtrim", "UIParent",
 	"AuctionHouseFrame", "Auctionator", "C_AuctionHouse", "C_CurrencyInfo", "C_Item", "C_MerchantFrame",
 	"GameTooltip_AddBlankLineToTooltip", "GetMerchantItemID", "GetMerchantNumItems", "GetNormalizedRealmName", "time",
-	"UnitFactionGroup",
+	"UnitFactionGroup", "Menu", "MenuResponse",
 	"DIFFICULT_DIFFICULTY_COLOR", "EASY_DIFFICULTY_COLOR", "FAIR_DIFFICULTY_COLOR", "GRAY_FONT_COLOR",
 	"HIGHLIGHT_FONT_COLOR", "RED_FONT_COLOR", "TRIVIAL_DIFFICULTY_COLOR",
 }

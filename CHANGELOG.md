@@ -4,7 +4,7 @@
 
 - Cost per skill-up on recipe rows and in the tooltip: reagent cost ÷ skill-up chance, with each reagent's price and where it came from.
 - Prices for about 50 vendor trade supplies bundled from the client's data, updated by vendors you visit, an automatic auction house scan of known reagents (at most hourly, or `/su scan`), and Auctionator when installed.
-- New sort: cheapest skill-up.
+- New sort: cheapest skill-up. Sorting now also sits in the recipe list's Filter menu, under *Sort by*.
 
 ## v0.1.0
 

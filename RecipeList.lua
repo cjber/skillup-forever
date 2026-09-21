@@ -117,6 +117,24 @@ local function ApplySort(scrollBox)
 	resorting = false
 end
 
+-- A "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu
+-- serves other recipe lists, so only the crafting page's dropdown gets it.
+local function AddSortMenu(owner, rootDescription)
+	if owner ~= recipeList.FilterDropdown then
+		return
+	end
+	rootDescription:CreateDivider()
+	rootDescription:CreateTitle("Sort by")
+	for _, option in ipairs(ns.SORT_OPTIONS) do
+		rootDescription:CreateRadio(option[2], function(mode)
+			return ns.db.sortMode == mode
+		end, function(mode)
+			ns.SetSortMode(mode)
+			return MenuResponse.Refresh
+		end, option[1])
+	end
+end
+
 function ns.AttachRecipeList()
 	recipeList = ProfessionsFrame.CraftingPage.RecipeList
 	-- No iterateExisting: it calls back as (frame, data), not (owner, frame, data),
@@ -125,6 +143,7 @@ function ns.AttachRecipeList()
 	hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ApplySort)
 	hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ns.LearnReagents)
 	EventRegistry:RegisterCallback("Professions.RecipeListOnEnter", ns.ShowRecipeTooltip, ns)
+	Menu.ModifyMenu("MENU_PROFESSIONS_FILTER", AddSortMenu)
 end
 
 -- Rebuilding through the crafting page re-runs Blizzard's provider, which our

@@ -1,7 +1,14 @@
 local _, ns = ...
 
-local LINE_HEIGHT = 16
+-- Retail list proportions: GameFontHighlight rows with 16px icons.
+local LINE_HEIGHT = 20
+local HEADER_HEIGHT = 26
+local ICON_SIZE = 16
+local COLUMN_GAP = 10
 local MAX_LINES = 24
+local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
+-- A day-old scan is flagged: auction prices move that fast.
+local STALE_AFTER = 24 * 3600
 
 local page, tab
 local selected -- skill line shown on the page
@@ -55,11 +62,16 @@ end
 -- somewhere between here and the target, at what a trainer was seen to charge or
 -- else the bundled base fee. Nothing is used before the trainer would teach it:
 -- the thresholds' first value is where a recipe turns orange, not where it's taught.
+-- { fee, required base skill }: what a trainer was seen to charge, else the base fee.
+function ns.TrainingFor(profession, recipeID)
+	local seen = ns.db.trainer[profession.skillLine]
+	return seen and seen[recipeID] or ns.TrainerFees[recipeID]
+end
+
 local function Trainable(profession, snapshot)
 	local services = {}
-	local seen = ns.db.trainer[profession.skillLine] or {}
 	for recipeID, recipe in pairs(ns.RecipeData) do
-		local training = recipe.skillLine == profession.skillLine and (seen[recipeID] or ns.TrainerFees[recipeID])
+		local training = recipe.skillLine == profession.skillLine and ns.TrainingFor(profession, recipeID)
 		local t = training and not ns.IsLearned(recipeID) and ns.Model.Get(recipeID)
 		if t then
 			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
@@ -114,34 +126,100 @@ local function Money(copper)
 	return ns.FormatNet(ns.Model.RoundMoney(math.abs(copper)), copper < 0)
 end
 
--- A column of text lines, each with an optional right-aligned value.
-local function CreateList(parent)
-	local list = { lines = {}, count = 0 }
-	function list:Add(text, color, value, valueColor)
-		self.count = self.count + 1
-		local line = self.lines[self.count]
-		if not line then
-			line = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-			line:SetJustifyH("LEFT")
-			line:SetWordWrap(false)
-			line:SetPoint("TOPLEFT", 12, -12 - (self.count - 1) * LINE_HEIGHT)
-			line.Value = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-			line.Value:SetPoint("TOP", line, "TOP")
-			line.Value:SetPoint("RIGHT", parent, "RIGHT", -12, 0)
-			self.lines[self.count] = line
-		end
-		line:SetPoint("RIGHT", parent, "RIGHT", value and -64 or -12, 0)
-		line:SetText(text)
-		line:SetTextColor((color or HIGHLIGHT_FONT_COLOR):GetRGB())
-		line.Value:SetText(value or "")
-		line.Value:SetTextColor((valueColor or HIGHLIGHT_FONT_COLOR):GetRGB())
-		line:Show()
-		line.Value:Show()
+local function Output(recipeID)
+	local recipe = ns.RecipeData[recipeID]
+	return recipe and recipe.output
+end
+
+local function RecipeIcon(recipeID)
+	local output = Output(recipeID)
+	return output and C_Item.GetItemIconByID(output.itemID) or C_Spell.GetSpellTexture(recipeID)
+end
+
+-- A table: icon and name, then right-aligned value columns (listed right to left)
+-- under small headers. Each row can show a tooltip and act on a click.
+local function CreateList(parent, columns)
+	local list = { rows = {}, count = 0 }
+	local right = -12
+	for _, column in ipairs(columns) do
+		local header = parent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+		header:SetPoint("TOPRIGHT", right, -8)
+		header:SetWidth(column.width)
+		header:SetJustifyH(column.justify or "RIGHT")
+		header:SetText(column.title)
+		column.right = right + 6
+		right = right - column.width - COLUMN_GAP
 	end
+	local textRight = right + 6
+
+	local function OnEnter(row)
+		if row.entry.tooltip then
+			GameTooltip:SetOwner(row, "ANCHOR_RIGHT")
+			row.entry.tooltip(GameTooltip)
+			GameTooltip:Show()
+		end
+	end
+
+	local function OnClick(row)
+		if row.entry.click then
+			row.entry.click()
+		end
+	end
+
+	local function CreateRow(index)
+		local row = CreateFrame("Button", nil, parent)
+		row:SetHeight(LINE_HEIGHT)
+		row:SetPoint("TOPLEFT", 6, -HEADER_HEIGHT - (index - 1) * LINE_HEIGHT)
+		row:SetPoint("RIGHT", -6, 0)
+		row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+		row:SetScript("OnEnter", OnEnter)
+		row:SetScript("OnLeave", GameTooltip_Hide)
+		row:SetScript("OnClick", OnClick)
+		row.Icon = row:CreateTexture(nil, "ARTWORK")
+		row.Icon:SetSize(ICON_SIZE, ICON_SIZE)
+		row.Icon:SetPoint("LEFT", 6, 0)
+		row.Text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+		row.Text:SetJustifyH("LEFT")
+		row.Text:SetWordWrap(false)
+		row.Values = {}
+		for i, column in ipairs(columns) do
+			local value = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+			value:SetPoint("RIGHT", column.right, 0)
+			value:SetWidth(column.width)
+			value:SetJustifyH(column.justify or "RIGHT")
+			value:SetWordWrap(false)
+			row.Values[i] = value
+		end
+		return row
+	end
+
+	-- entry: text, color, icon, values (per column), valueColor, tooltip(tooltip), click().
+	function list:Add(entry)
+		self.count = self.count + 1
+		local row = self.rows[self.count] or CreateRow(self.count)
+		self.rows[self.count] = row
+		row.entry = entry
+		row.Icon:SetTexture(entry.icon)
+		row.Icon:SetShown(entry.icon ~= nil)
+		row.Text:SetPoint("LEFT", entry.icon and ICON_SIZE + 12 or 6, 0)
+		row.Text:SetPoint("RIGHT", entry.values and textRight or -6, 0)
+		row.Text:SetText(entry.text)
+		row.Text:SetTextColor((entry.color or HIGHLIGHT_FONT_COLOR):GetRGB())
+		for i, value in ipairs(row.Values) do
+			value:SetText(entry.values and entry.values[i] or "")
+			value:SetTextColor((entry.valueColor or HIGHLIGHT_FONT_COLOR):GetRGB())
+		end
+		row:EnableMouse(entry.tooltip ~= nil or entry.click ~= nil)
+		row:Show()
+	end
+
+	function list:Message(text, color)
+		self:Add({ text = text, color = color or GRAY_FONT_COLOR })
+	end
+
 	function list:Finish()
-		for i = self.count + 1, #self.lines do
-			self.lines[i]:Hide()
-			self.lines[i].Value:Hide()
+		for i = self.count + 1, #self.rows do
+			self.rows[i]:Hide()
 		end
 		self.count = 0
 	end
@@ -156,16 +234,120 @@ function ns.RankText(rank)
 	return text
 end
 
+local function AddLine(tooltip, left, right, rightColor)
+	GameTooltip_AddColoredDoubleLine(tooltip, left, right, NORMAL_FONT_COLOR, rightColor or HIGHLIGHT_FONT_COLOR)
+end
+
+local function RequiresLine(tooltip, profession, reqSkill)
+	local color = profession.base < reqSkill and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
+	AddLine(tooltip, "Requires", string.format("%s (%d)", profession.name, reqSkill), color)
+end
+
+-- The crafted item's own tooltip when there is one, else the recipe's name.
+local function RecipeTitle(tooltip, recipeID, title)
+	local output = Output(recipeID)
+	if output then
+		tooltip:SetItemByID(output.itemID)
+		GameTooltip_AddBlankLineToTooltip(tooltip)
+		GameTooltip_AddNormalLine(tooltip, title)
+	else
+		GameTooltip_SetTitle(tooltip, title)
+	end
+end
+
+local function Bands(t)
+	local c = ns.COLORS
+	return string.format(
+		"%s  %s  %s  %s",
+		c.orange:WrapTextInColorCode("orange " .. t[1]),
+		c.yellow:WrapTextInColorCode("yellow " .. t[2]),
+		c.green:WrapTextInColorCode("green " .. t[3]),
+		c.grey:WrapTextInColorCode("grey " .. t[4])
+	)
+end
+
+local function CraftTooltip(tooltip, profession, segment)
+	local recipeID, m = segment.recipeID, profession.modifier
+	RecipeTitle(tooltip, recipeID, RecipeName(recipeID))
+	AddLine(
+		tooltip,
+		"Crafts",
+		string.format("%d, from %d to %d", segment.crafts, segment.fromSkill - m, segment.toSkill - m)
+	)
+	local t = ns.Model.Get(recipeID)
+	if t then
+		GameTooltip_AddHighlightLine(tooltip, Bands(t))
+	end
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
+		local name = C_Item.GetItemNameByID(reagent.itemID) or ("item " .. reagent.itemID)
+		local have = ns.Have(reagent.itemID)
+		local need = reagent.quantity * segment.crafts
+		local color = have >= need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR
+		GameTooltip_AddColoredDoubleLine(
+			tooltip,
+			name,
+			string.format("%d/%d", math.min(have, need), need),
+			HIGHLIGHT_FONT_COLOR,
+			color
+		)
+	end
+	AddLine(tooltip, "Cost", Money(ns.NetCost(recipeID) * segment.expectedCrafts))
+	if ns.IsLearned(recipeID) and profession.skillLine == ns.OpenSkillLine() then
+		GameTooltip_AddInstructionLine(tooltip, "Click to open the recipe.")
+	end
+end
+
+local function TrainTooltip(tooltip, profession, step)
+	RecipeTitle(tooltip, step.recipeID, "Train " .. RecipeName(step.recipeID))
+	GameTooltip_AddHighlightLine(tooltip, string.format("Taught by %s trainers.", profession.name))
+	AddLine(tooltip, "Fee", Money(step.fee))
+	RequiresLine(tooltip, profession, step.reqSkill)
+	AddLine(tooltip, "First used at", tostring(step.atSkill - profession.modifier))
+end
+
+local function RankTooltip(tooltip, profession, rank)
+	GameTooltip_SetTitle(tooltip, string.format("%s %s", rank.name, profession.name))
+	GameTooltip_AddHighlightLine(tooltip, string.format("Raises your skill cap to %d.", rank.cap))
+	AddLine(tooltip, "Fee", Money(rank.fee))
+	RequiresLine(tooltip, profession, rank.reqSkill)
+	if rank.level > 0 then
+		local color = UnitLevel("player") < rank.level and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
+		AddLine(tooltip, "Requires", string.format("level %d", rank.level), color)
+	end
+end
+
+local function RecipeClick(recipeID)
+	return function()
+		if IsModifiedClick("CHATLINK") then
+			ChatEdit_InsertLink(C_Spell.GetSpellLink(recipeID))
+		else
+			ns.ShowRecipe(recipeID)
+		end
+	end
+end
+
 local function RenderRoute(list, profession, route)
 	if profession.capped and #route.ranks == 0 and #route.segments == 0 then
-		list:Add(string.format("At the %d cap: no trainer teaches the next rank.", profession.max), GRAY_FONT_COLOR)
+		list:Message(string.format("At the %d cap: no trainer teaches the next rank.", profession.max))
 		return
 	end
+	local m = profession.modifier
 	local nextRank = 1
 	local function AddRanks(toSkill)
 		local rank = route.ranks[nextRank]
 		while rank and toSkill > rank.cap - 75 do
-			list:Add(ns.RankText(rank), NORMAL_FONT_COLOR, Money(rank.fee), NORMAL_FONT_COLOR)
+			local level = rank.level > UnitLevel("player") and string.format("  (level %d)", rank.level) or ""
+			local shown = rank
+			list:Add({
+				icon = profession.icon,
+				text = "Train " .. rank.name .. level,
+				color = NORMAL_FONT_COLOR,
+				values = { Money(rank.fee), tostring(rank.reqSkill) },
+				tooltip = function(tooltip)
+					RankTooltip(tooltip, profession, shown)
+				end,
+			})
 			nextRank = nextRank + 1
 			rank = route.ranks[nextRank]
 		end
@@ -176,59 +358,133 @@ local function RenderRoute(list, profession, route)
 	end
 	for i, segment in ipairs(route.segments) do
 		if list.count >= MAX_LINES - 4 then
-			list:Add(string.format("+%d more steps", #route.segments - i + 1), GRAY_FONT_COLOR)
+			list:Message(string.format("+%d more steps", #route.segments - i + 1))
 			break
 		end
-		AddRanks(segment.toSkill - profession.modifier)
+		AddRanks(segment.toSkill - m)
 		local step = training[segment.recipeID]
 		if step then
 			training[segment.recipeID] = nil
-			list:Add("Train " .. RecipeName(step.recipeID), NORMAL_FONT_COLOR, Money(step.fee), NORMAL_FONT_COLOR)
+			step.reqSkill = ns.TrainingFor(profession, step.recipeID)[2]
+			list:Add({
+				icon = TRAIN_ICON,
+				text = "Train " .. RecipeName(step.recipeID),
+				color = NORMAL_FONT_COLOR,
+				values = { Money(step.fee), tostring(step.reqSkill) },
+				tooltip = function(tooltip)
+					TrainTooltip(tooltip, profession, step)
+				end,
+				click = RecipeClick(step.recipeID),
+			})
 		end
-		list:Add(
-			string.format(
-				"%d× %s to %d",
-				segment.crafts,
-				RecipeName(segment.recipeID),
-				segment.toSkill - profession.modifier
-			),
-			ns.COLORS[ns.Model.Color(ns.Model.Get(segment.recipeID), segment.fromSkill)],
-			Money(ns.NetCost(segment.recipeID) * segment.expectedCrafts)
-		)
+		list:Add({
+			icon = RecipeIcon(segment.recipeID),
+			text = RecipeName(segment.recipeID),
+			color = ns.COLORS[ns.Model.Color(ns.Model.Get(segment.recipeID), segment.fromSkill)],
+			values = {
+				Money(ns.NetCost(segment.recipeID) * segment.expectedCrafts),
+				tostring(segment.toSkill - m),
+				tostring(segment.crafts),
+			},
+			tooltip = function(tooltip)
+				CraftTooltip(tooltip, profession, segment)
+			end,
+			click = RecipeClick(segment.recipeID),
+		})
 	end
 	if #route.segments > 0 then
-		list:Add("Total", NORMAL_FONT_COLOR, Money(route.expectedCost + route.trainingCost), NORMAL_FONT_COLOR)
+		list:Add({
+			text = "Total",
+			color = NORMAL_FONT_COLOR,
+			values = { Money(route.expectedCost + route.trainingCost) },
+			valueColor = NORMAL_FONT_COLOR,
+		})
 	end
 	if #route.segments == 0 and route.excluded.unpriced > 0 then
-		list:Add("Price reagents at a vendor or the AH.", GRAY_FONT_COLOR)
+		list:Message("Price reagents at a vendor or the AH.")
 	elseif route.stopReason == "no_recipe" then
 		local known = route.excluded.unpriced > 0 and "Nothing priced you know" or "Nothing you know"
-		list:Add(
-			string.format("%s skills up past %d.", known, route.reachedSkill - profession.modifier),
-			RED_FONT_COLOR
-		)
+		list:Message(string.format("%s skills up past %d.", known, route.reachedSkill - m), RED_FONT_COLOR)
 	end
 	if #route.segments > 0 and route.excluded.unpriced > 0 then
-		list:Add(
-			string.format("%d recipes skipped: reagents not priced yet.", route.excluded.unpriced),
-			GRAY_FONT_COLOR
-		)
+		list:Message(string.format("%d recipes skipped: reagents not priced yet.", route.excluded.unpriced))
+	end
+end
+
+local SOURCE_TEXT = { vendor = "vendor", auction = "AH", unknown = "no price" }
+
+local function ReagentTooltip(tooltip, item)
+	tooltip:SetItemByID(item.itemID)
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	local have = ns.Have(item.itemID)
+	AddLine(tooltip, "Have (bags and bank)", tostring(have))
+	AddLine(tooltip, "Route needs", tostring(item.need))
+	local price = ns.Price(item.itemID)
+	if not price then
+		GameTooltip_AddDisabledLine(tooltip, "No price yet: visit a vendor or the auction house.")
+		return
+	end
+	AddLine(tooltip, "Each", string.format("%s |cff808080(%s)|r", Money(price.copper), ns.PriceSourceText(price)))
+	if have < item.need then
+		AddLine(tooltip, "To buy", Money(price.copper * (item.need - have)))
 	end
 end
 
 local function RenderReagents(list, reagents)
 	if #reagents == 0 then
-		list:Add("Nothing to buy for this route.", GRAY_FONT_COLOR)
+		list:Message("Nothing to buy for this route.")
 		return
 	end
 	for i, item in ipairs(reagents) do
 		if i == MAX_LINES then
-			list:Add(string.format("+%d more reagents", #reagents - i + 1), GRAY_FONT_COLOR)
+			list:Message(string.format("+%d more reagents", #reagents - i + 1))
 			break
 		end
-		local text, have, color = ns.ReagentText(item)
-		list:Add(text, nil, have, color)
+		local name = C_Item.GetItemNameByID(item.itemID)
+		if not name then
+			-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
+			C_Item.RequestLoadItemDataByID(item.itemID)
+			name = "item " .. item.itemID
+		end
+		local have = ns.Have(item.itemID)
+		list:Add({
+			icon = C_Item.GetItemIconByID(item.itemID) or 134400,
+			text = name,
+			values = { string.format("%d/%d", math.min(have, item.need), item.need), SOURCE_TEXT[item.source] },
+			valueColor = have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
+			tooltip = function(tooltip)
+				ReagentTooltip(tooltip, item)
+			end,
+			click = function()
+				local _, link = C_Item.GetItemInfo(item.itemID)
+				if link then
+					HandleModifiedItemClick(link)
+				end
+			end,
+		})
 	end
+end
+
+-- How fresh the auction prices behind this route are: the oldest scan, since that
+-- is the one most likely to be wrong. Auctionator keeps its own freshness.
+local function PriceAge(reagents)
+	local oldest, auctionator
+	for _, item in ipairs(reagents) do
+		local price = item.source == "auction" and ns.Price(item.itemID)
+		if price and price.time then
+			oldest = math.min(oldest or price.time, price.time)
+		elseif price then
+			auctionator = true
+		end
+	end
+	if oldest then
+		local stale = time() - oldest > STALE_AFTER
+		local text = "AH prices from " .. ns.FormatAge(oldest) .. (stale and ": rescan at the auction house" or "")
+		return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
+	elseif auctionator then
+		return "AH prices from Auctionator", GRAY_FONT_COLOR
+	end
+	return "", GRAY_FONT_COLOR
 end
 
 local function Render()
@@ -253,6 +509,9 @@ local function Render()
 	local reagents = ns.RouteReagents(route)
 	RenderRoute(page.RouteList, profession, route)
 	RenderReagents(page.ReagentList, reagents)
+	local age, ageColor = PriceAge(reagents)
+	page.PriceAge:SetText(age)
+	page.PriceAge:SetTextColor(ageColor:GetRGB())
 	page.RouteList:Finish()
 	page.ReagentList:Finish()
 	page.Track:SetText(ns.IsTracked(selected) and "Stop tracking" or "Track")
@@ -364,12 +623,22 @@ local function CreatePage()
 	local route = CreateInset("Route")
 	route:SetPoint("TOPLEFT", 16, -88)
 	route:SetPoint("BOTTOMRIGHT", page, "BOTTOM", -6, 44)
-	page.RouteList = CreateList(route)
+	page.RouteList = CreateList(route, {
+		{ title = "Cost", width = 72 },
+		{ title = "To", width = 30 },
+		{ title = "Crafts", width = 40 },
+	})
 
 	local reagents = CreateInset("Reagents  (have / need)")
 	reagents:SetPoint("TOPLEFT", page, "TOP", 6, -88)
 	reagents:SetPoint("BOTTOMRIGHT", -16, 44)
-	page.ReagentList = CreateList(reagents)
+	page.ReagentList = CreateList(reagents, {
+		{ title = "Have", width = 64 },
+		{ title = "Source", width = 60, justify = "LEFT" },
+	})
+
+	page.PriceAge = page:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	page.PriceAge:SetPoint("TOPLEFT", route, "BOTTOMLEFT", 4, -14)
 
 	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
 	page.Auctionator:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
@@ -387,7 +656,7 @@ local function CreatePage()
 end
 
 -- The profession on show in the crafting page, when it is one of this character's.
-local function OpenSkillLine()
+function ns.OpenSkillLine()
 	local info = Professions.GetProfessionInfo()
 	local name = info and (info.parentProfessionName or info.professionName)
 	local skillLine = name and ns.ProfessionSkillLine(name, info.parentProfessionID or info.professionID)
@@ -395,7 +664,7 @@ local function OpenSkillLine()
 end
 
 local function SelectPage()
-	selected = OpenSkillLine() or selected or next(ns.PlayerProfessions())
+	selected = ns.OpenSkillLine() or selected or next(ns.PlayerProfessions())
 	ProfessionsFrame.CraftingPage:Hide()
 	ProfessionsFrame.BookPage:Hide()
 	page:Show()
@@ -406,6 +675,20 @@ end
 local function Deselect()
 	page:Hide()
 	tab:SetChecked(false)
+end
+
+-- Back to the crafting page, as its tab would, with the recipe selected.
+function ns.ShowRecipe(recipeID)
+	local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
+	if not (info and info.learned and selected == ns.OpenSkillLine()) then
+		return
+	end
+	local craftingPage = ProfessionsFrame.CraftingPage
+	craftingPage:Show()
+	ProfessionsFrame:RefreshRightTabs()
+	if craftingPage.RecipeList and craftingPage.RecipeList.SelectRecipe then
+		craftingPage.RecipeList:SelectRecipe(info, true)
+	end
 end
 
 -- Directly under the last profession tab Forever shows, in the same tab art.

@@ -31,23 +31,6 @@ function ns.RouteReagents(route)
 	return items
 end
 
-local SOURCE_TEXT = { vendor = "vendor", auction = "AH", unknown = "no price" }
-
--- One reagent as "icon name (source)" and "have/need", green once covered.
-function ns.ReagentText(item)
-	local icon = C_Item.GetItemIconByID(item.itemID)
-	local name = C_Item.GetItemNameByID(item.itemID)
-	if not name then
-		-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
-		C_Item.RequestLoadItemDataByID(item.itemID)
-		name = "item " .. item.itemID
-	end
-	local have = ns.Have(item.itemID)
-	local left = string.format("|T%s:14|t %s |cff808080%s|r", icon or 134400, name, SOURCE_TEXT[item.source])
-	local right = string.format("%d/%d", math.min(have, item.need), item.need)
-	return left, right, have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR
-end
-
 -- Auctionator searches by name, and names of unseen items arrive asynchronously.
 local function WithNames(items, callback)
 	local container = ContinuableContainer:Create()

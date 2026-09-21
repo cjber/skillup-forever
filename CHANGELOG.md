@@ -18,7 +18,8 @@ train.
   and it lists the cheapest crafts, training recipes where the fee pays for itself, like `12× Heavy Linen Bandage to 90`, each with its cost, and the total. Every
   skill point takes whichever recipe has the lowest cost per skill-up at that point. Recipes with an
   unpriced reagent are left out and counted rather than treated as free, and a route that runs out of
-  recipes stops and says where.
+  recipes stops and says where. Hover any step or reagent for details (click a step to open its recipe),
+  and the page shows how old its auction prices are.
   The target can pass your current cap: the route adds each rank to train on the way, with its fee,
   the skill the trainer wants and the level it needs.
 - **A shopping list from the route.** The page lists every reagent the route needs against what's in your

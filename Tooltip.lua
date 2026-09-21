@@ -104,19 +104,23 @@ function ns.FormatNet(copper, profit)
 	return (profit and "|cff40ff40+|r" or "") .. Money(copper)
 end
 
-local function SourceText(price)
+function ns.FormatAge(timestamp)
+	local minutes = math.floor((time() - timestamp) / 60)
+	if minutes < 60 then
+		return minutes .. "m ago"
+	elseif minutes < 48 * 60 then
+		return math.floor(minutes / 60) .. "h ago"
+	end
+	return math.floor(minutes / 1440) .. "d ago"
+end
+
+function ns.PriceSourceText(price)
 	if price.source == "vendor" then
 		return "vendor"
 	elseif price.source == "auctionator" then
 		return "Auctionator"
 	end
-	local minutes = math.floor((time() - price.time) / 60)
-	if minutes < 60 then
-		return "AH, " .. minutes .. "m ago"
-	elseif minutes < 48 * 60 then
-		return "AH, " .. math.floor(minutes / 60) .. "h ago"
-	end
-	return "AH, " .. math.floor(minutes / 1440) .. "d ago"
+	return "AH, " .. ns.FormatAge(price.time)
 end
 
 -- One line per reagent with its price and source, then the craft and per-skill-up totals.
@@ -133,7 +137,7 @@ local function AddCost(tooltip, recipeID, d)
 		if price then
 			tooltip:AddDoubleLine(
 				left,
-				string.format("%s |cff808080(%s)|r", Money(price.copper * reagent.quantity), SourceText(price)),
+				string.format("%s |cff808080(%s)|r", Money(price.copper * reagent.quantity), ns.PriceSourceText(price)),
 				1,
 				1,
 				1,

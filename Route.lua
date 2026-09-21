@@ -913,8 +913,12 @@ local function CreatePage()
 	end)
 end
 
--- The profession on show in the crafting page, when it is one of this character's.
+-- The profession on show in the crafting page, when it is one of this character's;
+-- nil until Blizzard_Professions loads, which the tracker menu can precede.
 function ns.OpenSkillLine()
+	if not Professions then
+		return nil
+	end
 	local info = Professions.GetProfessionInfo()
 	local name = info and (info.parentProfessionName or info.professionName)
 	local skillLine = name and ns.ProfessionSkillLine(name, info.parentProfessionID or info.professionID)

@@ -1,7 +1,6 @@
 local _, ns = ...
 
 local recipeList
-local resorting = false
 
 local function FormatRow(d)
 	if not d.thresholds then
@@ -103,7 +102,7 @@ end
 local function ApplySort(scrollBox)
 	local key = SORT_KEYS[ns.db.sortMode]
 	local dataProvider = scrollBox:GetDataProvider()
-	if resorting or not key or not dataProvider or not dataProvider.GetRootNode then
+	if not key or not dataProvider or not dataProvider.GetRootNode then
 		return
 	end
 	local ok, err = pcall(SortTree, dataProvider:GetRootNode(), key, ns.SkillContext())
@@ -112,9 +111,9 @@ local function ApplySort(scrollBox)
 		ns.Print("sorting failed and has been turned off: " .. tostring(err))
 		return
 	end
-	resorting = true
-	scrollBox:SetDataProvider(dataProvider, ScrollBoxConstants.RetainScrollPosition)
-	resorting = false
+	-- The provider caches its flattened rows; without this the list keeps drawing
+	-- the order it had before we sorted.
+	dataProvider:Invalidate()
 end
 
 -- A "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu

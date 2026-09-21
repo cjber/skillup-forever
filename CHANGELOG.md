@@ -15,7 +15,7 @@ Where to go next, not just what each recipe costs: a route to your target, what 
 train.
 
 - **A levelling route beside the Professions window.** Type a target skill and it lists the cheapest crafts
-  from the recipes you know, like `~12× Heavy Linen Bandage → 90`, each with its cost, and the total. Every
+  from the recipes you know, like `~12× Heavy Linen Bandage to 90`, each with its cost, and the total. Every
   skill point takes whichever recipe has the lowest cost per skill-up at that point. Recipes with an
   unpriced reagent are left out and counted rather than treated as free, and a route that runs out of
   recipes stops and says where.
@@ -23,7 +23,7 @@ train.
   installed, one button makes an Auctionator shopping list of the auction house reagents and prints the
   vendor ones; without it the list goes to chat.
 - **The profession trainer shows the same numbers** as recipe rows, and marks the recipe that most cheapens
-  or extends your route, training fee included, as `★ best next` (closes #2).
+  or extends your route, training fee included, as `Best next` (closes #2).
 - **Reagent tooltips list the recipes that use them.** Any item you hover shows the recipes of your
   professions that use it and still skill up, with their colour now, like `yellow until 115`.
 - Recipes you haven't opened in the Professions window now have reagents and crafted items from the game's

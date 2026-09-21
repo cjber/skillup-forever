@@ -125,6 +125,10 @@ local function ForgetDroppedProfessions()
 		return
 	end
 	local professions = ns.PlayerProfessions()
+	-- Skill lines can arrive empty at login; that is not every profession dropped.
+	if not next(professions) then
+		return
+	end
 	local learned = LearnedRecipes()
 	for recipeID in pairs(learned) do
 		local recipe = ns.RecipeData[recipeID]

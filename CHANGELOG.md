@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-21
+
 Where to go next, not just what each recipe costs: a route to your target, what to buy for it, and what to
 train.
 

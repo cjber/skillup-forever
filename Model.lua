@@ -37,3 +37,49 @@ function Model.Chance(t, skill)
 	end
 	return (t[4] - skill) / (t[4] - t[2])
 end
+
+-- Copper for one craft, or nil when any reagent has no known price: a partial
+-- sum would rank a recipe as cheap only because we can't price its reagents.
+function Model.RecipeCost(reagents, price)
+	if not reagents then
+		return nil
+	end
+	local total = 0
+	for _, reagent in ipairs(reagents) do
+		local each = price(reagent.itemID)
+		if not each then
+			return nil
+		end
+		total = total + each * reagent.quantity
+	end
+	return total
+end
+
+-- Expected spend per skill point: one craft costs `cost` and succeeds with `chance`.
+function Model.CostPerSkillUp(cost, chance)
+	if not cost or not chance or chance <= 0 then
+		return nil
+	end
+	return cost / chance
+end
+
+-- What one crafted item is worth under `mode`, and where that came from. Auction
+-- value is net of the house's 5% cut and only counts when it beats the vendor.
+local AUCTION_CUT = 0.05
+function Model.CraftValue(sell, auction, mode)
+	if mode == "none" then
+		return nil
+	end
+	local vendor = sell and sell > 0 and sell or nil
+	local resale = mode == "auction" and auction and auction * (1 - AUCTION_CUT) or nil
+	if resale and (not vendor or resale > vendor) then
+		return resale, "auction"
+	end
+	return vendor, vendor and "vendor" or nil
+end
+
+-- Rounds to the two largest coins so a row stays short: 1g 23s, 45s, 80c.
+function Model.RoundMoney(copper)
+	local unit = copper >= 1000000 and 10000 or copper >= 10000 and 100 or copper >= 100 and 100 or 1
+	return math.max(math.floor(copper / unit + 0.5), 1) * unit
+end

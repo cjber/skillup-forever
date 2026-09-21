@@ -95,6 +95,94 @@ local function LayoutBar(t, skill)
 	return bar
 end
 
+local function Money(copper)
+	return C_CurrencyInfo.GetCoinTextureString(math.floor(copper + 0.5))
+end
+
+-- A profit reads as a green "+"; a cost is just the coins.
+function ns.FormatNet(copper, profit)
+	return (profit and "|cff40ff40+|r" or "") .. Money(copper)
+end
+
+local function SourceText(price)
+	if price.source == "vendor" then
+		return "vendor"
+	elseif price.source == "auctionator" then
+		return "Auctionator"
+	end
+	local minutes = math.floor((time() - price.time) / 60)
+	if minutes < 60 then
+		return "AH, " .. minutes .. "m ago"
+	elseif minutes < 48 * 60 then
+		return "AH, " .. math.floor(minutes / 60) .. "h ago"
+	end
+	return "AH, " .. math.floor(minutes / 1440) .. "d ago"
+end
+
+-- One line per reagent with its price and source, then the craft and per-skill-up totals.
+local function AddCost(tooltip, recipeID, d)
+	local reagents = ns.Reagents(recipeID)
+	if not reagents or #reagents == 0 then
+		return
+	end
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	for _, reagent in ipairs(reagents) do
+		local name = C_Item.GetItemNameByID(reagent.itemID) or ("item " .. reagent.itemID)
+		local left = reagent.quantity > 1 and string.format("%s x%d", name, reagent.quantity) or name
+		local price = ns.Price(reagent.itemID)
+		if price then
+			tooltip:AddDoubleLine(
+				left,
+				string.format("%s |cff808080(%s)|r", Money(price.copper * reagent.quantity), SourceText(price)),
+				1,
+				1,
+				1,
+				1,
+				1,
+				1
+			)
+		else
+			tooltip:AddDoubleLine(left, "no price", 1, 1, 1, 0.5, 0.5, 0.5)
+		end
+	end
+	if not d.cost then
+		GameTooltip_AddDisabledLine(tooltip, "Visit the auction house or a vendor to price reagents.")
+		return
+	end
+	tooltip:AddDoubleLine("Reagents", Money(d.cost), 1, 0.82, 0, 1, 1, 1)
+	if d.value then
+		local each = d.value.quantity ~= 1 and string.format(" x%g", d.value.quantity) or ""
+		tooltip:AddDoubleLine(
+			"Sells for" .. each,
+			string.format(
+				"%s |cff808080(%s)|r",
+				Money(d.value.copper),
+				d.value.source == "auction" and "AH" or "vendor"
+			),
+			1,
+			0.82,
+			0,
+			1,
+			1,
+			1
+		)
+		tooltip:AddDoubleLine(
+			d.net < 0 and "Profit per craft" or "Net per craft",
+			Money(math.abs(d.net)),
+			1,
+			0.82,
+			0,
+			1,
+			1,
+			1
+		)
+	end
+	if d.perSkillUp then
+		local label = d.perSkillUp < 0 and "Profit per skill-up" or "Per skill-up"
+		tooltip:AddDoubleLine(label, "~" .. ns.FormatNet(math.abs(d.perSkillUp), d.perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
+	end
+end
+
 function ns.ShowRecipeTooltip(_, row, data)
 	if not ns.db.showTooltip or not data.recipeInfo then
 		return
@@ -120,6 +208,9 @@ function ns.ShowRecipeTooltip(_, row, data)
 		end
 	else
 		GameTooltip_AddDisabledLine(tooltip, "No skill data for this recipe yet.")
+	end
+	if ns.db.showCost then
+		AddCost(tooltip, recipeInfo.recipeID, d)
 	end
 	tooltip:Show()
 end

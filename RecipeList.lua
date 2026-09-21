@@ -1,16 +1,24 @@
 local _, ns = ...
 
 local recipeList
-local resorting = false
 
 local function FormatRow(d)
 	if not d.thresholds then
 		return "?"
 	end
+	-- A recipe you can't make yet keeps its requirement: it's the only useful number.
 	if not d.chance then
 		return tostring(d.thresholds[1])
 	end
-	return string.format("%d · %d%%", d.thresholds[1], math.floor(d.chance * 100 + 0.5))
+	local parts = {}
+	if ns.db.showSkill then
+		parts[#parts + 1] = tostring(d.thresholds[1])
+	end
+	parts[#parts + 1] = string.format("%d%%", math.floor(d.chance * 100 + 0.5))
+	if ns.db.showCost and d.perSkillUp then
+		parts[#parts + 1] = ns.FormatNet(ns.Model.RoundMoney(math.abs(d.perSkillUp)), d.perSkillUp < 0)
+	end
+	return table.concat(parts, " · ")
 end
 
 -- The row's own Init sized the label for Blizzard's right-hand widgets only;
@@ -64,50 +72,95 @@ local SORT_KEYS = {
 		local chance = ns.Describe(recipeInfo, ctx).chance
 		return chance and -chance or math.huge
 	end,
+	cost = function(recipeInfo, ctx)
+		return ns.Describe(recipeInfo, ctx).perSkillUp or math.huge
+	end,
 }
 
--- Recipes are compared by our key; anything else (categories, padding rows,
--- ties) falls through to Blizzard's comparator, so structure is untouched.
-local function WrapComparator(original, key, ctx)
-	return function(a, b)
-		local ar, br = a:GetData().recipeInfo, b:GetData().recipeInfo
-		if ar and br then
-			local ka, kb = key(ar, ctx), key(br, ctx)
-			if ka ~= kb then
-				return ka < kb
-			end
+-- Forever's categories hold one or two recipes each, so sorting inside them changes
+-- nothing. A sort instead flattens the list: learned recipes, then unlearned ones.
+local replacing = false
+
+local function CollectRecipes(node, learned, unlearned, seen)
+	for _, child in ipairs(node:GetNodes()) do
+		local info = child:GetData().recipeInfo
+		if not info then
+			CollectRecipes(child, learned, unlearned, seen)
+		elseif not info.favoritesInstance and not seen[info.recipeID] then
+			seen[info.recipeID] = true
+			local list = info.learned and learned or unlearned
+			list[#list + 1] = info
 		end
-		return original(a, b)
 	end
 end
 
-local function SortTree(node, key, ctx)
-	for _, child in ipairs(node:GetNodes()) do
-		local original = child.sortComparator
-		if original and child:GetData().categoryInfo then
-			local wrapped = WrapComparator(original, key, ctx)
-			child:SetSortComparator(wrapped, false, true)
-			table.sort(child:GetNodes(), wrapped)
-		end
-		SortTree(child, key, ctx)
+local function SortRecipes(list, key, ctx)
+	local keys = {}
+	for _, info in ipairs(list) do
+		keys[info] = key(info, ctx)
 	end
+	table.sort(list, function(a, b)
+		if keys[a] ~= keys[b] then
+			return keys[a] < keys[b]
+		end
+		return strcmputf8i(a.name, b.name) < 0
+	end)
+end
+
+local function BuildSorted(source, key)
+	local ctx = ns.SkillContext()
+	local learned, unlearned = {}, {}
+	CollectRecipes(source:GetRootNode(), learned, unlearned, {})
+	SortRecipes(learned, key, ctx)
+	SortRecipes(unlearned, key, ctx)
+
+	local sorted = CreateTreeDataProvider()
+	for _, info in ipairs(learned) do
+		sorted:Insert({ recipeInfo = info })
+	end
+	-- Blizzard's divider template draws the "Unlearned" label itself.
+	if #unlearned > 0 then
+		sorted:Insert({ isDivider = true, dividerHeight = #learned > 0 and 70 or 30 })
+		for _, info in ipairs(unlearned) do
+			sorted:Insert({ recipeInfo = info })
+		end
+	end
+	return sorted
 end
 
 local function ApplySort(scrollBox)
 	local key = SORT_KEYS[ns.db.sortMode]
-	local dataProvider = scrollBox:GetDataProvider()
-	if resorting or not key or not dataProvider or not dataProvider.GetRootNode then
+	local source = scrollBox:GetDataProvider()
+	if replacing or not key or not source or not source.GetRootNode then
 		return
 	end
-	local ok, err = pcall(SortTree, dataProvider:GetRootNode(), key, ns.SkillContext())
+	local ok, sorted = pcall(BuildSorted, source, key)
 	if not ok then
 		ns.db.sortMode = "blizzard"
-		ns.Print("sorting failed and has been turned off: " .. tostring(err))
+		ns.Print("sorting failed and has been turned off: " .. tostring(sorted))
 		return
 	end
-	resorting = true
-	scrollBox:SetDataProvider(dataProvider, ScrollBoxConstants.RetainScrollPosition)
-	resorting = false
+	replacing = true
+	scrollBox:SetDataProvider(sorted, ScrollBoxConstants.RetainScrollPosition)
+	replacing = false
+end
+
+-- A "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu
+-- serves other recipe lists, so only the crafting page's dropdown gets it.
+local function AddSortMenu(owner, rootDescription)
+	if owner ~= recipeList.FilterDropdown then
+		return
+	end
+	rootDescription:CreateDivider()
+	rootDescription:CreateTitle("Sort by")
+	for _, option in ipairs(ns.SORT_OPTIONS) do
+		rootDescription:CreateRadio(option[2], function(mode)
+			return ns.db.sortMode == mode
+		end, function(mode)
+			ns.SetSortMode(mode)
+			return MenuResponse.Refresh
+		end, option[1])
+	end
 end
 
 function ns.AttachRecipeList()
@@ -116,7 +169,9 @@ function ns.AttachRecipeList()
 	-- and the list is still empty when Blizzard_Professions finishes loading.
 	ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)
 	hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ApplySort)
+	hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ns.LearnReagents)
 	EventRegistry:RegisterCallback("Professions.RecipeListOnEnter", ns.ShowRecipeTooltip, ns)
+	Menu.ModifyMenu("MENU_PROFESSIONS_FILTER", AddSortMenu)
 end
 
 -- Rebuilding through the crafting page re-runs Blizzard's provider, which our

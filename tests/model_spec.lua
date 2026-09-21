@@ -130,4 +130,29 @@ for recipeID, t in pairs(ns.Thresholds) do
 end
 equal(rows > 0, true, "generated table is not empty")
 
+-- Reagent cost is all-or-nothing, and per-skill-up cost scales by 1/chance.
+local prices = { [2589] = 10, [2320] = 25 }
+local function price(itemID)
+	return prices[itemID]
+end
+equal(Model.RecipeCost({ { itemID = 2589, quantity = 2 }, { itemID = 2320, quantity = 1 } }, price), 45, "recipe cost")
+equal(Model.RecipeCost({ { itemID = 2589, quantity = 2 }, { itemID = 1, quantity = 1 } }, price), nil, "unpriced")
+equal(Model.RecipeCost({}, price), 0, "no reagents costs nothing")
+equal(Model.RecipeCost(nil, price), nil, "unknown reagents")
+equal(Model.CostPerSkillUp(45, 0.5), 90, "half chance doubles cost")
+equal(Model.CostPerSkillUp(45, 0), nil, "no skill-up has no cost")
+equal(Model.CostPerSkillUp(nil, 1), nil, "unpriced has no cost")
+equal(Model.CostPerSkillUp(-20, 0.5), -40, "a profitable craft is profit per skill-up")
+equal(Model.CraftValue(30, 100, "none"), nil, "value ignored")
+equal(Model.CraftValue(30, 100, "vendor"), 30, "vendor only")
+equal(Model.CraftValue(30, 100, "auction"), 95, "auction net of cut")
+equal(select(2, Model.CraftValue(30, 100, "auction")), "auction", "auction source")
+equal(Model.CraftValue(30, 20, "auction"), 30, "vendor beats a cheap auction")
+equal(Model.CraftValue(0, nil, "auction"), nil, "worthless item")
+equal(Model.RoundMoney(80.4), 80, "copper stays copper")
+equal(Model.RoundMoney(0.2), 1, "never rounds to nothing")
+equal(Model.RoundMoney(4549), 4500, "silver drops copper")
+equal(Model.RoundMoney(12345), 12300, "gold keeps silver")
+equal(Model.RoundMoney(1234567), 1230000, "100g+ keeps whole gold")
+
 print("model_spec: " .. checks .. " checks passed; " .. rows .. " generated recipes validated")

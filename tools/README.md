@@ -25,3 +25,9 @@ names. Gathering abilities and test professions are excluded. Shared recipes
 count once per profession but occupy one output key. DB2 download/schema failures
 leave existing output untouched; an unavailable Skillet baseline produces a
 warning and retains DB2 values. Baseline-derived portions are GPL-3.0-or-later.
+
+`gen_vendor.py` writes `Data/Vendor.lua`: unit prices (`BuyPrice / VendorStackCount`
+from the same build's `ItemSparse`) for the items in LibPeriodicTable-3.1's
+`Tradeskill.Mat.BySource.Vendor` set (pinned commit, LGPL-2.1), since which items
+vendors sell is server data the client doesn't ship. Listed items missing from the
+build are reported and skipped. It shares the build pin and cache with `gen_thresholds.py`.

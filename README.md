@@ -14,9 +14,10 @@ WoW: Forever runs Classic content in the modern Professions window. That window 
 
 ## Features
 
-- **Recipe rows** show the skill a recipe needs and your chance of a skill-up, coloured by difficulty: `125 · 62%`. A recipe you can't make yet shows only the requirement, in red.
+- **Recipe rows** show your chance of a skill-up and what each skill-up costs, coloured by difficulty: `62% · 45s` (in coin icons). The skill a recipe needs can be added in settings. A recipe you can't make yet shows only its requirement, in red.
 - **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar, with your current skill marked, drawn in the style of the profession window's own skill bar.
-- **Sorting** within each category by required skill or by skill-up chance. Categories and the game's own filters, including *Only skill-ups*, are unchanged.
+- **Cost per skill-up**: reagent cost divided by skill-up chance, on the row and broken down per reagent in the tooltip. See [Prices](#prices).
+- **Sorting** by required skill, skill-up chance or cheapest skill-up, from a *Sort by* section in the recipe list's own Filter menu. A sort lists every recipe in one ordered list (learned first, then unlearned under the usual divider) instead of by category; *Default* brings the categories back. The game's own filters, including *Only skill-ups*, still apply.
 
 ## Install
 
@@ -30,10 +31,23 @@ Open a profession and the numbers are already there.
 |---|---|
 | `/su` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
+| `/su scan` | With the auction house open, search it for every known reagent now |
 
-Settings: row text on/off, tooltip on/off, sort order.
+Settings: row text, required skill on rows, tooltip, cost per skill-up, auction house scan, sort order (also in the Filter menu).
 
-> **Settings reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working.
+> **Settings and prices reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working; prices are then relearned each session.
+
+## Prices
+
+Cost per craft counts the recipe's required reagents. Each reagent uses the cheapest price the addon knows:
+
+- **Vendor:** about 50 common trade supplies (thread, vials, flux, dyes, spices) are priced from the start. Any vendor you open that sells a reagent for gold updates its price, including your reputation discount.
+- **Auction house:** when you open the auction house, the addon searches it for the reagents of every recipe you've looked at (at most once an hour; `/su scan` forces it). Your own searches update prices too. Prices are kept per realm and faction.
+- **Auctionator:** used when the addon hasn't scanned a reagent and [Auctionator](https://www.curseforge.com/wow/addons/auctionator) is installed.
+
+What you craft counts too: by default its vendor sell price is taken off the cost, and a setting can use its auction price instead when that's higher (after the 5% cut; it may not sell). A recipe that earns more than it costs shows a green `+` and sorts first under *Cheapest skill-up*.
+
+Crafted reagents use their auction price, not the cost of making them. A recipe with any unpriced reagent shows no cost, rather than one that looks cheap only because part of it is missing. Cost per skill-up is net cost per craft ÷ skill-up chance, so a yellow recipe at 50% costs twice its reagents per point.
 
 ## How the numbers work
 
@@ -57,16 +71,17 @@ ln -s "$PWD" ".../World of Warcraft/_classic_beta_/Interface/AddOns/SkillUpForev
 
 luacheck .                        # lint
 stylua --check .                  # format
-luajit tests/model_spec.lua       # threshold maths + generated data
+luajit tests/model_spec.lua       # threshold and cost maths + generated data
 python3 tools/gen_thresholds.py   # regenerate Data/Thresholds.lua (see tools/README.md)
+python3 tools/gen_vendor.py       # regenerate Data/Vendor.lua
 ```
 
-CI runs the three checks on every push. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with the regenerated `Data/Thresholds.lua`.
+CI runs the three checks on every push. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with the regenerated `Data/Thresholds.lua` and `Data/Vendor.lua`.
 
-**Releasing:** add the notes to `CHANGELOG.md`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago.
+**Releasing:** move the `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
 
 ## Licence
 
-GPL-3.0-or-later. The threshold baseline is partly derived from [Skillet-Classic](https://github.com/b-morgan/Skillet-Classic) (GPL-3.0-or-later); per-build values come from the game's data via [wago.tools](https://wago.tools).
+GPL-3.0-or-later. The threshold baseline is partly derived from [Skillet-Classic](https://github.com/b-morgan/Skillet-Classic) (GPL-3.0-or-later); per-build values come from the game's data via [wago.tools](https://wago.tools). The list of vendor-sold reagents comes from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1).
 
 Made by Cillian Berragan · [cillian.dev](https://cillian.dev) · [GitHub](https://github.com/cjber) · [Twitter](https://twitter.com/cjberragan)

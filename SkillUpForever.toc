@@ -13,6 +13,7 @@
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
 
 Data\Thresholds.lua
+Data\Vendor.lua
 Model.lua
 Core.lua
 Prices.lua

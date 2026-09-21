@@ -41,7 +41,7 @@ Settings: row text, tooltip, cost per skill-up, auction house scan, sort order.
 
 Cost per craft counts the recipe's required reagents. Each reagent uses the cheapest price the addon knows:
 
-- **Vendor:** recorded whenever you open a vendor that sells it for gold.
+- **Vendor:** about 50 common trade supplies (thread, vials, flux, dyes, spices) are priced from the start. Any vendor you open that sells a reagent for gold updates its price, including your reputation discount.
 - **Auction house:** when you open the auction house, the addon searches it for the reagents of every recipe you've looked at (at most once an hour; `/su scan` forces it). Your own searches update prices too. Prices are kept per realm and faction.
 - **Auctionator:** used when the addon hasn't scanned a reagent and [Auctionator](https://www.curseforge.com/wow/addons/auctionator) is installed.
 
@@ -71,14 +71,15 @@ luacheck .                        # lint
 stylua --check .                  # format
 luajit tests/model_spec.lua       # threshold and cost maths + generated data
 python3 tools/gen_thresholds.py   # regenerate Data/Thresholds.lua (see tools/README.md)
+python3 tools/gen_vendor.py       # regenerate Data/Vendor.lua
 ```
 
-CI runs the three checks on every push. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with the regenerated `Data/Thresholds.lua`.
+CI runs the three checks on every push. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with the regenerated `Data/Thresholds.lua` and `Data/Vendor.lua`.
 
 **Releasing:** add the notes to `CHANGELOG.md`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago.
 
 ## Licence
 
-GPL-3.0-or-later. The threshold baseline is partly derived from [Skillet-Classic](https://github.com/b-morgan/Skillet-Classic) (GPL-3.0-or-later); per-build values come from the game's data via [wago.tools](https://wago.tools).
+GPL-3.0-or-later. The threshold baseline is partly derived from [Skillet-Classic](https://github.com/b-morgan/Skillet-Classic) (GPL-3.0-or-later); per-build values come from the game's data via [wago.tools](https://wago.tools). The list of vendor-sold reagents comes from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1).
 
 Made by Cillian Berragan · [cillian.dev](https://cillian.dev) · [GitHub](https://github.com/cjber) · [Twitter](https://twitter.com/cjberragan)

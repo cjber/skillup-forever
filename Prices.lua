@@ -44,11 +44,11 @@ local function AuctionatorPrice(itemID)
 end
 
 -- Cheapest known unit price and where it came from: "vendor", "scan" or "auctionator".
--- A vendor price only exists once you've seen the vendor, so AH prices fill the gaps.
+-- A price seen at a vendor beats the bundled list, since it includes any reputation discount.
 function ns.Price(itemID)
 	local cached = priceCache[itemID]
 	if cached == nil then
-		local vendor = ns.db.vendor[itemID]
+		local vendor = ns.db.vendor[itemID] or ns.VendorPrices[itemID]
 		local entry = Auctions()[itemID]
 		local scan = entry and entry.copper
 		local ah, ahSource = scan, "scan"

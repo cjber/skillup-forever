@@ -29,16 +29,16 @@ jobs:
           echo "new=true" >> "$GITHUB_OUTPUT"
           sed -i -E "s/^BUILD = \".*\"/BUILD = \"$build\"/; s/^SOURCE_DATE = \".*\"/SOURCE_DATE = \"$(date -u +%F)\"/" tools/gen_thresholds.py
       - if: steps.build.outputs.new == 'true'
-        run: python3 tools/gen_thresholds.py
+        run: python3 tools/gen_thresholds.py && python3 tools/gen_vendor.py
       - if: steps.build.outputs.new == 'true'
         run: sudo apt-get update && sudo apt-get install -y luajit && luajit tests/model_spec.lua
       - if: steps.build.outputs.new == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           branch: data/forever-${{ steps.build.outputs.version }}
-          title: "data: thresholds for Forever ${{ steps.build.outputs.version }}"
-          commit-message: "data: thresholds for Forever ${{ steps.build.outputs.version }}"
+          title: "data: thresholds and vendor prices for Forever ${{ steps.build.outputs.version }}"
+          commit-message: "data: thresholds and vendor prices for Forever ${{ steps.build.outputs.version }}"
           body: |
-            Regenerated `Data/Thresholds.lua` from the `SkillLineAbility` DB2 of Forever build ${{ steps.build.outputs.version }}.
+            Regenerated `Data/Thresholds.lua` and `Data/Vendor.lua` from the `SkillLineAbility` and `ItemSparse` DB2s of Forever build ${{ steps.build.outputs.version }}.
 
             Before merging, run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.

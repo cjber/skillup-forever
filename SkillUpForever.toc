@@ -1,0 +1,16 @@
+## Interface: 16001
+## Title: SkillUp Forever
+## Notes: Required skill, colour thresholds and skill-up chance for every recipe in the Professions window.
+## Author: cjber
+## Version: @project-version@
+## Category: Professions
+## SavedVariables: SkillUpForeverDB
+## IconTexture: Interface\Icons\Trade_LeatherWorking
+## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
+
+Data\Thresholds.lua
+Model.lua
+Core.lua
+Settings.lua
+Tooltip.lua
+RecipeList.lua

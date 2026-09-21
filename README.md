@@ -47,7 +47,7 @@ Cost per craft counts the recipe's required reagents. Each reagent uses the chea
 
 - **Vendor:** about 50 common trade supplies (thread, vials, flux, dyes, spices) are priced from the start. Any vendor you open that sells a reagent for gold updates its price, including your reputation discount.
 - **Auction house:** when you open the auction house, the addon searches it for the reagents of every recipe you've looked at (at most once an hour; `/su scan` forces it). Your own searches update prices too. Prices are kept per realm and faction.
-- **Auctionator:** with [Auctionator](https://www.curseforge.com/wow/addons/auctionator) installed, its prices are used (the fresher of its and any earlier scan of ours), the addon's own scan is skipped, and routes re-price as Auctionator scans.
+- **Auctionator:** with [Auctionator](https://www.curseforge.com/wow/addons/auctionator) installed, its prices are used (the fresher of its and our scan), our scan skips what it priced today, and routes re-price as Auctionator scans.
 
 What you craft counts too: by default its vendor sell price is taken off the cost, and a setting can use its auction price instead when that's higher (after the 5% cut; it may not sell). A recipe that earns more than it costs shows a green `+` and sorts first under *Cheapest skill-up*.
 

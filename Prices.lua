@@ -64,6 +64,12 @@ local function AuctionatorPrice(itemID)
 	return copper, okAge and type(days) == "number" and days or nil
 end
 
+-- Nothing for our scan to add: Auctionator already priced it today.
+local function AuctionatorSawToday(itemID)
+	local copper, days = AuctionatorPrice(itemID)
+	return copper ~= nil and days == 0
+end
+
 -- The fresher of our own scan and Auctionator's: { copper, source, time | days }.
 local function AuctionPrice(itemID)
 	local entry = Auctions()[itemID]
@@ -328,7 +334,7 @@ function ns.ScanAuctions(force)
 	queue, scanned = {}, 0
 	for itemID in pairs(ns.db.tracked) do
 		local last = auctions[itemID]
-		if force or not last or now - last.time > SCAN_MAX_AGE then
+		if force or ((not last or now - last.time > SCAN_MAX_AGE) and not AuctionatorSawToday(itemID)) then
 			queue[#queue + 1] = itemID
 		end
 	end
@@ -354,8 +360,7 @@ frame:SetScript("OnEvent", function(_, event)
 	elseif event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
 		RecordMerchant()
 	elseif event == "AUCTION_HOUSE_SHOW" then
-		-- Auctionator scans as you browse, and its prices are read directly.
-		if ns.db.scanAuctions and not AuctionatorAPI() then
+		if ns.db.scanAuctions then
 			C_Timer.After(SCAN_DELAY, function()
 				if AuctionHouseFrame and AuctionHouseFrame:IsShown() then
 					ns.ScanAuctions(false)

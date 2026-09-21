@@ -444,7 +444,7 @@ local function RenderRoute(list, profession, route)
 		})
 	end
 	if #route.segments == 0 and route.excluded.unpriced > 0 then
-		list:Message("Price reagents at a vendor or the AH.")
+		list:Message("No prices yet for the reagents listed: open the auction house to scan them.")
 	elseif route.stopReason == "no_recipe" then
 		local known = route.excluded.unpriced > 0 and "Nothing priced you know" or "Nothing you know"
 		list:Message(string.format("%s skills up past %d.", known, route.reachedSkill - m), RED_FONT_COLOR)
@@ -470,6 +470,38 @@ local function ReagentTooltip(tooltip, item)
 	AddLine(tooltip, "Each", string.format("%s |cff808080(%s)|r", Money(price.copper), ns.PriceSourceText(price)))
 	if have < item.need then
 		AddLine(tooltip, "To buy", Money(price.copper * (item.need - have)))
+	end
+end
+
+-- Reagents of known recipes that still skill up but have no price, which is what
+-- keeps them out of the route.
+local function UnpricedReagents(profession)
+	local snapshot = ns.RouteSnapshot(profession)
+	local seen, items = {}, {}
+	for _, recipe in ipairs(snapshot.recipes) do
+		if recipe.netCost == nil and recipe.thresholds[4] > snapshot.skill then
+			for _, reagent in ipairs(ns.Reagents(recipe.recipeID) or {}) do
+				if not seen[reagent.itemID] and not ns.Price(reagent.itemID) then
+					seen[reagent.itemID] = true
+					items[#items + 1] = reagent.itemID
+				end
+			end
+		end
+	end
+	table.sort(items)
+	return items
+end
+
+local function RenderUnpriced(list, items)
+	for _, itemID in ipairs(items) do
+		list:Add({
+			icon = C_Item.GetItemIconByID(itemID) or 134400,
+			text = C_Item.GetItemNameByID(itemID) or ("item " .. itemID),
+			values = { "", SOURCE_TEXT.unknown },
+			tooltip = function(tooltip)
+				tooltip:SetItemByID(itemID)
+			end,
+		})
 	end
 end
 
@@ -543,7 +575,11 @@ local function Render()
 	end
 	local reagents = ns.RouteReagents(route)
 	RenderRoute(page.RouteList, profession, route)
-	RenderReagents(page.ReagentList, reagents)
+	if #route.segments == 0 and route.excluded.unpriced > 0 then
+		RenderUnpriced(page.ReagentList, UnpricedReagents(profession))
+	else
+		RenderReagents(page.ReagentList, reagents)
+	end
 	local age, ageColor = PriceAge(reagents)
 	page.PriceAge:SetText(age)
 	page.PriceAge:SetTextColor(ageColor:GetRGB())

@@ -3,11 +3,15 @@ local addonName, ns = ...
 -- Our own scan is trusted for an hour before a visit to the auction house rescans it.
 local SCAN_MAX_AGE = 3600
 local KEYS_PER_SEARCH = 50
+-- Blizzard runs its own search as the auction house opens; ours waits for it.
+local SCAN_DELAY = 2
+local SEARCH_TIMEOUT = 10
 
 local reagentsByRecipe = {}
 local priceCache = {}
 local auctionsTable -- this realm and faction's scanned prices: [itemID] = { copper = n?, time = t }
-local queue, pending, scanning = {}, nil, false
+-- pending: the current search's items still without a result; asked: all of them.
+local queue, pending, asked, scanning = {}, nil, nil, false
 local scanned = 0
 
 local function Table(parent, key)
@@ -145,18 +149,42 @@ local function HarvestBrowseResults()
 	end
 end
 
+local FinishScanIfDone
+
 local function SendNextSearch()
 	if pending or #queue == 0 or not C_AuctionHouse.IsThrottledMessageSystemReady() then
 		return
 	end
 	local keys = {}
-	pending = {}
+	pending, asked = {}, {}
 	while #queue > 0 and #keys < KEYS_PER_SEARCH do
 		local itemID = table.remove(queue)
 		pending[itemID] = true
+		asked[itemID] = true
 		keys[#keys + 1] = C_AuctionHouse.MakeItemKey(itemID)
 	end
 	C_AuctionHouse.SearchForItemKeys(keys, {})
+	-- A search superseded by the player's own never answers: give up on it without
+	-- touching those prices, and carry on with the rest.
+	local sent = pending
+	C_Timer.After(SEARCH_TIMEOUT, function()
+		if pending == sent then
+			pending = nil
+			SendNextSearch()
+			FinishScanIfDone()
+		end
+	end)
+end
+
+-- Results answer our search only if every item in them is one we asked for;
+-- anything else is Blizzard's or the player's own search.
+local function IsOurSearch()
+	for _, result in ipairs(C_AuctionHouse.GetBrowseResults()) do
+		if not asked[result.itemKey.itemID] then
+			return false
+		end
+	end
+	return true
 end
 
 -- An item nobody has listed returns no result; its old price should not outlive
@@ -169,7 +197,7 @@ local function FinishSearch()
 	pending = nil
 end
 
-local function FinishScanIfDone()
+function FinishScanIfDone()
 	if scanning and not pending and #queue == 0 then
 		scanning = false
 		PricesChanged()
@@ -205,13 +233,18 @@ frame:SetScript("OnEvent", function(_, event)
 		RecordMerchant()
 	elseif event == "AUCTION_HOUSE_SHOW" then
 		if ns.db.scanAuctions then
-			ns.ScanAuctions(false)
+			C_Timer.After(SCAN_DELAY, function()
+				if AuctionHouseFrame and AuctionHouseFrame:IsShown() then
+					ns.ScanAuctions(false)
+				end
+			end)
 		end
 	elseif event == "AUCTION_HOUSE_CLOSED" then
 		scanning, pending, queue = false, nil, {}
 	elseif event == "AUCTION_HOUSE_BROWSE_RESULTS_UPDATED" or event == "AUCTION_HOUSE_BROWSE_RESULTS_ADDED" then
+		local ours = pending and IsOurSearch()
 		HarvestBrowseResults()
-		if not pending then
+		if not ours then
 			return
 		end
 		if not C_AuctionHouse.HasFullBrowseResults() then

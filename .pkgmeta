@@ -1,0 +1,10 @@
+package-as: SkillUpForever
+
+ignore:
+  - tools
+  - tests
+  - docs
+  - PLAN.md
+  - .luacheckrc
+  - .luarc.json
+  - stylua.toml

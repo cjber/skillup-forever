@@ -4,6 +4,7 @@ local DEFAULTS = {
 	showRowText = true,
 	showTooltip = true,
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance"
+	barStyle = "rank", -- "rank" | "header" | "flat"
 }
 
 ns.DEFAULTS = DEFAULTS

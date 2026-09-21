@@ -33,6 +33,14 @@ function ns.RegisterSettings()
 		"Orange, yellow, green and grey thresholds when hovering a recipe."
 	)
 
+	Settings.CreateDropdown(category, Register("barStyle", Settings.VarType.String, "Tooltip bar style"), function()
+		local container = Settings.CreateControlTextContainer()
+		container:Add("rank", "Rank bar")
+		container:Add("header", "Profession header")
+		container:Add("flat", "Flat")
+		return container:GetData()
+	end, "Look of the threshold bar in the recipe tooltip.")
+
 	Settings.CreateDropdown(category, Register("sortMode", Settings.VarType.String, "Sort recipes"), function()
 		local container = Settings.CreateControlTextContainer()
 		container:Add("blizzard", "Default")

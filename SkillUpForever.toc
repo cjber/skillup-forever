@@ -25,6 +25,7 @@ Settings.lua
 Tooltip.lua
 RecipeList.lua
 Sources.lua
+List.lua
 Route.lua
 Shopping.lua
 Trainer.lua

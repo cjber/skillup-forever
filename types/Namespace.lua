@@ -29,6 +29,7 @@
 ---@field InvalidatePlans fun()
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field RankText fun(rank: SkillUpRank): string
+---@field CreateList fun(parent: Frame, columns: SkillUpColumn[]): SkillUpList
 ---@field NextCraft fun(profession: SkillUpProfession, route: SkillUpPlan): SkillUpCraft
 ---@field RefreshRoute fun()
 ---@field OpenSkillLine fun(): integer?

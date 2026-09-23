@@ -33,7 +33,7 @@ Open a profession and the numbers are already there.
 
 | Command | What it does |
 |---|---|
-| `/su` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
+| `/su`, `/skillup` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 | `/su scan` | With the auction house open, search it for every known reagent now |
 
@@ -67,25 +67,17 @@ The colour itself always comes from the game, so the addon never disagrees with 
 
 **Found a wrong number?** Run `/su audit` with that profession open and [open an issue](https://github.com/cjber/skillup-forever/issues/new) with the output.
 
+## Works alongside
+
+All optional: Auctionator supplies prices and takes the shopping list (see [Prices](#prices)), TomTom draws the arrow for route waypoints, and Syndicator shows the reagents your other characters hold.
+
 ## Development
 
-```sh
-# link the checkout into the game
-ln -s "$PWD" ".../World of Warcraft/_classic_beta_/Interface/AddOns/SkillUpForever"
-
-luacheck .                        # lint
-tools/typecheck.sh                # LuaLS 3.19.1 + multi-value argument lint
-stylua --check .                  # format
-for s in tests/*_spec.lua; do luajit "$s" || exit 1; done   # maths, data, startup and price scans
-ruff check tools && ruff format --check tools   # the Python generators
-python3 tools/gen_thresholds.py   # regenerate a Data/*.lua file; every generator is in tools/README.md
-```
-
-The type gate fetches pinned WoW API annotations into ignored `.types/` on first use (Git and Python 3.10+ required). It checks every runtime file, including generated data, and fails on any LuaLS diagnostic. Addon and missing client/integration types live in `types/`; they are excluded from releases.
-
-CI runs these checks on every push, plus actionlint and zizmor on the workflows and gitleaks over the history. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with every `Data/*.lua` file regenerated.
+Link the checkout into the game (`ln -s "$PWD" ".../_classic_beta_/Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands); [tools/README.md](tools/README.md) lists the data generators. The type gate needs Git and Python 3.10+ and fetches pinned WoW API annotations into ignored `.types/`. CI runs the same gate plus actionlint, zizmor and gitleaks; a daily job opens a pull request when a newer Forever build changes the recipe data.
 
 **Releasing:** move the `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
+
+**Contributing:** read [CONTRIBUTING.md](https://github.com/cjber/.github/blob/main/CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) first. Report security problems privately, as [SECURITY.md](https://github.com/cjber/.github/blob/main/SECURITY.md) describes.
 
 ## Licence
 

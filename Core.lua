@@ -81,7 +81,7 @@ local function LoadDB()
 end
 
 local KNOWN_SKILL_LINES = {}
-for _, skillLine in pairs(ns.ProfessionSkillLines) do
+for _, skillLine in pairs(ns.ProfessionSkillLines or {}) do
 	KNOWN_SKILL_LINES[skillLine] = true
 end
 

@@ -271,6 +271,31 @@ function ModuleMixin:OnBlockHeaderClick(block)
 	end)
 end
 
+-- The template from Shopping.xml: a line that takes the mouse.
+local LINE_TEMPLATE = "SkillUpForeverTrackerLineTemplate"
+
+-- A left click on the line sets a waypoint to the NPC `nearest` picks, by travel
+-- time, and hovering names it. Picked when used, never while the tracker redraws.
+---@param line Frame
+---@param title string
+---@param label string
+---@param nearest fun(): integer?
+local function Waypointed(line, title, label, nearest)
+	line:SetScript("OnMouseUp", function(_, button)
+		local npcID = button == "LeftButton" and nearest()
+		if npcID then
+			ns.SetWaypoint(npcID)
+		end
+	end)
+	line:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+		GameTooltip_SetTitle(GameTooltip, title)
+		ns.AddNearest(GameTooltip, label, nearest())
+		GameTooltip:Show()
+	end)
+	line:SetScript("OnLeave", GameTooltip_Hide)
+end
+
 -- Where each training happens, in base skill: ranks when the trainer allows them,
 -- recipes where the route first uses them.
 ---@param entry SkillUpTracked
@@ -305,7 +330,14 @@ function ModuleMixin:LayoutContents()
 		block.steps = steps
 		if #steps > 0 then
 			local more = #steps > 1 and string.format(" |cff808080(+%d more)|r", #steps - 1) or ""
-			block:AddObjective("Train", steps[1].text .. more)
+			local info, cap = entry.professionInfo, steps[1].cap
+			local trainer = ns.NearestTrainer(info, cap)
+			local line = block:AddObjective("Train", steps[1].text .. more, trainer and LINE_TEMPLATE or nil)
+			if trainer then
+				Waypointed(line, steps[1].text, "Nearest trainer", function()
+					return ns.NearestTrainer(info, cap, true)
+				end)
+			end
 		end
 		local shown = 0
 		for _, item in ipairs(entry.items) do
@@ -322,9 +354,14 @@ function ModuleMixin:LayoutContents()
 					name = "item " .. item.itemID
 				end
 				local gather = item.source == "gather" and " |cff808080(gather)|r" or ""
-				block:AddObjective(item.itemID, string.format("%d/%d %s%s", have, item.need, name, gather))
 				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
+				local text = string.format("%d/%d %s%s", have, item.need, name, gather)
+				local line = block:AddObjective(item.itemID, text, vendor and LINE_TEMPLATE or nil)
 				if vendor then
+					local itemID = item.itemID
+					Waypointed(line, name, "Nearest vendor", function()
+						return ns.NearestVendor(itemID, true)
+					end)
 					block.vendorMissing[#block.vendorMissing + 1] =
 						{ name = name, itemID = item.itemID, vendor = vendor }
 				end

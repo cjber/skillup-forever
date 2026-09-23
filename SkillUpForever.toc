@@ -27,5 +27,6 @@ RecipeList.lua
 Sources.lua
 List.lua
 Route.lua
+Shopping.xml
 Shopping.lua
 Trainer.lua

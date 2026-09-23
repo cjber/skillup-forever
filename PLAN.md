@@ -2,6 +2,8 @@
 
 A WoW: Forever addon that puts Classic profession-levelling numbers into the retail Professions UI Forever ships with.
 
+The original design plan, kept for its reasoning; the code, README and `tools/README.md` describe what shipped.
+
 ## Why this one
 
 WoW: Forever (beta now, launch 2026-11-04, client 1.60.x, `## Interface: 16001`) runs Classic content on the mainline 12.1.5 UI/API. The retail Professions frame only shows a difficulty colour, which is useless for Classic levelling:

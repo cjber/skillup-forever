@@ -21,7 +21,7 @@ WoW: Forever's modern Professions window shows a recipe's colour, but not when i
 - **Levelling route**: a map tab beside the Professions window opens a SkillUp page. Type a target skill and it lists the cheapest crafts to get there, like `12× Heavy Linen Bandage to 90`, with trainer steps, fees and the total cost; *Craft* makes the first step. When nothing you know reaches the target, it lists the vendor, quest and drop recipes that would, with waypoints. [More](docs/route.md#levelling-route).
 - **Shopping list**: every reagent the route needs, with how many you have, green once covered. *Track* puts it in the objective tracker above your quests; at a vendor, *Buy tracked reagents* buys what they sell; with Auctionator, *To Auctionator* makes a shopping list. Reagents you gather yourself count as free. [More](docs/route.md#shopping-list).
 - **Profession trainer**: each recipe a trainer teaches shows its row text (`62% · 45s`) and the one that most cheapens or extends your route, fee included, is marked `Best next`. A recipe the addon can't identify for certain shows `?`.
-- **Reagent tooltips**: hovering an item anywhere lists the recipes of your professions that use it and still skill up, with their colour now: `Heavy Linen Bandage    yellow until 115`.
+- **Reagent tooltips**: hovering an item anywhere shows what your tracked routes need of it. Hold Shift, or choose it in settings, to list every recipe of your professions that uses it and still skills up, with its colour now: `Heavy Linen Bandage    yellow until 115`.
 
 ## Install
 
@@ -46,7 +46,7 @@ Settings cover what rows and tooltips show, the auction house scan, sort order, 
 Cost per craft counts the recipe's required reagents. Each reagent uses the cheapest price the addon knows:
 
 - **Vendor:** about 50 common trade supplies (thread, vials, flux, dyes, spices) are priced from the start. Any vendor you open that sells a reagent for gold updates its price, including your reputation discount.
-- **Auction house:** when you open the auction house, the addon searches it for the reagents of every recipe you've looked at (at most once an hour; `/su scan` forces it). Your own searches update prices too. Prices are kept per realm and faction.
+- **Auction house:** when you open the auction house, the addon searches it for the reagents and crafted items of every profession you've opened (at most once an hour; `/su scan` forces it). Your own searches update prices too. Prices are kept per realm and faction.
 - **Auctionator:** with [Auctionator](https://www.curseforge.com/wow/addons/auctionator) installed, its prices are used (the fresher of its and our scan), our scan skips what it priced today, and routes re-price as Auctionator scans.
 
 What you craft counts too: by default its vendor sell price is taken off the cost, and a setting can use its auction price instead when that's higher (after the 5% cut; it may not sell). A recipe that earns more than it costs shows a green `+` and sorts first under *Cheapest skill-up*.

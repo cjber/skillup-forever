@@ -23,7 +23,7 @@ from gen_trainer import (
 
 OUTPUT = ROOT / "Data" / "Sources.lua"
 VENDOR_DATA = ROOT / "Data" / "Vendor.lua"
-VENDOR_ROW = re.compile(r"\t\[(\d+)\] = \d+,")
+VENDOR_ROW = re.compile(r"\t\[(\d+)\] = \d+(?:\.\d+)?,")
 RECIPE_DATA = ROOT / "Data" / "Recipes.lua"
 REAGENT = re.compile(r"itemID = (\d+), quantity")
 # Lock rows of type LOCK_KEY_SKILL name the gathering skill: 2 Herbalism, 3 Mining.
@@ -92,10 +92,9 @@ def parse_rows(line):
     return rows
 
 
-def dump_tables(refresh=False, offline=False):
-    classicdb(refresh, offline)  # downloads and caches the dump
+def dump_tables(path):
     columns, rows, current = {}, defaultdict(list), None
-    with gzip.open(CLASSICDB_CACHE, "rt", encoding="utf-8", errors="replace") as dump:
+    with gzip.open(path, "rt", encoding="utf-8", errors="replace") as dump:
         for line in dump:
             if line.startswith("CREATE TABLE"):
                 name = line.split("`")[1]
@@ -468,13 +467,14 @@ def main():
     args = parser.parse_args()
     options = {"refresh": args.refresh, "offline": args.offline}
     factions = db2("FactionTemplate", ("ID", "FactionGroup", "FriendGroup", "EnemyGroup"), **options)
+    trainer_lines = classicdb(**options)
     data = generate(
         threshold_ids(),
-        dump_tables(**options),
+        dump_tables(CLASSICDB_CACHE),
         teach_effects(**options),
         {int(row["ID"]): row for row in factions},
         db2("Map", ("ID", "MapName_lang", "InstanceType"), **options),
-        classicdb(**options),
+        trainer_lines,
         vendor_items(),
         db2("Lock", ["ID"] + [f"{c}_{i}" for c in ("Type", "_Index") for i in range(8)], **options),
     )

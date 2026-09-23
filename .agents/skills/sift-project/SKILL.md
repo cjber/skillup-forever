@@ -41,7 +41,7 @@ On-demand tools for audits. Output is candidates, never verdicts.
 
 | Concern | Command | Known false positives |
 |---|---|---|
-| Types (Lua) | `mkdir -p .sift/runs/luals && lua-language-server --check=. --checklevel=Warning --logpath=.sift/runs/luals --check_format=json --check_out_path=.sift/runs/luals/check.json` | exits 1 whenever any diagnostic exists; read `check.json`. Baseline: 6 (`need-check-nil` Prices.lua:345, Route.lua:94/97, tests/model_spec.lua:403/407; `param-type-mismatch` Prices.lua:356) |
+| Types (Lua) | `mkdir -p .sift/runs/luals && lua-language-server --check=. --checklevel=Warning --logpath=.sift/runs/luals --check_format=json --check_out_path=.sift/runs/luals/check.json` | exits 1 whenever any diagnostic exists; read `check.json`. Baseline: 6, all reviewed as false positives in the 2026-09-23 audit except as noted there (`need-check-nil` Prices.lua:345, Route.lua:94/97, tests/model_spec.lua:403/407; `param-type-mismatch` Prices.lua:356) |
 | Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 4: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:109), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:94/96), untyped `json.load` result (latest_build.py:14) |
 | Dead code (Lua) | `luacheck . --no-color` (unused locals/values) + the live-root searches below | a function stored on `ns` is never "unused" to luacheck — search every file for `ns.<Name>` |
 | Dead code (Python) | `uvx vulture tools --min-confidence 60` | clean at baseline; generator functions are imported across files (`from gen_thresholds import …`) |
@@ -59,6 +59,7 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 - `SLASH_SKILLUPFOREVER1/2` + `SlashCmdList.SKILLUPFOREVER` — `/su` commands.
 - `hooksecurefunc("ClassTrainerFrame_InitServiceButton" | "ClassTrainerFrame_Update", …)`, `hooksecurefunc(ProfessionsFrame, "RefreshRightTabs" | "RightTabSelected")`, `hooksecurefunc(ObjectiveTrackerManager, "AddContainer")`, `hooksecurefunc(recipeList.ScrollBox, "SetDataProvider")` — Blizzard functions hooked by string name.
 - `EventRegistry:RegisterCallback("Professions.RecipeListOnEnter")`, `Menu.ModifyMenu("MENU_PROFESSIONS_FILTER")`, `TooltipDataProcessor.AddTooltipPostCall` — host callbacks.
+- `ns.LearnReagents` — reached only through `hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ns.LearnReagents)`; function values passed to hooks count as references.
 - `RegisterEvent("…")` + `OnEvent` dispatch on the event string — handlers are reached by event name.
 - Optional integrations (`## OptionalDeps: Auctionator, TomTom, Syndicator`) — code guarded by `if Auctionator` etc. is live only with that addon installed.
 - `tools/gen_*.py` public names imported by sibling generators; `tools/latest_build.py` and `tools/changelog.py` run from workflows.
@@ -83,6 +84,7 @@ How each part of the tree is reviewed. Unlisted paths are `production`.
 - Unknown data renders `?`/`nil` rather than a guess; generators raise instead of clamping bad data (see `tools/README.md`). A silent fallback that invents a number is a defect here.
 - Comments explain *why* (client quirks, Forever beta bugs, data provenance), not what.
 - Host globals must be declared in `.luacheckrc` `read_globals`; `.luarc.json` mirrors that list (regenerate it from `.luacheckrc` when adding one).
+- Text shown in game (Settings tooltips, `ns.Print` messages) and the store listing `docs/curseforge.md` are user-facing: audits propose changes, never make them.
 - New dev-only root files must be added to `.pkgmeta` `ignore:` so they don't ship in the zip.
 
 ## Risk order

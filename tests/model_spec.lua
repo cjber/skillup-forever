@@ -352,9 +352,6 @@ do
 			GetRecipeSchematic = function(recipeID)
 				return live[recipeID]
 			end,
-			GetAllRecipeIDs = function()
-				return { 10 }
-			end,
 		},
 		Enum = { CraftingReagentType = { Basic = 1 } },
 		C_Item = {

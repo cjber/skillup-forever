@@ -7,15 +7,19 @@ on:
     - cron: "0 6 * * *"
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          # create-pull-request authenticates with its own `token` input.
+          persist-credentials: false
       - name: Pin the newest Forever build
         id: build
         run: |
@@ -33,12 +37,12 @@ jobs:
       - if: steps.build.outputs.new == 'true'
         run: sudo apt-get update && sudo apt-get install -y luajit && luajit tests/model_spec.lua
       - if: steps.build.outputs.new == 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
         with:
           branch: data/forever-${{ steps.build.outputs.version }}
           title: "data: thresholds, recipes and prices for Forever ${{ steps.build.outputs.version }}"
           commit-message: "data: thresholds, recipes and prices for Forever ${{ steps.build.outputs.version }}"
           body: |
-            Regenerated `Data/Thresholds.lua`, `Data/Vendor.lua` and `Data/Recipes.lua` from the profession, reagent, output, price and spell-name DB2s of Forever build ${{ steps.build.outputs.version }}.
+            Regenerated `Data/Thresholds.lua`, `Data/Vendor.lua` and `Data/Recipes.lua` from the profession, reagent, output, price and spell-name DB2s of Forever build ${{ steps.build.outputs.version }}, and `Data/Trainer.lua` and `Data/Sources.lua` from CMaNGOS classic-db against that build.
 
             Before merging, run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.

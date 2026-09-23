@@ -6,7 +6,7 @@ python3 tools/gen_vendor.py
 python3 tools/gen_recipes.py
 python3 tools/gen_trainer.py
 python3 tools/gen_sources.py
-luacheck Model.lua tests/ --std lua51
+luacheck .
 luajit tests/model_spec.lua
 ```
 
@@ -39,7 +39,7 @@ build are reported and skipped. It shares the build pin and cache with `gen_thre
 `gen_recipes.py` writes `Data/Recipes.lua`, using only spell IDs already present in
 the same-build `Data/Thresholds.lua`. It imports the threshold generator's build,
 snapshot date, cache and profession discovery; run thresholds first when changing
-builds. All three generators accept `--offline` and `--refresh`. To verify recipe
+builds. All five generators accept `--offline` and `--refresh`. To verify recipe
 reproducibility:
 
 ```sh
@@ -91,8 +91,8 @@ export; ambiguous names map to `false`, including ambiguity between old and new
 recipe variants. Name matching is a trainer fallback; other client locales need a
 verified spell ID. Counts, omissions and file size print on each generation.
 
-Runtime consumers filter `RecipeData[recipeID].skillLine` using
-`C_TradeSkillUI.GetBaseProfessionInfo().professionID` for the open profession.
+Runtime consumers filter `RecipeData[recipeID].skillLine` by the skill line
+`ns.ProfessionSkillLine` (Core.lua) resolves from the open profession's name.
 These are parent skill-line IDs: First Aid 129, Blacksmithing 164, Leatherworking
 165, Alchemy 171, Herbalism 182, Cooking 185, Mining 186, Tailoring 197, Engineering
 202, Enchanting 333, Fishing 356 and Skinning 393; expansion child lines 2937–2948

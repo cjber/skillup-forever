@@ -119,9 +119,9 @@ end
 
 local KIND_TEXT = { "vendor", "limited vendor", "quest", "drop", "world drop" }
 
--- Scroll recipes of this profession, not trainer-taught nor learned, that could
--- be learned by `skill` (effective) and still skill up there, easiest to get and
--- then furthest-reaching first.
+-- Scroll recipes of this profession, not trainer-taught nor learned, that the
+-- base skill behind `skill` (effective) can learn and that still skill up at
+-- `skill`, easiest to get and then furthest-reaching first.
 function ns.RecipeSuggestions(profession, skill)
 	local base = skill - profession.modifier
 	local found = {}

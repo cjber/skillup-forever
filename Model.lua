@@ -265,8 +265,9 @@ function Model.CraftValue(sell, auction, mode)
 	return vendor, vendor and "vendor" or nil
 end
 
--- Rounds to the two largest coins so a row stays short: 1g 23s, 45s, 80c.
+-- Rounds so a row stays short: whole gold from 100g (123g), else the two largest
+-- coins (1g 23s, 45s, 80c).
 function Model.RoundMoney(copper)
-	local unit = copper >= 1000000 and 10000 or copper >= 10000 and 100 or copper >= 100 and 100 or 1
+	local unit = copper >= 1000000 and 10000 or copper >= 100 and 100 or 1
 	return math.max(math.floor(copper / unit + 0.5), 1) * unit
 end

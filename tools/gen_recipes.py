@@ -2,21 +2,24 @@
 """Generate bundled recipe facts for the pinned Forever client (stdlib only)."""
 
 import argparse
-from collections import Counter, defaultdict
 import math
 import re
 import sys
 import urllib.error
+from collections import Counter, defaultdict
 
 from gen_thresholds import BUILD, ROOT, SOURCE_DATE, db2, professions
-
 
 OUTPUT = ROOT / "Data" / "Recipes.lua"
 THRESHOLDS = ROOT / "Data" / "Thresholds.lua"
 THRESHOLD_ROW = re.compile(r"\s*\[(\d+)\] = \{ \d+, \d+, \d+, \d+ \},(?: --.*)?")
 YIELD_MODIFIERS = (
-    "EffectRealPointsPerLevel", "EffectPointsPerResource", "Coefficient",
-    "ResourceCoefficient", "ScalingClass", "EffectTriggerSpell",
+    "EffectRealPointsPerLevel",
+    "EffectPointsPerResource",
+    "Coefficient",
+    "ResourceCoefficient",
+    "ScalingClass",
+    "EffectTriggerSpell",
 )
 
 
@@ -109,9 +112,15 @@ def output_of(spell, rows):
     row = creates[0]
     item = int(row["EffectItemType"])
     base, variance = float(row["EffectBasePointsF"]), float(row["Variance"])
-    if (item <= 0 or not math.isfinite(base) or not math.isfinite(variance)
-            or base < 0 or variance < 0 or (base == 0 and variance != 0)
-            or any(float(row[key]) != 0 for key in YIELD_MODIFIERS)):
+    if (
+        item <= 0
+        or not math.isfinite(base)
+        or not math.isfinite(variance)
+        or base < 0
+        or variance < 0
+        or (base == 0 and variance != 0)
+        or any(float(row[key]) != 0 for key in YIELD_MODIFIERS)
+    ):
         raise ValueError(f"Recipe {spell}: invalid or scaled output yield")
     # BasePointsF is the centre of the yield range, not the old DB2 base-minus-one.
     # Variance is its relative full width. CREATE_ITEM clamps zero yield to one;
@@ -164,14 +173,16 @@ def generate(ids, ability_rows, skill_rows, reagent_rows, effect_rows, item_rows
     for sid in names:
         put_unique(professions, skill_names[sid], sid, "profession name")
     stats = {
-        "thresholds": len(ids), "recipes": len(recipes),
+        "thresholds": len(ids),
+        "recipes": len(recipes),
         "omitted_reagents": len(ids) - len(recipes),
         "multi_profession": len(ids) - len(lines),
         "reagent_entries": sum(len(r) for _, r, _ in recipes.values()),
         "distinct_reagents": len({item for _, r, _ in recipes.values() for item, _ in r}),
         "item_outputs": sum(o is not False for _, _, o in recipes.values()),
         "non_item_outputs": sum(o is False for _, _, o in recipes.values()),
-        "sell_prices": len(sell), "missing_output_items": len(missing_items),
+        "sell_prices": len(sell),
+        "missing_output_items": len(missing_items),
         "names": sum(len(n) for n in names.values()),
         "ambiguous_names": sum(v is False for n in names.values() for v in n.values()),
         "missing_names": len(ids) - len(spell_names),
@@ -182,7 +193,7 @@ def generate(ids, ability_rows, skill_rows, reagent_rows, effect_rows, item_rows
 def lua_string(value):
     # Preserve the source locale and exact spelling; do not normalize trainer names.
     escapes = {"\\": "\\\\", '"': '\\"', "\n": "\\n", "\r": "\\r", "\t": "\\t"}
-    return '"' + ''.join(escapes.get(c, f"\\{ord(c):03d}" if ord(c) < 32 else c) for c in value) + '"'
+    return '"' + "".join(escapes.get(c, f"\\{ord(c):03d}" if ord(c) < 32 else c) for c in value) + '"'
 
 
 def render(recipes, sell, names, professions, stats):
@@ -214,7 +225,15 @@ def render(recipes, sell, names, professions, stats):
             value = "false" if spell is False else str(spell)
             lines.append(f"\t\t[{lua_string(name)}] = {value},")
         lines.append("\t},")
-    lines.extend(["}", "", "-- Profession name (source locale) to skill line; the game's own profession", "-- APIs report other IDs on Forever.", "ns.ProfessionSkillLines = {"])
+    lines.extend(
+        [
+            "}",
+            "",
+            "-- Profession name (source locale) to skill line; the game's own profession",
+            "-- APIs report other IDs on Forever.",
+            "ns.ProfessionSkillLines = {",
+        ]
+    )
     for name, skill in sorted(professions.items()):
         lines.append(f"\t[{lua_string(name)}] = {skill},")
     lines.append("}")
@@ -233,10 +252,25 @@ def main():
         ids,
         db2("SkillLineAbility", ("Spell", "SkillLine"), **options),
         db2("SkillLine", ("ID", "DisplayName_lang", "CategoryID", "CanLink", "ParentSkillLineID"), **options),
-        db2("SpellReagents", ("SpellID", *(f"Reagent_{i}" for i in range(8)),
-                             *(f"ReagentCount_{i}" for i in range(8))), **options),
-        db2("SpellEffect", ("SpellID", "DifficultyID", "EffectIndex", "Effect", "EffectItemType",
-                            "EffectBasePointsF", "Variance", *YIELD_MODIFIERS), **options),
+        db2(
+            "SpellReagents",
+            ("SpellID", *(f"Reagent_{i}" for i in range(8)), *(f"ReagentCount_{i}" for i in range(8))),
+            **options,
+        ),
+        db2(
+            "SpellEffect",
+            (
+                "SpellID",
+                "DifficultyID",
+                "EffectIndex",
+                "Effect",
+                "EffectItemType",
+                "EffectBasePointsF",
+                "Variance",
+                *YIELD_MODIFIERS,
+            ),
+            **options,
+        ),
         db2("ItemSparse", ("ID", "SellPrice"), **options),
         db2("SpellName", ("ID", "Name_lang"), **options),
     )

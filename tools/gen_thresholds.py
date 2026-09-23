@@ -2,39 +2,39 @@
 """Generate recipe spell thresholds for one pinned Forever client (stdlib only)."""
 
 import argparse
-from collections import Counter, defaultdict
 import csv
 import io
-from pathlib import Path
 import re
 import sys
 import urllib.error
 import urllib.request
-
+from collections import Counter, defaultdict
+from pathlib import Path
 
 BUILD = "1.60.1.69913"
 # Date this source snapshot was selected, not the date of each regeneration.
 SOURCE_DATE = "2026-09-21"
 SKILLET_COMMIT = "c6807b055215a810f985f9606458235b8805666e"
-SKILLET_URL = (
-    "https://raw.githubusercontent.com/b-morgan/Skillet-Classic/"
-    f"{SKILLET_COMMIT}/SkillLevelData1.lua"
-)
+SKILLET_URL = f"https://raw.githubusercontent.com/b-morgan/Skillet-Classic/{SKILLET_COMMIT}/SkillLevelData1.lua"
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "tools" / ".cache"
 OUTPUT = ROOT / "Data" / "Thresholds.lua"
 REQUIRED_SKILLS = {
-    129: "First Aid", 164: "Blacksmithing", 165: "Leatherworking",
-    171: "Alchemy", 185: "Cooking", 186: "Mining", 197: "Tailoring",
-    202: "Engineering", 333: "Enchanting",
+    129: "First Aid",
+    164: "Blacksmithing",
+    165: "Leatherworking",
+    171: "Alchemy",
+    185: "Cooking",
+    186: "Mining",
+    197: "Tailoring",
+    202: "Engineering",
+    333: "Enchanting",
 }
 # Fishing is category 9 with CanLink=0; unlike racials/riding, it is a profession.
 SECONDARY_SKILLS = {129, 185, 356}
 THRESHOLD_STRING = re.compile(r"[\"'](\d+)/(\d+)/(\d+)/(\d+)[\"']")
 ENTRY = re.compile(r"\[(-?\d+)\]\s*=\s*(.+),\s*$")
-NESTED_ENTRY = re.compile(
-    r"\[(\d+)\]\s*=\s*([\"']\d+/\d+/\d+/\d+[\"'])\s*,?\s*"
-)
+NESTED_ENTRY = re.compile(r"\[(\d+)\]\s*=\s*([\"']\d+/\d+/\d+/\d+[\"'])\s*,?\s*")
 
 
 def download(url, filename, refresh=False, offline=False):
@@ -60,7 +60,9 @@ def download(url, filename, refresh=False, offline=False):
 def db2(name, columns, refresh=False, offline=False):
     content = download(
         f"https://wago.tools/db2/{name}/csv?build={BUILD}",
-        f"{name}-{BUILD}.csv", refresh, offline,
+        f"{name}-{BUILD}.csv",
+        refresh,
+        offline,
     )
     reader = csv.DictReader(io.StringIO(content))
     missing = set(columns) - set(reader.fieldnames or [])
@@ -124,13 +126,15 @@ def professions(skill_rows):
     for sid, row in skills.items():
         if "[DNT]" in row["DisplayName_lang"] or row["DisplayName_lang"].startswith("Test "):
             excluded[sid] = row["DisplayName_lang"]
-        elif (int(row["CategoryID"]) == 11 or sid in SECONDARY_SKILLS
-              or (int(row["CategoryID"]) == 9 and row["CanLink"] == "1")):
+        elif (
+            int(row["CategoryID"]) == 11
+            or sid in SECONDARY_SKILLS
+            or (int(row["CategoryID"]) == 9 and row["CanLink"] == "1")
+        ):
             selected.add(sid)
     while True:
         children = {
-            sid for sid, row in skills.items()
-            if int(row["ParentSkillLineID"]) in selected and sid not in excluded
+            sid for sid, row in skills.items() if int(row["ParentSkillLineID"]) in selected and sid not in excluded
         }
         if children <= selected:
             break
@@ -158,12 +162,11 @@ def orange_threshold(spell, yellow, grey, db2_orange, baseline, outputs):
         scraped.update(items.get(item, ()))
     # Prefer Wrath-scraped requirements to Skillet's DB2-based ability fallback,
     # which also contains many unreliable orange=1 entries.
-    for candidates, source in ((scraped, "Skillet SkillLevels"),
-                               (abilities.get(spell, ()), "Skillet SkillLineAbility")):
-        matching = {
-            t[0] for t in candidates
-            if t[1] == yellow and t[3] == grey and 0 <= t[0] <= t[1] <= t[2] <= t[3]
-        }
+    for candidates, source in (
+        (scraped, "Skillet SkillLevels"),
+        (abilities.get(spell, ()), "Skillet SkillLineAbility"),
+    ):
+        matching = {t[0] for t in candidates if t[1] == yellow and t[3] == grey and 0 <= t[0] <= t[1] <= t[2] <= t[3]}
         if len(matching) == 1:
             return next(iter(matching)), source
         if len(matching) > 1:
@@ -222,8 +225,11 @@ def generate(ability_rows, skills, selected, names, baseline, outputs, effects):
             stats[sid]["orange:" + source] += 1
             if thresholds[0] > thresholds[1]:
                 stats[sid]["inconsistent orange>yellow"] += 1
-                print(f"WARNING: recipe {spell} ({names.get(spell, 'SpellName unavailable')}): "
-                      f"keeping inconsistent DB2 thresholds {thresholds}", file=sys.stderr)
+                print(
+                    f"WARNING: recipe {spell} ({names.get(spell, 'SpellName unavailable')}): "
+                    f"keeping inconsistent DB2 thresholds {thresholds}",
+                    file=sys.stderr,
+                )
             if not names.get(spell):
                 stats[sid]["missing spell name"] += 1
         emitted[spell] = (rows[0][1], sorted({source for _, _, source in rows}), sorted(seen))
@@ -282,22 +288,48 @@ def main():
     mode.add_argument("--offline", action="store_true", help="use cached sources only")
     args = parser.parse_args()
     options = {"refresh": args.refresh, "offline": args.offline}
-    ability_rows = db2("SkillLineAbility", (
-        "Spell", "SkillLine", "MinSkillLineRank", "TrivialSkillLineRankHigh",
-        "TrivialSkillLineRankLow",
-    ), **options)
-    skill_rows = db2("SkillLine", (
-        "ID", "DisplayName_lang", "CategoryID", "CanLink", "ParentSkillLineID",
-    ), **options)
+    ability_rows = db2(
+        "SkillLineAbility",
+        (
+            "Spell",
+            "SkillLine",
+            "MinSkillLineRank",
+            "TrivialSkillLineRankHigh",
+            "TrivialSkillLineRankLow",
+        ),
+        **options,
+    )
+    skill_rows = db2(
+        "SkillLine",
+        (
+            "ID",
+            "DisplayName_lang",
+            "CategoryID",
+            "CanLink",
+            "ParentSkillLineID",
+        ),
+        **options,
+    )
     name_rows = db2("SpellName", ("ID", "Name_lang"), **options)
-    effect_rows = db2("SpellEffect", (
-        "SpellID", "Effect", "EffectItemType", "DifficultyID",
-    ), **options)
+    effect_rows = db2(
+        "SpellEffect",
+        (
+            "SpellID",
+            "Effect",
+            "EffectItemType",
+            "DifficultyID",
+        ),
+        **options,
+    )
     # Baseline failure must not discard authoritative DB2 thresholds.
     try:
-        baseline = parse_skillet(download(
-            SKILLET_URL, f"SkillLevelData1-{SKILLET_COMMIT}.lua", **options,
-        ))
+        baseline = parse_skillet(
+            download(
+                SKILLET_URL,
+                f"SkillLevelData1-{SKILLET_COMMIT}.lua",
+                **options,
+            )
+        )
     except (OSError, ValueError, urllib.error.URLError) as error:
         print(f"WARNING: Skillet baseline unavailable: {error}; using DB2 orange values", file=sys.stderr)
         baseline = ({}, {}, {})

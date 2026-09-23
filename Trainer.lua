@@ -12,7 +12,7 @@ local state
 local function TooltipRecipe(index)
 	local data = C_TooltipInfo and C_TooltipInfo.GetTrainerService(index)
 	local id = data and data.id
-	if id and not (issecretvalue and issecretvalue(id)) and ns.RecipeData[id] then
+	if not (issecretvalue and issecretvalue(id)) and id and ns.RecipeData[id] then
 		return id
 	end
 end

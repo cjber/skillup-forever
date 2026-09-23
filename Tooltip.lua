@@ -371,11 +371,12 @@ end
 ---@param data TooltipData
 local function AddUses(tooltip, data)
 	local itemID = data and data.id
-	local mode = ns.db.reagentTooltip
-	if mode == "off" or not itemID or tooltip:IsForbidden() then
+	-- Checked before anything tests the id: even its truth test errors while it is secret.
+	if issecretvalue and issecretvalue(itemID) then
 		return
 	end
-	if issecretvalue and issecretvalue(itemID) then
+	local mode = ns.db.reagentTooltip
+	if mode == "off" or not itemID or tooltip:IsForbidden() then
 		return
 	end
 	local uses = Uses(itemID)

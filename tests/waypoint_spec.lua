@@ -87,6 +87,25 @@ Run(nil)
 equal(calls.native and calls.native.x, 0.421, "without Shortest Path Forever the map waypoint is set")
 equal(calls.superTracked, true, "without Shortest Path Forever the waypoint is super-tracked")
 
+-- Another API version, or version 1 without Navigate, is never called.
+calls = {}
+env.ShortestPathForever = {
+	API = {
+		version = 2,
+		Navigate = function()
+			calls.navigate = true
+			return true
+		end,
+	},
+}
+ns.SetWaypoint(1250)
+equal(calls.navigate, nil, "another API version isn't asked")
+equal(calls.native and calls.native.map, 1429, "another API version falls back to the map waypoint")
+calls = {}
+env.ShortestPathForever = { API = { version = 1 } }
+ns.SetWaypoint(1250)
+equal(calls.native and calls.native.map, 1429, "an API without Navigate falls back to the map waypoint")
+
 -- Nearest by travel: 1251 is nearer in a straight line, 1252 across the water but
 -- a quicker trip; both on the player's continent (0), 1253 of the other faction.
 ns.SourceNPCs[1251] = { "Near", "", 0, -9100, 100 }
@@ -141,5 +160,7 @@ equal(ns.NearestNPC(npcs, true, true), 1251, "in combat the straight-line neares
 equal(estimated, 0, "nothing is estimated in combat")
 combat, env.ShortestPathForever = false, nil
 equal(ns.NearestNPC(npcs, true, true), 1251, "without Shortest Path Forever the straight-line nearest wins")
+env.ShortestPathForever = { API = { version = 1 } }
+equal(ns.NearestNPC(npcs, true, true), 1251, "an API without Estimate keeps the straight-line nearest")
 
 print("waypoint_spec: " .. checks .. " checks passed")

@@ -23,7 +23,7 @@ Run in order from the repository root. All must pass before and after any audit 
 | Format (Python) | `ruff format --check tools` | exit 0 (config: `tools/ruff.toml`) |
 | Lint (Lua) | `luacheck .` | `0 warnings / 0 errors`, exit 0 |
 | Lint (Python) | `ruff check tools` | exit 0 |
-| Tests | `luajit tests/model_spec.lua` | prints `model_spec: N checks passed`, exit 0 |
+| Tests | `for s in tests/*_spec.lua; do luajit "$s" \|\| exit 1; done` | each prints `<name>_spec: N checks passed`, exit 0 |
 | Workflows | `uvx --from actionlint-py==1.7.12.25 actionlint && uvx zizmor@1.30.1 --offline .github` | exit 0 |
 | Secrets | `gitleaks git --redact --no-banner .` | `no leaks found` |
 

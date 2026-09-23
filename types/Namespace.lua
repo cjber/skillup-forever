@@ -230,7 +230,6 @@ SkillUpForeverDB = nil
 ---@class SkillUpValue
 ---@field copper number
 ---@field source 'vendor'|'auction'
----@field each number
 ---@field quantity number
 
 ---@class SkillUpDescription

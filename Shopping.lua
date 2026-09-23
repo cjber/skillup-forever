@@ -117,7 +117,7 @@ function ns.IsTracked(skillLine)
 end
 
 -- Every tracked profession of this character with the reagents its route still
--- needs; planned afresh each time, so it follows skill, target, bags and prices.
+-- needs, from ns.PlanRoute, so it follows skill, target and prices.
 ---@return SkillUpTracked[]
 function ns.TrackedNeeds()
 	local tracked = {}

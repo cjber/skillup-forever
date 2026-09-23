@@ -137,7 +137,7 @@ def render(fees, conflicts, ranks):
     )
     for skill, rows in sorted(ranks.items()):
         entries = ", ".join(
-            f"{{ {cap}, {cost}, {required}, {level} }}" for cap, cost, required, level in rows if cap > 75
+            f"{{ {cap}, {cost}, {required}, {level} }}" for cap, cost, required, level in rows if cap > RANK_SKILL
         )
         lines.append(f"\t[{skill}] = {{ {entries} }},")
     lines.append("}")

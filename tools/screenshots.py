@@ -148,7 +148,6 @@ def round_money(copper):
 
 # ------------------------------------------------------------------------------------------- scene state
 
-LEATHERWORKING = 165
 COLORS = {  # Core.lua ns.COLORS: the client's GlobalColor rows it names
     "red": (1, 32 / 255, 32 / 255),  # RED_FONT_COLOR
     "orange": (1, 128 / 255, 64 / 255),  # DIFFICULT_DIFFICULTY_COLOR
@@ -209,14 +208,6 @@ def craft_value(recipe_id):
 
 def recipe_cost(recipe_id):
     return model_recipe_cost(reagents(recipe_id), unit_price)
-
-
-def net_cost(recipe_id):
-    cost = recipe_cost(recipe_id)
-    if cost is None:
-        return None
-    value = craft_value(recipe_id)
-    return cost - (value["copper"] if value else 0)
 
 
 def describe(recipe_id, learned=True):

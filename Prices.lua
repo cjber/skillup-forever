@@ -273,7 +273,7 @@ local function SellPrice(itemID)
 	return sell or (ns.ItemSellPrices and ns.ItemSellPrices[itemID])
 end
 
--- What one craft sells for: { copper, source, each, quantity } or nil.
+-- What one craft sells for: { copper, source, quantity } or nil.
 ---@param recipeID integer
 ---@return SkillUpValue?
 function ns.CraftValue(recipeID)
@@ -288,7 +288,7 @@ function ns.CraftValue(recipeID)
 	if not (each and source) then
 		return nil
 	end
-	return { copper = each * output.quantity, source = source, each = each, quantity = output.quantity }
+	return { copper = each * output.quantity, source = source, quantity = output.quantity }
 end
 
 -- The list only builds the rows on screen, so reagents are learned for the

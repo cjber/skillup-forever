@@ -105,12 +105,31 @@ function ns.NearestNPC(npcIDs, vendorsOnly)
 	return best
 end
 
--- TomTom's arrow when it's installed, else the map's own waypoint, super-tracked.
+-- Shortest Path Forever's public API, version 1, when it is loaded; callers still
+-- check each function they use.
+---@return SkillUpShortestPathAPI?
+local function ShortestPath()
+	local api = ShortestPathForever and ShortestPathForever.API
+	return api and api.version == 1 and api or nil
+end
+
+-- Shortest Path Forever's route when it takes one (it declines in combat, with its
+-- journeys off or without a player position), else TomTom's arrow, else the map's
+-- own waypoint, super-tracked.
 ---@param npcID integer
 function ns.SetWaypoint(npcID)
 	local where = ns.NPCLocation(npcID)
 	if not where.map then
 		ns.Print(string.format("%s is in %s.", where.name, where.label))
+		return
+	end
+	local api = ShortestPath()
+	if
+		api
+		and type(api.Navigate) == "function"
+		and api.Navigate("SkillUpForever", where.map, where.x, where.y, where.name)
+	then
+		ns.Print(string.format("route set to %s, %s.", where.name, ns.LocationText(where)))
 		return
 	end
 	if TomTom and TomTom.AddWaypoint then

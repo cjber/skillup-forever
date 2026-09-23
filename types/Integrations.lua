@@ -22,6 +22,15 @@ Auctionator = nil
 ---@type {API: SkillUpSyndicatorAPI}?
 Syndicator = nil
 
+-- Shortest Path Forever's public API (version 1): uiMapID and 0-1 coordinates.
+-- Navigate returns false in combat, with journeys off, without a player position
+-- or on bad input.
+---@class SkillUpShortestPathAPI
+---@field version integer
+---@field Navigate? fun(owner: string, map: integer, x: number, y: number, title?: string): boolean
+---@type {API: SkillUpShortestPathAPI?}?
+ShortestPathForever = nil
+
 ---@class SkillUpTomTom
 ---@field AddWaypoint fun(self: SkillUpTomTom, mapID: integer, x: number, y: number, options: {title: string, from: string})
 ---@type SkillUpTomTom?

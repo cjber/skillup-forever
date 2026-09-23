@@ -76,6 +76,7 @@ ln -s "$PWD" ".../World of Warcraft/_classic_beta_/Interface/AddOns/SkillUpForev
 luacheck .                        # lint
 stylua --check .                  # format
 luajit tests/model_spec.lua       # threshold and cost maths + generated data
+ruff check tools && ruff format --check tools   # the Python generators
 python3 tools/gen_thresholds.py   # regenerate Data/Thresholds.lua (see tools/README.md)
 python3 tools/gen_vendor.py       # regenerate Data/Vendor.lua
 python3 tools/gen_recipes.py      # regenerate Data/Recipes.lua

@@ -3,13 +3,13 @@
 
 import argparse
 import csv
-import io
-from collections import Counter, defaultdict
 import gzip
+import io
 import re
 import sys
 import urllib.error
 import urllib.request
+from collections import Counter, defaultdict
 
 from gen_recipes import put_unique, threshold_ids
 from gen_thresholds import BUILD, CACHE, ROOT, download
@@ -17,8 +17,7 @@ from gen_thresholds import BUILD, CACHE, ROOT, download
 OUTPUT = ROOT / "Data" / "Trainer.lua"
 CLASSICDB_COMMIT = "22b51464f1625f6ef6275771de1f5466c6f5d19e"
 CLASSICDB_URL = (
-    "https://raw.githubusercontent.com/cmangos/classic-db/"
-    f"{CLASSICDB_COMMIT}/Full_DB/ClassicDB_1_12_1_z2815.sql.gz"
+    f"https://raw.githubusercontent.com/cmangos/classic-db/{CLASSICDB_COMMIT}/Full_DB/ClassicDB_1_12_1_z2815.sql.gz"
 )
 CLASSICDB_CACHE = CACHE / f"classicdb-{CLASSICDB_COMMIT[:7]}.sql.gz"
 PROFESSION_SKILLS = {129, 164, 165, 171, 182, 185, 186, 197, 202, 333, 356, 393}
@@ -50,11 +49,16 @@ def classicdb(refresh=False, offline=False):
 def teach_effects(refresh=False, offline=False):
     content = download(
         f"https://wago.tools/db2/SpellEffect/csv?build={TEACH_BUILD}",
-        f"SpellEffect-{TEACH_BUILD}.csv", refresh, offline,
+        f"SpellEffect-{TEACH_BUILD}.csv",
+        refresh,
+        offline,
     )
     rows = list(csv.DictReader(io.StringIO(content)))
-    if not rows or not {"SpellID", "DifficultyID", "Effect", "EffectTriggerSpell", "EffectBasePoints",
-                        "EffectMiscValue_0"} <= rows[0].keys():
+    if (
+        not rows
+        or not {"SpellID", "DifficultyID", "Effect", "EffectTriggerSpell", "EffectBasePoints", "EffectMiscValue_0"}
+        <= rows[0].keys()
+    ):
         raise ValueError(f"SpellEffect {TEACH_BUILD}: empty or missing columns")
     return rows
 
@@ -121,10 +125,19 @@ def render(fees, conflicts, ranks):
         "ns.TrainerFees = {",
     ]
     lines.extend(f"\t[{recipe}] = {{ {fee}, {skill} }}," for recipe, (fee, skill) in sorted(fees.items()))
-    lines.extend(["}", "", "-- [skill line] = rank trainings above Apprentice: { cap, fee, required base skill, level }",
-                  "-- stylua: ignore", "ns.TrainerRanks = {"])
+    lines.extend(
+        [
+            "}",
+            "",
+            "-- [skill line] = rank trainings above Apprentice: { cap, fee, required base skill, level }",
+            "-- stylua: ignore",
+            "ns.TrainerRanks = {",
+        ]
+    )
     for skill, rows in sorted(ranks.items()):
-        entries = ", ".join(f"{{ {cap}, {cost}, {required}, {level} }}" for cap, cost, required, level in rows if cap > 75)
+        entries = ", ".join(
+            f"{{ {cap}, {cost}, {required}, {level} }}" for cap, cost, required, level in rows if cap > 75
+        )
         lines.append(f"\t[{skill}] = {{ {entries} }},")
     lines.append("}")
     return "\n".join(lines) + "\n"

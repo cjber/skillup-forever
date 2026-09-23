@@ -18,6 +18,8 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y luajit lua-check
       - run: luacheck .
       - run: luajit tests/model_spec.lua
+      - run: pipx run ruff==0.16.8 check tools
+      - run: pipx run ruff==0.16.8 format --check tools
       - uses: JohnnyMorganz/stylua-action@479972f01e665acfcba96ada452c36608bdbbb5e # v4.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

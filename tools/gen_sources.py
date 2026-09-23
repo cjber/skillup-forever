@@ -2,16 +2,23 @@
 """Generate where each recipe's scroll comes from, for the pinned Forever client (stdlib only)."""
 
 import argparse
-from collections import Counter, defaultdict
 import gzip
 import re
 import sys
 import urllib.error
+from collections import Counter, defaultdict
 
 from gen_recipes import put_unique, threshold_ids
 from gen_thresholds import BUILD, ROOT, db2
 from gen_trainer import (
-    CLASSICDB_CACHE, CLASSICDB_COMMIT, PROFESSION_SKILLS, ROW, TEACH_BUILD, classicdb, spell_maps, teach_effects,
+    CLASSICDB_CACHE,
+    CLASSICDB_COMMIT,
+    PROFESSION_SKILLS,
+    ROW,
+    TEACH_BUILD,
+    classicdb,
+    spell_maps,
+    teach_effects,
 )
 
 OUTPUT = ROOT / "Data" / "Sources.lua"
@@ -29,9 +36,17 @@ GATHER_CHANCE = 10
 RECIPE_CLASS = "9"
 DROPS_KEPT = 3
 TABLES = (
-    "item_template", "npc_vendor", "npc_vendor_template", "creature_template", "creature",
-    "creature_loot_template", "reference_loot_template", "quest_template",
-    "gameobject_template", "gameobject_loot_template", "skinning_loot_template",
+    "item_template",
+    "npc_vendor",
+    "npc_vendor_template",
+    "creature_template",
+    "creature",
+    "creature_loot_template",
+    "reference_loot_template",
+    "quest_template",
+    "gameobject_template",
+    "gameobject_loot_template",
+    "skinning_loot_template",
 )
 QUEST_REWARDS = [f"RewItemId{i}" for i in range(1, 5)] + [f"RewChoiceItemId{i}" for i in range(1, 7)]
 # FactionTemplate groups: 1 player, 2 Alliance, 4 Horde.
@@ -94,11 +109,11 @@ def dump_tables(refresh=False, offline=False):
     missing = set(TABLES) - columns.keys()
     if missing:
         raise ValueError(f"classic-db dump lacks tables {sorted(missing)}")
-    return {table: [dict(zip(columns[table], row)) for row in rows[table]] for table in TABLES}
+    return {table: [dict(zip(columns[table], row, strict=False)) for row in rows[table]] for table in TABLES}
 
 
 def side(template):
-    """"A", "H", or "" for a vendor either faction can use."""
+    """ "A", "H", or "" for a vendor either faction can use."""
     if template is None:
         return ""
     group = int(template["FactionGroup"]) | int(template["FriendGroup"])
@@ -210,7 +225,7 @@ def spawn_of(spawns):
 
 
 def race_side(races):
-    """"A" or "H" when only that faction's races may take the quest, else ""."""
+    """ "A" or "H" when only that faction's races may take the quest, else ""."""
     if races and not races & HORDE_RACES:
         return "A"
     if races and not races & ALLIANCE_RACES:
@@ -227,7 +242,7 @@ def loot_chances(rows):
         given = [float(row["ChanceOrQuestChance"]) for row in members]
         shared = given.count(0)
         rest = max(0.0, 100 - sum(c for c in given if c > 0))
-        for row, chance in zip(members, given):
+        for row, chance in zip(members, given, strict=False):
             if chance > 0:
                 yield row, chance
             elif chance == 0:
@@ -398,25 +413,51 @@ def render(data):
         if s["quests"]:
             parts.append("quests = { " + ", ".join(map(str, s["quests"])) + " }")
         lines.append(f"\t[{spell}] = {{ {', '.join(parts)} }},")
-    lines += ["}", "", "-- [npc] = { name, faction (\"A\", \"H\", \"\" for both), world map, world x, world y }",
-              "-- stylua: ignore", "ns.SourceNPCs = {"]
-    lines += [f"\t[{e}] = {{ {lua_string(n)}, \"{f}\", {m}, {x:.1f}, {y:.1f} }},"
-              for e, (n, f, m, x, y) in sorted(npcs.items())]
-    lines += ["}", "", "-- [skill line] = { { trainer npc, highest cap it teaches } }", "-- stylua: ignore",
-              "ns.ProfessionTrainers = {"]
+    lines += [
+        "}",
+        "",
+        '-- [npc] = { name, faction ("A", "H", "" for both), world map, world x, world y }',
+        "-- stylua: ignore",
+        "ns.SourceNPCs = {",
+    ]
+    lines += [
+        f'\t[{e}] = {{ {lua_string(n)}, "{f}", {m}, {x:.1f}, {y:.1f} }},' for e, (n, f, m, x, y) in sorted(npcs.items())
+    ]
+    lines += [
+        "}",
+        "",
+        "-- [skill line] = { { trainer npc, highest cap it teaches } }",
+        "-- stylua: ignore",
+        "ns.ProfessionTrainers = {",
+    ]
     for skill, rows in sorted(data["trainers"].items()):
         lines.append(f"\t[{skill}] = {{ " + ", ".join(f"{{ {e}, {c} }}" for e, c in rows) + " },")
     lines += ["}", "", "-- [reagent item] = vendors that always stock it", "-- stylua: ignore", "ns.ReagentVendors = {"]
     for item, rows in sorted(data["reagents"].items()):
         lines.append(f"\t[{item}] = {{ " + ", ".join(map(str, rows)) + " },")
-    lines += ["}", "", f"-- [reagent item] = gathering skill line that yields it ({GATHER_CHANCE}%+ of the time)",
-              "-- stylua: ignore", "ns.GatheredBy = {"]
+    lines += [
+        "}",
+        "",
+        f"-- [reagent item] = gathering skill line that yields it ({GATHER_CHANCE}%+ of the time)",
+        "-- stylua: ignore",
+        "ns.GatheredBy = {",
+    ]
     lines += [f"\t[{item}] = {skill}," for item, skill in sorted(data["gathered"].items())]
-    lines += ["}", "", "-- [quest] = { title, faction (\"A\", \"H\", \"\" for both) }", "-- stylua: ignore",
-              "ns.SourceQuests = {"]
-    lines += [f"\t[{q}] = {{ {lua_string(t)}, \"{f}\" }}," for q, (t, f) in sorted(data["titles"].items())]
-    lines += ["}", "", "-- [world map] = dungeon or raid name, for drops the zone map can't show", "-- stylua: ignore",
-              "ns.InstanceNames = {"]
+    lines += [
+        "}",
+        "",
+        '-- [quest] = { title, faction ("A", "H", "" for both) }',
+        "-- stylua: ignore",
+        "ns.SourceQuests = {",
+    ]
+    lines += [f'\t[{q}] = {{ {lua_string(t)}, "{f}" }},' for q, (t, f) in sorted(data["titles"].items())]
+    lines += [
+        "}",
+        "",
+        "-- [world map] = dungeon or raid name, for drops the zone map can't show",
+        "-- stylua: ignore",
+        "ns.InstanceNames = {",
+    ]
     used = {n[2] for n in npcs.values()}
     lines += [f"\t[{m}] = {lua_string(name)}," for m, name in sorted(data["instances"].items()) if m in used]
     lines.append("}")
@@ -442,9 +483,11 @@ def main():
         db2("Lock", ["ID"] + [f"{c}_{i}" for c in ("Type", "_Index") for i in range(8)], **options),
     )
     OUTPUT.write_text(render(data), encoding="utf-8")
-    print(f"Wrote {OUTPUT.relative_to(ROOT)}: {len(data['sources'])} recipes, {len(data['npcs'])} npcs, "
-          f"{sum(map(len, data['trainers'].values()))} trainers, {len(data['reagents'])} vendor reagents, "
-          f"{len(data['gathered'])} gathered reagents")
+    print(
+        f"Wrote {OUTPUT.relative_to(ROOT)}: {len(data['sources'])} recipes, {len(data['npcs'])} npcs, "
+        f"{sum(map(len, data['trainers'].values()))} trainers, {len(data['reagents'])} vendor reagents, "
+        f"{len(data['gathered'])} gathered reagents"
+    )
 
 
 if __name__ == "__main__":

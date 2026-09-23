@@ -1,9 +1,13 @@
+---@type string, SkillUpNamespace
 local _, ns = ...
 
+---@type SkillUpRecipeList
 local recipeList
 
 -- The row's own Init sized the label for Blizzard's right-hand widgets only;
 -- shrink it again so a long recipe name truncates instead of running under our text.
+---@param row SkillUpRecipeRow
+---@param text FontString
 local function FitLabel(row, text)
 	local count = row.Count:IsShown() and row.Count:GetStringWidth() or 0
 	local locked = row.LockedIcon:IsShown() and row.LockedIcon:GetWidth() + 2 or 0
@@ -13,9 +17,16 @@ local function FitLabel(row, text)
 	end
 end
 
+---@param _ SkillUpNamespace
+---@param row SkillUpRecipeRow
+---@param node SkillUpTreeNode
 local function DecorateRow(_, row, node)
 	local data = node and node:GetData()
-	if not (data and data.recipeInfo) then
+	if not data then
+		return
+	end
+	local info = data.recipeInfo
+	if not info then
 		return
 	end
 
@@ -30,7 +41,7 @@ local function DecorateRow(_, row, node)
 		return
 	end
 
-	local recipeInfo = Professions.GetHighestLearnedRecipe(data.recipeInfo) or data.recipeInfo
+	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
 	local d = ns.Describe(recipeInfo, ns.SkillContext())
 	text:ClearAllPoints()
 	if row.LockedIcon:IsShown() then
@@ -44,6 +55,7 @@ local function DecorateRow(_, row, node)
 	FitLabel(row, text)
 end
 
+---@type table<string, SkillUpSortKey>
 local SORT_KEYS = {
 	skill = function(recipeInfo)
 		local t = ns.Model.Get(recipeInfo.recipeID)
@@ -62,6 +74,10 @@ local SORT_KEYS = {
 -- nothing. A sort instead flattens the list: learned recipes, then unlearned ones.
 local replacing = false
 
+---@param node SkillUpTreeNode
+---@param learned TradeSkillRecipeInfo[]
+---@param unlearned TradeSkillRecipeInfo[]
+---@param seen table<integer, boolean>
 local function CollectRecipes(node, learned, unlearned, seen)
 	for _, child in ipairs(node:GetNodes()) do
 		local info = child:GetData().recipeInfo
@@ -75,6 +91,9 @@ local function CollectRecipes(node, learned, unlearned, seen)
 	end
 end
 
+---@param list TradeSkillRecipeInfo[]
+---@param key SkillUpSortKey
+---@param ctx SkillUpContext?
 local function SortRecipes(list, key, ctx)
 	local keys = {}
 	for _, info in ipairs(list) do
@@ -88,6 +107,9 @@ local function SortRecipes(list, key, ctx)
 	end)
 end
 
+---@param source SkillUpTreeProvider
+---@param key SkillUpSortKey
+---@return SkillUpTreeProvider
 local function BuildSorted(source, key)
 	local ctx = ns.SkillContext()
 	local learned, unlearned = {}, {}
@@ -109,6 +131,7 @@ local function BuildSorted(source, key)
 	return sorted
 end
 
+---@param scrollBox SkillUpRecipeScrollBox
 local function ApplySort(scrollBox)
 	local key = SORT_KEYS[ns.db.sortMode]
 	local source = scrollBox:GetDataProvider()
@@ -128,6 +151,8 @@ end
 
 -- A "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu
 -- serves other recipe lists, so only the crafting page's dropdown gets it.
+---@param owner Region
+---@param rootDescription RootMenuDescriptionProxy
 local function AddFilterMenu(owner, rootDescription)
 	if owner ~= recipeList.FilterDropdown then
 		return

@@ -387,6 +387,7 @@ def render(data):
         "-- Trainers: npc_trainer rows whose rank spell (SpellEffect SKILL) sets the new cap. Gathering:",
         "-- herb/mining node loot (gameobject_template lock -> wago.tools Lock) and skinning_loot_template.",
         f"-- recipes={len(sources)}, npcs={len(npcs)}.",
+        "---@type string, SkillUpNamespace",
         "local _, ns = ...",
         "-- stylua: ignore",
         "-- [recipeID] = { item, skill (required base), price (vendor copper), vendors, limited (vendors of those",

@@ -7,6 +7,7 @@
 -- Output quantity is mean yield; false is verified non-item output. Missing recipes are unknown.
 -- Trainer names use the source locale (enUS); false means ambiguous within the profession.
 -- thresholds=2356; recipes=2347; omitted_reagents=9; multi_profession=1; reagent_entries=7932; distinct_reagents=572; item_outputs=2164; non_item_outputs=183; sell_prices=1588; missing_output_items=322; names=2284; ambiguous_names=66; missing_names=7.
+---@type string, SkillUpNamespace
 local _, ns = ...
 -- stylua: ignore
 ns.RecipeData = {

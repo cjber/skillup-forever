@@ -1,23 +1,32 @@
+---@type string, SkillUpNamespace
 local _, ns = ...
 
 local CALLER = "SkillUp Forever"
 -- Missing reagents shown per profession before "...".
 local MAX_OBJECTIVES = 6
 
-local module, buyButton
+---@type SkillUpTrackerModule?
+local module
+---@type Button?
+local buyButton
 
+---@return boolean
 function ns.HasAuctionator()
 	local api = Auctionator and Auctionator.API and Auctionator.API.v1
 	return api and api.CreateShoppingList and api.ConvertToSearchString and true or false
 end
 
 -- Bags and bank: the client knows bank counts once the bank has been opened.
+---@param itemID integer
+---@return number
 function ns.Have(itemID)
 	return C_Item.GetItemCount(itemID, true)
 end
 
 -- What your other characters on this realm and faction hold (bags, bank, mail),
 -- most first, when Syndicator is installed: they can mail it over.
+---@param itemID integer
+---@return {name: string, count: number}[]
 function ns.AltCounts(itemID)
 	local api = Syndicator and Syndicator.API
 	if not (api and api.GetInventoryInfoByItemID and api.IsReady and api.IsReady()) then
@@ -40,6 +49,8 @@ end
 
 -- Everything the route uses, as totals: what you have is compared live, so the
 -- list stays right as you buy, craft or bank things.
+---@param route SkillUpRoute
+---@return SkillUpNeededItem[]
 function ns.RouteReagents(route)
 	local list = ns.Model.ShoppingList(route.segments, ns.Reagents, function()
 		return 0
@@ -54,6 +65,8 @@ function ns.RouteReagents(route)
 end
 
 -- Auctionator searches by name, and names of unseen items arrive asynchronously.
+---@param items SkillUpShoppingItem[]
+---@param callback fun()
 local function WithNames(items, callback)
 	local container = ContinuableContainer:Create()
 	for _, item in ipairs(items) do
@@ -65,6 +78,8 @@ end
 -- One list per profession, replaced on each export, of the auction house
 -- reagents still missing (emptied when none are). Vendor reagents stay out: an
 -- auction search for them would only find resellers, and gathered ones you get yourself.
+---@param profession string
+---@param items SkillUpNeededItem[]
 function ns.SendToAuctionator(profession, items)
 	local missing = {}
 	for _, item in ipairs(items) do
@@ -84,7 +99,8 @@ function ns.SendToAuctionator(profession, items)
 		local searches = {}
 		for _, item in ipairs(missing) do
 			searches[#searches + 1] = api.ConvertToSearchString(CALLER, {
-				searchString = C_Item.GetItemNameByID(item.itemID),
+				-- WithNames fires only after every item record is cached.
+				searchString = assert(C_Item.GetItemNameByID(item.itemID)),
 				isExact = true,
 				quantity = item.count,
 			})
@@ -94,12 +110,15 @@ function ns.SendToAuctionator(profession, items)
 	end)
 end
 
+---@param skillLine integer?
+---@return boolean
 function ns.IsTracked(skillLine)
 	return ns.db.trackedProfessions[skillLine] == true
 end
 
 -- Every tracked profession of this character with the reagents its route still
 -- needs; planned afresh each time, so it follows skill, target, bags and prices.
+---@return SkillUpTracked[]
 function ns.TrackedNeeds()
 	local tracked = {}
 	for skillLine, profession in pairs(ns.RouteProfessions()) do
@@ -184,7 +203,7 @@ local function RefreshBuyButton()
 		return
 	end
 	if not buyButton then
-		buyButton = CreateFrame("Button", nil, MerchantFrame, "UIPanelButtonTemplate")
+		buyButton = CreateFrame("Button", nil, MerchantFrame, "UIPanelButtonTemplate") --[[@as Button]]
 		buyButton:SetPoint("BOTTOMRIGHT", MerchantFrame, "TOPRIGHT", 0, 2)
 		buyButton:SetScript("OnClick", BuyMissing)
 	end
@@ -193,6 +212,7 @@ local function RefreshBuyButton()
 	buyButton:Show()
 end
 
+---@return boolean
 function ns.TrackerAttached()
 	return module ~= nil and ObjectiveTrackerManager:GetContainerForModule(module) ~= nil
 end
@@ -204,14 +224,18 @@ function ns.RefreshTracker()
 	RefreshBuyButton()
 end
 
+---@param skillLine integer
+---@param tracked boolean
 function ns.SetTracked(skillLine, tracked)
 	ns.db.trackedProfessions[skillLine] = tracked or nil
 	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 	ns.RefreshTracker()
 end
 
+---@class SkillUpModuleMixin : SkillUpTrackerModule
 local ModuleMixin = { headerText = "Profession reagents" }
 
+---@param block SkillUpTrackerBlock
 function ModuleMixin:OnBlockHeaderClick(block)
 	MenuUtil.CreateContextMenu(self:GetContextMenuParent(), function(_, root)
 		root:CreateTitle(block.profession)
@@ -247,6 +271,8 @@ end
 
 -- Where each training happens, in base skill: ranks when the trainer allows them,
 -- recipes where the route first uses them.
+---@param entry SkillUpTracked
+---@return {skill: number, cap: number, text: string}[]
 local function TrainingSteps(entry)
 	local steps = {}
 	for _, rank in ipairs(entry.route.ranks) do
@@ -314,6 +340,9 @@ end
 -- container. Its Init is scheduled as a closure over the original function, so hooking
 -- Init never fires; AddContainer is looked up on the table and can be hooked.
 local function Attach()
+	if not module then
+		return
+	end
 	ObjectiveTrackerManager:SetModuleContainer(module, ObjectiveTrackerFrame)
 end
 
@@ -322,7 +351,9 @@ local function CreateModule()
 		ns.Print("the objective tracker isn't available, so tracked reagents can't be shown.")
 		return
 	end
-	module = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", UIParent, "ObjectiveTrackerModuleTemplate")
+	local created = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", UIParent, "ObjectiveTrackerModuleTemplate")
+	---@cast created SkillUpTrackerModule
+	module = created
 	Mixin(module, ModuleMixin)
 	module:SetHeader(ModuleMixin.headerText)
 	-- Above every Blizzard section (quests start at 1), so quests filling the tracker

@@ -1,10 +1,14 @@
+---@type string, SkillUpNamespace
 local _, ns = ...
 
 -- Per trainer update: which recipe each service teaches, and the one to train next.
+---@type SkillUpTrainerState?
 local state
 
 -- The service tooltip carries the taught spell when the client exposes it; the
 -- name is the fallback. Only an ID we have data for counts as a recipe.
+---@param index integer
+---@return integer?
 local function TooltipRecipe(index)
 	local data = C_TooltipInfo and C_TooltipInfo.GetTrainerService(index)
 	local id = data and data.id
@@ -13,6 +17,8 @@ local function TooltipRecipe(index)
 	end
 end
 
+---@param services SkillUpTrainerService[]
+---@return integer?
 local function TrainerSkillLine(services)
 	for _, service in pairs(services) do
 		if service.recipeID then
@@ -30,6 +36,8 @@ local function TrainerSkillLine(services)
 	end
 end
 
+---@param services SkillUpTrainerService[]
+---@return table<integer, boolean>
 local function Known(services)
 	local known = {}
 	for _, service in pairs(services) do
@@ -40,6 +48,8 @@ local function Known(services)
 	return known
 end
 
+---@param services SkillUpTrainerService[]
+---@return SkillUpService[]
 local function Candidates(services)
 	local candidates = {}
 	local money = GetMoney()
@@ -61,6 +71,7 @@ local function Candidates(services)
 	return candidates
 end
 
+---@return SkillUpTrainerState
 local function BuildState()
 	local services = {}
 	for index = 1, GetNumTrainerServices() do
@@ -69,7 +80,7 @@ local function BuildState()
 	end
 	local skillLine = TrainerSkillLine(services)
 	local rank, maxRank, modifier = GetTrainerTradeskillRankValues()
-	if not (skillLine and rank) then
+	if not (skillLine and rank and maxRank) then
 		return { services = services }
 	end
 	local names = ns.RecipeNames[skillLine] or {}
@@ -102,9 +113,11 @@ local function BuildState()
 	}
 	local best = not ctx.capped
 		and ns.Model.RecommendTraining(ns.RouteSnapshot(ctx, Known(services)), Candidates(services))
-	return { services = services, ctx = ctx, best = best and best.recipeID }
+	return { services = services, ctx = ctx, best = best and best.recipeID or nil }
 end
 
+---@param button SkillUpTrainerButton
+---@param elementData SkillUpTrainerElement
 local function Decorate(button, elementData)
 	local text = button.SkillUpText
 	if text then
@@ -113,8 +126,9 @@ local function Decorate(button, elementData)
 	elementData = elementData and (elementData.data or elementData)
 	local index = elementData and elementData.skillIndex
 	-- No state while a rebuild is pending; the rebuild redecorates.
-	local service = state and index and state.services[index]
-	if not (service and state.ctx and (service.recipeID or service.ambiguous)) then
+	local current = state
+	local service = current and index and current.services[index]
+	if not (current and service and current.ctx and (service.recipeID or service.ambiguous)) then
 		return
 	end
 	if not text then
@@ -124,8 +138,8 @@ local function Decorate(button, elementData)
 		button.SkillUpText = text
 	end
 	if service.recipeID then
-		local d = ns.Describe({ recipeID = service.recipeID, learned = service.kind == "used" }, state.ctx)
-		local best = service.recipeID == state.best and "|cffffd100Best next|r · " or ""
+		local d = ns.Describe({ recipeID = service.recipeID, learned = service.kind == "used" }, current.ctx)
+		local best = service.recipeID == current.best and "|cffffd100Best next|r · " or ""
 		text:SetText(best .. ns.FormatRow(d))
 		text:SetTextColor(ns.RowColor(d):GetRGB())
 	else

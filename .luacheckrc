@@ -1,6 +1,6 @@
 std = "lua51"
 max_line_length = 120
-exclude_files = { "tools/.cache/**", ".release/**" }
+exclude_files = { "tools/.cache/**", ".release/**", ".types/**", "types/**" }
 ignore = { "212/_.*" } -- unused args prefixed with _
 
 globals = {
@@ -26,7 +26,7 @@ read_globals = {
 	"GetTrainerServiceCost", "GetTrainerServiceInfo", "GetTrainerServiceSkillReq", "GetTrainerServiceStepIndex", "UnitLevel", "PlaySound", "SOUNDKIT", "GameTooltip_AddColoredDoubleLine",
 	"GameTooltip_AddHighlightLine", "GameTooltip_AddInstructionLine", "IsModifiedClick", "ChatEdit_InsertLink",
 	"HandleModifiedItemClick", "IsShiftKeyDown", "CreateScrollBoxLinearView",
-	"GetTrainerTradeskillRankValues", "IsPlayerSpell", "issecretvalue", "Item", "NORMAL_FONT_COLOR",
+	"GetTrainerTradeskillRankValues", "C_SpellBook", "issecretvalue", "Item", "NORMAL_FONT_COLOR",
 	"TooltipDataProcessor", "UnitName", "BuyMerchantItem", "GetMerchantItemMaxStack", "MerchantFrame", "MenuUtil", "Mixin", "ObjectiveTrackerFrame", "ObjectiveTrackerManager", "OBJECTIVE_TRACKER_COLOR", "OBJECTIVE_DASH_STYLE_HIDE",
 	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator", "tContains",
 }

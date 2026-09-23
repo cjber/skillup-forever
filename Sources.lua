@@ -1,22 +1,32 @@
+---@type string, SkillUpNamespace
 local _, ns = ...
 
 -- Where recipe scrolls come from (bundled from classic-db) and how to get there.
 
 local FACTION_CODES = { Alliance = "A", Horde = "H" }
 
+---@param faction string
+---@return boolean
 local function OurFaction(faction)
 	return faction == "" or faction == FACTION_CODES[UnitFactionGroup("player")]
 end
 
+---@param npcID integer
+---@return boolean
 local function Usable(npcID)
 	return OurFaction(ns.SourceNPCs[npcID][2])
 end
 
+---@param source SkillUpSource
+---@param npcID integer
+---@return boolean
 local function Limited(source, npcID)
 	return tContains(source.limited or {}, npcID)
 end
 
 -- Vendors of your faction, those that always have the scroll first.
+---@param source SkillUpSource
+---@return integer?
 local function VendorFor(source)
 	local unlimited, limited = {}, {}
 	for _, npcID in ipairs(source.vendors or {}) do
@@ -25,6 +35,8 @@ local function VendorFor(source)
 	return ns.NearestNPC(unlimited, true) or ns.NearestNPC(limited, true)
 end
 
+---@param source SkillUpSource
+---@return integer?
 local function QuestFor(source)
 	for _, questID in ipairs(source.quests or {}) do
 		if OurFaction(ns.SourceQuests[questID][2]) then
@@ -35,8 +47,11 @@ end
 
 -- The NPC's zone and map position, resolved by the client from its world spawn so
 -- overlapping zone rectangles can't mislabel it; a dungeon has only its name.
+---@param npcID integer
+---@return SkillUpLocation
 function ns.NPCLocation(npcID)
-	local name, _, map, x, y = unpack(ns.SourceNPCs[npcID])
+	local npc = ns.SourceNPCs[npcID]
+	local name, map, x, y = npc[1], npc[3], npc[4], npc[5]
 	local instance = ns.InstanceNames[map]
 	if instance then
 		return { name = name, label = instance }
@@ -50,6 +65,8 @@ function ns.NPCLocation(npcID)
 	return { name = name, label = info.name, map = uiMapID, x = px, y = py }
 end
 
+---@param where SkillUpLocation
+---@return string
 function ns.LocationText(where)
 	if where.map then
 		return string.format("%s  %.0f, %.0f", where.label, where.x * 100, where.y * 100)
@@ -58,9 +75,12 @@ function ns.LocationText(where)
 end
 
 -- UnitPosition's first value is the world's north axis, as classic-db's x is.
+---@param npcID integer
+---@return number
 local function Distance(npcID)
 	local px, py, _, instance = UnitPosition("player")
-	local _, _, map, x, y = unpack(ns.SourceNPCs[npcID])
+	local npc = ns.SourceNPCs[npcID]
+	local map, x, y = npc[3], npc[4], npc[5]
 	if not px or map ~= instance then
 		return math.huge
 	end
@@ -69,6 +89,9 @@ end
 
 -- Of these NPCs, the nearest this character can deal with (vendors of the other
 -- faction won't trade), else nil.
+---@param npcIDs integer[]
+---@param vendorsOnly boolean?
+---@return integer?
 function ns.NearestNPC(npcIDs, vendorsOnly)
 	local best, bestDistance
 	for _, npcID in ipairs(npcIDs) do
@@ -83,6 +106,7 @@ function ns.NearestNPC(npcIDs, vendorsOnly)
 end
 
 -- TomTom's arrow when it's installed, else the map's own waypoint, super-tracked.
+---@param npcID integer
 function ns.SetWaypoint(npcID)
 	local where = ns.NPCLocation(npcID)
 	if not where.map then
@@ -104,6 +128,9 @@ end
 -- Best way to get the scroll, easiest first: an unlimited vendor, a limited one,
 -- a quest, a named drop, a world drop; nil when only the other faction sells it or
 -- may take the quest.
+---@param source SkillUpSource
+---@return integer?
+---@return integer?
 local function Kind(source)
 	local vendor = VendorFor(source)
 	if vendor then
@@ -122,6 +149,9 @@ local KIND_TEXT = { "vendor", "limited vendor", "quest", "drop", "world drop" }
 -- Scroll recipes of this profession, not trainer-taught nor learned, that the
 -- base skill behind `skill` (effective) can learn and that still skill up at
 -- `skill`, easiest to get and then furthest-reaching first.
+---@param profession SkillUpContext
+---@param skill number
+---@return SkillUpSuggestion[]
 function ns.RecipeSuggestions(profession, skill)
 	local base = skill - profession.modifier
 	local found = {}
@@ -160,11 +190,18 @@ function ns.RecipeSuggestions(profession, skill)
 end
 
 -- The scroll's price: what it last sold for, else the vendor's.
+---@param source SkillUpSource
+---@return number?
 function ns.ScrollPrice(source)
 	local price = ns.Price(source.item)
 	return price and price.copper or (source.price and source.price > 0 and source.price) or nil
 end
 
+---@param tooltip GameTooltip
+---@param left string
+---@param npcID integer
+---@param suffix string?
+---@param usable boolean
 local function AddNPC(tooltip, left, npcID, suffix, usable)
 	local where = ns.NPCLocation(npcID)
 	GameTooltip_AddColoredDoubleLine(
@@ -177,6 +214,8 @@ local function AddNPC(tooltip, left, npcID, suffix, usable)
 	GameTooltip_AddColoredDoubleLine(tooltip, " ", ns.LocationText(where), NORMAL_FONT_COLOR, GRAY_FONT_COLOR)
 end
 
+---@param tooltip GameTooltip
+---@param source SkillUpSource
 function ns.AddSourceLines(tooltip, source)
 	for _, npcID in ipairs(source.vendors or {}) do
 		AddNPC(tooltip, "Sold by", npcID, Limited(source, npcID) and "  (limited)" or nil, Usable(npcID))
@@ -200,6 +239,9 @@ function ns.AddSourceLines(tooltip, source)
 end
 
 -- The nearest trainer of this profession, of your faction, who teaches up to `cap`.
+---@param profession SkillUpContext
+---@param cap number
+---@return integer?
 function ns.NearestTrainer(profession, cap)
 	local trainers = {}
 	for _, row in ipairs(ns.ProfessionTrainers[profession.skillLine] or {}) do
@@ -210,12 +252,17 @@ function ns.NearestTrainer(profession, cap)
 	return ns.NearestNPC(trainers, true)
 end
 
+---@param itemID integer
+---@return integer?
 function ns.NearestVendor(itemID)
 	local vendors = ns.ReagentVendors[itemID]
 	return vendors and ns.NearestNPC(vendors, true)
 end
 
 -- "Nearest trainer  Name" over its zone and coordinates, and what a click does.
+---@param tooltip GameTooltip
+---@param label string
+---@param npcID integer?
 function ns.AddNearest(tooltip, label, npcID)
 	if not npcID then
 		return

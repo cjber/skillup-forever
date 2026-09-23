@@ -23,12 +23,13 @@ Run in order from the repository root. All must pass before and after any audit 
 | Format (Python) | `ruff format --check tools` | exit 0 (config: `tools/ruff.toml`) |
 | Lint (Lua) | `luacheck .` | `0 warnings / 0 errors`, exit 0 |
 | Lint (Python) | `ruff check tools` | exit 0 |
+| Types and multi-values | `tools/typecheck.sh` | LuaLS 3.19.1 reports no diagnostics; tokenizer/parser lint and its tests pass |
 | Tests | `for s in tests/*_spec.lua; do luajit "$s" \|\| exit 1; done` | each prints `<name>_spec: N checks passed`, exit 0 |
 | Workflows | `uvx --from actionlint-py==1.7.12.25 actionlint && uvx zizmor@1.30.1 --offline .github` | exit 0 |
 | Secrets | `gitleaks git --redact --no-banner .` | `no leaks found` |
 
-CI (`.github/workflows/ci.yml`) runs all of these. There is no type-checking gate and no
-ast-grep rule set (see Evidence).
+CI (`.github/workflows/ci.yml`) runs all of these. LuaLS checks all TOC files against
+pinned WoW API annotations plus `types/`; there is no ast-grep rule set.
 
 The tests are a headless harness, not the game client: `tests/model_spec.lua` loads `Model.lua`,
 `Data/*.lua` and `Prices.lua` with `loadfile` and stubs the host APIs they touch. Everything else
@@ -41,7 +42,7 @@ On-demand tools for audits. Output is candidates, never verdicts.
 
 | Concern | Command | Known false positives |
 |---|---|---|
-| Types (Lua) | `mkdir -p .sift/runs/luals && lua-language-server --check=. --checklevel=Warning --logpath=.sift/runs/luals --check_format=json --check_out_path=.sift/runs/luals/check.json` | exits 1 whenever any diagnostic exists; read `check.json`. Baseline: 6, all reviewed as false positives in the 2026-09-23 audit except as noted there (`need-check-nil` Prices.lua:345, Route.lua:94/97, tests/model_spec.lua:403/407; `param-type-mismatch` Prices.lua:356) |
+| Types (Lua) | `tools/typecheck.sh` | Zero-diagnostic gate; missing Forever FrameXML surfaces are typed in `types/Client.lua` |
 | Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 4: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:109), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:94/96), untyped `json.load` result (latest_build.py:14) |
 | Dead code (Lua) | `luacheck . --no-color` (unused locals/values) + the live-root searches below | a function stored on `ns` is never "unused" to luacheck — search every file for `ns.<Name>` |
 | Dead code (Python) | `uvx vulture tools --min-confidence 60` | clean at baseline; generator functions are imported across files (`from gen_thresholds import …`) |
@@ -83,7 +84,7 @@ How each part of the tree is reviewed. Unlisted paths are `production`.
 - Tabs, 120 columns, double quotes (StyLua). PascalCase for functions, camelCase for locals and DB keys.
 - Unknown data renders `?`/`nil` rather than a guess; generators raise instead of clamping bad data (see `tools/README.md`). A silent fallback that invents a number is a defect here.
 - Comments explain *why* (client quirks, Forever beta bugs, data provenance), not what.
-- Host globals must be declared in `.luacheckrc` `read_globals`; `.luarc.json` mirrors that list (regenerate it from `.luacheckrc` when adding one).
+- Host globals go in `.luacheckrc` `read_globals`. LuaLS uses pinned Ketho annotations and typed gaps in `types/`, never a bare globals allowlist.
 - Text shown in game (Settings tooltips, `ns.Print` messages) and the store listing `docs/curseforge.md` are user-facing: audits propose changes, never make them.
 - New dev-only root files must be added to `.pkgmeta` `ignore:` so they don't ship in the zip.
 

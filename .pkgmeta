@@ -8,6 +8,9 @@ ignore:
   - AGENTS.md
   - .release-notes.md
   - tools
+  - types
+  - .types
+  - .styluaignore
   - tests
   - docs
   - media/icon.svg

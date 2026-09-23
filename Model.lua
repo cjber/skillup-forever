@@ -1,11 +1,18 @@
+---@type string, SkillUpNamespace
 local _, ns = ...
+---@class SkillUpModel
 local Model = {}
 ns.Model = Model
 
+---@param recipeID integer
+---@return number[]?
 function Model.Get(recipeID)
 	return ns.Thresholds and ns.Thresholds[recipeID]
 end
 
+---@param t number[]?
+---@param skill number
+---@return string?
 function Model.Color(t, skill)
 	if not t then
 		return nil
@@ -25,6 +32,9 @@ function Model.Color(t, skill)
 	return "grey"
 end
 
+---@param t number[]?
+---@param skill number
+---@return number?
 function Model.Chance(t, skill)
 	if not t or t[4] <= t[2] or skill < t[1] then
 		return nil
@@ -40,6 +50,9 @@ end
 
 -- Copper for one craft, or nil when any reagent has no known price: a partial
 -- sum would rank a recipe as cheap only because we can't price its reagents.
+---@param reagents SkillUpReagent[]?
+---@param price fun(itemID: integer): number?
+---@return number?
 function Model.RecipeCost(reagents, price)
 	if not reagents then
 		return nil
@@ -56,6 +69,9 @@ function Model.RecipeCost(reagents, price)
 end
 
 -- Expected spend per skill point: one craft costs `cost` and succeeds with `chance`.
+---@param cost number?
+---@param chance number?
+---@return number?
 function Model.CostPerSkillUp(cost, chance)
 	if not cost or not chance or chance <= 0 then
 		return nil
@@ -65,6 +81,8 @@ end
 
 -- Inputs are already filtered to learned recipes of one profession, with prices
 -- frozen by the caller. Inventory affects shopping, never recipe selection.
+---@param snapshot SkillUpSnapshot
+---@return SkillUpRoute
 function Model.PlanRoute(snapshot)
 	local route = {
 		segments = {},
@@ -122,6 +140,9 @@ end
 
 -- Reach comes first when the learned route is blocked; compare costs only for
 -- equal endpoints. Each candidate is a separate purchase, charged exactly once.
+---@param snapshot SkillUpSnapshot
+---@param services SkillUpService[]
+---@return {recipeID: integer, savings: number, reachedSkill: number}?
 function Model.RecommendTraining(snapshot, services)
 	local baseline = Model.PlanRoute(snapshot)
 	local recipes = {}
@@ -159,6 +180,9 @@ end
 -- service RecommendTraining picks (reach first, then savings net of its fee),
 -- then drop any a later addition made unnecessary. Greedy, so not guaranteed
 -- optimal, but each fee is charged once and only for recipes the route uses.
+---@param snapshot SkillUpSnapshot
+---@param services SkillUpService[]
+---@return SkillUpTrainedRoute
 function Model.PlanWithTraining(snapshot, services)
 	local recipes, remaining = {}, {}
 	for index, recipe in ipairs(snapshot.recipes) do
@@ -184,6 +208,7 @@ function Model.PlanWithTraining(snapshot, services)
 		end
 	end
 	local route = Model.PlanRoute(current)
+	---@cast route SkillUpTrainedRoute
 	local firstUse = {}
 	for _, segment in ipairs(route.segments) do
 		firstUse[segment.recipeID] = firstUse[segment.recipeID] or segment.fromSkill
@@ -203,6 +228,11 @@ function Model.PlanWithTraining(snapshot, services)
 	return route
 end
 
+---@param segments SkillUpSegment[]
+---@param reagentsOf fun(recipeID: integer): SkillUpReagent[]?
+---@param owned fun(itemID: integer): number
+---@param sourceOf fun(itemID: integer): SkillUpPriceSource?
+---@return table<string, SkillUpShoppingItem[]>
 function Model.ShoppingList(segments, reagentsOf, owned, sourceOf)
 	local needed = {}
 	for _, segment in ipairs(segments) do
@@ -230,6 +260,8 @@ function Model.ShoppingList(segments, reagentsOf, owned, sourceOf)
 	return list
 end
 
+---@param recipeData table<integer, SkillUpRecipe>
+---@return table<integer, integer[]>
 function Model.BuildReagentIndex(recipeData)
 	local index = {}
 	for recipeID, recipe in pairs(recipeData) do
@@ -253,6 +285,12 @@ end
 -- What one crafted item is worth under `mode`, and where that came from. Auction
 -- value is net of the house's 5% cut and only counts when it beats the vendor.
 local AUCTION_CUT = 0.05
+
+---@param sell number?
+---@param auction number?
+---@param mode 'none'|'vendor'|'auction'
+---@return number?
+---@return 'vendor'|'auction'|nil
 function Model.CraftValue(sell, auction, mode)
 	if mode == "none" then
 		return nil
@@ -267,6 +305,8 @@ end
 
 -- Rounds so a row stays short: whole gold from 100g (123g), else the two largest
 -- coins (1g 23s, 45s, 80c).
+---@param copper number
+---@return number
 function Model.RoundMoney(copper)
 	if copper == 0 then
 		return 0

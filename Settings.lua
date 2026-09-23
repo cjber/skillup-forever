@@ -1,3 +1,4 @@
+---@type string, SkillUpNamespace
 local _, ns = ...
 
 local category
@@ -116,6 +117,7 @@ function ns.RegisterSettings()
 end
 
 -- Through the setting, so the settings panel and its change callback stay in step.
+---@param mode string
 function ns.SetSortMode(mode)
 	Settings.SetValue("SkillUpForever_sortMode", mode)
 end

@@ -119,6 +119,7 @@ def render(fees, conflicts, ranks):
         f"-- wow_classic_era {TEACH_BUILD}; recipes limited to wow_classic_beta {BUILD} thresholds.",
         "-- Specialisation-gated rows are left out. Fees seen at a trainer win.",
         f"-- recipes={len(fees)}; conflicts resolved to the most common: {conflicts}.",
+        "---@type string, SkillUpNamespace",
         "local _, ns = ...",
         "-- stylua: ignore",
         "-- [recipeID] = { fee in copper, required base skill }",

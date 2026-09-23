@@ -97,7 +97,7 @@ NS = load_data()
 def model_color(t, skill):
     if not t:
         return None
-    for threshold, color in zip(t, ("red", "orange", "yellow", "green")):
+    for threshold, color in zip(t, ("red", "orange", "yellow", "green"), strict=False):
         if skill < threshold:
             return color
     return "grey"
@@ -144,6 +144,7 @@ def model_craft_value(sell, auction, mode):
 def round_money(copper):
     unit = 10000 if copper >= 1000000 else 100 if copper >= 100 else 1
     return max(math.floor(copper / unit + 0.5), 1) * unit
+
 
 # ------------------------------------------------------------------------------------------- scene state
 
@@ -198,7 +199,9 @@ def craft_value(recipe_id):
     output = NS["RecipeData"][recipe_id]["output"]
     if not output:
         return None
-    each, source = model_craft_value(NS["ItemSellPrices"].get(output["itemID"]), AUCTION.get(output["itemID"]), "vendor")
+    each, source = model_craft_value(
+        NS["ItemSellPrices"].get(output["itemID"]), AUCTION.get(output["itemID"]), "vendor"
+    )
     if each is None:
         return None
     return {"copper": each * output["quantity"], "source": source, "quantity": output["quantity"]}
@@ -227,7 +230,12 @@ def describe(recipe_id, learned=True):
     if chance is not None and learned and color == "grey":
         chance = 0  # canSkillUp == false
     return {
-        "thresholds": t, "color": color, "chance": chance, "cost": cost, "value": value, "net": net,
+        "thresholds": t,
+        "color": color,
+        "chance": chance,
+        "cost": cost,
+        "value": value,
+        "net": net,
         "perSkillUp": model_cost_per_skill_up(net, chance),
     }
 
@@ -299,7 +307,11 @@ LIST_H = FRAME_H - LIST_Y - 5
 ROW_H, ROW_GAP, ROW_PAD = 20, 1, 5  # recipe rows; the tree view's spacing and top padding
 DIVIDER_H = 70  # RecipeList.lua: the "Unlearned" divider after learned recipes
 SCHEMATIC_W, SCHEMATIC_H = 360, 484
-SKILL_UP_ICONS = {"orange": "Professions-Icon-Skill-High", "yellow": "Professions-Icon-Skill-Medium", "green": "Professions-Icon-Skill-Low"}
+SKILL_UP_ICONS = {
+    "orange": "Professions-Icon-Skill-High",
+    "yellow": "Professions-Icon-Skill-Medium",
+    "green": "Professions-Icon-Skill-Low",
+}
 
 SELECTED = 1229432  # Camp Tent
 HOVERED = 9059  # Handstitched Leather Bracers
@@ -341,7 +353,10 @@ def recipe_tooltip_lines(ui, recipe_id):
     of the first blank line GameTooltip_InsertFrame added for the bar."""
     d = describe(recipe_id)
     t = d["thresholds"]
-    lines = [TooltipLine(recipe_name(recipe_id)), TooltipLine(f"Requires Leatherworking ({t[0]})", COLORS["red"] if SKILL < t[0] else WHITE)]
+    lines = [
+        TooltipLine(recipe_name(recipe_id)),
+        TooltipLine(f"Requires Leatherworking ({t[0]})", COLORS["red"] if SKILL < t[0] else WHITE),
+    ]
     bar_line = len(lines)
     lines += [TooltipLine(" ")] * bar_blank_lines()
     lines.append(TooltipLine(f"Skill-up chance: {math.floor(d['chance'] * 100 + 0.5)}%", COLORS[d["color"]]))
@@ -356,10 +371,22 @@ def recipe_tooltip_lines(ui, recipe_id):
     lines.append(TooltipLine("Reagents", gold, money(d["cost"])))
     value = d["value"]
     each = " x{:g}".format(value["quantity"]) if value["quantity"] != 1 else ""
-    lines.append(TooltipLine("Sells for" + each, gold, "{} |cff808080({})|r".format(money(value["copper"]), "AH" if value["source"] == "auction" else "vendor")))
+    lines.append(
+        TooltipLine(
+            "Sells for" + each,
+            gold,
+            "{} |cff808080({})|r".format(money(value["copper"]), "AH" if value["source"] == "auction" else "vendor"),
+        )
+    )
     lines.append(TooltipLine("Profit per craft" if d["net"] < 0 else "Net per craft", gold, money(abs(d["net"]))))
     per = d["perSkillUp"]
-    lines.append(TooltipLine("Profit per skill-up" if per < 0 else "Per skill-up", gold, ("|cff40ff40+|r" if per < 0 else "") + money(abs(per))))
+    lines.append(
+        TooltipLine(
+            "Profit per skill-up" if per < 0 else "Per skill-up",
+            gold,
+            ("|cff40ff40+|r" if per < 0 else "") + money(abs(per)),
+        )
+    )
     return lines, bar_line
 
 
@@ -396,7 +423,13 @@ def skill_bar(ui, t, skill):
     marker_h = BAR_HEIGHT * 1.3
     marker_w = marker_h * 10 / 14
     mx = x_of(skill)
-    canvas.draw(ui.atlas("ui-hud-experiencebar-frame-pip-camelot"), m + mx - marker_w / 2, m + BAR_HEIGHT / 2 - marker_h / 2, marker_w, marker_h)
+    canvas.draw(
+        ui.atlas("ui-hud-experiencebar-frame-pip-camelot"),
+        m + mx - marker_w / 2,
+        m + BAR_HEIGHT / 2 - marker_h / 2,
+        marker_w,
+        marker_h,
+    )
     last = -math.inf
     for i, value in enumerate(t):
         x = x_of(value)
@@ -526,8 +559,20 @@ def schematic(canvas, x, y, recipe_id):
     ox, oy = x + 28, y + 28
     item = ui.item(data["output"]["itemID"])
     layer = ui.canvas(canvas.width, canvas.height)
-    layer.draw(ui.texture(item.icon).crop(_texcoord_box(ui.texture(item.icon), 0.078125, 0.921875)), ox + 23.5 - 26.5, oy + 23.5 - 26.5, 53, 53)
-    layer.mask(ui.texture("interface/characterframe/tempportraitalphamask.blp"), ox + 23.5 - 26.5 + 2, oy + 23.5 - 26.5 + 2, 49, 49)
+    layer.draw(
+        ui.texture(item.icon).crop(_texcoord_box(ui.texture(item.icon), 0.078125, 0.921875)),
+        ox + 23.5 - 26.5,
+        oy + 23.5 - 26.5,
+        53,
+        53,
+    )
+    layer.mask(
+        ui.texture("interface/characterframe/tempportraitalphamask.blp"),
+        ox + 23.5 - 26.5 + 2,
+        oy + 23.5 - 26.5 + 2,
+        49,
+        49,
+    )
     canvas.paste(layer, 0, 0)
     ring = ui.atlas("auctionhouse-itemicon-border-white")
     canvas.draw(ring, ox + 23.5 - 34, oy + 23.5 - 34, 68, 68)
@@ -582,7 +627,10 @@ def create_controls(canvas, fx, fy, count):
     ix, iy = right - 185, bottom - 11 - 20
     border = ui.texture("interface/common/common-input-border.blp")
     tw, th = border.width, border.height
-    piece = lambda l, r: border.crop((round(l * tw), 0, round(r * tw), round(0.625 * th)))
+
+    def piece(start, end):
+        return border.crop((round(start * tw), 0, round(end * tw), round(0.625 * th)))
+
     canvas.draw(piece(0, 0.0625), ix - 5, iy, 8, 20)
     canvas.draw(piece(0.0625, 0.9375), ix + 3, iy, 31 - 8 - 3, 20)
     canvas.draw(piece(0.9375, 1), ix + 31 - 8, iy, 8, 20)

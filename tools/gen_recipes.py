@@ -207,6 +207,7 @@ def render(recipes, sell, names, professions, stats):
         "-- Output quantity is mean yield; false is verified non-item output. Missing recipes are unknown.",
         "-- Trainer names use the source locale (enUS); false means ambiguous within the profession.",
         "-- " + "; ".join(f"{key}={value}" for key, value in stats.items()) + ".",
+        "---@type string, SkillUpNamespace",
         "local _, ns = ...",
         "-- stylua: ignore",
         "ns.RecipeData = {",

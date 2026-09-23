@@ -9,6 +9,7 @@ levelling route to the Professions window. Players install the zip the BigWigs p
 stylua --check .
 ruff format --check tools && ruff check tools
 luacheck .
+tools/typecheck.sh
 for s in tests/*_spec.lua; do luajit "$s" || exit 1; done
 ```
 
@@ -28,7 +29,12 @@ The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and
 - The specs are a headless harness with stubbed client APIs. Anything they cannot reach (frames,
   menus, tooltips, the tracker) is checked in game: list those checks in the PR as `/reload` tests
   for the user. Never drive the game client.
-- New globals go in both `.luacheckrc` and `.luarc.json`; the two lists must stay equal.
+- Host globals go in `.luacheckrc`; LuaLS gets WoW APIs from the pinned Ketho annotations.
+  Add missing Forever/integration APIs with real types in `types/`, never `diagnostics.globals`.
+- Every TOC file, including generated data, stays in the LuaLS and multi-value gates.
+  Run `tools/typecheck.sh` with LuaLS 3.19.1; it fetches the pinned API annotations on first use.
+  Parenthesize scalar `select(...)` in last call/table/return positions; intentional expansion
+  needs a trailing `-- multi-value: <reason>`.
 - Commits are signed (`git commit -S`) with the personal email.
 - Quality: load `.agents/skills/sift-project/SKILL.md` before cleanup, dead-code or refactoring
   work.

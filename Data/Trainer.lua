@@ -4,6 +4,7 @@
 -- wow_classic_era 1.15.9.69722; recipes limited to wow_classic_beta 1.60.1.69913 thresholds.
 -- Specialisation-gated rows are left out. Fees seen at a trainer win.
 -- recipes=413; conflicts resolved to the most common: [10621, 10647, 13622].
+---@type string, SkillUpNamespace
 local _, ns = ...
 -- stylua: ignore
 -- [recipeID] = { fee in copper, required base skill }

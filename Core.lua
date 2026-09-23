@@ -1,5 +1,7 @@
+---@type string, SkillUpNamespace
 local addonName, ns = ...
 
+---@type SkillUpDefaults
 local DEFAULTS = {
 	showRowText = true,
 	showSkill = false,
@@ -12,6 +14,9 @@ local DEFAULTS = {
 	showRouteTab = true,
 	reagentTooltip = "route",
 	gatherFree = true,
+	vendor = {}, -- [itemID] = copper per unit, observed at merchants
+	tracked = {}, -- [itemID] = true: inputs/outputs to include in auction scans
+	auctions = {}, -- [realm-faction][itemID] = { copper, time }
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
@@ -50,6 +55,7 @@ local LIVE_COLOR = {
 	[Enum.TradeskillRelativeDifficulty.Trivial] = "grey",
 }
 
+---@param msg string
 function ns.Print(msg)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99" .. ns.TITLE .. "|r " .. msg)
 end
@@ -89,6 +95,10 @@ end
 -- report other IDs (GetProfessionInfo gave 8167, 8175, ...), so the name is the
 -- key: the bundled enUS names, or the pairing seen when the profession was open.
 local warned = {}
+
+---@param name string?
+---@param reported integer?
+---@return integer?
 function ns.ProfessionSkillLine(name, reported)
 	local skillLine = ns.ProfessionSkillLines[name] or ns.db.professionIDs[name]
 	if skillLine then
@@ -105,6 +115,7 @@ end
 
 -- Effective skill for difficulty purposes includes racial bonuses; the cap is
 -- on base skill, and at the cap nothing can skill up whatever its colour.
+---@return SkillUpContext?
 function ns.SkillContext()
 	local info = Professions and Professions.GetProfessionInfo()
 	if not info or not info.skillLevel then
@@ -125,6 +136,7 @@ end
 
 -- The player's professions by skill line, secondary ones included. GetProfessions
 -- leaves nil gaps for empty slots, so walk its full return count.
+---@return table<integer, SkillUpProfession>
 function ns.PlayerProfessions()
 	local professions = {}
 	local function Add(...)
@@ -154,7 +166,7 @@ function ns.PlayerProfessions()
 end
 
 -- Recipes this character has been seen to know in the Professions window, for
--- places (trainer, item tooltips) that can't ask it. IsPlayerSpell covers
+-- places (trainer, item tooltips) that can't ask it. C_SpellBook.IsSpellKnown covers
 -- professions not opened yet, and every session while SavedVariables fail to load.
 local function LearnedRecipes()
 	local key = UnitName("player") .. "-" .. GetNormalizedRealmName()
@@ -199,8 +211,10 @@ local function ForgetDroppedProfessions()
 	end
 end
 
+---@param recipeID integer
+---@return boolean
 function ns.IsLearned(recipeID)
-	return LearnedRecipes()[recipeID] or IsPlayerSpell(recipeID)
+	return LearnedRecipes()[recipeID] or C_SpellBook.IsSpellKnown(recipeID)
 end
 
 local learnEvents = CreateFrame("Frame")
@@ -216,6 +230,9 @@ learnEvents:SetScript("OnEvent", function(_, event)
 end)
 
 -- Everything a row or tooltip renders for one recipe at the current skill.
+---@param recipeInfo TradeSkillRecipeInfo|SkillUpRecipeInfo
+---@param ctx SkillUpContext?
+---@return SkillUpDescription
 function ns.Describe(recipeInfo, ctx)
 	local thresholds = ns.Model.Get(recipeInfo.recipeID)
 	local liveColor = LIVE_COLOR[recipeInfo.relativeDifficulty]
@@ -242,6 +259,8 @@ function ns.Describe(recipeInfo, ctx)
 end
 
 -- The compact "skill · chance · cost" text of a recipe row or trainer service.
+---@param d SkillUpDescription
+---@return string
 function ns.FormatRow(d)
 	if not d.thresholds then
 		return "?"
@@ -255,12 +274,15 @@ function ns.FormatRow(d)
 		parts[#parts + 1] = tostring(d.thresholds[1])
 	end
 	parts[#parts + 1] = string.format("%d%%", math.floor(d.chance * 100 + 0.5))
-	if ns.db.showCost and d.perSkillUp then
-		parts[#parts + 1] = ns.FormatNet(ns.Model.RoundMoney(math.abs(d.perSkillUp)), d.perSkillUp < 0)
+	local perSkillUp = d.perSkillUp
+	if ns.db.showCost and perSkillUp then
+		parts[#parts + 1] = ns.FormatNet(ns.Model.RoundMoney(math.abs(perSkillUp)), perSkillUp < 0)
 	end
 	return table.concat(parts, " · ")
 end
 
+---@param d SkillUpDescription
+---@return ColorMixin
 function ns.RowColor(d)
 	return ns.COLORS[d.chance and d.color or (d.thresholds and "red" or "unknown")]
 end
@@ -276,7 +298,7 @@ local function Audit()
 	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
 		local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
 		local live = info and info.learned and LIVE_COLOR[info.relativeDifficulty]
-		if live then
+		if info and live then
 			local t = ns.Model.Get(recipeID)
 			if not t then
 				missing = missing + 1

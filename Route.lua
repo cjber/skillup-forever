@@ -1,3 +1,4 @@
+---@type string, SkillUpNamespace
 local _, ns = ...
 
 -- Retail list proportions: GameFontHighlight rows with 16px icons.
@@ -13,7 +14,10 @@ local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
 -- A day-old scan is flagged: auction prices move that fast.
 local STALE_AFTER = 24 * 3600
 
-local page, tab
+---@type SkillUpPage
+local page
+---@type SkillUpSideTab
+local tab
 local selected -- skill line shown on the page
 local pending = false
 
@@ -21,6 +25,9 @@ local RANK_NAMES = { [150] = "Journeyman", [225] = "Expert", [300] = "Artisan" }
 
 -- The ranks a trainer teaches above the current cap, in order, and the highest cap
 -- they reach. It stops at a gap: a rank that comes from a book or quest isn't known.
+---@param profession SkillUpContext
+---@return SkillUpRank[]
+---@return number
 local function NextRanks(profession)
 	local byCap = {}
 	for _, rank in ipairs(ns.TrainerRanks[profession.skillLine] or {}) do
@@ -40,6 +47,7 @@ end
 local GATHERING = { [182] = true, [356] = true, [393] = true } -- Herbalism, Fishing, Skinning
 
 -- The player's professions a route can be planned for.
+---@return table<integer, SkillUpProfession>
 function ns.RouteProfessions()
 	local professions = {}
 	for skillLine, profession in pairs(ns.PlayerProfessions()) do
@@ -53,6 +61,8 @@ end
 -- The chosen target in base skill, per profession; the trainer plans to it too.
 -- A target already reached gives way to the default. Past the cap is fine up to
 -- the last rank a trainer teaches; the route trains those ranks on the way.
+---@param profession SkillUpContext
+---@return number
 function ns.RouteTarget(profession)
 	local saved = ns.db.routeTargets[profession.skillLine]
 	local _, ceiling = NextRanks(profession)
@@ -63,6 +73,9 @@ end
 -- any of its professions: bundled recipe data plus the learned record, so the
 -- profession needn't be open. `known` adds recipes the caller knows are
 -- learned (the trainer's "used" services). Skills are effective (base + bonus).
+---@param profession SkillUpContext
+---@param known table<integer, boolean>?
+---@return SkillUpSnapshot
 function ns.RouteSnapshot(profession, known)
 	local recipes = {}
 	for recipeID, recipe in pairs(ns.RecipeData) do
@@ -76,6 +89,9 @@ function ns.RouteSnapshot(profession, known)
 end
 
 -- { fee, required base skill }: what a trainer was seen to charge, else the base fee.
+---@param profession SkillUpContext
+---@param recipeID integer
+---@return number[]?
 function ns.TrainingFor(profession, recipeID)
 	local seen = ns.db.trainer[profession.skillLine]
 	return seen and seen[recipeID] or ns.TrainerFees[recipeID]
@@ -85,12 +101,15 @@ end
 -- somewhere between here and the target. Nothing is used before the trainer would
 -- teach it: the thresholds' first value is where a recipe turns orange, not where
 -- it's taught.
+---@param profession SkillUpContext
+---@param snapshot SkillUpSnapshot
+---@return SkillUpService[]
 local function Trainable(profession, snapshot)
 	local services = {}
 	for recipeID, recipe in pairs(ns.RecipeData) do
 		local training = recipe.skillLine == profession.skillLine and ns.TrainingFor(profession, recipeID)
 		local t = training and not ns.IsLearned(recipeID) and ns.Model.Get(recipeID)
-		if t then
+		if training and t then
 			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
 			if taught[1] <= snapshot.target and t[4] > snapshot.skill then
 				services[#services + 1] =
@@ -112,6 +131,8 @@ function ns.InvalidatePlans()
 	plans = {}
 end
 
+---@param profession SkillUpProfession
+---@return SkillUpPlan
 function ns.PlanRoute(profession)
 	local target = ns.RouteTarget(profession)
 	local key = profession.skill .. ":" .. profession.max .. ":" .. target
@@ -121,6 +142,7 @@ function ns.PlanRoute(profession)
 	end
 	local snapshot = ns.RouteSnapshot(profession)
 	local route = ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot))
+	---@cast route SkillUpPlan
 	route.profession = profession.name
 	route.target = target
 	-- Each rank is needed once the route passes the cap below it.
@@ -135,19 +157,27 @@ function ns.PlanRoute(profession)
 	return route
 end
 
+---@param recipeID integer
+---@return string
 local function RecipeName(recipeID)
 	return C_Spell.GetSpellName(recipeID) or ("recipe " .. recipeID)
 end
 
+---@param copper number
+---@return string
 local function Money(copper)
 	return ns.FormatNet(ns.Model.RoundMoney(math.abs(copper)), copper < 0)
 end
 
+---@param recipeID integer
+---@return SkillUpReagent?
 local function Output(recipeID)
 	local recipe = ns.RecipeData[recipeID]
-	return recipe and recipe.output
+	return recipe and recipe.output or nil
 end
 
+---@param recipeID integer
+---@return fileID?
 local function RecipeIcon(recipeID)
 	local output = Output(recipeID)
 	return output and C_Item.GetItemIconByID(output.itemID) or C_Spell.GetSpellTexture(recipeID)
@@ -156,18 +186,22 @@ end
 -- A table: icon and name, then right-aligned value columns (listed right to left)
 -- under fixed headers, scrolling with Blizzard's ScrollBox and minimal scroll bar
 -- once it outgrows the inset. Each row can show a tooltip and act on a click.
+---@param parent Frame
+---@param columns SkillUpColumn[]
+---@return SkillUpList
 local function CreateList(parent, columns)
+	---@class SkillUpList
 	local list = { rows = {}, count = 0, height = 0 }
-	local scrollBox = CreateFrame("Frame", nil, parent, "WowScrollBox")
+	local scrollBox = CreateFrame("Frame", nil, parent, "WowScrollBox") --[[@as SkillUpScrollBox]]
 	scrollBox:SetPoint("TOPLEFT", 4, -HEADER_HEIGHT)
 	scrollBox:SetPoint("BOTTOMRIGHT", -SCROLL_BAR_WIDTH, 4)
-	local scrollBar = CreateFrame("EventFrame", nil, parent, "MinimalScrollBar")
+	local scrollBar = CreateFrame("EventFrame", nil, parent, "MinimalScrollBar") --[[@as SkillUpScrollBar]]
 	scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 4, 0)
 	scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT", 4, 0)
 	scrollBar:SetHideIfUnscrollable(true)
 	-- Created before Init, which moves `scrollable` children into the scroll target;
 	-- the view stretches it to the box's width.
-	local content = CreateFrame("Frame", nil, scrollBox)
+	local content = CreateFrame("Frame", nil, scrollBox) --[[@as SkillUpScrollContent]]
 	content.scrollable = true
 	content:SetSize(1, 1)
 	local view = CreateScrollBoxLinearView()
@@ -188,6 +222,7 @@ local function CreateList(parent, columns)
 	end
 	local textRight = right
 
+	---@param row SkillUpListRow
 	local function OnEnter(row)
 		if row.entry.tooltip then
 			GameTooltip:SetOwner(row, "ANCHOR_RIGHT")
@@ -196,6 +231,7 @@ local function CreateList(parent, columns)
 		end
 	end
 
+	---@param row SkillUpListRow
 	local function OnClick(row)
 		if row.entry.click then
 			row.entry.click()
@@ -203,7 +239,7 @@ local function CreateList(parent, columns)
 	end
 
 	local function CreateRow()
-		local row = CreateFrame("Button", nil, content)
+		local row = CreateFrame("Button", nil, content) --[[@as SkillUpListRow]]
 		row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
 		row:SetScript("OnEnter", OnEnter)
 		row:SetScript("OnLeave", GameTooltip_Hide)
@@ -226,6 +262,7 @@ local function CreateList(parent, columns)
 	end
 
 	-- entry: text, color, icon, values (per column), valueColor, tooltip(tooltip), click().
+	---@param entry SkillUpListEntry
 	function list:Add(entry)
 		self.count = self.count + 1
 		local row = self.rows[self.count] or CreateRow()
@@ -262,6 +299,8 @@ local function CreateList(parent, columns)
 		row:Show()
 	end
 
+	---@param text string
+	---@param color ColorMixin?
 	function list:Message(text, color)
 		self:Add({ text = text, color = color or GRAY_FONT_COLOR, wrap = true })
 	end
@@ -277,6 +316,8 @@ local function CreateList(parent, columns)
 	return list
 end
 
+---@param rank SkillUpRank
+---@return string
 function ns.RankText(rank)
 	local text = string.format("Train %s at %d", rank.name, rank.reqSkill)
 	if rank.level > UnitLevel("player") then
@@ -285,16 +326,26 @@ function ns.RankText(rank)
 	return text
 end
 
+---@param tooltip GameTooltip
+---@param left string
+---@param right string
+---@param rightColor ColorMixin?
 local function AddLine(tooltip, left, right, rightColor)
 	GameTooltip_AddColoredDoubleLine(tooltip, left, right, NORMAL_FONT_COLOR, rightColor or HIGHLIGHT_FONT_COLOR)
 end
 
 -- Not red when short: the route gets there before this step.
+---@param tooltip GameTooltip
+---@param profession SkillUpProfession
+---@param reqSkill number
 local function RequiresLine(tooltip, profession, reqSkill)
 	AddLine(tooltip, "Requires", string.format("%s (%d)", profession.name, reqSkill))
 end
 
 -- The crafted item's own tooltip when there is one, else the recipe's name.
+---@param tooltip GameTooltip
+---@param recipeID integer
+---@param title string
 local function RecipeTitle(tooltip, recipeID, title)
 	local output = Output(recipeID)
 	if output then
@@ -310,6 +361,9 @@ local BAND_NAMES = { "orange", "yellow", "green", "grey" }
 
 -- "Colour from  120  132  145", each number in its band's colour, starting where
 -- the recipe can be learned: the data's first threshold can sit far below that.
+---@param tooltip GameTooltip
+---@param profession SkillUpProfession
+---@param recipeID integer
 local function AddBands(tooltip, profession, recipeID)
 	local t = ns.Model.Get(recipeID)
 	if not t then
@@ -331,6 +385,9 @@ local function AddBands(tooltip, profession, recipeID)
 	AddLine(tooltip, table.concat(names, " "), table.concat(parts, "  "))
 end
 
+---@param tooltip GameTooltip
+---@param profession SkillUpProfession
+---@param segment SkillUpSegment
 local function CraftTooltip(tooltip, profession, segment)
 	local recipeID, m = segment.recipeID, profession.modifier
 	RecipeTitle(tooltip, recipeID, RecipeName(recipeID))
@@ -360,6 +417,9 @@ local function CraftTooltip(tooltip, profession, segment)
 	end
 end
 
+---@param tooltip GameTooltip
+---@param profession SkillUpProfession
+---@param step SkillUpTraining
 local function TrainTooltip(tooltip, profession, step)
 	RecipeTitle(tooltip, step.recipeID, "Train " .. RecipeName(step.recipeID))
 	GameTooltip_AddHighlightLine(tooltip, string.format("Taught by %s trainers.", profession.name))
@@ -370,6 +430,9 @@ local function TrainTooltip(tooltip, profession, step)
 	ns.AddNearest(tooltip, "Nearest trainer", ns.NearestTrainer(profession, step.reqSkill + 1))
 end
 
+---@param tooltip GameTooltip
+---@param profession SkillUpProfession
+---@param rank SkillUpRank
 local function RankTooltip(tooltip, profession, rank)
 	GameTooltip_SetTitle(tooltip, string.format("%s %s", rank.name, profession.name))
 	GameTooltip_AddHighlightLine(tooltip, string.format("Raises your skill cap to %d.", rank.cap))
@@ -383,6 +446,9 @@ local function RankTooltip(tooltip, profession, rank)
 end
 
 -- A waypoint to the nearest trainer teaching up to `cap`.
+---@param profession SkillUpProfession
+---@param cap number
+---@return fun()
 local function TrainerClick(profession, cap)
 	return function()
 		local npcID = ns.NearestTrainer(profession, cap)
@@ -392,6 +458,8 @@ local function TrainerClick(profession, cap)
 	end
 end
 
+---@param recipeID integer
+---@return fun()
 local function RecipeClick(recipeID)
 	return function()
 		if IsModifiedClick("CHATLINK") then
@@ -404,6 +472,9 @@ end
 
 local SUGGESTIONS_SHOWN = 8
 
+---@param tooltip GameTooltip
+---@param profession SkillUpProfession
+---@param suggestion SkillUpSuggestion
 local function SuggestionTooltip(tooltip, profession, suggestion)
 	local recipeID = suggestion.recipeID
 	RecipeTitle(tooltip, recipeID, RecipeName(recipeID))
@@ -421,6 +492,8 @@ local function SuggestionTooltip(tooltip, profession, suggestion)
 	GameTooltip_AddInstructionLine(tooltip, "Shift-click to link the scroll.")
 end
 
+---@param suggestion SkillUpSuggestion
+---@return fun()
 local function SuggestionClick(suggestion)
 	return function()
 		if IsModifiedClick("CHATLINK") then
@@ -435,6 +508,9 @@ local function SuggestionClick(suggestion)
 end
 
 -- Where the known recipes run out: the scrolls that would carry the route on.
+---@param list SkillUpList
+---@param profession SkillUpProfession
+---@param route SkillUpPlan
 local function RenderSuggestions(list, profession, route)
 	local suggestions = ns.RecipeSuggestions(profession, route.reachedSkill)
 	if #suggestions == 0 then
@@ -458,6 +534,9 @@ local function RenderSuggestions(list, profession, route)
 	end
 end
 
+---@param list SkillUpList
+---@param profession SkillUpProfession
+---@param route SkillUpPlan
 local function RenderRoute(list, profession, route)
 	if profession.capped and #route.ranks == 0 and #route.segments == 0 then
 		list:Message(string.format("At the %d cap: no trainer teaches the next rank.", profession.max))
@@ -549,6 +628,8 @@ end
 
 local SOURCE_TEXT = { gather = "gather", vendor = "vendor", auction = "AH", unknown = "no price" }
 
+---@param tooltip GameTooltip
+---@param item SkillUpNeededItem
 local function ReagentTooltip(tooltip, item)
 	tooltip:SetItemByID(item.itemID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
@@ -578,6 +659,8 @@ end
 
 -- Reagents of known recipes that still skill up but have no price, which is what
 -- keeps them out of the route.
+---@param profession SkillUpProfession
+---@return integer[]
 local function UnpricedReagents(profession)
 	local snapshot = ns.RouteSnapshot(profession)
 	local seen, items = {}, {}
@@ -595,6 +678,8 @@ local function UnpricedReagents(profession)
 	return items
 end
 
+---@param list SkillUpList
+---@param items integer[]
 local function RenderUnpriced(list, items)
 	for _, itemID in ipairs(items) do
 		list:Add({
@@ -608,6 +693,8 @@ local function RenderUnpriced(list, items)
 	end
 end
 
+---@param list SkillUpList
+---@param reagents SkillUpNeededItem[]
 local function RenderReagents(list, reagents)
 	if #reagents == 0 then
 		list:Message("Nothing to buy for this route.")
@@ -644,12 +731,15 @@ end
 
 -- How fresh the auction prices behind this route are: the oldest, since that is
 -- the one most likely to be wrong.
+---@param reagents SkillUpNeededItem[]
+---@return string
+---@return ColorMixin
 local function PriceAge(reagents)
 	local oldest
 	for _, item in ipairs(reagents) do
 		local price = ns.Price(item.itemID)
 		local auction = price and (price.source == "scan" or price.source == "auctionator")
-		if auction and (not oldest or ns.PriceAge(price) > ns.PriceAge(oldest)) then
+		if price and auction and (not oldest or ns.PriceAge(price) > ns.PriceAge(oldest)) then
 			oldest = price
 		end
 	end
@@ -662,20 +752,18 @@ local function PriceAge(reagents)
 end
 
 -- How many times the bags' reagents make this recipe.
+---@param recipeID integer
+---@return number
 local function Craftable(recipeID)
-	local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
-	if info and info.numAvailable then
-		return info.numAvailable
-	end
-	local count = math.huge
-	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
-		count = math.min(count, math.floor(C_Item.GetItemCount(reagent.itemID) / reagent.quantity))
-	end
-	return count == math.huge and 0 or count
+	-- RecipeInfo has no count; this includes the client's reagent and resource rules.
+	return C_TradeSkillUI.GetCraftableCount(recipeID)
 end
 
 -- The route's first step, as many times as it needs and the bags allow, with
 -- its label; or why it can't be crafted. The profession must be the open one.
+---@param profession SkillUpProfession
+---@param route SkillUpPlan
+---@return SkillUpCraft
 function ns.NextCraft(profession, route)
 	local segment = route.segments[1]
 	if not segment then
@@ -700,6 +788,8 @@ function ns.NextCraft(profession, route)
 	return craft
 end
 
+---@param profession SkillUpProfession
+---@param route SkillUpPlan
 local function SetCraft(profession, route)
 	local button, craft = page.Craft, ns.NextCraft(profession, route)
 	button.recipeID, button.count, button.reason = craft.recipeID, craft.count, craft.reason
@@ -759,6 +849,7 @@ function ns.RefreshRoute()
 	end)
 end
 
+---@param editBox EditBox
 local function CommitTarget(editBox)
 	local value = tonumber(editBox:GetText())
 	if selected and value then
@@ -769,8 +860,10 @@ local function CommitTarget(editBox)
 	ns.RefreshRoute()
 end
 
+---@param name string
+---@return Frame
 local function CreateInset(name)
-	local inset = CreateFrame("Frame", nil, page, "InsetFrameTemplate")
+	local inset = CreateFrame("Frame", nil, page, "InsetFrameTemplate") --[[@as Frame]]
 	local title = inset:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	title:SetPoint("BOTTOMLEFT", inset, "TOPLEFT", 4, 4)
 	title:SetText(name)
@@ -778,7 +871,7 @@ local function CreateInset(name)
 end
 
 local function CreateHeader()
-	local dropdown = CreateFrame("DropdownButton", nil, page, "WowStyle1DropdownTemplate")
+	local dropdown = CreateFrame("DropdownButton", nil, page, "WowStyle1DropdownTemplate") --[[@as DropdownButton]]
 	dropdown:SetWidth(180)
 	-- Clear of the portrait, which overhangs the top-left corner.
 	dropdown:SetPoint("TOPLEFT", 76, -32)
@@ -808,7 +901,7 @@ local function CreateHeader()
 	skill:SetPoint("LEFT", dropdown, "RIGHT", 16, 0)
 	page.Skill = skill
 
-	local target = CreateFrame("EditBox", nil, page, "InputBoxTemplate")
+	local target = CreateFrame("EditBox", nil, page, "InputBoxTemplate") --[[@as EditBox]]
 	target:SetSize(40, 20)
 	target:SetPoint("LEFT", skill, "RIGHT", 10, 0)
 	target:SetNumeric(true)
@@ -824,7 +917,7 @@ local function CreateHeader()
 end
 
 local function CreateButtons()
-	local track = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
+	local track = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
 	track:SetSize(130, 22)
 	track:SetScript("OnClick", function()
 		local tracked = not ns.IsTracked(selected)
@@ -837,7 +930,7 @@ local function CreateButtons()
 	page.Track = track
 
 	-- Only auction house reagents still missing go to the Auctionator list.
-	local auctionator = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
+	local auctionator = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
 	auctionator:SetSize(130, 22)
 	auctionator:SetText("To Auctionator")
 	auctionator:SetScript("OnClick", function()
@@ -848,7 +941,7 @@ local function CreateButtons()
 	page.Auctionator = auctionator
 
 	-- CraftRecipe needs this click's hardware event, so the craft is set up in Render.
-	local craft = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
+	local craft = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as SkillUpCraftButton]]
 	craft:SetScript("OnClick", function(self)
 		if self.recipeID then
 			C_TradeSkillUI.CraftRecipe(self.recipeID, self.count)
@@ -868,7 +961,7 @@ end
 
 -- Occupies the crafting page's place, as the overview page does.
 local function CreatePage()
-	page = CreateFrame("Frame", nil, ProfessionsFrame)
+	page = CreateFrame("Frame", nil, ProfessionsFrame) --[[@as SkillUpPage]]
 	page:SetAllPoints(ProfessionsFrame.CraftingPage)
 	page:SetFrameLevel(ProfessionsFrame.CraftingPage:GetFrameLevel())
 	page:Hide()
@@ -914,13 +1007,14 @@ end
 
 -- The profession on show in the crafting page, when it is one of this character's;
 -- nil until Blizzard_Professions loads, which the tracker menu can precede.
+---@return integer?
 function ns.OpenSkillLine()
 	if not Professions then
 		return nil
 	end
 	local info = Professions.GetProfessionInfo()
 	local name = info and (info.parentProfessionName or info.professionName)
-	local skillLine = name and ns.ProfessionSkillLine(name, info.parentProfessionID or info.professionID)
+	local skillLine = info and name and ns.ProfessionSkillLine(name, info.parentProfessionID or info.professionID)
 	return skillLine and ns.PlayerProfessions()[skillLine] and skillLine
 end
 
@@ -941,6 +1035,7 @@ local function Deselect()
 end
 
 -- Back to the crafting page, as its tab would, with the recipe selected.
+---@param recipeID integer
 function ns.ShowRecipe(recipeID)
 	local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
 	if not (info and info.learned and selected == ns.OpenSkillLine()) then
@@ -992,7 +1087,7 @@ function ns.RefreshRouteTab()
 end
 
 local function CreateTab()
-	tab = CreateFrame("Frame", nil, ProfessionsFrame, "LargeSideTabButtonTemplate")
+	tab = CreateFrame("Frame", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
 	tab.Icon:SetTexture("Interface\\Icons\\INV_Scroll_03")
 	tab:SetFillToInterior(true)
 	tab.tooltipText = "Levelling route"

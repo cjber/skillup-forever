@@ -272,7 +272,7 @@ def render(emitted, coverage, names):
         f"-- {len(emitted)} unique recipe spell IDs; a shared recipe counts in each profession below.",
     ]
     lines.extend("-- " + line for line in coverage)
-    lines.extend(["local _, ns = ...", "ns.Thresholds = {"])
+    lines.extend(["---@type string, SkillUpNamespace", "local _, ns = ...", "ns.Thresholds = {"])
     for spell, (thresholds, sources, _) in sorted(emitted.items()):
         name = " ".join(names.get(spell, "SpellName unavailable").split())
         values = ", ".join(map(str, thresholds))

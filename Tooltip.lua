@@ -1,3 +1,4 @@
+---@type string, SkillUpNamespace
 local _, ns = ...
 
 local BAR_WIDTH = 250
@@ -9,12 +10,13 @@ local BAND_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar"
 local MARKER_ATLAS = "ui-hud-experiencebar-frame-pip-camelot"
 local MARKER_HEIGHT = BAR_HEIGHT * 1.3
 
+---@type SkillUpBar
 local bar
 
 -- The profession window's header skill bar (ProfessionsRankBarTemplate art),
 -- scaled from its native 18px height down to tooltip size.
 local function CreateBar()
-	local frame = CreateFrame("Frame", nil, UIParent)
+	local frame = CreateFrame("Frame", nil, UIParent) --[[@as SkillUpBar]]
 	frame:SetSize(BAR_WIDTH, BAR_HEIGHT + 30)
 
 	local track = CreateFrame("Frame", nil, frame)
@@ -56,6 +58,9 @@ end
 
 -- Lays the four colour bands out over [orange, grey + tail]; the tail keeps the
 -- grey band visible and gives the marker somewhere to sit once a recipe is grey.
+---@param t number[]
+---@param skill number
+---@return SkillUpBar
 local function LayoutBar(t, skill)
 	bar = bar or CreateBar()
 	local height = BAR_HEIGHT
@@ -76,7 +81,7 @@ local function LayoutBar(t, skill)
 	local lastX = -math.huge
 	for i, label in ipairs(bar.labels) do
 		local x = X(t[i])
-		label:SetText(t[i])
+		label:SetText(tostring(t[i]))
 		label:ClearAllPoints()
 		label:SetPoint("TOP", bar, "TOPLEFT", x, -height - 4)
 		label:SetShown(x - lastX >= MIN_LABEL_GAP)
@@ -95,15 +100,22 @@ local function LayoutBar(t, skill)
 	return bar
 end
 
+---@param copper number
+---@return string
 local function Money(copper)
 	return C_CurrencyInfo.GetCoinTextureString(math.floor(copper + 0.5))
 end
 
 -- A profit reads as a green "+"; a cost is just the coins.
+---@param copper number
+---@param profit boolean
+---@return string
 function ns.FormatNet(copper, profit)
 	return (profit and "|cff40ff40+|r" or "") .. Money(copper)
 end
 
+---@param timestamp number
+---@return string
 function ns.FormatAge(timestamp)
 	local minutes = math.floor((time() - timestamp) / 60)
 	if minutes < 60 then
@@ -118,6 +130,8 @@ local DAY = 86400
 
 -- Seconds since an auction price was seen. Auctionator reports whole days, and
 -- nothing past three weeks.
+---@param price SkillUpPrice
+---@return number
 function ns.PriceAge(price)
 	if price.source == "scan" then
 		return time() - price.time
@@ -127,6 +141,8 @@ function ns.PriceAge(price)
 	error("not an auction price: " .. tostring(price.source))
 end
 
+---@param price SkillUpPrice
+---@return string
 function ns.PriceAgeText(price)
 	if price.source == "scan" then
 		return ns.FormatAge(price.time)
@@ -140,6 +156,8 @@ function ns.PriceAgeText(price)
 	return price.days .. "d ago"
 end
 
+---@param price SkillUpPrice
+---@return string
 function ns.PriceSourceText(price)
 	if price.source == "gather" then
 		return "you gather it (" .. price.profession .. ")"
@@ -154,6 +172,9 @@ function ns.PriceSourceText(price)
 end
 
 -- One line per reagent with its price and source, then the craft and per-skill-up totals.
+---@param tooltip GameTooltip
+---@param recipeID integer
+---@param d SkillUpDescription
 local function AddCost(tooltip, recipeID, d)
 	local reagents = ns.Reagents(recipeID)
 	if not reagents or #reagents == 0 then
@@ -184,7 +205,8 @@ local function AddCost(tooltip, recipeID, d)
 		return
 	end
 	tooltip:AddDoubleLine("Reagents", Money(d.cost), 1, 0.82, 0, 1, 1, 1)
-	if d.value then
+	local net = d.net
+	if d.value and net then
 		local each = d.value.quantity ~= 1 and string.format(" x%g", d.value.quantity) or ""
 		tooltip:AddDoubleLine(
 			"Sells for" .. each,
@@ -201,8 +223,8 @@ local function AddCost(tooltip, recipeID, d)
 			1
 		)
 		tooltip:AddDoubleLine(
-			d.net < 0 and "Profit per craft" or "Net per craft",
-			Money(math.abs(d.net)),
+			net < 0 and "Profit per craft" or "Net per craft",
+			Money(math.abs(net)),
 			1,
 			0.82,
 			0,
@@ -211,17 +233,22 @@ local function AddCost(tooltip, recipeID, d)
 			1
 		)
 	end
-	if d.perSkillUp then
-		local label = d.perSkillUp < 0 and "Profit per skill-up" or "Per skill-up"
-		tooltip:AddDoubleLine(label, ns.FormatNet(math.abs(d.perSkillUp), d.perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
+	local perSkillUp = d.perSkillUp
+	if perSkillUp then
+		local label = perSkillUp < 0 and "Profit per skill-up" or "Per skill-up"
+		tooltip:AddDoubleLine(label, ns.FormatNet(math.abs(perSkillUp), perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
 	end
 end
 
+---@param _ SkillUpNamespace
+---@param row SkillUpRecipeRow
+---@param data SkillUpRecipeNodeData
 function ns.ShowRecipeTooltip(_, row, data)
-	if not ns.db.showTooltip or not data.recipeInfo then
+	local info = data.recipeInfo
+	if not ns.db.showTooltip or not info then
 		return
 	end
-	local recipeInfo = Professions.GetHighestLearnedRecipe(data.recipeInfo) or data.recipeInfo
+	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
 	local ctx = ns.SkillContext()
 	local d = ns.Describe(recipeInfo, ctx)
 
@@ -229,7 +256,7 @@ function ns.ShowRecipeTooltip(_, row, data)
 	tooltip:SetOwner(row, "ANCHOR_RIGHT")
 	GameTooltip_SetTitle(tooltip, recipeInfo.name)
 	local t = d.thresholds
-	if t then
+	if t and ctx then
 		local reqColor = ctx.skill < t[1] and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
 		GameTooltip_AddColoredLine(tooltip, string.format("Requires %s (%d)", ctx.name or "", t[1]), reqColor)
 		GameTooltip_InsertFrame(tooltip, LayoutBar(t, ctx.skill), 4)
@@ -253,6 +280,10 @@ local MAX_USES = 5
 local BAND_NAMES = { "orange", "yellow", "green" }
 
 -- "yellow until 115": the band the recipe is in now and where it ends.
+---@param t number[]
+---@param skill number
+---@return string
+---@return ColorMixin
 local function Band(t, skill)
 	if skill < t[1] then
 		return string.format("needs %d", t[1]), ns.COLORS.red
@@ -267,6 +298,8 @@ end
 
 -- Recipes of your professions that still skill up and use this item: learned
 -- ones first, then by the skill they need.
+---@param itemID integer
+---@return SkillUpUse[]
 local function Uses(itemID)
 	local professions = ns.PlayerProfessions()
 	local uses = {}
@@ -290,6 +323,9 @@ local function Uses(itemID)
 end
 
 -- "Route: 28/567 · Leatherworking to 150" for each tracked route that needs the item.
+---@param tooltip GameTooltip
+---@param itemID integer
+---@return boolean
 local function AddRouteNeeds(tooltip, itemID)
 	local added = false
 	for _, entry in ipairs(ns.TrackedNeeds()) do
@@ -314,6 +350,8 @@ local function AddRouteNeeds(tooltip, itemID)
 	return added
 end
 
+---@param tooltip GameTooltip
+---@param uses SkillUpUse[]
 local function AddUsedIn(tooltip, uses)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	GameTooltip_AddNormalLine(tooltip, "Used in")
@@ -329,6 +367,8 @@ local function AddUsedIn(tooltip, uses)
 	end
 end
 
+---@param tooltip GameTooltip
+---@param data TooltipData
 local function AddUses(tooltip, data)
 	local itemID = data and data.id
 	local mode = ns.db.reagentTooltip
@@ -357,6 +397,7 @@ local function AddUses(tooltip, data)
 end
 
 -- Shift changes what an item tooltip shows, so redraw the one on screen.
+---@param key string
 local function OnModifierChanged(_, _, key)
 	if (key == "LSHIFT" or key == "RSHIFT") and ns.db.reagentTooltip == "route" and GameTooltip:IsShown() then
 		local _, _, itemID = GameTooltip:GetItem()

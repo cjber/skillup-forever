@@ -74,11 +74,14 @@ The colour itself always comes from the game, so the addon never disagrees with 
 ln -s "$PWD" ".../World of Warcraft/_classic_beta_/Interface/AddOns/SkillUpForever"
 
 luacheck .                        # lint
+tools/typecheck.sh                # LuaLS 3.19.1 + multi-value argument lint
 stylua --check .                  # format
-for s in tests/*_spec.lua; do luajit "$s"; done   # maths, data, startup and price scans
+for s in tests/*_spec.lua; do luajit "$s" || exit 1; done   # maths, data, startup and price scans
 ruff check tools && ruff format --check tools   # the Python generators
 python3 tools/gen_thresholds.py   # regenerate a Data/*.lua file; every generator is in tools/README.md
 ```
+
+The type gate fetches pinned WoW API annotations into ignored `.types/` on first use (Git and Python 3.10+ required). It checks every runtime file, including generated data, and fails on any LuaLS diagnostic. Addon and missing client/integration types live in `types/`; they are excluded from releases.
 
 CI runs these checks on every push, plus actionlint and zizmor on the workflows and gitleaks over the history. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with every `Data/*.lua` file regenerated.
 

@@ -1,3 +1,4 @@
+---@type string, SkillUpNamespace
 local addonName, ns = ...
 
 -- Our own scan is trusted for an hour before a visit to the auction house rescans it.
@@ -8,12 +9,22 @@ local SCAN_DELAY = 2
 local SEARCH_TIMEOUT = 10
 
 -- [recipeID] = live schematic, else bundled data, else false; cleared when profession data changes.
+---@type table<integer, SkillUpSchematic|false>
 local recipes = {}
+---@type table<integer, integer[]>?
 local reagentIndex
+---@type table<integer, SkillUpPrice|false>
 local priceCache = {}
+---@type table<integer, SkillUpScan>?
 local auctionsTable -- this realm and faction's scanned prices: [itemID] = { copper = n?, time = t }
 -- pending: the current search's items still without a result; asked: all of them.
-local queue, pending, asked, scanning = {}, nil, nil, false
+---@type integer[]
+local queue = {}
+---@type table<integer, boolean>?
+local pending
+---@type table<integer, boolean>?
+local asked
+local scanning = false
 local scanned = 0
 
 local function Table(parent, key)
@@ -38,6 +49,7 @@ end
 local DAY = 86400
 
 -- This character's professions, for what it gathers; kept while priceCache is.
+---@type table<integer, SkillUpProfession>?
 local professions
 
 local function PricesChanged()
@@ -76,6 +88,9 @@ local function AuctionatorAPI()
 end
 
 -- Auctionator's price, and whole days since it was seen (nil past three weeks).
+---@param itemID integer
+---@return number?
+---@return number?
 local function AuctionatorPrice(itemID)
 	local api = AuctionatorAPI()
 	if not api then
@@ -90,15 +105,20 @@ local function AuctionatorPrice(itemID)
 end
 
 -- Nothing for our scan to add: Auctionator already priced it today.
+---@param itemID integer
+---@return boolean
 local function AuctionatorSawToday(itemID)
 	local copper, days = AuctionatorPrice(itemID)
 	return copper ~= nil and days == 0
 end
 
 -- The fresher of our own scan and Auctionator's: { copper, source, time | days }.
+---@param itemID integer
+---@return SkillUpPrice?
 local function AuctionPrice(itemID)
 	local entry = Auctions()[itemID]
-	local ours = entry and entry.copper and { copper = entry.copper, source = "scan", time = entry.time }
+	local scannedCopper = entry and entry.copper
+	local ours = scannedCopper and { copper = scannedCopper, source = "scan", time = entry.time }
 	local copper, days = AuctionatorPrice(itemID)
 	if not copper then
 		return ours
@@ -111,6 +131,8 @@ local function AuctionPrice(itemID)
 end
 
 -- With the setting on, what another of your professions gathers costs nothing.
+---@param itemID integer
+---@return SkillUpPrice?
 local function Gathered(itemID)
 	local skillLine = ns.db.gatherFree and ns.GatheredBy[itemID]
 	if not skillLine then
@@ -124,7 +146,10 @@ end
 -- Cheapest known unit price and where it came from: "gather", "vendor", "scan" or
 -- "auctionator". A price seen at a vendor beats the bundled list, since it includes
 -- any reputation discount.
+---@param itemID integer
+---@return SkillUpPrice?
 function ns.Price(itemID)
+	---@type SkillUpPrice|false|nil
 	local cached = priceCache[itemID]
 	if cached == nil then
 		local vendor = ns.db.vendor[itemID] or ns.VendorPrices[itemID]
@@ -145,11 +170,15 @@ function ns.Price(itemID)
 	return cached or nil
 end
 
+---@param itemID integer
+---@return SkillUpPriceSource?
 function ns.PriceSource(itemID)
 	local price = ns.Price(itemID)
 	return price and price.source
 end
 
+---@param itemID integer
+---@return number?
 local function UnitPrice(itemID)
 	local price = ns.Price(itemID)
 	return price and price.copper
@@ -157,7 +186,10 @@ end
 
 -- Basic reagents only: optional and finishing slots don't have to be filled.
 -- Reagents and crafted items are both tracked, which is what the auction scan searches.
+---@param recipeID integer
+---@return SkillUpSchematic?
 local function Recipe(recipeID)
+	---@type SkillUpSchematic|false|nil
 	local recipe = recipes[recipeID]
 	if recipe == nil then
 		local schematic = C_TradeSkillUI.GetRecipeSchematic(recipeID, false)
@@ -210,11 +242,15 @@ local function Recipe(recipeID)
 	return recipe or nil
 end
 
+---@param recipeID integer
+---@return SkillUpReagent[]?
 function ns.Reagents(recipeID)
 	local recipe = Recipe(recipeID)
 	return recipe and recipe.reagents
 end
 
+---@param itemID integer
+---@return integer[]
 function ns.UsedIn(itemID)
 	if not reagentIndex and ns.RecipeData then
 		reagentIndex = ns.Model.BuildReagentIndex(ns.RecipeData)
@@ -226,6 +262,8 @@ local itemInfoPending = false
 
 -- Live vendor sell price wins, including zero. Bundled prices cover uncached
 -- outputs while the item-data request and eventual refresh are still pending.
+---@param itemID integer
+---@return number?
 local function SellPrice(itemID)
 	local sell = select(11, C_Item.GetItemInfo(itemID))
 	if sell == nil then
@@ -236,6 +274,8 @@ local function SellPrice(itemID)
 end
 
 -- What one craft sells for: { copper, source, each, quantity } or nil.
+---@param recipeID integer
+---@return SkillUpValue?
 function ns.CraftValue(recipeID)
 	local recipe = Recipe(recipeID)
 	local output = recipe and recipe.output
@@ -245,7 +285,7 @@ function ns.CraftValue(recipeID)
 	local ah = AuctionPrice(output.itemID)
 	local auction = ah and ah.copper
 	local each, source = ns.Model.CraftValue(SellPrice(output.itemID), auction, ns.db.craftValue)
-	if not each then
+	if not (each and source) then
 		return nil
 	end
 	return { copper = each * output.quantity, source = source, each = each, quantity = output.quantity }
@@ -259,10 +299,14 @@ function ns.LearnReagents()
 	end
 end
 
+---@param recipeID integer
+---@return number?
 function ns.RecipeCost(recipeID)
 	return ns.Model.RecipeCost(ns.Reagents(recipeID), UnitPrice)
 end
 
+---@param recipeID integer
+---@return number?
 function ns.NetCost(recipeID)
 	local cost = ns.RecipeCost(recipeID)
 	if cost == nil then
@@ -351,7 +395,7 @@ end
 -- Results answer our search only if no other search was sent since ours and every
 -- item in them is one we asked for. Empty results then mean nobody listed them.
 local function IsOurSearch()
-	if superseded then
+	if superseded or not asked then
 		return false
 	end
 	for _, result in ipairs(C_AuctionHouse.GetBrowseResults()) do
@@ -365,6 +409,9 @@ end
 -- An item nobody has listed returns no result; its old price should not outlive
 -- the search that found none.
 local function FinishSearch()
+	if not pending then
+		return
+	end
 	local auctions, now = Auctions(), time()
 	for itemID in pairs(pending) do
 		auctions[itemID] = { time = now }
@@ -380,6 +427,7 @@ function FinishScanIfDone()
 	end
 end
 
+---@param force boolean
 function ns.ScanAuctions(force)
 	if scanning then
 		return

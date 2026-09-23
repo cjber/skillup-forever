@@ -30,6 +30,7 @@
 -- Mining (2946): 0 emitted / 0 skipped; no SkillLineAbility rows
 -- Skinning (2947): 0 emitted / 0 skipped; no SkillLineAbility rows
 -- Tailoring (2948): 0 emitted / 0 skipped; no SkillLineAbility rows
+---@type string, SkillUpNamespace
 local _, ns = ...
 ns.Thresholds = {
 	[818] = { 1, 25, 50, 75 }, -- Basic Campfire; orange: Skillet SkillLineAbility

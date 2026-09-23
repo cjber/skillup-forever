@@ -7,7 +7,8 @@ python3 tools/gen_recipes.py
 python3 tools/gen_trainer.py
 python3 tools/gen_sources.py
 luacheck .
-luajit tests/model_spec.lua
+tools/typecheck.sh
+for s in tests/*_spec.lua; do luajit "$s" || exit 1; done
 ```
 
 The generator pins Forever `1.60.1.69913` and a Skillet-Classic commit, caches
@@ -121,3 +122,23 @@ from wago.tools for the pinned Forever build and are cached under
 of `Model.lua`; only the scene's state (skill, bags, auction prices) is chosen
 in the script. Repeated runs are byte-identical. `SCALE` (default 2) sets the
 render scale.
+
+## Type checking
+
+Install LuaLS 3.19.1, then run `tools/typecheck.sh` from any directory. The script
+fetches Ketho's WoW annotations at `d0b5b51fac4c52c493371b9b18e66ce604ea4326`,
+verifies that checkout is clean, runs the Python checker tests and TOC-wide
+multi-value lint, and fails on any LuaLS diagnostic. CI downloads LuaLS with a
+pinned SHA-256. Editors use the same `.luarc.json` and `.types/` library.
+
+`types/Namespace.lua` describes the shared addon table and data shapes;
+`types/Client.lua` fills gaps in Ketho's FrameXML coverage using the Forever
+client source; `types/Integrations.lua` describes optional addon APIs. Runtime
+files annotate their parameters and custom frames. Generated files receive their
+namespace annotation from the generators. Tests and tools are outside the LuaLS
+workspace; every TOC-loaded Lua file is checked.
+
+`python3 tools/lint_multivalue.py [files...]` also runs alone. A final bare
+`select(...)` expands in a call, table constructor or return. Use `(select(...))`
+for one value, or a local. Intentional expansion needs a trailing line comment:
+`return select(2, ...) -- multi-value: forward the remaining results`.

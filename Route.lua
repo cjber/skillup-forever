@@ -468,11 +468,10 @@ local function RenderRoute(list, profession, route)
 	local function AddRanks(toSkill)
 		local rank = route.ranks[nextRank]
 		while rank and toSkill > rank.cap - 75 do
-			local level = rank.level > UnitLevel("player") and string.format("  (level %d)", rank.level) or ""
 			local shown = rank
 			list:Add({
 				icon = profession.icon,
-				text = "Train " .. rank.name .. level,
+				text = ns.RankText(rank),
 				color = NORMAL_FONT_COLOR,
 				values = { Money(rank.fee), tostring(rank.reqSkill) },
 				tooltip = function(tooltip)

@@ -5,7 +5,8 @@ local function equal(actual, expected, label)
 	assert(actual == expected, label .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
 end
 
--- One vendor in Elwynn Forest (uiMapID 1429) at 42.1, 65.9.
+-- One vendor in Elwynn Forest (uiMapID 1429) at 42.1, 65.9, which is 47.0, 80.0 on
+-- the Eastern Kingdoms continent map (1415).
 local calls
 local ns = {
 	SourceNPCs = { [1250] = { "Drake Lindgren", "A", 0, -9000, 100 } },
@@ -14,17 +15,40 @@ local ns = {
 		calls.printed = message
 	end,
 }
-local env = setmetatable({
-	C_Map = {
-		GetMapPosFromWorldPos = function()
-			return 1429, {
-				GetXY = function()
-					return 0.421, 0.659
-				end,
-			}
+local maps = {
+	[1415] = { mapID = 1415, name = "Eastern Kingdoms", mapType = 2, parentMapID = 947 },
+	[1429] = { mapID = 1429, name = "Elwynn Forest", mapType = 3, parentMapID = 1415 },
+	[1600] = { mapID = 1600, name = "Goldshire Inn", mapType = 5, parentMapID = 1429 },
+}
+---@type integer?
+local underPoint = 1429
+local positions = {
+	[1415] = { 0.47, 0.80 },
+	[1429] = { 0.421, 0.659 },
+}
+local function Position(x, y)
+	return {
+		GetXY = function()
+			return x, y
 		end,
-		GetMapInfo = function()
-			return { name = "Elwynn Forest" }
+	}
+end
+local env = setmetatable({
+	Enum = { UIMapType = { Continent = 2, Zone = 3, Dungeon = 4, Micro = 5 } },
+	C_Map = {
+		GetMapPosFromWorldPos = function(_, _, override)
+			local map = override or 1415
+			local at = positions[map]
+			if at then
+				return map, Position(at[1], at[2])
+			end
+		end,
+		GetMapInfo = function(map)
+			return maps[map]
+		end,
+		GetMapInfoAtPosition = function(map, x, y)
+			calls.atPosition = { map = map, x = x, y = y }
+			return maps[underPoint]
 		end,
 		CanSetUserWaypointOnMap = function()
 			return true
@@ -105,6 +129,34 @@ calls = {}
 env.ShortestPathForever = { API = { version = 1 } }
 ns.SetWaypoint(1250)
 equal(calls.native and calls.native.map, 1429, "an API without Navigate falls back to the map waypoint")
+
+-- The client places the spawn on the continent map; the zone under that point names
+-- it and re-projects it, so the label and waypoint are the zone's, not the continent's.
+calls = {}
+local where = ns.NPCLocation(1250)
+equal(calls.atPosition.map, 1415, "the zone is looked up on the continent's map")
+equal(calls.atPosition.x, 0.47, "the zone is looked up at the continent x")
+equal(calls.atPosition.y, 0.80, "the zone is looked up at the continent y")
+equal(ns.LocationText(where), "Elwynn Forest  42, 66", "the NPC is named by zone and zone coordinates")
+equal(where.map, 1429, "the waypoint is on the zone's map")
+underPoint = 1600
+equal(
+	ns.LocationText(ns.NPCLocation(1250)),
+	"Elwynn Forest  42, 66",
+	"a micro map under the point walks up to its zone"
+)
+underPoint = nil
+where = ns.NPCLocation(1250)
+equal(ns.LocationText(where), "Eastern Kingdoms  47, 80", "with no zone under the point the continent stays")
+equal(where.map, 1415, "with no zone under the point the waypoint stays on the continent")
+underPoint = 1429
+positions[1429] = nil
+equal(
+	ns.LocationText(ns.NPCLocation(1250)),
+	"Eastern Kingdoms  47, 80",
+	"a zone that can't place the spawn keeps the continent"
+)
+positions[1429] = { 0.421, 0.659 }
 
 -- Nearest by travel: 1251 is nearer in a straight line, 1252 across the water but
 -- a quicker trip; both on the player's continent (0), 1253 of the other faction.

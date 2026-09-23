@@ -46,8 +46,23 @@ local function QuestFor(source)
 	end
 end
 
--- The NPC's zone and map position, resolved by the client from its world spawn so
--- overlapping zone rectangles can't mislabel it; a dungeon has only its name.
+-- The zone map under a point of a continent map: the client's deepest map there,
+-- walked up past any dungeon or micro map to its zone, else nil.
+---@param continent integer
+---@param x number
+---@param y number
+---@return UiMapDetails?
+local function ZoneAt(continent, x, y)
+	local info = C_Map.GetMapInfoAtPosition(continent, x, y)
+	while info and info.mapType > Enum.UIMapType.Zone and info.parentMapID ~= 0 do
+		info = C_Map.GetMapInfo(info.parentMapID)
+	end
+	return info and info.mapType == Enum.UIMapType.Zone and info or nil
+end
+
+-- The NPC's zone and zone map position, resolved by the client from its world spawn
+-- so overlapping zone rectangles can't mislabel it; the continent's map when no zone
+-- lies under it, and a dungeon has only its name.
 ---@param npcID integer
 ---@return SkillUpLocation
 function ns.NPCLocation(npcID)
@@ -57,10 +72,18 @@ function ns.NPCLocation(npcID)
 	if instance then
 		return { name = name, label = instance }
 	end
-	local uiMapID, position = C_Map.GetMapPosFromWorldPos(map, CreateVector2D(x, y))
+	local world = CreateVector2D(x, y)
+	local uiMapID, position = C_Map.GetMapPosFromWorldPos(map, world)
 	local info = uiMapID and C_Map.GetMapInfo(uiMapID)
 	if not (info and position) then
 		return { name = name, label = "unknown location" }
+	end
+	local zone = ZoneAt(uiMapID, position:GetXY()) -- multi-value: the continent x, y
+	if zone then
+		local zoneMapID, zonePosition = C_Map.GetMapPosFromWorldPos(map, world, zone.mapID)
+		if zoneMapID == zone.mapID and zonePosition then
+			uiMapID, position, info = zoneMapID, zonePosition, zone
+		end
 	end
 	local px, py = position:GetXY()
 	return { name = name, label = info.name, map = uiMapID, x = px, y = py }

@@ -232,7 +232,7 @@ def generate(ability_rows, skills, selected, names, baseline, outputs, effects):
                 )
             if not names.get(spell):
                 stats[sid]["missing spell name"] += 1
-        emitted[spell] = (rows[0][1], sorted({source for _, _, source in rows}), sorted(seen))
+        emitted[spell] = (rows[0][1], sorted({source for _, _, source in rows}))
 
     coverage = []
     for sid in sorted(selected):
@@ -273,7 +273,7 @@ def render(emitted, coverage, names):
     ]
     lines.extend("-- " + line for line in coverage)
     lines.extend(["---@type string, SkillUpNamespace", "local _, ns = ...", "ns.Thresholds = {"])
-    for spell, (thresholds, sources, _) in sorted(emitted.items()):
+    for spell, (thresholds, sources) in sorted(emitted.items()):
         name = " ".join(names.get(spell, "SpellName unavailable").split())
         values = ", ".join(map(str, thresholds))
         lines.append(f"\t[{spell}] = {{ {values} }}, -- {name}; orange: {', '.join(sources)}")

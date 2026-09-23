@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+# generic-api-key reads `local api = Auctionator.API.v1` in Shopping.lua as a
+# credential; it is the Auctionator addon's public API table.
+[[allowlists]]
+targetRules = ["generic-api-key"]
+regexTarget = "line"
+regexes = ['''=\s*Auctionator\.API\.v1\b''']

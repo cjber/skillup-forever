@@ -13,5 +13,6 @@ ignore:
   - media/icon-400.png
   - PLAN.md
   - .luacheckrc
+  - .gitleaks.toml
   - .luarc.json
   - stylua.toml

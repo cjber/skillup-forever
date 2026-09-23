@@ -75,16 +75,16 @@ function ns.RouteSnapshot(profession, known)
 	return { skill = profession.skill, target = target + profession.modifier, recipes = recipes }
 end
 
--- Trainer-taught recipes of this profession not yet learned that could skill up
--- somewhere between here and the target, at what a trainer was seen to charge or
--- else the bundled base fee. Nothing is used before the trainer would teach it:
--- the thresholds' first value is where a recipe turns orange, not where it's taught.
 -- { fee, required base skill }: what a trainer was seen to charge, else the base fee.
 function ns.TrainingFor(profession, recipeID)
 	local seen = ns.db.trainer[profession.skillLine]
 	return seen and seen[recipeID] or ns.TrainerFees[recipeID]
 end
 
+-- Trainer-taught recipes of this profession not yet learned that could skill up
+-- somewhere between here and the target. Nothing is used before the trainer would
+-- teach it: the thresholds' first value is where a recipe turns orange, not where
+-- it's taught.
 local function Trainable(profession, snapshot)
 	local services = {}
 	for recipeID, recipe in pairs(ns.RecipeData) do

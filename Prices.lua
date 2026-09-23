@@ -313,6 +313,14 @@ end
 
 local FinishScanIfDone
 
+-- Any browse search but ours (the player's, or another addon's) replaces our results.
+local superseded, sending = false, false
+local function OnOtherSearch()
+	if not sending then
+		superseded = true
+	end
+end
+
 local function SendNextSearch()
 	if pending or #queue == 0 or not C_AuctionHouse.IsThrottledMessageSystemReady() then
 		return
@@ -325,7 +333,9 @@ local function SendNextSearch()
 		asked[itemID] = true
 		keys[#keys + 1] = C_AuctionHouse.MakeItemKey(itemID)
 	end
+	superseded, sending = false, true
 	C_AuctionHouse.SearchForItemKeys(keys, {})
+	sending = false
 	-- A search superseded by the player's own never answers: give up on it without
 	-- touching those prices, and carry on with the rest.
 	local sent = pending
@@ -338,9 +348,12 @@ local function SendNextSearch()
 	end)
 end
 
--- Results answer our search only if every item in them is one we asked for;
--- anything else is Blizzard's or the player's own search.
+-- Results answer our search only if no other search was sent since ours and every
+-- item in them is one we asked for. Empty results then mean nobody listed them.
 local function IsOurSearch()
+	if superseded then
+		return false
+	end
 	for _, result in ipairs(C_AuctionHouse.GetBrowseResults()) do
 		if not asked[result.itemKey.itemID] then
 			return false
@@ -439,6 +452,9 @@ end)
 function ns.InitPrices()
 	Table(ns.db, "vendor")
 	Table(ns.db, "tracked")
+	for _, search in ipairs({ "SendBrowseQuery", "SearchForFavorites", "SearchForItemKeys" }) do
+		hooksecurefunc(C_AuctionHouse, search, OnOtherSearch)
+	end
 	for _, event in ipairs({
 		"TRADE_SKILL_DATA_SOURCE_CHANGED",
 		"TRADE_SKILL_LIST_UPDATE",

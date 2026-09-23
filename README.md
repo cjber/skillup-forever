@@ -80,9 +80,11 @@ ruff check tools && ruff format --check tools   # the Python generators
 python3 tools/gen_thresholds.py   # regenerate Data/Thresholds.lua (see tools/README.md)
 python3 tools/gen_vendor.py       # regenerate Data/Vendor.lua
 python3 tools/gen_recipes.py      # regenerate Data/Recipes.lua
+python3 tools/gen_trainer.py      # regenerate Data/Trainer.lua
+python3 tools/gen_sources.py      # regenerate Data/Sources.lua
 ```
 
-CI runs the three checks on every push. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with the regenerated `Data/Thresholds.lua`, `Data/Vendor.lua` and `Data/Recipes.lua`.
+CI runs these checks on every push, plus actionlint and zizmor on the workflows and gitleaks over the history. Each day a scheduled job checks wago.tools for a newer Forever build and, if its recipe data differs, opens a pull request with every `Data/*.lua` file regenerated.
 
 **Releasing:** move the `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
 

@@ -33,4 +33,4 @@ read_globals = {
 
 files["Data/Thresholds.lua"] = { max_line_length = false }
 files["Data/Sources.lua"] = { max_line_length = false }
-files["tests/"] = { std = "+luajit", globals = { "arg" } }
+files["tests/"] = { std = "+luajit" }

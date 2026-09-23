@@ -43,6 +43,6 @@ jobs:
           title: "data: thresholds, recipes and prices for Forever ${{ steps.build.outputs.version }}"
           commit-message: "data: thresholds, recipes and prices for Forever ${{ steps.build.outputs.version }}"
           body: |
-            Regenerated `Data/Thresholds.lua`, `Data/Vendor.lua` and `Data/Recipes.lua` from the profession, reagent, output, price and spell-name DB2s of Forever build ${{ steps.build.outputs.version }}.
+            Regenerated `Data/Thresholds.lua`, `Data/Vendor.lua` and `Data/Recipes.lua` from the profession, reagent, output, price and spell-name DB2s of Forever build ${{ steps.build.outputs.version }}, and `Data/Trainer.lua` and `Data/Sources.lua` from CMaNGOS classic-db against that build.
 
             Before merging, run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.

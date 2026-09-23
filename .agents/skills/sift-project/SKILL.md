@@ -43,7 +43,7 @@ On-demand tools for audits. Output is candidates, never verdicts.
 | Concern | Command | Known false positives |
 |---|---|---|
 | Types (Lua) | `tools/typecheck.sh` | Zero-diagnostic gate; missing Forever FrameXML surfaces are typed in `types/Client.lua` |
-| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 4: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:109), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:94/96), untyped `json.load` result (latest_build.py:14) |
+| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 4: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:109), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:94/96), untyped `json.load` result (latest_build.py:14); baseline 6 since screenshots.py: unresolved `wowmock` (the wow-forever-addon skill library, put on `sys.path` at run time) and the `("divider",)` row tuple |
 | Dead code (Lua) | `luacheck . --no-color` (unused locals/values) + the live-root searches below | a function stored on `ns` is never "unused" to luacheck — search every file for `ns.<Name>` |
 | Dead code (Python) | `uvx vulture tools --min-confidence 60` | clean at baseline; generator functions are imported across files (`from gen_thresholds import …`) |
 | Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sift/runs/jscpd --ignore "Data/**,tools/.cache/**,.sift/**" .` | 4 Python clones: the `argparse` + download preamble repeated in each `tools/gen_*.py` |
@@ -64,6 +64,7 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 - `RegisterEvent("…")` + `OnEvent` dispatch on the event string — handlers are reached by event name.
 - Optional integrations (`## OptionalDeps: Auctionator, TomTom, Syndicator`) — code guarded by `if Auctionator` etc. is live only with that addon installed.
 - `tools/gen_*.py` public names imported by sibling generators; `tools/latest_build.py` and `tools/changelog.py` run from workflows.
+- `tools/screenshots.py` — run by hand (WFA-9) to rewrite `docs/screenshots/`; it ports Model/Core maths to Python, so check its ports against the Lua (`round_money` vs `Model.RoundMoney`) rather than treating it as its own source of truth.
 
 ## Zones
 

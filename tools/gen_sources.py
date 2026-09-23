@@ -8,7 +8,7 @@ import sys
 import urllib.error
 from collections import Counter, defaultdict
 
-from gen_recipes import put_unique, threshold_ids
+from gen_recipes import lua_string, put_unique, threshold_ids
 from gen_thresholds import BUILD, ROOT, db2
 from gen_trainer import (
     CLASSICDB_CACHE,
@@ -375,10 +375,6 @@ def generate(ids, tables, effect_rows, factions, maps, trainer_lines, items, loc
         "reagents": {item: rows for item, rows in reagents.items() if rows},
         "gathered": gathered(tables, locks, reagent_items()),
     }
-
-
-def lua_string(text):
-    return '"' + text.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
 def render(data):

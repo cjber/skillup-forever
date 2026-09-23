@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # refresh-data.yml dispatches this on its PR branch, which pull_request never sees.
+  workflow_dispatch:
 
 permissions:
   contents: read

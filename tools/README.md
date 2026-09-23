@@ -102,3 +102,22 @@ must use the same effective-skill coordinates (base plus modifier); the caller
 applies the trained cap. Shopping uses segment `crafts`, the ceiling of accumulated
 expected crafts, and subtracts owned items once. Unknown reagent arrays contribute
 no shopping rows, so only use priced route segments for a complete list.
+
+## Screenshots
+
+`docs/screenshots/window.png` and `tooltip.png` are mocks rendered from the
+client's own UI art, not in-game captures. Regenerate them from the repository
+root with:
+
+```sh
+python3 tools/screenshots.py
+```
+
+It needs Pillow and `wowmock.py` from the `wow-mock-screenshots` skill in the
+cjber/skills checkout, found at `~/.claude/skills/wow-mock-screenshots` by
+default; set `WOWMOCK` to another directory that holds it. Art and fonts come
+from wago.tools for the pinned Forever build and are cached under
+`~/.cache/wowmock/`. Every number drawn comes from `Data/*.lua` through a port
+of `Model.lua`; only the scene's state (skill, bags, auction prices) is chosen
+in the script. Repeated runs are byte-identical. `SCALE` (default 2) sets the
+render scale.

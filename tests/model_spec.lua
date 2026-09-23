@@ -150,6 +150,7 @@ equal(select(2, Model.CraftValue(30, 100, "auction")), "auction", "auction sourc
 equal(Model.CraftValue(30, 20, "auction"), 30, "vendor beats a cheap auction")
 equal(Model.CraftValue(0, nil, "auction"), nil, "worthless item")
 equal(Model.RoundMoney(80.4), 80, "copper stays copper")
+equal(Model.RoundMoney(0), 0, "free recipes stay free")
 equal(Model.RoundMoney(0.2), 1, "never rounds to nothing")
 equal(Model.RoundMoney(4549), 4500, "silver drops copper")
 equal(Model.RoundMoney(12345), 12300, "gold keeps silver")
@@ -348,6 +349,7 @@ do
 		CreateFrame = function()
 			return frame
 		end,
+		hooksecurefunc = function() end,
 		C_TradeSkillUI = {
 			GetRecipeSchematic = function(recipeID)
 				return live[recipeID]
@@ -403,7 +405,13 @@ do
 	live[10] = nil
 	onEvent(frame, "TRADE_SKILL_LIST_UPDATE")
 	equal(runtime.Reagents(10)[1].quantity, 2, "profession update invalidates live cache")
-	live[10] = { reagentSlotSchematics = { { reagentType = 1, quantityRequired = 4 } } }
+	live[10] = {
+		reagentSlotSchematics = {
+			{ reagentType = 1, quantityRequired = 4, reagents = { { itemID = 1 } } },
+			{ reagentType = 1, quantityRequired = 1 },
+		},
+	}
+	onEvent(frame, "TRADE_SKILL_LIST_UPDATE")
 	equal(runtime.Reagents(10)[1].quantity, 2, "incomplete live reagents use bundled fallback")
 	live[99] = { reagentSlotSchematics = { { reagentType = 1, quantityRequired = 1, reagents = { { itemID = 99 } } } } }
 	equal(runtime.Reagents(99)[1].itemID, 99, "previous recipe miss is not cached forever")

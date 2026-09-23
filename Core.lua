@@ -60,8 +60,8 @@ function ns.Print(msg)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99" .. ns.TITLE .. "|r " .. msg)
 end
 
--- Forever's SavedVariables often fail to load (forever-bugs#34), so defaults
--- are always the base and whatever did load is merged over them.
+-- Defaults are always the base and whatever loaded is merged over them, so a
+-- missing or older SavedVariables file still gives every key.
 local function LoadDB()
 	local loaded = type(SkillUpForeverDB) == "table" and SkillUpForeverDB or {}
 	-- Reagent tooltips were on or off before they had a compact mode.
@@ -359,10 +359,18 @@ function SkillUpForever_OnAddonCompartmentClick()
 	ns.OpenSettings()
 end
 
--- Blizzard_Professions may already be loaded (another addon opened it), in which
--- case the continuation runs at once — so register it only after our own files
--- and SavedVariables are in place.
-EventUtil.ContinueOnAddOnLoaded(addonName, function()
+-- Our own ADDON_LOADED, not EventUtil.ContinueOnAddOnLoaded: Forever reports an
+-- addon loaded while its files still run, so that continuation fires before the
+-- SavedVariables exist. Blizzard_Professions may already be loaded (another addon
+-- opened it), in which case its continuation runs at once — so register it only
+-- after our own files and SavedVariables are in place.
+local loader = CreateFrame("Frame")
+loader:RegisterEvent("ADDON_LOADED")
+loader:SetScript("OnEvent", function(_, _, name)
+	if name ~= addonName then
+		return
+	end
+	loader:UnregisterEvent("ADDON_LOADED")
 	-- /reload doesn't re-read the .toc, so files added by an update stay unloaded.
 	if not (ns.RecipeData and ns.ProfessionSkillLines and ns.TrainerFees and ns.TrainerRanks and ns.RecipeSources) then
 		ns.Print("|cffff4040files are missing: restart the game (not /reload) after updating.|r")

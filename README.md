@@ -39,8 +39,6 @@ Open a profession and the numbers are already there.
 
 Settings cover what rows and tooltips show, the auction house scan, sort order, the route tab, trainer annotations and reagent tooltips.
 
-> **Settings and prices reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working; prices are then relearned each session.
-
 ## Prices
 
 Cost per craft counts the recipe's required reagents. Each reagent uses the cheapest price the addon knows:

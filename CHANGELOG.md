@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Fixed** every setting, tracked profession and scanned price resetting each session: SkillUp now waits for its saved settings before reading them.
 - **Fixed** your own auction house search wiping scanned prices when it found nothing. Only SkillUp's own searches now mark an item as unlisted.
 - **Fixed** free recipes, made only from reagents you gather, showing a cost of 1c per skill-up.
 - **Fixed** an error on `/reload` right after an update, before the "restart the game" message could show.

@@ -268,6 +268,9 @@ end
 -- Rounds so a row stays short: whole gold from 100g (123g), else the two largest
 -- coins (1g 23s, 45s, 80c).
 function Model.RoundMoney(copper)
+	if copper == 0 then
+		return 0
+	end
 	local unit = copper >= 1000000 and 10000 or copper >= 100 and 100 or 1
 	return math.max(math.floor(copper / unit + 0.5), 1) * unit
 end

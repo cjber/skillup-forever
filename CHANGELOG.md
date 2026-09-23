@@ -11,6 +11,12 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Fixed** your own auction house search wiping scanned prices when it found nothing. Only SkillUp's own searches now mark an item as unlisted.
+- **Fixed** free recipes, made only from reagents you gather, showing a cost of 1c per skill-up.
+- **Fixed** an error on `/reload` right after an update, before the "restart the game" message could show.
+- **Trainer steps in the route** read the same as elsewhere, with one space before "(level N)".
+- **The sort setting's tooltip** now says that sorting puts every recipe in one list, and Default restores categories.
+
 ## [0.3.0] - 2026-09-21
 
 Where to go next, not just what each recipe costs: a route to your target, what to buy for it, and what to

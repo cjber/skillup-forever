@@ -1,4 +1,4 @@
-WoW: Forever runs Classic content in the modern Professions window. That window shows a recipe's colour, but not the skill it needs, when it turns yellow, green or grey, or how likely your next craft is to give a skill-up. SkillUp Forever adds that information to the existing window. It does not open a separate frame.
+Plan your profession levelling in WoW: Forever. SkillUp Forever adds skill-up chances, recipe costs and colour thresholds to the Professions window, with a levelling route and shopping list in a side panel.
 
 ![The Leatherworking window with skill-up chance and cost per skill-up on each row](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png)
 
@@ -6,13 +6,21 @@ WoW: Forever runs Classic content in the modern Professions window. That window 
 
 ## Features
 
-- **Recipe rows** show your chance of a skill-up and what each skill-up costs, coloured by difficulty: `62% · 45s` (in coin icons). The skill a recipe needs can be added in settings. A recipe you can't make yet shows only its requirement, in red.
-- **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar with your current skill marked, then each reagent's price and where it came from, what the craft sells for, and the cost per skill-up, when known.
-- **Sorting** by required skill, skill-up chance or cheapest skill-up, from a *Sort by* section in the recipe list's own Filter menu. The game's own filters, including *Only skill-ups*, still apply.
+- **Recipe rows and tooltips** show skill-up chance and cost, such as `62% · 45s`, plus orange, yellow, green and grey thresholds and a breakdown of reagent prices. Required skill is optional on rows.
+- **Sorting** by required skill, skill-up chance or cheapest skill-up puts recipes in one list, learned first. *Default* restores categories; the game's filters still apply.
+- **Levelling route** plans crafts towards your target skill, including worthwhile trainer recipes and rank training fees. Craft the next step from the panel. If the route stops short, see recipes from vendors, quests and drops that could extend it. Set waypoints to trainers and suppliers, with TomTom support.
+- **Shopping list** counts reagents against your bags and bank. Track it above your quests, buy missing supplies at a vendor, or send missing auction reagents to an Auctionator shopping list. Syndicator can show what your other characters hold.
+- **Profession trainer** shows skill-up chance and cost beside recipes and marks the best next training choice for your route, fee included.
+- **Reagent tooltips** show what tracked routes need. Hold Shift for every recipe of your professions that uses the item and still skills up, or choose that view in settings.
 
 ## Prices
 
-Each reagent uses the cheapest price the addon knows: about 50 common vendor supplies are priced from the start, vendors you visit update theirs, opening the auction house scans it for your reagents (at most hourly; `/su scan` forces it), and [Auctionator](https://www.curseforge.com/wow/addons/auctionator) fills anything not scanned. What the craft sells for comes off the cost (vendor price by default, auction price optional), and a skill-up that makes money shows a green `+`. A recipe with any unpriced reagent shows no cost rather than a misleadingly cheap one.
+- Common vendor supplies have bundled prices; visiting vendors records their prices, including reputation discounts.
+- Opening the auction house scans known reagents and crafted items at most hourly. Your own searches update prices too.
+- With [Auctionator](https://www.curseforge.com/wow/addons/auctionator), the fresher of its price and SkillUp's scan is used. Automatic scans skip items Auctionator priced today.
+- Reagents gathered by your professions count as free by default; turn this off in settings if you prefer.
+
+Otherwise, each reagent uses the cheaper known vendor or auction price. The craft's vendor sell value comes off its cost by default; optionally use its auction value when higher, after the 5% cut. Profit shows a green `+`. Unpriced recipes show no cost and are excluded from routes.
 
 ## Usage
 
@@ -22,12 +30,6 @@ Open a profession and the numbers are already there.
 - `/su` opens the settings (also in Settings > AddOns, or from the addon compartment on the minimap).
 - `/su audit`, with a profession open, compares the bundled thresholds with the colours the game shows and prints any mismatch.
 
-## How the numbers work
+Thresholds come from the Forever client's recipe data; missing data shows `?`. Found a wrong number? Include `/su audit` output in an issue on [GitHub](https://github.com/cjber/skillup-forever/issues).
 
-Skill-up chance follows the Classic formula: orange 100%, yellow and green `(grey - skill) / (grey - yellow)`, grey 0% (also 0% at your skill cap). The colour always comes from the game, so the addon never disagrees with the window. Thresholds are generated from the Forever client's own recipe data and refreshed when a new Forever build ships. A recipe with no data shows `?` rather than a guess.
-
-**Found a wrong number?** Run `/su audit` with that profession open and open an issue on [GitHub](https://github.com/cjber/skillup-forever/issues) with the output.
-
-*Settings reset on reload?* That is a known Forever beta bug, not this addon. It starts from sensible defaults and keeps working.
-
-Source code and issues: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever) (GPL-3.0).
+Source code: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever). Licence: GPL-3.0-or-later.

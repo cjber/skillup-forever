@@ -17,7 +17,7 @@ jobs:
           persist-credentials: false
       - run: sudo apt-get update && sudo apt-get install -y luajit lua-check
       - run: luacheck .
-      - run: luajit tests/model_spec.lua
+      - run: for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
       - run: pipx run ruff==0.16.8 check tools
       - run: pipx run ruff==0.16.8 format --check tools
       - uses: JohnnyMorganz/stylua-action@76fd70c03e6340ceaf673366712db9b20560b402 # v5.0.0

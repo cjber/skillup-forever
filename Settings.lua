@@ -110,7 +110,7 @@ function ns.RegisterSettings()
 			container:Add(option[1], option[2])
 		end
 		return container:GetData()
-	end, "Order of recipes within each category.")
+	end, "Sort recipes in one list, learned first, then unlearned. Default restores categories.")
 
 	Settings.RegisterAddOnCategory(category)
 end

@@ -14,5 +14,7 @@ ignore:
   - PLAN.md
   - .luacheckrc
   - .gitleaks.toml
+  - .agents
+  - .sift
   - .luarc.json
   - stylua.toml

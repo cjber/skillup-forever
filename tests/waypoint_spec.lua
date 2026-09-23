@@ -87,4 +87,59 @@ Run(nil)
 equal(calls.native and calls.native.x, 0.421, "without Shortest Path Forever the map waypoint is set")
 equal(calls.superTracked, true, "without Shortest Path Forever the waypoint is super-tracked")
 
+-- Nearest by travel: 1251 is nearer in a straight line, 1252 across the water but
+-- a quicker trip; both on the player's continent (0), 1253 of the other faction.
+ns.SourceNPCs[1251] = { "Near", "", 0, -9100, 100 }
+ns.SourceNPCs[1252] = { "Quick", "", 0, -9500, 100 }
+ns.SourceNPCs[1253] = { "Horde", "H", 0, -9050, 100 }
+local combat, estimated = false, 0
+env.UnitFactionGroup = function()
+	return "Alliance"
+end
+env.UnitPosition = function()
+	return -9050, 100, 0, 0
+end
+env.InCombatLockdown = function()
+	return combat
+end
+env.C_Map.GetBestMapForUnit = function()
+	return 1429
+end
+env.C_Map.GetPlayerMapPosition = function()
+	return {
+		GetXY = function()
+			return 0.5, 0.5
+		end,
+	}
+end
+env.C_Map.GetMapPosFromWorldPos = function(_, vector)
+	return 1429, {
+		GetXY = function()
+			return -vector.x / 10000, 0.5
+		end,
+	}
+end
+local seconds = { [0.91] = 300, [0.95] = 60 }
+env.ShortestPathForever = {
+	API = {
+		version = 1,
+		Estimate = function(_, _, _, _, toX)
+			estimated = estimated + 1
+			return seconds[toX], seconds[toX] == nil and "unreachable" or nil
+		end,
+	},
+}
+local npcs = { 1253, 1251, 1252 }
+equal(ns.NearestNPC(npcs, true), 1251, "without byTravel the straight-line nearest wins")
+equal(estimated, 0, "without byTravel nothing is estimated")
+equal(ns.NearestNPC(npcs, true, true), 1252, "byTravel prefers the quicker trip")
+equal(estimated, 2, "only this faction's vendors are estimated")
+seconds = {}
+equal(ns.NearestNPC(npcs, true, true), 1251, "no estimate keeps the straight-line nearest")
+combat, estimated = true, 0
+equal(ns.NearestNPC(npcs, true, true), 1251, "in combat the straight-line nearest wins")
+equal(estimated, 0, "nothing is estimated in combat")
+combat, env.ShortestPathForever = false, nil
+equal(ns.NearestNPC(npcs, true, true), 1251, "without Shortest Path Forever the straight-line nearest wins")
+
 print("waypoint_spec: " .. checks .. " checks passed")

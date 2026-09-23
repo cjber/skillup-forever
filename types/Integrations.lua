@@ -24,10 +24,11 @@ Syndicator = nil
 
 -- Shortest Path Forever's public API (version 1): uiMapID and 0-1 coordinates.
 -- Navigate returns false in combat, with journeys off, without a player position
--- or on bad input.
+-- or on bad input; Estimate's travel seconds are nil with the reason.
 ---@class SkillUpShortestPathAPI
 ---@field version integer
 ---@field Navigate? fun(owner: string, map: integer, x: number, y: number, title?: string): boolean
+---@field Estimate? fun(fromMap: integer, fromX: number, fromY: number, toMap: integer, toX: number, toY: number): seconds: number?, reason: ("combat"|"invalid"|"unreachable")?
 ---@type {API: SkillUpShortestPathAPI?}?
 ShortestPathForever = nil
 

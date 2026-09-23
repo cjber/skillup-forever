@@ -246,15 +246,17 @@ function ModuleMixin:OnBlockHeaderClick(block)
 				C_TradeSkillUI.CraftRecipe(craft.recipeID, craft.count)
 			end)
 		end
-		local trainer = block.steps[1] and ns.NearestTrainer(block.professionInfo, block.steps[1].cap)
+		-- The layout picked by straight line; a click ranks by travel time.
+		local cap = block.steps[1] and block.steps[1].cap
+		local trainer = cap and ns.NearestTrainer(block.professionInfo, cap)
 		if trainer then
 			root:CreateButton("Waypoint to a trainer", function()
-				ns.SetWaypoint(trainer)
+				ns.SetWaypoint(ns.NearestTrainer(block.professionInfo, cap, true) or trainer)
 			end)
 		end
 		for _, item in ipairs(block.vendorMissing) do
 			root:CreateButton("Waypoint to a vendor: " .. item.name, function()
-				ns.SetWaypoint(item.vendor)
+				ns.SetWaypoint(ns.NearestVendor(item.itemID, true) or item.vendor)
 			end)
 		end
 		if ns.HasAuctionator() then
@@ -323,7 +325,8 @@ function ModuleMixin:LayoutContents()
 				block:AddObjective(item.itemID, string.format("%d/%d %s%s", have, item.need, name, gather))
 				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
 				if vendor then
-					block.vendorMissing[#block.vendorMissing + 1] = { name = name, vendor = vendor }
+					block.vendorMissing[#block.vendorMissing + 1] =
+						{ name = name, itemID = item.itemID, vendor = vendor }
 				end
 			end
 		end

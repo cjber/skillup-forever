@@ -26,13 +26,14 @@ end
 
 -- Vendors of your faction, those that always have the scroll first.
 ---@param source SkillUpSource
+---@param byTravel boolean?
 ---@return integer?
-local function VendorFor(source)
+local function VendorFor(source, byTravel)
 	local unlimited, limited = {}, {}
 	for _, npcID in ipairs(source.vendors or {}) do
 		table.insert(Limited(source, npcID) and limited or unlimited, npcID)
 	end
-	return ns.NearestNPC(unlimited, true) or ns.NearestNPC(limited, true)
+	return ns.NearestNPC(unlimited, true, byTravel) or ns.NearestNPC(limited, true, byTravel)
 end
 
 ---@param source SkillUpSource
@@ -87,30 +88,65 @@ local function Distance(npcID)
 	return (px - x) ^ 2 + (py - y) ^ 2
 end
 
--- Of these NPCs, the nearest this character can deal with (vendors of the other
--- faction won't trade), else nil.
----@param npcIDs integer[]
----@param vendorsOnly boolean?
----@return integer?
-function ns.NearestNPC(npcIDs, vendorsOnly)
-	local best, bestDistance
-	for _, npcID in ipairs(npcIDs) do
-		if not vendorsOnly or Usable(npcID) then
-			local distance = Distance(npcID)
-			if not best or distance < bestDistance then
-				best, bestDistance = npcID, distance
-			end
-		end
-	end
-	return best
-end
-
 -- Shortest Path Forever's public API, version 1, when it is loaded; callers still
 -- check each function they use.
 ---@return SkillUpShortestPathAPI?
 local function ShortestPath()
 	local api = ShortestPathForever and ShortestPathForever.API
 	return api and api.version == 1 and api or nil
+end
+
+-- How many of the straight-line nearest get a travel estimate: a cold one costs
+-- Shortest Path Forever a few milliseconds.
+local MAX_ESTIMATES = 6
+
+---@return {map: integer, x: number, y: number}?
+local function PlayerMapPosition()
+	local map = C_Map.GetBestMapForUnit("player")
+	local position = map and C_Map.GetPlayerMapPosition(map, "player")
+	if not position then
+		return nil
+	end
+	local x, y = position:GetXY()
+	return { map = map, x = x, y = y }
+end
+
+-- Of these NPCs, the nearest this character can deal with (vendors of the other
+-- faction won't trade), else nil. With `byTravel` (a click or tooltip, never a
+-- redraw) and Shortest Path Forever loaded, the straight-line nearest few are
+-- ranked by its travel time instead, so a flight beats a walk around the coast.
+---@param npcIDs integer[]
+---@param vendorsOnly boolean?
+---@param byTravel boolean?
+---@return integer?
+function ns.NearestNPC(npcIDs, vendorsOnly, byTravel)
+	local candidates = {}
+	for index, npcID in ipairs(npcIDs) do
+		if not vendorsOnly or Usable(npcID) then
+			candidates[#candidates + 1] = { npcID = npcID, distance = Distance(npcID), index = index }
+		end
+	end
+	-- Ties (other continents are all infinitely far) keep the data's order.
+	table.sort(candidates, function(a, b)
+		if a.distance ~= b.distance then
+			return a.distance < b.distance
+		end
+		return a.index < b.index
+	end)
+	local best = candidates[1]
+	local api = byTravel and best and not InCombatLockdown() and ShortestPath()
+	local from = api and type(api.Estimate) == "function" and PlayerMapPosition()
+	if api and from then
+		local bestSeconds
+		for i = 1, math.min(#candidates, MAX_ESTIMATES) do
+			local where = ns.NPCLocation(candidates[i].npcID)
+			local seconds = where.map and api.Estimate(from.map, from.x, from.y, where.map, where.x, where.y)
+			if seconds and (not bestSeconds or seconds < bestSeconds) then
+				best, bestSeconds = candidates[i], seconds
+			end
+		end
+	end
+	return best and best.npcID
 end
 
 -- Shortest Path Forever's route when it takes one (it declines in combat, with its
@@ -161,6 +197,17 @@ local function Kind(source)
 	elseif source.world then
 		return 5
 	end
+end
+
+-- Where a suggestion's click goes: the nearest vendor by travel when one sells the
+-- scroll, else the likeliest drop.
+---@param suggestion SkillUpSuggestion
+---@return integer?
+function ns.SuggestionNPC(suggestion)
+	if suggestion.kind <= 2 then
+		return VendorFor(suggestion.source, true)
+	end
+	return suggestion.npcID
 end
 
 local KIND_TEXT = { "vendor", "limited vendor", "quest", "drop", "world drop" }
@@ -260,22 +307,24 @@ end
 -- The nearest trainer of this profession, of your faction, who teaches up to `cap`.
 ---@param profession SkillUpContext
 ---@param cap number
+---@param byTravel boolean?
 ---@return integer?
-function ns.NearestTrainer(profession, cap)
+function ns.NearestTrainer(profession, cap, byTravel)
 	local trainers = {}
 	for _, row in ipairs(ns.ProfessionTrainers[profession.skillLine] or {}) do
 		if row[2] >= cap then
 			trainers[#trainers + 1] = row[1]
 		end
 	end
-	return ns.NearestNPC(trainers, true)
+	return ns.NearestNPC(trainers, true, byTravel)
 end
 
 ---@param itemID integer
+---@param byTravel boolean?
 ---@return integer?
-function ns.NearestVendor(itemID)
+function ns.NearestVendor(itemID, byTravel)
 	local vendors = ns.ReagentVendors[itemID]
-	return vendors and ns.NearestNPC(vendors, true)
+	return vendors and ns.NearestNPC(vendors, true, byTravel)
 end
 
 -- "Nearest trainer  Name" over its zone and coordinates, and what a click does.

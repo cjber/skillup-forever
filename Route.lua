@@ -287,7 +287,7 @@ local function TrainTooltip(tooltip, profession, step)
 	RequiresLine(tooltip, profession, step.reqSkill)
 	AddLine(tooltip, "First used at", tostring(step.atSkill - profession.modifier))
 	AddBands(tooltip, profession, step.recipeID)
-	ns.AddNearest(tooltip, "Nearest trainer", ns.NearestTrainer(profession, step.reqSkill + 1))
+	ns.AddNearest(tooltip, "Nearest trainer", ns.NearestTrainer(profession, step.reqSkill + 1, true))
 end
 
 ---@param tooltip GameTooltip
@@ -302,7 +302,7 @@ local function RankTooltip(tooltip, profession, rank)
 		local color = UnitLevel("player") < rank.level and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
 		AddLine(tooltip, "Requires", string.format("level %d", rank.level), color)
 	end
-	ns.AddNearest(tooltip, "Nearest trainer", ns.NearestTrainer(profession, rank.cap))
+	ns.AddNearest(tooltip, "Nearest trainer", ns.NearestTrainer(profession, rank.cap, true))
 end
 
 -- A waypoint to the nearest trainer teaching up to `cap`.
@@ -311,7 +311,7 @@ end
 ---@return fun()
 local function TrainerClick(profession, cap)
 	return function()
-		local npcID = ns.NearestTrainer(profession, cap)
+		local npcID = ns.NearestTrainer(profession, cap, true)
 		if npcID then
 			ns.SetWaypoint(npcID)
 		end
@@ -346,8 +346,9 @@ local function SuggestionTooltip(tooltip, profession, suggestion)
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	ns.AddSourceLines(tooltip, suggestion.source)
-	if suggestion.npcID then
-		GameTooltip_AddInstructionLine(tooltip, "Click for a waypoint to " .. ns.SourceNPCs[suggestion.npcID][1] .. ".")
+	local npcID = ns.SuggestionNPC(suggestion)
+	if npcID then
+		GameTooltip_AddInstructionLine(tooltip, "Click for a waypoint to " .. ns.SourceNPCs[npcID][1] .. ".")
 	end
 	GameTooltip_AddInstructionLine(tooltip, "Shift-click to link the scroll.")
 end
@@ -361,8 +362,11 @@ local function SuggestionClick(suggestion)
 			if link then
 				ChatEdit_InsertLink(link)
 			end
-		elseif suggestion.npcID then
-			ns.SetWaypoint(suggestion.npcID)
+		else
+			local npcID = ns.SuggestionNPC(suggestion)
+			if npcID then
+				ns.SetWaypoint(npcID)
+			end
 		end
 	end
 end
@@ -513,7 +517,7 @@ local function ReagentTooltip(tooltip, item)
 		AddLine(tooltip, "To buy", Money(price.copper * (item.need - have)))
 	end
 	if item.source == "vendor" then
-		ns.AddNearest(tooltip, "Nearest vendor", ns.NearestVendor(item.itemID))
+		ns.AddNearest(tooltip, "Nearest vendor", ns.NearestVendor(item.itemID, true))
 	end
 end
 
@@ -578,10 +582,12 @@ local function RenderReagents(list, reagents)
 			end,
 			click = function()
 				local _, link = C_Item.GetItemInfo(item.itemID)
-				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
 				if link and IsModifiedClick() then
 					HandleModifiedItemClick(link)
-				elseif vendor then
+					return
+				end
+				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID, true)
+				if vendor then
 					ns.SetWaypoint(vendor)
 				end
 			end,

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Generate where each recipe's scroll comes from, for the pinned Forever client (stdlib only)."""
+"""Generate recipe scroll sources, trainers, reagent vendors, gathered reagents, NPCs, quests and instance
+names for the pinned Forever client (stdlib only)."""
 
 import argparse
 import gzip

@@ -219,8 +219,8 @@ end
 
 local BAND_NAMES = { "orange", "yellow", "green", "grey" }
 
--- "Colour from  120  132  145", each number in its band's colour, starting where
--- the recipe can be learned: the data's first threshold can sit far below that.
+-- "orange yellow green    120  132  145": each band's name and where it starts, in its
+-- colour, from where the recipe can be learned: the data's first threshold can sit far below that.
 ---@param tooltip GameTooltip
 ---@param profession SkillUpProfession
 ---@param recipeID integer
@@ -617,14 +617,6 @@ local function PriceAge(reagents)
 	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 
--- How many times the bags' reagents make this recipe.
----@param recipeID integer
----@return number
-local function Craftable(recipeID)
-	-- RecipeInfo has no count; this includes the client's reagent and resource rules.
-	return C_TradeSkillUI.GetCraftableCount(recipeID)
-end
-
 -- The route's first step, as many times as it needs and the bags allow, with
 -- its label; or why it can't be crafted. The profession must be the open one.
 ---@param profession SkillUpProfession
@@ -644,7 +636,8 @@ function ns.NextCraft(profession, route)
 	elseif not ns.IsLearned(segment.recipeID) then
 		return { text = "Craft next", reason = string.format("Train %s first.", RecipeName(segment.recipeID)) }
 	end
-	local count = math.min(segment.crafts, Craftable(segment.recipeID))
+	-- RecipeInfo has no count; this one includes the client's reagent and resource rules.
+	local count = math.min(segment.crafts, C_TradeSkillUI.GetCraftableCount(segment.recipeID))
 	local craft = { text = string.format("Craft %d× %s", math.max(count, 1), RecipeName(segment.recipeID)) }
 	if count > 0 then
 		craft.recipeID, craft.count = segment.recipeID, count

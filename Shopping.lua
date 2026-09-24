@@ -406,7 +406,7 @@ local function CreateModule()
 	end)
 	Attach()
 	C_Timer.After(5, function()
-		if not ObjectiveTrackerManager:GetContainerForModule(module) then
+		if not ns.TrackerAttached() then
 			ns.Print("couldn't add tracked reagents to the objective tracker; please report it.")
 		end
 	end)

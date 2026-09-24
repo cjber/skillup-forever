@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate bundled profession trainer fees for the pinned Forever client (stdlib only)."""
+"""Generate bundled profession trainer fees and rank training for the pinned Forever client (stdlib only)."""
 
 import argparse
 import csv

@@ -9,9 +9,11 @@ local onEvent
 local results, timers, searches = {}, {}, {}
 local full, requestedMore = true, 0
 local now = 100
+local auctionatorDays = 1
 local old = { copper = 200, time = 1 }
 local auctions = { [1] = { copper = 100, time = 1 }, [2] = old }
 local ns = {
+	VendorPrices = {},
 	db = { tracked = { [1] = true, [2] = true }, auctions = { ["Realm-Faction"] = auctions } },
 	InvalidatePlans = function() end,
 	RefreshRecipeList = function() end,
@@ -38,6 +40,18 @@ local env = setmetatable({
 	time = function()
 		return now
 	end,
+	Auctionator = {
+		API = {
+			v1 = {
+				GetAuctionPriceByItemID = function(_, itemID)
+					return itemID == 1 and 500 or nil
+				end,
+				GetAuctionAgeByItemID = function()
+					return auctionatorDays
+				end,
+			},
+		},
+	},
 	hooksecurefunc = function(tbl, name, hook)
 		local original = tbl[name]
 		tbl[name] = function(...)
@@ -115,5 +129,16 @@ ns.ScanAuctions(true)
 onEvent(frame, "AUCTION_HOUSE_BROWSE_RESULTS_UPDATED")
 equal(auctions[1].copper, nil, "our own empty search clears a listed-no-more price")
 equal(auctions[1].time, now, "our own empty search stamps the scan")
+equal(ns.Price(1), nil, "our empty search overrides an older Auctionator price")
+auctionatorDays = nil
+ns.PricesChanged()
+equal(ns.Price(1), nil, "our empty search overrides an Auctionator price too old to date")
+auctionatorDays = 0
+ns.PricesChanged()
+equal(ns.Price(1), nil, "an equally fresh Auctionator price does not override our empty search")
+now = now + 1
+ns.PricesChanged()
+equal(ns.Price(1).copper, 500, "a fresher Auctionator price overrides our empty search")
+equal(ns.Price(1).source, "auctionator", "a fresher Auctionator price retains its source")
 
 print("prices_spec: " .. checks .. " checks passed")

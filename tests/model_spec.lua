@@ -385,6 +385,11 @@ do
 	equal(runtime.PriceSource(3), "scan", "price source scan")
 	equal(runtime.PriceSource(4), "auctionator", "price source auctionator")
 	equal(runtime.PriceSource(99), nil, "price source missing")
+	live[98] = { reagentSlotSchematics = {} }
+	equal(runtime.Reagents(98), nil, "empty live schematic without bundled data has unknown reagents")
+	equal(runtime.RecipeCost(98), nil, "empty live schematic without bundled data is not free")
+	live[97] = { reagentSlotSchematics = { { reagentType = 2, quantityRequired = 1, reagents = { { itemID = 1 } } } } }
+	equal(runtime.RecipeCost(97), nil, "optional-only live schematic without bundled data is not free")
 	equal(runtime.RecipeCost(99), nil, "unknown recipe remains unknown")
 	equal(runtime.NetCost(99), nil, "unknown recipe has no net cost")
 	equal(runtime.CraftValue(10).copper, 30, "bundled sell fallback includes output quantity")
@@ -405,6 +410,10 @@ do
 	live[10] = nil
 	onEvent(frame, "TRADE_SKILL_LIST_UPDATE")
 	equal(runtime.Reagents(10)[1].quantity, 2, "profession update invalidates live cache")
+	live[10] = { reagentSlotSchematics = {} }
+	onEvent(frame, "TRADE_SKILL_LIST_UPDATE")
+	equal(runtime.Reagents(10), runtime.RecipeData[10].reagents, "empty live schematic uses bundled reagents")
+	equal(runtime.RecipeCost(10), 10, "empty live schematic preserves bundled cost")
 	live[10] = {
 		reagentSlotSchematics = {
 			{ reagentType = 1, quantityRequired = 4, reagents = { { itemID = 1 } } },

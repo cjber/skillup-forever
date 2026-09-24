@@ -11,7 +11,7 @@ tools/typecheck.sh
 for s in tests/*_spec.lua; do luajit "$s" || exit 1; done
 ```
 
-The generator pins Forever `1.60.1.69913` and a Skillet-Classic commit, caches
+The generator pins a Forever build (`BUILD`) and a Skillet-Classic commit, caches
 downloads in `tools/.cache/`, and writes sorted `Data/Thresholds.lua`. Use
 `--refresh` to download again or `--offline` to require cached sources. The header
 date identifies the selected source snapshot, so repeated runs are byte-identical.

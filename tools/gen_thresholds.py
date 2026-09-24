@@ -31,7 +31,7 @@ REQUIRED_SKILLS = {
     333: "Enchanting",
 }
 # Fishing is category 9 with CanLink=0; unlike racials/riding, it is a profession.
-SECONDARY_SKILLS = {129, 185, 356}
+SECONDARY_SKILLS = {356}
 THRESHOLD_STRING = re.compile(r"[\"'](\d+)/(\d+)/(\d+)/(\d+)[\"']")
 ENTRY = re.compile(r"\[(-?\d+)\]\s*=\s*(.+),\s*$")
 NESTED_ENTRY = re.compile(r"\[(\d+)\]\s*=\s*([\"']\d+/\d+/\d+/\d+[\"'])\s*,?\s*")

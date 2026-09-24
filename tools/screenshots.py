@@ -114,7 +114,7 @@ def model_chance(t, skill):
 
 
 def model_recipe_cost(reagents, price):
-    if not reagents:
+    if reagents is None:
         return None
     total = 0
     for reagent in reagents:
@@ -142,6 +142,8 @@ def model_craft_value(sell, auction, mode):
 
 
 def round_money(copper):
+    if copper == 0:
+        return 0
     unit = 10000 if copper >= 1000000 else 100 if copper >= 100 else 1
     return max(math.floor(copper / unit + 0.5), 1) * unit
 

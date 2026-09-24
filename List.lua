@@ -102,7 +102,6 @@ function ns.CreateList(parent, columns)
 		return row
 	end
 
-	-- entry: text, color, icon, values (per column), valueColor, tooltip(tooltip), click().
 	---@param entry SkillUpListEntry
 	function list:Add(entry)
 		self.count = self.count + 1

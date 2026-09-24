@@ -315,11 +315,12 @@ def check(source: str) -> list[tuple[int, str]]:
 
 def runtime_files(root: Path) -> list[Path]:
     # The TOC is the runtime contract, including generated data and future subfolders.
+    # Its XML files hold templates, not Lua.
     files = set()
     for toc in root.glob("*.toc"):
         for line in toc.read_text().splitlines():
             line = line.strip()
-            if line and not line.startswith("#"):
+            if line and not line.startswith("#") and line.endswith(".lua"):
                 files.add(root / line.replace("\\", "/"))
     if not files:
         raise ValueError("No runtime files found in the TOC")

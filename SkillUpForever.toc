@@ -9,7 +9,7 @@
 ## X-Curse-Project-ID: 1705762
 ## X-Wago-ID: aNerqn62
 ## SavedVariables: SkillUpForeverDB
-## OptionalDeps: Auctionator, TomTom, Syndicator
+## OptionalDeps: Auctionator, TomTom, Syndicator, ShortestPathForever
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
 
@@ -27,5 +27,6 @@ RecipeList.lua
 Sources.lua
 List.lua
 Route.lua
+Shopping.xml
 Shopping.lua
 Trainer.lua

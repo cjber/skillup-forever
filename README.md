@@ -73,7 +73,7 @@ All optional: Auctionator supplies prices and takes the shopping list (see [Pric
 
 ## Development
 
-Link the checkout into the game (`ln -s "$PWD" ".../_classic_beta_/Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands); [tools/README.md](tools/README.md) lists the data generators. The type gate needs Git and Python 3.10+ and fetches pinned WoW API annotations into ignored `.types/`. CI runs the same gate plus actionlint, zizmor and gitleaks; a daily job opens a pull request when a newer Forever build changes the recipe data.
+Link the checkout into the game (`ln -s "$PWD" ".../_classic_beta_/Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands); [tools/README.md](tools/README.md) lists the data generators. The type gate needs Git and Python 3.10+ and fetches pinned WoW API annotations into ignored `.types/`. CI runs the same gate plus actionlint, zizmor, gitleaks and sift; a daily job opens a pull request when a newer Forever build changes the recipe data.
 
 **Releasing:** move the `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
 

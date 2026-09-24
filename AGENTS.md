@@ -14,7 +14,8 @@ for s in tests/*_spec.lua; do luajit "$s" || exit 1; done
 python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check
 ```
 
-The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and history.
+The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and history, and sift's
+structural and `AGENTS.md` checks.
 
 ## Layout
 

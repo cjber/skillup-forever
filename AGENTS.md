@@ -41,7 +41,7 @@ The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and
 - A recipe colour always comes from the game; bundled thresholds only fill in what it does not show.
   Missing data renders `?`, never a guess.
 - Store copy, README and posts pitch the addon as looking like it came with the game, in cjber's
-  own voice, never AI marketing: `wow-forever-addon` WFA-18/19, checked before every store paste.
+  own voice, never AI marketing: `wow-forever-addon` WFA-23/24, checked before every store paste.
 
 ## Standards
 

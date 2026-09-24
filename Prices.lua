@@ -124,7 +124,7 @@ local function AuctionPrice(itemID)
 		return ours
 	end
 	-- Auctionator counts whole days, and stops counting after three weeks.
-	if ours and (days == nil or time() - ours.time < days * DAY) then
+	if entry and (days == nil or time() - entry.time <= days * DAY) then
 		return ours
 	end
 	return { copper = copper, source = "auctionator", days = days }
@@ -224,9 +224,9 @@ local function Recipe(recipeID)
 			end
 		end
 		-- An empty live schematic is what a recipe outside the open profession can
-		-- look like; bundled reagents beat pricing it as free.
+		-- look like: use the bundled reagents, or leave the cost unknown, never free.
 		local bundled = ns.RecipeData and ns.RecipeData[recipeID]
-		if not recipe or (#recipe.reagents == 0 and bundled) then
+		if not recipe or #recipe.reagents == 0 then
 			recipe = bundled or false
 		end
 		recipes[recipeID] = recipe

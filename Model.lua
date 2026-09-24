@@ -303,8 +303,8 @@ function Model.CraftValue(sell, auction, mode)
 	return vendor, vendor and "vendor" or nil
 end
 
--- Rounds so a row stays short: whole gold from 100g (123g), else the two largest
--- coins (1g 23s, 45s, 80c).
+-- Rounds so a row stays short: whole gold from 100g (123g), else whole silver from
+-- 1s (1g 23s, 45s), else copper (80c).
 ---@param copper number
 ---@return number
 function Model.RoundMoney(copper)

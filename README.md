@@ -8,7 +8,7 @@ Classic profession-levelling numbers inside WoW: Forever's Professions window.<b
 <a href="https://github.com/cjber/skillup-forever/releases/latest"><img src="https://img.shields.io/github/v/release/cjber/skillup-forever" alt="Latest release"></a>
 </p>
 
-WoW: Forever's modern Professions window shows a recipe's colour, but not when it turns yellow, green or grey, or how likely your next craft is to give a skill-up. This addon adds those numbers to the window, plus a levelling route beside it, the same numbers at the trainer, and recipe uses on reagent tooltips.
+WoW: Forever's modern Professions window shows a recipe's colour, but not when it turns yellow, green or grey, or how likely your next craft is to give a skill-up. This addon adds those numbers to the window, plus a levelling route beside it, the same numbers at the trainer, and recipe uses on reagent tooltips. The numbers sit in the window's own rows and tooltips, so it looks like it came with the game.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png" width="640" alt="The Leatherworking window with skill-up chance and cost per skill-up on each recipe row, and a tooltip showing reagent prices and cost per skill-up"></p>
 

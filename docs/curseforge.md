@@ -1,8 +1,12 @@
-Plan your profession levelling in WoW: Forever. SkillUp Forever adds skill-up chances, recipe costs and colour thresholds to the Professions window, with a levelling route and shopping list in a side panel.
+SkillUp Forever puts skill-up chances, recipe costs and colour thresholds straight into the Professions window's own rows and tooltips, with a levelling route and shopping list in a side panel. Nothing new to learn: open a profession and it looks like it came with the game, just with the numbers you'd otherwise look up.
 
 ![The Leatherworking window with skill-up chance and cost per skill-up on each row](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png)
 
+Chance and cost per skill-up, right in the Professions window's own rows.
+
 ![Recipe tooltip with thresholds, reagent prices and cost per skill-up](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tooltip.png)
+
+Hover a recipe for its colour thresholds and what each reagent costs.
 
 ## Features
 
@@ -31,5 +35,7 @@ Open a profession and the numbers are already there.
 - `/su audit`, with a profession open, compares the bundled thresholds with the colours the game shows and prints any mismatch.
 
 Thresholds come from the Forever client's recipe data; missing data shows `?`. Found a wrong number? Include `/su audit` output in an issue on [GitHub](https://github.com/cjber/skillup-forever/issues).
+
+Prices are only as good as what you've seen, so a recipe with an unpriced reagent shows no cost until you've visited a vendor or the auction house.
 
 Source code: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever). Licence: GPL-3.0-or-later.

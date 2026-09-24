@@ -11,6 +11,7 @@ ruff format --check tools && ruff check tools
 luacheck .
 tools/typecheck.sh
 for s in tests/*_spec.lua; do luajit "$s" || exit 1; done
+python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check
 ```
 
 The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and history.
@@ -40,8 +41,10 @@ The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and
   work.
 - A recipe colour always comes from the game; bundled thresholds only fill in what it does not show.
   Missing data renders `?`, never a guess.
+- Store copy, README and posts pitch the addon as looking like it came with the game, in cjber's
+  own voice, never AI marketing: `wow-forever-addon` WFA-23/24, checked before every store paste.
 
 ## Standards
 
-- `wow-forever-addon` — https://github.com/cjber/skills/tree/main/wow-forever-addon (UI look,
+- `wow-forever-addon` — https://github.com/cjber/skills/tree/c587d4c74fcc27c97f73f2f7cb3d70cccebeb34e/wow-forever-addon (UI look,
   icon, README and store page, CI and release requirements shared by every WoW: Forever addon)

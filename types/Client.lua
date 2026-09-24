@@ -247,15 +247,20 @@ function Settings.RegisterVerticalLayoutCategory(name) end
 ---@param default SkillUpSettingValue
 ---@return SkillUpSetting
 function Settings.RegisterAddOnSetting(category, variable, key, db, varType, name, default) end
----@param category SkillUpCategory
+---@class SkillUpSettingInitializer
 ---@param setting SkillUpSetting
+---@param options nil
 ---@param tooltip string
-function Settings.CreateCheckbox(category, setting, tooltip) end
----@param category SkillUpCategory
+---@return SkillUpSettingInitializer
+function Settings.CreateCheckboxInitializer(setting, options, tooltip) end
 ---@param setting SkillUpSetting
 ---@param options fun(): {value: SkillUpSettingValue, text: string}[]
 ---@param tooltip string
-function Settings.CreateDropdown(category, setting, options, tooltip) end
+---@return SkillUpSettingInitializer
+function Settings.CreateDropdownInitializer(setting, options, tooltip) end
+---@param category SkillUpCategory
+---@param initializer SkillUpSettingInitializer
+function Settings.RegisterInitializer(category, initializer) end
 ---@return SkillUpSettingOptions
 function Settings.CreateControlTextContainer() end
 ---@param category SkillUpCategory

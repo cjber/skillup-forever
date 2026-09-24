@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+-- Every row goes in through Settings.RegisterInitializer, which inserts it from Blizzard's secure delegate.
+-- Settings.CreateCheckbox/CreateDropdown insert from our code instead, and the settings search reads every
+-- layout, so that tainted it: a restricted button in the results (Social's Discord Sign In) was then blocked
+-- and blamed on us.
 local category
 
 local function Register(key, varType, name)
@@ -16,18 +20,25 @@ local function Register(key, varType, name)
 end
 
 local function Checkbox(key, name, tooltip)
-	Settings.CreateCheckbox(category, Register(key, Settings.VarType.Boolean, name), tooltip)
+	Settings.RegisterInitializer(
+		category,
+		Settings.CreateCheckboxInitializer(Register(key, Settings.VarType.Boolean, name), nil, tooltip)
+	)
 end
 
 -- options: { value, label } pairs, in menu order.
 local function Dropdown(key, name, options, tooltip)
-	Settings.CreateDropdown(category, Register(key, Settings.VarType.String, name), function()
-		local container = Settings.CreateControlTextContainer()
-		for _, option in ipairs(options) do
-			container:Add(option[1], option[2])
-		end
-		return container:GetData()
-	end, tooltip)
+	local setting = Register(key, Settings.VarType.String, name)
+	Settings.RegisterInitializer(
+		category,
+		Settings.CreateDropdownInitializer(setting, function()
+			local container = Settings.CreateControlTextContainer()
+			for _, option in ipairs(options) do
+				container:Add(option[1], option[2])
+			end
+			return container:GetData()
+		end, tooltip)
+	)
 end
 
 function ns.RegisterSettings()

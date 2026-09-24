@@ -27,6 +27,7 @@ Run in order from the repository root. All must pass before and after any audit 
 | Tests | `for s in tests/*_spec.lua; do luajit "$s" \|\| exit 1; done` | each prints `<name>_spec: N checks passed`, exit 0 |
 | Workflows | `uvx --from actionlint-py==1.7.12.25 actionlint && uvx zizmor@1.30.1 --offline .github` | exit 0 |
 | Secrets | `gitleaks git --redact --no-banner .` | `no leaks found` |
+| Project rules | `python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check` | exit 0 |
 
 CI (`.github/workflows/ci.yml`) runs all of these. LuaLS checks all TOC files against
 pinned WoW API annotations plus `types/`; there is no ast-grep rule set.

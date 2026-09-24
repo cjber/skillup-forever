@@ -2,7 +2,7 @@
 -- Source: CMaNGOS classic-db 22b51464f1625f6ef6275771de1f5466c6f5d19e (GPL-3.0): item_template, npc_vendor(_template),
 -- creature(_template), creature/reference_loot_template, quest_template. Scroll -> recipe via
 -- wago.tools SpellEffect (LEARN_SPELL), wow_classic_era 1.15.9.69722; factions and instance names
--- from wago.tools FactionTemplate and Map, wow_classic_beta 1.60.1.69913.
+-- from wago.tools FactionTemplate and Map, wow_classic_beta 1.60.1.69977.
 -- Trainers: npc_trainer rows whose rank spell (SpellEffect SKILL) sets the new cap. Gathering:
 -- herb/mining node loot (gameobject_template lock -> wago.tools Lock) and skinning_loot_template.
 -- recipes=709, npcs=849.

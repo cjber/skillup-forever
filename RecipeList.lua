@@ -140,7 +140,7 @@ local function ApplySort(scrollBox)
 	end
 	local ok, sorted = pcall(BuildSorted, source, key)
 	if not ok then
-		ns.db.sortMode = "blizzard"
+		ns.SetSortMode("blizzard")
 		ns.Print("sorting failed and has been turned off: " .. tostring(sorted))
 		return
 	end

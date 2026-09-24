@@ -2,7 +2,11 @@ SkillUp Forever puts skill-up chances, recipe costs and colour thresholds straig
 
 ![The Leatherworking window with skill-up chance and cost per skill-up on each row](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png)
 
+Chance and cost per skill-up, right in the Professions window's own rows.
+
 ![Recipe tooltip with thresholds, reagent prices and cost per skill-up](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tooltip.png)
+
+Hover a recipe for its colour thresholds and what each reagent costs.
 
 ## Features
 

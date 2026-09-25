@@ -8,8 +8,6 @@ SlashCmdList = {}
 ---@type MessageFrame
 DEFAULT_CHAT_FRAME = nil
 ---@type Frame
-AuctionHouseFrame = nil
----@type Frame
 MerchantFrame = nil
 ---@type table<string, number>
 SOUNDKIT = {}

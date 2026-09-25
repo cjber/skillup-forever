@@ -41,6 +41,8 @@ for _, complete in ipairs({ false, true }) do
 			end,
 		},
 	}, { __index = _G })
+	-- A save from before auction prices moved to Auctionator.
+	env.SkillUpForeverDB = { scanAuctions = true, tracked = { [1] = true }, auctions = {}, vendor = { [1] = 5 } }
 	setfenv(assert(loadfile("Core.lua")), env)("SkillUpForever", ns)
 	callbacks.SkillUpForever()
 	if complete then
@@ -50,6 +52,10 @@ for _, complete in ipairs({ false, true }) do
 		equal(callbacks.Blizzard_TrainerUI, ns.AttachTrainer, "trainer UI registered")
 		equal(ns.ProfessionSkillLine("Alchemy", 999), 171, "bundled name maps to skill line")
 		equal(ns.ProfessionSkillLine("Alchimie", 171), 171, "known reported skill line remains usable")
+		equal(ns.db.auctions, nil, "the old auction scan table is dropped")
+		equal(ns.db.tracked, nil, "the old scan list is dropped")
+		equal(ns.db.scanAuctions, nil, "the old scan setting is dropped")
+		equal(ns.db.vendor[1], 5, "vendor prices are kept")
 	else
 		equal(#messages, 1, "missing files produce one warning")
 		equal(messages[1]:find("restart the game", 1, true) ~= nil, true, "warning asks for restart")

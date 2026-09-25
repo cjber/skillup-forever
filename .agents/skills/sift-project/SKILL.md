@@ -65,8 +65,7 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 - `SLASH_SKILLUPFOREVER1/2` + `SlashCmdList.SKILLUPFOREVER` — `/su` commands.
 - `hooksecurefunc("ClassTrainerFrame_InitServiceButton" | "ClassTrainerFrame_Update", …)`, `hooksecurefunc(ProfessionsFrame, "RefreshRightTabs" | "RightTabSelected")`, `hooksecurefunc(ObjectiveTrackerManager, "AddContainer")`, `hooksecurefunc(recipeList.ScrollBox, "SetDataProvider")` — Blizzard functions hooked by string name.
 - `EventRegistry:RegisterCallback("Professions.RecipeListOnEnter")`, `Menu.ModifyMenu("MENU_PROFESSIONS_FILTER")`, `TooltipDataProcessor.AddTooltipPostCall` — host callbacks.
-- `hooksecurefunc(C_AuctionHouse, search, OnOtherSearch)` over a list of method names (Prices.lua `ns.InitPrices`) and `ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)` (RecipeList.lua) — hooks the plain live-root search misses.
-- `ns.LearnReagents` — reached only through `hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ns.LearnReagents)`; function values passed to hooks count as references.
+- `ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)` (RecipeList.lua) and `Auctionator.API.v1.RegisterForDBUpdate(addonName, PricesChanged)` (Prices.lua `ns.InitPrices`) — callbacks the plain live-root search misses.
 - `RegisterEvent("…")` + `OnEvent` dispatch on the event string — handlers are reached by event name.
 - Optional integrations (`## OptionalDeps: Auctionator, TomTom, Syndicator`) — code guarded by `if Auctionator` etc. is live only with that addon installed.
 - `tools/gen_*.py` public names imported by sibling generators; `tools/latest_build.py` and `tools/changelog.py` run from workflows.
@@ -109,7 +108,7 @@ Audit slices from lowest to highest risk:
 3. `Model.lua`, `Settings.lua`, `Sources.lua`, `List.lua`, `types/` — pure maths / settings / lookups /
    the shared list widget, partly under test.
 4. `Tooltip.lua`, `RecipeList.lua`, `Trainer.lua` — UI hooks, in-game verification only.
-5. `Prices.lua`, `Core.lua` — SavedVariables and auction-house scanning; persisted data.
+5. `Prices.lua`, `Core.lua` — SavedVariables, vendor prices and the Auctionator price seam; persisted data.
 6. `Route.lua`, `Shopping.lua` — largest, most stateful UI; crafting, buying and tracker integration.
 
 Tiers 5 and 6 get a second, independent reviewer (Codex): on 2026-09-24 it found the two route and
@@ -121,7 +120,7 @@ Recurring judgment defects; check new code for them.
 
 - A hand port drifts from its Lua source (`parallel-implementations`): `tools/screenshots.py`
   `round_money`/`model_recipe_cost`/`price()` vs `Model.RoundMoney`/`RecipeCost`/`ns.Price`.
-- The price-source set restated (`stringly-typed`): "scan or auctionator means auction" in
+- The price-source set restated (`stringly-typed`): "auctionator means auction" in
   `Model.ShoppingList` and Route.lua `PriceAge`; unknown sources fall silently into `unknown`.
 - A saved setting read without checking it against its options (`silent-fallbacks`): `LoadDB`
   validates `reagentTooltip` only; `craftValue` and `sortMode` fall back silently.

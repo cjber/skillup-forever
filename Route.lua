@@ -4,7 +4,7 @@ local _, ns = ...
 -- How far right of centre the route/reagents split sits.
 local ROUTE_SHARE = 50
 local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
--- A day-old scan is flagged: auction prices move that fast.
+-- A day-old Auctionator price is flagged: auction prices move that fast.
 local STALE_AFTER = 24 * 3600
 
 ---@type SkillUpPage
@@ -472,14 +472,9 @@ local function RenderRoute(list, profession, route)
 	end
 	if #route.segments == 0 and route.excluded.unpriced > 0 then
 		-- Auctionator knows only what it has scanned, so installing it isn't enough.
-		local how = ns.HasAuctionator() and "open the auction house (or run Auctionator's Full Scan)"
-			or "open the auction house"
-		list:Message(
-			string.format(
-				"Neither SkillUp nor Auctionator has seen these reagents on the auction house yet: %s to price them.",
-				how
-			)
-		)
+		local without = "These reagents have no vendor price. Auction prices need Auctionator."
+		local with = "Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."
+		list:Message(ns.HasAuctionator() and with or without)
 	elseif route.stopReason == "no_recipe" then
 		local known = route.excluded.unpriced > 0 and "Nothing priced you know" or "Nothing you know"
 		list:Message(string.format("%s skills up past %d.", known, route.reachedSkill - m), RED_FONT_COLOR)
@@ -505,7 +500,7 @@ local function ReagentTooltip(tooltip, item)
 	end
 	local price = ns.Price(item.itemID)
 	if not price then
-		GameTooltip_AddDisabledLine(tooltip, "No price yet: visit a vendor or the auction house.")
+		GameTooltip_AddDisabledLine(tooltip, ns.UnpricedHint())
 		return
 	end
 	if price.source == "gather" then
@@ -604,8 +599,7 @@ local function PriceAge(reagents)
 	local oldest
 	for _, item in ipairs(reagents) do
 		local price = ns.Price(item.itemID)
-		local auction = price and (price.source == "scan" or price.source == "auctionator")
-		if price and auction and (not oldest or ns.PriceAge(price) > ns.PriceAge(oldest)) then
+		if price and price.source == "auctionator" and (not oldest or ns.PriceAge(price) > ns.PriceAge(oldest)) then
 			oldest = price
 		end
 	end
@@ -613,7 +607,7 @@ local function PriceAge(reagents)
 		return "", GRAY_FONT_COLOR
 	end
 	local stale = ns.PriceAge(oldest) > STALE_AFTER
-	local text = "AH prices from " .. ns.PriceAgeText(oldest) .. (stale and ": rescan at the auction house" or "")
+	local text = "AH prices from " .. ns.PriceAgeText(oldest) .. (stale and ": rescan with Auctionator" or "")
 	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 

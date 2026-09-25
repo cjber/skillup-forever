@@ -114,18 +114,6 @@ function ns.FormatNet(copper, profit)
 	return (profit and "|cff40ff40+|r" or "") .. Money(copper)
 end
 
----@param timestamp number
----@return string
-function ns.FormatAge(timestamp)
-	local minutes = math.floor((time() - timestamp) / 60)
-	if minutes < 60 then
-		return minutes .. "m ago"
-	elseif minutes < 48 * 60 then
-		return math.floor(minutes / 60) .. "h ago"
-	end
-	return math.floor(minutes / 1440) .. "d ago"
-end
-
 local DAY = 86400
 
 -- Seconds since an auction price was seen. Auctionator reports whole days, and
@@ -133,20 +121,16 @@ local DAY = 86400
 ---@param price SkillUpPrice
 ---@return number
 function ns.PriceAge(price)
-	if price.source == "scan" then
-		return time() - price.time
-	elseif price.source == "auctionator" then
-		return (price.days or 22) * DAY
+	if price.source ~= "auctionator" then
+		error("not an auction price: " .. tostring(price.source))
 	end
-	error("not an auction price: " .. tostring(price.source))
+	return (price.days or 22) * DAY
 end
 
 ---@param price SkillUpPrice
 ---@return string
 function ns.PriceAgeText(price)
-	if price.source == "scan" then
-		return ns.FormatAge(price.time)
-	elseif price.source ~= "auctionator" then
+	if price.source ~= "auctionator" then
 		error("not an auction price: " .. tostring(price.source))
 	elseif price.days == nil then
 		return "over 3 weeks ago"
@@ -154,6 +138,15 @@ function ns.PriceAgeText(price)
 		return "today"
 	end
 	return price.days .. "d ago"
+end
+
+-- What to do about a reagent with no price: auction prices come only from Auctionator.
+---@return string
+function ns.UnpricedHint()
+	if ns.HasAuctionator() then
+		return "Scan the auction house with Auctionator, or visit a vendor, to price reagents."
+	end
+	return "Visit a vendor to price reagents. Auction prices need Auctionator."
 end
 
 ---@param price SkillUpPrice
@@ -165,8 +158,6 @@ function ns.PriceSourceText(price)
 		return "vendor"
 	elseif price.source == "auctionator" then
 		return "Auctionator, " .. ns.PriceAgeText(price)
-	elseif price.source == "scan" then
-		return "AH, " .. ns.PriceAgeText(price)
 	end
 	error("unknown price source: " .. tostring(price.source))
 end
@@ -201,7 +192,7 @@ local function AddCost(tooltip, recipeID, d)
 		end
 	end
 	if not d.cost then
-		GameTooltip_AddDisabledLine(tooltip, "Visit the auction house or a vendor to price reagents.")
+		GameTooltip_AddDisabledLine(tooltip, ns.UnpricedHint())
 		return
 	end
 	tooltip:AddDoubleLine("Reagents", Money(d.cost), 1, 0.82, 0, 1, 1, 1)

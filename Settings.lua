@@ -66,20 +66,19 @@ function ns.RegisterSettings()
 		"showCost",
 		"Show cost per skill-up",
 		"Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. "
-			.. "Prices come from vendors you've visited, the auction house, or Auctionator."
+			.. "Prices come from vendors you've visited and from Auctionator. Auction prices need Auctionator."
 	)
 
-	Dropdown("craftValue", "Count what crafts sell for", {
-		{ "none", "Don't count it" },
-		{ "vendor", "Vendor sell price" },
-		{ "auction", "Auction price if higher" },
-	}, "Subtract what the crafted item sells for from its cost. Auction prices are after the 5% cut, and may not sell.")
-
-	Checkbox(
-		"scanAuctions",
-		"Scan the auction house",
-		"Search the auction house for known reagents when you open it (at most once an hour). "
-			.. "Type /su scan to rescan. Items Auctionator priced today are skipped, and its prices are used."
+	Dropdown(
+		"craftValue",
+		"Count what crafts sell for",
+		{
+			{ "none", "Don't count it" },
+			{ "vendor", "Vendor sell price" },
+			{ "auction", "Auction price if higher" },
+		},
+		"Subtract what the crafted item sells for from its cost. "
+			.. "Auction prices need Auctionator, are after the 5% cut, and may not sell."
 	)
 
 	Checkbox(

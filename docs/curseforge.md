@@ -20,8 +20,7 @@ Hover a recipe for its colour thresholds and what each reagent costs.
 ## Prices
 
 - Common vendor supplies have bundled prices; visiting vendors records their prices, including reputation discounts.
-- Opening the auction house scans known reagents and crafted items at most hourly. Your own searches update prices too.
-- With [Auctionator](https://www.curseforge.com/wow/addons/auctionator), the fresher of its price and SkillUp's scan is used. Automatic scans skip items Auctionator priced today.
+- Auction prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator). SkillUp uses its prices and doesn't scan the auction house itself. Without it, reagents you can only buy at the auction house have no price.
 - Reagents gathered by your professions count as free by default; turn this off in settings if you prefer.
 
 Otherwise, each reagent uses the cheaper known vendor or auction price. The craft's vendor sell value comes off its cost by default; optionally use its auction value when higher, after the 5% cut. Profit shows a green `+`. Unpriced recipes show no cost and are excluded from routes.
@@ -30,12 +29,11 @@ Otherwise, each reagent uses the cheaper known vendor or auction price. The craf
 
 Open a profession and the numbers are already there.
 
-- `/su scan`, with the auction house open, rescans reagent prices.
 - `/su` opens the settings (also in Settings > AddOns, or from the addon compartment on the minimap).
 - `/su audit`, with a profession open, compares the bundled thresholds with the colours the game shows and prints any mismatch.
 
 Thresholds come from the Forever client's recipe data; missing data shows `?`. Found a wrong number? Include `/su audit` output in an issue on [GitHub](https://github.com/cjber/skillup-forever/issues).
 
-Prices are only as good as what you've seen, so a recipe with an unpriced reagent shows no cost until you've visited a vendor or the auction house.
+Prices are only as good as what you've seen, so a recipe with an unpriced reagent shows no cost until you've visited a vendor, or Auctionator has seen it on the auction house.
 
 Source code: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever). Licence: GPL-3.0-or-later.

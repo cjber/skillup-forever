@@ -84,7 +84,7 @@ How each part of the tree is reviewed. Unlisted paths are `production`.
 | `tests/` | test | headless LuaJIT harness |
 | `.github/`, `.pkgmeta`, `.luacheckrc`, `.luarc.json`, `stylua.toml`, `.gitleaks.toml`, `.gitattributes`, `.gitignore`, `.styluaignore`, `tools/ruff.toml`, `SkillUpForever.toc` | config | the TOC's `## Notes` is user-facing |
 | `types/` | config | LuaLS `---@meta` annotations; not shipped. Check them against the code they describe |
-| `README.md`, `CHANGELOG.md`, `PLAN.md`, `docs/`, `tools/README.md` | docs | `docs/curseforge.md` is the store listing |
+| `README.md`, `CHANGELOG.md`, `docs/`, `tools/README.md` | docs | `docs/curseforge.md` is the store listing |
 | `media/`, `docs/screenshots/` | assets | |
 
 ## Conventions

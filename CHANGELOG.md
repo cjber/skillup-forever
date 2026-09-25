@@ -11,6 +11,11 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-25
+
+Getting there quicker: waypoints and nearest picks through Shortest Path Forever, clickable tracker
+lines, and a round of fixes to prices and the route.
+
 - **Waypoints go through [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever)** when it is installed: clicking a trainer, vendor or reagent like Coarse Thread starts its travel route there. When it can't (in combat, or with its journeys off), TomTom's arrow or the map's own waypoint is set as before.
 - **The nearest trainer or vendor is the quickest to reach** with Shortest Path Forever installed: tooltips and clicks rank the closest few by its travel time, flights and boats included, instead of a straight line.
 - **Click a tracker line for a waypoint**: the next training step goes to the nearest trainer, and a missing vendor reagent like `12/20 Coarse Thread` to the nearest vendor. Hover the line to see who and where.
@@ -24,6 +29,7 @@ verbatim rather than rewritten as the addon moves.
 - **Fixed** searching the game's settings blaming SkillUp for a blocked button (Social's Discord Sign In).
 - **Trainer steps in the route** read the same as elsewhere, with one space before "(level N)".
 - **The sort setting's tooltip** now says that sorting puts every recipe in one list, and Default restores categories.
+- Thresholds, recipes, trainers and prices for Forever build 1.60.1.69977.
 
 ## [0.3.0] - 2026-09-21
 

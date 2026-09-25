@@ -390,6 +390,7 @@ local function SuggestionTooltip(tooltip, profession, suggestion)
 			tooltip,
 			string.format(L["Click for a waypoint to %s."], ns.SourceNPCs[npcID][1])
 		)
+		ns.AddCompanionHint(tooltip)
 	end
 	GameTooltip_AddInstructionLine(tooltip, L["Shift-click to link the scroll."])
 end

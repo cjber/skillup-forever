@@ -62,6 +62,9 @@
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
+---@field AddCompanionHint fun(tooltip: GameTooltip)
+---@field AnnounceUpdate fun()
+---@field WHATS_NEW string
 ---@field FormatNet fun(copper: number, profit: boolean): string
 ---@field PriceAge fun(price: SkillUpPrice): number
 ---@field PriceAgeText fun(price: SkillUpPrice): string
@@ -107,6 +110,9 @@
 ---@field showRouteTab boolean
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field gatherFree boolean
+---@field whatsNew boolean
+---@field companionHints boolean
+---@field lastVersion string
 ---@field routeTargets table<integer, number>
 ---@field learned table<string, table<integer, boolean>>
 ---@field professionIDs table<string, integer>

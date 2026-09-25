@@ -413,16 +413,20 @@ local function FinishSearch()
 		return
 	end
 	local auctions, now = Auctions(), time()
+	local changed = next(pending) ~= nil
 	for itemID in pairs(pending) do
 		auctions[itemID] = { time = now }
 	end
 	pending = nil
+	-- Per batch, not per scan: closing the auction house mid-scan ends it unfinished.
+	if changed then
+		PricesChanged()
+	end
 end
 
 function FinishScanIfDone()
 	if scanning and not pending and #queue == 0 then
 		scanning = false
-		PricesChanged()
 		ns.Print(string.format("priced %d reagents from the auction house.", scanned))
 	end
 end

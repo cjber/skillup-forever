@@ -636,8 +636,17 @@ function ns.NextCraft(profession, route)
 	elseif not ns.IsLearned(segment.recipeID) then
 		return { text = "Craft next", reason = string.format("Train %s first.", RecipeName(segment.recipeID)) }
 	end
+	-- Past the cap a craft gives no skill-up until the next rank is trained.
+	local crafts, cap = segment.crafts, profession.max + profession.modifier
+	if profession.max > 0 and segment.toSkill > cap then
+		local thresholds, expected = ns.Model.Get(segment.recipeID), 0
+		for skill = segment.fromSkill, cap - 1 do
+			expected = expected + 1 / ns.Model.Chance(thresholds, skill)
+		end
+		crafts = math.ceil(expected)
+	end
 	-- RecipeInfo has no count; this one includes the client's reagent and resource rules.
-	local count = math.min(segment.crafts, C_TradeSkillUI.GetCraftableCount(segment.recipeID))
+	local count = math.min(crafts, C_TradeSkillUI.GetCraftableCount(segment.recipeID))
 	local craft = { text = string.format("Craft %d× %s", math.max(count, 1), RecipeName(segment.recipeID)) }
 	if count > 0 then
 		craft.recipeID, craft.count = segment.recipeID, count

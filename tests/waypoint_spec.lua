@@ -201,18 +201,18 @@ env.ShortestPathForever = {
 	},
 }
 local npcs = { 1253, 1251, 1252 }
-equal(ns.NearestNPC(npcs, true), 1251, "without byTravel the straight-line nearest wins")
+equal(ns.NearestNPC(npcs), 1251, "without byTravel the straight-line nearest wins")
 equal(estimated, 0, "without byTravel nothing is estimated")
-equal(ns.NearestNPC(npcs, true, true), 1252, "byTravel prefers the quicker trip")
+equal(ns.NearestNPC(npcs, true), 1252, "byTravel prefers the quicker trip")
 equal(estimated, 2, "only this faction's vendors are estimated")
 seconds = {}
-equal(ns.NearestNPC(npcs, true, true), 1251, "no estimate keeps the straight-line nearest")
+equal(ns.NearestNPC(npcs, true), 1251, "no estimate keeps the straight-line nearest")
 combat, estimated = true, 0
-equal(ns.NearestNPC(npcs, true, true), 1251, "in combat the straight-line nearest wins")
+equal(ns.NearestNPC(npcs, true), 1251, "in combat the straight-line nearest wins")
 equal(estimated, 0, "nothing is estimated in combat")
 combat, env.ShortestPathForever = false, nil
-equal(ns.NearestNPC(npcs, true, true), 1251, "without Shortest Path Forever the straight-line nearest wins")
+equal(ns.NearestNPC(npcs, true), 1251, "without Shortest Path Forever the straight-line nearest wins")
 env.ShortestPathForever = { API = { version = 1 } }
-equal(ns.NearestNPC(npcs, true, true), 1251, "an API without Estimate keeps the straight-line nearest")
+equal(ns.NearestNPC(npcs, true), 1251, "an API without Estimate keeps the straight-line nearest")
 
 print("waypoint_spec: " .. checks .. " checks passed")

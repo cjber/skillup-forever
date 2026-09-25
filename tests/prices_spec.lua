@@ -141,4 +141,17 @@ ns.PricesChanged()
 equal(ns.Price(1).copper, 500, "a fresher Auctionator price overrides our empty search")
 equal(ns.Price(1).source, "auctionator", "a fresher Auctionator price retains its source")
 
+-- Closing the auction house mid-scan keeps what the finished batches found.
+for itemID = 3, 60 do
+	ns.db.tracked[itemID] = true
+	auctions[itemID] = { copper = 300, time = now }
+	equal(ns.Price(itemID).copper, 300, "a scanned price is cached")
+end
+ns.ScanAuctions(true)
+local firstBatch = searches[#searches]
+onEvent(frame, "AUCTION_HOUSE_BROWSE_RESULTS_UPDATED")
+onEvent(frame, "AUCTION_HOUSE_CLOSED")
+local unlisted = firstBatch[1].itemID == 1 and firstBatch[2].itemID or firstBatch[1].itemID
+equal(ns.Price(unlisted), nil, "a finished batch's unlisted item drops its cached price")
+
 print("prices_spec: " .. checks .. " checks passed")

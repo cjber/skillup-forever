@@ -33,7 +33,7 @@ local function VendorFor(source, byTravel)
 	for _, npcID in ipairs(source.vendors or {}) do
 		table.insert(Limited(source, npcID) and limited or unlimited, npcID)
 	end
-	return ns.NearestNPC(unlimited, true, byTravel) or ns.NearestNPC(limited, true, byTravel)
+	return ns.NearestNPC(unlimited, byTravel) or ns.NearestNPC(limited, byTravel)
 end
 
 ---@param source SkillUpSource
@@ -134,18 +134,17 @@ local function PlayerMapPosition()
 	return { map = map, x = x, y = y }
 end
 
--- Of these NPCs, the nearest this character can deal with (vendors of the other
--- faction won't trade), else nil. With `byTravel` (a click or tooltip, never a
+-- Of these NPCs, the nearest this character can deal with (the other faction's
+-- won't trade or train), else nil. With `byTravel` (a click or tooltip, never a
 -- redraw) and Shortest Path Forever loaded, the straight-line nearest few are
 -- ranked by its travel time instead, so a flight beats a walk around the coast.
 ---@param npcIDs integer[]
----@param vendorsOnly boolean?
 ---@param byTravel boolean?
 ---@return integer?
-function ns.NearestNPC(npcIDs, vendorsOnly, byTravel)
+function ns.NearestNPC(npcIDs, byTravel)
 	local candidates = {}
 	for index, npcID in ipairs(npcIDs) do
-		if not vendorsOnly or Usable(npcID) then
+		if Usable(npcID) then
 			candidates[#candidates + 1] = { npcID = npcID, distance = Distance(npcID), index = index }
 		end
 	end
@@ -339,7 +338,7 @@ function ns.NearestTrainer(profession, cap, byTravel)
 			trainers[#trainers + 1] = row[1]
 		end
 	end
-	return ns.NearestNPC(trainers, true, byTravel)
+	return ns.NearestNPC(trainers, byTravel)
 end
 
 ---@param itemID integer
@@ -347,7 +346,7 @@ end
 ---@return integer?
 function ns.NearestVendor(itemID, byTravel)
 	local vendors = ns.ReagentVendors[itemID]
-	return vendors and ns.NearestNPC(vendors, true, byTravel)
+	return vendors and ns.NearestNPC(vendors, byTravel)
 end
 
 -- "Nearest trainer  Name" over its zone and coordinates, and what a click does.

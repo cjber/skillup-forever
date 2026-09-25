@@ -52,7 +52,7 @@
 ---@field InitShopping fun()
 ---@field NPCLocation fun(npcID: integer): SkillUpLocation
 ---@field LocationText fun(where: SkillUpLocation): string
----@field NearestNPC fun(npcIDs: integer[], vendorsOnly?: boolean, byTravel?: boolean): integer?
+---@field NearestNPC fun(npcIDs: integer[], byTravel?: boolean): integer?
 ---@field SetWaypoint fun(npcID: integer)
 ---@field SuggestionNPC fun(suggestion: SkillUpSuggestion): integer?
 ---@field RecipeSuggestions fun(profession: SkillUpContext, skill: number): SkillUpSuggestion[]

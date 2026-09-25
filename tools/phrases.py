@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-"""Print every L["..."] phrase in the shipped Lua as CurseForge's Lua localization import takes it.
+"""Print a translation template with every L["..."] phrase in the shipped Lua.
 
-Writes nothing: `python3 tools/phrases.py > Locales/phrases.txt`, then paste the file into the
-CurseForge project's Localization > Import page (Lua format, enUS).
+Writes nothing: `python3 tools/phrases.py > Locales/phrases.txt`. A translator copies that file to
+Locales/<locale>.lua and translates the right-hand sides (Locales/README.md).
 """
 
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# The phrase as written in the source, escapes included, which is also how the import reads it.
+HEADER = """\
+-- Copy to Locales/deDE.lua (or your locale), translate the text on the right of each line and
+-- delete the lines you leave in English. List the file in SkillUpForever.toc after Locales\\enUS.lua.
+local _, ns = ...
+if GetLocale() ~= "deDE" then
+\treturn
+end
+local L = ns.L
+"""
+# The phrase as written in the source, escapes included, so it pastes back into Lua unchanged.
 PHRASE = re.compile(r'\bL\["((?:\\.|[^"\\\n])*)"\]')
 
 
@@ -26,5 +35,6 @@ def phrases() -> list[str]:
 
 
 if __name__ == "__main__":
+    print(HEADER)
     for phrase in phrases():
-        print(f'L["{phrase}"] = true')
+        print(f'L["{phrase}"] = "{phrase}"')

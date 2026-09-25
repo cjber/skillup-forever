@@ -103,6 +103,13 @@ local phrases = pipe:read("*a")
 pipe:close()
 equal(#phrases > 0, true, "tools/phrases.py prints the phrases")
 equal(Read("Locales/phrases.txt"), phrases, "Locales/phrases.txt is python3 tools/phrases.py's output")
+assert(loadfile("Locales/phrases.txt"), "the translation template is valid Lua")
+
+-- CurseForge's localization export is gone: the packager fails a release on any keyword asking for it.
+local keyword = "@local" .. "ization"
+pipe = assert(io.popen("git grep -n -F -e '" .. keyword .. "' -- ."))
+equal(pipe:read("*a"), "", "no " .. keyword .. " keyword in the tree")
+pipe:close()
 
 -- Untranslated phrases fall back to the English key.
 local ns = {}

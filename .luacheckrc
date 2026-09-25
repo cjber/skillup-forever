@@ -36,6 +36,4 @@ read_globals = {
 
 files["Data/Thresholds.lua"] = { max_line_length = false }
 files["Data/Sources.lua"] = { max_line_length = false }
--- Unpackaged, each locale block holds only a packager keyword comment and L goes unused.
-files["Locales/Translations.lua"] = { ignore = { "211/L", "542" } }
 files["tests/"] = { std = "+luajit" }

@@ -75,6 +75,8 @@ Link the checkout into the game (`ln -s "$PWD" ".../_classic_beta_/Interface/Add
 
 **Releasing:** move the `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
 
+**Translating:** translations are welcome on the [CurseForge project's Localization page](https://www.curseforge.com/wow/addons/skillup-forever/localization); each release picks up what's there.
+
 **Contributing:** read [CONTRIBUTING.md](https://github.com/cjber/.github/blob/main/CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) first. Report security problems privately, as [SECURITY.md](https://github.com/cjber/.github/blob/main/SECURITY.md) describes.
 
 ## Licence

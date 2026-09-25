@@ -30,9 +30,12 @@ read_globals = {
 	"GetTrainerTradeskillRankValues", "C_SpellBook", "issecretvalue", "Item", "NORMAL_FONT_COLOR",
 	"TooltipDataProcessor", "UnitName", "BuyMerchantItem", "GetMerchantItemMaxStack", "MerchantFrame", "MenuUtil", "Mixin", "ObjectiveTrackerFrame", "ObjectiveTrackerManager", "OBJECTIVE_TRACKER_COLOR", "OBJECTIVE_DASH_STYLE_HIDE",
 	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator", "tContains",
-	"ShortestPathForever", "InCombatLockdown",
+	"ShortestPathForever", "InCombatLockdown", "GetLocale",
+	"APPRENTICE", "JOURNEYMAN", "EXPERT", "ARTISAN", "DEFAULT", "OFF", "TOTAL", "ITEM_MIN_SKILL",
 }
 
 files["Data/Thresholds.lua"] = { max_line_length = false }
 files["Data/Sources.lua"] = { max_line_length = false }
+-- Unpackaged, each locale block holds only a packager keyword comment and L goes unused.
+files["Locales/Translations.lua"] = { ignore = { "211/L", "542" } }
 files["tests/"] = { std = "+luajit" }

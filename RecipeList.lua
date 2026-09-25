@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+local L = ns.L
 
 ---@type SkillUpRecipeList
 local recipeList
@@ -141,7 +142,7 @@ local function ApplySort(scrollBox)
 	local ok, sorted = pcall(BuildSorted, source, key)
 	if not ok then
 		ns.SetSortMode("blizzard")
-		ns.Print("sorting failed and has been turned off: " .. tostring(sorted))
+		ns.Print(string.format(L["sorting failed and has been turned off: %s"], tostring(sorted)))
 		return
 	end
 	replacing = true
@@ -158,7 +159,7 @@ local function AddFilterMenu(owner, rootDescription)
 		return
 	end
 	rootDescription:CreateDivider()
-	rootDescription:CreateTitle("Sort by")
+	rootDescription:CreateTitle(L["Sort by"])
 	for _, option in ipairs(ns.SORT_OPTIONS) do
 		rootDescription:CreateRadio(option[2], function(mode)
 			return ns.db.sortMode == mode

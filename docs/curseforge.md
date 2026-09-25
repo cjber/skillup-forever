@@ -36,4 +36,6 @@ Thresholds come from the Forever client's recipe data; missing data shows `?`. F
 
 Prices are only as good as what you've seen, so a recipe with an unpriced reagent shows no cost until you've visited a vendor, or Auctionator has seen it on the auction house.
 
+SkillUp is in English for now. Translations are welcome on the project's [Localization page](https://www.curseforge.com/wow/addons/skillup-forever/localization).
+
 Source code: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever). Licence: GPL-3.0-or-later.

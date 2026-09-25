@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+local L = ns.L
 
 -- SkillUpForever.API, version 1: each profession's next steps, recipes and reagents,
 -- read from the same levelling plan the route tab shows, for other addons to draw.
@@ -36,7 +37,7 @@ local function ItemName(itemID)
 	end
 	namesPending = true
 	C_Item.RequestLoadItemDataByID(itemID)
-	return "item " .. itemID
+	return string.format(L["item %d"], itemID)
 end
 
 ---@param recipeID integer
@@ -113,7 +114,7 @@ local function Acquire(itemID, count)
 	if price and price.source == "gather" then
 		return {
 			kind = "gather",
-			text = string.format("Gather %d %s", count, name),
+			text = string.format(L["Gather %d %s"], count, name),
 			detail = price.profession,
 			itemID = itemID,
 			count = count,
@@ -123,7 +124,7 @@ local function Acquire(itemID, count)
 	local cost = price and price.copper * count
 	local step = {
 		kind = "buy",
-		text = string.format("Buy %d %s", count, name),
+		text = string.format(L["Buy %d %s"], count, name),
 		itemID = itemID,
 		count = count,
 		cost = cost,
@@ -131,12 +132,12 @@ local function Acquire(itemID, count)
 	}
 	if price and price.source == "vendor" then
 		local vendor = ns.NearestVendor(itemID)
-		step.detail, step.nav = Detail(vendor, "Vendor", cost), vendor ~= nil
+		step.detail, step.nav = Detail(vendor, L["Vendor"], cost), vendor ~= nil
 		return step, vendor and function()
 			return ns.NearestVendor(itemID, true)
 		end or nil
 	elseif price then
-		step.detail = Detail(nil, "Auction house", cost)
+		step.detail = Detail(nil, L["Auction house"], cost)
 	end
 	return step
 end
@@ -152,7 +153,7 @@ local function Train(profession, text, cap, fee)
 	local step = {
 		kind = "train",
 		text = text,
-		detail = Detail(trainer, profession.name .. " trainer", fee),
+		detail = Detail(trainer, string.format(L["%s trainer"], profession.name), fee),
 		cost = fee > 0 and fee or nil,
 		nav = trainer ~= nil,
 	}
@@ -185,8 +186,9 @@ local function Steps(profession, route)
 		if rank then
 			Add(Train(profession, ns.RankText(rank), rank.cap, rank.fee)) -- multi-value: the step and its picker
 		elseif training then
-			local name = C_Spell.GetSpellName(training.recipeID) or ("recipe " .. training.recipeID)
-			local step, pick = Train(profession, "Train " .. name, training.reqSkill + 1, training.fee)
+			local name = C_Spell.GetSpellName(training.recipeID) or string.format(L["recipe %d"], training.recipeID)
+			local step, pick =
+				Train(profession, string.format(L["Train %s"], name), training.reqSkill + 1, training.fee)
 			step.spellID, step.itemID = training.recipeID, OutputItem(training.recipeID)
 			Add(step, pick)
 		elseif segment then
@@ -199,11 +201,11 @@ local function Steps(profession, route)
 					Add(Acquire(itemID, need - have)) -- multi-value: the step and its picker
 				end
 			end
-			local name = C_Spell.GetSpellName(recipeID) or ("recipe " .. recipeID)
+			local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
 			Add({
 				kind = "craft",
-				text = string.format("Craft %d %s", segment.crafts, name),
-				detail = string.format("%d to %d", segment.fromSkill - m, segment.toSkill - m),
+				text = string.format(L["Craft %d %s"], segment.crafts, name),
+				detail = string.format(L["%d to %d"], segment.fromSkill - m, segment.toSkill - m),
 				spellID = recipeID,
 				itemID = OutputItem(recipeID),
 				count = segment.crafts,

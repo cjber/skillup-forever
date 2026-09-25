@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+local L = ns.L
 
 -- Per trainer update: which recipe each service teaches, and the one to train next.
 ---@type SkillUpTrainerState?
@@ -139,7 +140,7 @@ local function Decorate(button, elementData)
 	end
 	if service.recipeID then
 		local d = ns.Describe({ recipeID = service.recipeID, learned = service.kind == "used" }, current.ctx)
-		local best = service.recipeID == current.best and "|cffffd100Best next|r · " or ""
+		local best = service.recipeID == current.best and string.format("|cffffd100%s|r · ", L["Best next"]) or ""
 		text:SetText(best .. ns.FormatRow(d))
 		text:SetTextColor(ns.RowColor(d):GetRGB())
 	else

@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
+local L = ns.L
 
 ---@type SkillUpDefaults
 local DEFAULTS = {
@@ -13,6 +14,9 @@ local DEFAULTS = {
 	showRouteTab = true,
 	reagentTooltip = "route",
 	gatherFree = true,
+	whatsNew = true,
+	companionHints = true,
+	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
@@ -23,17 +27,20 @@ local DEFAULTS = {
 
 ns.DEFAULTS = DEFAULTS
 ns.SORT_OPTIONS = {
-	{ "blizzard", "Default" },
-	{ "skill", "Required skill" },
-	{ "chance", "Skill-up chance" },
-	{ "cost", "Cheapest skill-up" },
+	{ "blizzard", DEFAULT },
+	{ "skill", L["Required skill"] },
+	{ "chance", L["Skill-up chance"] },
+	{ "cost", L["Cheapest skill-up"] },
 }
 ns.REAGENT_TOOLTIP_OPTIONS = {
-	{ "off", "Off" },
-	{ "route", "Tracked routes (Shift for all)" },
-	{ "full", "Every recipe that uses it" },
+	{ "off", OFF },
+	{ "route", L["Tracked routes (Shift for all)"] },
+	{ "full", L["Every recipe that uses it"] },
 }
 ns.TITLE = "SkillUp Forever"
+-- The chat line after an update: one sentence for the release being tagged.
+ns.WHATS_NEW =
+	L["Settings and tooltips are ready for translation, and route tooltips suggest Shortest Path Forever for the walk."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -85,6 +92,26 @@ local function LoadDB()
 	ns.db = loaded
 end
 
+-- One chat line after an update, never on a first install. A dev checkout's version is
+-- the packager's unfilled keyword, so it is left alone.
+function ns.AnnounceUpdate()
+	local version = C_AddOns.GetAddOnMetadata(addonName, "Version")
+	if not (ns.db and version) or version:match("^@.+@$") then
+		return
+	end
+	local last = ns.db.lastVersion
+	ns.db.lastVersion = version
+	if ns.db.whatsNew and last ~= "" and last ~= version then
+		ns.Print(string.format(L["updated to %s. %s"], version, ns.WHATS_NEW))
+	end
+end
+
+local loginEvents = CreateFrame("Frame")
+loginEvents:RegisterEvent("PLAYER_LOGIN")
+loginEvents:SetScript("OnEvent", function()
+	ns.AnnounceUpdate()
+end)
+
 local KNOWN_SKILL_LINES = {}
 for _, skillLine in pairs(ns.ProfessionSkillLines or {}) do
 	KNOWN_SKILL_LINES[skillLine] = true
@@ -108,7 +135,7 @@ function ns.ProfessionSkillLine(name, reported)
 	end
 	if name and not warned[name] then
 		warned[name] = true
-		ns.Print(string.format("can't identify the profession %s (%s); please report it.", name, tostring(reported)))
+		ns.Print(string.format(L["can't identify the profession %s (%s); please report it."], name, tostring(reported)))
 	end
 end
 
@@ -359,7 +386,7 @@ end
 EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- /reload doesn't re-read the .toc, so files added by an update stay unloaded.
 	if not (ns.RecipeData and ns.ProfessionSkillLines and ns.TrainerFees and ns.TrainerRanks and ns.RecipeSources) then
-		ns.Print("|cffff4040files are missing: restart the game (not /reload) after updating.|r")
+		ns.Print("|cffff4040" .. L["files are missing: restart the game (not /reload) after updating."] .. "|r")
 		return
 	end
 	LoadDB()

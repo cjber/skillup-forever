@@ -71,6 +71,7 @@ local env = setmetatable({
 		return { x = x, y = y }
 	end,
 }, { __index = _G })
+assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 setfenv(assert(loadfile("Sources.lua")), env)("SkillUpForever", ns)
 
 ---@param accepts boolean?
@@ -131,6 +132,34 @@ calls = {}
 env.ShortestPathForever = { API = { version = 1 } }
 ns.SetWaypoint(1250)
 equal(calls.native and calls.native.map, 1429, "an API without Navigate falls back to the map waypoint")
+
+-- The hint under a waypoint click: install or enable Shortest Path Forever, or nothing.
+local addons, hints = {}, {}
+env.C_AddOns = {
+	IsAddOnLoaded = function(name)
+		return addons[name] == "loaded"
+	end,
+	DoesAddOnExist = function(name)
+		return addons[name] ~= nil
+	end,
+	GetAddOnInfo = function(name)
+		return name, name, "", addons[name] ~= "disabled", addons[name] == "disabled" and "DISABLED" or nil, "INSECURE"
+	end,
+}
+env.GameTooltip_AddDisabledLine = function(_, text)
+	hints[#hints + 1] = text
+end
+ns.db = { companionHints = true }
+local function Hint(state)
+	addons.ShortestPathForever, hints = state, {}
+	ns.AddCompanionHint({})
+	return hints[1]
+end
+equal(Hint(nil), "Install Shortest Path Forever for walked routes and boat times.", "missing: install it")
+equal(Hint("disabled"), "Enable Shortest Path Forever for walked routes and boat times.", "turned off: enable it")
+equal(Hint("loaded"), nil, "running: no hint")
+ns.db.companionHints = false
+equal(Hint(nil), nil, "the setting off hides the hint")
 
 -- The client places the spawn on the continent map; the zone under that point names
 -- it and re-projects it, so the label and waypoint are the zone's, not the continent's.

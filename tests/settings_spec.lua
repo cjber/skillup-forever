@@ -89,6 +89,7 @@ local ns = {
 	RefreshTrainer = Refresh,
 	RefreshRouteTab = Refresh,
 }
+assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 setfenv(assert(loadfile("Settings.lua")), env)("SkillUpForever", ns)
 ns.RegisterSettings()
 
@@ -98,7 +99,7 @@ for index, initializer in ipairs(registered) do
 end
 local expected = "checkbox:showRowText checkbox:showSkill checkbox:showTooltip checkbox:showCost "
 	.. "dropdown:craftValue checkbox:gatherFree checkbox:showRouteTab "
-	.. "checkbox:showTrainer dropdown:reagentTooltip dropdown:sortMode"
+	.. "checkbox:showTrainer dropdown:reagentTooltip dropdown:sortMode checkbox:companionHints checkbox:whatsNew"
 assert(table.concat(rows, " ") == expected, table.concat(rows, " "))
 
 local craftValue = registered[5]

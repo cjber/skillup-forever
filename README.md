@@ -40,7 +40,7 @@ Open a profession and the numbers are already there.
 | `/su`, `/skillup` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 
-Settings cover what rows and tooltips show, what crafts count for, sort order, the route tab, trainer annotations and reagent tooltips.
+Settings cover what rows and tooltips show, what crafts count for, sort order, the route tab, trainer annotations, reagent tooltips, companion addon hints and the chat line after an update.
 
 > **Settings and prices reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working; prices are then relearned each session.
 
@@ -79,7 +79,9 @@ It also works with my other Forever addons: [Shortest Path Forever](https://www.
 
 Link the checkout into the game (`ln -s "$PWD" ".../_classic_beta_/Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands); [tools/README.md](tools/README.md) lists the data generators. The type gate needs Git and Python 3.10+ and fetches pinned WoW API annotations into ignored `.types/`. CI runs the same gate plus actionlint, zizmor, gitleaks and sift; a daily job opens a pull request when a newer Forever build changes the recipe data.
 
-**Releasing:** move the `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
+**Releasing:** move the `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD` and set `ns.WHATS_NEW` in `Core.lua` to that release's headline, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds the zip and uploads it to GitHub Releases, CurseForge and Wago, with that version's entry (`tools/changelog.py`) as the release notes.
+
+**Translating:** translations are welcome as a pull request on GitHub, or pasted into an issue if that's easier. [Locales](https://github.com/cjber/skillup-forever/tree/main/Locales) has a template and how to add one.
 
 **Contributing:** read [CONTRIBUTING.md](https://github.com/cjber/.github/blob/main/CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) first. Report security problems privately, as [SECURITY.md](https://github.com/cjber/.github/blob/main/SECURITY.md) describes.
 

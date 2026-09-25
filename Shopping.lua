@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+local L = ns.L
 
 local CALLER = "SkillUp Forever"
 -- Missing reagents shown per profession before "...".
@@ -92,7 +93,7 @@ function ns.SendToAuctionator(profession, items)
 	local name = "SkillUp: " .. profession
 	if #missing == 0 then
 		api.CreateShoppingList(CALLER, name, {})
-		ns.Print("nothing left to buy at the auction house.")
+		ns.Print(L["nothing left to buy at the auction house."])
 		return
 	end
 	WithNames(missing, function()
@@ -106,7 +107,7 @@ function ns.SendToAuctionator(profession, items)
 			})
 		end
 		api.CreateShoppingList(CALLER, name, searches)
-		ns.Print(string.format("sent %d reagents to the Auctionator list '%s'.", #searches, name))
+		ns.Print(string.format(L["sent %d reagents to the Auctionator list '%s'."], #searches, name))
 	end)
 end
 
@@ -173,7 +174,7 @@ end
 local function BuyMissing()
 	local purchases, cost = MerchantPurchases()
 	if cost > GetMoney() then
-		ns.Print("not enough money for every missing reagent here.")
+		ns.Print(L["not enough money for every missing reagent here."])
 		return
 	end
 	for _, purchase in ipairs(purchases) do
@@ -207,7 +208,7 @@ local function RefreshBuyButton()
 		buyButton:SetPoint("BOTTOMRIGHT", MerchantFrame, "TOPRIGHT", 0, 2)
 		buyButton:SetScript("OnClick", BuyMissing)
 	end
-	buyButton:SetText("Buy tracked reagents  " .. C_CurrencyInfo.GetCoinTextureString(cost))
+	buyButton:SetText(string.format(L["Buy tracked reagents  %s"], C_CurrencyInfo.GetCoinTextureString(cost)))
 	buyButton:SetSize(buyButton:GetTextWidth() + 32, 22)
 	buyButton:Show()
 end
@@ -233,7 +234,7 @@ function ns.SetTracked(skillLine, tracked)
 end
 
 ---@class SkillUpModuleMixin : SkillUpTrackerModule
-local ModuleMixin = { headerText = "Profession reagents" }
+local ModuleMixin = { headerText = L["Profession reagents"] }
 
 ---@param block SkillUpTrackerBlock
 function ModuleMixin:OnBlockHeaderClick(block)
@@ -250,21 +251,21 @@ function ModuleMixin:OnBlockHeaderClick(block)
 		local cap = block.steps[1] and block.steps[1].cap
 		local trainer = cap and ns.NearestTrainer(block.professionInfo, cap)
 		if trainer then
-			root:CreateButton("Waypoint to a trainer", function()
+			root:CreateButton(L["Waypoint to a trainer"], function()
 				ns.SetWaypoint(ns.NearestTrainer(block.professionInfo, cap, true) or trainer)
 			end)
 		end
 		for _, item in ipairs(block.vendorMissing) do
-			root:CreateButton("Waypoint to a vendor: " .. item.name, function()
+			root:CreateButton(string.format(L["Waypoint to a vendor: %s"], item.name), function()
 				ns.SetWaypoint(ns.NearestVendor(item.itemID, true) or item.vendor)
 			end)
 		end
 		if ns.HasAuctionator() then
-			root:CreateButton("Send missing to Auctionator", function()
+			root:CreateButton(L["Send missing to Auctionator"], function()
 				ns.SendToAuctionator(block.profession, block.items)
 			end)
 		end
-		root:CreateButton("Stop tracking", function()
+		root:CreateButton(L["Stop tracking"], function()
 			ns.SetTracked(block.id, false)
 			ns.RefreshRoute()
 		end)
@@ -306,11 +307,11 @@ local function TrainingSteps(entry)
 		steps[#steps + 1] = { skill = rank.reqSkill, cap = rank.cap, text = ns.RankText(rank) }
 	end
 	for _, step in ipairs(entry.route.training) do
-		local name = C_Spell.GetSpellName(step.recipeID) or ("recipe " .. step.recipeID)
+		local name = C_Spell.GetSpellName(step.recipeID) or string.format(L["recipe %d"], step.recipeID)
 		local skill = step.atSkill - entry.modifier
 		-- A trainer teaches recipes needing less than the cap they train to.
 		local cap = ns.TrainingFor(entry.professionInfo, step.recipeID)[2] + 1
-		steps[#steps + 1] = { skill = skill, cap = cap, text = string.format("Train %s at %d", name, skill) }
+		steps[#steps + 1] = { skill = skill, cap = cap, text = string.format(L["Train %s at %d"], name, skill) }
 	end
 	table.sort(steps, function(a, b)
 		return a.skill < b.skill
@@ -325,16 +326,17 @@ function ModuleMixin:LayoutContents()
 		local block = self:GetBlock(entry.skillLine)
 		block.profession, block.items = entry.route.profession, entry.items
 		block.professionInfo, block.vendorMissing, block.route = entry.professionInfo, {}, entry.route
-		block:SetHeader(string.format("%s to %d", entry.route.profession, entry.route.target))
+		block:SetHeader(string.format(L["%s to %d"], entry.route.profession, entry.route.target))
 		local steps = TrainingSteps(entry)
 		block.steps = steps
 		if #steps > 0 then
-			local more = #steps > 1 and string.format(" |cff808080(+%d more)|r", #steps - 1) or ""
+			local more = #steps > 1 and string.format(" |cff808080(%s)|r", string.format(L["+%d more"], #steps - 1))
+				or ""
 			local info, cap = entry.professionInfo, steps[1].cap
 			local trainer = ns.NearestTrainer(info, cap)
 			local line = block:AddObjective("Train", steps[1].text .. more, trainer and LINE_TEMPLATE or nil)
 			if trainer then
-				Waypointed(line, steps[1].text, "Nearest trainer", function()
+				Waypointed(line, steps[1].text, L["Nearest trainer"], function()
 					return ns.NearestTrainer(info, cap, true)
 				end)
 			end
@@ -351,15 +353,15 @@ function ModuleMixin:LayoutContents()
 				local name = C_Item.GetItemNameByID(item.itemID)
 				if not name then
 					C_Item.RequestLoadItemDataByID(item.itemID)
-					name = "item " .. item.itemID
+					name = string.format(L["item %d"], item.itemID)
 				end
-				local gather = item.source == "gather" and " |cff808080(gather)|r" or ""
+				local gather = item.source == "gather" and string.format(" |cff808080(%s)|r", L["gather"]) or ""
 				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
 				local text = string.format("%d/%d %s%s", have, item.need, name, gather)
 				local line = block:AddObjective(item.itemID, text, vendor and LINE_TEMPLATE or nil)
 				if vendor then
 					local itemID = item.itemID
-					Waypointed(line, name, "Nearest vendor", function()
+					Waypointed(line, name, L["Nearest vendor"], function()
 						return ns.NearestVendor(itemID, true)
 					end)
 					block.vendorMissing[#block.vendorMissing + 1] =
@@ -368,7 +370,7 @@ function ModuleMixin:LayoutContents()
 			end
 		end
 		if shown == 0 then
-			block:AddObjective("Ready", "Reagents in hand", nil, nil, nil, OBJECTIVE_TRACKER_COLOR.Complete)
+			block:AddObjective("Ready", L["Reagents in hand"], nil, nil, nil, OBJECTIVE_TRACKER_COLOR.Complete)
 		end
 		if not self:LayoutBlock(block) then
 			return
@@ -388,7 +390,7 @@ end
 
 local function CreateModule()
 	if not (ObjectiveTrackerManager and ObjectiveTrackerFrame) then
-		ns.Print("the objective tracker isn't available, so tracked reagents can't be shown.")
+		ns.Print(L["the objective tracker isn't available, so tracked reagents can't be shown."])
 		return
 	end
 	local created = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", UIParent, "ObjectiveTrackerModuleTemplate")
@@ -407,7 +409,7 @@ local function CreateModule()
 	Attach()
 	C_Timer.After(5, function()
 		if not ns.TrackerAttached() then
-			ns.Print("couldn't add tracked reagents to the objective tracker; please report it.")
+			ns.Print(L["couldn't add tracked reagents to the objective tracker; please report it."])
 		end
 	end)
 end

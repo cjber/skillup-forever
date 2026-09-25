@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+local L = ns.L
 
 -- How far right of centre the route/reagents split sits.
 local ROUTE_SHARE = 50
@@ -14,7 +15,7 @@ local tab
 local selected -- skill line shown on the page
 local pending = false
 
-local RANK_NAMES = { [75] = "Apprentice", [150] = "Journeyman", [225] = "Expert", [300] = "Artisan" }
+local RANK_NAMES = { [75] = APPRENTICE, [150] = JOURNEYMAN, [225] = EXPERT, [300] = ARTISAN }
 
 -- The rank a skill cap belongs to, nil for a cap no trainer rank ends at.
 ---@param cap number
@@ -190,7 +191,7 @@ end
 ---@param recipeID integer
 ---@return string
 local function RecipeName(recipeID)
-	return C_Spell.GetSpellName(recipeID) or ("recipe " .. recipeID)
+	return C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
 end
 
 ---@param copper number
@@ -216,11 +217,10 @@ end
 ---@param rank SkillUpRank
 ---@return string
 function ns.RankText(rank)
-	local text = string.format("Train %s at %d", rank.name, rank.reqSkill)
 	if rank.level > UnitLevel("player") then
-		text = text .. string.format(" (level %d)", rank.level)
+		return string.format(L["Train %s at %d (level %d)"], rank.name, rank.reqSkill, rank.level)
 	end
-	return text
+	return string.format(L["Train %s at %d"], rank.name, rank.reqSkill)
 end
 
 ---@param tooltip GameTooltip
@@ -236,7 +236,7 @@ end
 ---@param profession SkillUpProfession
 ---@param reqSkill number
 local function RequiresLine(tooltip, profession, reqSkill)
-	AddLine(tooltip, "Requires", string.format("%s (%d)", profession.name, reqSkill))
+	AddLine(tooltip, L["Requires"], string.format("%s (%d)", profession.name, reqSkill))
 end
 
 -- The crafted item's own tooltip when there is one, else the recipe's name.
@@ -255,6 +255,7 @@ local function RecipeTitle(tooltip, recipeID, title)
 end
 
 local BAND_NAMES = { "orange", "yellow", "green", "grey" }
+local BAND_LABELS = { orange = L["orange"], yellow = L["yellow"], green = L["green"], grey = L["grey"] }
 
 -- "orange yellow green    120  132  145": each band's name and where it starts, in its
 -- colour, from where the recipe can be learned: the data's first threshold can sit far below that.
@@ -276,7 +277,7 @@ local function AddBands(tooltip, profession, recipeID)
 		local from = math.max(t[i], learnAt)
 		if i == #BAND_NAMES or from < t[i + 1] then
 			parts[#parts + 1] = ns.COLORS[name]:WrapTextInColorCode(tostring(from))
-			names[#names + 1] = ns.COLORS[name]:WrapTextInColorCode(name)
+			names[#names + 1] = ns.COLORS[name]:WrapTextInColorCode(BAND_LABELS[name])
 		end
 	end
 	AddLine(tooltip, table.concat(names, " "), table.concat(parts, "  "))
@@ -290,13 +291,13 @@ local function CraftTooltip(tooltip, profession, segment)
 	RecipeTitle(tooltip, recipeID, RecipeName(recipeID))
 	AddLine(
 		tooltip,
-		"Crafts",
-		string.format("%d, from %d to %d", segment.crafts, segment.fromSkill - m, segment.toSkill - m)
+		L["Crafts"],
+		string.format(L["%d, from %d to %d"], segment.crafts, segment.fromSkill - m, segment.toSkill - m)
 	)
 	AddBands(tooltip, profession, recipeID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
-		local name = C_Item.GetItemNameByID(reagent.itemID) or ("item " .. reagent.itemID)
+		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
 		local have = ns.Have(reagent.itemID)
 		local need = reagent.quantity * segment.crafts
 		local color = have >= need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR
@@ -308,9 +309,9 @@ local function CraftTooltip(tooltip, profession, segment)
 			color
 		)
 	end
-	AddLine(tooltip, "Cost", Money(ns.NetCost(recipeID) * segment.expectedCrafts))
+	AddLine(tooltip, L["Cost"], Money(ns.NetCost(recipeID) * segment.expectedCrafts))
 	if ns.IsLearned(recipeID) and profession.skillLine == ns.OpenSkillLine() then
-		GameTooltip_AddInstructionLine(tooltip, "Click to open the recipe.")
+		GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
 	end
 end
 
@@ -318,13 +319,13 @@ end
 ---@param profession SkillUpProfession
 ---@param step SkillUpTraining
 local function TrainTooltip(tooltip, profession, step)
-	RecipeTitle(tooltip, step.recipeID, "Train " .. RecipeName(step.recipeID))
-	GameTooltip_AddHighlightLine(tooltip, string.format("Taught by %s trainers.", profession.name))
-	AddLine(tooltip, "Fee", Money(step.fee))
+	RecipeTitle(tooltip, step.recipeID, string.format(L["Train %s"], RecipeName(step.recipeID)))
+	GameTooltip_AddHighlightLine(tooltip, string.format(L["Taught by %s trainers."], profession.name))
+	AddLine(tooltip, L["Fee"], Money(step.fee))
 	RequiresLine(tooltip, profession, step.reqSkill)
-	AddLine(tooltip, "First used at", tostring(step.atSkill - profession.modifier))
+	AddLine(tooltip, L["First used at"], tostring(step.atSkill - profession.modifier))
 	AddBands(tooltip, profession, step.recipeID)
-	ns.AddNearest(tooltip, "Nearest trainer", ns.NearestTrainer(profession, step.reqSkill + 1, true))
+	ns.AddNearest(tooltip, L["Nearest trainer"], ns.NearestTrainer(profession, step.reqSkill + 1, true))
 end
 
 ---@param tooltip GameTooltip
@@ -332,14 +333,14 @@ end
 ---@param rank SkillUpRank
 local function RankTooltip(tooltip, profession, rank)
 	GameTooltip_SetTitle(tooltip, string.format("%s %s", rank.name, profession.name))
-	GameTooltip_AddHighlightLine(tooltip, string.format("Raises your skill cap to %d.", rank.cap))
-	AddLine(tooltip, "Fee", Money(rank.fee))
+	GameTooltip_AddHighlightLine(tooltip, string.format(L["Raises your skill cap to %d."], rank.cap))
+	AddLine(tooltip, L["Fee"], Money(rank.fee))
 	RequiresLine(tooltip, profession, rank.reqSkill)
 	if rank.level > 0 then
 		local color = UnitLevel("player") < rank.level and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
-		AddLine(tooltip, "Requires", string.format("level %d", rank.level), color)
+		AddLine(tooltip, L["Requires"], string.format(L["level %d"], rank.level), color)
 	end
-	ns.AddNearest(tooltip, "Nearest trainer", ns.NearestTrainer(profession, rank.cap, true))
+	ns.AddNearest(tooltip, L["Nearest trainer"], ns.NearestTrainer(profession, rank.cap, true))
 end
 
 -- A waypoint to the nearest trainer teaching up to `cap`.
@@ -379,15 +380,19 @@ local function SuggestionTooltip(tooltip, profession, suggestion)
 	AddBands(tooltip, profession, recipeID)
 	local price = ns.ScrollPrice(suggestion.source)
 	if price then
-		AddLine(tooltip, "Scroll", Money(price))
+		AddLine(tooltip, L["Scroll"], Money(price))
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	ns.AddSourceLines(tooltip, suggestion.source)
 	local npcID = ns.SuggestionNPC(suggestion)
 	if npcID then
-		GameTooltip_AddInstructionLine(tooltip, "Click for a waypoint to " .. ns.SourceNPCs[npcID][1] .. ".")
+		GameTooltip_AddInstructionLine(
+			tooltip,
+			string.format(L["Click for a waypoint to %s."], ns.SourceNPCs[npcID][1])
+		)
+		ns.AddCompanionHint(tooltip)
 	end
-	GameTooltip_AddInstructionLine(tooltip, "Shift-click to link the scroll.")
+	GameTooltip_AddInstructionLine(tooltip, L["Shift-click to link the scroll."])
 end
 
 ---@param suggestion SkillUpSuggestion
@@ -417,7 +422,7 @@ local function RenderSuggestions(list, profession, route)
 	if #suggestions == 0 then
 		return
 	end
-	list:Message("Recipes from vendors, quests and drops that would carry it on:", NORMAL_FONT_COLOR)
+	list:Message(L["Recipes from vendors, quests and drops that would carry it on:"], NORMAL_FONT_COLOR)
 	for i = 1, math.min(#suggestions, SUGGESTIONS_SHOWN) do
 		local suggestion = suggestions[i]
 		local t = ns.Model.Get(suggestion.recipeID)
@@ -440,7 +445,7 @@ end
 ---@param route SkillUpPlan
 local function RenderRoute(list, profession, route)
 	if profession.capped and #route.ranks == 0 and #route.segments == 0 then
-		list:Message(string.format("At the %d cap: no trainer teaches the next rank.", profession.max))
+		list:Message(string.format(L["At the %d cap: no trainer teaches the next rank."], profession.max))
 		return
 	end
 	local m = profession.modifier
@@ -460,7 +465,7 @@ local function RenderRoute(list, profession, route)
 		elseif training then
 			list:Add({
 				icon = TRAIN_ICON,
-				text = "Train " .. RecipeName(training.recipeID),
+				text = string.format(L["Train %s"], RecipeName(training.recipeID)),
 				color = NORMAL_FONT_COLOR,
 				values = { Money(training.fee), tostring(training.reqSkill) },
 				tooltip = function(tooltip)
@@ -487,7 +492,7 @@ local function RenderRoute(list, profession, route)
 	end
 	if #route.segments > 0 then
 		list:Add({
-			text = "Total",
+			text = TOTAL,
 			color = NORMAL_FONT_COLOR,
 			values = { Money(route.expectedCost + route.trainingCost) },
 			valueColor = NORMAL_FONT_COLOR,
@@ -495,20 +500,21 @@ local function RenderRoute(list, profession, route)
 	end
 	if #route.segments == 0 and route.excluded.unpriced > 0 then
 		-- Auctionator knows only what it has scanned, so installing it isn't enough.
-		local without = "These reagents have no vendor price. Auction prices need Auctionator."
-		local with = "Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."
+		local without = L["These reagents have no vendor price. Auction prices need Auctionator."]
+		local with = L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."]
 		list:Message(ns.HasAuctionator() and with or without)
 	elseif route.stopReason == "no_recipe" then
-		local known = route.excluded.unpriced > 0 and "Nothing priced you know" or "Nothing you know"
-		list:Message(string.format("%s skills up past %d.", known, route.reachedSkill - m), RED_FONT_COLOR)
+		local known = route.excluded.unpriced > 0 and L["Nothing priced you know skills up past %d."]
+			or L["Nothing you know skills up past %d."]
+		list:Message(string.format(known, route.reachedSkill - m), RED_FONT_COLOR)
 		RenderSuggestions(list, profession, route)
 	end
 	if #route.segments > 0 and route.excluded.unpriced > 0 then
-		list:Message(string.format("%d recipes skipped: reagents not priced yet.", route.excluded.unpriced))
+		list:Message(string.format(L["%d recipes skipped: reagents not priced yet."], route.excluded.unpriced))
 	end
 end
 
-local SOURCE_TEXT = { gather = "gather", vendor = "vendor", auction = "AH", unknown = "no price" }
+local SOURCE_TEXT = { gather = L["gather"], vendor = L["vendor"], auction = L["AH"], unknown = L["no price"] }
 
 ---@param tooltip GameTooltip
 ---@param item SkillUpNeededItem
@@ -516,10 +522,10 @@ local function ReagentTooltip(tooltip, item)
 	tooltip:SetItemByID(item.itemID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	local have = ns.Have(item.itemID)
-	AddLine(tooltip, "Have (bags and bank)", tostring(have))
-	AddLine(tooltip, "Route needs", tostring(item.need))
+	AddLine(tooltip, L["Have (bags and bank)"], tostring(have))
+	AddLine(tooltip, L["Route needs"], tostring(item.need))
 	for _, alt in ipairs(ns.AltCounts(item.itemID)) do
-		AddLine(tooltip, "On " .. alt.name, tostring(alt.count), GRAY_FONT_COLOR)
+		AddLine(tooltip, string.format(L["On %s"], alt.name), tostring(alt.count), GRAY_FONT_COLOR)
 	end
 	local price = ns.Price(item.itemID)
 	if not price then
@@ -527,15 +533,15 @@ local function ReagentTooltip(tooltip, item)
 		return
 	end
 	if price.source == "gather" then
-		AddLine(tooltip, "Source", ns.PriceSourceText(price))
+		AddLine(tooltip, L["Source"], ns.PriceSourceText(price))
 		return
 	end
-	AddLine(tooltip, "Each", string.format("%s |cff808080(%s)|r", Money(price.copper), ns.PriceSourceText(price)))
+	AddLine(tooltip, L["Each"], string.format("%s |cff808080(%s)|r", Money(price.copper), ns.PriceSourceText(price)))
 	if have < item.need then
-		AddLine(tooltip, "To buy", Money(price.copper * (item.need - have)))
+		AddLine(tooltip, L["To buy"], Money(price.copper * (item.need - have)))
 	end
 	if item.source == "vendor" then
-		ns.AddNearest(tooltip, "Nearest vendor", ns.NearestVendor(item.itemID, true))
+		ns.AddNearest(tooltip, L["Nearest vendor"], ns.NearestVendor(item.itemID, true))
 	end
 end
 
@@ -566,7 +572,7 @@ local function RenderUnpriced(list, items)
 	for _, itemID in ipairs(items) do
 		list:Add({
 			icon = C_Item.GetItemIconByID(itemID) or 134400,
-			text = C_Item.GetItemNameByID(itemID) or ("item " .. itemID),
+			text = C_Item.GetItemNameByID(itemID) or string.format(L["item %d"], itemID),
 			values = { "", SOURCE_TEXT.unknown },
 			tooltip = function(tooltip)
 				tooltip:SetItemByID(itemID)
@@ -579,7 +585,7 @@ end
 ---@param reagents SkillUpNeededItem[]
 local function RenderReagents(list, reagents)
 	if #reagents == 0 then
-		list:Message("Nothing to buy for this route.")
+		list:Message(L["Nothing to buy for this route."])
 		return
 	end
 	for _, item in ipairs(reagents) do
@@ -587,7 +593,7 @@ local function RenderReagents(list, reagents)
 		if not name then
 			-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
 			C_Item.RequestLoadItemDataByID(item.itemID)
-			name = "item " .. item.itemID
+			name = string.format(L["item %d"], item.itemID)
 		end
 		local have = ns.Have(item.itemID)
 		list:Add({
@@ -630,7 +636,10 @@ local function PriceAge(reagents)
 		return "", GRAY_FONT_COLOR
 	end
 	local stale = ns.PriceAge(oldest) > STALE_AFTER
-	local text = "AH prices from " .. ns.PriceAgeText(oldest) .. (stale and ": rescan with Auctionator" or "")
+	local text = string.format(
+		stale and L["AH prices from %s: rescan with Auctionator"] or L["AH prices from %s"],
+		ns.PriceAgeText(oldest)
+	)
 	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 
@@ -642,16 +651,16 @@ end
 function ns.NextCraft(profession, route)
 	local segment = route.segments[1]
 	if not segment then
-		return { text = "Craft next", reason = "Nothing to craft on this route." }
+		return { text = L["Craft next"], reason = L["Nothing to craft on this route."] }
 	elseif ns.OpenSkillLine() ~= profession.skillLine then
-		return { text = "Craft next", reason = string.format("Open %s to craft from here.", profession.name) }
+		return { text = L["Craft next"], reason = string.format(L["Open %s to craft from here."], profession.name) }
 	elseif profession.capped and route.ranks[1] then
 		return {
-			text = "Craft next",
-			reason = string.format("Train %s first: you're at your cap.", route.ranks[1].name),
+			text = L["Craft next"],
+			reason = string.format(L["Train %s first: you're at your cap."], route.ranks[1].name),
 		}
 	elseif not ns.IsLearned(segment.recipeID) then
-		return { text = "Craft next", reason = string.format("Train %s first.", RecipeName(segment.recipeID)) }
+		return { text = L["Craft next"], reason = string.format(L["Train %s first."], RecipeName(segment.recipeID)) }
 	end
 	-- Past the cap a craft gives no skill-up until the next rank is trained.
 	local crafts, cap = segment.crafts, profession.max + profession.modifier
@@ -664,11 +673,11 @@ function ns.NextCraft(profession, route)
 	end
 	-- RecipeInfo has no count; this one includes the client's reagent and resource rules.
 	local count = math.min(crafts, C_TradeSkillUI.GetCraftableCount(segment.recipeID))
-	local craft = { text = string.format("Craft %d× %s", math.max(count, 1), RecipeName(segment.recipeID)) }
+	local craft = { text = string.format(L["Craft %d× %s"], math.max(count, 1), RecipeName(segment.recipeID)) }
 	if count > 0 then
 		craft.recipeID, craft.count = segment.recipeID, count
 	else
-		craft.reason = "Missing reagents for this step."
+		craft.reason = L["Missing reagents for this step."]
 	end
 	return craft
 end
@@ -692,13 +701,13 @@ local function Render()
 	page.Auctionator:Disable()
 	page.Craft:SetShown(profession ~= nil)
 	if not profession then
-		page.RouteList:Message("Learn a crafting profession to plan a route.")
+		page.RouteList:Message(L["Learn a crafting profession to plan a route."])
 		page.RouteList:Finish()
 		page.ReagentList:Finish()
 		return
 	end
 	ProfessionsFrame:SetPortraitToAsset(profession.icon)
-	page.Skill:SetFormattedText("Skill  %d/%d     Target", profession.base, profession.max)
+	page.Skill:SetFormattedText(L["Skill  %d/%d     Target"], profession.base, profession.max)
 	local route = ns.PlanRoute(profession)
 	if not page.Target:HasFocus() then
 		page.Target:SetText(tostring(route.target))
@@ -715,7 +724,7 @@ local function Render()
 	page.PriceAge:SetTextColor(ageColor:GetRGB())
 	page.RouteList:Finish()
 	page.ReagentList:Finish()
-	page.Track:SetText(ns.IsTracked(selected) and "Stop tracking" or "Track")
+	page.Track:SetText(ns.IsTracked(selected) and L["Stop tracking"] or L["Track"])
 	page.Auctionator:SetEnabled(#reagents > 0)
 	SetCraft(profession, route)
 end
@@ -809,7 +818,7 @@ local function CreateButtons()
 		ns.SetTracked(selected, tracked)
 		Render()
 		if tracked and not ns.TrackerAttached() then
-			ns.Print("tracked, but the objective tracker section isn't attached; please report it.")
+			ns.Print(L["tracked, but the objective tracker section isn't attached; please report it."])
 		end
 	end)
 	page.Track = track
@@ -817,7 +826,7 @@ local function CreateButtons()
 	-- Only auction house reagents still missing go to the Auctionator list.
 	local auctionator = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
 	auctionator:SetSize(130, 22)
-	auctionator:SetText("To Auctionator")
+	auctionator:SetText(L["To Auctionator"])
 	auctionator:SetScript("OnClick", function()
 		local profession = ns.RouteProfessions()[selected]
 		ns.SendToAuctionator(profession.name, ns.RouteReagents(ns.PlanRoute(profession)))
@@ -853,22 +862,22 @@ local function CreatePage()
 	CreateHeader()
 	CreateButtons()
 
-	local route = CreateInset("Route")
+	local route = CreateInset(L["Route"])
 	route:SetPoint("TOPLEFT", 16, -88)
 	-- The route gets the wider half: its names are longer and it has more columns.
 	route:SetPoint("BOTTOMRIGHT", page, "BOTTOM", ROUTE_SHARE - 6, 44)
 	page.RouteList = ns.CreateList(route, {
-		{ title = "Cost", width = 64 },
-		{ title = "To", width = 28 },
-		{ title = "Crafts", width = 36 },
+		{ title = L["Cost"], width = 64 },
+		{ title = L["To"], width = 28 },
+		{ title = L["Crafts"], width = 36 },
 	})
 
-	local reagents = CreateInset("Reagents  (have / need)")
+	local reagents = CreateInset(L["Reagents  (have / need)"])
 	reagents:SetPoint("TOPLEFT", page, "TOP", ROUTE_SHARE + 6, -88)
 	reagents:SetPoint("BOTTOMRIGHT", -16, 44)
 	page.ReagentList = ns.CreateList(reagents, {
-		{ title = "Have", width = 64 },
-		{ title = "Source", width = 60, justify = "LEFT" },
+		{ title = L["Have"], width = 64 },
+		{ title = L["Source"], width = 60, justify = "LEFT" },
 	})
 
 	page.PriceAge = page:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -975,7 +984,7 @@ local function CreateTab()
 	tab = CreateFrame("Frame", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
 	tab.Icon:SetTexture("Interface\\Icons\\INV_Scroll_03")
 	tab:SetFillToInterior(true)
-	tab.tooltipText = "Levelling route"
+	tab.tooltipText = L["Levelling route"]
 	tab:EnableMouse(true)
 	tab:SetCustomOnMouseUpHandler(function(_, button, upInside)
 		if button == "LeftButton" and upInside then

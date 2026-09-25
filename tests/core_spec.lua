@@ -43,6 +43,7 @@ for _, complete in ipairs({ false, true }) do
 	}, { __index = _G })
 	-- A save from before auction prices moved to Auctionator.
 	env.SkillUpForeverDB = { scanAuctions = true, tracked = { [1] = true }, auctions = {}, vendor = { [1] = 5 } }
+	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 	setfenv(assert(loadfile("Core.lua")), env)("SkillUpForever", ns)
 	callbacks.SkillUpForever()
 	if complete then
@@ -62,6 +63,71 @@ for _, complete in ipairs({ false, true }) do
 		equal(initialized, 0, "missing files stop initialization")
 		equal(ns.db, nil, "missing files leave saved settings alone")
 	end
+end
+
+-- What's new: one chat line after an update, from saved variables that may not have loaded.
+do
+	local callbacks, messages, version = {}, {}, "0.6.0"
+	local ns = {
+		InitPrices = function() end,
+		RegisterSettings = function() end,
+		AttachItemTooltips = function() end,
+		InitShopping = function() end,
+		TrainerFees = {},
+		TrainerRanks = {},
+		RecipeSources = {},
+	}
+	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
+	local env = setmetatable({
+		CreateColor = function() end,
+		Enum = { TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 } },
+		CreateFrame = function()
+			return { RegisterEvent = function() end, SetScript = function() end }
+		end,
+		SlashCmdList = {},
+		DEFAULT_CHAT_FRAME = {
+			AddMessage = function(_, message)
+				messages[#messages + 1] = message
+			end,
+		},
+		EventUtil = {
+			ContinueOnAddOnLoaded = function(name, callback)
+				callbacks[name] = callback
+			end,
+		},
+		C_AddOns = {
+			GetAddOnMetadata = function(name, field)
+				assert(name == "SkillUpForever" and field == "Version")
+				return version
+			end,
+		},
+	}, { __index = _G })
+	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
+	setfenv(assert(loadfile("Core.lua")), env)("SkillUpForever", ns)
+	ns.AnnounceUpdate()
+	equal(#messages, 0, "nothing before the saved variables load")
+	-- Forever often loads no saved variables at all (forever-bugs#34).
+	env.SkillUpForeverDB = nil
+	callbacks.SkillUpForever()
+	ns.AnnounceUpdate()
+	equal(#messages, 0, "a first install is silent")
+	equal(ns.db.lastVersion, "0.6.0", "a first install remembers its version")
+	ns.AnnounceUpdate()
+	equal(#messages, 0, "the same version is silent")
+	version = "0.7.0"
+	ns.AnnounceUpdate()
+	equal(#messages, 1, "a new version prints")
+	equal(messages[1]:find("updated to 0.7.0. " .. ns.WHATS_NEW, 1, true) ~= nil, true, "it names the version")
+	ns.AnnounceUpdate()
+	equal(#messages, 1, "a new version prints once")
+	ns.db.whatsNew, version = false, "0.8.0"
+	ns.AnnounceUpdate()
+	equal(#messages, 1, "the setting off is silent")
+	equal(ns.db.lastVersion, "0.8.0", "the setting off still remembers the version")
+	ns.db.whatsNew, version = true, "@project-version@"
+	ns.AnnounceUpdate()
+	equal(#messages, 1, "a dev checkout is silent")
+	equal(ns.db.lastVersion, "0.8.0", "a dev checkout's version isn't remembered")
 end
 
 print("core_spec: " .. checks .. " checks passed")

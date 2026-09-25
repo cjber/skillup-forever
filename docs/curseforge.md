@@ -42,4 +42,6 @@ Prices are only as good as what you've seen, so a recipe with an unpriced reagen
 
 It also works with my other Forever addons: [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever) walks you to its waypoints, and [Adventure Guide Forever](https://www.curseforge.com/wow/addons/adventure-guide-forever) shows each profession's next steps from its route.
 
+SkillUp is in English for now. Translations are welcome as a pull request, or pasted into an issue, on [GitHub](https://github.com/cjber/skillup-forever/tree/main/Locales).
+
 Source code: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever). Licence: GPL-3.0-or-later.

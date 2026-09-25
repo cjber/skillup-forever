@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+local L = ns.L
 
 local BAR_WIDTH = 250
 local MIN_LABEL_GAP = 18
@@ -94,7 +95,7 @@ local function LayoutBar(t, skill)
 
 	local mx = X(skill)
 	bar.marker:SetPoint("CENTER", bar, "TOPLEFT", mx, -height / 2)
-	bar.you:SetText("You: " .. skill)
+	bar.you:SetText(string.format(L["You: %d"], skill))
 	bar.you:ClearAllPoints()
 	bar.you:SetPoint("TOP", bar, "TOPLEFT", math.min(math.max(mx, 24), BAR_WIDTH - 24), -height - 16)
 	return bar
@@ -133,31 +134,31 @@ function ns.PriceAgeText(price)
 	if price.source ~= "auctionator" then
 		error("not an auction price: " .. tostring(price.source))
 	elseif price.days == nil then
-		return "over 3 weeks ago"
+		return L["over 3 weeks ago"]
 	elseif price.days == 0 then
-		return "today"
+		return L["today"]
 	end
-	return price.days .. "d ago"
+	return string.format(L["%dd ago"], price.days)
 end
 
 -- What to do about a reagent with no price: auction prices come only from Auctionator.
 ---@return string
 function ns.UnpricedHint()
 	if ns.HasAuctionator() then
-		return "Scan the auction house with Auctionator, or visit a vendor, to price reagents."
+		return L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."]
 	end
-	return "Visit a vendor to price reagents. Auction prices need Auctionator."
+	return L["Visit a vendor to price reagents. Auction prices need Auctionator."]
 end
 
 ---@param price SkillUpPrice
 ---@return string
 function ns.PriceSourceText(price)
 	if price.source == "gather" then
-		return "you gather it (" .. price.profession .. ")"
+		return string.format(L["you gather it (%s)"], price.profession)
 	elseif price.source == "vendor" then
-		return "vendor"
+		return L["vendor"]
 	elseif price.source == "auctionator" then
-		return "Auctionator, " .. ns.PriceAgeText(price)
+		return string.format(L["Auctionator, %s"], ns.PriceAgeText(price))
 	end
 	error("unknown price source: " .. tostring(price.source))
 end
@@ -173,7 +174,7 @@ local function AddCost(tooltip, recipeID, d)
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	for _, reagent in ipairs(reagents) do
-		local name = C_Item.GetItemNameByID(reagent.itemID) or ("item " .. reagent.itemID)
+		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
 		local left = reagent.quantity > 1 and string.format("%s x%d", name, reagent.quantity) or name
 		local price = ns.Price(reagent.itemID)
 		if price then
@@ -188,23 +189,23 @@ local function AddCost(tooltip, recipeID, d)
 				1
 			)
 		else
-			tooltip:AddDoubleLine(left, "no price", 1, 1, 1, 0.5, 0.5, 0.5)
+			tooltip:AddDoubleLine(left, L["no price"], 1, 1, 1, 0.5, 0.5, 0.5)
 		end
 	end
 	if not d.cost then
 		GameTooltip_AddDisabledLine(tooltip, ns.UnpricedHint())
 		return
 	end
-	tooltip:AddDoubleLine("Reagents", Money(d.cost), 1, 0.82, 0, 1, 1, 1)
+	tooltip:AddDoubleLine(L["Reagents"], Money(d.cost), 1, 0.82, 0, 1, 1, 1)
 	local net = d.net
 	if d.value and net then
-		local each = d.value.quantity ~= 1 and string.format(" x%g", d.value.quantity) or ""
+		local sells = d.value.quantity ~= 1 and string.format(L["Sells for x%g"], d.value.quantity) or L["Sells for"]
 		tooltip:AddDoubleLine(
-			"Sells for" .. each,
+			sells,
 			string.format(
 				"%s |cff808080(%s)|r",
 				Money(d.value.copper),
-				d.value.source == "auction" and "AH" or "vendor"
+				d.value.source == "auction" and L["AH"] or L["vendor"]
 			),
 			1,
 			0.82,
@@ -214,7 +215,7 @@ local function AddCost(tooltip, recipeID, d)
 			1
 		)
 		tooltip:AddDoubleLine(
-			net < 0 and "Profit per craft" or "Net per craft",
+			net < 0 and L["Profit per craft"] or L["Net per craft"],
 			Money(math.abs(net)),
 			1,
 			0.82,
@@ -226,7 +227,7 @@ local function AddCost(tooltip, recipeID, d)
 	end
 	local perSkillUp = d.perSkillUp
 	if perSkillUp then
-		local label = perSkillUp < 0 and "Profit per skill-up" or "Per skill-up"
+		local label = perSkillUp < 0 and L["Profit per skill-up"] or L["Per skill-up"]
 		tooltip:AddDoubleLine(label, ns.FormatNet(math.abs(perSkillUp), perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
 	end
 end
@@ -249,17 +250,17 @@ function ns.ShowRecipeTooltip(_, row, data)
 	local t = d.thresholds
 	if t and ctx then
 		local reqColor = ctx.skill < t[1] and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
-		GameTooltip_AddColoredLine(tooltip, string.format("Requires %s (%d)", ctx.name or "", t[1]), reqColor)
+		GameTooltip_AddColoredLine(tooltip, string.format(ITEM_MIN_SKILL, ctx.name or "", t[1]), reqColor)
 		GameTooltip_InsertFrame(tooltip, LayoutBar(t, ctx.skill), 4)
 		if d.chance then
 			GameTooltip_AddColoredLine(
 				tooltip,
-				string.format("Skill-up chance: %d%%", math.floor(d.chance * 100 + 0.5)),
+				string.format(L["Skill-up chance: %d%%"], math.floor(d.chance * 100 + 0.5)),
 				ns.COLORS[d.color]
 			)
 		end
 	else
-		GameTooltip_AddDisabledLine(tooltip, "No skill data for this recipe yet.")
+		GameTooltip_AddDisabledLine(tooltip, L["No skill data for this recipe yet."])
 	end
 	if ns.db.showCost then
 		AddCost(tooltip, recipeInfo.recipeID, d)
@@ -269,6 +270,7 @@ end
 
 local MAX_USES = 5
 local BAND_NAMES = { "orange", "yellow", "green" }
+local BAND_LABELS = { orange = L["orange"], yellow = L["yellow"], green = L["green"] }
 
 -- "yellow until 115": the band the recipe is in now and where it ends.
 ---@param t number[]
@@ -277,14 +279,14 @@ local BAND_NAMES = { "orange", "yellow", "green" }
 ---@return ColorMixin
 local function Band(t, skill)
 	if skill < t[1] then
-		return string.format("needs %d", t[1]), ns.COLORS.red
+		return string.format(L["needs %d"], t[1]), ns.COLORS.red
 	end
 	for i, band in ipairs(BAND_NAMES) do
 		if skill < t[i + 1] then
-			return string.format("%s until %d", band, t[i + 1]), ns.COLORS[band]
+			return string.format(L["%s until %d"], BAND_LABELS[band], t[i + 1]), ns.COLORS[band]
 		end
 	end
-	return "grey", ns.COLORS.grey
+	return L["grey"], ns.COLORS.grey
 end
 
 -- Recipes of your professions that still skill up and use this item: learned
@@ -328,7 +330,7 @@ local function AddRouteNeeds(tooltip, itemID)
 				end
 				local have = ns.Have(itemID)
 				local text = string.format(
-					"Route: %d/%d · %s to %d",
+					L["Route: %d/%d · %s to %d"],
 					math.min(have, item.need),
 					item.need,
 					entry.route.profession,
@@ -345,16 +347,16 @@ end
 ---@param uses SkillUpUse[]
 local function AddUsedIn(tooltip, uses)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
-	GameTooltip_AddNormalLine(tooltip, "Used in")
+	GameTooltip_AddNormalLine(tooltip, L["Used in"])
 	for i, use in ipairs(uses) do
 		if i > MAX_USES then
-			GameTooltip_AddDisabledLine(tooltip, string.format("+%d more", #uses - MAX_USES))
+			GameTooltip_AddDisabledLine(tooltip, string.format(L["+%d more"], #uses - MAX_USES))
 			break
 		end
 		local band, color = Band(use.t, use.skill)
-		local name = C_Spell.GetSpellName(use.recipeID) or ("recipe " .. use.recipeID)
+		local name = C_Spell.GetSpellName(use.recipeID) or string.format(L["recipe %d"], use.recipeID)
 		local r, g, b = color:GetRGB()
-		tooltip:AddDoubleLine(use.learned and name or name .. " (unlearned)", band, 1, 1, 1, r, g, b)
+		tooltip:AddDoubleLine(use.learned and name or string.format(L["%s (unlearned)"], name), band, 1, 1, 1, r, g, b)
 	end
 end
 
@@ -376,7 +378,7 @@ local function AddUses(tooltip, data)
 		if IsShiftKeyDown() and #uses > 0 then
 			AddUsedIn(tooltip, uses)
 		elseif needed and #uses > 0 then
-			GameTooltip_AddDisabledLine(tooltip, string.format("Shift: used in %d of your recipes", #uses))
+			GameTooltip_AddDisabledLine(tooltip, string.format(L["Shift: used in %d of your recipes"], #uses))
 		end
 	elseif mode == "full" then
 		AddRouteNeeds(tooltip, itemID)

@@ -30,7 +30,8 @@ read_globals = {
 	"GetTrainerTradeskillRankValues", "C_SpellBook", "issecretvalue", "Item", "NORMAL_FONT_COLOR",
 	"TooltipDataProcessor", "UnitName", "BuyMerchantItem", "GetMerchantItemMaxStack", "MerchantFrame", "MenuUtil", "Mixin", "ObjectiveTrackerFrame", "ObjectiveTrackerManager", "OBJECTIVE_TRACKER_COLOR", "OBJECTIVE_DASH_STYLE_HIDE",
 	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator", "tContains",
-	"ShortestPathForever", "InCombatLockdown", "C_AddOns",
+	"ShortestPathForever", "InCombatLockdown", "GetLocale", "C_AddOns",
+	"APPRENTICE", "JOURNEYMAN", "EXPERT", "ARTISAN", "DEFAULT", "OFF", "TOTAL", "ITEM_MIN_SKILL",
 }
 
 files["Data/Thresholds.lua"] = { max_line_length = false }

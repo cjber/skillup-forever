@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+local L = ns.L
 
 -- Where recipe scrolls come from (bundled from classic-db) and how to get there.
 
@@ -76,7 +77,7 @@ function ns.NPCLocation(npcID)
 	local uiMapID, position = C_Map.GetMapPosFromWorldPos(map, world)
 	local info = uiMapID and C_Map.GetMapInfo(uiMapID)
 	if not (info and position) then
-		return { name = name, label = "unknown location" }
+		return { name = name, label = L["unknown location"] }
 	end
 	local zone = ZoneAt(uiMapID, position:GetXY()) -- multi-value: the continent x, y
 	if zone then
@@ -179,7 +180,7 @@ end
 function ns.SetWaypoint(npcID)
 	local where = ns.NPCLocation(npcID)
 	if not where.map then
-		ns.Print(string.format("%s is in %s.", where.name, where.label))
+		ns.Print(string.format(L["%s is in %s."], where.name, where.label))
 		return false
 	end
 	local api = ShortestPath()
@@ -188,7 +189,7 @@ function ns.SetWaypoint(npcID)
 		and type(api.Navigate) == "function"
 		and api.Navigate("SkillUpForever", where.map, where.x, where.y, where.name)
 	then
-		ns.Print(string.format("route set to %s, %s.", where.name, ns.LocationText(where)))
+		ns.Print(string.format(L["route set to %s, %s."], where.name, ns.LocationText(where)))
 		return true
 	end
 	if TomTom and TomTom.AddWaypoint then
@@ -197,10 +198,10 @@ function ns.SetWaypoint(npcID)
 		C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(where.map, where.x, where.y))
 		C_SuperTrack.SetSuperTrackedUserWaypoint(true)
 	else
-		ns.Print(string.format("%s is at %s.", where.name, ns.LocationText(where)))
+		ns.Print(string.format(L["%s is at %s."], where.name, ns.LocationText(where)))
 		return false
 	end
-	ns.Print(string.format("waypoint set to %s, %s.", where.name, ns.LocationText(where)))
+	ns.Print(string.format(L["waypoint set to %s, %s."], where.name, ns.LocationText(where)))
 	return true
 end
 
@@ -234,7 +235,7 @@ function ns.SuggestionNPC(suggestion)
 	return suggestion.npcID
 end
 
-local KIND_TEXT = { "vendor", "limited vendor", "quest", "drop", "world drop" }
+local KIND_TEXT = { L["vendor"], L["limited vendor"], L["quest"], L["drop"], L["world drop"] }
 
 -- Scroll recipes of this profession, not trainer-taught nor learned, that the
 -- base skill behind `skill` (effective) can learn and that still skill up at
@@ -308,23 +309,23 @@ end
 ---@param source SkillUpSource
 function ns.AddSourceLines(tooltip, source)
 	for _, npcID in ipairs(source.vendors or {}) do
-		AddNPC(tooltip, "Sold by", npcID, Limited(source, npcID) and "  (limited)" or nil, Usable(npcID))
+		AddNPC(tooltip, L["Sold by"], npcID, Limited(source, npcID) and "  " .. L["(limited)"] or nil, Usable(npcID))
 	end
 	for _, questID in ipairs(source.quests or {}) do
 		local title, faction = unpack(ns.SourceQuests[questID])
 		GameTooltip_AddColoredDoubleLine(
 			tooltip,
-			"Quest",
+			L["Quest"],
 			title,
 			NORMAL_FONT_COLOR,
 			OurFaction(faction) and HIGHLIGHT_FONT_COLOR or RED_FONT_COLOR
 		)
 	end
 	for _, drop in ipairs(source.drops or {}) do
-		AddNPC(tooltip, "Dropped by", drop[1], string.format("  (%s%%)", drop[2]), true)
+		AddNPC(tooltip, L["Dropped by"], drop[1], string.format("  (%s%%)", drop[2]), true)
 	end
 	if source.world then
-		GameTooltip_AddNormalLine(tooltip, "World drop")
+		GameTooltip_AddNormalLine(tooltip, L["World drop"])
 	end
 end
 
@@ -361,10 +362,10 @@ function ns.AddCompanionHint(tooltip)
 	end
 	local hint
 	if not C_AddOns.DoesAddOnExist(SHORTEST_PATH) then
-		hint = "Install Shortest Path Forever for walked routes and boat times."
+		hint = L["Install Shortest Path Forever for walked routes and boat times."]
 	else
 		local _, _, _, _, reason = C_AddOns.GetAddOnInfo(SHORTEST_PATH)
-		hint = reason == "DISABLED" and "Enable Shortest Path Forever for walked routes and boat times." or nil
+		hint = reason == "DISABLED" and L["Enable Shortest Path Forever for walked routes and boat times."] or nil
 	end
 	if hint then
 		GameTooltip_AddDisabledLine(tooltip, hint)
@@ -381,6 +382,6 @@ function ns.AddNearest(tooltip, label, npcID)
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	AddNPC(tooltip, label, npcID, nil, true)
-	GameTooltip_AddInstructionLine(tooltip, "Click for a waypoint.")
+	GameTooltip_AddInstructionLine(tooltip, L["Click for a waypoint."])
 	ns.AddCompanionHint(tooltip)
 end

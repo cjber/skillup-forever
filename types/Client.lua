@@ -16,6 +16,17 @@ MenuResponse = {}
 ---@type {ContinueOnAddOnLoaded: fun(name: string, callback: fun())}
 EventUtil = {}
 
+-- GlobalStrings the client defines from its GlobalStrings DB2 in the player's language
+-- (enUS values from wago.tools, Forever build 1.60.1.70009).
+APPRENTICE = "Apprentice"
+JOURNEYMAN = "Journeyman"
+EXPERT = "Expert"
+ARTISAN = "Artisan"
+DEFAULT = "Default"
+OFF = "Off"
+TOTAL = "Total"
+ITEM_MIN_SKILL = "Requires %s (%d)"
+
 ---@class SkillUpProfessionFrame : Frame
 ---@field CraftingPage SkillUpCraftingPage
 ---@field BookPage Frame

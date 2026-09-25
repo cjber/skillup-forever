@@ -13,3 +13,5 @@ ignore:
   - media/icon.svg
   - media/icon-400.png
   - stylua.toml
+  - Locales/phrases.txt
+  - Locales/README.md

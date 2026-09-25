@@ -89,6 +89,7 @@ local ns = {
 	RefreshTrainer = Refresh,
 	RefreshRouteTab = Refresh,
 }
+assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 setfenv(assert(loadfile("Settings.lua")), env)("SkillUpForever", ns)
 ns.RegisterSettings()
 

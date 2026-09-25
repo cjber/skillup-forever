@@ -78,6 +78,7 @@
 ---@field SORT_OPTIONS string[][]
 ---@field REAGENT_TOOLTIP_OPTIONS string[][]
 ---@field TITLE string
+---@field L table<string, string> English phrase to the client locale's translation, else the phrase
 ---@field COLORS table<string, ColorMixin>
 ---@field Model SkillUpModel
 ---@field db SkillUpDB

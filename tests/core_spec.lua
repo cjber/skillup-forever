@@ -43,6 +43,7 @@ for _, complete in ipairs({ false, true }) do
 	}, { __index = _G })
 	-- A save from before auction prices moved to Auctionator.
 	env.SkillUpForeverDB = { scanAuctions = true, tracked = { [1] = true }, auctions = {}, vendor = { [1] = 5 } }
+	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 	setfenv(assert(loadfile("Core.lua")), env)("SkillUpForever", ns)
 	callbacks.SkillUpForever()
 	if complete then
@@ -101,6 +102,7 @@ do
 			end,
 		},
 	}, { __index = _G })
+	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 	setfenv(assert(loadfile("Core.lua")), env)("SkillUpForever", ns)
 	ns.AnnounceUpdate()
 	equal(#messages, 0, "nothing before the saved variables load")

@@ -67,7 +67,7 @@ The colour itself always comes from the game, so the addon never disagrees with 
 
 ## Works alongside
 
-All optional: Auctionator supplies auction prices and takes the shopping list (see [Prices](#prices)), [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever) walks you to route waypoints, boats included (waypoint tooltips mention it when it isn't running), TomTom draws the arrow otherwise, and Syndicator shows the reagents your other characters hold.
+All optional: Auctionator supplies auction prices and takes the shopping list (see [Prices](#prices)), TomTom draws the arrow for route waypoints, and Syndicator shows the reagents your other characters hold.
 
 ## Development
 

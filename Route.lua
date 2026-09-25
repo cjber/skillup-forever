@@ -386,6 +386,7 @@ local function SuggestionTooltip(tooltip, profession, suggestion)
 	local npcID = ns.SuggestionNPC(suggestion)
 	if npcID then
 		GameTooltip_AddInstructionLine(tooltip, "Click for a waypoint to " .. ns.SourceNPCs[npcID][1] .. ".")
+		ns.AddCompanionHint(tooltip)
 	end
 	GameTooltip_AddInstructionLine(tooltip, "Shift-click to link the scroll.")
 end

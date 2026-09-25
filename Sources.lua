@@ -351,6 +351,26 @@ function ns.NearestVendor(itemID, byTravel)
 	return vendors and ns.NearestNPC(vendors, byTravel)
 end
 
+local SHORTEST_PATH = "ShortestPathForever"
+
+-- Under a waypoint click: what Shortest Path Forever would add, when it isn't running.
+---@param tooltip GameTooltip
+function ns.AddCompanionHint(tooltip)
+	if not ns.db.companionHints or C_AddOns.IsAddOnLoaded(SHORTEST_PATH) then
+		return
+	end
+	local hint
+	if not C_AddOns.DoesAddOnExist(SHORTEST_PATH) then
+		hint = "Install Shortest Path Forever for walked routes and boat times."
+	else
+		local _, _, _, _, reason = C_AddOns.GetAddOnInfo(SHORTEST_PATH)
+		hint = reason == "DISABLED" and "Enable Shortest Path Forever for walked routes and boat times." or nil
+	end
+	if hint then
+		GameTooltip_AddDisabledLine(tooltip, hint)
+	end
+end
+
 -- "Nearest trainer  Name" over its zone and coordinates, and what a click does.
 ---@param tooltip GameTooltip
 ---@param label string
@@ -362,4 +382,5 @@ function ns.AddNearest(tooltip, label, npcID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	AddNPC(tooltip, label, npcID, nil, true)
 	GameTooltip_AddInstructionLine(tooltip, "Click for a waypoint.")
+	ns.AddCompanionHint(tooltip)
 end

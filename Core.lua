@@ -13,6 +13,9 @@ local DEFAULTS = {
 	showRouteTab = true,
 	reagentTooltip = "route",
 	gatherFree = true,
+	whatsNew = true,
+	companionHints = true,
+	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
@@ -34,6 +37,8 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 	{ "full", "Every recipe that uses it" },
 }
 ns.TITLE = "SkillUp Forever"
+-- The chat line after an update: one sentence for the release being tagged.
+ns.WHATS_NEW = "Waypoint tooltips now suggest Shortest Path Forever when it isn't running."
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -84,6 +89,26 @@ local function LoadDB()
 	SkillUpForeverDB = loaded
 	ns.db = loaded
 end
+
+-- One chat line after an update, never on a first install. A dev checkout's version is
+-- the packager's unfilled keyword, so it is left alone.
+function ns.AnnounceUpdate()
+	local version = C_AddOns.GetAddOnMetadata(addonName, "Version")
+	if not (ns.db and version) or version:match("^@.+@$") then
+		return
+	end
+	local last = ns.db.lastVersion
+	ns.db.lastVersion = version
+	if ns.db.whatsNew and last ~= "" and last ~= version then
+		ns.Print(string.format("updated to %s. %s", version, ns.WHATS_NEW))
+	end
+end
+
+local loginEvents = CreateFrame("Frame")
+loginEvents:RegisterEvent("PLAYER_LOGIN")
+loginEvents:SetScript("OnEvent", function()
+	ns.AnnounceUpdate()
+end)
 
 local KNOWN_SKILL_LINES = {}
 for _, skillLine in pairs(ns.ProfessionSkillLines or {}) do

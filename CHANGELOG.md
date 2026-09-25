@@ -11,6 +11,9 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **A line in chat after an update says what's new**, once, the first time the new version loads. A fresh install stays quiet, and *Tell me what's new after an update* in settings turns it off.
+- **Waypoint tooltips mention Shortest Path Forever when it isn't running.** Trainer, vendor and recipe-source tooltips add a grey line saying to install it, or enable it if it's turned off, for walked routes and boat times. *Suggest companion addons* in settings hides the line.
+
 ## [0.5.0] - 2026-09-25
 
 - **Other addons can show your profession progress.** `SkillUpForever.API` hands out each profession's next three steps, next recipes and reagents from the same plan as the levelling route tab, so Adventure Guide Forever can draw them in its Professions tab.

@@ -117,6 +117,14 @@ function ns.RegisterSettings()
 		"Sort recipes in one list, learned first, then unlearned. Default restores categories."
 	)
 
+	Checkbox(
+		"companionHints",
+		"Suggest companion addons",
+		"Waypoint tooltips say when Shortest Path Forever, not installed or turned off, would plot the route."
+	)
+
+	Checkbox("whatsNew", "Tell me what's new after an update", "One line in chat the first time a new version loads.")
+
 	Settings.RegisterAddOnCategory(category)
 end
 

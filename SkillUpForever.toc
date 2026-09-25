@@ -30,3 +30,4 @@ Route.lua
 Shopping.xml
 Shopping.lua
 Trainer.lua
+API.lua

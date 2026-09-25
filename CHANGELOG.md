@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Other addons can show your profession progress.** `SkillUpForever.API` hands out each profession's next three steps, next recipes and reagents from the same plan as the levelling route tab, so Adventure Guide Forever can draw them in its Professions tab.
 - **Auction prices now come from [Auctionator](https://www.curseforge.com/wow/addons/auctionator).** SkillUp no longer scans the auction house itself: opening it no longer sends searches, and `/su scan` and the *Scan the auction house* setting are gone. With Auctionator installed its prices are used as before; without it, reagents you can only buy at the auction house show no cost, and the tooltips say *Auction prices need Auctionator*. Vendor prices, reputation discounts and the crafted-item sale option are unchanged. Old scanned prices are cleared from your saved settings.
 
 ## [0.4.1] - 2026-09-25

@@ -5,6 +5,7 @@ ignore = { "212/_.*" } -- unused args prefixed with _
 
 globals = {
 	"SkillUpForeverDB",
+	"SkillUpForever",
 	"SkillUpForever_OnAddonCompartmentClick",
 	"SLASH_SKILLUPFOREVER1",
 	"SLASH_SKILLUPFOREVER2",

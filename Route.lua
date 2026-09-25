@@ -14,7 +14,14 @@ local tab
 local selected -- skill line shown on the page
 local pending = false
 
-local RANK_NAMES = { [150] = "Journeyman", [225] = "Expert", [300] = "Artisan" }
+local RANK_NAMES = { [75] = "Apprentice", [150] = "Journeyman", [225] = "Expert", [300] = "Artisan" }
+
+-- The rank a skill cap belongs to, nil for a cap no trainer rank ends at.
+---@param cap number
+---@return string?
+function ns.RankName(cap)
+	return RANK_NAMES[cap]
+end
 
 -- The ranks a trainer teaches above the current cap, in order, and the highest cap
 -- they reach. It stops at a gap: a rank that comes from a book or quest isn't known.
@@ -122,6 +129,7 @@ local plans = {}
 
 function ns.InvalidatePlans()
 	plans = {}
+	ns.InvalidateAPI()
 end
 
 ---@param profession SkillUpProfession
@@ -148,6 +156,35 @@ function ns.PlanRoute(profession)
 	end
 	plans[profession.skillLine] = { key = key, route = route }
 	return route
+end
+
+-- The route in the order it is walked: each rank once the route passes the cap
+-- below it, a recipe's training just before its first craft, then the crafts.
+---@param profession SkillUpProfession
+---@param route SkillUpPlan
+---@return SkillUpRouteStep[]
+function ns.RouteSteps(profession, route)
+	local steps, nextRank = {}, 1
+	local training = {}
+	for _, step in ipairs(route.training) do
+		training[step.recipeID] = step
+	end
+	for _, segment in ipairs(route.segments) do
+		local rank = route.ranks[nextRank]
+		while rank and segment.toSkill - profession.modifier > rank.cap - 75 do
+			steps[#steps + 1] = { rank = rank }
+			nextRank = nextRank + 1
+			rank = route.ranks[nextRank]
+		end
+		local step = training[segment.recipeID]
+		if step then
+			training[segment.recipeID] = nil
+			step.reqSkill = ns.TrainingFor(profession, step.recipeID)[2]
+			steps[#steps + 1] = { training = step }
+		end
+		steps[#steps + 1] = { segment = segment }
+	end
+	return steps
 end
 
 ---@param recipeID integer
@@ -407,60 +444,46 @@ local function RenderRoute(list, profession, route)
 		return
 	end
 	local m = profession.modifier
-	local nextRank = 1
-	local function AddRanks(toSkill)
-		local rank = route.ranks[nextRank]
-		while rank and toSkill > rank.cap - 75 do
-			local shown = rank
+	for _, step in ipairs(ns.RouteSteps(profession, route)) do
+		local rank, training, segment = step.rank, step.training, step.segment
+		if rank then
 			list:Add({
 				icon = profession.icon,
 				text = ns.RankText(rank),
 				color = NORMAL_FONT_COLOR,
 				values = { Money(rank.fee), tostring(rank.reqSkill) },
 				tooltip = function(tooltip)
-					RankTooltip(tooltip, profession, shown)
+					RankTooltip(tooltip, profession, rank)
 				end,
-				click = TrainerClick(profession, shown.cap),
+				click = TrainerClick(profession, rank.cap),
 			})
-			nextRank = nextRank + 1
-			rank = route.ranks[nextRank]
-		end
-	end
-	local training = {}
-	for _, step in ipairs(route.training) do
-		training[step.recipeID] = step
-	end
-	for _, segment in ipairs(route.segments) do
-		AddRanks(segment.toSkill - m)
-		local step = training[segment.recipeID]
-		if step then
-			training[segment.recipeID] = nil
-			step.reqSkill = ns.TrainingFor(profession, step.recipeID)[2]
+		elseif training then
 			list:Add({
 				icon = TRAIN_ICON,
-				text = "Train " .. RecipeName(step.recipeID),
+				text = "Train " .. RecipeName(training.recipeID),
 				color = NORMAL_FONT_COLOR,
-				values = { Money(step.fee), tostring(step.reqSkill) },
+				values = { Money(training.fee), tostring(training.reqSkill) },
 				tooltip = function(tooltip)
-					TrainTooltip(tooltip, profession, step)
+					TrainTooltip(tooltip, profession, training)
 				end,
-				click = TrainerClick(profession, step.reqSkill + 1),
+				click = TrainerClick(profession, training.reqSkill + 1),
+			})
+		elseif segment then
+			list:Add({
+				icon = RecipeIcon(segment.recipeID),
+				text = RecipeName(segment.recipeID),
+				color = ns.COLORS[ns.Model.Color(ns.Model.Get(segment.recipeID), segment.fromSkill)],
+				values = {
+					Money(ns.NetCost(segment.recipeID) * segment.expectedCrafts),
+					tostring(segment.toSkill - m),
+					tostring(segment.crafts),
+				},
+				tooltip = function(tooltip)
+					CraftTooltip(tooltip, profession, segment)
+				end,
+				click = RecipeClick(segment.recipeID),
 			})
 		end
-		list:Add({
-			icon = RecipeIcon(segment.recipeID),
-			text = RecipeName(segment.recipeID),
-			color = ns.COLORS[ns.Model.Color(ns.Model.Get(segment.recipeID), segment.fromSkill)],
-			values = {
-				Money(ns.NetCost(segment.recipeID) * segment.expectedCrafts),
-				tostring(segment.toSkill - m),
-				tostring(segment.crafts),
-			},
-			tooltip = function(tooltip)
-				CraftTooltip(tooltip, profession, segment)
-			end,
-			click = RecipeClick(segment.recipeID),
-		})
 	end
 	if #route.segments > 0 then
 		list:Add({

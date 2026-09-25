@@ -89,10 +89,11 @@ local function Run(accepts)
 			},
 		}
 	end
-	ns.SetWaypoint(1250)
+	calls.result = ns.SetWaypoint(1250)
 end
 
 Run(true)
+equal(calls.result, true, "an accepted route reports it started")
 equal(calls.navigate.owner, "SkillUpForever", "Shortest Path Forever gets the addon as owner")
 equal(calls.navigate.map, 1429, "Shortest Path Forever gets the NPC's map")
 equal(calls.navigate.x, 0.421, "Shortest Path Forever gets the NPC's x")
@@ -106,6 +107,7 @@ equal(calls.navigate ~= nil, true, "Shortest Path Forever is asked first")
 equal(calls.native and calls.native.map, 1429, "a declined route falls back to the map waypoint")
 equal(calls.superTracked, true, "the fallback waypoint is super-tracked")
 equal(calls.printed, "waypoint set to Drake Lindgren, Elwynn Forest  42, 66.", "the fallback says where")
+equal(calls.result, true, "a map waypoint counts as started")
 
 Run(nil)
 equal(calls.native and calls.native.x, 0.421, "without Shortest Path Forever the map waypoint is set")
@@ -214,5 +216,12 @@ combat, env.ShortestPathForever = false, nil
 equal(ns.NearestNPC(npcs, true), 1251, "without Shortest Path Forever the straight-line nearest wins")
 env.ShortestPathForever = { API = { version = 1 } }
 equal(ns.NearestNPC(npcs, true), 1251, "an API without Estimate keeps the straight-line nearest")
+
+-- A dungeon NPC has no map point: only a chat line, and no route started.
+calls = {}
+ns.InstanceNames[0] = "The Deadmines"
+equal(ns.SetWaypoint(1250), false, "a dungeon NPC starts no route")
+equal(calls.printed, "Drake Lindgren is in The Deadmines.", "and says where it is")
+ns.InstanceNames[0] = nil
 
 print("waypoint_spec: " .. checks .. " checks passed")

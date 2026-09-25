@@ -11,6 +11,14 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-09-25
+
+Updated for Forever build 1.60.1.70009.
+
+- **Four Leatherworking recipes cost less**, among them Cloudy Gustwoven Trousers: Forever no longer lists Spider Silk Slippers among their reagents, so the cost per skill-up leaves them out.
+- **Linen Reagent Bag sells to a vendor for 2s**, down from 50s, as in the game.
+- **Potion of Demon Slaying, Potion of Beast Slaying and Potion of Elemental Purging** carry their new names, and the six Spiritcaller pieces follow the game's reshuffle of their recipes.
+
 ## [0.4.0] - 2026-09-25
 
 Getting there quicker: waypoints and nearest picks through Shortest Path Forever, clickable tracker

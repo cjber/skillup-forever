@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-25
+
 - **Ready for translation.** Every line SkillUp writes, from recipe tooltips to the route tab and tracker, can now be translated: send a file for your language as a pull request, or paste it into an issue, on [GitHub](https://github.com/cjber/skillup-forever/tree/main/Locales). Rank names, *Default*, *Off* and *Total* already use the game's own words, so they follow your client's language now. English is unchanged.
 - **A line in chat after an update says what's new**, once, the first time the new version loads. A fresh install stays quiet, and *Tell me what's new after an update* in settings turns it off.
 - **Waypoint tooltips mention Shortest Path Forever when it isn't running.** Trainer, vendor and recipe-source tooltips add a grey line saying to install it, or enable it if it's turned off, for walked routes and boat times. *Suggest companion addons* in settings hides the line.

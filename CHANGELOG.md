@@ -17,6 +17,11 @@ verbatim rather than rewritten as the addon moves.
 - **Fixed** your own auction house search wiping scanned prices when it found nothing. Only SkillUp's own searches now mark an item as unlisted.
 - **Fixed** free recipes, made only from reagents you gather, showing a cost of 1c per skill-up.
 - **Fixed** an error on `/reload` right after an update, before the "restart the game" message could show.
+- **Fixed** the Craft button offering crafts past your skill cap. It now stops where skill-ups do, until you train the next rank.
+- **Fixed** prices from an auction house scan you walked away from mid-way not showing until something else changed.
+- **Fixed** a recipe with no reagent data counting as free. It shows `?` now.
+- **Fixed** an old Auctionator price winning over a newer scan that found nobody selling the item.
+- **Fixed** searching the game's settings blaming SkillUp for a blocked button (Social's Discord Sign In).
 - **Trainer steps in the route** read the same as elsewhere, with one space before "(level N)".
 - **The sort setting's tooltip** now says that sorting puts every recipe in one list, and Default restores categories.
 

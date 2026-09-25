@@ -247,7 +247,7 @@ function Model.ShoppingList(segments, reagentsOf, owned, sourceOf)
 			local source = sourceOf(itemID)
 			local bucket = source == "gather" and list.gather
 				or source == "vendor" and list.vendor
-				or (source == "scan" or source == "auctionator") and list.auction
+				or source == "auctionator" and list.auction
 				or list.unknown
 			bucket[#bucket + 1] = { itemID = itemID, count = count }
 		end

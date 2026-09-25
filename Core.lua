@@ -7,7 +7,6 @@ local DEFAULTS = {
 	showSkill = false,
 	showTooltip = true,
 	showCost = true,
-	scanAuctions = true,
 	craftValue = "vendor", -- "none" | "vendor" | "auction"
 	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
 	showTrainer = true,
@@ -15,8 +14,6 @@ local DEFAULTS = {
 	reagentTooltip = "route",
 	gatherFree = true,
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
-	tracked = {}, -- [itemID] = true: inputs/outputs to include in auction scans
-	auctions = {}, -- [realm-faction][itemID] = { copper, time }
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
@@ -69,6 +66,8 @@ local function LoadDB()
 		loaded.reagentTooltip = "off"
 	end
 	loaded.showReagentTooltip = nil
+	-- Auction prices come from Auctionator now; drop what SkillUp's own scanner saved.
+	loaded.scanAuctions, loaded.tracked, loaded.auctions = nil, nil, nil
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
 			loaded[key] = type(value) == "table" and {} or value
@@ -344,12 +343,6 @@ SlashCmdList.SKILLUPFOREVER = function(msg)
 	local command = strtrim(msg or ""):lower()
 	if command == "audit" then
 		Audit()
-	elseif command == "scan" then
-		if AuctionHouseFrame and AuctionHouseFrame:IsShown() then
-			ns.ScanAuctions(true)
-		else
-			ns.Print("open the auction house first.")
-		end
 	else
 		ns.OpenSettings()
 	end

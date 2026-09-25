@@ -165,8 +165,7 @@ SKILL, MAX_SKILL = 48, 75
 LEARNED = [2152, 2149, 9058, 9059, 7126, 2153, 3753, 3816, 9060, 9062, 2881, 1229432]
 UNLEARNED = [44953]  # Winter Boots: listed by Forever, taught by a Winter Veil quest
 BAGS = {2318: 23}  # Light Leather
-AUCTION = {2318: 90, 783: 320, 2934: 8}  # Light Leather, Light Hide, Ruined Leather Scraps (copper), from its scan
-SCAN_AGE_MINUTES = 4
+AUCTION = {2318: 90, 783: 320, 2934: 8}  # Light Leather, Light Hide, Ruined Leather Scraps (copper), from Auctionator
 PROFESSIONS = [  # GetProfessions order, as the side tabs show them
     ("Leatherworking", 136247),
     ("Skinning", 134366),
@@ -183,7 +182,7 @@ def price(item_id):
     if vendor is not None and (ah is None or vendor <= ah):
         return {"copper": vendor, "source": "vendor"}
     if ah is not None:
-        return {"copper": ah, "source": "scan"}
+        return {"copper": ah, "source": "auctionator"}
     return None
 
 
@@ -333,12 +332,9 @@ def format_row(d):
     return " · ".join(parts)
 
 
-def age_text(minutes):
-    return f"{minutes}m ago"
-
-
 def source_text(p):
-    return "vendor" if p["source"] == "vendor" else "AH, " + age_text(SCAN_AGE_MINUTES)
+    """Tooltip.lua ns.PriceSourceText, for an Auctionator price seen today."""
+    return "vendor" if p["source"] == "vendor" else "Auctionator, today"
 
 
 def recipe_tooltip_lines(ui, recipe_id):

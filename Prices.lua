@@ -1,13 +1,6 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
 
--- Our own scan is trusted for an hour before a visit to the auction house rescans it.
-local SCAN_MAX_AGE = 3600
-local KEYS_PER_SEARCH = 50
--- Blizzard runs its own search as the auction house opens; ours waits for it.
-local SCAN_DELAY = 2
-local SEARCH_TIMEOUT = 10
-
 -- [recipeID] = live schematic, else bundled data, else false; cleared when profession data changes.
 ---@type table<integer, SkillUpSchematic|false>
 local recipes = {}
@@ -15,17 +8,6 @@ local recipes = {}
 local reagentIndex
 ---@type table<integer, SkillUpPrice|false>
 local priceCache = {}
----@type table<integer, SkillUpScan>?
-local auctionsTable -- this realm and faction's scanned prices: [itemID] = { copper = n?, time = t }
--- pending: the current search's items still without a result; asked: all of them.
----@type integer[]
-local queue = {}
----@type table<integer, boolean>?
-local pending
----@type table<integer, boolean>?
-local asked
-local scanning = false
-local scanned = 0
 
 local function Table(parent, key)
 	if type(parent[key]) ~= "table" then
@@ -33,20 +15,6 @@ local function Table(parent, key)
 	end
 	return parent[key]
 end
-
--- Resolved on first use: the realm and faction aren't reliable while addons load.
-local function Auctions()
-	if not auctionsTable then
-		local realm, faction = GetNormalizedRealmName(), UnitFactionGroup("player")
-		if not (realm and faction) then
-			return {}
-		end
-		auctionsTable = Table(Table(ns.db, "auctions"), realm .. "-" .. faction)
-	end
-	return auctionsTable
-end
-
-local DAY = 86400
 
 -- This character's professions, for what it gathers; kept while priceCache is.
 ---@type table<integer, SkillUpProfession>?
@@ -104,30 +72,12 @@ local function AuctionatorPrice(itemID)
 	return copper, okAge and type(days) == "number" and days or nil
 end
 
--- Nothing for our scan to add: Auctionator already priced it today.
----@param itemID integer
----@return boolean
-local function AuctionatorSawToday(itemID)
-	local copper, days = AuctionatorPrice(itemID)
-	return copper ~= nil and days == 0
-end
-
--- The fresher of our own scan and Auctionator's: { copper, source, time | days }.
+-- Auction prices come only from Auctionator: { copper, source, days }.
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function AuctionPrice(itemID)
-	local entry = Auctions()[itemID]
-	local scannedCopper = entry and entry.copper
-	local ours = scannedCopper and { copper = scannedCopper, source = "scan", time = entry.time }
 	local copper, days = AuctionatorPrice(itemID)
-	if not copper then
-		return ours
-	end
-	-- Auctionator counts whole days, and stops counting after three weeks.
-	if entry and (days == nil or time() - entry.time <= days * DAY) then
-		return ours
-	end
-	return { copper = copper, source = "auctionator", days = days }
+	return copper and { copper = copper, source = "auctionator", days = days }
 end
 
 -- With the setting on, what another of your professions gathers costs nothing.
@@ -143,7 +93,7 @@ local function Gathered(itemID)
 	return profession and { copper = 0, source = "gather", profession = profession.name }
 end
 
--- Cheapest known unit price and where it came from: "gather", "vendor", "scan" or
+-- Cheapest known unit price and where it came from: "gather", "vendor" or
 -- "auctionator". A price seen at a vendor beats the bundled list, since it includes
 -- any reputation discount.
 ---@param itemID integer
@@ -185,7 +135,6 @@ local function UnitPrice(itemID)
 end
 
 -- Basic reagents only: optional and finishing slots don't have to be filled.
--- Reagents and crafted items are both tracked, which is what the auction scan searches.
 ---@param recipeID integer
 ---@return SkillUpSchematic?
 local function Recipe(recipeID)
@@ -230,14 +179,6 @@ local function Recipe(recipeID)
 			recipe = bundled or false
 		end
 		recipes[recipeID] = recipe
-		if recipe then
-			for _, reagent in ipairs(recipe.reagents) do
-				ns.db.tracked[reagent.itemID] = true
-			end
-			if recipe.output then
-				ns.db.tracked[recipe.output.itemID] = true
-			end
-		end
 	end
 	return recipe or nil
 end
@@ -291,14 +232,6 @@ function ns.CraftValue(recipeID)
 	return { copper = each * output.quantity, source = source, quantity = output.quantity }
 end
 
--- The list only builds the rows on screen, so reagents are learned for the
--- whole profession up front; otherwise the scan misses anything not scrolled past.
-function ns.LearnReagents()
-	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs() or {}) do
-		ns.Reagents(recipeID)
-	end
-end
-
 ---@param recipeID integer
 ---@return number?
 function ns.RecipeCost(recipeID)
@@ -335,125 +268,6 @@ local function RecordMerchant()
 	end
 end
 
--- Harvests every browse result for a known reagent, so the player's own searches
--- keep prices fresh as well as ours.
-local function HarvestBrowseResults()
-	local auctions, now, changed = Auctions(), time(), false
-	for _, result in ipairs(C_AuctionHouse.GetBrowseResults()) do
-		local itemID = result.itemKey.itemID
-		if ns.db.tracked[itemID] and result.minPrice and result.totalQuantity > 0 then
-			auctions[itemID] = { copper = result.minPrice, time = now }
-			changed = true
-			if pending and pending[itemID] then
-				pending[itemID] = nil
-				scanned = scanned + 1
-			end
-		end
-	end
-	if changed then
-		PricesChanged()
-	end
-end
-
-local FinishScanIfDone
-
--- Any browse search but ours (the player's, or another addon's) replaces our results.
-local superseded, sending = false, false
-local function OnOtherSearch()
-	if not sending then
-		superseded = true
-	end
-end
-
-local function SendNextSearch()
-	if pending or #queue == 0 or not C_AuctionHouse.IsThrottledMessageSystemReady() then
-		return
-	end
-	local keys = {}
-	pending, asked = {}, {}
-	while #queue > 0 and #keys < KEYS_PER_SEARCH do
-		local itemID = table.remove(queue)
-		pending[itemID] = true
-		asked[itemID] = true
-		keys[#keys + 1] = C_AuctionHouse.MakeItemKey(itemID)
-	end
-	superseded, sending = false, true
-	C_AuctionHouse.SearchForItemKeys(keys, {})
-	sending = false
-	-- A search superseded by the player's own never answers: give up on it without
-	-- touching those prices, and carry on with the rest.
-	local sent = pending
-	C_Timer.After(SEARCH_TIMEOUT, function()
-		if pending == sent then
-			pending = nil
-			SendNextSearch()
-			FinishScanIfDone()
-		end
-	end)
-end
-
--- Results answer our search only if no other search was sent since ours and every
--- item in them is one we asked for. Empty results then mean nobody listed them.
-local function IsOurSearch()
-	if superseded or not asked then
-		return false
-	end
-	for _, result in ipairs(C_AuctionHouse.GetBrowseResults()) do
-		if not asked[result.itemKey.itemID] then
-			return false
-		end
-	end
-	return true
-end
-
--- An item nobody has listed returns no result; its old price should not outlive
--- the search that found none.
-local function FinishSearch()
-	if not pending then
-		return
-	end
-	local auctions, now = Auctions(), time()
-	local changed = next(pending) ~= nil
-	for itemID in pairs(pending) do
-		auctions[itemID] = { time = now }
-	end
-	pending = nil
-	-- Per batch, not per scan: closing the auction house mid-scan ends it unfinished.
-	if changed then
-		PricesChanged()
-	end
-end
-
-function FinishScanIfDone()
-	if scanning and not pending and #queue == 0 then
-		scanning = false
-		ns.Print(string.format("priced %d reagents from the auction house.", scanned))
-	end
-end
-
----@param force boolean
-function ns.ScanAuctions(force)
-	if scanning then
-		return
-	end
-	local auctions, now = Auctions(), time()
-	queue, scanned = {}, 0
-	for itemID in pairs(ns.db.tracked) do
-		local last = auctions[itemID]
-		if force or ((not last or now - last.time > SCAN_MAX_AGE) and not AuctionatorSawToday(itemID)) then
-			queue[#queue + 1] = itemID
-		end
-	end
-	if #queue == 0 then
-		if force then
-			ns.Print("no reagents known yet; open a profession first.")
-		end
-		return
-	end
-	scanning = true
-	SendNextSearch()
-end
-
 local frame = CreateFrame("Frame")
 frame:SetScript("OnEvent", function(_, event)
 	if
@@ -469,31 +283,6 @@ frame:SetScript("OnEvent", function(_, event)
 		end
 	elseif event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
 		RecordMerchant()
-	elseif event == "AUCTION_HOUSE_SHOW" then
-		if ns.db.scanAuctions then
-			C_Timer.After(SCAN_DELAY, function()
-				if AuctionHouseFrame and AuctionHouseFrame:IsShown() then
-					ns.ScanAuctions(false)
-				end
-			end)
-		end
-	elseif event == "AUCTION_HOUSE_CLOSED" then
-		scanning, pending, queue = false, nil, {}
-	elseif event == "AUCTION_HOUSE_BROWSE_RESULTS_UPDATED" or event == "AUCTION_HOUSE_BROWSE_RESULTS_ADDED" then
-		local ours = pending and IsOurSearch()
-		HarvestBrowseResults()
-		if not ours then
-			return
-		end
-		if not C_AuctionHouse.HasFullBrowseResults() then
-			C_AuctionHouse.RequestMoreBrowseResults()
-			return
-		end
-		FinishSearch()
-		SendNextSearch()
-		FinishScanIfDone()
-	elseif event == "AUCTION_HOUSE_THROTTLED_SYSTEM_READY" then
-		SendNextSearch()
 	elseif event == "GET_ITEM_INFO_RECEIVED" and itemInfoPending then
 		-- Items arrive in bursts; one redraw covers the burst.
 		itemInfoPending = false
@@ -503,10 +292,6 @@ end)
 
 function ns.InitPrices()
 	Table(ns.db, "vendor")
-	Table(ns.db, "tracked")
-	for _, search in ipairs({ "SendBrowseQuery", "SearchForFavorites", "SearchForItemKeys" }) do
-		hooksecurefunc(C_AuctionHouse, search, OnOtherSearch)
-	end
 	for _, event in ipairs({
 		"TRADE_SKILL_DATA_SOURCE_CHANGED",
 		"TRADE_SKILL_LIST_UPDATE",
@@ -515,11 +300,6 @@ function ns.InitPrices()
 		"SKILL_LINES_CHANGED",
 		"MERCHANT_SHOW",
 		"MERCHANT_UPDATE",
-		"AUCTION_HOUSE_SHOW",
-		"AUCTION_HOUSE_CLOSED",
-		"AUCTION_HOUSE_BROWSE_RESULTS_UPDATED",
-		"AUCTION_HOUSE_BROWSE_RESULTS_ADDED",
-		"AUCTION_HOUSE_THROTTLED_SYSTEM_READY",
 		"GET_ITEM_INFO_RECEIVED",
 	}) do
 		frame:RegisterEvent(event)

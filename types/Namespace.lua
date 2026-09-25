@@ -15,10 +15,8 @@
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
 ---@field UsedIn fun(itemID: integer): integer[]
 ---@field CraftValue fun(recipeID: integer): SkillUpValue?
----@field LearnReagents fun()
 ---@field RecipeCost fun(recipeID: integer): number?
 ---@field NetCost fun(recipeID: integer): number?
----@field ScanAuctions fun(force: boolean)
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
 ---@field RefreshRecipeList fun()
@@ -62,10 +60,10 @@
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
 ---@field FormatNet fun(copper: number, profit: boolean): string
----@field FormatAge fun(timestamp: number): string
 ---@field PriceAge fun(price: SkillUpPrice): number
 ---@field PriceAgeText fun(price: SkillUpPrice): string
 ---@field PriceSourceText fun(price: SkillUpPrice): string
+---@field UnpricedHint fun(): string
 ---@field ShowRecipeTooltip fun(_: SkillUpNamespace, row: SkillUpRecipeRow, data: SkillUpRecipeNodeData)
 ---@field AttachItemTooltips fun()
 ---@field RefreshTrainer fun()
@@ -99,7 +97,6 @@
 ---@field showSkill boolean
 ---@field showTooltip boolean
 ---@field showCost boolean
----@field scanAuctions boolean
 ---@field craftValue 'none'|'vendor'|'auction'
 ---@field sortMode 'blizzard'|'skill'|'chance'|'cost'
 ---@field showTrainer boolean
@@ -112,18 +109,15 @@
 ---@field trackedProfessions table<integer, boolean>
 ---@field trainer table<integer, table<integer, number[]>>
 ---@field vendor table<integer, number>
----@field tracked table<integer, boolean>
----@field auctions table<string, table<integer, SkillUpScan>>
 
 ---@class SkillUpDB : SkillUpDefaults
 ---@field showReagentTooltip? boolean Legacy migration only.
+---@field scanAuctions? boolean Legacy migration only.
+---@field tracked? table<integer, boolean> Legacy migration only.
+---@field auctions? table Legacy migration only.
 
 ---@type SkillUpDB
 SkillUpForeverDB = nil
-
----@class SkillUpScan
----@field copper? number
----@field time number
 
 ---@class SkillUpReagent
 ---@field itemID integer
@@ -220,11 +214,10 @@ SkillUpForeverDB = nil
 ---@field itemID integer
 ---@field count number
 
----@alias SkillUpPriceSource 'vendor'|'scan'|'auctionator'|'gather'
+---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
 ---@class SkillUpPrice
 ---@field copper number
 ---@field source SkillUpPriceSource
----@field time? number Scan timestamps only.
 ---@field days? number Auctionator ages only.
 ---@field profession? string Gathered reagents only.
 

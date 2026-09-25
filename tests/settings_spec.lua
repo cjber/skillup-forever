@@ -97,7 +97,7 @@ for index, initializer in ipairs(registered) do
 	rows[index] = initializer.kind .. ":" .. initializer.setting.key
 end
 local expected = "checkbox:showRowText checkbox:showSkill checkbox:showTooltip checkbox:showCost "
-	.. "dropdown:craftValue checkbox:scanAuctions checkbox:gatherFree checkbox:showRouteTab "
+	.. "dropdown:craftValue checkbox:gatherFree checkbox:showRouteTab "
 	.. "checkbox:showTrainer dropdown:reagentTooltip dropdown:sortMode"
 assert(table.concat(rows, " ") == expected, table.concat(rows, " "))
 
@@ -106,7 +106,7 @@ assert(
 	craftValue.setting.variable == "SkillUpForever_craftValue" and craftValue.setting.default == "default:craftValue"
 )
 assert(craftValue.options()[3].value == "auction" and craftValue.tooltip:find("5%% cut"))
-assert(registered[11].options()[1].text == "Default")
+assert(registered[10].options()[1].text == "Default")
 assert(registered[1].tooltip:find("Skill%-up chance"))
 registered[1].setting.changed()
 assert(refreshed == 4, "a change refreshes prices, the recipe list, the trainer and the route tab")

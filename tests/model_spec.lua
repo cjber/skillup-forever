@@ -308,16 +308,16 @@ end, function(itemID)
 	ownedCalls[itemID] = (ownedCalls[itemID] or 0) + 1
 	return ({ [1] = 100, [4] = 5 })[itemID] or 0
 end, function(itemID)
-	return ({ [1] = "vendor", [2] = "auctionator", [3] = "scan", [4] = "vendor" })[itemID]
+	return ({ [1] = "vendor", [2] = "auctionator", [3] = "auctionator", [4] = "vendor" })[itemID]
 end)
 equal(#shopping.vendor, 1, "fully owned item dropped")
 equal(shopping.vendor[1].itemID, 4, "vendor partition")
 equal(shopping.vendor[1].count, 13, "shared requirements aggregate before subtracting owned")
 equal(ownedCalls[4], 1, "owned subtracted only once per item")
-equal(#shopping.auction, 2, "both auction sources partition together")
+equal(#shopping.auction, 2, "Auctionator prices partition as auction")
 equal(shopping.auction[1].itemID, 2, "auction items sorted ascending")
 equal(shopping.auction[1].count, 8, "shared auction quantity")
-equal(shopping.auction[2].itemID, 3, "scan source is auction")
+equal(shopping.auction[2].itemID, 3, "second auction item")
 equal(shopping.unknown[1].itemID, 5, "missing source partition")
 equal(shopping.unknown[1].count, 2, "unknown source retains quantity")
 local index = Model.BuildReagentIndex(recipeData)
@@ -337,7 +337,7 @@ do
 		RecipeData = { [10] = { reagents = { { itemID = 1, quantity = 2 } }, output = { itemID = 2, quantity = 3 } } },
 		ItemSellPrices = { [2] = 10 },
 		VendorPrices = { [1] = 5 },
-		db = { craftValue = "vendor", auctions = { ["Realm-Faction"] = { [3] = { copper = 7, time = 1 } } } },
+		db = { craftValue = "vendor" },
 	}
 	local frame = {
 		SetScript = function(_, _, callback)
@@ -362,12 +362,6 @@ do
 			end,
 			RequestLoadItemDataByID = function() end,
 		},
-		GetNormalizedRealmName = function()
-			return "Realm"
-		end,
-		UnitFactionGroup = function()
-			return "Faction"
-		end,
 		Auctionator = {
 			API = {
 				v1 = {
@@ -382,7 +376,6 @@ do
 	runtime.InitPrices()
 	equal(runtime.Reagents(10), runtime.RecipeData[10].reagents, "bundled reagent fallback")
 	equal(runtime.PriceSource(1), "vendor", "price source vendor")
-	equal(runtime.PriceSource(3), "scan", "price source scan")
 	equal(runtime.PriceSource(4), "auctionator", "price source auctionator")
 	equal(runtime.PriceSource(99), nil, "price source missing")
 	live[98] = { reagentSlotSchematics = {} }

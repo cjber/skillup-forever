@@ -35,9 +35,8 @@ Open a profession and the numbers are already there.
 |---|---|
 | `/su`, `/skillup` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
-| `/su scan` | With the auction house open, search it for every known reagent now |
 
-Settings cover what rows and tooltips show, the auction house scan, sort order, the route tab, trainer annotations and reagent tooltips.
+Settings cover what rows and tooltips show, what crafts count for, sort order, the route tab, trainer annotations and reagent tooltips.
 
 > **Settings and prices reset on reload?** That is a known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). The addon starts from sensible defaults and keeps working; prices are then relearned each session.
 
@@ -46,12 +45,11 @@ Settings cover what rows and tooltips show, the auction house scan, sort order, 
 Cost per craft counts the recipe's required reagents. Each reagent uses the cheapest price the addon knows:
 
 - **Vendor:** about 50 common trade supplies (thread, vials, flux, dyes, spices) are priced from the start. Any vendor you open that sells a reagent for gold updates its price, including your reputation discount.
-- **Auction house:** when you open the auction house, the addon searches it for the reagents and crafted items of every profession you've opened (at most once an hour; `/su scan` forces it). Your own searches update prices too. Prices are kept per realm and faction.
-- **Auctionator:** with [Auctionator](https://www.curseforge.com/wow/addons/auctionator) installed, its prices are used (the fresher of its and our scan), our scan skips what it priced today, and routes re-price as Auctionator scans.
+- **Auction house:** auction prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator). SkillUp doesn't scan the auction house itself; it uses Auctionator's prices, and routes re-price as Auctionator scans. Without Auctionator, a reagent you can only buy at the auction house has no price.
 
 What you craft counts too: by default its vendor sell price is taken off the cost, and a setting can use its auction price instead when that's higher (after the 5% cut; it may not sell). A recipe that earns more than it costs shows a green `+` and sorts first under *Cheapest skill-up*.
 
-Crafted reagents use their auction price. A recipe with an unpriced reagent shows no cost rather than a misleadingly cheap one. Cost per skill-up is net cost per craft ÷ skill-up chance, so a yellow recipe at 50% costs twice its reagents per point.
+Crafted reagents use their auction price, so they need Auctionator too. A recipe with an unpriced reagent shows no cost rather than a misleadingly cheap one. Cost per skill-up is net cost per craft ÷ skill-up chance, so a yellow recipe at 50% costs twice its reagents per point.
 
 ## How the numbers work
 
@@ -69,7 +67,7 @@ The colour itself always comes from the game, so the addon never disagrees with 
 
 ## Works alongside
 
-All optional: Auctionator supplies prices and takes the shopping list (see [Prices](#prices)), TomTom draws the arrow for route waypoints, and Syndicator shows the reagents your other characters hold.
+All optional: Auctionator supplies auction prices and takes the shopping list (see [Prices](#prices)), TomTom draws the arrow for route waypoints, and Syndicator shows the reagents your other characters hold.
 
 ## Development
 

@@ -148,6 +148,7 @@ function ns.PlayerProfessions()
 					modifier = modifier or 0
 					professions[skillLine] = {
 						skillLine = skillLine,
+						professionID = reported,
 						name = name,
 						icon = icon,
 						base = rank,

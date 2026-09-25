@@ -173,13 +173,14 @@ end
 
 -- Shortest Path Forever's route when it takes one (it declines in combat, with its
 -- journeys off or without a player position), else TomTom's arrow, else the map's
--- own waypoint, super-tracked.
+-- own waypoint, super-tracked; false when there is only a chat line to give.
 ---@param npcID integer
+---@return boolean
 function ns.SetWaypoint(npcID)
 	local where = ns.NPCLocation(npcID)
 	if not where.map then
 		ns.Print(string.format("%s is in %s.", where.name, where.label))
-		return
+		return false
 	end
 	local api = ShortestPath()
 	if
@@ -188,7 +189,7 @@ function ns.SetWaypoint(npcID)
 		and api.Navigate("SkillUpForever", where.map, where.x, where.y, where.name)
 	then
 		ns.Print(string.format("route set to %s, %s.", where.name, ns.LocationText(where)))
-		return
+		return true
 	end
 	if TomTom and TomTom.AddWaypoint then
 		TomTom:AddWaypoint(where.map, where.x, where.y, { title = where.name, from = "SkillUp Forever" })
@@ -197,9 +198,10 @@ function ns.SetWaypoint(npcID)
 		C_SuperTrack.SetSuperTrackedUserWaypoint(true)
 	else
 		ns.Print(string.format("%s is at %s.", where.name, ns.LocationText(where)))
-		return
+		return false
 	end
 	ns.Print(string.format("waypoint set to %s, %s.", where.name, ns.LocationText(where)))
+	return true
 end
 
 -- Best way to get the scroll, easiest first: an unlimited vendor, a limited one,

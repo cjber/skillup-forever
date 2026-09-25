@@ -25,6 +25,9 @@
 ---@field RouteSnapshot fun(profession: SkillUpContext, known?: table<integer, boolean>): SkillUpSnapshot
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field InvalidatePlans fun()
+---@field InvalidateAPI fun()
+---@field RankName fun(cap: number): string?
+---@field RouteSteps fun(profession: SkillUpProfession, route: SkillUpPlan): SkillUpRouteStep[]
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field RankText fun(rank: SkillUpRank): string
 ---@field CreateList fun(parent: Frame, columns: SkillUpColumn[]): SkillUpList
@@ -51,7 +54,7 @@
 ---@field NPCLocation fun(npcID: integer): SkillUpLocation
 ---@field LocationText fun(where: SkillUpLocation): string
 ---@field NearestNPC fun(npcIDs: integer[], byTravel?: boolean): integer?
----@field SetWaypoint fun(npcID: integer)
+---@field SetWaypoint fun(npcID: integer): boolean
 ---@field SuggestionNPC fun(suggestion: SkillUpSuggestion): integer?
 ---@field RecipeSuggestions fun(profession: SkillUpContext, skill: number): SkillUpSuggestion[]
 ---@field ScrollPrice fun(source: SkillUpSource): number?
@@ -158,6 +161,7 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpProfession : SkillUpContext
 ---@field skillLine integer
+---@field professionID? integer What GetProfessionInfo reports, which Forever's trade skill APIs take.
 ---@field name string
 ---@field icon fileID
 
@@ -186,6 +190,12 @@ SkillUpForeverDB = nil
 ---@field fee number
 ---@field atSkill number
 ---@field reqSkill? number
+
+-- One of a rank to train, a recipe to train or a craft, in route order.
+---@class SkillUpRouteStep
+---@field rank? SkillUpRank
+---@field training? SkillUpTraining
+---@field segment? SkillUpSegment
 
 ---@class SkillUpRank
 ---@field name string

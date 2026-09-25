@@ -35,7 +35,8 @@ check`, pinned by commit). LuaLS checks all TOC files against pinned WoW API ann
 
 The tests are a headless harness, not the game client. Each spec `loadfile`s one production file
 with stubbed host APIs: `model_spec` (Model.lua, Data/*.lua, Prices.lua), `prices_spec` (Prices.lua),
-`route_spec` (Route.lua's `ns.NextCraft`) and `core_spec` (Core.lua's init guard). Everything else
+`route_spec` (Route.lua's `ns.NextCraft`), `api_spec` (API.lua over Model, Route and Shopping) and
+`core_spec` (Core.lua's init guard). Everything else
 (UI hooks, menus, tooltips, the objective tracker, the trainer) is only verified in game. The
 in-game check for data is `/su audit` with a profession open.
 
@@ -61,6 +62,7 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 - `SkillUpForever.toc` file list — loads every top-level `.lua` and `Data/*.lua`; nothing `require`s them.
 - `ns.*` — the shared addon table; a function defined in one file is typically called from another. Search all files for `ns.Name`, not the local file.
 - `## SavedVariables: SkillUpForeverDB` — persisted per account; keys in `Core.lua` `DEFAULTS` and anything read from `SkillUpForeverDB` may hold data written by older versions.
+- `SkillUpForever.API` (API.lua) — the public API other addons (Adventure Guide Forever) call; `types/API.lua` is its contract.
 - `## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick` — global called by the client by name.
 - `SLASH_SKILLUPFOREVER1/2` + `SlashCmdList.SKILLUPFOREVER` — `/su` commands.
 - `hooksecurefunc("ClassTrainerFrame_InitServiceButton" | "ClassTrainerFrame_Update", …)`, `hooksecurefunc(ProfessionsFrame, "RefreshRightTabs" | "RightTabSelected")`, `hooksecurefunc(ObjectiveTrackerManager, "AddContainer")`, `hooksecurefunc(recipeList.ScrollBox, "SetDataProvider")` — Blizzard functions hooked by string name.

@@ -10,6 +10,10 @@ Classic profession-levelling numbers inside WoW: Forever's Professions window.<b
 
 WoW: Forever's modern Professions window shows a recipe's colour, but not when it turns yellow, green or grey, or how likely your next craft is to give a skill-up. This addon adds those numbers to the window, plus a levelling route beside it, the same numbers at the trainer, and recipe uses on reagent tooltips. The numbers sit in the window's own rows and tooltips, so it looks like it came with the game.
 
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif" width="640" alt="Leatherworking levelling from 48 to 60 in the Professions window"></p>
+
+Levelling from 48 to 60: the rows re-sort by cost per skill-up, and Handstitched Leather Bracers turns green at 55.
+
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png" width="640" alt="The Leatherworking window with skill-up chance and cost per skill-up on each recipe row, and a tooltip showing reagent prices and cost per skill-up"></p>
 
 ## Features
@@ -68,6 +72,8 @@ The colour itself always comes from the game, so the addon never disagrees with 
 ## Works alongside
 
 All optional: Auctionator supplies auction prices and takes the shopping list (see [Prices](#prices)), TomTom draws the arrow for route waypoints, and Syndicator shows the reagents your other characters hold.
+
+It also works with my other Forever addons: [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever) walks you to its waypoints, and [Adventure Guide Forever](https://www.curseforge.com/wow/addons/adventure-guide-forever) shows each profession's next steps from its route.
 
 ## Development
 

@@ -10,6 +10,7 @@ prices from Data/*.lua, pushed through a line-for-line port of Model.lua and the
 Core.lua / Tooltip.lua. Only the scene's state (skill, bags, auction prices) is chosen here.
 """
 
+import io
 import math
 import os
 import re
@@ -258,6 +259,7 @@ def craftable_count(recipe_id):
 
 # ------------------------------------------------------------------------------------------------ render
 
+from PIL import Image
 from wowmock import (
     FONTS,
     NORMAL,
@@ -267,6 +269,7 @@ from wowmock import (
     Font,
     TooltipLine,
     Ui,
+    backdrop,
     coin_texture_string,
     filter_dropdown,
     minimal_checkbox,
@@ -669,12 +672,69 @@ def window_scene(ui):
     return scene(ui, [(frame, 0, 0), (tip, hx + hw, hy - tip.height)])
 
 
+# The demo levels Leatherworking with the cursor on HOVERED: the rows re-sort by cost per skill-up, their
+# colours and chances move, and the tooltip's marker walks across the bar as yellow turns green at 55.
+DEMO_SKILLS = [48, 50, 52, 54, 55, 57, 60]
+DEMO_HOLD = 12  # frames of 100 ms per skill, so the whole loop runs 8.4 s
+DEMO_MAX_BYTES = 2_000_000  # the stores' gallery limit
+
+
+def render_demo():
+    global SKILL
+    ui = Ui(scale=1)  # at the GIF's final size, so one-pixel lines stay crisp
+    states = []
+    for skill in DEMO_SKILLS:
+        SKILL = skill
+        frame, (hx, hy, hw, _) = professions_frame(ui)
+        tip = recipe_tooltip(ui, HOVERED)
+        states.append([(frame, 0, 0), (tip, hx + hw, hy - tip.height)])
+    SKILL = DEMO_SKILLS[0]
+    # One frame for every skill: the union of what any state draws, so nothing jumps between states.
+    boxes = []
+    for layers in states:
+        for canvas, x, y in layers:
+            left, top, right, bottom = canvas.image.getbbox()
+            boxes.append((x + left, y + top, x + right, y + bottom))
+    margin = 24
+    left, top = min(b[0] for b in boxes) - margin, min(b[1] for b in boxes) - margin
+    width, height = max(b[2] for b in boxes) + margin - left, max(b[3] for b in boxes) + margin - top
+    frames = []
+    for layers in states:
+        result = backdrop(ui, width, height)
+        for canvas, x, y in layers:
+            result.paste(canvas, x - left, y - top)
+        frames.append(result.image.convert("RGB"))
+    # One shared palette from every state, no dither: text colours hold and repeated encodes are identical.
+    sheet = Image.new("RGB", (frames[0].width, frames[0].height * len(frames)))
+    for index, frame in enumerate(frames):
+        sheet.paste(frame, (0, frame.height * index))
+    palette = sheet.quantize(colors=255, method=Image.Quantize.MEDIANCUT)
+    indexed = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in frames]
+    buffer = io.BytesIO()
+    indexed[0].save(
+        buffer,
+        format="GIF",
+        save_all=True,
+        append_images=indexed[1:],
+        duration=[100 * DEMO_HOLD] * len(indexed),
+        loop=0,
+        optimize=True,
+        disposal=1,
+    )
+    content = buffer.getvalue()
+    assert len(content) <= DEMO_MAX_BYTES, f"demo.gif is {len(content):,} bytes, over {DEMO_MAX_BYTES:,}"
+    return content
+
+
 def main():
     scale = float(os.environ.get("SCALE", "2"))
     ui = Ui(scale=scale)
     OUT.mkdir(parents=True, exist_ok=True)
     window_scene(ui).save(OUT / "window.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
+    demo = render_demo()
+    assert demo == render_demo(), "demo.gif renders differently twice"
+    (OUT / "demo.gif").write_bytes(demo)
 
 
 if __name__ == "__main__":

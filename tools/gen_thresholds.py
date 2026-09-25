@@ -11,9 +11,9 @@ import urllib.request
 from collections import Counter, defaultdict
 from pathlib import Path
 
-BUILD = "1.60.1.69977"
+BUILD = "1.60.1.70009"
 # Date this source snapshot was selected, not the date of each regeneration.
-SOURCE_DATE = "2026-09-24"
+SOURCE_DATE = "2026-09-25"
 SKILLET_COMMIT = "c6807b055215a810f985f9606458235b8805666e"
 SKILLET_URL = f"https://raw.githubusercontent.com/b-morgan/Skillet-Classic/{SKILLET_COMMIT}/SkillLevelData1.lua"
 ROOT = Path(__file__).resolve().parent.parent

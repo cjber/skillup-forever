@@ -1,5 +1,9 @@
 SkillUp Forever puts skill-up chances, recipe costs and colour thresholds straight into the Professions window's own rows and tooltips, with a levelling route and shopping list in a side panel. Nothing new to learn: open a profession and it looks like it came with the game, just with the numbers you'd otherwise look up.
 
+![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)
+
+From 48 to 60 the rows re-sort by cost per skill-up, and the bracers turn green at 55.
+
 ![The Leatherworking window with skill-up chance and cost per skill-up on each row](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png)
 
 Chance and cost per skill-up, right in the Professions window's own rows.
@@ -35,6 +39,8 @@ Open a profession and the numbers are already there.
 Thresholds come from the Forever client's recipe data; missing data shows `?`. Found a wrong number? Include `/su audit` output in an issue on [GitHub](https://github.com/cjber/skillup-forever/issues).
 
 Prices are only as good as what you've seen, so a recipe with an unpriced reagent shows no cost until you've visited a vendor, or Auctionator has seen it on the auction house.
+
+It also works with my other Forever addons: [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever) walks you to its waypoints, and [Adventure Guide Forever](https://www.curseforge.com/wow/addons/adventure-guide-forever) shows each profession's next steps from its route.
 
 SkillUp is in English for now. Translations are welcome as a pull request, or pasted into an issue, on [GitHub](https://github.com/cjber/skillup-forever/tree/main/Locales).
 

@@ -13,6 +13,7 @@
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
 
+Locales\enUS.lua
 Data\Thresholds.lua
 Data\Vendor.lua
 Data\Recipes.lua

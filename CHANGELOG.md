@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Ready for translation.** Every line SkillUp writes, from recipe tooltips to the route tab and tracker, can now be translated: send a file for your language as a pull request, or paste it into an issue, on [GitHub](https://github.com/cjber/skillup-forever/tree/main/Locales). Rank names, *Default*, *Off* and *Total* already use the game's own words, so they follow your client's language now. English is unchanged.
+
 ## [0.5.0] - 2026-09-25
 
 - **Other addons can show your profession progress.** `SkillUpForever.API` hands out each profession's next three steps, next recipes and reagents from the same plan as the levelling route tab, so Adventure Guide Forever can draw them in its Professions tab.

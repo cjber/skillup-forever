@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
+local L = ns.L
 
 ---@type SkillUpDefaults
 local DEFAULTS = {
@@ -23,15 +24,15 @@ local DEFAULTS = {
 
 ns.DEFAULTS = DEFAULTS
 ns.SORT_OPTIONS = {
-	{ "blizzard", "Default" },
-	{ "skill", "Required skill" },
-	{ "chance", "Skill-up chance" },
-	{ "cost", "Cheapest skill-up" },
+	{ "blizzard", DEFAULT },
+	{ "skill", L["Required skill"] },
+	{ "chance", L["Skill-up chance"] },
+	{ "cost", L["Cheapest skill-up"] },
 }
 ns.REAGENT_TOOLTIP_OPTIONS = {
-	{ "off", "Off" },
-	{ "route", "Tracked routes (Shift for all)" },
-	{ "full", "Every recipe that uses it" },
+	{ "off", OFF },
+	{ "route", L["Tracked routes (Shift for all)"] },
+	{ "full", L["Every recipe that uses it"] },
 }
 ns.TITLE = "SkillUp Forever"
 
@@ -108,7 +109,7 @@ function ns.ProfessionSkillLine(name, reported)
 	end
 	if name and not warned[name] then
 		warned[name] = true
-		ns.Print(string.format("can't identify the profession %s (%s); please report it.", name, tostring(reported)))
+		ns.Print(string.format(L["can't identify the profession %s (%s); please report it."], name, tostring(reported)))
 	end
 end
 
@@ -359,7 +360,7 @@ end
 EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- /reload doesn't re-read the .toc, so files added by an update stay unloaded.
 	if not (ns.RecipeData and ns.ProfessionSkillLines and ns.TrainerFees and ns.TrainerRanks and ns.RecipeSources) then
-		ns.Print("|cffff4040files are missing: restart the game (not /reload) after updating.|r")
+		ns.Print("|cffff4040" .. L["files are missing: restart the game (not /reload) after updating."] .. "|r")
 		return
 	end
 	LoadDB()

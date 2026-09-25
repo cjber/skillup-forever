@@ -26,6 +26,7 @@ local env = setmetatable({
 		end,
 	},
 }, { __index = _G })
+assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 setfenv(assert(loadfile("Route.lua")), env)("SkillUpForever", ns)
 ns.OpenSkillLine = function()
 	return 171

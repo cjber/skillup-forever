@@ -71,6 +71,7 @@ local env = setmetatable({
 		return { x = x, y = y }
 	end,
 }, { __index = _G })
+assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 setfenv(assert(loadfile("Sources.lua")), env)("SkillUpForever", ns)
 
 ---@param accepts boolean?

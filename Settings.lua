@@ -1,5 +1,6 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+local L = ns.L
 
 -- Every row goes in through Settings.RegisterInitializer, which inserts it from Blizzard's secure delegate.
 -- Settings.CreateCheckbox/CreateDropdown insert from our code instead, and the settings search reads every
@@ -41,84 +42,81 @@ local function Dropdown(key, name, options, tooltip)
 	)
 end
 
+-- A phrase is one key however long, so its line may run past the limit.
+-- luacheck: push no max line length
 function ns.RegisterSettings()
 	category = Settings.RegisterVerticalLayoutCategory(ns.TITLE)
 
 	Checkbox(
 		"showRowText",
-		"Show skill on recipe rows",
-		"Skill-up chance and cost per skill-up at the right of each recipe."
+		L["Show skill on recipe rows"],
+		L["Skill-up chance and cost per skill-up at the right of each recipe."]
 	)
 
 	Checkbox(
 		"showSkill",
-		"Show required skill on rows",
-		"Add the skill each recipe needs. Recipes you can't make yet always show it."
+		L["Show required skill on rows"],
+		L["Add the skill each recipe needs. Recipes you can't make yet always show it."]
 	)
 
 	Checkbox(
 		"showTooltip",
-		"Show thresholds tooltip",
-		"Orange, yellow, green and grey thresholds when hovering a recipe."
+		L["Show thresholds tooltip"],
+		L["Orange, yellow, green and grey thresholds when hovering a recipe."]
 	)
 
 	Checkbox(
 		"showCost",
-		"Show cost per skill-up",
-		"Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. "
-			.. "Prices come from vendors you've visited and from Auctionator. Auction prices need Auctionator."
+		L["Show cost per skill-up"],
+		L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Prices come from vendors you've visited and from Auctionator. Auction prices need Auctionator."]
 	)
 
 	Dropdown(
 		"craftValue",
-		"Count what crafts sell for",
+		L["Count what crafts sell for"],
 		{
-			{ "none", "Don't count it" },
-			{ "vendor", "Vendor sell price" },
-			{ "auction", "Auction price if higher" },
+			{ "none", L["Don't count it"] },
+			{ "vendor", L["Vendor sell price"] },
+			{ "auction", L["Auction price if higher"] },
 		},
-		"Subtract what the crafted item sells for from its cost. "
-			.. "Auction prices need Auctionator, are after the 5% cut, and may not sell."
+		L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, are after the 5% cut, and may not sell."]
 	)
 
 	Checkbox(
 		"gatherFree",
-		"Reagents you gather are free",
-		"Price what another of your professions gathers (Light Leather with Skinning, ore with Mining, "
-			.. "herbs with Herbalism) at nothing, so routes use it and the shopping list says to gather it."
+		L["Reagents you gather are free"],
+		L["Price what another of your professions gathers (Light Leather with Skinning, ore with Mining, herbs with Herbalism) at nothing, so routes use it and the shopping list says to gather it."]
 	)
 
 	Checkbox(
 		"showRouteTab",
-		"Show the levelling route tab",
-		"A side tab on the Professions window with a route to your target skill and its reagents. "
-			.. "Tracked professions stay in the objective tracker either way."
+		L["Show the levelling route tab"],
+		L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."]
 	)
 
 	Checkbox(
 		"showTrainer",
-		"Annotate trainer recipes",
-		"Required skill, skill-up chance and cost on profession trainer recipes, "
-			.. "and which one is best to train next for your route."
+		L["Annotate trainer recipes"],
+		L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."]
 	)
 
 	Dropdown(
 		"reagentTooltip",
-		"Reagent tooltips",
+		L["Reagent tooltips"],
 		ns.REAGENT_TOOLTIP_OPTIONS,
-		"What hovering an item says about your professions: how much of it your tracked routes need "
-			.. "(hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."
+		L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."]
 	)
 
 	Dropdown(
 		"sortMode",
-		"Sort recipes",
+		L["Sort recipes"],
 		ns.SORT_OPTIONS,
-		"Sort recipes in one list, learned first, then unlearned. Default restores categories."
+		L["Sort recipes in one list, learned first, then unlearned. Default restores categories."]
 	)
 
 	Settings.RegisterAddOnCategory(category)
 end
+-- luacheck: pop
 
 -- Through the setting, so the settings panel and its change callback stay in step.
 ---@param mode string

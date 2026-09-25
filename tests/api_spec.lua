@@ -45,6 +45,11 @@ local env = setmetatable({
 	UnitLevel = function()
 		return 20
 	end,
+	-- The client's GlobalStrings the rank names come from.
+	APPRENTICE = "Apprentice",
+	JOURNEYMAN = "Journeyman",
+	EXPERT = "Expert",
+	ARTISAN = "Artisan",
 }, { __index = _G })
 
 local ns = {
@@ -65,7 +70,7 @@ local ns = {
 		return copper .. "c"
 	end,
 }
-for _, file in ipairs({ "Model.lua", "Route.lua", "Shopping.lua", "API.lua" }) do
+for _, file in ipairs({ "Locales/enUS.lua", "Model.lua", "Route.lua", "Shopping.lua", "API.lua" }) do
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
 local API = env.SkillUpForever.API

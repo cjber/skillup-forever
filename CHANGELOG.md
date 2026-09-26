@@ -38,17 +38,18 @@ lines, and a round of fixes to prices and the route.
 - **Waypoints go through [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever)** when it is installed: clicking a trainer, vendor or reagent like Coarse Thread starts its travel route there. When it can't (in combat, or with its journeys off), TomTom's arrow or the map's own waypoint is set as before.
 - **The nearest trainer or vendor is the quickest to reach** with Shortest Path Forever installed: tooltips and clicks rank the closest few by its travel time, flights and boats included, instead of a straight line.
 - **Click a tracker line for a waypoint**: the next training step goes to the nearest trainer, and a missing vendor reagent like `12/20 Coarse Thread` to the nearest vendor. Hover the line to see who and where.
-- **Fixed** your own auction house search wiping scanned prices when it found nothing. Only SkillUp's own searches now mark an item as unlisted.
-- **Fixed** free recipes, made only from reagents you gather, showing a cost of 1c per skill-up.
-- **Fixed** an error on `/reload` right after an update, before the "restart the game" message could show.
-- **Fixed** the Craft button offering crafts past your skill cap. It now stops where skill-ups do, until you train the next rank.
-- **Fixed** prices from an auction house scan you walked away from mid-way not showing until something else changed.
-- **Fixed** a recipe with no reagent data counting as free. It shows `?` now.
-- **Fixed** an old Auctionator price winning over a newer scan that found nobody selling the item.
-- **Fixed** searching the game's settings blaming SkillUp for a blocked button (Social's Discord Sign In).
+- **Your own auction house searches no longer wipe scanned prices.** One that found nothing used to clear them; only SkillUp's own searches now mark an item as unlisted.
+- **Free recipes show as free.** One made only from reagents you gather used to show a cost of 1c per skill-up.
+- **No more error on `/reload` right after an update.** It used to fire before the "restart the game" message could show.
+- **The Craft button stops at your skill cap.** It used to offer crafts past it; now it stops where skill-ups do, until you train the next rank.
+- **A scan you walk away from still counts.** Prices from an auction house scan left mid-way used to stay hidden until something else changed.
+- **A recipe with no reagent data shows `?`.** It used to count as free.
+- **A newer scan beats an old Auctionator price.** When the scan found nobody selling the item, the older Auctionator price used to win.
+- **Searching the game's settings no longer blames SkillUp** for a blocked button (Social's Discord Sign In).
+- **Hovering some items no longer errors.** An item whose tooltip hid its id tripped a check before the guard for it ran; recipe tooltips had the same fault.
 - **Trainer steps in the route** read the same as elsewhere, with one space before "(level N)".
 - **The sort setting's tooltip** now says that sorting puts every recipe in one list, and Default restores categories.
-- Thresholds, recipes, trainers and prices for Forever build 1.60.1.69977.
+- **Thresholds, recipes, trainers and prices are updated** for Forever build 1.60.1.69977.
 
 ## [0.3.0] - 2026-09-21
 
@@ -84,8 +85,8 @@ train.
   needs, like `Route: 28/567 · Leatherworking to 150`; hold Shift for every recipe of yours that uses it
   and still skills up, with its colour now, like `yellow until 115`. A setting shows that full list
   always, or turns the section off.
-- Recipes you haven't opened in the Professions window now have reagents and crafted items from the game's
-  data, so the trainer and tooltips can price them.
+- **Recipes you haven't opened can be priced.** Ones you haven't opened in the Professions window now have reagents
+  and crafted items from the game's data, so the trainer and tooltips can price them.
 
 ## [0.2.0] - 2026-09-21
 
@@ -117,8 +118,10 @@ What a skill-up costs, so the cheapest way to level is on the screen next to the
 
 First release.
 
-- Every recipe row shows the skill it needs and your skill-up chance, coloured by difficulty.
-- The recipe tooltip shows the orange / yellow / green / grey thresholds on a bar with your skill marked.
-- Recipes can be sorted within each category by required skill or by skill-up chance.
-- `/su audit` checks the bundled data against the colours the game shows.
-- Thresholds for 2,356 recipes from Forever build 1.60.1.69913.
+- **Every recipe row shows the skill it needs and your skill-up chance**, coloured by difficulty.
+- **The recipe tooltip shows the orange / yellow / green / grey thresholds** on a bar with your skill marked. The bar
+  is the Professions window's own header bar and the marker is Forever's rested pip, so it looks like part of the
+  window. Settings turn the row text or the tooltip off.
+- **Recipes can be sorted within each category** by required skill or by skill-up chance.
+- **`/su audit` checks the bundled data** against the colours the game shows.
+- **Thresholds for 2,356 recipes** from Forever build 1.60.1.69913.

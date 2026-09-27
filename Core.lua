@@ -32,6 +32,11 @@ ns.SORT_OPTIONS = {
 	{ "chance", L["Skill-up chance"] },
 	{ "cost", L["Cheapest skill-up"] },
 }
+ns.CRAFT_VALUE_OPTIONS = {
+	{ "none", L["Don't count it"] },
+	{ "vendor", L["Vendor sell price"] },
+	{ "auction", L["Auction price if higher"] },
+}
 ns.REAGENT_TOOLTIP_OPTIONS = {
 	{ "off", OFF },
 	{ "route", L["Tracked routes (Shift for all)"] },
@@ -80,13 +85,19 @@ local function LoadDB()
 			loaded[key] = type(value) == "table" and {} or value
 		end
 	end
-	local mode = loaded.reagentTooltip
-	local valid = false
-	for _, option in ipairs(ns.REAGENT_TOOLTIP_OPTIONS) do
-		valid = valid or option[1] == mode
-	end
-	if not valid then
-		loaded.reagentTooltip = DEFAULTS.reagentTooltip
+	-- A choice the menu no longer offers (or a typo) goes back to its default.
+	for key, options in pairs({
+		craftValue = ns.CRAFT_VALUE_OPTIONS,
+		sortMode = ns.SORT_OPTIONS,
+		reagentTooltip = ns.REAGENT_TOOLTIP_OPTIONS,
+	}) do
+		local valid = false
+		for _, option in ipairs(options) do
+			valid = valid or option[1] == loaded[key]
+		end
+		if not valid then
+			loaded[key] = DEFAULTS[key]
+		end
 	end
 	SkillUpForeverDB = loaded
 	ns.db = loaded
@@ -264,9 +275,13 @@ function ns.Describe(recipeInfo, ctx)
 	local thresholds = ns.Model.Get(recipeInfo.recipeID)
 	local liveColor = LIVE_COLOR[recipeInfo.relativeDifficulty]
 	local cost = ns.RecipeCost(recipeInfo.recipeID)
-	local value = cost and ns.CraftValue(recipeInfo.recipeID)
-	-- Net of what the craft sells for; negative means each craft makes money.
-	local net = cost and cost - (value and value.copper or 0)
+	local value, unpriced
+	if cost then
+		value, unpriced = ns.CraftValue(recipeInfo.recipeID)
+	end
+	-- Net of what the craft sells for; negative means each craft makes money. Unknown until the
+	-- sell price is.
+	local net = cost and not unpriced and cost - (value and value.copper or 0) or nil
 	if not thresholds or not ctx then
 		return { thresholds = nil, color = liveColor or "unknown", cost = cost, value = value, net = net }
 	end

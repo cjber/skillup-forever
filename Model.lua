@@ -231,6 +231,13 @@ function Model.PlanWithTraining(snapshot, services)
 	return route
 end
 
+-- The shopping list's buckets, in the order it lists them, and the price source that fills each;
+-- a reagent with no price goes in "unknown". Everything that walks the list walks this.
+---@type SkillUpShoppingSource[]
+Model.SHOPPING_SOURCES = { "gather", "vendor", "auction", "unknown" }
+---@type table<SkillUpPriceSource, SkillUpShoppingSource>
+local BUCKET = { gather = "gather", vendor = "vendor", auctionator = "auction" }
+
 ---@param segments SkillUpSegment[]
 ---@param reagentsOf fun(recipeID: integer): SkillUpReagent[]?
 ---@param owned fun(itemID: integer): number
@@ -243,15 +250,15 @@ function Model.ShoppingList(segments, reagentsOf, owned, sourceOf)
 			needed[reagent.itemID] = (needed[reagent.itemID] or 0) + segment.crafts * reagent.quantity
 		end
 	end
-	local list = { gather = {}, vendor = {}, auction = {}, unknown = {} }
+	local list = {}
+	for _, source in ipairs(Model.SHOPPING_SOURCES) do
+		list[source] = {}
+	end
 	for itemID, quantity in pairs(needed) do
 		local count = math.max(0, quantity - owned(itemID))
 		if count > 0 then
 			local source = sourceOf(itemID)
-			local bucket = source == "gather" and list.gather
-				or source == "vendor" and list.vendor
-				or source == "auctionator" and list.auction
-				or list.unknown
+			local bucket = list[source and BUCKET[source] or "unknown"]
 			bucket[#bucket + 1] = { itemID = itemID, count = count }
 		end
 	end

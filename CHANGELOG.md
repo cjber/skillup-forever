@@ -11,6 +11,12 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **A craft whose sell price isn't known yet shows no cost** instead of the full reagent cost, and the route leaves it out until the price loads. It used to count the craft as selling for nothing, then change its mind.
+- **A vendor that doesn't say how many come in a stack no longer overwrites a price.** The addon keeps the last unit price it saw rather than guessing the stack is one.
+- **A saved setting the menu no longer offers goes back to its default.** A bad *Count what crafts sell for* or *Sort recipes* value used to stick, quietly acting like vendor price or no sort.
+- **A recipe suggestion with no known scroll price shows `?`** instead of an empty cost.
+- **The cost setting's tooltip says where prices come from**: common vendor reagents priced from the start, reagents you gather free, auction prices from Auctionator.
+
 ## [0.6.1] - 2026-09-27
 
 - **The route no longer charges for a rank it never gets to.** When your known recipes ran out before the target, the total still had the next rank's fee in it, though the route stopped short of needing it.

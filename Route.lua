@@ -467,7 +467,7 @@ local function RenderSuggestions(list, profession, route)
 			icon = C_Item.GetItemIconByID(suggestion.source.item),
 			text = string.format("%s  |cff808080%s|r", RecipeName(suggestion.recipeID), suggestion.kindText),
 			color = ns.COLORS[ns.Model.Color(t, route.reachedSkill)],
-			values = { price and Money(price) or "", tostring(suggestion.reach - profession.modifier) },
+			values = { price and Money(price) or "?", tostring(suggestion.reach - profession.modifier) },
 			tooltip = function(tooltip)
 				SuggestionTooltip(tooltip, profession, suggestion)
 			end,

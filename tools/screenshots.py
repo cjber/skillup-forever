@@ -272,7 +272,7 @@ def craftable_count(recipe_id):
 # ----------------------------------------------------------------------------------- the addon's own Lua
 
 LEVEL = 20
-MONEY = 25000  # 2g 50s: every Apprentice fee is within reach, so the trainer's Best next can be any of them
+MONEY = 25000  # 2g 50s: every Apprentice fee is within reach, so the trainer's next pick can be any of them
 TOOLTIP_ITEM = 2318  # Light Leather
 
 # Loads the TOC's files under luajit into recording stubs of the client (as tests/route_spec.lua does), runs
@@ -324,6 +324,9 @@ local RECORDED = {
 	end,
 	SetTextColor = function(self, r, g, b)
 		rawset(self, "color", { r, g, b })
+	end,
+	SetWidth = function(self, width)
+		rawset(self, "width", width)
 	end,
 	SetEnabled = function(self, enabled)
 		rawset(self, "enabled", enabled and true or false)
@@ -593,6 +596,11 @@ env = setmetatable({
 			},
 		},
 	},
+	C_Texture = {
+		GetAtlasInfo = function(atlas)
+			return STATE.atlases[atlas]
+		end,
+	},
 	C_Trainer = {
 		GetTrainerType = function()
 			return 1
@@ -738,6 +746,7 @@ local function Widget(frame)
 		color = rawget(frame, "color"),
 		enabled = rawget(frame, "enabled"),
 		shown = rawget(frame, "shown"),
+		width = rawget(frame, "width"),
 	}
 end
 local route = {
@@ -800,8 +809,20 @@ table.sort(STATE.services, function(a, b)
 	return spellNames[a.recipeID] < spellNames[b.recipeID]
 end)
 local buttons = {}
-for index = 1, #STATE.services do
-	buttons[index] = Stub()
+for index, service in ipairs(STATE.services) do
+	-- ClassTrainerSkillButtonTemplate, with the "Requires:" line as wide as the renderer measures it.
+	local button, subText = Stub(), Stub()
+	subText.GetStringWidth = function()
+		return STATE.requirementWidths[service.req + 1]
+	end
+	subText.GetWidth = function()
+		return 240
+	end
+	button.GetWidth = function()
+		return 298
+	end
+	rawset(button, "subText", subText)
+	buttons[index] = button
 end
 rawset(env.ClassTrainerFrame, "shown", true)
 env.ClassTrainerFrame.ScrollBox.ForEachFrame = function(_, fn)
@@ -853,8 +874,24 @@ def to_lua(value):
     return "{" + ", ".join(to_lua(v) for v in value) + "}"
 
 
-def lua_scene():
+def requirement_text(req):
+    """The service button's subText: REQUIRES_LABEL and TRAINER_REQ_SKILL_RANK(_RED) from GlobalStrings."""
+    number = "ffffff" if SKILL >= req else "ff2020"
+    return f"Requires: Leatherworking (|cff{number}{req}|r)"
+
+
+def addon_atlases(ui):
+    """{name: {width, height}} for every atlas the addon's Lua names, as C_Texture.GetAtlasInfo gives them."""
+    names = set(ui.table("UiTextureAtlasElement", key="Name"))
+    literals = set()
+    for path in REPO.glob("*.lua"):
+        literals.update(re.findall(r'"([A-Za-z][\w-]*)"', path.read_text(encoding="utf-8")))
+    return {name: {"width": ui.atlas(name).width, "height": ui.atlas(name).height} for name in sorted(literals & names)}
+
+
+def lua_scene(ui):
     """What the route page, tracker, trainer and reagent tooltip draw for the scene's character."""
+    canvas = ui.canvas(1, 1)
     professions = [
         {"name": name, "icon": icon, "rank": rank, "max": top, "skillLine": line}
         for name, icon, rank, top, line in PROFESSIONS
@@ -869,6 +906,9 @@ def lua_scene():
         "professionIndices": list(range(1, len(professions) + 1)),
         "open": {"name": "Leatherworking", "skillLine": 165, "rank": SKILL, "max": MAX_SKILL},
         "tooltipItem": TOOLTIP_ITEM,
+        "atlases": addon_atlases(ui),
+        # What subText:GetStringWidth() gives for each required skill, 0 up.
+        "requirementWidths": [canvas.text_width(requirement_text(req), F_SHADOW_SMALL) for req in range(MAX_SKILL + 1)],
     }
     source = f"local STATE = {to_lua(state)}\n{LUA_SCENE}"
     result = subprocess.run(["luajit", "-"], input=source, capture_output=True, text=True, cwd=REPO, check=False)
@@ -1542,24 +1582,22 @@ def trainer_row(canvas, x, y, service):
     canvas.draw(icon, x + 6, icon_y, 36, 36)
     name_x = x + 6 + 36 + 6
     canvas.text(name_x, icon_y + 1, service["name"], F_NORMAL, None if available else DISABLED_FONT_COLOR)
-    # REQUIRES_LABEL and TRAINER_REQ_SKILL_RANK(_RED) from the build's GlobalStrings.
-    number = "ffffff" if SKILL >= service["req"] else "ff2020"
-    requirement = f"Requires: Leatherworking (|cff{number}{service['req']}|r)"
+    requirement = requirement_text(service["req"])
     subtext_y = icon_y + 1 + F_NORMAL.height / 2 + 19 - F_SHADOW_SMALL.height / 2
     canvas.text(name_x, subtext_y, requirement, F_SHADOW_SMALL)
     draw_money(canvas, x + TRAINER_ROW_W - 8 - money_width(canvas, service["fee"]), y + 7, service["fee"])
     skill_up = service.get("skillUp")
     if skill_up and skill_up.get("shown"):
-        text = expand(ui, skill_up["text"])
         font = FONTS["GameFontHighlightSmall"]
+        width = skill_up["width"]
         canvas.text(
-            x,
+            x + TRAINER_ROW_W - 8 - width,
             y + TRAINER_ROW_H - 6 - font.height,
-            text,
+            fit_text(canvas, expand(ui, skill_up["text"]), font, width),
             font,
             tuple(skill_up["color"]),
             justify="RIGHT",
-            width=TRAINER_ROW_W - 8,
+            width=width,
         )
 
 
@@ -1654,7 +1692,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     window_scene(ui).save(OUT / "window.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
-    data = lua_scene()
+    data = lua_scene(ui)
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")
     tracker_scene(ui, data).save(OUT / "tracker.png")
     trainer_scene(ui, data).save(OUT / "trainer.png")

@@ -55,6 +55,7 @@ ProfessionsFrame = nil
 ---@field SkillUps FontString
 ---@field Label FontString
 ---@field SkillUpText? FontString
+---@field subText FontString
 
 ---@class SkillUpRecipeNodeData
 ---@field recipeInfo? TradeSkillRecipeInfo
@@ -187,6 +188,7 @@ function UiMapPoint.CreateFromCoordinates(mapID, x, y) end
 
 ---@class SkillUpTrainerButton : Button
 ---@field SkillUpText? FontString
+---@field subText FontString
 ---@field GetElementData fun(self: SkillUpTrainerButton): SkillUpTrainerElement
 
 ---@class SkillUpTrainerScrollBox : Frame

@@ -1,6 +1,5 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
-local L = ns.L
 
 -- Per trainer update: which recipe each service teaches, and the one to train next.
 ---@type SkillUpTrainerState?
@@ -117,6 +116,25 @@ local function BuildState()
 	return { services = services, ctx = ctx, best = best and best.recipeID or nil }
 end
 
+-- The recipe to train next wears the green arrow the bags put on an upgrade, 13 tall at its own aspect.
+local MARKER_ATLAS, MARKER_HEIGHT = "bags-greenarrow", 13
+---@type string?
+local marker
+
+---@return string
+local function Marker()
+	if not marker then
+		local info = C_Texture.GetAtlasInfo(MARKER_ATLAS)
+		local width = info and math.floor(MARKER_HEIGHT * info.width / info.height + 0.5) or 0
+		marker = info and string.format("|A:%s:%d:%d|a ", MARKER_ATLAS, MARKER_HEIGHT, width) or ""
+	end
+	return marker
+end
+
+-- ClassTrainerSkillButtonTemplate's "Requires:" line starts 48 in (the icon at 6, 36 wide, then 6).
+-- The row text sits right of it, 8 from the button's right edge, and ends in "..." rather than reach it.
+local REQUIREMENT_LEFT, GAP, RIGHT = 48, 6, 8
+
 ---@param button SkillUpTrainerButton
 ---@param elementData SkillUpTrainerElement
 local function Decorate(button, elementData)
@@ -134,13 +152,24 @@ local function Decorate(button, elementData)
 	end
 	if not text then
 		text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		text:SetPoint("BOTTOMRIGHT", -8, 6)
+		text:SetPoint("BOTTOMRIGHT", -RIGHT, 6)
 		text:SetJustifyH("RIGHT")
+		text:SetWordWrap(false)
 		button.SkillUpText = text
 	end
+	local requirement = button.subText
+	local room = button:GetWidth()
+		- RIGHT
+		- REQUIREMENT_LEFT
+		- math.min(requirement:GetStringWidth(), requirement:GetWidth())
+		- GAP
+	if room < 1 then
+		return
+	end
+	text:SetWidth(room)
 	if service.recipeID then
 		local d = ns.Describe({ recipeID = service.recipeID, learned = service.kind == "used" }, current.ctx)
-		local best = service.recipeID == current.best and string.format("|cffffd100%s|r · ", L["Best next"]) or ""
+		local best = service.recipeID == current.best and Marker() or ""
 		text:SetText(best .. ns.FormatRow(d))
 		text:SetTextColor(ns.RowColor(d):GetRGB())
 	else

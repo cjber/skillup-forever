@@ -13,7 +13,7 @@ MerchantFrame = nil
 SOUNDKIT = {}
 ---@type {Refresh: number}
 MenuResponse = {}
----@type {ContinueOnAddOnLoaded: fun(name: string, callback: fun())}
+---@type {ContinueOnAddOnLoaded: fun(name: string, callback: fun()), ContinueAfterAllEvents: fun(callback: function, ...: string)}
 EventUtil = {}
 
 -- GlobalStrings the client defines from its GlobalStrings DB2 in the player's language
@@ -77,7 +77,7 @@ function CreateTreeDataProvider() end
 ---@field FullUpdate fun(self: SkillUpScrollBox, immediate?: boolean)
 ---@field ScrollToBegin fun(self: SkillUpScrollBox)
 
----@class SkillUpRecipeScrollBox : SkillUpScrollBox
+---@class SkillUpRecipeScrollBox : SkillUpScrollBox, CallbackRegistryMixin
 ---@field GetDataProvider fun(self: SkillUpRecipeScrollBox): SkillUpTreeProvider?
 ---@field SetDataProvider fun(self: SkillUpRecipeScrollBox, provider: SkillUpTreeProvider, retain?: boolean)
 
@@ -300,3 +300,7 @@ function Settings.OpenToCategory(categoryID) end
 ---@return number? maxRank
 ---@return number? modifier
 function GetTrainerTradeskillRankValues() end
+
+---@param callback function
+---@param ... string
+function EventUtil.ContinueAfterAllEvents(callback, ...) end

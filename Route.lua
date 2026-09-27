@@ -64,7 +64,7 @@ end
 -- the last rank a trainer teaches; the route trains those ranks on the way.
 ---@param profession SkillUpContext
 ---@return number
-function ns.RouteTarget(profession)
+local function RouteTarget(profession)
 	local saved = ns.db.routeTargets[profession.skillLine]
 	local _, ceiling = NextRanks(profession)
 	return math.min(saved and saved > profession.base and saved or profession.base + 25, ceiling)
@@ -85,7 +85,7 @@ function ns.RouteSnapshot(profession, known)
 			recipes[#recipes + 1] = { recipeID = recipeID, thresholds = thresholds, netCost = ns.NetCost(recipeID) }
 		end
 	end
-	local target = ns.RouteTarget(profession)
+	local target = RouteTarget(profession)
 	return { skill = profession.skill, target = target + profession.modifier, recipes = recipes }
 end
 
@@ -136,7 +136,7 @@ end
 ---@param profession SkillUpProfession
 ---@return SkillUpPlan
 function ns.PlanRoute(profession)
-	local target = ns.RouteTarget(profession)
+	local target = RouteTarget(profession)
 	local key = profession.skill .. ":" .. profession.max .. ":" .. target
 	local cached = plans[profession.skillLine]
 	if cached and cached.key == key then

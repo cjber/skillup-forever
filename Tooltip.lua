@@ -269,8 +269,9 @@ function ns.ShowRecipeTooltip(_, row, data)
 end
 
 local MAX_USES = 5
-local BAND_NAMES = { "orange", "yellow", "green" }
 local BAND_LABELS = { orange = L["orange"], yellow = L["yellow"], green = L["green"] }
+-- The threshold each band ends at.
+local BAND_END = { orange = 2, yellow = 3, green = 4 }
 
 -- "yellow until 115": the band the recipe is in now and where it ends.
 ---@param t number[]
@@ -278,15 +279,13 @@ local BAND_LABELS = { orange = L["orange"], yellow = L["yellow"], green = L["gre
 ---@return string
 ---@return ColorMixin
 local function Band(t, skill)
-	if skill < t[1] then
+	local band = ns.Model.Color(t, skill)
+	if band == "red" then
 		return string.format(L["needs %d"], t[1]), ns.COLORS.red
+	elseif band == "grey" then
+		return L["grey"], ns.COLORS.grey
 	end
-	for i, band in ipairs(BAND_NAMES) do
-		if skill < t[i + 1] then
-			return string.format(L["%s until %d"], BAND_LABELS[band], t[i + 1]), ns.COLORS[band]
-		end
-	end
-	return L["grey"], ns.COLORS.grey
+	return string.format(L["%s until %d"], BAND_LABELS[band], t[BAND_END[band]]), ns.COLORS[band]
 end
 
 -- Recipes of your professions that still skill up and use this item: learned

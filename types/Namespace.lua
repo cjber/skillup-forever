@@ -21,7 +21,6 @@
 ---@field AttachRecipeList fun()
 ---@field RefreshRecipeList fun()
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
----@field RouteTarget fun(profession: SkillUpContext): number
 ---@field RouteSnapshot fun(profession: SkillUpContext, known?: table<integer, boolean>): SkillUpSnapshot
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field InvalidatePlans fun()
@@ -283,7 +282,6 @@ SkillUpForeverDB = nil
 ---@field professionInfo SkillUpProfession
 ---@field route SkillUpPlan
 ---@field items SkillUpNeededItem[]
----@field modifier number
 
 ---@class SkillUpCraft
 ---@field text string

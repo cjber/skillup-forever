@@ -20,6 +20,10 @@ The route tab from 48 to 73: what to train, what to craft and where each reagent
 
 Track it and the route sits above your quests.
 
+![A Leatherworking trainer's recipes with skill-up chance, cost and a green arrow on the one to train next](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/trainer.png)
+
+At the trainer, a green arrow marks the recipe to train next.
+
 ![Light Leather's tooltip with how much the tracked route needs](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/reagent.png)
 
 Hover a reagent anywhere to see how much your routes need.
@@ -30,7 +34,7 @@ Hover a reagent anywhere to see how much your routes need.
 - **Sorting** by required skill, skill-up chance or cheapest skill-up puts recipes in one list, learned first. *Default* restores categories; the game's filters still apply.
 - **Levelling route** plans crafts towards your target skill, including worthwhile trainer recipes and rank training fees. Craft the next step from the panel. If the route stops short, see recipes from vendors, quests and drops that could extend it. Set waypoints to trainers and suppliers, with Shortest Path Forever and TomTom support.
 - **Shopping list** counts reagents against your bags and bank. Track it above your quests, buy missing supplies at a vendor, or send missing auction reagents to an Auctionator shopping list. Syndicator can show what your other characters hold.
-- **Profession trainer** shows skill-up chance and cost beside recipes and marks the best next training choice for your route, fee included.
+- **Profession trainer** shows skill-up chance and cost beside recipes and puts a green arrow on the best one to train next for your route, fee included.
 - **Reagent tooltips** show what tracked routes need. Hold Shift for every recipe of your professions that uses the item and still skills up, or choose that view in settings.
 
 ## Prices

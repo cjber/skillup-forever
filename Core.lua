@@ -40,7 +40,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
 ns.WHATS_NEW =
-	L["Settings and tooltips are ready for translation, and route tooltips suggest Shortest Path Forever for the walk."]
+	L["The route no longer charges for a rank it never gets to, and rank training comes where you can do it."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

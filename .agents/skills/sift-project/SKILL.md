@@ -24,19 +24,22 @@ Run in order from the repository root. All must pass before and after any audit 
 | Lint (Lua) | `luacheck .` | `0 warnings / 0 errors`, exit 0 |
 | Lint (Python) | `ruff check tools` | exit 0 |
 | Types and multi-values | `tools/typecheck.sh` | LuaLS 3.19.1 reports no diagnostics; tokenizer/parser lint and its tests pass |
-| Tests | `for s in tests/*_spec.lua; do luajit "$s" \|\| exit 1; done` | each prints `<name>_spec: N checks passed`, exit 0 |
+| Tests | `for s in tests/*_spec.lua; do luajit "$s" \|\| exit 1; done` | exit 0; each prints `<name>_spec: N checks passed` (`settings_spec` prints `settings: ok`) |
+| Changelog | `python3 tools/changelog.py --check` | every tagged version has a `CHANGELOG.md` entry |
 | Workflows | `uvx --from actionlint-py==1.7.12.25 actionlint && uvx zizmor@1.30.1 --offline .github` | exit 0 |
 | Secrets | `gitleaks git --redact --no-banner .` | `no leaks found` |
 | Project rules | `python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check` | exit 0 |
 
-CI (`.github/workflows/ci.yml`) runs all of these, plus a `sift` job (`sift check`, `sift agents
-check`, pinned by commit). LuaLS checks all TOC files against pinned WoW API annotations plus
+CI (`.github/workflows/ci.yml`) runs all of these; its `sift` job runs the changelog check and the
+vendored `.sift/gate.py` and `.sift/agents.py`. LuaLS checks all TOC files against pinned WoW API annotations plus
 `types/`; there is no ast-grep rule set.
 
 The tests are a headless harness, not the game client. Each spec `loadfile`s one production file
-with stubbed host APIs: `model_spec` (Model.lua, Data/*.lua, Prices.lua), `prices_spec` (Prices.lua),
-`route_spec` (Route.lua's `ns.NextCraft`), `api_spec` (API.lua over Model, Route and Shopping) and
-`core_spec` (Core.lua's init guard). Everything else
+with stubbed host APIs: `model_spec` (Model.lua, Data/Thresholds.lua, Prices.lua), `prices_spec`
+(Prices.lua), `route_spec` (Route.lua's `ns.NextCraft`), `api_spec` (API.lua over Model, Route and
+Shopping), `core_spec` (Core.lua's init guard, SavedVariables migration and what's-new notice),
+`settings_spec` (Settings.lua), `waypoint_spec` (Sources.lua's waypoints and Shortest Path Forever
+travel) and `locale_spec` (enUS phrases, `Locales/phrases.txt`, no packager keywords). Everything else
 (UI hooks, menus, tooltips, the objective tracker, the trainer) is only verified in game. The
 in-game check for data is `/su audit` with a profession open.
 
@@ -47,13 +50,13 @@ On-demand tools for audits. Output is candidates, never verdicts.
 | Concern | Command | Known false positives |
 |---|---|---|
 | Types (Lua) | `tools/typecheck.sh` | Zero-diagnostic gate; missing Forever FrameXML surfaces are typed in `types/Client.lua` |
-| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 6: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:109), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:94/96), untyped `json.load` result (latest_build.py:14), unresolved `wowmock` (the wow-mock-screenshots library, put on `sys.path` at run time; screenshots.py:260) and the `("divider",)` row tuple (screenshots.py:454) |
+| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 6: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:109), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:94/96), untyped `json.load` result (latest_build.py:14), unresolved `wowmock` (the wow-mock-screenshots library, put on `sys.path` at run time; screenshots.py:263) and the `("divider",)` row tuple (screenshots.py:455); plus unresolved `PIL` when Pillow is not installed |
 | Dead code (Lua) | `luacheck . --no-color` (unused locals/values) + the live-root searches below | a function stored on `ns` is never "unused" to luacheck — search every file for `ns.<Name>` |
 | Dead code (Python) | `uvx vulture tools --min-confidence 60` | clean at baseline; generator functions are imported across files (`from gen_thresholds import …`) |
-| Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sift/runs/jscpd --ignore "Data/**,tools/.cache/**,.sift/**" .` | 4 Python clones: the `argparse` + download preamble repeated in each `tools/gen_*.py` |
+| Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sift/runs/jscpd --ignore "Data/**,tools/.cache/**,.sift/**" .` | 4 Python clones: the `argparse` preamble repeated in each `tools/gen_*.py` (a small idiom); `tests/core_spec.lua`'s two host-stub environments differ on purpose |
 | Live roots | `rg -n 'hooksecurefunc|RegisterEvent|RegisterCallback|SetScript|AddTooltipPostCall|AddInitializedFrameCallback|Menu.ModifyMenu|SLASH_|SlashCmdList' -g '*.lua'` | — |
 | Data byte-compare | copy the primary checkout's ignored `tools/.cache/`, then `python3 tools/gen_<name>.py --offline` and `git status Data` | only `gen_thresholds` and `gen_vendor` run from the usual cache; the others need the classic-db and era DB2 downloads (drop `--offline` once) |
-| Standards | `SIFT_STANDARDS_PATH=~/skills python3 <sift>/scripts/agents.py standards` | the `wow-forever-addon` pack lives in the `~/skills` clone, not `~/.agents/skills`; without the path the check prints `unknown-standard` |
+| Standards | `python3 <sift>/scripts/agents.py standards` | resolves the pinned `wow-forever-addon` URL from cache; offline with no cached copy it prints `unknown-standard` (set `SIFT_STANDARDS_PATH=~/skills` to use the local clone) |
 
 ## Live roots
 
@@ -70,7 +73,7 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 - `EventRegistry:RegisterCallback("Professions.RecipeListOnEnter")`, `Menu.ModifyMenu("MENU_PROFESSIONS_FILTER")`, `TooltipDataProcessor.AddTooltipPostCall` — host callbacks.
 - `ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)` (RecipeList.lua) and `Auctionator.API.v1.RegisterForDBUpdate(addonName, PricesChanged)` (Prices.lua `ns.InitPrices`) — callbacks the plain live-root search misses.
 - `RegisterEvent("…")` + `OnEvent` dispatch on the event string — handlers are reached by event name.
-- Optional integrations (`## OptionalDeps: Auctionator, TomTom, Syndicator`) — code guarded by `if Auctionator` etc. is live only with that addon installed.
+- Optional integrations (`## OptionalDeps: Auctionator, TomTom, Syndicator, ShortestPathForever`) — code guarded by `if Auctionator` etc. is live only with that addon installed.
 - `tools/gen_*.py` public names imported by sibling generators; `tools/latest_build.py` and `tools/changelog.py` run from workflows.
 - `tools/screenshots.py` — run by hand (WFA-9) to rewrite `docs/screenshots/`; it ports Model/Core maths to Python, so check its ports against the Lua (`round_money` vs `Model.RoundMoney`) rather than treating it as its own source of truth.
 
@@ -117,15 +120,33 @@ Audit slices from lowest to highest risk:
 Tiers 5 and 6 get a second, independent reviewer (Codex): on 2026-09-24 it found the two route and
 price bugs the first reviewer missed, each with an in-memory LuaJIT repro.
 
+## Settled
+
+Shapes that look like defects here but are not. Reviewers and verifiers read this before raising a
+finding; audits add an entry when verifiers keep dismissing the same shape for the same reason.
+
+- Client-capability checks (`defensive-noise`): a guard on a host global or field (`C_TooltipInfo`,
+  `issecretvalue`, `GameTooltip.RefreshData`) stays even when `types/Client.lua` annotates it; the
+  annotations never run in the client, e.g. `Tooltip.lua`, `Trainer.lua`
+- Host-mirroring annotations (`dead-code`): `types/Client.lua` members that mirror a real client table
+  or a shape the host reads (`VarType.Number`, `colorStyle.reverse`) stay though the addon never names them
+- Money and name one-liners (`parallel-implementations`): signed-money text and "name or placeholder"
+  lookups composed from `Model.RoundMoney`/`ns.FormatNet`/`L[...]` are a small idiom; Tooltip keeps copper
+  precision and API formats positive fees on purpose, e.g. `Route.lua` `Money`, `Core.lua` `Describe`
+- Price provenance vs shopping bucket (`stringly-typed`): `SkillUpPriceSource` (`vendor`/`auctionator`/`gather`)
+  and the shopping bucket (`auction`, ...) are distinct literal-union contracts; `PriceAge` reads
+  Auctionator-only age data, so its `"auctionator"` test is not the bucket, e.g. `Route.lua` `PriceAge`
+
 ## Anti-patterns
 
 Recurring judgment defects; check new code for them.
 
-- A hand port drifts from its Lua source (`parallel-implementations`): `tools/screenshots.py`
+- **Hand port drift**: a hand port drifts from its Lua source (`parallel-implementations`): `tools/screenshots.py`
   `round_money`/`model_recipe_cost`/`price()` vs `Model.RoundMoney`/`RecipeCost`/`ns.Price`.
-- The price-source set restated (`stringly-typed`): "auctionator means auction" in
-  `Model.ShoppingList` and Route.lua `PriceAge`; unknown sources fall silently into `unknown`.
-- A saved setting read without checking it against its options (`silent-fallbacks`): `LoadDB`
+- **Shopping bucket list restated**: the bucket list `gather`/`vendor`/`auction`/`unknown` enumerated
+  by hand (`stringly-typed`) in `Model.ShoppingList`, `Shopping.lua` `RouteReagents`, Route.lua `SOURCE_TEXT`
+  and API.lua; an added bucket silently drops items.
+- **Unvalidated saved setting**: a saved setting read without checking it against its options (`silent-fallbacks`): `LoadDB`
   validates `reagentTooltip` only; `craftValue` and `sortMode` fall back silently.
 
 ## Project rules and lenses

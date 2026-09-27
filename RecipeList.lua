@@ -175,14 +175,14 @@ function ns.AttachRecipeList()
 	-- No iterateExisting: it calls back as (frame, data), not (owner, frame, data),
 	-- and the list is still empty when Blizzard_Professions finishes loading.
 	ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)
-	hooksecurefunc(recipeList.ScrollBox, "SetDataProvider", ApplySort)
+	recipeList.ScrollBox:RegisterCallback("OnDataProviderReassigned", ApplySort, recipeList.ScrollBox)
 	EventRegistry:RegisterCallback("Professions.RecipeListOnEnter", ns.ShowRecipeTooltip, ns)
 	Menu.ModifyMenu("MENU_PROFESSIONS_FILTER", AddFilterMenu)
 	ns.AttachRoute()
 end
 
 -- Rebuilding through the crafting page re-runs Blizzard's provider, which our
--- SetDataProvider hook then re-sorts.
+-- data-provider callback then re-sorts.
 function ns.RefreshRecipeList()
 	ns.RefreshRoute()
 	if recipeList and recipeList:IsVisible() and ProfessionsFrame.professionInfo then

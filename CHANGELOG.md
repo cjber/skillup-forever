@@ -11,6 +11,10 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-09-27
+
+- **Recipe sorting and shopping tracking use native callbacks and load events.** They no longer hook Blizzard object methods; lifecycle regressions and release checks guard these integrations.
+
 ## [0.6.3] - 2026-09-27
 
 - **Profession tab updates stay separate from Blizzard's methods.** The route tab follows skill changes and window events without hooking the profession frame's tab refresh functions. This fixes the fishing skill-up error confirmed on the Forever beta.

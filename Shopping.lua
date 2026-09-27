@@ -380,14 +380,13 @@ function ModuleMixin:LayoutContents()
 	end
 end
 
--- Attaching is a no-op until Blizzard's manager has added ObjectiveTrackerFrame as a
--- container. Its Init is scheduled as a closure over the original function, so hooking
--- Init never fires; AddContainer is looked up on the table and can be hooked.
 local function Attach()
 	if not module then
 		return
 	end
-	ObjectiveTrackerManager:SetModuleContainer(module, ObjectiveTrackerFrame)
+	if ObjectiveTrackerManager:GetContainerForModule(module) ~= ObjectiveTrackerFrame then
+		ObjectiveTrackerManager:SetModuleContainer(module, ObjectiveTrackerFrame)
+	end
 end
 
 local function CreateModule()
@@ -403,11 +402,9 @@ local function CreateModule()
 	-- Above every Blizzard section (quests start at 1), so quests filling the tracker
 	-- can't push it out of sight.
 	module.uiOrder = -2
-	hooksecurefunc(ObjectiveTrackerManager, "AddContainer", function(_, container)
-		if container == ObjectiveTrackerFrame then
-			Attach()
-		end
-	end)
+	EventUtil.ContinueAfterAllEvents(function()
+		C_Timer.After(0, Attach)
+	end, "PLAYER_ENTERING_WORLD", "VARIABLES_LOADED")
 	Attach()
 	C_Timer.After(5, function()
 		if not ns.TrackerAttached() then

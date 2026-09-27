@@ -7,10 +7,18 @@ end
 
 local BANDAGE, HEAVY, SILK = 1, 2, 3
 local module
+local afterEvents, deferred, attached
+local nativeReady = false
 local env = setmetatable({
 	ObjectiveTrackerManager = {
-		SetModuleContainer = function() end,
-		GetContainerForModule = function() end,
+		SetModuleContainer = function(_, owner, container)
+			if nativeReady then
+				attached = { owner, container }
+			end
+		end,
+		GetContainerForModule = function()
+			return attached and attached[2]
+		end,
 	},
 	ObjectiveTrackerFrame = {},
 	OBJECTIVE_TRACKER_COLOR = { Complete = "complete" },
@@ -26,8 +34,21 @@ local env = setmetatable({
 			target[key] = value
 		end
 	end,
-	hooksecurefunc = function() end,
-	C_Timer = { After = function() end },
+	hooksecurefunc = function()
+		error("native tracker methods must stay unhooked")
+	end,
+	EventUtil = {
+		ContinueAfterAllEvents = function(callback)
+			afterEvents = callback
+		end,
+	},
+	C_Timer = {
+		After = function(delay, callback)
+			if delay == 0 then
+				deferred = callback
+			end
+		end,
+	},
 	C_Spell = {
 		GetSpellName = function(id)
 			return ({ [HEAVY] = "Heavy Linen Bandage" })[id]
@@ -59,6 +80,12 @@ for _, file in ipairs({ "Locales/enUS.lua", "Model.lua", "Route.lua", "Shopping.
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
 ns.InitShopping()
+equal(attached, nil, "early load waits for native tracker")
+afterEvents()
+equal(attached, nil, "waits until native event callbacks finish")
+nativeReady = true
+deferred()
+equal(attached[1], module, "attaches our module after native initialization")
 -- Shopping.lua's own, which read the client.
 ns.Have = function()
 	return 0

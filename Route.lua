@@ -1010,8 +1010,7 @@ local function PlaceTab()
 	tab:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -2)
 end
 
--- RightTabSelected knows only Blizzard's tabs, and RefreshRightTabs re-selects
--- the open profession's tab; while our page shows, ours is the checked one.
+-- Blizzard reselects its profession tab on skill updates; keep ours checked while our page shows.
 local function SyncChecks()
 	local shown = page:IsShown()
 	tab:SetChecked(shown)
@@ -1048,8 +1047,8 @@ local function CreateTab()
 	end)
 	PlaceTab()
 	ns.RefreshRouteTab()
-	hooksecurefunc(ProfessionsFrame, "RefreshRightTabs", PlaceTab)
-	hooksecurefunc(ProfessionsFrame, "RightTabSelected", SyncChecks)
+	ProfessionsFrame:HookScript("OnShow", PlaceTab)
+	page:HookScript("OnShow", SyncChecks)
 end
 
 function ns.AttachRoute()
@@ -1066,6 +1065,7 @@ function ns.AttachRoute()
 	end)
 	local events = CreateFrame("Frame")
 	for _, event in ipairs({
+		"TRADE_SKILL_SHOW",
 		"TRADE_SKILL_LIST_UPDATE",
 		"SKILL_LINES_CHANGED",
 		"BAG_UPDATE_DELAYED",
@@ -1073,5 +1073,14 @@ function ns.AttachRoute()
 	}) do
 		events:RegisterEvent(event)
 	end
-	events:SetScript("OnEvent", ns.RefreshRoute)
+	events:SetScript("OnEvent", function(_, event)
+		ns.RefreshRoute()
+		if event == "SKILL_LINES_CHANGED" or event == "TRADE_SKILL_LIST_UPDATE" or event == "TRADE_SKILL_SHOW" then
+			-- Run after Blizzard handles the same event; never replace or hook its frame methods.
+			C_Timer.After(0, function()
+				PlaceTab()
+				SyncChecks()
+			end)
+		end
+	end)
 end

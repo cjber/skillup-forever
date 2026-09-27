@@ -356,7 +356,11 @@ local RECORDED = {
 		self.scripts[name] = fn
 	end,
 	HookScript = function(self, name, fn)
-		self.scripts[name] = fn
+		local previous = self.scripts[name]
+		self.scripts[name] = function(...)
+			if previous then previous(...) end
+			fn(...)
+		end
 	end,
 	SetCustomOnMouseUpHandler = function(self, fn)
 		self.scripts.OnMouseUp = fn
@@ -738,6 +742,7 @@ ns.CreateList = function(_, columns)
 end
 local first = #created + 1
 ns.AttachRoute()
+assert(not hooks.RefreshRightTabs and not hooks.RightTabSelected, "native profession methods stay untouched")
 local page = created[first]
 created[#created - 1].scripts.OnMouseUp(nil, "LeftButton", true) -- the side tab, created just before the event frame
 local function Widget(frame)

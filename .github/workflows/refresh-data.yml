@@ -1,7 +1,7 @@
 name: Refresh profession data
 
 # Opens a PR when wago.tools lists a newer Forever build whose recipe data differs, then runs CI
-# on it: a PR opened with GITHUB_TOKEN triggers no pull_request workflows.
+# on it: a PR opened with GITHUB_TOKEN gets its pull_request runs only as runs awaiting approval.
 # Daily: beta builds have shipped several times a week.
 on:
   schedule:

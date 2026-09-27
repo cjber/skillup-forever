@@ -35,7 +35,7 @@ warning and retains DB2 values. Baseline-derived portions are GPL-3.0-or-later.
 from the same build's `ItemSparse`) for the items in LibPeriodicTable-3.1's
 `Tradeskill.Mat.BySource.Vendor` set (pinned commit, LGPL-2.1), since which items
 vendors sell is server data the client doesn't ship. Listed items missing from the
-build are reported and skipped. It shares the build pin and cache with `gen_thresholds.py`.
+build are reported and skipped; a stack count below one fails the run. It shares the build pin and cache with `gen_thresholds.py`.
 
 `gen_recipes.py` writes `Data/Recipes.lua`, using only spell IDs already present in
 the same-build `Data/Thresholds.lua`. It imports the threshold generator's build,
@@ -51,7 +51,9 @@ sha256sum Data/Recipes.lua
 ```
 
 `gen_trainer.py` writes `Data/Trainer.lua`: base trainer fees for recipes with
-thresholds, from the pinned CMaNGOS classic-db `npc_trainer` table (GPL-3.0). Its
+thresholds, from the pinned CMaNGOS classic-db `npc_trainer` table (GPL-3.0). It reads
+the dump by the column names in its own `CREATE TABLE` (`dump_tables`, which
+`gen_sources.py` shares), and a row whose value count differs fails the run. Its
 rows name teaching spells; Classic Era's `SpellEffect` (LEARN_SPELL) maps them to
 recipe spells, since Forever's client leaves the teaching spells out.
 Specialisation-gated rows are skipped, and fees recorded at a trainer in game win. It also writes `ns.TrainerRanks`: each profession rank a trainer teaches (the
@@ -66,7 +68,8 @@ stocks it in limited supply), the three likeliest creature drops from
 `creature_loot_template` (following `reference_loot_template`), world drops (scrolls
 more than 100 creatures drop, or only reference tables no creature reaches), and quest
 rewards from `quest_template`. Each NPC keeps its name, faction (`FactionTemplate`)
-and one world spawn; the client turns that into a zone and map position, so the
+and one world spawn (an NPC whose faction Forever's `FactionTemplate` lacks is left
+out and reported, never guessed as usable by both); the client turns that into a zone and map position, so the
 generator needs no zone boundaries. Dungeon spawns carry the instance name from `Map`.
 It also writes each profession's trainers with the highest rank they teach (their
 `npc_trainer` rank spells), and the vendors that always stock each vendor reagent in

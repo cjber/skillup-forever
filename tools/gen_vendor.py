@@ -61,7 +61,10 @@ def main():
         if not row or int(row["BuyPrice"]) <= 0:
             absent.append(item_id)
             continue
-        per_unit = int(row["BuyPrice"]) / max(int(row["VendorStackCount"]), 1)
+        stack = int(row["VendorStackCount"])
+        if stack <= 0:
+            raise ValueError(f"ItemSparse {item_id}: VendorStackCount {stack}, so no unit price")
+        per_unit = int(row["BuyPrice"]) / stack
         prices.append((item_id, row["Display_lang"], per_unit))
     OUTPUT.write_text(render(prices), encoding="utf-8")
     print(f"{len(prices)} vendor reagents written; {len(absent)} listed items not sold in {BUILD}: {absent}")

@@ -3,7 +3,6 @@
 names for the pinned Forever client (stdlib only)."""
 
 import argparse
-import gzip
 import re
 import sys
 import urllib.error
@@ -12,10 +11,10 @@ from collections import Counter, defaultdict
 from gen_recipes import lua_string, put_unique, threshold_ids
 from gen_thresholds import BUILD, ROOT, db2
 from gen_trainer import (
-    CLASSICDB_CACHE,
     CLASSICDB_COMMIT,
     TEACH_BUILD,
     classicdb,
+    dump_tables,
     spell_maps,
     teach_effects,
     trainable_rows,
@@ -47,6 +46,7 @@ TABLES = (
     "gameobject_template",
     "gameobject_loot_template",
     "skinning_loot_template",
+    "npc_trainer",
 )
 QUEST_REWARDS = [f"RewItemId{i}" for i in range(1, 5)] + [f"RewChoiceItemId{i}" for i in range(1, 7)]
 # FactionTemplate groups: 1 player, 2 Alliance, 4 Horde.
@@ -58,63 +58,8 @@ ALLIANCE_RACES, HORDE_RACES = 1 | 4 | 8 | 64, 2 | 16 | 32 | 128
 WORLD_DROP = 100
 
 
-def parse_rows(line):
-    """The value tuples of one extended INSERT, as lists of strings (None for NULL)."""
-    rows, i, n = [], line.index("VALUES") + 6, len(line)
-    while i < n:
-        if line[i] == ";":
-            break
-        if line[i] != "(":
-            i += 1
-            continue
-        row, value, i = [], None, i + 1
-        while True:
-            c = line[i]
-            if c == "'":
-                j, chars = i + 1, []
-                while line[j] != "'" or line[j + 1] == "'":
-                    if line[j] == "\\" or line[j] == "'":
-                        j += 1
-                    chars.append(line[j])
-                    j += 1
-                value, i = "".join(chars), j + 1
-            elif c in ",)":
-                row.append(value)
-                value, i = None, i + 1
-                if c == ")":
-                    break
-            else:
-                j = i
-                while line[j] not in ",)":
-                    j += 1
-                value, i = (None if line[i:j] == "NULL" else line[i:j]), j
-        rows.append(row)
-    return rows
-
-
-def dump_tables(path):
-    columns, rows, current = {}, defaultdict(list), None
-    with gzip.open(path, "rt", encoding="utf-8", errors="replace") as dump:
-        for line in dump:
-            if line.startswith("CREATE TABLE"):
-                name = line.split("`")[1]
-                current = name if name in TABLES else None
-                if current:
-                    columns[current] = []
-            elif current and line.startswith("  `"):
-                columns[current].append(line.split("`")[1])
-            elif line.startswith("INSERT INTO") and line.split("`")[1] in TABLES:
-                rows[line.split("`")[1]].extend(parse_rows(line))
-    missing = set(TABLES) - columns.keys()
-    if missing:
-        raise ValueError(f"classic-db dump lacks tables {sorted(missing)}")
-    return {table: [dict(zip(columns[table], row, strict=False)) for row in rows[table]] for table in TABLES}
-
-
 def side(template):
     """ "A", "H", or "" for a vendor either faction can use."""
-    if template is None:
-        return ""
     group = int(template["FactionGroup"]) | int(template["FriendGroup"])
     enemy = int(template["EnemyGroup"])
     alliance = bool(group & ALLIANCE) and not enemy & ALLIANCE
@@ -170,10 +115,10 @@ def gathered(tables, locks, items):
     return {item: skills.pop() for item, skills in found.items()}
 
 
-def trainer_caps(trainer_lines, teaches, rank_of):
+def trainer_caps(trainer, teaches, rank_of):
     """[skill line][npc] = the highest rank cap that trainer teaches."""
     caps = defaultdict(dict)
-    for entry, spell, _, skill, _, _ in trainable_rows(trainer_lines):
+    for entry, spell, _, skill, _, _ in trainable_rows(trainer):
         for taught in teaches.get(spell, ()):
             line_cap = rank_of.get(taught)
             if line_cap and line_cap[0] == skill:
@@ -276,7 +221,7 @@ def scroll_drops(tables, scrolls):
     return {item: by for item, by in drops.items() if item not in world}, world
 
 
-def generate(ids, tables, effect_rows, factions, maps, trainer_lines, items, locks):
+def generate(ids, tables, effect_rows, factions, maps, items, locks):
     teaches, rank_of = spell_maps(effect_rows)
     scrolls = {}
     for item in tables["item_template"]:
@@ -314,14 +259,19 @@ def generate(ids, tables, effect_rows, factions, maps, trainer_lines, items, loc
     spawns = defaultdict(list)
     for row in tables["creature"]:
         spawns[int(row["id"])].append((int(row["map"]), float(row["position_x"]), float(row["position_y"])))
-    sources, npcs = {}, {}
+    sources, npcs, factionless = {}, {}, set()
 
+    # An NPC whose faction Forever doesn't have can't be placed on a side, so it's left out.
     def keep(entry):
         spawn = spawn_of(spawns.get(entry))
         if spawn is None or entry not in creatures:
             return False
         creature = creatures[entry]
-        npcs[entry] = (creature["Name"], side(factions.get(int(creature["Faction"]))), *spawn)
+        template = factions.get(int(creature["Faction"]))
+        if template is None:
+            factionless.add(entry)
+            return False
+        npcs[entry] = (creature["Name"], side(template), *spawn)
         return True
 
     for item, (spell, row) in sorted(scrolls.items()):
@@ -345,7 +295,7 @@ def generate(ids, tables, effect_rows, factions, maps, trainer_lines, items, loc
                 sources[spell] = source
     trainers = {
         skill: sorted((entry, cap) for entry, cap in caps.items() if keep(entry))
-        for skill, caps in trainer_caps(trainer_lines, teaches, rank_of).items()
+        for skill, caps in trainer_caps(tables["npc_trainer"], teaches, rank_of).items()
     }
     reagents = {
         item: sorted(entry for entry in sellers if keep(entry))
@@ -362,6 +312,7 @@ def generate(ids, tables, effect_rows, factions, maps, trainer_lines, items, loc
         "trainers": trainers,
         "reagents": {item: rows for item, rows in reagents.items() if rows},
         "gathered": gathered(tables, locks, reagent_items()),
+        "factionless": sorted(factionless),
     }
 
 
@@ -457,14 +408,12 @@ def main():
     args = parser.parse_args()
     options = {"refresh": args.refresh, "offline": args.offline}
     factions = db2("FactionTemplate", ("ID", "FactionGroup", "FriendGroup", "EnemyGroup"), **options)
-    trainer_lines = classicdb(**options)
     data = generate(
         threshold_ids(),
-        dump_tables(CLASSICDB_CACHE),
+        dump_tables(classicdb(**options), TABLES),
         teach_effects(**options),
         {int(row["ID"]): row for row in factions},
         db2("Map", ("ID", "MapName_lang", "InstanceType"), **options),
-        trainer_lines,
         vendor_items(),
         db2("Lock", ["ID"] + [f"{c}_{i}" for c in ("Type", "_Index") for i in range(8)], **options),
     )
@@ -472,7 +421,7 @@ def main():
     print(
         f"Wrote {OUTPUT.relative_to(ROOT)}: {len(data['sources'])} recipes, {len(data['npcs'])} npcs, "
         f"{sum(map(len, data['trainers'].values()))} trainers, {len(data['reagents'])} vendor reagents, "
-        f"{len(data['gathered'])} gathered reagents"
+        f"{len(data['gathered'])} gathered reagents; left out, no Forever faction: {data['factionless']}"
     )
 
 

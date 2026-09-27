@@ -207,9 +207,12 @@ local function SellPrice(itemID)
 	return sell or (ns.ItemSellPrices and ns.ItemSellPrices[itemID])
 end
 
--- What one craft sells for: { copper, source, quantity } or nil.
+-- What one craft sells for: { copper, source, quantity }, or nil when it counts for nothing. The
+-- second result is true when that is only because the sell price isn't known (yet), so neither is
+-- the net cost.
 ---@param recipeID integer
 ---@return SkillUpValue?
+---@return boolean?
 function ns.CraftValue(recipeID)
 	local recipe = Recipe(recipeID)
 	local output = recipe and recipe.output
@@ -218,9 +221,10 @@ function ns.CraftValue(recipeID)
 	end
 	local ah = AuctionPrice(output.itemID)
 	local auction = ah and ah.copper
-	local each, source = ns.Model.CraftValue(SellPrice(output.itemID), auction, ns.db.craftValue)
+	local sell = SellPrice(output.itemID)
+	local each, source = ns.Model.CraftValue(sell, auction, ns.db.craftValue)
 	if not (each and source) then
-		return nil
+		return nil, sell == nil and ns.db.craftValue ~= "none"
 	end
 	return { copper = each * output.quantity, source = source, quantity = output.quantity }
 end
@@ -238,18 +242,30 @@ function ns.NetCost(recipeID)
 	if cost == nil then
 		return nil
 	end
-	local value = ns.CraftValue(recipeID)
+	local value, unpriced = ns.CraftValue(recipeID)
+	if unpriced then
+		return nil
+	end
 	return cost - (value and value.copper or 0)
 end
 
--- Vendor prices: recorded per unit for anything bought with plain money.
+-- Vendor prices: recorded per unit for anything bought with plain money. Without a stack size the
+-- unit price isn't known, so the last one seen stays.
 local function RecordMerchant()
 	local changed = false
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
 		local info = C_MerchantFrame.GetItemInfo(index)
-		if itemID and info and info.price and info.price > 0 and not info.hasExtendedCost then
-			local each = info.price / math.max(info.stackCount or 1, 1)
+		if
+			itemID
+			and info
+			and info.price
+			and info.price > 0
+			and info.stackCount
+			and info.stackCount > 0
+			and not info.hasExtendedCost
+		then
+			local each = info.price / info.stackCount
 			if ns.db.vendor[itemID] ~= each then
 				ns.db.vendor[itemID] = each
 				changed = true

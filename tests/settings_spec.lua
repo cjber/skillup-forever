@@ -84,6 +84,7 @@ local ns = {
 	}),
 	REAGENT_TOOLTIP_OPTIONS = { { "route", "Route" } },
 	SORT_OPTIONS = { { "default", "Default" } },
+	CRAFT_VALUE_OPTIONS = { { "none", "None" }, { "vendor", "Vendor" }, { "auction", "Auction" } },
 	PricesChanged = Refresh,
 	RefreshRecipeList = Refresh,
 	RefreshTrainer = Refresh,

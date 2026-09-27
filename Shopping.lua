@@ -57,7 +57,7 @@ function ns.RouteReagents(route)
 		return 0
 	end, ns.PriceSource)
 	local items = {}
-	for _, source in ipairs({ "gather", "vendor", "auction", "unknown" }) do
+	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
 		for _, item in ipairs(list[source]) do
 			items[#items + 1] = { itemID = item.itemID, need = item.count, source = source }
 		end

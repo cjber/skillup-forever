@@ -71,6 +71,12 @@ equal(ns.db.vendor[4], nil, "a token price is not a money price")
 equal(ns.Price(3).source, "vendor", "the vendor's price beats a dearer auction")
 equal(ns.Price(3).copper, 20, "the vendor's unit price is used")
 
+-- A merchant entry without a stack size says nothing about the unit price.
+merchant = { { itemID = 3, price = 100, stackCount = 0 }, { itemID = 5, price = 100 } }
+onEvent(frame, "MERCHANT_UPDATE")
+equal(ns.db.vendor[3], 20, "a zero stack size keeps the earlier unit price")
+equal(ns.db.vendor[5], nil, "a missing stack size records nothing")
+
 -- Without Auctionator, only vendor prices exist.
 env.Auctionator = nil
 ns.PricesChanged()

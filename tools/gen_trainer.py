@@ -3,14 +3,13 @@
 
 import argparse
 import gzip
-import re
 import sys
 import urllib.error
 import urllib.request
 from collections import Counter, defaultdict
 
 from gen_recipes import put_unique, threshold_ids
-from gen_thresholds import BUILD, CACHE, ROOT, db2
+from gen_thresholds import BUILD, CACHE, LEARN_SPELL, ROOT, SKILL, db2
 
 OUTPUT = ROOT / "Data" / "Trainer.lua"
 CLASSICDB_COMMIT = "22b51464f1625f6ef6275771de1f5466c6f5d19e"
@@ -19,17 +18,14 @@ CLASSICDB_URL = (
 )
 CLASSICDB_CACHE = CACHE / f"classicdb-{CLASSICDB_COMMIT[:7]}.sql.gz"
 PROFESSION_SKILLS = {129, 164, 165, 171, 182, 185, 186, 197, 202, 333, 356, 393}
-LEARN_SPELL = 36
-SKILL = 118  # Sets a skill line's rank: base points 0-3 raise the cap to 75-300.
 RANK_SKILL = 75
 # Forever's client leaves out the trainers' teaching spells; Classic Era keeps them,
 # with the same recipe spell IDs.
 TEACH_BUILD = "1.15.9.69722"
-# entry, spell, spellcost, reqskill, reqskillvalue, reqlevel, ReqAbility1-3, condition_id
-ROW = re.compile(r"\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(NULL|\d+),(NULL|\d+),(NULL|\d+),(\d+)\)")
 
 
 def classicdb(refresh=False, offline=False):
+    """The pinned classic-db dump's path, downloaded first if it isn't cached."""
     if not CLASSICDB_CACHE.exists() or refresh:
         if offline:
             raise ValueError(f"Missing cached source: {CLASSICDB_CACHE}")
@@ -40,8 +36,61 @@ def classicdb(refresh=False, offline=False):
         CACHE.mkdir(parents=True, exist_ok=True)
         temporary.write_bytes(data)
         temporary.replace(CLASSICDB_CACHE)
-    with gzip.open(CLASSICDB_CACHE, "rt", encoding="utf-8", errors="replace") as dump:
-        return [line for line in dump if line.startswith("INSERT INTO `npc_trainer` VALUES")]
+    return CLASSICDB_CACHE
+
+
+def parse_rows(line):
+    """The value tuples of one extended INSERT, as lists of strings (None for NULL)."""
+    rows, i, n = [], line.index("VALUES") + 6, len(line)
+    while i < n:
+        if line[i] == ";":
+            break
+        if line[i] != "(":
+            i += 1
+            continue
+        row, value, i = [], None, i + 1
+        while True:
+            c = line[i]
+            if c == "'":
+                j, chars = i + 1, []
+                while line[j] != "'" or line[j + 1] == "'":
+                    if line[j] == "\\" or line[j] == "'":
+                        j += 1
+                    chars.append(line[j])
+                    j += 1
+                value, i = "".join(chars), j + 1
+            elif c in ",)":
+                row.append(value)
+                value, i = None, i + 1
+                if c == ")":
+                    break
+            else:
+                j = i
+                while line[j] not in ",)":
+                    j += 1
+                value, i = (None if line[i:j] == "NULL" else line[i:j]), j
+        rows.append(row)
+    return rows
+
+
+def dump_tables(path, tables):
+    """Each named table's rows, as {column: value} by the dump's own CREATE TABLE."""
+    columns, rows, current = {}, defaultdict(list), None
+    with gzip.open(path, "rt", encoding="utf-8", errors="replace") as dump:
+        for line in dump:
+            if line.startswith("CREATE TABLE"):
+                name = line.split("`")[1]
+                current = name if name in tables else None
+                if current:
+                    columns[current] = []
+            elif current and line.startswith("  `"):
+                columns[current].append(line.split("`")[1])
+            elif line.startswith("INSERT INTO") and line.split("`")[1] in tables:
+                rows[line.split("`")[1]].extend(parse_rows(line))
+    missing = set(tables) - columns.keys()
+    if missing:
+        raise ValueError(f"classic-db dump lacks tables {sorted(missing)}")
+    return {table: [dict(zip(columns[table], row, strict=True)) for row in rows[table]] for table in tables}
 
 
 def teach_effects(refresh=False, offline=False):
@@ -64,24 +113,30 @@ def spell_maps(effect_rows):
     return teaches, rank_of
 
 
-def trainable_rows(trainer_lines):
+def trainable_rows(trainer):
     """(entry, spell, cost, skill, required, level) of each profession npc_trainer row.
 
     Specialisation-gated rows (condition, required ability) can't be assumed
     trainable; a recipe offered without a gate anywhere is.
     """
-    for line in trainer_lines:
-        for match in ROW.finditer(line):
-            entry, spell, cost, skill, required, level, ability, _, _, condition = match.groups()
-            if int(skill) in PROFESSION_SKILLS and ability == "NULL" and condition == "0":
-                yield int(entry), int(spell), int(cost), int(skill), int(required), int(level)
+    for row in trainer:
+        skill = int(row["reqskill"])
+        if skill in PROFESSION_SKILLS and row["ReqAbility1"] is None and row["condition_id"] == "0":
+            yield (
+                int(row["entry"]),
+                int(row["spell"]),
+                int(row["spellcost"]),
+                skill,
+                int(row["reqskillvalue"]),
+                int(row["reqlevel"]),
+            )
 
 
-def generate(ids, trainer_lines, effect_rows):
+def generate(ids, trainer, effect_rows):
     teaches, rank_of = spell_maps(effect_rows)
     fees = defaultdict(Counter)
     ranks = defaultdict(Counter)
-    for _, spell, cost, skill, required, level in trainable_rows(trainer_lines):
+    for _, spell, cost, skill, required, level in trainable_rows(trainer):
         for taught in teaches.get(spell, ()):
             if taught in ids:
                 fees[taught][(cost, required)] += 1
@@ -146,7 +201,7 @@ def main():
     options = {"refresh": args.refresh, "offline": args.offline}
     fees, conflicts, ranks = generate(
         threshold_ids(),
-        classicdb(**options),
+        dump_tables(classicdb(**options), ("npc_trainer",))["npc_trainer"],
         teach_effects(**options),
     )
     content = render(fees, conflicts, ranks)

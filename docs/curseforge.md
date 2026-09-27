@@ -12,6 +12,18 @@ Chance and cost per skill-up, right in the Professions window's own rows.
 
 Hover a recipe for its colour thresholds and what each reagent costs.
 
+![The SkillUp route tab with training and crafting steps and the reagents they need](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png)
+
+The route tab from 48 to 73: what to train, what to craft and where each reagent comes from.
+
+![The objective tracker with the route's next training step and missing reagents](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png)
+
+Track it and the route sits above your quests.
+
+![Light Leather's tooltip with how much the tracked route needs](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/reagent.png)
+
+Hover a reagent anywhere to see how much your routes need.
+
 ## Features
 
 - **Recipe rows and tooltips** show skill-up chance and cost, such as `62% · 45s`, plus orange, yellow, green and grey thresholds and a breakdown of reagent prices. Required skill is optional on rows.

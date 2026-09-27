@@ -8,7 +8,18 @@ import sys
 import urllib.error
 from collections import Counter, defaultdict
 
-from gen_thresholds import BUILD, ROOT, SOURCE_DATE, db2, professions
+from gen_thresholds import (
+    BUILD,
+    CREATE_ITEM,
+    DUMMY,
+    ENCHANT_ITEM,
+    ROOT,
+    SOURCE_DATE,
+    TELEPORT_UNITS,
+    TRANS_DOOR,
+    db2,
+    professions,
+)
 
 OUTPUT = ROOT / "Data" / "Recipes.lua"
 THRESHOLDS = ROOT / "Data" / "Thresholds.lua"
@@ -97,12 +108,12 @@ def reagents_by_spell(ids, rows):
 def output_of(spell, rows):
     if not rows:
         raise ValueError(f"Recipe {spell}: no effects to resolve output")
-    creates = [row for row in rows if int(row["Effect"]) == 24]
+    creates = [row for row in rows if int(row["Effect"]) == CREATE_ITEM]
     if not creates:
         # Permanent enchants may also have dummy/teleport effects; campfires
         # summon an object. No other effect is evidence of a non-item output.
         effects = {int(row["Effect"]) for row in rows}
-        if effects == {50} or (53 in effects and effects <= {3, 5, 53}):
+        if effects == {TRANS_DOOR} or (ENCHANT_ITEM in effects and effects <= {DUMMY, TELEPORT_UNITS, ENCHANT_ITEM}):
             if any(int(row["EffectItemType"]) or int(row["EffectTriggerSpell"]) for row in rows):
                 raise ValueError(f"Recipe {spell}: indirect item/triggered output needs review")
             return False

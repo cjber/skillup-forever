@@ -128,6 +128,17 @@ do
 	ns.AnnounceUpdate()
 	equal(#messages, 1, "a dev checkout is silent")
 	equal(ns.db.lastVersion, "0.8.0", "a dev checkout's version isn't remembered")
+	-- A saved choice the menu doesn't offer goes back to its default; a valid one stays.
+	env.SkillUpForeverDB = { craftValue = "auctoin", sortMode = "coost", reagentTooltip = "typo" }
+	callbacks.SkillUpForever()
+	equal(ns.db.craftValue, "vendor", "an unknown craft value resets")
+	equal(ns.db.sortMode, "blizzard", "an unknown sort resets")
+	equal(ns.db.reagentTooltip, "route", "an unknown reagent tooltip mode resets")
+	env.SkillUpForeverDB = { craftValue = "auction", sortMode = "cost", reagentTooltip = "full" }
+	callbacks.SkillUpForever()
+	equal(ns.db.craftValue, "auction", "a valid craft value stays")
+	equal(ns.db.sortMode, "cost", "a valid sort stays")
+	equal(ns.db.reagentTooltip, "full", "a valid reagent tooltip mode stays")
 end
 
 print("core_spec: " .. checks .. " checks passed")

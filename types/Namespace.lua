@@ -14,7 +14,7 @@
 ---@field PriceSource fun(itemID: integer): SkillUpPriceSource?
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
 ---@field UsedIn fun(itemID: integer): integer[]
----@field CraftValue fun(recipeID: integer): SkillUpValue?
+---@field CraftValue fun(recipeID: integer): SkillUpValue?, boolean?
 ---@field RecipeCost fun(recipeID: integer): number?
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
@@ -76,6 +76,7 @@
 ---@field AttachTrainer fun()
 ---@field PricesChanged fun()
 ---@field SORT_OPTIONS string[][]
+---@field CRAFT_VALUE_OPTIONS string[][]
 ---@field REAGENT_TOOLTIP_OPTIONS string[][]
 ---@field TITLE string
 ---@field L table<string, string> English phrase to the client locale's translation, else the phrase
@@ -232,6 +233,7 @@ SkillUpForeverDB = nil
 ---@field count number
 
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
+---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
 ---@class SkillUpPrice
 ---@field copper number
 ---@field source SkillUpPriceSource
@@ -276,7 +278,7 @@ SkillUpForeverDB = nil
 ---@class SkillUpNeededItem
 ---@field itemID integer
 ---@field need number
----@field source 'gather'|'vendor'|'auction'|'unknown'
+---@field source SkillUpShoppingSource
 
 ---@class SkillUpTracked
 ---@field skillLine integer

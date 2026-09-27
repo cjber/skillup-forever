@@ -393,7 +393,13 @@ do
 	sell = nil
 	runtime.db.craftValue = "none"
 	equal(runtime.NetCost(10), 10, "resale disabled preserves full reagent cost")
+	runtime.ItemSellPrices[2] = nil
+	equal(runtime.NetCost(10), 10, "resale disabled needs no sell price")
 	runtime.db.craftValue = "vendor"
+	equal(runtime.CraftValue(10), nil, "unknown sell price has no value")
+	equal(select(2, runtime.CraftValue(10)), true, "unknown sell price is flagged")
+	equal(runtime.NetCost(10), nil, "unknown sell price leaves the net cost unknown, not full")
+	runtime.ItemSellPrices[2] = 10
 	equal(runtime.UsedIn(1)[1], 10, "runtime reverse index")
 	equal(#runtime.UsedIn(99), 0, "runtime absent item returns empty array")
 	live[10] = { reagentSlotSchematics = { { reagentType = 1, quantityRequired = 4, reagents = { { itemID = 1 } } } } }

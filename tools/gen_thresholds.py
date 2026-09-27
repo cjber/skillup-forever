@@ -14,6 +14,15 @@ from pathlib import Path
 BUILD = "1.60.1.70009"
 # Date this source snapshot was selected, not the date of each regeneration.
 SOURCE_DATE = "2026-09-25"
+# SpellEffect.Effect codes the generators read.
+DUMMY = 3
+TELEPORT_UNITS = 5
+CREATE_ITEM = 24
+OPEN_LOCK = 33
+LEARN_SPELL = 36
+TRANS_DOOR = 50  # summons an object: a campfire
+ENCHANT_ITEM = 53  # a permanent enchant
+SKILL = 118  # sets a skill line's rank: base points 0-3 raise the cap to 75-300
 SKILLET_COMMIT = "c6807b055215a810f985f9606458235b8805666e"
 SKILLET_URL = f"https://raw.githubusercontent.com/b-morgan/Skillet-Classic/{SKILLET_COMMIT}/SkillLevelData1.lua"
 ROOT = Path(__file__).resolve().parent.parent
@@ -149,8 +158,8 @@ def spell_effects(rows):
             continue
         spell, effect = int(row["SpellID"]), int(row["Effect"])
         effects[spell].add(effect)
-        # SPELL_EFFECT_CREATE_ITEM: only outputs, never reagents or name matches.
-        if effect == 24 and int(row["EffectItemType"]) > 0:
+        # Only outputs, never reagents or name matches.
+        if effect == CREATE_ITEM and int(row["EffectItemType"]) > 0:
             items[spell].add(int(row["EffectItemType"]))
     return items, effects
 
@@ -200,7 +209,7 @@ def generate(ability_rows, skills, selected, names, baseline, outputs, effects):
             continue
         # Mining's open-lock gathering abilities have thresholds but are not
         # crafting recipes. Do not emit them as smelting recipes.
-        if effects.get(spell) == {33}:
+        if effects.get(spell) == {OPEN_LOCK}:
             counts["skip:gathering ability"] += 1
             continue
         orange, source = orange_threshold(spell, yellow, grey, orange, baseline, outputs)

@@ -68,17 +68,13 @@ function ns.RegisterSettings()
 	Checkbox(
 		"showCost",
 		L["Show cost per skill-up"],
-		L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Prices come from vendors you've visited and from Auctionator. Auction prices need Auctionator."]
+		L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather are free, and auction prices need Auctionator."]
 	)
 
 	Dropdown(
 		"craftValue",
 		L["Count what crafts sell for"],
-		{
-			{ "none", L["Don't count it"] },
-			{ "vendor", L["Vendor sell price"] },
-			{ "auction", L["Auction price if higher"] },
-		},
+		ns.CRAFT_VALUE_OPTIONS,
 		L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, are after the 5% cut, and may not sell."]
 	)
 

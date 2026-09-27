@@ -156,6 +156,11 @@ local page = {
 		return { { itemID = 2589, quantity = 1 } }
 	end,
 	Price = function() end,
+	-- One scroll nothing prices, to carry the route on.
+	RecipeSuggestions = function()
+		return { { recipeID = 3276, source = { item = 6454 }, reach = 115, kindText = "vendor" } }
+	end,
+	ScrollPrice = function() end,
 	RouteReagents = function()
 		return {}
 	end,
@@ -217,5 +222,36 @@ tabs[#tabs - 1]:Click() -- the side tab, created just before the event frame
 local reagentList = lists[2]
 equal(reagentList.rows[1] and reagentList.rows[1].text, "item 2589", "an unpriced reagent is listed")
 equal(requested[2589], true, "and its name is asked for")
+
+-- With only Linen Bandage priced, the route runs out and suggests a scroll nothing prices.
+page.NetCost = function(recipeID)
+	return recipeID == 3275 and 10 or nil
+end
+page.FormatNet = function(copper)
+	return tostring(copper)
+end
+-- And one reagent from every shopping bucket, each labelled with where it comes from.
+page.RouteReagents = function()
+	local items = {}
+	for index, source in ipairs(page.Model.SHOPPING_SOURCES) do
+		items[index] = { itemID = index, need = 1, source = source }
+	end
+	return items
+end
+page.Have = function()
+	return 0
+end
+page.InvalidatePlans()
+tabs[#tabs - 1]:Click()
+local routeList = lists[#lists - 1]
+local suggestion = routeList.rows[#routeList.rows]
+equal(suggestion and suggestion.values[1], "?", "an unpriced scroll shows ?")
+local labels = {}
+for _, row in ipairs(lists[#lists].rows) do
+	labels[row.text] = row.values[2]
+end
+for index, source in ipairs(page.Model.SHOPPING_SOURCES) do
+	equal(type(labels["item " .. index]), "string", source .. " is listed with a source label")
+end
 
 print("route_spec: " .. checks .. " checks passed")

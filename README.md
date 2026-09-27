@@ -16,6 +16,8 @@ Levelling from 48 to 60: the rows re-sort by cost per skill-up, and Handstitched
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png" width="640" alt="The Leatherworking window with skill-up chance and cost per skill-up on each recipe row, and a tooltip showing reagent prices and cost per skill-up"></p>
 
+Each row shows its skill-up chance and what a skill-up costs, and the tooltip breaks that down per reagent. This character skins, so Light Leather counts as free.
+
 ## Features
 
 - **Recipe rows** show your chance of a skill-up and what each skill-up costs, coloured by difficulty: `62% · 45s` (in coin icons). The skill a recipe needs can be added in settings. A recipe you can't make yet shows only its requirement, in red.
@@ -26,6 +28,18 @@ Levelling from 48 to 60: the rows re-sort by cost per skill-up, and Handstitched
 - **Shopping list**: every reagent the route needs, with how many you have, green once covered. *Track* puts it in the objective tracker above your quests; at a vendor, *Buy tracked reagents* buys what they sell; with Auctionator, *To Auctionator* makes a shopping list. Reagents you gather yourself count as free. [More](docs/route.md#shopping-list).
 - **Profession trainer**: each recipe a trainer teaches shows its row text (`62% · 45s`) and the one that most cheapens or extends your route, fee included, is marked `Best next`. A recipe the addon can't identify for certain shows `?`.
 - **Reagent tooltips**: hovering an item anywhere shows what your tracked routes need of it. Hold Shift, or choose it in settings, to list the recipes of your professions that use it and still skill up, with their colour now: `Heavy Linen Bandage    yellow until 115`.
+
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
+
+The route tab from 48 to 73: train the vest, craft 18, train the boots, craft 7. The reagents list says where each one comes from.
+
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png" width="320" alt="The objective tracker with Leatherworking to 73, the next training step and two missing reagents"></p>
+
+Tracked, the same route sits above your quests: the next trainer visit and what's still missing.
+
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/reagent.png" width="320" alt="Light Leather's tooltip with how much the tracked route needs"></p>
+
+Hover a reagent anywhere to see how much your tracked routes need.
 
 ## Install
 

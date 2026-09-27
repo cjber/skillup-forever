@@ -57,10 +57,10 @@ def download(url, filename, refresh=False, offline=False):
     return content
 
 
-def db2(name, columns, refresh=False, offline=False):
+def db2(name, columns, refresh=False, offline=False, build=BUILD):
     content = download(
-        f"https://wago.tools/db2/{name}/csv?build={BUILD}",
-        f"{name}-{BUILD}.csv",
+        f"https://wago.tools/db2/{name}/csv?build={build}",
+        f"{name}-{build}.csv",
         refresh,
         offline,
     )
@@ -70,7 +70,7 @@ def db2(name, columns, refresh=False, offline=False):
         raise ValueError(f"{name}: missing columns: {', '.join(sorted(missing))}")
     rows = list(reader)
     if not rows:
-        raise ValueError(f"{name}: empty DB2 export for {BUILD}")
+        raise ValueError(f"{name}: empty DB2 export for {build}")
     return rows
 
 

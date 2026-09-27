@@ -108,7 +108,19 @@ local function Stub()
 			local value
 			if key == "SetScript" or key == "HookScript" then
 				value = function(_, name, fn)
-					scripts[name] = fn
+					local previous = key == "HookScript" and scripts[name]
+					scripts[name] = previous and function(...)
+						previous(...)
+						fn(...)
+					end or fn
+				end
+			elseif key == "SetChecked" then
+				value = function(frame, checked)
+					rawset(frame, "checked", checked)
+				end
+			elseif key == "Event" then
+				value = function(frame, event)
+					scripts.OnEvent(frame, event)
 				end
 			elseif key == "SetCustomOnMouseUpHandler" then
 				value = function(_, fn)
@@ -183,7 +195,16 @@ local page = {
 		return list
 	end,
 }
+local timers = {}
 local pageEnv = setmetatable({
+	C_Timer = {
+		After = function(_, callback)
+			timers[#timers + 1] = callback
+		end,
+	},
+	hooksecurefunc = function()
+		error("route tab must not hook native profession methods")
+	end,
 	C_Item = {
 		GetItemNameByID = function() end,
 		GetItemIconByID = function() end,
@@ -222,6 +243,14 @@ tabs[#tabs - 1]:Click() -- the side tab, created just before the event frame
 local reagentList = lists[2]
 equal(reagentList.rows[1] and reagentList.rows[1].text, "item 2589", "an unpriced reagent is listed")
 equal(requested[2589], true, "and its name is asked for")
+local routeTab, eventFrame = tabs[#tabs - 1], tabs[#tabs]
+equal(routeTab.checked, true, "opening the route selects its tab")
+eventFrame:Event("SKILL_LINES_CHANGED")
+routeTab:SetChecked(false) -- Blizzard handles the same event after the addon.
+for _, callback in ipairs(timers) do
+	callback()
+end
+equal(routeTab.checked, true, "deferred skill update restores the visible route tab")
 
 -- With only Linen Bandage priced, the route runs out and suggests a scroll nothing prices.
 page.NetCost = function(recipeID)

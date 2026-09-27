@@ -11,7 +11,9 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
-- **Profession tab updates stay separate from Blizzard's methods.** The route tab follows skill changes and window events without hooking the profession frame's tab refresh functions. This removes a suspected trigger for fishing skill-up errors on the Forever beta.
+## [0.6.3] - 2026-09-27
+
+- **Profession tab updates stay separate from Blizzard's methods.** The route tab follows skill changes and window events without hooking the profession frame's tab refresh functions. This fixes the fishing skill-up error confirmed on the Forever beta.
 
 ## [0.6.2] - 2026-09-27
 

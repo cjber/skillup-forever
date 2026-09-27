@@ -45,7 +45,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
 ns.WHATS_NEW =
-	L["The route no longer charges for a rank it never gets to, and rank training comes where you can do it."]
+	L["The trainer marks the recipe to train next with a green arrow, and a craft with no known sell price shows no cost."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

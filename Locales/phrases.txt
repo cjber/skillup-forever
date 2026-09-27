@@ -113,7 +113,7 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest companion addons"] = "Suggest companion addons"
 L["Taught by %s trainers."] = "Taught by %s trainers."
 L["Tell me what's new after an update"] = "Tell me what's new after an update"
-L["The route no longer charges for a rank it never gets to, and rank training comes where you can do it."] = "The route no longer charges for a rank it never gets to, and rank training comes where you can do it."
+L["The trainer marks the recipe to train next with a green arrow, and a craft with no known sell price shows no cost."] = "The trainer marks the recipe to train next with a green arrow, and a craft with no known sell price shows no cost."
 L["These reagents have no vendor price. Auction prices need Auctionator."] = "These reagents have no vendor price. Auction prices need Auctionator."
 L["To"] = "To"
 L["To Auctionator"] = "To Auctionator"

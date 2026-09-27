@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-09-27
+
 - **The route no longer charges for a rank it never gets to.** When your known recipes ran out before the target, the total still had the next rank's fee in it, though the route stopped short of needing it.
 - **Rank training comes where you can do it.** A craft that ran through your cap from below the skill the trainer asks for (First Aid from 40 to 90, say) put *Train Journeyman at 50* before it. The craft is now split at 50, with the training in between.
 - **Recipe suggestions show up when your only unpriced recipe is grey.** A grey recipe with no price made the route tab ask for Auctionator instead of listing the scrolls that would carry you on.

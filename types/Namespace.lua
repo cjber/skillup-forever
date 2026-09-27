@@ -27,6 +27,7 @@
 ---@field InvalidateAPI fun()
 ---@field RankName fun(cap: number): string?
 ---@field RouteSteps fun(profession: SkillUpProfession, route: SkillUpPlan): SkillUpRouteStep[]
+---@field RouteBlocked fun(profession: SkillUpProfession, route: SkillUpPlan): string?
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field RankText fun(rank: SkillUpRank): string
 ---@field CreateList fun(parent: Frame, columns: SkillUpColumn[]): SkillUpList

@@ -263,4 +263,11 @@ equal(API.OpenRecipes(165), true, "opens a profession")
 equal(opened[1], 8165, "by the ID the client reported")
 equal(API.OpenRecipes(999), false, "not one the character lacks")
 
+-- Tracking changes the order, so the next call rebuilds.
+env.PlaySound, env.SOUNDKIT = function() end, {}
+ns.db.trackedProfessions = {}
+local tracked = API.Professions()
+ns.SetTracked(165, true)
+equal(API.Professions() ~= tracked, true, "tracking a profession rebuilds the list")
+
 print("api_spec: " .. checks .. " checks passed")

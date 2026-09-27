@@ -136,8 +136,9 @@ def model_craft_value(sell, auction, mode):
     if mode == "none":
         return None, None
     vendor = sell if sell and sell > 0 else None
-    resale = auction * 0.95 if mode == "auction" and auction else None
-    if resale and (not vendor or resale > vendor):
+    # Lua's 0 is true: a zero auction price still counts, as in Model.CraftValue.
+    resale = auction * 0.95 if mode == "auction" and auction is not None else None
+    if resale is not None and (not vendor or resale > vendor):
         return resale, "auction"
     return vendor, "vendor" if vendor else None
 

@@ -235,6 +235,8 @@ end
 local empty = Model.PlanRoute({ skill = 1, target = 2, recipes = { candidate(1, flat, nil) } })
 equal(#empty.segments, 0, "only unpriced recipes cannot produce a route")
 equal(empty.stopReason, "no_recipe", "only unpriced stops immediately")
+local greyed = Model.PlanRoute({ skill = 5, target = 6, recipes = { candidate(1, { 1, 2, 3, 4 }, nil) } })
+equal(greyed.excluded.unpriced, 0, "a grey unpriced recipe keeps nothing out of the route")
 
 local trainingSnapshot = { skill = 1, target = 4, recipes = { candidate(100, flat, 100) } }
 local training = Model.RecommendTraining(trainingSnapshot, { candidate(20, flat, 50, 100) })

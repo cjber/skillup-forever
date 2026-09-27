@@ -147,12 +147,6 @@ def gathered(tables, locks, items):
     references = defaultdict(list)
     for row in tables["reference_loot_template"]:
         references[int(row["entry"])].append(row)
-
-    def expand(rows):
-        for row in rows:
-            count = int(row["mincountOrRef"])
-            yield from references[-count] if count < 0 else (row,)
-
     loot = defaultdict(list)
     for row in tables["gameobject_loot_template"]:
         loot[int(row["entry"])].append(row)
@@ -167,11 +161,9 @@ def gathered(tables, locks, items):
     sources.extend((SKINNING, rows) for rows in skinning.values())
     found = defaultdict(set)
     for skill, rows in sources:
-        for row in expand(rows):
-            chance = float(row["ChanceOrQuestChance"])
-            # Chance 0 is an equal share of its loot group: the node's main yield.
-            if int(row["item"]) in items and (chance == 0 or chance >= GATHER_CHANCE):
-                found[int(row["item"])].add(skill)
+        for item, share in loot_items(rows, references):
+            if item in items and share * 100 >= GATHER_CHANCE:
+                found[item].add(skill)
     ambiguous = sorted(item for item, skills in found.items() if len(skills) > 1)
     if ambiguous:
         raise ValueError(f"Reagents gathered by several skills: {ambiguous}")
@@ -243,6 +235,16 @@ def loot_chances(rows):
                 yield row, 100.0 if group == 0 else rest / shared
 
 
+def loot_items(rows, refs, scale=1.0, seen=frozenset()):
+    """(item, chance 0-1) per item the loot rows can give, through referenced loot at its chance of rolling."""
+    for row, chance in loot_chances(rows):
+        ref, share = -int(row["mincountOrRef"]), scale * chance / 100
+        if ref < 0:
+            yield int(row["item"]), share
+        elif ref > 0 and ref not in seen:
+            yield from loot_items(refs[ref], refs, share, seen | {ref})
+
+
 def scroll_drops(tables, scrolls):
     """Per scroll, {creature: chance %} through direct and referenced loot; and the world drops, scrolls
     that too many creatures drop to name or that only chests and containers hold."""
@@ -260,17 +262,9 @@ def scroll_drops(tables, scrolls):
                 reached(refs[ref], seen)
         return seen
 
-    def dropped(rows, scale, seen):
-        for row, chance in loot_chances(rows):
-            ref, share = -int(row["mincountOrRef"]), scale * chance / 100
-            if ref < 0:
-                yield int(row["item"]), share
-            elif ref > 0 and ref not in seen:
-                yield from dropped(refs[ref], share, seen | {ref})
-
     drops = defaultdict(dict)
     for entry, rows in loot.items():
-        for item, share in dropped(rows, 1.0, frozenset()):
+        for item, share in loot_items(rows, refs):
             if item in scrolls and share > 0:
                 drops[item][entry] = max(drops[item].get(entry, 0), share * 100)
     world = {item for item, by in drops.items() if len(by) > WORLD_DROP}

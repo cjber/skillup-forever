@@ -110,7 +110,7 @@ no shopping rows, so only use priced route segments for a complete list.
 
 ## Screenshots
 
-`docs/screenshots/window.png` and `tooltip.png` are mocks rendered from the
+`docs/screenshots/*.png` and `demo.gif` are mocks rendered from the
 client's own UI art, not in-game captures. Regenerate them from the repository
 root with:
 
@@ -123,7 +123,8 @@ cjber/skills checkout, found at `~/.claude/skills/wow-mock-screenshots` by
 default; set `WOWMOCK` to another directory that holds it. Art and fonts come
 from wago.tools for the pinned Forever build and are cached under
 `~/.cache/wowmock/`. Every number drawn comes from `Data/*.lua` through a port
-of `Model.lua`; only the scene's state (skill, bags, auction prices) is chosen
+of `Model.lua`, or (route, tracker, trainer and reagent scenes) from the addon's own Lua run
+under `luajit` with the client stubbed; only the scene's state (skill, bags, auction prices) is chosen
 in the script. Repeated runs are byte-identical. `SCALE` (default 2) sets the
 render scale.
 

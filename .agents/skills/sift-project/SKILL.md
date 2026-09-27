@@ -51,7 +51,7 @@ On-demand tools for audits. Output is candidates, never verdicts.
 | Concern | Command | Known false positives |
 |---|---|---|
 | Types (Lua) | `tools/typecheck.sh` | Zero-diagnostic gate; missing Forever FrameXML surfaces are typed in `types/Client.lua` |
-| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 6: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:109), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:94/96), untyped `json.load` result (latest_build.py:14), unresolved `wowmock` (the wow-mock-screenshots library, put on `sys.path` at run time; screenshots.py:263) and the `("divider",)` row tuple (screenshots.py:455); plus unresolved `PIL` when Pillow is not installed |
+| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 5: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:118), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:142/144), untyped `json.load` result (latest_build.py:14) and unresolved `wowmock` (the wow-mock-screenshots library, put on `sys.path` at run time; screenshots.py:883); plus unresolved `PIL` when Pillow is not installed |
 | Dead code (Lua) | `luacheck . --no-color` (unused locals/values) + the live-root searches below | a function stored on `ns` is never "unused" to luacheck — search every file for `ns.<Name>` |
 | Dead code (Python) | `uvx vulture tools --min-confidence 60` | clean at baseline; generator functions are imported across files (`from gen_thresholds import …`) |
 | Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sift/runs/jscpd --ignore "Data/**,tools/.cache/**,.sift/**" .` | 4 Python clones: the `argparse` preamble repeated in each `tools/gen_*.py` (a small idiom); `tests/core_spec.lua`'s two host-stub environments differ on purpose |
@@ -76,7 +76,7 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 - `RegisterEvent("…")` + `OnEvent` dispatch on the event string — handlers are reached by event name.
 - Optional integrations (`## OptionalDeps: Auctionator, TomTom, Syndicator, ShortestPathForever`) — code guarded by `if Auctionator` etc. is live only with that addon installed.
 - `tools/gen_*.py` public names imported by sibling generators; `tools/latest_build.py` and `tools/changelog.py` run from workflows.
-- `tools/screenshots.py` — run by hand (WFA-9) to rewrite `docs/screenshots/`; it ports Model/Core maths to Python, so check its ports against the Lua (`round_money` vs `Model.RoundMoney`) rather than treating it as its own source of truth.
+- `tools/screenshots.py` — run by hand (WFA-9) to rewrite `docs/screenshots/`; the route, tracker, trainer and reagent scenes run the addon's own Lua under luajit, while the recipe-list scenes port Model/Core maths to Python, so check its ports against the Lua (`round_money` vs `Model.RoundMoney`) rather than treating it as its own source of truth.
 
 ## Zones
 

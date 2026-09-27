@@ -5,15 +5,19 @@
 Needs Pillow and the wowmock library (env WOWMOCK, default ~/.claude/skills/wow-mock-screenshots). Assets
 are fetched from wago.tools once and cached under ~/.cache/wowmock/<build>/.
 
-Every number drawn comes from this repository: thresholds, reagents, sell prices and vendor
-prices from Data/*.lua, pushed through a line-for-line port of Model.lua and the formatting in
-Core.lua / Tooltip.lua. Only the scene's state (skill, bags, auction prices) is chosen here.
+Every number drawn comes from this repository: thresholds, reagents, sell prices, vendor prices and
+what each gathering profession covers from Data/*.lua. The window, tooltip and demo push them through a
+line-for-line port of Model.lua and the formatting in Core.lua / Tooltip.lua; the route, tracker,
+trainer and reagent scenes run the addon's own Lua under luajit (lua_scene) and only draw its output.
+Only the scene's state (professions, skill, bags, auction prices) is chosen here.
 """
 
 import io
+import json
 import math
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -84,7 +88,7 @@ def parse_lua_tables(text):
 
 def load_data():
     ns = {}
-    for name in ("Recipes", "Thresholds", "Vendor"):
+    for name in ("Recipes", "Thresholds", "Vendor", "Sources"):
         ns.update(parse_lua_tables((REPO / "Data" / f"{name}.lua").read_text()))
     ns["RecipeName"] = {rid: name for names in ns["RecipeNames"].values() for name, rid in names.items()}
     return ns
@@ -161,25 +165,30 @@ COLORS = {  # Core.lua ns.COLORS: the client's GlobalColor rows it names
     "unknown": (128 / 255, 128 / 255, 128 / 255),  # GRAY_FONT_COLOR
 }
 
-# A Leatherworker/Miner at 48/75: Light Leather is bought (a Skinner would price it at 0 under the default
-# "gathered reagents are free"). The recipes are the trainer's first ones, as in the old in-game capture.
+# A Leatherworker/Skinner at 48/75: under the default "gathered reagents are free" the leather, hides and
+# scraps Skinning covers cost nothing, so only the vendor thread is paid for. The recipes are the trainer's
+# first ones, as in the old in-game capture.
 SKILL, MAX_SKILL = 48, 75
 LEARNED = [2152, 2149, 9058, 9059, 7126, 2153, 3753, 3816, 9060, 9062, 2881, 1229432]
 UNLEARNED = [44953]  # Winter Boots: listed by Forever, taught by a Winter Veil quest
 BAGS = {2318: 23}  # Light Leather
 AUCTION = {2318: 90, 783: 320, 2934: 8}  # Light Leather, Light Hide, Ruined Leather Scraps (copper), from Auctionator
-PROFESSIONS = [  # GetProfessions order, as the side tabs show them
-    ("Leatherworking", 136247),
-    ("Skinning", 134366),
-    ("First Aid", 135966),
-    ("Fishing", 136245),
-    ("Cooking", 133971),
+PROFESSIONS = [  # GetProfessions order, as the side tabs show them: name, icon, rank, max, skill line
+    ("Leatherworking", 136247, SKILL, MAX_SKILL, 165),
+    ("Skinning", 134366, 62, 75, 393),
+    ("First Aid", 135966, 1, 75, 129),
+    ("Fishing", 136245, 1, 75, 356),
+    ("Cooking", 133971, 1, 75, 185),
 ]
+SKILL_LINE_NAMES = {line: name for name, _, _, _, line in PROFESSIONS}
 
 
 def price(item_id):
-    """Prices.lua ns.Price: no gathering profession covers these reagents, so vendor (when it's no dearer
-    than the auction house) else auction."""
+    """Prices.lua ns.Price with gatherFree on: free when one of the character's professions gathers it, else
+    vendor (when it's no dearer than the auction house), else auction."""
+    profession = SKILL_LINE_NAMES.get(NS["GatheredBy"].get(item_id))
+    if profession:
+        return {"copper": 0, "source": "gather", "profession": profession}
     vendor, ah = NS["VendorPrices"].get(item_id), AUCTION.get(item_id)
     if vendor is not None and (ah is None or vendor <= ah):
         return {"copper": vendor, "source": "vendor"}
@@ -198,15 +207,16 @@ def reagents(recipe_id):
 
 
 def craft_value(recipe_id):
+    """Prices.lua ns.CraftValue with craftValue "vendor": the value, and whether it is missing only because
+    the sell price isn't known."""
     output = NS["RecipeData"][recipe_id]["output"]
     if not output:
-        return None
-    each, source = model_craft_value(
-        NS["ItemSellPrices"].get(output["itemID"]), AUCTION.get(output["itemID"]), "vendor"
-    )
-    if each is None:
-        return None
-    return {"copper": each * output["quantity"], "source": source, "quantity": output["quantity"]}
+        return None, False
+    sell = NS["ItemSellPrices"].get(output["itemID"])
+    each, source = model_craft_value(sell, AUCTION.get(output["itemID"]), "vendor")
+    if each is None or source is None:
+        return None, sell is None
+    return {"copper": each * output["quantity"], "source": source, "quantity": output["quantity"]}, False
 
 
 def recipe_cost(recipe_id):
@@ -217,8 +227,9 @@ def describe(recipe_id, learned=True):
     """Core.lua ns.Describe at SKILL. The live difficulty agrees with the thresholds (the audit's check)."""
     t = NS["Thresholds"].get(recipe_id)
     cost = recipe_cost(recipe_id)
-    value = craft_value(recipe_id) if cost is not None else None
-    net = cost - (value["copper"] if value else 0) if cost is not None else None
+    value, unpriced = craft_value(recipe_id) if cost is not None else (None, False)
+    # Net of what the craft sells for; unknown until the sell price is.
+    net = cost - (value["copper"] if value else 0) if cost is not None and not unpriced else None
     chance = model_chance(t, SKILL)
     color = model_color(t, SKILL)
     if chance is not None and learned and color == "grey":
@@ -258,29 +269,647 @@ def craftable_count(recipe_id):
     return min(counts) if counts else 0
 
 
+# ----------------------------------------------------------------------------------- the addon's own Lua
+
+LEVEL = 20
+MONEY = 25000  # 2g 50s: every Apprentice fee is within reach, so the trainer's Best next can be any of them
+TOOLTIP_ITEM = 2318  # Light Leather
+
+# Loads the TOC's files under luajit into recording stubs of the client (as tests/route_spec.lua does), runs
+# the addon's start-up, opens its route page, lays out its tracker section, decorates an Apprentice trainer's
+# services and shows the reagent's item tooltip, and prints what each would draw as JSON. Money is left as
+# {coin:N} and item names as {item:N} for the renderer to fill in.
+LUA_SCENE = r"""
+-- STATE is defined above this line by screenshots.py.
+local ADDON = "SkillUpForever"
+local FILES = {
+	"Locales/enUS.lua",
+	"Data/Thresholds.lua",
+	"Data/Vendor.lua",
+	"Data/Recipes.lua",
+	"Data/Trainer.lua",
+	"Data/Sources.lua",
+	"Model.lua",
+	"Core.lua",
+	"Prices.lua",
+	"Settings.lua",
+	"Tooltip.lua",
+	"RecipeList.lua",
+	"Sources.lua",
+	"List.lua",
+	"Route.lua",
+	"Shopping.lua",
+	"Trainer.lua",
+	"API.lua",
+}
+
+local function Color(r, g, b)
+	return {
+		r = r,
+		g = g,
+		b = b,
+		GetRGB = function(c)
+			return c.r, c.g, c.b
+		end,
+	}
+end
+
+-- A frame whose methods do nothing but record what the addon shows: text, colour, enabled, shown, scripts.
+local RECORDED = {
+	SetText = function(self, text)
+		rawset(self, "text", text)
+	end,
+	SetFormattedText = function(self, pattern, ...)
+		rawset(self, "text", string.format(pattern, ...))
+	end,
+	SetTextColor = function(self, r, g, b)
+		rawset(self, "color", { r, g, b })
+	end,
+	SetEnabled = function(self, enabled)
+		rawset(self, "enabled", enabled and true or false)
+	end,
+	Enable = function(self)
+		rawset(self, "enabled", true)
+	end,
+	Disable = function(self)
+		rawset(self, "enabled", false)
+	end,
+	SetShown = function(self, shown)
+		rawset(self, "shown", shown and true or false)
+	end,
+	Show = function(self)
+		rawset(self, "shown", true)
+		if self.scripts.OnShow then
+			self.scripts.OnShow(self)
+		end
+	end,
+	Hide = function(self)
+		rawset(self, "shown", false)
+	end,
+	IsShown = function(self)
+		return rawget(self, "shown") == true
+	end,
+	SetScript = function(self, name, fn)
+		self.scripts[name] = fn
+	end,
+	HookScript = function(self, name, fn)
+		self.scripts[name] = fn
+	end,
+	SetCustomOnMouseUpHandler = function(self, fn)
+		self.scripts.OnMouseUp = fn
+	end,
+	SetPortraitToAsset = function(self, asset)
+		rawset(self, "portrait", asset)
+	end,
+	GetTextWidth = function()
+		return 0
+	end,
+	GetWidth = function()
+		return 0
+	end,
+	HasFocus = function()
+		return false
+	end,
+	IsForbidden = function()
+		return false
+	end,
+}
+
+local function Stub()
+	return setmetatable({ scripts = {} }, {
+		__index = function(self, key)
+			-- Fields the addon sets (recipeID, reason, ...) read nil once cleared; methods and child frames stub.
+			if type(key) == "string" and key:match("^%l") then
+				return nil
+			end
+			local value = RECORDED[key] or Stub()
+			rawset(self, key, value)
+			return value
+		end,
+		__call = function()
+			return Stub()
+		end,
+	})
+end
+
+local created, named, hooks, postCalls, loaded = {}, {}, {}, {}, {}
+local learned, spellNames = {}, {}
+for _, id in ipairs(STATE.learned) do
+	learned[id] = true
+end
+
+local function TooltipLines(tooltip)
+	local lines = rawget(tooltip, "lines")
+	if not lines then
+		lines = {}
+		rawset(tooltip, "lines", lines)
+	end
+	return lines
+end
+
+local function AddLine(tooltip, left, color, right, rightColor)
+	local lines = TooltipLines(tooltip)
+	lines[#lines + 1] = { left = left, color = color, right = right, rightColor = rightColor }
+end
+
+local env
+env = setmetatable({
+	-- Colours as Blizzard defines them (Core.lua's ns.COLORS takes the difficulty ones).
+	RED_FONT_COLOR = Color(1, 32 / 255, 32 / 255),
+	DIFFICULT_DIFFICULTY_COLOR = Color(1, 128 / 255, 64 / 255),
+	FAIR_DIFFICULTY_COLOR = Color(1, 1, 0),
+	EASY_DIFFICULTY_COLOR = Color(64 / 255, 192 / 255, 64 / 255),
+	TRIVIAL_DIFFICULTY_COLOR = Color(128 / 255, 128 / 255, 128 / 255),
+	GRAY_FONT_COLOR = Color(128 / 255, 128 / 255, 128 / 255),
+	NORMAL_FONT_COLOR = Color(1, 0.82, 0),
+	HIGHLIGHT_FONT_COLOR = Color(1, 1, 1),
+	DISABLED_FONT_COLOR = Color(0.5, 0.5, 0.5),
+	OBJECTIVE_TRACKER_COLOR = { Complete = Color(0.6, 0.6, 0.6), Normal = Color(0.8, 0.8, 0.8) },
+	OBJECTIVE_DASH_STYLE_HIDE = 2,
+	CreateColor = Color,
+	APPRENTICE = "Apprentice",
+	JOURNEYMAN = "Journeyman",
+	EXPERT = "Expert",
+	ARTISAN = "Artisan",
+	TOTAL = "Total",
+	DEFAULT = "Default",
+	OFF = "Off",
+	ITEM_MIN_SKILL = "Requires %s (%d)",
+	Enum = {
+		TradeskillRelativeDifficulty = { Optimal = 0, Medium = 1, Easy = 2, Trivial = 3 },
+		TooltipDataType = { Item = 0 },
+		CraftingReagentType = { Basic = 0 },
+		TrainerType = { Tradeskills = 1 },
+	},
+	SOUNDKIT = {},
+	SlashCmdList = {},
+	issecretvalue = false,
+	GameTooltip_Hide = function() end,
+	CreateFrame = function(_, name)
+		local frame = Stub()
+		created[#created + 1] = frame
+		if name then
+			named[name] = frame
+		end
+		return frame
+	end,
+	Mixin = function(object, ...)
+		for i = 1, select("#", ...) do
+			for key, value in pairs((select(i, ...))) do
+				rawset(object, key, value)
+			end
+		end
+		return object
+	end,
+	hooksecurefunc = function(a, b, c)
+		if type(a) == "string" then
+			hooks[a] = b
+		else
+			hooks[b] = c
+		end
+	end,
+	C_Timer = {
+		After = function(_, fn)
+			fn()
+		end,
+	},
+	EventUtil = {
+		ContinueOnAddOnLoaded = function(name, fn)
+			loaded[name] = fn
+		end,
+	},
+	TooltipDataProcessor = {
+		AddTooltipPostCall = function(_, fn)
+			postCalls[#postCalls + 1] = fn
+		end,
+	},
+	GameTooltip_AddBlankLineToTooltip = function(tooltip)
+		AddLine(tooltip, " ")
+	end,
+	GameTooltip_AddColoredLine = function(tooltip, text, color)
+		AddLine(tooltip, text, color)
+	end,
+	GameTooltip_AddNormalLine = function(tooltip, text)
+		AddLine(tooltip, text, env.NORMAL_FONT_COLOR)
+	end,
+	GameTooltip_AddDisabledLine = function(tooltip, text)
+		AddLine(tooltip, text, env.DISABLED_FONT_COLOR)
+	end,
+	IsShiftKeyDown = function()
+		return false
+	end,
+	UnitLevel = function()
+		return STATE.level
+	end,
+	UnitName = function()
+		return "Player"
+	end,
+	GetNormalizedRealmName = function()
+		return "Realm"
+	end,
+	GetMoney = function()
+		return STATE.money
+	end,
+	GetProfessions = function()
+		return unpack(STATE.professionIndices)
+	end,
+	GetProfessionInfo = function(index)
+		local p = STATE.professions[index]
+		return p.name, p.icon, p.rank, p.max, nil, nil, p.skillLine, 0
+	end,
+	Professions = {
+		GetProfessionInfo = function()
+			return {
+				professionName = STATE.open.name,
+				professionID = STATE.open.skillLine,
+				skillLevel = STATE.open.rank,
+				maxSkillLevel = STATE.open.max,
+				skillModifier = 0,
+				displayName = STATE.open.name,
+			}
+		end,
+	},
+	C_AddOns = {
+		GetAddOnMetadata = function()
+			return "@project-version@"
+		end,
+	},
+	C_CurrencyInfo = {
+		GetCoinTextureString = function(copper)
+			return "{coin:" .. copper .. "}"
+		end,
+	},
+	C_Item = {
+		GetItemNameByID = function(itemID)
+			return "{item:" .. itemID .. "}"
+		end,
+		GetItemIconByID = function(itemID)
+			return "item:" .. itemID
+		end,
+		GetItemCount = function(itemID)
+			return STATE.bags[itemID] or 0
+		end,
+		GetItemInfo = function() end,
+		RequestLoadItemDataByID = function() end,
+	},
+	C_Spell = {
+		GetSpellName = function(spellID)
+			return spellNames[spellID]
+		end,
+		GetSpellTexture = function() end,
+	},
+	C_SpellBook = {
+		IsSpellKnown = function(spellID)
+			return learned[spellID] == true
+		end,
+	},
+	C_TradeSkillUI = {
+		GetRecipeSchematic = function() end,
+		GetBaseProfessionInfo = function()
+			return { professionName = STATE.open.name, professionID = STATE.open.skillLine }
+		end,
+		IsTradeSkillLinked = function()
+			return false
+		end,
+		IsTradeSkillGuild = function()
+			return false
+		end,
+		GetAllRecipeIDs = function()
+			return {}
+		end,
+	},
+	Auctionator = {
+		API = {
+			v1 = {
+				GetAuctionPriceByItemID = function(_, itemID)
+					return STATE.auction[itemID]
+				end,
+				GetAuctionAgeByItemID = function()
+					return 0
+				end,
+				CreateShoppingList = function() end,
+				ConvertToSearchString = function() end,
+				RegisterForDBUpdate = function() end,
+			},
+		},
+	},
+	C_Trainer = {
+		GetTrainerType = function()
+			return 1
+		end,
+	},
+	C_TooltipInfo = {
+		GetTrainerService = function(index)
+			return { id = STATE.services[index].recipeID }
+		end,
+	},
+	GetNumTrainerServices = function()
+		return #STATE.services
+	end,
+	GetTrainerServiceInfo = function(index)
+		local service = STATE.services[index]
+		return spellNames[service.recipeID], service.kind
+	end,
+	GetTrainerServiceCost = function(index)
+		return STATE.services[index].fee
+	end,
+	GetTrainerServiceSkillReq = function(index)
+		local service = STATE.services[index]
+		return STATE.open.name, service.req, STATE.open.rank >= service.req
+	end,
+	GetTrainerTradeskillRankValues = function()
+		return STATE.open.rank, STATE.open.max, 0
+	end,
+	GetTrainerServiceStepIndex = function() end,
+	-- The frames the addon hooks: anything it touches is a recording stub.
+	ProfessionsFrame = Stub(),
+	ClassTrainerFrame = Stub(),
+	ObjectiveTrackerManager = Stub(),
+	ObjectiveTrackerFrame = Stub(),
+	UIParent = Stub(),
+	GameTooltip = Stub(),
+	DEFAULT_CHAT_FRAME = Stub(),
+	Settings = Stub(),
+	MenuUtil = Stub(),
+	SkillUpForeverDB = { trackedProfessions = { [STATE.open.skillLine] = true }, gatherFree = true },
+}, {
+	__index = function(_, key)
+		local value = _G[key]
+		if value == nil then
+			io.stderr:write("harness: unknown global " .. tostring(key) .. "\n")
+		end
+		return value
+	end,
+})
+
+local ns = {}
+for _, file in ipairs(FILES) do
+	setfenv(assert(loadfile(file)), env)(ADDON, ns)
+end
+for _, names in pairs(ns.RecipeNames) do
+	for name, recipeID in pairs(names) do
+		if recipeID then
+			spellNames[recipeID] = name
+		end
+	end
+end
+env.C_TradeSkillUI.GetCraftableCount = function(recipeID)
+	local count
+	for _, reagent in ipairs(ns.RecipeData[recipeID].reagents) do
+		local n = math.floor((STATE.bags[reagent.itemID] or 0) / reagent.quantity)
+		count = math.min(count or n, n)
+	end
+	return count or 0
+end
+
+-- The addon's own start-up (LoadDB and the attaches), minus the recipe list.
+loaded[ADDON]()
+ns.NearestTrainer = function() end
+ns.NearestVendor = function() end
+
+-- ---------------------------------------------------------------------------------------------- output
+
+local function Rgb(color)
+	return color and { color.r, color.g, color.b } or nil
+end
+
+local function Json(value)
+	local kind = type(value)
+	if kind == "nil" then
+		return "null"
+	elseif kind == "boolean" or kind == "number" then
+		return tostring(value)
+	elseif kind == "string" then
+		return '"' .. value:gsub('[%c"\\]', function(c)
+			return string.format("\\u%04x", c:byte())
+		end) .. '"'
+	end
+	local keys = {}
+	for key in pairs(value) do
+		keys[#keys + 1] = key
+	end
+	if #keys == 0 then
+		return "[]"
+	end
+	local parts = {}
+	if #value == #keys then
+		for _, item in ipairs(value) do
+			parts[#parts + 1] = Json(item)
+		end
+		return "[" .. table.concat(parts, ",") .. "]"
+	end
+	table.sort(keys, function(a, b)
+		return tostring(a) < tostring(b)
+	end)
+	for _, key in ipairs(keys) do
+		parts[#parts + 1] = Json(tostring(key)) .. ":" .. Json(value[key])
+	end
+	return "{" .. table.concat(parts, ",") .. "}"
+end
+
+-- The route page: the lists record their rows; the page's own frames record the rest.
+local lists = {}
+ns.CreateList = function(_, columns)
+	local list = { rows = {}, columns = columns, scrollBox = Stub() }
+	function list:Add(entry)
+		self.rows[#self.rows + 1] = {
+			icon = entry.icon,
+			text = entry.text,
+			color = Rgb(entry.color),
+			values = entry.values,
+			valueColor = Rgb(entry.valueColor),
+			wrap = entry.wrap == true,
+		}
+	end
+	function list:Message(text, color)
+		self:Add({ text = text, color = color or env.GRAY_FONT_COLOR, wrap = true })
+	end
+	function list:Finish() end
+	lists[#lists + 1] = list
+	return list
+end
+local first = #created + 1
+ns.AttachRoute()
+local page = created[first]
+created[#created - 1].scripts.OnMouseUp(nil, "LeftButton", true) -- the side tab, created just before the event frame
+local function Widget(frame)
+	return {
+		text = rawget(frame, "text"),
+		color = rawget(frame, "color"),
+		enabled = rawget(frame, "enabled"),
+		shown = rawget(frame, "shown"),
+	}
+end
+local route = {
+	portrait = rawget(env.ProfessionsFrame, "portrait"),
+	skill = Widget(page.Skill),
+	target = Widget(page.Target),
+	craft = Widget(page.Craft),
+	track = Widget(page.Track),
+	auctionator = Widget(page.Auctionator),
+	priceAge = Widget(page.PriceAge),
+	lists = {},
+}
+for _, list in ipairs(lists) do
+	route.lists[#route.lists + 1] = { columns = list.columns, rows = list.rows }
+end
+
+-- The tracker: its module lays out blocks of objectives.
+local module = named.SkillUpForeverObjectiveTracker
+local blocks = {}
+local tracker = { header = module.headerText, blocks = blocks }
+module.LayoutContents({
+	GetBlock = function()
+		local block = { lines = {} }
+		function block:SetHeader(text)
+			self.header = text
+		end
+		function block:AddObjective(_, text, _, _, dashStyle, color)
+			self.lines[#self.lines + 1] = { text = text, dash = dashStyle ~= 2, color = Rgb(color) }
+		end
+		blocks[#blocks + 1] = block
+		return block
+	end,
+	LayoutBlock = function()
+		return true
+	end,
+})
+for _, block in ipairs(blocks) do
+	for key in pairs(block) do
+		if key ~= "header" and key ~= "lines" then
+			block[key] = nil
+		end
+	end
+end
+
+-- The trainer: what an Apprentice trainer lists under the default filter (available and unavailable, the
+-- learned ones hidden), by required skill; every service button, decorated after the addon's rebuild.
+STATE.services = {}
+for recipeID, training in pairs(ns.TrainerFees) do
+	local recipe = ns.RecipeData[recipeID]
+	local taught = recipe and recipe.skillLine == STATE.open.skillLine and training[2] < STATE.open.max
+	if taught and not learned[recipeID] then
+		local kind = training[2] <= STATE.open.rank and "available" or "unavailable"
+		STATE.services[#STATE.services + 1] = { recipeID = recipeID, fee = training[1], req = training[2], kind = kind }
+	end
+end
+table.sort(STATE.services, function(a, b)
+	if a.req ~= b.req then
+		return a.req < b.req
+	end
+	return spellNames[a.recipeID] < spellNames[b.recipeID]
+end)
+local buttons = {}
+for index = 1, #STATE.services do
+	buttons[index] = Stub()
+end
+rawset(env.ClassTrainerFrame, "shown", true)
+env.ClassTrainerFrame.ScrollBox.ForEachFrame = function(_, fn)
+	for index, button in ipairs(buttons) do
+		button.GetElementData = function()
+			return { skillIndex = index }
+		end
+		fn(button)
+	end
+end
+ns.RefreshTrainer()
+local trainer = {}
+for index, button in ipairs(buttons) do
+	local service = STATE.services[index]
+	local text = rawget(button, "SkillUpText")
+	trainer[index] = {
+		recipeID = service.recipeID,
+		name = spellNames[service.recipeID],
+		kind = service.kind,
+		fee = service.fee,
+		req = service.req,
+		skillUp = text and Widget(text) or nil,
+	}
+end
+
+-- The reagent's item tooltip: what the post-call adds.
+local tooltip = Stub()
+for _, fn in ipairs(postCalls) do
+	fn(tooltip, { id = STATE.tooltipItem })
+end
+local reagent = {}
+for _, line in ipairs(TooltipLines(tooltip)) do
+	reagent[#reagent + 1] = { left = line.left, color = Rgb(line.color) }
+end
+
+io.write(Json({ route = route, tracker = tracker, trainer = trainer, reagent = reagent }))
+"""
+
+
+def to_lua(value):
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)):
+        return repr(value)
+    if isinstance(value, str):
+        return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+    if isinstance(value, dict):
+        return "{" + ", ".join(f"[{to_lua(k)}] = {to_lua(v)}" for k, v in value.items()) + "}"
+    return "{" + ", ".join(to_lua(v) for v in value) + "}"
+
+
+def lua_scene():
+    """What the route page, tracker, trainer and reagent tooltip draw for the scene's character."""
+    professions = [
+        {"name": name, "icon": icon, "rank": rank, "max": top, "skillLine": line}
+        for name, icon, rank, top, line in PROFESSIONS
+    ]
+    state = {
+        "level": LEVEL,
+        "money": MONEY,
+        "learned": LEARNED,
+        "bags": BAGS,
+        "auction": AUCTION,
+        "professions": professions,
+        "professionIndices": list(range(1, len(professions) + 1)),
+        "open": {"name": "Leatherworking", "skillLine": 165, "rank": SKILL, "max": MAX_SKILL},
+        "tooltipItem": TOOLTIP_ITEM,
+    }
+    source = f"local STATE = {to_lua(state)}\n{LUA_SCENE}"
+    result = subprocess.run(["luajit", "-"], input=source, capture_output=True, text=True, cwd=REPO, check=False)
+    if result.returncode != 0 or result.stderr:
+        sys.exit(f"the Lua scene failed:\n{result.stderr}")
+    return json.loads(result.stdout)
+
+
 # ------------------------------------------------------------------------------------------------ render
 
-from PIL import Image
+from PIL import Image, ImageOps
 from wowmock import (
     FONTS,
+    INSET_FRAME_LAYOUT,
     NORMAL,
+    QUALITY_TEXT,
     TOOLTIP_LINE_GAP,
     TOOLTIP_PADDING,
     WHITE,
     Font,
     TooltipLine,
+    TrackerBlock,
+    TrackerModule,
     Ui,
     backdrop,
     coin_texture_string,
+    crop_coords,
+    draw_money,
     filter_dropdown,
     minimal_checkbox,
     minimal_scrollbar,
+    money_width,
+    objective_tracker,
     portrait_frame_art,
     scene,
     search_box,
     side_tab,
     three_slice_button,
+    tiled,
     tooltip,
+    ui_panel_button,
     wrap_text,
 )
 
@@ -338,6 +967,8 @@ def format_row(d):
 
 def source_text(p):
     """Tooltip.lua ns.PriceSourceText, for an Auctionator price seen today."""
+    if p["source"] == "gather":
+        return f"you gather it ({p['profession']})"
     return "vendor" if p["source"] == "vendor" else "Auctionator, today"
 
 
@@ -362,24 +993,23 @@ def recipe_tooltip_lines(ui, recipe_id):
         right = "{} |cff808080({})|r".format(money(p["copper"] * reagent["quantity"]), source_text(p))
         lines.append(TooltipLine(left, right=right))
     lines.append(TooltipLine("Reagents", gold, money(d["cost"])))
-    value = d["value"]
-    each = " x{:g}".format(value["quantity"]) if value["quantity"] != 1 else ""
-    lines.append(
-        TooltipLine(
-            "Sells for" + each,
-            gold,
-            "{} |cff808080({})|r".format(money(value["copper"]), "AH" if value["source"] == "auction" else "vendor"),
+    value, net = d["value"], d["net"]
+    if value and net is not None:
+        each = " x{:g}".format(value["quantity"]) if value["quantity"] != 1 else ""
+        source = "AH" if value["source"] == "auction" else "vendor"
+        lines.append(
+            TooltipLine("Sells for" + each, gold, "{} |cff808080({})|r".format(money(value["copper"]), source))
         )
-    )
-    lines.append(TooltipLine("Profit per craft" if d["net"] < 0 else "Net per craft", gold, money(abs(d["net"]))))
+        lines.append(TooltipLine("Profit per craft" if net < 0 else "Net per craft", gold, money(abs(net))))
     per = d["perSkillUp"]
-    lines.append(
-        TooltipLine(
-            "Profit per skill-up" if per < 0 else "Per skill-up",
-            gold,
-            ("|cff40ff40+|r" if per < 0 else "") + money(abs(per)),
+    if per is not None:
+        lines.append(
+            TooltipLine(
+                "Profit per skill-up" if per < 0 else "Per skill-up",
+                gold,
+                ("|cff40ff40+|r" if per < 0 else "") + money(abs(per)),
+            )
         )
-    )
     return lines, bar_line
 
 
@@ -449,11 +1079,11 @@ def recipe_tooltip(ui, recipe_id):
 
 
 def list_rows():
-    """The recipe list's rows top to bottom: ("recipe", id, learned) and ("divider",)."""
+    """The recipe list's rows top to bottom: ("recipe", id, learned) and ("divider", None, False)."""
     learned, unlearned = sorted_recipes()
     rows = [("recipe", rid, True) for rid in learned]
     if unlearned:
-        rows.append(("divider",))
+        rows.append(("divider", None, False))
         rows += [("recipe", rid, False) for rid in unlearned]
     return rows
 
@@ -505,11 +1135,11 @@ def recipe_list(canvas, x, y):
     top = box_y + ROW_PAD
     hovered_rect = None
     for row in list_rows():
-        if row[0] == "divider":
+        kind, rid, learned = row
+        if kind == "divider":
             divider_row(canvas, box_x, top, box_w)
             top += DIVIDER_H + ROW_GAP
             continue
-        _, rid, learned = row
         recipe_row(canvas, box_x, top, box_w, rid, learned, rid == SELECTED, rid == HOVERED)
         if rid == HOVERED:
             hovered_rect = (box_x, top, box_w, ROW_H)
@@ -633,12 +1263,12 @@ def create_controls(canvas, fx, fy, count):
 
 
 def profession_tabs(canvas, fx, fy, selected):
-    """The side tabs on the frame's right: overview, one per profession, then SkillUp's route tab."""
+    """The side tabs on the frame's right: overview, one per profession, then SkillUp's route tab ("route")."""
     x, y = fx + FRAME_W, fy + 60
     y += side_tab(canvas, x, y, OVERVIEW_TAB_ICON) + 2
-    for name, icon in PROFESSIONS:
+    for name, icon, *_ in PROFESSIONS:
         y += side_tab(canvas, x, y, icon, selected=name == selected) + 2
-    side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp")
+    side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp", selected=selected == "route")
 
 
 # The overview tab's Interface/ICONS/INV_SideTab_Professions_c60 is in neither the community listfile nor
@@ -671,6 +1301,297 @@ def window_scene(ui):
     tip = recipe_tooltip(ui, HOVERED)
     # SetOwner(row, "ANCHOR_RIGHT"): the tooltip's BOTTOMLEFT at the row's TOPRIGHT.
     return scene(ui, [(frame, 0, 0), (tip, hx + hw, hy - tip.height)])
+
+
+# ------------------------------------------------------------------------------- scenes from the Lua's output
+
+F_HIGHLIGHT = FONTS["GameFontHighlight"]
+F_DISABLE_SMALL = FONTS["GameFontDisableSmall"]
+F_CHAT = Font(ARIAL, 14, WHITE, (1, -1))  # ChatFontNormal, InputBoxTemplate's font
+F_SHADOW_SMALL = Font(FRIZ, 10, NORMAL, (1, -1))  # SystemFont_Shadow_Small
+
+
+def expand(ui, text):
+    """The harness's {coin:N} and {item:N} as the client renders them."""
+    text = re.sub(r"\{coin:(\d+)\}", lambda m: coin_texture_string(int(m.group(1)), COIN_HEIGHT), text)
+    return re.sub(r"\{item:(\d+)\}", lambda m: ui.item(int(m.group(1))).name, text)
+
+
+def icon_texture(ui, icon):
+    """A list row's icon: a file ID, an "item:N" from GetItemIconByID, or an Interface path."""
+    if isinstance(icon, str) and icon.startswith("item:"):
+        return ui.texture(ui.item(int(icon[5:])).icon)
+    if isinstance(icon, str):
+        return ui.texture(icon.replace("\\", "/").lower() + ".blp")
+    return ui.texture(icon)
+
+
+def fit_text(canvas, text, font, width):
+    """A one-line FontString cut at `width`, as the client ends it with an ellipsis."""
+    if canvas.text_width(text, font) <= width:
+        return text
+    while text and canvas.text_width(text + "...", font) > width:
+        text = text[:-1]
+    return text.rstrip() + "..."
+
+
+def panel_button(canvas, x, y, w, h, text, enabled=True):
+    """UIPanelButtonTemplate, enabled (ui_panel_button) or in its Disabled texture with GameFontDisable."""
+    if enabled:
+        ui_panel_button(canvas, x, y, w, h, text)
+        return
+    texture = canvas.ui.texture("interface/buttons/ui-panel-button-disabled.blp")
+    canvas.draw(crop_coords(texture, 0, 0.09375, 0, 0.6875), x, y, 12, h)
+    canvas.draw(crop_coords(texture, 0.09375, 0.53125, 0, 0.6875), x + 12, y, w - 24, h)
+    canvas.draw(crop_coords(texture, 0.53125, 0.625, 0, 0.6875), x + w - 12, y, 12, h)
+    canvas.text(x, y, text, F_NORMAL, DISABLED_FONT_COLOR, justify="CENTER", width=w, box_height=h)
+
+
+def inset_frame(canvas, x, y, w, h, title=None):
+    """InsetFrameTemplate: the marble Bg 2 units in, tiled, then the inner NineSlice; Route.lua's CreateInset
+    puts a GameFontNormal title above its TOPLEFT (4, 4)."""
+    marble = canvas.ui.texture("interface/framegeneral/ui-background-marble.blp")
+    tiled(canvas, marble, x + 2, y + 2, w - 4, h - 4, 256, 256)
+    canvas.nine_slice(INSET_FRAME_LAYOUT, x, y, w, h)
+    if title:
+        canvas.text(x + 4, y - 4 - F_NORMAL.height, title, F_NORMAL)
+
+
+LIST_LINE, LIST_HEADER, LIST_ICON, LIST_GAP, LIST_SCROLLBAR = 20, 26, 16, 8, 18  # List.lua
+
+
+def draw_list(canvas, x, y, w, h, columns, rows):
+    """List.lua's CreateList in an inset at (x, y, w, h): headers, then rows of icon, name and value
+    columns (listed right to left) from the Lua's rows, or wrapped grey messages."""
+    ui = canvas.ui
+    right = -4
+    for column in columns:
+        column["right"] = right
+        justify = column.get("justify", "RIGHT")
+        canvas.text(
+            x + w - LIST_SCROLLBAR + right - column["width"],
+            y + 8,
+            column["title"],
+            F_DISABLE_SMALL,
+            justify=justify,
+            width=column["width"],
+        )
+        right -= column["width"] + LIST_GAP
+    text_right = right
+    box_x, box_y, box_w, box_h = x + 4, y + LIST_HEADER, w - 4 - LIST_SCROLLBAR, h - LIST_HEADER - 4
+    top = box_y
+    for row in rows:
+        color = tuple(row["color"]) if row.get("color") else WHITE
+        text = expand(ui, row["text"])
+        if row["wrap"]:
+            lines = wrap_text(canvas, text, F_HIGHLIGHT, box_w - 10)
+            height = max(LIST_LINE, len(lines) * F_HIGHLIGHT.height + 6)
+            first = top + (height - len(lines) * F_HIGHLIGHT.height) / 2
+            for index, line in enumerate(lines):
+                canvas.text(box_x + 6, first + index * F_HIGHLIGHT.height, line, F_HIGHLIGHT, color)
+            top += height
+            continue
+        icon = row.get("icon")
+        if icon is not None:
+            canvas.draw(icon_texture(ui, icon), box_x + 6, top + (LIST_LINE - LIST_ICON) / 2, LIST_ICON, LIST_ICON)
+        text_x = box_x + (LIST_ICON + 12 if icon is not None else 6)
+        values = row.get("values")
+        text_end = box_x + box_w + (text_right if values else -4)
+        canvas.text(
+            text_x,
+            top,
+            fit_text(canvas, text, F_HIGHLIGHT, text_end - text_x),
+            F_HIGHLIGHT,
+            color,
+            box_height=LIST_LINE,
+        )
+        value_color = tuple(row["valueColor"]) if row.get("valueColor") else WHITE
+        for column, value in zip(columns, values or [], strict=False):
+            left = box_x + box_w + column["right"] - column["width"]
+            justify = column.get("justify", "RIGHT")
+            canvas.text(
+                left,
+                top,
+                expand(ui, value),
+                F_HIGHLIGHT,
+                value_color,
+                box_height=LIST_LINE,
+                justify=justify,
+                width=column["width"],
+            )
+        top += LIST_LINE
+    if top - box_y > box_h:
+        minimal_scrollbar(canvas, box_x + box_w + 4, box_y, box_h, box_h / (top - box_y))
+
+
+def dropdown(canvas, x, y, w, text):
+    """WowStyle1DropdownTemplate (w x 25): common-dropdown-c-button 7 units outside it, the a-button arrow
+    at its RIGHT, and the selection in GameFontHighlight from LEFT 9."""
+    ui = canvas.ui
+    h = 25
+    canvas.draw(ui.atlas("common-dropdown-c-button"), x - 7, y - 7, w + 14, h + 14)
+    arrow = ui.atlas("common-dropdown-a-button")
+    canvas.draw(arrow, x + w - arrow.width + 3, y + (h - arrow.height) / 2)
+    canvas.text(x + 9, y - 1, text, F_HIGHLIGHT, box_height=h)
+    return h
+
+
+def input_box(canvas, x, y, w, h, text):
+    """InputBoxTemplate: the common-input-border three-slice (Left 8 at -5) and ChatFontNormal text."""
+    border = canvas.ui.texture("interface/common/common-input-border.blp")
+    tw, th = border.width, border.height
+
+    def piece(start, end):
+        return border.crop((round(start * tw), 0, round(end * tw), round(0.625 * th)))
+
+    canvas.draw(piece(0, 0.0625), x - 5, y, 8, h)
+    canvas.draw(piece(0.0625, 0.9375), x + 3, y, w - 8 - 3, h)
+    canvas.draw(piece(0.9375, 1), x + w - 8, y, 8, h)
+    canvas.text(x, y, text, F_CHAT, box_height=h)
+
+
+ROUTE_SHARE = 50  # Route.lua
+
+
+def route_frame(ui, scene_data):
+    """The Professions window on SkillUp's route tab: Route.lua's page where the crafting page was."""
+    route = scene_data["route"]
+    m = FRAME_MARGIN
+    canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m)
+    fx, fy = m, m
+    canvas.draw(ui.atlas("Profession-Background-Overview"), fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23)
+    # Header: the profession dropdown, "Skill  48/75     Target" and the target box.
+    dx, dy, dw = fx + 76, fy + 32, 180
+    dh = dropdown(canvas, dx, dy, dw, "Leatherworking")
+    skill_x = dx + dw + 16
+    skill_w = canvas.text(skill_x, dy, route["skill"]["text"], F_NORMAL, box_height=dh)
+    input_box(canvas, skill_x + skill_w + 10, dy + (dh - 20) / 2, 40, 20, route["target"]["text"])
+    # The two insets, split ROUTE_SHARE right of centre, each with its list.
+    top, bottom = fy + 88, fy + FRAME_H - 44
+    route_x, route_right = fx + 16, fx + FRAME_W / 2 + ROUTE_SHARE - 6
+    reagents_x, reagents_right = fx + FRAME_W / 2 + ROUTE_SHARE + 6, fx + FRAME_W - 16
+    route_list, reagent_list = route["lists"]
+    inset_frame(canvas, route_x, top, route_right - route_x, bottom - top, "Route")
+    draw_list(canvas, route_x, top, route_right - route_x, bottom - top, route_list["columns"], route_list["rows"])
+    inset_frame(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, "Reagents  (have / need)")
+    draw_list(
+        canvas,
+        reagents_x,
+        top,
+        reagents_right - reagents_x,
+        bottom - top,
+        reagent_list["columns"],
+        reagent_list["rows"],
+    )
+    age = route["priceAge"]
+    if age.get("text"):
+        canvas.text(route_x + 4, bottom + 14, age["text"], F_NORMAL_SMALL, tuple(age["color"]))
+    # Track at the reagents' BOTTOMRIGHT (0, -10), To Auctionator 8 to its left; Craft under the route.
+    track = route["track"]
+    panel_button(canvas, reagents_right - 130, bottom + 10, 130, 22, track["text"], track.get("enabled", True))
+    auctionator = route["auctionator"]
+    if auctionator.get("shown"):
+        panel_button(
+            canvas, reagents_right - 130 - 8 - 130, bottom + 10, 130, 22, auctionator["text"], auctionator["enabled"]
+        )
+    craft = route["craft"]
+    craft_w = min(canvas.text_width(craft["text"], F_NORMAL) + 32, 240)
+    panel_button(canvas, route_right - craft_w, bottom + 10, craft_w, 22, craft["text"], craft["enabled"])
+    profession_tabs(canvas, fx, fy, "route")
+    portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, route["portrait"], "Leatherworking")
+    return canvas
+
+
+def tracker_scene(ui, scene_data):
+    """ObjectiveTrackerFrame with SkillUp's section laid out by Shopping.lua's LayoutContents."""
+    tracker = scene_data["tracker"]
+    blocks = []
+    for block in tracker["blocks"]:
+        lines = []
+        for line in block["lines"]:
+            text = expand(ui, line["text"])
+            if line.get("color"):
+                r, g, b = line["color"]
+                text = f"|cff{round(r * 255):02x}{round(g * 255):02x}{round(b * 255):02x}{text}|r"
+            lines.append((text, line["dash"]))
+        blocks.append(TrackerBlock(expand(ui, block["header"]), lines))
+    canvas, _ = objective_tracker(ui, [TrackerModule(tracker["header"], blocks)])
+    return scene(ui, [(canvas, 0, 0)])
+
+
+TRAINER_ROW_W, TRAINER_ROW_H = 298, 47  # ClassTrainerSkillButtonTemplate
+TRAINER_INSET_W, TRAINER_INSET_H = 328, 338  # ButtonFrameTemplate 338x424, Inset (4, -60) to (-6, 26)
+TRAINER_BOX_W, TRAINER_BOX_H = 302, 330  # the ScrollBox, at the Inset's TOPLEFT (5, -5) with no skill step
+
+
+def trainer_row(canvas, x, y, service):
+    """ClassTrainerFrame_InitServiceButton's service button: icon, name, "Requires:" line, fee, and SkillUp's
+    text at its BOTTOMRIGHT (-8, 6). An unavailable service gets the grey name, desaturated icon and
+    disabledBG (0.55 MOD, 2 in)."""
+    ui = canvas.ui
+    available = service["kind"] == "available"
+    if not available:
+        canvas.fill(x + 2, y + 2, TRAINER_ROW_W - 4, TRAINER_ROW_H - 4, (0, 0, 0, 0.45))
+    textures = ui.texture("interface/classtrainerframe/trainertextures.blp")
+    canvas.draw(crop_coords(textures, 0.00195313, 0.57421875, 0.65820313, 0.75), x, y, TRAINER_ROW_W, TRAINER_ROW_H)
+    item = ui.item(NS["RecipeData"][service["recipeID"]]["output"]["itemID"])
+    icon = ui.texture(item.icon)
+    if not available:
+        icon = ImageOps.grayscale(icon.convert("RGB")).convert("RGBA")
+    icon_y = y + (TRAINER_ROW_H - 36) / 2
+    canvas.draw(icon, x + 6, icon_y, 36, 36)
+    name_x = x + 6 + 36 + 6
+    canvas.text(name_x, icon_y + 1, service["name"], F_NORMAL, None if available else DISABLED_FONT_COLOR)
+    # REQUIRES_LABEL and TRAINER_REQ_SKILL_RANK(_RED) from the build's GlobalStrings.
+    number = "ffffff" if SKILL >= service["req"] else "ff2020"
+    requirement = f"Requires: Leatherworking (|cff{number}{service['req']}|r)"
+    subtext_y = icon_y + 1 + F_NORMAL.height / 2 + 19 - F_SHADOW_SMALL.height / 2
+    canvas.text(name_x, subtext_y, requirement, F_SHADOW_SMALL)
+    draw_money(canvas, x + TRAINER_ROW_W - 8 - money_width(canvas, service["fee"]), y + 7, service["fee"])
+    skill_up = service.get("skillUp")
+    if skill_up and skill_up.get("shown"):
+        text = expand(ui, skill_up["text"])
+        font = FONTS["GameFontHighlightSmall"]
+        canvas.text(
+            x,
+            y + TRAINER_ROW_H - 6 - font.height,
+            text,
+            font,
+            tuple(skill_up["color"]),
+            justify="RIGHT",
+            width=TRAINER_ROW_W - 8,
+        )
+
+
+def trainer_scene(ui, scene_data):
+    """The trainer window's service list (its Inset) at an Apprentice Leatherworking trainer, rows as the
+    default filter lists them, each decorated by Trainer.lua."""
+    m = 8
+    canvas = ui.canvas(TRAINER_INSET_W + 2 * m, TRAINER_INSET_H + 2 * m)
+    x, y = m, m
+    # The Inset takes its parent's level: its marble Bg (sublevel -5), the frame's BG from the ScrollBox's
+    # (-3, 4) to (3, -4), then the Inset's border.
+    marble = ui.texture("interface/framegeneral/ui-background-marble.blp")
+    tiled(canvas, marble, x + 2, y + 2, TRAINER_INSET_W - 4, TRAINER_INSET_H - 4, 256, 256)
+    box_x, box_y = x + 5, y + 5
+    textures = ui.texture("interface/classtrainerframe/trainertextures.blp")
+    background = crop_coords(textures, 0.00195313, 0.5859375, 0.00195313, 0.65429688)
+    canvas.draw(background, box_x - 3, box_y - 4, TRAINER_BOX_W + 6, TRAINER_BOX_H + 8)
+    canvas.nine_slice(INSET_FRAME_LAYOUT, x, y, TRAINER_INSET_W, TRAINER_INSET_H)
+    top = box_y + 1  # the view's padding: 1 top, 1 left
+    for service in scene_data["trainer"]:
+        trainer_row(canvas, box_x + 1, top, service)
+        top += TRAINER_ROW_H
+    return scene(ui, [(canvas, 0, 0)])
+
+
+def reagent_tooltip(ui, scene_data):
+    """Light Leather's item tooltip with what Tooltip.lua's post-call adds (route mode, Shift up)."""
+    item = ui.item(TOOLTIP_ITEM)
+    lines = [TooltipLine(item.name, QUALITY_TEXT[item.quality]), TooltipLine("Sell Price:", money=item.sell_price)]
+    for line in scene_data["reagent"]:
+        lines.append(TooltipLine(expand(ui, line["left"]), tuple(line["color"]) if line.get("color") else WHITE))
+    return scene(ui, [(tooltip(ui, lines), 0, 0)])
 
 
 # The demo levels Leatherworking with the cursor on HOVERED: the rows re-sort by cost per skill-up, their
@@ -733,6 +1654,11 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     window_scene(ui).save(OUT / "window.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
+    data = lua_scene()
+    scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")
+    tracker_scene(ui, data).save(OUT / "tracker.png")
+    trainer_scene(ui, data).save(OUT / "trainer.png")
+    reagent_tooltip(ui, data).save(OUT / "reagent.png")
     demo = render_demo()
     assert demo == render_demo(), "demo.gif renders differently twice"
     (OUT / "demo.gif").write_bytes(demo)

@@ -114,11 +114,14 @@ Audit slices from lowest to highest risk:
 2. `tests/` — harness only.
 3. `Model.lua`, `Settings.lua`, `Sources.lua`, `List.lua`, `types/` — pure maths / settings / lookups /
    the shared list widget, partly under test.
-4. `Tooltip.lua`, `RecipeList.lua`, `Trainer.lua` — UI hooks, in-game verification only.
-5. `Prices.lua`, `Core.lua` — SavedVariables, vendor prices and the Auctionator price seam; persisted data.
-6. `Route.lua`, `Shopping.lua` — largest, most stateful UI; crafting, buying and tracker integration.
+4. `Locales/enUS.lua` — copy: every phrase a player reads. Reviewed for WFA-23/24 voice with
+   `docs/curseforge.md` and the README; audits propose wording, never change it (see Conventions).
+5. `Tooltip.lua`, `RecipeList.lua`, `Trainer.lua` — UI hooks, in-game verification only.
+6. `Prices.lua`, `Core.lua` — SavedVariables, vendor prices and the Auctionator price seam; persisted data.
+7. `Route.lua`, `Shopping.lua`, `API.lua` — largest, most stateful UI (crafting, buying and tracker
+   integration), and the public API other addons call (`types/API.lua` is its contract).
 
-Tiers 5 and 6 get a second, independent reviewer (Codex): on 2026-09-24 it found the two route and
+Tiers 6 and 7 get a second, independent reviewer (Codex): on 2026-09-24 it found the two route and
 price bugs the first reviewer missed, each with an in-memory LuaJIT repro.
 
 ## Settled
@@ -145,10 +148,12 @@ Recurring judgment defects; check new code for them.
 - **Hand port drift**: a hand port drifts from its Lua source (`parallel-implementations`): `tools/screenshots.py`
   `round_money`/`model_recipe_cost`/`price()` vs `Model.RoundMoney`/`RecipeCost`/`ns.Price`.
 - **Shopping bucket list restated**: the bucket list `gather`/`vendor`/`auction`/`unknown` enumerated
-  by hand (`stringly-typed`) in `Model.ShoppingList`, `Shopping.lua` `RouteReagents`, Route.lua `SOURCE_TEXT`
-  and API.lua; an added bucket silently drops items.
-- **Unvalidated saved setting**: a saved setting read without checking it against its options (`silent-fallbacks`): `LoadDB`
-  validates `reagentTooltip` only; `craftValue` and `sortMode` fall back silently.
+  by hand (`stringly-typed`) instead of walking `Model.SHOPPING_SOURCES`; an added bucket silently drops items.
+  `route_spec` checks every bucket gets a Source label; API.lua's `ReagentSource` maps buckets onto the public
+  API's own sources on purpose.
+- **Unvalidated saved setting**: a saved choice read without checking it against its options
+  (`silent-fallbacks`). `LoadDB` resets `craftValue`, `sortMode` and `reagentTooltip` to their defaults when the
+  saved value isn't one of `ns.*_OPTIONS`; a new dropdown setting joins that loop.
 
 ## Project rules and lenses
 

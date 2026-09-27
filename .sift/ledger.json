@@ -51,8 +51,8 @@
       "what": "The project profile uses em-dash punctuation throughout: 23 occurrences, starting in its title.",
       "why": "The assigned copy-slop lens treats a prose dash as a standalone tell; the supplied wow-forever-addon voice also rejects em-dash punctuation, and no project style exception prescribes it. Replace title and label separators with colons, and sentence dashes with normal sentence punctuation. Preserve literal symbols inside API examples and code. This is a style finding, not a claim about who authored the text.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "Replace the project skill's em-dash separators with colons, as for AGENTS.md (e3fa1c7f0b)? It is agent instruction text, so the wording is the owner's",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: wontfix, cosmetic em dashes in generated headers and agent-only docs, not store copy.",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -78,10 +78,11 @@
       "what": "The production-file risk order has no tier for API.lua or the loaded locale code.",
       "why": "Comparing the full TOC file list with these tiers leaves API.lua and Locales/enUS.lua unassigned; both are shipped and loaded. The profile itself identifies API.lua as a public contract used by other addons, and tests/api_spec.lua exercises it. Add the public API and locale code to explicit risk tiers so the current runtime tree has a defined review order and reviewer requirement.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "Which risk tiers should API.lua (the public API) and Locales/enUS.lua take in the project profile, and should API.lua get the tier 5-6 second reviewer? This audit reviewed API.lua with Prices/Core in tier 5",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: API.lua in the top tier with a second reviewer; Locales/enUS.lua a copy tier",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: whether profile prose matches the tree needs reading both; agents.py check covers only structure"
     },
     {
       "id": "c4df091343",
@@ -132,8 +133,8 @@
       "what": "The agent guide uses five em dashes as prose separators in its Layout and Standards entries.",
       "why": "Occurrences are on lines 25, 27, 28, 32 and 59. These are label-to-description separators, not quotations, code operators or ranges. The assigned copy-slop lens counts them independently; replace them with colons without changing the instructions or paths.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "Replace AGENTS.md's em-dash separators (Layout and Standards entries) with colons? AGENTS.md is agent instruction text, so the audit leaves its wording to the owner",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: wontfix, cosmetic em dashes in generated headers and agent-only docs, not store copy.",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -158,8 +159,8 @@
       "what": "Saved craftValue and sortMode strings are accepted without checking their allowed options; unknown values silently behave like vendor valuation and Blizzard sorting.",
       "why": "Whole-repository searches for craftValue, sortMode and SkillUpForeverDB found no other load-time validation. LoadDB validates membership only for reagentTooltip. An in-memory LuaJIT load with all three settings set to \"typo\" retained craftValue=\"typo\" and sortMode=\"typo\", while correcting reagentTooltip to \"route\". Model.CraftValue(30, 100, ns.db.craftValue) then returned 30, \"vendor\". RecipeList.lua ApplySort indexes SORT_KEYS with the unchecked string and returns without sorting when the key is absent; its filter radios match none of the options. Settings.lua registers these strings without validating membership. Validate both enums at the persisted-data boundary so the saved value, displayed selection and behavior agree.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "Should LoadDB reset an unknown saved craftValue or sortMode to its default (as it does for reagentTooltip), or warn? Codex repro: 'auctoin' prices crafts at vendor value and 'coost' silently disables sorting; changes persisted-data handling",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: done, ledger refuses fixed because the anchored line legitimately stays: the type check remains and LoadDB now validates craftValue, sortMode and reagentTooltip against their options after it (core_spec).",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -276,8 +277,8 @@
       "what": "An unknown crafted-item sell value is silently treated as zero, yielding an apparently complete net cost and allowing routes to be ranked using incomplete price data.",
       "why": "SellPrice returns nil when the item cache and ItemSellPrices have no price, and CraftValue also returns nil for that case. NetCost conflates this with a known zero value, a non-item output, and the explicit craftValue=\"none\" setting. An in-memory LuaJIT repro with known reagents costing 100 copper, a known item output of quantity 1, vendor valuation enabled, and no live or bundled sell price produced CraftValue=nil but NetCost=100. tools/README.md confirms that missing ItemSparse rows have no bundled value; the generator keeps only positive sell prices, so absent data does not establish a zero price. Route.lua RouteSnapshot and Trainable feed this numeric netCost into Model.PlanRoute, which excludes only nil costs. Core.lua Describe repeats the same zero substitution and exposes the result in row and tooltip cost-per-skill-up displays. Preserve unknown output value separately from disabled valuation and known zero/non-item output in both consumers.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "When a crafted item's sell value is unknown, should net cost and route ranking treat the recipe as unpriced instead of counting the value as 0? Codex repro: the choice flips once the value resolves",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: done, ledger refuses fixed because the anchored line legitimately stays: the subtraction remains but NetCost and Describe now return nil first when CraftValue flags an unknown sell price (model_spec).",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -303,10 +304,11 @@
       "what": "A merchant entry with a missing or zero stackCount is treated as a one-item stack, and the guessed unit price is persisted as an observed vendor price.",
       "why": "RecordMerchant checks that price is positive but never establishes the stack size. The pinned MerchantItemInfo declaration in .types/vscode-wow-api/Annotations/Core/Blizzard_APIDocumentationGenerated/MerchantFrameDocumentation.lua marks stackCount optional with default 0. An in-memory LuaJIT MERCHANT_SHOW repro using an item ID and price=100 recorded ns.db.vendor[itemID]=100 and returned Price(itemID).copper=100 with either absent stackCount or stackCount=0. That record takes precedence over ns.VendorPrices in Price and survives subsequent sessions, so unknown quantity becomes authoritative price data. Skip recording until a positive stack size is known, preserving any previously known unit price.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "Should Prices.lua skip merchant entries without a positive stackCount (keeping the earlier observed price) instead of saving price/1 as a vendor price? Codex repro overwrote a known 20c unit price with 100c",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: merchant rows need a positive stackCount",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: prices_spec covers zero and missing stack sizes; a guessed divisor elsewhere needs judgment"
     },
     {
       "id": "31cae38614",
@@ -329,8 +331,8 @@
       "what": "The author footer uses three middle-dot separators in plain prose.",
       "why": "The copy-slop lens explicitly includes U+00B7 as a separator. These footer separators are not quoted UI output; the middle dots in recipe-row examples are literal game text and are exempt. Use commas or ordinary vertical bars between these links. Published README copy: owner decision, not an audit edit.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "README footer uses middle dots between author links, which the addon's copy uses as house style elsewhere; keep them, or switch to commas or bars? Published copy",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: wontfix, middle dots are house style.",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -368,8 +370,8 @@
       "what": "The closed reagent-bucket set gather/vendor/auction/unknown is restated as bare strings in Model.lua:243 (bucket table), Model.lua:248-250 (mapping), Shopping.lua:60 (iteration order), Shopping.lua:88 (auction|unknown filter), API.lua:95-101 (ReagentSource) and here (labels); the type union is inline on SkillUpNeededItem.source (types/Namespace.lua:279), not a named alias or constants table.",
       "why": "A new bucket added to Model.ShoppingList must be added by hand to Shopping.lua:60 (else its items vanish from RouteReagents) and here (else SOURCE_TEXT[item.source] at Route.lua:602 is nil and the Source column is blank). No search or checker ties the copies together.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "Define the reagent bucket list once (e.g. Model.SHOPPING_SOURCES) and iterate it in Shopping.lua, Route.lua SOURCE_TEXT and API.lua? Codex showed an added bucket silently drops items in RouteReagents; a new constant is outside the closed set",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: done, ledger refuses fixed because the anchored line legitimately stays: SOURCE_TEXT keeps the labels, but ShoppingList and RouteReagents walk Model.SHOPPING_SOURCES and route_spec checks every bucket has a label.",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -488,8 +490,8 @@
       "what": "Route.lua (1022 lines) mixes: (1) headless route planning, lines 18-189 (RANK_NAMES/NextRanks, RouteProfessions, RouteTarget, RouteSnapshot, TrainingFor, Trainable, plan cache, PlanRoute, RouteSteps) plus NextCraft 646-683; (2) tooltip builders 191-414; (3) list rendering 416-644; (4) page frames and controls 685-900; (5) ProfessionsFrame tab/page integration and profession-window helpers 902-1022 (OpenSkillLine, ShowRecipe, tab hooks).",
       "why": "Part (1) has its own seam and its own consumers: API.lua (RouteProfessions, PlanRoute, RouteSteps, RankText, RankName), Shopping.lua (PlanRoute, RankText, TrainingFor, NextCraft), Trainer.lua (RouteSnapshot, InvalidatePlans), Sources.lua (TrainingFor), Prices.lua/Core.lua (InvalidatePlans); tests/route_spec.lua loads all of Route.lua with UI stubs only to reach NextCraft. Proposed split: planning (1) into its own TOC file (e.g. Plan.lua) before Route.lua, leaving Route.lua as the page UI (2-5); a planning change would then not touch the UI file. Not performed.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "Move Route.lua's planning and cache block (lines 18-189) into its own TOC file, leaving NextCraft and the UI in Route.lua? Codex loaded it separately with identical plans over 180 cases; a module split is a design choice",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: deferred, do it when that file is next substantially changed.",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -515,10 +517,11 @@
       "what": "A suggestion's scroll price, when unknown (ns.ScrollPrice returns nil: no Auctionator/vendor price and no bundled source.price), renders as an empty cost cell.",
       "why": "Project convention (sift-project Conventions, AGENTS.md Rules): missing data renders '?', never blank or a guess. Here an unknown price is indistinguishable from a column with nothing to show; the tooltip (SuggestionTooltip) likewise just omits the Scroll line. Owner decides between '?' and blank.",
       "confidence": "low",
-      "status": "decide",
-      "reason": "Should an unknown scroll price in the route's suggestions show '?' (the addon's missing-data convention) instead of an empty cell? The README documents the blank, so the owner picks",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: unpriced scroll shows ?",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: route_spec checks the suggestion cell; other blank cells need judgment"
     },
     {
       "id": "0d1f393e13",
@@ -528,10 +531,11 @@
       "what": "User-facing tooltip (report only, owner decides): 'Prices come from vendors you've visited and from Auctionator' omits the bundled vendor price list and free gathered reagents; 'Auction prices need Auctionator' then restates the previous sentence.",
       "why": "Prices.lua:101-121 ns.Price uses `ns.db.vendor[itemID] or ns.VendorPrices[itemID]` (ns.VendorPrices is the bundled Data/Vendor.lua list, so unvisited vendors are priced too) and Gathered() prices gathered reagents at 0 when gatherFree is on. Suggested: 'Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Vendor prices are bundled and updated at merchants you visit; auction prices need Auctionator.' Changing it also needs Locales/phrases.txt regenerated.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "Update the Settings tooltip to mention the bundled vendor prices and free gathered reagents (and rerun tools/phrases.py)? It is in-game copy",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: cost tooltip names bundled vendor prices and free gathered reagents",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: whether copy matches the price code needs reading both"
     },
     {
       "id": "5ea0542981",
@@ -742,10 +746,11 @@
       "what": "The guide puts separate actions and caveats into two dense paragraphs of 399 and 199 words.",
       "why": "The route paragraph combines target selection, crafting, training, pricing failures and waypoints; the shopping paragraph combines counts, alt inventory, gathering, tracking, merchant purchases and Auctionator export. Each section has one paragraph, so a reader looking for a button or prerequisite has to scan the whole block. Split into short paragraphs or bullets named for the controls (target, Craft, Track, Buy tracked reagents, To Auctionator), with training, price and waypoint details beside the relevant action. Preserve every behaviour and link; no new prose or facts are needed. This is a user how-to guide, not a rationale requiring continuous explanatory prose.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "Restructure docs/route.md's two long paragraphs (about 400 and 200 words) into short task sections and lists? It is player-facing copy in cjber's voice (WFA-24), so the rewrite is the owner's",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: docs/route.md split into task sections and lists",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: whether player docs are scannable needs reading them"
     },
     {
       "id": "520ca988eb",
@@ -769,10 +774,11 @@
       "what": "Prose where structure fits: one ~420-word paragraph (sentences past 40 words) mixes how-to (pick profession, type target, Craft button), reference (columns, tooltip contents, fee sources, suggestion ordering) and integrations; line 11 repeats the shape for the shopping list (~200 words). Both open with a lowercase fragment ('a map tab ...', 'beside the route, ...') left from the README bullet they were split from.",
       "why": "Rewrite as short lists under sub-headings: Using the page (tab, profession, target, Craft), What a step shows (columns, tooltip, click), Training (recipes and ranks, fee sources), When the route stops (unpriced count, suggestions order, waypoints). Capitalise and complete the opening sentences.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "Restructure docs/route.md's two long paragraphs (about 400 and 200 words) into short task sections and lists? It is player-facing copy in cjber's voice (WFA-24), so the rewrite is the owner's",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: docs/route.md split into task sections and lists",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: whether player docs are scannable needs reading them"
     },
     {
       "id": "8d23f92da2",
@@ -782,10 +788,11 @@
       "what": "The route and shopping reference hides its controls in two paragraphs of 399 and 199 words.",
       "why": "The 11-line file offers only Levelling route and Shopping list headings. Finding Craft, Track, waypoint behaviour, training limits, price age or To Auctionator requires scanning almost 600 words of continuous prose. Keep the detail but split it into short sections for choosing a target, crafting/training, prices and recipe suggestions, then a control list for tracking, buying and exporting. These are reference instructions whose controls fit headings and lists; this finding is about structure, not cutting useful depth. User-facing documentation: owner decision.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "Restructure docs/route.md's two long paragraphs (about 400 and 200 words) into short task sections and lists? It is player-facing copy in cjber's voice (WFA-24), so the rewrite is the owner's",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: docs/route.md split into task sections and lists",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: whether player docs are scannable needs reading them"
     },
     {
       "id": "919b2e9aaf",
@@ -929,10 +936,11 @@
       "what": "SpellEffect.Effect codes are bare numbers: 24 (CREATE_ITEM) at gen_recipes.py:100 and gen_thresholds.py:153, 33 (OPEN_LOCK) at gen_thresholds.py:203, 50/53/3/5 at gen_recipes.py:105, while gen_trainer.py:24-25 names LEARN_SPELL = 36 and SKILL = 118 as constants. Define the effect codes once (gen_thresholds, which every generator imports) and use the names.",
       "why": "The same closed set is named in one generator and literal in two others; CREATE_ITEM appears as 24 in two files with the meaning only in a comment at one of them. A typo or new effect cannot be found by searching a name.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "Name the SpellEffect codes (CREATE_ITEM 24, OPEN_LOCK 33, 50/53/3/5) as constants in gen_thresholds.py and use them in every generator? No existing constant exists, so this is a new definition outside the audit's closed set",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: SpellEffect codes named in gen_thresholds",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a bare magic number needs judgment to name"
     },
     {
       "id": "685bf7f387",
@@ -942,10 +950,11 @@
       "what": "An NPC whose creature_template Faction has no row in Forever's FactionTemplate (factions.get(...) in keep(), line 336) is emitted as \"\" (usable by both factions) instead of raising or being reported.",
       "why": "\"\" means 'either faction can use' in ns.SourceNPCs (render header, line 416) and Sources.lua uses it to pick vendors/trainers the player can use; an unknown faction becomes a guessed 'neutral' and can send a player to a hostile-faction vendor. Project convention (sift-project Conventions) is that generators raise rather than invent data. Could not confirm current hit count: no FactionTemplate-70009 CSV in the cache.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "When a creature's Faction has no Forever FactionTemplate row, should gen_sources abort or omit the NPC instead of emitting it as usable by both factions? Changes generator behaviour",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: factionless NPCs left out and reported (none at current pins)",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a guessed default in a generator needs judgment"
     },
     {
       "id": "8fef4237ad",
@@ -983,8 +992,8 @@
       "what": "Resolving which creatures sell an item (npc_vendor rows plus npc_vendor_template expanded through creature_template.VendorTemplateId) is written twice in gen_sources.py: reagent_vendors (lines 200-213) and inline in generate (lines 306-316). Canonical: one helper returning {item: {entry: limited}}; reagent_vendors keeps the entries whose limited flag is False.",
       "why": "Same three loops over the same tables and the same VendorTemplateId join. Only difference: reagent_vendors filters maxcount == 0 and returns sets; generate keeps maxcount > 0 as a 'limited' flag. That is a filter on the same result, not a different concept; a fix to the template join (e.g. a template entry also listed directly) would need both.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "Share one direct-plus-template vendor join in gen_sources? Codex showed the proposed boolean map is not behaviour-preserving (a direct-unlimited/template-limited seller changes class), so each caller's aggregation must stay",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: wontfix, a shared vendor join isn't behaviour-preserving (a direct-unlimited/template-limited seller changes class).",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -996,8 +1005,8 @@
       "what": "gen_sources re-parses other generators' Lua output with its own regexes (REAGENT against gen_recipes.render, VENDOR_ROW against gen_vendor.render), as gen_recipes.threshold_ids does against gen_thresholds.render. Each output row format therefore lives twice, in the renderer and in a reader in another file.",
       "why": "REAGENT also matches `output = { itemID = N, quantity = ... }`, so reagent_items() returns recipe outputs too, contrary to its name; checked against current Data: no GatheredBy item is an output-only item, so no effect today. Both use finditer, so a render format change yields fewer items silently rather than an error (threshold_ids by contrast fullmatches every row and raises). Canonical home would be a reader beside each render.",
       "confidence": "low",
-      "status": "decide",
-      "reason": "Pass recipe/vendor data between generators in-process instead of re-parsing Data/*.lua with regexes? REAGENT already matches 1,982 output-only ids (none reach GatheredBy today)",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: deferred, do it when that file is next substantially changed.",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -1009,10 +1018,11 @@
       "what": "strict=False silently truncates a row whose value count differs from the CREATE TABLE column list, so a parse_rows mistake or a schema change shifts/drops columns without an error.",
       "why": "Ran dump_tables' parse against the pinned classic-db dump: every one of the 11 tables has value count == column count for every row (e.g. item_template 128/128 x 17718), so strict=True passes today and would turn a future mis-parse into a loud failure instead of wrong vendors/drops/quests in Data/Sources.lua.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "Switch gen_sources parse_rows to zip(strict=True) so a malformed dump row fails generation instead of silently truncating? All 11 pinned tables pass strict today; changes error behaviour",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: dump_tables zips strictly",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a lenient zip hiding a malformed row needs judgment"
     },
     {
       "id": "8bc4bcac00",
@@ -1022,8 +1032,8 @@
       "what": "Em dash in the generated-file header.",
       "why": "Same em dash in gen_recipes.py:201, gen_trainer.py:116 and gen_sources.py:383, written into every Data/*.lua header; gen_vendor.py:30 already uses '; do not edit.'. Use the same '; ' form in all four for consistency (regenerates headers only).",
       "confidence": "low",
-      "status": "decide",
-      "reason": "Change the generated-file header from an em dash to gen_vendor's '; do not edit.' in all four generators, and let the next data refresh rewrite the Data/*.lua headers? The Data files cannot be hand-edited",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: wontfix, cosmetic em dashes in generated headers and agent-only docs, not store copy.",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -1049,8 +1059,8 @@
       "what": "classicdb() re-implements gen_thresholds.download() (gen_thresholds.py:40-57): cache hit unless refresh, offline miss error with the same message, urllib Request with the same User-Agent, atomic temp-file write + replace. The User-Agent literal is also restated in latest_build.py:8. Canonical home: gen_thresholds.py, split into a bytes-level fetch-to-cache (path returned) that download() wraps with its utf-8-sig decode and HTML check.",
       "why": "One difference is forced: the classic-db source is a .sql.gz, so download()'s utf-8-sig decode and '<' HTML sniff cannot apply; that is why the copy exists, but it only needs the lower half split out, not a second implementation. Accidental drift: timeout 120 vs 60; temp name via with_suffix('.tmp') (classicdb-x.sql.tmp) vs path.suffix + '.tmp'; no check that the download is not an HTML error page (a gzip error surfaces later instead). A change to caching (e.g. checksum pinning, the UA string) would need both.",
       "confidence": "high",
-      "status": "decide",
-      "reason": "Merge gen_trainer.classicdb's download/cache into gen_thresholds as a bytes-level fetch? The copies differ in timeout (120 vs 60 s), gzip handling and the HTML check, so the shared helper's shape is a design choice",
+      "status": "dismissed",
+      "reason": "owner-delegated 2026-09-27: deferred, do it when that file is next substantially changed.",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -1062,10 +1072,11 @@
       "what": "Two readers of the same classic-db dump: gen_trainer.classicdb() + ROW (positional regex over npc_trainer INSERT lines) and gen_sources.dump_tables()/parse_rows() (schema-named columns from CREATE TABLE). gen_sources uses both, gunzipping the dump twice (classicdb(**options) at line 472, dump_tables(CLASSICDB_CACHE) at line 475). Canonical home: dump_tables with npc_trainer in TABLES, moved beside classicdb in a shared module.",
       "why": "ROW hard-codes npc_trainer's column order and types (comment gen_trainer.py:30); a row with a negative or quoted value, or a schema change at a new pin, is silently skipped by finditer rather than failing, whereas dump_tables maps by column name and raises on missing tables. gen_sources also depends on the call order in main (classicdb must run first so the cache exists before dump_tables opens it). No constraint forces two parsers; both run on the same file.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "Read npc_trainer through gen_sources.dump_tables (schema-named columns) and drop gen_trainer's positional ROW regex? Codex matched all 27,309 rows after NULL normalisation, but it moves the parser into a shared module",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: npc_trainer read through dump_tables; ROW regex gone",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: two parsers of one file need judgment; jscpd sees only textual clones"
     },
     {
       "id": "1693a9b6f3",
@@ -1075,10 +1086,11 @@
       "what": "A VendorStackCount of 0 or negative is clamped to 1, silently producing a per-unit price from a malformed stack count.",
       "why": "Convention: generators raise instead of clamping bad data. Checked the cached ItemSparse (69913): all 50 listed priced items have VendorStackCount 1 or 5, so the clamp never fires today; it would only hide a schema/data change on a future BUILD, writing a wrong price into Data/Vendor.lua that Prices.lua uses as the vendor cost. Raise (or add to `absent`) when VendorStackCount <= 0.",
       "confidence": "medium",
-      "status": "decide",
-      "reason": "Should gen_vendor abort (or report and skip) on a nonpositive VendorStackCount instead of clamping to 1? No current row hits it; changes generator error behaviour",
+      "status": "fixed",
+      "reason": "owner-delegated 2026-09-27: gen_vendor raises on VendorStackCount <= 0",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a clamp hiding bad data needs judgment"
     },
     {
       "id": "2436cb3ce2",

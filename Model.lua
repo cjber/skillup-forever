@@ -93,7 +93,10 @@ function Model.PlanRoute(snapshot)
 	local priced = {}
 	for _, recipe in ipairs(snapshot.recipes) do
 		if recipe.netCost == nil then
-			route.excluded.unpriced = route.excluded.unpriced + 1
+			-- A grey recipe could not help even with a price, so it keeps nothing out.
+			if recipe.thresholds[4] > snapshot.skill then
+				route.excluded.unpriced = route.excluded.unpriced + 1
+			end
 		else
 			priced[#priced + 1] = recipe
 		end

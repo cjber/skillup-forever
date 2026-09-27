@@ -396,7 +396,7 @@
       "why": "RouteSteps tests the segment endpoint and inserts the rank before the whole segment, without checking its starting skill against rank.reqSkill or splitting the segment. With bundled Heavy Linen Bandage thresholds, First Aid 40/75 targeting 90 produces 'Train Journeyman at 50' followed by one craft segment from 40 to 90. The first action is impossible at 40. RenderRoute and API.lua Steps consume this order directly; RequiresLine also assumes the route has reached the prerequisite before training. The ordered route needs a craft segment reaching the training point before this rank, followed by the remaining crafts. Executed an in-memory LuaJIT reproduction from the repository root (no files written):\nluajit - <<'LUA'\nlocal ns = {db={trainer={},routeTargets={}}, InvalidateAPI=function() end}\nlocal known, costs = {}, {}\nns.IsLearned=function(id) return known[id] == true end\nns.NetCost=function(id) return costs[id] end\nlocal env=setmetatable({APPRENTICE='Apprentice', JOURNEYMAN='Journeyman', EXPERT='Expert', ARTISAN='Artisan'}, {__index=_G})\nfor _,file in ipairs({'Locales/enUS.lua','Data/Thresholds.lua','Data/Recipes.lua','Data/Trainer.lua','Model.lua','Route.lua'}) do\n  setfenv(assert(loadfile(file)),env)('SkillUpForever',ns)\nend\nknown[3275], costs[3275], known[3276], costs[3276] = true, 1, true, 1\nns.db.routeTargets[129]=90\nlocal p={skillLine=129,name='First Aid',skill=40,base=40,max=75,modifier=0,capped=false}\nlocal r=ns.PlanRoute(p)\nlocal s=ns.RouteSteps(p,r)\nassert(s[1].rank.reqSkill==50 and s[1].rank.reqSkill>p.base)\nassert(s[2].segment.recipeID==3276 and s[2].segment.fromSkill==40 and s[2].segment.toSkill==90)\nprint(s[1].rank.name,s[1].rank.reqSkill,s[2].segment.fromSkill,s[2].segment.toSkill) -- Journeyman 50 40 90\nLUA",
       "confidence": "high",
       "status": "bug",
-      "reason": "Claude repro (First Aid 40/75, target 90): RouteSteps lists 'Train Journeyman' (reqSkill 50) before the 40-to-90 segment, because it tests only segment.toSkill; the step order tells the player to train before they can",
+      "reason": "Fixed at the producer: ns.PlanRoute now splits a segment that crosses a rank's cap from below its reqSkill (SplitAtRank), so these RouteSteps lines, still correct, place the rank between the halves (route_spec 'crafts up to the skill Journeyman needs'). The quote stays, so the ledger cannot record fixed; re-anchor on the next audit",
       "first_seen": "2026-09-27",
       "updated": "2026-09-27"
     },
@@ -408,10 +408,11 @@
       "what": "Bug: an unpriced, already-grey recipe hides valid continuation suggestions and gives an irrelevant pricing explanation.",
       "why": "Model.PlanRoute counts every unpriced known recipe, including recipes already grey at the current skill. RenderRoute treats any positive count as proof that prices caused the blockage; its elseif then prevents RenderSuggestions. A real-data repro at Tailoring 100/150, target 125, with known unpriced recipe 2393 has six eligible scroll suggestions from Sources.lua, but RenderRoute never asks for them and shows only the Auctionator message. Pricing that grey recipe cannot let it skill up. Filter pricing blockers to recipes that could still help, and allow no_recipe suggestions even when pricing information is also shown. The repro obtains private render functions through debug.getupvalue in the headless LuaJIT harness; it does not create or operate client frames. Executed an in-memory LuaJIT reproduction from the repository root (no files written):\nluajit - <<'LUA'\nlocal ns = {db={trainer={},routeTargets={}}, InvalidateAPI=function() end}\nlocal known, costs = {}, {}\nns.IsLearned=function(id) return known[id] == true end\nns.NetCost=function(id) return costs[id] end\nlocal env=setmetatable({APPRENTICE='Apprentice', JOURNEYMAN='Journeyman', EXPERT='Expert', ARTISAN='Artisan'}, {__index=_G})\nfor _,file in ipairs({'Locales/enUS.lua','Data/Thresholds.lua','Data/Recipes.lua','Data/Trainer.lua','Model.lua','Route.lua'}) do\n  setfenv(assert(loadfile(file)),env)('SkillUpForever',ns)\nend\nenv.UnitFactionGroup=function() return 'Alliance' end\nenv.UnitPosition=function() end\nenv.tContains=function(t,v) for _,x in ipairs(t) do if x==v then return true end end return false end\nfor _,file in ipairs({'Data/Sources.lua','Sources.lua'}) do setfenv(assert(loadfile(file)),env)('SkillUpForever',ns) end\nns.HasAuctionator=function() return false end\nknown[2393]=true\nns.db.routeTargets[197]=125\nlocal p={skillLine=197,name='Tailoring',skill=100,base=100,max=150,modifier=0,capped=false}\nlocal r=ns.PlanRoute(p)\nassert(#r.segments==0 and r.excluded.unpriced==1 and ns.Model.Color(ns.Model.Get(2393),p.skill)=='grey')\nassert(#ns.RecipeSuggestions(p,r.reachedSkill)==6)\nlocal called,original=0,ns.RecipeSuggestions\nns.RecipeSuggestions=function(...) called=called+1; return original(...) end\nlocal function up(fn,want)\n  for i=1,100 do local n,v=debug.getupvalue(fn,i); if not n then break end; if n==want then return v end end\n  error('missing upvalue '..want)\nend\nlocal render=up(up(ns.RefreshRoute,'Render'),'RenderRoute')\nrender({Message=function(_,msg) print(msg) end,Add=function() error('unexpected row') end},p,r)\nassert(called==0)\n-- Prints only: These reagents have no vendor price. Auction prices need Auctionator.\nLUA",
       "confidence": "high",
-      "status": "bug",
-      "reason": "Claude repro (Tailoring 100, known unpriced recipe 2393 already grey): the page shows only the Auctionator message and never lists the 6 recipe suggestions, though pricing a grey recipe cannot help",
+      "status": "fixed",
+      "reason": "Model.PlanRoute counts only unpriced recipes that still skill up, so a grey one no longer blocks the suggestions",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a behaviour bug, not a shape a rule can match; regression test tests/model_spec.lua 'a grey unpriced recipe keeps nothing out of the route'"
     },
     {
       "id": "a21fc6971e",
@@ -434,10 +435,11 @@
       "what": "Item-name-with-fallback is written six ways: Route.lua:592-597 and Shopping.lua:353-357 and API.lua:33-40 (ItemName) request the item data so ITEM_DATA_LOAD_RESULT redraws; Route.lua:300, Route.lua:575 (RenderUnpriced) and Tooltip.lua:177 do not. Canonical home: API.lua's ItemName as a shared ns helper.",
       "why": "RenderUnpriced has drifted from RenderReagents in the same file: an uncached unpriced reagent shows 'item N' and no load request is issued, so the ITEM_DATA_LOAD_RESULT refresh registered in ns.AttachRoute never fires for it. The tooltip copies (300, Tooltip.lua:177) are transient and arguably fine.",
       "confidence": "medium",
-      "status": "bug",
-      "reason": "Codex trace: RenderUnpriced names an uncached item 'item N' without RequestLoadItemDataByID, unlike RenderReagents, so it only resolves when something else loads the item",
+      "status": "fixed",
+      "reason": "RenderUnpriced requests uncached item data, as RenderReagents does",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a behaviour bug, not a shape a rule can match; regression test tests/route_spec.lua 'and its name is asked for'"
     },
     {
       "id": "b39fc8abbc",
@@ -499,10 +501,11 @@
       "what": "Bug: incomplete plans charge rank-training fees for skill caps the route never reaches.",
       "why": "PlanRoute uses the requested target to append ranks after Model.PlanWithTraining has already established the actual reachedSkill. With bundled Linen Bandage data, First Aid 1/75 targeting 100 can stop at 60 while still adding the 500-copper Journeyman fee. RouteSteps emits no rank step because no segment crosses 75, but RenderRoute adds trainingCost to the displayed total, and Shopping.lua TrainingSteps advertises the unused rank. Whole-repository searches for TrainerRanks, rank.fee, PlanRoute and RouteSteps found no subsequent pruning. Compare the reached base skill, accounting for profession.modifier, when selecting required ranks. Executed an in-memory LuaJIT reproduction from the repository root (no files written):\nluajit - <<'LUA'\nlocal ns = {db={trainer={},routeTargets={}}, InvalidateAPI=function() end}\nlocal known, costs = {}, {}\nns.IsLearned=function(id) return known[id] == true end\nns.NetCost=function(id) return costs[id] end\nlocal env=setmetatable({APPRENTICE='Apprentice', JOURNEYMAN='Journeyman', EXPERT='Expert', ARTISAN='Artisan'}, {__index=_G})\nfor _,file in ipairs({'Locales/enUS.lua','Data/Thresholds.lua','Data/Recipes.lua','Data/Trainer.lua','Model.lua','Route.lua'}) do\n  setfenv(assert(loadfile(file)),env)('SkillUpForever',ns)\nend\nknown[3275], costs[3275] = true, 1\nns.db.routeTargets[129]=100\nlocal p={skillLine=129,name='First Aid',skill=1,base=1,max=75,modifier=0,capped=false}\nlocal r=ns.PlanRoute(p)\nlocal shown=0\nfor _,s in ipairs(ns.RouteSteps(p,r)) do if s.rank then shown=shown+1 end end\nassert(r.reachedSkill==60 and r.stopReason=='no_recipe')\nassert(r.trainingCost==500 and #r.ranks==1 and shown==0)\nprint(r.reachedSkill,r.trainingCost,#r.ranks,shown) -- 60 500 1 0\nLUA",
       "confidence": "high",
-      "status": "bug",
-      "reason": "Claude repro (First Aid 1/75, target 100, only Linen Bandage): route stops at 60 yet keeps one rank and adds its 500c fee to the total with no rank row; PlanRoute picks ranks from the target, not reachedSkill",
+      "status": "fixed",
+      "reason": "PlanRoute picks ranks from route.reachedSkill, not the target",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a behaviour bug, not a shape a rule can match; regression test tests/route_spec.lua 'a rank past where the route stops is not trained'"
     },
     {
       "id": "fbe65ec95f",
@@ -565,10 +568,11 @@
       "what": "Shopping.lua TrainingSteps (304-320) re-derives the order of training steps by sorting ranks at rank.reqSkill and recipes at atSkill - modifier, while ns.RouteSteps (Route.lua:167-190) is the canonical walk used by the route page and by the public API (API.lua:181, consumed by Adventure Guide Forever): ranks once a segment passes cap - 75, a recipe's training just before its first craft. The tracker's 'next thing to train' (and the trainer it waypoints to, which depends on steps[1].cap) therefore disagrees with the page and the API. The trainer-cap rule 'reqSkill + 1' is also restated at Shopping.lua:313 and API.lua:190.",
       "why": "In-memory LuaJIT repro (/tmp/shoprepro/order.lua) loads Locales/enUS.lua, Route.lua and Shopping.lua with stubbed host APIs; profession Tailoring base 40, route.ranks = {Journeyman cap 150 reqSkill 50}, route.training = {recipe 7 at 60}, segments 60->75 (recipe 7) and 75->100 (recipe 8). Tracker first objective: 'Train Journeyman at 50 (+1 more)'. ns.RouteSteps order: train recipe 7, craft, rank Journeyman, craft. So the tracker tells the player to train Journeyman first and would pick a trainer teaching up to 150, while the page/API say train recipe 7 first (trainer cap 61). The Shopping comment ('ranks when the trainer allows them') and Route comment ('each rank once the route passes the cap below it') state different rules for the same concept; one should be canonical (derive the tracker's steps from ns.RouteSteps, taking the first rank/training walk entry).",
       "confidence": "high",
-      "status": "bug",
-      "reason": "Codex repro on bundled Tailoring data: the tracker's TrainingSteps picks Train Journeyman (cap 150) first while ns.RouteSteps and the public API pick recipe 2397 (cap 61), so tracker and route page name different next trainers",
+      "status": "fixed",
+      "reason": "The tracker's TrainingSteps walks ns.RouteSteps, the route page's order",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a behaviour bug, not a shape a rule can match; regression test tests/shopping_spec.lua 'the same training'"
     },
     {
       "id": "3e8500555a",
@@ -578,10 +582,11 @@
       "what": "A route blocked by missing prices falls through to the green \"Reagents in hand\" state, although its reagent requirements were never computed.",
       "why": "Model.PlanRoute excludes recipes with nil netCost and returns zero segments with stopReason=\"no_recipe\" when none remain. Shopping.lua RouteReagents then returns an empty list, and LayoutContents treats zero displayed reagents as readiness without checking the route failure. Repository-wide searches found explicit handling of this case in Route.lua RenderRoute and Render, but none in Shopping.lua. An in-memory LuaJIT reproduction loaded the unchanged Locales/enUS.lua, Model.lua and Shopping.lua, planned from skill 1 to 2 with one eligible unpriced recipe, and invoked the real LayoutContents with stubbed frames. It produced excluded.unpriced=1, zero segments, zero reagent lookups and a single Ready objective reading \"Reagents in hand\". This is a behaviour bug: a missing-price state is presented as successful inventory coverage.",
       "confidence": "high",
-      "status": "bug",
-      "reason": "Codex repro with bundled Bolt of Linen Cloth data: a route blocked by missing prices (zero segments, stopReason no_recipe) shows the green 'Reagents in hand' objective with empty bags",
+      "status": "fixed",
+      "reason": "A route with no segments shows ns.RouteBlocked in the tracker, the reason the route page gives",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a behaviour bug, not a shape a rule can match; regression test tests/shopping_spec.lua 'a blocked route says so'"
     },
     {
       "id": "b575af5098",
@@ -605,10 +610,11 @@
       "what": "Tracking or untracking a profession leaves the public API's cached profession order stale.",
       "why": "Behaviour bug found while tracing the trackedProfessions write and its readers, not a deletion candidate. API.lua Build sorts by ns.IsTracked, but API.Professions returns its cached table until invalidated. SetTracked only plays a sound and calls RefreshTracker; that marks the tracker dirty and refreshes the merchant button without invalidating the API. Repository-wide searches for trackedProfessions and InvalidateAPI, plus inspection of the Route.lua Track callback, Shopping.lua Stop tracking callback, and API.lua event handler, found no invalidation on this mutation. An in-memory LuaJIT reproduction loaded the actual Model.lua, Shopping.lua and API.lua with host stubs, two capped professions and empty routes. API.Professions initially returned Alchemy first. After the actual ns.SetTracked(197, true), ns.IsTracked(197) was true but API.Professions returned the same table with Alchemy first. Explicit ns.InvalidateAPI() immediately put Tailoring first. Untracking reproduced the inverse stale order. Thus external API consumers miss the tracking priority change until an unrelated invalidating event. Invalidate the API when tracking changes.",
       "confidence": "high",
-      "status": "bug",
-      "reason": "Codex and Claude repros: SetTracked and the tracker menu's untrack leave SkillUpForever.API.Professions() returning the old tracked-first order until an unrelated event (BAG_UPDATE_DELAYED) rebuilds it; SetTracked should call ns.InvalidateAPI",
+      "status": "fixed",
+      "reason": "SetTracked calls ns.InvalidateAPI",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a behaviour bug, not a shape a rule can match; regression test tests/api_spec.lua 'tracking a profession rebuilds the list'"
     },
     {
       "id": "e4d9111cb3",
@@ -963,10 +969,11 @@
       "what": "gathered() builds its own reference_loot_template index and expansion (lines 148-155, 172-175) beside scroll_drops()'s (lines 255-275) and loot_chances() (236-249), the canonical CMaNGOS loot resolution in the same file.",
       "why": "Differences look like drift: expand() follows references one level only (nested refs are yielded as rows whose item is the ref row's, not expanded); referenced rows' chances are used unscaled by the referencing row's chance; chance 0 is treated as 'main yield' rather than loot_chances' equal share of the group's remainder. scroll_drops does recursion with a cycle guard and scaling. Output effect on current data not measured; GatheredBy uses a 10% threshold, so unscaled referenced chances could admit items below it.",
       "confidence": "low",
-      "status": "bug",
-      "reason": "Codex repro: gathered() follows reference loot one level, unscaled, and accepts zero chances, so it takes 5% referenced drops and misses a nested 100% drop that scroll_drops resolves; violates its documented 10% rule",
+      "status": "fixed",
+      "reason": "gathered() resolves reference loot through loot_items, shared with scroll_drops, with multiplied chances; regenerated Data/Sources.lua is byte-identical",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a behaviour bug, not a shape a rule can match; regression test tools/gen_sources_test.py"
     },
     {
       "id": "b15e001b91",
@@ -1120,10 +1127,11 @@
       "what": "model_craft_value restates Model.CraftValue (Model.lua:294) with the auction cut inlined as 0.95 instead of Model.lua's AUCTION_CUT = 0.05 (Model.lua:287), and with Python truthiness in place of Lua's.",
       "why": "A change to AUCTION_CUT would not reach the screenshots. Truthiness drift: Lua `auction and auction * (1 - AUCTION_CUT) or nil` treats auction == 0 as truthy, giving resale 0 and returning (0, \"auction\") when there is no vendor price; the Python treats 0 as falsy and returns (None, None). Also `mode == \"none\"` returns (None, None) vs Lua's single nil (harmless). Not reachable with the current scene (mode is hard-coded \"vendor\" at :204 and AUCTION has no zero price), so latent. The other named ports match exactly: round_money == Model.RoundMoney (same unit thresholds, floor(+0.5), max 1); model_recipe_cost == Model.RecipeCost (`is None` equals Lua `not` for numeric/nil values, empty list returns 0 in both); model_chance/model_color/model_cost_per_skill_up match with the 0-based index shift.",
       "confidence": "medium",
-      "status": "bug",
-      "reason": "Codex repro: with no vendor price, auction=0 and mode auction the Python port returns (None, None) where Model.CraftValue returns (0, 'auction'); latent, the scene uses vendor mode",
+      "status": "fixed",
+      "reason": "model_craft_value keeps a zero auction price, as Lua's truthy 0 does",
       "first_seen": "2026-09-27",
-      "updated": "2026-09-27"
+      "updated": "2026-09-27",
+      "guard": "lens-only: a behaviour bug, not a shape a rule can match; regression test tools/screenshots_test.py"
     },
     {
       "id": "bee013f3e3",

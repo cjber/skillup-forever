@@ -228,6 +228,8 @@ end
 ---@param tracked boolean
 function ns.SetTracked(skillLine, tracked)
 	ns.db.trackedProfessions[skillLine] = tracked or nil
+	-- The public API lists tracked professions first.
+	ns.InvalidateAPI()
 	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 	ns.RefreshTracker()
 end
@@ -296,25 +298,23 @@ local function Waypointed(line, title, label, nearest)
 	line:SetScript("OnLeave", GameTooltip_Hide)
 end
 
--- Where each training happens, in base skill: ranks when the trainer allows them,
--- recipes where the route first uses them.
+-- The ranks and recipes to train, in the order the route page lists them.
 ---@param entry SkillUpTracked
----@return {skill: number, cap: number, text: string}[]
+---@return {cap: number, text: string}[]
 local function TrainingSteps(entry)
 	local steps = {}
-	for _, rank in ipairs(entry.route.ranks) do
-		steps[#steps + 1] = { skill = rank.reqSkill, cap = rank.cap, text = ns.RankText(rank) }
+	for _, step in ipairs(ns.RouteSteps(entry.professionInfo, entry.route)) do
+		local rank, training = step.rank, step.training
+		if rank then
+			steps[#steps + 1] = { cap = rank.cap, text = ns.RankText(rank) }
+		elseif training then
+			local name = C_Spell.GetSpellName(training.recipeID) or string.format(L["recipe %d"], training.recipeID)
+			local skill = training.atSkill - entry.professionInfo.modifier
+			-- A trainer teaches recipes needing less than the cap they train to.
+			local cap = training.reqSkill + 1
+			steps[#steps + 1] = { cap = cap, text = string.format(L["Train %s at %d"], name, skill) }
+		end
 	end
-	for _, step in ipairs(entry.route.training) do
-		local name = C_Spell.GetSpellName(step.recipeID) or string.format(L["recipe %d"], step.recipeID)
-		local skill = step.atSkill - entry.professionInfo.modifier
-		-- A trainer teaches recipes needing less than the cap they train to.
-		local cap = ns.TrainingFor(entry.professionInfo, step.recipeID)[2] + 1
-		steps[#steps + 1] = { skill = skill, cap = cap, text = string.format(L["Train %s at %d"], name, skill) }
-	end
-	table.sort(steps, function(a, b)
-		return a.skill < b.skill
-	end)
 	return steps
 end
 
@@ -368,7 +368,10 @@ function ModuleMixin:LayoutContents()
 				end
 			end
 		end
-		if shown == 0 then
+		local blocked = ns.RouteBlocked(entry.professionInfo, entry.route)
+		if blocked then
+			block:AddObjective("Blocked", blocked)
+		elseif shown == 0 then
 			block:AddObjective("Ready", L["Reagents in hand"], nil, nil, nil, OBJECTIVE_TRACKER_COLOR.Complete)
 		end
 		if not self:LayoutBlock(block) then

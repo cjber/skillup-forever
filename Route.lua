@@ -133,6 +133,40 @@ function ns.InvalidatePlans()
 	ns.InvalidateAPI()
 end
 
+---@param thresholds number[]?
+---@param from number
+---@param to number
+---@return number
+local function ExpectedCrafts(thresholds, from, to)
+	local expected = 0
+	for skill = from, to - 1 do
+		expected = expected + 1 / ns.Model.Chance(thresholds, skill)
+	end
+	return expected
+end
+
+-- A segment that crafts past the rank's cap from below the skill the trainer wants
+-- for it is split there, so the rank is trained between its halves.
+---@param segments SkillUpSegment[]
+---@param rank SkillUpRank
+---@param modifier number
+local function SplitAtRank(segments, rank, modifier)
+	local at = rank.reqSkill + modifier
+	for index, segment in ipairs(segments) do
+		if segment.fromSkill < at and segment.toSkill - modifier > rank.cap - 75 then
+			local thresholds = ns.Model.Get(segment.recipeID)
+			local rest = { recipeID = segment.recipeID, fromSkill = at, toSkill = segment.toSkill }
+			rest.expectedCrafts = ExpectedCrafts(thresholds, at, segment.toSkill)
+			rest.crafts = math.ceil(rest.expectedCrafts)
+			segment.toSkill = at
+			segment.expectedCrafts = ExpectedCrafts(thresholds, segment.fromSkill, at)
+			segment.crafts = math.ceil(segment.expectedCrafts)
+			table.insert(segments, index + 1, rest)
+			return
+		end
+	end
+end
+
 ---@param profession SkillUpProfession
 ---@return SkillUpPlan
 function ns.PlanRoute(profession)
@@ -147,12 +181,14 @@ function ns.PlanRoute(profession)
 	---@cast route SkillUpPlan
 	route.profession = profession.name
 	route.target = target
-	-- Each rank is needed once the route passes the cap below it.
+	-- Each rank is needed once the route passes the cap below it: where it gets to,
+	-- which falls short of the target when the known recipes run out.
 	route.ranks = {}
 	for _, rank in ipairs(NextRanks(profession)) do
-		if target > rank.cap - 75 then
+		if route.reachedSkill - profession.modifier > rank.cap - 75 then
 			route.ranks[#route.ranks + 1] = rank
 			route.trainingCost = route.trainingCost + rank.fee
+			SplitAtRank(route.segments, rank, profession.modifier)
 		end
 	end
 	plans[profession.skillLine] = { key = key, route = route }
@@ -440,12 +476,32 @@ local function RenderSuggestions(list, profession, route)
 	end
 end
 
+-- Why a route has nothing to craft, as the page and the tracker say it; nil when it has.
+---@param profession SkillUpProfession
+---@param route SkillUpPlan
+---@return string?
+function ns.RouteBlocked(profession, route)
+	if #route.segments > 0 then
+		return nil
+	elseif profession.capped and #route.ranks == 0 then
+		return string.format(L["At the %d cap: no trainer teaches the next rank."], profession.max)
+	elseif route.excluded.unpriced > 0 then
+		-- Auctionator knows only what it has scanned, so installing it isn't enough.
+		local without = L["These reagents have no vendor price. Auction prices need Auctionator."]
+		local with = L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."]
+		return ns.HasAuctionator() and with or without
+	elseif route.stopReason == "no_recipe" then
+		return string.format(L["Nothing you know skills up past %d."], route.reachedSkill - profession.modifier)
+	end
+end
+
 ---@param list SkillUpList
 ---@param profession SkillUpProfession
 ---@param route SkillUpPlan
 local function RenderRoute(list, profession, route)
-	if profession.capped and #route.ranks == 0 and #route.segments == 0 then
-		list:Message(string.format(L["At the %d cap: no trainer teaches the next rank."], profession.max))
+	local blocked = ns.RouteBlocked(profession, route)
+	if blocked and profession.capped and #route.ranks == 0 then
+		list:Message(blocked)
 		return
 	end
 	local m = profession.modifier
@@ -498,11 +554,8 @@ local function RenderRoute(list, profession, route)
 			valueColor = NORMAL_FONT_COLOR,
 		})
 	end
-	if #route.segments == 0 and route.excluded.unpriced > 0 then
-		-- Auctionator knows only what it has scanned, so installing it isn't enough.
-		local without = L["These reagents have no vendor price. Auction prices need Auctionator."]
-		local with = L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."]
-		list:Message(ns.HasAuctionator() and with or without)
+	if blocked and route.excluded.unpriced > 0 then
+		list:Message(blocked)
 	elseif route.stopReason == "no_recipe" then
 		local known = route.excluded.unpriced > 0 and L["Nothing priced you know skills up past %d."]
 			or L["Nothing you know skills up past %d."]
@@ -570,9 +623,15 @@ end
 ---@param items integer[]
 local function RenderUnpriced(list, items)
 	for _, itemID in ipairs(items) do
+		local name = C_Item.GetItemNameByID(itemID)
+		if not name then
+			-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
+			C_Item.RequestLoadItemDataByID(itemID)
+			name = string.format(L["item %d"], itemID)
+		end
 		list:Add({
 			icon = C_Item.GetItemIconByID(itemID) or 134400,
-			text = C_Item.GetItemNameByID(itemID) or string.format(L["item %d"], itemID),
+			text = name,
 			values = { "", SOURCE_TEXT.unknown },
 			tooltip = function(tooltip)
 				tooltip:SetItemByID(itemID)
@@ -665,11 +724,7 @@ function ns.NextCraft(profession, route)
 	-- Past the cap a craft gives no skill-up until the next rank is trained.
 	local crafts, cap = segment.crafts, profession.max + profession.modifier
 	if profession.max > 0 and segment.toSkill > cap then
-		local thresholds, expected = ns.Model.Get(segment.recipeID), 0
-		for skill = segment.fromSkill, cap - 1 do
-			expected = expected + 1 / ns.Model.Chance(thresholds, skill)
-		end
-		crafts = math.ceil(expected)
+		crafts = math.ceil(ExpectedCrafts(ns.Model.Get(segment.recipeID), segment.fromSkill, cap))
 	end
 	-- RecipeInfo has no count; this one includes the client's reagent and resource rules.
 	local count = math.min(crafts, C_TradeSkillUI.GetCraftableCount(segment.recipeID))

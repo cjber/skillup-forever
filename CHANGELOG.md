@@ -11,6 +11,14 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **The route no longer charges for a rank it never gets to.** When your known recipes ran out before the target, the total still had the next rank's fee in it, though the route stopped short of needing it.
+- **Rank training comes where you can do it.** A craft that ran through your cap from below the skill the trainer asks for (First Aid from 40 to 90, say) put *Train Journeyman at 50* before it. The craft is now split at 50, with the training in between.
+- **Recipe suggestions show up when your only unpriced recipe is grey.** A grey recipe with no price made the route tab ask for Auctionator instead of listing the scrolls that would carry you on.
+- **Unpriced reagents on the route tab get their names** instead of staying as *item 1234* until something else loaded them.
+- **The tracker's next training step matches the route tab.** It sorted ranks and recipes by skill on its own, so it could send you to a different trainer than the route does.
+- **The tracker says why a route is stuck**, like the route tab does, instead of *Reagents in hand* when nothing you know can be priced or skill up.
+- **Tracking or untracking a profession reorders it in Adventure Guide Forever straight away**, not after your next bag change.
+
 ## [0.6.0] - 2026-09-25
 
 - **Ready for translation.** Every line SkillUp writes, from recipe tooltips to the route tab and tracker, can now be translated: send a file for your language as a pull request, or paste it into an issue, on [GitHub](https://github.com/cjber/skillup-forever/tree/main/Locales). Rank names, *Default*, *Off* and *Total* already use the game's own words, so they follow your client's language now. English is unchanged.

@@ -36,11 +36,12 @@ vendored `.sift/gate.py` and `.sift/agents.py`. LuaLS checks all TOC files again
 
 The tests are a headless harness, not the game client. Each spec `loadfile`s one production file
 with stubbed host APIs: `model_spec` (Model.lua, Data/Thresholds.lua, Prices.lua), `prices_spec`
-(Prices.lua), `route_spec` (Route.lua's `ns.NextCraft`), `api_spec` (API.lua over Model, Route and
-Shopping), `core_spec` (Core.lua's init guard, SavedVariables migration and what's-new notice),
+(Prices.lua), `route_spec` (Route.lua's `ns.NextCraft`, `ns.PlanRoute` over the bundled data, and the
+route page drawn into stub frames), `api_spec` (API.lua over Model, Route and Shopping), `shopping_spec`
+(the objective tracker's lines over Route), `core_spec` (Core.lua's init guard, SavedVariables migration and what's-new notice),
 `settings_spec` (Settings.lua), `waypoint_spec` (Sources.lua's waypoints and Shortest Path Forever
 travel) and `locale_spec` (enUS phrases, `Locales/phrases.txt`, no packager keywords). Everything else
-(UI hooks, menus, tooltips, the objective tracker, the trainer) is only verified in game. The
+(UI hooks, menus, tooltips, the tracker's frames, the trainer) is only verified in game. The
 in-game check for data is `/su audit` with a profession open.
 
 ## Evidence

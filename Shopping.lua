@@ -130,7 +130,6 @@ function ns.TrackedNeeds()
 				professionInfo = profession,
 				route = route,
 				items = ns.RouteReagents(route),
-				modifier = profession.modifier,
 			}
 		end
 	end
@@ -308,7 +307,7 @@ local function TrainingSteps(entry)
 	end
 	for _, step in ipairs(entry.route.training) do
 		local name = C_Spell.GetSpellName(step.recipeID) or string.format(L["recipe %d"], step.recipeID)
-		local skill = step.atSkill - entry.modifier
+		local skill = step.atSkill - entry.professionInfo.modifier
 		-- A trainer teaches recipes needing less than the cap they train to.
 		local cap = ns.TrainingFor(entry.professionInfo, step.recipeID)[2] + 1
 		steps[#steps + 1] = { skill = skill, cap = cap, text = string.format(L["Train %s at %d"], name, skill) }

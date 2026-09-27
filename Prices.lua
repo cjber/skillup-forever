@@ -9,13 +9,6 @@ local reagentIndex
 ---@type table<integer, SkillUpPrice|false>
 local priceCache = {}
 
-local function Table(parent, key)
-	if type(parent[key]) ~= "table" then
-		parent[key] = {}
-	end
-	return parent[key]
-end
-
 -- This character's professions, for what it gathers; kept while priceCache is.
 ---@type table<integer, SkillUpProfession>?
 local professions
@@ -291,7 +284,9 @@ frame:SetScript("OnEvent", function(_, event)
 end)
 
 function ns.InitPrices()
-	Table(ns.db, "vendor")
+	if type(ns.db.vendor) ~= "table" then
+		ns.db.vendor = {}
+	end
 	for _, event in ipairs({
 		"TRADE_SKILL_DATA_SOURCE_CHANGED",
 		"TRADE_SKILL_LIST_UPDATE",

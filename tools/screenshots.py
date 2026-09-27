@@ -631,13 +631,13 @@ def create_controls(canvas, fx, fy, count):
     canvas.draw(ui.texture("interface/buttons/ui-spellbookicon-prevpage-up.blp"), ix - 5 - 6 - 23 + 5, iy - 1, 23, 22)
 
 
-def profession_tabs(canvas, fx, fy, selected, route_selected=False):
+def profession_tabs(canvas, fx, fy, selected):
     """The side tabs on the frame's right: overview, one per profession, then SkillUp's route tab."""
     x, y = fx + FRAME_W, fy + 60
     y += side_tab(canvas, x, y, OVERVIEW_TAB_ICON) + 2
     for name, icon in PROFESSIONS:
-        y += side_tab(canvas, x, y, icon, selected=name == selected and not route_selected) + 2
-    side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp", selected=route_selected)
+        y += side_tab(canvas, x, y, icon, selected=name == selected) + 2
+    side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp")
 
 
 # The overview tab's Interface/ICONS/INV_SideTab_Professions_c60 is in neither the community listfile nor
@@ -675,7 +675,7 @@ def window_scene(ui):
 # The demo levels Leatherworking with the cursor on HOVERED: the rows re-sort by cost per skill-up, their
 # colours and chances move, and the tooltip's marker walks across the bar as yellow turns green at 55.
 DEMO_SKILLS = [48, 50, 52, 54, 55, 57, 60]
-DEMO_HOLD = 12  # frames of 100 ms per skill, so the whole loop runs 8.4 s
+DEMO_HOLD = 12  # each skill's frame lasts 12 x 100 ms, so the whole loop runs 8.4 s
 DEMO_MAX_BYTES = 2_000_000  # the stores' gallery limit
 
 

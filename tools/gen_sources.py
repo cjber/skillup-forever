@@ -14,12 +14,11 @@ from gen_thresholds import BUILD, ROOT, db2
 from gen_trainer import (
     CLASSICDB_CACHE,
     CLASSICDB_COMMIT,
-    PROFESSION_SKILLS,
-    ROW,
     TEACH_BUILD,
     classicdb,
     spell_maps,
     teach_effects,
+    trainable_rows,
 )
 
 OUTPUT = ROOT / "Data" / "Sources.lua"
@@ -182,16 +181,11 @@ def gathered(tables, locks, items):
 def trainer_caps(trainer_lines, teaches, rank_of):
     """[skill line][npc] = the highest rank cap that trainer teaches."""
     caps = defaultdict(dict)
-    for line in trainer_lines:
-        for match in ROW.finditer(line):
-            entry, spell, _, skill, _, _, ability, _, _, condition = match.groups()
-            if int(skill) not in PROFESSION_SKILLS or ability != "NULL" or condition != "0":
-                continue
-            for taught in teaches.get(int(spell), ()):
-                line_cap = rank_of.get(taught)
-                if line_cap and line_cap[0] == int(skill):
-                    known = caps[int(skill)].get(int(entry), 0)
-                    caps[int(skill)][int(entry)] = max(known, line_cap[1])
+    for entry, spell, _, skill, _, _ in trainable_rows(trainer_lines):
+        for taught in teaches.get(spell, ()):
+            line_cap = rank_of.get(taught)
+            if line_cap and line_cap[0] == skill:
+                caps[skill][entry] = max(caps[skill].get(entry, 0), line_cap[1])
     if not caps:
         raise ValueError("No profession trainers resolved; leaving existing output untouched")
     return caps

@@ -381,7 +381,7 @@ function SkillUpForever_OnAddonCompartmentClick()
 end
 
 -- Blizzard_Professions may already be loaded (another addon opened it), in which
--- case the continuation runs at once — so register it only after our own files
+-- case the continuation runs at once, so register it only after our own files
 -- and SavedVariables are in place.
 EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- /reload doesn't re-read the .toc, so files added by an update stay unloaded.

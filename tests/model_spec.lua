@@ -349,7 +349,6 @@ do
 		CreateFrame = function()
 			return frame
 		end,
-		hooksecurefunc = function() end,
 		C_TradeSkillUI = {
 			GetRecipeSchematic = function(recipeID)
 				return live[recipeID]

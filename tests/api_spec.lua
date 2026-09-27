@@ -34,7 +34,6 @@ local env = setmetatable({
 		GetItemNameByID = function(id)
 			return items[id]
 		end,
-		RequestLoadItemDataByID = function() end,
 	},
 	C_TradeSkillUI = {
 		OpenTradeSkill = function(id)
@@ -42,9 +41,6 @@ local env = setmetatable({
 			return true
 		end,
 	},
-	UnitLevel = function()
-		return 20
-	end,
 	-- The client's GlobalStrings the rank names come from.
 	APPRENTICE = "Apprentice",
 	JOURNEYMAN = "Journeyman",

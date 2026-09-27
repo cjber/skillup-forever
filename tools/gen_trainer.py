@@ -2,9 +2,7 @@
 """Generate bundled profession trainer fees and rank training for the pinned Forever client (stdlib only)."""
 
 import argparse
-import csv
 import gzip
-import io
 import re
 import sys
 import urllib.error
@@ -12,7 +10,7 @@ import urllib.request
 from collections import Counter, defaultdict
 
 from gen_recipes import put_unique, threshold_ids
-from gen_thresholds import BUILD, CACHE, ROOT, download
+from gen_thresholds import BUILD, CACHE, ROOT, db2
 
 OUTPUT = ROOT / "Data" / "Trainer.lua"
 CLASSICDB_COMMIT = "22b51464f1625f6ef6275771de1f5466c6f5d19e"
@@ -47,20 +45,8 @@ def classicdb(refresh=False, offline=False):
 
 
 def teach_effects(refresh=False, offline=False):
-    content = download(
-        f"https://wago.tools/db2/SpellEffect/csv?build={TEACH_BUILD}",
-        f"SpellEffect-{TEACH_BUILD}.csv",
-        refresh,
-        offline,
-    )
-    rows = list(csv.DictReader(io.StringIO(content)))
-    if (
-        not rows
-        or not {"SpellID", "DifficultyID", "Effect", "EffectTriggerSpell", "EffectBasePoints", "EffectMiscValue_0"}
-        <= rows[0].keys()
-    ):
-        raise ValueError(f"SpellEffect {TEACH_BUILD}: empty or missing columns")
-    return rows
+    columns = ("SpellID", "DifficultyID", "Effect", "EffectTriggerSpell", "EffectBasePoints", "EffectMiscValue_0")
+    return db2("SpellEffect", columns, refresh, offline, build=TEACH_BUILD)
 
 
 def spell_maps(effect_rows):
@@ -78,22 +64,29 @@ def spell_maps(effect_rows):
     return teaches, rank_of
 
 
-def generate(ids, trainer_lines, effect_rows):
-    teaches, rank_of = spell_maps(effect_rows)
-    # Specialisation-gated rows (condition, required ability) can't be assumed
-    # trainable; a recipe offered without a gate anywhere is.
-    fees = defaultdict(Counter)
-    ranks = defaultdict(Counter)
+def trainable_rows(trainer_lines):
+    """(entry, spell, cost, skill, required, level) of each profession npc_trainer row.
+
+    Specialisation-gated rows (condition, required ability) can't be assumed
+    trainable; a recipe offered without a gate anywhere is.
+    """
     for line in trainer_lines:
         for match in ROW.finditer(line):
-            _, spell, cost, skill, required, level, ability, _, _, condition = match.groups()
-            if int(skill) not in PROFESSION_SKILLS or ability != "NULL" or condition != "0":
-                continue
-            for taught in teaches.get(int(spell), ()):
-                if taught in ids:
-                    fees[taught][(int(cost), int(required))] += 1
-                if rank_of.get(taught, (None,))[0] == int(skill):
-                    ranks[int(skill)][(rank_of[taught][1], int(cost), int(required), int(level))] += 1
+            entry, spell, cost, skill, required, level, ability, _, _, condition = match.groups()
+            if int(skill) in PROFESSION_SKILLS and ability == "NULL" and condition == "0":
+                yield int(entry), int(spell), int(cost), int(skill), int(required), int(level)
+
+
+def generate(ids, trainer_lines, effect_rows):
+    teaches, rank_of = spell_maps(effect_rows)
+    fees = defaultdict(Counter)
+    ranks = defaultdict(Counter)
+    for _, spell, cost, skill, required, level in trainable_rows(trainer_lines):
+        for taught in teaches.get(spell, ()):
+            if taught in ids:
+                fees[taught][(cost, required)] += 1
+            if rank_of.get(taught, (None,))[0] == skill:
+                ranks[skill][(rank_of[taught][1], cost, required, level)] += 1
     if not fees:
         raise ValueError("No trainer fees resolved; leaving existing output untouched")
     # Duplicate trainers almost always agree; take the most common (fee, skill), cheaper on a tie.

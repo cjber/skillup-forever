@@ -29,7 +29,7 @@ read_globals = { "CreateFramePoolCollection", "C_XMLUtil",
 	"HandleModifiedItemClick", "IsShiftKeyDown", "CreateScrollBoxLinearView",
 	"GetTrainerTradeskillRankValues", "C_SpellBook", "issecretvalue", "Item", "NORMAL_FONT_COLOR",
 	"TooltipDataProcessor", "UnitName", "BuyMerchantItem", "GetMerchantItemMaxStack", "MerchantFrame", "MenuUtil", "Mixin", "ObjectiveTrackerFrame", "ObjectiveTrackerManager", "OBJECTIVE_TRACKER_COLOR", "OBJECTIVE_DASH_STYLE_HIDE",
-	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator", "tContains", "ForeverTrackerHost",
+	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator", "tContains",
 	"ShortestPathForever", "InCombatLockdown", "GetLocale", "C_AddOns",
 	"APPRENTICE", "JOURNEYMAN", "EXPERT", "ARTISAN", "DEFAULT", "OFF", "TOTAL", "ITEM_MIN_SKILL",
 }

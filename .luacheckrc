@@ -3,7 +3,7 @@ max_line_length = 120
 exclude_files = { "tools/.cache/**", ".release/**", ".types/**", "types/**", ".claude/**" }
 ignore = { "212/_.*" } -- unused args prefixed with _
 
-globals = {
+globals = { "ForeverTrackerHost",
 	"SkillUpForeverDB",
 	"SkillUpForever",
 	"SkillUpForever_OnAddonCompartmentClick",
@@ -12,7 +12,7 @@ globals = {
 	"SlashCmdList",
 }
 
-read_globals = {
+read_globals = { "CreateFramePoolCollection", "C_XMLUtil",
 	"C_TradeSkillUI", "CreateColor", "CreateFrame", "CreateTreeDataProvider", "ScrollBoxConstants", "strcmputf8i", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
 	"GameTooltip", "GameTooltip_AddColoredLine", "GameTooltip_AddDisabledLine", "GameTooltip_InsertFrame",
 	"GameTooltip_SetTitle", "hooksecurefunc", "Professions", "ProfessionsFrame", "ScrollUtil",

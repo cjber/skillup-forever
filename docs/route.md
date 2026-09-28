@@ -57,7 +57,7 @@ With *Reagents you gather are free* on (the default), anything another of your p
 
 ### Track
 
-*Track* puts the list in the objective tracker above your quests, like `12/20 Linen Cloth`, kept up to date as you buy, craft and skill up.
+*Track* puts the list in the objective tracker beside your quests, like `12/20 Linen Cloth`, kept up to date as you buy, craft and skill up.
 
 - Click the training line or a vendor reagent's line for a waypoint to the nearest trainer or vendor. Hover it to see who and where.
 - Its header menu crafts the next step while that profession is open, and sets a waypoint to a trainer or to a vendor for a missing reagent.

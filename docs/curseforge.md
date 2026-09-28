@@ -18,7 +18,7 @@ The route tab from 48 to 73: what to train, what to craft and where each reagent
 
 ![The objective tracker with the route's next training step and missing reagents](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png)
 
-Track it and the route sits above your quests.
+Track it and the route sits beside your quests.
 
 ![A Leatherworking trainer's recipes with skill-up chance, cost and a green arrow on the one to train next](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/trainer.png)
 
@@ -33,7 +33,7 @@ Hover a reagent anywhere to see how much your routes need.
 - **Recipe rows and tooltips** show skill-up chance and cost, such as `62% · 45s`, plus orange, yellow, green and grey thresholds and a breakdown of reagent prices. Required skill is optional on rows.
 - **Sorting** by required skill, skill-up chance or cheapest skill-up puts recipes in one list, learned first. *Default* restores categories; the game's filters still apply.
 - **Levelling route** plans crafts towards your target skill, including worthwhile trainer recipes and rank training fees. Craft the next step from the panel. If the route stops short, see recipes from vendors, quests and drops that could extend it. Set waypoints to trainers and suppliers, with Shortest Path Forever and TomTom support.
-- **Shopping list** counts reagents against your bags and bank. Track it above your quests, buy missing supplies at a vendor, or send missing auction reagents to an Auctionator shopping list. Syndicator can show what your other characters hold.
+- **Shopping list** counts reagents against your bags and bank. Track it beside your quests, buy missing supplies at a vendor, or send missing auction reagents to an Auctionator shopping list. Syndicator can show what your other characters hold.
 - **Profession trainer** shows skill-up chance and cost beside recipes and puts a green arrow on the best one to train next for your route, fee included.
 - **Reagent tooltips** show what tracked routes need. Hold Shift for every recipe of your professions that uses the item and still skills up, or choose that view in settings.
 

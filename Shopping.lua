@@ -214,7 +214,7 @@ end
 
 ---@return boolean
 function ns.TrackerAttached()
-	return module ~= nil and ObjectiveTrackerManager:GetContainerForModule(module) ~= nil
+	return module ~= nil and ns.TrackerHost ~= nil and ns.TrackerHost.IsAttached(module)
 end
 
 function ns.RefreshTracker()
@@ -384,13 +384,11 @@ local function Attach()
 	if not module then
 		return
 	end
-	if ObjectiveTrackerManager:GetContainerForModule(module) ~= ObjectiveTrackerFrame then
-		ObjectiveTrackerManager:SetModuleContainer(module, ObjectiveTrackerFrame)
-	end
+	ns.TrackerHost.Attach(module)
 end
 
 local function CreateModule()
-	if not (ObjectiveTrackerManager and ObjectiveTrackerFrame) then
+	if not ns.TrackerHost then
 		ns.Print(L["the objective tracker isn't available, so tracked reagents can't be shown."])
 		return
 	end
@@ -399,8 +397,7 @@ local function CreateModule()
 	module = created
 	Mixin(module, ModuleMixin)
 	module:SetHeader(ModuleMixin.headerText)
-	-- Above every Blizzard section (quests start at 1), so quests filling the tracker
-	-- can't push it out of sight.
+	-- The private host shares this ordering with the other Forever addons.
 	module.uiOrder = -2
 	EventUtil.ContinueAfterAllEvents(function()
 		C_Timer.After(0, Attach)

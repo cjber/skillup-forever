@@ -2,6 +2,7 @@
 
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
+---@field TrackerHost ForeverTrackerHostAPI
 ---@field Print fun(msg: string)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field SkillContext fun(): SkillUpContext?

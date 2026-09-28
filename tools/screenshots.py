@@ -481,6 +481,7 @@ env = setmetatable({
 		end,
 	},
 	EventUtil = {
+		ContinueAfterAllEvents = function(fn) fn() end,
 		ContinueOnAddOnLoaded = function(name, fn)
 			loaded[name] = fn
 		end,
@@ -636,7 +637,7 @@ env = setmetatable({
 	-- The frames the addon hooks: anything it touches is a recording stub.
 	ProfessionsFrame = Stub(),
 	ClassTrainerFrame = Stub(),
-	ObjectiveTrackerManager = Stub(),
+	ObjectiveTrackerManager = setmetatable({}, { __index = function() error("native tracker manager accessed") end }),
 	ObjectiveTrackerFrame = Stub(),
 	UIParent = Stub(),
 	GameTooltip = Stub(),
@@ -654,7 +655,11 @@ env = setmetatable({
 	end,
 })
 
-local ns = {}
+-- This renderer exercises Shopping.LayoutContents; native ownership is covered by tracker_host_spec.
+local ns = { TrackerHost = {
+	Attach = function(module) module.parentContainer = {} end,
+	IsAttached = function(module) return module.parentContainer ~= nil end,
+} }
 for _, file in ipairs(FILES) do
 	setfenv(assert(loadfile(file)), env)(ADDON, ns)
 end
@@ -1560,7 +1565,7 @@ def tracker_scene(ui, scene_data):
                 text = f"|cff{round(r * 255):02x}{round(g * 255):02x}{round(b * 255):02x}{text}|r"
             lines.append((text, line["dash"]))
         blocks.append(TrackerBlock(expand(ui, block["header"]), lines))
-    canvas, _ = objective_tracker(ui, [TrackerModule(tracker["header"], blocks)])
+    canvas, _ = objective_tracker(ui, [TrackerModule(tracker["header"], blocks)], container=False)
     return scene(ui, [(canvas, 0, 0)])
 
 

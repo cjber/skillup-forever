@@ -29,6 +29,7 @@ Sources.lua
 List.lua
 Route.lua
 Shopping.xml
+TrackerHost.lua
 Shopping.lua
 Trainer.lua
 API.lua

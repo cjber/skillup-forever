@@ -11,6 +11,11 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.6.5] - 2026-09-28
+
+- **Separate addon tracking from Blizzard’s layout.** Addon sections now use their own frame pools and sit beside the quest tracker, avoiding the shared tracker registration implicated in Edit Mode aura errors.
+- **Check the client integration in CI.** Regression checks run against pinned Forever tracker source and reject native tracker registration.
+
 ## [0.6.4] - 2026-09-27
 
 - **Recipe sorting and shopping tracking use native callbacks and load events.** They no longer hook Blizzard object methods; lifecycle regressions and release checks guard these integrations.

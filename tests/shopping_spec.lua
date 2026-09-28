@@ -8,18 +8,12 @@ end
 local BANDAGE, HEAVY, SILK = 1, 2, 3
 local module
 local afterEvents, deferred, attached
-local nativeReady = false
 local env = setmetatable({
-	ObjectiveTrackerManager = {
-		SetModuleContainer = function(_, owner, container)
-			if nativeReady then
-				attached = { owner, container }
-			end
+	ObjectiveTrackerManager = setmetatable({}, {
+		__index = function()
+			error("native tracker accessed")
 		end,
-		GetContainerForModule = function()
-			return attached and attached[2]
-		end,
-	},
+	}),
 	ObjectiveTrackerFrame = {},
 	OBJECTIVE_TRACKER_COLOR = { Complete = "complete" },
 	CreateFrame = function(_, name)
@@ -66,6 +60,14 @@ local env = setmetatable({
 }, { __index = _G })
 
 local ns = {
+	TrackerHost = {
+		Attach = function(owner)
+			attached = { owner }
+		end,
+		IsAttached = function(owner)
+			return attached and attached[1] == owner
+		end,
+	},
 	db = { trainer = {}, routeTargets = {}, trackedProfessions = { [129] = true } },
 	RecipeData = {},
 	TrainerFees = { [HEAVY] = { 100, 60 } },
@@ -80,10 +82,9 @@ for _, file in ipairs({ "Locales/enUS.lua", "Model.lua", "Route.lua", "Shopping.
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
 ns.InitShopping()
-equal(attached, nil, "early load waits for native tracker")
+equal(attached[1], module, "attaches to private host immediately")
 afterEvents()
-equal(attached, nil, "waits until native event callbacks finish")
-nativeReady = true
+equal(attached[1], module, "native initialization cannot change private ownership")
 deferred()
 equal(attached[1], module, "attaches our module after native initialization")
 -- Shopping.lua's own, which read the client.

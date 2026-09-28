@@ -222,6 +222,12 @@ C_Trainer = {}
 ---@field LayoutBlock fun(self: SkillUpTrackerModule, block: SkillUpTrackerBlock): boolean
 ---@type Frame
 ObjectiveTrackerFrame = nil
+
+---@class ForeverTrackerHostAPI
+---@field Attach fun(module: Frame)
+---@field IsAttached fun(module: Frame?): boolean
+---@type ForeverTrackerHostAPI?
+ForeverTrackerHost = nil
 ObjectiveTrackerManager = {}
 ---@param module SkillUpTrackerModule
 ---@param container Frame

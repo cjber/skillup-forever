@@ -78,6 +78,7 @@ local ns = {
 	NearestTrainer = function() end,
 	NearestVendor = function() end,
 }
+env.ForeverTrackerHost = ns.TrackerHost
 for _, file in ipairs({ "Locales/enUS.lua", "Model.lua", "Route.lua", "Shopping.lua" }) do
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end

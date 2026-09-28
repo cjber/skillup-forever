@@ -214,7 +214,7 @@ end
 
 ---@return boolean
 function ns.TrackerAttached()
-	return module ~= nil and ObjectiveTrackerManager:GetContainerForModule(module) ~= nil
+	return module ~= nil and ForeverTrackerHost ~= nil and ForeverTrackerHost.IsAttached(module)
 end
 
 function ns.RefreshTracker()
@@ -388,9 +388,7 @@ local function Attach()
 		ForeverTrackerHost.Attach(module)
 		return
 	end
-	if ObjectiveTrackerManager:GetContainerForModule(module) ~= ObjectiveTrackerFrame then
-		ObjectiveTrackerManager:SetModuleContainer(module, ObjectiveTrackerFrame)
-	end
+	-- The shared private host is optional; stay inert until it loads.
 end
 
 local function CreateModule()

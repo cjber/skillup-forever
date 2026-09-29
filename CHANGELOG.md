@@ -11,6 +11,10 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.6.6] - 2026-09-29
+
+- **Keep one tracker column.** Addon sections stack above the quest tracker regardless of which companion addon loads first, while keeping their frame pools separate from Blizzard's tracker.
+
 ## [0.6.5] - 2026-09-28
 
 - **Separate addon tracking from Blizzard’s layout.** Addon sections now use their own frame pools and sit beside the quest tracker, avoiding the shared tracker registration implicated in Edit Mode aura errors.

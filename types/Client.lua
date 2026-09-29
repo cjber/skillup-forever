@@ -16,6 +16,11 @@ MenuResponse = {}
 ---@type {ContinueOnAddOnLoaded: fun(name: string, callback: fun()), ContinueAfterAllEvents: fun(callback: function, ...: string)}
 EventUtil = {}
 
+---@class EditModeManagerFrame : Frame
+---@field IsEditModeActive fun(self: EditModeManagerFrame): boolean
+---@type EditModeManagerFrame?
+EditModeManagerFrame = nil
+
 -- GlobalStrings the client defines from its GlobalStrings DB2 in the player's language
 -- (enUS values from wago.tools, Forever build 1.60.1.70009).
 APPRENTICE = "Apprentice"

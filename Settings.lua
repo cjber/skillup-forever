@@ -32,18 +32,47 @@ end
 
 -- options: { value, label } pairs, in menu order.
 ---@param target SkillUpCategory
-local function Dropdown(target, key, name, options, tooltip)
+local function Choice(target, key, name, options, tooltip)
 	local setting = Register(target, key, Settings.VarType.String, name)
-	Settings.RegisterInitializer(
-		target,
-		Settings.CreateDropdownInitializer(setting, function()
-			local container = Settings.CreateControlTextContainer()
-			for _, option in ipairs(options) do
-				container:Add(option[1], option[2])
+	local function Index(value)
+		for index, option in ipairs(options) do
+			if option[1] == value then
+				return index
 			end
-			return container:GetData()
-		end, tooltip)
+		end
+		return 1
+	end
+	-- Forever's native settings dropdown enters the menu VM assertion seen in Error_2908.
+	-- A discrete stock slider avoids menus; the string setting remains the saved-value owner.
+	local variable = "SkillUpForever_" .. key .. "_choice"
+	local proxy = Settings.RegisterProxySetting(
+		target,
+		variable,
+		Settings.VarType.Number,
+		name,
+		Index(ns.DEFAULTS[key]),
+		function()
+			return Index(ns.db[key] or ns.DEFAULTS[key])
+		end,
+		function(value)
+			local option = options[value]
+			if option then
+				Settings.SetValue("SkillUpForever_" .. key, option[1])
+			end
+		end
 	)
+	setting:SetValueChangedCallback(function()
+		Settings.NotifyUpdate(variable)
+		ns.PricesChanged()
+		ns.RefreshRecipeList()
+		ns.RefreshTrainer()
+		ns.RefreshRouteTab()
+	end)
+	local slider = Settings.CreateSliderOptions(1, #options, 1)
+	slider:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+		return options[value][2]
+	end)
+	Settings.RegisterInitializer(target, Settings.CreateSliderInitializer(proxy, slider, tooltip))
 end
 
 -- A phrase is one key however long, so its line may run past the limit.
@@ -96,7 +125,7 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Prices"], function(rows)
-		Dropdown(
+		Choice(
 			rows,
 			"craftValue",
 			L["Count what crafts sell for"],
@@ -129,7 +158,7 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Tooltips and sorting"], function(rows)
-		Dropdown(
+		Choice(
 			rows,
 			"reagentTooltip",
 			L["Reagent tooltips"],
@@ -137,7 +166,7 @@ function ns.RegisterSettings()
 			L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."]
 		)
 
-		Dropdown(
+		Choice(
 			rows,
 			"sortMode",
 			L["Sort recipes"],

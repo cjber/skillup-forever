@@ -4,7 +4,7 @@
 -- Blizzard's secure attribute delegate. A row inserted from addon code (Settings.CreateCheckbox/CreateDropdown
 -- or layout:AddInitializer, which insert from the caller) taints the settings search, and a restricted button
 -- in its results (Social's Discord Sign In) is then blocked and blamed on this addon.
-local registered = {}
+local registered, settings, notified = {}, {}, {}
 
 local function Tainted()
 	error("addon code inserted a row into a settings layout; use Settings.RegisterInitializer")
@@ -42,8 +42,11 @@ local env = setmetatable({
 			assert(parent == category, "a subpage belongs to the addon's category")
 			return Category(name, parent), { AddInitializer = Tainted }
 		end,
-		RegisterAddOnSetting = function(target, variable, key, _, varType, name, default)
-			return {
+		RegisterAddOnSetting = function(target, variable, key, db, varType, name, default)
+			if db[key] == nil then
+				db[key] = default
+			end
+			local setting = {
 				target = target,
 				variable = variable,
 				key = key,
@@ -54,6 +57,39 @@ local env = setmetatable({
 					self.changed = callback
 				end,
 			}
+			setting.GetValue = function()
+				return db[key]
+			end
+			setting.SetValue = function(_, value)
+				db[key] = value
+				if setting.changed then
+					setting.changed()
+				end
+			end
+			settings[variable] = setting
+			return setting
+		end,
+		RegisterProxySetting = function(target, variable, varType, name, default, get, set)
+			local setting = {
+				target = target,
+				variable = variable,
+				key = variable:match("SkillUpForever_(.*)_choice"),
+				varType = varType,
+				name = name,
+				default = default,
+				GetValue = get,
+				SetValue = function(_, value)
+					set(value)
+				end,
+			}
+			settings[variable] = setting
+			return setting
+		end,
+		SetValue = function(variable, value)
+			settings[variable]:SetValue(value)
+		end,
+		NotifyUpdate = function(variable)
+			notified[#notified + 1] = variable
 		end,
 		CreateCheckbox = Tainted,
 		CreateDropdown = Tainted,
@@ -61,9 +97,23 @@ local env = setmetatable({
 			assert(setting.varType == "boolean" and options == nil)
 			return Initializer("checkbox", setting, tooltip)
 		end,
-		CreateDropdownInitializer = function(setting, options, tooltip)
-			assert(setting.varType == "string" and options)
-			local initializer = Initializer("dropdown", setting, tooltip)
+		CreateDropdownInitializer = function()
+			error("native settings menus crash in AcquireMenu")
+		end,
+		CreateSliderOptions = function(minimum, maximum, step)
+			return {
+				minimum = minimum,
+				maximum = maximum,
+				step = step,
+				SetLabelFormatter = function(self, label, formatter)
+					self.label = label
+					self.formatter = formatter
+				end,
+			}
+		end,
+		CreateSliderInitializer = function(setting, options, tooltip)
+			assert(setting.varType == "number" and options.step == 1)
+			local initializer = Initializer("slider", setting, tooltip)
 			initializer.options = options
 			return initializer
 		end,
@@ -89,6 +139,7 @@ local env = setmetatable({
 			opened = id
 		end,
 	},
+	MinimalSliderWithSteppersMixin = { Label = { Right = 2 } },
 	CreateSettingsButtonInitializer = function(name, buttonText, onClick, tooltip, addSearchTags)
 		assert(addSearchTags == false, "index buttons stay out of search")
 		return { kind = "button", name = name, buttonText = buttonText, onClick = onClick, tooltip = tooltip }
@@ -102,13 +153,9 @@ end
 local ns = {
 	TITLE = "SkillUp Forever",
 	db = {},
-	DEFAULTS = setmetatable({}, {
-		__index = function(_, key)
-			return "default:" .. key
-		end,
-	}),
-	REAGENT_TOOLTIP_OPTIONS = { { "route", "Route" } },
-	SORT_OPTIONS = { { "default", "Default" } },
+	DEFAULTS = { craftValue = "vendor", reagentTooltip = "route", sortMode = "default", showRowText = true },
+	REAGENT_TOOLTIP_OPTIONS = { { "off", "Off" }, { "route", "Route" }, { "full", "Every recipe" } },
+	SORT_OPTIONS = { { "default", "Default" }, { "skill", "Skill" }, { "chance", "Chance" }, { "cost", "Cost" } },
 	CRAFT_VALUE_OPTIONS = { { "none", "None" }, { "vendor", "Vendor" }, { "auction", "Auction" } },
 	PricesChanged = Refresh,
 	RefreshRecipeList = Refresh,
@@ -152,9 +199,9 @@ end
 -- Every subpage's rows, then the index's button to it, in the order the groups appear.
 local groups = {
 	{ "Recipe rows", "checkbox:showRowText checkbox:showSkill checkbox:showTooltip checkbox:showCost" },
-	{ "Prices", "dropdown:craftValue checkbox:gatherFree" },
+	{ "Prices", "slider:craftValue checkbox:gatherFree" },
 	{ "Route and trainer", "checkbox:showRouteTab checkbox:showTrainer" },
-	{ "Tooltips and sorting", "dropdown:reagentTooltip dropdown:sortMode" },
+	{ "Tooltips and sorting", "slider:reagentTooltip slider:sortMode" },
 	{ "Addon", "checkbox:companionHints checkbox:whatsNew" },
 }
 local kinds, expected = {}, {}
@@ -188,12 +235,33 @@ end
 local craftValue = Row("craftValue")
 assert(craftValue.category.name == "Prices")
 assert(
-	craftValue.initializer.setting.variable == "SkillUpForever_craftValue"
-		and craftValue.initializer.setting.default == "default:craftValue"
+	craftValue.initializer.setting.variable == "SkillUpForever_craftValue_choice"
+		and craftValue.initializer.setting.default == 2
 )
-assert(craftValue.initializer.options()[3].value == "auction" and craftValue.initializer.tooltip:find("5%% cut"))
-assert(Row("sortMode").initializer.options()[1].text == "Default")
+assert(craftValue.initializer.options.formatter(3) == "Auction" and craftValue.initializer.tooltip:find("5%% cut"))
+assert(Row("sortMode").initializer.options.formatter(1) == "Default")
 assert(Row("showRowText").initializer.tooltip:find("Skill%-up chance"))
 Row("showRowText").initializer.setting.changed()
 assert(refreshed == 4, "a change refreshes prices, the recipe list, the trainer and the route tab")
-print("settings: ok")
+for _, key in ipairs({ "craftValue", "sortMode", "reagentTooltip" }) do
+	local row = Row(key)
+	local options = ns[({
+		craftValue = "CRAFT_VALUE_OPTIONS",
+		sortMode = "SORT_OPTIONS",
+		reagentTooltip = "REAGENT_TOOLTIP_OPTIONS",
+	})[key]]
+	assert(row.initializer.setting:GetValue() == row.initializer.setting.default, "saved default restored")
+	for index, option in ipairs(options) do
+		local before = refreshed
+		row.initializer.setting:SetValue(index)
+		assert(ns.db[key] == option[1], "slider writes the original saved string")
+		assert(row.initializer.options.formatter(index) == option[2], "slider labels every choice")
+		assert(refreshed == before + 4, "one choice refreshes each surface once")
+		assert(notified[#notified] == "SkillUpForever_" .. key .. "_choice", "canonical change notifies visible proxy")
+	end
+	row.initializer.setting:SetValue(0)
+	assert(ns.db[key] == options[#options][1], "invalid slider position leaves value unchanged")
+end
+ns.SetSortMode("skill")
+assert(Row("sortMode").initializer.setting:GetValue() == 2, "recipe list sorting updates settings slider")
+print("settings: menu-free choices, saved values, defaults, labels, callbacks and external sorting: ok")

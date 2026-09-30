@@ -273,6 +273,30 @@ function Settings.RegisterVerticalLayoutSubcategory(parent, name) end
 ---@param default SkillUpSettingValue
 ---@return SkillUpSetting
 function Settings.RegisterAddOnSetting(category, variable, key, db, varType, name, default) end
+---@param category SkillUpCategory
+---@param variable string
+---@param varType string
+---@param name string
+---@param default number
+---@param getValue fun(): number
+---@param setValue fun(value: number)
+---@return SkillUpSetting
+function Settings.RegisterProxySetting(category, variable, varType, name, default, getValue, setValue) end
+---@param variable string
+function Settings.NotifyUpdate(variable) end
+---@class SkillUpSliderOptions
+---@field SetLabelFormatter fun(self: SkillUpSliderOptions, labelType: number, formatter: fun(value: number): string)
+---@param minValue number
+---@param maxValue number
+---@param step number
+---@return SkillUpSliderOptions
+function Settings.CreateSliderOptions(minValue, maxValue, step) end
+---@param setting SkillUpSetting
+---@param options SkillUpSliderOptions
+---@param tooltip string
+---@return SkillUpSettingInitializer
+function Settings.CreateSliderInitializer(setting, options, tooltip) end
+MinimalSliderWithSteppersMixin = { Label = { Right = 2 } }
 ---@class SkillUpSettingInitializer
 ---@param setting SkillUpSetting
 ---@param options nil

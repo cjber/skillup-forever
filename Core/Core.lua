@@ -44,8 +44,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 }
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
-ns.WHATS_NEW =
-	L["Settings are grouped into short pages, with menu-free choices and tracker sections that stay apart in combat."]
+ns.WHATS_NEW = L["Turn off Attach to quest tracker in Settings to drag all Forever sections together."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -101,6 +100,14 @@ local function LoadDB()
 	end
 	SkillUpForeverDB = loaded
 	ns.db = loaded
+end
+
+---@return ForeverTrackerSettings
+function ns.TrackerHostSettings()
+	if type(ns.db.trackerHost) ~= "table" then
+		ns.db.trackerHost = { attached = true }
+	end
+	return ns.db.trackerHost
 end
 
 -- One chat line after an update, never on a first install. A dev checkout's version is

@@ -73,7 +73,7 @@ local env = setmetatable({
 			local setting = {
 				target = target,
 				variable = variable,
-				key = variable:match("SkillUpForever_(.*)_choice"),
+				key = variable:match("SkillUpForever_(.*)_choice") or variable:match("SkillUpForever_(.*)"),
 				varType = varType,
 				name = name,
 				default = default,
@@ -139,7 +139,21 @@ local refreshed = 0
 local function Refresh()
 	refreshed = refreshed + 1
 end
+local trackerState = { attached = true }
+local attachmentChanged
 local ns = {
+	TrackerHost = {
+		GetSettings = function()
+			return trackerState
+		end,
+		SetAttached = function(value)
+			trackerState.attached = value
+			attachmentChanged()
+		end,
+		OnAttachmentChanged = function(callback)
+			attachmentChanged = callback
+		end,
+	},
 	TITLE = "SkillUp Forever",
 	db = {},
 	DEFAULTS = { craftValue = "vendor", reagentTooltip = "route", sortMode = "default", showRowText = true },
@@ -189,7 +203,7 @@ end
 local groups = {
 	{ "Recipe rows", "checkbox:showRowText checkbox:showSkill checkbox:showTooltip checkbox:showCost" },
 	{ "Prices", "slider:craftValue checkbox:gatherFree" },
-	{ "Route and trainer", "checkbox:showRouteTab checkbox:showTrainer" },
+	{ "Route and trainer", "checkbox:trackerAttached checkbox:showRouteTab checkbox:showTrainer" },
 	{ "Tooltips and sorting", "slider:reagentTooltip slider:sortMode" },
 	{ "Addon", "checkbox:companionHints checkbox:whatsNew" },
 }
@@ -254,3 +268,12 @@ end
 ns.SetSortMode("skill")
 assert(Row("sortMode").initializer.setting:GetValue() == 2, "recipe list sorting updates settings slider")
 print("settings: menu-free choices, saved values, defaults, labels, callbacks and external sorting: ok")
+
+local attachment = settings.SkillUpForever_trackerAttached
+assert(attachment:GetValue() == true, "tracker starts attached")
+attachment:SetValue(false)
+assert(attachment:GetValue() == false, "toggle detaches shared host")
+assert(notified[#notified] == "SkillUpForever_trackerAttached", "attachment change refreshes shared proxy")
+trackerState.attached = true
+attachmentChanged()
+assert(attachment:GetValue() == true, "another addon reattaches the same host")

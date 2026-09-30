@@ -229,6 +229,11 @@ C_Trainer = {}
 ObjectiveTrackerFrame = nil
 
 ---@class ForeverTrackerHostAPI
+---@field GetSettings fun(): ForeverTrackerSettings
+---@field IsAttachedToQuestTracker fun(): boolean
+---@field SetAttached fun(attached: boolean)
+---@field OnAttachmentChanged fun(callback: fun(attached: boolean))
+---@field SavePosition fun(x: number, y: number)
 ---@field Attach fun(module: Frame)
 ---@field IsAttached fun(module: Frame?): boolean
 ---@type ForeverTrackerHostAPI?
@@ -277,9 +282,9 @@ function Settings.RegisterAddOnSetting(category, variable, key, db, varType, nam
 ---@param variable string
 ---@param varType string
 ---@param name string
----@param default number
----@param getValue fun(): number
----@param setValue fun(value: number)
+---@param default number|boolean
+---@param getValue fun(): number|boolean
+---@param setValue fun(value: number|boolean)
 ---@return SkillUpSetting
 function Settings.RegisterProxySetting(category, variable, varType, name, default, getValue, setValue) end
 ---@param variable string
@@ -350,3 +355,13 @@ function GetTrainerTradeskillRankValues() end
 ---@param callback function
 ---@param ... string
 function EventUtil.ContinueAfterAllEvents(callback, ...) end
+
+---@class ForeverTrackerSettings
+---@field attached boolean
+---@field x? number
+---@field y? number
+
+---@class ForeverTrackerNamespace
+---@field TrackerHost? ForeverTrackerHostAPI
+---@field TrackerHostSettings? fun(): ForeverTrackerSettings
+---@field L table<string, string>

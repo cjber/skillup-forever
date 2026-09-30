@@ -142,6 +142,35 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Route and trainer"], function(rows)
+		local host = ns.TrackerHost
+		if host and host.GetSettings and host.SetAttached and host.OnAttachmentChanged then
+			local variable = "SkillUpForever_trackerAttached"
+			local setting = Settings.RegisterProxySetting(
+				rows,
+				variable,
+				Settings.VarType.Boolean,
+				L["Attach to quest tracker"],
+				true,
+				function()
+					return host.GetSettings().attached
+				end,
+				function(value)
+					host.SetAttached(value == true)
+				end
+			)
+			Settings.RegisterInitializer(
+				rows,
+				Settings.CreateCheckboxInitializer(
+					setting,
+					nil,
+					L["Turn this off to drag the shared Forever tracker anywhere on screen."]
+				)
+			)
+			host.OnAttachmentChanged(function()
+				Settings.NotifyUpdate(variable)
+			end)
+		end
+
 		Checkbox(
 			rows,
 			"showRouteTab",

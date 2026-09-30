@@ -37,7 +37,6 @@ def runtime_files(root):
         root / "Integrations",
         root / "Locales",
         root / "UI",
-        root / "Transport",
     ):
         for path in folder.rglob("*.lua") if folder != root else root.glob("*.lua"):
             if path.resolve() not in files:

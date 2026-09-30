@@ -7,7 +7,7 @@ are fetched from wago.tools once and cached under ~/.cache/wowmock/<build>/.
 
 Every number drawn comes from this repository: thresholds, reagents, sell prices, vendor prices and
 what each gathering profession covers from Data/*.lua. The window, tooltip and demo push them through a
-line-for-line port of Model.lua and the formatting in Core.lua / Tooltip.lua; the route, tracker,
+line-for-line port of Core/Model.lua and the formatting in Core/Core.lua / UI/Tooltip.lua; the route, tracker,
 trainer and reagent scenes run the addon's own Lua under luajit (lua_scene) and only draw its output.
 Only the scene's state (professions, skill, bags, auction prices) is chosen here.
 """
@@ -122,7 +122,7 @@ def load_data():
 
 NS = load_data()
 
-# ------------------------------------------------------------------------------------ Model.lua port
+# ------------------------------------------------------------------------------------ Core/Model.lua port
 
 
 def model_color(t, skill):
@@ -182,7 +182,7 @@ def round_money(copper):
 
 # ------------------------------------------------------------------------------------------- scene state
 
-COLORS = {  # Core.lua ns.COLORS: the client's GlobalColor rows it names
+COLORS = {  # Core/Core.lua ns.COLORS: the client's GlobalColor rows it names
     "red": (1, 32 / 255, 32 / 255),  # RED_FONT_COLOR
     "orange": (1, 128 / 255, 64 / 255),  # DIFFICULT_DIFFICULTY_COLOR
     "yellow": (1, 1, 0),  # FAIR_DIFFICULTY_COLOR
@@ -210,8 +210,9 @@ SKILL_LINE_NAMES = {line: name for name, _, _, _, line in PROFESSIONS}
 
 
 def price(item_id):
-    """Prices.lua ns.Price with gatherFree on: free when one of the character's professions gathers it, else
-    vendor (when it's no dearer than the auction house), else auction."""
+    """Integrations/Prices.lua ns.Price with gatherFree on: free when one of the
+    character's professions gathers it, else vendor (when it's no dearer than
+    the auction house), else auction."""
     profession = SKILL_LINE_NAMES.get(NS["GatheredBy"].get(item_id))
     if profession:
         return {"copper": 0, "source": "gather", "profession": profession}
@@ -233,7 +234,7 @@ def reagents(recipe_id):
 
 
 def craft_value(recipe_id):
-    """Prices.lua ns.CraftValue with craftValue "vendor": the value, and whether it is missing only because
+    """Integrations/Prices.lua ns.CraftValue with craftValue "vendor": the value, and whether it is missing only because
     the sell price isn't known."""
     output = NS["RecipeData"][recipe_id]["output"]
     if not output:
@@ -250,7 +251,7 @@ def recipe_cost(recipe_id):
 
 
 def describe(recipe_id, learned=True):
-    """Core.lua ns.Describe at SKILL. The live difficulty agrees with the thresholds (the audit's check)."""
+    """Core/Core.lua ns.Describe at SKILL. The live difficulty agrees with the thresholds (the audit's check)."""
     t = NS["Thresholds"].get(recipe_id)
     cost = recipe_cost(recipe_id)
     value, unpriced = craft_value(recipe_id) if cost is not None else (None, False)
@@ -315,18 +316,18 @@ local FILES = {
 	"Data/Recipes.lua",
 	"Data/Trainer.lua",
 	"Data/Sources.lua",
-	"Model.lua",
-	"Core.lua",
-	"Prices.lua",
-	"Settings.lua",
-	"Tooltip.lua",
-	"RecipeList.lua",
-	"Sources.lua",
-	"List.lua",
-	"Route.lua",
-	"Shopping.lua",
-	"Trainer.lua",
-	"API.lua",
+	"Core/Model.lua",
+	"Core/Core.lua",
+	"Integrations/Prices.lua",
+	"UI/Settings.lua",
+	"UI/Tooltip.lua",
+	"UI/RecipeList.lua",
+	"Integrations/Sources.lua",
+	"UI/List.lua",
+	"UI/Route.lua",
+	"UI/Shopping.lua",
+	"Integrations/Trainer.lua",
+	"Core/API.lua",
 }
 
 local function Color(r, g, b)
@@ -447,7 +448,7 @@ end
 
 local env
 env = setmetatable({
-	-- Colours as Blizzard defines them (Core.lua's ns.COLORS takes the difficulty ones).
+	-- Colours as Blizzard defines them (Core/Core.lua's ns.COLORS takes the difficulty ones).
 	RED_FONT_COLOR = Color(1, 32 / 255, 32 / 255),
 	DIFFICULT_DIFFICULTY_COLOR = Color(1, 128 / 255, 64 / 255),
 	FAIR_DIFFICULTY_COLOR = Color(1, 1, 0),
@@ -925,8 +926,9 @@ def addon_atlases(ui):
     """{name: {width, height}} for every atlas the addon's Lua names, as C_Texture.GetAtlasInfo gives them."""
     names = set(ui.table("UiTextureAtlasElement", key="Name"))
     literals = set()
-    for path in REPO.glob("*.lua"):
-        literals.update(re.findall(r'"([A-Za-z][\w-]*)"', path.read_text(encoding="utf-8")))
+    for folder in ("Core", "Integrations", "UI"):
+        for path in (REPO / folder).glob("*.lua"):
+            literals.update(re.findall(r'"([A-Za-z][\w-]*)"', path.read_text(encoding="utf-8")))
     return {name: {"width": ui.atlas(name).width, "height": ui.atlas(name).height} for name in sorted(literals & names)}
 
 
@@ -1029,12 +1031,12 @@ COIN_HEIGHT = 12
 
 
 def money(copper):
-    """Tooltip.lua Money: GetCoinTextureString of the rounded amount."""
+    """UI/Tooltip.lua Money: GetCoinTextureString of the rounded amount."""
     return coin_texture_string(math.floor(copper + 0.5), COIN_HEIGHT)
 
 
 def format_row(d):
-    """Core.lua ns.FormatRow with the default settings (showSkill off, showCost on)."""
+    """Core/Core.lua ns.FormatRow with the default settings (showSkill off, showCost on)."""
     if not d["thresholds"]:
         return "?"
     if d["chance"] is None:
@@ -1047,14 +1049,14 @@ def format_row(d):
 
 
 def source_text(p):
-    """Tooltip.lua ns.PriceSourceText, for an Auctionator price seen today."""
+    """UI/Tooltip.lua ns.PriceSourceText, for an Auctionator price seen today."""
     if p["source"] == "gather":
         return f"you gather it ({p['profession']})"
     return "vendor" if p["source"] == "vendor" else "Auctionator, today"
 
 
 def recipe_tooltip_lines(ui, recipe_id):
-    """Tooltip.lua ShowRecipeTooltip + AddCost for a learned recipe at SKILL. Returns the lines and the index
+    """UI/Tooltip.lua ShowRecipeTooltip + AddCost for a learned recipe at SKILL. Returns the lines and the index
     of the first blank line GameTooltip_InsertFrame added for the bar."""
     d = describe(recipe_id)
     t = d["thresholds"]
@@ -1094,7 +1096,7 @@ def recipe_tooltip_lines(ui, recipe_id):
     return lines, bar_line
 
 
-BAR_WIDTH, BAR_HEIGHT, MIN_LABEL_GAP = 250, 12, 18  # Tooltip.lua
+BAR_WIDTH, BAR_HEIGHT, MIN_LABEL_GAP = 250, 12, 18  # UI/Tooltip.lua
 BAR_FRAME_HEIGHT = BAR_HEIGHT + 30
 BAR_PADDING = 4  # GameTooltip_InsertFrame(tooltip, bar, 4)
 
@@ -1106,7 +1108,7 @@ def bar_blank_lines():
 
 
 def skill_bar(ui, t, skill):
-    """Tooltip.lua CreateBar + LayoutBar: the rank-bar art at tooltip size, the difficulty bands, threshold
+    """UI/Tooltip.lua CreateBar + LayoutBar: the rank-bar art at tooltip size, the difficulty bands, threshold
     labels and the pip at the player's skill. Returns a canvas with the frame's TOPLEFT at (m, m)."""
     m = 8
     canvas = ui.canvas(BAR_WIDTH + 2 * m, BAR_FRAME_HEIGHT + 2 * m)
@@ -1665,7 +1667,7 @@ def trainer_scene(ui, scene_data):
 
 
 def reagent_tooltip(ui, scene_data):
-    """Light Leather's item tooltip with what Tooltip.lua's post-call adds (route mode, Shift up)."""
+    """Light Leather's item tooltip with what UI/Tooltip.lua's post-call adds (route mode, Shift up)."""
     item = ui.item(TOOLTIP_ITEM)
     lines = [TooltipLine(item.name, QUALITY_TEXT[item.quality]), TooltipLine("Sell Price:", money=item.sell_price)]
     for line in scene_data["reagent"]:

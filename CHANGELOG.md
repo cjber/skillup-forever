@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Keep the source easy to audit.** Core logic, integrations and UI now live in matching folders; the shipped load order and player-facing behaviour are unchanged.
+
 ## [0.6.7] - 2026-09-30
 
 - **Development disclosure.** This release was developed with AI assistance. Changes were reviewed and checked with automated tests, linting and type checks; live verification remains ongoing.

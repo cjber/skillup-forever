@@ -72,7 +72,7 @@ local env = setmetatable({
 	end,
 }, { __index = _G })
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
-setfenv(assert(loadfile("Sources.lua")), env)("SkillUpForever", ns)
+setfenv(assert(loadfile("Integrations/Sources.lua")), env)("SkillUpForever", ns)
 
 ---@param accepts boolean?
 local function Run(accepts)

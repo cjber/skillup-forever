@@ -30,7 +30,14 @@ def runtime_files(root):
             if line and not line.startswith("#"):
                 visit(toc.parent / line.replace("\\", "/"))
     # These directories contain shipped runtime Lua in this addon family, never checker fixtures.
-    for folder in (root, root / "Data", root / "Locales", root / "UI", root / "Transport"):
+    for folder in (
+        root,
+        root / "Core",
+        root / "Data",
+        root / "Integrations",
+        root / "Locales",
+        root / "UI",
+    ):
         for path in folder.rglob("*.lua") if folder != root else root.glob("*.lua"):
             if path.resolve() not in files:
                 raise ValueError(f"Runtime Lua is not loaded by a TOC/XML: {path.relative_to(root)}")

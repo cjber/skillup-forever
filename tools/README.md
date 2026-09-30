@@ -102,7 +102,7 @@ recipe variants. Name matching is a trainer fallback; other client locales need 
 verified spell ID. Counts, omissions and file size print on each generation.
 
 Runtime consumers filter `RecipeData[recipeID].skillLine` by the skill line
-`ns.ProfessionSkillLine` (Core.lua) resolves from the open profession's name.
+`ns.ProfessionSkillLine` (Core/Core.lua) resolves from the open profession's name.
 These are parent skill-line IDs: First Aid 129, Blacksmithing 164, Leatherworking
 165, Alchemy 171, Herbalism 182, Cooking 185, Mining 186, Tailoring 197, Engineering
 202, Enchanting 333, Fishing 356 and Skinning 393; expansion child lines 2937–2948
@@ -128,7 +128,7 @@ cjber/skills checkout, found at `~/.claude/skills/wow-mock-screenshots` by
 default; set `WOWMOCK` to another directory that holds it. Art and fonts come
 from wago.tools for the pinned Forever build and are cached under
 `~/.cache/wowmock/`. Every number drawn comes from `Data/*.lua` through a port
-of `Model.lua`, or (route, tracker, trainer and reagent scenes) from the addon's own Lua run
+of `Core/Model.lua`, or (route, tracker, trainer and reagent scenes) from the addon's own Lua run
 under `luajit` with the client stubbed; only the scene's state (skill, bags, auction prices) is chosen
 in the script. Repeated runs are byte-identical. `SCALE` (default 2) sets the
 render scale.

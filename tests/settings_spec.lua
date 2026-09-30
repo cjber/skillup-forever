@@ -1,4 +1,5 @@
 -- Run from the repository root: luajit tests/settings_spec.lua
+-- Options → AddOns → SkillUp Forever is an index page (one button per group) over a stock subpage each.
 -- Settings rows must reach their layout only through Settings.RegisterInitializer, which inserts them from
 -- Blizzard's secure attribute delegate. A row inserted from addon code (Settings.CreateCheckbox/CreateDropdown
 -- or layout:AddInitializer, which insert from the caller) taints the settings search, and a restricted button
@@ -9,24 +10,41 @@ local function Tainted()
 	error("addon code inserted a row into a settings layout; use Settings.RegisterInitializer")
 end
 
-local category = {
-	GetID = function()
-		return 1
-	end,
-}
+local categories = 0
+local function Category(name, parent)
+	categories = categories + 1
+	local id = categories
+	return {
+		name = name,
+		parent = parent,
+		GetID = function()
+			return id
+		end,
+	}
+end
+
+local category
 
 local function Initializer(kind, setting, tooltip)
 	return { kind = kind, setting = setting, tooltip = tooltip }
 end
 
+local opened, addOnCategory
+
 local env = setmetatable({
 	Settings = {
 		VarType = { Boolean = "boolean", String = "string", Number = "number" },
-		RegisterVerticalLayoutCategory = function()
+		RegisterVerticalLayoutCategory = function(name)
+			category = Category(name)
 			return category, { AddInitializer = Tainted }
 		end,
-		RegisterAddOnSetting = function(_, variable, key, _, varType, name, default)
+		RegisterVerticalLayoutSubcategory = function(parent, name)
+			assert(parent == category, "a subpage belongs to the addon's category")
+			return Category(name, parent), { AddInitializer = Tainted }
+		end,
+		RegisterAddOnSetting = function(target, variable, key, _, varType, name, default)
 			return {
+				target = target,
 				variable = variable,
 				key = key,
 				varType = varType,
@@ -61,13 +79,20 @@ local env = setmetatable({
 			}
 		end,
 		RegisterInitializer = function(target, initializer)
-			assert(target == category)
-			registered[#registered + 1] = initializer
+			registered[#registered + 1] = { category = target, initializer = initializer }
 		end,
 		RegisterAddOnCategory = function(target)
-			assert(target == category)
+			assert(target == category and target.parent == nil, "the addon registers its own category")
+			addOnCategory = target
+		end,
+		OpenToCategory = function(id)
+			opened = id
 		end,
 	},
+	CreateSettingsButtonInitializer = function(name, buttonText, onClick, tooltip, addSearchTags)
+		assert(addSearchTags == false, "index buttons stay out of search")
+		return { kind = "button", name = name, buttonText = buttonText, onClick = onClick, tooltip = tooltip }
+	end,
 }, { __index = _G })
 
 local refreshed = 0
@@ -94,22 +119,81 @@ assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 setfenv(assert(loadfile("Settings.lua")), env)("SkillUpForever", ns)
 ns.RegisterSettings()
 
-local rows = {}
-for index, initializer in ipairs(registered) do
-	rows[index] = initializer.kind .. ":" .. initializer.setting.key
+---@param key string
+local function Row(key)
+	for _, entry in ipairs(registered) do
+		if entry.initializer.setting and entry.initializer.setting.key == key then
+			return entry
+		end
+	end
+	error("no setting row registered for " .. key)
 end
-local expected = "checkbox:showRowText checkbox:showSkill checkbox:showTooltip checkbox:showCost "
-	.. "dropdown:craftValue checkbox:gatherFree checkbox:showRouteTab "
-	.. "checkbox:showTrainer dropdown:reagentTooltip dropdown:sortMode checkbox:companionHints checkbox:whatsNew"
-assert(table.concat(rows, " ") == expected, table.concat(rows, " "))
 
-local craftValue = registered[5]
+---@param name string
+local function Button(name)
+	for _, entry in ipairs(registered) do
+		if entry.initializer.kind == "button" and entry.initializer.name == name then
+			return entry
+		end
+	end
+	error("no index button registered for " .. name)
+end
+
+---@param name string
+local function Subpage(name)
+	for _, entry in ipairs(registered) do
+		if entry.initializer.setting and entry.category.name == name then
+			return entry.category
+		end
+	end
+	error("no subpage registered for " .. name)
+end
+
+-- Every subpage's rows, then the index's button to it, in the order the groups appear.
+local groups = {
+	{ "Recipe rows", "checkbox:showRowText checkbox:showSkill checkbox:showTooltip checkbox:showCost" },
+	{ "Prices", "dropdown:craftValue checkbox:gatherFree" },
+	{ "Route and trainer", "checkbox:showRouteTab checkbox:showTrainer" },
+	{ "Tooltips and sorting", "dropdown:reagentTooltip dropdown:sortMode" },
+	{ "Addon", "checkbox:companionHints checkbox:whatsNew" },
+}
+local kinds, expected = {}, {}
+for _, group in ipairs(groups) do
+	local name, rows = group[1], group[2]
+	for kind in rows:gmatch("%S+") do
+		expected[#expected + 1] = kind .. "@" .. name
+	end
+	expected[#expected + 1] = "button@" .. addOnCategory.name
+	local button = Button(name)
+	assert(button.category == addOnCategory, name .. "'s index row is on the category itself")
+	button.initializer.onClick()
+	assert(opened == Subpage(name):GetID(), name .. "'s button opens its subpage")
+end
+for _, entry in ipairs(registered) do
+	local kind = entry.initializer.kind
+	if entry.initializer.setting then
+		kind = kind .. ":" .. entry.initializer.setting.key
+	end
+	kinds[#kinds + 1] = kind .. "@" .. entry.category.name
+end
+assert(table.concat(kinds, " ") == table.concat(expected, " "), table.concat(kinds, " "))
+
+-- A row sits on the subpage named for its group, never the index category.
+for _, entry in ipairs(registered) do
+	if entry.initializer.setting then
+		assert(entry.category.parent == addOnCategory, entry.initializer.setting.key .. " is not on the index category")
+	end
+end
+
+local craftValue = Row("craftValue")
+assert(craftValue.category.name == "Prices")
 assert(
-	craftValue.setting.variable == "SkillUpForever_craftValue" and craftValue.setting.default == "default:craftValue"
+	craftValue.initializer.setting.variable == "SkillUpForever_craftValue"
+		and craftValue.initializer.setting.default == "default:craftValue"
 )
-assert(craftValue.options()[3].value == "auction" and craftValue.tooltip:find("5%% cut"))
-assert(registered[10].options()[1].text == "Default")
-assert(registered[1].tooltip:find("Skill%-up chance"))
-registered[1].setting.changed()
+assert(craftValue.initializer.options()[3].value == "auction" and craftValue.initializer.tooltip:find("5%% cut"))
+assert(Row("sortMode").initializer.options()[1].text == "Default")
+assert(Row("showRowText").initializer.tooltip:find("Skill%-up chance"))
+Row("showRowText").initializer.setting.changed()
 assert(refreshed == 4, "a change refreshes prices, the recipe list, the trainer and the route tab")
 print("settings: ok")

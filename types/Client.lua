@@ -260,6 +260,10 @@ Settings.VarType = { Boolean = "boolean", String = "string", Number = "number" }
 ---@param name string
 ---@return SkillUpCategory
 function Settings.RegisterVerticalLayoutCategory(name) end
+---@param parent SkillUpCategory
+---@param name string
+---@return SkillUpCategory
+function Settings.RegisterVerticalLayoutSubcategory(parent, name) end
 ---@param category SkillUpCategory
 ---@param variable string
 ---@param key string
@@ -292,6 +296,13 @@ function Settings.RegisterAddOnCategory(category) end
 function Settings.SetValue(variable, value) end
 ---@param categoryID number
 function Settings.OpenToCategory(categoryID) end
+---@param name string
+---@param buttonText string
+---@param onClick fun()
+---@param tooltip string?
+---@param addSearchTags boolean?
+---@return SkillUpSettingInitializer
+function CreateSettingsButtonInitializer(name, buttonText, onClick, tooltip, addSearchTags) end
 
 -- Professions decorates native recipe/profession records before dispatching callbacks.
 ---@class SkillUpProfessionInfo : ProfessionInfo

@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Settings are grouped into subpages.** *Recipe rows*, *Prices*, *Route and trainer*, *Tooltips and sorting* and *Addon* each open from a short index, so no single page runs long. Every setting, key, default and tooltip is unchanged.
+
 ## [0.6.6] - 2026-09-29
 
 - **Keep one tracker column.** Addon sections stack above the quest tracker regardless of which companion addon loads first, while keeping their frame pools separate from Blizzard's tracker.

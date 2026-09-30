@@ -91,6 +91,9 @@ All optional: Auctionator supplies auction prices and takes the shopping list, T
 
 ## Development
 
+Developed with AI assistance; changes are reviewed and checked with automated tests, linting and type checks.
+
+
 Link the checkout into the game (`ln -s "$PWD" ".../Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands) ([tools/README.md](tools/README.md) covers the data generators). CI runs the same gate plus actionlint, zizmor, gitleaks and sift; a daily job opens a pull request on a newer Forever build.
 
 **Releasing:** move `[Unreleased]` notes in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, set `ns.WHATS_NEW` in `Core.lua` to the headline, then `git tag -s vX.Y.Z && git push --tags`. The [BigWigs packager](https://github.com/BigWigsMods/packager) builds and uploads the zip to GitHub, CurseForge and Wago, with the `tools/changelog.py` entry as notes.

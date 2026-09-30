@@ -13,6 +13,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [0.6.7] - 2026-09-30
 
+- **Development disclosure.** This release was developed with AI assistance. Changes were reviewed and checked with automated tests, linting and type checks; live verification remains ongoing.
+
 - **Settings are grouped into subpages.** *Recipe rows*, *Prices*, *Route and trainer*, *Tooltips and sorting* and *Addon* each open from a short index, so no single page runs long. Saved choices, defaults and tooltips are kept.
 
 - **Choose settings without opening a menu.** Craft prices, reagent tooltips and recipe sorting use labelled sliders, avoiding the native dropdown path implicated in a Forever client crash. Your saved choices and recipe-list sorting stay in sync.

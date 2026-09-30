@@ -11,9 +11,9 @@ import urllib.request
 from collections import Counter, defaultdict
 from pathlib import Path
 
-BUILD = "1.60.1.70009"
+BUILD = "1.60.1.70124"
 # Date this source snapshot was selected, not the date of each regeneration.
-SOURCE_DATE = "2026-09-25"
+SOURCE_DATE = "2026-09-30"
 # SpellEffect.Effect codes the generators read.
 DUMMY = 3
 TELEPORT_UNITS = 5

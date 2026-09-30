@@ -63,21 +63,26 @@ required skill and level. Ranks that come from books or quests are absent.
 `gen_sources.py` writes `Data/Sources.lua`: for each recipe taught by a scroll, where
 the scroll comes from, from the same classic-db dump. Scroll items (`item_template`
 class 9) map to recipes through Classic Era's LEARN_SPELL effects, as trainer spells
-do. Vendors come from `npc_vendor` and vendor templates (limited when every vendor
-stocks it in limited supply), the three likeliest creature drops from
-`creature_loot_template` (following `reference_loot_template`), world drops (scrolls
-more than 100 creatures drop, or only reference tables no creature reaches), and quest
-rewards from `quest_template`. Each NPC keeps its name, faction (`FactionTemplate`)
-and one world spawn (an NPC whose faction Forever's `FactionTemplate` lacks is left
-out and reported, never guessed as usable by both); the client turns that into a zone and map position, so the
-generator needs no zone boundaries. Dungeon spawns carry the instance name from `Map`.
+do. A scroll's sources are vendors from `npc_vendor` and vendor templates (each vendor
+with a positive `maxcount` is marked limited for that item), the three likeliest
+creature drops from `creature_loot_template` (following `reference_loot_template`),
+world drops (scrolls more than 100 creatures drop, or only reference tables no
+creature reaches), and quest rewards from `quest_template`.
+
+Each NPC keeps its name, faction (`FactionTemplate`) and one world spawn (an NPC whose
+faction Forever's `FactionTemplate` lacks is left out and reported, never guessed as
+usable by both); the client turns that into a zone and map position, so the generator
+needs no zone boundaries. Missing creature templates or spawns are also left out and reported.
+Dungeon spawns carry the instance name from `Map`.
+
 It also writes each profession's trainers with the highest rank they teach (their
 `npc_trainer` rank spells), and the vendors that always stock each vendor reagent in
-`Data/Vendor.lua`, for waypoints to the nearest one. `ns.GatheredBy` maps reagents to
-the gathering profession that yields them at least 10% of the time: herb and mining
-nodes (`gameobject_template` chests whose `Lock` needs the skill) and
-`skinning_loot_template`, with reference loot expanded. Rarer finds (gems in veins)
-are left out.
+`Data/Vendor.lua`, for waypoints to the nearest one.
+
+`ns.GatheredBy` maps reagents to the gathering profession that yields them at least
+10% of the time: herb and mining nodes (`gameobject_template` chests whose `Lock`
+needs the skill) and `skinning_loot_template`, with reference loot expanded. Rarer
+finds (gems in veins) are left out.
 
 The recipe generator joins `SkillLineAbility` to `SpellReagents` and base-difficulty
 `SpellEffect` rows. Reagents are sorted by item ID and repeated slots combined.

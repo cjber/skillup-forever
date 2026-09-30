@@ -153,8 +153,17 @@ local function MerchantPurchases()
 		local itemID = GetMerchantItemID(index)
 		local info = C_MerchantFrame.GetItemInfo(index)
 		local count = itemID and missing[itemID]
-		if count and count > 0 and info and info.price and info.price > 0 and not info.hasExtendedCost then
-			local stack = math.max(info.stackCount or 1, 1)
+		if
+			count
+			and count > 0
+			and info
+			and info.price
+			and info.price > 0
+			and info.stackCount
+			and info.stackCount > 0
+			and not info.hasExtendedCost
+		then
+			local stack = info.stackCount
 			count = math.ceil(count / stack) * stack
 			if info.numAvailable and info.numAvailable >= 0 then
 				count = math.min(count, info.numAvailable * stack)

@@ -52,6 +52,7 @@ end
 ---@param itemID integer
 ---@return number?
 ---@return number?
+---@return boolean?
 local function AuctionatorPrice(itemID)
 	local api = AuctionatorAPI()
 	if not api then
@@ -62,15 +63,15 @@ local function AuctionatorPrice(itemID)
 		return nil
 	end
 	local okAge, days = pcall(api.GetAuctionAgeByItemID, addonName, itemID)
-	return copper, okAge and type(days) == "number" and days or nil
+	return copper, okAge and type(days) == "number" and days or nil, not okAge
 end
 
 -- Auction prices come only from Auctionator: { copper, source, days }.
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function AuctionPrice(itemID)
-	local copper, days = AuctionatorPrice(itemID)
-	return copper and { copper = copper, source = "auctionator", days = days }
+	local copper, days, ageUnavailable = AuctionatorPrice(itemID)
+	return copper and { copper = copper, source = "auctionator", days = days, ageUnavailable = ageUnavailable }
 end
 
 -- With the setting on, what another of your professions gathers costs nothing.

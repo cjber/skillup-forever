@@ -117,17 +117,6 @@ local env = setmetatable({
 			initializer.options = options
 			return initializer
 		end,
-		CreateControlTextContainer = function()
-			local data = {}
-			return {
-				Add = function(_, value, text)
-					data[#data + 1] = { value = value, text = text }
-				end,
-				GetData = function()
-					return data
-				end,
-			}
-		end,
 		RegisterInitializer = function(target, initializer)
 			registered[#registered + 1] = { category = target, initializer = initializer }
 		end,

@@ -165,6 +165,7 @@ L["sorting failed and has been turned off: %s"] = "sorting failed and has been t
 L["the objective tracker isn't available, so tracked reagents can't be shown."] = "the objective tracker isn't available, so tracked reagents can't be shown."
 L["today"] = "today"
 L["tracked, but the objective tracker section isn't attached; please report it."] = "tracked, but the objective tracker section isn't attached; please report it."
+L["unknown age"] = "unknown age"
 L["unknown location"] = "unknown location"
 L["updated to %s. %s"] = "updated to %s. %s"
 L["vendor"] = "vendor"

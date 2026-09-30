@@ -86,8 +86,15 @@ ns.InitShopping()
 equal(attached[1], module, "attaches to private host immediately")
 afterEvents()
 equal(attached[1], module, "native initialization cannot change private ownership")
+env.ForeverTrackerHost = nil
+attached = nil
 deferred()
-equal(attached[1], module, "attaches our module after native initialization")
+equal(attached, nil, "missing private host remains inert")
+env.ForeverTrackerHost = ns.TrackerHost
+afterEvents()
+equal(attached, nil, "late host waits for the deferred callback")
+deferred()
+equal(attached[1], module, "deferred callback attaches after late host publication")
 -- Shopping.lua's own, which read the client.
 ns.Have = function()
 	return 0
@@ -161,5 +168,80 @@ equal(
 	"These reagents have no vendor price. Auction prices need Auctionator.",
 	"with the route page's reason"
 )
+
+-- Exercise the actual merchant button and purchase callback, including missing stack data.
+local merchant, purchased, merchantButton = {}, {}, nil
+module.MarkDirty = function() end
+ns.TrackedNeeds = function()
+	return { { items = { { itemID = SILK, need = 7 } } } }
+end
+env.MerchantFrame = {
+	IsShown = function()
+		return true
+	end,
+}
+env.GetMerchantNumItems = function()
+	return #merchant
+end
+env.GetMerchantItemID = function(index)
+	return merchant[index].itemID
+end
+env.C_MerchantFrame = {
+	GetItemInfo = function(index)
+		return merchant[index]
+	end,
+}
+env.C_CurrencyInfo = {
+	GetCoinTextureString = function(cost)
+		return tostring(cost)
+	end,
+}
+env.GetMoney = function()
+	return 10000
+end
+env.GetMerchantItemMaxStack = function()
+	return 20
+end
+env.BuyMerchantItem = function(index, count)
+	purchased[#purchased + 1] = { index, count }
+end
+env.CreateFrame = function()
+	merchantButton = {
+		scripts = {},
+		shown = false,
+		SetScript = function(self, name, callback)
+			self.scripts[name] = callback
+		end,
+		SetPoint = function() end,
+		SetSize = function() end,
+		SetText = function(self, value)
+			self.text = value
+		end,
+		GetTextWidth = function()
+			return 100
+		end,
+		Show = function(self)
+			self.shown = true
+		end,
+		Hide = function(self)
+			self.shown = false
+		end,
+	}
+	return merchantButton
+end
+merchant = { { itemID = SILK, price = 100, stackCount = 5 } }
+ns.RefreshTracker()
+equal(merchantButton.shown, true, "known merchant stack enables purchasing")
+equal(merchantButton.text, "Buy tracked reagents  200", "purchase price accounts for whole stacks")
+merchantButton.scripts.OnClick()
+equal(purchased[1][2], 10, "purchase callback buys complete stacks in units")
+for _, invalid in ipairs({ false, 0, -1 }) do
+	merchant[1].stackCount = invalid or nil
+	purchased = {}
+	ns.RefreshTracker()
+	equal(merchantButton.shown, false, "unknown or invalid stack hides purchase action")
+	merchantButton.scripts.OnClick()
+	equal(#purchased, 0, "unknown or invalid stack cannot buy invented units")
+end
 
 print("shopping_spec: " .. checks .. " checks passed")

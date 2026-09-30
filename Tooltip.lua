@@ -120,12 +120,12 @@ local DAY = 86400
 -- Seconds since an auction price was seen. Auctionator reports whole days, and
 -- nothing past three weeks.
 ---@param price SkillUpPrice
----@return number
+---@return number?
 function ns.PriceAge(price)
 	if price.source ~= "auctionator" then
 		error("not an auction price: " .. tostring(price.source))
 	end
-	return (price.days or 22) * DAY
+	return not price.ageUnavailable and (price.days or 22) * DAY or nil
 end
 
 ---@param price SkillUpPrice
@@ -133,6 +133,8 @@ end
 function ns.PriceAgeText(price)
 	if price.source ~= "auctionator" then
 		error("not an auction price: " .. tostring(price.source))
+	elseif price.ageUnavailable then
+		return L["unknown age"]
 	elseif price.days == nil then
 		return L["over 3 weeks ago"]
 	elseif price.days == 0 then

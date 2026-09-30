@@ -2,7 +2,7 @@
 
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
----@field TrackerHost ForeverTrackerHostAPI
+---@field TrackerHost ForeverTrackerHostAPI?
 ---@field Print fun(msg: string)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field SkillContext fun(): SkillUpContext?
@@ -67,7 +67,7 @@
 ---@field AnnounceUpdate fun()
 ---@field WHATS_NEW string
 ---@field FormatNet fun(copper: number, profit: boolean): string
----@field PriceAge fun(price: SkillUpPrice): number
+---@field PriceAge fun(price: SkillUpPrice): number?
 ---@field PriceAgeText fun(price: SkillUpPrice): string
 ---@field PriceSourceText fun(price: SkillUpPrice): string
 ---@field UnpricedHint fun(): string
@@ -239,6 +239,7 @@ SkillUpForeverDB = nil
 ---@field copper number
 ---@field source SkillUpPriceSource
 ---@field days? number Auctionator ages only.
+---@field ageUnavailable? boolean Auctionator age API unavailable or failed.
 ---@field profession? string Gathered reagents only.
 
 ---@class SkillUpValue

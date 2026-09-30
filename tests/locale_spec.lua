@@ -45,7 +45,7 @@ local OPTION = '{%s*"%l+",%s*"([^"\n]*)"%s*}'
 
 -- Literals that stay English: /su audit is a data check for bug reports.
 local ALLOWED = {
-	["Core.lua"] = {
+	["Core/Core.lua"] = {
 		["open a profession first."] = true,
 		["%s at %d: %d checked, %d mismatched, %d without data."] = true,
 	},

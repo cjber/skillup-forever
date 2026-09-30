@@ -1,6 +1,6 @@
 -- Run from the repository root: luajit tests/model_spec.lua
 local ns = {}
-assert(loadfile("Model.lua"))("SkillUpForever", ns)
+assert(loadfile("Core/Model.lua"))("SkillUpForever", ns)
 local Model = ns.Model
 local checks = 0
 
@@ -373,7 +373,7 @@ do
 			},
 		},
 	}, { __index = _G })
-	setfenv(assert(loadfile("Prices.lua")), env)("SkillUpForever", runtime)
+	setfenv(assert(loadfile("Integrations/Prices.lua")), env)("SkillUpForever", runtime)
 	runtime.InitPrices()
 	equal(runtime.Reagents(10), runtime.RecipeData[10].reagents, "bundled reagent fallback")
 	equal(runtime.PriceSource(1), "vendor", "price source vendor")

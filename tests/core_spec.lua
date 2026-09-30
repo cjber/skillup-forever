@@ -44,7 +44,7 @@ for _, complete in ipairs({ false, true }) do
 	-- A save from before auction prices moved to Auctionator.
 	env.SkillUpForeverDB = { scanAuctions = true, tracked = { [1] = true }, auctions = {}, vendor = { [1] = 5 } }
 	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
-	setfenv(assert(loadfile("Core.lua")), env)("SkillUpForever", ns)
+	setfenv(assert(loadfile("Core/Core.lua")), env)("SkillUpForever", ns)
 	callbacks.SkillUpForever()
 	if complete then
 		equal(#messages, 0, "complete install needs no warning")
@@ -103,7 +103,7 @@ do
 		},
 	}, { __index = _G })
 	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
-	setfenv(assert(loadfile("Core.lua")), env)("SkillUpForever", ns)
+	setfenv(assert(loadfile("Core/Core.lua")), env)("SkillUpForever", ns)
 	ns.AnnounceUpdate()
 	equal(#messages, 0, "nothing before the saved variables load")
 	-- Forever often loads no saved variables at all (forever-bugs#34).

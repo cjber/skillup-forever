@@ -152,7 +152,7 @@ local ns = {
 	RefreshRouteTab = Refresh,
 }
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
-setfenv(assert(loadfile("Settings.lua")), env)("SkillUpForever", ns)
+setfenv(assert(loadfile("UI/Settings.lua")), env)("SkillUpForever", ns)
 ns.RegisterSettings()
 
 ---@param key string

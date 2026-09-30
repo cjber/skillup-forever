@@ -35,14 +35,14 @@ vendored `.sift/gate.py` and `.sift/agents.py`. LuaLS checks all TOC files again
 `types/`; there is no ast-grep rule set.
 
 The tests are a headless harness, not the game client. Each spec `loadfile`s one production file
-with stubbed host APIs: `model_spec` (Model.lua, Data/Thresholds.lua, Prices.lua), `prices_spec`
-(Prices.lua), `route_spec` (Route.lua's `ns.NextCraft`, `ns.PlanRoute` over the bundled data, and the
-route page drawn into stub frames), `recipelist_spec` (RecipeList.lua's native provider replacement,
-sorting and recursion), `api_spec` (API.lua over Model, Route and Shopping), `shopping_spec`
-(the objective tracker's lines over Route), `tracker_host_spec` (TrackerHost.lua's frame lifecycle and
+with stubbed host APIs: `model_spec` (Core/Model.lua, Data/Thresholds.lua, Integrations/Prices.lua), `prices_spec`
+(Integrations/Prices.lua), `route_spec` (UI/Route.lua's `ns.NextCraft`, `ns.PlanRoute` over the bundled data, and the
+route page drawn into stub frames), `recipelist_spec` (UI/RecipeList.lua's native provider replacement,
+sorting and recursion), `api_spec` (Core/API.lua over Model, Route and Shopping), `shopping_spec`
+(the objective tracker's lines over Route), `tracker_host_spec` (UI/TrackerHost.lua's frame lifecycle and
 combat placement, plus the pinned Forever tracker source when `TRACKER_UI_ROOT` is set),
-`core_spec` (Core.lua's init guard, SavedVariables migration and what's-new notice),
-`settings_spec` (Settings.lua), `waypoint_spec` (Sources.lua's waypoints and Shortest Path Forever
+`core_spec` (Core/Core.lua's init guard, SavedVariables migration and what's-new notice),
+`settings_spec` (UI/Settings.lua), `waypoint_spec` (Integrations/Sources.lua's waypoints and Shortest Path Forever
 travel) and `locale_spec` (enUS phrases, `Locales/phrases.txt`, no packager keywords). Everything else
 (UI hooks, menus, tooltips, in-game rendering, the trainer) is only verified in game. The
 in-game check for data is `/su audit` with a profession open.
@@ -68,14 +68,14 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 
 - `SkillUpForever.toc` file list — loads every top-level `.lua` and `Data/*.lua`; nothing `require`s them.
 - `ns.*` — the shared addon table; a function defined in one file is typically called from another. Search all files for `ns.Name`, not the local file.
-- `## SavedVariables: SkillUpForeverDB` — persisted per account; keys in `Core.lua` `DEFAULTS` and anything read from `SkillUpForeverDB` may hold data written by older versions.
+- `## SavedVariables: SkillUpForeverDB` — persisted per account; keys in `Core/Core.lua` `DEFAULTS` and anything read from `SkillUpForeverDB` may hold data written by older versions.
 - `Locales/<locale>.lua` — translators' files, loaded from the TOC after `enUS.lua`; `tools/phrases.py` runs from `tests/locale_spec.lua`.
-- `SkillUpForever.API` (API.lua) — the public API other addons (Adventure Guide Forever) call; `types/API.lua` is its contract.
+- `SkillUpForever.API` (Core/API.lua) — the public API other addons (Adventure Guide Forever) call; `types/API.lua` is its contract.
 - `## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick` — global called by the client by name.
 - `SLASH_SKILLUPFOREVER1/2` + `SlashCmdList.SKILLUPFOREVER` — `/su` commands.
 - `hooksecurefunc("ClassTrainerFrame_InitServiceButton" | "ClassTrainerFrame_Update", …)`, `EventUtil.ContinueAfterAllEvents` — Blizzard trainer functions hooked by string name, plus a load-sequencing callback.
 - `EventRegistry:RegisterCallback("Professions.RecipeListOnEnter")`, `Menu.ModifyMenu("MENU_PROFESSIONS_FILTER")`, `TooltipDataProcessor.AddTooltipPostCall` — host callbacks.
-- `ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)` (RecipeList.lua) and `Auctionator.API.v1.RegisterForDBUpdate(addonName, PricesChanged)` (Prices.lua `ns.InitPrices`) — callbacks the plain live-root search misses.
+- `ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)` (UI/RecipeList.lua) and `Auctionator.API.v1.RegisterForDBUpdate(addonName, PricesChanged)` (Integrations/Prices.lua `ns.InitPrices`) — callbacks the plain live-root search misses.
 - `RegisterEvent("…")` + `OnEvent` dispatch on the event string — handlers are reached by event name.
 - Optional integrations (`## OptionalDeps: Auctionator, TomTom, Syndicator, ShortestPathForever`) — code guarded by `if Auctionator` etc. is live only with that addon installed.
 - `tools/gen_*.py` public names imported by sibling generators; `tools/latest_build.py` and `tools/changelog.py` run from workflows.
@@ -106,8 +106,8 @@ How each part of the tree is reviewed. Unlisted paths are `production`.
 - New dev-only root files must be added to `.pkgmeta` `ignore:` so they don't ship in the zip. Dot paths
   never ship (the pinned packager prunes them before `ignore:`), so they need no entry.
 - Some guards and annotations exist for LuaLS, not at run time: `---@class` on a table built field by
-  field (List.lua `CreateList`) and `if not module then return end` narrowing an optional upvalue
-  (Shopping.lua `Attach`). Removing either fails `tools/typecheck.sh`.
+  field (UI/List.lua `CreateList`) and `if not module then return end` narrowing an optional upvalue
+  (UI/Shopping.lua `Attach`). Removing either fails `tools/typecheck.sh`.
 
 ## Risk order
 
@@ -115,13 +115,13 @@ Audit slices from lowest to highest risk:
 
 1. `tools/` — scripts, not shipped; output is diffable.
 2. `tests/` — harness only.
-3. `Model.lua`, `Settings.lua`, `Sources.lua`, `List.lua`, `types/` — pure maths / settings / lookups /
+3. `Core/Model.lua`, `UI/Settings.lua`, `Integrations/Sources.lua`, `UI/List.lua`, `types/` — pure maths / settings / lookups /
    the shared list widget, partly under test.
 4. `Locales/enUS.lua` — copy: every phrase a player reads. Reviewed for WFA-23/24 voice with
    `docs/curseforge.md` and the README; audits propose wording, never change it (see Conventions).
-5. `Tooltip.lua`, `RecipeList.lua`, `Trainer.lua` — UI hooks, in-game verification only.
-6. `Prices.lua`, `Core.lua` — SavedVariables, vendor prices and the Auctionator price seam; persisted data.
-7. `Route.lua`, `Shopping.lua`, `API.lua` — largest, most stateful UI (crafting, buying and tracker
+5. `UI/Tooltip.lua`, `UI/RecipeList.lua`, `Integrations/Trainer.lua` — UI hooks, in-game verification only.
+6. `Integrations/Prices.lua`, `Core/Core.lua` — SavedVariables, vendor prices and the Auctionator price seam; persisted data.
+7. `UI/Route.lua`, `UI/Shopping.lua`, `Core/API.lua` — largest, most stateful UI (crafting, buying and tracker
    integration), and the public API other addons call (`types/API.lua` is its contract).
 
 Tiers 6 and 7 get a second, independent reviewer (Codex): on 2026-09-24 it found the two route and
@@ -134,15 +134,15 @@ finding; audits add an entry when verifiers keep dismissing the same shape for t
 
 - Client-capability checks (`defensive-noise`): a guard on a host global or field (`C_TooltipInfo`,
   `issecretvalue`, `GameTooltip.RefreshData`) stays even when `types/Client.lua` annotates it; the
-  annotations never run in the client, e.g. `Tooltip.lua`, `Trainer.lua`
+  annotations never run in the client, e.g. `UI/Tooltip.lua`, `Integrations/Trainer.lua`
 - Host-mirroring annotations (`dead-code`): `types/Client.lua` members that mirror a real client table
   or a shape the host reads (`VarType.Number`, `colorStyle.reverse`) stay though the addon never names them
 - Money and name one-liners (`parallel-implementations`): signed-money text and "name or placeholder"
   lookups composed from `Model.RoundMoney`/`ns.FormatNet`/`L[...]` are a small idiom; Tooltip keeps copper
-  precision and API formats positive fees on purpose, e.g. `Route.lua` `Money`, `Core.lua` `Describe`
+  precision and API formats positive fees on purpose, e.g. `UI/Route.lua` `Money`, `Core/Core.lua` `Describe`
 - Price provenance vs shopping bucket (`stringly-typed`): `SkillUpPriceSource` (`vendor`/`auctionator`/`gather`)
   and the shopping bucket (`auction`, ...) are distinct literal-union contracts; `PriceAge` reads
-  Auctionator-only age data, so its `"auctionator"` test is not the bucket, e.g. `Route.lua` `PriceAge`
+  Auctionator-only age data, so its `"auctionator"` test is not the bucket, e.g. `UI/Route.lua` `PriceAge`
 
 ## Anti-patterns
 
@@ -152,7 +152,7 @@ Recurring judgment defects; check new code for them.
   `round_money`/`model_recipe_cost`/`price()` vs `Model.RoundMoney`/`RecipeCost`/`ns.Price`.
 - **Shopping bucket list restated**: the bucket list `gather`/`vendor`/`auction`/`unknown` enumerated
   by hand (`stringly-typed`) instead of walking `Model.SHOPPING_SOURCES`; an added bucket silently drops items.
-  `route_spec` checks every bucket gets a Source label; API.lua's `ReagentSource` maps buckets onto the public
+  `route_spec` checks every bucket gets a Source label; Core/API.lua's `ReagentSource` maps buckets onto the public
   API's own sources on purpose.
 - **Unvalidated saved setting**: a saved choice read without checking it against its options
   (`silent-fallbacks`). `LoadDB` resets `craftValue`, `sortMode` and `reagentTooltip` to their defaults when the

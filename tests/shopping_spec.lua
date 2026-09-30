@@ -79,7 +79,7 @@ local ns = {
 	NearestVendor = function() end,
 }
 env.ForeverTrackerHost = ns.TrackerHost
-for _, file in ipairs({ "Locales/enUS.lua", "Model.lua", "Route.lua", "Shopping.lua" }) do
+for _, file in ipairs({ "Locales/enUS.lua", "Core/Model.lua", "UI/Route.lua", "UI/Shopping.lua" }) do
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
 ns.InitShopping()

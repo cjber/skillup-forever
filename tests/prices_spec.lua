@@ -50,7 +50,7 @@ local env = setmetatable({
 		end,
 	},
 }, { __index = _G })
-setfenv(assert(loadfile("Prices.lua")), env)("SkillUpForever", ns)
+setfenv(assert(loadfile("Integrations/Prices.lua")), env)("SkillUpForever", ns)
 ns.InitPrices()
 
 equal(ns.Price(1).copper, 500, "an auction price comes from Auctionator")
@@ -64,7 +64,7 @@ dbUpdate()
 equal(ns.Price(1).days, nil, "Auctionator's update re-prices, and an undated age stays unknown")
 
 setfenv(assert(loadfile("Locales/enUS.lua")), env)("SkillUpForever", ns)
-setfenv(assert(loadfile("Tooltip.lua")), env)("SkillUpForever", ns)
+setfenv(assert(loadfile("UI/Tooltip.lua")), env)("SkillUpForever", ns)
 equal(ns.PriceAgeText(ns.Price(1)), "over 3 weeks ago", "successful nil age keeps Auctionator's old-price sentinel")
 equal(ns.PriceAge(ns.Price(1)), 22 * 86400, "old-price sentinel is stale")
 local ageAPI = api.GetAuctionAgeByItemID

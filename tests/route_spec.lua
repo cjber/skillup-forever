@@ -27,7 +27,7 @@ local env = setmetatable({
 	},
 }, { __index = _G })
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
-setfenv(assert(loadfile("Route.lua")), env)("SkillUpForever", ns)
+setfenv(assert(loadfile("UI/Route.lua")), env)("SkillUpForever", ns)
 ns.OpenSkillLine = function()
 	return 171
 end
@@ -74,8 +74,8 @@ for _, file in ipairs({
 	"Data/Thresholds.lua",
 	"Data/Recipes.lua",
 	"Data/Trainer.lua",
-	"Model.lua",
-	"Route.lua",
+	"Core/Model.lua",
+	"UI/Route.lua",
 }) do
 	setfenv(assert(loadfile(file)), ranks)("SkillUpForever", planned)
 end
@@ -227,8 +227,8 @@ for _, file in ipairs({
 	"Data/Thresholds.lua",
 	"Data/Recipes.lua",
 	"Data/Trainer.lua",
-	"Model.lua",
-	"Route.lua",
+	"Core/Model.lua",
+	"UI/Route.lua",
 }) do
 	setfenv(assert(loadfile(file)), pageEnv)("SkillUpForever", page)
 end

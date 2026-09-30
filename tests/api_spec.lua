@@ -66,7 +66,7 @@ local ns = {
 		return copper .. "c"
 	end,
 }
-for _, file in ipairs({ "Locales/enUS.lua", "Model.lua", "Route.lua", "Shopping.lua", "API.lua" }) do
+for _, file in ipairs({ "Locales/enUS.lua", "Core/Model.lua", "UI/Route.lua", "UI/Shopping.lua", "Core/API.lua" }) do
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
 local API = env.SkillUpForever.API

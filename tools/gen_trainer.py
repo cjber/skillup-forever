@@ -76,7 +76,7 @@ def parse_rows(line):
 def dump_tables(path, tables):
     """Each named table's rows, as {column: value} by the dump's own CREATE TABLE."""
     columns, rows, current = {}, defaultdict(list), None
-    with gzip.open(path, "rt", encoding="utf-8", errors="replace") as dump:
+    with gzip.open(path, "rt", encoding="utf-8") as dump:
         for line in dump:
             if line.startswith("CREATE TABLE"):
                 name = line.split("`")[1]

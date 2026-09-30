@@ -687,14 +687,19 @@ local function PriceAge(reagents)
 	local oldest
 	for _, item in ipairs(reagents) do
 		local price = ns.Price(item.itemID)
-		if price and price.source == "auctionator" and (not oldest or ns.PriceAge(price) > ns.PriceAge(oldest)) then
+		if
+			price
+			and price.source == "auctionator"
+			and (not oldest or (ns.PriceAge(price) or math.huge) > (ns.PriceAge(oldest) or math.huge))
+		then
 			oldest = price
 		end
 	end
 	if not oldest then
 		return "", GRAY_FONT_COLOR
 	end
-	local stale = ns.PriceAge(oldest) > STALE_AFTER
+	local age = ns.PriceAge(oldest)
+	local stale = age == nil or age > STALE_AFTER
 	local text = string.format(
 		stale and L["AH prices from %s: rescan with Auctionator"] or L["AH prices from %s"],
 		ns.PriceAgeText(oldest)

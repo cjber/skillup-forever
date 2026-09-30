@@ -6,10 +6,21 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from lint_multivalue import LuaSyntaxError, check
+from lint_multivalue import LuaSyntaxError, check, runtime_files
 
 
 class MultiValueTests(unittest.TestCase):
+    def test_xml_loaded_lua_is_checked(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "Addon.toc").write_text("scene.xml\n")
+            (root / "scene.xml").write_text('<Ui><Script file="hidden.lua"/></Ui>')
+            source = "return select(2, f())"
+            (root / "hidden.lua").write_text(source)
+            paths = runtime_files(root)
+            self.assertIn(root / "hidden.lua", paths)
+            self.assertTrue(check((root / "hidden.lua").read_text()))
+
     def test_expanding_positions(self):
         cases = [
             "f(select(2, UnitClass(u)))",

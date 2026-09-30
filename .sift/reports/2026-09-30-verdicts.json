@@ -1,0 +1,452 @@
+[
+  {
+    "id": "45d83a9746",
+    "verdict": "confirmed",
+    "reason": "RecipeSuggestions obtains kind from Kind, while KIND_TEXT and SuggestionNPC independently interpret its five numeric values; comparing all five paths found no current mismatch but no external wire contract forces these unnamed internal tags. The closed-set finding survives, and introducing named kinds is a design choice."
+  },
+  {
+    "id": "9ffd581251",
+    "verdict": "confirmed",
+    "reason": "Model.Color produces the band tags consumed by Core.Describe, Route.BandText and Tooltip.Band; grey is deliberately handled separately in Tooltip, refuting the alleged current label drift but leaving the closed band set independently restated. A shared ordered set needs a design decision."
+  },
+  {
+    "id": "c5d506490a",
+    "verdict": "confirmed",
+    "reason": "Register and Choice install the same four refresh calls, and Choice replaces the callback only to add NotifyUpdate; the Settings stub records callback replacement and callers use both checkbox and choice paths. No host constraint requires two independently maintained refresh sequences."
+  },
+  {
+    "id": "ef83f5c20e",
+    "verdict": "confirmed",
+    "reason": "Core.LoadDB validates each of the three choice keys before RegisterSettings, and the proxy setter writes only entries from its options; removing the getter default and Index fallback in a temporary copy passes LuaLS, while the getter-only in-memory mutant passes settings_spec. These guards protect no supported internal state after that validation."
+  },
+  {
+    "id": "8beca7590c",
+    "verdict": "dismissed",
+    "reason": "The existence guard is required by a supported partial load: model_spec calls Model.Get before loading Data/Thresholds.lua, and removing the guard in memory crashes at Model.lua:10 from tests/model_spec.lua:20. The defensive-noise partial-load exception applies."
+  },
+  {
+    "id": "a55f1926d6",
+    "verdict": "confirmed",
+    "reason": "The Options/AddOns hierarchy in this explanatory comment uses the copy lens's standalone U+2192 separator tell; the comment is prose about the settings location, and the store description expresses the same hierarchy with >. It is neither quoted third-party text nor an executable symbol."
+  },
+  {
+    "id": "1fc1927e2a",
+    "verdict": "dismissed",
+    "reason": "The referenced constructs still exist, so they are not dead code; their locations are inaccurate and are covered by the stale-docs finding, same producer as e28296167e. Current source inspection locates Counter at 137/138, json.load at 10 and wowmock at 935."
+  },
+  {
+    "id": "6d9fe2a391",
+    "verdict": "dismissed",
+    "reason": "The bold Levelling route lead and More link let a skimming reader find the feature immediately, and the roughly 67-word bullet describes distinct actions and fallback behaviour rather than padding. The wall-of-text length-that-carries-information exception applies; the separate explicit WFA-10 budget finding remains."
+  },
+  {
+    "id": "38730daaca",
+    "verdict": "confirmed",
+    "reason": "The README command table uses a U+2192 separator in ordinary location prose while the independently checked store Usage uses > for the same Settings/AddOns path. No documented arrow house style or quotation exception was found."
+  },
+  {
+    "id": "85ba21694b",
+    "verdict": "confirmed",
+    "reason": "Reading the complete Prices and Usage sections shows that this paragraph repeats the existing unpriced-cost and Auctionator claims; its useful additional fact is how a vendor visit supplies prices. That fact can be retained in Prices while cutting the repeated Usage explanation."
+  },
+  {
+    "id": "303d90a86c",
+    "verdict": "confirmed",
+    "reason": "The uninterrupted gen_sources reference mixes recipe sources, NPC placement, trainers, vendor reagents and GatheredBy across 18 physical prose lines; checking generate/render identifies five distinct output lookup targets. A table or separate paragraphs keyed by those targets would preserve every fact and make the reference scannable."
+  },
+  {
+    "id": "c74bd00ea0",
+    "verdict": "confirmed",
+    "reason": "The published 0.6.4 entry contains U+2019 in plain Markdown, while surrounding CHANGELOG entries use straight apostrophes; it is authored release copy rather than a third-party quotation. No documented curly-apostrophe house exception was found."
+  },
+  {
+    "id": "a854b2aa7f",
+    "verdict": "dismissed",
+    "reason": "The release bullet states checkable implementation facts: RecipeList uses OnDataProviderReassigned, Shopping/TrackerHost defer on load events, and CI runs the lifecycle and release checks. It has no three-category machine-tell cluster; preference for more player-oriented wording is a separate WFA-12 editorial concern, not proof under the submitted copy-slop lens."
+  },
+  {
+    "id": "644b82afda",
+    "verdict": "dismissed",
+    "reason": "The passage has three sentences and names repository-specific gates, ownership and event sequencing, not general competence or filler; typecheck.sh and the native-source integration substantiate them. Repeating this safety contract where the project profile summarizes evidence is informative under wall-of-text's length exception."
+  },
+  {
+    "id": "d4c4bcc892",
+    "verdict": "dismissed",
+    "reason": "The paragraph supplies concrete per-spec coverage and the limits of the headless harness, so removing it would lose useful evidence selection information not present in AGENTS.md. Its incorrect inventory is retained for correction under bcb8ad1218 rather than treated as disposable padding."
+  },
+  {
+    "id": "8a080da1f4",
+    "verdict": "confirmed",
+    "reason": "Independent execution of all eleven specs confirms that settings_spec and recipelist_spec print descriptive sentences, contradicting the profile's claimed output formats. The discrepancy is a factual documentation defect, with no test-behaviour defect implied."
+  },
+  {
+    "id": "bcb8ad1218",
+    "verdict": "confirmed",
+    "reason": "The inventory omits recipelist_spec and tracker_host_spec, and tracker_host_spec exercises frame lifecycle, combat positioning and native source instead of leaving every tracker-frame check solely to the game. Independent native-source runs passed the original 36 checks and the current 42-check root-owned spec, establishing the omitted coverage directly."
+  },
+  {
+    "id": "c98f3bc81b",
+    "verdict": "confirmed",
+    "reason": "Current full-file call-path inspection shows the claimed Professions/ScrollBox object hooks have been replaced by HookScript and RegisterCallback, and the native-hook rejection stubs pass. The surviving string hooks are the two trainer globals, so the live-root facts are stale."
+  },
+  {
+    "id": "e28296167e",
+    "verdict": "confirmed",
+    "reason": "Direct source anchoring refutes the old line references: wowmock now imports at 935, Counter is at 137/138 and latest_build json.load is at 10, while the profile still cites 883, 142/144 and 14. These are current-location facts, not missing symbols."
+  },
+  {
+    "id": "2ad4d166ec",
+    "verdict": "confirmed",
+    "reason": "The restart allegation is refuted for the missing-new-TOC-files path by the install-completeness contract and core_spec, so WFA-6 needs pack feedback rather than replacing this recovery advice. The same quoted producer does contain the separately alleged hard-coded warning tint |cffff4040, which has no WFA-4 waiver and is not the permitted mint prefix or a native colour reference."
+  },
+  {
+    "id": "a86bd8255c",
+    "verdict": "confirmed",
+    "reason": "Core defaults showSkill to false and FormatRow uses it only to add informational required-skill text, while recipes not yet makeable already show that requirement; it never performs a player action. WFA-2 expressly restricts off-by-default features to player actions, and AGENTS.md has no waiver for this option."
+  },
+  {
+    "id": "97bbf7180b",
+    "verdict": "confirmed",
+    "reason": "Removing Markdown image/link targets and HTML still leaves 1,332 whitespace-delimited prose tokens, exceeding WFA-10's under-1,200 limit independently of the reviewer's markup-inclusive count. The route bullet is roughly 67 words, and the detailed route document already exists."
+  },
+  {
+    "id": "c6ab09fe2a",
+    "verdict": "confirmed",
+    "reason": "Stripping image/link targets and HTML leaves 632 whitespace-delimited prose tokens in the complete store description, still exceeding WFA-11's under-600 requirement. check_copy passes voice/image checks but does not enforce this budget."
+  },
+  {
+    "id": "ae77d65f3a",
+    "verdict": "dismissed",
+    "reason": "The branch is reachable in a supported partial load, not dead: model_spec constructs db with craftValue but no vendor and then calls InitPrices before Price. Removing this initializer in memory fails at Prices.lua:98 from model_spec:379; same producer as 97c985eec0."
+  },
+  {
+    "id": "f810e73de3",
+    "verdict": "dismissed",
+    "reason": "Route and Tooltip intentionally differ in terminal grey presentation, but both consume the same Model.Color band domain; the repeated closed set is already retained at the source, same producer as 9ffd581251. No separate current grey-label bug was found."
+  },
+  {
+    "id": "0b5392e2fa",
+    "verdict": "dismissed",
+    "reason": "The name-or-item-ID blocks are covered by Settled Money and name one-liners; API additionally tracks pending names to invalidate its public cache, while Route/Shopping render immediately and Tooltip can show a numeric placeholder without scheduling a load. Those consumer and invalidation contracts make the differing small idioms appropriate."
+  },
+  {
+    "id": "c9e0cc858f",
+    "verdict": "confirmed",
+    "reason": "The API/Shopping planning consumers can use RouteSnapshot, PlanRoute and RouteSteps without route-page frame construction, while UI tab selection and row rendering form independently changing responsibilities. TOC ordering permits that separation but does not force it now; the earlier owner deferral is preserved as context, not a refutation."
+  },
+  {
+    "id": "1367905df0",
+    "verdict": "dismissed",
+    "reason": "The pinned native annotation explicitly declares OpenTradeSkill returns boolean opened, and API.OpenRecipes uses false to try the alternate reported/classic identifier. The assertion that a successful call has no success return is contradicted by its actual API contract and the passing open-profession test."
+  },
+  {
+    "id": "cea3c11f1e",
+    "verdict": "confirmed",
+    "reason": "With a valid auction price but missing GetAuctionAgeByItemID, the unchanged price path returns days=nil; Tooltip.PriceAgeText then says over 3 weeks ago and PriceAge returns 1,900,800 seconds. The probe distinguishes missing capability from Auctionator's intentional old-age nil sentinel, so unknown age is incorrectly presented as known stale data."
+  },
+  {
+    "id": "97c985eec0",
+    "verdict": "dismissed",
+    "reason": "The guard supports model_spec's real partial-load initialization, where db.vendor has not been created by Core.LoadDB; removing it in memory causes Price to index nil at Prices.lua:98. The defensive-noise partial-load exception applies despite the full TOC path having validated the DB."
+  },
+  {
+    "id": "13ad7d49a8",
+    "verdict": "confirmed",
+    "reason": "Prices.PriceAge converts whole days to seconds and Render uses age > 86400, so an exactly one-day-old price is not flagged although the comment says day-old. This is an inaccurate explanatory boundary, not an ordering or threshold change to make in this audit."
+  },
+  {
+    "id": "f748c1e355",
+    "verdict": "dismissed",
+    "reason": "The install-completeness fixture intentionally varies missing exported functions and load callbacks, while the version/migration fixture adds addon metadata, notices and saved DB state. These are small independent host environments for distinct failure contracts, covered by parallel-implementations' test-fixture exception."
+  },
+  {
+    "id": "334cd6055a",
+    "verdict": "dismissed",
+    "reason": "The bare assertions observe provider replacement count, sort order, recursion and unchanged native method identity; each can fail on a realistic sorting or hooking regression. The fixed success sentence does not weaken those security/behaviour assertions, so the test-plumbing contract-test exception applies."
+  },
+  {
+    "id": "3df3db9e40",
+    "verdict": "confirmed",
+    "reason": "Replacing the CreateControlTextContainer stub body with an immediate error in memory leaves every settings_spec case passing; current Choice uses a slider and neither its initializer nor tested host dispatch accesses that stub. Reachability searches across all nine local refs and the current PR found no consumer of this current fixture stub."
+  },
+  {
+    "id": "2523bd620a",
+    "verdict": "dismissed",
+    "reason": "The identical TOC subset is loaded into separate planner and page namespaces with different host APIs, state, cached closures and frame behaviour; sharing their setup could couple deliberately isolated fixtures. A short loadfile loop is a test-fixture idiom, not a duplicated production rule."
+  },
+  {
+    "id": "7e305f0752",
+    "verdict": "confirmed",
+    "reason": "Changing the real TrackerHost registration from PLAYER_ENTERING_WORLD plus VARIABLES_LOADED to WRONG_EVENT in memory still passes the original 32 checks and the current 38-check root-owned spec because the EventUtil stub discards the event list. It cannot catch this explicit secure-UI initialization regression despite testing subsequent callback deferral."
+  },
+  {
+    "id": "e48eae11ac",
+    "verdict": "confirmed",
+    "reason": "Replacing Shopping's deferred Attach callback with an empty function in memory still passes all nine checks: InitShopping has already attached and the assertion observes the same stored module. The current assertions therefore do not cover late host publication or the promised deferred attachment."
+  },
+  {
+    "id": "ceabfea3d5",
+    "verdict": "dismissed",
+    "reason": "All five entry points expose the same small argparse refresh/offline idiom, but their error paths differ: vendor lets failures surface, while the DB generators add their own error context and nonzero exits. The project Evidence table explicitly settles these preambles as small idioms, with no contract requiring one shared presentation wrapper."
+  },
+  {
+    "id": "4a4283e400",
+    "verdict": "dismissed",
+    "reason": "classicdb returns a path to a gzip archive and keeps binary bytes, while gen_thresholds.download returns decoded text and validates HTML/error content; their timeouts and downstream parsing needs also differ. A forced common text downloader cannot serve the archive contract, and the repeated atomic-cache mechanics alone are a small boundary idiom."
+  },
+  {
+    "id": "fdbba5ae95",
+    "verdict": "dismissed",
+    "reason": "The recipe-scroll join retains each seller's limited-stock status and lets template stock replace direct stock, whereas reagent_vendors collects only unlimited sellers before template expansion. The mixed-supply probe confirms per-vendor limited output; one map cannot be substituted without changing those aggregation contracts."
+  },
+  {
+    "id": "ea52be7dab",
+    "verdict": "dismissed",
+    "reason": "PROFESSION_SKILLS is the full external trainer skill-line set, REQUIRED_SKILLS names crafting thresholds, and LOCK_SKILLS maps different external Lock skill codes for only herbalism/mining; skinning has another loot source. These numeric wire identifiers and deliberately different subsets are not duplicate internal enum definitions."
+  },
+  {
+    "id": "a13e877020",
+    "verdict": "dismissed",
+    "reason": "The stages share scroll membership, NPC validity and final used-NPC pruning to produce one internally consistent data record, rather than independent unrelated outputs; the synthetic vendor fixture exercises those dependencies. Its roughly 95 lines and shallow staged loops alone do not establish an oversized-module defect."
+  },
+  {
+    "id": "0cd5e0ceb7",
+    "verdict": "confirmed",
+    "reason": "Four sibling generators import build/download/DB2/domain helpers from the thresholds CLI module, while threshold-only Skillet interpretation and rendering have independent inputs and consumers. Importing the existing module has no threshold-generation side effect, which refutes a runtime bug but does not force this mixed library/CLI ownership."
+  },
+  {
+    "id": "8bc4bcac00",
+    "verdict": "dismissed",
+    "reason": "The complete generator and its generated header use the same deliberate provenance form, and the prior owner-delegated ledger decision explicitly retained em dashes in generated headers and agent-only docs. That recorded house-style evidence satisfies copy-slop's documented-style exception; gen_vendor's semicolon does not establish a mandated common header form."
+  },
+  {
+    "id": "e24f4ca6cb",
+    "verdict": "dismissed",
+    "reason": "The complete generator and its generated header use the same deliberate provenance form, and the prior owner-delegated ledger decision explicitly retained em dashes in generated headers and agent-only docs. That recorded house-style evidence satisfies copy-slop's documented-style exception; gen_vendor's semicolon does not establish a mandated common header form."
+  },
+  {
+    "id": "c36ba40ff4",
+    "verdict": "dismissed",
+    "reason": "The complete generator and its generated header use the same deliberate provenance form, and the prior owner-delegated ledger decision explicitly retained em dashes in generated headers and agent-only docs. That recorded house-style evidence satisfies copy-slop's documented-style exception; gen_vendor's semicolon does not establish a mandated common header form."
+  },
+  {
+    "id": "50c91e0f78",
+    "verdict": "dismissed",
+    "reason": "The complete generator and its generated header use the same deliberate provenance form, and the prior owner-delegated ledger decision explicitly retained em dashes in generated headers and agent-only docs. That recorded house-style evidence satisfies copy-slop's documented-style exception; gen_vendor's semicolon does not establish a mandated common header form."
+  },
+  {
+    "id": "216a552e28",
+    "verdict": "confirmed",
+    "reason": "A real generate call with two sellers, one limited and one unlimited, emits limited={1}; Sources.Kind uses the selected NPC's membership to describe limited supply. The README's claim that limited applies only when every seller is limited contradicts both output and consumer semantics."
+  },
+  {
+    "id": "63c0ea6b3b",
+    "verdict": "dismissed",
+    "reason": "The README's one-way statement that listed items absent from the build are reported and skipped is true: main collects absent rows and prints the complete not-sold list. It also excludes present zero-BuyPrice rows, but the sentence does not claim missing rows are the only omissions or describe them as the only not-sold condition."
+  },
+  {
+    "id": "901d746928",
+    "verdict": "dismissed",
+    "reason": "The singular paragraph introduces the threshold recipe-colour source immediately after the list of generator commands, and BUILD/SOURCE_DATE are imported by all five generated output headers. Additional independently pinned classic-db, Era and LibPeriodicTable sources are described in their own paragraphs, so the actual pin contract is not contradicted."
+  },
+  {
+    "id": "a39929a00b",
+    "verdict": "dismissed",
+    "reason": "The missing/unusable optional Skillet baseline produces a stderr WARNING and uses explicitly identified DB2 orange values in generated provenance; tools README documents that baseline as optional. This satisfies the silent-fallback lens's deliberate logged and visible degradation exception rather than silently guessing an unavailable threshold."
+  },
+  {
+    "id": "baa11fefd0",
+    "verdict": "confirmed",
+    "reason": "The parser accepts invalid UTF-8 in a named table and replaces it with U+FFFD without a warning: a gzip fixture containing Name=Dÿorf returns Name=D�orf. Both trainer and sources import this boundary, so silently changed source names can reach generated identity/display data rather than a surfaced decode error."
+  },
+  {
+    "id": "8596a7c634",
+    "verdict": "confirmed",
+    "reason": "Removing the only vendor's spawn rows from otherwise valid generator inputs produces an empty sources mapping and empty factionless report, with no diagnostic for the removed known source. The caller later renders candidates only from retained sources, so the promised generation-omission reporting does not expose these losses."
+  },
+  {
+    "id": "b4f1ae7d07",
+    "verdict": "dismissed",
+    "reason": "The first checksum validates downloaded bytes before acceptance, while the read-back checksum validates the cache file actually handed to the native integration harness and also catches pre-existing corrupt cache content. These are distinct network/disk trust boundaries on a security regression dependency, covered by defensive-noise's integrity exception."
+  },
+  {
+    "id": "b5267fe9a5",
+    "verdict": "dismissed",
+    "reason": "runtime_files is a generic root/child-addon load-graph validator with real nested-addon fixture calls; the directory names extend the same orphan-file security check and create no separate strategy, factory or configuration layer. Missing UI/Transport directories yield no matches and do not weaken coverage of the current root, Data or Locales files."
+  },
+  {
+    "id": "61a2d52a6a",
+    "verdict": "dismissed",
+    "reason": "The prefix list distinguishes unprotected addon-owned globals from Blizzard globals in a generic source checker, and the clean-case contract actually tests TweaksForeverDungeonEntrancePinMixin alongside namespace/local objects. Removing the sibling prefixes would reject that supported checker input; these are explicit ownership identities, not an unused abstraction."
+  },
+  {
+    "id": "4d72d0b8d2",
+    "verdict": "confirmed",
+    "reason": "A temporary TOC including scene.xml with hidden.lua is resolved by typecheck_coverage as hidden.lua plus main.lua, while lint_multivalue resolves only main.lua. Thus a valid loaded XML script with an expanding select call can escape the multi-value gate, violating the every-TOC/XML-file coverage contract."
+  },
+  {
+    "id": "f2eae677e9",
+    "verdict": "confirmed",
+    "reason": "The tokenizer emits five internal kind strings consumed across both the select parser and taint checker, and Token.kind is plain str rather than a closed type. No external Lua syntax contract forces the internal names, so the closed-set finding remains even though current unit cases use consistent values."
+  },
+  {
+    "id": "714426975f",
+    "verdict": "confirmed",
+    "reason": "lint_taint consumes only LuaSyntaxError/tokenize from a module also owning the select-expression parser and its TOC CLI, while those rule responsibilities change independently. The import is side-effect-free today, but that does not force a generic tokenizer to remain in the select-rule module."
+  },
+  {
+    "id": "a8045a29ce",
+    "verdict": "confirmed",
+    "reason": "A differential round-money probe matches current Lua results on ten boundary values, refuting an existing rounding bug; nonetheless Python independently implements Model/Core/Prices/Tooltip semantics while lua_scene already serializes those modules' outputs for other scenes. No inability to run Lua or consume its output forces these parallel semantic definitions."
+  },
+  {
+    "id": "2f4ff38031",
+    "verdict": "confirmed",
+    "reason": "The crop intervals and three border placements in create_controls exactly match input_box at width=31 and height=20; the only material difference is GameFontHighlight versus ChatFontNormal and the separate spinner buttons. A shared border-only renderer or a font parameter can preserve those native differences instead of maintaining two border rules."
+  },
+  {
+    "id": "f977bfe6de",
+    "verdict": "confirmed",
+    "reason": "The already imported wowmock.crop_coords uses the same rounded pixel coordinates for all increasing rectangles passed by _texcoord_box and the two input-border piece helpers; its extra flip support is harmless for those actual calls. Reading the dependency implementation found no precision or boundary contract forcing the handwritten equivalents."
+  },
+  {
+    "id": "18afc2de75",
+    "verdict": "confirmed",
+    "reason": "The parser returns DÃ¶rf for valid Lua text Dörf, and parses the legal decimal escape \\009 as a NUL followed by 9 instead of Lua's single byte 9. A side-by-side LuaJIT parse establishes data corruption in the generated-Lua consumption boundary, beyond merely preferring an existing parser."
+  },
+  {
+    "id": "7918e521cf",
+    "verdict": "confirmed",
+    "reason": "The Lua environment and Python COLORS/DISABLED_FONT_COLOR separately encode the same semantic palette, and the existing Lua scene serialization already transfers RGB values for rendered frame text. Comparing all values found no current discrepancy, but one serialized palette can serve both render paths without changing native meanings."
+  },
+  {
+    "id": "7e2406587d",
+    "verdict": "dismissed",
+    "reason": "Leatherworking and 165 select a concrete demonstration scene, and profession names/skill IDs are open client identifiers rather than an internal closed enum; the matching literals also select Leatherworking-specific atlas and text. The scene-state choice is explicitly documented and does not omit any member of an exhaustive band or bucket set."
+  },
+  {
+    "id": "e15163589f",
+    "verdict": "confirmed",
+    "reason": "The full file contains independent generated-data decoding, a large Lua host harness, gameplay-semantic ports, image composition and GIF scheduling; changing decoding or host simulation need not change PNG/GIF rendering. Existing AST tests and Lua subprocess boundaries demonstrate separable seams rather than size alone."
+  },
+  {
+    "id": "ab265fb927",
+    "verdict": "confirmed",
+    "reason": "The comment claims the scene loads the TOC's files, but its manual FILES list omits TrackerHost.lua and Shopping.xml and instead supplies a simulated host; comparison with the actual manifest proves the claim is too broad. The current scene can legitimately load a subset, so the confirmed defect is the comment, not a required runtime-load change."
+  },
+  {
+    "id": "7856e293db",
+    "verdict": "confirmed",
+    "reason": "The render loop deliberately selects the first three learned recipes, but the old in-game capture named as justification is neither an input nor a retained artifact; all current outputs are generated by main. The comment's historical comparison can be removed without losing the live selection rule."
+  },
+  {
+    "id": "dc0d3342e9",
+    "verdict": "confirmed",
+    "reason": "Shopping.TrainingSteps constructs cap/text records for both rank and recipe training, LayoutContents assigns them to block.steps and reads steps[1].cap; the type instead promises skill/text. Direct construction and consumption therefore contradict the claimed shape even though the current LuaLS gate does not diagnose it."
+  },
+  {
+    "id": "a81e015bee",
+    "verdict": "confirmed",
+    "reason": "TrackerHost.lua explicitly returns before publishing ns.TrackerHost when ObjectiveTrackerFrame is absent, while Shopping.Attach handles an unavailable shared host. The namespace declaration promises unconditional presence despite that supported partial-load/capability path."
+  },
+  {
+    "id": "9fa542216e",
+    "verdict": "dismissed",
+    "reason": "LuaLS merges ForeverTrackerHostAPI class declarations: TrackerHost.lua supplies Debug on that same named class and is included in the 19-file type load graph. The absence of a repeated Debug field in types/Client.lua is therefore not a missing API contract, and Adventure Guide Forever calls that real method."
+  },
+  {
+    "id": "6d45f90405",
+    "verdict": "dismissed",
+    "reason": "Adventure Guide Forever's live /agf tracker command calls ns.TrackerHost.Debug(), and its host contract adopts the first published shared ForeverTrackerHost, which can be SkillUp's implementation. The external-consumer/public-API hard stop refutes session-residue despite there being no local player-command caller."
+  },
+  {
+    "id": "294ba83401",
+    "verdict": "dismissed",
+    "reason": "The displayed labels are selected from the same Model.Color domain, with Tooltip's terminal grey branch deliberately separate; the repeated closed band set is already retained at its source, same producer as 9ffd581251. It is not an independent current tooltip/route rendering bug."
+  },
+  {
+    "id": "2eee857052",
+    "verdict": "confirmed",
+    "reason": "For every supported FramePoint, the combat branch's native edge and host edge match StackPoints' first and second results respectively; invalid-point behaviour is outside the frame API contract. The existing helper can supply both edges while preserving the actual native-relative combat placement."
+  },
+  {
+    "id": "dc1c4e8666",
+    "verdict": "dismissed",
+    "reason": "Combat uses StackPoints' bottom edge rather than nativeAnchor.point; the other anchors occur before content layout, after height is known and after off-screen correction adds shift, so they observe different geometry epochs. These short SetPoint API idioms do not constitute duplicated policy, and the scale guards are covered by Settled Client-capability checks."
+  },
+  {
+    "id": "7eb25d2687",
+    "verdict": "dismissed",
+    "reason": "Combat handling, Edit Mode bail-out, stacking, viewport shift and native height negotiation all operate on one dependent geometry transaction: later offsets and native height use the content dimensions laid out earlier. The branch length alone does not establish cleanly independent responsibilities under oversized-modules."
+  },
+  {
+    "id": "da524af6ad",
+    "verdict": "dismissed",
+    "reason": "SendToAuctionator deliberately selects auction and unknown items while excluding vendor and freely gathered items; Model.ShoppingList already walks all SHOPPING_SOURCES to construct buckets. This is a consumer subset predicate, not the hand enumeration of every bucket prohibited by the project anti-pattern."
+  },
+  {
+    "id": "bacfb93a15",
+    "verdict": "unproven",
+    "reason": "The pinned GetTrainerServiceSkillReq annotation promises a non-optional numeric skillLevel, which refutes the assumed missing value under that contract; no Forever record violating it was available. A client capture showing nil for a recipe with a real required skill would settle whether required-or-0 can override the bundled requirement incorrectly."
+  },
+  {
+    "id": "ff02d2752a",
+    "verdict": "confirmed",
+    "reason": "Atlas-member rows for both cached 1.60.1.69913 and 1.60.1.70124 show the marker is exactly 10x14, so the current 10/14 ratio is correct and no current stretching bug is established. The hard-coded sizing still departs from the explicit AGENTS/WFA-27 contract to size Texture atlases through GetAtlasInfo; this is a standards-method decision, not invented unknown geometry."
+  },
+  {
+    "id": "5cfcc61d57",
+    "verdict": "dismissed",
+    "reason": "The only tooltip context producer is Core.SkillContext from Professions.GetProfessionInfo; pinned native source assigns displayName from parentProfessionName or required professionName before returning it. Trainer's optional-name contexts never call this tooltip, so the alleged unnamed profession is not reachable through the checked tooltip call path."
+  },
+  {
+    "id": "bab3127297",
+    "verdict": "dismissed",
+    "reason": "UIParent/ObjectiveTrackerFrame method checks are covered by Settled Client-capability checks, whose contract intentionally survives static annotations that do not execute in the game. A temporary type-check pass with guards removed refutes a type-narrowing justification but does not refute that explicit capability policy."
+  },
+  {
+    "id": "2f46a93461",
+    "verdict": "dismissed",
+    "reason": "ObjectiveTrackerManager is a host-global capability sentinel alongside ObjectiveTrackerFrame before constructing ObjectiveTrackerModuleTemplate, rather than a call into its secure registry. Settled Client-capability checks explicitly retains such host guards even when current private pools avoid native manager access; the pinned integration confirms no manager method is called."
+  },
+  {
+    "id": "42424d79bb",
+    "verdict": "dismissed",
+    "reason": "TrackerHost can return at file load when native tracker capability is absent, and Attach reads the shared global again on native load/deferred callbacks; a companion can publish it later. The comment explains that supported late-publication gap even though the normal complete TOC supplies this addon's host."
+  },
+  {
+    "id": "2f81637ef4",
+    "verdict": "dismissed",
+    "reason": "The comment explains why the module flattens only while a custom sort is selected, and the full Sort/Restore provider path implements that trade-off; the adjacent replacing flag prevents recursive provider callbacks within the same design. Its rationale remains true and need not be deleted because a different local declaration follows it."
+  },
+  {
+    "id": "b2915322bb",
+    "verdict": "dismissed",
+    "reason": "The comment explains the performance reason for native OnSizeChanged/EventRegistry callbacks instead of continuous polling, and the complete host contains queued one-shot layout with no OnUpdate loop. This is a concrete why comment, covered by comment-narration's rationale exception."
+  },
+  {
+    "id": "80b3cd4fba",
+    "verdict": "confirmed",
+    "reason": "The working-tree combat implementation anchors to the restored native top and moves to its side when there is insufficient room or a minimap collision, while the earlier comment claims it always moves above the saved slot. The full current geometry tests cover those cases, confirming stale explanatory text in a root-owned hot file."
+  },
+  {
+    "id": "6604f1bc1c",
+    "verdict": "dismissed",
+    "reason": "Core.FormatRow, API step details and documented recipe examples use the same middle-dot separator, and the prior owner-delegated decision explicitly records middle dots as house style. The copy lens's documented-style exception therefore covers this whole player phrase; no translation or formatting contract is broken."
+  },
+  {
+    "id": "0710c25feb",
+    "verdict": "confirmed",
+    "reason": "All current production and nine local branch-ref searches find only RouteReagents passing owned=function() return 0, while API and tracker consumers compare ns.Have separately at read time; only model_spec varies owned. The public API is SkillUpForever.API rather than this private Model method, so no external stable contract or in-flight second caller requires the seam."
+  },
+  {
+    "id": "e4d9111cb3",
+    "verdict": "unproven",
+    "reason": "Two successive unchanged BuyMissing calls with unchanged bag counts submit 20 units for a 10-unit rounded order, but that harness does not establish when the live client updates GetItemCount or disables merchant interactions. A Forever vendor capture of rapid repeated clicks and bag/merchant event timing is required to prove actual duplicate spending."
+  },
+  {
+    "id": "eda6b1d83e",
+    "verdict": "confirmed",
+    "reason": "The pinned MerchantItemInfo contract allows missing stackCount and defaults it to 0 without guaranteeing a positive price implies a positive quantity; Shopping substitutes one, unlike Prices' validated merchant observer. The unchanged-path probe calculates count=7/cost=700 for nil, zero or negative stack versus count=10/cost=200 for stack=5, proving invented purchase and affordability quantities for allowed incomplete data."
+  }
+]

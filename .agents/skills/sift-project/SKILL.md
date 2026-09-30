@@ -24,7 +24,7 @@ Run in order from the repository root. All must pass before and after any audit 
 | Lint (Lua) | `luacheck .` | `0 warnings / 0 errors`, exit 0 |
 | Lint (Python) | `ruff check tools` | exit 0 |
 | Types and multi-values | `tools/typecheck.sh` | LuaLS 3.19.1 reports no diagnostics; tokenizer/parser lint and its tests pass |
-| Tests | `for s in tests/*_spec.lua; do luajit "$s" \|\| exit 1; done` | exit 0; each prints `<name>_spec: N checks passed` (`settings_spec` prints `settings: ok`) |
+| Tests | `for s in tests/*_spec.lua; do luajit "$s" \|\| exit 1; done` | exit 0; most print `<name>_spec: N checks passed`, `model_spec` appends its validated-thresholds count, and `recipelist_spec`/`settings_spec` print descriptive sentences |
 | Changelog | `python3 tools/changelog.py --check` | every tagged version has a `CHANGELOG.md` entry |
 | Workflows | `uvx --from actionlint-py==1.7.12.25 actionlint && uvx zizmor@1.30.1 --offline .github` | exit 0 |
 | Secrets | `gitleaks git --redact --no-banner .` | `no leaks found` |
@@ -37,11 +37,14 @@ vendored `.sift/gate.py` and `.sift/agents.py`. LuaLS checks all TOC files again
 The tests are a headless harness, not the game client. Each spec `loadfile`s one production file
 with stubbed host APIs: `model_spec` (Model.lua, Data/Thresholds.lua, Prices.lua), `prices_spec`
 (Prices.lua), `route_spec` (Route.lua's `ns.NextCraft`, `ns.PlanRoute` over the bundled data, and the
-route page drawn into stub frames), `api_spec` (API.lua over Model, Route and Shopping), `shopping_spec`
-(the objective tracker's lines over Route), `core_spec` (Core.lua's init guard, SavedVariables migration and what's-new notice),
+route page drawn into stub frames), `recipelist_spec` (RecipeList.lua's native provider replacement,
+sorting and recursion), `api_spec` (API.lua over Model, Route and Shopping), `shopping_spec`
+(the objective tracker's lines over Route), `tracker_host_spec` (TrackerHost.lua's frame lifecycle and
+combat placement, plus the pinned Forever tracker source when `TRACKER_UI_ROOT` is set),
+`core_spec` (Core.lua's init guard, SavedVariables migration and what's-new notice),
 `settings_spec` (Settings.lua), `waypoint_spec` (Sources.lua's waypoints and Shortest Path Forever
 travel) and `locale_spec` (enUS phrases, `Locales/phrases.txt`, no packager keywords). Everything else
-(UI hooks, menus, tooltips, the tracker's frames, the trainer) is only verified in game. The
+(UI hooks, menus, tooltips, in-game rendering, the trainer) is only verified in game. The
 in-game check for data is `/su audit` with a profession open.
 
 ## Evidence
@@ -51,7 +54,7 @@ On-demand tools for audits. Output is candidates, never verdicts.
 | Concern | Command | Known false positives |
 |---|---|---|
 | Types (Lua) | `tools/typecheck.sh` | Zero-diagnostic gate; missing Forever FrameXML surfaces are typed in `types/Client.lua` |
-| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 5: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:118), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:142/144), untyped `json.load` result (latest_build.py:14) and unresolved `wowmock` (the wow-mock-screenshots library, put on `sys.path` at run time; screenshots.py:883); plus unresolved `PIL` when Pillow is not installed |
+| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 5: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:118), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:137/138), untyped `json.load` result (latest_build.py:10) and unresolved `wowmock` (the wow-mock-screenshots library, put on `sys.path` at run time; screenshots.py:964); plus unresolved `PIL` when Pillow is not installed |
 | Dead code (Lua) | `luacheck . --no-color` (unused locals/values) + the live-root searches below | a function stored on `ns` is never "unused" to luacheck — search every file for `ns.<Name>` |
 | Dead code (Python) | `uvx vulture tools --min-confidence 60` | clean at baseline; generator functions are imported across files (`from gen_thresholds import …`) |
 | Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sift/runs/jscpd --ignore "Data/**,tools/.cache/**,.sift/**" .` | 4 Python clones: the `argparse` preamble repeated in each `tools/gen_*.py` (a small idiom); `tests/core_spec.lua`'s two host-stub environments differ on purpose |
@@ -70,7 +73,7 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 - `SkillUpForever.API` (API.lua) — the public API other addons (Adventure Guide Forever) call; `types/API.lua` is its contract.
 - `## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick` — global called by the client by name.
 - `SLASH_SKILLUPFOREVER1/2` + `SlashCmdList.SKILLUPFOREVER` — `/su` commands.
-- `hooksecurefunc("ClassTrainerFrame_InitServiceButton" | "ClassTrainerFrame_Update", …)`, `hooksecurefunc(ProfessionsFrame, "RefreshRightTabs" | "RightTabSelected")`, `EventUtil.ContinueAfterAllEvents`, `hooksecurefunc(recipeList.ScrollBox, "SetDataProvider")` — Blizzard functions hooked by string name.
+- `hooksecurefunc("ClassTrainerFrame_InitServiceButton" | "ClassTrainerFrame_Update", …)`, `EventUtil.ContinueAfterAllEvents` — Blizzard trainer functions hooked by string name, plus a load-sequencing callback.
 - `EventRegistry:RegisterCallback("Professions.RecipeListOnEnter")`, `Menu.ModifyMenu("MENU_PROFESSIONS_FILTER")`, `TooltipDataProcessor.AddTooltipPostCall` — host callbacks.
 - `ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)` (RecipeList.lua) and `Auctionator.API.v1.RegisterForDBUpdate(addonName, PricesChanged)` (Prices.lua `ns.InitPrices`) — callbacks the plain live-root search misses.
 - `RegisterEvent("…")` + `OnEvent` dispatch on the event string — handlers are reached by event name.

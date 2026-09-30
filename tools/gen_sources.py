@@ -259,12 +259,16 @@ def generate(ids, tables, effect_rows, factions, maps, items, locks):
     spawns = defaultdict(list)
     for row in tables["creature"]:
         spawns[int(row["id"])].append((int(row["map"]), float(row["position_x"]), float(row["position_y"])))
-    sources, npcs, factionless = {}, {}, set()
+    sources, npcs, factionless, omitted = {}, {}, set(), {}
 
     # An NPC whose faction Forever doesn't have can't be placed on a side, so it's left out.
     def keep(entry):
         spawn = spawn_of(spawns.get(entry))
-        if spawn is None or entry not in creatures:
+        if entry not in creatures:
+            omitted[entry] = "missing creature template"
+            return False
+        if spawn is None:
+            omitted[entry] = "missing creature spawn"
             return False
         creature = creatures[entry]
         template = factions.get(int(creature["Faction"]))
@@ -313,6 +317,7 @@ def generate(ids, tables, effect_rows, factions, maps, items, locks):
         "reagents": {item: rows for item, rows in reagents.items() if rows},
         "gathered": gathered(tables, locks, reagent_items()),
         "factionless": sorted(factionless),
+        "omitted": dict(sorted(omitted.items())),
     }
 
 
@@ -421,7 +426,8 @@ def main():
     print(
         f"Wrote {OUTPUT.relative_to(ROOT)}: {len(data['sources'])} recipes, {len(data['npcs'])} npcs, "
         f"{sum(map(len, data['trainers'].values()))} trainers, {len(data['reagents'])} vendor reagents, "
-        f"{len(data['gathered'])} gathered reagents; left out, no Forever faction: {data['factionless']}"
+        f"{len(data['gathered'])} gathered reagents; left out, no Forever faction: {data['factionless']}; "
+        f"omitted source NPCs: {data['omitted']}"
     )
 
 

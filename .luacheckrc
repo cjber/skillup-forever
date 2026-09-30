@@ -26,7 +26,7 @@ read_globals = { "CreateFramePoolCollection", "C_XMLUtil",
 	"GameTooltip_Hide", "GetMoney", "GetNumTrainerServices", "GetProfessionInfo", "GetProfessions",
 	"GetTrainerServiceCost", "GetTrainerServiceInfo", "GetTrainerServiceSkillReq", "GetTrainerServiceStepIndex", "UnitLevel", "PlaySound", "SOUNDKIT", "GameTooltip_AddColoredDoubleLine",
 	"GameTooltip_AddHighlightLine", "GameTooltip_AddInstructionLine", "IsModifiedClick", "ChatEdit_InsertLink",
-	"HandleModifiedItemClick", "IsShiftKeyDown", "CreateScrollBoxLinearView",
+	"HandleModifiedItemClick", "IsShiftKeyDown", "CreateScrollBoxLinearView", "CreateSettingsButtonInitializer",
 	"GetTrainerTradeskillRankValues", "C_SpellBook", "issecretvalue", "Item", "NORMAL_FONT_COLOR",
 	"TooltipDataProcessor", "UnitName", "BuyMerchantItem", "GetMerchantItemMaxStack", "MerchantFrame", "MenuUtil", "Mixin", "ObjectiveTrackerFrame", "ObjectiveTrackerManager", "OBJECTIVE_TRACKER_COLOR", "OBJECTIVE_DASH_STYLE_HIDE",
 	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator", "tContains",
@@ -38,3 +38,5 @@ files["Data/Thresholds.lua"] = { max_line_length = false }
 files["Data/Sources.lua"] = { max_line_length = false }
 files["tests/"] = { std = "+luajit" }
 read_globals[#read_globals + 1] = "EditModeManagerFrame"
+
+read_globals[#read_globals + 1] = "MinimalSliderWithSteppersMixin"

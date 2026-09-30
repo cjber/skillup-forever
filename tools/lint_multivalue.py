@@ -5,6 +5,11 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+try:
+    from tools.typecheck_coverage import runtime_files
+except ModuleNotFoundError:
+    from typecheck_coverage import runtime_files
+
 
 @dataclass(frozen=True)
 class Token:
@@ -311,20 +316,6 @@ def check(source: str) -> list[tuple[int, str]]:
     parser.block()
     parser.take("<eof>")
     return parser.hits
-
-
-def runtime_files(root: Path) -> list[Path]:
-    # The TOC is the runtime contract, including generated data and future subfolders.
-    # Its XML files hold templates, not Lua.
-    files = set()
-    for toc in root.glob("*.toc"):
-        for line in toc.read_text().splitlines():
-            line = line.strip()
-            if line and not line.startswith("#") and line.endswith(".lua"):
-                files.add(root / line.replace("\\", "/"))
-    if not files:
-        raise ValueError("No runtime files found in the TOC")
-    return sorted(files)
 
 
 def main() -> int:

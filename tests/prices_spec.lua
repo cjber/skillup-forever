@@ -63,6 +63,24 @@ auctionatorDays = nil
 dbUpdate()
 equal(ns.Price(1).days, nil, "Auctionator's update re-prices, and an undated age stays unknown")
 
+setfenv(assert(loadfile("Locales/enUS.lua")), env)("SkillUpForever", ns)
+setfenv(assert(loadfile("Tooltip.lua")), env)("SkillUpForever", ns)
+equal(ns.PriceAgeText(ns.Price(1)), "over 3 weeks ago", "successful nil age keeps Auctionator's old-price sentinel")
+equal(ns.PriceAge(ns.Price(1)), 22 * 86400, "old-price sentinel is stale")
+local ageAPI = api.GetAuctionAgeByItemID
+api.GetAuctionAgeByItemID = nil
+dbUpdate()
+equal(ns.Price(1).copper, 500, "missing age capability keeps the known price")
+equal(ns.PriceAge(ns.Price(1)), nil, "missing age capability leaves age unknown")
+equal(ns.PriceAgeText(ns.Price(1)), "unknown age", "missing age capability does not claim a date")
+api.GetAuctionAgeByItemID = function()
+	error("age API failed")
+end
+dbUpdate()
+equal(ns.PriceAgeText(ns.Price(1)), "unknown age", "failed age call does not claim an old date")
+api.GetAuctionAgeByItemID = ageAPI
+dbUpdate()
+
 -- A vendor visit records the unit price, reputation discount included, and it beats the auction.
 merchant = { { itemID = 3, price = 100, stackCount = 5 }, { itemID = 4, price = 10, hasExtendedCost = true } }
 onEvent(frame, "MERCHANT_SHOW")

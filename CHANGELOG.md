@@ -11,6 +11,14 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.6.7] - 2026-09-30
+
+- **Settings are grouped into subpages.** *Recipe rows*, *Prices*, *Route and trainer*, *Tooltips and sorting* and *Addon* each open from a short index, so no single page runs long. Saved choices, defaults and tooltips are kept.
+
+- **Choose settings without opening a menu.** Craft prices, reagent tooltips and recipe sorting use labelled sliders, avoiding the native dropdown path implicated in a Forever client crash. Your saved choices and recipe-list sorting stay in sync.
+
+- **Keep tracker sections apart in combat.** Companion sections move above the protected quest tracker while fighting, then return to one column afterward, regardless of which addon loads first.
+
 ## [0.6.6] - 2026-09-29
 
 - **Keep one tracker column.** Addon sections stack above the quest tracker regardless of which companion addon loads first, while keeping their frame pools separate from Blizzard's tracker.

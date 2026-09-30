@@ -19,6 +19,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 WOWMOCK = Path(os.environ.get("WOWMOCK", Path.home() / ".claude" / "skills" / "wow-mock-screenshots"))
@@ -32,58 +33,83 @@ OUT = REPO / "docs" / "screenshots"
 # ------------------------------------------------------------------------------------------ Data/*.lua
 
 
+LUA_TABLE_SERIALIZER = r"""
+local chunk = assert(loadfile(arg[1]))
+local ns = {}
+setfenv(chunk, setmetatable({}, { __index = _G }))
+chunk("SkillUpForever", ns)
+local function quote(value)
+    local result = { '"' }
+    for index = 1, #value do
+        local byte = string.byte(value, index)
+        if byte == 34 then result[#result + 1] = '\\"'
+        elseif byte == 92 then result[#result + 1] = '\\\\'
+        elseif byte < 32 then result[#result + 1] = string.format('\\u%04x', byte)
+        else result[#result + 1] = string.char(byte) end
+    end
+    result[#result + 1] = '"'
+    return table.concat(result)
+end
+local function encode(value, seen)
+    if type(value) == "string" then return quote(value) end
+    if type(value) == "number" or type(value) == "boolean" then return tostring(value) end
+    if type(value) ~= "table" then error("unsupported generated value: " .. type(value)) end
+    seen = seen or {}
+    assert(not seen[value], "cycle in generated data")
+    seen[value] = true
+    local array = #value > 0
+    for key in pairs(value) do
+        if type(key) ~= "number" or key < 1 or key % 1 ~= 0 then array = false end
+    end
+    local parts = {}
+    local count = 0
+    for _ in pairs(value) do count = count + 1 end
+    if count == 0 then
+        seen[value] = nil
+        return "[]"
+    end
+    array = array and count == #value
+    if array then
+        for index = 1, #value do parts[#parts + 1] = encode(value[index], seen) end
+        seen[value] = nil
+        return "[" .. table.concat(parts, ",") .. "]"
+    end
+    local keys = {}
+    for key in pairs(value) do keys[#keys + 1] = key end
+    table.sort(keys, function(a, b) return tostring(a) < tostring(b) end)
+    for _, key in ipairs(keys) do
+        parts[#parts + 1] = "[" .. encode(key, seen) .. "," .. encode(value[key], seen) .. "]"
+    end
+    seen[value] = nil
+    return '{"__map__":[' .. table.concat(parts, ",") .. "]}"
+end
+io.write(encode(ns))
+"""
+
+
 def parse_lua_tables(text):
-    """The `ns.Name = { ... }` constructors of a generated data file, as Python values. The files only use
-    [number]/["string"]/name keys, numbers, strings, booleans and nested tables."""
-    tokens = re.findall(r'--[^\n]*|"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?|[A-Za-z_][A-Za-z0-9_.]*|[{}\[\]=,;]', text)
-    tokens = [t for t in tokens if not t.startswith("--")]
-    position = 0
+    """Decode generated Lua with LuaJIT, preserving Lua string and number semantics."""
+    with tempfile.NamedTemporaryFile("w", suffix=".lua", encoding="utf-8") as source:
+        source.write(text)
+        source.flush()
+        result = subprocess.run(
+            ["luajit", "-", source.name],
+            input=LUA_TABLE_SERIALIZER,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
 
-    def value():
-        nonlocal position
-        token = tokens[position]
-        position += 1
-        if token == "{":
-            return table()
-        if token.startswith('"'):
-            return token[1:-1].encode().decode("unicode_escape")
-        if token in ("true", "false"):
-            return token == "true"
-        if token == "nil":
-            return None
-        return float(token) if "." in token else int(token)
+    def restore(value):
+        if isinstance(value, list):
+            return [restore(item) for item in value]
+        if isinstance(value, dict) and set(value) == {"__map__"}:
+            return {restore(key): restore(item) for key, item in value["__map__"]}
+        if isinstance(value, dict):
+            return {key: restore(item) for key, item in value.items()}
+        return value
 
-    def table():
-        nonlocal position
-        array, mapping = [], {}
-        while tokens[position] != "}":
-            if tokens[position] == "[":
-                position += 1
-                key = value()
-                position += 2  # "]", "="
-                mapping[key] = value()
-            elif tokens[position + 1] == "=":
-                key = tokens[position]
-                position += 2
-                mapping[key] = value()
-            else:
-                array.append(value())
-            if tokens[position] in (",", ";"):
-                position += 1
-        position += 1
-        if array and mapping:
-            raise ValueError("mixed table")
-        return array if array or not mapping else mapping
-
-    result = {}
-    while position < len(tokens):
-        token = tokens[position]
-        if token.startswith("ns.") and tokens[position + 1] == "=" and tokens[position + 2] == "{":
-            position += 3
-            result[token[3:]] = table()
-        else:
-            position += 1
-    return result
+    return restore(json.loads(result.stdout))
 
 
 def load_data():
@@ -643,6 +669,10 @@ env = setmetatable({
 	GameTooltip = Stub(),
 	DEFAULT_CHAT_FRAME = Stub(),
 	Settings = Stub(),
+	CreateSettingsButtonInitializer = function()
+		return function() end
+	end,
+	MinimalSliderWithSteppersMixin = { Label = { Right = "right" } },
 	MenuUtil = Stub(),
 	SkillUpForeverDB = { trackedProfessions = { [STATE.open.skillLine] = true }, gatherFree = true },
 }, {
@@ -660,6 +690,7 @@ local ns = { TrackerHost = {
 	Attach = function(module) module.parentContainer = {} end,
 	IsAttached = function(module) return module.parentContainer ~= nil end,
 } }
+env.ForeverTrackerHost = ns.TrackerHost
 for _, file in ipairs(FILES) do
 	setfenv(assert(loadfile(file)), env)(ADDON, ns)
 end

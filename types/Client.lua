@@ -213,7 +213,7 @@ C_Trainer = {}
 ---@field professionInfo SkillUpProfession
 ---@field route SkillUpPlan
 ---@field items SkillUpNeededItem[]
----@field steps {skill: number, cap: number, text: string}[]
+---@field steps {cap: number, text: string}[]
 ---@field vendorMissing {name: string, itemID: integer, vendor: integer}[]
 ---@field SetHeader fun(self: SkillUpTrackerBlock, text: string)
 ---@field AddObjective fun(self: SkillUpTrackerBlock, id: string|number, text: string, template?: string, useFullHeight?: boolean, dashStyle?: number, colorStyle?: SkillUpObjectiveColor): Frame
@@ -260,6 +260,10 @@ Settings.VarType = { Boolean = "boolean", String = "string", Number = "number" }
 ---@param name string
 ---@return SkillUpCategory
 function Settings.RegisterVerticalLayoutCategory(name) end
+---@param parent SkillUpCategory
+---@param name string
+---@return SkillUpCategory
+function Settings.RegisterVerticalLayoutSubcategory(parent, name) end
 ---@param category SkillUpCategory
 ---@param variable string
 ---@param key string
@@ -269,6 +273,30 @@ function Settings.RegisterVerticalLayoutCategory(name) end
 ---@param default SkillUpSettingValue
 ---@return SkillUpSetting
 function Settings.RegisterAddOnSetting(category, variable, key, db, varType, name, default) end
+---@param category SkillUpCategory
+---@param variable string
+---@param varType string
+---@param name string
+---@param default number
+---@param getValue fun(): number
+---@param setValue fun(value: number)
+---@return SkillUpSetting
+function Settings.RegisterProxySetting(category, variable, varType, name, default, getValue, setValue) end
+---@param variable string
+function Settings.NotifyUpdate(variable) end
+---@class SkillUpSliderOptions
+---@field SetLabelFormatter fun(self: SkillUpSliderOptions, labelType: number, formatter: fun(value: number): string)
+---@param minValue number
+---@param maxValue number
+---@param step number
+---@return SkillUpSliderOptions
+function Settings.CreateSliderOptions(minValue, maxValue, step) end
+---@param setting SkillUpSetting
+---@param options SkillUpSliderOptions
+---@param tooltip string
+---@return SkillUpSettingInitializer
+function Settings.CreateSliderInitializer(setting, options, tooltip) end
+MinimalSliderWithSteppersMixin = { Label = { Right = 2 } }
 ---@class SkillUpSettingInitializer
 ---@param setting SkillUpSetting
 ---@param options nil
@@ -292,6 +320,13 @@ function Settings.RegisterAddOnCategory(category) end
 function Settings.SetValue(variable, value) end
 ---@param categoryID number
 function Settings.OpenToCategory(categoryID) end
+---@param name string
+---@param buttonText string
+---@param onClick fun()
+---@param tooltip string?
+---@param addSearchTags boolean?
+---@return SkillUpSettingInitializer
+function CreateSettingsButtonInitializer(name, buttonText, onClick, tooltip, addSearchTags) end
 
 -- Professions decorates native recipe/profession records before dispatching callbacks.
 ---@class SkillUpProfessionInfo : ProfessionInfo

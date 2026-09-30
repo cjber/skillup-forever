@@ -1,3 +1,5 @@
+Developed with AI assistance; changes are reviewed and checked with automated tests, linting and type checks.
+
 SkillUp Forever puts skill-up chances, recipe costs and colour thresholds into the Professions window's own rows and tooltips, with a levelling route and shopping list in a side panel. Nothing new to learn: it looks like it came with the game.
 
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)

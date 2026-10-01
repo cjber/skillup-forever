@@ -178,14 +178,12 @@ function ns.AttachRecipeList()
 	recipeList.ScrollBox:RegisterCallback("OnDataProviderReassigned", ApplySort, recipeList.ScrollBox)
 	EventRegistry:RegisterCallback("Professions.RecipeListOnEnter", ns.ShowRecipeTooltip, ns)
 	Menu.ModifyMenu("MENU_PROFESSIONS_FILTER", AddFilterMenu)
+	-- Rebuilding through the crafting page re-runs Blizzard's provider, which our
+	-- data-provider callback then re-sorts.
+	ns.WhenStale("recipeList", function()
+		if recipeList:IsVisible() and ProfessionsFrame.professionInfo then
+			ProfessionsFrame.CraftingPage:Init(ProfessionsFrame.professionInfo)
+		end
+	end)
 	ns.AttachRoute()
-end
-
--- Rebuilding through the crafting page re-runs Blizzard's provider, which our
--- data-provider callback then re-sorts.
-function ns.RefreshRecipeList()
-	ns.RefreshRoute()
-	if recipeList and recipeList:IsVisible() and ProfessionsFrame.professionInfo then
-		ProfessionsFrame.CraftingPage:Init(ProfessionsFrame.professionInfo)
-	end
 end

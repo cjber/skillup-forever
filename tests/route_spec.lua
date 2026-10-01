@@ -70,7 +70,6 @@ local requested, lists = {}, {}
 local page = {
 	db = { trainer = {}, routeTargets = { [129] = 100 }, showRouteTab = true },
 	COLORS = {},
-	InvalidateAPI = function() end,
 	IsLearned = function(id)
 		return id == 3275
 	end,
@@ -133,12 +132,19 @@ local pageEnv = setmetatable({
 		return value
 	end,
 })
+-- Core/Changes.lua's frame is the only one made while the files load: the game's events arrive on it.
+local eventFrame
+pageEnv.CreateFrame = function()
+	eventFrame = Stub()
+	return eventFrame
+end
 for _, file in ipairs({
 	"Locales/enUS.lua",
 	"Data/Thresholds.lua",
 	"Data/Recipes.lua",
 	"Data/Trainer.lua",
 	"Core/Model.lua",
+	"Core/Changes.lua",
 	"Core/Plan.lua",
 	"UI/Route.lua",
 }) do
@@ -151,11 +157,11 @@ pageEnv.CreateFrame = function()
 	return frame
 end
 page.AttachRoute()
-tabs[#tabs - 1]:Click() -- the side tab, created just before the event frame
+local routeTab = tabs[#tabs] -- the side tab, the last frame the page creates
+routeTab:Click()
 local reagentList = lists[2]
 equal(reagentList.rows[1] and reagentList.rows[1].text, "item 2589", "an unpriced reagent is listed")
 equal(requested[2589], true, "and its name is asked for")
-local routeTab, eventFrame = tabs[#tabs - 1], tabs[#tabs]
 equal(routeTab.checked, true, "opening the route selects its tab")
 eventFrame:Event("SKILL_LINES_CHANGED")
 routeTab:SetChecked(false) -- Blizzard handles the same event after the addon.
@@ -182,8 +188,8 @@ end
 page.Have = function()
 	return 0
 end
-page.InvalidatePlans()
-tabs[#tabs - 1]:Click()
+page.Changed("prices")
+routeTab:Click()
 local routeList = lists[#lists - 1]
 local suggestion = routeList.rows[#routeList.rows]
 equal(suggestion and suggestion.values[1], "?", "an unpriced scroll shows ?")

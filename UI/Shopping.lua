@@ -204,7 +204,7 @@ function ns.TrackerAttached()
 	return module ~= nil and ForeverTrackerHost ~= nil and ForeverTrackerHost.IsAttached(module)
 end
 
-function ns.RefreshTracker()
+local function RefreshTracker()
 	if module then
 		module:MarkDirty()
 	end
@@ -215,10 +215,8 @@ end
 ---@param tracked boolean
 function ns.SetTracked(skillLine, tracked)
 	ns.db.trackedProfessions[skillLine] = tracked or nil
-	-- The public API lists tracked professions first.
-	ns.InvalidateAPI()
 	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
-	ns.RefreshTracker()
+	ns.Changed("tracking")
 end
 
 ---@class SkillUpModuleMixin : SkillUpTrackerModule
@@ -255,7 +253,6 @@ function ModuleMixin:OnBlockHeaderClick(block)
 		end
 		root:CreateButton(L["Stop tracking"], function()
 			ns.SetTracked(block.id, false)
-			ns.RefreshRoute()
 		end)
 	end)
 end
@@ -403,17 +400,5 @@ end
 
 function ns.InitShopping()
 	CreateModule()
-	local events = CreateFrame("Frame")
-	for _, event in ipairs({
-		"BAG_UPDATE_DELAYED",
-		"ITEM_DATA_LOAD_RESULT",
-		"SKILL_LINES_CHANGED",
-		"TRADE_SKILL_LIST_UPDATE",
-		"MERCHANT_SHOW",
-		"MERCHANT_UPDATE",
-		"MERCHANT_CLOSED",
-	}) do
-		events:RegisterEvent(event)
-	end
-	events:SetScript("OnEvent", ns.RefreshTracker)
+	ns.WhenStale("tracker", RefreshTracker)
 end

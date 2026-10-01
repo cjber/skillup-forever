@@ -220,7 +220,7 @@ local function LearnedRecipes()
 end
 
 local function NoteLearnedRecipes()
-	if not ns.db or C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
+	if C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
 		return
 	end
 	-- A non-English client has no bundled name; learn it from the open profession.
@@ -239,9 +239,6 @@ end
 
 -- An unlearned profession takes its recipes with it.
 local function ForgetDroppedProfessions()
-	if not ns.db then
-		return
-	end
 	local professions = ns.PlayerProfessions()
 	-- Skill lines can arrive empty at login; that is not every profession dropped.
 	if not next(professions) then
@@ -261,18 +258,6 @@ end
 function ns.IsLearned(recipeID)
 	return LearnedRecipes()[recipeID] or C_SpellBook.IsSpellKnown(recipeID)
 end
-
-local learnEvents = CreateFrame("Frame")
-learnEvents:RegisterEvent("TRADE_SKILL_LIST_UPDATE")
-learnEvents:RegisterEvent("SKILL_LINES_CHANGED")
-learnEvents:SetScript("OnEvent", function(_, event)
-	if event == "SKILL_LINES_CHANGED" then
-		ForgetDroppedProfessions()
-	else
-		NoteLearnedRecipes()
-	end
-	ns.InvalidatePlans()
-end)
 
 -- Everything a row or tooltip renders for one recipe at the current skill.
 ---@param recipeInfo TradeSkillRecipeInfo|SkillUpRecipeInfo
@@ -415,12 +400,15 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 			and ns.TrainerRanks
 			and ns.RecipeSources
 			and ns.PlanRoute
+			and ns.Changed
 		)
 	then
 		ns.Print("|cffff4040" .. L["files are missing: restart the game (not /reload) after updating."] .. "|r")
 		return
 	end
 	LoadDB()
+	ns.WhenEvent("TRADE_SKILL_LIST_UPDATE", NoteLearnedRecipes)
+	ns.WhenEvent("SKILL_LINES_CHANGED", ForgetDroppedProfessions)
 	ns.InitPrices()
 	ns.RegisterSettings()
 	ns.AttachItemTooltips()

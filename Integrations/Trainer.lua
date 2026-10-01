@@ -93,7 +93,7 @@ local function BuildState()
 			seen[service.recipeID] = { GetTrainerServiceCost(index), required or 0 }
 		end
 	end
-	ns.InvalidatePlans()
+	ns.Changed("fees")
 	modifier = modifier or 0
 	local ctx = {
 		skillLine = skillLine,
@@ -182,7 +182,7 @@ end
 -- Blizzard updates once per service name that arrives, and redraws the buttons
 -- inside each update; drop the old state at once and rebuild once, next frame.
 local pending = false
-function ns.RefreshTrainer()
+local function RefreshTrainer()
 	state = nil
 	if pending or not (ClassTrainerFrame and ClassTrainerFrame:IsShown()) then
 		return
@@ -198,9 +198,10 @@ end
 
 function ns.AttachTrainer()
 	hooksecurefunc("ClassTrainerFrame_InitServiceButton", Decorate)
-	hooksecurefunc("ClassTrainerFrame_Update", ns.RefreshTrainer)
+	hooksecurefunc("ClassTrainerFrame_Update", RefreshTrainer)
+	ns.WhenStale("trainer", RefreshTrainer)
 	local events = CreateFrame("Frame")
 	events:RegisterEvent("PLAYER_MONEY")
 	events:RegisterEvent("TRAINER_CLOSED")
-	events:SetScript("OnEvent", ns.RefreshTrainer)
+	events:SetScript("OnEvent", RefreshTrainer)
 end

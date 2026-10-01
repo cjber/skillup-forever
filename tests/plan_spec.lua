@@ -10,10 +10,13 @@ end
 local LINEN, HEAVY, WOOL, CLOTH = 3275, 3276, 3277, 2589
 local known, costs, sources = {}, {}, {}
 local auctionator, open, craftable, level = false, 129, 99, 20
+local dropPlans
 local ns = {
 	db = { trainer = {}, routeTargets = {} },
 	RecipeSources = {},
-	InvalidateAPI = function() end,
+	WhenStale = function(_, drop)
+		dropPlans = drop
+	end,
 	IsLearned = function(id)
 		return known[id] == true
 	end,
@@ -84,7 +87,7 @@ end
 -- A fresh plan for a new setup: the cache is keyed on skill and target, not on what is known.
 local function Plan(profession, target)
 	ns.db.routeTargets[129] = target
-	ns.InvalidatePlans()
+	dropPlans()
 	return ns.PlanRoute(profession)
 end
 local function Kinds(plan)

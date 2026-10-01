@@ -28,6 +28,9 @@ publishes it as the notes.
 - `Core/Model.lua`, `Integrations/Prices.lua` — the headless-testable maths; the UI files call them.
 - `Core/Plan.lua` — the levelling plan, in base skill with trainer requirements resolved. The route page,
   tracker, public API and trainer window draw what it returns; none reads the modifier or trainer tables.
+- `Core/Changes.lua` — what goes stale when something changes. A writer calls `ns.Changed(kind)` and game events
+  arrive on its one frame; only it decides which caches drop and which views redraw. No file clears or redraws
+  another's: own a cache or view with `ns.WhenStale`, do per-event work with `ns.WhenEvent`.
 - `Locales/` — `enUS.lua` makes `ns.L`, keyed by the English phrase; a translation is `Locales/<locale>.lua` listed
   after it in the TOC (`Locales/README.md`). Player-visible text is a whole `L["..."]` phrase (format strings
   included); after changing one, `python3 tools/phrases.py > Locales/phrases.txt`. `tests/locale_spec.lua` checks

@@ -17,7 +17,12 @@ local env = setmetatable({
 	ObjectiveTrackerFrame = {},
 	OBJECTIVE_TRACKER_COLOR = { Complete = "complete" },
 	CreateFrame = function(_, name)
-		local frame = { RegisterEvent = function() end, SetScript = function() end, SetHeader = function() end }
+		local frame = {
+			RegisterEvent = function() end,
+			SetScript = function() end,
+			SetHeader = function() end,
+			MarkDirty = function() end,
+		}
 		if name then
 			module = frame
 		end
@@ -74,7 +79,6 @@ local ns = {
 	RecipeData = { [BANDAGE] = { skillLine = 129 }, [HEAVY] = { skillLine = 129 } },
 	TrainerFees = { [HEAVY] = { 100, 40 } },
 	TrainerRanks = { [129] = { { 150, 500, 50, 0 } } },
-	InvalidateAPI = function() end,
 	IsLearned = function(id)
 		return id == BANDAGE
 	end,
@@ -86,7 +90,8 @@ local ns = {
 	NearestVendor = function() end,
 }
 env.ForeverTrackerHost = ns.TrackerHost
-for _, file in ipairs({ "Locales/enUS.lua", "Core/Model.lua", "Core/Plan.lua", "UI/Shopping.lua" }) do
+local FILES = { "Locales/enUS.lua", "Core/Model.lua", "Core/Changes.lua", "Core/Plan.lua", "UI/Shopping.lua" }
+for _, file in ipairs(FILES) do
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
 ns.InitShopping()
@@ -148,7 +153,7 @@ equal(objectives[1].text, "Train Heavy Linen Bandage at 45 |cff808080(+1 more)|r
 
 -- Nothing priced to craft: the tracker says why, not that the reagents are in hand.
 costs = {}
-ns.InvalidatePlans()
+ns.Changed("prices")
 Layout()
 equal(#objectives, 1, "one line")
 equal(objectives[1].key, "Blocked", "a blocked route says so")
@@ -160,7 +165,6 @@ equal(
 
 -- Exercise the actual merchant button and purchase callback, including missing stack data.
 local merchant, purchased, merchantButton = {}, {}, nil
-module.MarkDirty = function() end
 ns.TrackedNeeds = function()
 	return { { items = { { itemID = SILK, need = 7 } } } }
 end
@@ -219,7 +223,7 @@ env.CreateFrame = function()
 	return merchantButton
 end
 merchant = { { itemID = SILK, price = 100, stackCount = 5 } }
-ns.RefreshTracker()
+ns.Changed("merchant")
 equal(merchantButton.shown, true, "known merchant stack enables purchasing")
 equal(merchantButton.text, "Buy tracked reagents  200", "purchase price accounts for whole stacks")
 merchantButton.scripts.OnClick()
@@ -227,7 +231,7 @@ equal(purchased[1][2], 10, "purchase callback buys complete stacks in units")
 for _, invalid in ipairs({ false, 0, -1 }) do
 	merchant[1].stackCount = invalid or nil
 	purchased = {}
-	ns.RefreshTracker()
+	ns.Changed("merchant")
 	equal(merchantButton.shown, false, "unknown or invalid stack hides purchase action")
 	merchantButton.scripts.OnClick()
 	equal(#purchased, 0, "unknown or invalid stack cannot buy invented units")

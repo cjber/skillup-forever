@@ -22,7 +22,7 @@ for _, complete in ipairs({ false, true }) do
 	if complete then
 		assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
 		ns.TrainerFees, ns.TrainerRanks, ns.RecipeSources = {}, {}, {}
-		ns.PlanRoute = Init
+		ns.PlanRoute, ns.Changed, ns.WhenEvent = Init, Init, function() end
 	end
 	local env = setmetatable({
 		CreateColor = function() end,
@@ -77,6 +77,8 @@ do
 		TrainerFees = {},
 		TrainerRanks = {},
 		PlanRoute = function() end,
+		Changed = function() end,
+		WhenEvent = function() end,
 		RecipeSources = {},
 	}
 	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)

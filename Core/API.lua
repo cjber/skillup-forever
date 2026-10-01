@@ -4,7 +4,7 @@ local L = ns.L
 
 -- SkillUpForever.API, version 1: each profession's next steps, recipes and reagents,
 -- read from the same levelling plan the route tab shows, for other addons to draw.
--- Built once and kept until skills, recipes, bags, prices or the zone change.
+-- Built once and kept until Core/Changes.lua says it is stale.
 
 local MAX_STEPS = 3
 local MAX_RECIPES = 5
@@ -18,9 +18,10 @@ local cache
 local pickers = {}
 local namesPending = false
 
-function ns.InvalidateAPI()
+ns.WhenStale("api", function()
+	namesPending = false
 	cache = nil
-end
+end)
 
 ---@param copper number
 ---@return string
@@ -334,23 +335,6 @@ end
 ---@type SkillUpPublicAddon
 SkillUpForever = { API = API }
 
-local events = CreateFrame("Frame")
-for _, event in ipairs({
-	"SKILL_LINES_CHANGED",
-	"BAG_UPDATE_DELAYED",
-	"TRADE_SKILL_SHOW",
-	"TRADE_SKILL_LIST_UPDATE",
-	"TRADE_SKILL_DATA_SOURCE_CHANGED",
-	"NEW_RECIPE_LEARNED",
-	"PLAYER_LEVEL_UP",
-	"ZONE_CHANGED_NEW_AREA",
-	"ITEM_DATA_LOAD_RESULT",
-}) do
-	events:RegisterEvent(event)
-end
-events:SetScript("OnEvent", function(_, event)
-	if event ~= "ITEM_DATA_LOAD_RESULT" or namesPending then
-		namesPending = false
-		cache = nil
-	end
+ns.WhenEvent("ITEM_DATA_LOAD_RESULT", function()
+	return namesPending and "names" or nil
 end)

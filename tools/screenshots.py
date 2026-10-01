@@ -317,6 +317,7 @@ local FILES = {
 	"Data/Trainer.lua",
 	"Data/Sources.lua",
 	"Core/Model.lua",
+	"Core/Changes.lua",
 	"Core/Plan.lua",
 	"Core/Core.lua",
 	"Integrations/Prices.lua",
@@ -782,7 +783,7 @@ local first = #created + 1
 ns.AttachRoute()
 assert(not hooks.RefreshRightTabs and not hooks.RightTabSelected, "native profession methods stay untouched")
 local page = created[first]
-created[#created - 1].scripts.OnMouseUp(nil, "LeftButton", true) -- the side tab, created just before the event frame
+created[#created].scripts.OnMouseUp(nil, "LeftButton", true) -- the side tab, the last frame created
 local function Widget(frame)
 	return {
 		text = rawget(frame, "text"),
@@ -876,7 +877,8 @@ env.ClassTrainerFrame.ScrollBox.ForEachFrame = function(_, fn)
 		fn(button)
 	end
 end
-ns.RefreshTrainer()
+ns.AttachTrainer()
+hooks.ClassTrainerFrame_Update()
 local trainer = {}
 for index, button in ipairs(buttons) do
 	local service = STATE.services[index]

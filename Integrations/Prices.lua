@@ -1,7 +1,7 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
 
--- [recipeID] = live schematic, else bundled data, else false; cleared when profession data changes.
+-- [recipeID] = live schematic, else bundled data, else false.
 ---@type table<integer, SkillUpSchematic|false>
 local recipes = {}
 ---@type table<integer, integer[]>?
@@ -12,16 +12,6 @@ local priceCache = {}
 -- This character's professions, for what it gathers; kept while priceCache is.
 ---@type table<integer, SkillUpProfession>?
 local professions
-
-local function PricesChanged()
-	priceCache = {}
-	professions = nil
-	ns.InvalidatePlans()
-	ns.RefreshRecipeList()
-	ns.RefreshRoute()
-	ns.RefreshTracker()
-end
-ns.PricesChanged = PricesChanged
 
 -- Skill-ups fire SKILL_LINES_CHANGED too; only learning or dropping a profession
 -- changes what counts as gathered.
@@ -252,6 +242,7 @@ end
 
 -- Vendor prices: recorded per unit for anything bought with plain money. Without a stack size the
 -- unit price isn't known, so the last one seen stays.
+---@return SkillUpChange?
 local function RecordMerchant()
 	local changed = false
 	for index = 1, GetMerchantNumItems() do
@@ -273,49 +264,36 @@ local function RecordMerchant()
 			end
 		end
 	end
-	if changed then
-		PricesChanged()
-	end
+	return changed and "prices" or nil
 end
 
-local frame = CreateFrame("Frame")
-frame:SetScript("OnEvent", function(_, event)
-	if
-		event == "TRADE_SKILL_DATA_SOURCE_CHANGED"
-		or event == "TRADE_SKILL_LIST_UPDATE"
-		or event == "TRADE_SKILL_SHOW"
-		or event == "NEW_RECIPE_LEARNED"
-	then
-		recipes = {}
-	elseif event == "SKILL_LINES_CHANGED" then
-		if ProfessionsChanged() then
-			PricesChanged()
-		end
-	elseif event == "MERCHANT_SHOW" or event == "MERCHANT_UPDATE" then
-		RecordMerchant()
-	elseif event == "GET_ITEM_INFO_RECEIVED" and itemInfoPending then
-		-- Items arrive in bursts; one redraw covers the burst.
-		itemInfoPending = false
-		C_Timer.After(0.5, PricesChanged)
-	end
-end)
+local function PricesChanged()
+	ns.Changed("prices")
+end
 
 function ns.InitPrices()
 	if type(ns.db.vendor) ~= "table" then
 		ns.db.vendor = {}
 	end
-	for _, event in ipairs({
-		"TRADE_SKILL_DATA_SOURCE_CHANGED",
-		"TRADE_SKILL_LIST_UPDATE",
-		"TRADE_SKILL_SHOW",
-		"NEW_RECIPE_LEARNED",
-		"SKILL_LINES_CHANGED",
-		"MERCHANT_SHOW",
-		"MERCHANT_UPDATE",
-		"GET_ITEM_INFO_RECEIVED",
-	}) do
-		frame:RegisterEvent(event)
-	end
+	ns.WhenStale("schematics", function()
+		recipes = {}
+	end)
+	ns.WhenStale("prices", function()
+		priceCache = {}
+		professions = nil
+	end)
+	ns.WhenEvent("SKILL_LINES_CHANGED", function()
+		return ProfessionsChanged() and "professions" or nil
+	end)
+	ns.WhenEvent("MERCHANT_SHOW", RecordMerchant)
+	ns.WhenEvent("MERCHANT_UPDATE", RecordMerchant)
+	ns.WhenEvent("GET_ITEM_INFO_RECEIVED", function()
+		if itemInfoPending then
+			-- Items arrive in bursts; one redraw covers the burst.
+			itemInfoPending = false
+			C_Timer.After(0.5, PricesChanged)
+		end
+	end)
 	local api = AuctionatorAPI()
 	if api and api.RegisterForDBUpdate then
 		api.RegisterForDBUpdate(addonName, PricesChanged)

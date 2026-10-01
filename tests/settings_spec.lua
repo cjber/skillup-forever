@@ -136,9 +136,6 @@ local env = setmetatable({
 }, { __index = _G })
 
 local refreshed = 0
-local function Refresh()
-	refreshed = refreshed + 1
-end
 local trackerState = { attached = true }
 local attachmentChanged
 local ns = {
@@ -160,10 +157,10 @@ local ns = {
 	REAGENT_TOOLTIP_OPTIONS = { { "off", "Off" }, { "route", "Route" }, { "full", "Every recipe" } },
 	SORT_OPTIONS = { { "default", "Default" }, { "skill", "Skill" }, { "chance", "Chance" }, { "cost", "Cost" } },
 	CRAFT_VALUE_OPTIONS = { { "none", "None" }, { "vendor", "Vendor" }, { "auction", "Auction" } },
-	PricesChanged = Refresh,
-	RefreshRecipeList = Refresh,
-	RefreshTrainer = Refresh,
-	RefreshRouteTab = Refresh,
+	Changed = function(kind)
+		assert(kind == "settings")
+		refreshed = refreshed + 1
+	end,
 }
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 setfenv(assert(loadfile("UI/Settings.lua")), env)("SkillUpForever", ns)
@@ -245,7 +242,7 @@ assert(craftValue.initializer.options.formatter(3) == "Auction" and craftValue.i
 assert(Row("sortMode").initializer.options.formatter(1) == "Default")
 assert(Row("showRowText").initializer.tooltip:find("Skill%-up chance"))
 Row("showRowText").initializer.setting.changed()
-assert(refreshed == 4, "a change refreshes prices, the recipe list, the trainer and the route tab")
+assert(refreshed == 1, "a change is reported once")
 for _, key in ipairs({ "craftValue", "sortMode", "reagentTooltip" }) do
 	local row = Row(key)
 	local options = ns[({
@@ -259,7 +256,7 @@ for _, key in ipairs({ "craftValue", "sortMode", "reagentTooltip" }) do
 		row.initializer.setting:SetValue(index)
 		assert(ns.db[key] == option[1], "slider writes the original saved string")
 		assert(row.initializer.options.formatter(index) == option[2], "slider labels every choice")
-		assert(refreshed == before + 4, "one choice refreshes each surface once")
+		assert(refreshed == before + 1, "one choice is reported once")
 		assert(notified[#notified] == "SkillUpForever_" .. key .. "_choice", "canonical change notifies visible proxy")
 	end
 	row.initializer.setting:SetValue(0)

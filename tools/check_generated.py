@@ -37,6 +37,8 @@ def main() -> None:
             (scratch / "Data" / name).unlink()
         for generator in GENERATORS:
             subprocess.run([sys.executable, f"tools/{generator}", *suffix], cwd=scratch, check=True)
+        if not args.offline:
+            shutil.copytree(scratch / "tools" / ".cache", cache, dirs_exist_ok=True)
         first = {name: (scratch / "Data" / name).read_bytes() for name in OUTPUTS}
         for name in OUTPUTS:
             if first[name] != original[name]:

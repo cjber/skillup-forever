@@ -260,7 +260,7 @@ SkillUpForeverDB = nil
 ---@field count number
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
----@alias SkillUpChange 'schematics'|'opened'|'recipes'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'target'|'tracking'|'settings'
+---@alias SkillUpChange 'recipes'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'target'|'tracking'|'settings'
 ---@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'

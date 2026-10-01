@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **A newly learned recipe joins the route at once.** Learning a recipe, or opening a profession, now re-plans the route and the tracked reagents straight away; before, they could keep the old plan until the recipe list next updated.
+
 ## [0.6.9] - 2026-10-01
 
 - **Keep guides clear of quests in combat.** Companion sections stay clear when the quest list grows during a fight. Detaching restores the quest tracker’s original Edit Mode position.

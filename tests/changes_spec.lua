@@ -177,9 +177,9 @@ fire("BAG_UPDATE_DELAYED")
 equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), " | route tracker", "item data nothing waited on")
 
 for _, case in ipairs({
-	{ "TRADE_SKILL_DATA_SOURCE_CHANGED", "schematics api | " },
-	{ "NEW_RECIPE_LEARNED", "schematics api | " },
-	{ "TRADE_SKILL_SHOW", "schematics api | route" },
+	{ "TRADE_SKILL_DATA_SOURCE_CHANGED", "schematics plans api | route tracker" },
+	{ "NEW_RECIPE_LEARNED", "schematics plans api | route tracker" },
+	{ "TRADE_SKILL_SHOW", "schematics plans api | route tracker" },
 	{ "TRADE_SKILL_LIST_UPDATE", "schematics plans api | route tracker" },
 	{ "SKILL_LINES_CHANGED", "plans api | route tracker" },
 	{ "BAG_UPDATE_DELAYED", "api | route tracker" },
@@ -192,6 +192,20 @@ for _, case in ipairs({
 }) do
 	equal(Stale(Event(case[1])), case[2], case[1])
 end
+
+-- A recipe learned with no recipe list update after it (the window closed) still reaches the plan.
+local function Plans(recipeID)
+	for _, craft in ipairs(ns.PlanRoute(tailoring).crafts) do
+		if craft.recipeID == recipeID then
+			return true
+		end
+	end
+	return false
+end
+equal(Plans(BOLT), false, "an unlearned recipe is not planned")
+learned[BOLT] = true
+fire("NEW_RECIPE_LEARNED")
+equal(Plans(BOLT), true, "a newly learned recipe is planned at once")
 
 -- One event that means two things is still one pass: every cache and view once.
 professions[182] = { skillLine = 182, name = "Herbalism" }

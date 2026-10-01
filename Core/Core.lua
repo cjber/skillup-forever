@@ -44,7 +44,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 }
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
-ns.WHATS_NEW = L["Turn off Attach to quest tracker in Settings to drag all Forever sections together."]
+ns.WHATS_NEW = L["Companion sections stay clear of the quest list when it grows during a fight."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

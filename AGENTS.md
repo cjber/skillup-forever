@@ -12,6 +12,7 @@ luacheck .
 tools/typecheck.sh
 for s in tests/*_spec.lua; do luajit "$s" || exit 1; done
 python3 tools/changelog.py --check
+python3 tools/check_generated.py   # regenerate in a disposable tree; require fresh, byte-stable Data/*.lua
 python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check
 ```
 

@@ -19,8 +19,7 @@
 ---@field PriceSource fun(itemID: integer): SkillUpPriceSource?
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
 ---@field UsedIn fun(itemID: integer): integer[]
----@field CraftValue fun(recipeID: integer): SkillUpValue?, boolean?
----@field RecipeCost fun(recipeID: integer): number?
+---@field CraftCost fun(recipeID: integer): number?, SkillUpValue?, number?
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()

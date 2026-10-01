@@ -225,7 +225,7 @@ equal(Stale(Event("MERCHANT_UPDATE")), " | tracker", "the same merchant again")
 
 -- A sell price the client had not loaded: one re-price after the burst of item data.
 sell = nil
-ns.CraftValue(SHIRT)
+ns.CraftCost(SHIRT)
 sell, timers = 5, {}
 equal(Stale(Event("GET_ITEM_INFO_RECEIVED")), " | ", "item info a craft's value waited on changes nothing yet")
 equal(#timers, 1, "it waits out the burst")

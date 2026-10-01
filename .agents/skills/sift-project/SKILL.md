@@ -151,7 +151,7 @@ finding; audits add an entry when verifiers keep dismissing the same shape for t
 Recurring judgment defects; check new code for them.
 
 - **Hand port drift**: a hand port drifts from its Lua source (`parallel-implementations`): `tools/screenshots.py`
-  `round_money`/`model_recipe_cost`/`price()` vs `Model.RoundMoney`/`RecipeCost`/`ns.Price`.
+  `round_money`/`model_recipe_cost`/`price()` vs `Model.RoundMoney`/Prices.lua's `ReagentCost`/`ns.Price`.
 - **Shopping bucket list restated**: the bucket list `gather`/`vendor`/`auction`/`unknown` enumerated
   by hand (`stringly-typed`) instead of walking `Model.SHOPPING_SOURCES`; an added bucket silently drops items.
   `route_spec` checks every bucket gets a Source label; Core/API.lua's `ReagentSource` maps buckets onto the public

@@ -166,7 +166,7 @@ def model_craft_value(sell, auction, mode):
     if mode == "none":
         return None, None
     vendor = sell if sell and sell > 0 else None
-    # Lua's 0 is true: a zero auction price still counts, as in Model.CraftValue.
+    # Lua's 0 is true: a zero auction price still counts, as in Prices.lua's ItemValue.
     resale = auction * 0.95 if mode == "auction" and auction is not None else None
     if resale is not None and (not vendor or resale > vendor):
         return resale, "auction"
@@ -234,7 +234,7 @@ def reagents(recipe_id):
 
 
 def craft_value(recipe_id):
-    """Integrations/Prices.lua ns.CraftValue with craftValue "vendor": the value, and whether it is missing only because
+    """Integrations/Prices.lua CraftValue with craftValue "vendor": the value, and whether it is missing only because
     the sell price isn't known."""
     output = NS["RecipeData"][recipe_id]["output"]
     if not output:
@@ -246,17 +246,19 @@ def craft_value(recipe_id):
     return {"copper": each * output["quantity"], "source": source, "quantity": output["quantity"]}, False
 
 
-def recipe_cost(recipe_id):
-    return model_recipe_cost(reagents(recipe_id), unit_price)
+def craft_cost(recipe_id):
+    """Integrations/Prices.lua ns.CraftCost: reagent cost, value and net (unknown until the sell price is)."""
+    cost = model_recipe_cost(reagents(recipe_id), unit_price)
+    if cost is None:
+        return None, None, None
+    value, unpriced = craft_value(recipe_id)
+    return cost, value, None if unpriced else cost - (value["copper"] if value else 0)
 
 
 def describe(recipe_id, learned=True):
     """Core/Core.lua ns.Describe at SKILL. The live difficulty agrees with the thresholds (the audit's check)."""
     t = NS["Thresholds"].get(recipe_id)
-    cost = recipe_cost(recipe_id)
-    value, unpriced = craft_value(recipe_id) if cost is not None else (None, False)
-    # Net of what the craft sells for; unknown until the sell price is.
-    net = cost - (value["copper"] if value else 0) if cost is not None and not unpriced else None
+    cost, value, net = craft_cost(recipe_id)
     chance = model_chance(t, SKILL)
     color = model_color(t, SKILL)
     if chance is not None and learned and color == "grey":

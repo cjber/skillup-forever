@@ -266,14 +266,7 @@ end
 function ns.Describe(recipeInfo, ctx)
 	local thresholds = ns.Model.Get(recipeInfo.recipeID)
 	local liveColor = LIVE_COLOR[recipeInfo.relativeDifficulty]
-	local cost = ns.RecipeCost(recipeInfo.recipeID)
-	local value, unpriced
-	if cost then
-		value, unpriced = ns.CraftValue(recipeInfo.recipeID)
-	end
-	-- Net of what the craft sells for; negative means each craft makes money. Unknown until the
-	-- sell price is.
-	local net = cost and not unpriced and cost - (value and value.copper or 0) or nil
+	local cost, value, net = ns.CraftCost(recipeInfo.recipeID)
 	if not thresholds or not ctx then
 		return { thresholds = nil, color = liveColor or "unknown", cost = cost, value = value, net = net }
 	end

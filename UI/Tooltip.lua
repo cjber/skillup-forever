@@ -334,8 +334,8 @@ local function AddRouteNeeds(tooltip, itemID)
 					L["Route: %d/%d · %s to %d"],
 					math.min(have, item.need),
 					item.need,
-					entry.route.profession,
-					entry.route.target
+					entry.plan.profession.name,
+					entry.plan.target
 				)
 				GameTooltip_AddColoredLine(tooltip, text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
 			end

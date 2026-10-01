@@ -48,23 +48,6 @@ function ns.AltCounts(itemID)
 	return alts
 end
 
--- Everything the route uses, as totals: what you have is compared live, so the
--- list stays right as you buy, craft or bank things.
----@param route SkillUpRoute
----@return SkillUpNeededItem[]
-function ns.RouteReagents(route)
-	local list = ns.Model.ShoppingList(route.segments, ns.Reagents, function()
-		return 0
-	end, ns.PriceSource)
-	local items = {}
-	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
-		for _, item in ipairs(list[source]) do
-			items[#items + 1] = { itemID = item.itemID, need = item.count, source = source }
-		end
-	end
-	return items
-end
-
 -- Auctionator searches by name, and names of unseen items arrive asynchronously.
 ---@param items SkillUpShoppingItem[]
 ---@param callback fun()
@@ -117,24 +100,19 @@ function ns.IsTracked(skillLine)
 	return ns.db.trackedProfessions[skillLine] == true
 end
 
--- Every tracked profession of this character with the reagents its route still
--- needs, from ns.PlanRoute, so it follows skill, target and prices.
+-- The plan of every tracked profession of this character with the reagents it
+-- still needs, so it follows skill, target and prices.
 ---@return SkillUpTracked[]
 function ns.TrackedNeeds()
 	local tracked = {}
 	for skillLine, profession in pairs(ns.RouteProfessions()) do
 		if ns.IsTracked(skillLine) then
-			local route = ns.PlanRoute(profession)
-			tracked[#tracked + 1] = {
-				skillLine = skillLine,
-				professionInfo = profession,
-				route = route,
-				items = ns.RouteReagents(route),
-			}
+			local plan = ns.PlanRoute(profession)
+			tracked[#tracked + 1] = { plan = plan, items = ns.RouteReagents(plan) }
 		end
 	end
 	table.sort(tracked, function(a, b)
-		return a.route.profession < b.route.profession
+		return a.plan.profession.name < b.plan.profession.name
 	end)
 	return tracked
 end
@@ -251,7 +229,7 @@ function ModuleMixin:OnBlockHeaderClick(block)
 	MenuUtil.CreateContextMenu(self:GetContextMenuParent(), function(_, root)
 		root:CreateTitle(block.profession)
 		-- Only while this profession is open: the client crafts from the open one.
-		local craft = ns.NextCraft(block.professionInfo, block.route)
+		local craft = ns.NextCraft(block.plan)
 		if craft.recipeID then
 			root:CreateButton(craft.text, function()
 				C_TradeSkillUI.CraftRecipe(craft.recipeID, craft.count)
@@ -259,10 +237,10 @@ function ModuleMixin:OnBlockHeaderClick(block)
 		end
 		-- The layout picked by straight line; a click ranks by travel time.
 		local cap = block.steps[1] and block.steps[1].cap
-		local trainer = cap and ns.NearestTrainer(block.professionInfo, cap)
+		local trainer = cap and ns.NearestTrainer(block.plan.profession, cap)
 		if trainer then
 			root:CreateButton(L["Waypoint to a trainer"], function()
-				ns.SetWaypoint(ns.NearestTrainer(block.professionInfo, cap, true) or trainer)
+				ns.SetWaypoint(ns.NearestTrainer(block.plan.profession, cap, true) or trainer)
 			end)
 		end
 		for _, item in ipairs(block.vendorMissing) do
@@ -308,20 +286,17 @@ local function Waypointed(line, title, label, nearest)
 end
 
 -- The ranks and recipes to train, in the order the route page lists them.
----@param entry SkillUpTracked
+---@param plan SkillUpPlan
 ---@return {cap: number, text: string}[]
-local function TrainingSteps(entry)
+local function TrainingSteps(plan)
 	local steps = {}
-	for _, step in ipairs(ns.RouteSteps(entry.professionInfo, entry.route)) do
+	for _, step in ipairs(plan.steps) do
 		local rank, training = step.rank, step.training
 		if rank then
 			steps[#steps + 1] = { cap = rank.cap, text = ns.RankText(rank) }
 		elseif training then
 			local name = C_Spell.GetSpellName(training.recipeID) or string.format(L["recipe %d"], training.recipeID)
-			local skill = training.atSkill - entry.professionInfo.modifier
-			-- A trainer teaches recipes needing less than the cap they train to.
-			local cap = training.reqSkill + 1
-			steps[#steps + 1] = { cap = cap, text = string.format(L["Train %s at %d"], name, skill) }
+			steps[#steps + 1] = { cap = training.cap, text = string.format(L["Train %s at %d"], name, training.usedAt) }
 		end
 	end
 	return steps
@@ -331,16 +306,18 @@ end
 -- only the reagents still missing, as "12/20 Linen Cloth". The page has the rest.
 function ModuleMixin:LayoutContents()
 	for _, entry in ipairs(ns.TrackedNeeds()) do
-		local block = self:GetBlock(entry.skillLine)
-		block.profession, block.items = entry.route.profession, entry.items
-		block.professionInfo, block.vendorMissing, block.route = entry.professionInfo, {}, entry.route
-		block:SetHeader(string.format(L["%s to %d"], entry.route.profession, entry.route.target))
-		local steps = TrainingSteps(entry)
+		local plan = entry.plan
+		local info = plan.profession
+		local block = self:GetBlock(info.skillLine)
+		block.profession, block.items = info.name, entry.items
+		block.vendorMissing, block.plan = {}, plan
+		block:SetHeader(string.format(L["%s to %d"], info.name, plan.target))
+		local steps = TrainingSteps(plan)
 		block.steps = steps
 		if #steps > 0 then
 			local more = #steps > 1 and string.format(" |cff808080(%s)|r", string.format(L["+%d more"], #steps - 1))
 				or ""
-			local info, cap = entry.professionInfo, steps[1].cap
+			local cap = steps[1].cap
 			local trainer = ns.NearestTrainer(info, cap)
 			local line = block:AddObjective("Train", steps[1].text .. more, trainer and LINE_TEMPLATE or nil)
 			if trainer then
@@ -377,7 +354,7 @@ function ModuleMixin:LayoutContents()
 				end
 			end
 		end
-		local blocked = ns.RouteBlocked(entry.professionInfo, entry.route)
+		local blocked = ns.RouteBlocked(plan)
 		if blocked then
 			block:AddObjective("Blocked", blocked)
 		elseif shown == 0 then

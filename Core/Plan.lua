@@ -1,0 +1,421 @@
+---@type string, SkillUpNamespace
+local _, ns = ...
+local L = ns.L
+
+-- The levelling plan: from a profession, the recipes this character knows, prices and trainer
+-- data to the steps a player walks. Everything it returns is in base skill, the number the
+-- Professions window shows, with trainer requirements resolved; the route page, the tracker, the
+-- public API and the trainer window draw it without the modifier or the trainer tables.
+
+local RANK_NAMES = { [75] = APPRENTICE, [150] = JOURNEYMAN, [225] = EXPERT, [300] = ARTISAN }
+-- Each rank raises the cap by this much, so a rank is needed once the route passes cap - RANK_SPAN.
+local RANK_SPAN = 75
+
+-- The rank a skill cap belongs to, nil for a cap no trainer rank ends at.
+---@param cap number
+---@return string?
+function ns.RankName(cap)
+	return RANK_NAMES[cap]
+end
+
+---@param rank SkillUpRank
+---@return string
+function ns.RankText(rank)
+	if rank.level > UnitLevel("player") then
+		return string.format(L["Train %s at %d (level %d)"], rank.name, rank.reqSkill, rank.level)
+	end
+	return string.format(L["Train %s at %d"], rank.name, rank.reqSkill)
+end
+
+-- Levelled by gathering, not crafting: their few Forever recipes can't carry a route.
+local GATHERING = { [182] = true, [356] = true, [393] = true } -- Herbalism, Fishing, Skinning
+
+-- The player's professions a route can be planned for.
+---@return table<integer, SkillUpProfession>
+function ns.RouteProfessions()
+	local professions = {}
+	for skillLine, profession in pairs(ns.PlayerProfessions()) do
+		if not GATHERING[skillLine] then
+			professions[skillLine] = profession
+		end
+	end
+	return professions
+end
+
+-- The ranks a trainer teaches above the current cap, in order, and the highest cap
+-- they reach. It stops at a gap: a rank that comes from a book or quest isn't known.
+---@param profession SkillUpContext
+---@return SkillUpRank[]
+---@return number
+local function NextRanks(profession)
+	local byCap = {}
+	for _, rank in ipairs(ns.TrainerRanks[profession.skillLine] or {}) do
+		byCap[rank[1]] = rank
+	end
+	local ranks, cap = {}, profession.max
+	while byCap[cap + RANK_SPAN] do
+		local rank = byCap[cap + RANK_SPAN]
+		ranks[#ranks + 1] =
+			{ name = RANK_NAMES[rank[1]], cap = rank[1], fee = rank[2], reqSkill = rank[3], level = rank[4] }
+		cap = rank[1]
+	end
+	return ranks, cap
+end
+
+-- The chosen target in base skill, per profession; the trainer plans to it too.
+-- A target already reached gives way to the default. Past the cap is fine up to
+-- the last rank a trainer teaches; the route trains those ranks on the way.
+---@param profession SkillUpContext
+---@return number
+local function RouteTarget(profession)
+	local saved = ns.db.routeTargets[profession.skillLine]
+	local _, ceiling = NextRanks(profession)
+	return math.min(saved and saved > profession.base and saved or profession.base + 25, ceiling)
+end
+
+-- What the planner works from: the recipes this character knows, for any of its professions, from
+-- the bundled recipe data plus the learned record, so the profession needn't be open. `known` adds
+-- recipes the caller knows are learned. Skills here are effective (base + bonus), as the
+-- thresholds are.
+---@param profession SkillUpContext
+---@param target number Base skill.
+---@param known table<integer, boolean>?
+---@return SkillUpSnapshot
+local function Snapshot(profession, target, known)
+	local recipes = {}
+	for recipeID, recipe in pairs(ns.RecipeData) do
+		local thresholds = recipe.skillLine == profession.skillLine and ns.Model.Get(recipeID)
+		if thresholds and (known and known[recipeID] or ns.IsLearned(recipeID)) then
+			recipes[#recipes + 1] = { recipeID = recipeID, thresholds = thresholds, netCost = ns.NetCost(recipeID) }
+		end
+	end
+	return { skill = profession.skill, target = target + profession.modifier, recipes = recipes }
+end
+
+-- { fee, required base skill }: what a trainer was seen to charge, else the base fee;
+-- nil for a recipe no trainer teaches.
+---@param profession SkillUpContext
+---@param recipeID integer
+---@return number[]?
+function ns.TrainingFor(profession, recipeID)
+	local seen = ns.db.trainer[profession.skillLine]
+	return seen and seen[recipeID] or ns.TrainerFees[recipeID]
+end
+
+-- Trainer-taught recipes of this profession not yet learned that could skill up
+-- somewhere between here and the target. Nothing is used before the trainer would
+-- teach it: the thresholds' first value is where a recipe turns orange, not where
+-- it's taught.
+---@param profession SkillUpContext
+---@param snapshot SkillUpSnapshot
+---@return SkillUpService[]
+local function Trainable(profession, snapshot)
+	local services = {}
+	for recipeID, recipe in pairs(ns.RecipeData) do
+		local training = recipe.skillLine == profession.skillLine and ns.TrainingFor(profession, recipeID)
+		local t = training and not ns.IsLearned(recipeID) and ns.Model.Get(recipeID)
+		if training and t then
+			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
+			if taught[1] <= snapshot.target and t[4] > snapshot.skill then
+				services[#services + 1] =
+					{ recipeID = recipeID, thresholds = taught, netCost = ns.NetCost(recipeID), fee = training[1] }
+			end
+		end
+	end
+	table.sort(services, function(a, b)
+		return a.recipeID < b.recipeID
+	end)
+	return services
+end
+
+local BAND_NAMES = { "orange", "yellow", "green", "grey" }
+
+-- Each difficulty band a recipe still has and the skill it starts at, from where the recipe can
+-- be learned: the data's first threshold can sit far below that. Empty without thresholds.
+---@param profession SkillUpContext
+---@param recipeID integer
+---@return SkillUpBand[]
+function ns.RecipeBands(profession, recipeID)
+	local bands = {}
+	local t = ns.Model.Get(recipeID)
+	if not t then
+		return bands
+	end
+	local training = ns.TrainingFor(profession, recipeID)
+	local scroll = ns.RecipeSources[recipeID]
+	local learnAt = training and training[2] + profession.modifier
+		or scroll and scroll.skill + profession.modifier
+		or t[1]
+	for i, name in ipairs(BAND_NAMES) do
+		local from = math.max(t[i], learnAt)
+		if i == #BAND_NAMES or from < t[i + 1] then
+			bands[#bands + 1] = { color = name, from = from }
+		end
+	end
+	return bands
+end
+
+---@param thresholds number[]?
+---@param from number
+---@param to number
+---@return number
+local function ExpectedCrafts(thresholds, from, to)
+	local expected = 0
+	for skill = from, to - 1 do
+		expected = expected + 1 / ns.Model.Chance(thresholds, skill)
+	end
+	return expected
+end
+
+-- A segment that crafts past the rank's cap from below the skill the trainer wants
+-- for it is split there, so the rank is trained between its halves.
+---@param segments SkillUpSegment[]
+---@param rank SkillUpRank
+---@param modifier number
+local function SplitAtRank(segments, rank, modifier)
+	local at = rank.reqSkill + modifier
+	for index, segment in ipairs(segments) do
+		if segment.fromSkill < at and segment.toSkill - modifier > rank.cap - RANK_SPAN then
+			local thresholds = ns.Model.Get(segment.recipeID)
+			local rest = { recipeID = segment.recipeID, fromSkill = at, toSkill = segment.toSkill }
+			rest.expectedCrafts = ExpectedCrafts(thresholds, at, segment.toSkill)
+			rest.crafts = math.ceil(rest.expectedCrafts)
+			segment.toSkill = at
+			segment.expectedCrafts = ExpectedCrafts(thresholds, segment.fromSkill, at)
+			segment.crafts = math.ceil(segment.expectedCrafts)
+			table.insert(segments, index + 1, rest)
+			return
+		end
+	end
+end
+
+-- The order the plan is walked in: each rank once the route passes the cap below it, a recipe's
+-- training just before its first craft, then the crafts.
+---@param plan SkillUpPlan
+---@return SkillUpRouteStep[]
+local function Walk(plan)
+	local steps, nextRank = {}, 1
+	local training = {}
+	for _, step in ipairs(plan.training) do
+		training[step.recipeID] = step
+	end
+	for _, craft in ipairs(plan.crafts) do
+		local rank = plan.ranks[nextRank]
+		while rank and craft.to > rank.cap - RANK_SPAN do
+			steps[#steps + 1] = { rank = rank }
+			nextRank = nextRank + 1
+			rank = plan.ranks[nextRank]
+		end
+		local step = training[craft.recipeID]
+		if step then
+			training[craft.recipeID] = nil
+			steps[#steps + 1] = { training = step }
+		end
+		steps[#steps + 1] = { craft = craft }
+	end
+	return steps
+end
+
+-- The planner's route, which is in effective skill, as the plan a player reads.
+---@param profession SkillUpProfession
+---@param target number
+---@param route SkillUpTrainedRoute
+---@return SkillUpPlan
+local function Finish(profession, target, route)
+	local m = profession.modifier
+	local cost = route.trainingCost
+	-- Each rank is needed once the route passes the cap below it: where it gets to,
+	-- which falls short of the target when the known recipes run out.
+	local ranks = {}
+	for _, rank in ipairs(NextRanks(profession)) do
+		if route.reachedSkill - m > rank.cap - RANK_SPAN then
+			ranks[#ranks + 1] = rank
+			cost = cost + rank.fee
+			SplitAtRank(route.segments, rank, m)
+		end
+	end
+	local crafts = {}
+	for index, segment in ipairs(route.segments) do
+		crafts[index] = {
+			recipeID = segment.recipeID,
+			from = segment.fromSkill - m,
+			to = segment.toSkill - m,
+			crafts = segment.crafts,
+			expectedCrafts = segment.expectedCrafts,
+			color = ns.Model.Color(ns.Model.Get(segment.recipeID), segment.fromSkill),
+		}
+	end
+	local training = {}
+	for index, step in ipairs(route.training) do
+		local reqSkill = ns.TrainingFor(profession, step.recipeID)[2]
+		training[index] = {
+			recipeID = step.recipeID,
+			fee = step.fee,
+			usedAt = step.atSkill - m,
+			reqSkill = reqSkill,
+			-- A trainer teaches recipes needing less than the cap they train to.
+			cap = reqSkill + 1,
+		}
+	end
+	---@type SkillUpPlan
+	local plan = {
+		profession = profession,
+		target = target,
+		reached = route.reachedSkill - m,
+		crafts = crafts,
+		training = training,
+		ranks = ranks,
+		steps = {},
+		cost = route.expectedCost + cost,
+		unpriced = route.excluded.unpriced,
+		unpricedRecipes = route.excluded.recipes,
+		stopReason = route.stopReason,
+	}
+	plan.steps = Walk(plan)
+	return plan
+end
+
+-- Planning with training re-plans once per candidate, so plans are kept until
+-- prices, recipes, fees or targets change; skill is part of the key.
+local plans = {}
+
+function ns.InvalidatePlans()
+	plans = {}
+	ns.InvalidateAPI()
+end
+
+-- The cheapest way to the target from the recipes this character knows, with whatever training
+-- pays for itself and the ranks it passes.
+---@param profession SkillUpProfession
+---@return SkillUpPlan
+function ns.PlanRoute(profession)
+	local target = RouteTarget(profession)
+	local key = table.concat({ profession.skill, profession.modifier, profession.max, target }, ":")
+	local cached = plans[profession.skillLine]
+	if cached and cached.key == key then
+		cached.plan.profession = profession
+		return cached.plan
+	end
+	local snapshot = Snapshot(profession, target)
+	local plan = Finish(profession, target, ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot)))
+	plans[profession.skillLine] = { key = key, plan = plan }
+	return plan
+end
+
+-- Which of a trainer's offers to train next on the way to the target, nil when none helps.
+-- `known` are recipes the trainer shows as learned, which the learned record may not have yet.
+---@param profession SkillUpContext
+---@param known table<integer, boolean>
+---@param offers {recipeID: integer, fee: number}[]
+---@return integer?
+function ns.BestTraining(profession, known, offers)
+	if profession.capped then
+		return nil
+	end
+	local services = {}
+	for _, offer in ipairs(offers) do
+		local thresholds = ns.Model.Get(offer.recipeID)
+		if thresholds and not ns.IsLearned(offer.recipeID) then
+			services[#services + 1] = {
+				recipeID = offer.recipeID,
+				thresholds = thresholds,
+				netCost = ns.NetCost(offer.recipeID),
+				fee = offer.fee,
+			}
+		end
+	end
+	table.sort(services, function(a, b)
+		return a.recipeID < b.recipeID
+	end)
+	local best = ns.Model.RecommendTraining(Snapshot(profession, RouteTarget(profession), known), services)
+	return best and best.recipeID or nil
+end
+
+-- Everything the plan's crafts use, as totals: what you have is compared live, so the
+-- list stays right as you buy, craft or bank things.
+---@param plan SkillUpPlan
+---@return SkillUpNeededItem[]
+function ns.RouteReagents(plan)
+	local list = ns.Model.ShoppingList(plan.crafts, ns.Reagents, function()
+		return 0
+	end, ns.PriceSource)
+	local items = {}
+	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
+		for _, item in ipairs(list[source]) do
+			items[#items + 1] = { itemID = item.itemID, need = item.count, source = source }
+		end
+	end
+	return items
+end
+
+-- Reagents with no price among the known recipes the plan left out for it.
+---@param plan SkillUpPlan
+---@return integer[]
+function ns.UnpricedReagents(plan)
+	local seen, items = {}, {}
+	for _, recipeID in ipairs(plan.unpricedRecipes) do
+		for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
+			if not seen[reagent.itemID] and not ns.Price(reagent.itemID) then
+				seen[reagent.itemID] = true
+				items[#items + 1] = reagent.itemID
+			end
+		end
+	end
+	table.sort(items)
+	return items
+end
+
+-- Why a plan has nothing to craft, as the page and the tracker say it; nil when it has.
+---@param plan SkillUpPlan
+---@return string?
+function ns.RouteBlocked(plan)
+	if #plan.crafts > 0 then
+		return nil
+	elseif plan.profession.capped and #plan.ranks == 0 then
+		return string.format(L["At the %d cap: no trainer teaches the next rank."], plan.profession.max)
+	elseif plan.unpriced > 0 then
+		-- Auctionator knows only what it has scanned, so installing it isn't enough.
+		local without = L["These reagents have no vendor price. Auction prices need Auctionator."]
+		local with = L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."]
+		return ns.HasAuctionator() and with or without
+	elseif plan.stopReason == "no_recipe" then
+		return string.format(L["Nothing you know skills up past %d."], plan.reached)
+	end
+end
+
+-- The plan's first craft, as many times as it needs and the bags allow, with
+-- its label; or why it can't be crafted. The profession must be the open one.
+---@param plan SkillUpPlan
+---@return SkillUpCraft
+function ns.NextCraft(plan)
+	local profession, craft = plan.profession, plan.crafts[1]
+	if not craft then
+		return { text = L["Craft next"], reason = L["Nothing to craft on this route."] }
+	elseif ns.OpenSkillLine() ~= profession.skillLine then
+		return { text = L["Craft next"], reason = string.format(L["Open %s to craft from here."], profession.name) }
+	elseif profession.capped and plan.ranks[1] then
+		return {
+			text = L["Craft next"],
+			reason = string.format(L["Train %s first: you're at your cap."], plan.ranks[1].name),
+		}
+	end
+	local recipeID = craft.recipeID
+	local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
+	if not ns.IsLearned(recipeID) then
+		return { text = L["Craft next"], reason = string.format(L["Train %s first."], name) }
+	end
+	-- Past the cap a craft gives no skill-up until the next rank is trained.
+	local crafts, m = craft.crafts, profession.modifier
+	if profession.max > 0 and craft.to > profession.max then
+		crafts = math.ceil(ExpectedCrafts(ns.Model.Get(recipeID), craft.from + m, profession.max + m))
+	end
+	-- RecipeInfo has no count; this one includes the client's reagent and resource rules.
+	local count = math.min(crafts, C_TradeSkillUI.GetCraftableCount(recipeID))
+	local result = { text = string.format(L["Craft %d× %s"], math.max(count, 1), name) }
+	if count > 0 then
+		result.recipeID, result.count = recipeID, count
+	else
+		result.reason = L["Missing reagents for this step."]
+	end
+	return result
+end

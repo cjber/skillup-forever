@@ -183,6 +183,7 @@ near(route.expectedCost, 50, "route sums net costs")
 equal(route.reachedSkill, 5, "route reaches target")
 equal(route.stopReason, nil, "successful route has no stop reason")
 equal(route.excluded.unpriced, 1, "unpriced counted once across all skills")
+equal(#route.excluded.recipes, 1, "and named")
 equal(routeSnapshot.recipes[1].recipeID, 20, "planning does not sort input")
 
 for _, candidates in ipairs({

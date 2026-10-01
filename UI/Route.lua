@@ -15,215 +15,6 @@ local tab
 local selected -- skill line shown on the page
 local pending = false
 
-local RANK_NAMES = { [75] = APPRENTICE, [150] = JOURNEYMAN, [225] = EXPERT, [300] = ARTISAN }
-
--- The rank a skill cap belongs to, nil for a cap no trainer rank ends at.
----@param cap number
----@return string?
-function ns.RankName(cap)
-	return RANK_NAMES[cap]
-end
-
--- The ranks a trainer teaches above the current cap, in order, and the highest cap
--- they reach. It stops at a gap: a rank that comes from a book or quest isn't known.
----@param profession SkillUpContext
----@return SkillUpRank[]
----@return number
-local function NextRanks(profession)
-	local byCap = {}
-	for _, rank in ipairs(ns.TrainerRanks[profession.skillLine] or {}) do
-		byCap[rank[1]] = rank
-	end
-	local ranks, cap = {}, profession.max
-	while byCap[cap + 75] do
-		local rank = byCap[cap + 75]
-		ranks[#ranks + 1] =
-			{ name = RANK_NAMES[rank[1]], cap = rank[1], fee = rank[2], reqSkill = rank[3], level = rank[4] }
-		cap = rank[1]
-	end
-	return ranks, cap
-end
-
--- Levelled by gathering, not crafting: their few Forever recipes can't carry a route.
-local GATHERING = { [182] = true, [356] = true, [393] = true } -- Herbalism, Fishing, Skinning
-
--- The player's professions a route can be planned for.
----@return table<integer, SkillUpProfession>
-function ns.RouteProfessions()
-	local professions = {}
-	for skillLine, profession in pairs(ns.PlayerProfessions()) do
-		if not GATHERING[skillLine] then
-			professions[skillLine] = profession
-		end
-	end
-	return professions
-end
-
--- The chosen target in base skill, per profession; the trainer plans to it too.
--- A target already reached gives way to the default. Past the cap is fine up to
--- the last rank a trainer teaches; the route trains those ranks on the way.
----@param profession SkillUpContext
----@return number
-local function RouteTarget(profession)
-	local saved = ns.db.routeTargets[profession.skillLine]
-	local _, ceiling = NextRanks(profession)
-	return math.min(saved and saved > profession.base and saved or profession.base + 25, ceiling)
-end
-
--- The cheapest route to the target from the recipes this character knows, for
--- any of its professions: bundled recipe data plus the learned record, so the
--- profession needn't be open. `known` adds recipes the caller knows are
--- learned (the trainer's "used" services). Skills are effective (base + bonus).
----@param profession SkillUpContext
----@param known table<integer, boolean>?
----@return SkillUpSnapshot
-function ns.RouteSnapshot(profession, known)
-	local recipes = {}
-	for recipeID, recipe in pairs(ns.RecipeData) do
-		local thresholds = recipe.skillLine == profession.skillLine and ns.Model.Get(recipeID)
-		if thresholds and (known and known[recipeID] or ns.IsLearned(recipeID)) then
-			recipes[#recipes + 1] = { recipeID = recipeID, thresholds = thresholds, netCost = ns.NetCost(recipeID) }
-		end
-	end
-	local target = RouteTarget(profession)
-	return { skill = profession.skill, target = target + profession.modifier, recipes = recipes }
-end
-
--- { fee, required base skill }: what a trainer was seen to charge, else the base fee.
----@param profession SkillUpContext
----@param recipeID integer
----@return number[]?
-function ns.TrainingFor(profession, recipeID)
-	local seen = ns.db.trainer[profession.skillLine]
-	return seen and seen[recipeID] or ns.TrainerFees[recipeID]
-end
-
--- Trainer-taught recipes of this profession not yet learned that could skill up
--- somewhere between here and the target. Nothing is used before the trainer would
--- teach it: the thresholds' first value is where a recipe turns orange, not where
--- it's taught.
----@param profession SkillUpContext
----@param snapshot SkillUpSnapshot
----@return SkillUpService[]
-local function Trainable(profession, snapshot)
-	local services = {}
-	for recipeID, recipe in pairs(ns.RecipeData) do
-		local training = recipe.skillLine == profession.skillLine and ns.TrainingFor(profession, recipeID)
-		local t = training and not ns.IsLearned(recipeID) and ns.Model.Get(recipeID)
-		if training and t then
-			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
-			if taught[1] <= snapshot.target and t[4] > snapshot.skill then
-				services[#services + 1] =
-					{ recipeID = recipeID, thresholds = taught, netCost = ns.NetCost(recipeID), fee = training[1] }
-			end
-		end
-	end
-	table.sort(services, function(a, b)
-		return a.recipeID < b.recipeID
-	end)
-	return services
-end
-
--- Planning with training re-plans once per candidate, so plans are kept until
--- prices, recipes, fees or targets change; skill is part of the key.
-local plans = {}
-
-function ns.InvalidatePlans()
-	plans = {}
-	ns.InvalidateAPI()
-end
-
----@param thresholds number[]?
----@param from number
----@param to number
----@return number
-local function ExpectedCrafts(thresholds, from, to)
-	local expected = 0
-	for skill = from, to - 1 do
-		expected = expected + 1 / ns.Model.Chance(thresholds, skill)
-	end
-	return expected
-end
-
--- A segment that crafts past the rank's cap from below the skill the trainer wants
--- for it is split there, so the rank is trained between its halves.
----@param segments SkillUpSegment[]
----@param rank SkillUpRank
----@param modifier number
-local function SplitAtRank(segments, rank, modifier)
-	local at = rank.reqSkill + modifier
-	for index, segment in ipairs(segments) do
-		if segment.fromSkill < at and segment.toSkill - modifier > rank.cap - 75 then
-			local thresholds = ns.Model.Get(segment.recipeID)
-			local rest = { recipeID = segment.recipeID, fromSkill = at, toSkill = segment.toSkill }
-			rest.expectedCrafts = ExpectedCrafts(thresholds, at, segment.toSkill)
-			rest.crafts = math.ceil(rest.expectedCrafts)
-			segment.toSkill = at
-			segment.expectedCrafts = ExpectedCrafts(thresholds, segment.fromSkill, at)
-			segment.crafts = math.ceil(segment.expectedCrafts)
-			table.insert(segments, index + 1, rest)
-			return
-		end
-	end
-end
-
----@param profession SkillUpProfession
----@return SkillUpPlan
-function ns.PlanRoute(profession)
-	local target = RouteTarget(profession)
-	local key = profession.skill .. ":" .. profession.max .. ":" .. target
-	local cached = plans[profession.skillLine]
-	if cached and cached.key == key then
-		return cached.route
-	end
-	local snapshot = ns.RouteSnapshot(profession)
-	local route = ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot))
-	---@cast route SkillUpPlan
-	route.profession = profession.name
-	route.target = target
-	-- Each rank is needed once the route passes the cap below it: where it gets to,
-	-- which falls short of the target when the known recipes run out.
-	route.ranks = {}
-	for _, rank in ipairs(NextRanks(profession)) do
-		if route.reachedSkill - profession.modifier > rank.cap - 75 then
-			route.ranks[#route.ranks + 1] = rank
-			route.trainingCost = route.trainingCost + rank.fee
-			SplitAtRank(route.segments, rank, profession.modifier)
-		end
-	end
-	plans[profession.skillLine] = { key = key, route = route }
-	return route
-end
-
--- The route in the order it is walked: each rank once the route passes the cap
--- below it, a recipe's training just before its first craft, then the crafts.
----@param profession SkillUpProfession
----@param route SkillUpPlan
----@return SkillUpRouteStep[]
-function ns.RouteSteps(profession, route)
-	local steps, nextRank = {}, 1
-	local training = {}
-	for _, step in ipairs(route.training) do
-		training[step.recipeID] = step
-	end
-	for _, segment in ipairs(route.segments) do
-		local rank = route.ranks[nextRank]
-		while rank and segment.toSkill - profession.modifier > rank.cap - 75 do
-			steps[#steps + 1] = { rank = rank }
-			nextRank = nextRank + 1
-			rank = route.ranks[nextRank]
-		end
-		local step = training[segment.recipeID]
-		if step then
-			training[segment.recipeID] = nil
-			step.reqSkill = ns.TrainingFor(profession, step.recipeID)[2]
-			steps[#steps + 1] = { training = step }
-		end
-		steps[#steps + 1] = { segment = segment }
-	end
-	return steps
-end
-
 ---@param recipeID integer
 ---@return string
 local function RecipeName(recipeID)
@@ -248,15 +39,6 @@ end
 local function RecipeIcon(recipeID)
 	local output = Output(recipeID)
 	return output and C_Item.GetItemIconByID(output.itemID) or C_Spell.GetSpellTexture(recipeID)
-end
-
----@param rank SkillUpRank
----@return string
-function ns.RankText(rank)
-	if rank.level > UnitLevel("player") then
-		return string.format(L["Train %s at %d (level %d)"], rank.name, rank.reqSkill, rank.level)
-	end
-	return string.format(L["Train %s at %d"], rank.name, rank.reqSkill)
 end
 
 ---@param tooltip GameTooltip
@@ -290,52 +72,36 @@ local function RecipeTitle(tooltip, recipeID, title)
 	end
 end
 
-local BAND_NAMES = { "orange", "yellow", "green", "grey" }
 local BAND_LABELS = { orange = L["orange"], yellow = L["yellow"], green = L["green"], grey = L["grey"] }
 
--- "orange yellow green    120  132  145": each band's name and where it starts, in its
--- colour, from where the recipe can be learned: the data's first threshold can sit far below that.
+-- "orange yellow green    120  132  145": each band's name and where it starts, in its colour.
 ---@param tooltip GameTooltip
 ---@param profession SkillUpProfession
 ---@param recipeID integer
 local function AddBands(tooltip, profession, recipeID)
-	local t = ns.Model.Get(recipeID)
-	if not t then
-		return
-	end
-	local training = ns.TrainingFor(profession, recipeID)
-	local scroll = ns.RecipeSources[recipeID]
-	local learnAt = training and training[2] + profession.modifier
-		or scroll and scroll.skill + profession.modifier
-		or t[1]
 	local parts, names = {}, {}
-	for i, name in ipairs(BAND_NAMES) do
-		local from = math.max(t[i], learnAt)
-		if i == #BAND_NAMES or from < t[i + 1] then
-			parts[#parts + 1] = ns.COLORS[name]:WrapTextInColorCode(tostring(from))
-			names[#names + 1] = ns.COLORS[name]:WrapTextInColorCode(BAND_LABELS[name])
-		end
+	for index, band in ipairs(ns.RecipeBands(profession, recipeID)) do
+		parts[index] = ns.COLORS[band.color]:WrapTextInColorCode(tostring(band.from))
+		names[index] = ns.COLORS[band.color]:WrapTextInColorCode(BAND_LABELS[band.color])
 	end
-	AddLine(tooltip, table.concat(names, " "), table.concat(parts, "  "))
+	if #parts > 0 then
+		AddLine(tooltip, table.concat(names, " "), table.concat(parts, "  "))
+	end
 end
 
 ---@param tooltip GameTooltip
 ---@param profession SkillUpProfession
----@param segment SkillUpSegment
-local function CraftTooltip(tooltip, profession, segment)
-	local recipeID, m = segment.recipeID, profession.modifier
+---@param craft SkillUpPlanCraft
+local function CraftTooltip(tooltip, profession, craft)
+	local recipeID = craft.recipeID
 	RecipeTitle(tooltip, recipeID, RecipeName(recipeID))
-	AddLine(
-		tooltip,
-		L["Crafts"],
-		string.format(L["%d, from %d to %d"], segment.crafts, segment.fromSkill - m, segment.toSkill - m)
-	)
+	AddLine(tooltip, L["Crafts"], string.format(L["%d, from %d to %d"], craft.crafts, craft.from, craft.to))
 	AddBands(tooltip, profession, recipeID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
 		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
 		local have = ns.Have(reagent.itemID)
-		local need = reagent.quantity * segment.crafts
+		local need = reagent.quantity * craft.crafts
 		local color = have >= need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR
 		GameTooltip_AddColoredDoubleLine(
 			tooltip,
@@ -345,7 +111,7 @@ local function CraftTooltip(tooltip, profession, segment)
 			color
 		)
 	end
-	AddLine(tooltip, L["Cost"], Money(ns.NetCost(recipeID) * segment.expectedCrafts))
+	AddLine(tooltip, L["Cost"], Money(ns.NetCost(recipeID) * craft.expectedCrafts))
 	if ns.IsLearned(recipeID) and profession.skillLine == ns.OpenSkillLine() then
 		GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
 	end
@@ -353,15 +119,15 @@ end
 
 ---@param tooltip GameTooltip
 ---@param profession SkillUpProfession
----@param step SkillUpTraining
+---@param step SkillUpPlanTraining
 local function TrainTooltip(tooltip, profession, step)
 	RecipeTitle(tooltip, step.recipeID, string.format(L["Train %s"], RecipeName(step.recipeID)))
 	GameTooltip_AddHighlightLine(tooltip, string.format(L["Taught by %s trainers."], profession.name))
 	AddLine(tooltip, L["Fee"], Money(step.fee))
 	RequiresLine(tooltip, profession, step.reqSkill)
-	AddLine(tooltip, L["First used at"], tostring(step.atSkill - profession.modifier))
+	AddLine(tooltip, L["First used at"], tostring(step.usedAt))
 	AddBands(tooltip, profession, step.recipeID)
-	ns.AddNearest(tooltip, L["Nearest trainer"], ns.NearestTrainer(profession, step.reqSkill + 1, true))
+	ns.AddNearest(tooltip, L["Nearest trainer"], ns.NearestTrainer(profession, step.cap, true))
 end
 
 ---@param tooltip GameTooltip
@@ -451,23 +217,22 @@ end
 
 -- Where the known recipes run out: the scrolls that would carry the route on.
 ---@param list SkillUpList
----@param profession SkillUpProfession
----@param route SkillUpPlan
-local function RenderSuggestions(list, profession, route)
-	local suggestions = ns.RecipeSuggestions(profession, route.reachedSkill)
+---@param plan SkillUpPlan
+local function RenderSuggestions(list, plan)
+	local profession = plan.profession
+	local suggestions = ns.RecipeSuggestions(profession, plan.reached)
 	if #suggestions == 0 then
 		return
 	end
 	list:Message(L["Recipes from vendors, quests and drops that would carry it on:"], NORMAL_FONT_COLOR)
 	for i = 1, math.min(#suggestions, SUGGESTIONS_SHOWN) do
 		local suggestion = suggestions[i]
-		local t = ns.Model.Get(suggestion.recipeID)
 		local price = ns.ScrollPrice(suggestion.source)
 		list:Add({
 			icon = C_Item.GetItemIconByID(suggestion.source.item),
 			text = string.format("%s  |cff808080%s|r", RecipeName(suggestion.recipeID), suggestion.kindText),
-			color = ns.COLORS[ns.Model.Color(t, route.reachedSkill)],
-			values = { price and Money(price) or "?", tostring(suggestion.reach - profession.modifier) },
+			color = ns.COLORS[suggestion.color],
+			values = { price and Money(price) or "?", tostring(suggestion.reach) },
 			tooltip = function(tooltip)
 				SuggestionTooltip(tooltip, profession, suggestion)
 			end,
@@ -476,37 +241,17 @@ local function RenderSuggestions(list, profession, route)
 	end
 end
 
--- Why a route has nothing to craft, as the page and the tracker say it; nil when it has.
----@param profession SkillUpProfession
----@param route SkillUpPlan
----@return string?
-function ns.RouteBlocked(profession, route)
-	if #route.segments > 0 then
-		return nil
-	elseif profession.capped and #route.ranks == 0 then
-		return string.format(L["At the %d cap: no trainer teaches the next rank."], profession.max)
-	elseif route.excluded.unpriced > 0 then
-		-- Auctionator knows only what it has scanned, so installing it isn't enough.
-		local without = L["These reagents have no vendor price. Auction prices need Auctionator."]
-		local with = L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."]
-		return ns.HasAuctionator() and with or without
-	elseif route.stopReason == "no_recipe" then
-		return string.format(L["Nothing you know skills up past %d."], route.reachedSkill - profession.modifier)
-	end
-end
-
 ---@param list SkillUpList
----@param profession SkillUpProfession
----@param route SkillUpPlan
-local function RenderRoute(list, profession, route)
-	local blocked = ns.RouteBlocked(profession, route)
-	if blocked and profession.capped and #route.ranks == 0 then
+---@param plan SkillUpPlan
+local function RenderRoute(list, plan)
+	local profession = plan.profession
+	local blocked = ns.RouteBlocked(plan)
+	if blocked and profession.capped and #plan.ranks == 0 then
 		list:Message(blocked)
 		return
 	end
-	local m = profession.modifier
-	for _, step in ipairs(ns.RouteSteps(profession, route)) do
-		local rank, training, segment = step.rank, step.training, step.segment
+	for _, step in ipairs(plan.steps) do
+		local rank, training, craft = step.rank, step.training, step.craft
 		if rank then
 			list:Add({
 				icon = profession.icon,
@@ -527,43 +272,43 @@ local function RenderRoute(list, profession, route)
 				tooltip = function(tooltip)
 					TrainTooltip(tooltip, profession, training)
 				end,
-				click = TrainerClick(profession, training.reqSkill + 1),
+				click = TrainerClick(profession, training.cap),
 			})
-		elseif segment then
+		elseif craft then
 			list:Add({
-				icon = RecipeIcon(segment.recipeID),
-				text = RecipeName(segment.recipeID),
-				color = ns.COLORS[ns.Model.Color(ns.Model.Get(segment.recipeID), segment.fromSkill)],
+				icon = RecipeIcon(craft.recipeID),
+				text = RecipeName(craft.recipeID),
+				color = ns.COLORS[craft.color],
 				values = {
-					Money(ns.NetCost(segment.recipeID) * segment.expectedCrafts),
-					tostring(segment.toSkill - m),
-					tostring(segment.crafts),
+					Money(ns.NetCost(craft.recipeID) * craft.expectedCrafts),
+					tostring(craft.to),
+					tostring(craft.crafts),
 				},
 				tooltip = function(tooltip)
-					CraftTooltip(tooltip, profession, segment)
+					CraftTooltip(tooltip, profession, craft)
 				end,
-				click = RecipeClick(segment.recipeID),
+				click = RecipeClick(craft.recipeID),
 			})
 		end
 	end
-	if #route.segments > 0 then
+	if #plan.crafts > 0 then
 		list:Add({
 			text = TOTAL,
 			color = NORMAL_FONT_COLOR,
-			values = { Money(route.expectedCost + route.trainingCost) },
+			values = { Money(plan.cost) },
 			valueColor = NORMAL_FONT_COLOR,
 		})
 	end
-	if blocked and route.excluded.unpriced > 0 then
+	if blocked and plan.unpriced > 0 then
 		list:Message(blocked)
-	elseif route.stopReason == "no_recipe" then
-		local known = route.excluded.unpriced > 0 and L["Nothing priced you know skills up past %d."]
+	elseif plan.stopReason == "no_recipe" then
+		local known = plan.unpriced > 0 and L["Nothing priced you know skills up past %d."]
 			or L["Nothing you know skills up past %d."]
-		list:Message(string.format(known, route.reachedSkill - m), RED_FONT_COLOR)
-		RenderSuggestions(list, profession, route)
+		list:Message(string.format(known, plan.reached), RED_FONT_COLOR)
+		RenderSuggestions(list, plan)
 	end
-	if #route.segments > 0 and route.excluded.unpriced > 0 then
-		list:Message(string.format(L["%d recipes skipped: reagents not priced yet."], route.excluded.unpriced))
+	if #plan.crafts > 0 and plan.unpriced > 0 then
+		list:Message(string.format(L["%d recipes skipped: reagents not priced yet."], plan.unpriced))
 	end
 end
 
@@ -596,27 +341,6 @@ local function ReagentTooltip(tooltip, item)
 	if item.source == "vendor" then
 		ns.AddNearest(tooltip, L["Nearest vendor"], ns.NearestVendor(item.itemID, true))
 	end
-end
-
--- Reagents of known recipes that still skill up but have no price, which is what
--- keeps them out of the route.
----@param profession SkillUpProfession
----@return integer[]
-local function UnpricedReagents(profession)
-	local snapshot = ns.RouteSnapshot(profession)
-	local seen, items = {}, {}
-	for _, recipe in ipairs(snapshot.recipes) do
-		if recipe.netCost == nil and recipe.thresholds[4] > snapshot.skill then
-			for _, reagent in ipairs(ns.Reagents(recipe.recipeID) or {}) do
-				if not seen[reagent.itemID] and not ns.Price(reagent.itemID) then
-					seen[reagent.itemID] = true
-					items[#items + 1] = reagent.itemID
-				end
-			end
-		end
-	end
-	table.sort(items)
-	return items
 end
 
 ---@param list SkillUpList
@@ -707,45 +431,9 @@ local function PriceAge(reagents)
 	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 
--- The route's first step, as many times as it needs and the bags allow, with
--- its label; or why it can't be crafted. The profession must be the open one.
----@param profession SkillUpProfession
----@param route SkillUpPlan
----@return SkillUpCraft
-function ns.NextCraft(profession, route)
-	local segment = route.segments[1]
-	if not segment then
-		return { text = L["Craft next"], reason = L["Nothing to craft on this route."] }
-	elseif ns.OpenSkillLine() ~= profession.skillLine then
-		return { text = L["Craft next"], reason = string.format(L["Open %s to craft from here."], profession.name) }
-	elseif profession.capped and route.ranks[1] then
-		return {
-			text = L["Craft next"],
-			reason = string.format(L["Train %s first: you're at your cap."], route.ranks[1].name),
-		}
-	elseif not ns.IsLearned(segment.recipeID) then
-		return { text = L["Craft next"], reason = string.format(L["Train %s first."], RecipeName(segment.recipeID)) }
-	end
-	-- Past the cap a craft gives no skill-up until the next rank is trained.
-	local crafts, cap = segment.crafts, profession.max + profession.modifier
-	if profession.max > 0 and segment.toSkill > cap then
-		crafts = math.ceil(ExpectedCrafts(ns.Model.Get(segment.recipeID), segment.fromSkill, cap))
-	end
-	-- RecipeInfo has no count; this one includes the client's reagent and resource rules.
-	local count = math.min(crafts, C_TradeSkillUI.GetCraftableCount(segment.recipeID))
-	local craft = { text = string.format(L["Craft %d× %s"], math.max(count, 1), RecipeName(segment.recipeID)) }
-	if count > 0 then
-		craft.recipeID, craft.count = segment.recipeID, count
-	else
-		craft.reason = L["Missing reagents for this step."]
-	end
-	return craft
-end
-
----@param profession SkillUpProfession
----@param route SkillUpPlan
-local function SetCraft(profession, route)
-	local button, craft = page.Craft, ns.NextCraft(profession, route)
+---@param plan SkillUpPlan
+local function SetCraft(plan)
+	local button, craft = page.Craft, ns.NextCraft(plan)
 	button.recipeID, button.count, button.reason = craft.recipeID, craft.count, craft.reason
 	button:SetText(craft.text)
 	button:SetSize(math.min(button:GetTextWidth() + 32, 240), 22)
@@ -768,14 +456,14 @@ local function Render()
 	end
 	ProfessionsFrame:SetPortraitToAsset(profession.icon)
 	page.Skill:SetFormattedText(L["Skill  %d/%d     Target"], profession.base, profession.max)
-	local route = ns.PlanRoute(profession)
+	local plan = ns.PlanRoute(profession)
 	if not page.Target:HasFocus() then
-		page.Target:SetText(tostring(route.target))
+		page.Target:SetText(tostring(plan.target))
 	end
-	local reagents = ns.RouteReagents(route)
-	RenderRoute(page.RouteList, profession, route)
-	if #route.segments == 0 and route.excluded.unpriced > 0 then
-		RenderUnpriced(page.ReagentList, UnpricedReagents(profession))
+	local reagents = ns.RouteReagents(plan)
+	RenderRoute(page.RouteList, plan)
+	if #plan.crafts == 0 and plan.unpriced > 0 then
+		RenderUnpriced(page.ReagentList, ns.UnpricedReagents(plan))
 	else
 		RenderReagents(page.ReagentList, reagents)
 	end
@@ -786,7 +474,7 @@ local function Render()
 	page.ReagentList:Finish()
 	page.Track:SetText(ns.IsTracked(selected) and L["Stop tracking"] or L["Track"])
 	page.Auctionator:SetEnabled(#reagents > 0)
-	SetCraft(profession, route)
+	SetCraft(plan)
 end
 
 -- Coalesces bursts of list/skill/price/bag updates into one plan.

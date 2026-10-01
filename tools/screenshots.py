@@ -317,6 +317,7 @@ local FILES = {
 	"Data/Trainer.lua",
 	"Data/Sources.lua",
 	"Core/Model.lua",
+	"Core/Plan.lua",
 	"Core/Core.lua",
 	"Integrations/Prices.lua",
 	"UI/Settings.lua",

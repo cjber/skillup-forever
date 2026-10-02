@@ -5,7 +5,7 @@ local function equal(actual, expected, label)
 	assert(actual == expected, label .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
 end
 
--- An update followed by /reload can leave newly added data files unloaded.
+-- An update followed by /reload can leave newly added files unloaded.
 for _, complete in ipairs({ false, true }) do
 	local callbacks, messages, initialized = {}, {}, 0
 	local function Init()
@@ -22,6 +22,7 @@ for _, complete in ipairs({ false, true }) do
 	if complete then
 		assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
 		ns.TrainerFees, ns.TrainerRanks, ns.RecipeSources = {}, {}, {}
+		ns.PlanRoute = Init
 	end
 	local env = setmetatable({
 		CreateColor = function() end,
@@ -75,6 +76,7 @@ do
 		InitShopping = function() end,
 		TrainerFees = {},
 		TrainerRanks = {},
+		PlanRoute = function() end,
 		RecipeSources = {},
 	}
 	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)

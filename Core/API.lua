@@ -163,11 +163,11 @@ local function Train(profession, text, cap, fee)
 end
 
 -- The route's first few steps, each craft preceded by getting what the bags lack for it.
----@param profession SkillUpProfession
----@param route SkillUpPlan
+---@param plan SkillUpPlan
 ---@return SkillUpAPIStep[]
 ---@return table<integer, fun(): integer?>
-local function Steps(profession, route)
+local function Steps(plan)
+	local profession = plan.profession
 	local steps, picks, held = {}, {}, {}
 	---@param step SkillUpAPIStep
 	---@param pick (fun(): integer?)?
@@ -177,24 +177,22 @@ local function Steps(profession, route)
 			picks[#steps] = pick
 		end
 	end
-	local m = profession.modifier
-	for _, walk in ipairs(ns.RouteSteps(profession, route)) do
+	for _, walk in ipairs(plan.steps) do
 		if #steps >= MAX_STEPS then
 			break
 		end
-		local rank, training, segment = walk.rank, walk.training, walk.segment
+		local rank, training, craft = walk.rank, walk.training, walk.craft
 		if rank then
 			Add(Train(profession, ns.RankText(rank), rank.cap, rank.fee)) -- multi-value: the step and its picker
 		elseif training then
 			local name = C_Spell.GetSpellName(training.recipeID) or string.format(L["recipe %d"], training.recipeID)
-			local step, pick =
-				Train(profession, string.format(L["Train %s"], name), training.reqSkill + 1, training.fee)
+			local step, pick = Train(profession, string.format(L["Train %s"], name), training.cap, training.fee)
 			step.spellID, step.itemID = training.recipeID, OutputItem(training.recipeID)
 			Add(step, pick)
-		elseif segment then
-			local recipeID = segment.recipeID
+		elseif craft then
+			local recipeID = craft.recipeID
 			for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
-				local itemID, need = reagent.itemID, reagent.quantity * segment.crafts
+				local itemID, need = reagent.itemID, reagent.quantity * craft.crafts
 				local have = held[itemID] or ns.Have(itemID)
 				held[itemID] = math.max(have - need, 0)
 				if have < need then
@@ -204,11 +202,11 @@ local function Steps(profession, route)
 			local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
 			Add({
 				kind = "craft",
-				text = string.format(L["Craft %d %s"], segment.crafts, name),
-				detail = string.format(L["%d to %d"], segment.fromSkill - m, segment.toSkill - m),
+				text = string.format(L["Craft %d %s"], craft.crafts, name),
+				detail = string.format(L["%d to %d"], craft.from, craft.to),
 				spellID = recipeID,
 				itemID = OutputItem(recipeID),
-				count = segment.crafts,
+				count = craft.crafts,
 				nav = false,
 			})
 		end
@@ -216,39 +214,38 @@ local function Steps(profession, route)
 	return steps, picks
 end
 
----@param profession SkillUpProfession
----@param route SkillUpPlan
+---@param plan SkillUpPlan
 ---@return SkillUpAPIRecipe[]
-local function Recipes(profession, route)
+local function Recipes(plan)
 	local training = {}
-	for _, step in ipairs(route.training) do
+	for _, step in ipairs(plan.training) do
 		training[step.recipeID] = step
 	end
-	local recipes, m = {}, profession.modifier
-	for i = 1, math.min(#route.segments, MAX_RECIPES) do
-		local segment = route.segments[i]
-		local recipeID, step = segment.recipeID, training[segment.recipeID]
+	local recipes = {}
+	for i = 1, math.min(#plan.crafts, MAX_RECIPES) do
+		local craft = plan.crafts[i]
+		local recipeID, step = craft.recipeID, training[craft.recipeID]
 		recipes[i] = {
 			spellID = recipeID,
 			itemID = OutputItem(recipeID),
 			name = C_Spell.GetSpellName(recipeID),
-			count = segment.crafts,
-			fromRank = segment.fromSkill - m,
-			toRank = segment.toSkill - m,
+			count = craft.crafts,
+			fromRank = craft.from,
+			toRank = craft.to,
 			learned = ns.IsLearned(recipeID) == true,
-			color = ns.Model.Color(ns.Model.Get(recipeID), segment.fromSkill),
-			trainAt = step and step.atSkill - m,
+			color = craft.color,
+			trainAt = step and step.usedAt,
 			cost = step and step.fee,
 		}
 	end
 	return recipes
 end
 
----@param route SkillUpPlan
+---@param plan SkillUpPlan
 ---@return SkillUpAPIReagent[]
-local function Reagents(route)
+local function Reagents(plan)
 	local reagents = {}
-	for _, item in ipairs(ns.RouteReagents(route)) do
+	for _, item in ipairs(ns.RouteReagents(plan)) do
 		reagents[#reagents + 1] =
 			{ itemID = item.itemID, need = item.need, have = ns.Have(item.itemID), source = ReagentSource(item) }
 	end
@@ -267,8 +264,8 @@ local function Build()
 	local entries, urgency = {}, {}
 	pickers = {}
 	for skillLine, profession in pairs(ns.RouteProfessions()) do
-		local route = ns.PlanRoute(profession)
-		local steps, picks = Steps(profession, route)
+		local plan = ns.PlanRoute(profession)
+		local steps, picks = Steps(plan)
 		pickers[skillLine] = picks
 		local entry = {
 			name = profession.name,
@@ -278,8 +275,8 @@ local function Build()
 			maxRank = profession.max,
 			title = ns.RankName(profession.max),
 			steps = steps,
-			recipes = Recipes(profession, route),
-			reagents = Reagents(route),
+			recipes = Recipes(plan),
+			reagents = Reagents(plan),
 		}
 		entries[#entries + 1] = entry
 		urgency[entry] = { #steps > 0 and 0 or 1, ns.IsTracked(skillLine) and 0 or 1, Urgency(entry) }

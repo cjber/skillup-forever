@@ -210,8 +210,7 @@ C_Trainer = {}
 ---@class SkillUpTrackerBlock : Frame
 ---@field id integer
 ---@field profession string
----@field professionInfo SkillUpProfession
----@field route SkillUpPlan
+---@field plan SkillUpPlan
 ---@field items SkillUpNeededItem[]
 ---@field steps {cap: number, text: string}[]
 ---@field vendorMissing {name: string, itemID: integer, vendor: integer}[]

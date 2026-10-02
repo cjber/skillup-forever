@@ -36,10 +36,10 @@ vendored `.sift/gate.py` and `.sift/agents.py`. LuaLS checks all TOC files again
 
 The tests are a headless harness, not the game client. Each spec `loadfile`s one production file
 with stubbed host APIs: `model_spec` (Core/Model.lua, Data/Thresholds.lua, Integrations/Prices.lua), `prices_spec`
-(Integrations/Prices.lua), `route_spec` (UI/Route.lua's `ns.NextCraft`, `ns.PlanRoute` over the bundled data, and the
-route page drawn into stub frames), `recipelist_spec` (UI/RecipeList.lua's native provider replacement,
-sorting and recursion), `api_spec` (Core/API.lua over Model, Route and Shopping), `shopping_spec`
-(the objective tracker's lines over Route), `tracker_host_spec` (UI/TrackerHost.lua's frame lifecycle and
+(Integrations/Prices.lua), `plan_spec` (Core/Plan.lua's levelling plan over the bundled data, with no frames loaded), `route_spec` (the
+route page drawn into stub frames from a real plan), `recipelist_spec` (UI/RecipeList.lua's native provider replacement,
+sorting and recursion), `api_spec` (Core/API.lua over Model, Plan and Shopping), `shopping_spec`
+(the objective tracker's lines over Plan), `tracker_host_spec` (UI/TrackerHost.lua's frame lifecycle and
 combat placement, plus the pinned Forever tracker source when `TRACKER_UI_ROOT` is set),
 `core_spec` (Core/Core.lua's init guard, SavedVariables migration and what's-new notice),
 `settings_spec` (UI/Settings.lua), `waypoint_spec` (Integrations/Sources.lua's waypoints and Shortest Path Forever
@@ -121,7 +121,7 @@ Audit slices from lowest to highest risk:
    `docs/curseforge.md` and the README; audits propose wording, never change it (see Conventions).
 5. `UI/Tooltip.lua`, `UI/RecipeList.lua`, `Integrations/Trainer.lua` — UI hooks, in-game verification only.
 6. `Integrations/Prices.lua`, `Core/Core.lua` — SavedVariables, vendor prices and the Auctionator price seam; persisted data.
-7. `UI/Route.lua`, `UI/Shopping.lua`, `Core/API.lua` — largest, most stateful UI (crafting, buying and tracker
+7. `Core/Plan.lua`, `UI/Route.lua`, `UI/Shopping.lua`, `Core/API.lua` — the levelling plan and the largest, most stateful UI over it (crafting, buying and tracker
    integration), and the public API other addons call (`types/API.lua` is its contract).
 
 Tiers 6 and 7 get a second, independent reviewer (Codex): on 2026-09-24 it found the two route and

@@ -23,17 +23,18 @@
 ---@field AttachRecipeList fun()
 ---@field RefreshRecipeList fun()
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
----@field RouteSnapshot fun(profession: SkillUpContext, known?: table<integer, boolean>): SkillUpSnapshot
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field InvalidatePlans fun()
 ---@field InvalidateAPI fun()
 ---@field RankName fun(cap: number): string?
----@field RouteSteps fun(profession: SkillUpProfession, route: SkillUpPlan): SkillUpRouteStep[]
----@field RouteBlocked fun(profession: SkillUpProfession, route: SkillUpPlan): string?
+---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
+---@field BestTraining fun(profession: SkillUpContext, known: table<integer, boolean>, offers: {recipeID: integer, fee: number}[]): integer?
+---@field RouteBlocked fun(plan: SkillUpPlan): string?
+---@field UnpricedReagents fun(plan: SkillUpPlan): integer[]
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field RankText fun(rank: SkillUpRank): string
 ---@field CreateList fun(parent: Frame, columns: SkillUpColumn[]): SkillUpList
----@field NextCraft fun(profession: SkillUpProfession, route: SkillUpPlan): SkillUpCraft
+---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field RefreshRoute fun()
 ---@field OpenSkillLine fun(): integer?
 ---@field ShowRecipe fun(recipeID: integer)
@@ -45,7 +46,7 @@
 ---@field HasAuctionator fun(): boolean
 ---@field Have fun(itemID: integer): number
 ---@field AltCounts fun(itemID: integer): {name: string, count: number}[]
----@field RouteReagents fun(route: SkillUpRoute): SkillUpNeededItem[]
+---@field RouteReagents fun(plan: SkillUpPlan): SkillUpNeededItem[]
 ---@field SendToAuctionator fun(profession: string, items: SkillUpNeededItem[])
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
@@ -58,7 +59,7 @@
 ---@field NearestNPC fun(npcIDs: integer[], byTravel?: boolean): integer?
 ---@field SetWaypoint fun(npcID: integer): boolean
 ---@field SuggestionNPC fun(suggestion: SkillUpSuggestion): integer?
----@field RecipeSuggestions fun(profession: SkillUpContext, skill: number): SkillUpSuggestion[]
+---@field RecipeSuggestions fun(profession: SkillUpContext, base: number): SkillUpSuggestion[]
 ---@field ScrollPrice fun(source: SkillUpSource): number?
 ---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpSource)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
@@ -200,13 +201,32 @@ SkillUpForeverDB = nil
 ---@field recipeID integer
 ---@field fee number
 ---@field atSkill number
----@field reqSkill? number
 
--- One of a rank to train, a recipe to train or a craft, in route order.
+-- The plan's own shapes are in base skill, the number the Professions window shows.
+---@class SkillUpPlanCraft
+---@field recipeID integer
+---@field from number
+---@field to number
+---@field crafts number
+---@field expectedCrafts number
+---@field color string The recipe's colour where the craft starts.
+
+---@class SkillUpPlanTraining
+---@field recipeID integer
+---@field fee number
+---@field usedAt number Where the plan first crafts it.
+---@field reqSkill number What the trainer wants for it.
+---@field cap number The cap a trainer must teach to for it.
+
+-- One of a rank to train, a recipe to train or a craft, in the order they are walked.
 ---@class SkillUpRouteStep
 ---@field rank? SkillUpRank
----@field training? SkillUpTraining
----@field segment? SkillUpSegment
+---@field training? SkillUpPlanTraining
+---@field craft? SkillUpPlanCraft
+
+---@class SkillUpBand
+---@field color 'orange'|'yellow'|'green'|'grey'
+---@field from number
 
 ---@class SkillUpRank
 ---@field name string
@@ -219,17 +239,26 @@ SkillUpForeverDB = nil
 ---@field segments SkillUpSegment[]
 ---@field expectedCost number
 ---@field reachedSkill number
----@field excluded {unpriced: integer}
+---@field excluded {unpriced: integer, recipes: integer[]} Known recipes left out for an unpriced reagent.
 ---@field stopReason? 'no_recipe'
 
 ---@class SkillUpTrainedRoute : SkillUpRoute
 ---@field training SkillUpTraining[]
 ---@field trainingCost number
 
----@class SkillUpPlan : SkillUpTrainedRoute
----@field profession string
+-- What Core/Plan.lua returns: the levelling plan as a player reads it.
+---@class SkillUpPlan
+---@field profession SkillUpProfession
 ---@field target number
+---@field reached number Where the crafts get to: short of the target when the known recipes run out.
+---@field steps SkillUpRouteStep[]
+---@field crafts SkillUpPlanCraft[]
+---@field training SkillUpPlanTraining[]
 ---@field ranks SkillUpRank[]
+---@field cost number Expected crafting cost plus every fee.
+---@field unpriced integer Known recipes left out for an unpriced reagent.
+---@field unpricedRecipes integer[]
+---@field stopReason? 'no_recipe'
 
 ---@class SkillUpShoppingItem
 ---@field itemID integer
@@ -277,7 +306,8 @@ SkillUpForeverDB = nil
 ---@field kind integer
 ---@field kindText string
 ---@field npcID? integer
----@field reach number
+---@field reach number Base skill.
+---@field color string Its colour at the skill the route stopped at.
 
 ---@class SkillUpNeededItem
 ---@field itemID integer
@@ -285,9 +315,7 @@ SkillUpForeverDB = nil
 ---@field source SkillUpShoppingSource
 
 ---@class SkillUpTracked
----@field skillLine integer
----@field professionInfo SkillUpProfession
----@field route SkillUpPlan
+---@field plan SkillUpPlan
 ---@field items SkillUpNeededItem[]
 
 ---@class SkillUpCraft

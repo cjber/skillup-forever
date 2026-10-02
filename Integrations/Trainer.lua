@@ -48,27 +48,19 @@ local function Known(services)
 	return known
 end
 
+-- What this trainer would teach now that the player can pay for.
 ---@param services SkillUpTrainerService[]
----@return SkillUpService[]
-local function Candidates(services)
-	local candidates = {}
+---@return {recipeID: integer, fee: number}[]
+local function Offers(services)
+	local offers = {}
 	local money = GetMoney()
 	for index, service in pairs(services) do
-		local thresholds = service.recipeID and ns.Model.Get(service.recipeID)
 		local fee = GetTrainerServiceCost(index)
-		if thresholds and service.kind == "available" and not ns.IsLearned(service.recipeID) and fee <= money then
-			candidates[#candidates + 1] = {
-				recipeID = service.recipeID,
-				thresholds = thresholds,
-				netCost = ns.NetCost(service.recipeID),
-				fee = fee,
-			}
+		if service.recipeID and service.kind == "available" and fee <= money then
+			offers[#offers + 1] = { recipeID = service.recipeID, fee = fee }
 		end
 	end
-	table.sort(candidates, function(a, b)
-		return a.recipeID < b.recipeID
-	end)
-	return candidates
+	return offers
 end
 
 ---@return SkillUpTrainerState
@@ -111,9 +103,7 @@ local function BuildState()
 		max = maxRank,
 		capped = maxRank > 0 and rank >= maxRank,
 	}
-	local best = not ctx.capped
-		and ns.Model.RecommendTraining(ns.RouteSnapshot(ctx, Known(services)), Candidates(services))
-	return { services = services, ctx = ctx, best = best and best.recipeID or nil }
+	return { services = services, ctx = ctx, best = ns.BestTraining(ctx, Known(services), Offers(services)) }
 end
 
 -- The recipe to train next wears the green arrow the bags put on an upgrade, 13 tall at its own aspect.

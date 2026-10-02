@@ -68,9 +68,16 @@ local ns = {
 			return attached and attached[1] == owner
 		end,
 	},
-	db = { trainer = {}, routeTargets = {}, trackedProfessions = { [129] = true } },
-	RecipeData = {},
-	TrainerFees = { [HEAVY] = { 100, 60 } },
+	db = { trainer = {}, routeTargets = { [129] = 80 }, trackedProfessions = { [129] = true } },
+	-- First Aid in miniature: a known bandage, a better one to train at 40, and Journeyman from 50.
+	Thresholds = { [BANDAGE] = { 1, 30, 45, 60 }, [HEAVY] = { 40, 50, 75, 100 } },
+	RecipeData = { [BANDAGE] = { skillLine = 129 }, [HEAVY] = { skillLine = 129 } },
+	TrainerFees = { [HEAVY] = { 100, 40 } },
+	TrainerRanks = { [129] = { { 150, 500, 50, 0 } } },
+	InvalidateAPI = function() end,
+	IsLearned = function(id)
+		return id == BANDAGE
+	end,
 	Reagents = function()
 		return { { itemID = SILK, quantity = 1 } }
 	end,
@@ -79,7 +86,7 @@ local ns = {
 	NearestVendor = function() end,
 }
 env.ForeverTrackerHost = ns.TrackerHost
-for _, file in ipairs({ "Locales/enUS.lua", "Core/Model.lua", "UI/Route.lua", "UI/Shopping.lua" }) do
+for _, file in ipairs({ "Locales/enUS.lua", "Core/Model.lua", "Core/Plan.lua", "UI/Shopping.lua" }) do
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
 ns.InitShopping()
@@ -107,9 +114,9 @@ local profession = { skillLine = 129, name = "First Aid", skill = 40, base = 40,
 ns.RouteProfessions = function()
 	return { [129] = profession }
 end
-local route
-ns.PlanRoute = function()
-	return route
+local costs = { [BANDAGE] = 10, [HEAVY] = 20 }
+ns.NetCost = function(id)
+	return costs[id]
 end
 
 local objectives
@@ -130,36 +137,18 @@ local function Layout()
 	module:LayoutContents()
 end
 
--- Journeyman is allowed from 50, but the route trains Heavy Linen Bandage at 55 first.
-route = {
-	profession = "First Aid",
-	target = 80,
-	segments = {
-		{ recipeID = BANDAGE, fromSkill = 40, toSkill = 55, expectedCrafts = 15, crafts = 15 },
-		{ recipeID = HEAVY, fromSkill = 55, toSkill = 75, expectedCrafts = 20, crafts = 20 },
-		{ recipeID = HEAVY, fromSkill = 75, toSkill = 80, expectedCrafts = 5, crafts = 5 },
-	},
-	training = { { recipeID = HEAVY, fee = 100, atSkill = 55 } },
-	ranks = { { name = "Journeyman", cap = 150, fee = 500, reqSkill = 50, level = 0 } },
-	excluded = { unpriced = 0 },
-}
+-- Journeyman is allowed from 50, but the plan trains Heavy Linen Bandage at 45 first, where it
+-- becomes the cheaper point: the tracker leads with the page's first training step.
 Layout()
-local walked = ns.RouteSteps(profession, route)
+local walked = ns.PlanRoute(profession).steps
 equal(walked[2].training and walked[2].training.recipeID, HEAVY, "the route page trains the recipe first")
+equal(walked[4].rank and walked[4].rank.name, "Journeyman", "and the rank after")
 equal(objectives[1].key, "Train", "the tracker leads with training")
-equal(objectives[1].text, "Train Heavy Linen Bandage at 55 |cff808080(+1 more)|r", "the same training")
+equal(objectives[1].text, "Train Heavy Linen Bandage at 45 |cff808080(+1 more)|r", "the same training")
 
 -- Nothing priced to craft: the tracker says why, not that the reagents are in hand.
-route = {
-	profession = "First Aid",
-	target = 65,
-	segments = {},
-	training = {},
-	ranks = {},
-	reachedSkill = 40,
-	stopReason = "no_recipe",
-	excluded = { unpriced = 1 },
-}
+costs = {}
+ns.InvalidatePlans()
 Layout()
 equal(#objectives, 1, "one line")
 equal(objectives[1].key, "Blocked", "a blocked route says so")

@@ -1,4 +1,5 @@
 -- Run from the repository root: luajit tests/api_spec.lua
+-- The public API over real plans of a small recipe set: nothing between the data and the list is faked.
 local checks = 0
 local function equal(actual, expected, label)
 	checks = checks + 1
@@ -60,20 +61,23 @@ local ns = {
 		[HILLMANS] = { skillLine = 165, reagents = {}, output = { itemID = 4247, quantity = 1 } },
 		[LEATHER_RECIPE] = { skillLine = 165, reagents = {}, output = { itemID = LEATHER, quantity = 1 } },
 		[SHIRT] = { skillLine = 197, reagents = {} },
+		[BRACERS] = { skillLine = 164, reagents = {} },
 	},
 	TrainerFees = { [HILLMANS] = { 1800, 145 } },
+	TrainerRanks = {},
 	FormatNet = function(copper)
 		return copper .. "c"
 	end,
 }
-for _, file in ipairs({ "Locales/enUS.lua", "Core/Model.lua", "UI/Route.lua", "UI/Shopping.lua", "Core/API.lua" }) do
+for _, file in ipairs({ "Locales/enUS.lua", "Core/Model.lua", "Core/Plan.lua", "UI/Shopping.lua", "Core/API.lua" }) do
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
 local API = env.SkillUpForever.API
 equal(API.version, 1, "version 1")
 equal(#API.Professions(), 0, "nothing before the saved variables load")
 
-ns.db = { trainer = {}, routeTargets = {} }
+-- Tailoring and Blacksmithing plan ten sure crafts; Leatherworking plans to its cap.
+ns.db = { trainer = {}, routeTargets = { [197] = 60, [164] = 20 } }
 local learned = { [GLOVES] = true, [LEATHER_RECIPE] = true, [SHIRT] = true, [BRACERS] = true }
 ns.IsLearned = function(id)
 	return learned[id] == true
@@ -100,6 +104,11 @@ ns.Price = function(id)
 end
 ns.PriceSource = function(id)
 	return prices[id] and prices[id].source
+end
+-- Hillman's is the cheaper craft from 145, where its trainer teaches it.
+local costs = { [GLOVES] = 3200, [HILLMANS] = 1000, [SHIRT] = 50, [BRACERS] = 10 }
+ns.NetCost = function(id)
+	return costs[id]
 end
 local travelled = {}
 ns.NearestVendor = function(id, byTravel)
@@ -137,25 +146,10 @@ local professions = {
 	[164] = Profession(164, "Blacksmithing", 10, 75),
 	[171] = Profession(171, "Alchemy", 0, 0),
 }
+local builds = 0
 ns.RouteProfessions = function()
+	builds = builds + 1
 	return professions
-end
-local function Route(segments, training)
-	return { segments = segments, training = training or {}, ranks = {}, excluded = { unpriced = 0 } }
-end
-local routes = {
-	[165] = Route({
-		{ recipeID = GLOVES, fromSkill = 142, toSkill = 145, expectedCrafts = 3, crafts = 3 },
-		{ recipeID = HILLMANS, fromSkill = 145, toSkill = 150, expectedCrafts = 5, crafts = 5 },
-	}, { { recipeID = HILLMANS, fee = 1800, atSkill = 145 } }),
-	[197] = Route({ { recipeID = SHIRT, fromSkill = 50, toSkill = 60, expectedCrafts = 10, crafts = 10 } }),
-	[164] = Route({ { recipeID = BRACERS, fromSkill = 10, toSkill = 20, expectedCrafts = 10, crafts = 10 } }),
-	[171] = Route({}),
-}
-local plans = 0
-ns.PlanRoute = function(profession)
-	plans = plans + 1
-	return routes[profession.skillLine]
 end
 
 local list = API.Professions()
@@ -176,18 +170,19 @@ equal(#lw.steps, 3, "at most three steps")
 
 local buy, craft, train = lw.steps[1], lw.steps[2], lw.steps[3]
 equal(buy.kind, "buy", "the thread the bags lack is bought first")
-equal(buy.text, "Buy 6 Fine Thread", "buy text")
-equal(buy.detail, "Gina, Darkshire · 600c", "buy detail names the nearest vendor and cost")
+equal(buy.text, "Buy 8 Fine Thread", "buy text")
+equal(buy.detail, "Gina, Darkshire · 800c", "buy detail names the nearest vendor and cost")
 equal(buy.itemID, THREAD, "buy item")
-equal(buy.count, 6, "buy count")
-equal(buy.cost, 600, "buy cost")
+equal(buy.count, 8, "buy count")
+equal(buy.cost, 800, "buy cost")
 equal(buy.nav, true, "a vendor can be routed to")
 equal(craft.kind, "craft", "then the craft")
-equal(craft.text, "Craft 3 Toughened Leather Gloves", "craft text")
+-- Three points at 23/25, 22/25 and 21/25 a craft: 3.4 crafts expected, so four.
+equal(craft.text, "Craft 4 Toughened Leather Gloves", "craft text")
 equal(craft.detail, "142 to 145", "craft detail is its skill range")
 equal(craft.spellID, GLOVES, "craft spell")
 equal(craft.itemID, 4253, "craft product")
-equal(craft.count, 3, "craft count")
+equal(craft.count, 4, "craft count")
 equal(craft.cost, nil, "the craft's cost is in its purchases")
 equal(craft.nav, false, "a craft has nowhere to go")
 equal(train.kind, "train", "then the recipe the route trains next")
@@ -202,7 +197,7 @@ local gloves, hillmans = lw.recipes[1], lw.recipes[2]
 equal(gloves.name, "Toughened Leather Gloves", "recipe name")
 equal(gloves.spellID, GLOVES, "recipe spell")
 equal(gloves.itemID, 4253, "recipe product")
-equal(gloves.count, 3, "recipe crafts")
+equal(gloves.count, 4, "recipe crafts")
 equal(gloves.fromRank, 142, "recipe from")
 equal(gloves.toRank, 145, "recipe to")
 equal(gloves.learned, true, "known recipe")
@@ -218,10 +213,10 @@ local byItem = {}
 for _, reagent in ipairs(lw.reagents) do
 	byItem[reagent.itemID] = reagent
 end
-equal(byItem[THREAD].need, 11, "thread for the whole route")
+equal(byItem[THREAD].need, 13, "thread for the whole route")
 equal(byItem[THREAD].have, 0, "thread in the bags")
 equal(byItem[THREAD].source, "vendor", "thread from a vendor")
-equal(byItem[LEATHER].need, 58, "leather for the whole route")
+equal(byItem[LEATHER].need, 64, "leather for the whole route")
 equal(byItem[LEATHER].have, 40, "leather in the bags")
 equal(byItem[LEATHER].source, "craft", "a learned recipe makes the leather")
 
@@ -239,13 +234,13 @@ equal(#alchemy.reagents, 0, "no reagents")
 
 -- Kept until an event says otherwise.
 equal(API.Professions(), list, "a second call is the cache")
-equal(plans, 4, "and plans nothing")
+equal(builds, 1, "and builds nothing")
 handler(nil, "ITEM_DATA_LOAD_RESULT")
 equal(API.Professions(), list, "item data with no name waiting keeps the cache")
 handler(nil, "BAG_UPDATE_DELAYED")
 local rebuilt = API.Professions()
 equal(rebuilt ~= list, true, "a bag update rebuilds")
-equal(plans, 8, "planning each profession once")
+equal(builds, 2, "once")
 ns.InvalidateAPI()
 equal(API.Professions() ~= rebuilt, true, "invalidated plans rebuild it")
 

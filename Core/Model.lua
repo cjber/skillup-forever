@@ -88,7 +88,7 @@ function Model.PlanRoute(snapshot)
 		segments = {},
 		expectedCost = 0,
 		reachedSkill = snapshot.skill,
-		excluded = { unpriced = 0 },
+		excluded = { unpriced = 0, recipes = {} },
 	}
 	local priced = {}
 	for _, recipe in ipairs(snapshot.recipes) do
@@ -96,6 +96,7 @@ function Model.PlanRoute(snapshot)
 			-- A grey recipe could not help even with a price, so it keeps nothing out.
 			if recipe.thresholds[4] > snapshot.skill then
 				route.excluded.unpriced = route.excluded.unpriced + 1
+				route.excluded.recipes[route.excluded.unpriced] = recipe.recipeID
 			end
 		else
 			priced[#priced + 1] = recipe
@@ -238,7 +239,7 @@ Model.SHOPPING_SOURCES = { "gather", "vendor", "auction", "unknown" }
 ---@type table<SkillUpPriceSource, SkillUpShoppingSource>
 local BUCKET = { gather = "gather", vendor = "vendor", auctionator = "auction" }
 
----@param segments SkillUpSegment[]
+---@param segments {recipeID: integer, crafts: number}[]
 ---@param reagentsOf fun(recipeID: integer): SkillUpReagent[]?
 ---@param owned fun(itemID: integer): number
 ---@param sourceOf fun(itemID: integer): SkillUpPriceSource?

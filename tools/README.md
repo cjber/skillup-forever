@@ -108,8 +108,8 @@ These are parent skill-line IDs: First Aid 129, Blacksmithing 164, Leatherworkin
 202, Enchanting 333, Fishing 356 and Skinning 393; expansion child lines 2937–2948
 are not recipe filters. Guard unavailable profession info and filter learned
 recipes before building a route snapshot. `snapshot.skill` and `snapshot.target`
-must use the same effective-skill coordinates (base plus modifier); the caller
-applies the trained cap. Shopping uses segment `crafts`, the ceiling of accumulated
+must use the same effective-skill coordinates (base plus modifier); `Core/Plan.lua`
+is the one caller, and hands everything on in base skill with the trained cap applied. Shopping uses segment `crafts`, the ceiling of accumulated
 expected crafts, and subtracts owned items once. Unknown reagent arrays contribute
 no shopping rows, so only use priced route segments for a complete list.
 

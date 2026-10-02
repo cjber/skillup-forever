@@ -237,14 +237,14 @@ end
 
 local KIND_TEXT = { L["vendor"], L["limited vendor"], L["quest"], L["drop"], L["world drop"] }
 
--- Scroll recipes of this profession, not trainer-taught nor learned, that the
--- base skill behind `skill` (effective) can learn and that still skill up at
--- `skill`, easiest to get and then furthest-reaching first.
+-- Scroll recipes of this profession, not trainer-taught nor learned, that base
+-- skill `base` can learn and that still skill up there, easiest to get and then
+-- furthest-reaching first. `reach` is base skill too.
 ---@param profession SkillUpContext
----@param skill number
+---@param base number
 ---@return SkillUpSuggestion[]
-function ns.RecipeSuggestions(profession, skill)
-	local base = skill - profession.modifier
+function ns.RecipeSuggestions(profession, base)
+	local skill = base + profession.modifier
 	local found = {}
 	for recipeID, source in pairs(ns.RecipeSources) do
 		local recipe = ns.RecipeData[recipeID]
@@ -264,7 +264,8 @@ function ns.RecipeSuggestions(profession, skill)
 						kind = kind,
 						kindText = KIND_TEXT[kind],
 						npcID = npcID,
-						reach = t[4],
+						reach = t[4] - profession.modifier,
+						color = ns.Model.Color(t, skill),
 					}
 				or nil
 		end

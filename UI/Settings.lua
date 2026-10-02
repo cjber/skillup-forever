@@ -209,7 +209,7 @@ function ns.RegisterSettings()
 		Checkbox(
 			rows,
 			"whatsNew",
-			L["Tell me what's new after an update"],
+			L["Show what's new after updates"],
 			L["One line in chat the first time a new version loads."]
 		)
 	end)

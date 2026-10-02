@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **The guides stay put in a fight.** In combat the game stretches its quest tracker and nudges it back on screen, which shoved the Forever sections sideways across the screen until the fight ended. They now stay stacked above the quest list.
+
 - **A newly learned recipe joins the route at once.** Learning a recipe, or opening a profession, now re-plans the route and the tracked reagents straight away; before, they could keep the old plan until the recipe list next updated.
 
 ## [0.6.9] - 2026-10-01

@@ -69,7 +69,14 @@ local ns = {
 		return copper .. "c"
 	end,
 }
-for _, file in ipairs({ "Locales/enUS.lua", "Core/Model.lua", "Core/Plan.lua", "UI/Shopping.lua", "Core/API.lua" }) do
+for _, file in ipairs({
+	"Locales/enUS.lua",
+	"Core/Model.lua",
+	"Core/Changes.lua",
+	"Core/Plan.lua",
+	"UI/Shopping.lua",
+	"Core/API.lua",
+}) do
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
 local API = env.SkillUpForever.API
@@ -241,8 +248,8 @@ handler(nil, "BAG_UPDATE_DELAYED")
 local rebuilt = API.Professions()
 equal(rebuilt ~= list, true, "a bag update rebuilds")
 equal(builds, 2, "once")
-ns.InvalidateAPI()
-equal(API.Professions() ~= rebuilt, true, "invalidated plans rebuild it")
+ns.Changed("fees")
+equal(API.Professions() ~= rebuilt, true, "dropped plans rebuild it")
 
 -- Steps route by travel time to the NPC they name.
 travelled = {}

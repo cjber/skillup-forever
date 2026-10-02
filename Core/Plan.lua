@@ -279,10 +279,9 @@ end
 -- prices, recipes, fees or targets change; skill is part of the key.
 local plans = {}
 
-function ns.InvalidatePlans()
+ns.WhenStale("plans", function()
 	plans = {}
-	ns.InvalidateAPI()
-end
+end)
 
 -- The cheapest way to the target from the recipes this character knows, with whatever training
 -- pays for itself and the ranks it passes.

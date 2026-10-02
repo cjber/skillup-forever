@@ -36,7 +36,8 @@ vendored `.sift/gate.py` and `.sift/agents.py`. LuaLS checks all TOC files again
 
 The tests are a headless harness, not the game client. Each spec `loadfile`s one production file
 with stubbed host APIs: `model_spec` (Core/Model.lua, Data/Thresholds.lua, Integrations/Prices.lua), `prices_spec`
-(Integrations/Prices.lua), `plan_spec` (Core/Plan.lua's levelling plan over the bundled data, with no frames loaded), `route_spec` (the
+(Integrations/Prices.lua), `plan_spec` (Core/Plan.lua's levelling plan over the bundled data, with no frames loaded), `changes_spec`
+(Core/Changes.lua: which caches drop and which views redraw for each game event and writer), `route_spec` (the
 route page drawn into stub frames from a real plan), `recipelist_spec` (UI/RecipeList.lua's native provider replacement,
 sorting and recursion), `api_spec` (Core/API.lua over Model, Plan and Shopping), `shopping_spec`
 (the objective tracker's lines over Plan), `tracker_host_spec` (UI/TrackerHost.lua's frame lifecycle and
@@ -76,6 +77,7 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 - `hooksecurefunc("ClassTrainerFrame_InitServiceButton" | "ClassTrainerFrame_Update", …)`, `EventUtil.ContinueAfterAllEvents` — Blizzard trainer functions hooked by string name, plus a load-sequencing callback.
 - `EventRegistry:RegisterCallback("Professions.RecipeListOnEnter")`, `Menu.ModifyMenu("MENU_PROFESSIONS_FILTER")`, `TooltipDataProcessor.AddTooltipPostCall` — host callbacks.
 - `ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)` (UI/RecipeList.lua) and `Auctionator.API.v1.RegisterForDBUpdate(addonName, PricesChanged)` (Integrations/Prices.lua `ns.InitPrices`) — callbacks the plain live-root search misses.
+- `ns.WhenStale(name, fn)` and `ns.WhenEvent(event, fn)` — handlers Core/Changes.lua calls by cache/view name and by event; its `EVENTS` table registers the game events.
 - `RegisterEvent("…")` + `OnEvent` dispatch on the event string — handlers are reached by event name.
 - Optional integrations (`## OptionalDeps: Auctionator, TomTom, Syndicator, ShortestPathForever`) — code guarded by `if Auctionator` etc. is live only with that addon installed.
 - `tools/gen_*.py` public names imported by sibling generators; `tools/latest_build.py` and `tools/changelog.py` run from workflows.

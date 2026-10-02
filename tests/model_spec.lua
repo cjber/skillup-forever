@@ -374,6 +374,7 @@ do
 			},
 		},
 	}, { __index = _G })
+	setfenv(assert(loadfile("Core/Changes.lua")), env)("SkillUpForever", runtime)
 	setfenv(assert(loadfile("Integrations/Prices.lua")), env)("SkillUpForever", runtime)
 	runtime.InitPrices()
 	equal(runtime.Reagents(10), runtime.RecipeData[10].reagents, "bundled reagent fallback")

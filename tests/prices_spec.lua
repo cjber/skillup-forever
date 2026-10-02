@@ -11,10 +11,6 @@ local merchant = {}
 local ns = {
 	VendorPrices = { [2] = 40 },
 	db = { vendor = {} },
-	InvalidatePlans = function() end,
-	RefreshRecipeList = function() end,
-	RefreshRoute = function() end,
-	RefreshTracker = function() end,
 }
 local frame = {
 	SetScript = function(_, _, callback)
@@ -50,6 +46,7 @@ local env = setmetatable({
 		end,
 	},
 }, { __index = _G })
+setfenv(assert(loadfile("Core/Changes.lua")), env)("SkillUpForever", ns)
 setfenv(assert(loadfile("Integrations/Prices.lua")), env)("SkillUpForever", ns)
 ns.InitPrices()
 
@@ -97,7 +94,7 @@ equal(ns.db.vendor[5], nil, "a missing stack size records nothing")
 
 -- Without Auctionator, only vendor prices exist.
 env.Auctionator = nil
-ns.PricesChanged()
+ns.Changed("prices")
 equal(ns.Price(1), nil, "without Auctionator an auction-only reagent has no price")
 equal(ns.Price(2).source, "vendor", "without Auctionator the bundled vendor price is used")
 

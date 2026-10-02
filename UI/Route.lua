@@ -478,7 +478,7 @@ local function Render()
 end
 
 -- Coalesces bursts of list/skill/price/bag updates into one plan.
-function ns.RefreshRoute()
+local function RefreshRoute()
 	if pending or not (page and page:IsShown()) then
 		return
 	end
@@ -496,10 +496,10 @@ local function CommitTarget(editBox)
 	local value = tonumber(editBox:GetText())
 	if selected and value then
 		ns.db.routeTargets[selected] = value
-		ns.InvalidatePlans()
-		ns.RefreshTracker()
+		ns.Changed("target")
+	else
+		RefreshRoute()
 	end
-	ns.RefreshRoute()
 end
 
 ---@param name string
@@ -716,7 +716,7 @@ local function SyncChecks()
 end
 
 -- The tab can be turned off in settings; an open page goes back to crafting.
-function ns.RefreshRouteTab()
+local function RefreshRouteTab()
 	if not tab then
 		return
 	end
@@ -739,7 +739,7 @@ local function CreateTab()
 		end
 	end)
 	PlaceTab()
-	ns.RefreshRouteTab()
+	RefreshRouteTab()
 	ProfessionsFrame:HookScript("OnShow", PlaceTab)
 	page:HookScript("OnShow", SyncChecks)
 end
@@ -756,24 +756,16 @@ function ns.AttachRoute()
 			ProfessionsFrame.CraftingPage:Show()
 		end
 	end)
-	local events = CreateFrame("Frame")
-	for _, event in ipairs({
-		"TRADE_SKILL_SHOW",
-		"TRADE_SKILL_LIST_UPDATE",
-		"SKILL_LINES_CHANGED",
-		"BAG_UPDATE_DELAYED",
-		"ITEM_DATA_LOAD_RESULT",
-	}) do
-		events:RegisterEvent(event)
+	ns.WhenStale("route", RefreshRoute)
+	ns.WhenStale("routeTab", RefreshRouteTab)
+	-- Run after Blizzard handles the same event; never replace or hook its frame methods.
+	local function AfterBlizzard()
+		C_Timer.After(0, function()
+			PlaceTab()
+			SyncChecks()
+		end)
 	end
-	events:SetScript("OnEvent", function(_, event)
-		ns.RefreshRoute()
-		if event == "SKILL_LINES_CHANGED" or event == "TRADE_SKILL_LIST_UPDATE" or event == "TRADE_SKILL_SHOW" then
-			-- Run after Blizzard handles the same event; never replace or hook its frame methods.
-			C_Timer.After(0, function()
-				PlaceTab()
-				SyncChecks()
-			end)
-		end
-	end)
+	for _, event in ipairs({ "SKILL_LINES_CHANGED", "TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_SHOW" }) do
+		ns.WhenEvent(event, AfterBlizzard)
+	end
 end

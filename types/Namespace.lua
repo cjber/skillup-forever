@@ -5,6 +5,9 @@
 ---@field TrackerHost ForeverTrackerHostAPI
 ---@field TrackerHostSettings fun(): ForeverTrackerSettings
 ---@field Print fun(msg: string)
+---@field Changed fun(kind: SkillUpChange)
+---@field WhenStale fun(name: SkillUpStale, handler: fun())
+---@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field SkillContext fun(): SkillUpContext?
 ---@field PlayerProfessions fun(): table<integer, SkillUpProfession>
@@ -21,11 +24,8 @@
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
----@field RefreshRecipeList fun()
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
----@field InvalidatePlans fun()
----@field InvalidateAPI fun()
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
 ---@field BestTraining fun(profession: SkillUpContext, known: table<integer, boolean>, offers: {recipeID: integer, fee: number}[]): integer?
@@ -35,10 +35,8 @@
 ---@field RankText fun(rank: SkillUpRank): string
 ---@field CreateList fun(parent: Frame, columns: SkillUpColumn[]): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
----@field RefreshRoute fun()
 ---@field OpenSkillLine fun(): integer?
 ---@field ShowRecipe fun(recipeID: integer)
----@field RefreshRouteTab fun()
 ---@field AttachRoute fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
@@ -51,7 +49,6 @@
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field TrackerAttached fun(): boolean
----@field RefreshTracker fun()
 ---@field SetTracked fun(skillLine: integer, tracked: boolean)
 ---@field InitShopping fun()
 ---@field NPCLocation fun(npcID: integer): SkillUpLocation
@@ -75,9 +72,7 @@
 ---@field UnpricedHint fun(): string
 ---@field ShowRecipeTooltip fun(_: SkillUpNamespace, row: SkillUpRecipeRow, data: SkillUpRecipeNodeData)
 ---@field AttachItemTooltips fun()
----@field RefreshTrainer fun()
 ---@field AttachTrainer fun()
----@field PricesChanged fun()
 ---@field SORT_OPTIONS string[][]
 ---@field CRAFT_VALUE_OPTIONS string[][]
 ---@field REAGENT_TOOLTIP_OPTIONS string[][]
@@ -264,6 +259,9 @@ SkillUpForeverDB = nil
 ---@field itemID integer
 ---@field count number
 
+-- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
+---@alias SkillUpChange 'recipes'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'target'|'tracking'|'settings'
+---@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
 ---@class SkillUpPrice

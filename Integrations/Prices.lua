@@ -111,13 +111,6 @@ function ns.PriceSource(itemID)
 	return price and price.source
 end
 
----@param itemID integer
----@return number?
-local function UnitPrice(itemID)
-	local price = ns.Price(itemID)
-	return price and price.copper
-end
-
 -- Basic reagents only: optional and finishing slots don't have to be filled.
 ---@param recipeID integer
 ---@return SkillUpSchematic?
@@ -198,46 +191,88 @@ local function SellPrice(itemID)
 	return sell or (ns.ItemSellPrices and ns.ItemSellPrices[itemID])
 end
 
+-- Copper for one craft's reagents, or nil when any has no known price: a partial sum would rank a
+-- recipe as cheap only because we can't price its reagents.
+---@param reagents SkillUpReagent[]?
+---@return number?
+local function ReagentCost(reagents)
+	if not reagents then
+		return nil
+	end
+	local total = 0
+	for _, reagent in ipairs(reagents) do
+		local price = ns.Price(reagent.itemID)
+		if not price then
+			return nil
+		end
+		total = total + price.copper * reagent.quantity
+	end
+	return total
+end
+
+-- Auction value is net of the house's 5% cut and only counts when it beats the vendor.
+local AUCTION_CUT = 0.05
+
+-- What one crafted item is worth under the craft value setting, and where that came from.
+---@param sell number?
+---@param auction number?
+---@return number?
+---@return 'vendor'|'auction'|nil
+local function ItemValue(sell, auction)
+	local mode = ns.db.craftValue
+	if mode == "none" then
+		return nil
+	end
+	local vendor = sell and sell > 0 and sell or nil
+	local resale = mode == "auction" and auction and auction * (1 - AUCTION_CUT) or nil
+	if resale and (not vendor or resale > vendor) then
+		return resale, "auction"
+	end
+	return vendor, vendor and "vendor" or nil
+end
+
 -- What one craft sells for: { copper, source, quantity }, or nil when it counts for nothing. The
--- second result is true when that is only because the sell price isn't known (yet), so neither is
--- the net cost.
+-- second result is true when that is only because the sell price isn't known (yet).
 ---@param recipeID integer
 ---@return SkillUpValue?
 ---@return boolean?
-function ns.CraftValue(recipeID)
+local function CraftValue(recipeID)
 	local recipe = Recipe(recipeID)
 	local output = recipe and recipe.output
 	if not output then
 		return nil
 	end
 	local ah = AuctionPrice(output.itemID)
-	local auction = ah and ah.copper
 	local sell = SellPrice(output.itemID)
-	local each, source = ns.Model.CraftValue(sell, auction, ns.db.craftValue)
+	local each, source = ItemValue(sell, ah and ah.copper)
 	if not (each and source) then
 		return nil, sell == nil and ns.db.craftValue ~= "none"
 	end
 	return { copper = each * output.quantity, source = source, quantity = output.quantity }
 end
 
+-- What one craft costs, the one place that says so: its reagents, what the result sells for
+-- ({ copper, source, quantity }, nil when that counts for nothing) and the first net of the second;
+-- a negative net means each craft makes money. Unknown is nil, never free: all three when a reagent
+-- has no price or the recipe no known reagents, and the net alone while the sell price isn't known.
 ---@param recipeID integer
----@return number?
-function ns.RecipeCost(recipeID)
-	return ns.Model.RecipeCost(ns.Reagents(recipeID), UnitPrice)
+---@return number? cost
+---@return SkillUpValue? value
+---@return number? net
+function ns.CraftCost(recipeID)
+	local cost = ReagentCost(ns.Reagents(recipeID))
+	if not cost then
+		return nil
+	end
+	local value, unpriced = CraftValue(recipeID)
+	return cost, value, not unpriced and cost - (value and value.copper or 0) or nil
 end
 
 ---@param recipeID integer
 ---@return number?
 function ns.NetCost(recipeID)
-	local cost = ns.RecipeCost(recipeID)
-	if cost == nil then
-		return nil
-	end
-	local value, unpriced = ns.CraftValue(recipeID)
-	if unpriced then
-		return nil
-	end
-	return cost - (value and value.copper or 0)
+	local _, _, net = ns.CraftCost(recipeID)
+	return net
 end
 
 -- Vendor prices: recorded per unit for anything bought with plain money. Without a stack size the

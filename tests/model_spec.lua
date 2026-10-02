@@ -130,25 +130,11 @@ for recipeID, t in pairs(ns.Thresholds) do
 end
 equal(rows > 0, true, "generated table is not empty")
 
--- Reagent cost is all-or-nothing, and per-skill-up cost scales by 1/chance.
-local prices = { [2589] = 10, [2320] = 25 }
-local function price(itemID)
-	return prices[itemID]
-end
-equal(Model.RecipeCost({ { itemID = 2589, quantity = 2 }, { itemID = 2320, quantity = 1 } }, price), 45, "recipe cost")
-equal(Model.RecipeCost({ { itemID = 2589, quantity = 2 }, { itemID = 1, quantity = 1 } }, price), nil, "unpriced")
-equal(Model.RecipeCost({}, price), 0, "no reagents costs nothing")
-equal(Model.RecipeCost(nil, price), nil, "unknown reagents")
+-- Per-skill-up cost scales by 1/chance.
 equal(Model.CostPerSkillUp(45, 0.5), 90, "half chance doubles cost")
 equal(Model.CostPerSkillUp(45, 0), nil, "no skill-up has no cost")
 equal(Model.CostPerSkillUp(nil, 1), nil, "unpriced has no cost")
 equal(Model.CostPerSkillUp(-20, 0.5), -40, "a profitable craft is profit per skill-up")
-equal(Model.CraftValue(30, 100, "none"), nil, "value ignored")
-equal(Model.CraftValue(30, 100, "vendor"), 30, "vendor only")
-equal(Model.CraftValue(30, 100, "auction"), 95, "auction net of cut")
-equal(select(2, Model.CraftValue(30, 100, "auction")), "auction", "auction source")
-equal(Model.CraftValue(30, 20, "auction"), 30, "vendor beats a cheap auction")
-equal(Model.CraftValue(0, nil, "auction"), nil, "worthless item")
 equal(Model.RoundMoney(80.4), 80, "copper stays copper")
 equal(Model.RoundMoney(0), 0, "free recipes stay free")
 equal(Model.RoundMoney(0.2), 1, "never rounds to nothing")
@@ -335,9 +321,15 @@ equal(next(Model.BuildReagentIndex({})), nil, "empty reverse index")
 -- hide a later live schematic, and unknown reagent data must never be free.
 do
 	local live, sell, onEvent = {}, nil, nil
+	local auction = { [4] = 8 }
 	local runtime = {
 		Model = Model,
-		RecipeData = { [10] = { reagents = { { itemID = 1, quantity = 2 } }, output = { itemID = 2, quantity = 3 } } },
+		RecipeData = {
+			[10] = { reagents = { { itemID = 1, quantity = 2 } }, output = { itemID = 2, quantity = 3 } },
+			[11] = { reagents = { { itemID = 1, quantity = 2 }, { itemID = 4, quantity = 1 } } },
+			[12] = { reagents = { { itemID = 1, quantity = 2 }, { itemID = 7, quantity = 1 } } },
+			[13] = { reagents = {} },
+		},
 		ItemSellPrices = { [2] = 10 },
 		VendorPrices = { [1] = 5 },
 		db = { craftValue = "vendor" },
@@ -368,7 +360,7 @@ do
 			API = {
 				v1 = {
 					GetAuctionPriceByItemID = function(_, itemID)
-						return itemID == 4 and 8 or nil
+						return auction[itemID]
 					end,
 				},
 			},
@@ -383,24 +375,55 @@ do
 	equal(runtime.PriceSource(99), nil, "price source missing")
 	live[98] = { reagentSlotSchematics = {} }
 	equal(runtime.Reagents(98), nil, "empty live schematic without bundled data has unknown reagents")
-	equal(runtime.RecipeCost(98), nil, "empty live schematic without bundled data is not free")
+	-- One craft's cost, value and net, asked for together: unknown is nil at every step, never free.
+	---@return table
+	local function costing(recipeID)
+		local cost, value, net = runtime.CraftCost(recipeID)
+		equal(runtime.NetCost(recipeID), net, "the net cost alone is the same net")
+		return { cost = cost, value = value, net = net }
+	end
+	local function unknown(recipeID, label)
+		local c = costing(recipeID)
+		equal(c.cost, nil, label .. " is not free")
+		equal(c.value, nil, label .. " has no value")
+		equal(c.net, nil, label .. " has no net cost")
+	end
+	unknown(98, "empty live schematic without bundled data")
 	live[97] = { reagentSlotSchematics = { { reagentType = 2, quantityRequired = 1, reagents = { { itemID = 1 } } } } }
-	equal(runtime.RecipeCost(97), nil, "optional-only live schematic without bundled data is not free")
-	equal(runtime.RecipeCost(99), nil, "unknown recipe remains unknown")
-	equal(runtime.NetCost(99), nil, "unknown recipe has no net cost")
-	equal(runtime.CraftValue(10).copper, 30, "bundled sell fallback includes output quantity")
-	equal(runtime.NetCost(10), -20, "runtime net cost preserves profit")
-	sell = 0
-	equal(runtime.CraftValue(10), nil, "live zero sell price overrides bundle")
+	unknown(97, "optional-only live schematic without bundled data")
+	unknown(99, "unknown recipe")
+	unknown(12, "one unpriced reagent")
+	equal(costing(11).cost, 18, "reagent cost sums each reagent's quantity")
+	equal(costing(11).net, 18, "no output nets to the reagent cost")
+	equal(costing(13).cost, 0, "no reagents costs nothing")
+	equal(costing(10).cost, 10, "reagent cost")
+	equal(costing(10).value.copper, 30, "bundled sell fallback includes output quantity")
+	equal(costing(10).value.source, "vendor", "vendor source")
+	equal(costing(10).net, -20, "net cost preserves profit")
+	sell, auction[2] = 30, 100
+	equal(costing(10).value.copper, 90, "vendor value ignores the auction")
+	runtime.db.craftValue = "auction"
+	equal(costing(10).value.copper, 285, "auction value is net of the cut")
+	equal(costing(10).value.source, "auction", "auction source")
+	equal(costing(10).net, -275, "auction net cost")
+	auction[2] = 20
+	equal(costing(10).value.copper, 90, "vendor beats a cheap auction")
+	equal(costing(10).value.source, "vendor", "and is the source")
+	sell, auction[2] = 0, 0
+	equal(costing(10).value.copper, 0, "an auction price of zero still counts")
+	auction[2] = nil
+	equal(costing(10).value, nil, "live zero sell price overrides bundle")
+	equal(costing(10).net, 10, "a worthless item nets to the reagent cost")
 	sell = nil
 	runtime.db.craftValue = "none"
-	equal(runtime.NetCost(10), 10, "resale disabled preserves full reagent cost")
+	equal(costing(10).value, nil, "resale disabled ignores the value")
+	equal(costing(10).net, 10, "resale disabled preserves full reagent cost")
 	runtime.ItemSellPrices[2] = nil
-	equal(runtime.NetCost(10), 10, "resale disabled needs no sell price")
+	equal(costing(10).net, 10, "resale disabled needs no sell price")
 	runtime.db.craftValue = "vendor"
-	equal(runtime.CraftValue(10), nil, "unknown sell price has no value")
-	equal(select(2, runtime.CraftValue(10)), true, "unknown sell price is flagged")
-	equal(runtime.NetCost(10), nil, "unknown sell price leaves the net cost unknown, not full")
+	equal(costing(10).cost, 10, "unknown sell price keeps the reagent cost")
+	equal(costing(10).value, nil, "unknown sell price has no value")
+	equal(costing(10).net, nil, "unknown sell price leaves the net cost unknown, not full")
 	runtime.ItemSellPrices[2] = 10
 	equal(runtime.UsedIn(1)[1], 10, "runtime reverse index")
 	equal(#runtime.UsedIn(99), 0, "runtime absent item returns empty array")
@@ -415,7 +438,7 @@ do
 	live[10] = { reagentSlotSchematics = {} }
 	onEvent(frame, "TRADE_SKILL_LIST_UPDATE")
 	equal(runtime.Reagents(10), runtime.RecipeData[10].reagents, "empty live schematic uses bundled reagents")
-	equal(runtime.RecipeCost(10), 10, "empty live schematic preserves bundled cost")
+	equal(costing(10).cost, 10, "empty live schematic preserves bundled cost")
 	live[10] = {
 		reagentSlotSchematics = {
 			{ reagentType = 1, quantityRequired = 4, reagents = { { itemID = 1 } } },

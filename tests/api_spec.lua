@@ -1,163 +1,80 @@
 -- Run from the repository root: luajit tests/api_spec.lua
--- The public API over real plans of a small recipe set: nothing between the data and the list is faked.
-local checks = 0
-local function equal(actual, expected, label)
-	checks = checks + 1
-	assert(actual == expected, label .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
-end
+-- The public API over a small recipe set, with the whole addon loaded: every step, price and NPC comes from what
+-- the client holds, through the same files the game runs.
+local Client = dofile("tests/client.lua")
+local equal = Client.equal
 
-local THREAD, LEATHER, SILK = 2321, 2319, 4306
+local THREAD, LEATHER, SILK, BAR = 2321, 2319, 4306, 2840
 local GLOVES, HILLMANS, LEATHER_RECIPE, SHIRT, BRACERS = 1, 2, 9, 3, 4
+local GINA, TELONIS = 77, 88
 
-local handler
-local opened = {}
-local names = {
+local c = Client.load({
+	boot = false,
+	saved = { routeTargets = { [197] = 60, [164] = 20 }, trackedProfessions = { [197] = true } },
+	data = {
+		Thresholds = {
+			[GLOVES] = { 125, 140, 155, 165 },
+			[HILLMANS] = { 145, 155, 165, 175 },
+			[SHIRT] = { 40, 60, 70, 80 },
+			[BRACERS] = { 1, 20, 40, 60 },
+		},
+		RecipeData = {
+			[GLOVES] = {
+				skillLine = 165,
+				reagents = { { itemID = LEATHER, quantity = 6 }, { itemID = THREAD, quantity = 2 } },
+				output = { itemID = 4253, quantity = 1 },
+			},
+			[HILLMANS] = {
+				skillLine = 165,
+				reagents = { { itemID = LEATHER, quantity = 8 }, { itemID = THREAD, quantity = 1 } },
+				output = { itemID = 4247, quantity = 1 },
+			},
+			[LEATHER_RECIPE] = { skillLine = 165, reagents = {}, output = { itemID = LEATHER, quantity = 1 } },
+			[SHIRT] = { skillLine = 197, reagents = { { itemID = SILK, quantity = 1 } } },
+			[BRACERS] = { skillLine = 164, reagents = { { itemID = BAR, quantity = 1 } } },
+		},
+		TrainerFees = { [HILLMANS] = { 1800, 145 } },
+		TrainerRanks = {},
+		RecipeSources = {},
+		ItemSellPrices = {},
+		GatheredBy = {},
+		VendorPrices = { [THREAD] = 100, [BAR] = 10 },
+		ReagentVendors = { [THREAD] = { GINA } },
+		ProfessionTrainers = { [165] = { { TELONIS, 300 } } },
+		SourceNPCs = { [GINA] = { "Gina", "", 0, 0, 0 }, [TELONIS] = { "Telonis", "", 1, 0, 0 } },
+		InstanceNames = {},
+	},
+})
+local ns, API = c.ns, c.G.SkillUpForever.API
+equal(API.version, 1, "version 1")
+equal(#API.Professions(), 0, "nothing before the saved variables load")
+
+c.spells = {
 	[GLOVES] = "Toughened Leather Gloves",
 	[HILLMANS] = "Hillman's Leather Gloves",
 	[BRACERS] = "Copper Bracers",
 }
-local items = { [THREAD] = "Fine Thread", [LEATHER] = "Medium Leather" }
-local env = setmetatable({
-	CreateFrame = function()
-		return {
-			RegisterEvent = function() end,
-			SetScript = function(_, _, fn)
-				handler = fn
-			end,
-		}
-	end,
-	C_Spell = {
-		GetSpellName = function(id)
-			return names[id]
-		end,
-	},
-	C_Item = {
-		GetItemNameByID = function(id)
-			return items[id]
-		end,
-	},
-	C_TradeSkillUI = {
-		OpenTradeSkill = function(id)
-			opened[#opened + 1] = id
-			return true
-		end,
-	},
-	-- The client's GlobalStrings the rank names come from.
-	APPRENTICE = "Apprentice",
-	JOURNEYMAN = "Journeyman",
-	EXPERT = "Expert",
-	ARTISAN = "Artisan",
-}, { __index = _G })
-
-local ns = {
-	Thresholds = {
-		[GLOVES] = { 125, 140, 155, 165 },
-		[HILLMANS] = { 145, 155, 165, 175 },
-		[SHIRT] = { 40, 60, 70, 80 },
-		[BRACERS] = { 1, 20, 40, 60 },
-	},
-	RecipeData = {
-		[GLOVES] = { skillLine = 165, reagents = {}, output = { itemID = 4253, quantity = 1 } },
-		[HILLMANS] = { skillLine = 165, reagents = {}, output = { itemID = 4247, quantity = 1 } },
-		[LEATHER_RECIPE] = { skillLine = 165, reagents = {}, output = { itemID = LEATHER, quantity = 1 } },
-		[SHIRT] = { skillLine = 197, reagents = {} },
-		[BRACERS] = { skillLine = 164, reagents = {} },
-	},
-	TrainerFees = { [HILLMANS] = { 1800, 145 } },
-	TrainerRanks = {},
-	FormatNet = function(copper)
-		return copper .. "c"
-	end,
+c.known = { [GLOVES] = true, [LEATHER_RECIPE] = true, [SHIRT] = true, [BRACERS] = true }
+-- The gloves sell for nothing; Hillman's sell for most of their reagents, so they are the cheaper craft from
+-- 145, where a trainer teaches them: 8 leather and a thread is 4100, less 3100.
+c.items = {
+	[THREAD] = { name = "Fine Thread" },
+	[LEATHER] = { name = "Medium Leather" },
+	[4253] = { sell = 0 },
+	[4247] = { sell = 3100 },
 }
-for _, file in ipairs({
-	"Locales/enUS.lua",
-	"Core/Model.lua",
-	"Core/Changes.lua",
-	"Core/Plan.lua",
-	"UI/Shopping.lua",
-	"Core/API.lua",
-}) do
-	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
-end
-local API = env.SkillUpForever.API
-equal(API.version, 1, "version 1")
-equal(#API.Professions(), 0, "nothing before the saved variables load")
-
+c.bags = { [LEATHER] = 40, [SILK] = 20, [BAR] = 20 }
+c.auction = { [LEATHER] = 500, [SILK] = 50 }
+c.maps = { [0] = { mapID = 10, name = "Darkshire" }, [1] = { mapID = 11, name = "Darnassus" } }
 -- Tailoring and Blacksmithing plan ten sure crafts; Leatherworking plans to its cap.
-ns.db = { trainer = {}, routeTargets = { [197] = 60, [164] = 20 } }
-local learned = { [GLOVES] = true, [LEATHER_RECIPE] = true, [SHIRT] = true, [BRACERS] = true }
-ns.IsLearned = function(id)
-	return learned[id] == true
-end
-ns.IsTracked = function(skillLine)
-	return skillLine == 197
-end
-local reagents = {
-	[GLOVES] = { { itemID = LEATHER, quantity = 6 }, { itemID = THREAD, quantity = 2 } },
-	[HILLMANS] = { { itemID = LEATHER, quantity = 8 }, { itemID = THREAD, quantity = 1 } },
-	[SHIRT] = { { itemID = SILK, quantity = 1 } },
-	[BRACERS] = {},
+c.professions = {
+	{ name = "Leatherworking", icon = 136247, rank = 142, max = 150, id = 8165 },
+	{ name = "Tailoring", icon = 136247, rank = 50, max = 75, id = 8197 },
+	{ name = "Blacksmithing", icon = 136247, rank = 10, max = 75, id = 8164 },
+	{ name = "Alchemy", icon = 136247, rank = 0, max = 0, id = 8171 },
 }
-ns.Reagents = function(id)
-	return reagents[id]
-end
-local bags = { [LEATHER] = 40, [SILK] = 20 }
-ns.Have = function(id)
-	return bags[id] or 0
-end
-local prices = { [THREAD] = { copper = 100, source = "vendor" }, [LEATHER] = { copper = 500, source = "auctionator" } }
-ns.Price = function(id)
-	return prices[id]
-end
-ns.PriceSource = function(id)
-	return prices[id] and prices[id].source
-end
--- Hillman's is the cheaper craft from 145, where its trainer teaches it.
-local costs = { [GLOVES] = 3200, [HILLMANS] = 1000, [SHIRT] = 50, [BRACERS] = 10 }
-ns.NetCost = function(id)
-	return costs[id]
-end
-local travelled = {}
-ns.NearestVendor = function(id, byTravel)
-	travelled[#travelled + 1] = byTravel or false
-	return id == THREAD and 77 or nil
-end
-ns.NearestTrainer = function(_, _, byTravel)
-	travelled[#travelled + 1] = byTravel or false
-	return 88
-end
-ns.NPCLocation = function(npcID)
-	return npcID == 77 and { name = "Gina", label = "Darkshire" } or { name = "Telonis", label = "Darnassus" }
-end
-local waypoint
-ns.SetWaypoint = function(npcID)
-	waypoint = npcID
-	return true
-end
-
-local function Profession(skillLine, name, base, max)
-	return {
-		skillLine = skillLine,
-		professionID = skillLine + 8000,
-		name = name,
-		icon = 136247,
-		base = base,
-		max = max,
-		skill = base,
-		modifier = 0,
-	}
-end
-local professions = {
-	[165] = Profession(165, "Leatherworking", 142, 150),
-	[197] = Profession(197, "Tailoring", 50, 75),
-	[164] = Profession(164, "Blacksmithing", 10, 75),
-	[171] = Profession(171, "Alchemy", 0, 0),
-}
-local builds = 0
-ns.RouteProfessions = function()
-	builds = builds + 1
-	return professions
-end
+c.Boot()
+equal(#c.chat, 0, "the addon starts without a word")
 
 local list = API.Professions()
 -- Tracked first, then reagents in hand, then a purchase first, then nothing to do.
@@ -232,7 +149,7 @@ local tailoring = list[1]
 equal(tailoring.steps[1].text, "Craft 10 recipe 3", "an unnamed recipe still reads")
 equal(tailoring.recipes[1].name, nil, "an unnamed recipe has no name")
 equal(tailoring.recipes[1].itemID, nil, "a recipe without a product has no item")
-equal(tailoring.reagents[1].source, nil, "an unpriced reagent has no source")
+equal(tailoring.reagents[1].source, "auction", "a reagent only Auctionator prices is from the auction house")
 local alchemy = list[4]
 equal(alchemy.title, nil, "a cap no rank ends at has no title")
 equal(#alchemy.steps, 0, "no steps")
@@ -241,35 +158,72 @@ equal(#alchemy.reagents, 0, "no reagents")
 
 -- Kept until an event says otherwise.
 equal(API.Professions(), list, "a second call is the cache")
-equal(builds, 1, "and builds nothing")
-handler(nil, "ITEM_DATA_LOAD_RESULT")
+c.Fire("ITEM_DATA_LOAD_RESULT")
 equal(API.Professions(), list, "item data with no name waiting keeps the cache")
-handler(nil, "BAG_UPDATE_DELAYED")
+c.Fire("BAG_UPDATE_DELAYED")
 local rebuilt = API.Professions()
 equal(rebuilt ~= list, true, "a bag update rebuilds")
-equal(builds, 2, "once")
+equal(API.Professions(), rebuilt, "once")
 ns.Changed("fees")
 equal(API.Professions() ~= rebuilt, true, "dropped plans rebuild it")
 
 -- Steps route by travel time to the NPC they name.
-travelled = {}
+local estimates, routed = 0, nil
+c.G.ShortestPathForever = {
+	API = {
+		version = 1,
+		Estimate = function()
+			estimates = estimates + 1
+			return 60
+		end,
+		Navigate = function(_, _, _, _, title)
+			routed = title
+			return true
+		end,
+	},
+}
 equal(API.Navigate(165, 1), true, "the vendor step routes")
-equal(waypoint, 77, "to the vendor")
-equal(travelled[#travelled], true, "picked by travel")
+equal(routed, "Gina", "to the vendor")
+equal(estimates, 1, "picked by travel")
 equal(API.Navigate(165, 3), true, "the training step routes")
-equal(waypoint, 88, "to the trainer")
+equal(routed, "Telonis", "to the trainer")
 equal(API.Navigate(165, 2), false, "a craft doesn't route")
 equal(API.Navigate(999, 1), false, "an unknown profession doesn't route")
 
 equal(API.OpenRecipes(165), true, "opens a profession")
-equal(opened[1], 8165, "by the ID the client reported")
+equal(c.opened[1], 8165, "by the ID the client reported")
 equal(API.OpenRecipes(999), false, "not one the character lacks")
 
 -- Tracking changes the order, so the next call rebuilds.
-env.PlaySound, env.SOUNDKIT = function() end, {}
-ns.db.trackedProfessions = {}
 local tracked = API.Professions()
 ns.SetTracked(165, true)
 equal(API.Professions() ~= tracked, true, "tracking a profession rebuilds the list")
+equal(API.Professions()[2].name, "Leatherworking", "and it moves ahead of the untracked ones")
 
-print("api_spec: " .. checks .. " checks passed")
+-- What the client reports reaches the list through every file between: a merchant seen to sell thread for
+-- less re-prices the purchase.
+local function Leatherworking()
+	for _, entry in ipairs(API.Professions()) do
+		if entry.skillLineID == 165 then
+			return entry
+		end
+	end
+end
+c.merchant = { { itemID = THREAD, price = 250, stackCount = 5 } }
+c.Fire("MERCHANT_SHOW")
+equal(Leatherworking().steps[1].cost, 400, "a cheaper vendor price reaches the buy step")
+equal(Leatherworking().steps[1].detail, "Gina, Darkshire · 400c", "and its text")
+c.merchant = nil
+c.Fire("MERCHANT_CLOSED")
+-- Thread in the bags: nothing to buy, so the craft leads.
+c.bags[THREAD] = 8
+c.Fire("BAG_UPDATE_DELAYED")
+equal(Leatherworking().steps[1].kind, "craft", "reagents arriving in the bags drop the purchase")
+-- With what crafts sell for no longer counted, Hillman's costs more a point than the gloves and isn't trained.
+equal(#Leatherworking().recipes, 2, "Hillman's is on the route while its sale counts")
+c.SetSetting("craftValue_choice", 1)
+equal(ns.db.craftValue, "none", "the options panel's slider writes the saved choice")
+equal(#Leatherworking().recipes, 1, "a setting changed in the options panel re-plans the public list")
+equal(Leatherworking().recipes[1].spellID, GLOVES, "onto the gloves alone")
+
+Client.report("api_spec")

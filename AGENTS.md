@@ -41,9 +41,10 @@ publishes it as the notes.
 
 - Lua 5.1 in the game's sandbox: no `require`. The client loads the files `SkillUpForever.toc` lists, in
   that order, each receiving `local addonName, ns = ...`; a new file goes in the TOC or never runs.
-- The specs are a headless harness with stubbed client APIs. Anything they cannot reach (frames,
-  menus, tooltips, the tracker) is checked in game: list those checks in the PR as `/reload` tests
-  for the user. Never drive the game client.
+- The specs are a headless harness with stubbed client APIs. `tests/client.lua` is the shared stub client: it
+  loads the TOC in order, and a spec over it sets what the client holds, not an `ns` function. Anything the specs
+  cannot reach (frames, menus, tooltips, the tracker) is checked in game: list those checks in the PR as `/reload`
+  tests for the user. Never drive the game client.
 - Host globals go in `.luacheckrc`; LuaLS gets WoW APIs from the pinned Ketho annotations.
   Add missing Forever/integration APIs with real types in `types/`, never `diagnostics.globals`.
 - Every TOC file, including generated data, stays in the LuaLS and multi-value gates.

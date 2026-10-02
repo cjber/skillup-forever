@@ -34,13 +34,18 @@ CI (`.github/workflows/ci.yml`) runs all of these; its `sift` job runs the chang
 vendored `.sift/gate.py` and `.sift/agents.py`. LuaLS checks all TOC files against pinned WoW API annotations plus
 `types/`; there is no ast-grep rule set.
 
-The tests are a headless harness, not the game client. Each spec `loadfile`s one production file
-with stubbed host APIs: `model_spec` (Core/Model.lua, Data/Thresholds.lua, Integrations/Prices.lua), `prices_spec`
-(Integrations/Prices.lua), `plan_spec` (Core/Plan.lua's levelling plan over the bundled data, with no frames loaded), `changes_spec`
-(Core/Changes.lua: which caches drop and which views redraw for each game event and writer), `route_spec` (the
-route page drawn into stub frames from a real plan), `recipelist_spec` (UI/RecipeList.lua's native provider replacement,
-sorting and recursion), `api_spec` (Core/API.lua over Model, Plan and Shopping), `shopping_spec`
-(the objective tracker's lines over Plan), `tracker_host_spec` (UI/TrackerHost.lua's frame lifecycle and
+The tests are a headless harness, not the game client. `tests/client.lua` is the one stub client: it loads
+every file `SkillUpForever.toc` lists, in its order, against stubs of the client API, and a spec sets what the
+client holds (professions, bags, a merchant, Auctionator's prices, the clock), fires its events and asserts on
+what the addon produces, with nothing on `ns` faked. Over it run `api_spec` (the public list, down to a merchant's
+price or a changed setting reaching it), `shopping_spec` (the objective tracker's lines and the merchant's buy
+button), `changes_spec` (which caches drop and which views redraw for each game event and writer) and `prices_spec`
+(where a price comes from). A new spec of headless behaviour starts there; a bundled table it needs small goes in
+`Client.load`'s `data`. The rest each `loadfile` the file under test with their own stubs: `model_spec`
+(Core/Model.lua, Data/Thresholds.lua, Integrations/Prices.lua), `plan_spec` (Core/Plan.lua's levelling plan over
+the bundled data, with costs and known recipes given directly so its arithmetic stays legible), `route_spec` (the
+route page drawn into stub frames from a real plan), `recipelist_spec` (UI/RecipeList.lua's native provider
+replacement, sorting and recursion), `tracker_host_spec` (UI/TrackerHost.lua's frame lifecycle and
 combat placement, plus the pinned Forever tracker source when `TRACKER_UI_ROOT` is set),
 `core_spec` (Core/Core.lua's init guard, SavedVariables migration and what's-new notice),
 `settings_spec` (UI/Settings.lua), `waypoint_spec` (Integrations/Sources.lua's waypoints and Shortest Path Forever

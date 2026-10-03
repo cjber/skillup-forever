@@ -39,7 +39,7 @@ class GatheredTests(unittest.TestCase):
 
     def test_references_scale_and_nest(self):
         found = self.found(
-            [loot(LOOT, 0, 100, ref=10), loot(LOOT, 0, 50, ref=20), loot(LOOT, 4, 0)],
+            [loot(LOOT, 0, 100, ref=10), loot(LOOT, 0, 50, ref=20)],
             [
                 loot("10", 1, 5),  # a 5% find inside a sure reference
                 loot("10", 0, 100, ref=11),
@@ -47,7 +47,18 @@ class GatheredTests(unittest.TestCase):
                 loot("20", 3, 15),  # 15% of a 50% roll: 7.5%
             ],
         )
-        self.assertEqual(found, {2: 186, 4: 186})
+        self.assertEqual(found, {2: 186})
+
+    def test_zero_chance_is_a_share_only_inside_a_group(self):
+        found = self.found(
+            [
+                loot(LOOT, 1, 0),  # no group to share: the server never rolls it
+                loot(LOOT, 2, 80, group=1),
+                loot(LOOT, 3, 0, group=1),  # the 20% the group's other chance leaves
+            ],
+            [],
+        )
+        self.assertEqual(found, {2: 186, 3: 186})
 
     def test_generate_reports_source_without_spawn(self):
         empty = {name: [] for name in gen_sources.TABLES}

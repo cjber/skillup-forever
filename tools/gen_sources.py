@@ -165,7 +165,8 @@ def race_side(races):
 
 
 def loot_chances(rows):
-    """(row, chance %) per loot row; 0 is an equal share of what its group's other chances leave."""
+    """(row, chance %) per loot row; 0 is an equal share of what its group's other chances leave. Outside
+    a group (group 0) every row rolls on its own, and the server drops a 0 there as it loads: it never rolls."""
     groups = defaultdict(list)
     for row in rows:
         groups[int(row["groupid"])].append(row)
@@ -176,8 +177,8 @@ def loot_chances(rows):
         for row, chance in zip(members, given, strict=False):
             if chance > 0:
                 yield row, chance
-            elif chance == 0:
-                yield row, 100.0 if group == 0 else rest / shared
+            elif chance == 0 and group > 0:
+                yield row, rest / shared
 
 
 def loot_items(rows, refs, scale=1.0, seen=frozenset()):

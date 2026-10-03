@@ -28,6 +28,8 @@ local STALE = {
 	merchant = { tracker = true },
 	-- Fees and requirements recorded at a trainer.
 	fees = { plans = true, api = true, route = true, tracker = true },
+	-- Where scrolls, vendors and trainers are, read from Questie and AtlasLoot.
+	sources = { api = true, route = true, tracker = true },
 	target = { plans = true, api = true, route = true, tracker = true },
 	tracking = { api = true, route = true, tracker = true },
 	settings = {

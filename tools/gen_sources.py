@@ -325,6 +325,10 @@ def generate(ids, tables, effect_rows, factions, maps, items, locks):
     used_npcs |= {e for rows in trainers.values() for e, _ in rows} | {e for rows in reagents.values() for e in rows}
     return {
         "sources": sources,
+        "scroll_drops": {
+            item: sorted(by.items(), key=lambda kv: (-kv[1], kv[0]))[:DROPS_KEPT] for item, by in drops.items()
+        },
+        "world": sorted(world),
         "npcs": {e: npcs[e] for e in used_npcs},
         "titles": {q: titles[q] for s in sources.values() for q in s["quests"]},
         "instances": instances,
@@ -416,6 +420,18 @@ def render(data):
     ]
     used = {n[2] for n in npcs.values()}
     lines += [f"\t[{m}] = {lua_string(name)}," for m, name in sorted(data["instances"].items()) if m in used]
+    lines += [
+        "}",
+        "",
+        "-- [scroll item] = { { npc, chance % } }: its likeliest named drops",
+        "-- stylua: ignore",
+        "ns.ScrollDrops = {",
+    ]
+    for item, rows in sorted(data["scroll_drops"].items()):
+        lines.append(f"\t[{item}] = {{ " + ", ".join(f"{{ {e}, {round(c, 2):g} }}" for e, c in rows) + " },")
+    lines += ["}", "", "-- [scroll item] = true: a world drop, too widely dropped to name", "-- stylua: ignore"]
+    lines.append("ns.WorldDrops = {")
+    lines += [f"\t[{item}] = true," for item in data["world"]]
     lines.append("}")
     return "\n".join(lines) + "\n"
 

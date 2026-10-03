@@ -19,6 +19,124 @@ end
 
 local function noop() end
 
+-- A synthetic QuestieDB with the public shape Integrations/Questie.lua reads; none of it is the real
+-- database's data. `db` is what it knows, and a spec may change it between reads:
+--   items = { [id] = { vendors, quests, drops, class, teaches } }
+--   npcs = { [id] = { name, spawns = { [area] = { { x, y } } }, zone, side } }, side "A", "H", "AH" or nil
+--   quests = { [id] = { name, races } }
+--   areas = { [area] = uiMapID }, parents = { [area] = parent area }; contract (2 unless set); a field
+--   named in `without` is left out of the schema. `db.reads` counts the records read.
+function Client.QuestieDB(db)
+	db.reads = 0
+	local function Keys(fields)
+		local keys = {}
+		for index, field in ipairs(fields) do
+			keys[field] = db.without ~= field and index or nil
+		end
+		return keys
+	end
+	local function Source(map)
+		local parts = {}
+		for key, value in pairs(map or {}) do
+			parts[#parts + 1] = string.format("[%d]=%d", key, value)
+		end
+		return "return {" .. table.concat(parts, ",") .. "}"
+	end
+	local function Entity(rows, read)
+		return {
+			GetAll = function(id, fields)
+				db.reads = db.reads + 1
+				local row = rows()[id]
+				if not row then
+					return nil
+				end
+				local values = { n = #fields }
+				for index, field in ipairs(fields) do
+					values[index] = read(row, field)
+				end
+				return values
+			end,
+			GetAllIds = function()
+				local ids = {}
+				for id in pairs(rows()) do
+					ids[#ids + 1] = id
+				end
+				table.sort(ids)
+				return ids
+			end,
+		}
+	end
+	local item = { vendors = "vendors", questRewards = "quests", npcDrops = "drops", teachesSpell = "teaches" }
+	local npc = { name = "name", spawns = "spawns", zoneID = "zone", friendlyToFaction = "side" }
+	local quest = { name = "name", requiredRaces = "races" }
+	return {
+		RequireContract = function(required)
+			return required == (db.contract or 2), "QuestieDB contract mismatch"
+		end,
+		Meta = {
+			ItemMeta = { itemKeys = Keys({ "vendors", "questRewards", "npcDrops", "class", "teachesSpell" }) },
+			NpcMeta = { npcKeys = Keys({ "name", "spawns", "zoneID", "friendlyToFaction" }) },
+			QuestMeta = { questKeys = Keys({ "name", "requiredRaces" }) },
+		},
+		Support = {
+			Get = function(name)
+				return name == "ZoneDB"
+						and {
+							private = {
+								areaIdToUiMapId = Source(db.areas),
+								subZoneToParentZone = Source(db.parents),
+							},
+						}
+					or nil
+			end,
+		},
+		Item = Entity(function()
+			return db.items or {}
+		end, function(row, field)
+			return field == "class" and (row.class or 9) or row[item[field]]
+		end),
+		Npc = Entity(function()
+			return db.npcs or {}
+		end, function(row, field)
+			return row[npc[field]]
+		end),
+		Quest = Entity(function()
+			return db.quests or {}
+		end, function(row, field)
+			return row[quest[field]]
+		end),
+	}
+end
+
+-- A synthetic AtlasLoot: `db.recipes` = { [scroll item] = { profession, skill, recipe } } as its recipe
+-- module keeps them (one scroll a recipe when asked by recipe: the highest item wins, as its reverse map
+-- overwrites), and `db.drops` = { [npc] = { [item] = chance % } }.
+function Client.AtlasLoot(db)
+	return {
+		Data = {
+			Recipe = {
+				GetRecipeData = function(itemID)
+					return db.recipes[itemID]
+				end,
+				GetRecipeForSpell = function(spellID)
+					local found
+					for itemID, row in pairs(db.recipes) do
+						if row[3] == spellID and (not found or itemID > found) then
+							found = itemID
+						end
+					end
+					return found
+				end,
+			},
+			Droprate = {
+				GetData = function(_, npcID, itemID)
+					return db.drops and db.drops[npcID] and db.drops[npcID][itemID]
+				end,
+			},
+		},
+	}
+end
+
 -- options: data (ns tables that replace the bundled Data/*.lua ones of the same name), saved (SkillUpForeverDB),
 -- auctionator (false for a client without it), trackerManager (false for a client without Blizzard's tracker
 -- manager), boot (false to stop before the addon's ADDON_LOADED; c.Boot() then runs it).

@@ -36,3 +36,35 @@ ShortestPathForever = nil
 ---@field AddWaypoint fun(self: SkillUpTomTom, mapID: integer, x: number, y: number, options: {title: string, from: string})
 ---@type SkillUpTomTom?
 TomTom = nil
+
+-- QuestieDB's public tables (contract 2), as Integrations/Questie.lua reads them.
+---@class SkillUpQuestieEntity
+---@field GetAll fun(id: integer, fields: string[]): any[]?
+---@field GetAllIds fun(): integer[]
+---@class SkillUpQuestieDB
+---@field RequireContract fun(required: integer): boolean, string?
+---@field Meta table<string, table<string, table<string, integer>>>
+---@field Support {Get: fun(name: string): table?}
+---@field Item SkillUpQuestieEntity
+---@field Npc SkillUpQuestieEntity
+---@field Quest SkillUpQuestieEntity
+---@type SkillUpQuestieDB?
+LibQuestieDB = nil
+
+---@class SkillUpQuestieZones
+---@field area table<integer, integer>
+---@field areaOverride table<integer, integer>
+---@field parent table<integer, integer>
+---@field parentOverride table<integer, integer>
+
+---@type {API: {RegisterOnReady: fun(callback: fun())?}?}?
+Questie = nil
+
+-- AtlasLoot's public data modules.
+---@class SkillUpAtlasLootRecipes
+---@field GetRecipeForSpell fun(spellID: integer): integer?
+---@field GetRecipeData fun(itemID: integer): number[]?
+---@class SkillUpAtlasLootDroprate
+---@field GetData fun(self: SkillUpAtlasLootDroprate, npcID: integer, itemID: integer): number?
+---@type {Data: {Recipe: SkillUpAtlasLootRecipes?, Droprate: SkillUpAtlasLootDroprate?}?}?
+AtlasLoot = nil

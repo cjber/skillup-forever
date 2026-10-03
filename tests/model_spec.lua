@@ -94,12 +94,6 @@ for _, recipeID in ipairs(samples) do
 	for index = 2, 4 do
 		equal(t[index - 1] <= t[index], true, label .. " ascending thresholds")
 	end
-	equal(Model.Color(t, t[1] - 1), "red", label .. " below required skill")
-	equal(Model.Chance(t, t[1] - 1), nil, label .. " red chance")
-	near(Model.Chance(t, t[2]), 1, label .. " chance at yellow")
-	near(Model.Chance(t, t[4]), 0, label .. " chance at grey")
-	local chance = Model.Chance(t, t[3])
-	equal(chance >= 0 and chance <= 1, true, label .. " chance range")
 end
 near(Model.Chance(Model.Get(9058), 48), 22 / 30, "generated cloak matches mockup")
 

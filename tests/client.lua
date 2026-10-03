@@ -66,12 +66,9 @@ function Client.load(options)
 			end
 		end,
 	}
-	local function NewFrame(frameType, name, parent, template)
+	local function NewFrame(name, parent)
 		local frame = setmetatable({
-			frameType = frameType,
-			name = name,
 			parent = parent,
-			template = template,
 			scripts = {},
 			events = {},
 			shown = true,
@@ -109,20 +106,14 @@ function Client.load(options)
 
 	-- What the tracker section's stock template gives it; the shared host lays it out with these.
 	local TrackerModule = {}
-	function TrackerModule:SetHeader(text)
-		self.header = text
-	end
 	function TrackerModule:MarkDirty()
 		self.dirty = (self.dirty or 0) + 1
 	end
 	function TrackerModule:GetBlock(id)
-		local block = { id = id, lines = {} }
-		function block.SetHeader(_, text)
-			block.header = text
-		end
-		function block.AddObjective(_, key, text, template)
+		local block = { id = id, lines = {}, SetHeader = noop }
+		function block.AddObjective(_, key, text)
 			block.lines[#block.lines + 1] = { key = key, text = text }
-			return NewFrame("Frame", nil, nil, template)
+			return NewFrame()
 		end
 		self.blocks[#self.blocks + 1] = block
 		return block
@@ -131,8 +122,8 @@ function Client.load(options)
 		return true
 	end
 
-	G.CreateFrame = function(frameType, name, parent, template)
-		local frame = NewFrame(frameType, name, parent, template)
+	G.CreateFrame = function(_, name, parent, template)
+		local frame = NewFrame(name, parent)
 		if template == "ObjectiveTrackerModuleTemplate" then
 			for key, method in pairs(TrackerModule) do
 				frame[key] = method
@@ -140,9 +131,9 @@ function Client.load(options)
 		end
 		return frame
 	end
-	G.UIParent = NewFrame("Frame", "UIParent")
-	G.ObjectiveTrackerFrame = NewFrame("Frame", "ObjectiveTrackerFrame")
-	G.MerchantFrame = NewFrame("Frame", "MerchantFrame")
+	G.UIParent = NewFrame("UIParent")
+	G.ObjectiveTrackerFrame = NewFrame("ObjectiveTrackerFrame")
+	G.MerchantFrame = NewFrame("MerchantFrame")
 	G.MerchantFrame.IsShown = function()
 		return c.merchant ~= nil
 	end
@@ -181,7 +172,7 @@ function Client.load(options)
 	}
 	G.ForeverTrackerHost = c.host
 
-	-- The attached sections laid out now: { { id, header, lines = { { key, text } } } }, top to bottom.
+	-- The attached sections laid out now: { { id, lines = { { key, text } } } }, top to bottom.
 	function c.Tracker()
 		local blocks = {}
 		for _, module in ipairs(c.tracker) do

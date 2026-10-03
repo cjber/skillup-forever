@@ -279,7 +279,6 @@ local recipeData = {
 		},
 	},
 }
-local ownedCalls = {}
 local shopping = Model.ShoppingList({
 	{ recipeID = 20, crafts = 3 },
 	{ recipeID = 10, crafts = 2 },
@@ -288,15 +287,12 @@ local shopping = Model.ShoppingList({
 }, function(recipeID)
 	return recipeData[recipeID] and recipeData[recipeID].reagents
 end, function(itemID)
-	ownedCalls[itemID] = (ownedCalls[itemID] or 0) + 1
-	return ({ [1] = 100, [4] = 5 })[itemID] or 0
-end, function(itemID)
 	return ({ [1] = "vendor", [2] = "auctionator", [3] = "auctionator", [4] = "vendor" })[itemID]
 end)
-equal(#shopping.vendor, 1, "fully owned item dropped")
-equal(shopping.vendor[1].itemID, 4, "vendor partition")
-equal(shopping.vendor[1].count, 13, "shared requirements aggregate before subtracting owned")
-equal(ownedCalls[4], 1, "owned subtracted only once per item")
+equal(#shopping.vendor, 2, "vendor partition")
+equal(shopping.vendor[1].itemID, 1, "vendor items sorted ascending")
+equal(shopping.vendor[2].itemID, 4, "second vendor item")
+equal(shopping.vendor[2].count, 18, "shared requirements aggregate")
 equal(#shopping.auction, 2, "Auctionator prices partition as auction")
 equal(shopping.auction[1].itemID, 2, "auction items sorted ascending")
 equal(shopping.auction[1].count, 8, "shared auction quantity")

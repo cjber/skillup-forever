@@ -10,29 +10,21 @@ from pathlib import Path
 SOURCE = Path(__file__).with_name("screenshots.py")
 
 
-def port(name):
-    """One function from screenshots.py, compiled alone: the script needs Pillow and wowmock to import."""
+def port(name, *constants, scope=None):
+    """One function from screenshots.py with the constants it reads, compiled alone: the script needs Pillow and
+    wowmock to import."""
     tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
-    function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == name)
-    scope = {}
-    exec(compile(ast.Module(body=[function], type_ignores=[]), str(SOURCE), "exec"), scope)
-    return scope[name]
-
-
-def decoder():
-    tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
-    names = {"LUA_TABLE_SERIALIZER", "parse_lua_tables"}
     nodes = [
         node
         for node in tree.body
-        if isinstance(node, (ast.Assign, ast.FunctionDef))
-        and any(getattr(target, "id", None) in names for target in getattr(node, "targets", []))
-        or isinstance(node, ast.FunctionDef)
-        and node.name == "parse_lua_tables"
+        if isinstance(node, ast.FunctionDef)
+        and node.name == name
+        or isinstance(node, ast.Assign)
+        and getattr(node.targets[0], "id", None) in constants
     ]
-    scope = {"subprocess": subprocess, "json": json, "tempfile": tempfile}
+    scope = dict(scope or {})
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SOURCE), "exec"), scope)
-    return scope["parse_lua_tables"]
+    return scope[name]
 
 
 class CraftValueTests(unittest.TestCase):
@@ -54,28 +46,26 @@ class CraftValueTests(unittest.TestCase):
 
 
 class LuaDecoderTests(unittest.TestCase):
+    def setUp(self):
+        scope = {"subprocess": subprocess, "json": json, "tempfile": tempfile}
+        self.parse = port("parse_lua_tables", "LUA_TABLE_SERIALIZER", scope=scope)
+
     def test_luajit_preserves_utf8_and_decimal_escapes(self):
-        parse = decoder()
-        with tempfile.NamedTemporaryFile("w", suffix=".lua", encoding="utf-8") as source:
-            source.write('local _, ns = ...; ns.Names = { [1] = "Dörf", [2] = "line\\0099" }')
-            source.flush()
-            value = parse(Path(source.name).read_text(encoding="utf-8"))
+        value = self.parse('local _, ns = ...; ns.Names = { [1] = "Dörf", [2] = "line\\0099" }')
         self.assertEqual(value["Names"], ["Dörf", "line\t9"])
 
     def test_luajit_preserves_numeric_maps_and_empty_tables(self):
-        parse = decoder()
         source = (
             'local _, ns = ...; ns.Values = { [3275] = "recipe", [4] = "sparse" }; '
             'ns.Sparse = { [1] = "first", [3] = "third" }; ns.Empty = {}'
         )
-        value = parse(source)
+        value = self.parse(source)
         self.assertEqual(value["Values"], {3275: "recipe", 4: "sparse"})
         self.assertEqual(value["Sparse"], {1: "first", 3: "third"})
         self.assertEqual(value["Empty"], [])
 
     def test_luajit_quotes_string_controls(self):
-        parse = decoder()
-        value = parse(r'local _, ns = ...; ns.Text = { "quote \" slash \\ tab \009" }')
+        value = self.parse(r'local _, ns = ...; ns.Text = { "quote \" slash \\ tab \009" }')
         self.assertEqual(value["Text"], ['quote " slash \\ tab \t'])
 
 

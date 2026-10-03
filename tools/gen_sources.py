@@ -99,9 +99,9 @@ def gathered(tables, locks, items):
         loot[int(row["entry"])].append(row)
     sources = []  # (skill line, loot rows)
     for node in tables["gameobject_template"]:
-        skill = node["type"] == CHEST and lock_skill.get(int(node["data0"] or 0))
+        skill = node["type"] == CHEST and lock_skill.get(int(node["data0"]))
         if skill:
-            sources.append((skill, loot.get(int(node["data1"] or 0), [])))
+            sources.append((skill, loot.get(int(node["data1"]), [])))
     skinning = defaultdict(list)
     for row in tables["skinning_loot_template"]:
         skinning[int(row["entry"])].append(row)
@@ -141,7 +141,7 @@ def reagent_vendors(tables, creatures, items):
         if int(row["item"]) in items and int(row["maxcount"]) == 0:
             by_template[int(row["entry"])].add(int(row["item"]))
     for entry, creature in creatures.items():
-        for item in by_template.get(int(creature["VendorTemplateId"] or 0), ()):
+        for item in by_template.get(int(creature["VendorTemplateId"]), ()):
             sellers[item].add(entry)
     return sellers
 
@@ -243,7 +243,7 @@ def generate(ids, tables, effect_rows, factions, maps, items, locks):
         if item["class"] != RECIPE_CLASS:
             continue
         for k in range(1, 6):
-            spell = int(item[f"spellid_{k}"] or 0)
+            spell = int(item[f"spellid_{k}"])
             for taught in teaches.get(spell, set()) | {spell}:
                 if taught in ids:
                     put_unique(scrolls, int(item["entry"]), (taught, item), "recipe item")
@@ -260,16 +260,16 @@ def generate(ids, tables, effect_rows, factions, maps, items, locks):
         if int(row["item"]) in scrolls:
             by_template[int(row["entry"])][int(row["item"])] = int(row["maxcount"]) > 0
     for entry, creature in creatures.items():
-        for item, limited in by_template.get(int(creature["VendorTemplateId"] or 0), {}).items():
+        for item, limited in by_template.get(int(creature["VendorTemplateId"]), {}).items():
             vendors[item][entry] = limited
     drops, world = scroll_drops(tables, scrolls)
     quests = defaultdict(set)
     titles = {}
     for quest in tables["quest_template"]:
         for column in QUEST_REWARDS:
-            if int(quest[column] or 0) in scrolls:
+            if int(quest[column]) in scrolls:
                 quests[int(quest[column])].add(int(quest["entry"]))
-                titles[int(quest["entry"])] = (quest["Title"], race_side(int(quest["RequiredRaces"] or 0)))
+                titles[int(quest["entry"])] = (quest["Title"], race_side(int(quest["RequiredRaces"])))
 
     spawns = defaultdict(list)
     for row in tables["creature"]:

@@ -1,10 +1,7 @@
 -- Run from the repository root: luajit tests/locale_spec.lua
 -- Every phrase the player reads goes through L, so CurseForge's translators see it.
-local checks = 0
-local function equal(actual, expected, label)
-	checks = checks + 1
-	assert(actual == expected, label .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
-end
+local Client = dofile("tests/client.lua")
+local equal = Client.equal
 
 local function Read(path)
 	local file = assert(io.open(path, "rb"))
@@ -116,4 +113,4 @@ local ns = {}
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 equal(ns.L["Craft next"], "Craft next", "a missing translation is the English phrase")
 
-print("locale_spec: " .. checks .. " checks passed")
+Client.report("locale_spec")

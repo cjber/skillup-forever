@@ -40,15 +40,15 @@ build are reported and skipped; a stack count below one fails the run. It shares
 `gen_recipes.py` writes `Data/Recipes.lua`, using only spell IDs already present in
 the same-build `Data/Thresholds.lua`. It imports the threshold generator's build,
 snapshot date, cache and profession discovery; run thresholds first when changing
-builds. All five generators accept `--offline` and `--refresh`. To verify recipe
-reproducibility:
+builds. All five generators accept `--offline` and `--refresh`. To verify the data
+is fresh and reproducible:
 
 ```sh
-python3 tools/gen_recipes.py --offline
-sha256sum Data/Recipes.lua
-python3 tools/gen_recipes.py --offline
-sha256sum Data/Recipes.lua
+python3 tools/check_generated.py --offline
 ```
+
+It regenerates all five `Data` files in a scratch copy, fails if any differs from the
+committed file, then regenerates again and fails if any is not byte-stable.
 
 `gen_trainer.py` writes `Data/Trainer.lua`: base trainer fees for recipes with
 thresholds, from the pinned CMaNGOS classic-db `npc_trainer` table (GPL-3.0). It reads
@@ -143,13 +143,17 @@ render scale.
 
 Install LuaLS 3.19.1, then run `tools/typecheck.sh` from any directory. The script
 fetches Ketho's WoW annotations at `d0b5b51fac4c52c493371b9b18e66ce604ea4326`,
-verifies that checkout is clean, runs the Python checker tests and TOC-wide
-multi-value lint, and fails on any LuaLS diagnostic. CI downloads LuaLS with a
+verifies that checkout is clean, runs the Python checker tests, the taint lint
+(`python3 -m tools.lint_taint`), the TOC/XML coverage check
+(`tools/typecheck_coverage.py`) and the TOC-wide multi-value lint, and fails on any
+LuaLS diagnostic. CI downloads LuaLS with a
 pinned SHA-256. Editors use the same `.luarc.json` and `.types/` library.
 
 `types/Namespace.lua` describes the shared addon table and data shapes;
 `types/Client.lua` fills gaps in Ketho's FrameXML coverage using the Forever
-client source; `types/Integrations.lua` describes optional addon APIs. Runtime
+client source; `types/Integrations.lua` describes optional addon APIs;
+`types/API.lua` is the public API's contract and `types/TrackerHost.lua` the shared
+tracker host's. Runtime
 files annotate their parameters and custom frames. Generated files receive their
 namespace annotation from the generators. Tests and tools are outside the LuaLS
 workspace; every TOC-loaded Lua file is checked.

@@ -14,7 +14,7 @@ def loot(entry, item, chance, ref=0, group=0, times=1):
         "entry": entry,
         "item": str(item),
         "ChanceOrQuestChance": str(chance),
-        "groupid": str(group),
+        "groupid": "0",
         "mincountOrRef": str(-ref if ref else 1),
         "maxcount": str(times),
     }

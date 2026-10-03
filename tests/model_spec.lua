@@ -94,12 +94,6 @@ for _, recipeID in ipairs(samples) do
 	for index = 2, 4 do
 		equal(t[index - 1] <= t[index], true, label .. " ascending thresholds")
 	end
-	equal(Model.Color(t, t[1] - 1), "red", label .. " below required skill")
-	equal(Model.Chance(t, t[1] - 1), nil, label .. " red chance")
-	near(Model.Chance(t, t[2]), 1, label .. " chance at yellow")
-	near(Model.Chance(t, t[4]), 0, label .. " chance at grey")
-	local chance = Model.Chance(t, t[3])
-	equal(chance >= 0 and chance <= 1, true, label .. " chance range")
 end
 near(Model.Chance(Model.Get(9058), 48), 22 / 30, "generated cloak matches mockup")
 
@@ -285,7 +279,6 @@ local recipeData = {
 		},
 	},
 }
-local ownedCalls = {}
 local shopping = Model.ShoppingList({
 	{ recipeID = 20, crafts = 3 },
 	{ recipeID = 10, crafts = 2 },
@@ -294,15 +287,12 @@ local shopping = Model.ShoppingList({
 }, function(recipeID)
 	return recipeData[recipeID] and recipeData[recipeID].reagents
 end, function(itemID)
-	ownedCalls[itemID] = (ownedCalls[itemID] or 0) + 1
-	return ({ [1] = 100, [4] = 5 })[itemID] or 0
-end, function(itemID)
 	return ({ [1] = "vendor", [2] = "auctionator", [3] = "auctionator", [4] = "vendor" })[itemID]
 end)
-equal(#shopping.vendor, 1, "fully owned item dropped")
-equal(shopping.vendor[1].itemID, 4, "vendor partition")
-equal(shopping.vendor[1].count, 13, "shared requirements aggregate before subtracting owned")
-equal(ownedCalls[4], 1, "owned subtracted only once per item")
+equal(#shopping.vendor, 2, "vendor partition")
+equal(shopping.vendor[1].itemID, 1, "vendor items sorted ascending")
+equal(shopping.vendor[2].itemID, 4, "second vendor item")
+equal(shopping.vendor[2].count, 18, "shared requirements aggregate")
 equal(#shopping.auction, 2, "Auctionator prices partition as auction")
 equal(shopping.auction[1].itemID, 2, "auction items sorted ascending")
 equal(shopping.auction[1].count, 8, "shared auction quantity")

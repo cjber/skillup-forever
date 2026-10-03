@@ -8,6 +8,8 @@ Locales/<locale>.lua and translates the right-hand sides (Locales/README.md).
 import re
 from pathlib import Path
 
+from typecheck_coverage import runtime_files
+
 ROOT = Path(__file__).resolve().parent.parent
 HEADER = """\
 -- Copy to Locales/deDE.lua (or your locale), translate the text on the right of each line and
@@ -22,14 +24,9 @@ local L = ns.L
 PHRASE = re.compile(r'\bL\["((?:\\.|[^"\\\n])*)"\]')
 
 
-def shipped_lua() -> list[Path]:
-    toc = (ROOT / "SkillUpForever.toc").read_text().splitlines()
-    return [ROOT / line.replace("\\", "/") for line in toc if line.endswith(".lua")]
-
-
 def phrases() -> list[str]:
     found = set()
-    for path in shipped_lua():
+    for path in runtime_files(ROOT):
         found.update(PHRASE.findall(path.read_text()))
     return sorted(found)
 

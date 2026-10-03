@@ -1,8 +1,27 @@
 -- Run from the repository root: luajit tests/core_spec.lua
-local checks = 0
-local function equal(actual, expected, label)
-	checks = checks + 1
-	assert(actual == expected, label .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
+local Client = dofile("tests/client.lua")
+local equal = Client.equal
+
+-- The host globals Core/Core.lua loads against: chat lines go to `messages`, load callbacks to `callbacks`.
+local function Env(messages, callbacks)
+	return setmetatable({
+		CreateColor = function() end,
+		Enum = { TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 } },
+		CreateFrame = function()
+			return { RegisterEvent = function() end, SetScript = function() end }
+		end,
+		SlashCmdList = {},
+		DEFAULT_CHAT_FRAME = {
+			AddMessage = function(_, message)
+				messages[#messages + 1] = message
+			end,
+		},
+		EventUtil = {
+			ContinueOnAddOnLoaded = function(name, callback)
+				callbacks[name] = callback
+			end,
+		},
+	}, { __index = _G })
 end
 
 -- An update followed by /reload can leave newly added files unloaded.
@@ -24,24 +43,7 @@ for _, complete in ipairs({ false, true }) do
 		ns.TrainerFees, ns.TrainerRanks, ns.RecipeSources = {}, {}, {}
 		ns.PlanRoute, ns.Changed, ns.WhenEvent = Init, Init, function() end
 	end
-	local env = setmetatable({
-		CreateColor = function() end,
-		Enum = { TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 } },
-		CreateFrame = function()
-			return { RegisterEvent = function() end, SetScript = function() end }
-		end,
-		SlashCmdList = {},
-		DEFAULT_CHAT_FRAME = {
-			AddMessage = function(_, message)
-				messages[#messages + 1] = message
-			end,
-		},
-		EventUtil = {
-			ContinueOnAddOnLoaded = function(name, callback)
-				callbacks[name] = callback
-			end,
-		},
-	}, { __index = _G })
+	local env = Env(messages, callbacks)
 	-- A save from before auction prices moved to Auctionator.
 	env.SkillUpForeverDB = { scanAuctions = true, tracked = { [1] = true }, auctions = {}, vendor = { [1] = 5 } }
 	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
@@ -82,30 +84,13 @@ do
 		RecipeSources = {},
 	}
 	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
-	local env = setmetatable({
-		CreateColor = function() end,
-		Enum = { TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 } },
-		CreateFrame = function()
-			return { RegisterEvent = function() end, SetScript = function() end }
+	local env = Env(messages, callbacks)
+	env.C_AddOns = {
+		GetAddOnMetadata = function(name, field)
+			assert(name == "SkillUpForever" and field == "Version")
+			return version
 		end,
-		SlashCmdList = {},
-		DEFAULT_CHAT_FRAME = {
-			AddMessage = function(_, message)
-				messages[#messages + 1] = message
-			end,
-		},
-		EventUtil = {
-			ContinueOnAddOnLoaded = function(name, callback)
-				callbacks[name] = callback
-			end,
-		},
-		C_AddOns = {
-			GetAddOnMetadata = function(name, field)
-				assert(name == "SkillUpForever" and field == "Version")
-				return version
-			end,
-		},
-	}, { __index = _G })
+	}
 	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 	setfenv(assert(loadfile("Core/Core.lua")), env)("SkillUpForever", ns)
 	ns.AnnounceUpdate()
@@ -145,4 +130,4 @@ do
 	equal(ns.db.reagentTooltip, "full", "a valid reagent tooltip mode stays")
 end
 
-print("core_spec: " .. checks .. " checks passed")
+Client.report("core_spec")

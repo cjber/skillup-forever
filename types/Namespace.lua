@@ -59,7 +59,7 @@
 ---@field RecipeSuggestions fun(profession: SkillUpContext, base: number): SkillUpSuggestion[]
 ---@field ScrollPrice fun(source: SkillUpScrollSource): number?
 ---@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number
----@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource)
+---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource, first?: integer)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
@@ -322,6 +322,7 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpListEntry
 ---@field text string
+---@field note? string a short label kept whole at the right of the name, which is cut to make room
 ---@field color? ColorMixin
 ---@field icon? fileID|string
 ---@field values? string[]
@@ -334,6 +335,7 @@ SkillUpForeverDB = nil
 ---@field entry SkillUpListEntry
 ---@field Icon Texture
 ---@field Text FontString
+---@field Note FontString
 ---@field Values FontString[]
 
 ---@class SkillUpColumn

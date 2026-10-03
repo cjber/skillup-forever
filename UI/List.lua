@@ -90,6 +90,8 @@ function ns.CreateList(parent, columns)
 		row.Icon:SetPoint("LEFT", 6, 0)
 		row.Text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 		row.Text:SetJustifyH("LEFT")
+		row.Note = row:CreateFontString(nil, "OVERLAY", "GameFontDisable")
+		row.Note:SetWordWrap(false)
 		row.Values = {}
 		for i, column in ipairs(columns) do
 			local value = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -114,16 +116,31 @@ function ns.CreateList(parent, columns)
 		row.Text:SetPoint("LEFT", entry.icon and ICON_SIZE + 12 or 6, 0)
 		row.Text:SetWordWrap(entry.wrap == true)
 		row.Text:SetText(entry.text)
+		row.Note:SetText(entry.note or "")
+		row.Note:SetShown(entry.note ~= nil)
 		-- A wrapped message gets an explicit width, so its height is known now: as
-		-- many lines as it needs. Anything else is one line cut at the columns.
+		-- many lines as it needs. Anything else is one line cut at the first column
+		-- the entry fills: the ones it leaves empty give their room to the name.
 		local height = LINE_HEIGHT
 		local width = scrollBox:GetWidth() - 10
 		if entry.wrap and width > 0 then
 			row.Text:SetWidth(width)
 			height = math.max(LINE_HEIGHT, row.Text:GetStringHeight() + 6)
 		else
+			local right = -4
+			if entry.values then
+				local empty = columns[#entry.values + 1]
+				right = empty and empty.right or textRight
+			end
 			row.Text:SetWidth(0)
-			row.Text:SetPoint("RIGHT", entry.values and textRight or -4, 0)
+			if entry.note then
+				-- The note is read whole at the right of that room, so the name is what gets cut.
+				row.Note:ClearAllPoints()
+				row.Note:SetPoint("RIGHT", right, 0)
+				row.Text:SetPoint("RIGHT", row.Note, "LEFT", -COLUMN_GAP, 0)
+			else
+				row.Text:SetPoint("RIGHT", right, 0)
+			end
 		end
 		row:ClearAllPoints()
 		row:SetPoint("TOPLEFT", 0, -self.height)

@@ -57,7 +57,8 @@ local function RequiresLine(tooltip, profession, reqSkill)
 	AddLine(tooltip, L["Requires"], string.format("%s (%d)", profession.name, reqSkill))
 end
 
--- The crafted item's own tooltip when there is one, else the recipe's name.
+-- The crafted item's own tooltip when there is one, else the recipe's name. Under the item's tooltip the
+-- title is added only when it says more than the item's name already does.
 ---@param tooltip GameTooltip
 ---@param recipeID integer
 ---@param title string
@@ -66,7 +67,9 @@ local function RecipeTitle(tooltip, recipeID, title)
 	if output then
 		tooltip:SetItemByID(output.itemID)
 		GameTooltip_AddBlankLineToTooltip(tooltip)
-		GameTooltip_AddNormalLine(tooltip, title)
+		if title ~= C_Item.GetItemNameByID(output.itemID) then
+			GameTooltip_AddNormalLine(tooltip, title)
+		end
 	else
 		GameTooltip_SetTitle(tooltip, title)
 	end
@@ -185,8 +188,8 @@ local function SuggestionTooltip(tooltip, profession, suggestion)
 		AddLine(tooltip, L["Scroll"], Money(price))
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)
-	ns.AddSourceLines(tooltip, suggestion.source)
 	local npcID = ns.SuggestionNPC(suggestion)
+	ns.AddSourceLines(tooltip, suggestion.source, npcID)
 	if npcID then
 		GameTooltip_AddInstructionLine(
 			tooltip,
@@ -234,7 +237,8 @@ local function RenderSuggestions(list, plan)
 		local price = ns.ScrollPrice(suggestion.source)
 		list:Add({
 			icon = C_Item.GetItemIconByID(suggestion.source.item),
-			text = string.format("%s  |cff808080%s|r", RecipeName(suggestion.recipeID), suggestion.kindText),
+			text = RecipeName(suggestion.recipeID),
+			note = suggestion.kindText,
 			color = ns.COLORS[suggestion.color],
 			values = { price and Money(price) or "?", tostring(suggestion.reach) },
 			tooltip = function(tooltip)

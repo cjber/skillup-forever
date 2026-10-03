@@ -129,6 +129,12 @@ local pageEnv = setmetatable({
 		end,
 	},
 	Professions = false,
+	C_Spell = {
+		GetSpellName = function(id)
+			return "Spell " .. id
+		end,
+		GetSpellTexture = function() end,
+	},
 }, {
 	__index = function(_, key)
 		local value = _G[key]
@@ -199,6 +205,8 @@ routeTab:Click()
 local routeList = lists[#lists - 1]
 local suggestion = routeList.rows[#routeList.rows]
 equal(suggestion and suggestion.values[1], "?", "an unpriced scroll shows ?")
+equal(suggestion.text, "Spell 3276", "a suggested scroll's row is named for its recipe alone")
+equal(suggestion.note, "vendor", "with where it comes from apart, so cutting the name leaves it whole")
 equal(
 	table.concat(routeList.messages, " | "):find("Install both.", 1, true) ~= nil,
 	true,
@@ -211,5 +219,29 @@ end
 for index, source in ipairs(page.Model.SHOPPING_SOURCES) do
 	equal(type(labels["item " .. index]), "string", source .. " is listed with a source label")
 end
+
+-- The scroll's tooltip opens with the crafted item's own, which already names it.
+page.ScrollSkill = function()
+	return 1
+end
+page.RecipeBands = function()
+	return {}
+end
+page.AddSourceLines, page.SuggestionNPC = function() end, function() end
+local titles = {}
+pageEnv.GameTooltip_AddNormalLine = function(_, text)
+	titles[#titles + 1] = text
+end
+local itemTooltip = { SetItemByID = function() end }
+pageEnv.C_Item.GetItemNameByID = function()
+	return "Spell 3276"
+end
+suggestion.tooltip(itemTooltip)
+equal(#titles, 0, "a recipe named as its item is does not repeat the name under the item's tooltip")
+pageEnv.C_Item.GetItemNameByID = function()
+	return "Heavy Linen Bandage"
+end
+suggestion.tooltip(itemTooltip)
+equal(titles[1], "Spell 3276", "a recipe named otherwise is still named there")
 
 Client.report("route_spec")

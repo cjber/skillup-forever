@@ -93,13 +93,17 @@ function C.Status()
 	return { questie = Q.State(), atlasLoot = A.Ready(), reading = running, failure = failure }
 end
 
--- One plain line naming what to install for where recipes, vendors and trainers are; nil with both.
+-- One plain line naming what to install for where recipes, vendors and trainers are; nil with both. With
+-- `places`, only what names a vendor or trainer matters, which is Questie.
+---@param places boolean?
 ---@return string?
-function C.Hint()
-	local questie, atlasLoot = Q.State() == "ready" or Q.State() == "waiting", A.Ready()
-	if not questie and not atlasLoot then
+function C.Hint(places)
+	local state, atlasLoot = Q.State(), A.Ready() or places
+	if state == "unfit" then
+		return L["Update Questie to see vendors, quests and trainers, with waypoints to them."]
+	elseif state == "missing" and not atlasLoot then
 		return L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."]
-	elseif not questie then
+	elseif state == "missing" then
 		return L["Install Questie to see vendors, quests and trainers, with waypoints to them."]
 	elseif not atlasLoot then
 		return L["Install AtlasLoot to see the recipes vendors, quests and drops would add."]
@@ -317,6 +321,10 @@ end
 ---@param itemID integer
 ---@return boolean
 function C.EnsureVendors(itemID)
+	-- Without Questie nobody is known to sell anything, and there is nothing to read.
+	if Q.State() ~= "ready" then
+		return true
+	end
 	if vendorsRead[itemID] ~= nil then
 		return vendorsRead[itemID]
 	end

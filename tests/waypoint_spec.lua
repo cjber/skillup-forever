@@ -2,50 +2,39 @@
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
--- One vendor in Elwynn Forest (uiMapID 1429) at 42.1, 65.9, which is 47.0, 80.0 on
--- the Eastern Kingdoms continent map (1415).
+-- One vendor in Elwynn Forest (uiMapID 1429) at 42.1, 65.9, as the catalogue reads it from QuestieDB.
 local calls
+---@type table<integer, table>
+local npcs = { [1250] = { name = "Drake Lindgren", side = "A", map = 1429, x = 0.421, y = 0.659 } }
 local ns = {
-	SourceNPCs = { [1250] = { "Drake Lindgren", "A", 0, -9000, 100 } },
-	InstanceNames = {},
+	Catalogue = {
+		NPC = function(npcID)
+			return npcs[npcID]
+		end,
+	},
 	Print = function(message)
 		calls.printed = message
 	end,
 }
-local maps = {
-	[1415] = { mapID = 1415, name = "Eastern Kingdoms", mapType = 2, parentMapID = 947 },
-	[1429] = { mapID = 1429, name = "Elwynn Forest", mapType = 3, parentMapID = 1415 },
-	[1600] = { mapID = 1600, name = "Goldshire Inn", mapType = 5, parentMapID = 1429 },
-}
----@type integer?
-local underPoint = 1429
-local positions = {
-	[1415] = { 0.47, 0.80 },
-	[1429] = { 0.421, 0.659 },
-}
-local function Position(x, y)
-	return {
-		GetXY = function()
-			return x, y
-		end,
-	}
-end
+local maps = { [1429] = { mapID = 1429, name = "Elwynn Forest", mapType = 3, parentMapID = 1415 } }
+local placed = 0
 local env = setmetatable({
-	Enum = { UIMapType = { Continent = 2, Zone = 3, Dungeon = 4, Micro = 5 } },
+	UNKNOWN = "Unknown",
 	C_Map = {
-		GetMapPosFromWorldPos = function(_, _, override)
-			local map = override or 1415
-			local at = positions[map]
-			if at then
-				return map, Position(at[1], at[2])
-			end
-		end,
 		GetMapInfo = function(map)
 			return maps[map]
 		end,
-		GetMapInfoAtPosition = function(map, x, y)
-			calls.atPosition = { map = map, x = x, y = y }
-			return maps[underPoint]
+		GetAreaInfo = function(area)
+			return area == 1581 and "The Deadmines" or nil
+		end,
+		-- Elwynn Forest is on continent 0, its x running north to south.
+		GetWorldPosFromMapPos = function(_, point)
+			placed = placed + 1
+			return 0, {
+				GetXY = function()
+					return -point.x * 10000, 100
+				end,
+			}
 		end,
 		CanSetUserWaypointOnMap = function()
 			return true
@@ -158,39 +147,23 @@ equal(Hint("loaded"), nil, "running: no hint")
 ns.db.companionHints = false
 equal(Hint(nil), nil, "the setting off hides the hint")
 
--- The client places the spawn on the continent map; the zone under that point names
--- it and re-projects it, so the label and waypoint are the zone's, not the continent's.
-calls = {}
+-- An NPC is named by its zone and its place on the zone's map.
 local where = ns.NPCLocation(1250)
-equal(calls.atPosition.map, 1415, "the zone is looked up on the continent's map")
-equal(calls.atPosition.x, 0.47, "the zone is looked up at the continent x")
-equal(calls.atPosition.y, 0.80, "the zone is looked up at the continent y")
 equal(ns.LocationText(where), "Elwynn Forest  42, 66", "the NPC is named by zone and zone coordinates")
 equal(where.map, 1429, "the waypoint is on the zone's map")
-underPoint = 1600
-equal(
-	ns.LocationText(ns.NPCLocation(1250)),
-	"Elwynn Forest  42, 66",
-	"a micro map under the point walks up to its zone"
-)
-underPoint = nil
-where = ns.NPCLocation(1250)
-equal(ns.LocationText(where), "Eastern Kingdoms  47, 80", "with no zone under the point the continent stays")
-equal(where.map, 1415, "with no zone under the point the waypoint stays on the continent")
-underPoint = 1429
-positions[1429] = nil
-equal(
-	ns.LocationText(ns.NPCLocation(1250)),
-	"Eastern Kingdoms  47, 80",
-	"a zone that can't place the spawn keeps the continent"
-)
-positions[1429] = { 0.421, 0.659 }
+npcs[1260] = { name = "Lost", side = "", map = 99, x = 0.5, y = 0.5 }
+equal(ns.LocationText(ns.NPCLocation(1260)), "unknown location", "a map the client lacks has no place")
+equal(ns.NPCLocation(1261).name, "Unknown", "an NPC QuestieDB lacks has no name")
+calls = {}
+equal(ns.SetWaypoint(1261), false, "and starts no route")
+equal(calls.printed, nil, "without a word")
 
--- Nearest by travel: 1251 is nearer in a straight line, 1252 across the water but
--- a quicker trip; both on the player's continent (0), 1253 of the other faction.
-ns.SourceNPCs[1251] = { "Near", "", 0, -9100, 100 }
-ns.SourceNPCs[1252] = { "Quick", "", 0, -9500, 100 }
-ns.SourceNPCs[1253] = { "Horde", "H", 0, -9050, 100 }
+-- Nearest by travel: 1251 is nearer in a straight line, 1252 across the water but a quicker trip; 1253 is of
+-- the other faction and 1254 hostile to both.
+npcs[1251] = { name = "Near", side = "", map = 1429, x = 0.91, y = 0.5 }
+npcs[1252] = { name = "Quick", side = "", map = 1429, x = 0.95, y = 0.5 }
+npcs[1253] = { name = "Horde", side = "H", map = 1429, x = 0.905, y = 0.5 }
+npcs[1254] = { name = "Hostile", map = 1429, x = 0.905, y = 0.5 }
 local combat, estimated = false, 0
 env.UnitFactionGroup = function()
 	return "Alliance"
@@ -211,13 +184,6 @@ env.C_Map.GetPlayerMapPosition = function()
 		end,
 	}
 end
-env.C_Map.GetMapPosFromWorldPos = function(_, vector)
-	return 1429, {
-		GetXY = function()
-			return -vector.x / 10000, 0.5
-		end,
-	}
-end
 local seconds = { [0.91] = 300, [0.95] = 60 }
 env.ShortestPathForever = {
 	API = {
@@ -228,26 +194,28 @@ env.ShortestPathForever = {
 		end,
 	},
 }
-local npcs = { 1253, 1251, 1252 }
-equal(ns.NearestNPC(npcs), 1251, "without byTravel the straight-line nearest wins")
+local sellers = { 1253, 1254, 1251, 1252 }
+equal(ns.NearestNPC(sellers), 1251, "without byTravel the straight-line nearest wins")
+equal(placed, 2, "each NPC this character can deal with is placed in the world")
 equal(estimated, 0, "without byTravel nothing is estimated")
-equal(ns.NearestNPC(npcs, true), 1252, "byTravel prefers the quicker trip")
+equal(ns.NearestNPC(sellers, true), 1252, "byTravel prefers the quicker trip")
 equal(estimated, 2, "only this faction's vendors are estimated")
+equal(placed, 2, "and placed only once")
 seconds = {}
-equal(ns.NearestNPC(npcs, true), 1251, "no estimate keeps the straight-line nearest")
+equal(ns.NearestNPC(sellers, true), 1251, "no estimate keeps the straight-line nearest")
 combat, estimated = true, 0
-equal(ns.NearestNPC(npcs, true), 1251, "in combat the straight-line nearest wins")
+equal(ns.NearestNPC(sellers, true), 1251, "in combat the straight-line nearest wins")
 equal(estimated, 0, "nothing is estimated in combat")
 combat, env.ShortestPathForever = false, nil
-equal(ns.NearestNPC(npcs, true), 1251, "without Shortest Path Forever the straight-line nearest wins")
+equal(ns.NearestNPC(sellers, true), 1251, "without Shortest Path Forever the straight-line nearest wins")
 env.ShortestPathForever = { API = { version = 1 } }
-equal(ns.NearestNPC(npcs, true), 1251, "an API without Estimate keeps the straight-line nearest")
+equal(ns.NearestNPC(sellers, true), 1251, "an API without Estimate keeps the straight-line nearest")
 
 -- A dungeon NPC has no map point: only a chat line, and no route started.
 calls = {}
-ns.InstanceNames[0] = "The Deadmines"
-equal(ns.SetWaypoint(1250), false, "a dungeon NPC starts no route")
-equal(calls.printed, "Drake Lindgren is in The Deadmines.", "and says where it is")
-ns.InstanceNames[0] = nil
+npcs[1255] = { name = "Sneed", area = 1581 }
+equal(ns.SetWaypoint(1255), false, "a dungeon NPC starts no route")
+equal(calls.printed, "Sneed is in The Deadmines.", "and says where it is")
+equal(ns.NearestNPC({ 1255, 1261 }), nil, "and is nobody's nearest vendor")
 
 Client.report("waypoint_spec")

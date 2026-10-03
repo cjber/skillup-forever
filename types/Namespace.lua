@@ -56,8 +56,9 @@
 ---@field SetWaypoint fun(npcID: integer): boolean
 ---@field SuggestionNPC fun(suggestion: SkillUpSuggestion): integer?
 ---@field RecipeSuggestions fun(profession: SkillUpContext, base: number): SkillUpSuggestion[]
----@field ScrollPrice fun(source: SkillUpSource): number?
----@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpSource)
+---@field ScrollPrice fun(source: SkillUpScrollSource): number?
+---@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number
+---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
@@ -306,7 +307,7 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpSuggestion
 ---@field recipeID integer
----@field source SkillUpSource
+---@field source SkillUpScrollSource
 ---@field kind integer
 ---@field kindText string
 ---@field npcID? integer

@@ -178,7 +178,7 @@ local SUGGESTIONS_SHOWN = 8
 local function SuggestionTooltip(tooltip, profession, suggestion)
 	local recipeID = suggestion.recipeID
 	RecipeTitle(tooltip, recipeID, RecipeName(recipeID))
-	RequiresLine(tooltip, profession, suggestion.source.skill)
+	RequiresLine(tooltip, profession, ns.ScrollSkill(recipeID, suggestion.source))
 	AddBands(tooltip, profession, recipeID)
 	local price = ns.ScrollPrice(suggestion.source)
 	if price then
@@ -190,7 +190,7 @@ local function SuggestionTooltip(tooltip, profession, suggestion)
 	if npcID then
 		GameTooltip_AddInstructionLine(
 			tooltip,
-			string.format(L["Click for a waypoint to %s."], ns.SourceNPCs[npcID][1])
+			string.format(L["Click for a waypoint to %s."], ns.NPCLocation(npcID).name)
 		)
 		ns.AddCompanionHint(tooltip)
 	end
@@ -221,6 +221,10 @@ end
 local function RenderSuggestions(list, plan)
 	local profession = plan.profession
 	local suggestions = ns.RecipeSuggestions(profession, plan.reached)
+	local hint = ns.Catalogue.Hint()
+	if hint then
+		list:Message(hint)
+	end
 	if #suggestions == 0 then
 		return
 	end

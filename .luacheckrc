@@ -32,7 +32,7 @@ read_globals = { "CreateFramePoolCollection", "C_XMLUtil",
 	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator", "tContains",
 	"ShortestPathForever", "InCombatLockdown", "GetLocale", "C_AddOns",
 	"LibQuestieDB", "Questie", "AtlasLoot", "bit", "debugprofilestop", "loadstring", "setfenv",
-	"APPRENTICE", "JOURNEYMAN", "EXPERT", "ARTISAN", "DEFAULT", "OFF", "TOTAL", "ITEM_MIN_SKILL",
+	"UNKNOWN", "APPRENTICE", "JOURNEYMAN", "EXPERT", "ARTISAN", "DEFAULT", "OFF", "TOTAL", "ITEM_MIN_SKILL",
 }
 
 files["Data/Thresholds.lua"] = { max_line_length = false }

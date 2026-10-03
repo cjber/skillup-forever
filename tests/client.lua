@@ -139,7 +139,9 @@ end
 
 -- options: data (ns tables that replace the bundled Data/*.lua ones of the same name), saved (SkillUpForeverDB),
 -- auctionator (false for a client without it), trackerManager (false for a client without Blizzard's tracker
--- manager), boot (false to stop before the addon's ADDON_LOADED; c.Boot() then runs it).
+-- manager), boot (false to stop before the addon's ADDON_LOADED; c.Boot() then runs it), questie and atlasLoot
+-- (what a synthetic QuestieDB and AtlasLoot hold, as Client.QuestieDB and Client.AtlasLoot take it; a client
+-- has neither without them).
 function Client.load(options)
 	options = options or {}
 	local G = setmetatable({}, { __index = _G })
@@ -162,7 +164,8 @@ function Client.load(options)
 		money = 1000000,
 		level = 60,
 		player = { name = "Tester", realm = "Realm", faction = "Alliance", x = 0, y = 0, instance = 0 },
-		maps = {}, -- [world instance] = { mapID, name }: the one zone map the client places its spawns on
+		maps = {}, -- [world instance] = { mapID, name }: the continent's one zone map
+		areas = {}, -- [areaID] = name
 		opened = {}, -- profession IDs passed to OpenTradeSkill
 		purchased = {}, -- { index, count } per BuyMerchantItem call
 		requested = {}, -- [itemID] = true: item data asked for
@@ -541,14 +544,22 @@ function Client.load(options)
 		end
 	end
 	G.C_Map = {
-		GetMapPosFromWorldPos = function(instance)
-			local map = c.maps[instance]
-			if map then
-				return map.mapID, Middle()
+		-- A zone map covers its continent: a map point is the same numbers as a world one.
+		GetWorldPosFromMapPos = function(mapID, point)
+			for instance, map in pairs(c.maps) do
+				if map.mapID == mapID then
+					return instance, {
+						GetXY = function()
+							return point.x, point.y
+						end,
+					}
+				end
 			end
 		end,
 		GetMapInfo = MapInfo,
-		GetMapInfoAtPosition = MapInfo,
+		GetAreaInfo = function(areaID)
+			return c.areas[areaID]
+		end,
 		GetBestMapForUnit = function()
 			return c.maps[c.player.instance] and c.maps[c.player.instance].mapID
 		end,
@@ -634,7 +645,23 @@ function Client.load(options)
 	G.SlashCmdList = {}
 	G.PlaySound = noop
 	G.SOUNDKIT = {}
-	G.DEFAULT, G.OFF = "Default", "Off"
+	G.DEFAULT, G.OFF, G.UNKNOWN = "Default", "Off", "Unknown"
+	G.debugprofilestop = function()
+		return 0
+	end
+	G.C_AddOns = {
+		GetAddOnMetadata = function(_, field)
+			return field == "X-Flavor" and "Forever" or nil
+		end,
+		IsAddOnLoaded = function()
+			return false
+		end,
+		DoesAddOnExist = function()
+			return false
+		end,
+	}
+	G.LibQuestieDB = options.questie and Client.QuestieDB(options.questie)
+	G.AtlasLoot = options.atlasLoot and Client.AtlasLoot(options.atlasLoot)
 	G.APPRENTICE, G.JOURNEYMAN, G.EXPERT, G.ARTISAN = "Apprentice", "Journeyman", "Expert", "Artisan"
 	G.Mixin = function(target, source)
 		for key, value in pairs(source) do

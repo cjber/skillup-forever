@@ -2,92 +2,52 @@
 local _, ns = ...
 local L = ns.L
 
--- Where recipe scrolls come from (bundled from classic-db) and how to get there.
+-- Where recipe scrolls, vendors and trainers are, from the catalogue of what QuestieDB and AtlasLoot hold,
+-- and how to get there. Everything here reads what the catalogue has already read: nothing is looked up in
+-- a provider on the way.
 
+local C = ns.Catalogue
 local FACTION_CODES = { Alliance = "A", Horde = "H" }
 
----@param faction string
+---@param faction string?
 ---@return boolean
 local function OurFaction(faction)
-	return faction == "" or faction == FACTION_CODES[UnitFactionGroup("player")]
+	return faction == "" or (faction ~= nil and faction == FACTION_CODES[UnitFactionGroup("player")])
 end
 
+-- Whether this character can deal with the NPC: one hostile to both sides, or unknown, trades with nobody.
 ---@param npcID integer
 ---@return boolean
 local function Usable(npcID)
-	return OurFaction(ns.SourceNPCs[npcID][2])
+	local npc = C.NPC(npcID)
+	return npc ~= nil and OurFaction(npc.side)
 end
 
----@param source SkillUpSource
----@param npcID integer
----@return boolean
-local function Limited(source, npcID)
-	return tContains(source.limited or {}, npcID)
-end
-
--- Vendors of your faction, those that always have the scroll first.
----@param source SkillUpSource
----@param byTravel boolean?
----@return integer?
-local function VendorFor(source, byTravel)
-	local unlimited, limited = {}, {}
-	for _, npcID in ipairs(source.vendors or {}) do
-		table.insert(Limited(source, npcID) and limited or unlimited, npcID)
-	end
-	return ns.NearestNPC(unlimited, byTravel) or ns.NearestNPC(limited, byTravel)
-end
-
----@param source SkillUpSource
+---@param source SkillUpScrollSource
 ---@return integer?
 local function QuestFor(source)
-	for _, questID in ipairs(source.quests or {}) do
-		if OurFaction(ns.SourceQuests[questID][2]) then
+	for _, questID in ipairs(source.quests) do
+		local quest = C.Quest(questID)
+		if quest and OurFaction(quest.side) then
 			return questID
 		end
 	end
 end
 
--- The zone map under a point of a continent map: the client's deepest map there,
--- walked up past any dungeon or micro map to its zone, else nil.
----@param continent integer
----@param x number
----@param y number
----@return UiMapDetails?
-local function ZoneAt(continent, x, y)
-	local info = C_Map.GetMapInfoAtPosition(continent, x, y)
-	while info and info.mapType > Enum.UIMapType.Zone and info.parentMapID ~= 0 do
-		info = C_Map.GetMapInfo(info.parentMapID)
-	end
-	return info and info.mapType == Enum.UIMapType.Zone and info or nil
-end
-
--- The NPC's zone and zone map position, resolved by the client from its world spawn
--- so overlapping zone rectangles can't mislabel it; the continent's map when no zone
--- lies under it, and a dungeon has only its name.
+-- The NPC's name, zone and zone map position, as QuestieDB places it. A dungeon has only its name, and an
+-- NPC QuestieDB lacks has neither.
 ---@param npcID integer
 ---@return SkillUpLocation
 function ns.NPCLocation(npcID)
-	local npc = ns.SourceNPCs[npcID]
-	local name, map, x, y = npc[1], npc[3], npc[4], npc[5]
-	local instance = ns.InstanceNames[map]
-	if instance then
-		return { name = name, label = instance }
+	local npc = C.NPC(npcID)
+	if not npc then
+		return { name = UNKNOWN, label = L["unknown location"] }
 	end
-	local world = CreateVector2D(x, y)
-	local uiMapID, position = C_Map.GetMapPosFromWorldPos(map, world)
-	local info = uiMapID and C_Map.GetMapInfo(uiMapID)
-	if not (info and position) then
-		return { name = name, label = L["unknown location"] }
+	local info = npc.map and C_Map.GetMapInfo(npc.map)
+	if info then
+		return { name = npc.name, label = info.name, map = npc.map, x = npc.x, y = npc.y }
 	end
-	local zone = ZoneAt(uiMapID, position:GetXY()) -- multi-value: the continent x, y
-	if zone then
-		local zoneMapID, zonePosition = C_Map.GetMapPosFromWorldPos(map, world, zone.mapID)
-		if zoneMapID == zone.mapID and zonePosition then
-			uiMapID, position, info = zoneMapID, zonePosition, zone
-		end
-	end
-	local px, py = position:GetXY()
-	return { name = name, label = info.name, map = uiMapID, x = px, y = py }
+	return { name = npc.name, label = npc.area and C_Map.GetAreaInfo(npc.area) or L["unknown location"] }
 end
 
 ---@param where SkillUpLocation
@@ -99,17 +59,25 @@ function ns.LocationText(where)
 	return where.label
 end
 
--- UnitPosition's first value is the world's north axis, as classic-db's x is.
+-- The squared distance to an NPC on the player's continent, else infinite. The client turns the map point
+-- into a world one once an NPC; UnitPosition's first value is the world's north axis, as that point's is.
 ---@param npcID integer
 ---@return number
 local function Distance(npcID)
-	local px, py, _, instance = UnitPosition("player")
-	local npc = ns.SourceNPCs[npcID]
-	local map, x, y = npc[3], npc[4], npc[5]
-	if not px or map ~= instance then
+	local npc = C.NPC(npcID)
+	if not (npc and npc.map) then
 		return math.huge
 	end
-	return (px - x) ^ 2 + (py - y) ^ 2
+	if npc.world == nil then
+		local instance, position = C_Map.GetWorldPosFromMapPos(npc.map, CreateVector2D(npc.x, npc.y))
+		npc.world = instance and position and { instance, position:GetXY() } or false
+	end
+	local px, py, _, instance = UnitPosition("player")
+	local world = npc.world
+	if not (px and world) or world[1] ~= instance then
+		return math.huge
+	end
+	return (px - world[2]) ^ 2 + (py - world[3]) ^ 2
 end
 
 -- Shortest Path Forever's public API, version 1, when it is loaded; callers still
@@ -174,10 +142,13 @@ end
 
 -- Shortest Path Forever's route when it takes one (it declines in combat, with its
 -- journeys off or without a player position), else TomTom's arrow, else the map's
--- own waypoint, super-tracked; false when there is only a chat line to give.
+-- own waypoint, super-tracked; false when there is only a chat line to give, or no NPC to name.
 ---@param npcID integer
 ---@return boolean
 function ns.SetWaypoint(npcID)
+	if not C.NPC(npcID) then
+		return false
+	end
 	local where = ns.NPCLocation(npcID)
 	if not where.map then
 		ns.Print(string.format(L["%s is in %s."], where.name, where.label))
@@ -205,22 +176,24 @@ function ns.SetWaypoint(npcID)
 	return true
 end
 
--- Best way to get the scroll, easiest first: an unlimited vendor, a limited one,
--- a quest, a named drop, a world drop; nil when only the other faction sells it or
--- may take the quest.
----@param source SkillUpSource
+local VENDOR, QUEST, DROP, WORLD = 1, 2, 3, 4
+local KIND_TEXT = { L["vendor"], L["quest"], L["drop"], L["world drop"] }
+
+-- Best way to get the scroll, easiest first: a vendor, a quest, a named drop, a world drop; nil when only
+-- the other faction sells it or may take the quest.
+---@param source SkillUpScrollSource
 ---@return integer?
 ---@return integer?
 local function Kind(source)
-	local vendor = VendorFor(source)
+	local vendor = ns.NearestNPC(source.vendors)
 	if vendor then
-		return Limited(source, vendor) and 2 or 1, vendor
+		return VENDOR, vendor
 	elseif QuestFor(source) then
-		return 3
-	elseif source.drops then
-		return 4, source.drops[1][1]
+		return QUEST
+	elseif source.drops[1] then
+		return DROP, source.drops[1][1]
 	elseif source.world then
-		return 5
+		return WORLD
 	end
 end
 
@@ -229,29 +202,31 @@ end
 ---@param suggestion SkillUpSuggestion
 ---@return integer?
 function ns.SuggestionNPC(suggestion)
-	if suggestion.kind <= 2 then
-		return VendorFor(suggestion.source, true)
+	if suggestion.kind == VENDOR then
+		return ns.NearestNPC(suggestion.source.vendors, true)
 	end
 	return suggestion.npcID
 end
 
-local KIND_TEXT = { L["vendor"], L["limited vendor"], L["quest"], L["drop"], L["world drop"] }
-
 -- Scroll recipes of this profession, not trainer-taught nor learned, that base
 -- skill `base` can learn and that still skill up there, easiest to get and then
--- furthest-reaching first. `reach` is base skill too.
+-- furthest-reaching first. `reach` is base skill too. Empty until the profession's sources are read.
 ---@param profession SkillUpContext
 ---@param base number
 ---@return SkillUpSuggestion[]
 function ns.RecipeSuggestions(profession, base)
 	local skill = base + profession.modifier
 	local found = {}
-	for recipeID, source in pairs(ns.RecipeSources) do
-		local recipe = ns.RecipeData[recipeID]
-		local t = recipe and recipe.skillLine == profession.skillLine and ns.Model.Get(recipeID)
+	if not C.EnsureProfession(profession.skillLine) then
+		return found
+	end
+	for recipeID, recipe in pairs(ns.RecipeData) do
+		local source = recipe.skillLine == profession.skillLine and C.Recipe(recipeID)
+		local t = source and ns.Model.Get(recipeID)
 		if
-			t
-			and source.skill <= base
+			source
+			and t
+			and ns.ScrollSkill(recipeID, source) <= base
 			and t[4] > skill
 			and not ns.IsLearned(recipeID)
 			and not ns.TrainingFor(profession, recipeID)
@@ -281,12 +256,22 @@ function ns.RecipeSuggestions(profession, base)
 	return found
 end
 
--- The scroll's price: what it last sold for, else the vendor's.
----@param source SkillUpSource
+-- The base skill a scroll asks for: AtlasLoot's, else where the recipe starts, which is where a scroll is
+-- usually learnable.
+---@param recipeID integer
+---@param source SkillUpScrollSource
+---@return number
+function ns.ScrollSkill(recipeID, source)
+	local t = ns.Model.Get(recipeID)
+	return source.skill or (t and t[1]) or 0
+end
+
+-- The scroll's price: what it last sold for at auction or at a merchant's window.
+---@param source SkillUpScrollSource
 ---@return number?
 function ns.ScrollPrice(source)
 	local price = ns.Price(source.item)
-	return price and price.copper or (source.price and source.price > 0 and source.price) or nil
+	return price and price.copper or nil
 end
 
 ---@param tooltip GameTooltip
@@ -307,50 +292,58 @@ local function AddNPC(tooltip, left, npcID, suffix, usable)
 end
 
 ---@param tooltip GameTooltip
----@param source SkillUpSource
+---@param source SkillUpScrollSource
 function ns.AddSourceLines(tooltip, source)
-	for _, npcID in ipairs(source.vendors or {}) do
-		AddNPC(tooltip, L["Sold by"], npcID, Limited(source, npcID) and "  " .. L["(limited)"] or nil, Usable(npcID))
+	for _, npcID in ipairs(source.vendors) do
+		if C.NPC(npcID) then
+			AddNPC(tooltip, L["Sold by"], npcID, nil, Usable(npcID))
+		end
 	end
-	for _, questID in ipairs(source.quests or {}) do
-		local title, faction = unpack(ns.SourceQuests[questID])
-		GameTooltip_AddColoredDoubleLine(
-			tooltip,
-			L["Quest"],
-			title,
-			NORMAL_FONT_COLOR,
-			OurFaction(faction) and HIGHLIGHT_FONT_COLOR or RED_FONT_COLOR
-		)
+	for _, questID in ipairs(source.quests) do
+		local quest = C.Quest(questID)
+		if quest then
+			GameTooltip_AddColoredDoubleLine(
+				tooltip,
+				L["Quest"],
+				quest.title,
+				NORMAL_FONT_COLOR,
+				OurFaction(quest.side) and HIGHLIGHT_FONT_COLOR or RED_FONT_COLOR
+			)
+		end
 	end
-	for _, drop in ipairs(source.drops or {}) do
-		AddNPC(tooltip, L["Dropped by"], drop[1], string.format("  (%s%%)", drop[2]), true)
+	for _, drop in ipairs(source.drops) do
+		if C.NPC(drop[1]) then
+			AddNPC(tooltip, L["Dropped by"], drop[1], string.format("  (%s%%)", drop[2]), true)
+		end
 	end
 	if source.world then
 		GameTooltip_AddNormalLine(tooltip, L["World drop"])
 	end
 end
 
--- The nearest trainer of this profession, of your faction, who teaches up to `cap`.
+-- The nearest trainer of this profession, of your faction, who teaches up to `cap`; nil until the
+-- profession's trainers are read.
 ---@param profession SkillUpContext
 ---@param cap number
 ---@param byTravel boolean?
 ---@return integer?
 function ns.NearestTrainer(profession, cap, byTravel)
-	local trainers = {}
-	for _, row in ipairs(ns.ProfessionTrainers[profession.skillLine] or {}) do
-		if row[2] >= cap then
-			trainers[#trainers + 1] = row[1]
-		end
+	if not C.EnsureProfession(profession.skillLine) then
+		return nil
 	end
-	return ns.NearestNPC(trainers, byTravel)
+	return ns.NearestNPC(C.Trainers(profession.skillLine, cap), byTravel)
 end
 
+-- The nearest vendor of an item, of your faction; nil until its vendors are read.
 ---@param itemID integer
 ---@param byTravel boolean?
 ---@return integer?
 function ns.NearestVendor(itemID, byTravel)
-	local vendors = ns.ReagentVendors[itemID]
-	return vendors and ns.NearestNPC(vendors, byTravel)
+	if not C.EnsureVendors(itemID) then
+		return nil
+	end
+	local found = C.ItemSources(itemID)
+	return found and ns.NearestNPC(found.vendors, byTravel)
 end
 
 local SHORTEST_PATH = "ShortestPathForever"
@@ -373,12 +366,17 @@ function ns.AddCompanionHint(tooltip)
 	end
 end
 
--- "Nearest trainer  Name" over its zone and coordinates, and what a click does.
+-- "Nearest trainer  Name" over its zone and coordinates, and what a click does; without Questie, the one
+-- line saying what would name it.
 ---@param tooltip GameTooltip
 ---@param label string
 ---@param npcID integer?
 function ns.AddNearest(tooltip, label, npcID)
 	if not npcID then
+		local hint = C.Hint(true)
+		if hint then
+			GameTooltip_AddDisabledLine(tooltip, hint)
+		end
 		return
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)

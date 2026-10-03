@@ -16,11 +16,9 @@ local c = Client.load({
 		},
 		TrainerFees = { [HEAVY] = { 100, 40 } },
 		TrainerRanks = { [129] = { { 150, 500, 50, 0 } } },
-		RecipeSources = {},
 		ItemSellPrices = {},
 		GatheredBy = {},
 		VendorPrices = {},
-		ReagentVendors = {},
 		ProfessionTrainers = {},
 	},
 })

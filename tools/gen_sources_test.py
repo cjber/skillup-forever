@@ -9,12 +9,12 @@ from gen_sources import CHEST, gathered
 MINE, VEIN, LOOT = "7", "70", "700"
 
 
-def loot(entry, item, chance, ref=0, group=0):
+def loot(entry, item, chance, ref=0):
     return {
         "entry": entry,
         "item": str(item),
         "ChanceOrQuestChance": str(chance),
-        "groupid": str(group),
+        "groupid": "0",
         "mincountOrRef": str(-ref if ref else 1),
     }
 

@@ -69,6 +69,12 @@ creature drops from `creature_loot_template` (following `reference_loot_template
 world drops (scrolls more than 100 creatures drop, or only reference tables no
 creature reaches), and quest rewards from `quest_template`.
 
+Loot chances follow the rules the dump is written for. An item outside a group and every
+reference rolls on its own; the items sharing a `groupid` give one of them, a chance of 0
+being an equal share of what the others leave. A reference's `groupid` names the one group
+of the referenced loot it rolls (0 for all of it) and its `maxcount` how many times. Read
+that way no group in the dump sums past 100; one that does fails the run.
+
 Each NPC keeps its name, faction (`FactionTemplate`) and one world spawn (an NPC whose
 faction Forever's `FactionTemplate` lacks is left out and reported, never guessed as
 usable by both); the client turns that into a zone and map position, so the generator

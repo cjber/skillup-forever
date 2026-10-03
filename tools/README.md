@@ -60,14 +60,16 @@ Specialisation-gated rows are skipped, and fees recorded at a trainer in game wi
 taught spell's `SKILL` effect gives the skill line and the new cap), with fee,
 required skill and level. Ranks that come from books or quests are absent.
 
-`gen_sources.py` writes `Data/Sources.lua`: for each recipe taught by a scroll, where
-the scroll comes from, from the same classic-db dump. Scroll items (`item_template`
-class 9) map to recipes through Classic Era's LEARN_SPELL effects, as trainer spells
-do. A scroll's sources are vendors from `npc_vendor` and vendor templates (each vendor
-with a positive `maxcount` is marked limited for that item), the three likeliest
-creature drops from `creature_loot_template` (following `reference_loot_template`),
-world drops (scrolls more than 100 creatures drop, or only reference tables no
-creature reaches), and quest rewards from `quest_template`.
+`gen_sources.py` writes `Data/Sources.lua`: what neither QuestieDB nor AtlasLoot holds about
+where recipes come from, from the same classic-db dump. Who sells a scroll or a reagent, the
+quests that reward one, which scroll teaches which recipe and every NPC's name, side and place
+are not generated: the addon reads them in game from the player's QuestieDB and AtlasLoot.
+
+Scroll items (`item_template` class 9) are those that teach a recipe through Classic Era's
+LEARN_SPELL effects, as trainer spells do. For each, `ns.ScrollDrops` keeps the three likeliest
+creature drops from `creature_loot_template` (following `reference_loot_template`), and
+`ns.WorldDrops` marks the world drops: scrolls more than 100 creatures drop, or that only
+reference tables no creature reaches hold.
 
 Loot chances follow the rules the dump is written for. An item outside a group and every
 reference rolls on its own; the items sharing a `groupid` give one of them, a chance of 0
@@ -75,15 +77,9 @@ being an equal share of what the others leave. A reference's `groupid` names the
 of the referenced loot it rolls (0 for all of it) and its `maxcount` how many times. Read
 that way no group in the dump sums past 100; one that does fails the run.
 
-Each NPC keeps its name, faction (`FactionTemplate`) and one world spawn (an NPC whose
-faction Forever's `FactionTemplate` lacks is left out and reported, never guessed as
-usable by both); the client turns that into a zone and map position, so the generator
-needs no zone boundaries. Missing creature templates or spawns are also left out and reported.
-Dungeon spawns carry the instance name from `Map`.
-
-It also writes each profession's trainers with the highest rank they teach (their
-`npc_trainer` rank spells), and the vendors that always stock each vendor reagent in
-`Data/Vendor.lua`, for waypoints to the nearest one.
+`ns.ProfessionTrainers` lists each profession's trainers with the highest rank they teach
+(their `npc_trainer` rank spells). Where a trainer stands, and whether your side can use it,
+comes from QuestieDB.
 
 `ns.GatheredBy` maps reagents to the gathering profession that yields them at least
 10% of the time: herb and mining nodes (`gameobject_template` chests whose `Lock`

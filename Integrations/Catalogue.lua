@@ -228,7 +228,8 @@ local function ReadScrolls()
 			taught = found
 			return false
 		end
-		local item = C.ItemSources(itemID)
+		-- Read past the cache: nearly every item is no scroll, and none of those is asked for again.
+		local item = Q.Item(itemID)
 		local spellID = item and item.teaches
 		if spellID and ns.RecipeData[spellID] then
 			found[spellID] = found[spellID] or {}

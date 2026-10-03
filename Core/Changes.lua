@@ -5,8 +5,7 @@ local _, ns = ...
 -- changes arrive as the events below. Only this file knows which caches that drops and which views it
 -- redraws: each once per change, caches before views, in ORDER.
 
--- Caches first, so every view redraws from fresh data. The route page only arms its redraw timer, so
--- its place among the views is free; the rest keep the order they have always been refreshed in.
+-- The route page only arms its redraw timer, so its place among the views is free.
 ---@type SkillUpStale[]
 local ORDER = { "schematics", "prices", "plans", "api", "route", "recipeList", "tracker", "trainer", "routeTab" }
 

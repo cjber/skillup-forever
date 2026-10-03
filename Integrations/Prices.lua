@@ -38,12 +38,10 @@ local function AuctionatorAPI()
 	return api and api.GetAuctionPriceByItemID and api
 end
 
--- Auctionator's price, and whole days since it was seen (nil past three weeks).
+-- Auction prices come only from Auctionator, with whole days since the price was seen (nil past three weeks).
 ---@param itemID integer
----@return number?
----@return number?
----@return boolean?
-local function AuctionatorPrice(itemID)
+---@return SkillUpPrice?
+local function AuctionPrice(itemID)
 	local api = AuctionatorAPI()
 	if not api then
 		return nil
@@ -53,15 +51,12 @@ local function AuctionatorPrice(itemID)
 		return nil
 	end
 	local okAge, days = pcall(api.GetAuctionAgeByItemID, addonName, itemID)
-	return copper, okAge and type(days) == "number" and days or nil, not okAge
-end
-
--- Auction prices come only from Auctionator: { copper, source, days }.
----@param itemID integer
----@return SkillUpPrice?
-local function AuctionPrice(itemID)
-	local copper, days, ageUnavailable = AuctionatorPrice(itemID)
-	return copper and { copper = copper, source = "auctionator", days = days, ageUnavailable = ageUnavailable }
+	return {
+		copper = copper,
+		source = "auctionator",
+		days = okAge and type(days) == "number" and days or nil,
+		ageUnavailable = not okAge,
+	}
 end
 
 -- With the setting on, what another of your professions gathers costs nothing.
@@ -251,14 +246,11 @@ local function CraftValue(recipeID)
 	return { copper = each * output.quantity, source = source, quantity = output.quantity }
 end
 
--- What one craft costs, the one place that says so: its reagents, what the result sells for
--- ({ copper, source, quantity }, nil when that counts for nothing) and the first net of the second;
--- a negative net means each craft makes money. Unknown is nil, never free: all three when a reagent
--- has no price or the recipe no known reagents, and the net alone while the sell price isn't known.
+-- What one craft costs, the one place that says so. Unknown is nil, never free.
 ---@param recipeID integer
----@return number? cost
----@return SkillUpValue? value
----@return number? net
+---@return number? cost its reagents; nil, with value and net, when one has no price or the recipe no known reagents
+---@return SkillUpValue? value what the result sells for; nil when that counts for nothing
+---@return number? net cost less value, negative when each craft makes money; nil while the sell price isn't known
 function ns.CraftCost(recipeID)
 	local cost = ReagentCost(ns.Reagents(recipeID))
 	if not cost then

@@ -100,6 +100,12 @@ function Client.load(options)
 	function Methods:IsShown()
 		return self.shown
 	end
+	function Methods:SetEnabled(enabled)
+		self.disabled = not enabled
+	end
+	function Methods:IsEnabled()
+		return not self.disabled
+	end
 	function Methods:SetText(text)
 		self.text = text
 	end

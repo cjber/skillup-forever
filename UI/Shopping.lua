@@ -155,9 +155,20 @@ local function MerchantPurchases()
 	return purchases, cost
 end
 
+-- Set by a click until the bags show what it bought: the missing counts only drop then, so a second
+-- click before that would place the same order again.
+---@type table?
+local ordered
+-- A purchase the server refuses (full bags) changes no bag and closes no merchant, so nothing else
+-- would bring the button back. Long enough for a slow bag update, short enough to try again.
+local ORDER_TIMEOUT = 3
+
 -- BuyMerchantItem counts units, priced per merchant stack, and takes at most
 -- GetMerchantItemMaxStack units a call (Blizzard's MerchantFrame does the same).
 local function BuyMissing()
+	if ordered then
+		return
+	end
 	local purchases, cost = MerchantPurchases()
 	if cost > GetMoney() then
 		ns.Print(L["not enough money for every missing reagent here."])
@@ -173,6 +184,20 @@ local function BuyMissing()
 			remaining = remaining - count
 		end
 	end
+	if #purchases == 0 then
+		return
+	end
+	local order = {}
+	ordered = order
+	if buyButton then
+		buyButton:SetEnabled(false)
+	end
+	C_Timer.After(ORDER_TIMEOUT, function()
+		if ordered == order then
+			ordered = nil
+			ns.Changed("merchant")
+		end
+	end)
 end
 
 local function RefreshBuyButton()
@@ -196,6 +221,7 @@ local function RefreshBuyButton()
 	end
 	buyButton:SetText(string.format(L["Buy tracked reagents  %s"], C_CurrencyInfo.GetCoinTextureString(cost)))
 	buyButton:SetSize(buyButton:GetTextWidth() + 32, 22)
+	buyButton:SetEnabled(not ordered)
 	buyButton:Show()
 end
 
@@ -401,4 +427,10 @@ end
 function ns.InitShopping()
 	CreateModule()
 	ns.WhenStale("tracker", RefreshTracker)
+	-- The order arrived, or its merchant is gone: the refresh these events bring offers the button again.
+	local function OrderSettled()
+		ordered = nil
+	end
+	ns.WhenEvent("BAG_UPDATE_DELAYED", OrderSettled)
+	ns.WhenEvent("MERCHANT_CLOSED", OrderSettled)
 end

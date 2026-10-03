@@ -9,6 +9,29 @@ local COLUMN_GAP = 8
 -- Room kept on the right for the scroll bar, so columns line up with or without it.
 local SCROLL_BAR_WIDTH = 18
 
+-- Item data that arrives after a hover makes the game rebuild the item's tooltip, which drops the lines a row
+-- added under it. The tooltip asks its owner for a fresh one first (`owner:UpdateTooltip()`), so a hovered
+-- row draws its own again once new data has come.
+local staleTooltip = false
+ns.WhenEvent("TOOLTIP_DATA_UPDATE", function()
+	staleTooltip = true
+end)
+
+---@param row SkillUpListRow
+local function ShowTooltip(row)
+	staleTooltip = false
+	GameTooltip:SetOwner(row, "ANCHOR_RIGHT")
+	row.entry.tooltip(GameTooltip)
+	GameTooltip:Show()
+end
+
+---@param row SkillUpListRow
+local function UpdateTooltip(row)
+	if staleTooltip and row.entry.tooltip then
+		ShowTooltip(row)
+	end
+end
+
 ---@param parent Frame
 ---@return SkillUpScrollBox scrollBox
 ---@return SkillUpScrollContent content
@@ -66,9 +89,7 @@ function ns.CreateList(parent, columns)
 	---@param row SkillUpListRow
 	local function OnEnter(row)
 		if row.entry.tooltip then
-			GameTooltip:SetOwner(row, "ANCHOR_RIGHT")
-			row.entry.tooltip(GameTooltip)
-			GameTooltip:Show()
+			ShowTooltip(row)
 		end
 	end
 
@@ -82,6 +103,7 @@ function ns.CreateList(parent, columns)
 	local function CreateRow()
 		local row = CreateFrame("Button", nil, content) --[[@as SkillUpListRow]]
 		row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+		row.UpdateTooltip = UpdateTooltip
 		row:SetScript("OnEnter", OnEnter)
 		row:SetScript("OnLeave", GameTooltip_Hide)
 		row:SetScript("OnClick", OnClick)

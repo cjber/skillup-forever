@@ -18,6 +18,9 @@ local function Region()
 		SetShown = function(self, shown)
 			self.shown = shown
 		end,
+		SetScript = function(self, name, script)
+			self.scripts[name] = script
+		end,
 		GetWidth = function()
 			return 300
 		end,
@@ -31,7 +34,7 @@ local function Region()
 			return Region()
 		end,
 	}
-	return setmetatable({ points = {} }, {
+	return setmetatable({ points = {}, scripts = {} }, {
 		__index = function(_, key)
 			return methods[key] or function() end
 		end,
@@ -39,8 +42,14 @@ local function Region()
 end
 
 local color = { GetRGB = function() end }
-local ns = {}
+local events = {}
+local ns = {
+	WhenEvent = function(event, watcher)
+		events[event] = watcher
+	end,
+}
 local env = setmetatable({
+	GameTooltip = Region(),
 	CreateFrame = Region,
 	CreateScrollBoxLinearView = Region,
 	ScrollUtil = { InitScrollBoxWithScrollBar = function() end },
@@ -80,5 +89,28 @@ equal(scroll.Note.shown, true, "and is shown")
 equal(Anchor(scroll.Note, "RIGHT")[2], -112, "at the right of the room, the empty column's included")
 equal(Anchor(scroll.Text, "RIGHT")[2], scroll.Note, "the name stops at the note")
 equal(Anchor(scroll.Text, "RIGHT")[3], "LEFT", "so the name is cut, never the note")
+
+-- A row's tooltip, drawn on hover. The game calls its owner's UpdateTooltip a few times a second, and drops
+-- the lines a row added under an item's tooltip when that item's data arrives late.
+local drawn = 0
+list:Add({
+	text = "Slitherskin Mackerel",
+	tooltip = function()
+		drawn = drawn + 1
+	end,
+})
+local hovered = list.rows[3]
+hovered.scripts.OnEnter(hovered)
+equal(drawn, 1, "a hover draws the row's tooltip")
+hovered:UpdateTooltip()
+equal(drawn, 1, "which is left alone while nothing new has come")
+events.TOOLTIP_DATA_UPDATE()
+hovered:UpdateTooltip()
+equal(drawn, 2, "and drawn again, lines and all, once late item data has")
+hovered:UpdateTooltip()
+equal(drawn, 2, "once")
+events.TOOLTIP_DATA_UPDATE()
+craft:UpdateTooltip()
+equal(drawn, 2, "a row without a tooltip draws none")
 
 Client.report("list_spec")

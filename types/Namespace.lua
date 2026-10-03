@@ -336,6 +336,7 @@ SkillUpForeverDB = nil
 ---@field Icon Texture
 ---@field Text FontString
 ---@field Note FontString
+---@field UpdateTooltip fun(self: SkillUpListRow) called by the tooltip this row owns, a few times a second
 ---@field Values FontString[]
 
 ---@class SkillUpColumn

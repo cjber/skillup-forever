@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **A detached tracker keeps clear of your quests.** With Attach to quest tracker off, the Forever column could open on top of the quest list. Until you drag it, it now sits beside the quest tracker, level with its top; once dragged, it stays where you put it.
 - **A rank's fee is the one your trainer quotes.** The route's *Train Journeyman*, *Expert* and *Artisan* steps always showed the classic base fee, even after a trainer had shown you a different one. Once you have opened a trainer who still offers the rank, the route and its total use the fee that trainer charges you.
 
 ## [0.6.11] - 2026-10-03

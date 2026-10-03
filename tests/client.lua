@@ -161,6 +161,7 @@ function Client.load(options)
 		auction = {}, -- [itemID] = copper, as Auctionator last saw it
 		auctionAge = 0, -- whole days
 		merchant = nil, -- { { itemID, price, stackCount, ... } } while a merchant window is open
+		npc = nil, -- { id, name }: who the player is dealing with, the client's "npc" unit
 		money = 1000000,
 		level = 60,
 		player = { name = "Tester", realm = "Realm", faction = "Alliance", x = 0, y = 0, instance = 0 },
@@ -386,8 +387,14 @@ function Client.load(options)
 
 	--[[ The character ]]
 
-	G.UnitName = function()
+	G.UnitName = function(unit)
+		if unit == "npc" then
+			return c.npc and c.npc.name
+		end
 		return c.player.name
+	end
+	G.UnitGUID = function(unit)
+		return unit == "npc" and c.npc and string.format("Creature-0-1-0-0-%d-0000000001", c.npc.id) or nil
 	end
 	G.GetNormalizedRealmName = function()
 		return c.player.realm

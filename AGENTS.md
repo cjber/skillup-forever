@@ -29,7 +29,8 @@ publishes it as the notes.
   AtlasLoot, through their public tables. `Integrations/Catalogue.lua` joins them into `ns.Catalogue`: a
   profession's scroll sources, vendors, quests and NPC places, built on first ask, kept for the session (never
   saved) and read through one queue of at most 32 records or 1 ms a frame. Everything else asks the catalogue,
-  and treats nil as "not read yet or not installed". Nothing from either addon is copied into the repo, the
+  and treats nil as "not read yet or not installed". A vendor seen selling a reagent or scroll at its own window
+  is saved (`ns.db.sellers`) and joins the catalogue with where the player stood. Nothing from either addon is copied into the repo, the
   zip or a test: fixtures are the synthetic `Client.QuestieDB` and `Client.AtlasLoot` in `tests/client.lua`.
 - `Core/Model.lua`, `Integrations/Prices.lua` — the headless-testable maths; the UI files call them.
 - `Core/Plan.lua` — the levelling plan, in base skill with trainer requirements resolved. The route page,

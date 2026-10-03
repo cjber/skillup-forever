@@ -50,6 +50,7 @@ local function Load(questieDB, atlasLootDB, options)
 	options = options or {}
 	local timers, clock, changes, watchers = {}, 0, {}, {}
 	local ns = {
+		db = { sellers = {} },
 		RecipeData = {
 			[SHIRT] = { skillLine = TAILORING },
 			[ROBE] = { skillLine = TAILORING },

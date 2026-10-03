@@ -4,6 +4,7 @@ local L = ns.L
 
 -- Where recipes, vendors and trainers are, from the QuestieDB and AtlasLoot the player has installed. A
 -- profession's scrolls are worked out the first time it is asked for and kept for the session, never saved.
+-- The one thing saved is what the player saw for themselves: which vendor sold what, and where it stood.
 -- All reading goes through one queue that does a little each frame, and what was missing is read again
 -- when a provider becomes ready.
 
@@ -123,17 +124,103 @@ local function Cached(cache, id, read)
 	return record or nil
 end
 
--- Who sells an item, the quests that reward it and who drops it; nil without Questie or for an item it lacks.
+-- Questie's record of an item, with every vendor the player has seen selling it among its vendors.
+---@param itemID integer
+---@return SkillUpItemSources?
+local function ReadItem(itemID)
+	local found = Q.Item(itemID)
+	for npcID, seller in pairs(ns.db.sellers) do
+		if seller.items[itemID] then
+			found = found or { vendors = {}, quests = {}, drops = {} }
+			local known = false
+			for _, vendor in ipairs(found.vendors) do
+				known = known or vendor == npcID
+			end
+			if not known then
+				table.insert(found.vendors, npcID)
+			end
+		end
+	end
+	if found then
+		table.sort(found.vendors)
+	end
+	return found
+end
+
+-- A vendor the player has stood at is where the player stood, under the name it had there, whatever a
+-- database says or lacks. It deals with the side that saw it, and with both when Questie says so.
+---@param npcID integer
+---@return SkillUpSourceNPC?
+local function ReadNPC(npcID)
+	local npc, seller = Q.NPC(npcID), ns.db.sellers[npcID]
+	if not seller then
+		return npc
+	end
+	return {
+		name = seller.name,
+		side = npc and npc.side == "" and "" or seller.side,
+		map = seller.map,
+		x = seller.x,
+		y = seller.y,
+	}
+end
+
+-- Who sells an item, the quests that reward it and who drops it; nil for an item neither Questie nor a
+-- merchant's window has shown.
 ---@param itemID integer
 ---@return SkillUpItemSources?
 function C.ItemSources(itemID)
-	return Cached(items, itemID, Q.Item)
+	return Cached(items, itemID, ReadItem)
 end
 
 ---@param npcID integer
 ---@return SkillUpSourceNPC?
 function C.NPC(npcID)
-	return Cached(npcs, npcID, Q.NPC)
+	return Cached(npcs, npcID, ReadNPC)
+end
+
+-- The vendor whose window is open sells these items. The ones the addon has a use for (a reagent of a
+-- recipe it knows, or a scroll that teaches one) are kept with the vendor in the saved variables, so it is
+-- named for them from then on. True when that told the catalogue something new.
+---@param npcID integer
+---@param seller SkillUpSeller The vendor's name, side and place; its `items` are filled in here.
+---@param itemIDs integer[]
+---@return boolean
+function C.SawVendor(npcID, seller, itemIDs)
+	local known = ns.db.sellers[npcID]
+	local sells, new = known and known.items or {}, {}
+	for _, itemID in ipairs(itemIDs) do
+		local item = items[itemID]
+		if
+			not sells[itemID]
+			and (#ns.UsedIn(itemID) > 0 or (select(2, A.Scroll(itemID))) ~= nil or (item and item.teaches ~= nil))
+		then
+			sells[itemID] = true
+			new[#new + 1] = itemID
+		end
+	end
+	if #new == 0 then
+		return false
+	end
+	seller.items = sells
+	ns.db.sellers[npcID] = seller
+	-- Read again here, at the window, so nothing is read while a step is drawn.
+	npcs[npcID] = nil
+	C.NPC(npcID)
+	for _, itemID in ipairs(new) do
+		items[itemID] = nil
+		C.ItemSources(itemID)
+	end
+	-- A scroll already read for its profession holds the vendors it had then.
+	for _, snapshot in pairs(professions) do
+		for _, source in pairs(snapshot or {}) do
+			local found = sells[source.item] and C.ItemSources(source.item)
+			if found then
+				source.vendors = found.vendors
+			end
+		end
+	end
+	return true
 end
 
 ---@param questID integer

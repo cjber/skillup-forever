@@ -90,7 +90,7 @@ for _, case in ipairs({
 	{ "TRADE_SKILL_LIST_UPDATE", "schematics plans api | route tracker" },
 	{ "SKILL_LINES_CHANGED", "plans api | route tracker" },
 	{ "BAG_UPDATE_DELAYED", "api | route tracker" },
-	{ "PLAYER_LEVEL_UP", "api | " },
+	{ "PLAYER_LEVEL_UP", "api | route tracker" },
 	{ "ZONE_CHANGED_NEW_AREA", "api | " },
 	{ "MERCHANT_SHOW", " | tracker" },
 	{ "MERCHANT_UPDATE", " | tracker" },
@@ -145,7 +145,7 @@ equal(Stale(HalfASecond), " | ", "once")
 
 -- What the writers report.
 equal(Stale(c.AuctionatorScan), "prices plans api | route recipeList tracker", "an Auctionator scan")
-equal(Stale(Changed("fees")), "plans api | ", "fees recorded at a trainer")
+equal(Stale(Changed("fees")), "plans api | route tracker", "fees recorded at a trainer")
 equal(Stale(Changed("target")), "plans api | route tracker", "a new target")
 equal(
 	Stale(function()

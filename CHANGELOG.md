@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **A rank's fee is the one your trainer quotes.** The route's *Train Journeyman*, *Expert* and *Artisan* steps always showed the classic base fee, even after a trainer had shown you a different one. Once you have opened a trainer who still offers the rank, the route and its total use the fee that trainer charges you.
+
 ## [0.6.11] - 2026-10-03
 
 - **Trainer fees and level-ups reach the route at once.** After a trainer's fees were recorded, or after you gained a level, the route page and the tracked reagents kept showing the old plan until something else refreshed them. They now update straight away.

@@ -23,6 +23,7 @@ local DEFAULTS = {
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
 	trackedProfessions = {}, -- [profession skill line] = true: reagents shown in the objective tracker
 	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
+	trainerRanks = {}, -- [skill line] = { [cap] = fee }: what a trainer charges for the rank ending at that cap
 }
 
 ns.DEFAULTS = DEFAULTS

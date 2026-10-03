@@ -65,7 +65,7 @@ local function Stub()
 end
 local requested, lists = {}, {}
 local page = {
-	db = { trainer = {}, routeTargets = { [129] = 100 }, showRouteTab = true },
+	db = { trainer = {}, trainerRanks = {}, routeTargets = { [129] = 100 }, showRouteTab = true },
 	COLORS = {},
 	IsLearned = function(id)
 		return id == 3275

@@ -2,7 +2,7 @@
 local _, ns = ...
 local L = ns.L
 
--- Options → AddOns → SkillUp Forever: a short index page, then a stock subpage per group so no page grows
+-- Options > AddOns > SkillUp Forever: a short index page, then a stock subpage per group so no page grows
 -- tall. Every row goes in through Settings.RegisterInitializer, which inserts it from Blizzard's secure delegate.
 -- Settings.CreateCheckbox/CreateDropdown insert from our code instead, and the settings search reads every
 -- layout, so that tainted it: a restricted button in the results (Social's Discord Sign In) was then blocked
@@ -37,9 +37,8 @@ local function Choice(target, key, name, options, tooltip)
 				return index
 			end
 		end
-		return 1
 	end
-	-- Forever's native settings dropdown enters the menu VM assertion seen in Error_2908.
+	-- Forever's native settings dropdown enters a menu VM assertion.
 	-- A discrete stock slider avoids menus; the string setting remains the saved-value owner.
 	local variable = "SkillUpForever_" .. key .. "_choice"
 	local proxy = Settings.RegisterProxySetting(
@@ -49,7 +48,7 @@ local function Choice(target, key, name, options, tooltip)
 		name,
 		Index(ns.DEFAULTS[key]),
 		function()
-			return Index(ns.db[key] or ns.DEFAULTS[key])
+			return Index(ns.db[key])
 		end,
 		function(value)
 			local option = options[value]

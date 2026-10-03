@@ -1,5 +1,5 @@
 -- Run from the repository root: luajit tests/settings_spec.lua
--- Options → AddOns → SkillUp Forever is an index page (one button per group) over a stock subpage each.
+-- Options > AddOns > SkillUp Forever is an index page (one button per group) over a stock subpage each.
 -- Settings rows must reach their layout only through Settings.RegisterInitializer, which inserts them from
 -- Blizzard's secure attribute delegate. A row inserted from addon code (Settings.CreateCheckbox/CreateDropdown
 -- or layout:AddInitializer, which insert from the caller) taints the settings search, and a restricted button

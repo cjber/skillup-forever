@@ -351,10 +351,6 @@ function CreateSettingsButtonInitializer(name, buttonText, onClick, tooltip, add
 ---@return number? modifier
 function GetTrainerTradeskillRankValues() end
 
----@param callback function
----@param ... string
-function EventUtil.ContinueAfterAllEvents(callback, ...) end
-
 ---@class ForeverTrackerSettings
 ---@field attached boolean
 ---@field x? number

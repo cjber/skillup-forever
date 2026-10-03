@@ -1,10 +1,7 @@
 -- Run from the repository root: luajit tests/route_spec.lua
 -- The route page drawn from a real plan; the plan itself is plan_spec's.
-local checks = 0
-local function equal(actual, expected, label)
-	checks = checks + 1
-	assert(actual == expected, label .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
-end
+local Client = dofile("tests/client.lua")
+local equal = Client.equal
 
 local function FirstAid(skill)
 	return { skillLine = 129, name = "First Aid", skill = skill, base = skill, max = 75, modifier = 0 }
@@ -201,4 +198,4 @@ for index, source in ipairs(page.Model.SHOPPING_SOURCES) do
 	equal(type(labels["item " .. index]), "string", source .. " is listed with a source label")
 end
 
-print("route_spec: " .. checks .. " checks passed")
+Client.report("route_spec")

@@ -5,7 +5,7 @@ local L = ns.L
 -- How far right of centre the route/reagents split sits.
 local ROUTE_SHARE = 50
 local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
--- A day-old Auctionator price is flagged: auction prices move that fast.
+-- An Auctionator price older than a day is flagged: auction prices move that fast.
 local STALE_AFTER = 24 * 3600
 
 ---@type SkillUpPage
@@ -479,7 +479,7 @@ end
 
 -- Coalesces bursts of list/skill/price/bag updates into one plan.
 local function RefreshRoute()
-	if pending or not (page and page:IsShown()) then
+	if pending or not page:IsShown() then
 		return
 	end
 	pending = true
@@ -717,9 +717,6 @@ end
 
 -- The tab can be turned off in settings; an open page goes back to crafting.
 local function RefreshRouteTab()
-	if not tab then
-		return
-	end
 	tab:SetShown(ns.db.showRouteTab)
 	if not ns.db.showRouteTab and page:IsShown() then
 		Deselect()

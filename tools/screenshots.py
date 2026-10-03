@@ -7,8 +7,9 @@ are fetched from wago.tools once and cached under ~/.cache/wowmock/<build>/.
 
 Every number drawn comes from this repository: thresholds, reagents, sell prices, vendor prices and
 what each gathering profession covers from Data/*.lua. The window, tooltip and demo push them through a
-line-for-line port of Core/Model.lua and the formatting in Core/Core.lua / UI/Tooltip.lua; the route, tracker,
-trainer and reagent scenes run the addon's own Lua under luajit (lua_scene) and only draw its output.
+Python port of Core/Model.lua, Integrations/Prices.lua, UI/RecipeList.lua's sort and the formatting in
+Core/Core.lua and UI/Tooltip.lua; the route, tracker, trainer and reagent scenes run the addon's own Lua under
+luajit (lua_scene) and only draw its output.
 Only the scene's state (professions, skill, bags, auction prices) is chosen here.
 """
 
@@ -122,7 +123,7 @@ def load_data():
 
 NS = load_data()
 
-# ------------------------------------------------------------------------------------ Core/Model.lua port
+# ------------------------------------------------------- Core/Model.lua and Integrations/Prices.lua port
 
 
 def model_color(t, skill):
@@ -193,7 +194,7 @@ COLORS = {  # Core/Core.lua ns.COLORS: the client's GlobalColor rows it names
 
 # A Leatherworker/Skinner at 48/75: under the default "gathered reagents are free" the leather, hides and
 # scraps Skinning covers cost nothing, so only the vendor thread is paid for. The recipes are the trainer's
-# first ones, as in the old in-game capture.
+# first ones.
 SKILL, MAX_SKILL = 48, 75
 LEARNED = [2152, 2149, 9058, 9059, 7126, 2153, 3753, 3816, 9060, 9062, 2881, 1229432]
 UNLEARNED = [44953]  # Winter Boots: listed by Forever, taught by a Winter Veil quest
@@ -255,17 +256,15 @@ def craft_cost(recipe_id):
     return cost, value, None if unpriced else cost - (value["copper"] if value else 0)
 
 
-def describe(recipe_id, learned=True):
-    """Core/Core.lua ns.Describe at SKILL. The live difficulty agrees with the thresholds (the audit's check)."""
+def describe(recipe_id):
+    """Core/Core.lua ns.Describe at SKILL, where the live difficulty agrees with the thresholds, so the chance is
+    the thresholds' own."""
     t = NS["Thresholds"].get(recipe_id)
     cost, value, net = craft_cost(recipe_id)
     chance = model_chance(t, SKILL)
-    color = model_color(t, SKILL)
-    if chance is not None and learned and color == "grey":
-        chance = 0  # canSkillUp == false
     return {
         "thresholds": t,
-        "color": color,
+        "color": model_color(t, SKILL),
         "chance": chance,
         "cost": cost,
         "value": value,
@@ -287,7 +286,7 @@ def sorted_recipes():
     name; None sorts last."""
 
     def key(recipe_id):
-        per = describe(recipe_id, recipe_id in LEARNED)["perSkillUp"]
+        per = describe(recipe_id)["perSkillUp"]
         return (math.inf if per is None else per, recipe_name(recipe_id).lower())
 
     return sorted(LEARNED, key=key), sorted(UNLEARNED, key=key)
@@ -304,35 +303,20 @@ LEVEL = 20
 MONEY = 25000  # 2g 50s: every Apprentice fee is within reach, so the trainer's next pick can be any of them
 TOOLTIP_ITEM = 2318  # Light Leather
 
-# Loads the TOC's files under luajit into recording stubs of the client (as tests/route_spec.lua does), runs
-# the addon's start-up, opens its route page, lays out its tracker section, decorates an Apprentice trainer's
-# services and shows the reagent's item tooltip, and prints what each would draw as JSON. Money is left as
-# {coin:N} and item names as {item:N} for the renderer to fill in.
+# Loads the TOC's Lua files, except UI/TrackerHost.lua which the scene stubs, under luajit into recording stubs
+# of the client (as tests/route_spec.lua does), runs the addon's start-up, opens its route page, lays out its
+# tracker section, decorates an Apprentice trainer's services and shows the reagent's item tooltip, and prints
+# what each would draw as JSON. Money is left as {coin:N} and item names as {item:N} for the renderer to fill in.
 LUA_SCENE = r"""
 -- STATE is defined above this line by screenshots.py.
 local ADDON = "SkillUpForever"
-local FILES = {
-	"Locales/enUS.lua",
-	"Data/Thresholds.lua",
-	"Data/Vendor.lua",
-	"Data/Recipes.lua",
-	"Data/Trainer.lua",
-	"Data/Sources.lua",
-	"Core/Model.lua",
-	"Core/Changes.lua",
-	"Core/Plan.lua",
-	"Core/Core.lua",
-	"Integrations/Prices.lua",
-	"UI/Settings.lua",
-	"UI/Tooltip.lua",
-	"UI/RecipeList.lua",
-	"Integrations/Sources.lua",
-	"UI/List.lua",
-	"UI/Route.lua",
-	"UI/Shopping.lua",
-	"Integrations/Trainer.lua",
-	"Core/API.lua",
-}
+local FILES = {}
+for line in io.lines(ADDON .. ".toc") do
+	local file = line:match("^([%w_\\]+%.lua)%s*$")
+	if file and file ~= "UI\\TrackerHost.lua" then
+		FILES[#FILES + 1] = (file:gsub("\\", "/"))
+	end
+end
 
 local function Color(r, g, b)
 	return {
@@ -361,9 +345,6 @@ local RECORDED = {
 	end,
 	SetEnabled = function(self, enabled)
 		rawset(self, "enabled", enabled and true or false)
-	end,
-	Enable = function(self)
-		rawset(self, "enabled", true)
 	end,
 	Disable = function(self)
 		rawset(self, "enabled", false)
@@ -445,23 +426,23 @@ local function TooltipLines(tooltip)
 	return lines
 end
 
-local function AddLine(tooltip, left, color, right, rightColor)
+local function AddLine(tooltip, left, color)
 	local lines = TooltipLines(tooltip)
-	lines[#lines + 1] = { left = left, color = color, right = right, rightColor = rightColor }
+	lines[#lines + 1] = { left = left, color = color }
 end
 
 local env
 env = setmetatable({
 	-- Colours as Blizzard defines them (Core/Core.lua's ns.COLORS takes the difficulty ones).
-	RED_FONT_COLOR = Color(1, 32 / 255, 32 / 255),
-	DIFFICULT_DIFFICULTY_COLOR = Color(1, 128 / 255, 64 / 255),
-	FAIR_DIFFICULTY_COLOR = Color(1, 1, 0),
-	EASY_DIFFICULTY_COLOR = Color(64 / 255, 192 / 255, 64 / 255),
-	TRIVIAL_DIFFICULTY_COLOR = Color(128 / 255, 128 / 255, 128 / 255),
-	GRAY_FONT_COLOR = Color(128 / 255, 128 / 255, 128 / 255),
+	RED_FONT_COLOR = Color(unpack(STATE.colors.red)),
+	DIFFICULT_DIFFICULTY_COLOR = Color(unpack(STATE.colors.orange)),
+	FAIR_DIFFICULTY_COLOR = Color(unpack(STATE.colors.yellow)),
+	EASY_DIFFICULTY_COLOR = Color(unpack(STATE.colors.green)),
+	TRIVIAL_DIFFICULTY_COLOR = Color(unpack(STATE.colors.grey)),
+	GRAY_FONT_COLOR = Color(unpack(STATE.colors.unknown)),
 	NORMAL_FONT_COLOR = Color(1, 0.82, 0),
 	HIGHLIGHT_FONT_COLOR = Color(1, 1, 1),
-	DISABLED_FONT_COLOR = Color(0.5, 0.5, 0.5),
+	DISABLED_FONT_COLOR = Color(unpack(STATE.disabledColor)),
 	OBJECTIVE_TRACKER_COLOR = { Complete = Color(0.6, 0.6, 0.6), Normal = Color(0.8, 0.8, 0.8) },
 	OBJECTIVE_DASH_STYLE_HIDE = 2,
 	CreateColor = Color,
@@ -955,6 +936,8 @@ def lua_scene(ui):
         "open": {"name": "Leatherworking", "skillLine": 165, "rank": SKILL, "max": MAX_SKILL},
         "tooltipItem": TOOLTIP_ITEM,
         "atlases": addon_atlases(ui),
+        "colors": COLORS,
+        "disabledColor": DISABLED_FONT_COLOR,
         # What subText:GetStringWidth() gives for each required skill, 0 up.
         "requirementWidths": [canvas.text_width(requirement_text(req), F_SHADOW_SMALL) for req in range(MAX_SKILL + 1)],
     }
@@ -1179,7 +1162,7 @@ def list_rows():
 def recipe_row(canvas, x, y, w, recipe_id, learned, selected, hovered):
     """ProfessionsRecipeListRecipeTemplate (20 high) at (x, y, w) with SkillUp's text on its right."""
     ui = canvas.ui
-    d = describe(recipe_id, learned)
+    d = describe(recipe_id)
     icon_atlas = SKILL_UP_ICONS.get(d["color"])
     skill_ups_y = y + (ROW_H - 15) / 2 - (1 if d["color"] == "orange" else 0)
     if icon_atlas:
@@ -1202,7 +1185,7 @@ def recipe_row(canvas, x, y, w, recipe_id, learned, selected, hovered):
         canvas.draw(overlay, x + (w - overlay.width) / 2, y + (ROW_H - overlay.height) / 2 + 1, color=(1, 1, 1, 0.5))
 
 
-def divider_row(canvas, x, y, w):
+def divider_row(canvas, x, y):
     """ProfessionsRecipeListDividerTemplate at SkillUp's height: "Unlearned" and the gold rule."""
     ui = canvas.ui
     bottom = y + DIVIDER_H
@@ -1225,7 +1208,7 @@ def recipe_list(canvas, x, y):
     for row in list_rows():
         kind, rid, learned = row
         if kind == "divider":
-            divider_row(canvas, box_x, top, box_w)
+            divider_row(canvas, box_x, top)
             top += DIVIDER_H + ROW_GAP
             continue
         recipe_row(canvas, box_x, top, box_w, rid, learned, rid == SELECTED, rid == HOVERED)
@@ -1237,7 +1220,7 @@ def recipe_list(canvas, x, y):
 
 def rank_bar(canvas, x, y, name, skill, max_skill):
     """ProfessionsRankBarTemplate at (x, y): the profession's fill flipbook (first frame) masked to the
-    progress, border, "Name skill/max" and the expansion dropdown arrow."""
+    progress, border, "Name skill/max" and the crafting page's chat-link button."""
     ui = canvas.ui
     canvas.draw(ui.atlas("Professions-skillbar-bg"), x, y)
     fill = ui.atlas("Skillbar_Fill_Flipbook_Leatherworking")
@@ -1271,7 +1254,7 @@ def schematic(canvas, x, y, recipe_id):
     item = ui.item(data["output"]["itemID"])
     layer = ui.canvas(canvas.width, canvas.height)
     layer.draw(
-        ui.texture(item.icon).crop(_texcoord_box(ui.texture(item.icon), 0.078125, 0.921875)),
+        crop_coords(ui.texture(item.icon), 0.078125, 0.921875, 0.078125, 0.921875),
         ox + 23.5 - 26.5,
         oy + 23.5 - 26.5,
         53,
@@ -1304,10 +1287,6 @@ def schematic(canvas, x, y, recipe_id):
     minimal_checkbox(canvas, x + 17, y + SCHEMATIC_H - 11 - 26, "Track Recipe", color=DISABLED_FONT_COLOR)
 
 
-def _texcoord_box(image, lo, hi):
-    return (round(image.width * lo), round(image.height * lo), round(image.width * hi), round(image.height * hi))
-
-
 def reagent_slot(canvas, x, y, reagent):
     """ProfessionsReagentSlotTemplate (180x50): the 39x39 button at LEFT and "have/need Name" beside it."""
     ui = canvas.ui
@@ -1337,14 +1316,9 @@ def create_controls(canvas, fx, fy, count):
     # CreateMultipleInputBox: NumericInputSpinnerTemplate 31x20 at BOTTOMLEFT (-185, 11).
     ix, iy = right - 185, bottom - 11 - 20
     border = ui.texture("interface/common/common-input-border.blp")
-    tw, th = border.width, border.height
-
-    def piece(start, end):
-        return border.crop((round(start * tw), 0, round(end * tw), round(0.625 * th)))
-
-    canvas.draw(piece(0, 0.0625), ix - 5, iy, 8, 20)
-    canvas.draw(piece(0.0625, 0.9375), ix + 3, iy, 31 - 8 - 3, 20)
-    canvas.draw(piece(0.9375, 1), ix + 31 - 8, iy, 8, 20)
+    canvas.draw(crop_coords(border, 0, 0.0625, 0, 0.625), ix - 5, iy, 8, 20)
+    canvas.draw(crop_coords(border, 0.0625, 0.9375, 0, 0.625), ix + 3, iy, 31 - 8 - 3, 20)
+    canvas.draw(crop_coords(border, 0.9375, 1, 0, 0.625), ix + 31 - 8, iy, 8, 20)
     canvas.text(ix, iy, "1", FONTS["GameFontHighlight"], box_height=20)
     canvas.draw(ui.texture("interface/buttons/ui-spellbookicon-nextpage-up.blp"), ix + 31, iy - 1, 23, 22)
     canvas.draw(ui.texture("interface/buttons/ui-spellbookicon-prevpage-up.blp"), ix - 5 - 6 - 23 + 5, iy - 1, 23, 22)
@@ -1527,14 +1501,9 @@ def dropdown(canvas, x, y, w, text):
 def input_box(canvas, x, y, w, h, text):
     """InputBoxTemplate: the common-input-border three-slice (Left 8 at -5) and ChatFontNormal text."""
     border = canvas.ui.texture("interface/common/common-input-border.blp")
-    tw, th = border.width, border.height
-
-    def piece(start, end):
-        return border.crop((round(start * tw), 0, round(end * tw), round(0.625 * th)))
-
-    canvas.draw(piece(0, 0.0625), x - 5, y, 8, h)
-    canvas.draw(piece(0.0625, 0.9375), x + 3, y, w - 8 - 3, h)
-    canvas.draw(piece(0.9375, 1), x + w - 8, y, 8, h)
+    canvas.draw(crop_coords(border, 0, 0.0625, 0, 0.625), x - 5, y, 8, h)
+    canvas.draw(crop_coords(border, 0.0625, 0.9375, 0, 0.625), x + 3, y, w - 8 - 3, h)
+    canvas.draw(crop_coords(border, 0.9375, 1, 0, 0.625), x + w - 8, y, 8, h)
     canvas.text(x, y, text, F_CHAT, box_height=h)
 
 

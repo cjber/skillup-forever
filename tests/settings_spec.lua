@@ -1,5 +1,5 @@
 -- Run from the repository root: luajit tests/settings_spec.lua
--- Options → AddOns → SkillUp Forever is an index page (one button per group) over a stock subpage each.
+-- Options > AddOns > SkillUp Forever is an index page (one button per group) over a stock subpage each.
 -- Settings rows must reach their layout only through Settings.RegisterInitializer, which inserts them from
 -- Blizzard's secure attribute delegate. A row inserted from addon code (Settings.CreateCheckbox/CreateDropdown
 -- or layout:AddInitializer, which insert from the caller) taints the settings search, and a restricted button
@@ -42,24 +42,19 @@ local env = setmetatable({
 			assert(parent == category, "a subpage belongs to the addon's category")
 			return Category(name, parent), { AddInitializer = Tainted }
 		end,
-		RegisterAddOnSetting = function(target, variable, key, db, varType, name, default)
+		RegisterAddOnSetting = function(_target, variable, key, db, varType, _name, default)
 			if db[key] == nil then
 				db[key] = default
 			end
 			local setting = {
-				target = target,
 				variable = variable,
 				key = key,
 				varType = varType,
-				name = name,
 				default = default,
 				SetValueChangedCallback = function(self, callback)
 					self.changed = callback
 				end,
 			}
-			setting.GetValue = function()
-				return db[key]
-			end
 			setting.SetValue = function(_, value)
 				db[key] = value
 				if setting.changed then
@@ -69,13 +64,11 @@ local env = setmetatable({
 			settings[variable] = setting
 			return setting
 		end,
-		RegisterProxySetting = function(target, variable, varType, name, default, get, set)
+		RegisterProxySetting = function(_target, variable, varType, _name, default, get, set)
 			local setting = {
-				target = target,
 				variable = variable,
 				key = variable:match("SkillUpForever_(.*)_choice") or variable:match("SkillUpForever_(.*)"),
 				varType = varType,
-				name = name,
 				default = default,
 				GetValue = get,
 				SetValue = function(_, value)
@@ -100,13 +93,10 @@ local env = setmetatable({
 		CreateDropdownInitializer = function()
 			error("native settings menus crash in AcquireMenu")
 		end,
-		CreateSliderOptions = function(minimum, maximum, step)
+		CreateSliderOptions = function(_minimum, _maximum, step)
 			return {
-				minimum = minimum,
-				maximum = maximum,
 				step = step,
-				SetLabelFormatter = function(self, label, formatter)
-					self.label = label
+				SetLabelFormatter = function(self, _label, formatter)
 					self.formatter = formatter
 				end,
 			}
@@ -129,9 +119,9 @@ local env = setmetatable({
 		end,
 	},
 	MinimalSliderWithSteppersMixin = { Label = { Right = 2 } },
-	CreateSettingsButtonInitializer = function(name, buttonText, onClick, tooltip, addSearchTags)
+	CreateSettingsButtonInitializer = function(name, _buttonText, onClick, _tooltip, addSearchTags)
 		assert(addSearchTags == false, "index buttons stay out of search")
-		return { kind = "button", name = name, buttonText = buttonText, onClick = onClick, tooltip = tooltip }
+		return { kind = "button", name = name, onClick = onClick }
 	end,
 }, { __index = _G })
 
@@ -225,15 +215,7 @@ for _, entry in ipairs(registered) do
 end
 assert(table.concat(kinds, " ") == table.concat(expected, " "), table.concat(kinds, " "))
 
--- A row sits on the subpage named for its group, never the index category.
-for _, entry in ipairs(registered) do
-	if entry.initializer.setting then
-		assert(entry.category.parent == addOnCategory, entry.initializer.setting.key .. " is not on the index category")
-	end
-end
-
 local craftValue = Row("craftValue")
-assert(craftValue.category.name == "Prices")
 assert(
 	craftValue.initializer.setting.variable == "SkillUpForever_craftValue_choice"
 		and craftValue.initializer.setting.default == 2

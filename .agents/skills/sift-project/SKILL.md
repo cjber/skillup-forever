@@ -41,15 +41,17 @@ what the addon produces, with nothing on `ns` faked. Over it run `api_spec` (the
 price or a changed setting reaching it), `shopping_spec` (the objective tracker's lines and the merchant's buy
 button), `changes_spec` (which caches drop and which views redraw for each game event and writer) and `prices_spec`
 (where a price comes from). A new spec of headless behaviour starts there; a bundled table it needs small goes in
-`Client.load`'s `data`. The rest each `loadfile` the file under test with their own stubs: `model_spec`
-(Core/Model.lua, Data/Thresholds.lua, Integrations/Prices.lua), `plan_spec` (Core/Plan.lua's levelling plan over
+`Client.load`'s `data`. The rest each `loadfile` the file under test with their own stubs. Five of them take
+only `Client.equal` and `Client.report` from `tests/client.lua`: `plan_spec` (Core/Plan.lua's levelling plan over
 the bundled data, with costs and known recipes given directly so its arithmetic stays legible), `route_spec` (the
-route page drawn into stub frames from a real plan), `recipelist_spec` (UI/RecipeList.lua's native provider
-replacement, sorting and recursion), `tracker_host_spec` (UI/TrackerHost.lua's frame lifecycle and
-combat placement, plus the pinned Forever tracker source when `TRACKER_UI_ROOT` is set),
-`core_spec` (Core/Core.lua's init guard, SavedVariables migration and what's-new notice),
-`settings_spec` (UI/Settings.lua), `waypoint_spec` (Integrations/Sources.lua's waypoints and Shortest Path Forever
-travel) and `locale_spec` (enUS phrases, `Locales/phrases.txt`, no packager keywords). Everything else
+route page drawn into stub frames from a real plan), `core_spec` (Core/Core.lua's init guard, SavedVariables
+migration and what's-new notice), `waypoint_spec` (Integrations/Sources.lua's waypoints and Shortest Path Forever
+travel) and `locale_spec` (enUS phrases, `Locales/phrases.txt`, no packager keywords). Five never load it:
+`model_spec` (Core/Model.lua, Data/Thresholds.lua, Integrations/Prices.lua), `recipelist_spec`
+(UI/RecipeList.lua's native provider replacement, sorting and recursion), `settings_spec` (UI/Settings.lua),
+`tracker_host_spec` (UI/TrackerHost.lua's frame lifecycle and combat placement, plus the pinned Forever tracker
+source when `TRACKER_UI_ROOT` is set) and `tracker_geometry_spec` (where the host sits for each anchor, scale
+and UI scale). Everything else
 (UI hooks, menus, tooltips, in-game rendering, the trainer) is only verified in game. The
 in-game check for data is `/su audit` with a profession open.
 
@@ -60,10 +62,10 @@ On-demand tools for audits. Output is candidates, never verdicts.
 | Concern | Command | Known false positives |
 |---|---|---|
 | Types (Lua) | `tools/typecheck.sh` | Zero-diagnostic gate; missing Forever FrameXML surfaces are typed in `types/Client.lua` |
-| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 5: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py:118), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py:137/138), untyped `json.load` result (latest_build.py:10) and unresolved `wowmock` (the wow-mock-screenshots library, put on `sys.path` at run time; screenshots.py:964); plus unresolved `PIL` when Pillow is not installed |
+| Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 7: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py, twice), untyped `json.load` result (latest_build.py), `ast.Module(body=...)` given a narrower list type (screenshots_test.py), unresolved `wowmock` (the wow-mock-screenshots library, put on `sys.path` at run time; screenshots.py) and unresolved `PIL` when ty cannot see Pillow |
 | Dead code (Lua) | `luacheck . --no-color` (unused locals/values) + the live-root searches below | a function stored on `ns` is never "unused" to luacheck — search every file for `ns.<Name>` |
 | Dead code (Python) | `uvx vulture tools --min-confidence 60` | clean at baseline; generator functions are imported across files (`from gen_thresholds import …`) |
-| Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sift/runs/jscpd --ignore "Data/**,tools/.cache/**,.sift/**" .` | 4 Python clones: the `argparse` preamble repeated in each `tools/gen_*.py` (a small idiom); `tests/core_spec.lua`'s two host-stub environments differ on purpose |
+| Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sift/runs/jscpd --ignore "Data/**,tools/.cache/**,.sift/**" .` | 4 Python clones: the `argparse` preamble repeated in each `tools/gen_*.py` (a small idiom); 1 Lua clone: the stub frame in the two tracker specs, which are shared files (see Conventions) |
 | Live roots | `rg -n 'hooksecurefunc|RegisterEvent|RegisterCallback|SetScript|AddTooltipPostCall|AddInitializedFrameCallback|Menu.ModifyMenu|SLASH_|SlashCmdList' -g '*.lua'` | — |
 | Data byte-compare | copy the primary checkout's ignored `tools/.cache/`, then `python3 tools/gen_<name>.py --offline` and `git status Data` | only `gen_thresholds` and `gen_vendor` run from the usual cache; the others need the classic-db and era DB2 downloads (drop `--offline` once) |
 | Standards | `python3 <sift>/scripts/agents.py standards` | resolves the pinned `wow-forever-addon` URL from cache; offline with no cached copy it prints `unknown-standard` (set `SIFT_STANDARDS_PATH=~/skills` to use the local clone) |
@@ -72,7 +74,7 @@ On-demand tools for audits. Output is candidates, never verdicts.
 
 Things reached indirectly. The dead-code lens must treat these as referenced.
 
-- `SkillUpForever.toc` file list — loads every top-level `.lua` and `Data/*.lua`; nothing `require`s them.
+- `SkillUpForever.toc` file list: loads the Lua and XML files it lists under `Locales/`, `Data/`, `Core/`, `Integrations/` and `UI/`, in that order; nothing `require`s them.
 - `ns.*` — the shared addon table; a function defined in one file is typically called from another. Search all files for `ns.Name`, not the local file.
 - `## SavedVariables: SkillUpForeverDB` — persisted per account; keys in `Core/Core.lua` `DEFAULTS` and anything read from `SkillUpForeverDB` may hold data written by older versions.
 - `Locales/<locale>.lua` — translators' files, loaded from the TOC after `enUS.lua`; `tools/phrases.py` runs from `tests/locale_spec.lua`.
@@ -104,7 +106,7 @@ How each part of the tree is reviewed. Unlisted paths are `production`.
 
 ## Conventions
 
-- One feature per top-level file; each starts `local addonName, ns = ...` (or `local _, ns = ...`) and exports through `ns.Name = …` / `function ns.Name(…)`. File-private helpers are `local function`.
+- One feature per file under `Core/`, `Integrations/` or `UI/`; each starts `local addonName, ns = ...` (or `local _, ns = ...`) and exports through `ns.Name = …` / `function ns.Name(…)`. File-private helpers are `local function`.
 - Tabs, 120 columns, double quotes (StyLua). PascalCase for functions, camelCase for locals and DB keys.
 - Unknown data renders `?`/`nil` rather than a guess; generators raise instead of clamping bad data (see `tools/README.md`). A silent fallback that invents a number is a defect here.
 - Comments explain *why* (client quirks, Forever beta bugs, data provenance), not what.
@@ -115,6 +117,8 @@ How each part of the tree is reviewed. Unlisted paths are `production`.
 - Some guards and annotations exist for LuaLS, not at run time: `---@class` on a table built field by
   field (UI/List.lua `CreateList`) and `if not module then return end` narrowing an optional upvalue
   (UI/Shopping.lua `Attach`). Removing either fails `tools/typecheck.sh`.
+- `UI/TrackerHost.lua`, `tests/tracker_host_spec.lua` and `tests/tracker_geometry_spec.lua` are shared byte
+  for byte with the sibling Forever addons. A defect in one is `decide`, since every copy changes together.
 
 ## Risk order
 
@@ -127,8 +131,9 @@ Audit slices from lowest to highest risk:
 4. `Locales/enUS.lua` — copy: every phrase a player reads. Reviewed for WFA-23/24 voice with
    `docs/curseforge.md` and the README; audits propose wording, never change it (see Conventions).
 5. `UI/Tooltip.lua`, `UI/RecipeList.lua`, `Integrations/Trainer.lua` — UI hooks, in-game verification only.
-6. `Integrations/Prices.lua`, `Core/Core.lua` — SavedVariables, vendor prices and the Auctionator price seam; persisted data.
-7. `Core/Plan.lua`, `UI/Route.lua`, `UI/Shopping.lua`, `Core/API.lua` — the levelling plan and the largest, most stateful UI over it (crafting, buying and tracker
+6. `Integrations/Prices.lua`, `Core/Core.lua`, `Core/Changes.lua`: SavedVariables, vendor prices, the Auctionator price seam and
+   what each change drops and redraws; persisted data.
+7. `Core/Plan.lua`, `UI/Route.lua`, `UI/Shopping.lua`, `UI/Shopping.xml`, `UI/TrackerHost.lua`, `Core/API.lua`: the levelling plan and the largest, most stateful UI over it (crafting, buying and tracker
    integration), and the public API other addons call (`types/API.lua` is its contract).
 
 Tiers 6 and 7 get a second, independent reviewer (Codex): on 2026-09-24 it found the two route and
@@ -164,6 +169,10 @@ Recurring judgment defects; check new code for them.
 - **Unvalidated saved setting**: a saved choice read without checking it against its options
   (`silent-fallbacks`). `LoadDB` resets `craftValue`, `sortMode` and `reagentTooltip` to their defaults when the
   saved value isn't one of `ns.*_OPTIONS`; a new dropdown setting joins that loop.
+- **View left out of a change**: a `STALE` row in `Core/Changes.lua` drops a cache but not the views that show
+  what it holds (`silent-fallbacks`), e.g. `fees` and `level` rebuild the plan or the API while the route page
+  and tracker keep the old text. `changes_spec` pins each row as written, so check a row against every reader
+  of the input that changed.
 
 ## Project rules and lenses
 

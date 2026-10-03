@@ -221,10 +221,9 @@ local BUCKET = { gather = "gather", vendor = "vendor", auctionator = "auction" }
 
 ---@param segments {recipeID: integer, crafts: number}[]
 ---@param reagentsOf fun(recipeID: integer): SkillUpReagent[]?
----@param owned fun(itemID: integer): number
 ---@param sourceOf fun(itemID: integer): SkillUpPriceSource?
 ---@return table<string, SkillUpShoppingItem[]>
-function Model.ShoppingList(segments, reagentsOf, owned, sourceOf)
+function Model.ShoppingList(segments, reagentsOf, sourceOf)
 	local needed = {}
 	for _, segment in ipairs(segments) do
 		for _, reagent in ipairs(reagentsOf(segment.recipeID) or {}) do
@@ -235,8 +234,7 @@ function Model.ShoppingList(segments, reagentsOf, owned, sourceOf)
 	for _, source in ipairs(Model.SHOPPING_SOURCES) do
 		list[source] = {}
 	end
-	for itemID, quantity in pairs(needed) do
-		local count = math.max(0, quantity - owned(itemID))
+	for itemID, count in pairs(needed) do
 		if count > 0 then
 			local source = sourceOf(itemID)
 			local bucket = list[source and BUCKET[source] or "unknown"]

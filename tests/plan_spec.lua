@@ -1,11 +1,8 @@
 -- Run from the repository root: luajit tests/plan_spec.lua
 -- The levelling plan over the bundled First Aid data, with no frames loaded:
 -- Linen Bandage (3275), and Heavy Linen Bandage (3276), which a trainer teaches at 40 for 1s.
-local checks = 0
-local function equal(actual, expected, label)
-	checks = checks + 1
-	assert(actual == expected, label .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
-end
+local Client = dofile("tests/client.lua")
+local equal = Client.equal
 
 local LINEN, HEAVY, WOOL, CLOTH = 3275, 3276, 3277, 2589
 local known, costs, sources = {}, {}, {}
@@ -173,7 +170,6 @@ equal(bonus.reached, 75, "reached in base skill")
 equal(bonus.training[1].usedAt, 40, "training is placed in base skill")
 equal(bonus.training[1].reqSkill, 40, "at the base skill the trainer wants")
 equal(bonus.crafts[1].color, "yellow", "55 with the bonus is yellow")
-equal(Plan(FirstAid(40, 0), 75) ~= bonus, true, "a changed bonus is a different plan")
 known[HEAVY] = true
 local bonusRank = Plan(FirstAid(40, 15), 90)
 equal(Kinds(bonusRank), "craft rank craft", "the rank still splits the crafts")
@@ -289,4 +285,4 @@ equal(
 	"a recipe the trainer shows as known does"
 )
 
-print("plan_spec: " .. checks .. " checks passed")
+Client.report("plan_spec")

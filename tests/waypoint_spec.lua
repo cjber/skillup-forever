@@ -1,9 +1,6 @@
 -- Run from the repository root: luajit tests/waypoint_spec.lua
-local checks = 0
-local function equal(actual, expected, label)
-	checks = checks + 1
-	assert(actual == expected, label .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
-end
+local Client = dofile("tests/client.lua")
+local equal = Client.equal
 
 -- One vendor in Elwynn Forest (uiMapID 1429) at 42.1, 65.9, which is 47.0, 80.0 on
 -- the Eastern Kingdoms continent map (1415).
@@ -253,4 +250,4 @@ equal(ns.SetWaypoint(1250), false, "a dungeon NPC starts no route")
 equal(calls.printed, "Drake Lindgren is in The Deadmines.", "and says where it is")
 ns.InstanceNames[0] = nil
 
-print("waypoint_spec: " .. checks .. " checks passed")
+Client.report("waypoint_spec")

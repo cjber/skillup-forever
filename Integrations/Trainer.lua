@@ -184,7 +184,7 @@ end
 local pending = false
 local function RefreshTrainer()
 	state = nil
-	if pending or not (ClassTrainerFrame and ClassTrainerFrame:IsShown()) then
+	if pending or not ClassTrainerFrame:IsShown() then
 		return
 	end
 	pending = true

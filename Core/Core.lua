@@ -8,8 +8,8 @@ local DEFAULTS = {
 	showSkill = false,
 	showTooltip = true,
 	showCost = true,
-	craftValue = "vendor", -- "none" | "vendor" | "auction"
-	sortMode = "blizzard", -- "blizzard" | "skill" | "chance" | "cost"
+	craftValue = "vendor",
+	sortMode = "blizzard",
 	showTrainer = true,
 	showRouteTab = true,
 	reagentTooltip = "route",
@@ -368,7 +368,7 @@ end
 SLASH_SKILLUPFOREVER1 = "/skillup"
 SLASH_SKILLUPFOREVER2 = "/su"
 SlashCmdList.SKILLUPFOREVER = function(msg)
-	local command = strtrim(msg or ""):lower()
+	local command = strtrim(msg):lower()
 	if command == "audit" then
 		Audit()
 	else

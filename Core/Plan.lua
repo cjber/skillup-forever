@@ -335,9 +335,7 @@ end
 ---@param plan SkillUpPlan
 ---@return SkillUpNeededItem[]
 function ns.RouteReagents(plan)
-	local list = ns.Model.ShoppingList(plan.crafts, ns.Reagents, function()
-		return 0
-	end, ns.PriceSource)
+	local list = ns.Model.ShoppingList(plan.crafts, ns.Reagents, ns.PriceSource)
 	local items = {}
 	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
 		for _, item in ipairs(list[source]) do

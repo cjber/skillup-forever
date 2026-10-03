@@ -246,7 +246,7 @@ def generate(ability_rows, skills, selected, names, baseline, outputs, effects):
     coverage = []
     for sid in sorted(selected):
         counts = stats[sid]
-        name = skills.get(sid, {}).get("DisplayName_lang", REQUIRED_SKILLS.get(sid, "Unknown"))
+        name = skills[sid]["DisplayName_lang"] if sid in skills else REQUIRED_SKILLS[sid]
         skipped = sum(value for key, value in counts.items() if key.startswith("skip:"))
         reasons = ", ".join(f"{key[5:]}={value}" for key, value in sorted(counts.items()) if key.startswith("skip:"))
         line = f"{name} ({sid}): {counts['emitted']} emitted / {skipped} skipped"

@@ -237,13 +237,6 @@ ObjectiveTrackerFrame = nil
 ---@field IsAttached fun(module: Frame?): boolean
 ---@type ForeverTrackerHostAPI?
 ForeverTrackerHost = nil
-ObjectiveTrackerManager = {}
----@param module SkillUpTrackerModule
----@param container Frame
-function ObjectiveTrackerManager:SetModuleContainer(module, container) end
----@param module SkillUpTrackerModule
----@return Frame?
-function ObjectiveTrackerManager:GetContainerForModule(module) end
 ---@class SkillUpObjectiveColor : ColorRGBData
 ---@field reverse? SkillUpObjectiveColor
 ---@type {Complete: SkillUpObjectiveColor}

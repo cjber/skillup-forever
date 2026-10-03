@@ -137,4 +137,10 @@ c.Fire("MERCHANT_CLOSED")
 equal(button.shown, false, "the button goes with the merchant")
 equal(#c.chat, 0, "and none of it says anything in chat")
 
+-- The section hangs on the shared host, never on Blizzard's tracker manager: a client without the manager
+-- still gets it.
+local bare = Client.load({ trackerManager = false })
+equal(bare.host.IsAttached(bare.G.SkillUpForeverObjectiveTracker), true, "the section needs no tracker manager")
+equal(#bare.chat, 0, "and says nothing about a missing tracker")
+
 Client.report("shopping_spec")

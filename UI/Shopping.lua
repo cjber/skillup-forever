@@ -401,7 +401,7 @@ local function Attach()
 end
 
 local function CreateModule()
-	if not (ObjectiveTrackerManager and ObjectiveTrackerFrame) then
+	if not ObjectiveTrackerFrame then
 		ns.Print(L["the objective tracker isn't available, so tracked reagents can't be shown."])
 		return
 	end

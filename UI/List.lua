@@ -11,11 +11,14 @@ local SCROLL_BAR_WIDTH = 18
 
 -- Item data that arrives after a hover makes the game rebuild the item's tooltip, which drops the lines a row
 -- added under it. The tooltip asks its owner for a fresh one first (`owner:UpdateTooltip()`), so a hovered
--- row draws its own again once new data has come.
+-- row draws its own again once new data has come. Shift does the same: it changes what an item's tooltip
+-- shows, and the redraw that follows is of the item alone.
 local staleTooltip = false
-ns.WhenEvent("TOOLTIP_DATA_UPDATE", function()
+local function Stale()
 	staleTooltip = true
-end)
+end
+ns.WhenEvent("TOOLTIP_DATA_UPDATE", Stale)
+ns.WhenEvent("MODIFIER_STATE_CHANGED", Stale)
 
 ---@param row SkillUpListRow
 local function ShowTooltip(row)

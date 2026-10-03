@@ -211,6 +211,29 @@ equal(ns.NearestNPC(sellers, true), 1251, "without Shortest Path Forever the str
 env.ShortestPathForever = { API = { version = 1 } }
 equal(ns.NearestNPC(sellers, true), 1251, "an API without Estimate keeps the straight-line nearest")
 
+-- On another continent no vendor has a distance: only a travel estimate, or being the only one, picks one.
+local position = env.UnitPosition
+env.UnitPosition = function()
+	return 0, 0, 0, 5
+end
+env.ShortestPathForever = nil
+equal(ns.NearestNPC(sellers), nil, "with every vendor on another continent none is the nearest")
+equal(ns.NearestNPC(sellers, true), nil, "nor by travel without Shortest Path Forever")
+equal(ns.NearestNPC({ 1253, 1252 }), 1252, "the only vendor there is is named")
+seconds = { [0.91] = 300, [0.95] = 60 }
+env.ShortestPathForever = {
+	API = {
+		version = 1,
+		Estimate = function(_, _, _, _, toX)
+			return seconds[toX]
+		end,
+	},
+}
+equal(ns.NearestNPC(sellers, true), 1252, "a travel estimate ranks vendors on another continent")
+seconds = {}
+equal(ns.NearestNPC(sellers, true), nil, "and without one none is the nearest")
+env.UnitPosition, env.ShortestPathForever = position, { API = { version = 1 } }
+
 -- A dungeon NPC has no map point: only a chat line, and no route started.
 calls = {}
 npcs[1255] = { name = "Sneed", area = 1581 }

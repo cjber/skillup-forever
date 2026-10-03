@@ -268,13 +268,14 @@ function ns.NetCost(recipeID)
 end
 
 -- Vendor prices: recorded per unit for anything bought with plain money. Without a stack size the
--- unit price isn't known, so the last one seen stays.
+-- unit price isn't known, so the last one seen stays. The vendor is noted as a seller of what it shows.
 ---@return SkillUpChange?
 local function RecordMerchant()
-	local changed = false
+	local changed, sold = false, {}
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
 		local info = C_MerchantFrame.GetItemInfo(index)
+		sold[#sold + 1] = itemID
 		if
 			itemID
 			and info
@@ -291,7 +292,8 @@ local function RecordMerchant()
 			end
 		end
 	end
-	return changed and "prices" or nil
+	local seen = ns.SeeVendor(sold)
+	return changed and "prices" or seen and "sources" or nil
 end
 
 local function PricesChanged()

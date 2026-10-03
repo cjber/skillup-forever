@@ -18,6 +18,8 @@ local DEFAULTS = {
 	companionHints = true,
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
+	-- [npcID] = { name, side, map, x, y, items = { [itemID] = true } }: vendors seen selling a reagent or scroll
+	sellers = {},
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open

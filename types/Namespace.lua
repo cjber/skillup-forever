@@ -52,6 +52,7 @@
 ---@field InitShopping fun()
 ---@field NPCLocation fun(npcID: integer): SkillUpLocation
 ---@field LocationText fun(where: SkillUpLocation): string
+---@field SeeVendor fun(itemIDs: integer[]): boolean
 ---@field NearestNPC fun(npcIDs: integer[], byTravel?: boolean): integer?
 ---@field SetWaypoint fun(npcID: integer): boolean
 ---@field SuggestionNPC fun(suggestion: SkillUpSuggestion): integer?
@@ -120,6 +121,16 @@
 ---@field trainer table<integer, table<integer, number[]>>
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
+---@field sellers table<integer, SkillUpSeller>
+
+-- A vendor seen at its own window: where the player stood, and what it sold that the addon has a use for.
+---@class SkillUpSeller
+---@field name string
+---@field side? 'A'|'H'
+---@field map integer
+---@field x number
+---@field y number
+---@field items table<integer, true>
 
 ---@class SkillUpDB : SkillUpDefaults
 ---@field trackerHost? ForeverTrackerSettings

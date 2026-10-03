@@ -6,10 +6,11 @@ local equal = Client.equal
 
 local TAILORING = 197
 local SOLD, HORDE_SOLD, QUESTED, DROPPED, WORLD, ADVANCED = 11, 12, 13, 14, 15, 16
-local SELLER, HORDE_SELLER, BOSS, TRAINER, HOSTILE_TRAINER = 301, 302, 304, 305, 306
+local SELLER, HORDE_SELLER, FAR_SELLER, BOSS, TRAINER, HOSTILE_TRAINER = 301, 302, 303, 304, 305, 306
+local COOK, ISLE = 900, 2
 local THREAD = 2321
 
-local function Load(questie, atlasLoot)
+local function Load(questie, atlasLoot, saved)
 	local recipes, thresholds = {}, {}
 	for recipeID = SOLD, ADVANCED do
 		recipes[recipeID] = { skillLine = TAILORING, reagents = { { itemID = THREAD, quantity = 1 } } }
@@ -17,6 +18,7 @@ local function Load(questie, atlasLoot)
 	end
 	local c = Client.load({
 		boot = false,
+		saved = saved,
 		data = {
 			Thresholds = thresholds,
 			RecipeData = recipes,
@@ -31,13 +33,15 @@ local function Load(questie, atlasLoot)
 		},
 		questie = questie and {
 			items = {
-				[200 + SOLD] = { vendors = { HORDE_SELLER, SELLER } },
+				[200 + SOLD] = { vendors = { HORDE_SELLER, SELLER, FAR_SELLER } },
 				[200 + HORDE_SOLD] = { vendors = { HORDE_SELLER } },
 				[200 + QUESTED] = { quests = { 401, 402 } },
-				[THREAD] = { class = 7, vendors = { SELLER } },
+				[THREAD] = { class = 7, vendors = { SELLER, FAR_SELLER } },
+				[999] = { class = 7 },
 			},
 			npcs = {
 				[SELLER] = { name = "Seller", spawns = { [10] = { { 30, 40 } } }, side = "A" },
+				[FAR_SELLER] = { name = "Far Seller", spawns = { [10] = { { 60, 60 } } }, side = "A" },
 				[HORDE_SELLER] = { name = "Horde Seller", spawns = { [10] = { { 31, 41 } } }, side = "H" },
 				[BOSS] = { name = "Boss", spawns = { [1581] = { { -1, -1 } } } },
 				[TRAINER] = { name = "Trainer", spawns = { [10] = { { 50, 50 } } }, side = "AH" },
@@ -58,7 +62,8 @@ local function Load(questie, atlasLoot)
 			drops = { [BOSS] = { [200 + DROPPED] = 12.5 } },
 		} or nil,
 	})
-	c.maps, c.areas = { [0] = { mapID = 10, name = "Darkshire" } }, { [1581] = "The Deadmines" }
+	c.maps = { [0] = { mapID = 10, name = "Darkshire" }, [ISLE] = { mapID = 20, name = "Zephras Isle" } }
+	c.areas = { [1581] = "The Deadmines" }
 	c.professions = { { name = "Tailoring", icon = 1, rank = 50, max = 75, id = 8197 } }
 	c.Boot()
 	-- What a tooltip is given, as "left: right" lines.
@@ -106,7 +111,8 @@ equal(
 	c.Lines(function(tooltip)
 		ns.AddSourceLines(tooltip, suggestions[1].source)
 	end),
-	"Sold by: Seller |  : Darkshire  30, 40 | Sold by: Horde Seller |  : Darkshire  31, 41",
+	"Sold by: Seller |  : Darkshire  30, 40 | Sold by: Horde Seller |  : Darkshire  31, 41"
+		.. " | Sold by: Far Seller |  : Darkshire  60, 60",
 	"every vendor is listed with where it stands"
 )
 equal(
@@ -151,6 +157,38 @@ equal(
 	"with Questie, a step with no trainer says nothing more"
 )
 
+--[[ Far from every vendor the databases know, then at one they do not ]]
+
+-- An isle on its own continent: both of the thread's vendors are a continent away, so neither is the nearest.
+c.player.instance = ISLE
+equal(ns.NearestVendor(THREAD), nil, "with every vendor on another continent none is called the nearest")
+equal(ns.NearestTrainer(tailoring, 150), TRAINER, "the only trainer there is is still named")
+suggestions = ns.RecipeSuggestions(tailoring, 50)
+equal(Kinds(suggestions), "11 vendor, 13 quest, 14 drop, 15 world drop", "a scroll is still one a vendor sells")
+equal(suggestions[1].npcID, SELLER, "and names a vendor of it")
+equal(ns.SuggestionNPC(suggestions[1]), SELLER, "which its click goes to")
+-- A cook neither database knows sells the thread, a known scroll, and bread the addon has no use for.
+c.npc = { id = COOK, name = "Cook" }
+c.merchant = {
+	{ itemID = THREAD, price = 100, stackCount = 1 },
+	{ itemID = 200 + SOLD, price = 250, stackCount = 1 },
+	{ itemID = 999, price = 25, stackCount = 1 },
+}
+c.Fire("MERCHANT_SHOW")
+equal(ns.NearestVendor(THREAD), COOK, "a vendor seen selling the item is the nearest when it is")
+equal(ns.LocationText(ns.NPCLocation(COOK)), "Zephras Isle  50, 50", "placed where the player stood at its window")
+equal(ns.NPCLocation(COOK).name, "Cook", "under the name it had")
+equal(ns.SuggestionNPC(ns.RecipeSuggestions(tailoring, 50)[1]), COOK, "a scroll it sells is bought from it too")
+local seen = c.G.SkillUpForeverDB.sellers[COOK]
+equal(seen.items[THREAD] and seen.items[200 + SOLD], true, "the reagent and the scroll it sells are saved")
+equal(seen.items[999], nil, "and nothing the addon has no use for")
+c.player.instance = 0
+equal(ns.NearestVendor(THREAD), SELLER, "back on the mainland the vendor there is nearer")
+c.npc = { id = 901, name = "Baker" }
+c.merchant = { { itemID = 999, price = 25, stackCount = 1 } }
+c.Fire("MERCHANT_SHOW")
+equal(c.G.SkillUpForeverDB.sellers[901], nil, "a vendor of nothing the addon uses is not kept")
+
 --[[ Without AtlasLoot: QuestieDB names no recipe on a scroll, so no scroll is known ]]
 
 c, tailoring = Load(true, false)
@@ -178,6 +216,12 @@ equal(ns.SetWaypoint(ns.SuggestionNPC(suggestions[1])), false, "with nobody to r
 equal(#c.chat, 0, "and nothing said")
 equal(ns.NearestTrainer(tailoring, 150), nil, "no trainer is named")
 equal(ns.NearestVendor(THREAD), nil, "nor a vendor")
+-- A vendor seen in an earlier session needs no database.
+local later = Load(false, true, {
+	sellers = { [COOK] = { name = "Cook", side = "A", map = 10, x = 0.2, y = 0.2, items = { [THREAD] = true } } },
+})
+equal(later.ns.NearestVendor(THREAD), COOK, "a vendor seen before is named without Questie")
+equal(later.ns.NPCLocation(COOK).label, "Darkshire", "where it was seen")
 equal(
 	c.Lines(function(tooltip)
 		ns.AddNearest(tooltip, "Nearest trainer", nil)

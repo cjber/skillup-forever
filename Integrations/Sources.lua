@@ -103,10 +103,32 @@ local function PlayerMapPosition()
 	return { map = map, x = x, y = y }
 end
 
+-- The vendor whose window is open sells these items: the catalogue is told who it is and where the player
+-- stands, which is where the vendor is. True when that was news to it.
+---@param itemIDs integer[]
+---@return boolean
+function ns.SeeVendor(itemIDs)
+	local guid = UnitGUID("npc")
+	local npcID = guid and tonumber(guid:match("^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)"))
+	local name, where = UnitName("npc"), PlayerMapPosition()
+	if not (npcID and name and where) then
+		return false
+	end
+	local side = FACTION_CODES[UnitFactionGroup("player")]
+	return C.SawVendor(
+		npcID,
+		{ name = name, side = side, map = where.map, x = where.x, y = where.y, items = {} },
+		itemIDs
+	)
+end
+
 -- Of these NPCs, the nearest this character can deal with (the other faction's
 -- won't trade or train), else nil. With `byTravel` (a click or tooltip, never a
 -- redraw) and Shortest Path Forever loaded, the straight-line nearest few are
 -- ranked by its travel time instead, so a flight beats a walk around the coast.
+-- When none has a distance (all on another continent, or the player in a dungeon)
+-- only a travel time or being the only one picks an NPC: the data's order is no
+-- measure of nearness, so with several and nothing to rank them by, none is named.
 ---@param npcIDs integer[]
 ---@param byTravel boolean?
 ---@return integer?
@@ -117,15 +139,16 @@ function ns.NearestNPC(npcIDs, byTravel)
 			candidates[#candidates + 1] = { npcID = npcID, distance = Distance(npcID), index = index }
 		end
 	end
-	-- Ties (other continents are all infinitely far) keep the data's order.
+	-- Ties keep the data's order, so the same few are estimated each time.
 	table.sort(candidates, function(a, b)
 		if a.distance ~= b.distance then
 			return a.distance < b.distance
 		end
 		return a.index < b.index
 	end)
-	local best = candidates[1]
-	local api = byTravel and best and not InCombatLockdown() and ShortestPath()
+	local first = candidates[1]
+	local best = first and (first.distance < math.huge or #candidates == 1) and first or nil
+	local api = byTravel and first and not InCombatLockdown() and ShortestPath()
 	local from = api and type(api.Estimate) == "function" and PlayerMapPosition()
 	if api and from then
 		local bestSeconds
@@ -185,7 +208,11 @@ local KIND_TEXT = { L["vendor"], L["quest"], L["drop"], L["world drop"] }
 ---@return integer?
 ---@return integer?
 local function Kind(source)
+	-- A scroll's vendors are few and all listed in its tooltip: far ones still make it a vendor's scroll.
 	local vendor = ns.NearestNPC(source.vendors)
+	for _, npcID in ipairs(source.vendors) do
+		vendor = vendor or (Usable(npcID) and npcID or nil)
+	end
 	if vendor then
 		return VENDOR, vendor
 	elseif QuestFor(source) then
@@ -198,14 +225,11 @@ local function Kind(source)
 end
 
 -- Where a suggestion's click goes: the nearest vendor by travel when one sells the
--- scroll, else the likeliest drop.
+-- scroll (the one it names when none can be ranked), else the likeliest drop.
 ---@param suggestion SkillUpSuggestion
 ---@return integer?
 function ns.SuggestionNPC(suggestion)
-	if suggestion.kind == VENDOR then
-		return ns.NearestNPC(suggestion.source.vendors, true)
-	end
-	return suggestion.npcID
+	return suggestion.kind == VENDOR and ns.NearestNPC(suggestion.source.vendors, true) or suggestion.npcID
 end
 
 -- Scroll recipes of this profession, not trainer-taught nor learned, that base

@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-03
+
 - **A vendor you have bought from is the one a step names.** Standing at a vendor Questie does not know, the buy step still sent you to one it did. Opening a merchant's window now notes which of your reagents and recipe scrolls that vendor sells and where you stood, so from then on the step, its tooltip and its waypoint use that vendor whenever it is the nearest, with or without Questie.
 - **A far vendor is no longer called the nearest.** With every known vendor or trainer on another continent, or with you inside a dungeon, the route picked whichever came first in its data and showed it as the nearest. Now a step names one only when it can tell which is nearest: by distance on your continent, by Shortest Path Forever's travel time when you hover or click, or because there is only one. Otherwise it reads *Vendor* or the trainer's profession, with no waypoint.
 - **A detached tracker keeps clear of your quests.** With Attach to quest tracker off, the Forever column could open on top of the quest list. Until you drag it, it now sits beside the quest tracker, level with its top; once dragged, it stays where you put it.

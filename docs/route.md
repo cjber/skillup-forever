@@ -22,7 +22,7 @@ Steps are a table of recipe, crafts, target skill and cost. Hover one for the cr
 
 The target can go past your current cap, up to the last rank a trainer teaches. The route then adds *Train Journeyman/Expert/Artisan* steps with the fee, the skill the trainer wants and, while you are below it, the level.
 
-Fees come from the classic trainer data (CMaNGOS). For recipes, a trainer you have visited quotes its own fee, which then wins.
+Fees come from the classic trainer data (CMaNGOS). A trainer you have visited quotes its own fees, for recipes and for the ranks it still offers, and those then win.
 
 ### Prices
 

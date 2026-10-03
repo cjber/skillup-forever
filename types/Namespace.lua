@@ -116,6 +116,7 @@
 ---@field professionIDs table<string, integer>
 ---@field trackedProfessions table<integer, boolean>
 ---@field trainer table<integer, table<integer, number[]>>
+---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
 
 ---@class SkillUpDB : SkillUpDefaults

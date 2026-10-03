@@ -9,7 +9,7 @@ local known, costs, sources = {}, {}, {}
 local auctionator, open, craftable, level = false, 129, 99, 20
 local dropPlans
 local ns = {
-	db = { trainer = {}, routeTargets = {} },
+	db = { trainer = {}, trainerRanks = {}, routeTargets = {} },
 	RecipeSources = {},
 	WhenStale = function(_, drop)
 		dropPlans = drop
@@ -127,6 +127,12 @@ equal(ranked.steps[3].craft.to, 90, "to the target")
 equal(ranked.reached, 90, "which it reaches")
 equal(ranked.cost, 500 + 10 + ranked.crafts[2].expectedCrafts, "the rank's fee is in the cost")
 equal(ns.RankText(ranked.ranks[1]), "Train Journeyman at 50", "the rank as a line")
+-- What a trainer was seen to charge for the rank replaces the bundled fee, in the step and the total.
+ns.db.trainerRanks[129] = { [150] = 450 }
+local charged = Plan(FirstAid(40), 90)
+equal(charged.steps[2].rank.fee, 450, "a fee seen at a trainer wins")
+equal(charged.cost, 450 + 10 + charged.crafts[2].expectedCrafts, "and is the one in the cost")
+ns.db.trainerRanks[129] = nil
 ranked.ranks[1].level, level = 10, 5
 equal(ns.RankText(ranked.ranks[1]), "Train Journeyman at 50 (level 10)", "with the level while below it")
 level = 20

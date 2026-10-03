@@ -52,11 +52,18 @@ local function NextRanks(profession)
 	for _, rank in ipairs(ns.TrainerRanks[profession.skillLine] or {}) do
 		byCap[rank[1]] = rank
 	end
+	-- What a trainer was seen to charge for a rank wins over its base fee.
+	local seen = ns.db.trainerRanks[profession.skillLine] or {}
 	local ranks, cap = {}, profession.max
 	while byCap[cap + RANK_SPAN] do
 		local rank = byCap[cap + RANK_SPAN]
-		ranks[#ranks + 1] =
-			{ name = RANK_NAMES[rank[1]], cap = rank[1], fee = rank[2], reqSkill = rank[3], level = rank[4] }
+		ranks[#ranks + 1] = {
+			name = RANK_NAMES[rank[1]],
+			cap = rank[1],
+			fee = seen[rank[1]] or rank[2],
+			reqSkill = rank[3],
+			level = rank[4],
+		}
 		cap = rank[1]
 	end
 	return ranks, cap

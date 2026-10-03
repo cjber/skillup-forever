@@ -63,6 +63,28 @@ local function Offers(services)
 	return offers
 end
 
+-- What this trainer charges for each rank it still offers, kept under the cap the rank trains to. A rank
+-- is the one row that is no recipe and wants the skill the bundled rank does; when two rows fit, neither
+-- is trusted.
+---@param skillLine integer
+---@param services SkillUpTrainerService[]
+local function NoteRanks(skillLine, services)
+	for _, rank in ipairs(ns.TrainerRanks[skillLine] or {}) do
+		local cap, reqSkill = rank[1], rank[3]
+		local found, fits = nil, 0
+		for index, service in pairs(services) do
+			local _, required = GetTrainerServiceSkillReq(index)
+			if not service.recipeID and not service.ambiguous and service.kind ~= "used" and required == reqSkill then
+				found, fits = index, fits + 1
+			end
+		end
+		if found and fits == 1 then
+			ns.db.trainerRanks[skillLine] = ns.db.trainerRanks[skillLine] or {}
+			ns.db.trainerRanks[skillLine][cap] = GetTrainerServiceCost(found)
+		end
+	end
+end
+
 ---@return SkillUpTrainerState
 local function BuildState()
 	local services = {}
@@ -93,6 +115,7 @@ local function BuildState()
 			seen[service.recipeID] = { GetTrainerServiceCost(index), required or 0 }
 		end
 	end
+	NoteRanks(skillLine, services)
 	ns.Changed("fees")
 	modifier = modifier or 0
 	local ctx = {

@@ -13,6 +13,14 @@ OUTPUTS = ["Thresholds.lua", "Vendor.lua", "Recipes.lua", "Trainer.lua", "Source
 GENERATORS = ["gen_thresholds.py", "gen_vendor.py", "gen_recipes.py", "gen_trainer.py", "gen_sources.py"]
 
 
+def input_cache() -> Path:
+    """The main checkout's tools/.cache, so every git worktree of the repository shares one set of inputs."""
+    common = subprocess.check_output(
+        ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=ROOT, text=True
+    ).strip()
+    return Path(common).parent / "tools" / ".cache"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--offline", action="store_true")
@@ -30,7 +38,7 @@ def main() -> None:
             target = scratch / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
-        cache = ROOT / "tools" / ".cache"
+        cache = input_cache()
         if cache.is_dir():
             shutil.copytree(cache, scratch / "tools" / ".cache")
         for name in OUTPUTS:

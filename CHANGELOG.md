@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **An AtlasLoot that is switched off is no longer called missing.** With AtlasLoot installed but not running, because it is unticked or held back as out of date, the route said to install it. It now says to enable it in the AddOns list, or to update it.
+
 ## [0.7.0] - 2026-10-03
 
 - **A vendor you have bought from is the one a step names.** Standing at a vendor Questie does not know, the buy step still sent you to one it did. Opening a merchant's window now notes which of your reagents and recipe scrolls that vendor sells and where you stood, so from then on the step, its tooltip and its waypoint use that vendor whenever it is the nearest, with or without Questie.

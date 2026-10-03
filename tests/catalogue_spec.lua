@@ -84,6 +84,9 @@ local function Load(questieDB, atlasLootDB, options)
 			GetAddOnMetadata = function(_, field)
 				return field == "X-Flavor" and (options.flavour or "Forever") or nil
 			end,
+			DoesAddOnExist = function(name)
+				return options.installed == name
+			end,
 		},
 		C_Timer = {
 			After = function(delay, fn)
@@ -202,6 +205,11 @@ equal(c.Frame(), false, "nothing is left running once settled")
 c = Load(Database(), nil)
 C = c.ns.Catalogue
 equal(C.Hint(), "Install AtlasLoot to see the recipes vendors, quests and drops would add.", "without AtlasLoot")
+equal(
+	Load(Database(), nil, { installed = "AtlasLootClassic" }).ns.Catalogue.Hint(),
+	"AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date.",
+	"an AtlasLoot that is installed but not running is not called missing"
+)
 C.EnsureProfession(TAILORING)
 c.Settle()
 equal(C.Recipe(SHIRT), nil, "QuestieDB names no recipe on its scrolls here, so none is found")

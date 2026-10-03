@@ -22,12 +22,12 @@ local STALE = {
 	-- Item data arrived; `names` when the public list was waiting on it.
 	items = { route = true, tracker = true },
 	names = { api = true },
-	level = { api = true },
+	level = { api = true, route = true, tracker = true },
 	zone = { api = true },
 	-- A merchant opened, restocked or closed: the tracker's buy button.
 	merchant = { tracker = true },
 	-- Fees and requirements recorded at a trainer.
-	fees = { plans = true, api = true },
+	fees = { plans = true, api = true, route = true, tracker = true },
 	target = { plans = true, api = true, route = true, tracker = true },
 	tracking = { api = true, route = true, tracker = true },
 	settings = {

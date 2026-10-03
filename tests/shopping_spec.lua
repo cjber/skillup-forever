@@ -88,8 +88,42 @@ for _, frame in ipairs(c.frames) do
 end
 equal(button.shown, true, "known merchant stack enables purchasing")
 equal(button.text, "Buy tracked reagents  200c", "purchase price accounts for whole stacks")
-button.scripts.OnClick()
+-- A click only reaches a button that is enabled.
+local function Click()
+	if button:IsEnabled() then
+		button.scripts.OnClick()
+	end
+end
+Click()
 equal(c.purchased[1].count, 10, "purchase callback buys complete stacks in units")
+equal(button:IsEnabled(), false, "the button is off while the order is on its way")
+Click()
+button.scripts.OnClick()
+c.Fire("MERCHANT_UPDATE")
+c.AuctionatorScan()
+Click()
+equal(#c.purchased, 1, "a second click before the bags update orders nothing more")
+-- The server refused it (full bags): no bag changes, and the button comes back for another try.
+c.Advance(3)
+equal(button:IsEnabled(), true, "an order that never arrives gives the button back")
+Click()
+equal(#c.purchased, 2, "which orders again")
+-- The merchant closing ends the wait too, and a settled order's timer cannot cut a later order's wait short.
+c.merchant = nil
+c.Fire("MERCHANT_CLOSED")
+c.merchant = { { itemID = SILK, price = 100, stackCount = 5 } }
+c.Fire("MERCHANT_SHOW")
+equal(button:IsEnabled(), true, "another merchant starts with the button on")
+c.Advance(2)
+Click()
+equal(#c.purchased, 3, "and takes an order")
+c.Advance(1)
+equal(button:IsEnabled(), false, "which the earlier order's timer leaves waiting")
+c.bags[SILK] = c.bags[SILK] + 5
+c.Fire("BAG_UPDATE_DELAYED")
+equal(button:IsEnabled(), true, "the bag update gives the button back")
+equal(button.text, "Buy tracked reagents  100c", "for what is still missing")
+c.Advance(3)
 for _, invalid in ipairs({ false, 0, -1 }) do
 	c.merchant[1].stackCount = invalid or nil
 	c.purchased = {}
@@ -102,5 +136,11 @@ c.merchant = nil
 c.Fire("MERCHANT_CLOSED")
 equal(button.shown, false, "the button goes with the merchant")
 equal(#c.chat, 0, "and none of it says anything in chat")
+
+-- The section hangs on the shared host, never on Blizzard's tracker manager: a client without the manager
+-- still gets it.
+local bare = Client.load({ trackerManager = false })
+equal(bare.host.IsAttached(bare.G.SkillUpForeverObjectiveTracker), true, "the section needs no tracker manager")
+equal(#bare.chat, 0, "and says nothing about a missing tracker")
 
 Client.report("shopping_spec")

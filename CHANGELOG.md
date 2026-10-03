@@ -11,6 +11,11 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Trainer fees and level-ups reach the route at once.** After a trainer's fees were recorded, or after you gained a level, the route page and the tracked reagents kept showing the old plan until something else refreshed them. They now update straight away.
+- **/su no longer raises an error after an incomplete update.** When the addon asked for a game restart because files were missing, typing /su or clicking its minimap menu entry raised a Lua error. It now does nothing until the restart.
+- **Buy tracked reagents can't order twice.** Clicking the merchant button again before the reagents reached your bags bought them all a second time. The button now greys out until the purchase arrives, and comes back after a moment if the merchant refuses it, for instance when your bags are full.
+- **Boss drop chances for recipes are worked out the way bosses roll their loot.** The glove and cloak enchanting formulas from Ahn'Qiraj showed 14% from the Ruins bosses; they are about 1% a boss, best from the Temple. Plans and patterns from Azuregos, Kazzak and Onyxia showed 1.3% and are nearer 3%, since those bosses roll that loot more than once.
+
 ## [0.6.10] - 2026-10-02
 
 - **A newly learned recipe joins the route at once.** Learning a recipe, or opening a profession, now re-plans the route and the tracked reagents straight away; before, they could keep the old plan until the recipe list next updated.

@@ -20,8 +20,8 @@ end
 local function noop() end
 
 -- options: data (ns tables that replace the bundled Data/*.lua ones of the same name), saved (SkillUpForeverDB),
--- auctionator (false for a client without it), boot (false to stop before the addon's ADDON_LOADED; c.Boot()
--- then runs it).
+-- auctionator (false for a client without it), trackerManager (false for a client without Blizzard's tracker
+-- manager), boot (false to stop before the addon's ADDON_LOADED; c.Boot() then runs it).
 function Client.load(options)
 	options = options or {}
 	local G = setmetatable({}, { __index = _G })
@@ -97,6 +97,12 @@ function Client.load(options)
 	function Methods:IsShown()
 		return self.shown
 	end
+	function Methods:SetEnabled(enabled)
+		self.disabled = not enabled
+	end
+	function Methods:IsEnabled()
+		return not self.disabled
+	end
 	function Methods:SetText(text)
 		self.text = text
 	end
@@ -143,11 +149,13 @@ function Client.load(options)
 		end,
 	}
 	-- Blizzard's tracker manager is never entered, and no native method is hooked.
-	G.ObjectiveTrackerManager = setmetatable({}, {
-		__index = function()
-			error("native tracker accessed")
-		end,
-	})
+	if options.trackerManager ~= false then
+		G.ObjectiveTrackerManager = setmetatable({}, {
+			__index = function()
+				error("native tracker accessed")
+			end,
+		})
+	end
 	G.hooksecurefunc = function()
 		error("native methods must stay unhooked")
 	end

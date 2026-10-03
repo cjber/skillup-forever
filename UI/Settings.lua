@@ -224,5 +224,9 @@ function ns.SetSortMode(mode)
 end
 
 function ns.OpenSettings()
+	-- No category when an update's files are missing: Core has already said to restart the game.
+	if not category then
+		return
+	end
 	Settings.OpenToCategory(category:GetID())
 end

@@ -32,6 +32,8 @@ SKINNING = 393
 CHEST = "3"  # gameobject type; data0 is its lock, data1 its loot
 # Below this, a gathered item is a lucky find (gems in veins), not something to plan on.
 GATHER_CHANCE = 10
+# A group's explicit chances may not sum past 100; the server allows this much rounding before it objects.
+GROUP_CHANCE = 101
 RECIPE_CLASS = "9"
 DROPS_KEPT = 3
 TABLES = (
@@ -164,30 +166,43 @@ def race_side(races):
     return ""
 
 
-def loot_chances(rows):
-    """(row, chance %) per loot row; 0 is an equal share of what its group's other chances leave."""
+def loot_chances(rows, group=0):
+    """(row, chance %) per row one roll of the loot can give a player without its quest: all of it, or
+    only the items of `group`. An item outside a group (group 0) and every reference rolls on its own, and the
+    server drops a 0 there as it loads: it never rolls. The items sharing a group give one of them: 0 is an
+    equal share of what the group's explicit chances leave."""
     groups = defaultdict(list)
     for row in rows:
-        groups[int(row["groupid"])].append(row)
-    for group, members in groups.items():
-        given = [float(row["ChanceOrQuestChance"]) for row in members]
-        shared = given.count(0)
-        rest = max(0.0, 100 - sum(c for c in given if c > 0))
-        for row, chance in zip(members, given, strict=False):
-            if chance > 0:
-                yield row, chance
-            elif chance == 0:
-                yield row, 100.0 if group == 0 else rest / shared
+        chance, own = float(row["ChanceOrQuestChance"]), int(row["groupid"])
+        if own > 0 and int(row["mincountOrRef"]) > 0:
+            groups[own].append((row, chance))
+        elif group == 0 and chance > 0:
+            yield row, chance
+    for own, members in groups.items():
+        if group not in (0, own):
+            continue
+        # A quest row (negative chance) takes its part of the group's roll like any other.
+        explicit = sum(abs(chance) for _, chance in members)
+        if explicit > GROUP_CHANCE:
+            raise ValueError(f"Loot {members[0][0]['entry']} group {own} has chances summing to {explicit:g}%")
+        shared = sum(chance == 0 for _, chance in members)
+        for row, chance in members:
+            if chance >= 0:
+                yield row, chance or max(0.0, 100 - explicit) / shared
 
 
-def loot_items(rows, refs, scale=1.0, seen=frozenset()):
-    """(item, chance 0-1) per item the loot rows can give, through referenced loot at its chance of rolling."""
-    for row, chance in loot_chances(rows):
-        ref, share = -int(row["mincountOrRef"]), scale * chance / 100
+def loot_items(rows, refs, group=0, seen=frozenset()):
+    """(item, chance 0-1) per item the loot rows can give, through referenced loot at its chance of rolling.
+    A reference's group is the one group of the referenced loot it rolls (0 for all of it), and it rolls
+    that maxcount times over: the chance is of the item turning up at least once."""
+    for row, chance in loot_chances(rows, group):
+        ref, share = -int(row["mincountOrRef"]), chance / 100
         if ref < 0:
             yield int(row["item"]), share
-        elif ref > 0 and ref not in seen:
-            yield from loot_items(refs[ref], refs, share, seen | {ref})
+        elif ref not in seen:
+            times = int(row["maxcount"])
+            for item, inside in loot_items(refs[ref], refs, int(row["groupid"]), seen | {ref}):
+                yield item, share * (1 - (1 - inside) ** times)
 
 
 def scroll_drops(tables, scrolls):

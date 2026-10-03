@@ -154,6 +154,7 @@ local ns = {
 }
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 setfenv(assert(loadfile("UI/Settings.lua")), env)("SkillUpForever", ns)
+ns.OpenSettings() -- before registration, as when an update's files are missing: no error
 ns.RegisterSettings()
 
 ---@param key string

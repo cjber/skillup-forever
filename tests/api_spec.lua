@@ -35,14 +35,21 @@ local c = Client.load({
 		},
 		TrainerFees = { [HILLMANS] = { 1800, 145 } },
 		TrainerRanks = {},
-		RecipeSources = {},
 		ItemSellPrices = {},
 		GatheredBy = {},
 		VendorPrices = { [THREAD] = 100, [BAR] = 10 },
-		ReagentVendors = { [THREAD] = { GINA } },
 		ProfessionTrainers = { [165] = { { TELONIS, 300 } } },
-		SourceNPCs = { [GINA] = { "Gina", "", 0, 0, 0 }, [TELONIS] = { "Telonis", "", 1, 0, 0 } },
-		InstanceNames = {},
+		ScrollDrops = {},
+		WorldDrops = {},
+	},
+	-- Who sells thread and where the trainer stands come from the player's QuestieDB.
+	questie = {
+		items = { [THREAD] = { class = 7, vendors = { GINA } } },
+		npcs = {
+			[GINA] = { name = "Gina", spawns = { [10] = { { 50, 50 } } }, side = "AH" },
+			[TELONIS] = { name = "Telonis", spawns = { [141] = { { 50, 50 } } }, side = "AH" },
+		},
+		areas = { [10] = 10, [141] = 11 },
 	},
 })
 local ns, API = c.ns, c.G.SkillUpForever.API
@@ -77,6 +84,13 @@ c.Boot()
 equal(#c.chat, 0, "the addon starts without a word")
 
 local list = API.Professions()
+-- Until the vendors and trainers are read from QuestieDB, a step says what to find and routes nowhere.
+local early = list[3].steps
+equal(early[1].detail, "Vendor · 800c", "before the vendors are read a buy names none")
+equal(early[1].nav, false, "and routes nowhere")
+equal(early[3].detail, "Leatherworking trainer · 1800c", "nor does training name a trainer")
+c.Advance(0)
+list = API.Professions()
 -- Tracked first, then reagents in hand, then a purchase first, then nothing to do.
 equal(#list, 4, "one entry per profession")
 equal(list[1].name, "Tailoring", "a tracked profession leads")

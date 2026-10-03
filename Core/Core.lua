@@ -392,7 +392,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 			and ns.ProfessionSkillLines
 			and ns.TrainerFees
 			and ns.TrainerRanks
-			and ns.RecipeSources
+			and ns.Catalogue
 			and ns.PlanRoute
 			and ns.Changed
 		)
@@ -401,6 +401,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 		return
 	end
 	LoadDB()
+	ns.InitCatalogue()
 	ns.WhenEvent("TRADE_SKILL_LIST_UPDATE", NoteLearnedRecipes)
 	ns.WhenEvent("SKILL_LINES_CHANGED", ForgetDroppedProfessions)
 	ns.InitPrices()

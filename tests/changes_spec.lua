@@ -14,9 +14,7 @@ local c = Client.load({
 		GatheredBy = { [CLOTH] = 393 },
 		TrainerFees = {},
 		TrainerRanks = {},
-		RecipeSources = {},
 		ItemSellPrices = {},
-		ReagentVendors = {},
 	},
 })
 local ns = c.ns

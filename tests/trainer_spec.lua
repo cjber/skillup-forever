@@ -10,7 +10,6 @@ local dropPlans
 local services = {}
 local ns = {
 	db = { trainer = {}, trainerRanks = {}, routeTargets = { [COOKING] = 100 }, showTrainer = true },
-	RecipeSources = {},
 	Thresholds = { [CAMPFIRE] = { 1, 100, 150, 200 }, [BREAD] = { 1, 30, 35, 38 } },
 	RecipeData = {
 		[CAMPFIRE] = { skillLine = COOKING, reagents = {} },

@@ -9,7 +9,7 @@
 ## X-Curse-Project-ID: 1705762
 ## X-Wago-ID: aNerqn62
 ## SavedVariables: SkillUpForeverDB
-## OptionalDeps: Auctionator, TomTom, Syndicator, ShortestPathForever
+## OptionalDeps: Auctionator, TomTom, Syndicator, ShortestPathForever, QuestieDB, Questie, AtlasLootClassic
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
 
@@ -23,6 +23,9 @@ Core\Model.lua
 Core\Changes.lua
 Core\Plan.lua
 Core\Core.lua
+Integrations\Questie.lua
+Integrations\AtlasLoot.lua
+Integrations\Catalogue.lua
 Integrations\Prices.lua
 UI\Settings.lua
 UI\Tooltip.lua

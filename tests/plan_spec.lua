@@ -10,7 +10,11 @@ local auctionator, open, craftable, level = false, 129, 99, 20
 local dropPlans
 local ns = {
 	db = { trainer = {}, trainerRanks = {}, routeTargets = {} },
-	RecipeSources = {},
+	Catalogue = {
+		Recipe = function(recipeID)
+			return sources[recipeID]
+		end,
+	},
 	WhenStale = function(_, drop)
 		dropPlans = drop
 	end,
@@ -197,9 +201,11 @@ equal(Bands(HEAVY), "orange 40, yellow 50, green 75, grey 100", "from where the 
 ns.db.trainer[129] = { [HEAVY] = { 80, 60 } }
 equal(Bands(HEAVY), "yellow 60, green 75, grey 100", "a band over before it can be learned is dropped")
 ns.db.trainer[129] = nil
-ns.RecipeSources[LINEN] = { skill = 35 }
+sources[LINEN] = { skill = 35 }
 equal(Bands(LINEN), "yellow 35, green 45, grey 60", "a scroll's required skill counts the same")
-ns.RecipeSources[LINEN] = nil
+sources[LINEN] = {}
+equal(Bands(LINEN), "orange 1, yellow 30, green 45, grey 60", "a scroll of unknown skill starts with the data")
+sources[LINEN] = nil
 equal(#ns.RecipeBands(FirstAid(40), 1), 0, "no thresholds, no bands")
 
 -- Why there is nothing to craft.

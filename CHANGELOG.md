@@ -12,6 +12,8 @@ verbatim rather than rewritten as the addon moves.
 ## [Unreleased]
 
 - **A detached tracker keeps clear of your quests.** With Attach to quest tracker off, the Forever column could open on top of the quest list. Until you drag it, it now sits beside the quest tracker, level with its top; once dragged, it stays where you put it.
+- **Recipe sources, vendors and trainers come from Questie and AtlasLoot.** Where a recipe's scroll is sold, which quest rewards it, who sells a reagent and where a trainer stands are now read from the Questie and AtlasLoot you have installed, so they follow those addons as they are corrected for Forever. Both are optional: without AtlasLoot the route cannot tell which scroll teaches which recipe, and without Questie it names no vendor, quest or trainer and sets no waypoint to one. One line where the route stops, and in a step's tooltip, says which to install. Everything else works as before.
+- **A scroll's price is the one you have seen.** The route showed a recipe scroll's classic vendor price and ranked vendors with limited stock after the others. Neither is known for Forever, so a scroll now shows what it cost at the auction house or at a merchant's window you have opened, `?` until then, and every vendor of your faction counts the same.
 - **A rank's fee is the one your trainer quotes.** The route's *Train Journeyman*, *Expert* and *Artisan* steps always showed the classic base fee, even after a trainer had shown you a different one. Once you have opened a trainer who still offers the rank, the route and its total use the fee that trainer charges you.
 
 ## [0.6.11] - 2026-10-03

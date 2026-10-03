@@ -40,7 +40,8 @@ for _, complete in ipairs({ false, true }) do
 	}
 	if complete then
 		assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
-		ns.TrainerFees, ns.TrainerRanks, ns.RecipeSources = {}, {}, {}
+		ns.TrainerFees, ns.TrainerRanks, ns.Catalogue = {}, {}, {}
+		ns.InitCatalogue = function() end
 		ns.PlanRoute, ns.Changed, ns.WhenEvent = Init, Init, function() end
 	end
 	local env = Env(messages, callbacks)
@@ -81,7 +82,8 @@ do
 		PlanRoute = function() end,
 		Changed = function() end,
 		WhenEvent = function() end,
-		RecipeSources = {},
+		Catalogue = {},
+		InitCatalogue = function() end,
 	}
 	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
 	local env = Env(messages, callbacks)

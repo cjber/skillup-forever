@@ -22,7 +22,7 @@ Steps are a table of recipe, crafts, target skill and cost. Hover one for the cr
 
 The target can go past your current cap, up to the last rank a trainer teaches. The route then adds *Train Journeyman/Expert/Artisan* steps with the fee, the skill the trainer wants and, while you are below it, the level.
 
-Fees come from the classic trainer data (CMaNGOS). A trainer you have visited quotes its own fees, for recipes and for the ranks it still offers, and those then win.
+Fees come from the classic trainer data (CMaNGOS), which also says who trains what. A trainer you have visited quotes its own fees, for recipes and for the ranks it still offers, and those then win.
 
 ### Prices
 
@@ -33,16 +33,17 @@ Reagents show where each price comes from and how old it is, and the page flags 
 If nothing you know skills up far enough, the route stops there and says so. It then lists the recipes from vendors, quests and drops that would carry it on, easiest to get first:
 
 1. a vendor of your faction
-2. limited supply
-3. quests
-4. named drops
-5. world drops
+2. quests
+3. named drops
+4. world drops
 
-Each shows the scroll's price (`?` when nothing prices it) and how far it reaches. Hover one for every vendor, quest and drop with its zone and coordinates. Click it for a waypoint to the nearest vendor or the likeliest drop.
+These come from the [Questie](https://www.curseforge.com/wow/addons/questie) and [AtlasLoot](https://www.curseforge.com/wow/addons/atlaslootclassic) you have installed. AtlasLoot says which scroll teaches which recipe; Questie says who sells it, which quest rewards it and where they are. Without one, a line says which to install, and the list holds what the other can still tell.
+
+Each shows the scroll's price (what it cost at the auction house or at a merchant's window you have opened, `?` until then) and how far it reaches. Hover one for every vendor, quest and drop with its zone and coordinates. Click it for a waypoint to the nearest vendor or the likeliest drop.
 
 ### Waypoints
 
-*Train* steps and vendor reagents name the nearest trainer (one who teaches that far, of your faction) or vendor, with its zone and coordinates. A click sets a waypoint there.
+*Train* steps and vendor reagents name the nearest trainer (one who teaches that far, of your faction) or vendor, with its zone and coordinates. A click sets a waypoint there. Names and places come from Questie: without it a step names nobody and its tooltip says so.
 
 - With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever) installed, you get its travel route, and "nearest" means quickest to reach by its travel time.
 - Otherwise [TomTom](https://www.curseforge.com/wow/addons/tomtom)'s arrow, else the map's own.

@@ -80,6 +80,12 @@ local page = {
 		return { { recipeID = 3276, source = { item = 6454 }, reach = 115, kindText = "vendor" } }
 	end,
 	ScrollPrice = function() end,
+	-- No Questie or AtlasLoot: the one line saying what to install.
+	Catalogue = {
+		Hint = function()
+			return "Install both."
+		end,
+	},
 	PriceSource = function(itemID)
 		return ({ "gather", "vendor", "auctionator" })[itemID]
 	end,
@@ -97,7 +103,10 @@ local page = {
 		function list:Add(row)
 			self.rows[#self.rows + 1] = row
 		end
-		list.Message, list.Finish = function() end, function() end
+		list.messages, list.Finish = {}, function() end
+		function list:Message(text)
+			self.messages[#self.messages + 1] = text
+		end
 		lists[#lists + 1] = list
 		return list
 	end,
@@ -190,6 +199,11 @@ routeTab:Click()
 local routeList = lists[#lists - 1]
 local suggestion = routeList.rows[#routeList.rows]
 equal(suggestion and suggestion.values[1], "?", "an unpriced scroll shows ?")
+equal(
+	table.concat(routeList.messages, " | "):find("Install both.", 1, true) ~= nil,
+	true,
+	"where the route stops, a missing provider is named"
+)
 local labels = {}
 for _, row in ipairs(lists[#lists].rows) do
 	labels[row.text] = row.values[2]

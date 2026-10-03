@@ -87,42 +87,42 @@ class GatheredTests(unittest.TestCase):
         self.assertAlmostEqual(chance(2), 0.3)  # 40% of at least one of two 50% rolls
         self.assertEqual(chance(0), 0)
 
-    def test_generate_reports_source_without_spawn(self):
-        empty = {name: [] for name in gen_sources.TABLES}
-        empty["item_template"] = [
-            {
-                "class": "9",
-                "entry": "500",
-                "spellid_1": "700",
-                "spellid_2": "0",
-                "spellid_3": "0",
-                "spellid_4": "0",
-                "spellid_5": "0",
-                "RequiredSkillRank": "1",
-                "BuyPrice": "25",
-            }
-        ]
-        empty["npc_vendor"] = [{"item": "500", "entry": "900", "maxcount": "0"}]
-        empty["creature_template"] = [
-            {"Entry": "900", "Name": "Missing Spawn", "Faction": "1", "VendorTemplateId": "0"}
+    def test_generate_keeps_only_what_no_provider_holds(self):
+        def scroll(entry, spell):
+            row = {"class": "9", "entry": str(entry)}
+            row.update({f"spellid_{k}": "0" for k in range(1, 6)})
+            row["spellid_1"] = str(spell)
+            return row
+
+        tables = {name: [] for name in gen_sources.TABLES}
+        # 500 teaches recipe 700 through spell 600; 501 teaches a recipe outside the set.
+        tables["item_template"] = [scroll(500, 600), scroll(501, 601), {"class": "7", "entry": "502"}]
+        tables["creature_loot_template"] = [
+            loot("900", 500, 5),
+            loot("901", 500, 20),
+            loot("902", 500, 1),
+            loot("903", 500, 0.5),
+            loot("900", 501, 50),
         ]
         with (
-            patch.object(gen_sources, "spell_maps", return_value=({700: {700}}, {})),
+            patch.object(gen_sources, "spell_maps", return_value=({600: {700}}, {})),
             patch.object(gen_sources, "reagent_items", return_value=set()),
-            patch.object(gen_sources, "gathered", return_value={}),
-            patch.object(gen_sources, "trainer_caps", return_value={}),
+            patch.object(gen_sources, "trainer_caps", return_value={197: {31: 150, 30: 300}}),
         ):
-            data = gen_sources.generate(
-                {700},
-                empty,
-                [],
-                {1: {"FactionGroup": "2", "FriendGroup": "0", "EnemyGroup": "0"}},
-                [],
-                set(),
-                [],
-            )
-        self.assertEqual(data["sources"], {})
-        self.assertEqual(data["omitted"], {900: "missing creature spawn"})
+            data = gen_sources.generate({700}, tables, [], [])
+        # The three likeliest, likeliest first, whether or not the creature has a spawn or a side.
+        self.assertEqual(data["drops"], {500: [(901, 20.0), (900, 5.0), (902, 1.0)]})
+        self.assertEqual(data["world"], [])
+        self.assertEqual(data["trainers"], {197: [(30, 300), (31, 150)]})
+        rendered = gen_sources.render(data)
+        self.assertIn("\t[500] = { { 901, 20 }, { 900, 5 }, { 902, 1 } },", rendered)
+        self.assertIn("\t[197] = { { 30, 300 }, { 31, 150 } },", rendered)
+        for moved in ("RecipeSources", "SourceNPCs", "SourceQuests", "ReagentVendors", "InstanceNames"):
+            self.assertNotIn(moved, rendered)
+
+    def test_no_scroll_is_an_error(self):
+        with self.assertRaisesRegex(ValueError, "No recipe items resolved"):
+            gen_sources.scroll_items({700}, [{"class": "7", "entry": "502"}], {})
 
 
 if __name__ == "__main__":

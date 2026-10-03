@@ -56,8 +56,9 @@
 ---@field SetWaypoint fun(npcID: integer): boolean
 ---@field SuggestionNPC fun(suggestion: SkillUpSuggestion): integer?
 ---@field RecipeSuggestions fun(profession: SkillUpContext, base: number): SkillUpSuggestion[]
----@field ScrollPrice fun(source: SkillUpSource): number?
----@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpSource)
+---@field ScrollPrice fun(source: SkillUpScrollSource): number?
+---@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number
+---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
@@ -89,13 +90,14 @@
 ---@field ProfessionSkillLines table<string, integer>
 ---@field TrainerFees table<integer, number[]>
 ---@field TrainerRanks table<integer, number[][]>
----@field RecipeSources table<integer, SkillUpSource>
----@field SourceNPCs table<integer, SkillUpNPC>
----@field SourceQuests table<integer, string[]>
 ---@field ProfessionTrainers table<integer, number[][]>
----@field ReagentVendors table<integer, integer[]>
 ---@field GatheredBy table<integer, integer>
----@field InstanceNames table<integer, string>
+---@field ScrollDrops table<integer, number[][]>
+---@field WorldDrops table<integer, boolean>
+---@field Questie SkillUpQuestie
+---@field AtlasLoot SkillUpAtlasLoot
+---@field Catalogue SkillUpCatalogue
+---@field InitCatalogue fun()
 
 ---@class SkillUpDefaults
 ---@field showRowText boolean
@@ -139,23 +141,6 @@ SkillUpForeverDB = nil
 ---@class SkillUpSchematic
 ---@field reagents SkillUpReagent[]
 ---@field output? SkillUpReagent|false
-
----@class SkillUpSource
----@field item integer
----@field skill number
----@field price? number
----@field vendors? integer[]
----@field limited? integer[]
----@field quests? integer[]
----@field drops? number[][]
----@field world? boolean
-
----@class SkillUpNPC
----@field [1] string Name.
----@field [2] string Faction code.
----@field [3] integer World map.
----@field [4] number World X.
----@field [5] number World Y.
 
 ---@class SkillUpContext
 ---@field skillLine? integer
@@ -260,7 +245,7 @@ SkillUpForeverDB = nil
 ---@field count number
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
----@alias SkillUpChange 'recipes'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'target'|'tracking'|'settings'
+---@alias SkillUpChange 'recipes'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'
 ---@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
@@ -300,7 +285,7 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpSuggestion
 ---@field recipeID integer
----@field source SkillUpSource
+---@field source SkillUpScrollSource
 ---@field kind integer
 ---@field kindText string
 ---@field npcID? integer
@@ -394,3 +379,34 @@ SkillUpForeverDB = nil
 ---@field services SkillUpTrainerService[]
 ---@field ctx? SkillUpContext
 ---@field best? integer
+
+---@alias SkillUpProviderState 'missing'|'unfit'|'waiting'|'ready'
+
+-- What Questie says of an item: sorted NPC and quest IDs, and the recipe a scroll teaches.
+---@class SkillUpItemSources
+---@field vendors integer[]
+---@field quests integer[]
+---@field drops integer[]
+---@field teaches? integer
+
+---@class SkillUpSourceNPC
+---@field name string
+---@field side? ''|'A'|'H' Who can deal with it; nil when it is hostile to both.
+---@field map? integer Its zone map, with x and y in 0-1.
+---@field x? number
+---@field y? number
+---@field area? integer Its area, when it has no map point (a dungeon).
+---@field world? {instance: integer, x: number, y: number}|false Its world position, worked out on first use.
+
+---@class SkillUpSourceQuest
+---@field title string
+---@field side ''|'A'|'H'
+
+-- Where a recipe's scroll comes from. The skill it needs is AtlasLoot's, so nil without it.
+---@class SkillUpScrollSource
+---@field item integer
+---@field skill? number
+---@field vendors integer[]
+---@field quests integer[]
+---@field drops number[][] { npc, chance % }, likeliest first.
+---@field world boolean

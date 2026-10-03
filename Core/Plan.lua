@@ -149,9 +149,9 @@ function ns.RecipeBands(profession, recipeID)
 		return bands
 	end
 	local training = ns.TrainingFor(profession, recipeID)
-	local scroll = ns.RecipeSources[recipeID]
+	local scroll = not training and ns.Catalogue.Recipe(recipeID)
 	local learnAt = training and training[2] + profession.modifier
-		or scroll and scroll.skill + profession.modifier
+		or scroll and scroll.skill and scroll.skill + profession.modifier
 		or t[1]
 	for i, name in ipairs(BAND_NAMES) do
 		local from = math.max(t[i], learnAt)

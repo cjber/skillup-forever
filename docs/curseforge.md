@@ -34,7 +34,7 @@ Hover a reagent to see how much your routes need.
 
 - **Recipe rows and tooltips** show skill-up chance and cost, such as `62% · 45s`, plus orange, yellow, green and grey thresholds and reagent prices. Required skill is optional.
 - **Sorting** by required skill, chance or cheapest skill-up puts recipes in one list. *Default* restores categories; the game's filters still apply.
-- **Levelling route** plans crafts towards your target skill, with trainer recipes and rank fees. If a route stops short, it lists vendor, quest and drop recipes that could extend it. Waypoints cover trainers and suppliers, via Shortest Path Forever or TomTom.
+- **Levelling route** plans crafts towards your target skill, with trainer recipes and rank fees. If a route stops short, it lists vendor, quest and drop recipes that could extend it. Waypoints cover trainers and suppliers, via Shortest Path Forever or TomTom. Vendors, quests and trainers are named with [Questie](https://www.curseforge.com/wow/addons/questie) installed, and scroll recipes with [AtlasLoot](https://www.curseforge.com/wow/addons/atlaslootclassic); both are optional.
 - **Shopping list** counts reagents against your bags and bank. Track it beside your quests, buy what a vendor sells, or send auction reagents to an Auctionator list. Syndicator shows what your other characters hold.
 - **Profession trainer** shows chance and cost beside recipes, with a green arrow on the best one to train next.
 - **Reagent tooltips** show what tracked routes need; hold Shift for every recipe of your professions that uses the item and still skills up.

@@ -83,6 +83,7 @@ local recipes = {
 local SKILLS = {
 	[2001] = 30,
 	[2007] = 95,
+	[2013] = 240,
 	[2019] = 50,
 	[2020] = 50,
 	[2021] = 80,
@@ -94,11 +95,13 @@ local SKILLS = {
 ---@param learned table<integer, boolean>?
 ---@param professions table<integer, SkillUpProfession>?
 ---@param weaponSkills table<integer, number>?
+---@param showAll boolean? Defaults to on, so the listing rule is tested apart from the filter.
 ---@return SkillUpGearSlot[]
-local function Slots(level, classID, learned, professions, weaponSkills)
+local function Slots(level, classID, learned, professions, weaponSkills, showAll)
 	return Gear.List(recipes, facts, {
 		level = level,
 		classID = classID,
+		showAll = showAll ~= false,
 		learned = function(recipeID)
 			return (learned or {})[recipeID] == true
 		end,
@@ -244,21 +247,42 @@ equal(Items(Slots(40, SHAMAN), "Head"), "1002 1014 1013", "the newest three, hig
 equal(Items(Slots(20, SHAMAN), "Wrist"), "1020 1019 1018", "level, then skill, then name")
 
 -- Learned state. Two recipes make the leather head; the learned one owns the item.
-local own = { [165] = { skillLine = 165, name = "Leatherworking" } }
+local own = { [165] = { skillLine = 165, name = "Leatherworking", skill = 200 } }
 local learned = Slots(20, SHAMAN, { [2015] = true, [2007] = true }, own)
 local owned = Find(learned, "Head", 1011)
 equal(owned.recipeID, 2015, "the learned recipe of two keeps the item")
 equal(owned.learned, true, "a known recipe reads as known")
-equal(owned.learnable, true, "and its profession is the character's")
+equal(owned.state, "known", "and its state says so")
 equal(owned.profession, "Leatherworking", "the row names the character's profession")
 local robe = Find(learned, "Chest", 1007)
 equal(robe.learned, true, "a tailoring robe the character knows")
-equal(robe.learnable, false, "is not learnable without tailoring")
+equal(robe.state, "known", "and its state says so")
 
+-- The skill a recipe needs is where it can be learned, which is not the data's first threshold.
 local item = Find(Slots(20, SHAMAN), "Chest", 1007)
 equal(item.skill, 95, "the row carries the recipe's required skill")
 equal(item.level, 20, "and the item's required level")
 equal(item.name, nil, "a name the client has not loaded is left nil")
 equal(Find(Slots(20, SHAMAN), "Two-handed", 1006).profession, "Blacksmithing", "a bundled profession name")
+
+-- What the character can do with the recipe: it knows it, its skill reaches it now, its skill has
+-- still to reach it, or it is another crafter's.
+local LW_FULL = { [165] = { skillLine = 165, name = "Leatherworking", skill = 100 } }
+local LW_SHORT = { [165] = { skillLine = 165, name = "Leatherworking", skill = 10 } }
+equal(Find(Slots(20, SHAMAN, { [2001] = true }, LW_FULL), "Head", 1001).state, "known", "a known recipe")
+equal(Find(Slots(20, SHAMAN, nil, LW_FULL), "Head", 1001).state, "trainable", "a recipe the skill reaches")
+equal(Find(Slots(20, SHAMAN, nil, LW_SHORT), "Head", 1001).state, "needs", "a recipe the skill has still to reach")
+equal(Find(Slots(24, SHAMAN, nil, LW_FULL), "Head", 1013).skill, 240, "the skill it needs is named on the row")
+equal(Find(Slots(20, SHAMAN, nil, LW_FULL), "Chest", 1007).state, "other", "a recipe of another crafter")
+
+-- By default the list holds only what the character can make now; the checkbox adds the rest.
+local function Visible(level, classID, knownRecipes, professions)
+	return Slots(level, classID, knownRecipes, professions, nil, false)
+end
+equal(Find(Visible(20, SHAMAN, nil, LW_FULL), "Head", 1001) ~= nil, true, "the default list keeps a trainable recipe")
+equal(Find(Visible(20, SHAMAN, nil, LW_SHORT), "Head", 1001), nil, "and drops one the skill has still to reach")
+equal(Find(Visible(20, SHAMAN, nil, LW_FULL), "Chest", 1007), nil, "and another crafter's recipe")
+equal(Find(Visible(24, SHAMAN, nil, LW_FULL), "Head", 1013), nil, "and one whose skill is out of reach")
+equal(Find(Slots(24, SHAMAN, nil, LW_FULL), "Head", 1013) ~= nil, true, "which the checkbox shows")
 
 print("gear_spec: " .. checks .. " checks passed")

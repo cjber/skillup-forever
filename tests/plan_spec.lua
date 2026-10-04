@@ -208,6 +208,12 @@ equal(Bands(LINEN), "orange 1, yellow 30, green 45, grey 60", "a scroll of unkno
 sources[LINEN] = nil
 equal(#ns.RecipeBands(FirstAid(40), 1), 0, "no thresholds, no bands")
 
+-- The skill where a recipe can be learned, the number the crafted gear view shows for its recipe:
+-- a trainer's own requirement, not the data's placeholder first threshold.
+equal(ns.LearnSkill(FirstAid(40), 3848), 110, "Double-stitched Woolen Shoulders is taught at 110")
+equal(ns.LearnSkill(FirstAid(40), 2166), 120, "Toughened Leather Armor is taught at 120")
+equal(ns.LearnSkill(FirstAid(40), 19819), 290, "a recipe no trainer teaches starts at its data threshold")
+
 -- Why there is nothing to craft.
 costs[LINEN], costs[HEAVY] = nil, nil
 local unpriced = Plan(FirstAid(40), 75)

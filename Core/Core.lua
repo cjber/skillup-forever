@@ -15,6 +15,7 @@ local DEFAULTS = {
 	showGearTab = false,
 	reagentTooltip = "route",
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from
+	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet
 	whatsNew = true,
 	companionHints = true,
 	lastVersion = "", -- the version that last ran; "" before the first
@@ -238,6 +239,19 @@ end
 ---@param mode SkillUpCollectMode
 function ns.SetCollectMode(mode)
 	ns.db.collectModes[ns.CharacterKey()] = mode
+	ns.Changed("settings")
+end
+
+-- Whether the crafted gear view lists gear this character cannot make yet. Off by default and kept
+-- per character, like the collect mode.
+---@return boolean
+function ns.ShowAllGear()
+	return ns.db.showAllGear[ns.CharacterKey()] == true
+end
+
+---@param show boolean
+function ns.SetShowAllGear(show)
+	ns.db.showAllGear[ns.CharacterKey()] = show and true or nil
 	ns.Changed("settings")
 end
 

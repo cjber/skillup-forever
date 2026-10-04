@@ -12,6 +12,8 @@
 ---@field CharacterKey fun(): string
 ---@field CollectMode fun(): SkillUpCollectMode
 ---@field SetCollectMode fun(mode: SkillUpCollectMode)
+---@field ShowAllGear fun(): boolean
+---@field SetShowAllGear fun(show: boolean)
 ---@field SkillContext fun(): SkillUpContext?
 ---@field PlayerProfessions fun(): table<integer, SkillUpProfession>
 ---@field IsLearned fun(recipeID: integer): boolean
@@ -32,6 +34,8 @@
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
+---@field LearnSkill fun(profession: SkillUpContext, recipeID: integer): number
+---@field RecipeNPC fun(profession: SkillUpContext, recipeID: integer): integer?
 ---@field BestTraining fun(profession: SkillUpContext, known: table<integer, boolean>, offers: {recipeID: integer, fee: number}[]): integer?
 ---@field RouteBlocked fun(plan: SkillUpPlan): string?
 ---@field UnpricedReagents fun(plan: SkillUpPlan): integer[]
@@ -67,7 +71,7 @@
 ---@field SeeVendor fun(itemIDs: integer[]): boolean
 ---@field NearestNPC fun(npcIDs: integer[], byTravel?: boolean): integer?
 ---@field SetWaypoint fun(npcID: integer): boolean
----@field SuggestionNPC fun(suggestion: SkillUpSuggestion): integer?
+---@field SuggestionNPC fun(suggestion: SkillUpSuggestionNPC): integer?
 ---@field RecipeSuggestions fun(profession: SkillUpContext, base: number): SkillUpSuggestion[]
 ---@field ScrollPrice fun(source: SkillUpScrollSource): number?
 ---@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number
@@ -125,6 +129,7 @@
 ---@field showGearTab boolean
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field collectModes table<string, SkillUpCollectMode>
+---@field showAllGear table<string, boolean>
 ---@field whatsNew boolean
 ---@field companionHints boolean
 ---@field lastVersion string
@@ -319,6 +324,9 @@ SkillUpForeverDB = nil
 ---@field reach number Base skill.
 ---@field color string Its colour at the skill the route stopped at.
 
+-- The fields of a suggestion that decide where its click goes; also a bare recipe scroll's source.
+---@alias SkillUpSuggestionNPC { kind: integer?, source: SkillUpScrollSource?, npcID: integer? }
+
 ---@class SkillUpNeededItem
 ---@field itemID integer
 ---@field need number
@@ -381,11 +389,11 @@ SkillUpForeverDB = nil
 ---@field itemID integer
 ---@field name? string The client's item name, nil until its data has loaded.
 ---@field skillLine integer
----@field skill number The base skill the recipe needs.
+---@field skill number The skill at which the recipe can be learned and crafted.
 ---@field level number The item's required level.
 ---@field profession string
 ---@field learned boolean
----@field learnable boolean The character has the profession to learn it.
+---@field state "known"|"trainable"|"needs"|"other" What the character can do with the recipe.
 
 ---@class SkillUpGearSlot
 ---@field slot integer The slot group's position in the view.
@@ -396,15 +404,49 @@ SkillUpForeverDB = nil
 ---@class SkillUpGearQuery
 ---@field level number
 ---@field classID integer
+---@field showAll boolean List rows the character cannot make yet too.
 ---@field learned fun(recipeID: integer): boolean
 ---@field professions table<integer, SkillUpProfession> The character's, by skill line.
 ---@field weaponSkills table<integer, number>? The weapon skill lines the character knows, or nil.
 ---@field name fun(itemID: integer): string?
----@field skill fun(recipeID: integer): number
+---@field skill fun(recipeID: integer): number The skill at which the recipe can be learned.
 ---@field professionName fun(skillLine: integer): string
 
+---@class SkillUpGearList
+---@field rows SkillUpGearListRow[] The rows placed by the last render, in order.
+---@field height number
+---@field scrollBox SkillUpScrollBox
+---@field Begin fun(self: SkillUpGearList)
+---@field Heading fun(self: SkillUpGearList, text: string)
+---@field Message fun(self: SkillUpGearList, text: string, color?: ColorMixin)
+---@field Item fun(self: SkillUpGearList, item: SkillUpGearItem, profession: SkillUpProfession?)
+---@field Finish fun(self: SkillUpGearList)
+
+---@alias SkillUpGearListRow SkillUpGearRow|SkillUpGearHeading|SkillUpGearMessage
+
+---@class SkillUpGearRow : Button
+---@field kind "item"
+---@field item SkillUpGearItem
+---@field Icon Texture
+---@field IconBorder Texture
+---@field Name FontString
+---@field Detail FontString
+---@field tooltip? fun(tooltip: GameTooltip)
+---@field click? fun()
+---@field UpdateTooltip fun(self: SkillUpGearRow)
+
+---@class SkillUpGearHeading : Frame
+---@field kind "heading"
+---@field Text FontString
+
+---@class SkillUpGearMessage : Frame
+---@field kind "message"
+---@field Text FontString
+
 ---@class SkillUpGearPage : Frame
----@field List SkillUpList
+---@field List SkillUpGearList
+---@field ShowAll CheckButton
+---@field ShowAllLabel FontString
 
 ---@class SkillUpPage : Frame
 ---@field Craft SkillUpCraftButton

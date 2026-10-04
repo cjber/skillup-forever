@@ -234,10 +234,31 @@ end
 
 -- Where a suggestion's click goes: the nearest vendor by travel when one sells the
 -- scroll (the one it names when none can be ranked), else the likeliest drop.
----@param suggestion SkillUpSuggestion
+---@param suggestion SkillUpSuggestionNPC A suggestion or just where a recipe's scroll comes from.
 ---@return integer?
 function ns.SuggestionNPC(suggestion)
-	return suggestion.kind == VENDOR and ns.NearestNPC(suggestion.source.vendors, true) or suggestion.npcID
+	if suggestion.kind == VENDOR and suggestion.source then
+		return ns.NearestNPC(suggestion.source.vendors, true) or suggestion.npcID
+	end
+	return suggestion.npcID
+end
+
+-- Where a recipe is learned: the nearest trainer of the profession when one teaches it (up to just
+-- past the skill it asks), else the nearest NPC its scroll comes from. Nil until that is read.
+---@param profession SkillUpContext
+---@param recipeID integer
+---@return integer?
+function ns.RecipeNPC(profession, recipeID)
+	local training = ns.TrainingFor(profession, recipeID)
+	if training then
+		return ns.NearestTrainer(profession, training[2] + 1, true)
+	end
+	local source = C.Recipe(recipeID)
+	local kind, npcID
+	if source then
+		kind, npcID = Kind(source)
+	end
+	return kind and ns.SuggestionNPC({ kind = kind, source = source, npcID = npcID }) or nil
 end
 
 -- Scroll recipes of this profession, not trainer-taught nor learned, that base

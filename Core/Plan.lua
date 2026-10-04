@@ -137,8 +137,23 @@ end
 
 local BAND_NAMES = { "orange", "yellow", "green", "grey" }
 
+-- The skill where a recipe can first be learned: what a trainer asks, what its scroll asks, else
+-- the data's first threshold, which can sit far below where a recipe is taught.
+---@param profession SkillUpContext
+---@param recipeID integer
+---@return number
+function ns.LearnSkill(profession, recipeID)
+	local t = ns.Model.Get(recipeID)
+	local training = ns.TrainingFor(profession, recipeID)
+	local scroll = not training and ns.Catalogue.Recipe(recipeID)
+	return training and training[2] + profession.modifier
+		or (scroll and scroll.skill and scroll.skill + profession.modifier)
+		or (t and t[1])
+		or 0
+end
+
 -- Each difficulty band a recipe still has and the skill it starts at, from where the recipe can
--- be learned: the data's first threshold can sit far below that. Empty without thresholds.
+-- be learned. Empty without thresholds.
 ---@param profession SkillUpContext
 ---@param recipeID integer
 ---@return SkillUpBand[]
@@ -148,11 +163,7 @@ function ns.RecipeBands(profession, recipeID)
 	if not t then
 		return bands
 	end
-	local training = ns.TrainingFor(profession, recipeID)
-	local scroll = not training and ns.Catalogue.Recipe(recipeID)
-	local learnAt = training and training[2] + profession.modifier
-		or scroll and scroll.skill and scroll.skill + profession.modifier
-		or t[1]
+	local learnAt = ns.LearnSkill(profession, recipeID)
 	for i, name in ipairs(BAND_NAMES) do
 		local from = math.max(t[i], learnAt)
 		if i == #BAND_NAMES or from < t[i + 1] then

@@ -455,6 +455,9 @@ function Client.load(options)
 			c.opened[#c.opened + 1] = id
 			return true
 		end,
+		OpenRecipe = function(recipeID)
+			c.opened[#c.opened + 1] = recipeID
+		end,
 		-- No profession window is open.
 		IsTradeSkillLinked = function()
 			return false

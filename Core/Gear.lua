@@ -134,6 +134,11 @@ local WEAPONS = 2
 -- The layout fits a few rows a slot without turning the view into a wall of names.
 local MAX_PER_SLOT = 3
 
+-- How ready a row is, best first: a known recipe, then one the skill already reaches, then one it
+-- has still to reach, then one of another crafter's. Ties break on the skill the recipe needs.
+---@type table<string, integer>
+local STATE_RANK = { known = 1, trainable = 2, needs = 3, other = 4 }
+
 ---@class SkillUpGear
 local Gear = {}
 ns.Gear = Gear
@@ -205,7 +210,9 @@ local function Usable(facts, level, classID, query)
 end
 
 -- The newest craftable items for the character's level and class, one list a slot, newest first.
--- The item's slot and type come from `facts`, its recipe and profession from `recipes`.
+-- The item's slot and type come from `facts`, its recipe and profession from `recipes`, and the
+-- skill it needs from `query.skill`. With `query.showAll` off, only rows the character can make now
+-- are kept: a known recipe, or one the character's own skill already reaches.
 ---@param recipes table<integer, SkillUpRecipe>
 ---@param facts table<integer, number[]>
 ---@param query SkillUpGearQuery
@@ -225,26 +232,43 @@ function Gear.List(recipes, facts, query)
 			and info[LEVEL] <= query.level
 			and Usable(info, query.level, query.classID, query)
 		then
-			local bucket = found[group]
-			if not bucket then
-				bucket = {}
-				found[group] = bucket
+			local learned = query.learned(recipeID) == true
+			local profession = query.professions[recipe.skillLine]
+			local skill = query.skill(recipeID)
+			local state
+			if learned then
+				state = "known"
+			elseif not profession then
+				state = "other"
+			elseif profession.skill >= skill then
+				state = "trainable"
+			else
+				state = "needs"
 			end
-			local known = query.learned(recipeID) == true
-			local held = bucket[itemID]
-			if not held or (known and not held.learned) then
-				local profession = query.professions[recipe.skillLine]
-				bucket[itemID] = {
-					recipeID = recipeID,
-					itemID = itemID,
-					name = query.name(itemID),
-					skillLine = recipe.skillLine,
-					skill = query.skill(recipeID),
-					level = info[LEVEL],
-					profession = profession and profession.name or query.professionName(recipe.skillLine),
-					learned = known,
-					learnable = profession ~= nil,
-				}
+			if query.showAll or state == "known" or state == "trainable" then
+				local bucket = found[group]
+				if not bucket then
+					bucket = {}
+					found[group] = bucket
+				end
+				local held = bucket[itemID]
+				if
+					not held
+					or STATE_RANK[state] < STATE_RANK[held.state]
+					or (STATE_RANK[state] == STATE_RANK[held.state] and skill < held.skill)
+				then
+					bucket[itemID] = {
+						recipeID = recipeID,
+						itemID = itemID,
+						name = query.name(itemID),
+						skillLine = recipe.skillLine,
+						skill = skill,
+						level = info[LEVEL],
+						profession = profession and profession.name or query.professionName(recipe.skillLine),
+						learned = learned,
+						state = state,
+					}
+				end
 			end
 		end
 	end
@@ -279,19 +303,25 @@ end
 ---@param classID integer
 ---@return SkillUpGearSlot[]
 function ns.CraftedGear(level, classID)
+	local professions = ns.PlayerProfessions()
+	-- The profession to ask for where a recipe is learned; a profession the character lacks still
+	-- names its recipe's requirement, without a racial bonus to add.
+	local function LearnSkill(recipeID)
+		local recipe = ns.RecipeData[recipeID]
+		local profession = recipe and (professions[recipe.skillLine] or { skillLine = recipe.skillLine, modifier = 0 })
+		return profession and ns.LearnSkill(profession, recipeID) or 0
+	end
 	return Gear.List(ns.RecipeData, ns.ItemGear, {
 		level = level,
 		classID = classID,
+		showAll = ns.ShowAllGear(),
 		learned = ns.IsLearned,
-		professions = ns.PlayerProfessions(),
+		professions = professions,
 		weaponSkills = Gear.WeaponSkills(),
 		name = function(itemID)
 			return C_Item.GetItemNameByID(itemID)
 		end,
-		skill = function(recipeID)
-			local thresholds = ns.Model.Get(recipeID)
-			return thresholds and thresholds[1] or 0
-		end,
+		skill = LearnSkill,
 		professionName = Gear.ProfessionName,
 	})
 end

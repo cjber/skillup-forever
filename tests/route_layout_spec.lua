@@ -1,8 +1,8 @@
 -- Run from the repository root: luajit tests/route_layout_spec.lua
--- The route and gear pages at their real window size: the rectangles their controls and headings occupy,
--- the width a reagent name gets, and the side tabs handing the window from one page to the other. Frames
--- resolve their anchors in screen pixels, as tracker_geometry_spec does; a name that measures wider than
--- its rectangle would be cut, which is the bug this guards.
+-- The route and gear pages at their real window size: the rectangles their controls, headings and rows
+-- occupy, the width a reagent name gets, and the side tabs handing the window from one page to the other.
+-- Frames resolve their anchors in screen pixels, as tracker_geometry_spec does; a name or an icon that
+-- would reach outside its region is the bug this guards.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
@@ -192,6 +192,9 @@ local function NewRegion(parent)
 	function region:SetChecked(checked)
 		self.checked = checked
 	end
+	function region:GetChecked()
+		return self.checked
+	end
 	function region:SetScript(name, fn)
 		self.scripts[name] = fn
 	end
@@ -255,6 +258,14 @@ ProfessionsFrame.BookPage = NewRegion(ProfessionsFrame)
 ProfessionsFrame.ProfessionsOverviewTab = NewRegion(ProfessionsFrame)
 ProfessionsFrame.rightProfessionTabs = {}
 ProfessionsFrame.portrait = NewRegion(ProfessionsFrame)
+ProfessionsFrame.portrait:SetPoint("TOPLEFT", 0, 0)
+ProfessionsFrame.portrait:SetSize(64, 64)
+-- PortraitFrameTemplate's title band: the window's content starts at -21, so nothing a page draws may
+-- reach into it or over the portrait that overhangs the top-left corner.
+local titleBar = NewRegion(ProfessionsFrame)
+titleBar:SetPoint("TOPLEFT", 0, 0)
+titleBar:SetPoint("TOPRIGHT", 0, 0)
+titleBar:SetHeight(21)
 
 local function CreateFrame(_, _, parent, template)
 	local region = NewRegion(parent)
@@ -282,6 +293,7 @@ local function Color()
 end
 
 local timers = {}
+local waypoints, opened, showAll = {}, {}, false
 local reagents = {
 	{ itemID = 1, need = 50, source = "gather" },
 	{ itemID = 2, need = 20, source = "vendor" },
@@ -336,6 +348,12 @@ local ns = {
 		return "gather"
 	end,
 	SetCollectMode = noop,
+	ShowAllGear = function()
+		return showAll
+	end,
+	SetShowAllGear = function(show)
+		showAll = show and true or false
+	end,
 	PlayerProfessions = function()
 		return { [129] = FirstAid(1) }
 	end,
@@ -385,8 +403,12 @@ local ns = {
 	NearestTrainer = function()
 		return nil
 	end,
-	SetWaypoint = function()
+	SetWaypoint = function(npcID)
+		waypoints[#waypoints + 1] = npcID
 		return true
+	end,
+	RecipeNPC = function()
+		return 1234
 	end,
 	AddNearest = noop,
 	AddCompanionHint = noop,
@@ -406,7 +428,18 @@ local ns = {
 	ScrollPrice = function()
 		return nil
 	end,
-	Catalogue = { Hint = function() end },
+	Catalogue = {
+		Hint = function() end,
+		Recipe = function()
+			return nil
+		end,
+	},
+	TrainingFor = function()
+		return nil
+	end,
+	NPCLocation = function()
+		return { name = "Somewhere" }
+	end,
 	Changed = noop,
 	WhenStale = noop,
 	WhenEvent = noop,
@@ -430,6 +463,9 @@ local env = setmetatable({
 		GetItemIconByID = function()
 			return 134400
 		end,
+		GetItemQualityByID = function()
+			return nil
+		end,
 		RequestLoadItemDataByID = noop,
 		GetItemInfo = function() end,
 	},
@@ -446,6 +482,9 @@ local env = setmetatable({
 			return 5
 		end,
 		CraftRecipe = noop,
+		OpenRecipe = function(recipeID)
+			opened[#opened + 1] = recipeID
+		end,
 		GetRecipeInfo = function() end,
 	},
 	GameTooltip = NewRegion(nil),
@@ -502,7 +541,48 @@ ns.PlanRoute = function(profession)
 	return plan
 end
 ns.CraftedGear = function()
-	return {}
+	local profession = FirstAid(1)
+	return {
+		{
+			slot = 1,
+			name = "Head",
+			items = {
+				{
+					recipeID = 2001,
+					itemID = 1001,
+					name = "Known Helm",
+					skillLine = 129,
+					skill = 30,
+					level = 20,
+					profession = profession.name,
+					learned = true,
+					state = "known",
+				},
+				{
+					recipeID = 2002,
+					itemID = 1002,
+					name = "Trainable Helm",
+					skillLine = 129,
+					skill = 40,
+					level = 20,
+					profession = profession.name,
+					learned = false,
+					state = "trainable",
+				},
+				{
+					recipeID = 2003,
+					itemID = 1003,
+					name = "Far Helm",
+					skillLine = 129,
+					skill = 240,
+					level = 20,
+					profession = profession.name,
+					learned = false,
+					state = "needs",
+				},
+			},
+		},
+	}
 end
 ns.NextCraft = function()
 	-- The row lays out with the narrow, disabled Craft next button, as when the profession's own window
@@ -583,30 +663,71 @@ for _, row in ipairs(page.ReagentList.rows) do
 	)
 end
 
--- The gear page starts under the window's title bar, not below the route page's header row, and its
--- skill column keeps the right inset the route page's rightmost column has.
+-- The gear page is the window's other page. Its title, switch and rows all sit inside the visible
+-- page, under the window's title bar and clear of its portrait, as the route page's own controls do.
 local routePage, gearPage = page, pageFrame
 local routeTab = tab
 local gearTab = tabs[2]
 local gearInset = insets[3]
-local _, _, _, gearTop = Rect(gearInset)
-equal(gearTop, 562, "the gear inset starts at the route header row, not below it")
-local title = Find("Crafted gear")
-local _, titleBottom = Rect(title)
-equal(titleBottom, 566, "with its title just above it")
-local skill = Find("Skill")
-local have = Find("Have")
-local _, _, skillRight = Rect(skill)
-local _, _, haveRight = Rect(have)
-equal(skillRight, haveRight, "the skill column keeps the route page's right inset")
+local _, pageBottom, _, pageTop = Rect(page)
+local insetLeft, insetBottom, insetRight, gearTop = Rect(gearInset)
+equal(gearTop, 506, "the gear inset starts under the window's title bar")
+equal(overlaps(gearInset, titleBar), false, "the gear inset misses the title bar")
+equal(overlaps(gearInset, ProfessionsFrame.portrait), false, "and the portrait")
 
--- Every switch hides the other page and highlights exactly the selected tab. The route tab was
--- clicked once above, so the gear tab is the first switch here.
+local title = Find("Crafted gear")
+local titleLeft, titleBottom, titleRight, titleTop = Rect(title)
+equal(title ~= nil, true, "the gear page has its title")
+equal(overlaps(title, titleBar), false, "the title misses the title bar")
+equal(overlaps(title, ProfessionsFrame.portrait), false, "and the portrait")
+equal(titleTop <= pageTop and titleBottom >= pageBottom, true, "the title sits inside the page")
+equal(titleLeft > insetLeft and titleRight <= insetRight, true, "over its inset width")
+
+local switch = gearPage.ShowAll
+equal(switch ~= nil and gearPage.ShowAllLabel ~= nil, true, "the gear page has its switch")
+equal(Width(switch) > 0, true, "the switch has a width to overlap with")
+equal(overlaps(switch, titleBar), false, "the switch misses the title bar")
+equal(overlaps(switch, ProfessionsFrame.portrait), false, "and the portrait")
+equal(overlaps(switch, title), false, "and the title")
+equal(switch.points[1].relative, gearInset, "the switch hangs off the gear inset")
+
+-- The gear tab shows the page and hides the route's; the first render fills the list.
 gearTab.scripts.OnMouseUp(nil, "LeftButton", true)
 equal(gearPage:IsShown(), true, "the gear tab shows the gear page")
 equal(routePage:IsShown(), false, "and hides the route page")
 equal(gearTab.checked, true, "with the gear tab checked")
 equal(routeTab.checked, false, "and the route tab unchecked")
+
+-- Every row carries a full-size item icon, inside the inset and under its slot heading.
+local items, heading = {}, Find("Head")
+for _, row in ipairs(gearPage.List.rows) do
+	if row.kind == "item" and row:IsShown() then
+		items[#items + 1] = row
+	end
+end
+equal(heading ~= nil and heading.text == "Head", true, "the gear list draws its slot heading")
+equal(#items, 3, "the gear list draws a row a recipe")
+for _, row in ipairs(items) do
+	local left, bottom, right, top = Rect(row)
+	equal(Width(row.Icon) >= 36, true, "a gear row's icon is a full item icon")
+	equal(left > insetLeft and right < insetRight, true, "the row is inside the inset's width")
+	equal(top < gearTop and bottom > insetBottom, true, "and inside its height")
+	equal(overlaps(row, titleBar), false, "the row misses the title bar")
+end
+
+-- A known recipe opens on the crafting page, a trainable one sets a waypoint to where it is
+-- learned, and one out of reach does nothing.
+equal(items[1].item.recipeID, 2001, "the newest recipe is first")
+items[1].click()
+equal(opened[1], 2001, "a known gear row opens its recipe")
+items[2].click()
+equal(waypoints[1], 1234, "a trainable gear row sets a waypoint to where it is learned")
+equal(items[3].click, nil, "a gear row out of reach does nothing on a click")
+
+-- The switch saves the rule for the list.
+switch:SetChecked(true)
+switch.scripts.OnClick(switch)
+equal(showAll, true, "the switch saves the choice")
 
 routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
 equal(routePage:IsShown(), true, "the route tab shows the route page")

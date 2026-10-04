@@ -43,14 +43,14 @@ c.known[BANDAGE] = true
 c.auction[SILK] = 10
 c.professions = { { name = "First Aid", rank = 40, max = 75, id = 129 } }
 
--- Journeyman is allowed from 50, but the plan trains Heavy Linen Bandage at 45 first, where it
--- becomes the cheaper point: the tracker leads with the page's first training step.
+-- Heavy Linen Bandage is certain at 40 where the bandage's falling chance already costs more a
+-- point, so the plan trains it at once: the tracker leads with the page's first training step.
 local lines = c.Tracker()[1].lines
 local walked = ns.PlanRoute(ns.RouteProfessions()[129]).steps
-equal(walked[2].training and walked[2].training.recipeID, HEAVY, "the route page trains the recipe first")
-equal(walked[4].rank and walked[4].rank.name, "Journeyman", "and the rank after")
+equal(walked[1].training and walked[1].training.recipeID, HEAVY, "the route page trains the recipe first")
+equal(walked[3].rank and walked[3].rank.name, "Journeyman", "and the rank after")
 equal(lines[1].key, "Train", "the tracker leads with training")
-equal(lines[1].text, "Train Heavy Linen Bandage at 45 |cff808080(+1 more)|r", "the same training")
+equal(lines[1].text, "Train Heavy Linen Bandage at 40 |cff808080(+1 more)|r", "the same training")
 equal(lines[2].key, SILK, "then the reagent still missing")
 
 -- Auctionator loses the only price there was: the scan reaches the tracker, which redraws to say why
@@ -134,6 +134,24 @@ c.merchant = nil
 c.Fire("MERCHANT_CLOSED")
 equal(button.shown, false, "the button goes with the merchant")
 equal(#c.chat, 0, "and none of it says anything in chat")
+
+-- The Auctionator list of what the tracked route still buys is kept up to date on its own: written
+-- once, left alone while the need is the same, and emptied when the bags cover it.
+equal(ns.AuctionListName("First Aid"), "SkillUp: First Aid", "the list is named for the profession")
+equal(ns.AuctionatorAutoscan(), nil, "an unread option says nothing")
+c.auctionAutoscan = false
+equal(ns.AuctionatorAutoscan(), false, "the scan-on-open option reads as off")
+equal(c.shoppingLists["SkillUp: First Aid"], nil, "gather mode writes no Auctionator list")
+ns.SetCollectMode("auction")
+local list = c.shoppingLists["SkillUp: First Aid"]
+equal(type(list), "table", "buying keeps an Auctionator list")
+equal(#list, 1, "with the route's one auction reagent")
+equal(list[1], "Linen Clothx" .. (Needed() - ns.Have(SILK)), "and what the route still needs")
+c.Fire("BAG_UPDATE_DELAYED")
+equal(c.shoppingLists["SkillUp: First Aid"], list, "an unchanged need does not rewrite the list")
+c.bags[SILK] = Needed()
+c.Fire("BAG_UPDATE_DELAYED")
+equal(#c.shoppingLists["SkillUp: First Aid"], 0, "a covered need empties the list")
 
 -- The section hangs on the shared host, never on Blizzard's tracker manager: a client without the manager
 -- still gets it.

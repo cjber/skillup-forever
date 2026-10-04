@@ -56,10 +56,11 @@
 ---@field SetSortMode fun(mode: string)
 ---@field OpenSettings fun()
 ---@field HasAuctionator fun(): boolean
+---@field AuctionatorAutoscan fun(): boolean?
+---@field AuctionListName fun(profession: string): string
 ---@field Have fun(itemID: integer): number
 ---@field AltCounts fun(itemID: integer): {name: string, count: number}[]
 ---@field RouteReagents fun(plan: SkillUpPlan): SkillUpNeededItem[]
----@field SendToAuctionator fun(profession: string, items: SkillUpNeededItem[])
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field TrackerAttached fun(): boolean
@@ -205,7 +206,6 @@ SkillUpForeverDB = nil
 ---@field recipeID integer
 ---@field fromSkill number
 ---@field toSkill number
----@field expectedCrafts number
 ---@field crafts number
 
 ---@class SkillUpTraining
@@ -219,7 +219,6 @@ SkillUpForeverDB = nil
 ---@field from number
 ---@field to number
 ---@field crafts number
----@field expectedCrafts number
 ---@field color string The recipe's colour where the craft starts.
 
 ---@class SkillUpPlanTraining
@@ -339,7 +338,10 @@ SkillUpForeverDB = nil
 ---@class SkillUpCraft
 ---@field text string
 ---@field recipeID? integer
----@field count? number
+---@field count? number How many the bags and the client allow now.
+---@field planned? number How many the route asks for.
+---@field to? number The skill the step reaches.
+---@field missing? {itemID: integer, count: integer} The first reagent still short, and how many more.
 ---@field reason? string
 
 ---@alias SkillUpSortKey fun(info: TradeSkillRecipeInfo, ctx: SkillUpContext?): number
@@ -388,6 +390,9 @@ SkillUpForeverDB = nil
 ---@class SkillUpCraftButton : Button
 ---@field recipeID? integer
 ---@field count? number
+---@field title? string
+---@field planned? number
+---@field to? number
 ---@field reason? string
 
 -- A class's list of craftable items, one entry a slot, newest first.
@@ -430,7 +435,6 @@ SkillUpForeverDB = nil
 ---@field Skill FontString
 ---@field Target EditBox
 ---@field Track Button
----@field Auctionator Button
 ---@field Collect CheckButton
 ---@field CollectLabel FontString
 ---@field Vendor Button

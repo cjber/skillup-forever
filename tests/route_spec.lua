@@ -96,6 +96,7 @@ end
 local requested, lists = {}, {}
 local page
 page = {
+	auctionAutoscan = nil,
 	db = { trainer = {}, trainerRanks = {}, routeTargets = { [129] = 100 }, showRouteTab = true },
 	COLORS = {},
 	IsLearned = function(id)
@@ -134,6 +135,12 @@ page = {
 	end,
 	HasAuctionator = function()
 		return false
+	end,
+	AuctionatorAutoscan = function()
+		return page.auctionAutoscan
+	end,
+	AuctionListName = function(profession)
+		return "SkillUp: " .. profession
 	end,
 	IsTracked = function()
 		return false
@@ -225,7 +232,7 @@ for _, file in ipairs({
 	setfenv(assert(loadfile(file)), pageEnv)("SkillUpForever", page)
 end
 local tabs = {}
-local collect, vendor
+local collect, vendor, buttons = nil, nil, {}
 pageEnv.CreateFrame = function(_, _, _, template)
 	local frame = Stub()
 	tabs[#tabs + 1] = frame
@@ -233,6 +240,7 @@ pageEnv.CreateFrame = function(_, _, _, template)
 		collect = frame
 	elseif template == "UIPanelButtonTemplate" then
 		vendor = frame
+		buttons[#buttons + 1] = frame
 	end
 	return frame
 end
@@ -397,7 +405,7 @@ page.PlanRoute = function(profession)
 	return {
 		profession = profession,
 		target = 100,
-		crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green", expectedCrafts = 5 } },
+		crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
 		steps = {},
 		ranks = {},
 		cost = 0,
@@ -432,5 +440,103 @@ equal(
 	"and gather again when the switch is off"
 )
 page.PlanRoute = realPlan
+
+local function Drain()
+	local count = #timers
+	for index = 1, count do
+		local callback = timers[index]
+		if callback then
+			callback()
+		end
+	end
+	for index = 1, count do
+		timers[index] = nil
+	end
+end
+
+-- A bag update and a skill change both redraw the reagent have/need while the page is open.
+local have = 0
+page.Have = function(itemID)
+	return itemID == 1 and have or 0
+end
+page.RouteReagents = function()
+	return { { itemID = 1, need = 9, source = "auction" } }
+end
+routeTab:Click()
+Drain()
+local function LastReagentDetail()
+	for index = #lists[2].rows, 1, -1 do
+		local detail = lists[2].rows[index].detail
+		if detail and detail:find("/9", 1, true) then
+			return detail
+		end
+	end
+end
+local function LastListItem()
+	return lists[2].rows[#lists[2].rows]
+end
+equal(LastReagentDetail(), "AH, 0/9", "the reagent list shows what the bags hold")
+have = 8
+eventFrame:Event("BAG_UPDATE_DELAYED")
+Drain()
+equal(LastReagentDetail(), "AH, 8/9", "a bag update redraws the have count")
+page.RouteReagents = function()
+	return { { itemID = 1, need = 9, source = "auction" }, { itemID = 2, need = 4, source = "vendor" } }
+end
+eventFrame:Event("SKILL_LINES_CHANGED")
+Drain()
+equal(LastListItem().detail, "vendor, 0/4", "a skill change redraws the plan's reagents")
+
+-- With Auctionator's scan-on-open option known to be off, the page says where to turn it on; with
+-- the option unread, it says nothing.
+page.auctionAutoscan = false
+lists[2].messages = {}
+eventFrame:Event("BAG_UPDATE_DELAYED")
+Drain()
+equal(
+	table.concat(lists[2].messages, " | "):find("Auctionator's scan when the auction house opens is off", 1, true)
+		~= nil,
+	true,
+	"the page says where to turn on Auctionator's own scan"
+)
+page.auctionAutoscan = nil
+lists[2].messages = {}
+eventFrame:Event("BAG_UPDATE_DELAYED")
+Drain()
+equal(
+	table.concat(lists[2].messages, " | "):find("Auctionator's scan", 1, true),
+	nil,
+	"an unread scan option says nothing"
+)
+
+-- The reagent list names the Auctionator shopping list it keeps up to date.
+page.HasAuctionator = function()
+	return true
+end
+page.collectMode = "auction"
+lists[2].messages = {}
+eventFrame:Event("BAG_UPDATE_DELAYED")
+Drain()
+equal(
+	table.concat(lists[2].messages, " | "):find("Kept in the Auctionator list 'SkillUp: First Aid'.", 1, true) ~= nil,
+	true,
+	"the reagent list names the Auctionator list"
+)
+page.HasAuctionator = function()
+	return false
+end
+page.collectMode = nil
+
+-- A click on Craft asks for a redraw itself, so the page follows a craft even if a game event is missed.
+page.NextCraft = function()
+	return { recipeID = 3275, count = 3, planned = 5, to = 20, text = "Craft 3 of 5× Spell 3275" }
+end
+routeTab:Click()
+Drain()
+for index = #timers, 1, -1 do
+	timers[index] = nil
+end
+buttons[2]:Click()
+equal(#timers > 0, true, "a craft click schedules a redraw")
 
 Client.report("route_spec")

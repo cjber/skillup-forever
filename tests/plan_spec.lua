@@ -43,6 +43,9 @@ local ns = {
 ns.Reagents = function(id)
 	return ns.RecipeData[id].reagents
 end
+ns.Have = function()
+	return 0
+end
 local env = setmetatable({
 	APPRENTICE = "Apprentice",
 	JOURNEYMAN = "Journeyman",
@@ -129,13 +132,13 @@ equal(ranked.steps[2].rank.reqSkill, 50, "at 50")
 equal(ranked.steps[3].craft.from, 50, "then crafts on past the cap")
 equal(ranked.steps[3].craft.to, 90, "to the target")
 equal(ranked.reached, 90, "which it reaches")
-equal(ranked.cost, 500 + 10 + ranked.crafts[2].expectedCrafts, "the rank's fee is in the cost")
+equal(ranked.cost, 500 + 10 + 92, "the rank's fee and the covered crafts are in the cost")
 equal(ns.RankText(ranked.ranks[1]), "Train Journeyman at 50", "the rank as a line")
 -- What a trainer was seen to charge for the rank replaces the bundled fee, in the step and the total.
 ns.db.trainerRanks[129] = { [150] = 450 }
 local charged = Plan(FirstAid(40), 90)
 equal(charged.steps[2].rank.fee, 450, "a fee seen at a trainer wins")
-equal(charged.cost, 450 + 10 + charged.crafts[2].expectedCrafts, "and is the one in the cost")
+equal(charged.cost, 450 + 10 + 92, "and is the one in the cost")
 ns.db.trainerRanks[129] = nil
 ranked.ranks[1].level, level = 10, 5
 equal(ns.RankText(ranked.ranks[1]), "Train Journeyman at 50 (level 10)", "with the level while below it")
@@ -163,7 +166,7 @@ equal(training.fee, 100, "its fee")
 equal(training.reqSkill, 40, "the skill the trainer wants, with no walk needed first")
 equal(training.cap, 41, "from a trainer who teaches past it")
 equal(training.usedAt, 40, "first crafted at 40")
-equal(trained.cost, 100 + trained.crafts[1].expectedCrafts, "the fee is in the cost")
+equal(trained.cost, 100 + 49, "the fee and the covered crafts are in the cost")
 ns.db.trainer[129] = { [HEAVY] = { 80, 50 } }
 local quoted = Plan(FirstAid(40), 75)
 equal(quoted.training[1].fee, 80, "a trainer seen to charge less wins")
@@ -257,22 +260,24 @@ craftable = 2
 local craft = ns.NextCraft(five)
 equal(craft.count, 2, "the client count limits the batch")
 equal(craft.recipeID, LINEN, "an available batch can be crafted")
-equal(craft.text, "Craft 2× Linen Bandage", "and says so")
+equal(craft.text, "Craft 2 of 5× Linen Bandage", "and says how many of the route's it can make")
 craftable = 12
 equal(ns.NextCraft(five).count, 5, "never crafts beyond the planned step")
 craftable = 0
 craft = ns.NextCraft(five)
 equal(craft.recipeID, nil, "zero available disables crafting")
-equal(craft.text, "Craft 1× Linen Bandage", "the label still names the craft")
+equal(craft.text, "Craft 5× Linen Bandage", "the label still names the craft")
 equal(craft.reason, "Missing reagents for this step.", "zero available explains the disabled button")
+equal(craft.missing.itemID, CLOTH, "and names the reagent it is short of")
+equal(craft.missing.count, 5, "with how many more it needs")
 craftable = 99
 open = 171
 equal(ns.NextCraft(five).reason, "Open First Aid to craft from here.", "another profession is open")
 open = 129
--- Heavy Linen Bandage from 70 to 90: 1/0.6 + 1/0.58 + 1/0.56 + 1/0.54 + 1/0.52 crafts to the cap.
-equal(ns.NextCraft(Plan(FirstAid(70), 90)).count, 9, "crafts only to the cap until the rank is trained")
+-- Heavy Linen Bandage from 70 to the 75 cap: five points whose chance falls from 0.6 to 0.52.
+equal(ns.NextCraft(Plan(FirstAid(70), 90)).count, 13, "crafts only to the cap until the rank is trained")
 -- With a +15 bonus the same thresholds are met from 55 base, and the cap of 75 base is 90 with it.
-equal(ns.NextCraft(Plan(FirstAid(55, 15), 90)).count, 54, "the cap is on base skill")
+equal(ns.NextCraft(Plan(FirstAid(55, 15), 90)).count, 67, "the cap is on base skill")
 equal(
 	ns.NextCraft(Plan(FirstAid(75), 90)).reason,
 	"Train Journeyman first: you're at your cap.",

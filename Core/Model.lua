@@ -59,6 +59,57 @@ function Model.CostPerSkillUp(cost, chance)
 	return cost / chance
 end
 
+-- The chance a run of crafts has to reach its skill goal, so a route is planned to cover an
+-- unlucky run rather than the average one.
+Model.CONFIDENCE = 0.9
+
+-- The crafts that reach `to` from `from` with Model.CONFIDENCE certainty: the fewest crafts whose
+-- odds of every needed skill point are at least that, worked out point by point because the
+-- chance changes as skill rises.
+---@param thresholds number[]
+---@param from number
+---@param to number
+---@return number
+function Model.CoveredCrafts(thresholds, from, to)
+	local needed = to - from
+	if needed <= 0 then
+		return 0
+	end
+	-- odds[points]: the chance that many points are in hand after the crafts counted so far.
+	local odds = { [0] = 1 }
+	local crafts = 0
+	while (odds[needed] or 0) < Model.CONFIDENCE do
+		crafts = crafts + 1
+		local next_ = { [needed] = odds[needed] or 0 }
+		for points = 0, needed - 1 do
+			local inHand = odds[points]
+			if inHand then
+				local chance = Model.Chance(thresholds, from + points)
+				if chance and chance > 0 then
+					next_[points] = (next_[points] or 0) + inHand * (1 - chance)
+					next_[points + 1] = (next_[points + 1] or 0) + inHand * chance
+				else
+					next_[points] = (next_[points] or 0) + inHand
+				end
+			end
+		end
+		odds = next_
+	end
+	return crafts
+end
+
+-- Net cost of one skill point at Model.CONFIDENCE: a low chance carries the crafts it needs.
+---@param cost number?
+---@param thresholds number[]
+---@param skill number
+---@return number?
+function Model.CostPerPoint(cost, thresholds, skill)
+	if not cost or (Model.Chance(thresholds, skill) or 0) <= 0 then
+		return nil
+	end
+	return cost * Model.CoveredCrafts(thresholds, skill, skill + 1)
+end
+
 -- Inputs are already filtered to learned recipes of one profession, with prices
 -- frozen by the caller. Inventory affects shopping, never recipe selection.
 ---@param snapshot SkillUpSnapshot
@@ -70,7 +121,7 @@ function Model.PlanRoute(snapshot)
 		reachedSkill = snapshot.skill,
 		excluded = { unpriced = 0, recipes = {} },
 	}
-	local priced = {}
+	local priced, thresholds, costOf = {}, {}, {}
 	for _, recipe in ipairs(snapshot.recipes) do
 		if recipe.netCost == nil then
 			-- A grey recipe could not help even with a price, so it keeps nothing out.
@@ -80,16 +131,18 @@ function Model.PlanRoute(snapshot)
 			end
 		else
 			priced[#priced + 1] = recipe
+			thresholds[recipe.recipeID] = recipe.thresholds
+			costOf[recipe.recipeID] = recipe.netCost
 		end
 	end
 	while route.reachedSkill < snapshot.target do
 		local skill = route.reachedSkill
-		-- A profit ranks as free: dividing it by a falling chance would otherwise
-		-- favour near-grey crafts that take many times the crafts per point.
+		-- A profit ranks as free: a falling chance would otherwise favour near-grey
+		-- crafts that take many times the crafts per point.
 		local best, bestKey, bestChance
 		for _, recipe in ipairs(priced) do
 			local chance = Model.Chance(recipe.thresholds, skill)
-			local key = Model.CostPerSkillUp(math.max(recipe.netCost, 0), chance)
+			local key = Model.CostPerPoint(math.max(recipe.netCost, 0), recipe.thresholds, skill)
 			if
 				key
 				and (
@@ -108,16 +161,16 @@ function Model.PlanRoute(snapshot)
 		end
 		local segment = route.segments[#route.segments]
 		if not segment or segment.recipeID ~= best.recipeID then
-			segment = { recipeID = best.recipeID, fromSkill = skill, toSkill = skill, expectedCrafts = 0 }
+			segment = { recipeID = best.recipeID, fromSkill = skill, toSkill = skill }
 			route.segments[#route.segments + 1] = segment
 		end
 		segment.toSkill = skill + 1
-		segment.expectedCrafts = segment.expectedCrafts + 1 / bestChance
-		route.expectedCost = route.expectedCost + best.netCost / bestChance
 		route.reachedSkill = skill + 1
 	end
+	-- Each step carries the crafts and cost that reach its target in nine runs of ten.
 	for _, segment in ipairs(route.segments) do
-		segment.crafts = math.ceil(segment.expectedCrafts)
+		segment.crafts = Model.CoveredCrafts(thresholds[segment.recipeID], segment.fromSkill, segment.toSkill)
+		route.expectedCost = route.expectedCost + costOf[segment.recipeID] * segment.crafts
 	end
 	return route
 end

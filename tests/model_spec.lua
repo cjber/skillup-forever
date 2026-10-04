@@ -127,6 +127,16 @@ equal(Model.CostPerSkillUp(45, 0.5), 90, "half chance doubles cost")
 equal(Model.CostPerSkillUp(45, 0), nil, "no skill-up has no cost")
 equal(Model.CostPerSkillUp(nil, 1), nil, "unpriced has no cost")
 equal(Model.CostPerSkillUp(-20, 0.5), -40, "a profitable craft is profit per skill-up")
+-- A route covers an unlucky run: nine runs in ten reach the target.
+equal(Model.CONFIDENCE, 0.9, "the covered run is nine in ten")
+equal(Model.CoveredCrafts(cloak, 1, 10), 9, "a certain run is one craft a point")
+equal(Model.CoveredCrafts(cloak, 40, 41), 1, "an orange point is one craft")
+equal(Model.CoveredCrafts(cloak, 55, 56), 4, "a half chance point covers in four crafts")
+equal(Model.CoveredCrafts({ 1, 1, 3, 5 }, 2, 4), 5, "a falling chance compounds across points")
+equal(Model.CoveredCrafts(cloak, 5, 5), 0, "no points need no crafts")
+equal(Model.CostPerPoint(10, cloak, 20), 10, "a certain point costs one craft")
+equal(Model.CostPerPoint(10, cloak, 55), 40, "a half chance point carries its risk")
+equal(Model.CostPerPoint(10, cloak, 70), nil, "a grey point cannot be bought")
 equal(Model.RoundMoney(80.4), 80, "copper stays copper")
 equal(Model.RoundMoney(0), 0, "free recipes stay free")
 equal(Model.RoundMoney(0.2), 1, "never rounds to nothing")
@@ -179,9 +189,8 @@ local fractional = Model.PlanRoute({
 	target = 4,
 	recipes = { candidate(10, { 1, 1, 3, 5 }, 3) },
 })
-near(fractional.segments[1].expectedCrafts, 4 / 3 + 2, "fractional crafts aggregate")
-equal(fractional.segments[1].crafts, 4, "shopping uses ceiling of segment total")
-near(fractional.expectedCost, 10, "cost uses expectation rather than rounded crafts")
+equal(fractional.segments[1].crafts, 5, "a two point step with a falling chance covers in five crafts")
+near(fractional.expectedCost, 15, "cost uses the covered crafts")
 local profitable = Model.PlanRoute({
 	skill = 3,
 	target = 4,
@@ -202,7 +211,7 @@ local partial = Model.PlanRoute({
 equal(partial.reachedSkill, 3, "unreachable gap stops at first missing point")
 equal(partial.stopReason, "no_recipe", "partial route reports no recipe")
 equal(partial.segments[1].toSkill, 3, "partial route retains completed segment")
-near(partial.expectedCost, 30, "partial route retains expected cost")
+near(partial.expectedCost, 50, "partial route retains covered cost")
 equal(partial.excluded.unpriced, 1, "partial route retains exclusions")
 for _, target in ipairs({ 1, 0 }) do
 	local complete = Model.PlanRoute({ skill = 1, target = target, recipes = {} })

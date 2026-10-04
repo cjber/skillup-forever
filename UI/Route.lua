@@ -125,7 +125,7 @@ local function CraftTooltip(tooltip, profession, craft)
 			color
 		)
 	end
-	AddLine(tooltip, L["Cost"], Money(ns.NetCost(recipeID) * craft.expectedCrafts))
+	AddLine(tooltip, L["Cost"], Money(ns.NetCost(recipeID) * craft.crafts))
 	if ns.IsLearned(recipeID) and profession.skillLine == ns.OpenSkillLine() then
 		GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
 	end
@@ -310,7 +310,7 @@ local function RenderRoute(list, plan)
 					L["%d crafts to %d, %s"],
 					craft.crafts,
 					craft.to,
-					Money(ns.NetCost(craft.recipeID) * craft.expectedCrafts)
+					Money(ns.NetCost(craft.recipeID) * craft.crafts)
 				),
 				color = ns.COLORS[craft.color],
 				tooltip = function(tooltip)
@@ -457,6 +457,36 @@ local function PriceAge(reagents)
 	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 
+-- Whether an auction price behind this route is missing or old enough to be wrong.
+---@param reagents SkillUpNeededItem[]
+---@return boolean
+local function NeedsAuctionScan(reagents)
+	for _, item in ipairs(reagents) do
+		local price = ns.Price(item.itemID)
+		if not price then
+			return true
+		end
+		if price.source == "auctionator" then
+			local age = ns.PriceAge(price)
+			if age == nil or age > STALE_AFTER then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- Auctionator can refresh its own prices when the auction house opens. With that option off, say
+-- where to turn it on; silent when the option cannot be read.
+---@param reagents SkillUpNeededItem[]
+---@return string?
+local function AutoscanNote(reagents)
+	if not NeedsAuctionScan(reagents) or ns.AuctionatorAutoscan() ~= false then
+		return nil
+	end
+	return L["Auctionator's scan when the auction house opens is off: turn it on in Auctionator, Basic Options."]
+end
+
 -- The route's vendor reagents it still needs, whose vendor can be named.
 ---@param reagents SkillUpNeededItem[]
 ---@return integer[]
@@ -506,10 +536,23 @@ local function SetCollectEnabled(enabled)
 	page.CollectLabel:SetTextColor((enabled and NORMAL_FONT_COLOR or GRAY_FONT_COLOR):GetRGB())
 end
 
----@param plan SkillUpPlan
-local function SetCraft(plan)
-	local button, craft = page.Craft, ns.NextCraft(plan)
-	button.recipeID, button.count, button.reason = craft.recipeID, craft.count, craft.reason
+-- "Need 7 more Light Hide" when the step is short of a reagent, else the plan's own reason.
+---@param craft SkillUpCraft
+---@return string?
+local function CraftReason(craft)
+	if not craft.missing then
+		return craft.reason
+	end
+	local name = C_Item.GetItemNameByID(craft.missing.itemID) or string.format(L["item %d"], craft.missing.itemID)
+	return string.format(L["Need %d more %s"], craft.missing.count, name)
+end
+
+---@param craft SkillUpCraft
+local function SetCraft(craft)
+	local button = page.Craft
+	button.recipeID, button.count = craft.recipeID, craft.count
+	button.title, button.planned, button.to = craft.text, craft.planned, craft.to
+	button.reason = CraftReason(craft)
 	button:SetText(craft.text)
 	button:SetSize(math.min(button:GetTextWidth() + 32, 240), 22)
 	button:SetEnabled(button.recipeID ~= nil)
@@ -521,7 +564,6 @@ local function Render()
 	page.Skill:SetShown(profession ~= nil)
 	page.Target:SetShown(profession ~= nil)
 	page.Track:SetEnabled(profession ~= nil)
-	page.Auctionator:Disable()
 	page.Craft:SetShown(profession ~= nil)
 	page.Collect:SetChecked(ns.CollectMode() == "auction")
 	page.RouteList:Begin()
@@ -548,19 +590,32 @@ local function Render()
 	if age ~= "" then
 		page.ReagentList:Message(age, ageColor)
 	end
+	local scan = AutoscanNote(reagents)
+	if scan then
+		page.ReagentList:Message(scan, ns.COLORS.orange)
+	end
 	if #plan.crafts == 0 and plan.unpriced > 0 then
 		RenderUnpriced(page.ReagentList, ns.UnpricedReagents(plan))
 	else
 		RenderReagents(page.ReagentList, reagents)
 	end
+	if ns.HasAuctionator() and ns.CollectMode() == "auction" then
+		page.ReagentList:Message(
+			string.format(L["Kept in the Auctionator list '%s'."], ns.AuctionListName(profession.name))
+		)
+	end
 	local vendorItems = VendorItems(reagents)
 	page.vendorItems = vendorItems
 	page.Vendor:SetShown(#vendorItems > 0)
+	local craft = ns.NextCraft(plan)
+	local missingReason = craft.missing and CraftReason(craft)
+	if missingReason then
+		page.RouteList:Message(missingReason, RED_FONT_COLOR)
+	end
 	page.RouteList:Finish()
 	page.ReagentList:Finish()
 	page.Track:SetText(ns.IsTracked(selected) and L["Stop tracking"] or L["Track"])
-	page.Auctionator:SetEnabled(#reagents > 0)
-	SetCraft(plan)
+	SetCraft(craft)
 end
 
 -- Coalesces bursts of list/skill/price/bag updates into one plan.
@@ -657,31 +712,40 @@ local function CreateButtons()
 	end)
 	page.Track = track
 
-	-- Only auction house reagents still missing go to the Auctionator list.
-	local auctionator = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
-	auctionator:SetSize(130, 22)
-	auctionator:SetText(L["To Auctionator"])
-	auctionator:SetScript("OnClick", function()
-		local profession = ns.RouteProfessions()[selected]
-		ns.SendToAuctionator(profession.name, ns.RouteReagents(ns.PlanRoute(profession)))
-	end)
-	auctionator:SetShown(ns.HasAuctionator())
-	page.Auctionator = auctionator
-
 	-- CraftRecipe needs this click's hardware event, so the craft is set up in Render.
 	local craft = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as SkillUpCraftButton]]
 	craft:SetScript("OnClick", function(self)
 		if self.recipeID then
 			C_TradeSkillUI.CraftRecipe(self.recipeID, self.count)
+			-- The craft's bag and skill events redraw it; ask for one too, so a craft is never missed.
+			RefreshRoute()
 		end
 	end)
 	craft:SetMotionScriptsWhileDisabled(true)
 	craft:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP")
 		if self.reason then
-			GameTooltip:SetOwner(self, "ANCHOR_TOP")
 			GameTooltip_SetTitle(GameTooltip, self.reason)
-			GameTooltip:Show()
+		elseif self.planned then
+			GameTooltip_SetTitle(GameTooltip, self.title)
+			GameTooltip_AddNormalLine(GameTooltip, string.format(L["Crafts %d now."], self.count))
+			if self.count < self.planned then
+				GameTooltip_AddNormalLine(
+					GameTooltip,
+					string.format(L["Your bags allow %d of the route's %d."], self.count, self.planned)
+				)
+			end
+			GameTooltip_AddNormalLine(
+				GameTooltip,
+				string.format(
+					L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."],
+					self.planned,
+					self.to
+				)
+			)
+			GameTooltip_AddInstructionLine(GameTooltip, string.format(L["Click to craft %d."], self.count))
 		end
+		GameTooltip:Show()
 	end)
 	craft:SetScript("OnLeave", GameTooltip_Hide)
 	page.Craft = craft
@@ -761,10 +825,11 @@ local function CreatePage()
 
 	-- The switch sits in the header row, right of the target it changes, clear of the Route heading.
 	page.Collect:SetPoint("LEFT", page.Target, "RIGHT", 16, 0)
+	-- One bottom row, right to left: Track under the reagents, then Craft, then Nearest vendor,
+	-- each clear of the next whatever the craft label says.
 	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
-	page.Auctionator:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
-	page.Craft:SetPoint("TOPRIGHT", route, "BOTTOMRIGHT", 0, -10)
-	page.Vendor:SetPoint("TOPLEFT", route, "BOTTOMLEFT", 0, -10)
+	page.Craft:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
+	page.Vendor:SetPoint("RIGHT", page.Craft, "LEFT", -8, 0)
 	-- The portrait follows the profession shown here, and is given back on the way out.
 	local portrait
 	page:SetScript("OnShow", function()

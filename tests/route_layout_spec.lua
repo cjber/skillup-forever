@@ -10,7 +10,6 @@ local equal = Client.equal
 -- listed is measured at a flat rate. The reagent names are the ones the rows in this spec carry.
 local WIDTH = {
 	["Buy reagents"] = 73,
-	["Craft next"] = 55,
 	["Route"] = 33,
 	["Reagents  (have / need)"] = 133,
 	["Light Leather"] = 74,
@@ -301,9 +300,9 @@ local reagents = {
 }
 local plan = {
 	target = 100,
-	crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green", expectedCrafts = 5 } },
+	crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
 	steps = {
-		{ craft = { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green", expectedCrafts = 5 } },
+		{ craft = { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
 	},
 	ranks = {},
 	cost = 0,
@@ -344,7 +343,12 @@ local ns = {
 	HasAuctionator = function()
 		return true
 	end,
-	SendToAuctionator = noop,
+	AuctionatorAutoscan = function()
+		return nil
+	end,
+	AuctionListName = function(profession)
+		return "SkillUp: " .. profession
+	end,
 	ShowRecipe = noop,
 	TrackerAttached = function()
 		return true
@@ -590,9 +594,9 @@ ns.CraftedGear = function()
 	}
 end
 ns.NextCraft = function()
-	-- The row lays out with the narrow, disabled Craft next button, as when the profession's own window
-	-- is closed and no craft is offered there.
-	return { text = "Craft next", reason = "Nothing to craft on this route." }
+	-- The bottom row is laid out with the craft button at its widest, so a longer label cannot reach
+	-- a control beside it.
+	return { text = "Craft 999× Cured Light Hide of the Bear", recipeID = 3275, count = 999, planned = 999, to = 100 }
 end
 
 ns.AttachRoute()
@@ -624,17 +628,16 @@ for _, heading in ipairs(headings) do
 	equal(overlaps(heading, ProfessionsFrame.portrait), false, heading.text .. " misses the portrait")
 end
 
--- The switch and its label are one control in the header; the vendor button and Craft sit in the row
--- under the route, and Track and To Auctionator under the reagents.
+-- The switch and its label are one control in the header; Track, Craft and the vendor button share
+-- the bottom row, right to left, with the craft label at its widest so no length can overlap.
 local controls = {
 	page.Collect,
 	page.CollectLabel,
 	page.Vendor,
 	page.Craft,
 	page.Track,
-	page.Auctionator,
 }
-local names = { "the switch", "the switch's label", "the vendor button", "Craft", "Track", "To Auctionator" }
+local names = { "the switch", "the switch's label", "the vendor button", "Craft", "Track" }
 
 for index, control in ipairs(controls) do
 	for _, heading in ipairs(headings) do
@@ -660,8 +663,12 @@ local switchAnchor = page.Collect.points[1]
 equal(switchAnchor.relative, page.Target, "the switch hangs off the target it changes")
 equal(switchAnchor.relativePoint, "RIGHT", "at the target's right, in the header")
 local vendorAnchor = page.Vendor.points[1]
-equal(vendorAnchor.relative, insets[1], "the vendor button hangs off the route inset")
-equal(vendorAnchor.relativePoint, "BOTTOMLEFT", "at its bottom left, in the row")
+equal(vendorAnchor.relative, page.Craft, "the vendor button hangs off the craft it sits beside")
+equal(vendorAnchor.relativePoint, "LEFT", "at the craft's left, in the bottom row")
+local craftAnchor = page.Craft.points[1]
+equal(craftAnchor.relative, page.Track, "the craft button hangs off the track button")
+equal(craftAnchor.relativePoint, "LEFT", "at the track's left, in the bottom row")
+equal(Width(page.Craft), 240, "the craft button is drawn at its widest label")
 
 -- A route row is the game's item row: a full icon in its stock border, the name beside it and the
 -- crafts, target and cost on the line under it, all inside the route inset.

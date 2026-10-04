@@ -9,6 +9,7 @@ A map tab under the Professions window's side tabs opens a SkillUp page. Pick an
 ### How it picks
 
 - Each skill point takes the recipe with the lowest cost per skill-up at that point.
+- A step asks for enough crafts to reach its target in nine runs out of ten, worked out from the chance at each skill point on the way, not from the average. An orange recipe is unchanged; a yellow or green one carries its risk in its price, so the route leans on it less.
 - Recipes a trainer teaches are included when they pay for themselves, shown as a *Train* step with its fee. The fee is counted once, and never before the trainer would teach them.
 - Recipes with an unpriced reagent are left out and counted.
 
@@ -16,7 +17,7 @@ A map tab under the Professions window's side tabs opens a SkillUp page. Pick an
 
 Each step is one row: the recipe's full-size icon in its stock border, the name beside it and, under it, the crafts, the skill it reaches and the cost. A *Train* step shows its fee and the skill the trainer wants instead. Hover one for the crafted item, its colour bands, the reagents for that step and its cost, or click it to open the recipe.
 
-*Craft* under the route crafts its first step as many times as it needs and your bags allow, while that profession is open.
+*Craft* under the route crafts its first step as many times as it needs and your bags allow, while that profession is open. Its label says what it will make and how many the bags allow now; hover it for how many the route asks for and why a worse run may need more. When the step cannot be crafted, the button and the page name the reagent and how many more are needed.
 
 ### Training
 
@@ -68,4 +69,4 @@ Opening a profession's own window, or a trainer that teaches it, starts tracking
 ### Buying
 
 - **At a vendor:** *Buy tracked reagents* on the merchant window buys what that vendor sells, with the total cost on the button.
-- **At the auction house:** with [Auctionator](https://www.curseforge.com/wow/addons/auctionator) installed, *To Auctionator* makes a shopping list (`SkillUp: <profession>`, replaced each time) of the auction house reagents still missing. Auction purchases stay manual, as the game requires.
+- **At the auction house:** with [Auctionator](https://www.curseforge.com/wow/addons/auctionator) installed and the route set to buy rather than gather, the addon keeps an Auctionator shopping list (`SkillUp: <profession>`) of the auction house reagents still missing, updated as you buy, craft and skill up. The reagent list names that list. An unchanged need leaves it alone, and a need the bags now cover empties it. Auction purchases stay manual, as the game requires. When a price is missing or old and Auctionator's own *scan when the auction house opens* option is off, the page says so and points at it (Auctionator, Basic Options).

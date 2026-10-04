@@ -12,11 +12,6 @@ local page
 ---@type SkillUpSideTab
 local tab
 
-local ICON_SIZE = 37
-local ROW_HEIGHT = 46
-local HEADING_HEIGHT = 26
-local SCROLL_BAR_WIDTH = 18
-
 ---@param itemID integer
 ---@return ColorMixin?
 local function QualityColor(itemID)
@@ -114,217 +109,29 @@ local function ItemClick(item, profession)
 	end
 end
 
--- Item data that arrives after a hover makes the game rebuild the item's tooltip, which drops the
--- lines a row added under it. The tooltip asks its owner for a fresh one first, so a hovered row
--- draws its own again once new data has come.
-local staleTooltip = false
-local function Stale()
-	staleTooltip = true
-end
-ns.WhenEvent("TOOLTIP_DATA_UPDATE", Stale)
-ns.WhenEvent("MODIFIER_STATE_CHANGED", Stale)
-ns.WhenStale("tooltip", Stale)
-
----@param row SkillUpGearRow
-local function ShowTooltip(row)
-	staleTooltip = false
-	GameTooltip:SetOwner(row, "ANCHOR_RIGHT")
-	row.tooltip(GameTooltip)
-	GameTooltip:Show()
-end
-
----@param row SkillUpGearRow
-local function OnEnter(row)
-	if row.tooltip then
-		ShowTooltip(row)
-	end
-end
-
--- Called by the tooltip this row owns, a few times a second.
----@param row SkillUpGearRow
-local function UpdateTooltip(row)
-	if staleTooltip and row.tooltip then
-		ShowTooltip(row)
-	end
-end
-
----@param row SkillUpGearRow
+-- A slot's item as one list entry: a full icon in its quality border, the item's name in the
+-- item-name font and, under it, the profession, skill and what the character can do with it.
 ---@param item SkillUpGearItem
 ---@param profession SkillUpProfession?
-local function FillItem(row, item, profession)
-	row.kind = "item"
-	row.item = item
-	row.Icon:SetTexture(C_Item.GetItemIconByID(item.itemID))
+---@return SkillUpListEntry
+local function ItemEntry(item, profession)
 	local color = QualityColor(item.itemID)
-	if color then
-		row.IconBorder:SetVertexColor(color:GetRGB())
-		row.IconBorder:Show()
-		row.Name:SetTextColor(color:GetRGB())
-	else
-		row.IconBorder:Hide()
-		row.Name:SetTextColor(HIGHLIGHT_FONT_COLOR:GetRGB())
-	end
 	local name = item.name
 	if not name then
 		-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
 		C_Item.RequestLoadItemDataByID(item.itemID)
 		name = string.format(L["item %d"], item.itemID)
 	end
-	row.Name:SetText(name)
-	row.Detail:SetText(Detail(item))
-	row.Detail:SetTextColor((item.state == "known" and ns.COLORS.green or GRAY_FONT_COLOR):GetRGB())
-	row.tooltip = ItemTooltip(item, profession)
-	row.click = ItemClick(item, profession)
-end
-
--- The rows, in the game's own scroll box: an item icon and name, then the profession, skill and
--- state. A slot heading is a stock font line; a message is the page's own hint or empty state.
--- The list keeps its rows between renders and hides the ones a later render does not use.
----@param parent Frame
----@return SkillUpGearList
-local function CreateList(parent)
-	local scrollBox = CreateFrame("Frame", nil, parent, "WowScrollBox") --[[@as SkillUpScrollBox]]
-	scrollBox:SetPoint("TOPLEFT", 4, -4)
-	scrollBox:SetPoint("BOTTOMRIGHT", -SCROLL_BAR_WIDTH, 4)
-	local scrollBar = CreateFrame("EventFrame", nil, parent, "MinimalScrollBar") --[[@as SkillUpScrollBar]]
-	scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 4, 0)
-	scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT", 4, 0)
-	scrollBar:SetHideIfUnscrollable(true)
-	local content = CreateFrame("Frame", nil, scrollBox) --[[@as SkillUpScrollContent]]
-	content.scrollable = true
-	content:SetSize(1, 1)
-	local view = CreateScrollBoxLinearView()
-	view:SetPanExtent(ROW_HEIGHT)
-	ScrollUtil.InitScrollBoxWithScrollBar(scrollBox, scrollBar, view)
-
-	---@class SkillUpGearList
-	local list = { rows = {}, height = 0, scrollBox = scrollBox }
-	---@type table<"item"|"heading"|"message", Frame[]>
-	local pools = { item = {}, heading = {}, message = {} }
-	---@type table<"item"|"heading"|"message", integer>
-	local used = { item = 0, heading = 0, message = 0 }
-
-	---@return SkillUpGearRow
-	local function CreateItem()
-		local row = CreateFrame("Button", nil, content) --[[@as SkillUpGearRow]]
-		row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-		row.UpdateTooltip = UpdateTooltip
-		row:SetScript("OnEnter", OnEnter)
-		row:SetScript("OnLeave", GameTooltip_Hide)
-		row:SetScript("OnClick", function()
-			if row.click then
-				row.click()
-			end
-		end)
-		row.Icon = row:CreateTexture(nil, "ARTWORK")
-		row.Icon:SetSize(ICON_SIZE, ICON_SIZE)
-		row.Icon:SetPoint("LEFT", 6, 0)
-		row.IconBorder = row:CreateTexture(nil, "OVERLAY")
-		row.IconBorder:SetTexture("Interface\\Common\\WhiteIconFrame")
-		row.IconBorder:SetSize(ICON_SIZE, ICON_SIZE)
-		row.IconBorder:SetPoint("LEFT", row.Icon, "LEFT", 0, 0)
-		row.Name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		row.Name:SetJustifyH("LEFT")
-		row.Name:SetPoint("TOPLEFT", row.Icon, "TOPRIGHT", 8, -2)
-		row.Name:SetPoint("RIGHT", row, "RIGHT", -8, 0)
-		row.Detail = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		row.Detail:SetJustifyH("LEFT")
-		row.Detail:SetPoint("TOPLEFT", row.Name, "BOTTOMLEFT", 0, -2)
-		row.Detail:SetPoint("RIGHT", row, "RIGHT", -8, 0)
-		return row
-	end
-
-	---@return SkillUpGearHeading
-	local function CreateHeading()
-		local heading = CreateFrame("Frame", nil, content) --[[@as SkillUpGearHeading]]
-		heading.kind = "heading"
-		heading.Text = heading:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		heading.Text:SetPoint("BOTTOMLEFT", heading, "BOTTOMLEFT", 6, 4)
-		return heading
-	end
-
-	---@return SkillUpGearMessage
-	local function CreateMessage()
-		local message = CreateFrame("Frame", nil, content) --[[@as SkillUpGearMessage]]
-		message.kind = "message"
-		message.Text = message:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		message.Text:SetWordWrap(true)
-		message.Text:SetJustifyH("LEFT")
-		message.Text:SetPoint("TOPLEFT", message, "TOPLEFT", 6, -4)
-		message.Text:SetPoint("RIGHT", message, "RIGHT", -6, 0)
-		return message
-	end
-
-	---@param kind "item"|"heading"|"message"
-	---@param create fun(): Frame
-	---@return Frame
-	local function Take(kind, create)
-		used[kind] = used[kind] + 1
-		local frame = pools[kind][used[kind]]
-		if not frame then
-			frame = create()
-			pools[kind][used[kind]] = frame
-		end
-		return frame
-	end
-
-	---@param self SkillUpGearList
-	---@param frame SkillUpGearListRow
-	---@param height number
-	local function Place(self, frame, height)
-		frame:ClearAllPoints()
-		frame:SetPoint("TOPLEFT", 0, -self.height)
-		frame:SetPoint("RIGHT")
-		frame:SetHeight(height)
-		self.height = self.height + height
-		self.rows[#self.rows + 1] = frame
-		frame:Show()
-	end
-
-	function list:Begin()
-		self.rows, self.height = {}, 0
-	end
-
-	---@param text string
-	function list:Heading(text)
-		local heading = Take("heading", CreateHeading) --[[@as SkillUpGearHeading]]
-		heading.Text:SetText(text)
-		heading.Text:SetTextColor(NORMAL_FONT_COLOR:GetRGB())
-		Place(self, heading, HEADING_HEIGHT)
-	end
-
-	---@param text string
-	---@param color ColorMixin?
-	function list:Message(text, color)
-		local message = Take("message", CreateMessage) --[[@as SkillUpGearMessage]]
-		message.Text:SetText(text)
-		message.Text:SetTextColor((color or GRAY_FONT_COLOR):GetRGB())
-		local width = self.scrollBox:GetWidth() - 12
-		if width > 0 then
-			message.Text:SetWidth(width)
-		end
-		Place(self, message, math.max(20, message.Text:GetStringHeight() + 8))
-	end
-
-	---@param item SkillUpGearItem
-	---@param profession SkillUpProfession?
-	function list:Item(item, profession)
-		local row = Take("item", CreateItem) --[[@as SkillUpGearRow]]
-		FillItem(row, item, profession)
-		Place(self, row, ROW_HEIGHT)
-	end
-
-	function list:Finish()
-		for kind, pool in pairs(pools) do
-			for index = used[kind] + 1, #pool do
-				pool[index]:Hide()
-			end
-			used[kind] = 0
-		end
-		content:SetHeight(math.max(self.height, 1))
-		scrollBox:FullUpdate(ScrollBoxConstants.UpdateImmediately)
-	end
-	return list
+	return {
+		icon = C_Item.GetItemIconByID(item.itemID),
+		iconColor = color,
+		text = name,
+		color = color or HIGHLIGHT_FONT_COLOR,
+		detail = Detail(item),
+		detailColor = item.state == "known" and ns.COLORS.green or GRAY_FONT_COLOR,
+		tooltip = ItemTooltip(item, profession),
+		click = ItemClick(item, profession),
+	}
 end
 
 local function Render()
@@ -346,7 +153,7 @@ local function Render()
 	for _, slot in ipairs(slots) do
 		list:Heading(slot.name)
 		for _, item in ipairs(slot.items) do
-			list:Item(item, professions[item.skillLine])
+			list:Add(ItemEntry(item, professions[item.skillLine]))
 		end
 	end
 	list:Finish()
@@ -446,7 +253,7 @@ local function CreatePage()
 	title:SetText(L["Crafted gear"])
 	inset:SetPoint("TOPLEFT", 16, -88)
 	inset:SetPoint("BOTTOMRIGHT", page, "BOTTOMRIGHT", -16, 44)
-	page.List = CreateList(inset)
+	page.List = ns.CreateList(inset)
 	page.ShowAll = CreateShowAll()
 	page.ShowAll:SetPoint("TOPLEFT", inset, "BOTTOMLEFT", 2, -10)
 	page:SetScript("OnShow", Render)

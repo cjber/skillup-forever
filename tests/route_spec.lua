@@ -143,7 +143,7 @@ page = {
 		function list:Add(row)
 			self.rows[#self.rows + 1] = row
 		end
-		list.messages, list.Finish = {}, function() end
+		list.messages, list.Begin, list.Finish = {}, function() end, function() end
 		function list:Message(text)
 			self.messages[#self.messages + 1] = text
 		end
@@ -180,6 +180,8 @@ local pageEnv = setmetatable({
 	C_Item = {
 		GetItemNameByID = function() end,
 		GetItemIconByID = function() end,
+		GetItemQualityByID = function() end,
+		GetItemQualityColor = function() end,
 		RequestLoadItemDataByID = function(id)
 			requested[id] = true
 		end,
@@ -302,9 +304,9 @@ page.Changed("prices")
 routeTab:Click()
 local routeList = lists[#lists - 1]
 local suggestion = routeList.rows[#routeList.rows]
-equal(suggestion and suggestion.values[1], "?", "an unpriced scroll shows ?")
+equal(suggestion and suggestion.detail:find("?", 1, true) ~= nil, true, "an unpriced scroll shows ?")
 equal(suggestion.text, "Spell 3276", "a suggested scroll's row is named for its recipe alone")
-equal(suggestion.note, "vendor", "with where it comes from apart, so cutting the name leaves it whole")
+equal(suggestion.detail:find("vendor", 1, true), 1, "with where it comes from on the line under the name")
 equal(
 	table.concat(routeList.messages, " | "):find("Install both.", 1, true) ~= nil,
 	true,
@@ -312,7 +314,7 @@ equal(
 )
 local labels = {}
 for _, row in ipairs(lists[#lists].rows) do
-	labels[row.text] = row.values[2]
+	labels[row.text] = row.detail
 end
 for index, source in ipairs(page.Model.SHOPPING_SOURCES) do
 	equal(type(labels["item " .. index]), "string", source .. " is listed with a source label")
@@ -412,15 +414,23 @@ local before = #lists[2].rows
 routeTab:Click()
 local gathered = lists[2].rows[before + 1]
 equal(gathered.text, "Reagent 1", "the route's reagents are listed")
-equal(gathered.values[2], "gather", "a reagent this character gathers shows gather while the switch is off")
+equal(
+	gathered.detail:find("gather", 1, true) ~= nil,
+	true,
+	"a reagent this character gathers shows gather while the switch is off"
+)
 collect:Click()
 equal(
-	lists[2].rows[#lists[2].rows - 1].values[2],
-	"vendor",
+	lists[2].rows[#lists[2].rows - 1].detail:find("vendor", 1, true) ~= nil,
+	true,
 	"and shows its bought source once the switch is on, so the change is plain"
 )
 collect:Click()
-equal(lists[2].rows[#lists[2].rows - 1].values[2], "gather", "and gather again when the switch is off")
+equal(
+	lists[2].rows[#lists[2].rows - 1].detail:find("gather", 1, true) ~= nil,
+	true,
+	"and gather again when the switch is off"
+)
 page.PlanRoute = realPlan
 
 Client.report("route_spec")

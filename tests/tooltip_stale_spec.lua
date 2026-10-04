@@ -84,7 +84,7 @@ ns.AddNearest = function(tooltip, label, npcID)
 	end
 end
 
-local list = ns.CreateList(Region(), { { title = "Have", width = 40 }, { title = "Source", width = 40 } })
+local list = ns.CreateList(Region())
 list:Add({
 	text = "Linen Cloth",
 	tooltip = function(tooltip)

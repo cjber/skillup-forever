@@ -346,6 +346,12 @@ local RECORDED = {
 	SetEnabled = function(self, enabled)
 		rawset(self, "enabled", enabled and true or false)
 	end,
+	SetChecked = function(self, checked)
+		rawset(self, "checked", checked and true or false)
+	end,
+	GetChecked = function(self)
+		return rawget(self, "checked") == true
+	end,
 	Disable = function(self)
 		rawset(self, "enabled", false)
 	end,
@@ -566,6 +572,10 @@ env = setmetatable({
 		GetItemIconByID = function(itemID)
 			return "item:" .. itemID
 		end,
+		GetItemQualityByID = function() end,
+		GetItemQualityColor = function()
+			return 1, 1, 1
+		end,
 		GetItemCount = function(itemID)
 			return STATE.bags[itemID] or 0
 		end,
@@ -648,6 +658,7 @@ env = setmetatable({
 	GetTrainerServiceStepIndex = function() end,
 	-- The frames the addon hooks: anything it touches is a recording stub.
 	ProfessionsFrame = Stub(),
+	MerchantFrame = Stub(),
 	ClassTrainerFrame = Stub(),
 	ObjectiveTrackerManager = setmetatable({}, { __index = function() error("native tracker manager accessed") end }),
 	ObjectiveTrackerFrame = Stub(),
@@ -661,6 +672,9 @@ env = setmetatable({
 	MinimalSliderWithSteppersMixin = { Label = { Right = "right" } },
 	MenuUtil = Stub(),
 	SkillUpForeverDB = { trackedProfessions = { [STATE.open.skillLine] = true }, collectModes = {} },
+	-- The optional databases the addon reads through their public tables: absent in this scene.
+	AtlasLoot = false,
+	LibQuestieDB = false,
 }, {
 	__index = function(_, key)
 		local value = _G[key]
@@ -743,20 +757,27 @@ end
 
 -- The route page: the lists record their rows; the page's own frames record the rest.
 local lists = {}
-ns.CreateList = function(_, columns)
-	local list = { rows = {}, columns = columns, scrollBox = Stub() }
-	function list:Add(entry)
-		self.rows[#self.rows + 1] = {
-			icon = entry.icon,
-			text = entry.text,
-			color = Rgb(entry.color),
-			values = entry.values,
-			valueColor = Rgb(entry.valueColor),
-			wrap = entry.wrap == true,
-		}
+ns.CreateList = function()
+	local list = { rows = {}, scrollBox = Stub() }
+	function list:Begin()
+		self.rows = {}
+	end
+	function list:Heading(text)
+		self.rows[#self.rows + 1] = { kind = "heading", text = text }
 	end
 	function list:Message(text, color)
-		self:Add({ text = text, color = color or env.GRAY_FONT_COLOR, wrap = true })
+		self.rows[#self.rows + 1] = { kind = "message", text = text, color = Rgb(color) }
+	end
+	function list:Add(entry)
+		self.rows[#self.rows + 1] = {
+			kind = "row",
+			icon = entry.icon,
+			iconColor = Rgb(entry.iconColor),
+			text = entry.text,
+			color = Rgb(entry.color),
+			detail = entry.detail,
+			detailColor = Rgb(entry.detailColor),
+		}
 	end
 	function list:Finish() end
 	lists[#lists + 1] = list
@@ -766,7 +787,9 @@ local first = #created + 1
 ns.AttachRoute()
 assert(not hooks.RefreshRightTabs and not hooks.RightTabSelected, "native profession methods stay untouched")
 local page = created[first]
-created[#created].scripts.OnMouseUp(nil, "LeftButton", true) -- the side tab, the last frame created
+local routeTab = created[#created] -- the route page's side tab, before the gear page creates its own
+ns.AttachGear()
+routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
 local function Widget(frame)
 	return {
 		text = rawget(frame, "text"),
@@ -774,6 +797,7 @@ local function Widget(frame)
 		enabled = rawget(frame, "enabled"),
 		shown = rawget(frame, "shown"),
 		width = rawget(frame, "width"),
+		checked = rawget(frame, "checked"),
 	}
 end
 local route = {
@@ -783,11 +807,13 @@ local route = {
 	craft = Widget(page.Craft),
 	track = Widget(page.Track),
 	auctionator = Widget(page.Auctionator),
-	priceAge = Widget(page.PriceAge),
+	collect = Widget(page.Collect),
+	collectLabel = Widget(page.CollectLabel),
+	vendor = Widget(page.Vendor),
 	lists = {},
 }
 for _, list in ipairs(lists) do
-	route.lists[#route.lists + 1] = { columns = list.columns, rows = list.rows }
+	route.lists[#route.lists + 1] = { rows = list.rows }
 end
 
 -- The tracker: its module lays out blocks of objectives.
@@ -1368,7 +1394,6 @@ def window_scene(ui):
 # ------------------------------------------------------------------------------- scenes from the Lua's output
 
 F_HIGHLIGHT = FONTS["GameFontHighlight"]
-F_DISABLE_SMALL = FONTS["GameFontDisableSmall"]
 F_CHAT = Font(ARIAL, 14, WHITE, (1, -1))  # ChatFontNormal, InputBoxTemplate's font
 F_SHADOW_SMALL = Font(FRIZ, 10, NORMAL, (1, -1))  # SystemFont_Shadow_Small
 
@@ -1419,69 +1444,54 @@ def inset_frame(canvas, x, y, w, h, title=None):
         canvas.text(x + 4, y - 4 - F_NORMAL.height, title, F_NORMAL)
 
 
-LIST_LINE, LIST_HEADER, LIST_ICON, LIST_GAP, LIST_SCROLLBAR = 20, 26, 16, 8, 18  # List.lua
+LIST_ROW, LIST_HEADING, LIST_ICON, LIST_MESSAGE_MIN, LIST_SCROLLBAR = 46, 26, 37, 20, 18  # List.lua
 
 
-def draw_list(canvas, x, y, w, h, columns, rows):
-    """List.lua's CreateList in an inset at (x, y, w, h): headers, then rows of icon, name and value
-    columns (listed right to left) from the Lua's rows, or wrapped grey messages."""
+def draw_list(canvas, x, y, w, h, rows):
+    """List.lua's CreateList in an inset at (x, y, w, h): a full item icon in its stock border with
+    the name beside it and the facts under it, headings as stock lines and wrapped messages."""
     ui = canvas.ui
-    right = -4
-    for column in columns:
-        column["right"] = right
-        justify = column.get("justify", "RIGHT")
-        canvas.text(
-            x + w - LIST_SCROLLBAR + right - column["width"],
-            y + 8,
-            column["title"],
-            F_DISABLE_SMALL,
-            justify=justify,
-            width=column["width"],
-        )
-        right -= column["width"] + LIST_GAP
-    text_right = right
-    box_x, box_y, box_w, box_h = x + 4, y + LIST_HEADER, w - 4 - LIST_SCROLLBAR, h - LIST_HEADER - 4
+    box_x, box_w = x + 4, w - 4 - LIST_SCROLLBAR
+    box_y, box_h = y + 4, h - 8
     top = box_y
     for row in rows:
-        color = tuple(row["color"]) if row.get("color") else WHITE
-        text = expand(ui, row["text"])
-        if row["wrap"]:
-            lines = wrap_text(canvas, text, F_HIGHLIGHT, box_w - 10)
-            height = max(LIST_LINE, len(lines) * F_HIGHLIGHT.height + 6)
-            first = top + (height - len(lines) * F_HIGHLIGHT.height) / 2
+        kind = row.get("kind")
+        if kind == "heading":
+            canvas.text(box_x + 6, top, expand(ui, row["text"]), F_NORMAL, box_height=LIST_HEADING)
+            top += LIST_HEADING
+            continue
+        if kind == "message":
+            lines = wrap_text(canvas, expand(ui, row["text"]), F_NORMAL, box_w - 12)
+            color = tuple(row["color"]) if row.get("color") else DISABLED_FONT_COLOR
             for index, line in enumerate(lines):
-                canvas.text(box_x + 6, first + index * F_HIGHLIGHT.height, line, F_HIGHLIGHT, color)
-            top += height
+                canvas.text(box_x + 6, top + 4 + index * F_NORMAL.height, line, F_NORMAL, color)
+            top += max(LIST_MESSAGE_MIN, len(lines) * F_NORMAL.height + 8)
             continue
         icon = row.get("icon")
         if icon is not None:
-            canvas.draw(icon_texture(ui, icon), box_x + 6, top + (LIST_LINE - LIST_ICON) / 2, LIST_ICON, LIST_ICON)
-        text_x = box_x + (LIST_ICON + 12 if icon is not None else 6)
-        values = row.get("values")
-        text_end = box_x + box_w + (text_right if values else -4)
+            icon_y = top + (LIST_ROW - LIST_ICON) / 2
+            canvas.draw(icon_texture(ui, icon), box_x + 6, icon_y, LIST_ICON, LIST_ICON)
+            canvas.draw(ui.atlas("auctionhouse-itemicon-border-white"), box_x + 6, icon_y, LIST_ICON, LIST_ICON)
+        text_x = box_x + 6 + LIST_ICON + 8
+        text_w = box_x + box_w - 8 - text_x
         canvas.text(
             text_x,
-            top,
-            fit_text(canvas, text, F_HIGHLIGHT, text_end - text_x),
+            top + 2,
+            fit_text(canvas, expand(ui, row["text"]), F_HIGHLIGHT, text_w),
             F_HIGHLIGHT,
-            color,
-            box_height=LIST_LINE,
+            tuple(row["color"]) if row.get("color") else WHITE,
         )
-        value_color = tuple(row["valueColor"]) if row.get("valueColor") else WHITE
-        for column, value in zip(columns, values or [], strict=False):
-            left = box_x + box_w + column["right"] - column["width"]
-            justify = column.get("justify", "RIGHT")
+        detail = row.get("detail")
+        if detail:
+            detail_color = tuple(row["detailColor"]) if row.get("detailColor") else DISABLED_FONT_COLOR
             canvas.text(
-                left,
-                top,
-                expand(ui, value),
-                F_HIGHLIGHT,
-                value_color,
-                box_height=LIST_LINE,
-                justify=justify,
-                width=column["width"],
+                text_x,
+                top + 2 + F_HIGHLIGHT.height + 2,
+                fit_text(canvas, expand(ui, detail), F_NORMAL, text_w),
+                F_NORMAL,
+                detail_color,
             )
-        top += LIST_LINE
+        top += LIST_ROW
     if top - box_y > box_h:
         minimal_scrollbar(canvas, box_x + box_w + 4, box_y, box_h, box_h / (top - box_y))
 
@@ -1523,27 +1533,33 @@ def route_frame(ui, scene_data):
     skill_x = dx + dw + 16
     skill_w = canvas.text(skill_x, dy, route["skill"]["text"], F_NORMAL, box_height=dh)
     input_box(canvas, skill_x + skill_w + 10, dy + (dh - 20) / 2, 40, 20, route["target"]["text"])
+    # The switch sits right of the target it changes, in the header row.
+    collect = route["collect"]
+    minimal_checkbox(
+        canvas,
+        skill_x + skill_w + 10 + 40 + 16,
+        dy + (dh - 22) / 2,
+        route["collectLabel"]["text"],
+        checked=collect.get("checked", False),
+        color=None if collect.get("enabled", True) else DISABLED_FONT_COLOR,
+    )
     # The two insets, split ROUTE_SHARE right of centre, each with its list.
     top, bottom = fy + 88, fy + FRAME_H - 44
     route_x, route_right = fx + 16, fx + FRAME_W / 2 + ROUTE_SHARE - 6
     reagents_x, reagents_right = fx + FRAME_W / 2 + ROUTE_SHARE + 6, fx + FRAME_W - 16
-    route_list, reagent_list = route["lists"]
+    route_list, reagent_list = route["lists"][0], route["lists"][1]
     inset_frame(canvas, route_x, top, route_right - route_x, bottom - top, "Route")
-    draw_list(canvas, route_x, top, route_right - route_x, bottom - top, route_list["columns"], route_list["rows"])
+    draw_list(canvas, route_x, top, route_right - route_x, bottom - top, route_list["rows"])
     inset_frame(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, "Reagents  (have / need)")
-    draw_list(
-        canvas,
-        reagents_x,
-        top,
-        reagents_right - reagents_x,
-        bottom - top,
-        reagent_list["columns"],
-        reagent_list["rows"],
-    )
-    age = route["priceAge"]
-    if age.get("text"):
-        canvas.text(route_x + 4, bottom + 14, age["text"], F_NORMAL_SMALL, tuple(age["color"]))
-    # Track at the reagents' BOTTOMRIGHT (0, -10), To Auctionator 8 to its left; Craft under the route.
+    draw_list(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, reagent_list["rows"])
+    # Nearest vendor at the route's BOTTOMLEFT, Craft at its BOTTOMRIGHT; Track at the reagents'
+    # BOTTOMRIGHT, To Auctionator 8 to its left.
+    vendor = route["vendor"]
+    if vendor.get("shown"):
+        panel_button(canvas, route_x, bottom + 10, 120, 22, vendor["text"], vendor.get("enabled", True))
+    craft = route["craft"]
+    craft_w = min(canvas.text_width(craft["text"], F_NORMAL) + 32, 240)
+    panel_button(canvas, route_right - craft_w, bottom + 10, craft_w, 22, craft["text"], craft["enabled"])
     track = route["track"]
     panel_button(canvas, reagents_right - 130, bottom + 10, 130, 22, track["text"], track.get("enabled", True))
     auctionator = route["auctionator"]
@@ -1551,9 +1567,6 @@ def route_frame(ui, scene_data):
         panel_button(
             canvas, reagents_right - 130 - 8 - 130, bottom + 10, 130, 22, auctionator["text"], auctionator["enabled"]
         )
-    craft = route["craft"]
-    craft_w = min(canvas.text_width(craft["text"], F_NORMAL) + 32, 240)
-    panel_button(canvas, route_right - craft_w, bottom + 10, craft_w, 22, craft["text"], craft["enabled"])
     profession_tabs(canvas, fx, fy, "route")
     portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, route["portrait"], "Leatherworking")
     return canvas

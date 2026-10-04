@@ -41,6 +41,17 @@ local function RecipeIcon(recipeID)
 	return output and C_Item.GetItemIconByID(output.itemID) or C_Spell.GetSpellTexture(recipeID)
 end
 
+---@param itemID integer
+---@return ColorMixin?
+local function QualityColor(itemID)
+	local quality = C_Item.GetItemQualityByID(itemID)
+	if not quality then
+		return nil
+	end
+	local red, green, blue = C_Item.GetItemQualityColor(quality)
+	return CreateColor(red, green, blue)
+end
+
 ---@param tooltip GameTooltip
 ---@param left string
 ---@param right string
@@ -238,9 +249,13 @@ local function RenderSuggestions(list, plan)
 		list:Add({
 			icon = C_Item.GetItemIconByID(suggestion.source.item),
 			text = RecipeName(suggestion.recipeID),
-			note = suggestion.kindText,
+			detail = string.format(
+				L["%s, %s, to %d"],
+				suggestion.kindText,
+				price and Money(price) or "?",
+				suggestion.reach
+			),
 			color = ns.COLORS[suggestion.color],
-			values = { price and Money(price) or "?", tostring(suggestion.reach) },
 			tooltip = function(tooltip)
 				SuggestionTooltip(tooltip, profession, suggestion)
 			end,
@@ -264,8 +279,8 @@ local function RenderRoute(list, plan)
 			list:Add({
 				icon = profession.icon,
 				text = ns.RankText(rank),
+				detail = string.format(L["Fee %s, requires %s (%d)"], Money(rank.fee), profession.name, rank.reqSkill),
 				color = NORMAL_FONT_COLOR,
-				values = { Money(rank.fee), tostring(rank.reqSkill) },
 				tooltip = function(tooltip)
 					RankTooltip(tooltip, profession, rank)
 				end,
@@ -275,8 +290,13 @@ local function RenderRoute(list, plan)
 			list:Add({
 				icon = TRAIN_ICON,
 				text = string.format(L["Train %s"], RecipeName(training.recipeID)),
+				detail = string.format(
+					L["Fee %s, requires %s (%d)"],
+					Money(training.fee),
+					profession.name,
+					training.reqSkill
+				),
 				color = NORMAL_FONT_COLOR,
-				values = { Money(training.fee), tostring(training.reqSkill) },
 				tooltip = function(tooltip)
 					TrainTooltip(tooltip, profession, training)
 				end,
@@ -286,12 +306,13 @@ local function RenderRoute(list, plan)
 			list:Add({
 				icon = RecipeIcon(craft.recipeID),
 				text = RecipeName(craft.recipeID),
+				detail = string.format(
+					L["%d crafts to %d, %s"],
+					craft.crafts,
+					craft.to,
+					Money(ns.NetCost(craft.recipeID) * craft.expectedCrafts)
+				),
 				color = ns.COLORS[craft.color],
-				values = {
-					Money(ns.NetCost(craft.recipeID) * craft.expectedCrafts),
-					tostring(craft.to),
-					tostring(craft.crafts),
-				},
 				tooltip = function(tooltip)
 					CraftTooltip(tooltip, profession, craft)
 				end,
@@ -300,12 +321,7 @@ local function RenderRoute(list, plan)
 		end
 	end
 	if #plan.crafts > 0 then
-		list:Add({
-			text = TOTAL,
-			color = NORMAL_FONT_COLOR,
-			values = { Money(plan.cost) },
-			valueColor = NORMAL_FONT_COLOR,
-		})
+		list:Message(string.format(L["Total %s"], Money(plan.cost)), NORMAL_FONT_COLOR)
 	end
 	if blocked and plan.unpriced > 0 then
 		list:Message(blocked)
@@ -363,8 +379,9 @@ local function RenderUnpriced(list, items)
 		end
 		list:Add({
 			icon = C_Item.GetItemIconByID(itemID) or 134400,
+			iconColor = QualityColor(itemID),
 			text = name,
-			values = { "", SOURCE_TEXT.unknown },
+			detail = SOURCE_TEXT.unknown,
 			tooltip = function(tooltip)
 				tooltip:SetItemByID(itemID)
 			end,
@@ -389,9 +406,10 @@ local function RenderReagents(list, reagents)
 		local have = ns.Have(item.itemID)
 		list:Add({
 			icon = C_Item.GetItemIconByID(item.itemID) or 134400,
+			iconColor = QualityColor(item.itemID),
 			text = name,
-			values = { string.format("%d/%d", math.min(have, item.need), item.need), SOURCE_TEXT[item.source] },
-			valueColor = have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
+			detail = string.format(L["%s, %d/%d"], SOURCE_TEXT[item.source], math.min(have, item.need), item.need),
+			detailColor = have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
 			tooltip = function(tooltip)
 				ReagentTooltip(tooltip, item)
 			end,
@@ -506,6 +524,8 @@ local function Render()
 	page.Auctionator:Disable()
 	page.Craft:SetShown(profession ~= nil)
 	page.Collect:SetChecked(ns.CollectMode() == "auction")
+	page.RouteList:Begin()
+	page.ReagentList:Begin()
 	if not profession then
 		SetCollectEnabled(false)
 		page.Vendor:Hide()
@@ -524,14 +544,15 @@ local function Render()
 	local reagents = ns.RouteReagents(plan)
 	SetCollectEnabled(CollectChanges(reagents))
 	RenderRoute(page.RouteList, plan)
+	local age, ageColor = PriceAge(reagents)
+	if age ~= "" then
+		page.ReagentList:Message(age, ageColor)
+	end
 	if #plan.crafts == 0 and plan.unpriced > 0 then
 		RenderUnpriced(page.ReagentList, ns.UnpricedReagents(plan))
 	else
 		RenderReagents(page.ReagentList, reagents)
 	end
-	local age, ageColor = PriceAge(reagents)
-	page.PriceAge:SetText(age)
-	page.PriceAge:SetTextColor(ageColor:GetRGB())
 	local vendorItems = VendorItems(reagents)
 	page.vendorItems = vendorItems
 	page.Vendor:SetShown(#vendorItems > 0)
@@ -729,31 +750,21 @@ local function CreatePage()
 
 	local route = CreateInset(L["Route"])
 	route:SetPoint("TOPLEFT", 16, -88)
-	-- The route gets the wider half: its names are longer and it has more columns.
+	-- The route gets the wider half: its names are longer and its rows carry more facts.
 	route:SetPoint("BOTTOMRIGHT", page, "BOTTOM", ROUTE_SHARE - 6, 44)
-	page.RouteList = ns.CreateList(route, {
-		{ title = L["Cost"], width = 64 },
-		{ title = L["To"], width = 28 },
-		{ title = L["Crafts"], width = 36 },
-	})
+	page.RouteList = ns.CreateList(route)
 
 	local reagents = CreateInset(L["Reagents  (have / need)"])
 	reagents:SetPoint("TOPLEFT", page, "TOP", ROUTE_SHARE + 6, -88)
 	reagents:SetPoint("BOTTOMRIGHT", -16, 44)
-	page.ReagentList = ns.CreateList(reagents, {
-		{ title = L["Have"], width = 64 },
-		{ title = L["Source"], width = 48, justify = "LEFT" },
-	})
+	page.ReagentList = ns.CreateList(reagents)
 
-	-- Above the route it belongs to, clear of the bottom row the controls now use.
-	page.PriceAge = page:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	page.PriceAge:SetPoint("BOTTOMRIGHT", route, "TOPRIGHT", 0, 4)
-
+	-- The switch sits in the header row, right of the target it changes, clear of the Route heading.
+	page.Collect:SetPoint("LEFT", page.Target, "RIGHT", 16, 0)
 	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
 	page.Auctionator:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
 	page.Craft:SetPoint("TOPRIGHT", route, "BOTTOMRIGHT", 0, -10)
-	page.Collect:SetPoint("TOPLEFT", route, "BOTTOMLEFT", 0, -10)
-	page.Vendor:SetPoint("LEFT", page.CollectLabel, "RIGHT", 8, 0)
+	page.Vendor:SetPoint("TOPLEFT", route, "BOTTOMLEFT", 0, -10)
 	-- The portrait follows the profession shown here, and is given back on the way out.
 	local portrait
 	page:SetScript("OnShow", function()

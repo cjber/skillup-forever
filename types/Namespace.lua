@@ -41,7 +41,7 @@
 ---@field UnpricedReagents fun(plan: SkillUpPlan): integer[]
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field RankText fun(rank: SkillUpRank): string
----@field CreateList fun(parent: Frame, columns: SkillUpColumn[]): SkillUpList
+---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?
 ---@field ShowRecipe fun(recipeID: integer)
@@ -345,37 +345,44 @@ SkillUpForeverDB = nil
 ---@alias SkillUpSortKey fun(info: TradeSkillRecipeInfo, ctx: SkillUpContext?): number
 
 ---@class SkillUpListEntry
----@field text string
----@field note? string a short label kept whole at the right of the name, which is cut to make room
----@field color? ColorMixin
+---@field text string The name shown beside the icon.
+---@field detail? string The supporting facts under the name, in the stock body font.
+---@field color? ColorMixin The name's colour.
 ---@field icon? fileID|string
----@field values? string[]
----@field valueColor? ColorMixin
----@field wrap? boolean
+---@field iconColor? ColorMixin The stock icon border's tint, the item's quality where it has one.
+---@field detailColor? ColorMixin
 ---@field tooltip? fun(tooltip: GameTooltip)
 ---@field click? fun()
 
 ---@class SkillUpListRow : Button
+---@field kind "row"
 ---@field entry SkillUpListEntry
 ---@field Icon Texture
+---@field IconBorder Texture
 ---@field Text FontString
----@field Note FontString
+---@field Detail FontString
+---@field tooltip? fun(tooltip: GameTooltip)
+---@field click? fun()
 ---@field UpdateTooltip fun(self: SkillUpListRow) called by the tooltip this row owns, a few times a second
----@field Values FontString[]
 
----@class SkillUpColumn
----@field title string
----@field width number
----@field justify? JustifyHorizontal
----@field right? number
+---@class SkillUpListHeading : Frame
+---@field kind "heading"
+---@field Text FontString
+
+---@class SkillUpListMessage : Frame
+---@field kind "message"
+---@field Text FontString
+
+---@alias SkillUpListFrame SkillUpListRow|SkillUpListHeading|SkillUpListMessage
 
 ---@class SkillUpList
----@field rows SkillUpListRow[]
----@field count integer
+---@field rows SkillUpListFrame[] The frames placed by the last render, in order.
 ---@field height number
 ---@field scrollBox SkillUpScrollBox
----@field Add fun(self: SkillUpList, entry: SkillUpListEntry)
+---@field Begin fun(self: SkillUpList)
+---@field Heading fun(self: SkillUpList, text: string)
 ---@field Message fun(self: SkillUpList, text: string, color?: ColorMixin)
+---@field Add fun(self: SkillUpList, entry: SkillUpListEntry)
 ---@field Finish fun(self: SkillUpList)
 
 ---@class SkillUpCraftButton : Button
@@ -412,39 +419,8 @@ SkillUpForeverDB = nil
 ---@field skill fun(recipeID: integer): number The skill at which the recipe can be learned.
 ---@field professionName fun(skillLine: integer): string
 
----@class SkillUpGearList
----@field rows SkillUpGearListRow[] The rows placed by the last render, in order.
----@field height number
----@field scrollBox SkillUpScrollBox
----@field Begin fun(self: SkillUpGearList)
----@field Heading fun(self: SkillUpGearList, text: string)
----@field Message fun(self: SkillUpGearList, text: string, color?: ColorMixin)
----@field Item fun(self: SkillUpGearList, item: SkillUpGearItem, profession: SkillUpProfession?)
----@field Finish fun(self: SkillUpGearList)
-
----@alias SkillUpGearListRow SkillUpGearRow|SkillUpGearHeading|SkillUpGearMessage
-
----@class SkillUpGearRow : Button
----@field kind "item"
----@field item SkillUpGearItem
----@field Icon Texture
----@field IconBorder Texture
----@field Name FontString
----@field Detail FontString
----@field tooltip? fun(tooltip: GameTooltip)
----@field click? fun()
----@field UpdateTooltip fun(self: SkillUpGearRow)
-
----@class SkillUpGearHeading : Frame
----@field kind "heading"
----@field Text FontString
-
----@class SkillUpGearMessage : Frame
----@field kind "message"
----@field Text FontString
-
 ---@class SkillUpGearPage : Frame
----@field List SkillUpGearList
+---@field List SkillUpList
 ---@field ShowAll CheckButton
 ---@field ShowAllLabel FontString
 
@@ -461,7 +437,6 @@ SkillUpForeverDB = nil
 ---@field vendorItems integer[]
 ---@field RouteList SkillUpList
 ---@field ReagentList SkillUpList
----@field PriceAge FontString
 
 ---@class SkillUpBar : Frame
 ---@field track Frame

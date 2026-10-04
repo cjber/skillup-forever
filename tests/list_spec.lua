@@ -1,9 +1,11 @@
 -- Run from the repository root: luajit tests/list_spec.lua
--- A list row's layout: where the name stops, and that a note beside it is the one kept whole.
+-- The addon's list rows: a full-size item icon in its stock border, the name beside it and the
+-- supporting facts on the line under it, with headings and messages in stock fonts and the frames
+-- reused between renders.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
--- A frame or region that records its anchors, text and visibility; anything else is accepted and ignored.
+-- A frame or region that records its anchors, text, colour and visibility; anything else is accepted and ignored.
 local function Region()
 	local methods = {
 		SetPoint = function(self, ...)
@@ -15,8 +17,29 @@ local function Region()
 		SetText = function(self, text)
 			self.text = text
 		end,
+		SetTextColor = function(self, r, g, b)
+			self.color = { r, g, b }
+		end,
 		SetShown = function(self, shown)
 			self.shown = shown
+		end,
+		Show = function(self)
+			self.shown = true
+		end,
+		Hide = function(self)
+			self.shown = false
+		end,
+		SetSize = function(self, width, height)
+			self.width, self.height = width, height
+		end,
+		SetWidth = function(self, width)
+			self.width = width
+		end,
+		SetHeight = function(self, height)
+			self.height = height
+		end,
+		SetWordWrap = function(self, wrap)
+			self.wordWrap = wrap
 		end,
 		SetScript = function(self, name, script)
 			self.scripts[name] = script
@@ -42,13 +65,7 @@ local function Region()
 end
 
 local color = { GetRGB = function() end }
-local events = {}
-local ns = {
-	WhenEvent = function(event, watcher)
-		events[event] = watcher
-	end,
-	WhenStale = function() end,
-}
+local ns = { WhenEvent = function() end, WhenStale = function() end }
 local env = setmetatable({
 	GameTooltip = Region(),
 	CreateFrame = Region,
@@ -57,15 +74,11 @@ local env = setmetatable({
 	ScrollBoxConstants = {},
 	HIGHLIGHT_FONT_COLOR = color,
 	GRAY_FONT_COLOR = color,
+	NORMAL_FONT_COLOR = color,
 }, { __index = _G })
 setfenv(assert(loadfile("UI/List.lua")), env)("SkillUpForever", ns)
 
--- The route's columns, listed right to left: each is its width and an 8 gap left of the one before.
-local list = ns.CreateList(Region(), {
-	{ title = "Cost", width = 64 },
-	{ title = "To", width = 28 },
-	{ title = "Crafts", width = 36 },
-})
+local list = ns.CreateList(Region())
 
 -- The anchor a region was last given at `point`: its arguments after the point's name.
 local function Anchor(region, point)
@@ -78,43 +91,50 @@ local function Anchor(region, point)
 	return found or {}
 end
 
-list:Add({ text = "Heavy Linen Bandage", values = { "3", "80", "12" } })
-local craft = list.rows[1]
-equal(Anchor(craft.Text, "RIGHT")[2], -156, "a name stops short of the columns its row fills")
-equal(craft.Note.shown, false, "a row without a note shows none")
+-- A row is the game's item: a 37px icon in the stock border, the name beside it, the facts under it.
+list:Begin()
+list:Add({ icon = 134400, text = "Heavy Linen Bandage", detail = "18 crafts to 90, 54s" })
+local row = list.rows[1]
+equal(row.kind, "row", "a row is the list's item row")
+equal(Anchor(row.Icon, "LEFT")[2], 6, "the icon sits 6 in from the left")
+equal(row.Icon.width, 37, "at the game's own item size")
+equal(row.Icon.shown, true, "and is shown when the entry has one")
+equal(row.IconBorder.shown, true, "with the stock item border over it")
+equal(row.Text.text, "Heavy Linen Bandage", "the name is beside the icon")
+equal(Anchor(row.Text, "TOPLEFT")[2], row.Icon, "anchored to the icon")
+equal(Anchor(row.Text, "TOPLEFT")[3], "TOPRIGHT", "at its right")
+equal(Anchor(row.Text, "RIGHT")[2], row, "and stops at the row's right")
+equal(row.Detail.text, "18 crafts to 90, 54s", "the facts are on the line under the name")
+equal(Anchor(row.Detail, "TOPLEFT")[2], row.Text, "under the name")
+equal(Anchor(row.Detail, "TOPLEFT")[3], "BOTTOMLEFT", "at its bottom left")
 
-list:Add({ text = "Brilliant Smallfish", note = "vendor", values = { "?", "85" } })
-local scroll = list.rows[2]
-equal(scroll.Note.text, "vendor", "a note is its own text")
-equal(scroll.Note.shown, true, "and is shown")
-equal(Anchor(scroll.Note, "RIGHT")[2], -112, "at the right of the room, the empty column's included")
-equal(Anchor(scroll.Text, "RIGHT")[2], scroll.Note, "the name stops at the note")
-equal(Anchor(scroll.Text, "RIGHT")[3], "LEFT", "so the name is cut, never the note")
+-- A row with no facts shows none, as a total or a name-only line does.
+list:Add({ text = "Total 54s" })
+equal(list.rows[2].Detail.shown, false, "a row without facts shows no detail")
 
--- A row's tooltip, drawn on hover. The game calls its owner's UpdateTooltip a few times a second, and drops
--- the lines a row added under an item's tooltip when that item's data arrives late.
-local drawn = 0
-list:Add({
-	text = "Slitherskin Mackerel",
-	tooltip = function()
-		drawn = drawn + 1
-	end,
-})
-local hovered = list.rows[3]
-hovered.scripts.OnEnter(hovered)
-equal(drawn, 1, "a hover draws the row's tooltip")
-hovered:UpdateTooltip()
-equal(drawn, 1, "which is left alone while nothing new has come")
-events.TOOLTIP_DATA_UPDATE()
-hovered:UpdateTooltip()
-equal(drawn, 2, "and drawn again, lines and all, once late item data has")
-hovered:UpdateTooltip()
-equal(drawn, 2, "once")
-events.MODIFIER_STATE_CHANGED()
-hovered:UpdateTooltip()
-equal(drawn, 3, "and again when Shift redraws the item's tooltip")
-events.TOOLTIP_DATA_UPDATE()
-craft:UpdateTooltip()
-equal(drawn, 3, "a row without a tooltip draws none")
+-- Headings and messages are the list's own stock lines.
+list:Heading("Head")
+local heading = list.rows[3]
+equal(heading.kind, "heading", "a heading is its own kind")
+equal(heading.Text.text, "Head", "with its text")
+list:Message("Nothing to buy for this route.")
+local message = list.rows[4]
+equal(message.kind, "message", "a message is its own kind")
+equal(message.Text.text, "Nothing to buy for this route.", "with its text")
+equal(message.Text.wordWrap, true, "wrapped")
+equal(message.Text.width, 288, "to the scroll box's width")
+list:Finish()
+
+-- The frames are reused between renders and the ones a later render does not use are hidden.
+list:Begin()
+list:Add({ text = "One" })
+list:Add({ text = "Two" })
+list:Finish()
+local first, second = list.rows[1], list.rows[2]
+list:Begin()
+list:Add({ text = "One" })
+list:Finish()
+equal(list.rows[1], first, "a row is reused between renders")
+equal(second.shown, false, "and the frame a later render does not use is hidden")
 
 Client.report("list_spec")

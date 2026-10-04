@@ -302,7 +302,9 @@ local reagents = {
 local plan = {
 	target = 100,
 	crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green", expectedCrafts = 5 } },
-	steps = {},
+	steps = {
+		{ craft = { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green", expectedCrafts = 5 } },
+	},
 	ranks = {},
 	cost = 0,
 	unpriced = 0,
@@ -325,6 +327,9 @@ local ns = {
 	GatheredBy = {},
 	FormatNet = function(copper)
 		return tostring(copper)
+	end,
+	NetCost = function()
+		return 10
 	end,
 	Have = function()
 		return 0
@@ -610,7 +615,17 @@ end
 local headings = { Find("Route"), Find("Reagents  (have / need)") }
 equal(headings[1] ~= nil and headings[2] ~= nil, true, "the two inset headings exist")
 
--- The switch and its label are one control; the vendor button sits to its right, in the row's free space.
+local pageL, pageB, pageR, pageT = Rect(page)
+for _, heading in ipairs(headings) do
+	local left, bottom, right, top = Rect(heading)
+	equal(left > pageL and right < pageR, true, heading.text .. " sits inside the page's width")
+	equal(top < pageT and bottom > pageB, true, heading.text .. " sits inside the page's height")
+	equal(overlaps(heading, titleBar), false, heading.text .. " misses the title bar")
+	equal(overlaps(heading, ProfessionsFrame.portrait), false, heading.text .. " misses the portrait")
+end
+
+-- The switch and its label are one control in the header; the vendor button and Craft sit in the row
+-- under the route, and Track and To Auctionator under the reagents.
 local controls = {
 	page.Collect,
 	page.CollectLabel,
@@ -625,6 +640,11 @@ for index, control in ipairs(controls) do
 	for _, heading in ipairs(headings) do
 		equal(overlaps(control, heading), false, names[index] .. " misses the " .. heading.text .. " heading")
 	end
+	local left, bottom, right, top = Rect(control)
+	equal(left > pageL and right < pageR, true, names[index] .. " sits inside the page's width")
+	equal(top < pageT and bottom > pageB, true, names[index] .. " sits inside the page's height")
+	equal(overlaps(control, titleBar), false, names[index] .. " misses the title bar")
+	equal(overlaps(control, ProfessionsFrame.portrait), false, names[index] .. " misses the portrait")
 end
 for index, control in ipairs(controls) do
 	equal(Width(control) > 0, true, names[index] .. " has a width to overlap with")
@@ -634,34 +654,50 @@ for i = 1, #controls do
 		equal(overlaps(controls[i], controls[j]), false, names[i] .. " misses " .. names[j])
 	end
 end
--- The price-age note moved above the route, clear of both headings and the bottom row.
-equal(Width(page.PriceAge) > 0, true, "the price-age note has a width to overlap with")
-for _, heading in ipairs(headings) do
-	equal(overlaps(page.PriceAge, heading), false, "the price-age note misses the " .. heading.text .. " heading")
-end
-for index, control in ipairs(controls) do
-	equal(overlaps(page.PriceAge, control), false, "the price-age note misses " .. names[index])
-end
 
--- The row's controls hang off existing regions, never off a hand-measured offset from the window top.
+-- The controls hang off existing regions, never off a hand-measured offset from the window top.
 local switchAnchor = page.Collect.points[1]
-equal(switchAnchor.relative, insets[1], "the switch hangs off the route inset")
-equal(switchAnchor.relativePoint, "BOTTOMLEFT", "at the inset's bottom left, in the row")
+equal(switchAnchor.relative, page.Target, "the switch hangs off the target it changes")
+equal(switchAnchor.relativePoint, "RIGHT", "at the target's right, in the header")
 local vendorAnchor = page.Vendor.points[1]
-equal(vendorAnchor.relative, page.CollectLabel, "the vendor button hangs off the switch's label")
+equal(vendorAnchor.relative, insets[1], "the vendor button hangs off the route inset")
+equal(vendorAnchor.relativePoint, "BOTTOMLEFT", "at its bottom left, in the row")
 
--- A reagent name has the whole remaining width of its row: with the icon at the left and the two value
--- columns at 64 and 48 and their gaps, that is 82.5 units at the real window size.
-local nameWidth = Width(page.ReagentList.rows[1].Text)
-equal(nameWidth, 82.5, "a reagent row gives its name the width the row has")
-for _, row in ipairs(page.ReagentList.rows) do
-	local name = row.Text.text
-	equal(
-		TextWidth(name) <= nameWidth,
-		true,
-		"reagent " .. tostring(name) .. " fits in its name's width, not cut short"
-	)
+-- A route row is the game's item row: a full icon in its stock border, the name beside it and the
+-- crafts, target and cost on the line under it, all inside the route inset.
+local routeLeft, routeBottom, routeRight, routeTop = Rect(insets[1])
+local routeRows = 0
+for _, row in ipairs(page.RouteList.rows) do
+	if row.kind == "row" then
+		routeRows = routeRows + 1
+		local left, bottom, right, top = Rect(row)
+		equal(Width(row.Icon) >= 36, true, "a route row's icon is a full item icon")
+		equal(left >= routeLeft and right <= routeRight, true, "the route row is inside its inset's width")
+		equal(top <= routeTop and bottom >= routeBottom, true, "and inside its height")
+		local textLeft, textBottom, textRight = Rect(row.Text)
+		equal(textLeft > left and textRight < right, true, "the name is inside the row")
+		local detailLeft, _, detailRight, detailTop = Rect(row.Detail)
+		equal(detailLeft >= textLeft and detailRight <= textRight, true, "the facts line spans the name's width")
+		equal(detailTop <= textBottom, true, "and sits under the name")
+	end
 end
+equal(routeRows, 1, "the route list draws its step as a row")
+
+-- A reagent row is the same item row: the icon, the name and where it comes from with how many of
+-- the route's need the bags hold.
+local reagentLeft, reagentBottom, reagentRight, reagentTop = Rect(insets[2])
+local reagentRows = 0
+for _, row in ipairs(page.ReagentList.rows) do
+	if row.kind == "row" then
+		reagentRows = reagentRows + 1
+		local left, bottom, right, top = Rect(row)
+		equal(Width(row.Icon) >= 36, true, "a reagent row's icon is a full item icon")
+		equal(left >= reagentLeft and right <= reagentRight, true, "the reagent row is inside its inset's width")
+		equal(top <= reagentTop and bottom >= reagentBottom, true, "and inside its height")
+		equal(Width(row.Text), 183.5, "a reagent row gives its name the width the row has")
+	end
+end
+equal(reagentRows, 3, "the reagent list draws a row a reagent")
 
 -- The gear page is the window's other page. Its title, switch and rows all sit inside the visible
 -- page, under the window's title bar and clear of its portrait, as the route page's own controls do.
@@ -701,7 +737,7 @@ equal(routeTab.checked, false, "and the route tab unchecked")
 -- Every row carries a full-size item icon, inside the inset and under its slot heading.
 local items, heading = {}, Find("Head")
 for _, row in ipairs(gearPage.List.rows) do
-	if row.kind == "item" and row:IsShown() then
+	if row.kind == "row" and row:IsShown() then
 		items[#items + 1] = row
 	end
 end
@@ -717,7 +753,7 @@ end
 
 -- A known recipe opens on the crafting page, a trainable one sets a waypoint to where it is
 -- learned, and one out of reach does nothing.
-equal(items[1].item.recipeID, 2001, "the newest recipe is first")
+equal(items[1].entry.text, "Known Helm", "the newest recipe is first")
 items[1].click()
 equal(opened[1], 2001, "a known gear row opens its recipe")
 items[2].click()

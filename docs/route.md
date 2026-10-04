@@ -4,7 +4,7 @@ The detail behind the README's *Levelling route* and *Shopping list* features.
 
 ## Levelling route
 
-A map tab under the Professions window's side tabs opens a SkillUp page. Pick any of your professions that craft (it starts on the open one) and type a target skill. The page lists the cheapest crafts to get there, like `12× Heavy Linen Bandage to 90`, each with its cost, then the total.
+A map tab under the Professions window's side tabs opens a SkillUp page. Pick any of your professions that craft (it starts on the open one) and type a target skill. The page lists the cheapest crafts to get there, each drawn as the game draws an item: a full icon, the recipe's name and, under it, how many crafts, the skill it reaches and the cost, then the total.
 
 ### How it picks
 
@@ -14,7 +14,7 @@ A map tab under the Professions window's side tabs opens a SkillUp page. Pick an
 
 ### The steps
 
-Steps are a table of recipe, crafts, target skill and cost. Hover one for the crafted item, its colour bands, the reagents for that step and its cost, or click it to open the recipe.
+Each step is one row: the recipe's full-size icon in its stock border, the name beside it and, under it, the crafts, the skill it reaches and the cost. A *Train* step shows its fee and the skill the trainer wants instead. Hover one for the crafted item, its colour bands, the reagents for that step and its cost, or click it to open the recipe.
 
 *Craft* under the route crafts its first step as many times as it needs and your bags allow, while that profession is open.
 
@@ -50,7 +50,7 @@ Each shows the scroll's price (what it cost at the auction house or at a merchan
 
 ## Shopping list
 
-Beside the route is every reagent it needs, with how many you have (bags and bank), green once covered. Hover one for what your other characters hold ([Syndicator](https://www.curseforge.com/wow/addons/syndicator), same realm and faction).
+Beside the route is every reagent it needs, one row each: a full icon, the name and, under it, where it comes from and how many you have (bags and bank), green once covered. Hover one for what your other characters hold ([Syndicator](https://www.curseforge.com/wow/addons/syndicator), same realm and faction).
 
 ### Gathered reagents
 

@@ -527,6 +527,9 @@ env = setmetatable({
 	UnitLevel = function()
 		return STATE.level
 	end,
+	GetBuildInfo = function()
+		return "1.60.1", "70205", "Sep 24 2026", 16001
+	end,
 	UnitName = function()
 		return "Player"
 	end,

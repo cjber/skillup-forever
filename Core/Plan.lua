@@ -137,19 +137,26 @@ end
 
 local BAND_NAMES = { "orange", "yellow", "green", "grey" }
 
--- The skill where a recipe can first be learned: what a trainer asks, what its scroll asks, else
--- the data's first threshold, which can sit far below where a recipe is taught.
+-- The skill where a recipe can first be learned: what a trainer asks, else the requirement of the
+-- pattern or recipe item that teaches it, else the catalogue's scroll skill, else nothing the data
+-- knows. The client's own orange is not a requirement: for many recipes it is left at 1.
 ---@param profession SkillUpContext
 ---@param recipeID integer
 ---@return number
 function ns.LearnSkill(profession, recipeID)
-	local t = ns.Model.Get(recipeID)
 	local training = ns.TrainingFor(profession, recipeID)
-	local scroll = not training and ns.Catalogue.Recipe(recipeID)
-	return training and training[2] + profession.modifier
-		or (scroll and scroll.skill and scroll.skill + profession.modifier)
-		or (t and t[1])
-		or 0
+	if training then
+		return training[2] + profession.modifier
+	end
+	local scroll = ns.RecipeScrolls[recipeID]
+	if scroll then
+		return scroll[2] + profession.modifier
+	end
+	local source = ns.Catalogue.Recipe(recipeID)
+	if source and source.skill then
+		return source.skill + profession.modifier
+	end
+	return 0
 end
 
 -- Each difficulty band a recipe still has and the skill it starts at, from where the recipe can

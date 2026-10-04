@@ -6,10 +6,12 @@ local L = ns.L
 -- can equip, ready for UI/Gear.lua to draw. Newness is the item's required level, nothing else,
 -- so there are no stat weights and no best-in-slot claim.
 
--- Equipment slots the view lists, in order. Several inventory types share one slot: a robe is a
--- chest, a main-hand item is a one-hand weapon, a shield, held item and off-hand weapon are all
--- the off hand.
----@type {name: string, types: integer[]}[]
+-- Equipment slots the view lists, in the character sheet's order: the left column down one side,
+-- the right column down the other and the weapon slots along the bottom. The sheet's two ring and
+-- two trinket slots share one list each, and a two-handed weapon shares the main-hand list with a
+-- one-hander, because an item's inventory type names the slot it goes in, not which of the pair. The
+-- shirt, tabard and ammo slots are left out: no crafted gear goes in them.
+---@type { name: string, types: integer[] }[]
 local GROUPS = {
 	{ name = L["Head"], types = { 1 } },
 	{ name = L["Neck"], types = { 2 } },
@@ -23,12 +25,9 @@ local GROUPS = {
 	{ name = L["Feet"], types = { 8 } },
 	{ name = L["Finger"], types = { 11 } },
 	{ name = L["Trinket"], types = { 12 } },
-	{ name = L["Main hand"], types = { 13, 21 } },
-	{ name = L["Two-handed"], types = { 17 } },
+	{ name = L["Main hand"], types = { 13, 17, 21 } },
 	{ name = L["Off hand"], types = { 14, 22, 23 } },
-	{ name = L["Ranged"], types = { 15, 26 } },
-	{ name = L["Thrown"], types = { 25 } },
-	{ name = L["Relic"], types = { 28 } },
+	{ name = L["Ranged"], types = { 15, 25, 26, 28 } },
 }
 
 ---@type table<integer, integer>
@@ -238,7 +237,8 @@ function Gear.List(recipes, facts, query)
 			local state
 			if learned then
 				state = "known"
-			elseif not profession then
+			elseif not profession or not skill then
+				-- Without a requirement the recipe cannot be called craftable, so it counts as another's.
 				state = "other"
 			elseif profession.skill >= skill then
 				state = "trainable"
@@ -255,7 +255,7 @@ function Gear.List(recipes, facts, query)
 				if
 					not held
 					or STATE_RANK[state] < STATE_RANK[held.state]
-					or (STATE_RANK[state] == STATE_RANK[held.state] and skill < held.skill)
+					or (STATE_RANK[state] == STATE_RANK[held.state] and (skill or -1) < (held.skill or -1))
 				then
 					bucket[itemID] = {
 						recipeID = recipeID,
@@ -272,28 +272,26 @@ function Gear.List(recipes, facts, query)
 			end
 		end
 	end
+	-- Every slot is returned, empty or not, so the page can draw the character sheet's own slots.
 	local slots = {}
 	for index, group in ipairs(GROUPS) do
-		local bucket = found[index]
-		if bucket then
-			local items = {}
-			for _, item in pairs(bucket) do
-				items[#items + 1] = item
-			end
-			table.sort(items, function(a, b)
-				if a.level ~= b.level then
-					return a.level > b.level
-				end
-				if a.skill ~= b.skill then
-					return a.skill > b.skill
-				end
-				return (a.name or tostring(a.itemID)) < (b.name or tostring(b.itemID))
-			end)
-			while #items > MAX_PER_SLOT do
-				items[#items] = nil
-			end
-			slots[#slots + 1] = { slot = index, name = group.name, items = items }
+		local items = {}
+		for _, item in pairs(found[index] or {}) do
+			items[#items + 1] = item
 		end
+		table.sort(items, function(a, b)
+			if a.level ~= b.level then
+				return a.level > b.level
+			end
+			if (a.skill or -1) ~= (b.skill or -1) then
+				return (a.skill or -1) > (b.skill or -1)
+			end
+			return (a.name or tostring(a.itemID)) < (b.name or tostring(b.itemID))
+		end)
+		while #items > MAX_PER_SLOT do
+			items[#items] = nil
+		end
+		slots[#slots + 1] = { slot = index, name = group.name, items = items }
 	end
 	return slots
 end
@@ -309,7 +307,8 @@ function ns.CraftedGear(level, classID)
 	local function LearnSkill(recipeID)
 		local recipe = ns.RecipeData[recipeID]
 		local profession = recipe and (professions[recipe.skillLine] or { skillLine = recipe.skillLine, modifier = 0 })
-		return profession and ns.LearnSkill(profession, recipeID) or 0
+		local skill = profession and ns.LearnSkill(profession, recipeID) or 0
+		return skill > 0 and skill or nil
 	end
 	return Gear.List(ns.RecipeData, ns.ItemGear, {
 		level = level,

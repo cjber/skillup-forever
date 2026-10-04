@@ -309,14 +309,15 @@ function ns.RecipeSuggestions(profession, base)
 	return found
 end
 
--- The base skill a scroll asks for: AtlasLoot's, else where the recipe starts, which is where a scroll is
--- usually learnable.
+-- The base skill a scroll asks for: AtlasLoot's, else the bundled scroll's own requirement, else
+-- where the recipe starts, which is where a scroll is usually learnable.
 ---@param recipeID integer
 ---@param source SkillUpScrollSource
 ---@return number
 function ns.ScrollSkill(recipeID, source)
+	local scroll = ns.RecipeScrolls[recipeID]
 	local t = ns.Model.Get(recipeID)
-	return source.skill or (t and t[1]) or 0
+	return source.skill or (scroll and scroll[2]) or (t and t[1]) or 0
 end
 
 -- The scroll's price: what it last sold for at auction or at a merchant's window.

@@ -28,6 +28,7 @@ Each row shows its chance and cost, with the tooltip breaking it down per reagen
 - **Shopping list**: every reagent the route needs, how many you have, green once covered. *Track* puts it beside your quests; *Buy tracked reagents* buys what a vendor sells; with Auctionator, *To Auctionator* makes a shopping list. Gathered reagents are free. [More](docs/route.md#shopping-list).
 - **Profession trainer**: recipes show their row text (`62% · 45s`), and the one that most cheapens or extends your route gets a green arrow, fee included. An unknown recipe shows `?`.
 - **Reagent tooltips**: hovering an item shows what your tracked routes need. Hold Shift for every recipe of your professions that uses it and still skills up, with its colour: `Heavy Linen Bandage    yellow until 115`.
+- **Crafted gear**: a *Gear* tab beside the window draws your character sheet again, one item a slot down both sides and the weapon slots along the bottom, each showing the newest thing you could craft for it. The pane in the middle names the pick, the skill its recipe is learned at, its state, its reagents with how many you have, and one button to open the recipe or walk to where it is taught. Not a best-in-slot list. [More](docs/gear.md).
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
 

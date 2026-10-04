@@ -502,6 +502,11 @@ function Client.load(options)
 			return copper .. "c"
 		end,
 	}
+	G.C_PaperDollInfo = {
+		GetInventorySlotInfo = function()
+			return 0, 134400
+		end,
+	}
 	G.GetMerchantNumItems = function()
 		return c.merchant and #c.merchant or 0
 	end

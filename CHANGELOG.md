@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-10-04
+
 - **An AtlasLoot that is switched off is no longer called missing.** With AtlasLoot installed but not running, because it is unticked or held back as out of date, the route said to install it. It now says to enable it in the AddOns list, or to update it.
 - **A suggested recipe's source can be read.** Where the route stops, each recipe scroll's row ran its source into its name and cut it short, so *vendor*, *quest* and *drop* all read as a few letters. The source now sits whole beside the columns and a long name is the part that is shortened.
 - **A vendor inside the other faction's capital is not yours.** The holiday vendors stand in every capital and count as friendly to both sides, so an Alliance character could be sent to one in Thunder Bluff. A vendor or trainer inside a capital city now counts as that city's side only: it is shown in red in a scroll's tooltip and never gets the waypoint.

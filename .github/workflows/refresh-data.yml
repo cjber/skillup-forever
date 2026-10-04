@@ -1,8 +1,10 @@
 name: Refresh profession data
 
-# Opens a PR when wago.tools lists a newer Forever build whose recipe data differs, then runs CI
-# on it: a PR opened with GITHUB_TOKEN gets its pull_request runs only as runs awaiting approval.
-# Daily: beta builds have shipped several times a week.
+# Opens a PR with regenerated data when a generator pin has a newer upstream: the Forever or Classic
+# Era build on wago.tools, or the Skillet-Classic or LibPeriodicTable file a generator reads.
+# CI on a PR opened with GITHUB_TOKEN waits for a maintainer's approval, so the Lua checks run here
+# first and the ci job dispatches the full CI on the PR's branch.
+# Daily: beta builds have shipped several times a week. A scheduled run that fails opens an issue.
 on:
   schedule:
     - cron: "0 6 * * *"
@@ -24,39 +26,52 @@ jobs:
         with:
           # create-pull-request authenticates with its own `token` input.
           persist-credentials: false
-      - name: Pin the newest Forever build
-        id: build
+      - name: Pin the newest upstreams
+        id: pins
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          build=$(python3 tools/latest_build.py)
-          echo "version=$build" >> "$GITHUB_OUTPUT"
-          if grep -q "^BUILD = \"$build\"" tools/gen_thresholds.py; then
-            echo "already on $build"
-            echo "new=false" >> "$GITHUB_OUTPUT"
-            exit 0
+          moved=$(python3 tools/bump_pins.py)
+          echo "moved=$moved" >> "$GITHUB_OUTPUT"
+          if [ -z "$moved" ]; then
+            echo "already on $(sed -n 's/^BUILD = "\(.*\)"/\1/p' tools/gen_thresholds.py) and every other newest pin"
           fi
-          echo "new=true" >> "$GITHUB_OUTPUT"
-          sed -i -E "s/^BUILD = \".*\"/BUILD = \"$build\"/; s/^SOURCE_DATE = \".*\"/SOURCE_DATE = \"$(date -u +%F)\"/" tools/gen_thresholds.py
-      - if: steps.build.outputs.new == 'true'
+      - if: steps.pins.outputs.moved != ''
         run: |
           python3 tools/gen_thresholds.py
           python3 tools/gen_vendor.py
           python3 tools/gen_recipes.py
           python3 tools/gen_trainer.py
           python3 tools/gen_sources.py
-          python3 tools/check_generated.py --offline
-      - if: steps.build.outputs.new == 'true'
-        run: sudo apt-get update && sudo apt-get install -y luajit && luajit tests/model_spec.lua
-      - if: steps.build.outputs.new == 'true'
+      - if: steps.pins.outputs.moved != ''
+        run: python3 tools/check_generated.py --offline
+      - if: steps.pins.outputs.moved != ''
+        run: |
+          sudo apt-get update && sudo apt-get install -y luajit lua-check
+          luacheck .
+          for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
+      - if: steps.pins.outputs.moved != ''
+        uses: JohnnyMorganz/stylua-action@76fd70c03e6340ceaf673366712db9b20560b402 # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: 2.5.2
+          args: --check .
+      - if: steps.pins.outputs.moved != ''
         id: pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          branch: data/forever-${{ steps.build.outputs.version }}
-          title: "data: thresholds, recipes and prices for Forever ${{ steps.build.outputs.version }}"
-          commit-message: "data: thresholds, recipes and prices for Forever ${{ steps.build.outputs.version }}"
+          branch: data/refresh
+          title: "data: profession data for ${{ steps.pins.outputs.moved }}"
+          commit-message: "data: profession data for ${{ steps.pins.outputs.moved }}"
           body: |
-            Regenerated `Data/Thresholds.lua`, `Data/Vendor.lua` and `Data/Recipes.lua` from the profession, reagent, output, price and spell-name DB2s of Forever build ${{ steps.build.outputs.version }}, and `Data/Trainer.lua` and `Data/Sources.lua` (trainer fees and ranks, who trains what, drop chances and gathered reagents: what QuestieDB and AtlasLoot do not hold) from CMaNGOS classic-db against that build.
+            A generator pin moved to its newest upstream: ${{ steps.pins.outputs.moved }}. All five `Data` files are regenerated; `tools/README.md` names each file's sources.
 
-            Before merging, run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.
+            - `Data/Thresholds.lua`, `Data/Recipes.lua` and `Data/Vendor.lua` come from the Forever build's own DB2 tables on wago.tools (skill ranges, reagents, outputs, prices and spell names), with Skillet-Classic's orange thresholds as a baseline and LibPeriodicTable's list of vendor-sold reagents.
+            - `Data/Trainer.lua` and `Data/Sources.lua` hold what QuestieDB and AtlasLoot do not: trainer fees and ranks, which trainer teaches a profession, a scroll's drop chances and which reagents a gathering skill yields. These come from the pinned CMaNGOS classic-db dump, which this workflow never moves, joined to Classic Era's teaching spells and limited to the recipes the Forever build has. Vendors, quests and where NPCs stand are read in game from the player's QuestieDB and AtlasLoot and are not regenerated.
+
+            Before merging, read the diff for recipes that dropped out, and run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.
+
+            CI is dispatched on this branch straight away; approve the pending workflows on this PR too, since only those count as its required checks.
 
   ci:
     needs: refresh
@@ -69,3 +84,32 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ needs.refresh.outputs.branch }}
+
+  # One open "Data refresh failed" issue: a failed scheduled run opens it or adds to it, and the next
+  # one that passes closes it.
+  report:
+    needs: [refresh, ci]
+    if: always() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          FAILED: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          issue=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Data refresh failed"' \
+            --json number,title --jq '[.[] | select(.title == "Data refresh failed")][0].number // empty')
+          if [ "$FAILED" = true ]; then
+            body="The scheduled data refresh failed: $RUN_URL
+
+          The bundled data stays on its old pins until this is fixed. Run \`python3 tools/bump_pins.py\` and the generators in \`tools/README.md\` to reproduce it."
+            if [ -n "$issue" ]; then
+              gh issue comment "$issue" --repo "$GITHUB_REPOSITORY" --body "Failed again: $RUN_URL"
+            else
+              gh issue create --repo "$GITHUB_REPOSITORY" --title "Data refresh failed" --body "$body"
+            fi
+          elif [ -n "$issue" ]; then
+            gh issue close "$issue" --repo "$GITHUB_REPOSITORY" --comment "The refresh passed again: $RUN_URL"
+          fi

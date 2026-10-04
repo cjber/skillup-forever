@@ -26,6 +26,12 @@ function A.Ready()
 	return Recipes() ~= nil
 end
 
+-- True when AtlasLoot is in the AddOns list but not running: switched off, or held back as out of date.
+---@return boolean
+function A.Idle()
+	return Recipes() == nil and C_AddOns.DoesAddOnExist("AtlasLootClassic")
+end
+
 -- The skill a scroll needs and the recipe it teaches.
 ---@param itemID integer
 ---@return number? skill

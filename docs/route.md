@@ -39,7 +39,7 @@ If nothing you know skills up far enough, the route stops there and says so. It 
 
 These come from the [Questie](https://www.curseforge.com/wow/addons/questie) and [AtlasLoot](https://www.curseforge.com/wow/addons/atlaslootclassic) you have installed. AtlasLoot says which scroll teaches which recipe; Questie says who sells it, which quest rewards it and where they are. Without one, a line says which to install, and the list holds what the other can still tell.
 
-Each shows the scroll's price (what it cost at the auction house or at a merchant's window you have opened, `?` until then) and how far it reaches. Hover one for every vendor, quest and drop with its zone and coordinates. Click it for a waypoint to the nearest vendor or the likeliest drop.
+Each shows the scroll's price (what it cost at the auction house or at a merchant's window you have opened, `?` until then) and how far it reaches. Hover one for its vendors (the nearest four, and a count of the rest), quests and drops, with zone and coordinates. Click it for a waypoint to the nearest vendor or the likeliest drop.
 
 ### Waypoints
 

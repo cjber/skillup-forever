@@ -7,6 +7,8 @@ local equal = Client.equal
 local TAILORING = 197
 local SOLD, HORDE_SOLD, QUESTED, DROPPED, WORLD, ADVANCED = 11, 12, 13, 14, 15, 16
 local SELLER, HORDE_SELLER, FAR_SELLER, BOSS, TRAINER, HOSTILE_TRAINER = 301, 302, 303, 304, 305, 306
+local FARTHER_SELLER, FARTHEST_SELLER, BLUFF_SELLER = 307, 308, 309
+local THUNDER_BLUFF = 1638
 local COOK, ISLE = 900, 2
 local THREAD = 2321
 
@@ -46,9 +48,13 @@ local function Load(questie, atlasLoot, saved)
 				[BOSS] = { name = "Boss", spawns = { [1581] = { { -1, -1 } } } },
 				[TRAINER] = { name = "Trainer", spawns = { [10] = { { 50, 50 } } }, side = "AH" },
 				[HOSTILE_TRAINER] = { name = "Hostile Trainer", spawns = { [10] = { { 1, 1 } } } },
+				[FARTHER_SELLER] = { name = "Farther Seller", spawns = { [10] = { { 70, 70 } } }, side = "A" },
+				[FARTHEST_SELLER] = { name = "Farthest Seller", spawns = { [10] = { { 80, 80 } } }, side = "A" },
+				-- Friendly to both by QuestieDB, inside a Horde capital.
+				[BLUFF_SELLER] = { name = "Bluff Seller", spawns = { [THUNDER_BLUFF] = { { 2, 2 } } }, side = "AH" },
 			},
 			quests = { [401] = { name = "For the Horde", races = 178 }, [402] = { name = "A Fine Shirt", races = 77 } },
-			areas = { [10] = 10 },
+			areas = { [10] = 10, [THUNDER_BLUFF] = 10 },
 		} or nil,
 		atlasLoot = atlasLoot and {
 			recipes = {
@@ -111,9 +117,43 @@ equal(
 	c.Lines(function(tooltip)
 		ns.AddSourceLines(tooltip, suggestions[1].source)
 	end),
-	"Sold by: Seller |  : Darkshire  30, 40 | Sold by: Horde Seller |  : Darkshire  31, 41"
-		.. " | Sold by: Far Seller |  : Darkshire  60, 60",
-	"every vendor is listed with where it stands"
+	"Sold by: Seller |  : Darkshire  30, 40 | Sold by: Far Seller |  : Darkshire  60, 60"
+		.. " | Sold by: Horde Seller |  : Darkshire  31, 41",
+	"every vendor is listed with where it stands, the ones of your faction nearest first"
+)
+-- A scroll with more vendors than a tooltip has room for: the nearest four, and a count of the rest.
+local many = {
+	item = 200 + SOLD,
+	vendors = { HORDE_SELLER, SELLER, FAR_SELLER, FARTHER_SELLER, FARTHEST_SELLER, BLUFF_SELLER },
+	quests = {},
+	drops = {},
+}
+equal(ns.NearestNPC({ BLUFF_SELLER }), nil, "a vendor inside the other faction's capital is nobody's nearest")
+equal(ns.NearestNPC(many.vendors), SELLER, "however near it stands")
+equal(
+	c.Lines(function(tooltip)
+		ns.AddSourceLines(tooltip, many)
+	end),
+	"Sold by: Seller |  : Darkshire  30, 40 | Sold by: Far Seller |  : Darkshire  60, 60"
+		.. " | Sold by: Farther Seller |  : Darkshire  70, 70 | Sold by: Farthest Seller |  : Darkshire  80, 80"
+		.. " | +2 more",
+	"a long list of vendors stops at the nearest four"
+)
+equal(
+	c.Lines(function(tooltip)
+		ns.AddSourceLines(tooltip, many, FARTHEST_SELLER)
+	end),
+	"Sold by: Farthest Seller |  : Darkshire  80, 80 | Sold by: Seller |  : Darkshire  30, 40"
+		.. " | Sold by: Far Seller |  : Darkshire  60, 60 | Sold by: Farther Seller |  : Darkshire  70, 70"
+		.. " | +2 more",
+	"the vendor a click goes to is listed first"
+)
+equal(
+	c.Lines(function(tooltip)
+		ns.AddSourceLines(tooltip, suggestions[1].source, BOSS)
+	end):find("Boss", 1, true),
+	nil,
+	"and nobody who does not sell the scroll is"
 )
 equal(
 	c.Lines(function(tooltip)

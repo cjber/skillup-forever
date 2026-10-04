@@ -122,6 +122,26 @@ function ns.SeeVendor(itemIDs)
 	)
 end
 
+-- Those of these NPCs this character can deal with, nearest first. Ties keep the data's order, so the same
+-- few are estimated each time.
+---@param npcIDs integer[]
+---@return {npcID: integer, distance: number, index: integer}[]
+local function Ranked(npcIDs)
+	local candidates = {}
+	for index, npcID in ipairs(npcIDs) do
+		if Usable(npcID) then
+			candidates[#candidates + 1] = { npcID = npcID, distance = Distance(npcID), index = index }
+		end
+	end
+	table.sort(candidates, function(a, b)
+		if a.distance ~= b.distance then
+			return a.distance < b.distance
+		end
+		return a.index < b.index
+	end)
+	return candidates
+end
+
 -- Of these NPCs, the nearest this character can deal with (the other faction's
 -- won't trade or train), else nil. With `byTravel` (a click or tooltip, never a
 -- redraw) and Shortest Path Forever loaded, the straight-line nearest few are
@@ -133,19 +153,7 @@ end
 ---@param byTravel boolean?
 ---@return integer?
 function ns.NearestNPC(npcIDs, byTravel)
-	local candidates = {}
-	for index, npcID in ipairs(npcIDs) do
-		if Usable(npcID) then
-			candidates[#candidates + 1] = { npcID = npcID, distance = Distance(npcID), index = index }
-		end
-	end
-	-- Ties keep the data's order, so the same few are estimated each time.
-	table.sort(candidates, function(a, b)
-		if a.distance ~= b.distance then
-			return a.distance < b.distance
-		end
-		return a.index < b.index
-	end)
+	local candidates = Ranked(npcIDs)
 	local first = candidates[1]
 	local best = first and (first.distance < math.huge or #candidates == 1) and first or nil
 	local api = byTravel and first and not InCombatLockdown() and ShortestPath()
@@ -208,7 +216,7 @@ local KIND_TEXT = { L["vendor"], L["quest"], L["drop"], L["world drop"] }
 ---@return integer?
 ---@return integer?
 local function Kind(source)
-	-- A scroll's vendors are few and all listed in its tooltip: far ones still make it a vendor's scroll.
+	-- Its tooltip lists a scroll's vendors: far ones still make it a vendor's scroll.
 	local vendor = ns.NearestNPC(source.vendors)
 	for _, npcID in ipairs(source.vendors) do
 		vendor = vendor or (Usable(npcID) and npcID or nil)
@@ -315,13 +323,44 @@ local function AddNPC(tooltip, left, npcID, suffix, usable)
 	GameTooltip_AddColoredDoubleLine(tooltip, " ", ns.LocationText(where), NORMAL_FONT_COLOR, GRAY_FONT_COLOR)
 end
 
+-- A tooltip names this many of a scroll's vendors and counts the rest: each takes two lines.
+local SELLERS_SHOWN = 4
+
+-- A scroll's vendors as its tooltip lists them: `first` (where a click goes), then the others this character
+-- can deal with, nearest first, then the other faction's.
+---@param source SkillUpScrollSource
+---@param first integer?
+---@return integer[]
+local function Sellers(source, first)
+	local order, sells = { first }, {}
+	for _, candidate in ipairs(Ranked(source.vendors)) do
+		order[#order + 1] = candidate.npcID
+	end
+	for _, npcID in ipairs(source.vendors) do
+		order[#order + 1] = npcID
+		sells[npcID] = true
+	end
+	local sellers = {}
+	for _, npcID in ipairs(order) do
+		if sells[npcID] and C.NPC(npcID) then
+			sells[npcID] = nil
+			sellers[#sellers + 1] = npcID
+		end
+	end
+	return sellers
+end
+
+-- Where the scroll comes from. `first` is the vendor to list first, when a click goes to one.
 ---@param tooltip GameTooltip
 ---@param source SkillUpScrollSource
-function ns.AddSourceLines(tooltip, source)
-	for _, npcID in ipairs(source.vendors) do
-		if C.NPC(npcID) then
-			AddNPC(tooltip, L["Sold by"], npcID, nil, Usable(npcID))
-		end
+---@param first integer?
+function ns.AddSourceLines(tooltip, source, first)
+	local sellers = Sellers(source, first)
+	for index = 1, math.min(#sellers, SELLERS_SHOWN) do
+		AddNPC(tooltip, L["Sold by"], sellers[index], nil, Usable(sellers[index]))
+	end
+	if #sellers > SELLERS_SHOWN then
+		GameTooltip_AddDisabledLine(tooltip, string.format(L["+%d more"], #sellers - SELLERS_SHOWN))
 	end
 	for _, questID in ipairs(source.quests) do
 		local quest = C.Quest(questID)

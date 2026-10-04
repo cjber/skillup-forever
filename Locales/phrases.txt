@@ -25,6 +25,7 @@ L["Add the skill each recipe needs. Recipes you can't make yet always show it."]
 L["Addon"] = "Addon"
 L["Annotate trainer recipes"] = "Annotate trainer recipes"
 L["At the %d cap: no trainer teaches the next rank."] = "At the %d cap: no trainer teaches the next rank."
+L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] = "AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."
 L["Attach to quest tracker"] = "Attach to quest tracker"
 L["Auction house"] = "Auction house"
 L["Auction price if higher"] = "Auction price if higher"

@@ -94,8 +94,9 @@ function C.Status()
 	return { questie = Q.State(), atlasLoot = A.Ready(), reading = running, failure = failure }
 end
 
--- One plain line naming what to install for where recipes, vendors and trainers are; nil with both. With
--- `places`, only what names a vendor or trainer matters, which is Questie.
+-- One plain line naming what to install for where recipes, vendors and trainers are; nil with both. An
+-- AtlasLoot that is installed but not running is told apart from a missing one. With `places`, only what
+-- names a vendor or trainer matters, which is Questie.
 ---@param places boolean?
 ---@return string?
 function C.Hint(places)
@@ -106,6 +107,8 @@ function C.Hint(places)
 		return L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."]
 	elseif state == "missing" then
 		return L["Install Questie to see vendors, quests and trainers, with waypoints to them."]
+	elseif not atlasLoot and A.Idle() then
+		return L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."]
 	elseif not atlasLoot then
 		return L["Install AtlasLoot to see the recipes vendors, quests and drops would add."]
 	end

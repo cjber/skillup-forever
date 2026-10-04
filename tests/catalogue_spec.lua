@@ -9,6 +9,9 @@ local SHIRT, ROBE, BOOTS, CLOAK = 101, 102, 103, 104
 local PATTERN_SHIRT, PATTERN_SHIRT_HORDE, PATTERN_ROBE, PATTERN_BOOTS = 201, 202, 203, 204
 local SELLER, HORDE_SELLER, HOSTILE, BOSS, TRAINER = 301, 302, 303, 304, 305
 local ELWYNN, DEADMINES, GOLDSHIRE = 12, 1581, 87
+-- Holiday vendors QuestieDB calls friendly to both, standing in a capital city or a part of one.
+local BLUFF_SELLER, RISE_SELLER, STORMWIND_SELLER = 306, 307, 308
+local THUNDER_BLUFF, ELDER_RISE, STORMWIND = 1638, 1639, 1519
 
 local function Database()
 	return {
@@ -28,10 +31,13 @@ local function Database()
 			[HOSTILE] = { name = "Hostile", spawns = { [ELWYNN] = { { 20, 20 } } } },
 			[BOSS] = { name = "Boss", spawns = { [DEADMINES] = { { -1, -1 } } }, zone = DEADMINES },
 			[TRAINER] = { name = "Trainer", spawns = { [ELWYNN] = { { 50, 50 } } }, zone = ELWYNN, side = "AH" },
+			[BLUFF_SELLER] = { name = "Bluff Seller", spawns = { [THUNDER_BLUFF] = { { 39, 61 } } }, side = "AH" },
+			[RISE_SELLER] = { name = "Rise Seller", spawns = { [ELDER_RISE] = { { 70, 30 } } }, side = "AH" },
+			[STORMWIND_SELLER] = { name = "Stormwind Seller", spawns = { [STORMWIND] = { { 62, 70 } } }, side = "AH" },
 		},
 		quests = { [401] = { name = "A Fine Shirt", races = 77 }, [402] = { name = "For All", races = 0 } },
 		areas = { [ELWYNN] = 1429 },
-		parents = { [GOLDSHIRE] = ELWYNN },
+		parents = { [GOLDSHIRE] = ELWYNN, [ELDER_RISE] = THUNDER_BLUFF },
 	}
 end
 local function Recipes()
@@ -83,6 +89,9 @@ local function Load(questieDB, atlasLootDB, options)
 		C_AddOns = {
 			GetAddOnMetadata = function(_, field)
 				return field == "X-Flavor" and (options.flavour or "Forever") or nil
+			end,
+			DoesAddOnExist = function(name)
+				return options.installed == name
 			end,
 		},
 		C_Timer = {
@@ -195,6 +204,9 @@ equal(seller.side, "A", "an Alliance vendor")
 equal(C.NPC(HORDE_SELLER).side, "H", "a Horde vendor")
 equal(C.NPC(TRAINER).side, "", "friendly to both")
 equal(C.NPC(HOSTILE).side, nil, "hostile to both")
+equal(C.NPC(BLUFF_SELLER).side, "H", "friendly to both inside a Horde capital deals with the Horde")
+equal(C.NPC(RISE_SELLER).side, "H", "as it does in a part of that city")
+equal(C.NPC(STORMWIND_SELLER).side, "A", "and inside an Alliance capital with the Alliance")
 equal(c.Frame(), false, "nothing is left running once settled")
 
 --[[ Either provider ]]
@@ -202,6 +214,11 @@ equal(c.Frame(), false, "nothing is left running once settled")
 c = Load(Database(), nil)
 C = c.ns.Catalogue
 equal(C.Hint(), "Install AtlasLoot to see the recipes vendors, quests and drops would add.", "without AtlasLoot")
+equal(
+	Load(Database(), nil, { installed = "AtlasLootClassic" }).ns.Catalogue.Hint(),
+	"AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date.",
+	"an AtlasLoot that is installed but not running is not called missing"
+)
 C.EnsureProfession(TAILORING)
 c.Settle()
 equal(C.Recipe(SHIRT), nil, "QuestieDB names no recipe on its scrolls here, so none is found")

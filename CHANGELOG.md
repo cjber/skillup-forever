@@ -11,6 +11,13 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **An AtlasLoot that is switched off is no longer called missing.** With AtlasLoot installed but not running, because it is unticked or held back as out of date, the route said to install it. It now says to enable it in the AddOns list, or to update it.
+- **A suggested recipe's source can be read.** Where the route stops, each recipe scroll's row ran its source into its name and cut it short, so *vendor*, *quest* and *drop* all read as a few letters. The source now sits whole beside the columns and a long name is the part that is shortened.
+- **A vendor inside the other faction's capital is not yours.** The holiday vendors stand in every capital and count as friendly to both sides, so an Alliance character could be sent to one in Thunder Bluff. A vendor or trainer inside a capital city now counts as that city's side only: it is shown in red in a scroll's tooltip and never gets the waypoint.
+- **A long list of sellers fits on the screen.** A scroll sold by many vendors listed every one and its tooltip ran past the bottom of the screen. It now lists four, starting with the one a click takes you to and then the nearest you can buy from, and counts the rest.
+- **A route row's tooltip is whole on the first hover.** The first time you hovered a recipe or reagent on the route page after logging in, its tooltip showed the item and none of the route's own lines, such as *Requires*, *Sold by* and the click hints; they only appeared on a second hover. The game was redrawing the item once its details arrived, and the row now draws its lines again when that happens. Pressing Shift over a row dropped them the same way, and no longer does.
+- **A scroll's tooltip names it once.** Under the crafted item's own tooltip the route repeated the item's name. The name is now added only when the recipe is called something else, as with *Train* steps.
+
 ## [0.7.0] - 2026-10-03
 
 - **A vendor you have bought from is the one a step names.** Standing at a vendor Questie does not know, the buy step still sent you to one it did. Opening a merchant's window now notes which of your reagents and recipe scrolls that vendor sells and where you stood, so from then on the step, its tooltip and its waypoint use that vendor whenever it is the nearest, with or without Questie.

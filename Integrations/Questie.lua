@@ -21,6 +21,9 @@ local RECIPE_CLASS = 9
 local ALLIANCE_RACES, HORDE_RACES = 77, 178
 -- friendlyToFaction as the side that can deal with the NPC; hostile to both is nil.
 local SIDES = { A = "A", H = "H", AH = "" }
+-- The capital cities by area ID, as the side that holds each. QuestieDB calls a holiday vendor standing in
+-- one friendly to both, but the other side cannot reach it past the guards.
+local CAPITALS = { [1519] = "A", [1537] = "A", [1657] = "A", [1637] = "H", [1497] = "H", [1638] = "H" }
 
 ---@class SkillUpQuestie
 local Q = {}
@@ -224,8 +227,18 @@ local function Spawn(spawns, home)
 	return area, best[1] / 100, best[2] / 100
 end
 
+-- The side that holds the capital city an area is in, or is a part of; nil anywhere else.
+---@param area integer?
+---@return string?
+local function Capital(area)
+	if not (area and zones) then
+		return nil
+	end
+	return CAPITALS[area] or CAPITALS[zones.parentOverride[area] or zones.parent[area]]
+end
+
 -- An NPC's name, the side that can deal with it, and where it stands: a zone map position in 0-1, or only
--- its area when it is in a dungeon.
+-- its area when it is in a dungeon. One friendly to both inside a capital city deals with that city's side.
 ---@param npcID integer
 ---@return SkillUpSourceNPC?
 function Q.NPC(npcID)
@@ -233,8 +246,9 @@ function Q.NPC(npcID)
 	if not (values and type(values[1]) == "string") then
 		return nil
 	end
-	local npc = { name = values[1], side = SIDES[values[4]] }
 	local area, x, y = Spawn(values[2], values[3])
+	local side = SIDES[values[4]]
+	local npc = { name = values[1], side = side == "" and Capital(area) or side }
 	local map = area and x and Map(area)
 	if map then
 		npc.map, npc.x, npc.y = map, x, y

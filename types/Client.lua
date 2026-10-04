@@ -254,7 +254,7 @@ C_Trainer = {}
 ---@field GetContextMenuParent fun(self: SkillUpTrackerModule): Frame
 ---@field GetBlock fun(self: SkillUpTrackerModule, id: integer): SkillUpTrackerBlock
 ---@field LayoutBlock fun(self: SkillUpTrackerModule, block: SkillUpTrackerBlock): boolean
----@type Frame
+---@type ForeverNativeTrackerFrame
 ObjectiveTrackerFrame = nil
 
 ---@class ForeverTrackerHostAPI

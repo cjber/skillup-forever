@@ -80,8 +80,8 @@ ProfessionsFrame = nil
 function CreateTreeDataProvider() end
 
 ---@class SkillUpScrollBox : Frame
----@field FullUpdate fun(self: SkillUpScrollBox, immediate?: boolean)
 ---@field ScrollToBegin fun(self: SkillUpScrollBox)
+---@field SetDataProvider fun(self: SkillUpScrollBox, provider: SkillUpDataProvider, retain?: boolean)
 
 ---@class SkillUpRecipeScrollBox : SkillUpScrollBox, CallbackRegistryMixin
 ---@field GetDataProvider fun(self: SkillUpRecipeScrollBox): SkillUpTreeProvider?
@@ -90,13 +90,22 @@ function CreateTreeDataProvider() end
 ---@class SkillUpScrollBar : Frame
 ---@field SetHideIfUnscrollable fun(self: SkillUpScrollBar, hide: boolean)
 
----@class SkillUpScrollContent : Frame
----@field scrollable boolean
+---@class SkillUpDataProvider
+---@field GetSize fun(self: SkillUpDataProvider): integer
+
+---@param tbl? table
+---@return SkillUpDataProvider
+function CreateDataProvider(tbl) end
+
+---@alias SkillUpElementInitializer fun(frame: Frame, elementData: SkillUpListElement)
+---@alias SkillUpElementFactory fun(factory: fun(template: string, initializer: SkillUpElementInitializer), elementData: SkillUpListElement)
 
 ---@class SkillUpScrollView
----@field SetPanExtent fun(self: SkillUpScrollView, extent: number)
+---@field SetElementExtent fun(self: SkillUpScrollView, extent: number)
+---@field SetElementExtentCalculator fun(self: SkillUpScrollView, calculator: fun(dataIndex: integer, elementData: SkillUpListElement): number)
+---@field SetElementFactory fun(self: SkillUpScrollView, elementFactory: SkillUpElementFactory)
 ---@return SkillUpScrollView
-function CreateScrollBoxLinearView() end
+function CreateScrollBoxListLinearView() end
 
 ---@type {UpdateImmediately: boolean, RetainScrollPosition: boolean}
 ScrollBoxConstants = {}
@@ -104,7 +113,7 @@ ScrollUtil = {}
 ---@param box SkillUpScrollBox
 ---@param bar SkillUpScrollBar
 ---@param view SkillUpScrollView
-function ScrollUtil.InitScrollBoxWithScrollBar(box, bar, view) end
+function ScrollUtil.InitScrollBoxListWithScrollBar(box, bar, view) end
 ---@param box SkillUpRecipeScrollBox
 ---@param callback fun(owner: SkillUpNamespace, row: SkillUpRecipeRow, node: SkillUpTreeNode)
 ---@param owner SkillUpNamespace

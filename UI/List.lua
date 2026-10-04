@@ -3,9 +3,9 @@ local _, ns = ...
 
 -- The addon's lists draw what they hold the way the game draws its own items: a full-size icon in its
 -- stock border, the item's name beside it in the item-name font and the supporting facts on the line
--- under it. A heading is a stock font line and a message is the list's own hint or empty state. The
--- list scrolls with Blizzard's own scroll box and minimal scroll bar, and keeps its frames between
--- renders.
+-- under it. A heading is a stock font line and a message is the list's own hint or empty state. The list
+-- is the game's scroll box list, which pools the rows and keeps only the ones on screen, laid out by the
+-- templates in UI/Shopping.xml.
 
 local ICON_SIZE = 37
 local ROW_HEIGHT = 46
@@ -13,6 +13,12 @@ local HEADING_HEIGHT = 26
 local MESSAGE_MIN_HEIGHT = 20
 -- Room kept on the right for the scroll bar, so the rows line up with or without it.
 local SCROLL_BAR_WIDTH = 18
+-- Padding inside a message frame, left and right, so the text wraps where the frame does.
+local MESSAGE_PADDING = 12
+
+local ROW_TEMPLATE = "SkillUpForeverListRowTemplate"
+local HEADING_TEMPLATE = "SkillUpForeverListHeadingTemplate"
+local MESSAGE_TEMPLATE = "SkillUpForeverListMessageTemplate"
 
 -- Item data that arrives after a hover makes the game rebuild the item's tooltip, which drops the lines a row
 -- added under it. The tooltip asks its owner for a fresh one first (`owner:UpdateTooltip()`), so a hovered
@@ -50,167 +56,166 @@ local function UpdateTooltip(row)
 	end
 end
 
--- A list in the game's own scroll box: rows the game draws its items with, headings and messages. A
--- caller fills it between Begin and Finish; the list hides the frames a later render does not use.
----@param parent Frame
----@return SkillUpList
-function ns.CreateList(parent)
-	local scrollBox = CreateFrame("Frame", nil, parent, "WowScrollBox") --[[@as SkillUpScrollBox]]
-	scrollBox:SetPoint("TOPLEFT", 4, -4)
-	scrollBox:SetPoint("BOTTOMRIGHT", -SCROLL_BAR_WIDTH, 4)
-	local scrollBar = CreateFrame("EventFrame", nil, parent, "MinimalScrollBar") --[[@as SkillUpScrollBar]]
-	scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 4, 0)
-	scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT", 4, 0)
-	scrollBar:SetHideIfUnscrollable(true)
-	local content = CreateFrame("Frame", nil, scrollBox) --[[@as SkillUpScrollContent]]
-	content.scrollable = true
-	content:SetSize(1, 1)
-	local view = CreateScrollBoxLinearView()
-	view:SetPanExtent(ROW_HEIGHT)
-	ScrollUtil.InitScrollBoxWithScrollBar(scrollBox, scrollBar, view)
+-- The parts a frame draws once, whichever element it later holds. The view pools the frames, so the
+-- initializers draw a frame's parts only the first time they see it; a pooled frame is redrawn from the
+-- element it is given. A weak key lets a released frame be collected.
+local built = setmetatable({}, { __mode = "k" })
 
-	---@class SkillUpList
-	local list = { rows = {}, height = 0, scrollBox = scrollBox }
-	---@type table<"row"|"heading"|"message", Frame[]>
-	local pools = { row = {}, heading = {}, message = {} }
-	---@type table<"row"|"heading"|"message", integer>
-	local used = { row = 0, heading = 0, message = 0 }
+-- The parts a row draws once, whatever entry it later holds.
+---@param row SkillUpListRow
+local function BuildRow(row)
+	row.kind = "row"
+	row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+	row.UpdateTooltip = UpdateTooltip
+	row:SetScript("OnEnter", OnEnter)
+	row:SetScript("OnLeave", GameTooltip_Hide)
+	row:SetScript("OnClick", function()
+		if row.click then
+			row.click()
+		end
+	end)
+	row.Icon = row:CreateTexture(nil, "ARTWORK")
+	row.Icon:SetSize(ICON_SIZE, ICON_SIZE)
+	row.Icon:SetPoint("LEFT", 6, 0)
+	row.IconBorder = row:CreateTexture(nil, "OVERLAY")
+	row.IconBorder:SetTexture("Interface\\Common\\WhiteIconFrame")
+	row.IconBorder:SetSize(ICON_SIZE, ICON_SIZE)
+	row.IconBorder:SetPoint("LEFT", row.Icon, "LEFT", 0, 0)
+	row.Text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	row.Text:SetJustifyH("LEFT")
+	row.Text:SetPoint("TOPLEFT", row.Icon, "TOPRIGHT", 8, -2)
+	row.Text:SetPoint("RIGHT", row, "RIGHT", -8, 0)
+	row.Detail = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	row.Detail:SetJustifyH("LEFT")
+	row.Detail:SetPoint("TOPLEFT", row.Text, "BOTTOMLEFT", 0, -2)
+	row.Detail:SetPoint("RIGHT", row, "RIGHT", -8, 0)
+end
 
-	---@return SkillUpListRow
-	local function CreateRow()
-		local row = CreateFrame("Button", nil, content) --[[@as SkillUpListRow]]
-		row.kind = "row"
-		row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-		row.UpdateTooltip = UpdateTooltip
-		row:SetScript("OnEnter", OnEnter)
-		row:SetScript("OnLeave", GameTooltip_Hide)
-		row:SetScript("OnClick", function()
-			if row.click then
-				row.click()
-			end
-		end)
-		row.Icon = row:CreateTexture(nil, "ARTWORK")
-		row.Icon:SetSize(ICON_SIZE, ICON_SIZE)
-		row.Icon:SetPoint("LEFT", 6, 0)
-		row.IconBorder = row:CreateTexture(nil, "OVERLAY")
-		row.IconBorder:SetTexture("Interface\\Common\\WhiteIconFrame")
-		row.IconBorder:SetSize(ICON_SIZE, ICON_SIZE)
-		row.IconBorder:SetPoint("LEFT", row.Icon, "LEFT", 0, 0)
-		row.Text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		row.Text:SetJustifyH("LEFT")
-		row.Text:SetPoint("TOPLEFT", row.Icon, "TOPRIGHT", 8, -2)
-		row.Text:SetPoint("RIGHT", row, "RIGHT", -8, 0)
-		row.Detail = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		row.Detail:SetJustifyH("LEFT")
-		row.Detail:SetPoint("TOPLEFT", row.Text, "BOTTOMLEFT", 0, -2)
-		row.Detail:SetPoint("RIGHT", row, "RIGHT", -8, 0)
-		return row
+---@param row SkillUpListRow
+---@param elementData SkillUpListElement
+local function InitializeRow(row, elementData)
+	if not built[row] then
+		built[row] = true
+		BuildRow(row)
 	end
+	local entry = elementData.entry --[[@as SkillUpListEntry]]
+	row.entry = entry
+	row.Icon:SetTexture(entry.icon)
+	row.Icon:SetShown(entry.icon ~= nil)
+	row.IconBorder:SetShown(entry.icon ~= nil)
+	if entry.iconColor then
+		row.IconBorder:SetVertexColor(entry.iconColor:GetRGB())
+	else
+		row.IconBorder:SetVertexColor(1, 1, 1)
+	end
+	row.Text:SetText(entry.text)
+	row.Text:SetTextColor((entry.color or HIGHLIGHT_FONT_COLOR):GetRGB())
+	row.Detail:SetText(entry.detail or "")
+	row.Detail:SetShown(entry.detail ~= nil)
+	row.Detail:SetTextColor((entry.detailColor or GRAY_FONT_COLOR):GetRGB())
+	row.tooltip = entry.tooltip
+	row.click = entry.click
+	row:EnableMouse(entry.tooltip ~= nil or entry.click ~= nil)
+end
 
-	---@return SkillUpListHeading
-	local function CreateHeading()
-		local heading = CreateFrame("Frame", nil, content) --[[@as SkillUpListHeading]]
+---@param heading SkillUpListHeading
+---@param elementData SkillUpListElement
+local function InitializeHeading(heading, elementData)
+	if not built[heading] then
+		built[heading] = true
 		heading.kind = "heading"
 		heading.Text = heading:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		heading.Text:SetPoint("BOTTOMLEFT", heading, "BOTTOMLEFT", 6, 4)
-		return heading
 	end
+	heading.Text:SetText(elementData.text)
+	heading.Text:SetTextColor(NORMAL_FONT_COLOR:GetRGB())
+end
 
-	---@return SkillUpListMessage
-	local function CreateMessage()
-		local message = CreateFrame("Frame", nil, content) --[[@as SkillUpListMessage]]
+---@param message SkillUpListMessage
+---@param elementData SkillUpListElement
+local function InitializeMessage(message, elementData)
+	if not built[message] then
+		built[message] = true
 		message.kind = "message"
 		message.Text = message:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		message.Text:SetWordWrap(true)
 		message.Text:SetJustifyH("LEFT")
 		message.Text:SetPoint("TOPLEFT", message, "TOPLEFT", 6, -4)
 		message.Text:SetPoint("RIGHT", message, "RIGHT", -6, 0)
-		return message
 	end
+	message.Text:SetText(elementData.text)
+	message.Text:SetTextColor((elementData.color or GRAY_FONT_COLOR):GetRGB())
+end
 
-	---@param kind "row"|"heading"|"message"
-	---@param create fun(): Frame
-	---@return Frame
-	local function Take(kind, create)
-		used[kind] = used[kind] + 1
-		local frame = pools[kind][used[kind]]
-		if not frame then
-			frame = create()
-			pools[kind][used[kind]] = frame
+-- A list in the game's own scroll box list: rows the game draws its items with, headings and messages. A
+-- caller fills it between Begin and Finish; the game pools the frames and shows only the ones on screen.
+---@param parent Frame
+---@return SkillUpList
+function ns.CreateList(parent)
+	local scrollBox = CreateFrame("Frame", nil, parent, "WowScrollBoxList") --[[@as SkillUpScrollBox]]
+	scrollBox:SetPoint("TOPLEFT", 4, -4)
+	scrollBox:SetPoint("BOTTOMRIGHT", -SCROLL_BAR_WIDTH, 4)
+	local scrollBar = CreateFrame("EventFrame", nil, parent, "MinimalScrollBar") --[[@as SkillUpScrollBar]]
+	scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 4, 0)
+	scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT", 4, 0)
+	scrollBar:SetHideIfUnscrollable(true)
+
+	-- A message's height is its wrapped text's, so one line string measures every message at the width the
+	-- list has now, and the scroll box lays the frames out from that.
+	local measure = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	measure:SetWordWrap(true)
+	measure:Hide()
+
+	local view = CreateScrollBoxListLinearView()
+	view:SetElementExtentCalculator(function(_, elementData)
+		if elementData.kind == "row" then
+			return ROW_HEIGHT
+		elseif elementData.kind == "heading" then
+			return HEADING_HEIGHT
 		end
-		return frame
-	end
+		local width = scrollBox:GetWidth() - MESSAGE_PADDING
+		if width > 0 then
+			measure:SetWidth(width)
+		end
+		measure:SetText(elementData.text)
+		return math.max(MESSAGE_MIN_HEIGHT, measure:GetStringHeight() + 8)
+	end)
+	view:SetElementFactory(function(factory, elementData)
+		if elementData.kind == "row" then
+			factory(ROW_TEMPLATE, InitializeRow)
+		elseif elementData.kind == "heading" then
+			factory(HEADING_TEMPLATE, InitializeHeading)
+		else
+			factory(MESSAGE_TEMPLATE, InitializeMessage)
+		end
+	end)
+	ScrollUtil.InitScrollBoxListWithScrollBar(scrollBox, scrollBar, view)
 
-	---@param self SkillUpList
-	---@param frame SkillUpListFrame
-	---@param height number
-	local function Place(self, frame, height)
-		frame:ClearAllPoints()
-		frame:SetPoint("TOPLEFT", 0, -self.height)
-		frame:SetPoint("RIGHT")
-		frame:SetHeight(height)
-		self.height = self.height + height
-		self.rows[#self.rows + 1] = frame
-		frame:Show()
-	end
+	---@class SkillUpList
+	local list = { rows = {}, scrollBox = scrollBox }
 
 	function list:Begin()
-		self.rows, self.height = {}, 0
+		self.rows = {}
 	end
 
 	---@param text string
 	function list:Heading(text)
-		local heading = Take("heading", CreateHeading) --[[@as SkillUpListHeading]]
-		heading.Text:SetText(text)
-		heading.Text:SetTextColor(NORMAL_FONT_COLOR:GetRGB())
-		Place(self, heading, HEADING_HEIGHT)
+		self.rows[#self.rows + 1] = { kind = "heading", text = text }
 	end
 
 	---@param text string
 	---@param color ColorMixin?
 	function list:Message(text, color)
-		local message = Take("message", CreateMessage) --[[@as SkillUpListMessage]]
-		message.Text:SetText(text)
-		message.Text:SetTextColor((color or GRAY_FONT_COLOR):GetRGB())
-		local width = self.scrollBox:GetWidth() - 12
-		if width > 0 then
-			message.Text:SetWidth(width)
-		end
-		Place(self, message, math.max(MESSAGE_MIN_HEIGHT, message.Text:GetStringHeight() + 8))
+		self.rows[#self.rows + 1] = { kind = "message", text = text, color = color }
 	end
 
 	---@param entry SkillUpListEntry
 	function list:Add(entry)
-		local row = Take("row", CreateRow) --[[@as SkillUpListRow]]
-		row.entry = entry
-		row.Icon:SetTexture(entry.icon)
-		row.Icon:SetShown(entry.icon ~= nil)
-		row.IconBorder:SetShown(entry.icon ~= nil)
-		if entry.iconColor then
-			row.IconBorder:SetVertexColor(entry.iconColor:GetRGB())
-		else
-			row.IconBorder:SetVertexColor(1, 1, 1)
-		end
-		row.Text:SetText(entry.text)
-		row.Text:SetTextColor((entry.color or HIGHLIGHT_FONT_COLOR):GetRGB())
-		row.Detail:SetText(entry.detail or "")
-		row.Detail:SetShown(entry.detail ~= nil)
-		row.Detail:SetTextColor((entry.detailColor or GRAY_FONT_COLOR):GetRGB())
-		row.tooltip = entry.tooltip
-		row.click = entry.click
-		row:EnableMouse(entry.tooltip ~= nil or entry.click ~= nil)
-		Place(self, row, ROW_HEIGHT)
+		self.rows[#self.rows + 1] = { kind = "row", entry = entry }
 	end
 
 	function list:Finish()
-		for kind, pool in pairs(pools) do
-			for index = used[kind] + 1, #pool do
-				pool[index]:Hide()
-			end
-			used[kind] = 0
-		end
-		content:SetHeight(math.max(self.height, 1))
-		scrollBox:FullUpdate(ScrollBoxConstants.UpdateImmediately)
+		self.scrollBox:SetDataProvider(CreateDataProvider(self.rows), ScrollBoxConstants.RetainScrollPosition)
 	end
 	return list
 end

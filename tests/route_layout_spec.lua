@@ -282,6 +282,40 @@ local function CreateFrame(_, _, parent, template)
 	return region
 end
 
+-- The scroll box list, as this spec needs it: the view draws a frame for an element through its element
+-- factory, at the extent it gives that element, and the scroll box stacks them as the client does.
+local function CreateScrollBoxListLinearView()
+	local view = NewRegion(nil)
+	function view:SetElementExtentCalculator(calculator)
+		self.extent = calculator
+	end
+	function view:SetElementFactory(factory)
+		self.factory = factory
+	end
+	return view
+end
+
+local function InitScrollBoxList(scrollBox, _, view)
+	function scrollBox:SetDataProvider(provider)
+		local offset = 0
+		for _, elementData in ipairs(provider.elements) do
+			local template, initializer
+			view.factory(function(name, init)
+				template, initializer = name, init
+			end, elementData)
+			local frame = CreateFrame(nil, nil, self, template)
+			initializer(frame, elementData)
+			local height = view.extent(nil, elementData)
+			frame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -offset)
+			frame:SetPoint("RIGHT", self, "RIGHT")
+			frame:SetHeight(height)
+			offset = offset + height
+			self.frames = self.frames or {}
+			self.frames[#self.frames + 1] = frame
+		end
+	end
+end
+
 local function Color()
 	return {
 		GetRGB = noop,
@@ -514,9 +548,12 @@ local env = setmetatable({
 	HIGHLIGHT_FONT_COLOR = Color(),
 	GRAY_FONT_COLOR = Color(),
 	RED_FONT_COLOR = Color(),
-	CreateScrollBoxLinearView = NewRegion,
-	ScrollUtil = { InitScrollBoxWithScrollBar = noop },
-	ScrollBoxConstants = { UpdateImmediately = 1 },
+	CreateScrollBoxListLinearView = CreateScrollBoxListLinearView,
+	CreateDataProvider = function(elements)
+		return { elements = elements }
+	end,
+	ScrollUtil = { InitScrollBoxListWithScrollBar = InitScrollBoxList },
+	ScrollBoxConstants = { RetainScrollPosition = true },
 	IsModifiedClick = function()
 		return false
 	end,
@@ -682,11 +719,14 @@ equal(craftAnchor.relative, page.Track, "the craft button hangs off the track bu
 equal(craftAnchor.relativePoint, "LEFT", "at the track's left, in the bottom row")
 equal(Width(page.Craft), 240, "the craft button is drawn at its widest label")
 
--- A route row is the game's item row: a full icon in its stock border, the name beside it and the
--- crafts, target and cost on the line under it, all inside the route inset.
+-- The list's scroll box is what the addon places; the game lays the rows out inside it, so the scroll
+-- box must sit inside the inset and every row the game draws inside the scroll box.
 local routeLeft, routeBottom, routeRight, routeTop = Rect(insets[1])
+local boxLeft, boxBottom, boxRight, boxTop = Rect(page.RouteList.scrollBox)
+equal(boxLeft >= routeLeft and boxRight <= routeRight, true, "the route list's scroll box is inside its inset")
+equal(boxTop <= routeTop and boxBottom >= routeBottom, true, "and inside its height")
 local routeRows = 0
-for _, row in ipairs(page.RouteList.rows) do
+for _, row in ipairs(page.RouteList.scrollBox.frames) do
 	if row.kind == "row" then
 		routeRows = routeRows + 1
 		local left, bottom, right, top = Rect(row)
@@ -705,8 +745,15 @@ equal(routeRows, 1, "the route list draws its step as a row")
 -- A reagent row is the same item row: the icon, the name and where it comes from with how many of
 -- the route's need the bags hold.
 local reagentLeft, reagentBottom, reagentRight, reagentTop = Rect(insets[2])
+local reagentBoxLeft, reagentBoxBottom, reagentBoxRight, reagentBoxTop = Rect(page.ReagentList.scrollBox)
+equal(
+	reagentBoxLeft >= reagentLeft and reagentBoxRight <= reagentRight,
+	true,
+	"the reagent list's scroll box is inside its inset"
+)
+equal(reagentBoxTop <= reagentTop and reagentBoxBottom >= reagentBottom, true, "and inside its height")
 local reagentRows = 0
-for _, row in ipairs(page.ReagentList.rows) do
+for _, row in ipairs(page.ReagentList.scrollBox.frames) do
 	if row.kind == "row" then
 		reagentRows = reagentRows + 1
 		local left, bottom, right, top = Rect(row)

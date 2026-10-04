@@ -161,7 +161,8 @@ function ns.ProfessionSkillLine(name, reported)
 	if KNOWN_SKILL_LINES[reported] then
 		return reported
 	end
-	if name and not warned[name] then
+	-- A blank name is the client's answer while no profession is open, not a profession to report.
+	if name and name ~= "" and not warned[name] then
 		warned[name] = true
 		ns.Print(string.format(L["can't identify the profession %s (%s); please report it."], name, tostring(reported)))
 	end

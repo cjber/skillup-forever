@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **No false "can't identify the profession" message.** Learning a recipe with no profession window open printed "can't identify the profession (0); please report it." That line now appears only for a real profession the addon does not know.
 - **The data matches client build 1.60.1.70205.** In this build Winter Boots and the ten camp furnishings (Incense Candle, Greenhouse, Fish Bowl, Fishing Rack, Camp Chair, Field Guide, First Aid Kit, Toxin Study, Lodestone and Rock Garden) no longer give skill-ups, so they show `?` in place of a chance and routes leave them out. Eight wands, from Lesser Magic Wand to Greater Eternal Wand, now sell to a vendor for 1 copper, so crafting one nets a higher cost.
 - **A vendor reagent's tooltip gains its vendor line when the read finishes.** The first hover of a reagent sold by a vendor showed no *Nearest vendor* line while the addon was still reading who sells it, and kept the tooltip without it until the next hover. The row now draws its tooltip again once that read has finished.
 - **Tracking starts when you open the profession you are levelling.** Opening a profession's window, or a trainer that teaches it, now tracks it on its own when its route still has steps, so the tracker, the next training step and the waypoint to where to train are there without pressing *Track*. A profession you stop tracking by hand stays stopped until you start it again.

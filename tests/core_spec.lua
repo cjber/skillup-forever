@@ -68,6 +68,8 @@ for _, complete in ipairs({ false, true }) do
 		equal(ns.ProfessionSkillLine("Skinning", 999), 393, "a gathering profession maps by name")
 		equal(ns.ProfessionSkillLine("Herbalism", 999), 182, "a gathering profession maps by name")
 		equal(ns.ProfessionSkillLine("Fishing", 999), 356, "a gathering profession maps by name")
+		equal(ns.ProfessionSkillLine("", 0), nil, "the client's blank profession is none")
+		equal(#messages, 0, "and is not reported")
 		equal(ns.db.auctions, nil, "the old auction scan table is dropped")
 		equal(ns.db.tracked, nil, "the old scan list is dropped")
 		equal(ns.db.scanAuctions, nil, "the old scan setting is dropped")

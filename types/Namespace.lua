@@ -10,6 +10,12 @@
 ---@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field CharacterKey fun(): string
+---@field RealmKey fun(): string
+---@field ClientBuild fun(): string?
+---@field NoteBuild fun()
+---@field SellerFresh fun(seller: SkillUpSeller): boolean
+---@field AuctionDay fun(): integer
+---@field PrunePrices fun()
 ---@field CollectMode fun(): SkillUpCollectMode
 ---@field SetCollectMode fun(mode: SkillUpCollectMode)
 ---@field ShowAllGear fun(): boolean
@@ -143,6 +149,8 @@
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
 ---@field sellers table<integer, SkillUpSeller>
+---@field priceDays table<string, table<integer, table<integer, number>>> [realm] = { [day] = { [itemID] = copper } }, the last seven days.
+---@field builds string[] The client builds this install has run with, oldest first.
 
 -- A vendor seen at its own window: where the player stood, and what it sold that the addon has a use for.
 ---@class SkillUpSeller
@@ -151,6 +159,7 @@
 ---@field map integer
 ---@field x number
 ---@field y number
+---@field build? string The client build it was last seen on.
 ---@field items table<integer, true>
 
 ---@class SkillUpDB : SkillUpDefaults
@@ -284,8 +293,9 @@ SkillUpForeverDB = nil
 ---@class SkillUpPrice
 ---@field copper number
 ---@field source SkillUpPriceSource
----@field days? number Auctionator ages only.
----@field ageUnavailable? boolean Auctionator age API unavailable or failed.
+---@field basis? integer Auctionator prices only: days of observations behind the price, 1 for its last buyout.
+---@field days? number Auctionator ages only: whole days since the newest observation.
+---@field ageUnavailable? boolean Auctionator age API unavailable or failed, last-buyout prices only.
 ---@field profession? string Gathered reagents only.
 
 ---@class SkillUpValue

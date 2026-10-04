@@ -133,7 +133,7 @@ end
 local function ReadItem(itemID)
 	local found = Q.Item(itemID)
 	for npcID, seller in pairs(ns.db.sellers) do
-		if seller.items[itemID] then
+		if seller.items[itemID] and ns.SellerFresh(seller) then
 			found = found or { vendors = {}, quests = {}, drops = {} }
 			local known = false
 			for _, vendor in ipairs(found.vendors) do
@@ -156,7 +156,7 @@ end
 ---@return SkillUpSourceNPC?
 local function ReadNPC(npcID)
 	local npc, seller = Q.NPC(npcID), ns.db.sellers[npcID]
-	if not seller then
+	if not seller or not ns.SellerFresh(seller) then
 		return npc
 	end
 	return {
@@ -191,6 +191,8 @@ end
 ---@return boolean
 function C.SawVendor(npcID, seller, itemIDs)
 	local known = ns.db.sellers[npcID]
+	-- A vendor last seen two builds ago was left out of the reads; seeing it now brings it back.
+	local fresh = not known or ns.SellerFresh(known)
 	local sells, new = known and known.items or {}, {}
 	for _, itemID in ipairs(itemIDs) do
 		local item = items[itemID]
@@ -202,15 +204,29 @@ function C.SawVendor(npcID, seller, itemIDs)
 			new[#new + 1] = itemID
 		end
 	end
-	if #new == 0 then
+	-- A vendor nothing the addon uses sells is not worth keeping; one already kept is restamped.
+	if not known and #new == 0 then
 		return false
 	end
+	seller.build = ns.ClientBuild()
 	seller.items = sells
 	ns.db.sellers[npcID] = seller
+	if #new == 0 and fresh then
+		return false
+	end
+	local reread = {}
+	if not fresh then
+		for itemID in pairs(sells) do
+			reread[itemID] = true
+		end
+	end
+	for _, itemID in ipairs(new) do
+		reread[itemID] = true
+	end
 	-- Read again here, at the window, so nothing is read while a step is drawn.
 	npcs[npcID] = nil
 	C.NPC(npcID)
-	for _, itemID in ipairs(new) do
+	for itemID in pairs(reread) do
 		items[itemID] = nil
 		C.ItemSources(itemID)
 	end

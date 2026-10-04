@@ -16,6 +16,12 @@ local function Env(messages, callbacks)
 		GetNormalizedRealmName = function()
 			return "Realm"
 		end,
+		GetBuildInfo = function()
+			return "1.60.1", "70205", "Sep 24 2026", 16001, "wow", "1.60.1.70205"
+		end,
+		time = function()
+			return 0
+		end,
 		SlashCmdList = {},
 		DEFAULT_CHAT_FRAME = {
 			AddMessage = function(_, message)
@@ -52,8 +58,19 @@ for _, complete in ipairs({ false, true }) do
 		ns.CraftedGear = Init
 	end
 	local env = Env(messages, callbacks)
-	-- A save from before auction prices moved to Auctionator.
-	env.SkillUpForeverDB = { scanAuctions = true, tracked = { [1] = true }, auctions = {}, vendor = { [1] = 5 } }
+	-- A save from before auction prices moved to Auctionator, and one with vendors and a price store from
+	-- before builds were recorded.
+	env.SkillUpForeverDB = {
+		scanAuctions = true,
+		tracked = { [1] = true },
+		auctions = {},
+		vendor = { [1] = 5 },
+		priceDays = "not a table",
+		sellers = {
+			[7] = { name = "Unstamped", items = {} },
+			[8] = { name = "Stamped", build = "70204", items = {} },
+		},
+	}
 	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 	setfenv(assert(loadfile("Core/Core.lua")), env)("SkillUpForever", ns)
 	callbacks.SkillUpForever()
@@ -75,6 +92,11 @@ for _, complete in ipairs({ false, true }) do
 		equal(ns.db.scanAuctions, nil, "the old scan setting is dropped")
 		equal(ns.db.vendor[1], 5, "vendor prices are kept")
 		equal(ns.db.gatherFree, nil, "the old account-wide gather setting is dropped")
+		equal(type(ns.db.priceDays), "table", "a price store of the wrong type is reset")
+		equal(next(ns.db.priceDays), nil, "and starts empty")
+		equal(ns.db.sellers[7].build, "70205", "a vendor saved without a build is stamped with this one")
+		equal(ns.db.sellers[8].build, "70204", "a vendor that already has a build keeps it")
+		equal(ns.db.builds[#ns.db.builds], "70205", "this build is remembered")
 		equal(ns.CollectMode(), "gather", "a character with no saved choice gathers")
 		ns.SetCollectMode("auction")
 		equal(ns.db.collectModes["Tester-Realm"], "auction", "the choice is saved under this character's key")

@@ -332,7 +332,9 @@ local function RenderRoute(list, plan)
 		RenderSuggestions(list, plan)
 	end
 	if #plan.crafts > 0 and plan.unpriced > 0 then
-		list:Message(string.format(L["%d recipes skipped: reagents not priced yet."], plan.unpriced))
+		list:Message(
+			string.format(L["Route incomplete: %d recipes skipped, their reagents not priced yet."], plan.unpriced)
+		)
 	end
 end
 
@@ -428,32 +430,37 @@ local function RenderReagents(list, reagents)
 	end
 end
 
--- How fresh the auction prices behind this route are: the oldest, since that is
--- the one most likely to be wrong.
+-- How many days the auction prices behind this route are based on: the fewest any of them has, since
+-- that is the one with least behind it, and whether the newest of them is worth a rescan.
 ---@param reagents SkillUpNeededItem[]
 ---@return string
 ---@return ColorMixin
-local function PriceAge(reagents)
-	local oldest
+local function PriceBasis(reagents)
+	local least, stale
 	for _, item in ipairs(reagents) do
 		local price = ns.Price(item.itemID)
-		if
-			price
-			and price.source == "auctionator"
-			and (not oldest or (ns.PriceAge(price) or math.huge) > (ns.PriceAge(oldest) or math.huge))
-		then
-			oldest = price
+		if price and price.source == "auctionator" then
+			local basis = price.basis or 1
+			if not least or basis < least then
+				least = basis
+			end
+			local age = ns.PriceAge(price)
+			if age == nil or age > STALE_AFTER then
+				stale = true
+			end
 		end
 	end
-	if not oldest then
+	if not least then
 		return "", GRAY_FONT_COLOR
 	end
-	local age = ns.PriceAge(oldest)
-	local stale = age == nil or age > STALE_AFTER
-	local text = string.format(
-		stale and L["AH prices from %s: rescan with Auctionator"] or L["AH prices from %s"],
-		ns.PriceAgeText(oldest)
-	)
+	local text
+	if least == 1 then
+		text = stale and L["AH prices are based on one day: rescan with Auctionator."]
+			or L["AH prices are based on one day."]
+	else
+		text = stale and string.format(L["AH prices are based on %d days: rescan with Auctionator."], least)
+			or string.format(L["AH prices are based on %d days."], least)
+	end
 	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 
@@ -586,18 +593,18 @@ local function Render()
 	local reagents = ns.RouteReagents(plan)
 	SetCollectEnabled(CollectChanges(reagents))
 	RenderRoute(page.RouteList, plan)
-	local age, ageColor = PriceAge(reagents)
-	if age ~= "" then
-		page.ReagentList:Message(age, ageColor)
+	local basis, basisColor = PriceBasis(reagents)
+	if basis ~= "" then
+		page.ReagentList:Message(basis, basisColor)
 	end
 	local scan = AutoscanNote(reagents)
 	if scan then
 		page.ReagentList:Message(scan, ns.COLORS.orange)
 	end
-	if #plan.crafts == 0 and plan.unpriced > 0 then
+	RenderReagents(page.ReagentList, reagents)
+	if plan.unpriced > 0 then
+		-- The route is incomplete; the reagents it left out are named, not silently dropped.
 		RenderUnpriced(page.ReagentList, ns.UnpricedReagents(plan))
-	else
-		RenderReagents(page.ReagentList, reagents)
 	end
 	if ns.HasAuctionator() and ns.CollectMode() == "auction" then
 		page.ReagentList:Message(

@@ -539,4 +539,68 @@ end
 buttons[2]:Click()
 equal(#timers > 0, true, "a craft click schedules a redraw")
 
+-- A route with crafts and an unpriced reagent is marked incomplete, and the reagent it left out is
+-- still named in the reagent list.
+page.PlanRoute = function(profession)
+	return {
+		profession = profession,
+		target = 100,
+		crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
+		steps = {},
+		ranks = {},
+		cost = 10,
+		unpriced = 2,
+		unpricedRecipes = { 3277, 3278 },
+	}
+end
+page.RouteReagents = function()
+	return { { itemID = 1, need = 9, source = "vendor" } }
+end
+page.UnpricedReagents = function()
+	return { 2589 }
+end
+pageEnv.C_Item.GetItemNameByID = function(itemID)
+	return "Reagent " .. itemID
+end
+routeTab:Click()
+Drain()
+equal(
+	table.concat(lists[1].messages, " | "):find("Route incomplete: 2 recipes skipped", 1, true) ~= nil,
+	true,
+	"a route with an unpriced reagent is marked incomplete"
+)
+local listed = {}
+for _, row in ipairs(lists[2].rows) do
+	if row.text then
+		listed[row.text] = row.detail
+	end
+end
+equal(listed["Reagent 2589"], "no price", "and the reagent it left out is listed as unpriced")
+
+-- The page says how many days the auction prices are based on, and flags an old one.
+page.Price = function()
+	return { copper = 10, source = "auctionator", basis = 3 }
+end
+page.PriceAge = function()
+	return 0
+end
+routeTab:Click()
+Drain()
+equal(
+	table.concat(lists[2].messages, " | "):find("AH prices are based on 3 days.", 1, true) ~= nil,
+	true,
+	"the reagent list says how many days the prices are based on"
+)
+page.PriceAge = function()
+	return 90000
+end
+routeTab:Click()
+Drain()
+equal(
+	table.concat(lists[2].messages, " | "):find("AH prices are based on 3 days: rescan with Auctionator.", 1, true)
+		~= nil,
+	true,
+	"an old price asks for a rescan"
+)
+
 Client.report("route_spec")

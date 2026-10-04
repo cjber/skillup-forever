@@ -335,6 +335,9 @@ do
 		VendorPrices = { [1] = 5 },
 		GatheredBy = {},
 		db = { craftValue = "vendor" },
+		RealmKey = function()
+			return "Realm"
+		end,
 		CollectMode = function()
 			return "gather"
 		end,
@@ -348,6 +351,12 @@ do
 	local env = setmetatable({
 		CreateFrame = function()
 			return frame
+		end,
+		GetNormalizedRealmName = function()
+			return "Realm"
+		end,
+		time = function()
+			return 0
 		end,
 		C_TradeSkillUI = {
 			GetRecipeSchematic = function(recipeID)

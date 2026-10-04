@@ -141,7 +141,7 @@ end
 -- auctionator (false for a client without it), trackerManager (false for a client without Blizzard's tracker
 -- manager), boot (false to stop before the addon's ADDON_LOADED; c.Boot() then runs it), questie and atlasLoot
 -- (what a synthetic QuestieDB and AtlasLoot hold, as Client.QuestieDB and Client.AtlasLoot take it; a client
--- has neither without them).
+-- has neither without them), build (the client build GetBuildInfo reports).
 function Client.load(options)
 	options = options or {}
 	local G = setmetatable({}, { __index = _G })
@@ -149,6 +149,7 @@ function Client.load(options)
 		G = G,
 		ns = {},
 		now = 0,
+		build = options.build or "70205",
 		frames = {},
 		chat = {},
 		-- { name, icon, rank, max, id, modifier } in spellbook order; `id` is what the client reports for it.
@@ -586,7 +587,10 @@ function Client.load(options)
 					GetAuctionPriceByItemID = function(_, itemID)
 						return c.auction[itemID]
 					end,
-					GetAuctionAgeByItemID = function()
+					GetAuctionAgeByItemID = function(_, itemID)
+						if type(c.auctionAge) == "table" then
+							return c.auctionAge[itemID]
+						end
 						return c.auctionAge
 					end,
 					RegisterForDBUpdate = function(_, fn)
@@ -738,6 +742,12 @@ function Client.load(options)
 	G.DEFAULT, G.OFF, G.UNKNOWN = "Default", "Off", "Unknown"
 	G.debugprofilestop = function()
 		return 0
+	end
+	G.time = function()
+		return c.now
+	end
+	G.GetBuildInfo = function()
+		return "1.60.1", c.build, "Sep 24 2026", 16001, "wow", "1.60.1." .. c.build
 	end
 	G.C_AddOns = {
 		GetAddOnMetadata = function(_, field)

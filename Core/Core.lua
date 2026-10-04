@@ -20,8 +20,13 @@ local DEFAULTS = {
 	companionHints = true,
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
-	-- [npcID] = { name, side, map, x, y, items = { [itemID] = true } }: vendors seen selling a reagent or scroll
+	-- [npcID] = { name, side, map, x, y, build, items = { [itemID] = true } }: vendors seen selling a reagent or scroll
 	sellers = {},
+	-- [realm] = { [day] = { [itemID] = copper } }: each item's lowest auction buyout on a day, the last seven
+	priceDays = {},
+	-- The client builds this install has run with, oldest first: a vendor stops being named two builds
+	-- after the one it was seen on.
+	builds = {},
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
@@ -87,6 +92,14 @@ local function LoadDB()
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
 			loaded[key] = type(value) == "table" and {} or value
+		end
+	end
+	-- A vendor saved before builds were recorded is stamped with the build that upgrades it, so it is
+	-- used for two more builds and then stops being named.
+	local build = ns.ClientBuild()
+	for _, seller in pairs(loaded.sellers) do
+		if type(seller) == "table" and seller.build == nil then
+			seller.build = build
 		end
 	end
 	-- A choice the menu no longer offers (or a typo) goes back to its default.
@@ -226,6 +239,57 @@ end
 ---@return string
 function ns.CharacterKey()
 	return UnitName("player") .. "-" .. GetNormalizedRealmName()
+end
+
+-- The realm this character plays on: prices are kept per realm, not per character.
+---@return string
+function ns.RealmKey()
+	return GetNormalizedRealmName()
+end
+
+-- The client's own build number, nil when it doesn't report one.
+---@return string?
+function ns.ClientBuild()
+	local _, build = GetBuildInfo()
+	return build and build ~= "" and build or nil
+end
+
+-- How many builds the client's history keeps. Two back is all a remembered vendor needs.
+local BUILD_HISTORY = 4
+
+-- The builds this install has run with, in order. A build is remembered once, and older ones fall off
+-- the end. Called once at login.
+function ns.NoteBuild()
+	local build = ns.ClientBuild()
+	if not build then
+		return
+	end
+	local builds = ns.db.builds
+	if builds[#builds] ~= build then
+		builds[#builds + 1] = build
+		while #builds > BUILD_HISTORY do
+			table.remove(builds, 1)
+		end
+	end
+end
+
+-- Whether a vendor seen at its window is recent enough to name. It stays in use for the build it was
+-- seen on and the next one, and is not used once two builds have gone by without seeing it.
+---@param seller SkillUpSeller
+---@return boolean
+function ns.SellerFresh(seller)
+	local current = ns.ClientBuild()
+	local build = seller.build or current
+	if not current or not build or build == current then
+		return true
+	end
+	local builds = ns.db.builds
+	for index = #builds, 1, -1 do
+		if builds[index] == build then
+			return #builds - index < 2
+		end
+	end
+	return false
 end
 
 -- Where the routes take a reagent this character could gather or buy: "gather" prices it free,
@@ -452,6 +516,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 		return
 	end
 	LoadDB()
+	ns.NoteBuild()
 	ns.InitCatalogue()
 	ns.WhenEvent("TRADE_SKILL_LIST_UPDATE", NoteProfessionName)
 	ns.WhenEvent("SKILL_LINES_CHANGED", ForgetDroppedProfessions)

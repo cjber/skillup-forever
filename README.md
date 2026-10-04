@@ -68,9 +68,9 @@ Settings cover rows and tooltips, what crafts count for, sort order, the route t
 Cost per craft counts the recipe's reagents, each at the cheapest price the addon knows:
 
 - **Vendor:** about 50 common trade supplies (thread, vials, flux, dyes, spices) are priced from the start. A vendor you open that sells a reagent for gold updates its price, including your reputation discount.
-- **Auction house:** prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator), whose prices SkillUp uses without scanning the auction house itself; routes re-price as it scans. Without it, a reagent only sold there has no price.
+- **Auction house:** prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator), whose prices SkillUp uses without scanning the auction house itself. Each day Auctionator sees an item, the addon keeps that day's lowest buyout, and the reagent is priced from the middle of the last seven days, so one cheap listing does not move a route; the page says how many days that is. Without it, a reagent only sold there has no price.
 
-By default a craft's vendor sell price comes off its cost; a setting can use its auction price when higher (after the 5% cut). A profitable recipe shows a green `+` and sorts first under *Cheapest skill-up*. Crafted reagents use their auction price too. An unpriced reagent shows no cost rather than a misleadingly cheap one; cost per skill-up is net cost per craft ÷ skill-up chance.
+By default a craft's vendor sell price comes off its cost; a setting can use its auction price when higher (after the 5% cut). A profitable recipe shows a green `+` and sorts first under *Cheapest skill-up*. Crafted reagents use their auction price too. An unpriced reagent shows no cost rather than a misleadingly cheap one, and every recipe that needs it is left out of the route, which names the reagent; cost per skill-up is net cost per craft ÷ skill-up chance.
 
 ## How the numbers work
 

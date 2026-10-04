@@ -38,7 +38,92 @@ local function AuctionatorAPI()
 	return api and api.GetAuctionPriceByItemID and api
 end
 
--- Auction prices come only from Auctionator, with whole days since the price was seen (nil past three weeks).
+-- A day and the number of days the price basis keeps. Simple rules: a day is a day, and seven is a week.
+local DAY = 86400
+local PRICE_DAYS = 7
+
+-- Items this session has priced. A scan files only these, so the saved store stays small.
+---@type table<integer, true>
+local asked = {}
+
+-- The day a scan belongs to.
+---@return integer
+function ns.AuctionDay()
+	return math.floor(time() / DAY)
+end
+
+-- This realm's day -> item -> copper store, created on first use.
+---@return table<integer, table<integer, number>>
+local function PriceDays()
+	local realm = ns.RealmKey()
+	local days = ns.db.priceDays[realm]
+	if not days then
+		days = {}
+		ns.db.priceDays[realm] = days
+	end
+	return days
+end
+
+-- Keeps only the newest PRICE_DAYS days, so the store stays small and the basis stays recent.
+---@param days table<integer, table<integer, number>>
+local function PruneDays(days)
+	local held = {}
+	for day in pairs(days) do
+		held[#held + 1] = day
+	end
+	if #held <= PRICE_DAYS then
+		return
+	end
+	table.sort(held)
+	for index = 1, #held - PRICE_DAYS do
+		days[held[index]] = nil
+	end
+end
+
+-- Prunes every realm's days, called once at login.
+function ns.PrunePrices()
+	if type(ns.db.priceDays) ~= "table" then
+		return
+	end
+	for _, days in pairs(ns.db.priceDays) do
+		PruneDays(days)
+	end
+end
+
+-- The middle of the buyouts this item has been seen at, with how many days that is and the newest one.
+---@param itemID integer
+---@return number? copper
+---@return integer? basis
+---@return integer? newest
+local function StoredPrice(itemID)
+	local days = type(ns.db.priceDays) == "table" and ns.db.priceDays[ns.RealmKey()]
+	if not days then
+		return nil
+	end
+	local values, newest = {}, nil
+	for day, prices in pairs(days) do
+		local copper = prices[itemID]
+		if copper then
+			values[#values + 1] = copper
+			if not newest or day > newest then
+				newest = day
+			end
+		end
+	end
+	if #values == 0 then
+		return nil
+	end
+	table.sort(values)
+	local middle = math.floor((#values + 1) / 2)
+	local copper = values[middle]
+	if #values % 2 == 0 then
+		copper = math.floor((values[middle] + values[middle + 1]) / 2)
+	end
+	return copper, #values, newest
+end
+
+-- Auction prices come only from Auctionator: the middle of the days the item has been seen at, else its
+-- last buyout, with whole days since the price was seen (nil past three weeks).
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function AuctionPrice(itemID)
@@ -46,15 +131,25 @@ local function AuctionPrice(itemID)
 	if not api then
 		return nil
 	end
-	local ok, copper = pcall(api.GetAuctionPriceByItemID, addonName, itemID)
-	if not (ok and type(copper) == "number") then
+	local copper, basis, newest = StoredPrice(itemID)
+	if copper then
+		return {
+			copper = copper,
+			source = "auctionator",
+			basis = basis,
+			days = ns.AuctionDay() - newest,
+		}
+	end
+	local ok, live = pcall(api.GetAuctionPriceByItemID, addonName, itemID)
+	if not (ok and type(live) == "number") then
 		return nil
 	end
-	local okAge, days = pcall(api.GetAuctionAgeByItemID, addonName, itemID)
+	local okAge, age = pcall(api.GetAuctionAgeByItemID, addonName, itemID)
 	return {
-		copper = copper,
+		copper = live,
 		source = "auctionator",
-		days = okAge and type(days) == "number" and days or nil,
+		basis = 1,
+		days = okAge and type(age) == "number" and age or nil,
 		ageUnavailable = not okAge,
 	}
 end
@@ -84,6 +179,7 @@ function ns.Price(itemID)
 	---@type SkillUpPrice|false|nil
 	local cached = priceCache[itemID]
 	if cached == nil then
+		asked[itemID] = true
 		local vendor = ns.db.vendor[itemID] or ns.VendorPrices[itemID]
 		local ah = AuctionPrice(itemID)
 		cached = Gathered(itemID)
@@ -425,10 +521,54 @@ local function PricesChanged()
 	ns.Changed("prices")
 end
 
+-- Auctionator finished processing prices: file today's lowest buyout of each item the addon prices,
+-- keeping the last seven days, then re-price everything.
+local function RecordScan()
+	local api = AuctionatorAPI()
+	if not api then
+		return
+	end
+	local day, today = ns.AuctionDay(), {}
+	for itemID in pairs(asked) do
+		local ok, copper = pcall(api.GetAuctionPriceByItemID, addonName, itemID)
+		if ok and type(copper) == "number" and copper > 0 then
+			local okAge, age = pcall(api.GetAuctionAgeByItemID, addonName, itemID)
+			-- Only a price the age says was seen today is filed: a last buyout the scan left alone is stale.
+			if okAge and type(age) == "number" and age == 0 then
+				local seen = today[itemID]
+				if not seen or copper < seen then
+					today[itemID] = copper
+				end
+			end
+		end
+	end
+	if next(today) then
+		local days = PriceDays()
+		-- A second scan the same day keeps the lowest of the two, never a higher one.
+		local held = days[day]
+		if held then
+			for itemID, copper in pairs(today) do
+				local seen = held[itemID]
+				if not seen or copper < seen then
+					held[itemID] = copper
+				end
+			end
+		else
+			days[day] = today
+		end
+		PruneDays(days)
+	end
+	ns.Changed("prices")
+end
+
 function ns.InitPrices()
 	if type(ns.db.vendor) ~= "table" then
 		ns.db.vendor = {}
 	end
+	if type(ns.db.priceDays) ~= "table" then
+		ns.db.priceDays = {}
+	end
+	ns.PrunePrices()
 	ns.WhenStale("schematics", function()
 		recipes = {}
 		ResetCraftCosts()
@@ -451,8 +591,9 @@ function ns.InitPrices()
 			C_Timer.After(0.5, PricesChanged)
 		end
 	end)
+	-- On this client Auctionator fires this after a search or a full scan has filed its prices.
 	local api = AuctionatorAPI()
 	if api and api.RegisterForDBUpdate then
-		api.RegisterForDBUpdate(addonName, PricesChanged)
+		api.RegisterForDBUpdate(addonName, RecordScan)
 	end
 end

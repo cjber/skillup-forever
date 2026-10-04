@@ -27,7 +27,9 @@ Fees come from the classic trainer data (CMaNGOS), which also says who trains wh
 
 ### Prices
 
-Reagents show where each price comes from and how old it is, and the page flags auction prices older than a day. Auction prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator); without it, a reagent sold only at the auction house has no price.
+Reagents show where each price comes from. Auction prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator): each day it sees an item at the auction house, the addon keeps that day's lowest buyout, for up to seven days, and prices the reagent from the middle of those days, so one cheap listing does not move the route. The page says how many days the price is based on, and asks for a rescan once the newest day is over a day old. Without Auctionator, a reagent sold only at the auction house has no price.
+
+A missing price is unknown, never free. A reagent nobody has priced leaves every recipe that needs it out of the route, the page marks the route incomplete and names those reagents in the reagent list, and buying pays the cheaper of the vendor and auction prices.
 
 ### When the route stops short
 
@@ -45,6 +47,8 @@ Each shows the scroll's price (what it cost at the auction house or at a merchan
 ### Waypoints
 
 *Train* steps and vendor reagents name the nearest trainer (one who teaches that far, of your faction) or vendor, with its zone and coordinates. A click sets a waypoint there. A *Nearest vendor* button in the route page does the same for every vendor reagent the route still needs at once. Names and places come from Questie: without it a step names nobody and its tooltip says so.
+
+A vendor whose window you open is remembered, with where you stood and what it sold, so it is named from then on even without Questie. It is used for the client build you saw it on and the build after; once two builds have gone by without seeing it, it stops being named, though nothing is forgotten.
 
 - With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever) installed, you get its travel route, and "nearest" means quickest to reach by its travel time.
 - Otherwise [TomTom](https://www.curseforge.com/wow/addons/tomtom)'s arrow, else the map's own.

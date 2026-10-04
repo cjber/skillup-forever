@@ -108,7 +108,7 @@ jobs:
             if [ -n "$issue" ]; then
               gh issue comment "$issue" --repo "$GITHUB_REPOSITORY" --body "Failed again: $RUN_URL"
             else
-              gh issue create --repo "$GITHUB_REPOSITORY" --title "Data refresh failed" --body "$body"
+              gh issue create --repo "$GITHUB_REPOSITORY" --title "Data refresh failed" --body "$body" --assignee "$GITHUB_REPOSITORY_OWNER"
             fi
           elif [ -n "$issue" ]; then
             gh issue close "$issue" --repo "$GITHUB_REPOSITORY" --comment "The refresh passed again: $RUN_URL"

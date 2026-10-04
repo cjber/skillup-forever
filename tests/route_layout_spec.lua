@@ -478,6 +478,11 @@ local env = setmetatable({
 		RequestLoadItemDataByID = noop,
 		GetItemInfo = function() end,
 	},
+	C_PaperDollInfo = {
+		GetInventorySlotInfo = function()
+			return 0, 134400
+		end,
+	},
 	Professions = false,
 	ProfessionsFrame = ProfessionsFrame,
 	C_Spell = {
@@ -545,53 +550,60 @@ end
 ns.RouteReagents = function()
 	return reagents
 end
+ns.Reagents = function(recipeID)
+	if recipeID == 2001 then
+		return { { itemID = 1, quantity = 50 }, { itemID = 2, quantity = 20 } }
+	end
+	return {}
+end
 ns.PlanRoute = function(profession)
 	plan.profession = profession
 	return plan
 end
 ns.CraftedGear = function()
 	local profession = FirstAid(1)
-	return {
+	local head = {
 		{
-			slot = 1,
-			name = "Head",
-			items = {
-				{
-					recipeID = 2001,
-					itemID = 1001,
-					name = "Known Helm",
-					skillLine = 129,
-					skill = 30,
-					level = 20,
-					profession = profession.name,
-					learned = true,
-					state = "known",
-				},
-				{
-					recipeID = 2002,
-					itemID = 1002,
-					name = "Trainable Helm",
-					skillLine = 129,
-					skill = 40,
-					level = 20,
-					profession = profession.name,
-					learned = false,
-					state = "trainable",
-				},
-				{
-					recipeID = 2003,
-					itemID = 1003,
-					name = "Far Helm",
-					skillLine = 129,
-					skill = 240,
-					level = 20,
-					profession = profession.name,
-					learned = false,
-					state = "needs",
-				},
-			},
+			recipeID = 2001,
+			itemID = 1001,
+			name = "Known Helm",
+			skillLine = 129,
+			skill = 30,
+			level = 20,
+			profession = profession.name,
+			learned = true,
+			state = "known",
+		},
+		{
+			recipeID = 2002,
+			itemID = 1002,
+			name = "Trainable Helm",
+			skillLine = 129,
+			skill = 40,
+			level = 20,
+			profession = profession.name,
+			learned = false,
+			state = "trainable",
+		},
+		{
+			recipeID = 2003,
+			itemID = 1003,
+			name = "Far Helm",
+			skillLine = 129,
+			skill = 240,
+			level = 20,
+			profession = profession.name,
+			learned = false,
+			state = "needs",
 		},
 	}
+	-- Every character-sheet slot is returned, as the real rule returns them, so a click on an empty
+	-- slot keeps the selection.
+	local slots = {}
+	for index = 1, 15 do
+		slots[index] = { slot = index, name = "Slot " .. index, items = index == 1 and head or {} }
+	end
+	return slots
 end
 ns.NextCraft = function()
 	-- The bottom row is laid out with the craft button at its widest, so a longer label cannot reach
@@ -734,38 +746,77 @@ equal(overlaps(switch, ProfessionsFrame.portrait), false, "and the portrait")
 equal(overlaps(switch, title), false, "and the title")
 equal(switch.points[1].relative, gearInset, "the switch hangs off the gear inset")
 
--- The gear tab shows the page and hides the route's; the first render fills the list.
+-- The gear tab shows the page and hides the route's; the first render fills the doll.
 gearTab.scripts.OnMouseUp(nil, "LeftButton", true)
 equal(gearPage:IsShown(), true, "the gear tab shows the gear page")
 equal(routePage:IsShown(), false, "and hides the route page")
 equal(gearTab.checked, true, "with the gear tab checked")
 equal(routeTab.checked, false, "and the route tab unchecked")
 
--- Every row carries a full-size item icon, inside the inset and under its slot heading.
-local items, heading = {}, Find("Head")
-for _, row in ipairs(gearPage.List.rows) do
-	if row.kind == "row" and row:IsShown() then
-		items[#items + 1] = row
+-- The paper doll: one stock-size slot button a character-sheet slot, inside the inset, clear of the
+-- title bar and portrait, and clear of each other.
+local slots = gearPage.Slots
+equal(#slots, 15, "the doll has a slot a character-sheet slot")
+for index, slot in ipairs(slots) do
+	local left, bottom, right, top = Rect(slot)
+	equal(Width(slot), 37, "slot " .. index .. " is a stock-size item slot")
+	equal(left > insetLeft and right < insetRight, true, "slot " .. index .. " is inside the inset's width")
+	equal(top < gearTop and bottom > insetBottom, true, "slot " .. index .. " is inside its height")
+	equal(overlaps(slot, titleBar), false, "slot " .. index .. " misses the title bar")
+	equal(overlaps(slot, ProfessionsFrame.portrait), false, "slot " .. index .. " misses the portrait")
+end
+for i = 1, #slots do
+	for j = i + 1, #slots do
+		equal(overlaps(slots[i], slots[j]), false, "slot " .. i .. " misses slot " .. j)
 	end
 end
-equal(heading ~= nil and heading.text == "Head", true, "the gear list draws its slot heading")
-equal(#items, 3, "the gear list draws a row a recipe")
-for _, row in ipairs(items) do
-	local left, bottom, right, top = Rect(row)
-	equal(Width(row.Icon) >= 36, true, "a gear row's icon is a full item icon")
-	equal(left > insetLeft and right < insetRight, true, "the row is inside the inset's width")
-	equal(top < gearTop and bottom > insetBottom, true, "and inside its height")
-	equal(overlaps(row, titleBar), false, "the row misses the title bar")
-end
 
--- A known recipe opens on the crafting page, a trainable one sets a waypoint to where it is
--- learned, and one out of reach does nothing.
-equal(items[1].entry.text, "Known Helm", "the newest recipe is first")
-items[1].click()
-equal(opened[1], 2001, "a known gear row opens its recipe")
-items[2].click()
-equal(waypoints[1], 1234, "a trainable gear row sets a waypoint to where it is learned")
-equal(items[3].click, nil, "a gear row out of reach does nothing on a click")
+-- The pane for the selected slot: the pick's icon and name, its reagents and its one button, all
+-- inside the pane and clear of the doll.
+local pane = gearPage.Detail
+local paneLeft, paneBottom, paneRight, paneTop = Rect(pane)
+equal(pane.Body:IsShown(), true, "the pane shows a pick")
+equal(pane.Empty:IsShown(), false, "and not its empty state")
+for index, slot in ipairs({ slots[1], slots[7], slots[13] }) do
+	equal(overlaps(slot, pane), false, "doll slot " .. index .. " misses the pane")
+end
+local iconLeft, iconBottom, iconRight, iconTop = Rect(pane.Icon)
+equal(iconRight - iconLeft >= 36, true, "the pane's icon is a full-size item icon")
+equal(iconLeft >= paneLeft and iconRight <= paneRight, true, "the pane's icon is inside the pane")
+equal(iconTop <= paneTop and iconBottom >= paneBottom, true, "and inside its height")
+equal(pane.Name.text ~= nil, true, "the pane names the pick")
+local nameLeft, _, _, nameTop = Rect(pane.Name)
+equal(nameLeft > iconRight, true, "the name sits beside the icon")
+equal(nameTop <= iconTop, true, "at the icon's top")
+equal(pane.ReagentRows[1] ~= nil and pane.ReagentRows[1]:IsShown(), true, "the pane draws its reagents")
+equal(Width(pane.ReagentRows[1].Icon) >= 36, true, "a reagent row's icon is a full item icon")
+local paneReagentLeft, _, paneReagentRight = Rect(pane.ReagentRows[1])
+equal(paneReagentLeft >= paneLeft and paneReagentRight <= paneRight, true, "the reagent row is inside the pane")
+equal(overlaps(pane.ReagentRows[1], pane.Action), false, "a reagent row misses the action button")
+local paneActionLeft, _, paneActionRight = Rect(pane.Action)
+equal(paneActionLeft >= paneLeft and paneActionRight <= paneRight, true, "the action button is inside the pane")
+equal(overlaps(pane.Action, titleBar), false, "the action button misses the title bar")
+equal(pane.Also:IsShown(), true, "the pane lists the slot's other items")
+equal(pane.OtherRows[1] ~= nil and pane.OtherRows[1]:IsShown(), true, "with a row a remaining item")
+local paneOtherLeft, _, paneOtherRight = Rect(pane.OtherRows[1])
+equal(paneOtherLeft >= paneLeft and paneOtherRight <= paneRight, true, "the other item's row is inside the pane")
+
+-- The action button: a known pick opens the recipe, a trainable one sets a waypoint to where it is
+-- taught, and one out of reach is disabled with the reason why.
+pane.Action:Click()
+equal(opened[1], 2001, "a known pick's button opens its recipe")
+pane.OtherRows[1]:Click()
+equal(pane.Action.text, "Set waypoint", "a trainable pick's button names the waypoint")
+pane.Action:Click()
+equal(waypoints[1], 1234, "a trainable pick's button sets a waypoint to where it is learned")
+pane.OtherRows[2]:Click()
+equal(pane.Action:IsEnabled(), false, "a pick out of reach disables its button")
+equal(pane.Action.reason ~= nil, true, "with the reason why")
+
+-- Clicking a slot selects it and shows the stock selection highlight.
+slots[2]:Click()
+equal(slots[2].checked, true, "the clicked slot is checked")
+equal(slots[1].checked, false, "and the first is not")
 
 -- The switch saves the rule for the list.
 switch:SetChecked(true)

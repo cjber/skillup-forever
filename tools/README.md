@@ -66,7 +66,10 @@ the same-build `Data/Thresholds.lua`. `ns.ProfessionSkillLines` names every prof
 build has, including the gathering ones with no skill-up recipe. `ns.ItemGear` holds each crafted
 item's required level, class and subclass (its armour or weapon type), inventory type (its slot) and
 `AllowableClass`, from the same build's `Item` and `ItemSparse`; the gear view filters that with
-`Core/Gear.lua`'s class proficiency table (the client's `SkillRaceClassInfo`). It imports the threshold generator's build,
+`Core/Gear.lua`'s class proficiency table (the client's `SkillRaceClassInfo`). `ns.RecipeScrolls`
+holds, per recipe spell, the pattern or recipe item that teaches it and the skill that item asks for,
+from the same build's `ItemEffect` and `ItemSparse`: where the client's `SkillLineAbility` orange sits
+at its placeholder 1, this is the recipe's real learn requirement. It imports the threshold generator's build,
 snapshot date, cache and profession discovery; run thresholds first when changing
 builds. All five generators accept `--offline` and `--refresh`. To verify the data
 is fresh and reproducible:

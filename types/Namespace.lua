@@ -103,6 +103,7 @@
 ---@field Thresholds table<integer, number[]>
 ---@field VendorPrices table<integer, number>
 ---@field RecipeData table<integer, SkillUpRecipe>
+---@field RecipeScrolls table<integer, number[]> { scroll item, required skill } per recipe spell.
 ---@field ItemGear table<integer, number[]>
 ---@field ItemSellPrices table<integer, number>
 ---@field RecipeNames table<integer, table<string, integer|false>>
@@ -401,7 +402,7 @@ SkillUpForeverDB = nil
 ---@field itemID integer
 ---@field name? string The client's item name, nil until its data has loaded.
 ---@field skillLine integer
----@field skill number The skill at which the recipe can be learned and crafted.
+---@field skill number? The skill at which the recipe can be learned, or nil when the data does not know.
 ---@field level number The item's required level.
 ---@field profession string
 ---@field learned boolean
@@ -421,13 +422,53 @@ SkillUpForeverDB = nil
 ---@field professions table<integer, SkillUpProfession> The character's, by skill line.
 ---@field weaponSkills table<integer, number>? The weapon skill lines the character knows, or nil.
 ---@field name fun(itemID: integer): string?
----@field skill fun(recipeID: integer): number The skill at which the recipe can be learned.
+---@field skill fun(recipeID: integer): number? The skill at which the recipe can be learned.
 ---@field professionName fun(skillLine: integer): string
 
 ---@class SkillUpGearPage : Frame
----@field List SkillUpList
 ---@field ShowAll CheckButton
 ---@field ShowAllLabel FontString
+---@field Slots SkillUpGearSlotButton[]
+---@field Detail SkillUpGearDetail
+
+-- A paper doll slot button: the item's icon, its quality border and the known mark the game uses.
+---@class SkillUpGearSlotButton : CheckButton
+---@field slot integer
+---@field item SkillUpGearItem?
+---@field icon Texture
+---@field border Texture
+---@field mark Texture
+---@field select Texture
+
+-- The pane's one action button, its text and the reason it is disabled.
+---@class SkillUpGearAction : Button
+---@field click (fun())?
+---@field reason string?
+
+-- The detail pane and the parts a render fills in.
+---@class SkillUpGearDetail : Frame
+---@field Body Frame
+---@field Empty FontString
+---@field Icon Texture
+---@field Border Texture
+---@field Name FontString
+---@field Requirement FontString
+---@field Learn FontString
+---@field State FontString
+---@field Reagents FontString
+---@field ReagentRows SkillUpGearRow[]
+---@field Action SkillUpGearAction
+---@field Also FontString
+---@field OtherRows SkillUpGearRow[]
+
+-- A full-size item row the pane draws for a reagent or another item in the slot.
+---@class SkillUpGearRow : Button
+---@field Icon Texture
+---@field Border Texture
+---@field Text FontString
+---@field Detail FontString
+---@field tooltip (fun(tooltip: GameTooltip))?
+---@field click (fun())?
 
 ---@class SkillUpPage : Frame
 ---@field Craft SkillUpCraftButton

@@ -167,20 +167,19 @@ equal(Items(Slots(20, SHAMAN), "Head"), "1001 1011", "level 20 takes them")
 equal(Items(Slots(40, SHAMAN), "Head"), "1002 1014 1013", "at 40 the shaman wears mail, newest first, no plate")
 equal(Items(Slots(40, WARRIOR), "Head"), "1002 1004 1014", "a warrior takes mail and plate at 40")
 
--- Class weapons with no client skill list: only what the class knows from creation.
-equal(Items(Slots(20, SHAMAN), "Two-handed"), "1006", "a shaman starts with staves")
-equal(Items(Slots(20, SHAMAN), "Main hand"), "", "and not with swords")
-equal(Items(Slots(20, PRIEST), "Two-handed"), "", "a priest does not start with staves")
-equal(Items(Slots(20, PRIEST), "Main hand"), "", "nor with swords")
+-- Class weapons with no client skill list: only what the class knows from creation. A two-handed
+-- weapon shares the main-hand slot with a one-hander.
+equal(Items(Slots(20, SHAMAN), "Main hand"), "1006", "a shaman starts with staves")
+equal(Find(Slots(20, SHAMAN), "Main hand", 1005), nil, "and not with swords")
+equal(Items(Slots(20, PRIEST), "Main hand"), "", "a priest starts with neither")
 equal(Items(Slots(20, WARRIOR), "Main hand"), "1005 1010", "a warrior starts with swords")
-equal(Items(Slots(20, MAGE), "Two-handed"), "1006", "a mage starts with staves")
-equal(Items(Slots(20, MAGE), "Main hand"), "", "and not with swords")
+equal(Items(Slots(20, MAGE), "Main hand"), "1006", "a mage starts with staves")
+equal(Find(Slots(20, MAGE), "Main hand", 1005), nil, "and not with swords")
 
 -- With the client's own skill lines, a trained type counts however the class table reads.
 equal(Items(Slots(20, MAGE, nil, nil, { [43] = 1 }), "Main hand"), "1005", "a mage who trained swords sees them")
-equal(Items(Slots(20, PRIEST, nil, nil, { [136] = 1 }), "Two-handed"), "1006", "a priest who trained staves sees them")
-equal(Items(Slots(20, SHAMAN, nil, nil, {}), "Two-handed"), "", "a client skill list without staves leaves them out")
-equal(Items(Slots(20, SHAMAN, nil, nil, {}), "Main hand"), "", "and without swords leaves them out")
+equal(Items(Slots(20, PRIEST, nil, nil, { [136] = 1 }), "Main hand"), "1006", "a priest who trained staves sees them")
+equal(Items(Slots(20, SHAMAN, nil, nil, {}), "Main hand"), "", "a client skill list without staves leaves them out")
 
 -- The client's own skill lines are what Gear.WeaponSkills reads for the answer above.
 _G.C_SkillInfo = {
@@ -263,7 +262,8 @@ local item = Find(Slots(20, SHAMAN), "Chest", 1007)
 equal(item.skill, 95, "the row carries the recipe's required skill")
 equal(item.level, 20, "and the item's required level")
 equal(item.name, nil, "a name the client has not loaded is left nil")
-equal(Find(Slots(20, SHAMAN), "Two-handed", 1006).profession, "Blacksmithing", "a bundled profession name")
+equal(Find(Slots(20, SHAMAN), "Two-handed", 1006), nil, "there is no two-handed slot of its own")
+equal(Find(Slots(20, SHAMAN), "Main hand", 1006).profession, "Blacksmithing", "a bundled profession name")
 
 -- What the character can do with the recipe: it knows it, its skill reaches it now, its skill has
 -- still to reach it, or it is another crafter's.
@@ -284,5 +284,28 @@ equal(Find(Visible(20, SHAMAN, nil, LW_SHORT), "Head", 1001), nil, "and drops on
 equal(Find(Visible(20, SHAMAN, nil, LW_FULL), "Chest", 1007), nil, "and another crafter's recipe")
 equal(Find(Visible(24, SHAMAN, nil, LW_FULL), "Head", 1013), nil, "and one whose skill is out of reach")
 equal(Find(Slots(24, SHAMAN, nil, LW_FULL), "Head", 1013) ~= nil, true, "which the checkbox shows")
+
+-- A recipe whose learn skill the data does not know: it carries no skill, is never called learnable,
+-- and belongs to the checkbox's list.
+local UNKNOWN_SKILL = {
+	level = 20,
+	classID = SHAMAN,
+	showAll = true,
+	learned = function()
+		return false
+	end,
+	professions = { [165] = { skillLine = 165, name = "Leatherworking", skill = 400 } },
+	weaponSkills = nil,
+	name = function(itemID)
+		return NAMES[itemID]
+	end,
+	skill = function()
+		return nil
+	end,
+	professionName = Gear.ProfessionName,
+}
+local unknown = Find(Gear.List(recipes, facts, UNKNOWN_SKILL), "Head", 1001)
+equal(unknown.skill, nil, "an unknown requirement carries no skill")
+equal(unknown.state, "other", "and is never called learnable")
 
 print("gear_spec: " .. checks .. " checks passed")

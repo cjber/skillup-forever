@@ -215,7 +215,16 @@ equal(#ns.RecipeBands(FirstAid(40), 1), 0, "no thresholds, no bands")
 -- a trainer's own requirement, not the data's placeholder first threshold.
 equal(ns.LearnSkill(FirstAid(40), 3848), 110, "Double-stitched Woolen Shoulders is taught at 110")
 equal(ns.LearnSkill(FirstAid(40), 2166), 120, "Toughened Leather Armor is taught at 120")
-equal(ns.LearnSkill(FirstAid(40), 19819), 290, "a recipe no trainer teaches starts at its data threshold")
+equal(ns.LearnSkill(FirstAid(40), 19819), 290, "a recipe with no trainer takes its pattern's skill")
+-- A Forever-added recipe with no trainer: the pattern that teaches it carries the real requirement,
+-- where the client's own orange sits at its placeholder 1.
+local leatherworking = { skillLine = 165, name = "Leatherworking", skill = 0, modifier = 0 }
+equal(ns.LearnSkill(leatherworking, 1255109), 100, "Brawler's Leather Hood's pattern asks 100")
+equal(ns.LearnSkill(leatherworking, 1255105), 100, "Stormrider's Leather Hood's pattern asks 100")
+equal(ns.LearnSkill(leatherworking, 12719), 0, "a recipe with no known source has no skill")
+-- It draws no band below where it is taught, so the orange band starts at the pattern's skill.
+local hood = ns.RecipeBands(leatherworking, 1255109)
+equal(hood[1].color .. " " .. hood[1].from, "orange 100", "the hood's first band starts at the pattern's skill")
 
 -- Why there is nothing to craft.
 costs[LINEN], costs[HEAVY] = nil, nil

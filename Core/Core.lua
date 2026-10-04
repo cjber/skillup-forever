@@ -13,7 +13,7 @@ local DEFAULTS = {
 	showTrainer = true,
 	showRouteTab = true,
 	reagentTooltip = "route",
-	gatherFree = true,
+	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from
 	whatsNew = true,
 	companionHints = true,
 	lastVersion = "", -- the version that last ran; "" before the first
@@ -23,7 +23,7 @@ local DEFAULTS = {
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
-	trackedProfessions = {}, -- [profession skill line] = true: reagents shown in the objective tracker
+	trackedProfessions = {}, -- [profession skill line] = true tracked, false stopped by hand, nil undecided
 	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
 	trainerRanks = {}, -- [skill line] = { [cap] = fee }: what a trainer charges for the rank ending at that cap
 }
@@ -81,7 +81,7 @@ local function LoadDB()
 	end
 	loaded.showReagentTooltip = nil
 	-- Auction prices come from Auctionator now; drop what SkillUp's own scanner saved.
-	loaded.scanAuctions, loaded.tracked, loaded.auctions = nil, nil, nil
+	loaded.scanAuctions, loaded.tracked, loaded.auctions, loaded.gatherFree = nil, nil, nil, nil
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
 			loaded[key] = type(value) == "table" and {} or value
@@ -99,6 +99,12 @@ local function LoadDB()
 		end
 		if not valid then
 			loaded[key] = DEFAULTS[key]
+		end
+	end
+	-- A mode no longer saved, or a typo, reads as the default gather.
+	for key, mode in pairs(loaded.collectModes) do
+		if mode ~= "gather" and mode ~= "auction" then
+			loaded.collectModes[key] = nil
 		end
 	end
 	SkillUpForeverDB = loaded
@@ -213,11 +219,31 @@ function ns.PlayerProfessions()
 	return professions
 end
 
+-- This character's key in the account-wide saved variables.
+---@return string
+function ns.CharacterKey()
+	return UnitName("player") .. "-" .. GetNormalizedRealmName()
+end
+
+-- Where the routes take a reagent this character could gather or buy: "gather" prices it free,
+-- "auction" buys it at a vendor or the auction house like any other.
+---@return SkillUpCollectMode
+function ns.CollectMode()
+	local mode = ns.db.collectModes[ns.CharacterKey()]
+	return mode == "auction" and "auction" or "gather"
+end
+
+---@param mode SkillUpCollectMode
+function ns.SetCollectMode(mode)
+	ns.db.collectModes[ns.CharacterKey()] = mode
+	ns.Changed("settings")
+end
+
 -- Recipes this character has been seen to know in the Professions window, for
 -- places (trainer, item tooltips) that can't ask it. C_SpellBook.IsSpellKnown covers
 -- professions not opened yet, and every session while SavedVariables fail to load.
 local function LearnedRecipes()
-	local key = UnitName("player") .. "-" .. GetNormalizedRealmName()
+	local key = ns.CharacterKey()
 	ns.db.learned[key] = ns.db.learned[key] or {}
 	return ns.db.learned[key]
 end

@@ -211,7 +211,7 @@ SKILL_LINE_NAMES = {line: name for name, _, _, _, line in PROFESSIONS}
 
 
 def price(item_id):
-    """Integrations/Prices.lua ns.Price with gatherFree on: free when one of the
+    """Integrations/Prices.lua ns.Price in gather mode: free when one of the
     character's professions gathers it, else vendor (when it's no dearer than
     the auction house), else auction."""
     profession = SKILL_LINE_NAMES.get(NS["GatheredBy"].get(item_id))
@@ -660,7 +660,7 @@ env = setmetatable({
 	end,
 	MinimalSliderWithSteppersMixin = { Label = { Right = "right" } },
 	MenuUtil = Stub(),
-	SkillUpForeverDB = { trackedProfessions = { [STATE.open.skillLine] = true }, gatherFree = true },
+	SkillUpForeverDB = { trackedProfessions = { [STATE.open.skillLine] = true }, collectModes = {} },
 }, {
 	__index = function(_, key)
 		local value = _G[key]

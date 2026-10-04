@@ -9,6 +9,9 @@
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
 ---@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
+---@field CharacterKey fun(): string
+---@field CollectMode fun(): SkillUpCollectMode
+---@field SetCollectMode fun(mode: SkillUpCollectMode)
 ---@field SkillContext fun(): SkillUpContext?
 ---@field PlayerProfessions fun(): table<integer, SkillUpProfession>
 ---@field IsLearned fun(recipeID: integer): boolean
@@ -49,6 +52,7 @@
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field TrackerAttached fun(): boolean
 ---@field SetTracked fun(skillLine: integer, tracked: boolean)
+---@field AutoTrack fun(skillLine?: integer): boolean
 ---@field InitShopping fun()
 ---@field NPCLocation fun(npcID: integer): SkillUpLocation
 ---@field LocationText fun(where: SkillUpLocation): string
@@ -110,7 +114,7 @@
 ---@field showTrainer boolean
 ---@field showRouteTab boolean
 ---@field reagentTooltip 'off'|'route'|'full'
----@field gatherFree boolean
+---@field collectModes table<string, SkillUpCollectMode>
 ---@field whatsNew boolean
 ---@field companionHints boolean
 ---@field lastVersion string
@@ -138,6 +142,7 @@
 ---@field scanAuctions? boolean Legacy migration only.
 ---@field tracked? table<integer, boolean> Legacy migration only.
 ---@field auctions? table Legacy migration only.
+---@field gatherFree? boolean Legacy migration only.
 
 ---@type SkillUpDB
 SkillUpForeverDB = nil
@@ -259,6 +264,7 @@ SkillUpForeverDB = nil
 ---@alias SkillUpChange 'recipes'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'
 ---@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'tooltip'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
+---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
 ---@class SkillUpPrice
 ---@field copper number
@@ -366,6 +372,9 @@ SkillUpForeverDB = nil
 ---@field Target EditBox
 ---@field Track Button
 ---@field Auctionator Button
+---@field Collect CheckButton
+---@field Vendor Button
+---@field vendorItems integer[]
 ---@field RouteList SkillUpList
 ---@field ReagentList SkillUpList
 ---@field PriceAge FontString

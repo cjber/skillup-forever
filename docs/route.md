@@ -43,7 +43,7 @@ Each shows the scroll's price (what it cost at the auction house or at a merchan
 
 ### Waypoints
 
-*Train* steps and vendor reagents name the nearest trainer (one who teaches that far, of your faction) or vendor, with its zone and coordinates. A click sets a waypoint there. Names and places come from Questie: without it a step names nobody and its tooltip says so.
+*Train* steps and vendor reagents name the nearest trainer (one who teaches that far, of your faction) or vendor, with its zone and coordinates. A click sets a waypoint there. A *Nearest vendor* button in the route page does the same for every vendor reagent the route still needs at once. Names and places come from Questie: without it a step names nobody and its tooltip says so.
 
 - With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever) installed, you get its travel route, and "nearest" means quickest to reach by its travel time.
 - Otherwise [TomTom](https://www.curseforge.com/wow/addons/tomtom)'s arrow, else the map's own.
@@ -54,11 +54,13 @@ Beside the route is every reagent it needs, with how many you have (bags and ban
 
 ### Gathered reagents
 
-With *Reagents you gather are free* on (the default), anything another of your professions gathers costs nothing: Light Leather with Skinning, ore with Mining, herbs with Herbalism. The route can use it, and it's listed as *gather*.
+*Buy reagents at the auction house* in the route page chooses where a reagent another of your professions could gather comes from: off, it costs nothing, so the route uses it and the list says *gather*; on, it is bought and priced at a vendor or the auction house like any other reagent. The choice is saved for this character.
 
 ### Track
 
 *Track* puts the list in the objective tracker beside your quests, like `12/20 Linen Cloth`, kept up to date as you buy, craft and skill up.
+
+Opening a profession's own window, or a trainer that teaches it, starts tracking that profession on its own when its route still has steps, so the tracker and its waypoints arrive without pressing *Track*. A profession you stop tracking by hand stays stopped until you track it again.
 
 - Click the training line or a vendor reagent's line for a waypoint to the nearest trainer or vendor. Hover it to see who and where.
 - Its header menu crafts the next step while that profession is open, and sets a waypoint to a trainer or to a vendor for a missing reagent.

@@ -100,6 +100,24 @@ function ns.IsTracked(skillLine)
 	return ns.db.trackedProfessions[skillLine] == true
 end
 
+-- Starts tracking the profession the player just opened, its own window or a trainer that teaches it,
+-- when its route still has steps, so the tracker and the where-to-train hints arrive without a hunt.
+-- A saved true (tracked) or false (stopped by hand) is a decision already made and is left alone.
+---@param skillLine integer?
+---@return boolean started
+function ns.AutoTrack(skillLine)
+	if not skillLine or ns.db.trackedProfessions[skillLine] ~= nil then
+		return false
+	end
+	local profession = ns.RouteProfessions()[skillLine]
+	if not profession or #ns.PlanRoute(profession).steps == 0 then
+		return false
+	end
+	ns.db.trackedProfessions[skillLine] = true
+	ns.Changed("tracking")
+	return true
+end
+
 -- The plan of every tracked profession of this character with the reagents it
 -- still needs, so it follows skill, target and prices.
 ---@return SkillUpTracked[]
@@ -240,7 +258,8 @@ end
 ---@param skillLine integer
 ---@param tracked boolean
 function ns.SetTracked(skillLine, tracked)
-	ns.db.trackedProfessions[skillLine] = tracked or nil
+	-- false is kept, not dropped: it is the player saying stop, which AutoTrack honours.
+	ns.db.trackedProfessions[skillLine] = tracked
 	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 	ns.Changed("tracking")
 end

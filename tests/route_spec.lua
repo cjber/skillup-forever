@@ -41,13 +41,21 @@ local function Stub()
 						scripts.OnShow(frame)
 					end
 				end
+			elseif key == "SetShown" then
+				value = function(frame, shown)
+					rawset(frame, "shown", shown == true)
+				end
 			elseif key == "IsShown" then
 				value = function(frame)
 					return rawget(frame, "shown") == true
 				end
 			elseif key == "Click" then
 				value = function(frame)
-					scripts.OnMouseUp(frame, "LeftButton", true)
+					if scripts.OnClick then
+						scripts.OnClick(frame)
+					else
+						scripts.OnMouseUp(frame, "LeftButton", true)
+					end
 				end
 			else
 				value = Stub()
@@ -92,6 +100,9 @@ local page = {
 	PlayerProfessions = function()
 		return { [129] = FirstAid(1) }
 	end,
+	ProfessionSkillLine = function(_, reported)
+		return reported
+	end,
 	HasAuctionator = function()
 		return false
 	end,
@@ -111,6 +122,19 @@ local page = {
 		return list
 	end,
 }
+-- The client-side seams the page reads: a character that gathers, and no vendor named until a spec says so.
+page.CollectMode = function()
+	return page.collectMode or "gather"
+end
+page.SetCollectMode = function(mode)
+	page.collectMode = mode
+end
+page.NearestVendor = function()
+	return nil
+end
+page.NearestNPC = function()
+	return nil
+end
 local timers = {}
 local pageEnv = setmetatable({
 	C_Timer = {
@@ -129,6 +153,7 @@ local pageEnv = setmetatable({
 		end,
 	},
 	Professions = false,
+	ProfessionsFrame = Stub(),
 	C_Spell = {
 		GetSpellName = function(id)
 			return "Spell " .. id
@@ -163,11 +188,28 @@ for _, file in ipairs({
 	setfenv(assert(loadfile(file)), pageEnv)("SkillUpForever", page)
 end
 local tabs = {}
-pageEnv.CreateFrame = function()
+local collect, vendor
+pageEnv.CreateFrame = function(_, _, _, template)
 	local frame = Stub()
 	tabs[#tabs + 1] = frame
+	if template == "UICheckButtonTemplate" then
+		collect = frame
+	elseif template == "UIPanelButtonTemplate" then
+		vendor = frame
+	end
 	return frame
 end
+-- Opening a profession's window asks to track it: the route event defers the ask to the open profession.
+local asked = {}
+page.AutoTrack = function(skillLine)
+	asked[#asked + 1] = skillLine
+end
+pageEnv.ProfessionsFrame:Show()
+pageEnv.Professions = {
+	GetProfessionInfo = function()
+		return { professionName = "First Aid", professionID = 129 }
+	end,
+}
 page.AttachRoute()
 local routeTab = tabs[#tabs] -- the side tab, the last frame the page creates
 routeTab:Click()
@@ -181,6 +223,17 @@ for _, callback in ipairs(timers) do
 	callback()
 end
 equal(routeTab.checked, true, "deferred skill update restores the visible route tab")
+
+for index = #timers, 1, -1 do
+	timers[index] = nil
+end
+asked = {}
+eventFrame:Event("TRADE_SKILL_SHOW")
+for _, callback in ipairs(timers) do
+	callback()
+end
+equal(asked[#asked], 129, "opening First Aid's window asks to track it")
+pageEnv.Professions = false
 
 -- With only Linen Bandage priced, the route runs out and suggests a scroll nothing prices.
 page.NetCost = function(recipeID)
@@ -243,5 +296,40 @@ pageEnv.C_Item.GetItemNameByID = function()
 end
 suggestion.tooltip(itemTooltip)
 equal(titles[1], "Spell 3276", "a recipe named otherwise is still named there")
+
+-- The collect switch: gather by default, auction after a click, and back.
+equal(collect.checked, false, "the switch starts on gathering")
+collect:Click()
+equal(page.collectMode, "auction", "clicking asks for auction mode")
+equal(collect.checked, true, "and the switch shows it")
+collect:Click()
+equal(page.collectMode, "gather", "clicking again asks for gathering")
+equal(collect.checked, false, "and the switch shows that")
+
+-- The nearest vendor of the route's missing vendor reagents, one click from the page.
+local candidates, waypointed = nil, nil
+page.NearestVendor = function(itemID)
+	return itemID == 2 and 555 or nil
+end
+page.NearestNPC = function(npcIDs, byTravel)
+	candidates, page.travel = npcIDs, byTravel
+	return npcIDs[1]
+end
+page.SetWaypoint = function(npcID)
+	waypointed = npcID
+	return true
+end
+routeTab:Click()
+equal(vendor.shown, true, "a missing vendor reagent shows the nearest-vendor button")
+vendor:Click()
+equal(page.travel, true, "the vendor is ranked by the travel integration")
+equal(candidates[1], 555, "the nearest vendor of the missing reagent")
+equal(waypointed, 555, "and clicking sets the waypoint to that vendor")
+
+page.Reagents = function()
+	return { { itemID = 1, quantity = 1 } }
+end
+routeTab:Click()
+equal(vendor.shown, false, "a route with no vendor reagent hides the button")
 
 Client.report("route_spec")

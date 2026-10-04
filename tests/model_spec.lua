@@ -320,7 +320,11 @@ do
 		},
 		ItemSellPrices = { [2] = 10 },
 		VendorPrices = { [1] = 5 },
+		GatheredBy = {},
 		db = { craftValue = "vendor" },
+		CollectMode = function()
+			return "gather"
+		end,
 	}
 	local frame = {
 		SetScript = function(_, _, callback)
@@ -438,7 +442,6 @@ do
 	live[99] = { reagentSlotSchematics = { { reagentType = 1, quantityRequired = 1, reagents = { { itemID = 99 } } } } }
 	equal(runtime.Reagents(99)[1].itemID, 99, "previous recipe miss is not cached forever")
 	equal(runtime.NetCost(99), nil, "unpriced live reagent prevents net cost")
-	runtime.db.gatherFree = true
 	runtime.GatheredBy = { [5] = 393, [6] = 186 }
 	runtime.PlayerProfessions = function()
 		return { [393] = { name = "Skinning" } }
@@ -446,6 +449,11 @@ do
 	equal(runtime.PriceSource(5), "gather", "a gathering profession you have makes its yield free")
 	equal(runtime.Price(5).copper, 0, "gathered reagents cost nothing")
 	equal(runtime.PriceSource(6), nil, "another profession's yield stays unpriced")
+	runtime.CollectMode = function()
+		return "auction"
+	end
+	runtime.Changed("prices")
+	equal(runtime.PriceSource(5), nil, "auction mode buys a gathered reagent instead of pricing it free")
 end
 
 print("model_spec: " .. checks .. " checks passed; " .. rows .. " generated thresholds validated")

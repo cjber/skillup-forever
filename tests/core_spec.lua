@@ -10,6 +10,12 @@ local function Env(messages, callbacks)
 		CreateFrame = function()
 			return { RegisterEvent = function() end, SetScript = function() end }
 		end,
+		UnitName = function()
+			return "Tester"
+		end,
+		GetNormalizedRealmName = function()
+			return "Realm"
+		end,
 		SlashCmdList = {},
 		DEFAULT_CHAT_FRAME = {
 			AddMessage = function(_, message)
@@ -65,6 +71,13 @@ for _, complete in ipairs({ false, true }) do
 		equal(ns.db.tracked, nil, "the old scan list is dropped")
 		equal(ns.db.scanAuctions, nil, "the old scan setting is dropped")
 		equal(ns.db.vendor[1], 5, "vendor prices are kept")
+		equal(ns.db.gatherFree, nil, "the old account-wide gather setting is dropped")
+		equal(ns.CollectMode(), "gather", "a character with no saved choice gathers")
+		ns.SetCollectMode("auction")
+		equal(ns.db.collectModes["Tester-Realm"], "auction", "the choice is saved under this character's key")
+		equal(ns.CollectMode(), "auction", "and reads back for this character")
+		ns.SetCollectMode("gather")
+		equal(ns.CollectMode(), "gather", "and back")
 	else
 		equal(#messages, 1, "missing files produce one warning")
 		equal(messages[1]:find("restart the game", 1, true) ~= nil, true, "warning asks for restart")

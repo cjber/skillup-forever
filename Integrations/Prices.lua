@@ -59,11 +59,14 @@ local function AuctionPrice(itemID)
 	}
 end
 
--- With the setting on, what another of your professions gathers costs nothing.
+-- In gather mode, what another of your professions gathers costs nothing.
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function Gathered(itemID)
-	local skillLine = ns.db.gatherFree and ns.GatheredBy[itemID]
+	if ns.CollectMode() ~= "gather" then
+		return nil
+	end
+	local skillLine = ns.GatheredBy[itemID]
 	if not skillLine then
 		return nil
 	end

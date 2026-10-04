@@ -439,6 +439,33 @@ local function PriceAge(reagents)
 	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 
+-- The route's vendor reagents it still needs, whose vendor can be named.
+---@param reagents SkillUpNeededItem[]
+---@return integer[]
+local function VendorItems(reagents)
+	local items = {}
+	for _, item in ipairs(reagents) do
+		if item.source == "vendor" and ns.Have(item.itemID) < item.need then
+			items[#items + 1] = item.itemID
+		end
+	end
+	return items
+end
+
+-- The nearest vendor selling any of the route's missing vendor reagents, by the travel integration.
+---@param itemIDs integer[]
+---@return integer?
+local function NearestRouteVendor(itemIDs)
+	local candidates = {}
+	for _, itemID in ipairs(itemIDs) do
+		local npcID = ns.NearestVendor(itemID, true)
+		if npcID then
+			candidates[#candidates + 1] = npcID
+		end
+	end
+	return ns.NearestNPC(candidates, true)
+end
+
 ---@param plan SkillUpPlan
 local function SetCraft(plan)
 	local button, craft = page.Craft, ns.NextCraft(plan)
@@ -456,7 +483,10 @@ local function Render()
 	page.Track:SetEnabled(profession ~= nil)
 	page.Auctionator:Disable()
 	page.Craft:SetShown(profession ~= nil)
+	page.Collect:SetChecked(ns.CollectMode() == "auction")
 	if not profession then
+		page.Vendor:Hide()
+		page.vendorItems = {}
 		page.RouteList:Message(L["Learn a crafting profession to plan a route."])
 		page.RouteList:Finish()
 		page.ReagentList:Finish()
@@ -478,6 +508,9 @@ local function Render()
 	local age, ageColor = PriceAge(reagents)
 	page.PriceAge:SetText(age)
 	page.PriceAge:SetTextColor(ageColor:GetRGB())
+	local vendorItems = VendorItems(reagents)
+	page.vendorItems = vendorItems
+	page.Vendor:SetShown(#vendorItems > 0)
 	page.RouteList:Finish()
 	page.ReagentList:Finish()
 	page.Track:SetText(ns.IsTracked(selected) and L["Stop tracking"] or L["Track"])
@@ -607,6 +640,47 @@ local function CreateButtons()
 	end)
 	craft:SetScript("OnLeave", GameTooltip_Hide)
 	page.Craft = craft
+
+	-- Where a reagent this character could gather or buy comes from: its own professions' gathering, or a
+	-- vendor and the auction house. Sits with the route it changes, not in the settings panel.
+	local collect = CreateFrame("CheckButton", nil, page, "UICheckButtonTemplate") --[[@as CheckButton]]
+	collect:SetScript("OnClick", function()
+		ns.SetCollectMode(ns.CollectMode() == "gather" and "auction" or "gather")
+		Render()
+	end)
+	collect:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP")
+		GameTooltip_SetTitle(GameTooltip, L["Buy reagents at the auction house"])
+		GameTooltip_AddNormalLine(
+			GameTooltip,
+			L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."]
+		)
+		GameTooltip:Show()
+	end)
+	collect:SetScript("OnLeave", GameTooltip_Hide)
+	local label = collect:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	label:SetPoint("LEFT", collect, "RIGHT", 4, 0)
+	label:SetText(L["Buy reagents at the auction house"])
+	page.Collect = collect
+
+	-- One click to the nearest vendor selling any vendor reagent the route still needs.
+	local vendor = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
+	vendor:SetSize(120, 22)
+	vendor:SetText(L["Nearest vendor"])
+	vendor:SetScript("OnClick", function()
+		local npcID = NearestRouteVendor(page.vendorItems)
+		if npcID then
+			ns.SetWaypoint(npcID)
+		end
+	end)
+	vendor:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP")
+		GameTooltip_SetTitle(GameTooltip, L["Vendor reagents"])
+		ns.AddNearest(GameTooltip, L["Nearest vendor"], NearestRouteVendor(page.vendorItems))
+		GameTooltip:Show()
+	end)
+	vendor:SetScript("OnLeave", GameTooltip_Hide)
+	page.Vendor = vendor
 end
 
 -- Occupies the crafting page's place, as the overview page does.
@@ -642,6 +716,8 @@ local function CreatePage()
 	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
 	page.Auctionator:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
 	page.Craft:SetPoint("TOPRIGHT", route, "BOTTOMRIGHT", 0, -10)
+	page.Collect:SetPoint("TOPLEFT", 16, -62)
+	page.Vendor:SetPoint("TOPRIGHT", -16, -62)
 	-- The portrait follows the profession shown here, and is given back on the way out.
 	local portrait
 	page:SetScript("OnShow", function()
@@ -768,6 +844,10 @@ function ns.AttachRoute()
 		C_Timer.After(0, function()
 			PlaceTab()
 			SyncChecks()
+			-- The window's own profession starts tracking on its own when its route has steps.
+			if ProfessionsFrame:IsShown() then
+				ns.AutoTrack(ns.OpenSkillLine())
+			end
 		end)
 	end
 	for _, event in ipairs({ "SKILL_LINES_CHANGED", "TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_SHOW" }) do

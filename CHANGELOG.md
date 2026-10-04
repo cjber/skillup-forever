@@ -13,6 +13,9 @@ verbatim rather than rewritten as the addon moves.
 
 - **The data matches client build 1.60.1.70205.** In this build Winter Boots and the ten camp furnishings (Incense Candle, Greenhouse, Fish Bowl, Fishing Rack, Camp Chair, Field Guide, First Aid Kit, Toxin Study, Lodestone and Rock Garden) no longer give skill-ups, so they show `?` in place of a chance and routes leave them out. Eight wands, from Lesser Magic Wand to Greater Eternal Wand, now sell to a vendor for 1 copper, so crafting one nets a higher cost.
 - **A vendor reagent's tooltip gains its vendor line when the read finishes.** The first hover of a reagent sold by a vendor showed no *Nearest vendor* line while the addon was still reading who sells it, and kept the tooltip without it until the next hover. The row now draws its tooltip again once that read has finished.
+- **Tracking starts when you open the profession you are levelling.** Opening a profession's window, or a trainer that teaches it, now tracks it on its own when its route still has steps, so the tracker, the next training step and the waypoint to where to train are there without pressing *Track*. A profession you stop tracking by hand stays stopped until you start it again.
+- **One click to the vendor for the reagents your route still buys.** The route page now has a *Nearest vendor* button that sets a waypoint to the closest vendor selling any of the route's missing vendor reagents, instead of a trip through each reagent's line.
+- **Choose gathering or buying from the route itself.** A *Buy reagents at the auction house* switch on the route page decides whether a reagent another of your professions could gather is free to gather or bought and priced at a vendor or the auction house. It is saved per character and no longer hides in the settings.
 
 ## [0.7.1] - 2026-10-04
 

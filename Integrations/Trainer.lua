@@ -85,13 +85,19 @@ local function NoteRanks(skillLine, services)
 	end
 end
 
----@return SkillUpTrainerState
-local function BuildState()
+---@return SkillUpTrainerService[]
+local function Services()
 	local services = {}
 	for index = 1, GetNumTrainerServices() do
 		local name, kind = GetTrainerServiceInfo(index)
 		services[index] = { name = name, kind = kind, recipeID = TooltipRecipe(index) }
 	end
+	return services
+end
+
+---@return SkillUpTrainerState
+local function BuildState(services)
+	services = services or Services()
 	local skillLine = TrainerSkillLine(services)
 	local rank, maxRank, modifier = GetTrainerTradeskillRankValues()
 	if not (skillLine and rank and maxRank) then
@@ -214,7 +220,13 @@ local function RefreshTrainer()
 	C_Timer.After(0, function()
 		pending = false
 		local tradeskill = C_Trainer.GetTrainerType() == Enum.TrainerType.Tradeskills
-		state = ns.db.showTrainer and tradeskill and ClassTrainerFrame:IsShown() and BuildState() or nil
+		local shown = tradeskill and ClassTrainerFrame:IsShown()
+		local services = shown and Services() or nil
+		if services then
+			-- A trainer for a profession with a route still ahead starts tracking it on its own.
+			ns.AutoTrack(TrainerSkillLine(services))
+		end
+		state = ns.db.showTrainer and services and BuildState(services) or nil
 		DecorateAll()
 	end)
 end

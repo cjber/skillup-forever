@@ -1,0 +1,579 @@
+-- Run from the repository root: luajit tests/route_layout_spec.lua
+-- The route page at its real window size: the rectangles its controls and headings occupy, and the width a
+-- reagent name gets. Frames resolve their anchors in screen pixels, as tracker_geometry_spec does; a name
+-- that measures wider than its rectangle would be cut, which is the bug this guards.
+local Client = dofile("tests/client.lua")
+local equal = Client.equal
+
+-- Friz Quadrata at 12px, the widths the client draws for GameFontNormal and GameFontHighlight; anything not
+-- listed is measured at a flat rate. The reagent names are the ones the rows in this spec carry.
+local WIDTH = {
+	["Buy reagents"] = 73,
+	["Craft next"] = 55,
+	["Route"] = 33,
+	["Reagents  (have / need)"] = 133,
+	["Light Leather"] = 74,
+	["Coarse Thread"] = 81,
+	["Simple Wood"] = 76,
+	["AH prices from 2d ago: rescan with Auctionator"] = 223,
+}
+local function TextWidth(text)
+	return WIDTH[text] or #text * 7
+end
+
+local function noop() end
+local created, insets, tabs, pageFrame = {}, {}, {}, nil
+
+-- Where a point sits inside a region: its own fraction of the region's width and height.
+local function Fraction(point)
+	local x = point:find("LEFT", 1, true) and 0 or point:find("RIGHT", 1, true) and 1 or 0.5
+	local y = point:find("BOTTOM", 1, true) and 0 or point:find("TOP", 1, true) and 1 or 0.5
+	return x, y
+end
+
+-- A region's rect in screen pixels: left, bottom, right, top. Anchors resolve against their relative
+-- region; a frame on the scroll view stretches to its scroll box, as the client does.
+local function Rect(frame, seen)
+	if not frame then
+		return 0, 0, 0, 0
+	end
+	if frame.allPoints then
+		return Rect(frame.allPoints, seen)
+	end
+	if frame.scrollable and #frame.points == 0 and frame.parent then
+		return Rect(frame.parent, seen)
+	end
+	if #frame.points == 0 then
+		return 0, 0, frame.width or 0, frame.height or 0
+	end
+	seen = seen or {}
+	assert(not seen[frame], "anchor dependency cycle")
+	seen[frame] = true
+	local left, right, bottom, top, hx, hy
+	for _, anchor in ipairs(frame.points) do
+		local rl, rb, rr, rt = Rect(anchor.relative, seen)
+		local rx, ry = Fraction(anchor.relativePoint)
+		local ax = rl + rx * (rr - rl) + anchor.x
+		local ay = rb + ry * (rt - rb) + anchor.y
+		local fx, fy = Fraction(anchor.point)
+		if fx == 0 then
+			left = ax
+		elseif fx == 1 then
+			right = ax
+		else
+			hx = ax
+		end
+		if fy == 0 then
+			bottom = ay
+		elseif fy == 1 then
+			top = ay
+		else
+			hy = ay
+		end
+	end
+	seen[frame] = nil
+	local text = frame.text and TextWidth(frame.text) or 0
+	if not (left and right) then
+		if left then
+			right = left + (frame.width or text)
+		elseif right then
+			left = right - (frame.width or text)
+		elseif hx then
+			left, right = hx - (frame.width or 0) / 2, hx + (frame.width or 0) / 2
+		else
+			left, right = 0, frame.width or 0
+		end
+	end
+	if not (bottom and top) then
+		if bottom then
+			top = bottom + (frame.height or 12)
+		elseif top then
+			bottom = top - (frame.height or 12)
+		elseif hy then
+			bottom, top = hy - (frame.height or 12) / 2, hy + (frame.height or 12) / 2
+		else
+			bottom, top = 0, frame.height or 12
+		end
+	end
+	return left, bottom, right, top
+end
+
+local function Width(region)
+	local left, _, right = Rect(region)
+	return right - left
+end
+
+-- Two rects intersect when they overlap on both axes; touching edges do not count.
+local function overlaps(a, b)
+	local al, ab, ar, at = Rect(a)
+	local bl, bb, br, bt = Rect(b)
+	return al < br and bl < ar and ab < bt and bb < at
+end
+
+local function NewRegion(parent)
+	local region = { parent = parent, points = {}, scripts = {}, shown = true, enabled = true }
+	function region:SetPoint(...)
+		local args = { ... }
+		local point = args[1]
+		local relative, relativePoint, x, y
+		if type(args[2]) == "table" then
+			relative, relativePoint, x, y = args[2], args[3], args[4], args[5]
+		else
+			relative, relativePoint, x, y = parent, point, args[2], args[3]
+		end
+		self.points[#self.points + 1] =
+			{ point = point, relative = relative, relativePoint = relativePoint, x = x or 0, y = y or 0 }
+	end
+	function region:ClearAllPoints()
+		self.points = {}
+	end
+	function region:SetAllPoints(target)
+		self.allPoints = target
+	end
+	function region:SetSize(width, height)
+		self.width, self.height = width, height
+	end
+	function region:SetWidth(width)
+		self.width = width
+	end
+	function region:SetHeight(height)
+		self.height = height
+	end
+	function region:GetWidth()
+		return Width(self)
+	end
+	function region:GetHeight()
+		local _, bottom, _, top = Rect(self)
+		return top - bottom
+	end
+	function region:SetText(text)
+		self.text = text
+	end
+	function region:GetTextWidth()
+		return TextWidth(self.text or "")
+	end
+	function region:GetStringWidth()
+		return TextWidth(self.text or "")
+	end
+	function region.GetStringHeight()
+		return 12
+	end
+	function region:SetShown(shown)
+		self.shown = shown and true or false
+	end
+	function region:Show()
+		self.shown = true
+		if self.scripts.OnShow then
+			self.scripts.OnShow(self)
+		end
+	end
+	function region:Hide()
+		self.shown = false
+	end
+	function region:IsShown()
+		return self.shown
+	end
+	function region:IsVisible()
+		return self.shown
+	end
+	function region:SetEnabled(enabled)
+		self.enabled = enabled and true or false
+	end
+	function region:IsEnabled()
+		return self.enabled
+	end
+	function region:Enable()
+		self.enabled = true
+	end
+	function region:Disable()
+		self.enabled = false
+	end
+	function region:SetChecked(checked)
+		self.checked = checked
+	end
+	function region:SetScript(name, fn)
+		self.scripts[name] = fn
+	end
+	function region:HookScript(name, fn)
+		local previous = self.scripts[name]
+		self.scripts[name] = previous and function(...)
+			previous(...)
+			fn(...)
+		end or fn
+	end
+	function region:RegisterEvent(event)
+		self.events = self.events or {}
+		self.events[event] = true
+	end
+	function region:CreateFontString()
+		local font = NewRegion(self)
+		font.height = 12
+		created[#created + 1] = font
+		return font
+	end
+	function region:CreateTexture()
+		local texture = NewRegion(self)
+		created[#created + 1] = texture
+		return texture
+	end
+	function region:SetCustomOnMouseUpHandler(fn)
+		self.scripts.OnMouseUp = fn
+	end
+	function region:GetPortrait()
+		return self.portrait
+	end
+	function region.GetEffectiveScale()
+		return 1
+	end
+	function region.GetFrameLevel()
+		return 1
+	end
+	function region.HasFocus()
+		return false
+	end
+	function region:Click()
+		if self.scripts.OnClick then
+			self.scripts.OnClick(self)
+		end
+	end
+	created[#created + 1] = region
+	return setmetatable(region, {
+		__index = function(_, key)
+			if type(key) == "string" and key:match("^%u") then
+				return noop
+			end
+			return nil
+		end,
+	})
+end
+
+local ProfessionsFrame = NewRegion(nil)
+ProfessionsFrame.CraftingPage = NewRegion(ProfessionsFrame)
+ProfessionsFrame.CraftingPage.width, ProfessionsFrame.CraftingPage.height = 673, 594
+ProfessionsFrame.BookPage = NewRegion(ProfessionsFrame)
+ProfessionsFrame.ProfessionsOverviewTab = NewRegion(ProfessionsFrame)
+ProfessionsFrame.rightProfessionTabs = {}
+ProfessionsFrame.portrait = NewRegion(ProfessionsFrame)
+
+local function CreateFrame(_, _, parent, template)
+	local region = NewRegion(parent)
+	region.template = template
+	if template == "LargeSideTabButtonTemplate" then
+		region.Icon = NewRegion(region)
+		tabs[#tabs + 1] = region
+	elseif template == "InsetFrameTemplate" then
+		insets[#insets + 1] = region
+	elseif template == "UICheckButtonTemplate" then
+		region.width, region.height = 26, 26
+	elseif parent == ProfessionsFrame and template == nil then
+		pageFrame = region
+	end
+	return region
+end
+
+local function Color()
+	return {
+		GetRGB = noop,
+		WrapTextInColorCode = function(_, text)
+			return text
+		end,
+	}
+end
+
+local timers = {}
+local reagents = {
+	{ itemID = 1, need = 50, source = "gather" },
+	{ itemID = 2, need = 20, source = "vendor" },
+	{ itemID = 3, need = 10, source = "vendor" },
+}
+local plan = {
+	target = 100,
+	crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green", expectedCrafts = 5 } },
+	steps = {},
+	ranks = {},
+	cost = 0,
+	unpriced = 0,
+}
+
+local function FirstAid(skill)
+	return { skillLine = 129, name = "First Aid", icon = 135966, skill = skill, base = skill, max = 75, modifier = 0 }
+end
+
+local ns = {
+	L = setmetatable({}, {
+		__index = function(_, key)
+			return key
+		end,
+	}),
+	db = { routeTargets = { [129] = 100 }, showRouteTab = true },
+	COLORS = setmetatable({}, {
+		__index = Color,
+	}),
+	GatheredBy = {},
+	FormatNet = function(copper)
+		return tostring(copper)
+	end,
+	Have = function()
+		return 0
+	end,
+	IsLearned = function()
+		return true
+	end,
+	IsTracked = function()
+		return false
+	end,
+	SetTracked = noop,
+	HasAuctionator = function()
+		return true
+	end,
+	SendToAuctionator = noop,
+	ShowRecipe = noop,
+	TrackerAttached = function()
+		return true
+	end,
+	CollectMode = function()
+		return "gather"
+	end,
+	SetCollectMode = noop,
+	PlayerProfessions = function()
+		return { [129] = FirstAid(1) }
+	end,
+	ProfessionSkillLine = function(_, reported)
+		return reported
+	end,
+	RouteProfessions = function()
+		return { [129] = FirstAid(48) }
+	end,
+	PlanRoute = function(profession)
+		plan.profession = profession
+		return plan
+	end,
+	RouteReagents = function()
+		return reagents
+	end,
+	UnpricedReagents = function()
+		return {}
+	end,
+	NextCraft = function()
+		return { text = "Craft next", reason = "Nothing to craft on this route." }
+	end,
+	RouteBlocked = function()
+		return nil
+	end,
+	RankText = function()
+		return "Rank"
+	end,
+	Price = function()
+		return { copper = 10, source = "auctionator" }
+	end,
+	PriceAge = function()
+		return 90000
+	end,
+	PriceAgeText = function()
+		return "2d ago"
+	end,
+	PriceSourceText = function()
+		return ""
+	end,
+	NearestVendor = function()
+		return nil
+	end,
+	NearestNPC = function()
+		return nil
+	end,
+	NearestTrainer = function()
+		return nil
+	end,
+	SetWaypoint = function()
+		return true
+	end,
+	AddNearest = noop,
+	AddCompanionHint = noop,
+	AddSourceLines = noop,
+	SuggestionNPC = function()
+		return nil
+	end,
+	RecipeSuggestions = function()
+		return {}
+	end,
+	RecipeBands = function()
+		return {}
+	end,
+	ScrollSkill = function()
+		return 1
+	end,
+	ScrollPrice = function()
+		return nil
+	end,
+	Catalogue = { Hint = function() end },
+	Changed = noop,
+	WhenStale = noop,
+	WhenEvent = noop,
+	Print = noop,
+}
+
+local env = setmetatable({
+	CreateFrame = CreateFrame,
+	C_Timer = {
+		After = function(_, fn)
+			timers[#timers + 1] = fn
+		end,
+	},
+	hooksecurefunc = function()
+		error("the route page must not hook native profession methods")
+	end,
+	C_Item = {
+		GetItemNameByID = function(itemID)
+			return ({ "Light Leather", "Coarse Thread", "Simple Wood" })[itemID]
+		end,
+		GetItemIconByID = function()
+			return 134400
+		end,
+		RequestLoadItemDataByID = noop,
+		GetItemInfo = function() end,
+	},
+	Professions = false,
+	ProfessionsFrame = ProfessionsFrame,
+	C_Spell = {
+		GetSpellName = function(id)
+			return "Spell " .. id
+		end,
+		GetSpellTexture = noop,
+	},
+	C_TradeSkillUI = {
+		GetCraftableCount = function()
+			return 5
+		end,
+		CraftRecipe = noop,
+		GetRecipeInfo = function() end,
+	},
+	GameTooltip = NewRegion(nil),
+	GameTooltip_SetTitle = noop,
+	GameTooltip_AddNormalLine = noop,
+	GameTooltip_AddDisabledLine = noop,
+	GameTooltip_AddColoredDoubleLine = noop,
+	GameTooltip_AddBlankLineToTooltip = noop,
+	GameTooltip_AddHighlightLine = noop,
+	GameTooltip_AddInstructionLine = noop,
+	GameTooltip_Hide = noop,
+	NORMAL_FONT_COLOR = Color(),
+	HIGHLIGHT_FONT_COLOR = Color(),
+	GRAY_FONT_COLOR = Color(),
+	RED_FONT_COLOR = Color(),
+	CreateScrollBoxLinearView = NewRegion,
+	ScrollUtil = { InitScrollBoxWithScrollBar = noop },
+	ScrollBoxConstants = { UpdateImmediately = 1 },
+	IsModifiedClick = function()
+		return false
+	end,
+	ChatEdit_InsertLink = noop,
+	HandleModifiedItemClick = noop,
+}, {
+	__index = function(_, key)
+		local value = _G[key]
+		if value == nil then
+			return noop
+		end
+		return value
+	end,
+})
+
+for _, file in ipairs({
+	"Locales/enUS.lua",
+	"Data/Thresholds.lua",
+	"Data/Recipes.lua",
+	"Data/Trainer.lua",
+	"Core/Model.lua",
+	"Core/Changes.lua",
+	"Core/Plan.lua",
+	"UI/List.lua",
+	"UI/Route.lua",
+}) do
+	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
+end
+
+ns.RouteReagents = function()
+	return reagents
+end
+ns.PlanRoute = function(profession)
+	plan.profession = profession
+	return plan
+end
+ns.NextCraft = function()
+	-- The row lays out with the narrow, disabled Craft next button, as when the profession's own window
+	-- is closed and no craft is offered there.
+	return { text = "Craft next", reason = "Nothing to craft on this route." }
+end
+
+ns.AttachRoute()
+local tab = tabs[1]
+tab.scripts.OnMouseUp(nil, "LeftButton", true)
+local page = pageFrame
+equal(page ~= nil, true, "the route page is created")
+equal(page.RouteList ~= nil and page.ReagentList ~= nil, true, "with its two lists")
+
+local function Find(text)
+	for _, region in ipairs(created) do
+		if region.text == text then
+			return region
+		end
+	end
+end
+
+local headings = { Find("Route"), Find("Reagents  (have / need)") }
+equal(headings[1] ~= nil and headings[2] ~= nil, true, "the two inset headings exist")
+
+-- The switch and its label are one control; the vendor button sits to its right, in the row's free space.
+local controls = {
+	page.Collect,
+	page.CollectLabel,
+	page.Vendor,
+	page.Craft,
+	page.Track,
+	page.Auctionator,
+}
+local names = { "the switch", "the switch's label", "the vendor button", "Craft", "Track", "To Auctionator" }
+
+for index, control in ipairs(controls) do
+	for _, heading in ipairs(headings) do
+		equal(overlaps(control, heading), false, names[index] .. " misses the " .. heading.text .. " heading")
+	end
+end
+for index, control in ipairs(controls) do
+	equal(Width(control) > 0, true, names[index] .. " has a width to overlap with")
+end
+for i = 1, #controls do
+	for j = i + 1, #controls do
+		equal(overlaps(controls[i], controls[j]), false, names[i] .. " misses " .. names[j])
+	end
+end
+-- The price-age note moved above the route, clear of both headings and the bottom row.
+equal(Width(page.PriceAge) > 0, true, "the price-age note has a width to overlap with")
+for _, heading in ipairs(headings) do
+	equal(overlaps(page.PriceAge, heading), false, "the price-age note misses the " .. heading.text .. " heading")
+end
+for index, control in ipairs(controls) do
+	equal(overlaps(page.PriceAge, control), false, "the price-age note misses " .. names[index])
+end
+
+-- The row's controls hang off existing regions, never off a hand-measured offset from the window top.
+local switchAnchor = page.Collect.points[1]
+equal(switchAnchor.relative, insets[1], "the switch hangs off the route inset")
+equal(switchAnchor.relativePoint, "BOTTOMLEFT", "at the inset's bottom left, in the row")
+local vendorAnchor = page.Vendor.points[1]
+equal(vendorAnchor.relative, page.CollectLabel, "the vendor button hangs off the switch's label")
+
+-- A reagent name has the whole remaining width of its row: with the icon at the left and the two value
+-- columns at 64 and 48 and their gaps, that is 82.5 units at the real window size.
+local nameWidth = Width(page.ReagentList.rows[1].Text)
+equal(nameWidth, 82.5, "a reagent row gives its name the width the row has")
+for _, row in ipairs(page.ReagentList.rows) do
+	local name = row.Text.text
+	equal(
+		TextWidth(name) <= nameWidth,
+		true,
+		"reagent " .. tostring(name) .. " fits in its name's width, not cut short"
+	)
+end
+
+Client.report("route_layout_spec")

@@ -466,6 +466,28 @@ local function NearestRouteVendor(itemIDs)
 	return ns.NearestNPC(candidates, true)
 end
 
+-- Whether pricing instead of gathering could change this route: at least one reagent is one of this
+-- character's professions gathers, so in gather mode it costs nothing.
+---@param reagents SkillUpNeededItem[]
+---@return boolean
+local function CollectChanges(reagents)
+	local professions = ns.PlayerProfessions()
+	for _, item in ipairs(reagents) do
+		local skillLine = ns.GatheredBy[item.itemID]
+		if skillLine and professions[skillLine] then
+			return true
+		end
+	end
+	return false
+end
+
+-- Grey the label with the box, so a switch that changes nothing reads as off.
+---@param enabled boolean
+local function SetCollectEnabled(enabled)
+	page.Collect:SetEnabled(enabled)
+	page.CollectLabel:SetTextColor((enabled and NORMAL_FONT_COLOR or GRAY_FONT_COLOR):GetRGB())
+end
+
 ---@param plan SkillUpPlan
 local function SetCraft(plan)
 	local button, craft = page.Craft, ns.NextCraft(plan)
@@ -485,6 +507,7 @@ local function Render()
 	page.Craft:SetShown(profession ~= nil)
 	page.Collect:SetChecked(ns.CollectMode() == "auction")
 	if not profession then
+		SetCollectEnabled(false)
 		page.Vendor:Hide()
 		page.vendorItems = {}
 		page.RouteList:Message(L["Learn a crafting profession to plan a route."])
@@ -499,6 +522,7 @@ local function Render()
 		page.Target:SetText(tostring(plan.target))
 	end
 	local reagents = ns.RouteReagents(plan)
+	SetCollectEnabled(CollectChanges(reagents))
 	RenderRoute(page.RouteList, plan)
 	if #plan.crafts == 0 and plan.unpriced > 0 then
 		RenderUnpriced(page.ReagentList, ns.UnpricedReagents(plan))
@@ -645,23 +669,34 @@ local function CreateButtons()
 	-- vendor and the auction house. Sits with the route it changes, not in the settings panel.
 	local collect = CreateFrame("CheckButton", nil, page, "UICheckButtonTemplate") --[[@as CheckButton]]
 	collect:SetScript("OnClick", function()
+		if not collect:IsEnabled() then
+			return
+		end
 		ns.SetCollectMode(ns.CollectMode() == "gather" and "auction" or "gather")
 		Render()
 	end)
 	collect:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_TOP")
 		GameTooltip_SetTitle(GameTooltip, L["Buy reagents at the auction house"])
-		GameTooltip_AddNormalLine(
-			GameTooltip,
-			L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."]
-		)
+		if collect:IsEnabled() then
+			GameTooltip_AddNormalLine(
+				GameTooltip,
+				L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."]
+			)
+		else
+			GameTooltip_AddDisabledLine(
+				GameTooltip,
+				L["Nothing on this route is yours to gather, so the switch changes nothing for it."]
+			)
+		end
 		GameTooltip:Show()
 	end)
 	collect:SetScript("OnLeave", GameTooltip_Hide)
 	local label = collect:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	label:SetPoint("LEFT", collect, "RIGHT", 4, 0)
-	label:SetText(L["Buy reagents at the auction house"])
+	label:SetText(L["Buy reagents"])
 	page.Collect = collect
+	page.CollectLabel = label
 
 	-- One click to the nearest vendor selling any vendor reagent the route still needs.
 	local vendor = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
@@ -707,17 +742,18 @@ local function CreatePage()
 	reagents:SetPoint("BOTTOMRIGHT", -16, 44)
 	page.ReagentList = ns.CreateList(reagents, {
 		{ title = L["Have"], width = 64 },
-		{ title = L["Source"], width = 60, justify = "LEFT" },
+		{ title = L["Source"], width = 48, justify = "LEFT" },
 	})
 
+	-- Above the route it belongs to, clear of the bottom row the controls now use.
 	page.PriceAge = page:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	page.PriceAge:SetPoint("TOPLEFT", route, "BOTTOMLEFT", 4, -14)
+	page.PriceAge:SetPoint("BOTTOMRIGHT", route, "TOPRIGHT", 0, 4)
 
 	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
 	page.Auctionator:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
 	page.Craft:SetPoint("TOPRIGHT", route, "BOTTOMRIGHT", 0, -10)
-	page.Collect:SetPoint("TOPLEFT", 16, -62)
-	page.Vendor:SetPoint("TOPRIGHT", -16, -62)
+	page.Collect:SetPoint("TOPLEFT", route, "BOTTOMLEFT", 0, -10)
+	page.Vendor:SetPoint("LEFT", page.CollectLabel, "RIGHT", 8, 0)
 	-- The portrait follows the profession shown here, and is given back on the way out.
 	local portrait
 	page:SetScript("OnShow", function()

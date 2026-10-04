@@ -26,6 +26,28 @@ local function Stub()
 				value = function(frame, checked)
 					rawset(frame, "checked", checked)
 				end
+			elseif key == "SetEnabled" then
+				value = function(frame, enabled)
+					rawset(frame, "enabled", enabled and true or false)
+				end
+			elseif key == "IsEnabled" then
+				value = function(frame)
+					return rawget(frame, "enabled") ~= false
+				end
+			elseif key == "Enable" then
+				value = function(frame)
+					rawset(frame, "enabled", true)
+				end
+			elseif key == "Disable" then
+				value = function(frame)
+					rawset(frame, "enabled", false)
+				end
+			elseif key == "Enter" then
+				value = function(frame)
+					if scripts.OnEnter then
+						scripts.OnEnter(frame)
+					end
+				end
 			elseif key == "Event" then
 				value = function(frame, event)
 					scripts.OnEvent(frame, event)
@@ -72,7 +94,8 @@ local function Stub()
 	})
 end
 local requested, lists = {}, {}
-local page = {
+local page
+page = {
 	db = { trainer = {}, trainerRanks = {}, routeTargets = { [129] = 100 }, showRouteTab = true },
 	COLORS = {},
 	IsLearned = function(id)
@@ -95,8 +118,14 @@ local page = {
 		end,
 	},
 	PriceSource = function(itemID)
-		return ({ "gather", "vendor", "auctionator" })[itemID]
+		-- A reagent another profession gathers is free while the switch is off and bought while it is on.
+		if page.GatheredBy[itemID] and page.PlayerProfessions()[page.GatheredBy[itemID]] then
+			return page.CollectMode() == "gather" and "gather" or "vendor"
+		end
+		return ({ "vendor", "vendor", "auctionator" })[itemID]
 	end,
+	-- One reagent per bucket, the first one this character's First Aid gathers.
+	GatheredBy = { [1] = 129 },
 	PlayerProfessions = function()
 		return { [129] = FirstAid(1) }
 	end,
@@ -136,6 +165,7 @@ page.NearestNPC = function()
 	return nil
 end
 local timers = {}
+local disabledLines = {}
 local pageEnv = setmetatable({
 	C_Timer = {
 		After = function(_, callback)
@@ -169,6 +199,9 @@ local pageEnv = setmetatable({
 		return value
 	end,
 })
+pageEnv.GameTooltip_AddDisabledLine = function(_, text)
+	disabledLines[#disabledLines + 1] = text
+end
 -- Core/Changes.lua's frame is the only one made while the files load: the game's events arrive on it.
 local eventFrame
 pageEnv.CreateFrame = function()
@@ -216,6 +249,16 @@ routeTab:Click()
 local reagentList = lists[2]
 equal(reagentList.rows[1] and reagentList.rows[1].text, "item 2589", "an unpriced reagent is listed")
 equal(requested[2589], true, "and its name is asked for")
+-- A route with nothing this character gathers cannot be switched to buying, so it is off and says why.
+equal(collect.enabled, false, "a route with nothing to gather disables the switch")
+collect:Click()
+equal(page.collectMode, nil, "and a click on the disabled switch changes nothing")
+collect:Enter()
+equal(
+	disabledLines[#disabledLines],
+	"Nothing on this route is yours to gather, so the switch changes nothing for it.",
+	"the disabled switch's tooltip says why"
+)
 equal(routeTab.checked, true, "opening the route selects its tab")
 eventFrame:Event("SKILL_LINES_CHANGED")
 routeTab:SetChecked(false) -- Blizzard handles the same event after the addon.
@@ -298,7 +341,18 @@ suggestion.tooltip(itemTooltip)
 equal(titles[1], "Spell 3276", "a recipe named otherwise is still named there")
 
 -- The collect switch: gather by default, auction after a click, and back.
+equal(collect.enabled, true, "a route with a reagent this character gathers enables the switch")
 equal(collect.checked, false, "the switch starts on gathering")
+local explained
+pageEnv.GameTooltip_AddNormalLine = function(_, text)
+	explained = text
+end
+collect:Enter()
+equal(
+	explained,
+	"On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing.",
+	"the enabled switch's tooltip explains what it does"
+)
 collect:Click()
 equal(page.collectMode, "auction", "clicking asks for auction mode")
 equal(collect.checked, true, "and the switch shows it")
@@ -331,5 +385,40 @@ page.Reagents = function()
 end
 routeTab:Click()
 equal(vendor.shown, false, "a route with no vendor reagent hides the button")
+
+-- A route with crafts shows the switch's effect in the source column: the gathered reagent is free while
+-- the switch is off and bought once it is on.
+local realPlan = page.PlanRoute
+page.PlanRoute = function(profession)
+	return {
+		profession = profession,
+		target = 100,
+		crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green", expectedCrafts = 5 } },
+		steps = {},
+		ranks = {},
+		cost = 0,
+		unpriced = 0,
+	}
+end
+page.Reagents = function()
+	return { { itemID = 1, quantity = 1 }, { itemID = 2, quantity = 1 } }
+end
+pageEnv.C_Item.GetItemNameByID = function(itemID)
+	return "Reagent " .. itemID
+end
+local before = #lists[2].rows
+routeTab:Click()
+local gathered = lists[2].rows[before + 1]
+equal(gathered.text, "Reagent 1", "the route's reagents are listed")
+equal(gathered.values[2], "gather", "a reagent this character gathers shows gather while the switch is off")
+collect:Click()
+equal(
+	lists[2].rows[#lists[2].rows - 1].values[2],
+	"vendor",
+	"and shows its bought source once the switch is on, so the change is plain"
+)
+collect:Click()
+equal(lists[2].rows[#lists[2].rows - 1].values[2], "gather", "and gather again when the switch is off")
+page.PlanRoute = realPlan
 
 Client.report("route_spec")

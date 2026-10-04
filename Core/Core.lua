@@ -47,7 +47,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 }
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
-ns.WHATS_NEW = L["Recipe sources, vendors and trainers now come from Questie and AtlasLoot."]
+ns.WHATS_NEW = L["Route tooltips keep their lines, and a recipe's source reads in full."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

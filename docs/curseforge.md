@@ -14,9 +14,9 @@ Chance and cost, right in the window's own rows.
 
 Colour thresholds and reagent prices for the recipe you hover.
 
-![The SkillUp route tab with training and crafting steps and the reagents they need](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png)
+![The SkillUp route tab with training and crafting steps, the recipes that would carry it on and the reagents they need](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png)
 
-The route tab from 48 to 73: what to train, what to craft and where reagents come from.
+The route tab with a target of 150: what to train, what to craft, the recipes that would carry it on and where reagents come from.
 
 ![The objective tracker with the route's next training step and missing reagents](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png)
 

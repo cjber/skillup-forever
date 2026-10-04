@@ -131,8 +131,10 @@ default; set `WOWMOCK` to another directory that holds it. Art and fonts come
 from wago.tools for the pinned Forever build and are cached under
 `~/.cache/wowmock/`. Every number drawn comes from `Data/*.lua` through a port
 of `Core/Model.lua`, or (route, tracker, trainer and reagent scenes) from the addon's own Lua run
-under `luajit` with the client stubbed; only the scene's state (skill, bags, auction prices) is chosen
-in the script. Repeated runs are byte-identical. `SCALE` (default 2) sets the
+under `luajit` with the client stubbed; only the scene's state (skill, target, bags, auction prices) is chosen
+in the script. The character has Questie and AtlasLoot: the script gives the specs' stand-ins
+(`Client.QuestieDB` and `Client.AtlasLoot` in `tests/client.lua`) the few patterns, vendors and places the
+scene shows, so a new suggestion or vendor in a scene is added there. Repeated runs are byte-identical. `SCALE` (default 2) sets the
 render scale.
 
 ## Type checking

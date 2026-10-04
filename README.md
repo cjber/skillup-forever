@@ -29,11 +29,11 @@ Each row shows its chance and cost, with the tooltip breaking it down per reagen
 - **Profession trainer**: recipes show their row text (`62% · 45s`), and the one that most cheapens or extends your route gets a green arrow, fee included. An unknown recipe shows `?`.
 - **Reagent tooltips**: hovering an item shows what your tracked routes need. Hold Shift for every recipe of your professions that uses it and still skills up, with its colour: `Heavy Linen Bandage    yellow until 115`.
 
-<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab with a target of 150: training and crafting steps from 48 to 140, the vendor and world drop recipes that would carry it on, and a reagent tooltip naming its vendor in Ashenvale"></p>
 
-The route tab from 48 to 73: train the vest, craft 18, train the boots, craft 7, and where reagents come from.
+The route tab with a target of 150: what to train and craft as far as 140, the recipes that would carry it on, and where to buy the thread.
 
-<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png" width="320" alt="The objective tracker with Leatherworking to 73, the next training step and two missing reagents"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png" width="320" alt="The objective tracker with Leatherworking to 150, the next training step and five missing reagents"></p>
 
 Tracked, the same route sits beside your quests: the next trainer visit and what's still missing.
 

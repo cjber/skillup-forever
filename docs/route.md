@@ -54,7 +54,7 @@ Beside the route is every reagent it needs, with how many you have (bags and ban
 
 ### Gathered reagents
 
-*Buy reagents at the auction house* in the route page chooses where a reagent another of your professions could gather comes from: off, it costs nothing, so the route uses it and the list says *gather*; on, it is bought and priced at a vendor or the auction house like any other reagent. The choice is saved for this character.
+*Buy reagents* in the route page chooses where a reagent another of your professions could gather comes from: off, it costs nothing, so the route uses it and the list says *gather*; on, it is bought and priced at a vendor or the auction house like any other reagent. The choice is saved for this character. When the route has nothing your professions gather, the switch is disabled and its tooltip says so.
 
 ### Track
 

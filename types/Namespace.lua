@@ -373,6 +373,7 @@ SkillUpForeverDB = nil
 ---@field Track Button
 ---@field Auctionator Button
 ---@field Collect CheckButton
+---@field CollectLabel FontString
 ---@field Vendor Button
 ---@field vendorItems integer[]
 ---@field RouteList SkillUpList

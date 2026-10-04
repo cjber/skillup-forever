@@ -21,7 +21,7 @@ PROFESSION_SKILLS = {129, 164, 165, 171, 182, 185, 186, 197, 202, 333, 356, 393}
 RANK_SKILL = 75
 # Forever's client leaves out the trainers' teaching spells; Classic Era keeps them,
 # with the same recipe spell IDs.
-TEACH_BUILD = "1.15.9.69722"
+TEACH_BUILD = "1.15.9.70003"
 
 
 def classicdb(refresh=False, offline=False):

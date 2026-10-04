@@ -179,10 +179,13 @@ def generate(ids, ability_rows, skill_rows, reagent_rows, effect_rows, item_rows
         for sid in sorted(member[spell]):
             profession = names[sid]
             profession[name] = False if name in profession else spell
-    skill_names = {int(row["ID"]): row["DisplayName_lang"] for row in skill_rows}
-    professions = {}
-    for sid in names:
-        put_unique(professions, skill_names[sid], sid, "profession name")
+    # Every profession, with or without a skill-up recipe: the runtime finds a gathering
+    # profession by its name to price what it gathers.
+    skills, selected, _ = professions(skill_rows)
+    profession_lines = {}
+    for sid in sorted(selected):
+        if int(skills[sid]["ParentSkillLineID"]) not in selected:
+            put_unique(profession_lines, skills[sid]["DisplayName_lang"], sid, "profession name")
     stats = {
         "thresholds": len(ids),
         "recipes": len(recipes),
@@ -198,7 +201,7 @@ def generate(ids, ability_rows, skill_rows, reagent_rows, effect_rows, item_rows
         "ambiguous_names": sum(v is False for n in names.values() for v in n.values()),
         "missing_names": len(ids) - len(spell_names),
     }
-    return recipes, sell, names, professions, stats
+    return recipes, sell, names, profession_lines, stats
 
 
 def lua_string(value):

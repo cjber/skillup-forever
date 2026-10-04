@@ -11,9 +11,9 @@ import urllib.request
 from collections import Counter, defaultdict
 from pathlib import Path
 
-BUILD = "1.60.1.70124"
+BUILD = "1.60.1.70205"
 # Date this source snapshot was selected, not the date of each regeneration.
-SOURCE_DATE = "2026-09-30"
+SOURCE_DATE = "2026-10-04"
 # SpellEffect.Effect codes the generators read.
 DUMMY = 3
 TELEPORT_UNITS = 5
@@ -23,7 +23,7 @@ LEARN_SPELL = 36
 TRANS_DOOR = 50  # summons an object: a campfire
 ENCHANT_ITEM = 53  # a permanent enchant
 SKILL = 118  # sets a skill line's rank: base points 0-3 raise the cap to 75-300
-SKILLET_COMMIT = "c6807b055215a810f985f9606458235b8805666e"
+SKILLET_COMMIT = "6787b5ca615fc5cd7f9c7c12ac97d8be354ce4bd"
 SKILLET_URL = f"https://raw.githubusercontent.com/b-morgan/Skillet-Classic/{SKILLET_COMMIT}/SkillLevelData1.lua"
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "tools" / ".cache"

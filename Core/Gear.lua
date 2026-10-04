@@ -39,7 +39,7 @@ for index, group in ipairs(GROUPS) do
 	end
 end
 
--- What each class can equip, and from which level, as the client's SkillRaceClassInfo expresses it
+-- What each class can wear, and from which level, as the client's SkillRaceClassInfo expresses it
 -- (wago.tools/db2/SkillRaceClassInfo and SkillLine, wow_classic_beta 1.60.1.70205): a row names one
 -- skill line (a type), the class mask it covers and the level it starts at. Armour subclasses are 1
 -- cloth, 2 leather, 3 mail, 4 plate and 6 shield; weapon subclasses are 0 one-hand axe, 1 two-hand
@@ -58,48 +58,50 @@ local ARMOUR = {
 	[9] = { [1] = 0 }, -- Warlock
 	[11] = { [1] = 0, [2] = 0 }, -- Druid
 }
+
+-- What each class wields from creation, the same client rows: a weapon type is here only when a row
+-- with Availability 1 covers the class and a playable race. Any other weapon type needs training
+-- from a weapon master, so Gear.List asks the character's own skill lines for it instead.
 ---@type table<integer, table<integer, integer>>
 local WEAPON = {
-	[1] = {
-		[0] = 0,
-		[1] = 0,
-		[2] = 0,
-		[3] = 0,
-		[4] = 0,
-		[5] = 0,
-		[6] = 20,
-		[7] = 0,
-		[8] = 0,
-		[10] = 0,
-		[13] = 0,
-		[15] = 0,
-		[16] = 0,
-		[18] = 0,
-	}, -- Warrior
-	[2] = { [0] = 0, [1] = 0, [4] = 0, [5] = 0, [6] = 20, [7] = 0, [8] = 0 }, -- Paladin
-	[3] = {
-		[0] = 0,
-		[1] = 0,
-		[2] = 0,
-		[3] = 0,
-		[6] = 20,
-		[7] = 0,
-		[8] = 0,
-		[10] = 0,
-		[13] = 0,
-		[15] = 0,
-		[16] = 0,
-		[18] = 0,
-	}, -- Hunter
-	[4] = { [0] = 0, [2] = 0, [3] = 0, [4] = 0, [7] = 0, [13] = 0, [15] = 0, [16] = 0, [18] = 0 }, -- Rogue
-	[5] = { [4] = 0, [10] = 0, [15] = 0, [19] = 0 }, -- Priest
-	[7] = { [0] = 0, [1] = 0, [4] = 0, [5] = 0, [10] = 0, [13] = 0, [15] = 0 }, -- Shaman
-	[8] = { [7] = 0, [10] = 0, [15] = 0, [19] = 0 }, -- Mage
-	[9] = { [7] = 0, [10] = 0, [15] = 0, [19] = 0 }, -- Warlock
-	[11] = { [4] = 0, [5] = 0, [6] = 20, [10] = 0, [13] = 0, [15] = 0 }, -- Druid
+	[1] = { [0] = 0, [1] = 0, [4] = 0, [5] = 0, [7] = 0, [8] = 0, [15] = 0, [16] = 0 }, -- Warrior
+	[2] = { [4] = 0, [5] = 0 }, -- Paladin
+	[3] = { [0] = 0, [2] = 0, [3] = 0, [15] = 0 }, -- Hunter
+	[4] = { [0] = 0, [15] = 0, [16] = 0 }, -- Rogue
+	[5] = { [4] = 0, [19] = 0 }, -- Priest
+	[7] = { [4] = 0, [10] = 0 }, -- Shaman
+	[8] = { [10] = 0, [19] = 0 }, -- Mage
+	[9] = { [15] = 0, [19] = 0 }, -- Warlock
+	[11] = { [4] = 0, [10] = 0, [15] = 0 }, -- Druid
 }
 ---@type table<integer, table<integer, table<integer, integer>>>
 local PROFICIENCY = { [2] = WEAPON, [4] = ARMOUR }
+
+-- The weapon skill line each weapon type belongs to (SkillLine IDs on the pinned build). An item's
+-- own subclass names the line the character's skill list reports once the type is known.
+---@type table<integer, integer>
+local WEAPON_SKILL = {
+	[0] = 44, -- One-Handed Axes
+	[1] = 172, -- Two-Handed Axes
+	[2] = 45, -- Bows
+	[3] = 46, -- Guns
+	[4] = 54, -- One-Handed Maces
+	[5] = 160, -- Two-Handed Maces
+	[6] = 229, -- Polearms
+	[7] = 43, -- One-Handed Swords
+	[8] = 55, -- Two-Handed Swords
+	[10] = 136, -- Staves
+	[13] = 473, -- Fist Weapons
+	[15] = 173, -- Daggers
+	[16] = 176, -- Thrown
+	[18] = 226, -- Crossbows
+	[19] = 228, -- Wands
+}
+---@type table<integer, true>
+local WEAPON_LINE = {}
+for _, skillLine in pairs(WEAPON_SKILL) do
+	WEAPON_LINE[skillLine] = true
+end
 
 -- The subclasses gated by PROFICIENCY. Every other type, such as a ring, trinket or fishing pole,
 -- is open to every class; its own AllowableClass still has the last word.
@@ -126,7 +128,8 @@ local GATED = {
 }
 
 -- The fields of an ns.ItemGear row.
-local LEVEL, ITEM_CLASS, SUBCLASS, SLOT, CLASSES = 1, 2, 3, 4, 5
+local LEVEL, ITEM_CLASS, SUBCLASS, SLOT, CLASSES, REQUIRED_SKILL, REQUIRED_RANK, CONSUMED = 1, 2, 3, 4, 5, 6, 7, 8
+local WEAPONS = 2
 
 -- The layout fits a few rows a slot without turning the view into a wall of names.
 local MAX_PER_SLOT = 3
@@ -134,22 +137,27 @@ local MAX_PER_SLOT = 3
 ---@class SkillUpGear
 local Gear = {}
 ns.Gear = Gear
----@param facts number[]
----@param level number
----@param classID integer
----@return boolean
-local function Usable(facts, level, classID)
-	if bit.band(facts[CLASSES], bit.lshift(1, classID - 1)) == 0 then
-		return false
+
+-- The weapon skill lines this character knows now, by line, from the client's own skill list, or nil
+-- when the client cannot answer yet. The class table is only the creation fallback; a trained type
+-- shows here, which is what makes a sword a warrior's and not a mage's.
+---@return table<integer, number>?
+function Gear.WeaponSkills()
+	if not C_SkillInfo then
+		return nil
 	end
-	local itemClass = facts[ITEM_CLASS]
-	local gated = GATED[itemClass]
-	if not gated or not gated[facts[SUBCLASS]] then
-		return true
+	local lines = C_SkillInfo.GetNumSkillLines()
+	if lines == 0 then
+		return nil
 	end
-	local byClass = PROFICIENCY[itemClass][classID]
-	local from = byClass and byClass[facts[SUBCLASS]]
-	return from ~= nil and level >= from
+	local known = {}
+	for index = 1, lines do
+		local info = C_SkillInfo.GetSkillLineInfo(index)
+		if info and not info.isHeader and WEAPON_LINE[info.skillID] then
+			known[info.skillID] = info.rank
+		end
+	end
+	return known
 end
 
 -- One profession's name, from the bundled ones; the character's own name wins in List.
@@ -162,6 +170,38 @@ function Gear.ProfessionName(skillLine)
 		end
 	end
 	return string.format(L["profession %d"], skillLine)
+end
+
+-- Whether the character can use the item now: the class mask allows it, the item's own skill
+-- requirement is met, and its armour or weapon type is one the character can wear or has trained.
+---@param facts number[]
+---@param level number
+---@param classID integer
+---@param query SkillUpGearQuery
+---@return boolean
+local function Usable(facts, level, classID, query)
+	if bit.band(facts[CLASSES], bit.lshift(1, classID - 1)) == 0 then
+		return false
+	end
+	local required, rank = facts[REQUIRED_SKILL], facts[REQUIRED_RANK]
+	if required ~= 0 then
+		local profession = query.professions[required]
+		if not profession or profession.skill < rank then
+			return false
+		end
+	end
+	local itemClass = facts[ITEM_CLASS]
+	local gated = GATED[itemClass]
+	if not gated or not gated[facts[SUBCLASS]] then
+		return true
+	end
+	if itemClass == WEAPONS and query.weaponSkills then
+		local skillLine = WEAPON_SKILL[facts[SUBCLASS]]
+		return skillLine ~= nil and query.weaponSkills[skillLine] ~= nil
+	end
+	local byClass = PROFICIENCY[itemClass][classID]
+	local from = byClass and byClass[facts[SUBCLASS]]
+	return from ~= nil and level >= from
 end
 
 -- The newest craftable items for the character's level and class, one list a slot, newest first.
@@ -177,7 +217,14 @@ function Gear.List(recipes, facts, query)
 		local itemID = output and output.itemID or nil
 		local info = itemID and facts[itemID] or nil
 		local group = info and GROUP_OF[info[SLOT]] or nil
-		if itemID and info and group and info[LEVEL] <= query.level and Usable(info, query.level, query.classID) then
+		if
+			itemID
+			and info
+			and group
+			and info[CONSUMED] == 0
+			and info[LEVEL] <= query.level
+			and Usable(info, query.level, query.classID, query)
+		then
 			local bucket = found[group]
 			if not bucket then
 				bucket = {}
@@ -190,6 +237,7 @@ function Gear.List(recipes, facts, query)
 				bucket[itemID] = {
 					recipeID = recipeID,
 					itemID = itemID,
+					name = query.name(itemID),
 					skillLine = recipe.skillLine,
 					skill = query.skill(recipeID),
 					level = info[LEVEL],
@@ -209,7 +257,13 @@ function Gear.List(recipes, facts, query)
 				items[#items + 1] = item
 			end
 			table.sort(items, function(a, b)
-				return a.level > b.level or (a.level == b.level and a.itemID < b.itemID)
+				if a.level ~= b.level then
+					return a.level > b.level
+				end
+				if a.skill ~= b.skill then
+					return a.skill > b.skill
+				end
+				return (a.name or tostring(a.itemID)) < (b.name or tostring(b.itemID))
 			end)
 			while #items > MAX_PER_SLOT do
 				items[#items] = nil
@@ -220,7 +274,7 @@ function Gear.List(recipes, facts, query)
 	return slots
 end
 
--- The crafted gear for the character now, from the bundled data and the character's professions.
+-- The crafted gear for the character now, from the bundled data and the character's own skills.
 ---@param level number
 ---@param classID integer
 ---@return SkillUpGearSlot[]
@@ -230,6 +284,10 @@ function ns.CraftedGear(level, classID)
 		classID = classID,
 		learned = ns.IsLearned,
 		professions = ns.PlayerProfessions(),
+		weaponSkills = Gear.WeaponSkills(),
+		name = function(itemID)
+			return C_Item.GetItemNameByID(itemID)
+		end,
 		skill = function(recipeID)
 			local thresholds = ns.Model.Get(recipeID)
 			return thresholds and thresholds[1] or 0

@@ -141,8 +141,31 @@ def output_of(spell, rows):
     return item, max(1, base)
 
 
-def generate(ids, ability_rows, skill_rows, reagent_rows, effect_rows, item_rows, item_class_rows, name_rows):
+def root_skill(skill, parents):
+    """The parent profession line a child skill line hangs off; a parent line is itself."""
+    seen = set()
+    while parents.get(skill, 0) != 0:
+        if skill in seen:
+            raise ValueError(f"Cyclic SkillLine parent for skill {skill}")
+        seen.add(skill)
+        skill = parents[skill]
+    return skill
+
+
+def generate(
+    ids,
+    ability_rows,
+    skill_rows,
+    reagent_rows,
+    effect_rows,
+    item_rows,
+    item_class_rows,
+    name_rows,
+    item_effect_rows,
+    effect_link_rows,
+):
     member = memberships(ids, ability_rows, skill_rows)
+    parents = {int(row["ID"]): int(row["ParentSkillLineID"]) for row in skill_rows}
     lines = {spell: next(iter(sids)) for spell, sids in member.items() if len(sids) == 1}
     reagents = reagents_by_spell(ids, reagent_rows)
     effects = defaultdict(dict)
@@ -167,9 +190,16 @@ def generate(ids, ability_rows, skill_rows, reagent_rows, effect_rows, item_rows
                 raise ValueError(f"Item {item}: negative sell price")
             put_unique(sell, item, copper, "sell price")
             level, classes = int(row["RequiredLevel"]), int(row["AllowableClass"])
-            if level < 0:
-                raise ValueError(f"Item {item}: negative required level")
-            put_unique(sparse, item, (level, classes), "wear facts")
+            skill, rank = int(row["RequiredSkill"]), int(row["RequiredSkillRank"])
+            if level < 0 or skill < 0 or rank < 0:
+                raise ValueError(f"Item {item}: negative level or skill requirement")
+            # A rank with no skill line is stale client data; the client ignores it too. An item names
+            # the profession's child line (2937-2948) where it means the parent the character trains.
+            if skill == 0:
+                rank = 0
+            else:
+                skill = root_skill(skill, parents)
+            put_unique(sparse, item, (level, classes, skill, rank), "wear facts")
     missing_items = output_ids - sell.keys()
     sell = {item: copper for item, copper in sell.items() if copper > 0}
 
@@ -181,8 +211,23 @@ def generate(ids, ability_rows, skill_rows, reagent_rows, effect_rows, item_rows
             if class_id < 0 or subclass < 0 or slot < 0:
                 raise ValueError(f"Item {item}: negative class, subclass or inventory type")
             put_unique(kinds, item, (class_id, subclass, slot), "item class")
+    # A nonzero charge on any of an item's effects marks a use that consumes it.
+    charged = {int(row["ID"]) for row in item_effect_rows if int(row["Charges"]) != 0}
+    consumed = set()
+    for row in effect_link_rows:
+        if int(row["ItemID"]) in output_ids and int(row["ItemEffectID"]) in charged:
+            consumed.add(int(row["ItemID"]))
     gear = {
-        item: (sparse[item][0], kinds[item][0], kinds[item][1], kinds[item][2], sparse[item][1])
+        item: (
+            sparse[item][0],
+            kinds[item][0],
+            kinds[item][1],
+            kinds[item][2],
+            sparse[item][1],
+            sparse[item][2],
+            sparse[item][3],
+            1 if item in consumed else 0,
+        )
         for item in output_ids
         if item in sparse and item in kinds
     }
@@ -217,6 +262,7 @@ def generate(ids, ability_rows, skill_rows, reagent_rows, effect_rows, item_rows
         "missing_output_items": len(missing_items),
         "gear_items": len(gear),
         "missing_gear_items": len(output_ids) - len(gear),
+        "consumed_gear_items": len(consumed & output_ids),
         "names": sum(len(n) for n in names.values()),
         "ambiguous_names": sum(v is False for n in names.values() for v in n.values()),
         "missing_names": len(ids) - len(spell_names),
@@ -258,13 +304,16 @@ def render(recipes, sell, gear, names, professions, stats):
             "}",
             "",
             "-- ItemGear: required level, item class (2 weapon, 4 armour), subclass (type),",
-            "-- inventory type (slot) and allowable class bitmask, per crafted item output.",
+            "-- inventory type (slot), allowable class bitmask, required skill and its rank, and 1 when",
+            "-- a use of the item consumes it (a nonzero charge on one of its effects), per crafted output.",
             "-- stylua: ignore",
             "ns.ItemGear = {",
         ]
     )
-    for item, (level, class_id, subclass, slot, classes) in sorted(gear.items()):
-        lines.append(f"\t[{item}] = {{ {level}, {class_id}, {subclass}, {slot}, {classes} }},")
+    for item, (level, class_id, subclass, slot, classes, skill, rank, consumed) in sorted(gear.items()):
+        lines.append(
+            f"\t[{item}] = {{ {level}, {class_id}, {subclass}, {slot}, {classes}, {skill}, {rank}, {consumed} }},"
+        )
     lines.append("}")
     lines.extend(["", "-- stylua: ignore", "ns.RecipeNames = {"])
     for skill, entries in sorted(names.items()):
@@ -319,9 +368,15 @@ def main():
             ),
             **options,
         ),
-        db2("ItemSparse", ("ID", "SellPrice", "RequiredLevel", "AllowableClass"), **options),
+        db2(
+            "ItemSparse",
+            ("ID", "SellPrice", "RequiredLevel", "AllowableClass", "RequiredSkill", "RequiredSkillRank"),
+            **options,
+        ),
         db2("Item", ("ID", "ClassID", "SubclassID", "InventoryType"), **options),
         db2("SpellName", ("ID", "Name_lang"), **options),
+        db2("ItemEffect", ("ID", "Charges"), **options),
+        db2("ItemXItemEffect", ("ID", "ItemID", "ItemEffectID"), **options),
     )
     content = render(recipes, sell, gear, names, professions, stats)
     OUTPUT.write_text(content, encoding="utf-8")

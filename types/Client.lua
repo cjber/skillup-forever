@@ -117,6 +117,26 @@ function Professions.GetProfessionInfo() end
 ---@return TradeSkillRecipeInfo?
 function Professions.GetHighestLearnedRecipe(info) end
 
+-- The character's own skill lines, from Forever's Skills pane (SkillInfoDocumentation.lua).
+---@class SkillUpSkillLine
+---@field skillID integer
+---@field name string
+---@field isHeader boolean
+---@field rank number
+---@field modifier number
+---@field parentSkillLineID integer
+---@field skillLineCategoryID integer
+
+C_SkillInfo = {}
+---@return integer
+function C_SkillInfo.GetNumSkillLines() end
+---@param index integer
+---@return SkillUpSkillLine?
+function C_SkillInfo.GetSkillLineInfo(index) end
+---@param ID integer
+---@return SkillUpSkillLine?
+function C_SkillInfo.GetSkillLineInfoByID(ID) end
+
 ---@class SkillUpSideTab : Frame
 ---@field Icon Texture
 ---@field tooltipText string

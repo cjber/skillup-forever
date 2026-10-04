@@ -1,7 +1,8 @@
 -- Run from the repository root: luajit tests/route_layout_spec.lua
--- The route page at its real window size: the rectangles its controls and headings occupy, and the width a
--- reagent name gets. Frames resolve their anchors in screen pixels, as tracker_geometry_spec does; a name
--- that measures wider than its rectangle would be cut, which is the bug this guards.
+-- The route and gear pages at their real window size: the rectangles their controls and headings occupy,
+-- the width a reagent name gets, and the side tabs handing the window from one page to the other. Frames
+-- resolve their anchors in screen pixels, as tracker_geometry_spec does; a name that measures wider than
+-- its rectangle would be cut, which is the bug this guards.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
@@ -488,6 +489,7 @@ for _, file in ipairs({
 	"Core/Plan.lua",
 	"UI/List.lua",
 	"UI/Route.lua",
+	"UI/Gear.lua",
 }) do
 	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
 end
@@ -499,6 +501,9 @@ ns.PlanRoute = function(profession)
 	plan.profession = profession
 	return plan
 end
+ns.CraftedGear = function()
+	return {}
+end
 ns.NextCraft = function()
 	-- The row lays out with the narrow, disabled Craft next button, as when the profession's own window
 	-- is closed and no craft is offered there.
@@ -507,8 +512,10 @@ end
 
 ns.AttachRoute()
 local tab = tabs[1]
-tab.scripts.OnMouseUp(nil, "LeftButton", true)
 local page = pageFrame
+ns.db.showGearTab = true
+ns.AttachGear()
+tab.scripts.OnMouseUp(nil, "LeftButton", true)
 equal(page ~= nil, true, "the route page is created")
 equal(page.RouteList ~= nil and page.ReagentList ~= nil, true, "with its two lists")
 
@@ -575,5 +582,53 @@ for _, row in ipairs(page.ReagentList.rows) do
 		"reagent " .. tostring(name) .. " fits in its name's width, not cut short"
 	)
 end
+
+-- The gear page starts under the window's title bar, not below the route page's header row, and its
+-- skill column keeps the right inset the route page's rightmost column has.
+local routePage, gearPage = page, pageFrame
+local routeTab = tab
+local gearTab = tabs[2]
+local gearInset = insets[3]
+local _, _, _, gearTop = Rect(gearInset)
+equal(gearTop, 562, "the gear inset starts at the route header row, not below it")
+local title = Find("Crafted gear")
+local _, titleBottom = Rect(title)
+equal(titleBottom, 566, "with its title just above it")
+local skill = Find("Skill")
+local have = Find("Have")
+local _, _, skillRight = Rect(skill)
+local _, _, haveRight = Rect(have)
+equal(skillRight, haveRight, "the skill column keeps the route page's right inset")
+
+-- Every switch hides the other page and highlights exactly the selected tab. The route tab was
+-- clicked once above, so the gear tab is the first switch here.
+gearTab.scripts.OnMouseUp(nil, "LeftButton", true)
+equal(gearPage:IsShown(), true, "the gear tab shows the gear page")
+equal(routePage:IsShown(), false, "and hides the route page")
+equal(gearTab.checked, true, "with the gear tab checked")
+equal(routeTab.checked, false, "and the route tab unchecked")
+
+routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
+equal(routePage:IsShown(), true, "the route tab shows the route page")
+equal(gearPage:IsShown(), false, "and hides the gear page")
+equal(routeTab.checked, true, "with the route tab checked")
+equal(gearTab.checked, false, "and the gear tab unchecked")
+
+gearTab.scripts.OnMouseUp(nil, "LeftButton", true)
+routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
+equal(routePage:IsShown(), true, "a second route click shows the route page again")
+equal(gearPage:IsShown(), false, "and still hides the gear page")
+equal(routeTab.checked, true, "with the route tab checked")
+equal(gearTab.checked, false, "and the gear tab unchecked")
+
+-- Blizzard's own tabs hand the window back through their page showing.
+ProfessionsFrame.BookPage:Show()
+equal(routePage:IsShown(), false, "the overview hides the route page")
+equal(gearPage:IsShown(), false, "and the gear page")
+equal(routeTab.checked, false, "the route tab unchecks")
+equal(gearTab.checked, false, "and the gear tab too")
+ProfessionsFrame.CraftingPage:Show()
+equal(routePage:IsShown(), false, "a profession page hides the route page")
+equal(gearPage:IsShown(), false, "and the gear page")
 
 Client.report("route_layout_spec")

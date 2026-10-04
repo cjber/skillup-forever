@@ -150,6 +150,8 @@ page = {
 		lists[#lists + 1] = list
 		return list
 	end,
+	-- The route page hides the gear page when it takes over; this spec loads the route file alone.
+	HideGear = function() end,
 }
 -- The client-side seams the page reads: a character that gathers, and no vendor named until a spec says so.
 page.CollectMode = function()

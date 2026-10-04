@@ -780,10 +780,10 @@ function ns.OpenSkillLine()
 	return skillLine and ns.PlayerProfessions()[skillLine] and skillLine
 end
 
+local SyncChecks
+
 local function SelectPage()
-	if ns.HideGear then
-		ns.HideGear()
-	end
+	ns.HideGear()
 	local professions = ns.RouteProfessions()
 	local open = ns.OpenSkillLine()
 	selected = professions[open] and open or professions[selected] and selected or next(professions)
@@ -791,6 +791,8 @@ local function SelectPage()
 	ProfessionsFrame.BookPage:Hide()
 	page:Show()
 	ProfessionsFrame:RightTabSelected(tab)
+	-- RightTabSelected checks Blizzard's tabs only, and a second click does not fire OnShow.
+	SyncChecks()
 end
 
 -- Blizzard's own tabs show their page explicitly, which hands the window back.
@@ -798,6 +800,7 @@ local function Deselect()
 	page:Hide()
 	tab:SetChecked(false)
 end
+ns.HideRoute = Deselect
 
 -- Back to the crafting page, as its tab would, with the recipe selected.
 ---@param recipeID integer
@@ -827,7 +830,7 @@ local function PlaceTab()
 end
 
 -- Blizzard reselects its profession tab on skill updates; keep ours checked while our page shows.
-local function SyncChecks()
+function SyncChecks()
 	local shown = page:IsShown()
 	tab:SetChecked(shown)
 	if shown then

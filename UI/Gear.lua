@@ -55,7 +55,7 @@ local function Render()
 	for _, slot in ipairs(slots) do
 		page.List:Message(slot.name, NORMAL_FONT_COLOR)
 		for _, item in ipairs(slot.items) do
-			local name = C_Item.GetItemNameByID(item.itemID)
+			local name = item.name
 			if not name then
 				-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
 				C_Item.RequestLoadItemDataByID(item.itemID)
@@ -74,14 +74,16 @@ local function Render()
 	page.List:Finish()
 end
 
+local SyncChecks
+
 local function SelectPage()
-	if ns.HideRoute then
-		ns.HideRoute()
-	end
+	ns.HideRoute()
 	ProfessionsFrame.CraftingPage:Hide()
 	ProfessionsFrame.BookPage:Hide()
 	page:Show()
 	ProfessionsFrame:RightTabSelected(tab)
+	-- RightTabSelected checks Blizzard's tabs only, and a second click does not fire OnShow.
+	SyncChecks()
 end
 
 -- Blizzard's own tabs show their page explicitly, which hands the window back.
@@ -92,7 +94,7 @@ end
 ns.HideGear = Deselect
 
 -- Blizzard reselects its profession tab on skill updates; keep ours checked while our page shows.
-local function SyncChecks()
+function SyncChecks()
 	local shown = page:IsShown()
 	tab:SetChecked(shown)
 	if shown then
@@ -155,8 +157,10 @@ local function CreatePage()
 	page:SetFrameLevel(ProfessionsFrame.CraftingPage:GetFrameLevel())
 	page:Hide()
 	local inset = CreateInset(L["Crafted gear"])
-	inset:SetPoint("TOPLEFT", 16, -88)
-	inset:SetPoint("BOTTOMRIGHT", -16, 16)
+	-- The gear page has no header row of its own, so its inset starts where the route page's header
+	-- does: clear of the portrait that overhangs the top-left corner, not below the header row.
+	inset:SetPoint("TOPLEFT", 76, -32)
+	inset:SetPoint("BOTTOMRIGHT", page, "BOTTOMRIGHT", -16, 16)
 	page.List = ns.CreateList(inset, {
 		{ title = L["Skill"], width = 40 },
 		{ title = L["Profession"], width = 110 },

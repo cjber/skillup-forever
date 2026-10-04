@@ -45,8 +45,8 @@
 ---@field AttachGear fun()
 ---@field RouteTab? SkillUpSideTab
 ---@field GearTab? SkillUpSideTab
----@field HideRoute? fun()
----@field HideGear? fun()
+---@field HideRoute fun()
+---@field HideGear fun()
 ---@field PlaceGearTab? fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
@@ -379,6 +379,7 @@ SkillUpForeverDB = nil
 ---@class SkillUpGearItem
 ---@field recipeID integer
 ---@field itemID integer
+---@field name? string The client's item name, nil until its data has loaded.
 ---@field skillLine integer
 ---@field skill number The base skill the recipe needs.
 ---@field level number The item's required level.
@@ -397,6 +398,8 @@ SkillUpForeverDB = nil
 ---@field classID integer
 ---@field learned fun(recipeID: integer): boolean
 ---@field professions table<integer, SkillUpProfession> The character's, by skill line.
+---@field weaponSkills table<integer, number>? The weapon skill lines the character knows, or nil.
+---@field name fun(itemID: integer): string?
 ---@field skill fun(recipeID: integer): number
 ---@field professionName fun(skillLine: integer): string
 

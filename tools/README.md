@@ -63,7 +63,10 @@ A recipe with no skill range in the build (`TrivialSkillLineRankHigh` not above
 
 `gen_recipes.py` writes `Data/Recipes.lua`, using only spell IDs already present in
 the same-build `Data/Thresholds.lua`. `ns.ProfessionSkillLines` names every profession the
-build has, including the gathering ones with no skill-up recipe. It imports the threshold generator's build,
+build has, including the gathering ones with no skill-up recipe. `ns.ItemGear` holds each crafted
+item's required level, class and subclass (its armour or weapon type), inventory type (its slot) and
+`AllowableClass`, from the same build's `Item` and `ItemSparse`; the gear view filters that with
+`Core/Gear.lua`'s class proficiency table (the client's `SkillRaceClassInfo`). It imports the threshold generator's build,
 snapshot date, cache and profession discovery; run thresholds first when changing
 builds. All five generators accept `--offline` and `--refresh`. To verify the data
 is fresh and reproducible:

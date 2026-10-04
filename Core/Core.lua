@@ -12,6 +12,7 @@ local DEFAULTS = {
 	sortMode = "blizzard",
 	showTrainer = true,
 	showRouteTab = true,
+	showGearTab = false,
 	reagentTooltip = "route",
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from
 	whatsNew = true,
@@ -417,11 +418,13 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	if
 		not (
 			ns.RecipeData
+			and ns.ItemGear
 			and ns.ProfessionSkillLines
 			and ns.TrainerFees
 			and ns.TrainerRanks
 			and ns.Catalogue
 			and ns.PlanRoute
+			and ns.CraftedGear
 			and ns.Changed
 		)
 	then

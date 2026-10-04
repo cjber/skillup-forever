@@ -745,6 +745,9 @@ function ns.OpenSkillLine()
 end
 
 local function SelectPage()
+	if ns.HideGear then
+		ns.HideGear()
+	end
 	local professions = ns.RouteProfessions()
 	local open = ns.OpenSkillLine()
 	selected = professions[open] and open or professions[selected] and selected or next(professions)
@@ -796,6 +799,9 @@ local function SyncChecks()
 		for _, professionTab in ipairs(ProfessionsFrame.rightProfessionTabs or {}) do
 			professionTab:SetChecked(false)
 		end
+		if ns.GearTab then
+			ns.GearTab:SetChecked(false)
+		end
 	end
 end
 
@@ -805,6 +811,10 @@ local function RefreshRouteTab()
 	if not ns.db.showRouteTab and page:IsShown() then
 		Deselect()
 		ProfessionsFrame.CraftingPage:Show()
+	end
+	-- The gear tab sits under this one, so it moves when this one does.
+	if ns.PlaceGearTab then
+		ns.PlaceGearTab()
 	end
 end
 
@@ -821,6 +831,7 @@ local function CreateTab()
 	end)
 	PlaceTab()
 	RefreshRouteTab()
+	ns.RouteTab = tab
 	ProfessionsFrame:HookScript("OnShow", PlaceTab)
 	page:HookScript("OnShow", SyncChecks)
 end
@@ -843,6 +854,10 @@ function ns.AttachRoute()
 	local function AfterBlizzard()
 		C_Timer.After(0, function()
 			PlaceTab()
+			-- The gear tab sits under this one, so it moves with it.
+			if ns.PlaceGearTab then
+				ns.PlaceGearTab()
+			end
 			SyncChecks()
 			-- The window's own profession starts tracking on its own when its route has steps.
 			if ProfessionsFrame:IsShown() then

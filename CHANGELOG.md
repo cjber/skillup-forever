@@ -16,6 +16,7 @@ verbatim rather than rewritten as the addon moves.
 - **Tracking starts when you open the profession you are levelling.** Opening a profession's window, or a trainer that teaches it, now tracks it on its own when its route still has steps, so the tracker, the next training step and the waypoint to where to train are there without pressing *Track*. A profession you stop tracking by hand stays stopped until you start it again.
 - **One click to the vendor for the reagents your route still buys.** The route page now has a *Nearest vendor* button that sets a waypoint to the closest vendor selling any of the route's missing vendor reagents, instead of a trip through each reagent's line.
 - **Choose gathering or buying from the route itself.** A *Buy reagents at the auction house* switch on the route page decides whether a reagent another of your professions could gather is free to gather or bought and priced at a vendor or the auction house. It is saved per character and no longer hides in the settings.
+- **A crafted gear view, off until you want it.** A *Gear* tab on the Professions window, turned on in settings, lists per equipment slot the newest crafted items this character can equip now, with the profession and skill each needs, whether you know the recipe, can learn it or need another crafter, and the game's own item tooltip. It names the newest thing craftable for a slot, not a best-in-slot list.
 
 ## [0.7.1] - 2026-10-04
 

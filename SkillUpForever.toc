@@ -22,6 +22,7 @@ Data\Sources.lua
 Core\Model.lua
 Core\Changes.lua
 Core\Plan.lua
+Core\Gear.lua
 Core\Core.lua
 Integrations\Questie.lua
 Integrations\AtlasLoot.lua
@@ -33,6 +34,7 @@ UI\RecipeList.lua
 Integrations\Sources.lua
 UI\List.lua
 UI\Route.lua
+UI\Gear.lua
 UI\Shopping.xml
 UI\TrackerHost.lua
 UI\Shopping.lua

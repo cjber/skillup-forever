@@ -27,6 +27,8 @@
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
+---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
+---@field Gear SkillUpGear
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
@@ -40,6 +42,12 @@
 ---@field OpenSkillLine fun(): integer?
 ---@field ShowRecipe fun(recipeID: integer)
 ---@field AttachRoute fun()
+---@field AttachGear fun()
+---@field RouteTab? SkillUpSideTab
+---@field GearTab? SkillUpSideTab
+---@field HideRoute? fun()
+---@field HideGear? fun()
+---@field PlaceGearTab? fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
 ---@field OpenSettings fun()
@@ -90,6 +98,7 @@
 ---@field Thresholds table<integer, number[]>
 ---@field VendorPrices table<integer, number>
 ---@field RecipeData table<integer, SkillUpRecipe>
+---@field ItemGear table<integer, number[]>
 ---@field ItemSellPrices table<integer, number>
 ---@field RecipeNames table<integer, table<string, integer|false>>
 ---@field ProfessionSkillLines table<string, integer>
@@ -113,6 +122,7 @@
 ---@field sortMode 'blizzard'|'skill'|'chance'|'cost'
 ---@field showTrainer boolean
 ---@field showRouteTab boolean
+---@field showGearTab boolean
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field whatsNew boolean
@@ -262,7 +272,7 @@ SkillUpForeverDB = nil
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipes'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'
----@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'tooltip'
+---@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'gear'|'tooltip'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
@@ -364,6 +374,34 @@ SkillUpForeverDB = nil
 ---@field recipeID? integer
 ---@field count? number
 ---@field reason? string
+
+-- A class's list of craftable items, one entry a slot, newest first.
+---@class SkillUpGearItem
+---@field recipeID integer
+---@field itemID integer
+---@field skillLine integer
+---@field skill number The base skill the recipe needs.
+---@field level number The item's required level.
+---@field profession string
+---@field learned boolean
+---@field learnable boolean The character has the profession to learn it.
+
+---@class SkillUpGearSlot
+---@field slot integer The slot group's position in the view.
+---@field name string
+---@field items SkillUpGearItem[]
+
+-- What Gear.List needs to know about the character and the data.
+---@class SkillUpGearQuery
+---@field level number
+---@field classID integer
+---@field learned fun(recipeID: integer): boolean
+---@field professions table<integer, SkillUpProfession> The character's, by skill line.
+---@field skill fun(recipeID: integer): number
+---@field professionName fun(skillLine: integer): string
+
+---@class SkillUpGearPage : Frame
+---@field List SkillUpList
 
 ---@class SkillUpPage : Frame
 ---@field Craft SkillUpCraftButton

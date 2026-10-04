@@ -186,4 +186,5 @@ function ns.AttachRecipeList()
 		end
 	end)
 	ns.AttachRoute()
+	ns.AttachGear()
 end

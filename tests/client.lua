@@ -393,6 +393,9 @@ function Client.load(options)
 		end
 		return c.player.name
 	end
+	G.UnitClass = function()
+		return c.player.className or "Shaman", c.player.classFile or "SHAMAN", c.player.classID or 64
+	end
 	G.UnitGUID = function(unit)
 		return unit == "npc" and c.npc and string.format("Creature-0-1-0-0-%d-0000000001", c.npc.id) or nil
 	end
@@ -474,6 +477,15 @@ function Client.load(options)
 		end,
 		GetItemNameByID = function(id)
 			return c.items[id] and c.items[id].name
+		end,
+		GetItemIconByID = function(id)
+			return c.items[id] and c.items[id].icon
+		end,
+		GetItemQualityByID = function(id)
+			return c.items[id] and c.items[id].quality
+		end,
+		GetItemQualityColor = function()
+			return 1, 1, 1, "ffffff"
 		end,
 		GetItemCount = function(id)
 			return c.bags[id] or 0

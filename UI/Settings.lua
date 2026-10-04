@@ -166,6 +166,13 @@ function ns.RegisterSettings()
 
 		Checkbox(
 			rows,
+			"showGearTab",
+			L["Show the crafted gear tab"],
+			L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."]
+		)
+
+		Checkbox(
+			rows,
 			"showTrainer",
 			L["Annotate trainer recipes"],
 			L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."]

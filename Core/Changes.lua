@@ -8,23 +8,42 @@ local _, ns = ...
 -- The route page only arms its redraw timer, so its place among the views is free. So is the hovered
 -- tooltip's: it only marks the row for its next update, which the game asks for on its own.
 ---@type SkillUpStale[]
-local ORDER =
-	{ "schematics", "prices", "plans", "api", "route", "recipeList", "tracker", "trainer", "routeTab", "tooltip" }
+local ORDER = {
+	"schematics",
+	"prices",
+	"plans",
+	"api",
+	"route",
+	"recipeList",
+	"tracker",
+	"trainer",
+	"routeTab",
+	"gear",
+	"tooltip",
+}
 
 ---@type table<SkillUpChange, table<SkillUpStale, true>>
 local STALE = {
 	-- What a profession's recipes are or need: its window opened, its list or data source changed,
 	-- or a recipe was learned. The plan is built from all of it.
-	recipes = { schematics = true, plans = true, api = true, route = true, tracker = true },
+	recipes = { schematics = true, plans = true, api = true, route = true, tracker = true, gear = true },
 	skill = { plans = true, api = true, route = true, tracker = true },
 	-- A profession learned or dropped changes what counts as gathered, so what things cost.
-	professions = { prices = true, plans = true, api = true, route = true, recipeList = true, tracker = true },
+	professions = {
+		prices = true,
+		plans = true,
+		api = true,
+		route = true,
+		recipeList = true,
+		tracker = true,
+		gear = true,
+	},
 	prices = { prices = true, plans = true, api = true, route = true, recipeList = true, tracker = true },
 	bags = { api = true, route = true, tracker = true },
 	-- Item data arrived; `names` when the public list was waiting on it.
-	items = { route = true, tracker = true },
+	items = { route = true, tracker = true, gear = true },
 	names = { api = true },
-	level = { api = true, route = true, tracker = true },
+	level = { api = true, route = true, tracker = true, gear = true },
 	zone = { api = true },
 	-- A merchant opened, restocked or closed: the tracker's buy button.
 	merchant = { tracker = true },
@@ -43,6 +62,7 @@ local STALE = {
 		tracker = true,
 		trainer = true,
 		routeTab = true,
+		gear = true,
 	},
 }
 

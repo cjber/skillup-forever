@@ -49,6 +49,7 @@ for _, complete in ipairs({ false, true }) do
 		ns.TrainerFees, ns.TrainerRanks, ns.Catalogue = {}, {}, {}
 		ns.InitCatalogue = function() end
 		ns.PlanRoute, ns.Changed, ns.WhenEvent = Init, Init, function() end
+		ns.CraftedGear = Init
 	end
 	local env = Env(messages, callbacks)
 	-- A save from before auction prices moved to Auctionator.
@@ -101,6 +102,7 @@ do
 		WhenEvent = function() end,
 		Catalogue = {},
 		InitCatalogue = function() end,
+		CraftedGear = function() end,
 	}
 	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
 	local env = Env(messages, callbacks)

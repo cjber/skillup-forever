@@ -806,7 +806,6 @@ local route = {
 	target = Widget(page.Target),
 	craft = Widget(page.Craft),
 	track = Widget(page.Track),
-	auctionator = Widget(page.Auctionator),
 	collect = Widget(page.Collect),
 	collectLabel = Widget(page.CollectLabel),
 	vendor = Widget(page.Vendor),
@@ -1553,7 +1552,7 @@ def route_frame(ui, scene_data):
     inset_frame(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, "Reagents  (have / need)")
     draw_list(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, reagent_list["rows"])
     # Nearest vendor at the route's BOTTOMLEFT, Craft at its BOTTOMRIGHT; Track at the reagents'
-    # BOTTOMRIGHT, To Auctionator 8 to its left.
+    # BOTTOMRIGHT.
     vendor = route["vendor"]
     if vendor.get("shown"):
         panel_button(canvas, route_x, bottom + 10, 120, 22, vendor["text"], vendor.get("enabled", True))
@@ -1562,11 +1561,6 @@ def route_frame(ui, scene_data):
     panel_button(canvas, route_right - craft_w, bottom + 10, craft_w, 22, craft["text"], craft["enabled"])
     track = route["track"]
     panel_button(canvas, reagents_right - 130, bottom + 10, 130, 22, track["text"], track.get("enabled", True))
-    auctionator = route["auctionator"]
-    if auctionator.get("shown"):
-        panel_button(
-            canvas, reagents_right - 130 - 8 - 130, bottom + 10, 130, 22, auctionator["text"], auctionator["enabled"]
-        )
     profession_tabs(canvas, fx, fy, "route")
     portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, route["portrait"], "Leatherworking")
     return canvas

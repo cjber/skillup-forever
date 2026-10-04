@@ -32,7 +32,7 @@ Each row shows its chance and cost, with the tooltip breaking it down per reagen
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
 
-The route tab from 48 to 73: train the vest, craft 18, train the boots, craft 7, and where reagents come from.
+The route tab from 48 to 73: train the vest, craft 28, and where reagents come from.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png" width="320" alt="The objective tracker with Leatherworking to 73, the next training step and two missing reagents"></p>
 

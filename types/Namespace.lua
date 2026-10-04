@@ -415,11 +415,14 @@ SkillUpForeverDB = nil
 ---@field kind "message"
 ---@field Text FontString
 
----@alias SkillUpListFrame SkillUpListRow|SkillUpListHeading|SkillUpListMessage
+---@class SkillUpListElement
+---@field kind "row"|"heading"|"message"
+---@field text? string The heading's or message's line.
+---@field color? ColorMixin The message's colour; the list's own grey when nil.
+---@field entry? SkillUpListEntry The row's item.
 
 ---@class SkillUpList
----@field rows SkillUpListFrame[] The frames placed by the last render, in order.
----@field height number
+---@field rows SkillUpListElement[] The elements of the last render, in order.
 ---@field scrollBox SkillUpScrollBox
 ---@field Begin fun(self: SkillUpList)
 ---@field Heading fun(self: SkillUpList, text: string)

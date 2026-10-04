@@ -174,6 +174,127 @@ function ns.UsedIn(itemID)
 	return reagentIndex and reagentIndex[itemID] or {}
 end
 
+-- Sub-crafting: a reagent a recipe this character knows can make is obtained by crafting it when
+-- that beats buying it. Cost recurses three levels, memoised per item, and a recipe that would need
+-- the item it makes is skipped rather than followed, so no cycle can recurse or hang.
+
+local MAX_SUB_DEPTH = 3
+---@type table<integer, number|false>
+local obtainCost = {}
+---@type table<integer, {recipeID: integer, quantity: number}|false>
+local subCraft = {}
+---@type table<integer, integer[]>?
+local craftMakers
+
+local function ResetCraftCosts()
+	obtainCost, subCraft = {}, {}
+end
+
+local function ResetMakers()
+	craftMakers = nil
+end
+
+-- The recipes that make `itemID`, lowest recipe ID first, from the bundled and live reagent data.
+---@param itemID integer
+---@return integer[]
+local function MakersOf(itemID)
+	if not craftMakers then
+		craftMakers = {}
+		for recipeID, recipe in pairs(ns.RecipeData or {}) do
+			local output = recipe.output
+			if output then
+				local makers = craftMakers[output.itemID]
+				if not makers then
+					makers = {}
+					craftMakers[output.itemID] = makers
+				end
+				makers[#makers + 1] = recipeID
+			end
+		end
+		for _, makers in pairs(craftMakers) do
+			table.sort(makers)
+		end
+	end
+	return craftMakers[itemID] or {}
+end
+
+-- One craft of `recipeID` makes this many, or nil when the data does not say.
+---@param recipeID integer
+---@return number?
+local function OutputQuantity(recipeID)
+	local recipe = Recipe(recipeID)
+	local output = recipe and recipe.output
+	return output and output.quantity or nil
+end
+
+-- Copper for one unit of `itemID`: buying it, or the cheaper recipe that makes it. `stack` holds the
+-- items already being priced, so a cycle reads as unpriced instead of recursing. Memoised per item.
+---@param itemID integer
+---@param depth integer
+---@param stack table<integer, true>
+---@return number?
+local function ObtainCost(itemID, depth, stack)
+	if depth <= 0 then
+		local price = ns.Price(itemID)
+		return price and price.copper
+	end
+	local cached = obtainCost[itemID]
+	if cached == false then
+		return nil
+	elseif cached ~= nil then
+		return cached
+	end
+	if stack[itemID] then
+		return nil
+	end
+	local buy = ns.Price(itemID)
+	local best = buy and buy.copper
+	---@type integer?
+	local bestRecipe = nil
+	stack[itemID] = true
+	for _, recipeID in ipairs(MakersOf(itemID)) do
+		local quantity, reagents = OutputQuantity(recipeID), ns.Reagents(recipeID)
+		if ns.IsLearned(recipeID) and quantity and quantity > 0 and reagents and #reagents > 0 then
+			---@type number?
+			local total = 0
+			for _, reagent in ipairs(reagents) do
+				local each = ObtainCost(reagent.itemID, depth - 1, stack)
+				if not each then
+					total = nil
+					break
+				end
+				total = total + each * reagent.quantity
+			end
+			local unit = total and total / quantity
+			-- A craft wins only when it is strictly cheaper than buying: on a tie the vendor wins.
+			if unit and (not best or unit < best) then
+				best, bestRecipe = unit, recipeID
+			end
+		end
+	end
+	stack[itemID] = nil
+	if best == nil then
+		obtainCost[itemID] = false
+		return nil
+	end
+	local cost = assert(best)
+	obtainCost[itemID] = cost
+	if bestRecipe then
+		subCraft[itemID] = { recipeID = bestRecipe, quantity = assert(OutputQuantity(bestRecipe)) }
+	end
+	return cost
+end
+
+-- The recipe that makes `itemID` for less than buying it, with one craft's output; nil when buying
+-- is cheaper, nothing learned makes it, or one of its own reagents has no price.
+---@param itemID integer
+---@return {recipeID: integer, quantity: number}?
+function ns.SubCraft(itemID)
+	ObtainCost(itemID, MAX_SUB_DEPTH, {})
+	local maker = subCraft[itemID]
+	return maker or nil
+end
+
 local itemInfoPending = false
 
 -- Live vendor sell price wins, including zero. Bundled prices cover uncached
@@ -190,7 +311,8 @@ local function SellPrice(itemID)
 end
 
 -- Copper for one craft's reagents, or nil when any has no known price: a partial sum would rank a
--- recipe as cheap only because we can't price its reagents.
+-- recipe as cheap only because we can't price its reagents. A reagent a known recipe makes is priced
+-- at the cheaper of buying and crafting it.
 ---@param reagents SkillUpReagent[]?
 ---@return number?
 local function ReagentCost(reagents)
@@ -199,11 +321,11 @@ local function ReagentCost(reagents)
 	end
 	local total = 0
 	for _, reagent in ipairs(reagents) do
-		local price = ns.Price(reagent.itemID)
-		if not price then
+		local each = ObtainCost(reagent.itemID, MAX_SUB_DEPTH, {})
+		if not each then
 			return nil
 		end
-		total = total + price.copper * reagent.quantity
+		total = total + each * reagent.quantity
 	end
 	return total
 end
@@ -309,10 +431,13 @@ function ns.InitPrices()
 	end
 	ns.WhenStale("schematics", function()
 		recipes = {}
+		ResetCraftCosts()
+		ResetMakers()
 	end)
 	ns.WhenStale("prices", function()
 		priceCache = {}
 		professions = nil
+		ResetCraftCosts()
 	end)
 	ns.WhenEvent("SKILL_LINES_CHANGED", function()
 		return ProfessionsChanged() and "professions" or nil

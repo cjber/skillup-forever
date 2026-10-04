@@ -302,6 +302,8 @@ local plan = {
 	target = 100,
 	crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
 	steps = {
+		-- The sub-craft that makes the craft's reagent, as its own row before the craft.
+		{ subcraft = { recipeID = 3276, itemID = 2, crafts = 5, made = 5 } },
 		{ craft = { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
 	},
 	ranks = {},
@@ -700,7 +702,9 @@ for _, row in ipairs(page.RouteList.rows) do
 		equal(detailTop <= textBottom, true, "and sits under the name")
 	end
 end
-equal(routeRows, 1, "the route list draws its step as a row")
+equal(routeRows, 2, "the route list draws the sub-craft and the craft as rows")
+equal(Find("Craft 5× Spell 3276") ~= nil, true, "the sub-craft names itself as a craft")
+equal(Find("makes 5 Coarse Thread") ~= nil, true, "and says how much of the reagent it makes")
 
 -- A reagent row is the same item row: the icon, the name and where it comes from with how many of
 -- the route's need the bags hold.

@@ -264,21 +264,26 @@ local function LearnedRecipes()
 	return ns.db.learned[key]
 end
 
-local function NoteLearnedRecipes()
+-- A live read of one recipe's learned flag, from Core/Live.lua's one scan of the recipe list.
+---@param recipeID integer
+---@param learned boolean?
+---@return boolean changed
+function ns.NoteLearnedRecipe(recipeID, learned)
+	local learnedRecipes = LearnedRecipes()
+	local flag = learned or nil
+	local changed = learnedRecipes[recipeID] ~= flag
+	learnedRecipes[recipeID] = flag
+	return changed
+end
+
+-- A non-English client has no bundled profession name; learn it when its window is open.
+local function NoteProfessionName()
 	if C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
 		return
 	end
-	-- A non-English client has no bundled name; learn it from the open profession.
 	local base = C_TradeSkillUI.GetBaseProfessionInfo()
 	if base and base.professionName and KNOWN_SKILL_LINES[base.professionID] then
 		ns.db.professionIDs[base.professionName] = base.professionID
-	end
-	local learned = LearnedRecipes()
-	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
-		local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
-		if info then
-			learned[recipeID] = info.learned or nil
-		end
 	end
 end
 
@@ -448,8 +453,9 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	end
 	LoadDB()
 	ns.InitCatalogue()
-	ns.WhenEvent("TRADE_SKILL_LIST_UPDATE", NoteLearnedRecipes)
+	ns.WhenEvent("TRADE_SKILL_LIST_UPDATE", NoteProfessionName)
 	ns.WhenEvent("SKILL_LINES_CHANGED", ForgetDroppedProfessions)
+	ns.InitLive()
 	ns.InitPrices()
 	ns.RegisterSettings()
 	ns.AttachItemTooltips()

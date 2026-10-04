@@ -103,19 +103,15 @@ local function AddBands(tooltip, profession, recipeID)
 	end
 end
 
+-- A recipe's own reagents with what the bags hold, one line each.
 ---@param tooltip GameTooltip
----@param profession SkillUpProfession
----@param craft SkillUpPlanCraft
-local function CraftTooltip(tooltip, profession, craft)
-	local recipeID = craft.recipeID
-	RecipeTitle(tooltip, recipeID, RecipeName(recipeID))
-	AddLine(tooltip, L["Crafts"], string.format(L["%d, from %d to %d"], craft.crafts, craft.from, craft.to))
-	AddBands(tooltip, profession, recipeID)
-	GameTooltip_AddBlankLineToTooltip(tooltip)
+---@param recipeID integer
+---@param crafts number
+local function AddReagentLines(tooltip, recipeID, crafts)
 	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
 		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
 		local have = ns.Have(reagent.itemID)
-		local need = reagent.quantity * craft.crafts
+		local need = reagent.quantity * crafts
 		local color = have >= need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR
 		GameTooltip_AddColoredDoubleLine(
 			tooltip,
@@ -125,10 +121,49 @@ local function CraftTooltip(tooltip, profession, craft)
 			color
 		)
 	end
+end
+
+-- The tools a recipe needs and the station it is made at, from the client. A tool the bags do not
+-- hold is red, the same as the craft button's reason.
+---@param tooltip GameTooltip
+---@param recipeID integer
+local function AddToolLines(tooltip, recipeID)
+	for _, requirement in ipairs(ns.RecipeRequirements and ns.RecipeRequirements(recipeID) or {}) do
+		local isTool = Enum.RecipeRequirementType ~= nil and requirement.type == Enum.RecipeRequirementType.Totem
+		local color = requirement.met == false and ns.COLORS.red or HIGHLIGHT_FONT_COLOR
+		AddLine(tooltip, isTool and L["Tool"] or L["Made at"], requirement.name, color)
+	end
+end
+
+---@param tooltip GameTooltip
+---@param profession SkillUpProfession
+---@param craft SkillUpPlanCraft
+local function CraftTooltip(tooltip, profession, craft)
+	local recipeID = craft.recipeID
+	RecipeTitle(tooltip, recipeID, RecipeName(recipeID))
+	AddLine(tooltip, L["Crafts"], string.format(L["%d, from %d to %d"], craft.crafts, craft.from, craft.to))
+	if (craft.skillUps or 1) > 1 then
+		AddLine(tooltip, L["Skill points a craft"], tostring(craft.skillUps))
+	end
+	AddBands(tooltip, profession, recipeID)
+	AddToolLines(tooltip, recipeID)
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	AddReagentLines(tooltip, recipeID, craft.crafts)
 	AddLine(tooltip, L["Cost"], Money(ns.NetCost(recipeID) * craft.crafts))
 	if ns.IsLearned(recipeID) and profession.skillLine == ns.OpenSkillLine() then
 		GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
 	end
+end
+
+---@param tooltip GameTooltip
+---@param subcraft SkillUpSubCraft
+local function SubCraftTooltip(tooltip, subcraft)
+	local recipeID = subcraft.recipeID
+	RecipeTitle(tooltip, recipeID, string.format(L["Craft %s"], RecipeName(recipeID)))
+	AddLine(tooltip, L["Crafts"], tostring(subcraft.crafts))
+	AddToolLines(tooltip, recipeID)
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	AddReagentLines(tooltip, recipeID, subcraft.crafts)
 end
 
 ---@param tooltip GameTooltip
@@ -274,8 +309,20 @@ local function RenderRoute(list, plan)
 		return
 	end
 	for _, step in ipairs(plan.steps) do
-		local rank, training, craft = step.rank, step.training, step.craft
-		if rank then
+		local rank, training, craft, subcraft = step.rank, step.training, step.craft, step.subcraft
+		if subcraft then
+			local itemName = C_Item.GetItemNameByID(subcraft.itemID) or string.format(L["item %d"], subcraft.itemID)
+			list:Add({
+				icon = RecipeIcon(subcraft.recipeID),
+				text = string.format(L["Craft %d× %s"], subcraft.crafts, RecipeName(subcraft.recipeID)),
+				detail = string.format(L["makes %d %s"], subcraft.made, itemName),
+				color = NORMAL_FONT_COLOR,
+				tooltip = function(tooltip)
+					SubCraftTooltip(tooltip, subcraft)
+				end,
+				click = RecipeClick(subcraft.recipeID),
+			})
+		elseif rank then
 			list:Add({
 				icon = profession.icon,
 				text = ns.RankText(rank),
@@ -303,15 +350,13 @@ local function RenderRoute(list, plan)
 				click = TrainerClick(profession, training.cap),
 			})
 		elseif craft then
+			local money = Money(ns.NetCost(craft.recipeID) * craft.crafts)
 			list:Add({
 				icon = RecipeIcon(craft.recipeID),
 				text = RecipeName(craft.recipeID),
-				detail = string.format(
-					L["%d crafts to %d, %s"],
-					craft.crafts,
-					craft.to,
-					Money(ns.NetCost(craft.recipeID) * craft.crafts)
-				),
+				detail = craft.station
+						and string.format(L["%d crafts to %d, %s, at %s"], craft.crafts, craft.to, money, craft.station)
+					or string.format(L["%d crafts to %d, %s"], craft.crafts, craft.to, money),
 				color = ns.COLORS[craft.color],
 				tooltip = function(tooltip)
 					CraftTooltip(tooltip, profession, craft)

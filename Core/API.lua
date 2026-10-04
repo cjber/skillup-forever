@@ -182,8 +182,19 @@ local function Steps(plan)
 		if #steps >= MAX_STEPS then
 			break
 		end
-		local rank, training, craft = walk.rank, walk.training, walk.craft
-		if rank then
+		local rank, training, craft, subcraft = walk.rank, walk.training, walk.craft, walk.subcraft
+		if subcraft then
+			local name = C_Spell.GetSpellName(subcraft.recipeID) or string.format(L["recipe %d"], subcraft.recipeID)
+			Add({
+				kind = "craft",
+				text = string.format(L["Craft %d %s"], subcraft.crafts, name),
+				detail = string.format(L["for %s"], ItemName(subcraft.itemID)),
+				spellID = subcraft.recipeID,
+				itemID = subcraft.itemID,
+				count = subcraft.crafts,
+				nav = false,
+			})
+		elseif rank then
 			Add(Train(profession, ns.RankText(rank), rank.cap, rank.fee)) -- multi-value: the step and its picker
 		elseif training then
 			local name = C_Spell.GetSpellName(training.recipeID) or string.format(L["recipe %d"], training.recipeID)

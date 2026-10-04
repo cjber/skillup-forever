@@ -36,6 +36,11 @@ publishes it as the notes.
   is saved (`ns.db.sellers`) and joins the catalogue with where the player stood. Nothing from either addon is copied into the repo, the
   zip or a test: fixtures are the synthetic `Client.QuestieDB` and `Client.AtlasLoot` in `tests/client.lua`.
 - `Core/Model.lua`, `Integrations/Prices.lua` — the headless-testable maths; the UI files call them.
+  `Integrations/Prices.lua` also holds the sub-craft cost: a reagent a known recipe makes is priced at the
+  cheaper of buying and crafting it, three levels deep, memoised and cycle-safe.
+- `Core/Live.lua`: the client's own recipe read, the live grey threshold, the skill points one craft grants
+  and the tool and station a recipe needs. One scan covers a burst of profession events, and the bundled
+  thresholds stay the fallback, with the live grey replacing only the fourth number.
 - `Core/Plan.lua` — the levelling plan, in base skill with trainer requirements resolved. The route page,
   tracker, public API and trainer window draw what it returns; none reads the modifier or trainer tables.
 - `Core/Changes.lua` — what goes stale when something changes. A writer calls `ns.Changed(kind)` and game events

@@ -21,6 +21,7 @@ Data\Trainer.lua
 Data\Sources.lua
 Core\Model.lua
 Core\Changes.lua
+Core\Live.lua
 Core\Plan.lua
 Core\Gear.lua
 Core\Core.lua

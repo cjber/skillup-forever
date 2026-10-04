@@ -38,6 +38,7 @@ for _, complete in ipairs({ false, true }) do
 	end
 	local ns = {
 		InitPrices = Init,
+		InitLive = Init,
 		RegisterSettings = Init,
 		AttachItemTooltips = Init,
 		InitShopping = Init,
@@ -59,7 +60,7 @@ for _, complete in ipairs({ false, true }) do
 	callbacks.SkillUpForever()
 	if complete then
 		equal(#messages, 0, "complete install needs no warning")
-		equal(initialized, 4, "complete install initializes")
+		equal(initialized, 5, "complete install initializes")
 		equal(callbacks.Blizzard_Professions, ns.AttachRecipeList, "profession UI registered")
 		equal(callbacks.Blizzard_TrainerUI, ns.AttachTrainer, "trainer UI registered")
 		equal(ns.ProfessionSkillLine("Alchemy", 999), 171, "bundled name maps to skill line")
@@ -94,6 +95,7 @@ do
 	local callbacks, messages, version = {}, {}, "0.6.0"
 	local ns = {
 		InitPrices = function() end,
+		InitLive = function() end,
 		RegisterSettings = function() end,
 		AttachItemTooltips = function() end,
 		InitShopping = function() end,

@@ -286,14 +286,18 @@ local recipeData = {
 		},
 	},
 }
-local shopping = Model.ShoppingList({
-	{ recipeID = 20, crafts = 3 },
-	{ recipeID = 10, crafts = 2 },
-	{ recipeID = 20, crafts = 1 },
-	{ recipeID = 99, crafts = 1 }, -- Unknown reagents cannot invent item requirements.
-}, function(recipeID)
-	return recipeData[recipeID] and recipeData[recipeID].reagents
-end, function(itemID)
+-- The same totals the old per-recipe walk produced, already summed a reagent at a time:
+-- 20 at three crafts and again at one, then 10 at two crafts.
+local shopping = Model.BucketItems({
+	{ itemID = 4, count = 12 },
+	{ itemID = 2, count = 4 },
+	{ itemID = 5, count = 2 },
+	{ itemID = 4, count = 4 },
+	{ itemID = 3, count = 2 },
+	{ itemID = 2, count = 4 },
+	{ itemID = 1, count = 2 },
+	{ itemID = 4, count = 2 },
+}, function(itemID)
 	return ({ [1] = "vendor", [2] = "auctionator", [3] = "auctionator", [4] = "vendor" })[itemID]
 end)
 equal(#shopping.vendor, 2, "vendor partition")

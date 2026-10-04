@@ -61,6 +61,16 @@
 ---@field Have fun(itemID: integer): number
 ---@field AltCounts fun(itemID: integer): {name: string, count: number}[]
 ---@field RouteReagents fun(plan: SkillUpPlan): SkillUpNeededItem[]
+---@field InitLive fun()
+---@field LiveRecipes table<integer, SkillUpLiveRecipe>
+---@field NoteLearnedRecipe fun(recipeID: integer, learned: boolean?): boolean
+---@field RecipeSkillUps fun(recipeID: integer): integer
+---@field RecipeRequirements fun(recipeID: integer): CraftingRecipeRequirement[]
+---@field MissingTool fun(recipeID: integer): CraftingRecipeRequirement?
+---@field RecipeStation fun(recipeID: integer): string?
+---@field ToolItemID fun(name: string): integer?
+---@field MissingToolItems fun(plan: SkillUpPlan): integer[]
+---@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field TrackerAttached fun(): boolean
@@ -194,6 +204,14 @@ SkillUpForeverDB = nil
 ---@field recipeID integer
 ---@field thresholds number[]
 ---@field netCost? number
+---@field skillUps? integer Skill points one craft grants, from the client.
+
+-- A reagent a learned recipe makes for less than it costs to buy, as its own craft step.
+---@class SkillUpSubCraft
+---@field recipeID integer The recipe that makes the reagent.
+---@field itemID integer The reagent it makes.
+---@field crafts number How many crafts of it the parent step needs.
+---@field made number How many it makes in all.
 
 ---@class SkillUpService : SkillUpCandidate
 ---@field fee number
@@ -208,6 +226,7 @@ SkillUpForeverDB = nil
 ---@field fromSkill number
 ---@field toSkill number
 ---@field crafts number
+---@field skillUps? integer
 
 ---@class SkillUpTraining
 ---@field recipeID integer
@@ -220,7 +239,11 @@ SkillUpForeverDB = nil
 ---@field from number
 ---@field to number
 ---@field crafts number
+---@field points number Skill points the step reaches.
+---@field skillUps integer Skill points one craft grants.
 ---@field color string The recipe's colour where the craft starts.
+---@field station? string Where the client says the recipe is made.
+---@field subcrafts SkillUpSubCraft[] The recipes that make its reagents, deepest first.
 
 ---@class SkillUpPlanTraining
 ---@field recipeID integer
@@ -233,6 +256,7 @@ SkillUpForeverDB = nil
 ---@class SkillUpRouteStep
 ---@field rank? SkillUpRank
 ---@field training? SkillUpPlanTraining
+---@field subcraft? SkillUpSubCraft
 ---@field craft? SkillUpPlanCraft
 
 ---@class SkillUpBand
@@ -307,6 +331,11 @@ SkillUpForeverDB = nil
 ---@field learned? boolean
 ---@field canSkillUp? boolean
 ---@field relativeDifficulty? number
+
+-- What Core/Live.lua records for one recipe from the client's own recipe read.
+---@class SkillUpLiveRecipe
+---@field thresholds? number[] Bundled orange/yellow/green with the client's live grey as the fourth.
+---@field skillUps integer Skill points one craft grants now.
 
 ---@class SkillUpLocation
 ---@field name string

@@ -158,6 +158,10 @@ function Client.load(options)
 		items = {}, -- [itemID] = { name, sell }; a missing field is item data the client has not loaded
 		bags = {}, -- [itemID] = count
 		schematics = {}, -- [recipeID] = { reagents = { { itemID, quantity } }, output = itemID }: the open window's
+		-- [recipeID] = { info = { maxTrivialLevel, numSkillUps, learned, relativeDifficulty }, requirements = { ... } }:
+		-- what the client's own recipe read answers, empty for a recipe it says nothing about.
+		live = {},
+		craftable = 999, -- what C_TradeSkillUI.GetCraftableCount answers
 		auction = {}, -- [itemID] = copper, as Auctionator last saw it
 		auctionAge = 0, -- whole days
 		auctionAutoscan = nil, -- Auctionator's "scan when the auction house opens" option
@@ -469,7 +473,21 @@ function Client.load(options)
 		end,
 		GetBaseProfessionInfo = noop,
 		GetAllRecipeIDs = function()
-			return {}
+			local ids = {}
+			for recipeID in pairs(c.live) do
+				ids[#ids + 1] = recipeID
+			end
+			table.sort(ids)
+			return ids
+		end,
+		GetRecipeInfo = function(recipeID)
+			return c.live[recipeID] and c.live[recipeID].info
+		end,
+		GetRecipeRequirements = function(recipeID)
+			return c.live[recipeID] and c.live[recipeID].requirements or {}
+		end,
+		GetCraftableCount = function()
+			return c.craftable
 		end,
 	}
 
@@ -497,6 +515,17 @@ function Client.load(options)
 		end,
 		RequestLoadItemDataByID = function(id)
 			c.requested[id] = true
+		end,
+		-- A tool requirement is a localized item name; the client resolves it back to the item.
+		GetItemInfoInstant = function(itemInfo)
+			if type(itemInfo) == "number" then
+				return itemInfo
+			end
+			for itemID, item in pairs(c.items) do
+				if item.name == itemInfo then
+					return itemID
+				end
+			end
 		end,
 	}
 	G.C_CurrencyInfo = {
@@ -695,6 +724,7 @@ function Client.load(options)
 	G.Enum = {
 		TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 },
 		CraftingReagentType = { Basic = 0 },
+		RecipeRequirementType = { SpellFocus = 0, Totem = 1, Area = 2 },
 		TooltipDataType = { Item = 0 },
 		UIMapType = { Continent = 2, Zone = 3, Dungeon = 4, Micro = 5 },
 	}

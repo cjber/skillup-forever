@@ -7,7 +7,10 @@ ns.Model = Model
 ---@param recipeID integer
 ---@return number[]?
 function Model.Get(recipeID)
-	return ns.Thresholds and ns.Thresholds[recipeID]
+	-- The client's live grey replaces the bundled one; its yellow and green do not exist, so the
+	-- bundled pair stays under the live grey.
+	local live = ns.LiveRecipes and ns.LiveRecipes[recipeID]
+	return live and live.thresholds or (ns.Thresholds and ns.Thresholds[recipeID])
 end
 
 ---@param t number[]?
@@ -65,16 +68,19 @@ Model.CONFIDENCE = 0.9
 
 -- The crafts that reach `to` from `from` with Model.CONFIDENCE certainty: the fewest crafts whose
 -- odds of every needed skill point are at least that, worked out point by point because the
--- chance changes as skill rises.
+-- chance changes as skill rises. A craft can grant `skillUps` points at once, which the client's
+-- own recipe info gives for an orange recipe.
 ---@param thresholds number[]
 ---@param from number
 ---@param to number
+---@param skillUps integer?
 ---@return number
-function Model.CoveredCrafts(thresholds, from, to)
+function Model.CoveredCrafts(thresholds, from, to, skillUps)
 	local needed = to - from
 	if needed <= 0 then
 		return 0
 	end
+	local ups = math.max(skillUps or 1, 1)
 	-- odds[points]: the chance that many points are in hand after the crafts counted so far.
 	local odds = { [0] = 1 }
 	local crafts = 0
@@ -86,8 +92,10 @@ function Model.CoveredCrafts(thresholds, from, to)
 			if inHand then
 				local chance = Model.Chance(thresholds, from + points)
 				if chance and chance > 0 then
+					-- A craft never grants more points than the recipe has left before grey.
+					local gained = math.min(ups, needed - points, math.max(thresholds[4] - (from + points), 1))
 					next_[points] = (next_[points] or 0) + inHand * (1 - chance)
-					next_[points + 1] = (next_[points + 1] or 0) + inHand * chance
+					next_[points + gained] = (next_[points + gained] or 0) + inHand * chance
 				else
 					next_[points] = (next_[points] or 0) + inHand
 				end
@@ -98,16 +106,34 @@ function Model.CoveredCrafts(thresholds, from, to)
 	return crafts
 end
 
--- Net cost of one skill point at Model.CONFIDENCE: a low chance carries the crafts it needs.
+-- The skill points one craft grants at `skill`, at most `room` of them: the client's live count,
+-- capped by what the recipe has left before grey and by what the target still wants.
+---@param thresholds number[]
+---@param skill number
+---@param skillUps integer?
+---@param room number
+---@return integer
+function Model.Gain(thresholds, skill, skillUps, room)
+	local left = thresholds[4] - skill
+	if left <= 0 or room <= 0 then
+		return 0
+	end
+	return math.max(1, math.min(skillUps or 1, left, room))
+end
+
+-- Net cost of one skill point at Model.CONFIDENCE: a low chance carries the crafts it needs, and a
+-- craft that grants several points is worth that many.
 ---@param cost number?
 ---@param thresholds number[]
 ---@param skill number
+---@param skillUps integer?
 ---@return number?
-function Model.CostPerPoint(cost, thresholds, skill)
+function Model.CostPerPoint(cost, thresholds, skill, skillUps)
+	local ups = math.max(skillUps or 1, 1)
 	if not cost or (Model.Chance(thresholds, skill) or 0) <= 0 then
 		return nil
 	end
-	return cost * Model.CoveredCrafts(thresholds, skill, skill + 1)
+	return cost * Model.CoveredCrafts(thresholds, skill, skill + ups, ups) / ups
 end
 
 -- Inputs are already filtered to learned recipes of one profession, with prices
@@ -142,7 +168,7 @@ function Model.PlanRoute(snapshot)
 		local best, bestKey, bestChance
 		for _, recipe in ipairs(priced) do
 			local chance = Model.Chance(recipe.thresholds, skill)
-			local key = Model.CostPerPoint(math.max(recipe.netCost, 0), recipe.thresholds, skill)
+			local key = Model.CostPerPoint(math.max(recipe.netCost, 0), recipe.thresholds, skill, recipe.skillUps)
 			if
 				key
 				and (
@@ -159,17 +185,23 @@ function Model.PlanRoute(snapshot)
 			route.stopReason = "no_recipe"
 			break
 		end
+		local gain = Model.Gain(best.thresholds, skill, best.skillUps, snapshot.target - skill)
+		if gain <= 0 then
+			route.stopReason = "no_recipe"
+			break
+		end
 		local segment = route.segments[#route.segments]
 		if not segment or segment.recipeID ~= best.recipeID then
-			segment = { recipeID = best.recipeID, fromSkill = skill, toSkill = skill }
+			segment = { recipeID = best.recipeID, fromSkill = skill, toSkill = skill, skillUps = best.skillUps }
 			route.segments[#route.segments + 1] = segment
 		end
-		segment.toSkill = skill + 1
-		route.reachedSkill = skill + 1
+		segment.toSkill = skill + gain
+		route.reachedSkill = skill + gain
 	end
 	-- Each step carries the crafts and cost that reach its target in nine runs of ten.
 	for _, segment in ipairs(route.segments) do
-		segment.crafts = Model.CoveredCrafts(thresholds[segment.recipeID], segment.fromSkill, segment.toSkill)
+		segment.crafts =
+			Model.CoveredCrafts(thresholds[segment.recipeID], segment.fromSkill, segment.toSkill, segment.skillUps)
 		route.expectedCost = route.expectedCost + costOf[segment.recipeID] * segment.crafts
 	end
 	return route
@@ -272,17 +304,10 @@ Model.SHOPPING_SOURCES = { "gather", "vendor", "auction", "unknown" }
 ---@type table<SkillUpPriceSource, SkillUpShoppingSource>
 local BUCKET = { gather = "gather", vendor = "vendor", auctionator = "auction" }
 
----@param segments {recipeID: integer, crafts: number}[]
----@param reagentsOf fun(recipeID: integer): SkillUpReagent[]?
+---@param needed table<integer, number>
 ---@param sourceOf fun(itemID: integer): SkillUpPriceSource?
 ---@return table<string, SkillUpShoppingItem[]>
-function Model.ShoppingList(segments, reagentsOf, sourceOf)
-	local needed = {}
-	for _, segment in ipairs(segments) do
-		for _, reagent in ipairs(reagentsOf(segment.recipeID) or {}) do
-			needed[reagent.itemID] = (needed[reagent.itemID] or 0) + segment.crafts * reagent.quantity
-		end
-	end
+function Model.BucketNeeded(needed, sourceOf)
 	local list = {}
 	for _, source in ipairs(Model.SHOPPING_SOURCES) do
 		list[source] = {}
@@ -300,6 +325,20 @@ function Model.ShoppingList(segments, reagentsOf, sourceOf)
 		end)
 	end
 	return list
+end
+
+-- Raw items, already totalled, into the shopping list's buckets.
+---@param items {itemID: integer, count: number}[]
+---@param sourceOf fun(itemID: integer): SkillUpPriceSource?
+---@return table<string, SkillUpShoppingItem[]>
+function Model.BucketItems(items, sourceOf)
+	local needed = {}
+	for _, item in ipairs(items) do
+		if item.itemID then
+			needed[item.itemID] = (needed[item.itemID] or 0) + item.count
+		end
+	end
+	return Model.BucketNeeded(needed, sourceOf)
 end
 
 ---@param recipeData table<integer, SkillUpRecipe>

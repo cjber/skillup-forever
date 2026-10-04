@@ -47,6 +47,7 @@ local ns = {
 	WhenEvent = function(event, watcher)
 		events[event] = watcher
 	end,
+	WhenStale = function() end,
 }
 local env = setmetatable({
 	GameTooltip = Region(),

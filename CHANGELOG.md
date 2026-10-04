@@ -12,6 +12,7 @@ verbatim rather than rewritten as the addon moves.
 ## [Unreleased]
 
 - **The data matches client build 1.60.1.70205.** In this build Winter Boots and the ten camp furnishings (Incense Candle, Greenhouse, Fish Bowl, Fishing Rack, Camp Chair, Field Guide, First Aid Kit, Toxin Study, Lodestone and Rock Garden) no longer give skill-ups, so they show `?` in place of a chance and routes leave them out. Eight wands, from Lesser Magic Wand to Greater Eternal Wand, now sell to a vendor for 1 copper, so crafting one nets a higher cost.
+- **A vendor reagent's tooltip gains its vendor line when the read finishes.** The first hover of a reagent sold by a vendor showed no *Nearest vendor* line while the addon was still reading who sells it, and kept the tooltip without it until the next hover. The row now draws its tooltip again once that read has finished.
 
 ## [0.7.1] - 2026-10-04
 

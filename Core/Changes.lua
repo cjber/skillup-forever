@@ -5,9 +5,11 @@ local _, ns = ...
 -- changes arrive as the events below. Only this file knows which caches that drops and which views it
 -- redraws: each once per change, caches before views, in ORDER.
 
--- The route page only arms its redraw timer, so its place among the views is free.
+-- The route page only arms its redraw timer, so its place among the views is free. So is the hovered
+-- tooltip's: it only marks the row for its next update, which the game asks for on its own.
 ---@type SkillUpStale[]
-local ORDER = { "schematics", "prices", "plans", "api", "route", "recipeList", "tracker", "trainer", "routeTab" }
+local ORDER =
+	{ "schematics", "prices", "plans", "api", "route", "recipeList", "tracker", "trainer", "routeTab", "tooltip" }
 
 ---@type table<SkillUpChange, table<SkillUpStale, true>>
 local STALE = {
@@ -29,7 +31,7 @@ local STALE = {
 	-- Fees and requirements recorded at a trainer.
 	fees = { plans = true, api = true, route = true, tracker = true },
 	-- Where scrolls, vendors and trainers are, read from Questie and AtlasLoot or seen at a merchant's window.
-	sources = { api = true, route = true, tracker = true },
+	sources = { api = true, route = true, tracker = true, tooltip = true },
 	target = { plans = true, api = true, route = true, tracker = true },
 	tracking = { api = true, route = true, tracker = true },
 	settings = {

@@ -16,8 +16,7 @@ python3 tools/check_generated.py   # regenerate in a disposable tree; require fr
 python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check
 ```
 
-The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and history, and sift's
-structural and `AGENTS.md` checks.
+The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and history.
 Every version needs a `CHANGELOG.md` entry (prose, bold-lead bullets) before its `v*` tag: the release
 publishes it as the notes.
 
@@ -41,7 +40,7 @@ publishes it as the notes.
 - `Locales/` — `enUS.lua` makes `ns.L`, keyed by the English phrase; a translation is `Locales/<locale>.lua` listed
   after it in the TOC (`Locales/README.md`). Player-visible text is a whole `L["..."]` phrase (format strings
   included); after changing one, `python3 tools/phrases.py > Locales/phrases.txt`. `tests/locale_spec.lua` checks
-  both, and that no packager localization keyword (which now fails the release) is in the tree.
+  both, and that no packager localization keyword (which fails the release) is in the tree.
 - `docs/curseforge.md` — the store description, pasted into CurseForge and Wago by hand.
 
 ## Rules

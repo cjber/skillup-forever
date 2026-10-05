@@ -43,8 +43,7 @@ jobs:
           python3 tools/gen_recipes.py
           python3 tools/gen_trainer.py
           python3 tools/gen_sources.py
-      - if: steps.pins.outputs.moved != ''
-        run: python3 tools/check_generated.py --offline
+          python3 tools/check_generated.py --offline
       - if: steps.pins.outputs.moved != ''
         run: |
           sudo apt-get update && sudo apt-get install -y luajit lua-check
@@ -57,6 +56,14 @@ jobs:
           version: 2.5.2
           args: --check .
       - if: steps.pins.outputs.moved != ''
+        id: report
+        run: |
+          {
+            echo 'markdown<<REPORT_EOF'
+            python3 tools/data_report.py
+            echo REPORT_EOF
+          } >> "$GITHUB_OUTPUT"
+      - if: steps.pins.outputs.moved != ''
         id: pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
@@ -68,6 +75,8 @@ jobs:
 
             - `Data/Thresholds.lua`, `Data/Recipes.lua` and `Data/Vendor.lua` come from the Forever build's own DB2 tables on wago.tools (skill ranges, reagents, outputs, prices and spell names), with Skillet-Classic's orange thresholds as a baseline and LibPeriodicTable's list of vendor-sold reagents.
             - `Data/Trainer.lua` and `Data/Sources.lua` hold what QuestieDB and AtlasLoot do not: trainer fees and ranks, which trainer teaches a profession, a scroll's drop chances and which reagents a gathering skill yields. These come from the pinned CMaNGOS classic-db dump, which this workflow never moves, joined to Classic Era's teaching spells and limited to the recipes the Forever build has. Vendors, quests and where NPCs stand are read in game from the player's QuestieDB and AtlasLoot and are not regenerated.
+
+            ${{ steps.report.outputs.markdown }}
 
             Before merging, read the diff for recipes that dropped out, and run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.
 

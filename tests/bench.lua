@@ -170,11 +170,10 @@ for _, case in ipairs({
 	end)
 end
 
-print("== worst single frame ==")
--- A burst of the events a skill-up, a craft and a purchase put in one frame, with a merchant open, a tracked
--- profession and the catalogue still reading, then the timers that came due that frame. This is the frame
--- the 5 ms bar is about.
-local function badFrame()
+print("== event burst ==")
+-- A synthetic burst with a merchant open and a tracked profession, followed by deferred timers.
+-- This combines work across timer advances; it is not a measurement of a rendered game frame.
+local function eventBurst()
 	c.Fire("TRADE_SKILL_LIST_UPDATE")
 	c.Fire("SKILL_LINES_CHANGED")
 	c.Fire("NEW_RECIPE_LEARNED")
@@ -182,7 +181,7 @@ local function badFrame()
 	c.Advance(0)
 	c.Advance(0.2)
 end
-report("events + due timers in one frame", 500, badFrame)
+report("events + deferred work", 500, eventBurst)
 
 print("== interaction paths (tracker and tooltip) ==")
 report("ns.TrackedNeeds (one tracked profession)", 500, function()
@@ -223,9 +222,6 @@ end)
 local builtPlan = ns.PlanRoute(lw)
 report("ns.RouteReagents", 5000, function()
 	ns.RouteReagents(builtPlan)
-end)
-report("ns.TrackedNeeds (one tracked profession)", 500, function()
-	ns.TrackedNeeds()
 end)
 
 print(string.format("COLD used-in index: %.4f ms", reagentIndexCold * 1000))

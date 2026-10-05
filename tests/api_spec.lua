@@ -233,11 +233,13 @@ c.Fire("MERCHANT_CLOSED")
 c.bags[THREAD] = 8
 c.Fire("BAG_UPDATE_DELAYED")
 equal(Leatherworking().steps[1].kind, "craft", "reagents arriving in the bags drop the purchase")
--- With what crafts sell for no longer counted, Hillman's costs more a point than the gloves and isn't trained.
+-- Hillman's stays on the route even with its sale counted for nothing: the gloves' 0.8 chance needs two
+-- crafts a point, which costs more than Hillman's certain one.
 equal(#Leatherworking().recipes, 2, "Hillman's is on the route while its sale counts")
 c.SetSetting("craftValue_choice", 1)
 equal(ns.db.craftValue, "none", "the options panel's slider writes the saved choice")
-equal(#Leatherworking().recipes, 1, "a setting changed in the options panel re-plans the public list")
-equal(Leatherworking().recipes[1].spellID, GLOVES, "onto the gloves alone")
+equal(#Leatherworking().recipes, 2, "a setting changed in the options panel re-plans the public list")
+equal(Leatherworking().recipes[1].spellID, GLOVES, "with the gloves first")
+equal(Leatherworking().recipes[2].spellID, HILLMANS, "and Hillman's carrying the rest")
 
 Client.report("api_spec")

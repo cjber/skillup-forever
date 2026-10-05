@@ -234,10 +234,31 @@ end
 
 -- Where a suggestion's click goes: the nearest vendor by travel when one sells the
 -- scroll (the one it names when none can be ranked), else the likeliest drop.
----@param suggestion SkillUpSuggestion
+---@param suggestion SkillUpSuggestionNPC A suggestion or just where a recipe's scroll comes from.
 ---@return integer?
 function ns.SuggestionNPC(suggestion)
-	return suggestion.kind == VENDOR and ns.NearestNPC(suggestion.source.vendors, true) or suggestion.npcID
+	if suggestion.kind == VENDOR and suggestion.source then
+		return ns.NearestNPC(suggestion.source.vendors, true) or suggestion.npcID
+	end
+	return suggestion.npcID
+end
+
+-- Where a recipe is learned: the nearest trainer of the profession when one teaches it (up to just
+-- past the skill it asks), else the nearest NPC its scroll comes from. Nil until that is read.
+---@param profession SkillUpContext
+---@param recipeID integer
+---@return integer?
+function ns.RecipeNPC(profession, recipeID)
+	local training = ns.TrainingFor(profession, recipeID)
+	if training then
+		return ns.NearestTrainer(profession, training[2] + 1, true)
+	end
+	local source = C.Recipe(recipeID)
+	local kind, npcID
+	if source then
+		kind, npcID = Kind(source)
+	end
+	return kind and ns.SuggestionNPC({ kind = kind, source = source, npcID = npcID }) or nil
 end
 
 -- Scroll recipes of this profession, not trainer-taught nor learned, that base
@@ -288,14 +309,15 @@ function ns.RecipeSuggestions(profession, base)
 	return found
 end
 
--- The base skill a scroll asks for: AtlasLoot's, else where the recipe starts, which is where a scroll is
--- usually learnable.
+-- The base skill a scroll asks for: AtlasLoot's, else the bundled scroll's own requirement, else
+-- where the recipe starts, which is where a scroll is usually learnable.
 ---@param recipeID integer
 ---@param source SkillUpScrollSource
 ---@return number
 function ns.ScrollSkill(recipeID, source)
+	local scroll = ns.RecipeScrolls[recipeID]
 	local t = ns.Model.Get(recipeID)
-	return source.skill or (t and t[1]) or 0
+	return source.skill or (scroll and scroll[2]) or (t and t[1]) or 0
 end
 
 -- The scroll's price: what it last sold for at auction or at a merchant's window.

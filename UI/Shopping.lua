@@ -59,12 +59,34 @@ local function WithNames(items, callback)
 	container:ContinueOnLoad(callback)
 end
 
--- One list per profession, replaced on each export, of the auction house
--- reagents still missing (emptied when none are). Vendor reagents stay out: an
--- auction search for them would only find resellers, and gathered ones you get yourself.
+-- The name of the shopping list this addon keeps for a profession in Auctionator.
 ---@param profession string
+---@return string
+function ns.AuctionListName(profession)
+	return "SkillUp: " .. profession
+end
+
+-- Auctionator's own "scan when the auction house opens" option, read through its config table. nil
+-- when it cannot be read: it is not part of Auctionator's public API.
+---@return boolean?
+function ns.AuctionatorAutoscan()
+	local ok, value = pcall(function()
+		local config = Auctionator and Auctionator.Config
+		if not (config and config.Options) then
+			return nil
+		end
+		return config.Get(config.Options.AUTOSCAN)
+	end)
+	if ok and type(value) == "boolean" then
+		return value
+	end
+	return nil
+end
+
+-- The auction house reagents a route still needs: what no vendor sells and this character buys.
 ---@param items SkillUpNeededItem[]
-function ns.SendToAuctionator(profession, items)
+---@return SkillUpShoppingItem[]
+local function MissingFromAuction(items)
 	local missing = {}
 	for _, item in ipairs(items) do
 		local count = item.need - ns.Have(item.itemID)
@@ -72,11 +94,15 @@ function ns.SendToAuctionator(profession, items)
 			missing[#missing + 1] = { itemID = item.itemID, count = count }
 		end
 	end
+	return missing
+end
+
+---@param name string
+---@param missing SkillUpShoppingItem[]
+local function WriteAuctionList(name, missing)
 	local api = Auctionator.API.v1
-	local name = "SkillUp: " .. profession
 	if #missing == 0 then
 		api.CreateShoppingList(CALLER, name, {})
-		ns.Print(L["nothing left to buy at the auction house."])
 		return
 	end
 	WithNames(missing, function()
@@ -90,14 +116,61 @@ function ns.SendToAuctionator(profession, items)
 			})
 		end
 		api.CreateShoppingList(CALLER, name, searches)
-		ns.Print(string.format(L["sent %d reagents to the Auctionator list '%s'."], #searches, name))
 	end)
+end
+
+-- The list last written for each profession, so an unchanged need leaves Auctionator alone.
+local auctionLists = {}
+
+---@param missing SkillUpShoppingItem[]
+---@return string
+local function AuctionSignature(missing)
+	local parts = {}
+	for index, item in ipairs(missing) do
+		parts[index] = item.itemID .. "x" .. item.count
+	end
+	return table.concat(parts, ",")
+end
+
+-- Keep every tracked route's Auctionator list up to date with what it still buys, empties one it no
+-- longer needs, and leaves an unchanged list alone. Gather mode buys nothing, so it is left as it is.
+local function SyncAuctionator()
+	if not ns.HasAuctionator() or ns.CollectMode() ~= "auction" then
+		return
+	end
+	for _, entry in ipairs(ns.TrackedNeeds()) do
+		local name = ns.AuctionListName(entry.plan.profession.name)
+		local missing = MissingFromAuction(entry.items)
+		local signature = AuctionSignature(missing)
+		if auctionLists[name] ~= signature then
+			auctionLists[name] = signature
+			WriteAuctionList(name, missing)
+		end
+	end
 end
 
 ---@param skillLine integer?
 ---@return boolean
 function ns.IsTracked(skillLine)
 	return ns.db.trackedProfessions[skillLine] == true
+end
+
+-- Starts tracking the profession the player just opened, its own window or a trainer that teaches it,
+-- when its route still has steps, so the tracker and the where-to-train hints arrive without a hunt.
+-- A saved true (tracked) or false (stopped by hand) is a decision already made and is left alone.
+---@param skillLine integer?
+---@return boolean started
+function ns.AutoTrack(skillLine)
+	if not skillLine or ns.db.trackedProfessions[skillLine] ~= nil then
+		return false
+	end
+	local profession = ns.RouteProfessions()[skillLine]
+	if not profession or #ns.PlanRoute(profession).steps == 0 then
+		return false
+	end
+	ns.db.trackedProfessions[skillLine] = true
+	ns.Changed("tracking")
+	return true
 end
 
 -- The plan of every tracked profession of this character with the reagents it
@@ -231,6 +304,7 @@ function ns.TrackerAttached()
 end
 
 local function RefreshTracker()
+	SyncAuctionator()
 	if module then
 		module:MarkDirty()
 	end
@@ -240,7 +314,8 @@ end
 ---@param skillLine integer
 ---@param tracked boolean
 function ns.SetTracked(skillLine, tracked)
-	ns.db.trackedProfessions[skillLine] = tracked or nil
+	-- false is kept, not dropped: it is the player saying stop, which AutoTrack honours.
+	ns.db.trackedProfessions[skillLine] = tracked
 	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 	ns.Changed("tracking")
 end
@@ -270,11 +345,6 @@ function ModuleMixin:OnBlockHeaderClick(block)
 		for _, item in ipairs(block.vendorMissing) do
 			root:CreateButton(string.format(L["Waypoint to a vendor: %s"], item.name), function()
 				ns.SetWaypoint(ns.NearestVendor(item.itemID, true) or item.vendor)
-			end)
-		end
-		if ns.HasAuctionator() then
-			root:CreateButton(L["Send missing to Auctionator"], function()
-				ns.SendToAuctionator(block.profession, block.items)
 			end)
 		end
 		root:CreateButton(L["Stop tracking"], function()
@@ -414,7 +484,11 @@ local function CreateModule()
 	-- can't push it out of sight.
 	module.uiOrder = -2
 	EventUtil.ContinueAfterAllEvents(function()
-		C_Timer.After(0, Attach)
+		C_Timer.After(0, function()
+			Attach()
+			-- A fresh session writes each tracked route's Auctionator list once.
+			SyncAuctionator()
+		end)
 	end, "PLAYER_ENTERING_WORLD", "VARIABLES_LOADED")
 	Attach()
 	C_Timer.After(5, function()

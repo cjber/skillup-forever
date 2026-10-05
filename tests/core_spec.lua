@@ -10,6 +10,18 @@ local function Env(messages, callbacks)
 		CreateFrame = function()
 			return { RegisterEvent = function() end, SetScript = function() end }
 		end,
+		UnitName = function()
+			return "Tester"
+		end,
+		GetNormalizedRealmName = function()
+			return "Realm"
+		end,
+		GetBuildInfo = function()
+			return "1.60.1", "70205", "Sep 24 2026", 16001, "wow", "1.60.1.70205"
+		end,
+		time = function()
+			return 0
+		end,
 		SlashCmdList = {},
 		DEFAULT_CHAT_FRAME = {
 			AddMessage = function(_, message)
@@ -32,6 +44,7 @@ for _, complete in ipairs({ false, true }) do
 	end
 	local ns = {
 		InitPrices = Init,
+		InitLive = Init,
 		RegisterSettings = Init,
 		AttachItemTooltips = Init,
 		InitShopping = Init,
@@ -43,16 +56,28 @@ for _, complete in ipairs({ false, true }) do
 		ns.TrainerFees, ns.TrainerRanks, ns.Catalogue = {}, {}, {}
 		ns.InitCatalogue = function() end
 		ns.PlanRoute, ns.Changed, ns.WhenEvent = Init, Init, function() end
+		ns.CraftedGear = Init
 	end
 	local env = Env(messages, callbacks)
-	-- A save from before auction prices moved to Auctionator.
-	env.SkillUpForeverDB = { scanAuctions = true, tracked = { [1] = true }, auctions = {}, vendor = { [1] = 5 } }
+	-- A save from before auction prices moved to Auctionator, and one with vendors and a price store from
+	-- before builds were recorded.
+	env.SkillUpForeverDB = {
+		scanAuctions = true,
+		tracked = { [1] = true },
+		auctions = {},
+		vendor = { [1] = 5 },
+		priceDays = "not a table",
+		sellers = {
+			[7] = { name = "Unstamped", items = {} },
+			[8] = { name = "Stamped", build = "70204", items = {} },
+		},
+	}
 	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 	setfenv(assert(loadfile("Core/Core.lua")), env)("SkillUpForever", ns)
 	callbacks.SkillUpForever()
 	if complete then
 		equal(#messages, 0, "complete install needs no warning")
-		equal(initialized, 4, "complete install initializes")
+		equal(initialized, 5, "complete install initializes")
 		equal(callbacks.Blizzard_Professions, ns.AttachRecipeList, "profession UI registered")
 		equal(callbacks.Blizzard_TrainerUI, ns.AttachTrainer, "trainer UI registered")
 		equal(ns.ProfessionSkillLine("Alchemy", 999), 171, "bundled name maps to skill line")
@@ -61,10 +86,24 @@ for _, complete in ipairs({ false, true }) do
 		equal(ns.ProfessionSkillLine("Skinning", 999), 393, "a gathering profession maps by name")
 		equal(ns.ProfessionSkillLine("Herbalism", 999), 182, "a gathering profession maps by name")
 		equal(ns.ProfessionSkillLine("Fishing", 999), 356, "a gathering profession maps by name")
+		equal(ns.ProfessionSkillLine("", 0), nil, "the client's blank profession is none")
+		equal(#messages, 0, "and is not reported")
 		equal(ns.db.auctions, nil, "the old auction scan table is dropped")
 		equal(ns.db.tracked, nil, "the old scan list is dropped")
 		equal(ns.db.scanAuctions, nil, "the old scan setting is dropped")
 		equal(ns.db.vendor[1], 5, "vendor prices are kept")
+		equal(ns.db.gatherFree, nil, "the old account-wide gather setting is dropped")
+		equal(type(ns.db.priceDays), "table", "a price store of the wrong type is reset")
+		equal(next(ns.db.priceDays), nil, "and starts empty")
+		equal(ns.db.sellers[7].build, "70205", "a vendor saved without a build is stamped with this one")
+		equal(ns.db.sellers[8].build, "70204", "a vendor that already has a build keeps it")
+		equal(ns.db.builds[#ns.db.builds], "70205", "this build is remembered")
+		equal(ns.CollectMode(), "gather", "a character with no saved choice gathers")
+		ns.SetCollectMode("auction")
+		equal(ns.db.collectModes["Tester-Realm"], "auction", "the choice is saved under this character's key")
+		equal(ns.CollectMode(), "auction", "and reads back for this character")
+		ns.SetCollectMode("gather")
+		equal(ns.CollectMode(), "gather", "and back")
 	else
 		equal(#messages, 1, "missing files produce one warning")
 		equal(messages[1]:find("restart the game", 1, true) ~= nil, true, "warning asks for restart")
@@ -78,6 +117,7 @@ do
 	local callbacks, messages, version = {}, {}, "0.6.0"
 	local ns = {
 		InitPrices = function() end,
+		InitLive = function() end,
 		RegisterSettings = function() end,
 		AttachItemTooltips = function() end,
 		InitShopping = function() end,
@@ -88,6 +128,7 @@ do
 		WhenEvent = function() end,
 		Catalogue = {},
 		InitCatalogue = function() end,
+		CraftedGear = function() end,
 	}
 	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
 	local env = Env(messages, callbacks)

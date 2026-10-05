@@ -24,14 +24,15 @@ Each row shows its chance and cost, with the tooltip breaking it down per reagen
 - **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar, with your current skill marked, in the window's own style.
 - **Cost per skill-up** divides reagent cost by skill-up chance, on the row and per reagent. See [Prices](#prices).
 - **Sorting** by required skill, chance or cheapest skill-up, from *Sort by* in the recipe list's Filter menu. *Default* restores the game's categories; its filters still apply.
-- **Levelling route**: a tab beside the window opens a SkillUp page. Type a target skill and it lists the cheapest crafts, like `12× Heavy Linen Bandage to 90`, with trainer steps, fees and total; *Craft* makes the first step. A route that stops short lists vendor, quest and drop recipes that would. [More](docs/route.md#levelling-route).
-- **Shopping list**: every reagent the route needs, how many you have, green once covered. *Track* puts it beside your quests; *Buy tracked reagents* buys what a vendor sells; with Auctionator, *To Auctionator* makes a shopping list. Gathered reagents are free. [More](docs/route.md#shopping-list).
+- **Levelling route**: a tab beside the window opens a SkillUp page. Type a target skill and it lists the cheapest crafts as the game lists an item: a full icon, the recipe's name and, under it, the crafts, the skill it reaches and the cost, with trainer steps, fees and total. Each step asks for enough crafts to cover an unlucky run, not just the average, so the shopping list lasts; *Craft* makes the first step. A route that stops short lists vendor, quest and drop recipes that would. [More](docs/route.md#levelling-route).
+- **Shopping list**: every reagent the route needs, how many you have, green once covered. *Track* puts it beside your quests; *Buy tracked reagents* buys what a vendor sells; with Auctionator it keeps a shopping list up to date as you buy, craft and skill up. Gathered reagents are free. [More](docs/route.md#shopping-list).
 - **Profession trainer**: recipes show their row text (`62% · 45s`), and the one that most cheapens or extends your route gets a green arrow, fee included. An unknown recipe shows `?`.
 - **Reagent tooltips**: hovering an item shows what your tracked routes need. Hold Shift for every recipe of your professions that uses it and still skills up, with its colour: `Heavy Linen Bandage    yellow until 115`.
+- **Crafted gear**: a *Gear* tab beside the window draws your character sheet again, one item a slot down both sides and the weapon slots along the bottom, each showing the newest thing you could craft for it. The pane in the middle names the pick, the skill its recipe is learned at, its state, its reagents with how many you have, and one button to open the recipe or walk to where it is taught. Not a best-in-slot list. [More](docs/gear.md).
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
 
-The route tab from 48 to 73: train the vest, craft 18, train the boots, craft 7, and where reagents come from.
+The route tab from 48 to 73: train the vest, craft 28, and where reagents come from.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png" width="320" alt="The objective tracker with Leatherworking to 73, the next training step and two missing reagents"></p>
 
@@ -67,9 +68,9 @@ Settings cover rows and tooltips, what crafts count for, sort order, the route t
 Cost per craft counts the recipe's reagents, each at the cheapest price the addon knows:
 
 - **Vendor:** about 50 common trade supplies (thread, vials, flux, dyes, spices) are priced from the start. A vendor you open that sells a reagent for gold updates its price, including your reputation discount.
-- **Auction house:** prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator), whose prices SkillUp uses without scanning the auction house itself; routes re-price as it scans. Without it, a reagent only sold there has no price.
+- **Auction house:** prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator), whose prices SkillUp uses without scanning the auction house itself. Each day Auctionator sees an item, the addon keeps that day's lowest buyout, and the reagent is priced from the middle of the last seven days, so one cheap listing does not move a route; the page says how many days that is. Without it, a reagent only sold there has no price.
 
-By default a craft's vendor sell price comes off its cost; a setting can use its auction price when higher (after the 5% cut). A profitable recipe shows a green `+` and sorts first under *Cheapest skill-up*. Crafted reagents use their auction price too. An unpriced reagent shows no cost rather than a misleadingly cheap one; cost per skill-up is net cost per craft ÷ skill-up chance.
+By default a craft's vendor sell price comes off its cost; a setting can use its auction price when higher (after the 5% cut). A profitable recipe shows a green `+` and sorts first under *Cheapest skill-up*. Crafted reagents use their auction price too. An unpriced reagent shows no cost rather than a misleadingly cheap one, and every recipe that needs it is left out of the route, which names the reagent; cost per skill-up is net cost per craft ÷ skill-up chance.
 
 ## How the numbers work
 

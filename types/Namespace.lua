@@ -9,6 +9,17 @@
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
 ---@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
+---@field CharacterKey fun(): string
+---@field RealmKey fun(): string
+---@field ClientBuild fun(): string?
+---@field NoteBuild fun()
+---@field SellerFresh fun(seller: SkillUpSeller): boolean
+---@field AuctionDay fun(): integer
+---@field PrunePrices fun()
+---@field CollectMode fun(): SkillUpCollectMode
+---@field SetCollectMode fun(mode: SkillUpCollectMode)
+---@field ShowAllGear fun(): boolean
+---@field SetShowAllGear fun(show: boolean)
 ---@field SkillContext fun(): SkillUpContext?
 ---@field PlayerProfessions fun(): table<integer, SkillUpProfession>
 ---@field IsLearned fun(recipeID: integer): boolean
@@ -24,38 +35,60 @@
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
+---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
+---@field Gear SkillUpGear
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
+---@field LearnSkill fun(profession: SkillUpContext, recipeID: integer): number
+---@field RecipeNPC fun(profession: SkillUpContext, recipeID: integer): integer?
 ---@field BestTraining fun(profession: SkillUpContext, known: table<integer, boolean>, offers: {recipeID: integer, fee: number}[]): integer?
 ---@field RouteBlocked fun(plan: SkillUpPlan): string?
 ---@field UnpricedReagents fun(plan: SkillUpPlan): integer[]
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field RankText fun(rank: SkillUpRank): string
----@field CreateList fun(parent: Frame, columns: SkillUpColumn[]): SkillUpList
+---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?
 ---@field ShowRecipe fun(recipeID: integer)
 ---@field AttachRoute fun()
+---@field AttachGear fun()
+---@field RouteTab? SkillUpSideTab
+---@field GearTab? SkillUpSideTab
+---@field HideRoute fun()
+---@field HideGear fun()
+---@field PlaceGearTab? fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
 ---@field OpenSettings fun()
 ---@field HasAuctionator fun(): boolean
+---@field AuctionatorAutoscan fun(): boolean?
+---@field AuctionListName fun(profession: string): string
 ---@field Have fun(itemID: integer): number
 ---@field AltCounts fun(itemID: integer): {name: string, count: number}[]
 ---@field RouteReagents fun(plan: SkillUpPlan): SkillUpNeededItem[]
----@field SendToAuctionator fun(profession: string, items: SkillUpNeededItem[])
+---@field InitLive fun()
+---@field LiveRecipes table<integer, SkillUpLiveRecipe>
+---@field NoteLearnedRecipe fun(recipeID: integer, learned: boolean?): boolean
+---@field RecipeSkillUps fun(recipeID: integer): integer
+---@field RecipeRequirements fun(recipeID: integer): CraftingRecipeRequirement[]
+---@field MissingTool fun(recipeID: integer): CraftingRecipeRequirement?
+---@field RecipeStation fun(recipeID: integer): string?
+---@field ToolItemID fun(name: string): integer?
+---@field MissingToolItems fun(plan: SkillUpPlan): integer[]
+---@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field TrackerAttached fun(): boolean
 ---@field SetTracked fun(skillLine: integer, tracked: boolean)
+---@field AutoTrack fun(skillLine?: integer): boolean
 ---@field InitShopping fun()
 ---@field NPCLocation fun(npcID: integer): SkillUpLocation
 ---@field LocationText fun(where: SkillUpLocation): string
 ---@field SeeVendor fun(itemIDs: integer[]): boolean
 ---@field NearestNPC fun(npcIDs: integer[], byTravel?: boolean): integer?
 ---@field SetWaypoint fun(npcID: integer): boolean
----@field SuggestionNPC fun(suggestion: SkillUpSuggestion): integer?
+---@field SuggestionNPC fun(suggestion: SkillUpSuggestionNPC): integer?
 ---@field RecipeSuggestions fun(profession: SkillUpContext, base: number): SkillUpSuggestion[]
 ---@field ScrollPrice fun(source: SkillUpScrollSource): number?
 ---@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number
@@ -86,6 +119,8 @@
 ---@field Thresholds table<integer, number[]>
 ---@field VendorPrices table<integer, number>
 ---@field RecipeData table<integer, SkillUpRecipe>
+---@field RecipeScrolls table<integer, number[]> { scroll item, required skill } per recipe spell.
+---@field ItemGear table<integer, number[]>
 ---@field ItemSellPrices table<integer, number>
 ---@field RecipeNames table<integer, table<string, integer|false>>
 ---@field ProfessionSkillLines table<string, integer>
@@ -109,8 +144,10 @@
 ---@field sortMode 'blizzard'|'skill'|'chance'|'cost'
 ---@field showTrainer boolean
 ---@field showRouteTab boolean
+---@field showGearTab boolean
 ---@field reagentTooltip 'off'|'route'|'full'
----@field gatherFree boolean
+---@field collectModes table<string, SkillUpCollectMode>
+---@field showAllGear table<string, boolean>
 ---@field whatsNew boolean
 ---@field companionHints boolean
 ---@field lastVersion string
@@ -122,6 +159,8 @@
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
 ---@field sellers table<integer, SkillUpSeller>
+---@field priceDays table<string, table<integer, table<integer, number>>> [realm] = { [day] = { [itemID] = copper } }, the last seven days.
+---@field builds string[] The client builds this install has run with, oldest first.
 
 -- A vendor seen at its own window: where the player stood, and what it sold that the addon has a use for.
 ---@class SkillUpSeller
@@ -130,6 +169,7 @@
 ---@field map integer
 ---@field x number
 ---@field y number
+---@field build? string The client build it was last seen on.
 ---@field items table<integer, true>
 
 ---@class SkillUpDB : SkillUpDefaults
@@ -138,6 +178,7 @@
 ---@field scanAuctions? boolean Legacy migration only.
 ---@field tracked? table<integer, boolean> Legacy migration only.
 ---@field auctions? table Legacy migration only.
+---@field gatherFree? boolean Legacy migration only.
 
 ---@type SkillUpDB
 SkillUpForeverDB = nil
@@ -172,6 +213,14 @@ SkillUpForeverDB = nil
 ---@field recipeID integer
 ---@field thresholds number[]
 ---@field netCost? number
+---@field skillUps? integer Skill points one craft grants, from the client.
+
+-- A reagent a learned recipe makes for less than it costs to buy, as its own craft step.
+---@class SkillUpSubCraft
+---@field recipeID integer The recipe that makes the reagent.
+---@field itemID integer The reagent it makes.
+---@field crafts number How many crafts of it the parent step needs.
+---@field made number How many it makes in all.
 
 ---@class SkillUpService : SkillUpCandidate
 ---@field fee number
@@ -185,8 +234,8 @@ SkillUpForeverDB = nil
 ---@field recipeID integer
 ---@field fromSkill number
 ---@field toSkill number
----@field expectedCrafts number
 ---@field crafts number
+---@field skillUps? integer
 
 ---@class SkillUpTraining
 ---@field recipeID integer
@@ -199,8 +248,11 @@ SkillUpForeverDB = nil
 ---@field from number
 ---@field to number
 ---@field crafts number
----@field expectedCrafts number
+---@field points number Skill points the step reaches.
+---@field skillUps integer Skill points one craft grants.
 ---@field color string The recipe's colour where the craft starts.
+---@field station? string Where the client says the recipe is made.
+---@field subcrafts SkillUpSubCraft[] The recipes that make its reagents, deepest first.
 
 ---@class SkillUpPlanTraining
 ---@field recipeID integer
@@ -213,6 +265,7 @@ SkillUpForeverDB = nil
 ---@class SkillUpRouteStep
 ---@field rank? SkillUpRank
 ---@field training? SkillUpPlanTraining
+---@field subcraft? SkillUpSubCraft
 ---@field craft? SkillUpPlanCraft
 
 ---@class SkillUpBand
@@ -257,14 +310,16 @@ SkillUpForeverDB = nil
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipes'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'
----@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'tooltip'
+---@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'gear'|'tooltip'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
+---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
 ---@class SkillUpPrice
 ---@field copper number
 ---@field source SkillUpPriceSource
----@field days? number Auctionator ages only.
----@field ageUnavailable? boolean Auctionator age API unavailable or failed.
+---@field basis? integer Auctionator prices only: days of observations behind the price, 1 for its last buyout.
+---@field days? number Auctionator ages only: whole days since the newest observation.
+---@field ageUnavailable? boolean Auctionator age API unavailable or failed, last-buyout prices only.
 ---@field profession? string Gathered reagents only.
 
 ---@class SkillUpValue
@@ -287,6 +342,11 @@ SkillUpForeverDB = nil
 ---@field canSkillUp? boolean
 ---@field relativeDifficulty? number
 
+-- What Core/Live.lua records for one recipe from the client's own recipe read.
+---@class SkillUpLiveRecipe
+---@field thresholds? number[] Bundled orange/yellow/green with the client's live grey as the fourth.
+---@field skillUps integer Skill points one craft grants now.
+
 ---@class SkillUpLocation
 ---@field name string
 ---@field label string
@@ -303,6 +363,9 @@ SkillUpForeverDB = nil
 ---@field reach number Base skill.
 ---@field color string Its colour at the skill the route stopped at.
 
+-- The fields of a suggestion that decide where its click goes; also a bare recipe scroll's source.
+---@alias SkillUpSuggestionNPC { kind: integer?, source: SkillUpScrollSource?, npcID: integer? }
+
 ---@class SkillUpNeededItem
 ---@field itemID integer
 ---@field need number
@@ -315,49 +378,139 @@ SkillUpForeverDB = nil
 ---@class SkillUpCraft
 ---@field text string
 ---@field recipeID? integer
----@field count? number
+---@field count? number How many the bags and the client allow now.
+---@field planned? number How many the route asks for.
+---@field to? number The skill the step reaches.
+---@field missing? {itemID: integer, count: integer} The first reagent still short, and how many more.
 ---@field reason? string
 
 ---@alias SkillUpSortKey fun(info: TradeSkillRecipeInfo, ctx: SkillUpContext?): number
 
 ---@class SkillUpListEntry
----@field text string
----@field note? string a short label kept whole at the right of the name, which is cut to make room
----@field color? ColorMixin
+---@field text string The name shown beside the icon.
+---@field detail? string The supporting facts under the name, in the stock body font.
+---@field color? ColorMixin The name's colour.
 ---@field icon? fileID|string
----@field values? string[]
----@field valueColor? ColorMixin
----@field wrap? boolean
+---@field iconColor? ColorMixin The stock icon border's tint, the item's quality where it has one.
+---@field detailColor? ColorMixin
 ---@field tooltip? fun(tooltip: GameTooltip)
 ---@field click? fun()
 
 ---@class SkillUpListRow : Button
+---@field kind "row"
 ---@field entry SkillUpListEntry
 ---@field Icon Texture
+---@field IconBorder Texture
 ---@field Text FontString
----@field Note FontString
+---@field Detail FontString
+---@field tooltip? fun(tooltip: GameTooltip)
+---@field click? fun()
 ---@field UpdateTooltip fun(self: SkillUpListRow) called by the tooltip this row owns, a few times a second
----@field Values FontString[]
 
----@class SkillUpColumn
----@field title string
----@field width number
----@field justify? JustifyHorizontal
----@field right? number
+---@class SkillUpListHeading : Frame
+---@field kind "heading"
+---@field Text FontString
+
+---@class SkillUpListMessage : Frame
+---@field kind "message"
+---@field Text FontString
+
+---@class SkillUpListElement
+---@field kind "row"|"heading"|"message"
+---@field text? string The heading's or message's line.
+---@field color? ColorMixin The message's colour; the list's own grey when nil.
+---@field entry? SkillUpListEntry The row's item.
 
 ---@class SkillUpList
----@field rows SkillUpListRow[]
----@field count integer
----@field height number
+---@field rows SkillUpListElement[] The elements of the last render, in order.
 ---@field scrollBox SkillUpScrollBox
----@field Add fun(self: SkillUpList, entry: SkillUpListEntry)
+---@field Begin fun(self: SkillUpList)
+---@field Heading fun(self: SkillUpList, text: string)
 ---@field Message fun(self: SkillUpList, text: string, color?: ColorMixin)
+---@field Add fun(self: SkillUpList, entry: SkillUpListEntry)
 ---@field Finish fun(self: SkillUpList)
 
 ---@class SkillUpCraftButton : Button
 ---@field recipeID? integer
 ---@field count? number
+---@field title? string
+---@field planned? number
+---@field to? number
 ---@field reason? string
+
+-- A class's list of craftable items, one entry a slot, newest first.
+---@class SkillUpGearItem
+---@field recipeID integer
+---@field itemID integer
+---@field name? string The client's item name, nil until its data has loaded.
+---@field skillLine integer
+---@field skill number? The skill at which the recipe can be learned, or nil when the data does not know.
+---@field level number The item's required level.
+---@field profession string
+---@field learned boolean
+---@field state "known"|"trainable"|"needs"|"other" What the character can do with the recipe.
+
+---@class SkillUpGearSlot
+---@field slot integer The slot group's position in the view.
+---@field name string
+---@field items SkillUpGearItem[]
+
+-- What Gear.List needs to know about the character and the data.
+---@class SkillUpGearQuery
+---@field level number
+---@field classID integer
+---@field showAll boolean List rows the character cannot make yet too.
+---@field learned fun(recipeID: integer): boolean
+---@field professions table<integer, SkillUpProfession> The character's, by skill line.
+---@field weaponSkills table<integer, number>? The weapon skill lines the character knows, or nil.
+---@field name fun(itemID: integer): string?
+---@field skill fun(recipeID: integer): number? The skill at which the recipe can be learned.
+---@field professionName fun(skillLine: integer): string
+
+---@class SkillUpGearPage : Frame
+---@field ShowAll CheckButton
+---@field ShowAllLabel FontString
+---@field Slots SkillUpGearSlotButton[]
+---@field Detail SkillUpGearDetail
+
+-- A paper doll slot button: the item's icon, its quality border and the known mark the game uses.
+---@class SkillUpGearSlotButton : CheckButton
+---@field slot integer
+---@field item SkillUpGearItem?
+---@field icon Texture
+---@field border Texture
+---@field mark Texture
+---@field select Texture
+
+-- The pane's one action button, its text and the reason it is disabled.
+---@class SkillUpGearAction : Button
+---@field click (fun())?
+---@field reason string?
+
+-- The detail pane and the parts a render fills in.
+---@class SkillUpGearDetail : Frame
+---@field Body Frame
+---@field Empty FontString
+---@field Icon Texture
+---@field Border Texture
+---@field Name FontString
+---@field Requirement FontString
+---@field Learn FontString
+---@field State FontString
+---@field Reagents FontString
+---@field ReagentRows SkillUpGearRow[]
+---@field Action SkillUpGearAction
+---@field Also FontString
+---@field OtherRows SkillUpGearRow[]
+
+-- A full-size item row the pane draws for a reagent or another item in the slot.
+---@class SkillUpGearRow : Button
+---@field Icon Texture
+---@field Border Texture
+---@field Text FontString
+---@field Detail FontString
+---@field tooltip (fun(tooltip: GameTooltip))?
+---@field click (fun())?
 
 ---@class SkillUpPage : Frame
 ---@field Craft SkillUpCraftButton
@@ -365,10 +518,12 @@ SkillUpForeverDB = nil
 ---@field Skill FontString
 ---@field Target EditBox
 ---@field Track Button
----@field Auctionator Button
+---@field Collect CheckButton
+---@field CollectLabel FontString
+---@field Vendor Button
+---@field vendorItems integer[]
 ---@field RouteList SkillUpList
 ---@field ReagentList SkillUpList
----@field PriceAge FontString
 
 ---@class SkillUpBar : Frame
 ---@field track Frame

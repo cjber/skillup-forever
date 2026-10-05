@@ -80,8 +80,8 @@ ProfessionsFrame = nil
 function CreateTreeDataProvider() end
 
 ---@class SkillUpScrollBox : Frame
----@field FullUpdate fun(self: SkillUpScrollBox, immediate?: boolean)
 ---@field ScrollToBegin fun(self: SkillUpScrollBox)
+---@field SetDataProvider fun(self: SkillUpScrollBox, provider: SkillUpDataProvider, retain?: boolean)
 
 ---@class SkillUpRecipeScrollBox : SkillUpScrollBox, CallbackRegistryMixin
 ---@field GetDataProvider fun(self: SkillUpRecipeScrollBox): SkillUpTreeProvider?
@@ -90,13 +90,22 @@ function CreateTreeDataProvider() end
 ---@class SkillUpScrollBar : Frame
 ---@field SetHideIfUnscrollable fun(self: SkillUpScrollBar, hide: boolean)
 
----@class SkillUpScrollContent : Frame
----@field scrollable boolean
+---@class SkillUpDataProvider
+---@field GetSize fun(self: SkillUpDataProvider): integer
+
+---@param tbl? table
+---@return SkillUpDataProvider
+function CreateDataProvider(tbl) end
+
+---@alias SkillUpElementInitializer fun(frame: Frame, elementData: SkillUpListElement)
+---@alias SkillUpElementFactory fun(factory: fun(template: string, initializer: SkillUpElementInitializer), elementData: SkillUpListElement)
 
 ---@class SkillUpScrollView
----@field SetPanExtent fun(self: SkillUpScrollView, extent: number)
+---@field SetElementExtent fun(self: SkillUpScrollView, extent: number)
+---@field SetElementExtentCalculator fun(self: SkillUpScrollView, calculator: fun(dataIndex: integer, elementData: SkillUpListElement): number)
+---@field SetElementFactory fun(self: SkillUpScrollView, elementFactory: SkillUpElementFactory)
 ---@return SkillUpScrollView
-function CreateScrollBoxLinearView() end
+function CreateScrollBoxListLinearView() end
 
 ---@type {UpdateImmediately: boolean, RetainScrollPosition: boolean}
 ScrollBoxConstants = {}
@@ -104,7 +113,7 @@ ScrollUtil = {}
 ---@param box SkillUpScrollBox
 ---@param bar SkillUpScrollBar
 ---@param view SkillUpScrollView
-function ScrollUtil.InitScrollBoxWithScrollBar(box, bar, view) end
+function ScrollUtil.InitScrollBoxListWithScrollBar(box, bar, view) end
 ---@param box SkillUpRecipeScrollBox
 ---@param callback fun(owner: SkillUpNamespace, row: SkillUpRecipeRow, node: SkillUpTreeNode)
 ---@param owner SkillUpNamespace
@@ -116,6 +125,26 @@ function Professions.GetProfessionInfo() end
 ---@param info TradeSkillRecipeInfo
 ---@return TradeSkillRecipeInfo?
 function Professions.GetHighestLearnedRecipe(info) end
+
+-- The character's own skill lines, from Forever's Skills pane (SkillInfoDocumentation.lua).
+---@class SkillUpSkillLine
+---@field skillID integer
+---@field name string
+---@field isHeader boolean
+---@field rank number
+---@field modifier number
+---@field parentSkillLineID integer
+---@field skillLineCategoryID integer
+
+C_SkillInfo = {}
+---@return integer
+function C_SkillInfo.GetNumSkillLines() end
+---@param index integer
+---@return SkillUpSkillLine?
+function C_SkillInfo.GetSkillLineInfo(index) end
+---@param ID integer
+---@return SkillUpSkillLine?
+function C_SkillInfo.GetSkillLineInfoByID(ID) end
 
 ---@class SkillUpSideTab : Frame
 ---@field Icon Texture
@@ -225,7 +254,7 @@ C_Trainer = {}
 ---@field GetContextMenuParent fun(self: SkillUpTrackerModule): Frame
 ---@field GetBlock fun(self: SkillUpTrackerModule, id: integer): SkillUpTrackerBlock
 ---@field LayoutBlock fun(self: SkillUpTrackerModule, block: SkillUpTrackerBlock): boolean
----@type Frame
+---@type ForeverNativeTrackerFrame
 ObjectiveTrackerFrame = nil
 
 ---@class ForeverTrackerHostAPI

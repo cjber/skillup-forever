@@ -141,7 +141,7 @@ end
 -- auctionator (false for a client without it), trackerManager (false for a client without Blizzard's tracker
 -- manager), boot (false to stop before the addon's ADDON_LOADED; c.Boot() then runs it), questie and atlasLoot
 -- (what a synthetic QuestieDB and AtlasLoot hold, as Client.QuestieDB and Client.AtlasLoot take it; a client
--- has neither without them).
+-- has neither without them), build (the client build GetBuildInfo reports).
 function Client.load(options)
 	options = options or {}
 	local G = setmetatable({}, { __index = _G })
@@ -149,6 +149,7 @@ function Client.load(options)
 		G = G,
 		ns = {},
 		now = 0,
+		build = options.build or "70205",
 		frames = {},
 		chat = {},
 		-- { name, icon, rank, max, id, modifier } in spellbook order; `id` is what the client reports for it.
@@ -158,8 +159,14 @@ function Client.load(options)
 		items = {}, -- [itemID] = { name, sell }; a missing field is item data the client has not loaded
 		bags = {}, -- [itemID] = count
 		schematics = {}, -- [recipeID] = { reagents = { { itemID, quantity } }, output = itemID }: the open window's
+		-- [recipeID] = { info = { maxTrivialLevel, numSkillUps, learned, relativeDifficulty }, requirements = { ... } }:
+		-- what the client's own recipe read answers, empty for a recipe it says nothing about.
+		live = {},
+		craftable = 999, -- what C_TradeSkillUI.GetCraftableCount answers
 		auction = {}, -- [itemID] = copper, as Auctionator last saw it
 		auctionAge = 0, -- whole days
+		auctionAutoscan = nil, -- Auctionator's "scan when the auction house opens" option
+		shoppingLists = {}, -- [list name] = the searches Auctionator was last given
 		merchant = nil, -- { { itemID, price, stackCount, ... } } while a merchant window is open
 		npc = nil, -- { id, name }: who the player is dealing with, the client's "npc" unit
 		money = 1000000,
@@ -393,6 +400,9 @@ function Client.load(options)
 		end
 		return c.player.name
 	end
+	G.UnitClass = function()
+		return c.player.className or "Shaman", c.player.classFile or "SHAMAN", c.player.classID or 64
+	end
 	G.UnitGUID = function(unit)
 		return unit == "npc" and c.npc and string.format("Creature-0-1-0-0-%d-0000000001", c.npc.id) or nil
 	end
@@ -452,6 +462,9 @@ function Client.load(options)
 			c.opened[#c.opened + 1] = id
 			return true
 		end,
+		OpenRecipe = function(recipeID)
+			c.opened[#c.opened + 1] = recipeID
+		end,
 		-- No profession window is open.
 		IsTradeSkillLinked = function()
 			return false
@@ -461,7 +474,21 @@ function Client.load(options)
 		end,
 		GetBaseProfessionInfo = noop,
 		GetAllRecipeIDs = function()
-			return {}
+			local ids = {}
+			for recipeID in pairs(c.live) do
+				ids[#ids + 1] = recipeID
+			end
+			table.sort(ids)
+			return ids
+		end,
+		GetRecipeInfo = function(recipeID)
+			return c.live[recipeID] and c.live[recipeID].info
+		end,
+		GetRecipeRequirements = function(recipeID)
+			return c.live[recipeID] and c.live[recipeID].requirements or {}
+		end,
+		GetCraftableCount = function()
+			return c.craftable
 		end,
 	}
 
@@ -475,16 +502,41 @@ function Client.load(options)
 		GetItemNameByID = function(id)
 			return c.items[id] and c.items[id].name
 		end,
+		GetItemIconByID = function(id)
+			return c.items[id] and c.items[id].icon
+		end,
+		GetItemQualityByID = function(id)
+			return c.items[id] and c.items[id].quality
+		end,
+		GetItemQualityColor = function()
+			return 1, 1, 1, "ffffff"
+		end,
 		GetItemCount = function(id)
 			return c.bags[id] or 0
 		end,
 		RequestLoadItemDataByID = function(id)
 			c.requested[id] = true
 		end,
+		-- A tool requirement is a localized item name; the client resolves it back to the item.
+		GetItemInfoInstant = function(itemInfo)
+			if type(itemInfo) == "number" then
+				return itemInfo
+			end
+			for itemID, item in pairs(c.items) do
+				if item.name == itemInfo then
+					return itemID
+				end
+			end
+		end,
 	}
 	G.C_CurrencyInfo = {
 		GetCoinTextureString = function(copper)
 			return copper .. "c"
+		end,
+	}
+	G.C_PaperDollInfo = {
+		GetInventorySlotInfo = function()
+			return 0, 134400
 		end,
 	}
 	G.GetMerchantNumItems = function()
@@ -508,6 +560,26 @@ function Client.load(options)
 	--[[ Auctionator ]]
 
 	local scanned = {}
+	-- Item:CreateFromItemID and ContinuableContainer are what Auctionator's name lookups need; the
+	-- container calls back at once, as it does when every name is already known.
+	G.Item = {
+		CreateFromItemID = function(itemID)
+			return itemID
+		end,
+	}
+	G.ContinuableContainer = {
+		Create = function()
+			local items = {}
+			return {
+				AddContinuable = function(_, item)
+					items[#items + 1] = item
+				end,
+				ContinueOnLoad = function(_, callback)
+					callback()
+				end,
+			}
+		end,
+	}
 	if options.auctionator ~= false then
 		G.Auctionator = {
 			API = {
@@ -515,15 +587,29 @@ function Client.load(options)
 					GetAuctionPriceByItemID = function(_, itemID)
 						return c.auction[itemID]
 					end,
-					GetAuctionAgeByItemID = function()
+					GetAuctionAgeByItemID = function(_, itemID)
+						if type(c.auctionAge) == "table" then
+							return c.auctionAge[itemID]
+						end
 						return c.auctionAge
 					end,
 					RegisterForDBUpdate = function(_, fn)
 						scanned[#scanned + 1] = fn
 					end,
-					CreateShoppingList = noop,
-					ConvertToSearchString = noop,
+					CreateShoppingList = function(_, name, searches)
+						c.shoppingLists[name] = searches
+					end,
+					ConvertToSearchString = function(_, request)
+						return string.format("%sx%d", request.searchString, request.quantity)
+					end,
 				},
+			},
+			-- Auctionator's own config table, which has no public API contract.
+			Config = {
+				Options = { AUTOSCAN = "autoscan_2" },
+				Get = function()
+					return c.auctionAutoscan
+				end,
 			},
 		}
 	end
@@ -642,6 +728,7 @@ function Client.load(options)
 	G.Enum = {
 		TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 },
 		CraftingReagentType = { Basic = 0 },
+		RecipeRequirementType = { SpellFocus = 0, Totem = 1, Area = 2 },
 		TooltipDataType = { Item = 0 },
 		UIMapType = { Continent = 2, Zone = 3, Dungeon = 4, Micro = 5 },
 	}
@@ -655,6 +742,12 @@ function Client.load(options)
 	G.DEFAULT, G.OFF, G.UNKNOWN = "Default", "Off", "Unknown"
 	G.debugprofilestop = function()
 		return 0
+	end
+	G.time = function()
+		return c.now
+	end
+	G.GetBuildInfo = function()
+		return "1.60.1", c.build, "Sep 24 2026", 16001, "wow", "1.60.1." .. c.build
 	end
 	G.C_AddOns = {
 		GetAddOnMetadata = function(_, field)

@@ -12,7 +12,7 @@ local THUNDER_BLUFF = 1638
 local COOK, ISLE = 900, 2
 local THREAD = 2321
 
-local function Load(questie, atlasLoot, saved)
+local function Load(questie, atlasLoot, saved, build)
 	local recipes, thresholds = {}, {}
 	for recipeID = SOLD, ADVANCED do
 		recipes[recipeID] = { skillLine = TAILORING, reagents = { { itemID = THREAD, quantity = 1 } } }
@@ -21,6 +21,7 @@ local function Load(questie, atlasLoot, saved)
 	local c = Client.load({
 		boot = false,
 		saved = saved,
+		build = build,
 		data = {
 			Thresholds = thresholds,
 			RecipeData = recipes,
@@ -262,6 +263,28 @@ local later = Load(false, true, {
 })
 equal(later.ns.NearestVendor(THREAD), COOK, "a vendor seen before is named without Questie")
 equal(later.ns.NPCLocation(COOK).label, "Darkshire", "where it was seen")
+
+-- A vendor is used for the build it was seen on and the next one, and not after two builds without it.
+local function VendorOn(build)
+	return {
+		builds = { "70205", "70210" },
+		sellers = {
+			[COOK] = {
+				name = "Cook",
+				side = "A",
+				map = 10,
+				x = 0.2,
+				y = 0.2,
+				build = build,
+				items = { [THREAD] = true },
+			},
+		},
+	}
+end
+local oneBuildAgo = Load(false, true, VendorOn("70210"), "70215")
+equal(oneBuildAgo.ns.NearestVendor(THREAD), COOK, "a vendor seen one build ago is still named")
+local twoBuildsAgo = Load(false, true, VendorOn("70205"), "70215")
+equal(twoBuildsAgo.ns.NearestVendor(THREAD), nil, "a vendor unseen for two builds is not named")
 equal(
 	c.Lines(function(tooltip)
 		ns.AddNearest(tooltip, "Nearest trainer", nil)

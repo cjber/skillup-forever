@@ -5,6 +5,7 @@ local equal = Client.equal
 
 local COOKING, CAMPFIRE, BREAD = 185, 818, 37836
 local hooks, timers, changes = {}, {}, {}
+local tracked = {}
 local dropPlans
 -- { name, kind, fee, required skill, taught spell }: the window's rows, in its order.
 local services = {}
@@ -26,6 +27,9 @@ local ns = {
 	Changed = function(kind)
 		changes[#changes + 1] = kind
 		dropPlans()
+	end,
+	AutoTrack = function(skillLine)
+		tracked[#tracked + 1] = skillLine
 	end,
 	IsLearned = function(id)
 		return id == CAMPFIRE
@@ -120,6 +124,7 @@ equal(Journeyman().fee, 500, "the bundled fee before a trainer is seen")
 
 -- A rank is the one row that is no recipe and wants the skill the rank does.
 Open({ { "Spice Bread", "available", 40, 1, BREAD }, { "Journeyman Cook", "available", 450, 50 } })
+equal(tracked[#tracked], COOKING, "opening the Cooking trainer asks to track Cooking")
 equal(ns.db.trainer[COOKING][BREAD][1], 40, "a recipe's fee is recorded")
 equal(ns.db.trainerRanks[COOKING][150], 450, "and the rank's, under the cap it trains to")
 equal(Journeyman().fee, 450, "what the trainer charges replaces the bundled fee")

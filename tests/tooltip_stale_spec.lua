@@ -62,13 +62,37 @@ local GameTooltip = {
 	end,
 }
 
+local view, provider
+local function CreateFrame(_, _, _, template)
+	local frame = Region()
+	if template == "WowScrollBoxList" then
+		frame.SetDataProvider = function(_, list)
+			provider = list
+		end
+	end
+	return frame
+end
+local function CreateView()
+	view = Region()
+	function view:SetElementExtentCalculator(calculator)
+		self.extent = calculator
+	end
+	function view:SetElementFactory(factory)
+		self.factory = factory
+	end
+	return view
+end
+
 local ns = {}
 local env = setmetatable({
 	GameTooltip = GameTooltip,
-	CreateFrame = Region,
-	CreateScrollBoxLinearView = Region,
-	ScrollUtil = { InitScrollBoxWithScrollBar = function() end },
-	ScrollBoxConstants = {},
+	CreateFrame = CreateFrame,
+	CreateScrollBoxListLinearView = CreateView,
+	CreateDataProvider = function(elements)
+		return { elements = elements }
+	end,
+	ScrollUtil = { InitScrollBoxListWithScrollBar = function() end },
+	ScrollBoxConstants = { RetainScrollPosition = true },
 	HIGHLIGHT_FONT_COLOR = color,
 	GRAY_FONT_COLOR = color,
 }, { __index = _G })
@@ -84,7 +108,7 @@ ns.AddNearest = function(tooltip, label, npcID)
 	end
 end
 
-local list = ns.CreateList(Region(), { { title = "Have", width = 40 }, { title = "Source", width = 40 } })
+local list = ns.CreateList(Region())
 list:Add({
 	text = "Linen Cloth",
 	tooltip = function(tooltip)
@@ -94,7 +118,15 @@ list:Add({
 		ns.AddNearest(tooltip, "Nearest vendor", ns.NearestVendor(THREAD))
 	end,
 })
-local row = list.rows[1]
+list:Finish()
+
+-- The row frame the scroll box would draw for that element.
+local initializer
+view.factory(function(_, init)
+	initializer = init
+end, provider.elements[1])
+local row = Region()
+initializer(row, provider.elements[1])
 
 -- First hover, with the vendor read still in flight.
 row.scripts.OnEnter(row)

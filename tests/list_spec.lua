@@ -1,9 +1,12 @@
 -- Run from the repository root: luajit tests/list_spec.lua
--- A list row's layout: where the name stops, and that a note beside it is the one kept whole.
+-- The addon's list: the elements a caller adds, the height the game lays each one out at, and the frames
+-- the game draws them with, a full-size item icon in its stock border, the name beside it and the
+-- supporting facts on the line under it, all built from the element the scroll box hands the initializer.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
--- A frame or region that records its anchors, text and visibility; anything else is accepted and ignored.
+-- A frame or region that records its anchors, text, colour, visibility and size; anything else is accepted
+-- and ignored. A font string reports a wrapped height for a long line, so the message height can be read.
 local function Region()
 	local methods = {
 		SetPoint = function(self, ...)
@@ -15,8 +18,29 @@ local function Region()
 		SetText = function(self, text)
 			self.text = text
 		end,
+		SetTextColor = function(self, r, g, b)
+			self.color = { r, g, b }
+		end,
 		SetShown = function(self, shown)
 			self.shown = shown
+		end,
+		Show = function(self)
+			self.shown = true
+		end,
+		Hide = function(self)
+			self.shown = false
+		end,
+		SetSize = function(self, width, height)
+			self.width, self.height = width, height
+		end,
+		SetWidth = function(self, width)
+			self.width = width
+		end,
+		SetHeight = function(self, height)
+			self.height = height
+		end,
+		SetWordWrap = function(self, wrap)
+			self.wordWrap = wrap
 		end,
 		SetScript = function(self, name, script)
 			self.scripts[name] = script
@@ -24,8 +48,8 @@ local function Region()
 		GetWidth = function()
 			return 300
 		end,
-		GetStringHeight = function()
-			return 12
+		GetStringHeight = function(self)
+			return self.text and #self.text > 20 and 24 or 12
 		end,
 		CreateFontString = function()
 			return Region()
@@ -41,33 +65,50 @@ local function Region()
 	})
 end
 
+local view, scrollBox, provider, retained
+
+local function CreateFrame(_, _, _, template)
+	local frame = Region()
+	if template == "WowScrollBoxList" then
+		scrollBox = frame
+		frame.SetDataProvider = function(_, list, retain)
+			provider, retained = list, retain
+		end
+	end
+	return frame
+end
+
+local function CreateView()
+	view = Region()
+	function view:SetElementExtentCalculator(calculator)
+		self.extent = calculator
+	end
+	function view:SetElementFactory(factory)
+		self.factory = factory
+	end
+	return view
+end
+
 local color = { GetRGB = function() end }
-local events = {}
-local ns = {
-	WhenEvent = function(event, watcher)
-		events[event] = watcher
-	end,
-	WhenStale = function() end,
-}
+local ns = { WhenEvent = function() end, WhenStale = function() end }
 local env = setmetatable({
 	GameTooltip = Region(),
-	CreateFrame = Region,
-	CreateScrollBoxLinearView = Region,
-	ScrollUtil = { InitScrollBoxWithScrollBar = function() end },
-	ScrollBoxConstants = {},
+	CreateFrame = CreateFrame,
+	CreateScrollBoxListLinearView = CreateView,
+	CreateDataProvider = function(elements)
+		return { elements = elements }
+	end,
+	ScrollUtil = { InitScrollBoxListWithScrollBar = function() end },
+	ScrollBoxConstants = { RetainScrollPosition = true },
 	HIGHLIGHT_FONT_COLOR = color,
 	GRAY_FONT_COLOR = color,
+	NORMAL_FONT_COLOR = color,
 }, { __index = _G })
 setfenv(assert(loadfile("UI/List.lua")), env)("SkillUpForever", ns)
 
--- The route's columns, listed right to left: each is its width and an 8 gap left of the one before.
-local list = ns.CreateList(Region(), {
-	{ title = "Cost", width = 64 },
-	{ title = "To", width = 28 },
-	{ title = "Crafts", width = 36 },
-})
+local list = ns.CreateList(Region())
 
--- The anchor a region was last given at `point`: its arguments after the point's name.
+-- The anchors a region was last given at `point`: its arguments after the point's name.
 local function Anchor(region, point)
 	local found
 	for _, anchor in ipairs(region.points) do
@@ -78,43 +119,88 @@ local function Anchor(region, point)
 	return found or {}
 end
 
-list:Add({ text = "Heavy Linen Bandage", values = { "3", "80", "12" } })
-local craft = list.rows[1]
-equal(Anchor(craft.Text, "RIGHT")[2], -156, "a name stops short of the columns its row fills")
-equal(craft.Note.shown, false, "a row without a note shows none")
+-- The list is the game's own scroll box, inset to leave room for the scroll bar.
+equal(Anchor(scrollBox, "TOPLEFT")[2], 4, "the scroll box is inset 4 from the left")
+equal(Anchor(scrollBox, "BOTTOMRIGHT")[2], -18, "and leaves room for the scroll bar")
 
-list:Add({ text = "Brilliant Smallfish", note = "vendor", values = { "?", "85" } })
-local scroll = list.rows[2]
-equal(scroll.Note.text, "vendor", "a note is its own text")
-equal(scroll.Note.shown, true, "and is shown")
-equal(Anchor(scroll.Note, "RIGHT")[2], -112, "at the right of the room, the empty column's included")
-equal(Anchor(scroll.Text, "RIGHT")[2], scroll.Note, "the name stops at the note")
-equal(Anchor(scroll.Text, "RIGHT")[3], "LEFT", "so the name is cut, never the note")
+-- Fills the list with one of each kind: a row with facts, a row without, a heading and two messages, one
+-- short and one long enough to wrap to a second line.
+local function Fill()
+	list:Begin()
+	list:Add({ icon = 134400, text = "Heavy Linen Bandage", detail = "18 crafts to 90, 54s" })
+	list:Add({ text = "Total 54s" })
+	list:Heading("Head")
+	list:Message("Nothing to buy.")
+	list:Message("A message long enough to wrap onto a second line in the list.")
+	list:Finish()
+end
+Fill()
 
--- A row's tooltip, drawn on hover. The game calls its owner's UpdateTooltip a few times a second, and drops
--- the lines a row added under an item's tooltip when that item's data arrives late.
-local drawn = 0
-list:Add({
-	text = "Slitherskin Mackerel",
-	tooltip = function()
-		drawn = drawn + 1
-	end,
-})
-local hovered = list.rows[3]
-hovered.scripts.OnEnter(hovered)
-equal(drawn, 1, "a hover draws the row's tooltip")
-hovered:UpdateTooltip()
-equal(drawn, 1, "which is left alone while nothing new has come")
-events.TOOLTIP_DATA_UPDATE()
-hovered:UpdateTooltip()
-equal(drawn, 2, "and drawn again, lines and all, once late item data has")
-hovered:UpdateTooltip()
-equal(drawn, 2, "once")
-events.MODIFIER_STATE_CHANGED()
-hovered:UpdateTooltip()
-equal(drawn, 3, "and again when Shift redraws the item's tooltip")
-events.TOOLTIP_DATA_UPDATE()
-craft:UpdateTooltip()
-equal(drawn, 3, "a row without a tooltip draws none")
+-- The elements are what the caller added, in order, and the scroll box was handed them to draw itself.
+equal(#list.rows, 5, "the last render holds every element")
+equal(list.rows[1].kind, "row", "a row is its own kind")
+equal(list.rows[1].entry.text, "Heavy Linen Bandage", "with the entry the caller added")
+equal(list.rows[2].kind, "row", "a second row is a row too")
+equal(list.rows[3].kind, "heading", "a heading is its own kind")
+equal(list.rows[3].text, "Head", "with its text")
+equal(list.rows[4].kind, "message", "a message is its own kind")
+equal(list.rows[4].text, "Nothing to buy.", "with its text")
+equal(provider.elements, list.rows, "the scroll box draws the last render's elements")
+equal(retained, true, "keeping the scroll position between renders")
+
+-- Each kind is laid out at its own height; a message is as tall as its wrapped text, with a floor.
+equal(view.extent(1, list.rows[1]), 46, "a row is the game's item height")
+equal(view.extent(3, list.rows[3]), 26, "a heading is its stock line's height")
+equal(view.extent(4, list.rows[4]), 20, "a one-line message keeps the minimum height")
+equal(view.extent(5, list.rows[5]), 32, "a wrapped message is as tall as its lines")
+
+-- The factory picks a template a kind, so the scroll box's pools stay apart.
+local function Materialize(elementData, frame)
+	local template, initializer
+	view.factory(function(name, init)
+		template, initializer = name, init
+	end, elementData)
+	frame = frame or Region()
+	initializer(frame, elementData)
+	return frame, template
+end
+
+-- A row is the game's item: a 37px icon in the stock border, the name beside it, the facts under it.
+local row, rowTemplate = Materialize(list.rows[1])
+equal(rowTemplate, "SkillUpForeverListRowTemplate", "a row is built from the row template")
+equal(row.kind, "row", "and knows it is a row")
+equal(Anchor(row.Icon, "LEFT")[2], 6, "the icon sits 6 in from the left")
+equal(row.Icon.width, 37, "at the game's own item size")
+equal(row.Icon.shown, true, "and is shown when the entry has one")
+equal(row.IconBorder.shown, true, "with the stock item border over it")
+equal(Anchor(row.IconBorder, "LEFT")[2], row.Icon, "the border sits on the icon")
+equal(row.Text.text, "Heavy Linen Bandage", "the name is beside the icon")
+equal(Anchor(row.Text, "TOPLEFT")[2], row.Icon, "anchored to the icon")
+equal(Anchor(row.Text, "TOPLEFT")[3], "TOPRIGHT", "at its right")
+equal(Anchor(row.Text, "RIGHT")[2], row, "and stops at the row's right")
+equal(row.Detail.text, "18 crafts to 90, 54s", "the facts are on the line under the name")
+equal(Anchor(row.Detail, "TOPLEFT")[2], row.Text, "under the name")
+equal(Anchor(row.Detail, "TOPLEFT")[3], "BOTTOMLEFT", "at its bottom left")
+
+-- The same pooled frame redrawn for a later element drops what the new element does not have.
+local pooled = Region()
+Materialize(list.rows[1], pooled)
+local detail = pooled.Detail
+row, rowTemplate = Materialize(list.rows[2], pooled)
+equal(rowTemplate, "SkillUpForeverListRowTemplate", "the second row is built from the same template")
+equal(row.kind, "row", "the redrawn frame is still a row")
+equal(pooled.Detail, detail, "the scroll box's frame is reused")
+equal(pooled.Detail.shown, false, "a row without facts shows no detail")
+
+-- A heading is a stock line and a message is wrapped, measured text.
+local heading, headingTemplate = Materialize(list.rows[3])
+equal(headingTemplate, "SkillUpForeverListHeadingTemplate", "a heading is built from the heading template")
+equal(heading.kind, "heading", "and knows it is a heading")
+equal(heading.Text.text, "Head", "with its text")
+local message, messageTemplate = Materialize(list.rows[5])
+equal(messageTemplate, "SkillUpForeverListMessageTemplate", "a message is built from the message template")
+equal(message.kind, "message", "and knows it is a message")
+equal(message.Text.text, list.rows[5].text, "with its text")
+equal(message.Text.wordWrap, true, "wrapped")
 
 Client.report("list_spec")

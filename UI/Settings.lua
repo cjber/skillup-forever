@@ -125,13 +125,6 @@ function ns.RegisterSettings()
 			ns.CRAFT_VALUE_OPTIONS,
 			L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, are after the 5% cut, and may not sell."]
 		)
-
-		Checkbox(
-			rows,
-			"gatherFree",
-			L["Reagents you gather are free"],
-			L["Price what another of your professions gathers (Light Leather with Skinning, ore with Mining, herbs with Herbalism) at nothing, so routes use it and the shopping list says to gather it."]
-		)
 	end)
 
 	Section(L["Route and trainer"], function(rows)
@@ -169,6 +162,13 @@ function ns.RegisterSettings()
 			"showRouteTab",
 			L["Show the levelling route tab"],
 			L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."]
+		)
+
+		Checkbox(
+			rows,
+			"showGearTab",
+			L["Show the crafted gear tab"],
+			L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."]
 		)
 
 		Checkbox(

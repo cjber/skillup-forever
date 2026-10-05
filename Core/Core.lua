@@ -12,18 +12,25 @@ local DEFAULTS = {
 	sortMode = "blizzard",
 	showTrainer = true,
 	showRouteTab = true,
+	showGearTab = false,
 	reagentTooltip = "route",
-	gatherFree = true,
+	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from
+	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet
 	whatsNew = true,
 	companionHints = true,
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
-	-- [npcID] = { name, side, map, x, y, items = { [itemID] = true } }: vendors seen selling a reagent or scroll
+	-- [npcID] = { name, side, map, x, y, build, items = { [itemID] = true } }: vendors seen selling a reagent or scroll
 	sellers = {},
+	-- [realm] = { [day] = { [itemID] = copper } }: each item's lowest auction buyout on a day, the last seven
+	priceDays = {},
+	-- The client builds this install has run with, oldest first: a vendor stops being named two builds
+	-- after the one it was seen on.
+	builds = {},
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
-	trackedProfessions = {}, -- [profession skill line] = true: reagents shown in the objective tracker
+	trackedProfessions = {}, -- [profession skill line] = true tracked, false stopped by hand, nil undecided
 	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
 	trainerRanks = {}, -- [skill line] = { [cap] = fee }: what a trainer charges for the rank ending at that cap
 }
@@ -47,7 +54,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 }
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
-ns.WHATS_NEW = L["Route tooltips keep their lines, and a recipe's source reads in full."]
+ns.WHATS_NEW = L["A crafted gear view, one click vendor runs, and a route page drawn the game's way."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -81,10 +88,18 @@ local function LoadDB()
 	end
 	loaded.showReagentTooltip = nil
 	-- Auction prices come from Auctionator now; drop what SkillUp's own scanner saved.
-	loaded.scanAuctions, loaded.tracked, loaded.auctions = nil, nil, nil
+	loaded.scanAuctions, loaded.tracked, loaded.auctions, loaded.gatherFree = nil, nil, nil, nil
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
 			loaded[key] = type(value) == "table" and {} or value
+		end
+	end
+	-- A vendor saved before builds were recorded is stamped with the build that upgrades it, so it is
+	-- used for two more builds and then stops being named.
+	local build = ns.ClientBuild()
+	for _, seller in pairs(loaded.sellers) do
+		if type(seller) == "table" and seller.build == nil then
+			seller.build = build
 		end
 	end
 	-- A choice the menu no longer offers (or a typo) goes back to its default.
@@ -99,6 +114,12 @@ local function LoadDB()
 		end
 		if not valid then
 			loaded[key] = DEFAULTS[key]
+		end
+	end
+	-- A mode no longer saved, or a typo, reads as the default gather.
+	for key, mode in pairs(loaded.collectModes) do
+		if mode ~= "gather" and mode ~= "auction" then
+			loaded.collectModes[key] = nil
 		end
 	end
 	SkillUpForeverDB = loaded
@@ -154,7 +175,8 @@ function ns.ProfessionSkillLine(name, reported)
 	if KNOWN_SKILL_LINES[reported] then
 		return reported
 	end
-	if name and not warned[name] then
+	-- A blank name is the client's answer while no profession is open, not a profession to report.
+	if name and name ~= "" and not warned[name] then
 		warned[name] = true
 		ns.Print(string.format(L["can't identify the profession %s (%s); please report it."], name, tostring(reported)))
 	end
@@ -213,30 +235,119 @@ function ns.PlayerProfessions()
 	return professions
 end
 
+-- This character's key in the account-wide saved variables.
+---@return string
+function ns.CharacterKey()
+	return UnitName("player") .. "-" .. GetNormalizedRealmName()
+end
+
+-- The realm this character plays on: prices are kept per realm, not per character.
+---@return string
+function ns.RealmKey()
+	return GetNormalizedRealmName()
+end
+
+-- The client's own build number, nil when it doesn't report one.
+---@return string?
+function ns.ClientBuild()
+	local _, build = GetBuildInfo()
+	return build and build ~= "" and build or nil
+end
+
+-- How many builds the client's history keeps. Two back is all a remembered vendor needs.
+local BUILD_HISTORY = 4
+
+-- The builds this install has run with, in order. A build is remembered once, and older ones fall off
+-- the end. Called once at login.
+function ns.NoteBuild()
+	local build = ns.ClientBuild()
+	if not build then
+		return
+	end
+	local builds = ns.db.builds
+	if builds[#builds] ~= build then
+		builds[#builds + 1] = build
+		while #builds > BUILD_HISTORY do
+			table.remove(builds, 1)
+		end
+	end
+end
+
+-- Whether a vendor seen at its window is recent enough to name. It stays in use for the build it was
+-- seen on and the next one, and is not used once two builds have gone by without seeing it.
+---@param seller SkillUpSeller
+---@return boolean
+function ns.SellerFresh(seller)
+	local current = ns.ClientBuild()
+	local build = seller.build or current
+	if not current or not build or build == current then
+		return true
+	end
+	local builds = ns.db.builds
+	for index = #builds, 1, -1 do
+		if builds[index] == build then
+			return #builds - index < 2
+		end
+	end
+	return false
+end
+
+-- Where the routes take a reagent this character could gather or buy: "gather" prices it free,
+-- "auction" buys it at a vendor or the auction house like any other.
+---@return SkillUpCollectMode
+function ns.CollectMode()
+	local mode = ns.db.collectModes[ns.CharacterKey()]
+	return mode == "auction" and "auction" or "gather"
+end
+
+---@param mode SkillUpCollectMode
+function ns.SetCollectMode(mode)
+	ns.db.collectModes[ns.CharacterKey()] = mode
+	ns.Changed("settings")
+end
+
+-- Whether the crafted gear view lists gear this character cannot make yet. Off by default and kept
+-- per character, like the collect mode.
+---@return boolean
+function ns.ShowAllGear()
+	return ns.db.showAllGear[ns.CharacterKey()] == true
+end
+
+---@param show boolean
+function ns.SetShowAllGear(show)
+	ns.db.showAllGear[ns.CharacterKey()] = show and true or nil
+	ns.Changed("settings")
+end
+
 -- Recipes this character has been seen to know in the Professions window, for
 -- places (trainer, item tooltips) that can't ask it. C_SpellBook.IsSpellKnown covers
 -- professions not opened yet, and every session while SavedVariables fail to load.
 local function LearnedRecipes()
-	local key = UnitName("player") .. "-" .. GetNormalizedRealmName()
+	local key = ns.CharacterKey()
 	ns.db.learned[key] = ns.db.learned[key] or {}
 	return ns.db.learned[key]
 end
 
-local function NoteLearnedRecipes()
+-- A live read of one recipe's learned flag, from Core/Live.lua's one scan of the recipe list.
+---@param recipeID integer
+---@param learned boolean?
+---@return boolean changed
+function ns.NoteLearnedRecipe(recipeID, learned)
+	local learnedRecipes = LearnedRecipes()
+	local flag = learned or nil
+	local changed = learnedRecipes[recipeID] ~= flag
+	learnedRecipes[recipeID] = flag
+	return changed
+end
+
+-- A non-English client has no bundled profession name; learn it when its window is open.
+local function NoteProfessionName()
 	if C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
 		return
 	end
-	-- A non-English client has no bundled name; learn it from the open profession.
 	local base = C_TradeSkillUI.GetBaseProfessionInfo()
 	if base and base.professionName and KNOWN_SKILL_LINES[base.professionID] then
 		ns.db.professionIDs[base.professionName] = base.professionID
-	end
-	local learned = LearnedRecipes()
-	for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs()) do
-		local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
-		if info then
-			learned[recipeID] = info.learned or nil
-		end
 	end
 end
 
@@ -391,11 +502,13 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	if
 		not (
 			ns.RecipeData
+			and ns.ItemGear
 			and ns.ProfessionSkillLines
 			and ns.TrainerFees
 			and ns.TrainerRanks
 			and ns.Catalogue
 			and ns.PlanRoute
+			and ns.CraftedGear
 			and ns.Changed
 		)
 	then
@@ -403,9 +516,11 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 		return
 	end
 	LoadDB()
+	ns.NoteBuild()
 	ns.InitCatalogue()
-	ns.WhenEvent("TRADE_SKILL_LIST_UPDATE", NoteLearnedRecipes)
+	ns.WhenEvent("TRADE_SKILL_LIST_UPDATE", NoteProfessionName)
 	ns.WhenEvent("SKILL_LINES_CHANGED", ForgetDroppedProfessions)
+	ns.InitLive()
 	ns.InitPrices()
 	ns.RegisterSettings()
 	ns.AttachItemTooltips()

@@ -47,6 +47,14 @@ jobs:
       - if: steps.build.outputs.new == 'true'
         run: sudo apt-get update && sudo apt-get install -y luajit && luajit tests/model_spec.lua
       - if: steps.build.outputs.new == 'true'
+        id: report
+        run: |
+          {
+            echo 'markdown<<REPORT_EOF'
+            python3 tools/data_report.py
+            echo REPORT_EOF
+          } >> "$GITHUB_OUTPUT"
+      - if: steps.build.outputs.new == 'true'
         id: pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
@@ -55,6 +63,8 @@ jobs:
           commit-message: "data: thresholds, recipes and prices for Forever ${{ steps.build.outputs.version }}"
           body: |
             Regenerated `Data/Thresholds.lua`, `Data/Vendor.lua` and `Data/Recipes.lua` from the profession, reagent, output, price and spell-name DB2s of Forever build ${{ steps.build.outputs.version }}, and `Data/Trainer.lua` and `Data/Sources.lua` (trainer fees and ranks, who trains what, drop chances and gathered reagents: what QuestieDB and AtlasLoot do not hold) from CMaNGOS classic-db against that build.
+
+            ${{ steps.report.outputs.markdown }}
 
             Before merging, run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.
 

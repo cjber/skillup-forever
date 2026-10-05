@@ -343,6 +343,18 @@ local RECORDED = {
 	SetWidth = function(self, width)
 		rawset(self, "width", width)
 	end,
+	SetTexture = function(self, texture)
+		rawset(self, "texture", texture)
+	end,
+	SetAtlas = function(self, atlas)
+		rawset(self, "atlas", atlas)
+	end,
+	SetVertexColor = function(self, r, g, b)
+		rawset(self, "vertex", { r = r, g = g, b = b })
+	end,
+	SetDesaturated = function(self, desaturated)
+		rawset(self, "desaturated", desaturated and true or false)
+	end,
 	SetEnabled = function(self, enabled)
 		rawset(self, "enabled", enabled and true or false)
 	end,
@@ -533,6 +545,19 @@ env = setmetatable({
 	UnitName = function()
 		return "Player"
 	end,
+	UnitClass = function()
+		return "Rogue", "ROGUE", 4
+	end,
+	C_SkillInfo = {
+		GetNumSkillLines = function()
+			return 0
+		end,
+	},
+	C_PaperDollInfo = {
+		GetInventorySlotInfo = function(name)
+			return nil, "Interface\\PaperDoll\\UI-PaperDoll-Slot-" .. name:gsub("Slot$", "")
+		end,
+	},
 	GetNormalizedRealmName = function()
 		return "Realm"
 	end,
@@ -674,7 +699,11 @@ env = setmetatable({
 	end,
 	MinimalSliderWithSteppersMixin = { Label = { Right = "right" } },
 	MenuUtil = Stub(),
-	SkillUpForeverDB = { trackedProfessions = { [STATE.open.skillLine] = true }, collectModes = {} },
+	SkillUpForeverDB = {
+		trackedProfessions = { [STATE.open.skillLine] = true },
+		collectModes = {},
+		showGearTab = true,
+	},
 	-- The optional databases the addon reads through their public tables: absent in this scene.
 	AtlasLoot = false,
 	LibQuestieDB = false,
@@ -791,7 +820,9 @@ ns.AttachRoute()
 assert(not hooks.RefreshRightTabs and not hooks.RightTabSelected, "native profession methods stay untouched")
 local page = created[first]
 local routeTab = created[#created] -- the route page's side tab, before the gear page creates its own
+local gearFirst = #created + 1
 ns.AttachGear()
+local gearPage = created[gearFirst]
 routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
 local function Widget(frame)
 	return {
@@ -914,7 +945,74 @@ for _, line in ipairs(TooltipLines(tooltip)) do
 	reagent[#reagent + 1] = { left = line.left, color = Rgb(line.color) }
 end
 
-io.write(Json({ route = route, tracker = tracker, trainer = trainer, reagent = reagent }))
+-- The crafted gear page: its doll and detail pane, after its tab is selected. The slot's pick and every
+-- row is the addon's own listing rule, read back from the frames it filled.
+ns.GearTab.scripts.OnMouseUp(nil, "LeftButton", true)
+gearPage.Slots[STATE.gearSelected].scripts.OnClick()
+
+local function GearItem(item)
+	if not item then
+		return nil
+	end
+	return {
+		recipeID = item.recipeID,
+		itemID = item.itemID,
+		skill = item.skill,
+		level = item.level,
+		profession = item.profession,
+		state = item.state,
+	}
+end
+
+local function GearRow(row)
+	return {
+		shown = rawget(row, "shown") == true,
+		icon = rawget(row.Icon, "texture"),
+		text = rawget(row.Text, "text"),
+		detail = rawget(row.Detail, "text"),
+	}
+end
+
+local gear = {
+	showAll = rawget(gearPage.ShowAll, "checked") == true,
+	showAllLabel = rawget(gearPage.ShowAllLabel, "text"),
+	slots = {},
+	reagents = {},
+	others = {},
+	detail = {},
+}
+for index, button in ipairs(gearPage.Slots) do
+	gear.slots[index] = {
+		checked = rawget(button, "checked") == true,
+		selected = rawget(button.select, "shown") == true,
+		mark = rawget(button.mark, "shown") == true,
+		icon = rawget(button.icon, "texture"),
+		borderShown = rawget(button.border, "shown") == true,
+		item = GearItem(rawget(button, "item")),
+	}
+end
+local detail = gearPage.Detail
+gear.detail = {
+	name = rawget(detail.Name, "text"),
+	requirement = rawget(detail.Requirement, "text"),
+	learn = rawget(detail.Learn, "text"),
+	state = rawget(detail.State, "text"),
+	reagentsShown = rawget(detail.Reagents, "shown") == true,
+	action = { text = rawget(detail.Action, "text"), enabled = rawget(detail.Action, "enabled") == true },
+	alsoShown = rawget(detail.Also, "shown") == true,
+	empty = rawget(detail.Empty, "text"),
+	emptyShown = rawget(detail.Empty, "shown") == true,
+	bodyShown = rawget(detail.Body, "shown") == true,
+	icon = rawget(detail.Icon, "texture"),
+}
+for _, row in ipairs(detail.ReagentRows) do
+	gear.reagents[#gear.reagents + 1] = GearRow(row)
+end
+for _, row in ipairs(detail.OtherRows) do
+	gear.others[#gear.others + 1] = GearRow(row)
+end
+
+io.write(Json({ route = route, tracker = tracker, trainer = trainer, reagent = reagent, gear = gear }))
 """
 
 
@@ -962,6 +1060,7 @@ def lua_scene(ui):
         "professions": professions,
         "professionIndices": list(range(1, len(professions) + 1)),
         "open": {"name": "Leatherworking", "skillLine": 165, "rank": SKILL, "max": MAX_SKILL},
+        "gearSelected": GEAR_SELECTED,
         "tooltipItem": TOOLTIP_ITEM,
         "atlases": addon_atlases(ui),
         "colors": COLORS,
@@ -1039,6 +1138,7 @@ SKILL_UP_ICONS = {
 
 SELECTED = 1229432  # Camp Tent
 HOVERED = 9059  # Handstitched Leather Bracers
+GEAR_SELECTED = 8  # Waist: the gear page's detail pane shows the Handstitched Leather Belt
 
 
 # GetCoinTextureString asks for 14-unit coins, but in the real captures they come out the height of the
@@ -1352,13 +1452,16 @@ def create_controls(canvas, fx, fy, count):
     canvas.draw(ui.texture("interface/buttons/ui-spellbookicon-prevpage-up.blp"), ix - 5 - 6 - 23 + 5, iy - 1, 23, 22)
 
 
-def profession_tabs(canvas, fx, fy, selected):
-    """The side tabs on the frame's right: overview, one per profession, then SkillUp's route tab ("route")."""
+def profession_tabs(canvas, fx, fy, selected, gear_tab=False):
+    """The side tabs on the frame's right: overview, one per profession, then SkillUp's route tab ("route")
+    and, when that setting is on, its crafted gear tab ("gear") below it."""
     x, y = fx + FRAME_W, fy + 60
     y += side_tab(canvas, x, y, OVERVIEW_TAB_ICON) + 2
     for name, icon, *_ in PROFESSIONS:
         y += side_tab(canvas, x, y, icon, selected=name == selected) + 2
-    side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp", selected=selected == "route")
+    y += side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp", selected=selected == "route") + 2
+    if gear_tab:
+        side_tab(canvas, x, y, "interface/icons/inv_chest_chain_05.blp", selected=selected == "gear")
 
 
 # The overview tab's Interface/ICONS/INV_SideTab_Professions_c60 is in neither the community listfile nor
@@ -1569,6 +1672,211 @@ def route_frame(ui, scene_data):
     return canvas
 
 
+# The crafted gear page: the doll's slot art, the item borders and the detail pane's own numbers.
+GEAR_ICON, GEAR_SLOT_GAP, GEAR_ROW_H = 37, 6, 40
+GEAR_SLOT_ART = (
+    "Head",
+    "Neck",
+    "Shoulder",
+    "Back",
+    "Chest",
+    "Wrist",
+    "Hands",
+    "Waist",
+    "Legs",
+    "Feet",
+    "Finger",
+    "Trinket",
+    "MainHand",
+    "SecondaryHand",
+    "Ranged",
+)
+GEAR_LEFT, GEAR_RIGHT, GEAR_BOTTOM = (0, 1, 2, 3, 4, 5), (6, 7, 8, 9, 10, 11), (12, 13, 14)
+
+
+def gear_quality(ui, item_id):
+    """C_Item.GetItemQualityColor: the quality colour the addon tints a slot's border with."""
+    return QUALITY_TEXT[ui.item(item_id).quality]
+
+
+def gear_requirement(subclass_names, item):
+    """UI/Gear.lua Requirement: the item's required level and type, from Item/ItemSubClass."""
+    kind = subclass_names.get((item.class_id, item.subclass_id))
+    if item.required_level <= 0:
+        return kind or ""
+    if kind:
+        return f"Level {item.required_level} {kind}"
+    return f"Level {item.required_level}"
+
+
+def gear_slot(canvas, x, y, index, slot):
+    """SetSlot: the pick's icon in its quality border with the game's known mark, or the sheet's own empty
+    art, dimmed, with the stock checked highlight over a selected slot."""
+    ui = canvas.ui
+    item = slot.get("item")
+    if item:
+        item_id = item["itemID"]
+        canvas.draw(ui.texture(ui.item(item_id).icon), x, y, GEAR_ICON, GEAR_ICON)
+        canvas.draw(
+            ui.texture("interface/common/whiteiconframe.blp"), x, y, GEAR_ICON, GEAR_ICON, gear_quality(ui, item_id)
+        )
+        if slot.get("mark"):
+            mark = ui.atlas("checkmark-minimal")
+            canvas.draw(mark, x + GEAR_ICON + 3 - mark.width, y + GEAR_ICON + 3 - mark.height)
+    else:
+        art = ui.texture(f"interface/paperdoll/ui-paperdoll-slot-{GEAR_SLOT_ART[index].lower()}.blp")
+        # SetDesaturated(true) keeps the art's alpha; convert through L so the transparent corners stay clear.
+        canvas.draw(art.convert("LA").convert("RGBA"), x, y, GEAR_ICON, GEAR_ICON)
+    if slot.get("selected"):
+        canvas.draw(ui.texture("interface/buttons/checkbuttonhilight.blp"), x, y, GEAR_ICON, GEAR_ICON, blend="ADD")
+
+
+def gear_row(canvas, x, y, w, row, text_color=None):
+    """UI/Gear.lua CreateRow/FillRow: the icon in its border, a name and a line under it."""
+    ui = canvas.ui
+    icon = row.get("icon") or ""
+    item_id = int(icon[5:]) if icon.startswith("item:") else None
+    if item_id:
+        canvas.draw(ui.texture(ui.item(item_id).icon), x, y + (GEAR_ROW_H - GEAR_ICON) / 2, GEAR_ICON, GEAR_ICON)
+        canvas.draw(
+            ui.texture("interface/common/whiteiconframe.blp"),
+            x,
+            y + (GEAR_ROW_H - GEAR_ICON) / 2,
+            GEAR_ICON,
+            GEAR_ICON,
+            gear_quality(ui, item_id),
+        )
+    text_x, text_w = x + GEAR_ICON + 8, w - GEAR_ICON - 8
+    text_y = y + (GEAR_ROW_H - GEAR_ICON) / 2 + 2
+    detail = expand(ui, row.get("detail") or "")
+    covered = detail in ("You know it", "Can learn it")
+    if "/" in detail:
+        have, need = detail.split("/", 1)
+        covered = have.strip().isdigit() and need.strip().isdigit() and int(have) >= int(need)
+    canvas.text(
+        text_x,
+        text_y,
+        fit_text(canvas, expand(ui, row.get("text") or ""), F_HIGHLIGHT, text_w),
+        F_HIGHLIGHT,
+        text_color or WHITE,
+    )
+    canvas.text(
+        text_x,
+        text_y + F_HIGHLIGHT.height + 2,
+        fit_text(canvas, detail, F_NORMAL, text_w),
+        F_NORMAL,
+        COLORS["green"] if covered else COLORS["unknown"],
+    )
+
+
+def gear_detail(canvas, x, y, w, detail, subclass_names):
+    """RenderDetail: the selected slot's pick, its facts, its reagents and one action button."""
+    ui = canvas.ui
+    if detail.get("emptyShown"):
+        for index, line in enumerate(wrap_text(canvas, expand(ui, detail.get("empty") or ""), F_NORMAL, w)):
+            canvas.text(x, y + index * F_NORMAL.height, line, F_NORMAL)
+        return
+    if not detail.get("bodyShown"):
+        return
+    item_id = int(detail["icon"][5:])
+    item = ui.item(item_id)
+    canvas.draw(ui.texture(item.icon), x, y, 47, 47)
+    canvas.draw(ui.texture("interface/common/whiteiconframe.blp"), x, y, 47, 47, gear_quality(ui, item_id))
+    text_x, text_w = x + 47 + 10, w - 47 - 10 - 8
+    name_font, normal_font, state_font = FONTS["GameFontNormalLarge"], F_NORMAL, FONTS["GameFontHighlight"]
+    canvas.text(
+        text_x,
+        y + 2,
+        fit_text(canvas, item.name, name_font, text_w),
+        name_font,
+        gear_quality(ui, item_id),
+    )
+    requirement_y = y + 2 + name_font.height + 2
+    canvas.text(text_x, requirement_y, gear_requirement(subclass_names, item), normal_font)
+    learn_y = requirement_y + normal_font.height + 2
+    canvas.text(text_x, learn_y, expand(ui, detail.get("learn") or ""), normal_font)
+    state_y = learn_y + normal_font.height + 2
+    known = detail.get("state") in ("You know it", "Can learn it")
+    canvas.text(
+        text_x,
+        state_y,
+        expand(ui, detail.get("state") or ""),
+        state_font,
+        COLORS["green"] if known else COLORS["unknown"],
+    )
+    heading_y = state_y + state_font.height + 12
+    below = heading_y + normal_font.height
+    reagents = [row for row in detail.get("reagents", []) if row.get("shown")]
+    if detail.get("reagentsShown"):
+        canvas.text(x, heading_y, "Reagents", normal_font)
+        if reagents:
+            tops = [heading_y + normal_font.height + 2, heading_y + normal_font.height + 2]
+            for index, row in enumerate(reagents):
+                column = index % 2
+                row_x = x if column == 0 else x + w / 2 + 4
+                row_w = w / 2 - 4 if column == 0 else w / 2 - 4 - 8
+                gear_row(canvas, row_x, tops[column], row_w, row)
+                tops[column] += GEAR_ROW_H + 2
+            below = tops[(len(reagents) - 1) % 2] - 2
+    action_y = below + 10
+    action = detail.get("action", {})
+    panel_button(canvas, x, action_y, 130, 22, expand(ui, action.get("text") or ""), action.get("enabled", True))
+    if detail.get("alsoShown"):
+        also_y = action_y + 22 + 10
+        canvas.text(x, also_y, "Also for this slot", normal_font)
+        tops = also_y + normal_font.height + 2
+        for row in detail.get("others", []):
+            if row.get("shown"):
+                icon = row.get("icon") or ""
+                text_color = gear_quality(ui, int(icon[5:])) if icon.startswith("item:") else None
+                gear_row(canvas, x, tops, w, row, text_color)
+                tops += GEAR_ROW_H
+
+
+def gear_scene(ui, scene_data):
+    """The Professions window on SkillUp's crafted gear tab: Gear.lua's page where the crafting page was."""
+    gear = scene_data["gear"]
+    subclass_names = {
+        (int(row["ClassID"]), int(row["SubClassID"])): row["VerboseName_lang"] or row["DisplayName_lang"]
+        for row in ui.wago.db2("ItemSubClass")
+    }
+    m = FRAME_MARGIN
+    canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m)
+    fx, fy = m, m
+    canvas.draw(ui.atlas("Profession-Background-Overview"), fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23)
+    inset_x, inset_y, inset_w, inset_h = fx + 16, fy + 88, FRAME_W - 32, FRAME_H - 132
+    inset_frame(canvas, inset_x, inset_y, inset_w, inset_h, "Crafted gear")
+    # The doll: six slots down each side, then the three weapon slots along the bottom.
+    for position, index in enumerate(GEAR_LEFT + GEAR_RIGHT):
+        side, row = divmod(position, 6)
+        x = inset_x + 10 if side == 0 else inset_x + inset_w - 10 - GEAR_ICON
+        y = inset_y + 10 + row * (GEAR_ICON + GEAR_SLOT_GAP)
+        gear_slot(canvas, x, y, index, gear["slots"][index])
+    for position, index in enumerate(GEAR_BOTTOM):
+        offset = (position - 1) * (GEAR_ICON + GEAR_SLOT_GAP)
+        x = inset_x + inset_w / 2 + offset - GEAR_ICON / 2
+        y = inset_y + inset_h - 12 - GEAR_ICON
+        gear_slot(canvas, x, y, index, gear["slots"][index])
+    # The show-all switch, its label to the left of the box, above the inset's top-right.
+    box = 32
+    box_x, box_y = inset_x + inset_w - box, inset_y - 8 - box
+    canvas.draw(ui.texture("interface/buttons/ui-checkbox-up.blp"), box_x, box_y, box, box)
+    if gear.get("showAll"):
+        canvas.draw(ui.texture("interface/buttons/ui-checkbox-check.blp"), box_x, box_y, box, box)
+    label = expand(ui, gear.get("showAllLabel") or "")
+    canvas.text(
+        box_x - 4 - canvas.text_width(label, F_NORMAL),
+        box_y + (box - F_NORMAL.height) / 2,
+        label,
+        F_NORMAL,
+    )
+    detail = dict(gear["detail"], reagents=gear.get("reagents", []), others=gear.get("others", []))
+    gear_detail(canvas, inset_x + 56, inset_y + 10, inset_w - 112, detail, subclass_names)
+    profession_tabs(canvas, fx, fy, "gear", gear_tab=True)
+    portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, 136247, "Leatherworking")
+    return scene(ui, [(canvas, 0, 0)])
+
+
 def tracker_scene(ui, scene_data):
     """ObjectiveTrackerFrame with SkillUp's section laid out by Shopping.lua's LayoutContents."""
     tracker = scene_data["tracker"]
@@ -1721,6 +2029,7 @@ def main():
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
     data = lua_scene(ui)
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")
+    gear_scene(ui, data).save(OUT / "gear.png")
     tracker_scene(ui, data).save(OUT / "tracker.png")
     trainer_scene(ui, data).save(OUT / "trainer.png")
     reagent_tooltip(ui, data).save(OUT / "reagent.png")

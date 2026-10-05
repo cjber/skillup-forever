@@ -8,7 +8,7 @@ Classic profession-levelling numbers inside WoW: Forever's Professions window.<b
 <a href="https://github.com/cjber/skillup-forever/releases/latest"><img src="https://img.shields.io/github/v/release/cjber/skillup-forever" alt="Latest release"></a>
 </p>
 
-WoW: Forever's Professions window shows a recipe's colour, but not when it turns yellow, green or grey, or your next craft's skill-up chance. SkillUp adds those numbers to the window's own rows and tooltips, a levelling route, the same numbers at the trainer, and recipe uses on reagent tooltips. It looks like it came with the game.
+WoW: Forever's Professions window shows a recipe's colour, but not when it turns yellow, green or grey, or your next craft's skill-up chance. SkillUp adds those numbers to the window's own rows and tooltips, a levelling route with its shopping list, the same numbers at the trainer, a crafted gear page, and recipe uses on reagent tooltips. It looks like it came with the game.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif" width="640" alt="Leatherworking levelling from 48 to 60 in the Professions window"></p>
 
@@ -18,21 +18,29 @@ From 48 to 60 the rows re-sort by cost per skill-up, and Handstitched Leather Br
 
 Each row shows its chance and cost, with the tooltip breaking it down per reagent. This character skins, so Light Leather is free.
 
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tooltip.png" width="640" alt="A recipe tooltip with the orange, yellow, green and grey thresholds on a bar, your skill marked, and each reagent's price and cost per skill-up"></p>
+
+The recipe tooltip draws the thresholds on the game's own bar with your skill marked, then each reagent's price and the cost per skill-up.
+
 ## Features
 
 - **Recipe rows** show your chance of a skill-up and what each costs, coloured by difficulty: `62% · 45s`. Required skill is optional; a recipe you can't make yet shows its requirement, in red.
 - **Recipe tooltips** show the orange, yellow, green and grey thresholds on a bar, with your current skill marked, in the window's own style.
 - **Cost per skill-up** divides reagent cost by skill-up chance, on the row and per reagent. See [Prices](#prices).
 - **Sorting** by required skill, chance or cheapest skill-up, from *Sort by* in the recipe list's Filter menu. *Default* restores the game's categories; its filters still apply.
-- **Levelling route**: a tab beside the window opens a SkillUp page. Type a target skill and it lists the cheapest crafts as the game lists an item: a full icon, the recipe's name and, under it, the crafts, the skill it reaches and the cost, with trainer steps, fees and total. Each step asks for enough crafts to cover an unlucky run, not just the average, so the shopping list lasts; *Craft* makes the first step. A route that stops short lists vendor, quest and drop recipes that would. [More](docs/route.md#levelling-route).
-- **Shopping list**: every reagent the route needs, how many you have, green once covered. *Track* puts it beside your quests; *Buy tracked reagents* buys what a vendor sells; with Auctionator it keeps a shopping list up to date as you buy, craft and skill up. Gathered reagents are free. [More](docs/route.md#shopping-list).
+- **Levelling route**: a tab beside the window opens a SkillUp page. Type a target skill and it lists the cheapest crafts as the game lists an item: a full icon, the recipe's name and, under it, the crafts, the skill it reaches and the cost, with trainer steps, fees and total. A reagent a recipe you know makes and crafting it beats buying becomes its own step, and a step names the tool and the station it needs. Each step asks for enough crafts to cover an unlucky run, not just the average, so the shopping list lasts; *Craft* makes the first step and *Nearest vendor* points to the closest vendor for what the route still buys. A route that stops short lists vendor, quest and drop recipes that would. [More](docs/route.md#levelling-route).
+- **Shopping list**: every reagent the route needs, how many you have, green once covered. *Buy reagents* in the route header chooses whether a reagent another of your professions gathers is free to gather or bought at a vendor or the auction house. *Track* puts it beside your quests, and opening the profession you are levelling tracks it on its own; *Buy tracked reagents* buys what a vendor sells; with Auctionator it keeps a shopping list up to date as you buy, craft and skill up. [More](docs/route.md#shopping-list).
 - **Profession trainer**: recipes show their row text (`62% · 45s`), and the one that most cheapens or extends your route gets a green arrow, fee included. An unknown recipe shows `?`.
 - **Reagent tooltips**: hovering an item shows what your tracked routes need. Hold Shift for every recipe of your professions that uses it and still skills up, with its colour: `Heavy Linen Bandage    yellow until 115`.
-- **Crafted gear**: a *Gear* tab beside the window draws your character sheet again, one item a slot down both sides and the weapon slots along the bottom, each showing the newest thing you could craft for it. The pane in the middle names the pick, the skill its recipe is learned at, its state, its reagents with how many you have, and one button to open the recipe or walk to where it is taught. Not a best-in-slot list. [More](docs/gear.md).
+- **Crafted gear**: a *Gear* tab beside the window, turned on in settings, draws your character sheet again, one item a slot down both sides and the weapon slots along the bottom, each showing the newest thing you could craft for it. The pane in the middle names the pick, the skill its recipe is learned at, its state, its reagents with how many you have, and one button to open the recipe or walk to where it is taught. Not a best-in-slot list. [More](docs/gear.md).
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
 
 The route tab from 48 to 73: train the vest, craft 28, and where reagents come from.
+
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/gear.png" width="640" alt="The Crafted gear tab: item slots down both sides and along the bottom, each showing the newest crafted item, with one slot's recipe, reagents and status in the middle"></p>
+
+The gear tab, turned on in settings: each slot shows the newest thing this character could craft for it, with the pick's recipe, reagents and status in the middle.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png" width="320" alt="The objective tracker with Leatherworking to 73, the next training step and two missing reagents"></p>
 
@@ -59,7 +67,7 @@ Open a profession and the numbers are already there.
 | `/su`, `/skillup` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 
-Settings cover rows and tooltips, what crafts count for, sort order, the route tab, trainer annotations, reagent tooltips and companion hints.
+Settings cover rows and tooltips, what crafts count for, sort order, the route and crafted gear tabs, trainer annotations, reagent tooltips and companion hints.
 
 > **Settings and prices reset on reload?** A known Forever beta bug, not this addon ([forever-bugs#34](https://github.com/ClassicWoWCommunity/forever-bugs/issues/34)). It keeps working; prices are relearned each session.
 
@@ -82,7 +90,7 @@ Each recipe has four thresholds: orange (required skill), yellow, green and grey
 | Yellow, green | `(grey − skill) / (grey − yellow)` |
 | Grey, or at your skill cap | 0% |
 
-The colour always comes from the game, so the addon never disagrees. Thresholds and recipe data come from the Forever client's `SkillLineAbility` (via [wago.tools](https://wago.tools)); where it agrees, the Skillet-Classic baseline fills in orange. Missing data shows `?`.
+The colour always comes from the game, so the addon never disagrees. Thresholds and recipe data come from the Forever client's `SkillLineAbility` (via [wago.tools](https://wago.tools)); where it agrees, the Skillet-Classic baseline fills in orange, and the grey threshold is the game's own live value where it reports one. Missing data shows `?`.
 
 **Found a wrong number?** Run `/su audit` with that profession open and [open an issue](https://github.com/cjber/skillup-forever/issues/new) with the output.
 

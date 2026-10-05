@@ -1212,7 +1212,9 @@ def recipe_tooltip_lines(ui, recipe_id):
     return lines, bar_line
 
 
-BAR_WIDTH, BAR_HEIGHT, MIN_LABEL_GAP = 250, 12, 18  # UI/Tooltip.lua
+BAR_WIDTH, MIN_LABEL_GAP = 250, 18  # UI/Tooltip.lua
+BAR_SCALE = BAR_WIDTH / 439
+BAR_HEIGHT = 18 * BAR_SCALE
 BAR_FRAME_HEIGHT = BAR_HEIGHT + 30
 BAR_PADDING = 4  # GameTooltip_InsertFrame(tooltip, bar, 4)
 
@@ -1228,8 +1230,8 @@ def skill_bar(ui, t, skill):
     labels and the pip at the player's skill. Returns a canvas with the frame's TOPLEFT at (m, m)."""
     m = 8
     canvas = ui.canvas(BAR_WIDTH + 2 * m, BAR_FRAME_HEIGHT + 2 * m)
-    s = BAR_HEIGHT / 18
-    canvas.draw(ui.atlas("Professions-skillbar-bg"), m - 5 * s, m - 3 * s, BAR_WIDTH + 12 * s, 29 * s)
+    s = BAR_SCALE
+    canvas.draw(ui.atlas("Professions-skillbar-bg"), m - 5 * s, m - 3 * s, 451 * s, 29 * s)
     lo, hi = t[0], t[3] + max(3, math.floor((t[3] - t[0]) * 0.12 + 0.5))
 
     def x_of(value):
@@ -1241,7 +1243,7 @@ def skill_bar(ui, t, skill):
         left, right = x_of(edges[i]), x_of(edges[i + 1])
         if right > left:
             canvas.draw(band, m + left, m, max(right - left, 0.1), BAR_HEIGHT, COLORS[color])
-    canvas.draw(ui.atlas("Professions-skillbar-frame"), m - 5 * s, m - 3 * s, BAR_WIDTH + 10 * s, 29 * s)
+    canvas.draw(ui.atlas("Professions-skillbar-frame"), m - 5 * s, m - 3 * s, 451 * s, 29 * s)
     marker_h = BAR_HEIGHT * 1.3
     marker_w = marker_h * 10 / 14
     mx = x_of(skill)

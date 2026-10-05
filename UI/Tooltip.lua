@@ -4,7 +4,9 @@ local L = ns.L
 
 local BAR_WIDTH = 250
 local MIN_LABEL_GAP = 18
-local BAR_HEIGHT = 12
+-- ProfessionsRankBarTemplate's proportions: a fill 439 by 18 inside art 451 by 29, at the tooltip bar's width.
+local BAR_SCALE = BAR_WIDTH / 439
+local BAR_HEIGHT = 18 * BAR_SCALE
 -- The fill texture Blizzard's rank bars use; tinted per difficulty band.
 local BAND_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar"
 -- Forever's rested-XP pip, taller than it is wide.
@@ -14,8 +16,8 @@ local MARKER_HEIGHT = BAR_HEIGHT * 1.3
 ---@type SkillUpBar
 local bar
 
--- The profession window's header skill bar (ProfessionsRankBarTemplate art),
--- scaled from its native 18px height down to tooltip size.
+-- The profession window's header skill bar (ProfessionsRankBarTemplate art), scaled down to tooltip size at its
+-- own aspect.
 local function CreateBar()
 	local frame = CreateFrame("Frame", nil, UIParent) --[[@as SkillUpBar]]
 	frame:SetSize(BAR_WIDTH, BAR_HEIGHT + 30)
@@ -25,15 +27,12 @@ local function CreateBar()
 	track:SetSize(BAR_WIDTH, BAR_HEIGHT)
 	frame.track = track
 
-	local scale = BAR_HEIGHT / 18
 	local bg = track:CreateTexture(nil, "BACKGROUND")
-	bg:SetAtlas("Professions-skillbar-bg") -- art-ok: the rank bar's backing, stretched to the bar's width as a bar is
-	bg:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
-	bg:SetSize(BAR_WIDTH + 12 * scale, 29 * scale)
+	ns.Art.Fit(bg, "Professions-skillbar-bg", 451 * BAR_SCALE, 29 * BAR_SCALE)
+	bg:SetPoint("TOPLEFT", -5 * BAR_SCALE, 3 * BAR_SCALE)
 	local border = track:CreateTexture(nil, "OVERLAY")
-	border:SetAtlas("Professions-skillbar-frame") -- art-ok: the rank bar's frame, stretched to the bar's width as a bar is
-	border:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
-	border:SetSize(BAR_WIDTH + 10 * scale, 29 * scale)
+	ns.Art.Fit(border, "Professions-skillbar-frame", 451 * BAR_SCALE, 29 * BAR_SCALE)
+	border:SetPoint("TOPLEFT", -5 * BAR_SCALE, 3 * BAR_SCALE)
 
 	frame.segments = {}
 	for i, color in ipairs({ "orange", "yellow", "green", "grey" }) do

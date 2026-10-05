@@ -93,6 +93,8 @@ client's own DB2 tables through wago.tools, not a classic-db dump: they stay as 
 ## Secure UI regression checks
 
 `tools/typecheck.sh` checks the TOC/XML load graph, LuaLS coverage and `tools/lint_taint.py`.
+`tools/forever_tools/` is the shared tooling (cjber/skills, `wow-forever-addon/tooling`), vendored byte for byte: never edit it here.
+`python3 tools/forever_tools/sync.py check` verifies it offline; `sync.py update --source <checkout>` is the only way to refresh it.
 Do not hook Blizzard object methods: use events, `HookScript` or a supported callback registry.
 Keep addon tracker sections and pools in `UI/TrackerHost.lua`, outside Blizzard's registry.
 Render only after `PLAYER_ENTERING_WORLD` and `VARIABLES_LOADED`, deferred one frame.

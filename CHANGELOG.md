@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-10-05
+
 - **The tooltip's skill bar keeps the game's own shape.** The bar under a recipe's tooltip was drawn narrower than the profession window's bar it copies, which squashed its end caps. It is drawn at the game's proportions, a little slimmer than before.
 
 ## [0.8.0] - 2026-10-05

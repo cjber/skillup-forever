@@ -54,7 +54,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 }
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
-ns.WHATS_NEW = L["A crafted gear view, one click vendor runs, and a route page drawn the game's way."]
+ns.WHATS_NEW = L["Recipe tooltips keep the profession bar's own proportions."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

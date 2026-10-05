@@ -4,6 +4,11 @@
 import json
 import urllib.request
 
+try:
+    from tools.forever_tools.latest_build import latest, version_key
+except ModuleNotFoundError:
+    from forever_tools.latest_build import latest, version_key
+
 USER_AGENT = "SkillUpForever/1.0"
 
 
@@ -15,13 +20,13 @@ def newest(product, prefix):
     versions = [b["version"] for b in builds if b["version"].startswith(prefix)]
     if not versions:
         raise SystemExit(f"no {prefix}x build of {product} listed on wago.tools")
-    return max(versions, key=lambda v: tuple(int(p) for p in v.split(".")))
+    return max(versions, key=version_key)
 
 
 def forever():
-    # wow_classic_beta carries other Classic betas too; Forever builds are 1.6x.
-    return newest("wow_classic_beta", "1.6")
+    """The newest Forever build; wow_classic_beta carries other Classic betas too, and Forever builds are 1.6x."""
+    return latest(USER_AGENT)
 
 
 if __name__ == "__main__":
-    print(forever())
+    print(latest(USER_AGENT))

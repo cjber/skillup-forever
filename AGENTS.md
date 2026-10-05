@@ -16,8 +16,7 @@ python3 tools/check_generated.py   # regenerate in a disposable tree; require fr
 python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check
 ```
 
-The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and history, and sift's
-structural and `AGENTS.md` checks.
+The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and history.
 Every version needs a `CHANGELOG.md` entry (prose, bold-lead bullets) before its `v*` tag: the release
 publishes it as the notes.
 
@@ -44,7 +43,7 @@ publishes it as the notes.
 - `Locales/` — `enUS.lua` makes `ns.L`, keyed by the English phrase; a translation is `Locales/<locale>.lua` listed
   after it in the TOC (`Locales/README.md`). Player-visible text is a whole `L["..."]` phrase (format strings
   included); after changing one, `python3 tools/phrases.py > Locales/phrases.txt`. `tests/locale_spec.lua` checks
-  both, and that no packager localization keyword (which now fails the release) is in the tree.
+  both, and that no packager localization keyword (which fails the release) is in the tree.
 - `docs/curseforge.md` — the store description, pasted into CurseForge and Wago by hand.
 
 ## Rules
@@ -97,6 +96,8 @@ client's own DB2 tables through wago.tools, not a classic-db dump: they stay as 
 ## Secure UI regression checks
 
 `tools/typecheck.sh` checks the TOC/XML load graph, LuaLS coverage and `tools/lint_taint.py`.
+`tools/forever_tools/` is the shared tooling (cjber/skills, `wow-forever-addon/tooling`), vendored byte for byte: never edit it here.
+`python3 tools/forever_tools/sync.py check` verifies it offline; `sync.py update --source <checkout>` is the only way to refresh it.
 Do not hook Blizzard object methods: use events, `HookScript` or a supported callback registry.
 Keep addon tracker sections and pools in `UI/TrackerHost.lua`, outside Blizzard's registry.
 Render only after `PLAYER_ENTERING_WORLD` and `VARIABLES_LOADED`, deferred one frame.

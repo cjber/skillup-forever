@@ -71,7 +71,8 @@ equal(type(ns.Thresholds), "table", "generated namespace table")
 equal(Model.Get(-1), nil, "unknown recipe")
 equal(Model.Get(2152), ns.Thresholds[2152], "lookup uses recipe spell ID")
 -- These are spell IDs, not the output item IDs used by Skillet SkillLevels.
--- Sample every profession, including the new gathering-profession recipes.
+-- Sample every profession that levels by crafting, with recipes the client has always had: a
+-- recipe Forever adds can lose its skill range in a later build, and with it its thresholds.
 local samples = {
 	2152,
 	9058,
@@ -83,9 +84,6 @@ local samples = {
 	2540,
 	2657,
 	3275,
-	1229705,
-	1229745,
-	1229517,
 }
 for _, recipeID in ipairs(samples) do
 	local t = Model.Get(recipeID)

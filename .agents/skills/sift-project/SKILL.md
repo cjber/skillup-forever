@@ -87,7 +87,7 @@ Things reached indirectly. The dead-code lens must treat these as referenced.
 - `ns.WhenStale(name, fn)` and `ns.WhenEvent(event, fn)` — handlers Core/Changes.lua calls by cache/view name and by event; its `EVENTS` table registers the game events.
 - `RegisterEvent("…")` + `OnEvent` dispatch on the event string — handlers are reached by event name.
 - Optional integrations (`## OptionalDeps: Auctionator, TomTom, Syndicator, ShortestPathForever`) — code guarded by `if Auctionator` etc. is live only with that addon installed.
-- `tools/gen_*.py` public names imported by sibling generators; `tools/latest_build.py` and `tools/changelog.py` run from workflows.
+- `tools/gen_*.py` public names imported by sibling generators; `tools/bump_pins.py` (which imports `tools/latest_build.py`) and `tools/changelog.py` run from workflows.
 - `tools/screenshots.py` — run by hand (WFA-9) to rewrite `docs/screenshots/`; the route, tracker, trainer and reagent scenes run the addon's own Lua under luajit, while the recipe-list scenes port Model/Core maths to Python, so check its ports against the Lua (`round_money` vs `Model.RoundMoney`) rather than treating it as its own source of truth.
 
 ## Zones

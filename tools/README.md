@@ -11,6 +11,27 @@ tools/typecheck.sh
 for s in tests/*_spec.lua; do luajit "$s" || exit 1; done
 ```
 
+## Pins
+
+`python3 tools/bump_pins.py` moves each pin to its newest upstream and prints what moved, or
+nothing when all are current. `.github/workflows/refresh-data.yml` runs it daily, regenerates,
+runs the specs and opens a pull request; a scheduled run that fails opens the issue "Data
+refresh failed", or comments on it while it is open, and the next passing run closes it.
+
+| Pin | In | Newest upstream |
+| --- | --- | --- |
+| `BUILD` | `gen_thresholds.py` | highest 1.6x build of `wow_classic_beta` on wago.tools (`tools/latest_build.py` prints it) |
+| `TEACH_BUILD` | `gen_trainer.py` | highest 1.1x build of `wow_classic_era` on wago.tools |
+| `SKILLET_COMMIT` | `gen_thresholds.py` | last Skillet-Classic commit that changed `SkillLevelData1.lua` |
+| `PT_COMMIT` | `gen_vendor.py` | last LibPeriodicTable commit that changed the Tradeskill file's bytes |
+| `CLASSICDB_COMMIT` | `gen_trainer.py` | moved by hand only: a waiver in `AGENTS.md` |
+
+`SOURCE_DATE` is set to the day a pin moved. `REVISION` in `fetch_tracker_ui.py` (the tracker UI
+shared with the other Forever addons) and the annotation revision in `typecheck.sh` are test
+inputs, moved by hand with the addons that share them.
+
+## Generators
+
 The generator pins a Forever build (`BUILD`) and a Skillet-Classic commit, caches
 downloads in `tools/.cache/`, and writes sorted `Data/Thresholds.lua`. Use
 `--refresh` to download again or `--offline` to require cached sources. The header
@@ -37,8 +58,12 @@ from the same build's `ItemSparse`) for the items in LibPeriodicTable-3.1's
 vendors sell is server data the client doesn't ship. Listed items missing from the
 build are reported and skipped; a stack count below one fails the run. It shares the build pin and cache with `gen_thresholds.py`.
 
+A recipe with no skill range in the build (`TrivialSkillLineRankHigh` not above
+`TrivialSkillLineRankLow`) never gives a skill-up and gets no row, so the addon shows `?` for it.
+
 `gen_recipes.py` writes `Data/Recipes.lua`, using only spell IDs already present in
-the same-build `Data/Thresholds.lua`. It imports the threshold generator's build,
+the same-build `Data/Thresholds.lua`. `ns.ProfessionSkillLines` names every profession the
+build has, including the gathering ones with no skill-up recipe. It imports the threshold generator's build,
 snapshot date, cache and profession discovery; run thresholds first when changing
 builds. All five generators accept `--offline` and `--refresh`. To verify the data
 is fresh and reproducible:

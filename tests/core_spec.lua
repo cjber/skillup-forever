@@ -57,6 +57,10 @@ for _, complete in ipairs({ false, true }) do
 		equal(callbacks.Blizzard_TrainerUI, ns.AttachTrainer, "trainer UI registered")
 		equal(ns.ProfessionSkillLine("Alchemy", 999), 171, "bundled name maps to skill line")
 		equal(ns.ProfessionSkillLine("Alchimie", 171), 171, "known reported skill line remains usable")
+		-- A gathering profession has no skill-up recipe, yet prices what it gathers by its skill line.
+		equal(ns.ProfessionSkillLine("Skinning", 999), 393, "a gathering profession maps by name")
+		equal(ns.ProfessionSkillLine("Herbalism", 999), 182, "a gathering profession maps by name")
+		equal(ns.ProfessionSkillLine("Fishing", 999), 356, "a gathering profession maps by name")
 		equal(ns.db.auctions, nil, "the old auction scan table is dropped")
 		equal(ns.db.tracked, nil, "the old scan list is dropped")
 		equal(ns.db.scanAuctions, nil, "the old scan setting is dropped")

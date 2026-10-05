@@ -197,7 +197,7 @@ COLORS = {  # Core/Core.lua ns.COLORS: the client's GlobalColor rows it names
 # first ones.
 SKILL, MAX_SKILL = 48, 75
 LEARNED = [2152, 2149, 9058, 9059, 7126, 2153, 3753, 3816, 9060, 9062, 2881, 1229432]
-UNLEARNED = [44953]  # Winter Boots: listed by Forever, taught by a Winter Veil quest
+UNLEARNED = [8322]  # Moonglow Vest: taught by a quest
 BAGS = {2318: 23}  # Light Leather
 AUCTION = {2318: 90, 783: 320, 2934: 8}  # Light Leather, Light Hide, Ruined Leather Scraps (copper), from Auctionator
 PROFESSIONS = [  # GetProfessions order, as the side tabs show them: name, icon, rank, max, skill line

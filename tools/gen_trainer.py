@@ -5,11 +5,11 @@ import argparse
 import gzip
 import sys
 import urllib.error
-import urllib.request
 from collections import Counter, defaultdict
 
+from forever_tools import wago
 from gen_recipes import put_unique, threshold_ids
-from gen_thresholds import BUILD, CACHE, LEARN_SPELL, ROOT, SKILL, db2
+from gen_thresholds import BUILD, CACHE, LEARN_SPELL, ROOT, SKILL, USER_AGENT, db2
 
 OUTPUT = ROOT / "Data" / "Trainer.lua"
 CLASSICDB_COMMIT = "22b51464f1625f6ef6275771de1f5466c6f5d19e"
@@ -26,16 +26,15 @@ TEACH_BUILD = "1.15.9.70003"
 
 def classicdb(refresh=False, offline=False):
     """The pinned classic-db dump's path, downloaded first if it isn't cached."""
-    if not CLASSICDB_CACHE.exists() or refresh:
-        if offline:
-            raise ValueError(f"Missing cached source: {CLASSICDB_CACHE}")
-        request = urllib.request.Request(CLASSICDB_URL, headers={"User-Agent": "SkillUpForever/1.0"})
-        with urllib.request.urlopen(request, timeout=120) as response:
-            data = response.read()
-        temporary = CLASSICDB_CACHE.with_suffix(".tmp")
-        CACHE.mkdir(parents=True, exist_ok=True)
-        temporary.write_bytes(data)
-        temporary.replace(CLASSICDB_CACHE)
+    wago.fetch(
+        CLASSICDB_URL,
+        CLASSICDB_CACHE,
+        user_agent=USER_AGENT,
+        refresh=refresh,
+        offline=offline,
+        timeout=120,
+        validate=gzip.decompress,
+    )
     return CLASSICDB_CACHE
 
 

@@ -987,6 +987,7 @@ end
 
 local function CreateTab()
 	tab = CreateFrame("Frame", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
+	-- art-ok: a square icon in the square LargeSideTabButtonTemplate sizes for it
 	tab.Icon:SetTexture("Interface\\Icons\\INV_Scroll_03")
 	tab:SetFillToInterior(true)
 	tab.tooltipText = L["Levelling route"]

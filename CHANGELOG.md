@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **The tooltip's skill bar keeps the game's own shape.** The bar under a recipe's tooltip was drawn narrower than the profession window's bar it copies, which squashed its end caps. It is drawn at the game's proportions, a little slimmer than before.
+
 ## [0.8.0] - 2026-10-05
 
 - **The route reads the game's own recipe numbers and crafts what it can make cheaper.** A recipe's grey threshold now comes from the client where it reports one, with the bundled yellow and green kept under it, so the chance a row shows matches what the profession window implies. A craft that grants several skill points is counted and priced for every point, so the route asks for fewer crafts where the client says so. When a reagent is made by a recipe you know and crafting it beats buying, it becomes its own step before the craft that needs it (for example *Craft 3 Cured Light Hide*) and the shopping list names the raw materials it is made from, followed three levels deep and never through a cycle. Recipes also report the tool and station they need from the client: a step names where it is made, and a tool you are not carrying disables *Craft next* with the reason and joins the shopping list once. Reading a profession's recipe list now happens once per burst of window events instead of once per event.

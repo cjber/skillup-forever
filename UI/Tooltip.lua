@@ -4,18 +4,20 @@ local L = ns.L
 
 local BAR_WIDTH = 250
 local MIN_LABEL_GAP = 18
-local BAR_HEIGHT = 12
+-- ProfessionsRankBarTemplate's proportions: a fill 439 by 18 inside art 451 by 29, at the tooltip bar's width.
+local BAR_SCALE = BAR_WIDTH / 439
+local BAR_HEIGHT = 18 * BAR_SCALE
 -- The fill texture Blizzard's rank bars use; tinted per difficulty band.
 local BAND_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar"
--- Forever's rested-XP pip, 10x14 native.
+-- Forever's rested-XP pip, taller than it is wide.
 local MARKER_ATLAS = "ui-hud-experiencebar-frame-pip-camelot"
 local MARKER_HEIGHT = BAR_HEIGHT * 1.3
 
 ---@type SkillUpBar
 local bar
 
--- The profession window's header skill bar (ProfessionsRankBarTemplate art),
--- scaled from its native 18px height down to tooltip size.
+-- The profession window's header skill bar (ProfessionsRankBarTemplate art), scaled down to tooltip size at its
+-- own aspect.
 local function CreateBar()
 	local frame = CreateFrame("Frame", nil, UIParent) --[[@as SkillUpBar]]
 	frame:SetSize(BAR_WIDTH, BAR_HEIGHT + 30)
@@ -25,20 +27,17 @@ local function CreateBar()
 	track:SetSize(BAR_WIDTH, BAR_HEIGHT)
 	frame.track = track
 
-	local scale = BAR_HEIGHT / 18
 	local bg = track:CreateTexture(nil, "BACKGROUND")
-	bg:SetAtlas("Professions-skillbar-bg")
-	bg:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
-	bg:SetSize(BAR_WIDTH + 12 * scale, 29 * scale)
+	ns.Art.Fit(bg, "Professions-skillbar-bg", 451 * BAR_SCALE, 29 * BAR_SCALE)
+	bg:SetPoint("TOPLEFT", -5 * BAR_SCALE, 3 * BAR_SCALE)
 	local border = track:CreateTexture(nil, "OVERLAY")
-	border:SetAtlas("Professions-skillbar-frame")
-	border:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
-	border:SetSize(BAR_WIDTH + 10 * scale, 29 * scale)
+	ns.Art.Fit(border, "Professions-skillbar-frame", 451 * BAR_SCALE, 29 * BAR_SCALE)
+	border:SetPoint("TOPLEFT", -5 * BAR_SCALE, 3 * BAR_SCALE)
 
 	frame.segments = {}
 	for i, color in ipairs({ "orange", "yellow", "green", "grey" }) do
 		local seg = track:CreateTexture(nil, "ARTWORK", nil, 1)
-		seg:SetTexture(BAND_TEXTURE)
+		seg:SetTexture(BAND_TEXTURE) -- art-ok: a status bar fill, stretched to its band
 		seg:SetVertexColor(ns.COLORS[color]:GetRGB())
 		seg:SetHeight(BAR_HEIGHT)
 		frame.segments[i] = seg
@@ -50,8 +49,7 @@ local function CreateBar()
 	end
 
 	frame.marker = track:CreateTexture(nil, "OVERLAY", nil, 7)
-	frame.marker:SetAtlas(MARKER_ATLAS)
-	frame.marker:SetSize(MARKER_HEIGHT * 10 / 14, MARKER_HEIGHT)
+	ns.Art.Fit(frame.marker, MARKER_ATLAS, MARKER_HEIGHT, MARKER_HEIGHT)
 
 	frame.you = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	return frame

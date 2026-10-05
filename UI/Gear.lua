@@ -186,12 +186,13 @@ end
 local function CreateRow(parent)
 	local row = CreateFrame("Button", nil, parent) --[[@as SkillUpGearRow]]
 	row:SetHeight(ROW_HEIGHT)
+	-- art-ok: the quest log's highlight bar, stretched over the row as a bar is
 	row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
 	row.Icon = row:CreateTexture(nil, "BORDER")
 	row.Icon:SetSize(ICON, ICON)
 	row.Icon:SetPoint("LEFT", 0, 0)
 	row.Border = row:CreateTexture(nil, "OVERLAY")
-	row.Border:SetTexture("Interface\\Common\\WhiteIconFrame")
+	row.Border:SetTexture("Interface\\Common\\WhiteIconFrame") -- art-ok: a square border in the ICON square
 	row.Border:SetSize(ICON, ICON)
 	row.Border:SetPoint("LEFT", row.Icon, "LEFT", 0, 0)
 	row.Text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -226,7 +227,7 @@ end
 ---@param tooltip (fun(tooltip: GameTooltip))?
 ---@param click (fun())?
 local function FillRow(row, icon, color, text, textColor, detail, detailColor, tooltip, click)
-	row.Icon:SetTexture(icon)
+	row.Icon:SetTexture(icon) -- art-ok: a square file icon in the ICON square; the texture never draws an atlas
 	row.Icon:SetShown(icon ~= nil)
 	row.Border:SetShown(icon ~= nil)
 	if color then
@@ -397,6 +398,7 @@ function RenderDetail()
 		return
 	end
 	local color = QualityColor(item.itemID)
+	-- art-ok: a square item icon in its 47 square; the texture never draws an atlas
 	detail.Icon:SetTexture(C_Item.GetItemIconByID(item.itemID))
 	if color then
 		detail.Border:SetVertexColor(color:GetRGB())
@@ -430,12 +432,13 @@ local function SetSlot(button, item, checked)
 	button.item = item
 	if not item then
 		local _, textureName = C_PaperDollInfo.GetInventorySlotInfo(SLOT_NAMES[button.slot])
-		button.icon:SetTexture(textureName)
+		button.icon:SetTexture(textureName) -- art-ok: the square empty-slot art in the ICON square
 		button.icon:SetDesaturated(true)
 		button.border:Hide()
 		button.mark:Hide()
 		return
 	end
+	-- art-ok: a square item icon in the ICON square; the texture never draws an atlas
 	button.icon:SetTexture(C_Item.GetItemIconByID(item.itemID))
 	button.icon:SetDesaturated(item.state ~= "known" and item.state ~= "trainable")
 	local color = QualityColor(item.itemID)
@@ -591,17 +594,18 @@ local function CreateSlotButton(inset, index)
 	button.icon:SetSize(ICON, ICON)
 	button.icon:SetPoint("CENTER")
 	button.border = button:CreateTexture(nil, "OVERLAY")
-	button.border:SetTexture("Interface\\Common\\WhiteIconFrame")
+	button.border:SetTexture("Interface\\Common\\WhiteIconFrame") -- art-ok: a square border in the ICON square
 	button.border:SetSize(ICON, ICON)
 	button.border:SetPoint("CENTER")
 	-- The game's own check mark, as the professions window marks what it has.
 	button.mark = button:CreateTexture(nil, "OVERLAY")
-	button.mark:SetAtlas("checkmark-minimal")
+	button.mark:SetAtlas("checkmark-minimal", true)
 	button.mark:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 3, -3)
+	-- art-ok: the square button highlight over a square ICON button
 	button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
 	-- The stock checked highlight, blended so the icon under it stays readable.
 	button.select = button:CreateTexture(nil, "OVERLAY")
-	button.select:SetTexture("Interface\\Buttons\\CheckButtonHilight")
+	button.select:SetTexture("Interface\\Buttons\\CheckButtonHilight") -- art-ok: square art over a square ICON button
 	button.select:SetBlendMode("ADD")
 	button.select:SetAllPoints()
 	button:SetScript("OnClick", function()
@@ -662,7 +666,7 @@ local function CreateDetail(inset)
 	detail.Icon:SetSize(47, 47)
 	detail.Icon:SetPoint("TOPLEFT", 0, 0)
 	detail.Border = body:CreateTexture(nil, "OVERLAY")
-	detail.Border:SetTexture("Interface\\Common\\WhiteIconFrame")
+	detail.Border:SetTexture("Interface\\Common\\WhiteIconFrame") -- art-ok: a square border in the 47 square
 	detail.Border:SetSize(47, 47)
 	detail.Border:SetPoint("TOPLEFT", detail.Icon, "TOPLEFT", 0, 0)
 
@@ -743,6 +747,7 @@ end
 
 local function CreateTab()
 	tab = CreateFrame("Frame", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
+	-- art-ok: a square icon in the square LargeSideTabButtonTemplate sizes for it
 	tab.Icon:SetTexture("Interface\\Icons\\INV_Chest_Chain_05")
 	tab:SetFillToInterior(true)
 	tab.tooltipText = L["Crafted gear"]

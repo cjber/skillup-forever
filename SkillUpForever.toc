@@ -29,6 +29,7 @@ Integrations\Questie.lua
 Integrations\AtlasLoot.lua
 Integrations\Catalogue.lua
 Integrations\Prices.lua
+UI\Art.lua
 UI\Settings.lua
 UI\Tooltip.lua
 UI\RecipeList.lua

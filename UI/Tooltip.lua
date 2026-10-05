@@ -7,7 +7,7 @@ local MIN_LABEL_GAP = 18
 local BAR_HEIGHT = 12
 -- The fill texture Blizzard's rank bars use; tinted per difficulty band.
 local BAND_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar"
--- Forever's rested-XP pip, 10x14 native.
+-- Forever's rested-XP pip, taller than it is wide.
 local MARKER_ATLAS = "ui-hud-experiencebar-frame-pip-camelot"
 local MARKER_HEIGHT = BAR_HEIGHT * 1.3
 
@@ -27,18 +27,18 @@ local function CreateBar()
 
 	local scale = BAR_HEIGHT / 18
 	local bg = track:CreateTexture(nil, "BACKGROUND")
-	bg:SetAtlas("Professions-skillbar-bg")
+	bg:SetAtlas("Professions-skillbar-bg") -- art-ok: the rank bar's backing, stretched to the bar's width as a bar is
 	bg:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
 	bg:SetSize(BAR_WIDTH + 12 * scale, 29 * scale)
 	local border = track:CreateTexture(nil, "OVERLAY")
-	border:SetAtlas("Professions-skillbar-frame")
+	border:SetAtlas("Professions-skillbar-frame") -- art-ok: the rank bar's frame, stretched to the bar's width as a bar is
 	border:SetPoint("TOPLEFT", -5 * scale, 3 * scale)
 	border:SetSize(BAR_WIDTH + 10 * scale, 29 * scale)
 
 	frame.segments = {}
 	for i, color in ipairs({ "orange", "yellow", "green", "grey" }) do
 		local seg = track:CreateTexture(nil, "ARTWORK", nil, 1)
-		seg:SetTexture(BAND_TEXTURE)
+		seg:SetTexture(BAND_TEXTURE) -- art-ok: a status bar fill, stretched to its band
 		seg:SetVertexColor(ns.COLORS[color]:GetRGB())
 		seg:SetHeight(BAR_HEIGHT)
 		frame.segments[i] = seg
@@ -50,8 +50,7 @@ local function CreateBar()
 	end
 
 	frame.marker = track:CreateTexture(nil, "OVERLAY", nil, 7)
-	frame.marker:SetAtlas(MARKER_ATLAS)
-	frame.marker:SetSize(MARKER_HEIGHT * 10 / 14, MARKER_HEIGHT)
+	ns.Art.Fit(frame.marker, MARKER_ATLAS, MARKER_HEIGHT, MARKER_HEIGHT)
 
 	frame.you = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	return frame

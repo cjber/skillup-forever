@@ -70,8 +70,9 @@ publishes it as the notes.
   work.
 - A recipe colour always comes from the game; bundled thresholds only fill in what it does not show.
   Missing data renders `?`, never a guess.
-- Never stretch art: an icon, atlas or texture is drawn at its native aspect (size it from
-  `C_Texture.GetAtlasInfo`, fit inside the box); only nine-slice pieces, bars and fills stretch by design.
+- Never stretch art: an icon, atlas or texture is drawn at its native aspect, through `UI/Art.lua` (`Art.Fit`,
+  `Art.Markup`); only nine-slice pieces, bars and fills stretch by design. `tools/lint_art.py` refuses a raw
+  setter elsewhere unless its line says why its shape is right: `-- art-ok: <reason>`.
 - Store copy, README and posts pitch the addon as looking like it came with the game, in cjber's
   own voice, never AI marketing: `wow-forever-addon` WFA-23/24, checked before every store paste.
 

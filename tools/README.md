@@ -169,7 +169,7 @@ render scale.
 ## Shared tooling
 
 `tools/forever_tools/` is the shared, offline Python (changelog and release checks, TOC traversal, the Lua
-taint and multi-value lints, strict DB2 CSV parsing, atomic writes, the generated-data gate). It is vendored
+taint, multi-value and art lints, strict DB2 CSV parsing, atomic writes, the generated-data gate). It is vendored
 byte for byte from `cjber/skills` (`wow-forever-addon/tooling`) and pinned by `forever_tools/MANIFEST.json`:
 never edit it here. `python3 tools/forever_tools/sync.py check` verifies it offline (it runs in
 `typecheck.sh`); `python3 tools/forever_tools/sync.py update --source <skills checkout>` refreshes it from a
@@ -184,7 +184,8 @@ Install LuaLS 3.19.1, then run `tools/typecheck.sh` from any directory. The scri
 fetches Ketho's WoW annotations at `d0b5b51fac4c52c493371b9b18e66ce604ea4326`,
 verifies that checkout is clean, runs the Python checker tests, the taint lint
 (`python3 -m tools.lint_taint`), the TOC/XML coverage check
-(`tools/typecheck_coverage.py`) and the TOC-wide multi-value lint, and fails on any
+(`tools/typecheck_coverage.py`), the TOC-wide multi-value lint and the art lint
+(`tools/lint_art.py`), and fails on any
 LuaLS diagnostic. CI downloads LuaLS with a
 pinned SHA-256. Editors use the same `.luarc.json` and `.types/` library.
 

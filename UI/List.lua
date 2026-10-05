@@ -65,6 +65,7 @@ local built = setmetatable({}, { __mode = "k" })
 ---@param row SkillUpListRow
 local function BuildRow(row)
 	row.kind = "row"
+	-- art-ok: the quest log's highlight bar, stretched over the row as a bar is
 	row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
 	row.UpdateTooltip = UpdateTooltip
 	row:SetScript("OnEnter", OnEnter)
@@ -78,7 +79,7 @@ local function BuildRow(row)
 	row.Icon:SetSize(ICON_SIZE, ICON_SIZE)
 	row.Icon:SetPoint("LEFT", 6, 0)
 	row.IconBorder = row:CreateTexture(nil, "OVERLAY")
-	row.IconBorder:SetTexture("Interface\\Common\\WhiteIconFrame")
+	row.IconBorder:SetTexture("Interface\\Common\\WhiteIconFrame") -- art-ok: a square border in the ICON_SIZE square
 	row.IconBorder:SetSize(ICON_SIZE, ICON_SIZE)
 	row.IconBorder:SetPoint("LEFT", row.Icon, "LEFT", 0, 0)
 	row.Text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -100,6 +101,7 @@ local function InitializeRow(row, elementData)
 	end
 	local entry = elementData.entry --[[@as SkillUpListEntry]]
 	row.entry = entry
+	-- art-ok: a square file icon in the ICON_SIZE square; the texture never draws an atlas
 	row.Icon:SetTexture(entry.icon)
 	row.Icon:SetShown(entry.icon ~= nil)
 	row.IconBorder:SetShown(entry.icon ~= nil)

@@ -143,9 +143,7 @@ local marker
 ---@return string
 local function Marker()
 	if not marker then
-		local info = C_Texture.GetAtlasInfo(MARKER_ATLAS)
-		local width = info and math.floor(MARKER_HEIGHT * info.width / info.height + 0.5) or 0
-		marker = info and string.format("|A:%s:%d:%d|a ", MARKER_ATLAS, MARKER_HEIGHT, width) or ""
+		marker = C_Texture.GetAtlasInfo(MARKER_ATLAS) and ns.Art.Markup(MARKER_ATLAS, MARKER_HEIGHT) .. " " or ""
 	end
 	return marker
 end

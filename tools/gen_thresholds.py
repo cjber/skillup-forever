@@ -2,15 +2,15 @@
 """Generate recipe spell thresholds for one pinned Forever client (stdlib only)."""
 
 import argparse
-import csv
-import io
 import re
 import sys
 import urllib.error
-import urllib.request
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from forever_tools import wago
+
+USER_AGENT = "SkillUpForever/1.0"
 BUILD = "1.60.1.70205"
 # Date this source snapshot was selected, not the date of each regeneration.
 SOURCE_DATE = "2026-10-04"
@@ -47,40 +47,12 @@ NESTED_ENTRY = re.compile(r"\[(\d+)\]\s*=\s*([\"']\d+/\d+/\d+/\d+[\"'])\s*,?\s*"
 
 
 def download(url, filename, refresh=False, offline=False):
-    path = CACHE / filename
-    if path.exists() and not refresh:
-        return path.read_text(encoding="utf-8-sig")
-    if offline:
-        raise ValueError(f"Missing cached source: {path}")
-    request = urllib.request.Request(url, headers={"User-Agent": "SkillUpForever/1.0"})
-    with urllib.request.urlopen(request, timeout=60) as response:
-        data = response.read()
-    content = data.decode("utf-8-sig")
-    if content.lstrip().startswith("<"):
-        raise ValueError(f"Expected data, received HTML from {url}")
-    CACHE.mkdir(parents=True, exist_ok=True)
-    # A failed/interrupted download must not leave a partial cache entry.
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_bytes(data)
-    temporary.replace(path)
-    return content
+    data = wago.fetch(url, CACHE / filename, user_agent=USER_AGENT, refresh=refresh, offline=offline)
+    return data.decode("utf-8-sig")
 
 
 def db2(name, columns, refresh=False, offline=False, build=BUILD):
-    content = download(
-        f"https://wago.tools/db2/{name}/csv?build={build}",
-        f"{name}-{build}.csv",
-        refresh,
-        offline,
-    )
-    reader = csv.DictReader(io.StringIO(content))
-    missing = set(columns) - set(reader.fieldnames or [])
-    if missing:
-        raise ValueError(f"{name}: missing columns: {', '.join(sorted(missing))}")
-    rows = list(reader)
-    if not rows:
-        raise ValueError(f"{name}: empty DB2 export for {build}")
-    return rows
+    return wago.db2_rows(name, build, CACHE, user_agent=USER_AGENT, refresh=refresh, offline=offline, required=columns)
 
 
 def parse_skillet(content):

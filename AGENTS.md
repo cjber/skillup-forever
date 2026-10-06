@@ -66,6 +66,7 @@ publishes it as the notes.
   Parenthesize scalar `select(...)` in last call/table/return positions; intentional expansion
   needs a trailing `-- multi-value: <reason>`.
 - Commits are signed (`git commit -S`) with the personal email.
+- Release: load `.agents/skills/release/SKILL.md` when preparing or publishing a release.
 - Quality: load `.agents/skills/sift-project/SKILL.md` before cleanup, dead-code or refactoring
   work.
 - A recipe colour always comes from the game; bundled thresholds only fill in what it does not show.

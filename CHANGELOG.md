@@ -11,6 +11,10 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.8.4] - 2026-10-07
+
+- **Quest objectives stay below the Forever tracker after reload.** The shared tracker no longer resizes Blizzard's quest container, which could move it over the addon sections.
+
 ## [0.8.3] - 2026-10-07
 
 - **Data checked against Forever 1.60.1.70245.** The bundled game data is unchanged.

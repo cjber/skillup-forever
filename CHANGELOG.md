@@ -11,6 +11,10 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-10-07
+
+- **Data checked against Forever 1.60.1.70245.** The bundled game data is unchanged.
+
 ## [0.8.2] - 2026-10-06
 
 - **Current profession data.** Recipe, trainer and threshold data are refreshed for Forever build 1.60.1.70235.

@@ -191,7 +191,10 @@ end
 local groups = {
 	{ "Recipe rows", "checkbox:showRowText checkbox:showSkill checkbox:showTooltip checkbox:showCost" },
 	{ "Prices", "slider:craftValue" },
-	{ "Route and trainer", "checkbox:trackerAttached checkbox:showRouteTab checkbox:showGearTab checkbox:showTrainer" },
+	{
+		"Route and trainer",
+		"checkbox:showTracker checkbox:trackerAttached checkbox:showRouteTab checkbox:showGearTab checkbox:showTrainer",
+	},
 	{ "Tooltips and sorting", "slider:reagentTooltip slider:sortMode" },
 	{ "Addon", "checkbox:companionHints checkbox:whatsNew" },
 }

@@ -11,6 +11,16 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-08
+
+- **Shorter addon descriptions.** The README and store pages explain the features directly and keep the author and licence credits.
+
+- **Quest text stays on screen when the Forever tracker is smaller.** The native quest column and its header keep their full width at the edge of the screen.
+
+- **Hide tracked professions without losing your route.** Turn off *Show tracked professions* to remove SkillUp from the objective tracker. Your tracked professions and target levels are kept.
+
+- **Shared tracker scaling.** SkillUp follows the tracker scale selected in Shortest Path Forever.
+
 ## [0.8.4] - 2026-10-07
 
 - **Quest objectives stay below the Forever tracker after reload.** The shared tracker no longer resizes Blizzard's quest container, which could move it over the addon sections.

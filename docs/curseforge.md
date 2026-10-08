@@ -1,6 +1,4 @@
-Developed with AI assistance; changes are reviewed and checked with automated tests, linting and type checks.
-
-SkillUp Forever puts skill-up chances, recipe costs and colour thresholds into the Professions window's own rows and tooltips, with a levelling route, a shopping list and a crafted gear page in a side panel. Nothing new to learn: it looks like it came with the game.
+SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in the Professions window. Its side panel has levelling routes, shopping lists and crafted gear.
 
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)
 
@@ -54,6 +52,8 @@ Each reagent uses the cheaper known vendor or auction price, and the craft's ven
 
 ## Usage
 
+Turn off **Show tracked professions** in settings to hide the profession tracker. Your tracked professions and skill targets are kept.
+
 Open a profession and the numbers are already there.
 
 - `/su` opens the settings (also in Settings > AddOns, or from the addon compartment on the minimap).
@@ -66,3 +66,5 @@ It also works with my other Forever addons: [Shortest Path Forever](https://www.
 SkillUp is in English for now; translations are welcome as a pull request or issue.
 
 Source: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever), GPL-3.0-or-later.
+
+Built with AI assistance.

@@ -398,6 +398,9 @@ end
 -- Compact, quest style, under "Tailoring to 125": the next thing to train, then
 -- only the reagents still missing, as "12/20 Linen Cloth". The page has the rest.
 function ModuleMixin:LayoutContents()
+	if not ns.db.showTracker then
+		return
+	end
 	for _, entry in ipairs(ns.TrackedNeeds()) do
 		local plan = entry.plan
 		local info = plan.profession

@@ -12,6 +12,7 @@ local DEFAULTS = {
 	sortMode = "blizzard",
 	showTrainer = true,
 	showRouteTab = true,
+	showTracker = true,
 	showGearTab = false,
 	reagentTooltip = "route",
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from
@@ -54,7 +55,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 }
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
-ns.WHATS_NEW = L["Recipe tooltips keep the profession bar's own proportions."]
+ns.WHATS_NEW = L["Hide tracked professions in settings without clearing their targets."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

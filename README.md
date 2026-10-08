@@ -60,6 +60,8 @@ Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forev
 
 ## Usage
 
+Turn off **Show tracked professions** in settings to hide the profession tracker. Your tracked professions and skill targets are kept.
+
 Open a profession and the numbers are already there.
 
 | Command | What it does |

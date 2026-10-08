@@ -52,6 +52,8 @@ Each reagent uses the cheaper known vendor or auction price, and the craft's ven
 
 ## Usage
 
+Turn off **Show tracked professions** in settings to hide the profession tracker. Your tracked professions and skill targets are kept.
+
 Open a profession and the numbers are already there.
 
 - `/su` opens the settings (also in Settings > AddOns, or from the addon compartment on the minimap).

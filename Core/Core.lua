@@ -12,6 +12,7 @@ local DEFAULTS = {
 	sortMode = "blizzard",
 	showTrainer = true,
 	showRouteTab = true,
+	showTracker = true,
 	showGearTab = false,
 	reagentTooltip = "route",
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from

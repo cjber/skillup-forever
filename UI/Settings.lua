@@ -128,6 +128,12 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Route and trainer"], function(rows)
+		Checkbox(
+			rows,
+			"showTracker",
+			L["Show tracked professions"],
+			L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."]
+		)
 		local host = ns.TrackerHost
 		if host and host.GetSettings and host.SetAttached and host.OnAttachmentChanged then
 			local variable = "SkillUpForever_trackerAttached"

@@ -11,6 +11,10 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Hide tracked professions without losing your route.** Turn off *Show tracked professions* to remove SkillUp from the objective tracker. Your tracked professions and target levels are kept.
+
+- **Shared tracker scaling.** SkillUp follows the tracker scale selected in Shortest Path Forever.
+
 ## [0.8.4] - 2026-10-07
 
 - **Quest objectives stay below the Forever tracker after reload.** The shared tracker no longer resizes Blizzard's quest container, which could move it over the addon sections.

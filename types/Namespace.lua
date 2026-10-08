@@ -145,6 +145,7 @@
 ---@field sortMode 'blizzard'|'skill'|'chance'|'cost'
 ---@field showTrainer boolean
 ---@field showRouteTab boolean
+---@field showTracker boolean
 ---@field showGearTab boolean
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field collectModes table<string, SkillUpCollectMode>

@@ -53,6 +53,15 @@ equal(lines[1].key, "Train", "the tracker leads with training")
 equal(lines[1].text, "Train Heavy Linen Bandage at 40 |cff808080(+1 more)|r", "the same training")
 equal(lines[2].key, SILK, "then the reagent still missing")
 
+ns.db.showTracker = false
+ns.Changed("settings")
+equal(#c.Tracker(), 0, "hiding the tracker removes every profession block")
+equal(ns.db.trackedProfessions[129], true, "hiding keeps the profession tracked")
+equal(ns.db.routeTargets[129], 80, "hiding keeps the profession target")
+ns.db.showTracker = true
+ns.Changed("settings")
+equal(#c.Tracker(), 1, "showing restores the tracked profession")
+
 -- Auctionator loses the only price there was: the scan reaches the tracker, which redraws to say why
 -- nothing can be crafted, not that the reagents are in hand.
 local redraws = module.dirty or 0

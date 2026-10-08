@@ -8,7 +8,7 @@ Classic profession-levelling numbers inside WoW: Forever's Professions window.<b
 <a href="https://github.com/cjber/skillup-forever/releases/latest"><img src="https://img.shields.io/github/v/release/cjber/skillup-forever" alt="Latest release"></a>
 </p>
 
-WoW: Forever's Professions window shows a recipe's colour, but not when it turns yellow, green or grey, or your next craft's skill-up chance. SkillUp adds those numbers to the window's own rows and tooltips, a levelling route with its shopping list, the same numbers at the trainer, a crafted gear page, and recipe uses on reagent tooltips. It looks like it came with the game.
+SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in the Professions window. Its side panel has levelling routes, shopping lists and crafted gear.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif" width="640" alt="Leatherworking levelling from 48 to 60 in the Professions window"></p>
 
@@ -102,9 +102,6 @@ All optional: Auctionator supplies auction prices and takes the shopping list, T
 
 ## Development
 
-Developed with AI assistance; changes are reviewed and checked with automated tests, linting and type checks.
-
-
 Link the checkout into the game (`ln -s "$PWD" ".../Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands) ([tools/README.md](tools/README.md) covers the data generators). CI runs the same gate plus actionlint, zizmor, gitleaks and sift; a daily job opens a pull request on a newer Forever build.
 
 Run `luajit tests/bench.lua` from the repository root to measure loading, route rebuilds, event bursts and cached lookups in the headless client. These are CPU timings, not in-game latency measurements.
@@ -120,3 +117,5 @@ Run `luajit tests/bench.lua` from the repository root to measure loading, route 
 GPL-3.0-or-later. Thresholds are partly derived from [Skillet-Classic](https://github.com/b-morgan/Skillet-Classic) (GPL-3.0-or-later); per-build values come from the game via [wago.tools](https://wago.tools). Trainer fees, who trains what, drop chances and gathered reagents come from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0); vendors, quests, NPC places and scroll recipes are read in game from your own Questie and AtlasLoot, and none of their data is bundled; vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1).
 
 Made by Cillian Berragan · [cillian.dev](https://cillian.dev) · [GitHub](https://github.com/cjber) · [Twitter](https://twitter.com/cjberragan)
+
+Built with AI assistance.

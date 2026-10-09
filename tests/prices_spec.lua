@@ -1,18 +1,22 @@
 -- Run from the repository root: luajit tests/prices_spec.lua
--- Where a price comes from, with the whole addon loaded: the median of the days Auctionator has seen an
--- item at, its last buyout, the bundled vendor list and merchants seen.
+-- Latest Auctionator observations, bundled vendor prices and merchants seen.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local DAY = 86400
-local DATA = { VendorPrices = { [2] = 40 }, GatheredBy = {} }
+local DATA = {
+	VendorPrices = { [2] = 40 },
+	GatheredBy = {},
+	RecipeData = {
+		[10] = { skillLine = 164, reagents = { { itemID = 1, quantity = 2 } }, output = { itemID = 7, quantity = 1 } },
+	},
+}
 local c = Client.load({ data = DATA })
 local ns, api = c.ns, c.G.Auctionator.API.v1
 c.auction, c.auctionAge = { [1] = 500, [2] = 30, [3] = 90, [50] = 500 }, 1
 
 equal(ns.Price(1).copper, 500, "an auction price comes from Auctionator")
 equal(ns.Price(1).source, "auctionator", "Auctionator is the auction source")
-equal(ns.Price(1).basis, 1, "a last buyout is a one-day basis")
 equal(ns.Price(1).days, 1, "Auctionator's age is kept")
 equal(ns.Price(2).source, "auctionator", "a cheaper Auctionator price beats the bundled vendor price")
 equal(ns.Price(3).copper, 90, "another item's price comes from Auctionator too")
@@ -38,67 +42,23 @@ equal(ns.PriceAgeText(ns.Price(50)), "unknown age", "failed age call does not cl
 api.GetAuctionAgeByItemID = ageAPI
 ns.Changed("prices")
 
--- A scan files today's lowest buyout of each item the addon has priced.
+-- Every database update uses the newest observation, including a higher price on the same day.
 c.auctionAge = 0
+c.auction[1] = 300
 c.AuctionatorScan()
-equal(ns.Price(1).copper, 500, "one day's price is that day's price")
-equal(ns.Price(1).basis, 1, "and its basis is one day")
-equal(ns.Price(1).days, 0, "the newest day is today")
-equal(
-	ns.PriceSourceText({ copper = 100, source = "auctionator", basis = 5 }),
-	"Auctionator, the middle of 5 days",
-	"a median price names the days behind it"
-)
-equal(
-	ns.PriceSourceText({ copper = 100, source = "auctionator", basis = 1, days = 0 }),
-	"Auctionator, today",
-	"a one-day price names its age"
-)
-
--- A later day moves the price to the middle of the days held, and the vendor is still the cheaper of
--- vendor and auction.
-c.now = c.now + DAY
-c.auction[1], c.auction[2] = 300, 200
-c.AuctionatorScan()
-equal(ns.Price(1).copper, 400, "two days price from their middle")
-equal(ns.Price(1).basis, 2, "and the basis counts both")
-equal(ns.Price(2).source, "vendor", "the cheaper vendor price beats the filed auction price")
-equal(ns.Price(2).copper, 40, "at the vendor's unit price")
-
-c.now = c.now + DAY
-c.auction[1] = 100
-c.AuctionatorScan()
-equal(ns.Price(1).copper, 300, "three days price from their middle")
-equal(ns.Price(1).basis, 3, "and the basis counts all three")
-
--- A price the scan left alone is not filed as today's: only what the age says it saw.
-c.now = c.now + DAY
-c.auction[1], c.auction[3] = 700, 70
-c.auctionAge = { [1] = 0, [2] = 0, [3] = 5 }
-c.AuctionatorScan()
-equal(ns.Price(1).basis, 4, "a price seen today is filed")
-equal(ns.Price(1).copper, 400, "and joins the middle")
-equal(ns.Price(3).basis, 3, "a price the scan did not see is not filed again")
-equal(ns.Price(3).days, 1, "so its newest day stays the one it was seen on")
-
--- A second scan the same day keeps the lowest buyout of the two, never a higher one.
-c.auctionAge = 0
+equal(ns.Price(1).copper, 300, "a database update invalidates cached prices")
 c.auction[1] = 900
 c.AuctionatorScan()
-equal(ns.Price(1).basis, 4, "a second scan the same day adds no day")
-equal(ns.Price(1).copper, 400, "and a higher later price does not raise the day's low")
-c.auction[1] = 50
+equal(ns.Price(1).copper, 900, "a higher same-day price replaces the earlier price")
+c.now = c.now + DAY
+c.auction[1], c.auctionAge = 100, 1
 c.AuctionatorScan()
-equal(ns.Price(1).copper, 200, "a lower later price lowers the day's low")
-
--- Eight more days of scans: the store keeps the newest seven and drops the rest.
-for _ = 1, 8 do
-	c.now = c.now + DAY
-	c.auction[1] = 1000
-	c.AuctionatorScan()
-end
-equal(ns.Price(1).basis, 7, "the store keeps at most seven days")
-equal(ns.Price(1).copper, 1000, "and prices from the days it kept")
+equal(ns.Price(1).copper, 100, "the newest price is never averaged with older scans")
+equal(ns.Price(1).days, 1, "the observation retains Auctionator's age")
+equal(ns.PriceSourceText(ns.Price(1)), "Auctionator, 1d ago", "the source reports the observation age")
+c.auction[2] = 200
+c.AuctionatorScan()
+equal(ns.Price(2).copper, 40, "a cheaper vendor still beats the latest auction price")
 
 -- A vendor visit records the unit price, reputation discount included, and it beats the auction.
 c.merchant = { { itemID = 3, price = 100, stackCount = 5 }, { itemID = 4, price = 10, hasExtendedCost = true } }
@@ -114,56 +74,39 @@ c.Fire("MERCHANT_UPDATE")
 equal(ns.db.vendor[3], 20, "a zero stack size keeps the earlier unit price")
 equal(ns.db.vendor[5], nil, "a missing stack size records nothing")
 
--- The saved store is per realm and pruned to seven days at login.
-local saved = { priceDays = { Realm = {} } }
-for day = 1, 9 do
-	saved.priceDays.Realm[day] = { [1] = day * 10 }
-end
-local reloaded = Client.load({ data = DATA, saved = saved })
-equal(reloaded.ns.Price(1).basis, 7, "login prunes the store to seven days")
-equal(reloaded.ns.Price(1).copper, 60, "the days kept are the newest seven")
-
--- The latest price setting swaps the stored median for Auctionator's current price, both ways, for
--- reagents and for what a craft sells for.
+-- Reagent costs and crafted-item resale both follow database updates.
 do
-	local m = Client.load({ data = DATA })
-	local mns = m.ns
-	m.auction, m.auctionAge = { [1] = 500, [7] = 900 }, 0
-	m.now = m.now + 20 * DAY
-	mns.Price(1)
-	m.AuctionatorScan()
-	mns.Price(7)
-	m.AuctionatorScan()
-	m.auction[1], m.auction[7], m.auctionAge = 800, 300, 2
-	mns.Changed("prices")
-	equal(mns.db.latestPrice, false, "the median stays the default")
-	equal(mns.Price(1).copper, 500, "the default prices at the stored median")
-	mns.db.latestPrice = true
-	equal(mns.Price(1).copper, 500, "a setting change alone leaves cached prices")
-	mns.Changed("settings")
-	equal(mns.Price(1).copper, 800, "the setting prices at Auctionator's latest")
-	equal(mns.Price(1).basis, 1, "a latest price is a one-day basis")
-	equal(mns.Price(1).days, 2, "and keeps the age Auctionator reports")
-	mns.db.latestPrice = false
-	mns.Changed("settings")
-	equal(mns.Price(1).copper, 500, "switching back returns to the median")
-	equal(mns.Price(1).days, 0, "with the stored day's age")
-	mns.db.latestPrice = true
-	mns.Changed("settings")
-	m.auction[1] = nil
-	mns.Changed("prices")
-	equal(mns.Price(1), nil, "no latest price is no price, not the stored median")
-	m.auction[1] = 800
-	mns.Changed("prices")
-	local api2 = m.G.Auctionator.API.v1
-	local lookup = api2.GetAuctionPriceByItemID
-	api2.GetAuctionPriceByItemID = nil
-	mns.Changed("prices")
-	equal(mns.Price(1), nil, "without the Auctionator price API there is no price")
-	api2.GetAuctionPriceByItemID = lookup
-	mns.Changed("prices")
-	equal(mns.Price(1).copper, 800, "the price returns with the API")
+	local craft = Client.load({ data = DATA })
+	craft.ns.db.craftValue = "auction"
+	craft.auction = { [1] = 100, [7] = 200 }
+	local cost, value = craft.ns.CraftCost(10)
+	equal(cost, 200, "craft cost uses the latest reagent price")
+	equal(value.copper, 190, "resale uses the latest output price after the cut")
+	craft.auction[1], craft.auction[7] = 300, 400
+	craft.AuctionatorScan()
+	cost, value = craft.ns.CraftCost(10)
+	equal(cost, 600, "a scan refreshes craft costs")
+	equal(value.copper, 380, "a scan refreshes crafted-item resale")
 end
+
+-- Obsolete saved history and settings cannot supply a price, including when the latest is missing.
+local m = Client.load({ data = DATA, saved = {
+	priceDays = { Realm = { [1] = { [1] = 1 } } },
+	latestPrice = false,
+} })
+m.auction = { [1] = 800 }
+equal(m.ns.Price(1).copper, 800, "old saves use the latest observation")
+m.auction[1] = nil
+m.AuctionatorScan()
+equal(m.ns.Price(1), nil, "a missing latest price stays unknown")
+local lookup = m.G.Auctionator.API.v1.GetAuctionPriceByItemID
+m.G.Auctionator.API.v1.GetAuctionPriceByItemID = nil
+m.ns.Changed("prices")
+equal(m.ns.Price(1), nil, "a missing price API stays unknown")
+m.G.Auctionator.API.v1.GetAuctionPriceByItemID = lookup
+m.auction[1] = 800
+m.ns.Changed("prices")
+equal(m.ns.Price(1).copper, 800, "the latest price returns with the API")
 
 -- Without Auctionator, only vendor prices exist.
 ns = Client.load({ data = DATA, auctionator = false }).ns

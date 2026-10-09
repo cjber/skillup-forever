@@ -45,7 +45,7 @@ Hover a reagent to see how much your routes need.
 
 Each reagent uses the cheapest known vendor or Auctionator price. Visiting a vendor records its prices and reputation discounts. Materials your professions gather can count as free until you choose *Buy reagents*.
 
-Auction prices use the median of the last seven days by default. In **Prices**, enable **Use Auctionator's latest price** for reagents and crafted items. SkillUp never scans the auction house itself. Missing prices stay unknown and leave affected recipes out of the route.
+Auction prices use Auctionator's latest recorded price for reagents and crafted items. SkillUp never scans the auction house itself. Scan with Auctionator to update prices. Missing prices stay unknown and leave affected recipes out of the route.
 
 A craft's vendor sell value comes off its cost by default. You can choose its auction value when higher, after the 5% cut. Profit shows a green `+`.
 

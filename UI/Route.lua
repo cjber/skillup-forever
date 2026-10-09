@@ -475,37 +475,27 @@ local function RenderReagents(list, reagents)
 	end
 end
 
--- How many days the auction prices behind this route are based on: the fewest any of them has, since
--- that is the one with least behind it, and whether the newest of them is worth a rescan.
+-- Identify the auction source and flag prices that need a fresh scan.
 ---@param reagents SkillUpNeededItem[]
 ---@return string
 ---@return ColorMixin
-local function PriceBasis(reagents)
-	local least, stale
+local function AuctionPriceStatus(reagents)
+	local found, stale
 	for _, item in ipairs(reagents) do
 		local price = ns.Price(item.itemID)
 		if price and price.source == "auctionator" then
-			local basis = price.basis or 1
-			if not least or basis < least then
-				least = basis
-			end
+			found = true
 			local age = ns.PriceAge(price)
 			if age == nil or age > STALE_AFTER then
 				stale = true
 			end
 		end
 	end
-	if not least then
+	if not found then
 		return "", GRAY_FONT_COLOR
 	end
-	local text
-	if least == 1 then
-		text = stale and L["AH prices are based on one day: rescan with Auctionator."]
-			or L["AH prices are based on one day."]
-	else
-		text = stale and string.format(L["AH prices are based on %d days: rescan with Auctionator."], least)
-			or string.format(L["AH prices are based on %d days."], least)
-	end
+	local text = stale and L["Latest Auctionator prices: rescan to update old prices."]
+		or L["Latest Auctionator prices."]
 	return text, stale and ns.COLORS.orange or GRAY_FONT_COLOR
 end
 
@@ -638,9 +628,9 @@ local function Render()
 	local reagents = ns.RouteReagents(plan)
 	SetCollectEnabled(CollectChanges(reagents))
 	RenderRoute(page.RouteList, plan)
-	local basis, basisColor = PriceBasis(reagents)
-	if basis ~= "" then
-		page.ReagentList:Message(basis, basisColor)
+	local priceStatus, priceColor = AuctionPriceStatus(reagents)
+	if priceStatus ~= "" then
+		page.ReagentList:Message(priceStatus, priceColor)
 	end
 	local scan = AutoscanNote(reagents)
 	if scan then

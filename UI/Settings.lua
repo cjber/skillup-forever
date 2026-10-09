@@ -125,6 +125,13 @@ function ns.RegisterSettings()
 			ns.CRAFT_VALUE_OPTIONS,
 			L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, are after the 5% cut, and may not sell."]
 		)
+
+		Checkbox(
+			rows,
+			"latestPrice",
+			L["Use Auctionator's latest price"],
+			L["Price reagents and crafted items at Auctionator's latest price instead of the median of the last seven days."]
+		)
 	end)
 
 	Section(L["Route and trainer"], function(rows)

@@ -122,8 +122,8 @@ local function StoredPrice(itemID)
 	return copper, #values, newest
 end
 
--- Auction prices come only from Auctionator: the middle of the days the item has been seen at, else its
--- last buyout, with whole days since the price was seen (nil past three weeks).
+-- Auction prices come only from Auctionator: the middle of the days the item has been seen at (or, with
+-- the latest price setting, its last buyout), with whole days since the price was seen (nil past three weeks).
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function AuctionPrice(itemID)
@@ -131,7 +131,10 @@ local function AuctionPrice(itemID)
 	if not api then
 		return nil
 	end
-	local copper, basis, newest = StoredPrice(itemID)
+	local copper, basis, newest
+	if not ns.db.latestPrice then
+		copper, basis, newest = StoredPrice(itemID)
+	end
 	if copper then
 		return {
 			copper = copper,

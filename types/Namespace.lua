@@ -141,6 +141,7 @@
 ---@field showSkill boolean
 ---@field showTooltip boolean
 ---@field showCost boolean
+---@field latestPrice boolean
 ---@field craftValue 'none'|'vendor'|'auction'
 ---@field sortMode 'blizzard'|'skill'|'chance'|'cost'
 ---@field showTrainer boolean

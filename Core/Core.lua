@@ -8,6 +8,7 @@ local DEFAULTS = {
 	showSkill = false,
 	showTooltip = true,
 	showCost = true,
+	latestPrice = false, -- Auctionator's latest price instead of the seven-day median
 	craftValue = "vendor",
 	sortMode = "blizzard",
 	showTrainer = true,

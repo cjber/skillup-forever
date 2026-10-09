@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Latest Auctionator price option.** A new Prices setting prices reagents and crafted items at Auctionator's latest price instead of the median of the last seven days. The median stays the default.
+
 ## [0.9.1] - 2026-10-09
 
 - **Keep Blizzard's tracker methods intact.** The shared Forever tracker responds to objective and player events without wrapping native layout methods.

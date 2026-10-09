@@ -66,7 +66,8 @@ for _, complete in ipairs({ false, true }) do
 		tracked = { [1] = true },
 		auctions = {},
 		vendor = { [1] = 5 },
-		priceDays = "not a table",
+		priceDays = { Realm = { [1] = { [1] = 5 } } },
+		latestPrice = false,
 		sellers = {
 			[7] = { name = "Unstamped", items = {} },
 			[8] = { name = "Stamped", build = "70204", items = {} },
@@ -93,8 +94,8 @@ for _, complete in ipairs({ false, true }) do
 		equal(ns.db.scanAuctions, nil, "the old scan setting is dropped")
 		equal(ns.db.vendor[1], 5, "vendor prices are kept")
 		equal(ns.db.gatherFree, nil, "the old account-wide gather setting is dropped")
-		equal(type(ns.db.priceDays), "table", "a price store of the wrong type is reset")
-		equal(next(ns.db.priceDays), nil, "and starts empty")
+		equal(ns.db.priceDays, nil, "obsolete auction history is dropped")
+		equal(ns.db.latestPrice, nil, "obsolete auction price option is dropped")
 		equal(ns.db.sellers[7].build, "70205", "a vendor saved without a build is stamped with this one")
 		equal(ns.db.sellers[8].build, "70204", "a vendor that already has a build keeps it")
 		equal(ns.db.builds[#ns.db.builds], "70205", "this build is remembered")

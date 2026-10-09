@@ -577,9 +577,9 @@ for _, row in ipairs(lists[2].rows) do
 end
 equal(listed["Reagent 2589"], "no price", "and the reagent it left out is listed as unpriced")
 
--- The page says how many days the auction prices are based on, and flags an old one.
+-- The page names the latest auction source and flags old prices.
 page.Price = function()
-	return { copper = 10, source = "auctionator", basis = 3 }
+	return { copper = 10, source = "auctionator" }
 end
 page.PriceAge = function()
 	return 0
@@ -587,9 +587,9 @@ end
 routeTab:Click()
 Drain()
 equal(
-	table.concat(lists[2].messages, " | "):find("AH prices are based on 3 days.", 1, true) ~= nil,
+	table.concat(lists[2].messages, " | "):find("Latest Auctionator prices.", 1, true) ~= nil,
 	true,
-	"the reagent list says how many days the prices are based on"
+	"the reagent list names the latest price source"
 )
 page.PriceAge = function()
 	return 90000
@@ -597,7 +597,7 @@ end
 routeTab:Click()
 Drain()
 equal(
-	table.concat(lists[2].messages, " | "):find("AH prices are based on 3 days: rescan with Auctionator.", 1, true)
+	table.concat(lists[2].messages, " | "):find("Latest Auctionator prices: rescan to update old prices.", 1, true)
 		~= nil,
 	true,
 	"an old price asks for a rescan"

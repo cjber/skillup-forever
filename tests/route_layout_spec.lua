@@ -15,7 +15,7 @@ local WIDTH = {
 	["Light Leather"] = 74,
 	["Coarse Thread"] = 81,
 	["Simple Wood"] = 76,
-	["AH prices are based on one day: rescan with Auctionator."] = 271,
+	["Latest Auctionator prices: rescan to update old prices."] = 271,
 }
 local function TextWidth(text)
 	return WIDTH[text] or #text * 7
@@ -428,7 +428,7 @@ local ns = {
 		return "Rank"
 	end,
 	Price = function()
-		return { copper = 10, source = "auctionator", basis = 1 }
+		return { copper = 10, source = "auctionator" }
 	end,
 	PriceAge = function()
 		return 90000

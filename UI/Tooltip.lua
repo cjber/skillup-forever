@@ -158,10 +158,6 @@ function ns.PriceSourceText(price)
 	elseif price.source == "vendor" then
 		return L["vendor"]
 	elseif price.source == "auctionator" then
-		-- A median of several days is not a price seen today, so it is named as the middle it is.
-		if price.basis and price.basis > 1 then
-			return string.format(L["Auctionator, the middle of %d days"], price.basis)
-		end
 		return string.format(L["Auctionator, %s"], ns.PriceAgeText(price))
 	end
 	error("unknown price source: " .. tostring(price.source))

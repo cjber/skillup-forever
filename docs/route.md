@@ -27,7 +27,7 @@ Fees come from the classic trainer data (CMaNGOS), which also says who trains wh
 
 ### Prices
 
-Reagents show where each price comes from. Auction prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator): each day it sees an item at the auction house, the addon keeps that day's lowest buyout, for up to seven days, and prices the reagent from the middle of those days, so one cheap listing does not move the route. The page says how many days the price is based on, and asks for a rescan once the newest day is over a day old. Without Auctionator, a reagent sold only at the auction house has no price.
+Reagents show where each price comes from. Auction prices use [Auctionator](https://www.curseforge.com/wow/addons/auctionator)'s latest recorded price, with the age of its observation. Scan with Auctionator to update prices. Without Auctionator, a reagent sold only at the auction house has no price.
 
 A missing price is unknown, never free. A reagent nobody has priced leaves every recipe that needs it out of the route, the page marks the route incomplete and names those reagents in the reagent list, and buying pays the cheaper of the vendor and auction prices.
 

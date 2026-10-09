@@ -8,7 +8,6 @@ local DEFAULTS = {
 	showSkill = false,
 	showTooltip = true,
 	showCost = true,
-	latestPrice = false, -- Auctionator's latest price instead of the seven-day median
 	craftValue = "vendor",
 	sortMode = "blizzard",
 	showTrainer = true,
@@ -24,8 +23,6 @@ local DEFAULTS = {
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
 	-- [npcID] = { name, side, map, x, y, build, items = { [itemID] = true } }: vendors seen selling a reagent or scroll
 	sellers = {},
-	-- [realm] = { [day] = { [itemID] = copper } }: each item's lowest auction buyout on a day, the last seven
-	priceDays = {},
 	-- The client builds this install has run with, oldest first: a vendor stops being named two builds
 	-- after the one it was seen on.
 	builds = {},
@@ -90,6 +87,7 @@ local function LoadDB()
 	end
 	loaded.showReagentTooltip = nil
 	-- Auction prices come from Auctionator now; drop what SkillUp's own scanner saved.
+	loaded.priceDays, loaded.latestPrice = nil, nil
 	loaded.scanAuctions, loaded.tracked, loaded.auctions, loaded.gatherFree = nil, nil, nil, nil
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
@@ -241,12 +239,6 @@ end
 ---@return string
 function ns.CharacterKey()
 	return UnitName("player") .. "-" .. GetNormalizedRealmName()
-end
-
--- The realm this character plays on: prices are kept per realm, not per character.
----@return string
-function ns.RealmKey()
-	return GetNormalizedRealmName()
 end
 
 -- The client's own build number, nil when it doesn't report one.

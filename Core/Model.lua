@@ -10,7 +10,16 @@ function Model.Get(recipeID)
 	-- The client's live grey replaces the bundled one; its yellow and green do not exist, so the
 	-- bundled pair stays under the live grey.
 	local live = ns.LiveRecipes and ns.LiveRecipes[recipeID]
-	return live and live.thresholds or (ns.Thresholds and ns.Thresholds[recipeID])
+	local thresholds = live and live.thresholds or (ns.Thresholds and ns.Thresholds[recipeID])
+	if
+		thresholds
+		and thresholds[1] <= thresholds[2]
+		and thresholds[2] <= thresholds[3]
+		and thresholds[3] < thresholds[4]
+	then
+		return thresholds
+	end
+	return nil
 end
 
 ---@param t number[]?

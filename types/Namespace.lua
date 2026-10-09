@@ -92,7 +92,7 @@
 ---@field SuggestionNPC fun(suggestion: SkillUpSuggestionNPC): integer?
 ---@field RecipeSuggestions fun(profession: SkillUpContext, base: number): SkillUpSuggestion[]
 ---@field ScrollPrice fun(source: SkillUpScrollSource): number?
----@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number
+---@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number?
 ---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource, first?: integer)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?

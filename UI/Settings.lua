@@ -98,8 +98,8 @@ function ns.RegisterSettings()
 		Checkbox(
 			rows,
 			"showSkill",
-			L["Show required skill on rows"],
-			L["Add the skill each recipe needs. Recipes you can't make yet always show it."]
+			L["Show skill range start on rows"],
+			L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."]
 		)
 
 		Checkbox(

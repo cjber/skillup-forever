@@ -63,9 +63,9 @@ end
 -- Not red when short: the route gets there before this step.
 ---@param tooltip GameTooltip
 ---@param profession SkillUpProfession
----@param reqSkill number
+---@param reqSkill number?
 local function RequiresLine(tooltip, profession, reqSkill)
-	AddLine(tooltip, L["Requires"], string.format("%s (%d)", profession.name, reqSkill))
+	AddLine(tooltip, L["Requires"], reqSkill and string.format("%s (%d)", profession.name, reqSkill) or UNKNOWN)
 end
 
 -- The crafted item's own tooltip when there is one, else the recipe's name. Under the item's tooltip the

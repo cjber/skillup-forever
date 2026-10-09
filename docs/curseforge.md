@@ -34,8 +34,8 @@ Hover a reagent to see how much your routes need.
 
 ## Features
 
-- **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds. Required skill is optional.
-- **Sorting** puts required skill, chance or cheapest skill-ups first. *Default* restores the game's categories and filters.
+- **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds. The start of the difficulty range is optional.
+- **Sorting** orders recipes by difficulty range start, chance or cheapest skill-ups. *Default* restores the game's categories and filters.
 - **Levelling routes** list crafts and trainer visits to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps; routes that stop short name recipes that could extend them.
 - **Shopping lists** count reagents against bags and bank. Choose whether gathered materials are free or bought, track them beside quests, buy vendor stock and keep an Auctionator list up to date.
 - **Trainer annotations** mark the best recipe to train next. Reagent tooltips show what tracked routes need.

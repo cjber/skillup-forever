@@ -276,10 +276,12 @@ function ns.RecipeSuggestions(profession, base)
 	for recipeID, recipe in pairs(ns.RecipeData) do
 		local source = recipe.skillLine == profession.skillLine and C.Recipe(recipeID)
 		local t = source and ns.Model.Get(recipeID)
+		local learnAt = source and ns.ScrollSkill(recipeID, source)
 		if
 			source
 			and t
-			and ns.ScrollSkill(recipeID, source) <= base
+			and learnAt
+			and learnAt <= base
 			and t[4] > skill
 			and not ns.IsLearned(recipeID)
 			and not ns.TrainingFor(profession, recipeID)
@@ -309,15 +311,14 @@ function ns.RecipeSuggestions(profession, base)
 	return found
 end
 
--- The base skill a scroll asks for: AtlasLoot's, else the bundled scroll's own requirement, else
--- where the recipe starts, which is where a scroll is usually learnable.
+-- The base skill a scroll asks for: AtlasLoot's, else the bundled scroll item's own requirement.
+-- Difficulty bands do not establish a learning requirement.
 ---@param recipeID integer
 ---@param source SkillUpScrollSource
----@return number
+---@return number?
 function ns.ScrollSkill(recipeID, source)
 	local scroll = ns.RecipeScrolls[recipeID]
-	local t = ns.Model.Get(recipeID)
-	return source.skill or (scroll and scroll[2]) or (t and t[1]) or 0
+	return source.skill or (scroll and scroll[2])
 end
 
 -- The scroll's price: what it last sold for at auction or at a merchant's window.

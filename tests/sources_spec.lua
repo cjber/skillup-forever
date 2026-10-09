@@ -114,6 +114,8 @@ equal(suggestions[1].npcID, SELLER, "the vendor is the one of your faction")
 equal(ns.SuggestionNPC(suggestions[1]), SELLER, "a click goes to that vendor")
 equal(ns.SuggestionNPC(suggestions[3]), BOSS, "a drop's click goes to who drops it")
 equal(ns.ScrollSkill(SOLD, suggestions[1].source), 40, "the skill a scroll needs is AtlasLoot's")
+equal(ns.ScrollSkill(SOLD, { item = 999999 }), nil, "difficulty start is not a scroll learning requirement")
+
 equal(
 	c.Lines(function(tooltip)
 		ns.AddSourceLines(tooltip, suggestions[1].source)

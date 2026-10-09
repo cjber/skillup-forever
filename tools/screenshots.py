@@ -260,6 +260,8 @@ def describe(recipe_id):
     """Core/Core.lua ns.Describe at SKILL, where the live difficulty agrees with the thresholds, so the chance is
     the thresholds' own."""
     t = NS["Thresholds"].get(recipe_id)
+    if t and not (t[0] <= t[1] <= t[2] < t[3]):
+        t = None
     cost, value, net = craft_cost(recipe_id)
     chance = model_chance(t, SKILL)
     return {
@@ -471,7 +473,6 @@ env = setmetatable({
 	TOTAL = "Total",
 	DEFAULT = "Default",
 	OFF = "Off",
-	ITEM_MIN_SKILL = "Requires %s (%d)",
 	Enum = {
 		TradeskillRelativeDifficulty = { Optimal = 0, Medium = 1, Easy = 2, Trivial = 3 },
 		TooltipDataType = { Item = 0 },
@@ -1180,7 +1181,7 @@ def recipe_tooltip_lines(ui, recipe_id):
     t = d["thresholds"]
     lines = [
         TooltipLine(recipe_name(recipe_id)),
-        TooltipLine(f"Requires Leatherworking ({t[0]})", COLORS["red"] if SKILL < t[0] else WHITE),
+        TooltipLine(f"Skill range starts at {t[0]}", COLORS["red"] if SKILL < t[0] else WHITE),
     ]
     bar_line = len(lines)
     lines += [TooltipLine(" ")] * bar_blank_lines()

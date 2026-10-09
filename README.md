@@ -24,8 +24,8 @@ The recipe tooltip draws the thresholds on the game's own bar with your skill ma
 
 ## Features
 
-- **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds. Required skill is optional; unavailable recipes show it in red.
-- **Sorting** puts required skill, chance or cheapest skill-ups first. *Default* restores the game's categories and filters.
+- **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds. The start of the difficulty range is optional.
+- **Sorting** orders recipes by difficulty range start, chance or cheapest skill-ups. *Default* restores the game's categories and filters.
 - **Levelling routes** list crafts and trainer visits to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps; a route that stops short names recipes that could extend it. [Route details](docs/route.md#levelling-route).
 - **Shopping lists** count reagents against your bags and bank. *Buy reagents* chooses whether materials your professions gather are free or bought. Track the list beside quests, buy vendor stock and keep an Auctionator list up to date. [Shopping details](docs/route.md#shopping-list).
 - **Trainer annotations** show chance and cost, with a green arrow on the recipe that best extends or cheapens your route.
@@ -79,7 +79,7 @@ A craft's vendor sell value comes off its cost by default. You can choose its au
 
 ## How the numbers work
 
-Each recipe has four thresholds: orange (required skill), yellow, green and grey. Chance follows the Classic formula:
+Each recipe has four thresholds: orange (start of its skill range), yellow, green and grey. Chance follows the Classic formula:
 
 | Colour | Chance |
 |---|---|
@@ -87,7 +87,7 @@ Each recipe has four thresholds: orange (required skill), yellow, green and grey
 | Yellow, green | `(grey − skill) / (grey − yellow)` |
 | Grey, or at your skill cap | 0% |
 
-The colour always comes from the game, so the addon never disagrees. Thresholds and recipe data come from the Forever client's `SkillLineAbility` (via [wago.tools](https://wago.tools)); where it agrees, the Skillet-Classic baseline fills in orange, and the grey threshold is the game's own live value where it reports one. Missing data shows `?`.
+The colour always comes from the game, so the addon never disagrees. Thresholds and recipe data come from the Forever client's `SkillLineAbility` (via [wago.tools](https://wago.tools)). All bundled thresholds use the same Forever build, and the grey threshold is the game's own live value where it reports one. Missing or contradictory ranges show `?`. Training requirements are separate from these difficulty bands.
 
 **Found a wrong number?** Run `/su audit` with that profession open and [open an issue](https://github.com/cjber/skillup-forever/issues/new) with the output.
 
@@ -111,7 +111,7 @@ Run `luajit tests/bench.lua` from the repository root to measure loading, route 
 
 ## Licence
 
-GPL-3.0-or-later. Thresholds are partly derived from [Skillet-Classic](https://github.com/b-morgan/Skillet-Classic) (GPL-3.0-or-later); per-build values come from the game via [wago.tools](https://wago.tools). Trainer fees, who trains what, drop chances and gathered reagents come from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0); vendors, quests, NPC places and scroll recipes are read in game from your own Questie and AtlasLoot, and none of their data is bundled; vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1).
+GPL-3.0-or-later. Per-build thresholds come from the game via [wago.tools](https://wago.tools). Trainer fees, who trains what, drop chances and gathered reagents come from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0); vendors, quests, NPC places and scroll recipes are read in game from your own Questie and AtlasLoot, and none of their data is bundled; vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1).
 
 Made by Cillian Berragan · [cillian.dev](https://cillian.dev) · [GitHub](https://github.com/cjber) · [Twitter](https://twitter.com/cjberragan)
 

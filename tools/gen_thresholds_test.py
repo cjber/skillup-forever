@@ -48,5 +48,24 @@ class Db2Test(unittest.TestCase):
             self.assertEqual(path.read_bytes(), original)
 
 
+class ThresholdSourceTest(unittest.TestCase):
+    def test_forever_requirement_is_used_unchanged(self):
+        row = {
+            "SkillLine": "164",
+            "Spell": "9985",
+            "MinSkillLineRank": "1",
+            "TrivialSkillLineRankLow": "155",
+            "TrivialSkillLineRankHigh": "185",
+        }
+        emitted, _ = gen_thresholds.generate(
+            [row],
+            {},
+            {164},
+            {9985: "Bronze Warhammer"},
+            {9985: {24}},
+        )
+        self.assertEqual(emitted[9985], (1, 155, 170, 185))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -40,7 +40,7 @@ local DEFAULTS = {
 ns.DEFAULTS = DEFAULTS
 ns.SORT_OPTIONS = {
 	{ "blizzard", DEFAULT },
-	{ "skill", L["Required skill"] },
+	{ "skill", L["Skill range start"] },
 	{ "chance", L["Skill-up chance"] },
 	{ "cost", L["Cheapest skill-up"] },
 }
@@ -408,7 +408,7 @@ function ns.FormatRow(d)
 	if not d.thresholds then
 		return "?"
 	end
-	-- A recipe you can't make yet keeps its requirement: it's the only useful number.
+	-- Before the difficulty range starts, show its first skill value.
 	if not d.chance then
 		return tostring(d.thresholds[1])
 	end

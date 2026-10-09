@@ -22,7 +22,6 @@ refresh failed", or comments on it while it is open, and the next passing run cl
 | --- | --- | --- |
 | `BUILD` | `gen_thresholds.py` | highest 1.6x build of `wow_classic_beta` on wago.tools (`tools/latest_build.py` prints it) |
 | `TEACH_BUILD` | `gen_trainer.py` | highest 1.1x build of `wow_classic_era` on wago.tools |
-| `SKILLET_COMMIT` | `gen_thresholds.py` | last Skillet-Classic commit that changed `SkillLevelData1.lua` |
 | `PT_COMMIT` | `gen_vendor.py` | last LibPeriodicTable commit that changed the Tradeskill file's bytes |
 | `CLASSICDB_COMMIT` | `gen_trainer.py` | moved by hand only: a waiver in `AGENTS.md` |
 
@@ -32,25 +31,22 @@ inputs, moved by hand with the addons that share them.
 
 ## Generators
 
-The generator pins a Forever build (`BUILD`) and a Skillet-Classic commit, caches
-downloads in `tools/.cache/`, and writes sorted `Data/Thresholds.lua`. Use
-`--refresh` to download again or `--offline` to require cached sources. The header
-date identifies the selected source snapshot, so repeated runs are byte-identical.
+The generator pins one Forever build (`BUILD`), caches downloads in `tools/.cache/`,
+and writes sorted `Data/Thresholds.lua`. Use `--refresh` to download again or
+`--offline` to require cached sources. The header date identifies the selected
+source snapshot, so repeated runs are byte-identical.
 
-Wago's `SkillLineAbility` supplies yellow/grey and fallback orange; green is their
-floored midpoint. `SkillLine` discovers professions and child lines; `SpellName`
-supplies comments. Same-build `SpellEffect` maps created items to recipe spells
-for Skillet's item-keyed requirements. A baseline orange is accepted only when
-yellow/grey match; scraped `SkillLevels` takes priority over `SkillLineAbility`.
-Every row records orange provenance. DB2-derived orange values need a live audit.
-Contradictory DB2 requirements (`orange > yellow`, currently spells 2665 and
-2674) are retained and flagged, never clamped or replaced with guessed values.
+That build's `SkillLineAbility` supplies orange, yellow and grey; green is the
+floored midpoint of yellow and grey. `SkillLine` discovers professions and child
+lines, `SpellName` supplies comments, and `SpellEffect` excludes gathering abilities.
+Contradictory rows stay in the generated table for auditing and recipe catalogue
+generation. `Model.Get` returns unknown for those rows, including contradictions
+introduced by a live grey threshold, so displays and plans cannot use them.
 
 Coverage prints per skill line, including skipped/duplicate rows and missing
 names. Gathering abilities and test professions are excluded. Shared recipes
 count once per profession but occupy one output key. DB2 download/schema failures
-leave existing output untouched; an unavailable Skillet baseline produces a
-warning and retains DB2 values. Baseline-derived portions are GPL-3.0-or-later.
+leave existing output untouched.
 
 `gen_vendor.py` writes `Data/Vendor.lua`: unit prices (`BuyPrice / VendorStackCount`
 from the same build's `ItemSparse`) for the items in LibPeriodicTable-3.1's

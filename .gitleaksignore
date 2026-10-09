@@ -1,0 +1,2 @@
+# False positive: synthetic Auctionator test sets an item price to 800 copper.
+58a12f0bbea564685fc33705490a4fe091163128:tests/prices_spec.lua:generic-api-key:158

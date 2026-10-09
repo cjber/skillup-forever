@@ -11,11 +11,13 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Latest Auctionator prices.** Reagents and crafted items use Auctionator's latest recorded price. Scan with Auctionator to update prices; SkillUp no longer stores or averages daily prices.
+
 ## [0.9.1] - 2026-10-09
 
 - **Recipe thresholds** use one pinned Forever client build, with no older Classic overrides. Contradictory difficulty ranges show unknown and are excluded from plans. Trainer recommendations respect learning requirements separately.
 
-- **Latest Auctionator prices.** Reagents and crafted items use Auctionator's latest recorded price. Scan with Auctionator to update prices; SkillUp no longer stores or averages daily prices.
+- **Latest Auctionator price option.** A new Prices setting prices reagents and crafted items at Auctionator's latest price instead of the median of the last seven days. The median stays the default.
 
 - **Keep Blizzard's tracker methods intact.** The shared Forever tracker responds to objective and player events without wrapping native layout methods.
 

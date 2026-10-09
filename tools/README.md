@@ -15,8 +15,8 @@ for s in tests/*_spec.lua; do luajit "$s" || exit 1; done
 
 `python3 tools/bump_pins.py` moves each pin to its newest upstream and prints what moved, or
 nothing when all are current. `.github/workflows/refresh-data.yml` runs it daily, regenerates,
-runs the specs and opens a pull request; a scheduled run that fails opens the issue "Data
-refresh failed", or comments on it while it is open, and the next passing run closes it.
+runs the specs and opens a pull request; a scheduled run that fails is re-run once ten minutes
+later by `retry-refresh.yml`, and one that fails again opens the issue "Data refresh failed", or comments on it while it is open, and the next passing run closes it.
 
 | Pin | In | Newest upstream |
 | --- | --- | --- |

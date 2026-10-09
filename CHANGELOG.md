@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **How the Forever addons work together.** The README and store page list each of the other Forever addons and what it adds when installed alongside this one.
+
 ## [0.9.2] - 2026-10-09
 
 - **Latest Auctionator prices.** Reagents and crafted items use Auctionator's latest recorded price. Scan with Auctionator to update prices; SkillUp no longer stores or averages daily prices.

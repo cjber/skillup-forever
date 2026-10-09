@@ -342,9 +342,6 @@ do
 		VendorPrices = { [1] = 5 },
 		GatheredBy = {},
 		db = { craftValue = "vendor" },
-		RealmKey = function()
-			return "Realm"
-		end,
 		CollectMode = function()
 			return "gather"
 		end,

@@ -11,6 +11,10 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-10-09
+
+- **Latest Auctionator prices.** Reagents and crafted items use Auctionator's latest recorded price. Scan with Auctionator to update prices; SkillUp no longer stores or averages daily prices.
+
 ## [0.9.1] - 2026-10-09
 
 - **Recipe thresholds** use one pinned Forever client build, with no older Classic overrides. Contradictory difficulty ranges show unknown and are excluded from plans. Trainer recommendations respect learning requirements separately.

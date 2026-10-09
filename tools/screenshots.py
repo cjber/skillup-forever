@@ -1110,6 +1110,7 @@ from wowmock import (
     ui_panel_button,
     wrap_text,
 )
+
 from gen_thresholds import BUILD
 
 FRIZ = "fonts/frizqt__.ttf"

@@ -60,7 +60,16 @@ Open a profession and the numbers are already there.
 
 Thresholds come from the Forever client's recipe data; missing data shows `?`. Settings cover rows and tooltips, prices, the route and crafted gear tabs, trainer annotations, sorting, reagent tooltips and companion hints.
 
-It also works with my other Forever addons: [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever) walks you to its waypoints, and [Adventure Guide Forever](https://www.curseforge.com/wow/addons/adventure-guide-forever) shows each profession's next steps from its route.
+## With my other Forever addons
+
+All optional:
+
+- [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever) plans the trip when you click a trainer or vendor in the route. SkillUp then picks the nearest one by travel time.
+- [Adventure Guide Forever](https://www.curseforge.com/wow/addons/adventure-guide-forever) shows each profession's next steps in its Professions tab.
+- [Legacy Forever](https://www.curseforge.com/wow/addons/legacy-forever) puts unfinished Legacy challenges on the world map and in the tracker.
+- [Tweaks Forever](https://www.curseforge.com/wow/addons/tweaks-forever) adds options for repairs, junk selling, bags and maps to the game's settings.
+
+A tracked route shares one tracker column with the Shortest Path, Adventure Guide and Legacy sections, above your quests.
 
 SkillUp is in English for now; translations are welcome as a pull request or issue.
 

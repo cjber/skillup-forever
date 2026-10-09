@@ -26,6 +26,12 @@ jobs:
         with:
           # create-pull-request authenticates with its own `token` input.
           persist-credentials: false
+      # Pinned inputs CI already downloaded, such as frozen dumps; each file is keyed by its pin.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tools/.cache
+          key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py') }}
+          restore-keys: regeneration-${{ runner.os }}-
       - name: Pin the newest upstreams
         id: pins
         env:
@@ -94,8 +100,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ needs.refresh.outputs.branch }}
 
-  # One open "Data refresh failed" issue: a failed scheduled run opens it or adds to it, and the next
-  # one that passes closes it.
+  # One open "Data refresh failed" issue: a scheduled run that fails again when retry-refresh.yml re-runs it
+  # opens it or adds to it, and the next one that passes closes it.
   report:
     needs: [refresh, ci]
     if: always() && github.event_name == 'schedule'
@@ -106,11 +112,14 @@ jobs:
       - env:
           GH_TOKEN: ${{ github.token }}
           FAILED: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           issue=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Data refresh failed"' \
             --json number,title --jq '[.[] | select(.title == "Data refresh failed")][0].number // empty')
-          if [ "$FAILED" = true ]; then
+          if [ "$FAILED" = true ] && [ "$RUN_ATTEMPT" = 1 ]; then
+            echo "retry-refresh.yml re-runs this once; only a failed re-run is reported"
+          elif [ "$FAILED" = true ]; then
             body="The scheduled data refresh failed: $RUN_URL
 
           The bundled data stays on its old pins until this is fixed. Run \`python3 tools/bump_pins.py\` and the generators in \`tools/README.md\` to reproduce it."

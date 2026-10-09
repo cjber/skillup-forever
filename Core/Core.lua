@@ -55,7 +55,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 }
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
-ns.WHATS_NEW = L["Hide tracked professions in settings without clearing their targets."]
+ns.WHATS_NEW = L["Tracker text stays on screen when you reduce the Forever tracker size."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

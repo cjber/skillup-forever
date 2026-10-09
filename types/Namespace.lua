@@ -92,7 +92,7 @@
 ---@field SuggestionNPC fun(suggestion: SkillUpSuggestionNPC): integer?
 ---@field RecipeSuggestions fun(profession: SkillUpContext, base: number): SkillUpSuggestion[]
 ---@field ScrollPrice fun(source: SkillUpScrollSource): number?
----@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number
+---@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number?
 ---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource, first?: integer)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
@@ -141,6 +141,7 @@
 ---@field showSkill boolean
 ---@field showTooltip boolean
 ---@field showCost boolean
+---@field latestPrice boolean
 ---@field craftValue 'none'|'vendor'|'auction'
 ---@field sortMode 'blizzard'|'skill'|'chance'|'cost'
 ---@field showTrainer boolean

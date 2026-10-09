@@ -406,7 +406,12 @@ function ns.BestTraining(profession, known, offers)
 		if thresholds and not ns.IsLearned(offer.recipeID) then
 			services[#services + 1] = {
 				recipeID = offer.recipeID,
-				thresholds = thresholds,
+				thresholds = {
+					math.max(thresholds[1], ns.LearnSkill(profession, offer.recipeID)),
+					thresholds[2],
+					thresholds[3],
+					thresholds[4],
+				},
 				netCost = ns.NetCost(offer.recipeID),
 				fee = offer.fee,
 			}

@@ -254,7 +254,7 @@ function ns.ShowRecipeTooltip(_, row, data)
 	local t = d.thresholds
 	if t and ctx then
 		local reqColor = ctx.skill < t[1] and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
-		GameTooltip_AddColoredLine(tooltip, string.format(ITEM_MIN_SKILL, ctx.name or "", t[1]), reqColor)
+		GameTooltip_AddColoredLine(tooltip, string.format(L["Skill range starts at %d"], t[1]), reqColor)
 		GameTooltip_InsertFrame(tooltip, LayoutBar(t, ctx.skill), 4)
 		if d.chance then
 			GameTooltip_AddColoredLine(
@@ -285,7 +285,7 @@ local BAND_END = { orange = 2, yellow = 3, green = 4 }
 local function Band(t, skill)
 	local band = ns.Model.Color(t, skill)
 	if band == "red" then
-		return string.format(L["needs %d"], t[1]), ns.COLORS.red
+		return string.format(L["Skill range starts at %d"], t[1]), ns.COLORS.red
 	elseif band == "grey" then
 		return L["grey"], ns.COLORS.grey
 	end

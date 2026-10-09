@@ -190,7 +190,7 @@ end
 -- Every subpage's rows, then the index's button to it, in the order the groups appear.
 local groups = {
 	{ "Recipe rows", "checkbox:showRowText checkbox:showSkill checkbox:showTooltip checkbox:showCost" },
-	{ "Prices", "slider:craftValue" },
+	{ "Prices", "slider:craftValue checkbox:latestPrice" },
 	{
 		"Route and trainer",
 		"checkbox:showTracker checkbox:trackerAttached checkbox:showRouteTab checkbox:showGearTab checkbox:showTrainer",

@@ -98,8 +98,8 @@ function ns.RegisterSettings()
 		Checkbox(
 			rows,
 			"showSkill",
-			L["Show required skill on rows"],
-			L["Add the skill each recipe needs. Recipes you can't make yet always show it."]
+			L["Show skill range start on rows"],
+			L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."]
 		)
 
 		Checkbox(
@@ -124,6 +124,13 @@ function ns.RegisterSettings()
 			L["Count what crafts sell for"],
 			ns.CRAFT_VALUE_OPTIONS,
 			L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, are after the 5% cut, and may not sell."]
+		)
+
+		Checkbox(
+			rows,
+			"latestPrice",
+			L["Use Auctionator's latest price"],
+			L["Price reagents and crafted items at Auctionator's latest price instead of the median of the last seven days."]
 		)
 	end)
 

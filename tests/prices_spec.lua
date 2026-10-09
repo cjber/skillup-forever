@@ -123,6 +123,48 @@ local reloaded = Client.load({ data = DATA, saved = saved })
 equal(reloaded.ns.Price(1).basis, 7, "login prunes the store to seven days")
 equal(reloaded.ns.Price(1).copper, 60, "the days kept are the newest seven")
 
+-- The latest price setting swaps the stored median for Auctionator's current price, both ways, for
+-- reagents and for what a craft sells for.
+do
+	local m = Client.load({ data = DATA })
+	local mns = m.ns
+	m.auction, m.auctionAge = { [1] = 500, [7] = 900 }, 0
+	m.now = m.now + 20 * DAY
+	mns.Price(1)
+	m.AuctionatorScan()
+	mns.Price(7)
+	m.AuctionatorScan()
+	m.auction[1], m.auction[7], m.auctionAge = 800, 300, 2
+	mns.Changed("prices")
+	equal(mns.db.latestPrice, false, "the median stays the default")
+	equal(mns.Price(1).copper, 500, "the default prices at the stored median")
+	mns.db.latestPrice = true
+	equal(mns.Price(1).copper, 500, "a setting change alone leaves cached prices")
+	mns.Changed("settings")
+	equal(mns.Price(1).copper, 800, "the setting prices at Auctionator's latest")
+	equal(mns.Price(1).basis, 1, "a latest price is a one-day basis")
+	equal(mns.Price(1).days, 2, "and keeps the age Auctionator reports")
+	mns.db.latestPrice = false
+	mns.Changed("settings")
+	equal(mns.Price(1).copper, 500, "switching back returns to the median")
+	equal(mns.Price(1).days, 0, "with the stored day's age")
+	mns.db.latestPrice = true
+	mns.Changed("settings")
+	m.auction[1] = nil
+	mns.Changed("prices")
+	equal(mns.Price(1), nil, "no latest price is no price, not the stored median")
+	m.auction[1] = 800
+	mns.Changed("prices")
+	local api2 = m.G.Auctionator.API.v1
+	local lookup = api2.GetAuctionPriceByItemID
+	api2.GetAuctionPriceByItemID = nil
+	mns.Changed("prices")
+	equal(mns.Price(1), nil, "without the Auctionator price API there is no price")
+	api2.GetAuctionPriceByItemID = lookup
+	mns.Changed("prices")
+	equal(mns.Price(1).copper, 800, "the price returns with the API")
+end
+
 -- Without Auctionator, only vendor prices exist.
 ns = Client.load({ data = DATA, auctionator = false }).ns
 equal(ns.Price(1), nil, "without Auctionator an auction-only reagent has no price")

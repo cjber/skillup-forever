@@ -34,21 +34,20 @@ Hover a reagent to see how much your routes need.
 
 ## Features
 
-- **Recipe rows and tooltips** show skill-up chance and cost, such as `62% · 45s`, plus orange, yellow, green and grey thresholds on the game's own bar and each reagent's price. Required skill is optional.
-- **Sorting** by required skill, chance or cheapest skill-up puts recipes in one list. *Default* restores categories; the game's filters still apply.
-- **Levelling route**: a tab on the window with the cheapest crafts to your target skill, trainer recipes and rank fees. A reagent you can make cheaper becomes its own step, each step names the tool and station it needs and asks for enough crafts to cover a bad run, and *Nearest vendor* points to the closest vendor for what the route still buys. If a route stops short, it lists vendor, quest and drop recipes that could extend it. Waypoints cover trainers and suppliers, via Shortest Path Forever or TomTom. Vendors, quests and trainers are named with [Questie](https://www.curseforge.com/wow/addons/questie) installed, and scroll recipes with [AtlasLoot Classic Forever](https://www.curseforge.com/wow/addons/atlasloot-forever); both are optional.
-- **Shopping list** counts reagents against your bags and bank, green once covered. *Buy reagents* chooses whether a reagent your own professions gather is free or bought. Track it beside your quests (it starts on its own when you open the profession), buy what a vendor sells, and with [Auctionator](https://www.curseforge.com/wow/addons/auctionator) it keeps an Auctionator list up to date as you buy, craft and skill up. Syndicator shows what your other characters hold.
-- **Profession trainer** shows chance and cost beside recipes, with a green arrow on the best one to train next.
-- **Reagent tooltips** show what tracked routes need; hold Shift for every recipe of your professions that uses the item and still skills up.
-- **Crafted gear**: a tab, turned on in settings, draws your character sheet again, one item slot down each side and the weapon slots along the bottom, each showing the newest thing this character could craft for it. The pane in the middle names the pick, the skill its recipe is learned at, its reagents and its state, and opens the recipe or points to where it is taught. A switch adds gear you cannot make yet. Not a best-in-slot list.
+- **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds. The start of the difficulty range is optional.
+- **Sorting** orders recipes by difficulty range start, chance or cheapest skill-ups. *Default* restores the game's categories and filters.
+- **Levelling routes** list crafts and trainer visits to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps; routes that stop short name recipes that could extend them.
+- **Shopping lists** count reagents against bags and bank. Choose whether gathered materials are free or bought, track them beside quests, buy vendor stock and keep an Auctionator list up to date.
+- **Trainer annotations** mark the best recipe to train next. Reagent tooltips show what tracked routes need.
+- **Crafted gear** shows the newest craft for each slot, with its recipe, reagents and learning location. Enable its tab in settings.
 
 ## Prices
 
-- Common vendor supplies have bundled prices; visiting a vendor records its prices, including reputation discounts.
-- Auction prices need [Auctionator](https://www.curseforge.com/wow/addons/auctionator); SkillUp uses its prices and never scans the auction house itself. Each day it sees an item, the addon keeps that day's lowest buyout and prices the reagent from the middle of the last seven days, so one cheap listing does not move a route. Without it, a reagent only sold at the auction house has no price.
-- A reagent your own professions gather is free to gather, until *Buy reagents* on the route turns it into a bought one.
+Each reagent uses the cheapest known vendor or Auctionator price. Visiting a vendor records its prices and reputation discounts. Materials your professions gather can count as free until you choose *Buy reagents*.
 
-Each reagent uses the cheaper known vendor or auction price, and the craft's vendor sell value comes off its cost by default. You can choose its auction value when higher, after the 5% cut. Profit shows a green `+`; a reagent nobody has priced leaves its recipes out of the route, which names it.
+Auction prices use the median of the last seven days by default. In **Prices**, enable **Use Auctionator's latest price** for reagents and crafted items. SkillUp never scans the auction house itself. Missing prices stay unknown and leave affected recipes out of the route.
+
+A craft's vendor sell value comes off its cost by default. You can choose its auction value when higher, after the 5% cut. Profit shows a green `+`.
 
 ## Usage
 

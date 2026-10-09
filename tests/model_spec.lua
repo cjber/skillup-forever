@@ -21,6 +21,10 @@ equal(Model.Get(2152), nil, "lookup before data loads")
 equal(Model.Color(nil, 48), nil, "unknown color")
 equal(Model.Chance(nil, 48), nil, "unknown chance")
 
+ns.Thresholds = { [2674] = { 125, 100, 107, 115 } }
+equal(Model.Get(2674), nil, "contradictory bundled thresholds are unknown")
+ns.Thresholds = nil
+
 local cloak = { 1, 40, 55, 70 }
 local boundaries = {
 	{ -1, "red" },
@@ -70,7 +74,7 @@ assert(loadfile("Data/Thresholds.lua"))("SkillUpForever", ns)
 equal(type(ns.Thresholds), "table", "generated namespace table")
 equal(Model.Get(-1), nil, "unknown recipe")
 equal(Model.Get(2152), ns.Thresholds[2152], "lookup uses recipe spell ID")
--- These are spell IDs, not the output item IDs used by Skillet SkillLevels.
+-- These are spell IDs, not the output item IDs.
 -- Sample every profession that levels by crafting, with recipes the client has always had: a
 -- recipe Forever adds can lose its skill range in a later build, and with it its thresholds.
 local samples = {
@@ -95,12 +99,15 @@ for _, recipeID in ipairs(samples) do
 end
 near(Model.Chance(Model.Get(9058), 48), 22 / 30, "generated cloak matches mockup")
 
--- These two raw DB2 rows have contradictory requirements. Preserve their data
--- for a live audit instead of inventing an orange threshold to make it sorted.
-equal(Model.Get(2665)[1], 75, "Coarse Sharpening Stone retains DB2 orange")
-equal(Model.Get(2665)[2], 40, "Coarse Sharpening Stone retains DB2 yellow")
-equal(Model.Get(2674)[1], 125, "Heavy Sharpening Stone retains DB2 orange")
-equal(Model.Get(2674)[2], 100, "Heavy Sharpening Stone retains DB2 yellow")
+-- Keep raw client rows for catalogue generation, but never use contradictory bands in the model.
+for _, recipeID in ipairs({ 2665, 2674 }) do
+	equal(ns.Thresholds[recipeID][1] > ns.Thresholds[recipeID][2], true, "raw contradiction retained")
+	equal(Model.Get(recipeID), nil, "contradictory recipe is unknown")
+end
+equal(Model.Get(9985)[1], 1, "Bronze Warhammer uses the Forever requirement")
+ns.LiveRecipes = { [9985] = { thresholds = { 1, 155, 170, 160 } } }
+equal(Model.Get(9985), nil, "contradictory live grey is unknown")
+ns.LiveRecipes = nil
 
 local rows = 0
 for recipeID, t in pairs(ns.Thresholds) do

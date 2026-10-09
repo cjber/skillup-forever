@@ -1,7 +1,7 @@
 name: Refresh profession data
 
 # Opens a PR with regenerated data when a generator pin has a newer upstream: the Forever or Classic
-# Era build on wago.tools, or the Skillet-Classic or LibPeriodicTable file a generator reads.
+# Era build on wago.tools, or the LibPeriodicTable file a generator reads.
 # CI on a PR opened with GITHUB_TOKEN waits for a maintainer's approval, so the Lua checks run here
 # first and the ci job dispatches the full CI on the PR's branch.
 # Daily: beta builds have shipped several times a week. A scheduled run that fails opens an issue.
@@ -79,7 +79,7 @@ jobs:
           body: |
             A generator pin moved to its newest upstream: ${{ steps.pins.outputs.moved }}. All five `Data` files are regenerated; `tools/README.md` names each file's sources.
 
-            - `Data/Thresholds.lua`, `Data/Recipes.lua` and `Data/Vendor.lua` come from the Forever build's own DB2 tables on wago.tools (skill ranges, reagents, outputs, prices and spell names), with Skillet-Classic's orange thresholds as a baseline and LibPeriodicTable's list of vendor-sold reagents.
+            - `Data/Thresholds.lua`, `Data/Recipes.lua` and `Data/Vendor.lua` come from the Forever build's own DB2 tables on wago.tools (skill ranges, reagents, outputs, prices and spell names), with LibPeriodicTable's list of vendor-sold reagents.
             - `Data/Trainer.lua` and `Data/Sources.lua` hold what QuestieDB and AtlasLoot do not: trainer fees and ranks, which trainer teaches a profession, a scroll's drop chances and which reagents a gathering skill yields. These come from the pinned CMaNGOS classic-db dump, which this workflow never moves, joined to Classic Era's teaching spells and limited to the recipes the Forever build has. Vendors, quests and where NPCs stand are read in game from the player's QuestieDB and AtlasLoot and are not regenerated.
 
             ${{ steps.report.outputs.markdown }}

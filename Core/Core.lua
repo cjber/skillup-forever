@@ -8,6 +8,7 @@ local DEFAULTS = {
 	showSkill = false,
 	showTooltip = true,
 	showCost = true,
+	latestPrice = false, -- Auctionator's latest price instead of the seven-day median
 	craftValue = "vendor",
 	sortMode = "blizzard",
 	showTrainer = true,
@@ -39,7 +40,7 @@ local DEFAULTS = {
 ns.DEFAULTS = DEFAULTS
 ns.SORT_OPTIONS = {
 	{ "blizzard", DEFAULT },
-	{ "skill", L["Required skill"] },
+	{ "skill", L["Skill range start"] },
 	{ "chance", L["Skill-up chance"] },
 	{ "cost", L["Cheapest skill-up"] },
 }
@@ -55,7 +56,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 }
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged.
-ns.WHATS_NEW = L["Hide tracked professions in settings without clearing their targets."]
+ns.WHATS_NEW = L["Keep Blizzard's tracker methods intact."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -407,7 +408,7 @@ function ns.FormatRow(d)
 	if not d.thresholds then
 		return "?"
 	end
-	-- A recipe you can't make yet keeps its requirement: it's the only useful number.
+	-- Before the difficulty range starts, show its first skill value.
 	if not d.chance then
 		return tostring(d.thresholds[1])
 	end

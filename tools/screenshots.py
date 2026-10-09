@@ -260,6 +260,8 @@ def describe(recipe_id):
     """Core/Core.lua ns.Describe at SKILL, where the live difficulty agrees with the thresholds, so the chance is
     the thresholds' own."""
     t = NS["Thresholds"].get(recipe_id)
+    if t and not (t[0] <= t[1] <= t[2] < t[3]):
+        t = None
     cost, value, net = craft_cost(recipe_id)
     chance = model_chance(t, SKILL)
     return {
@@ -471,7 +473,6 @@ env = setmetatable({
 	TOTAL = "Total",
 	DEFAULT = "Default",
 	OFF = "Off",
-	ITEM_MIN_SKILL = "Requires %s (%d)",
 	Enum = {
 		TradeskillRelativeDifficulty = { Optimal = 0, Medium = 1, Easy = 2, Trivial = 3 },
 		TooltipDataType = { Item = 0 },
@@ -1111,6 +1112,8 @@ from wowmock import (
     wrap_text,
 )
 
+from gen_thresholds import BUILD
+
 FRIZ = "fonts/frizqt__.ttf"
 ARIAL = "fonts/arialn.ttf"
 F_ROW = Font(FRIZ, 12, WHITE)  # GameFontHighlight_NoShadow
@@ -1178,7 +1181,7 @@ def recipe_tooltip_lines(ui, recipe_id):
     t = d["thresholds"]
     lines = [
         TooltipLine(recipe_name(recipe_id)),
-        TooltipLine(f"Requires Leatherworking ({t[0]})", COLORS["red"] if SKILL < t[0] else WHITE),
+        TooltipLine(f"Skill range starts at {t[0]}", COLORS["red"] if SKILL < t[0] else WHITE),
     ]
     bar_line = len(lines)
     lines += [TooltipLine(" ")] * bar_blank_lines()
@@ -1978,7 +1981,7 @@ DEMO_MAX_BYTES = 2_000_000  # the stores' gallery limit
 
 def render_demo():
     global SKILL
-    ui = Ui(scale=1)  # at the GIF's final size, so one-pixel lines stay crisp
+    ui = Ui(build=BUILD, scale=1)  # at the GIF's final size, so one-pixel lines stay crisp
     states = []
     for skill in DEMO_SKILLS:
         SKILL = skill
@@ -2025,7 +2028,7 @@ def render_demo():
 
 def main():
     scale = float(os.environ.get("SCALE", "2"))
-    ui = Ui(scale=scale)
+    ui = Ui(build=BUILD, scale=scale)
     OUT.mkdir(parents=True, exist_ok=True)
     window_scene(ui).save(OUT / "window.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")

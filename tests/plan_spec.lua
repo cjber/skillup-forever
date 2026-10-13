@@ -5,7 +5,7 @@ local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local LINEN, HEAVY, WOOL, CLOTH = 3275, 3276, 3277, 2589
-local known, costs, sources = {}, {}, {}
+local known, costs, sources, skipped = {}, {}, {}, {}
 local auctionator, open, craftable, level = false, 129, 99, 20
 local dropPlans
 local ns = {
@@ -20,6 +20,9 @@ local ns = {
 	end,
 	IsLearned = function(id)
 		return known[id] == true
+	end,
+	IsSkipped = function(id)
+		return skipped[id] == true
 	end,
 	NetCost = function(id)
 		return costs[id]
@@ -173,6 +176,16 @@ equal(quoted.training[1].fee, 80, "a trainer seen to charge less wins")
 equal(quoted.training[1].reqSkill, 50, "and so does the skill it wanted")
 equal(quoted.training[1].usedAt, 50, "nothing is crafted before it can be taught")
 ns.db.trainer[129] = nil
+-- Not this recipe: a skipped recipe is never trained, and the route carries on with what is left.
+skipped[HEAVY] = true
+local unskipped = Plan(FirstAid(40), 75)
+equal(#unskipped.training, 0, "a skipped recipe is not trained")
+equal(unskipped.crafts[1].recipeID, LINEN, "the route crafts what is left")
+skipped[LINEN] = true
+local nothing = Plan(FirstAid(40), 75)
+equal(#nothing.crafts, 0, "skipping every recipe leaves nothing to craft")
+equal(ns.RouteBlocked(nothing), "Nothing you know skills up past 40.", "the usual no-route state")
+skipped = {}
 
 -- The plan is in base skill whatever the racial bonus; thresholds are met with the bonus.
 local bonus = Plan(FirstAid(40, 15), 75)
@@ -305,6 +318,9 @@ local offers = { { recipeID = WOOL, fee = 250 }, { recipeID = HEAVY, fee = 100 }
 equal(ns.BestTraining(FirstAid(40), {}, offers), HEAVY, "the offer that carries the route on")
 equal(ns.BestTraining(FirstAid(40), {}, { offers[1] }), nil, "not one the target never uses")
 equal(ns.BestTraining(FirstAid(75), {}, offers), nil, "nothing at the cap")
+skipped[HEAVY] = true
+equal(ns.BestTraining(FirstAid(40), {}, offers), nil, "not one the player skipped")
+skipped = {}
 known[HEAVY] = true
 equal(ns.BestTraining(FirstAid(40), {}, offers), nil, "not one already learned")
 known[HEAVY] = nil

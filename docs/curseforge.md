@@ -36,7 +36,7 @@ Hover a reagent to see how much your routes need.
 
 - **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds. The start of the difficulty range is optional.
 - **Sorting** orders recipes by difficulty range start, chance or cheapest skill-ups. *Default* restores the game's categories and filters.
-- **Levelling routes** list crafts and trainer visits to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps; routes that stop short name recipes that could extend them.
+- **Levelling routes** list crafts and trainer visits to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps; routes that stop short name recipes that could extend them. Right-click a recipe and choose *Not this recipe* to plan without it.
 - **Shopping lists** count reagents against bags and bank. Choose whether gathered materials are free or bought, track them beside quests, buy vendor stock and keep an Auctionator list up to date.
 - **Trainer annotations** mark the best recipe to train next. Reagent tooltips show what tracked routes need.
 - **Crafted gear** shows the newest craft for each slot, with its recipe, reagents and learning location. Enable its tab in settings.
@@ -56,6 +56,7 @@ Turn off **Show tracked professions** in settings to hide the profession tracker
 Open a profession and the numbers are already there.
 
 - `/su` opens the settings (also in Settings > AddOns, or from the addon compartment on the minimap).
+- `/su skipped` lists the recipes you said *Not this recipe* to, and `/su unskip <ID>` (or `all`) brings them back.
 - `/su audit`, with a profession open, compares the bundled thresholds with the colours the game shows and prints any mismatch.
 
 Thresholds come from the Forever client's recipe data; missing data shows `?`. Settings cover rows and tooltips, prices, the route and crafted gear tabs, trainer annotations, sorting, reagent tooltips and companion hints.

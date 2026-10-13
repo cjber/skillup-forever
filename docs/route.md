@@ -12,6 +12,13 @@ A map tab under the Professions window's side tabs opens a SkillUp page. Pick an
 - A step asks for enough crafts to reach its target in nine runs out of ten, worked out from the chance at each skill point on the way, not from the average. An orange recipe is unchanged; a yellow or green one carries its risk in its price, so the route leans on it less.
 - Recipes a trainer teaches are included when they pay for themselves, shown as a *Train* step with its fee. The fee is counted once, and never before the trainer would teach them.
 - Recipes with an unpriced reagent are left out and counted.
+- Recipes you said *Not this recipe* to are left out (see below).
+
+### Not this recipe
+
+Right-click a step, a *Train* step, a sub-craft or a suggested scroll and choose *Not this recipe*, the way Adventure Guide Forever's *Not this quest* leaves a quest out. The route is planned again without it: it is never crafted, trained, made as a sub-craft or suggested, and the next cheapest recipe takes its place. When nothing else reaches the target, the route stops short as it would anyway.
+
+A *Skipped (N)* row under the route counts what you left out of this profession; click or right-click it and choose *Show again* to bring one back. The tracker's header menu has the same list. `/su skipped` prints every skipped recipe with its ID, and `/su unskip <ID>` or `/su unskip all` brings them back. Skips are saved for each character.
 
 ### The steps
 

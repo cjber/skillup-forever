@@ -741,6 +741,9 @@ function Client.load(options)
 	end
 	G.TooltipDataProcessor = { AddTooltipPostCall = noop }
 	G.SlashCmdList = {}
+	G.strtrim = function(text)
+		return (text:gsub("^%s+", ""):gsub("%s+$", ""))
+	end
 	G.PlaySound = noop
 	G.SOUNDKIT = {}
 	G.DEFAULT, G.OFF, G.UNKNOWN = "Default", "Off", "Unknown"

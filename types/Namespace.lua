@@ -18,6 +18,10 @@
 ---@field SetCollectMode fun(mode: SkillUpCollectMode)
 ---@field ShowAllGear fun(): boolean
 ---@field SetShowAllGear fun(show: boolean)
+---@field IsSkipped fun(recipeID: integer): boolean
+---@field SetSkipped fun(recipeID: integer, skip: boolean)
+---@field SkippedRecipes fun(skillLine: integer?): {recipeID: integer, name: string}[]
+---@field AddSkippedMenu fun(description: RootMenuDescriptionProxy|ElementMenuDescriptionProxy, skillLine: integer)
 ---@field SkillContext fun(): SkillUpContext?
 ---@field PlayerProfessions fun(): table<integer, SkillUpProfession>
 ---@field IsLearned fun(recipeID: integer): boolean
@@ -150,6 +154,7 @@
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field showAllGear table<string, boolean>
+---@field skippedRecipes table<string, table<integer, true>>
 ---@field whatsNew boolean
 ---@field companionHints boolean
 ---@field lastVersion string
@@ -395,7 +400,8 @@ SkillUpForeverDB = nil
 ---@field iconColor? ColorMixin The stock icon border's tint, the item's quality where it has one.
 ---@field detailColor? ColorMixin
 ---@field tooltip? fun(tooltip: GameTooltip)
----@field click? fun()
+---@field click? fun(row: SkillUpListRow) A left click.
+---@field menu? fun(owner: Region, root: RootMenuDescriptionProxy) A right-click's context menu, filled as MenuUtil fills one.
 
 ---@class SkillUpListRow : Button
 ---@field kind "row"
@@ -405,7 +411,8 @@ SkillUpForeverDB = nil
 ---@field Text FontString
 ---@field Detail FontString
 ---@field tooltip? fun(tooltip: GameTooltip)
----@field click? fun()
+---@field click? fun(row: SkillUpListRow)
+---@field menu? fun(owner: Region, root: RootMenuDescriptionProxy)
 ---@field UpdateTooltip fun(self: SkillUpListRow) called by the tooltip this row owns, a few times a second
 
 ---@class SkillUpListHeading : Frame

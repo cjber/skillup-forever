@@ -295,7 +295,8 @@ local function ObtainCost(itemID, depth, stack)
 	stack[itemID] = true
 	for _, recipeID in ipairs(MakersOf(itemID)) do
 		local quantity, reagents = OutputQuantity(recipeID), ns.Reagents(recipeID)
-		if ns.IsLearned(recipeID) and quantity and quantity > 0 and reagents and #reagents > 0 then
+		local skipped = ns.IsSkipped ~= nil and ns.IsSkipped(recipeID)
+		if ns.IsLearned(recipeID) and not skipped and quantity and quantity > 0 and reagents and #reagents > 0 then
 			---@type number?
 			local total = 0
 			for _, reagent in ipairs(reagents) do

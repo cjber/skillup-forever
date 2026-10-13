@@ -450,6 +450,11 @@ function ModuleMixin:OnBlockHeaderClick(block)
 				ns.SetWaypoint(ns.NearestVendor(item.itemID, true) or item.vendor)
 			end)
 		end
+		-- Recipes left out with Not this recipe on the route page, each with Show again.
+		local skipped = #ns.SkippedRecipes(block.id)
+		if skipped > 0 then
+			ns.AddSkippedMenu(root:CreateButton(string.format(L["Skipped (%d)"], skipped)), block.id)
+		end
 		root:CreateButton(L["Stop tracking"], function()
 			ns.SetTracked(block.id, false)
 		end)

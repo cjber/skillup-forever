@@ -71,7 +71,7 @@ Settings cover rows and tooltips, what crafts count for, sort order, the route a
 
 ## Prices
 
-Each reagent uses the cheapest known vendor or Auctionator price. Common vendor supplies have bundled prices; visiting a vendor records its prices and reputation discounts. Materials your professions gather can count as free until you choose *Buy reagents*.
+Each reagent uses the cheapest known vendor or Auctionator price. Common vendor supplies have bundled prices; visiting a vendor records its prices and reputation discounts. Materials your professions gather can count as free until you choose *Buy reagents*, or, with *Value gathered materials at what they'd sell for* on, cost what selling them would bring.
 
 Auction prices use Auctionator's latest recorded price for reagents and crafted items. SkillUp never scans the auction house itself. Scan with Auctionator to update prices. Missing prices stay unknown and leave affected recipes out of the route.
 

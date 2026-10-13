@@ -9,6 +9,7 @@ local DEFAULTS = {
 	showTooltip = true,
 	showCost = true,
 	craftValue = "vendor",
+	valueGathered = false, -- a reagent you gather costs what it would sell for, not nothing
 	sortMode = "blizzard",
 	showTrainer = true,
 	showRouteTab = true,

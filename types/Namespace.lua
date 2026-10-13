@@ -140,6 +140,7 @@
 ---@field showTooltip boolean
 ---@field showCost boolean
 ---@field craftValue 'none'|'vendor'|'auction'
+---@field valueGathered boolean
 ---@field sortMode 'blizzard'|'skill'|'chance'|'cost'
 ---@field showTrainer boolean
 ---@field showRouteTab boolean
@@ -320,6 +321,7 @@ SkillUpForeverDB = nil
 ---@field days? number Auctionator ages only: whole days since the newest observation.
 ---@field ageUnavailable? boolean Auctionator age API unavailable or failed, last-buyout prices only.
 ---@field profession? string Gathered reagents only.
+---@field worth? 'auction'|'vendor' Gathered reagents valued at what they sell for: which price that is.
 
 ---@class SkillUpValue
 ---@field copper number

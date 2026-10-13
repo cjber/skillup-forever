@@ -403,6 +403,10 @@ local function ReagentTooltip(tooltip, item)
 	end
 	if price.source == "gather" then
 		AddLine(tooltip, L["Source"], ns.PriceSourceText(price))
+		-- Valued at what it would sell for: the cost of crafting with it instead, never a price to buy at.
+		if price.worth then
+			AddLine(tooltip, L["Each"], Money(price.copper))
+		end
 		return
 	end
 	AddLine(tooltip, L["Each"], string.format("%s |cff808080(%s)|r", Money(price.copper), ns.PriceSourceText(price)))
@@ -806,10 +810,14 @@ local function CreateButtons()
 		GameTooltip:SetOwner(self, "ANCHOR_TOP")
 		GameTooltip_SetTitle(GameTooltip, L["Buy reagents at the auction house"])
 		if collect:IsEnabled() then
+			-- luacheck: push no max line length
 			GameTooltip_AddNormalLine(
 				GameTooltip,
-				L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."]
+				ns.db.valueGathered
+						and L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."]
+					or L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."]
 			)
+			-- luacheck: pop
 		else
 			GameTooltip_AddDisabledLine(
 				GameTooltip,

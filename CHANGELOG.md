@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Value gathered materials at what they'd sell for.** A new Prices setting, off by default, prices a material your professions gather at its Auctionator price after the 5% cut, or its vendor sell price if that is more, instead of free. That is what crafting with it costs you, so the route picks a vendor-reagent recipe over one that burns valuable ore, and recipe rows and tooltips show the same cost. A material with neither price stays free. Thanks to berserkerlxl for the idea.
+
 - **A detached tracker with nothing to show leaves the screen.** Its "Forever tracker" title hides with the empty column and comes back, where you left it, as soon as a section has something to show.
 
 - **A trainer that shows no skill requirement is not saved as needing none.** Such a recipe keeps the bundled requirement, and one saved as 0 by an earlier version is dropped, so the route no longer plans to learn it before you can.

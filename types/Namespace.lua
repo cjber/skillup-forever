@@ -144,6 +144,7 @@
 ---@field showRouteTab boolean
 ---@field showTracker boolean
 ---@field showGearTab boolean
+---@field merchantButton boolean
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field showAllGear table<string, boolean>

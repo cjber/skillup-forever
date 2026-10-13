@@ -193,7 +193,8 @@ local groups = {
 	{ "Prices", "slider:craftValue" },
 	{
 		"Route and trainer",
-		"checkbox:showTracker checkbox:trackerAttached checkbox:showRouteTab checkbox:showGearTab checkbox:showTrainer",
+		"checkbox:showTracker checkbox:trackerAttached checkbox:showRouteTab checkbox:showGearTab"
+			.. " checkbox:merchantButton checkbox:showTrainer",
 	},
 	{ "Tooltips and sorting", "slider:reagentTooltip slider:sortMode" },
 	{ "Addon", "checkbox:companionHints checkbox:whatsNew" },

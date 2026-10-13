@@ -179,6 +179,13 @@ function ns.RegisterSettings()
 
 		Checkbox(
 			rows,
+			"merchantButton",
+			L["Show the buy button at merchants"],
+			L["A button above a merchant's window that buys the reagents your tracked routes still need from that merchant. It asks first, with the total cost."]
+		)
+
+		Checkbox(
+			rows,
 			"showTrainer",
 			L["Annotate trainer recipes"],
 			L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."]

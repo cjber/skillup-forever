@@ -72,5 +72,5 @@ Opening a profession's own window, or a trainer that teaches it, starts tracking
 
 ### Buying
 
-- **At a vendor:** *Buy tracked reagents* on the merchant window buys what that vendor sells, with the total cost on the button.
+- **At a vendor:** *Buy tracked reagents* on the merchant window buys what that vendor sells, with the total cost on the button. It lists what it will buy and asks before spending anything; turn off *Show the buy button at merchants* to remove it.
 - **At the auction house:** with [Auctionator](https://www.curseforge.com/wow/addons/auctionator) installed and the route set to buy rather than gather, the addon keeps an Auctionator shopping list (`SkillUp: <profession>`) of the auction house reagents still missing, updated as you buy, craft and skill up. The reagent list names that list. An unchanged need leaves it alone, and a need the bags now cover empties it. Auction purchases stay manual, as the game requires. When a price is missing or old and Auctionator's own *scan when the auction house opens* option is off, the page says so and points at it (Auctionator, Basic Options).

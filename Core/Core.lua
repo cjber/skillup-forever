@@ -14,6 +14,7 @@ local DEFAULTS = {
 	showRouteTab = true,
 	showTracker = true,
 	showGearTab = false,
+	merchantButton = true, -- the merchant window's "Buy tracked reagents" button
 	reagentTooltip = "route",
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from
 	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet

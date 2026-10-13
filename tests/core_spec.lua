@@ -184,4 +184,32 @@ do
 	equal(ns.db.trainer[185][2][2], 30, "a recorded requirement stays")
 end
 
+-- The update line belongs to the release it ships in: a bold lead of the newest CHANGELOG.md entry
+-- (Unreleased while it has notes). 0.9.2 and 0.9.3 went out still announcing 0.9.1's.
+do
+	local function Read(path)
+		local file = assert(io.open(path))
+		local text = file:read("*a")
+		file:close()
+		return text
+	end
+	local whatsNew = Read("Core/Core.lua"):match('\nns%.WHATS_NEW = L%["([^"]+)"%]')
+	local newest
+	-- Each "## " heading to the next: a section is split off before it is searched.
+	local changelog = Read("CHANGELOG.md") .. "\n## "
+	local at = changelog:find("\n## ", 1, true)
+	while at and not newest do
+		local nextAt = changelog:find("\n## ", at + 1, true)
+		local section = nextAt and changelog:sub(at + 4, nextAt) or ""
+		newest = section:find("\n%- %*%*") and section or nil
+		at = nextAt
+	end
+	equal(newest ~= nil, true, "CHANGELOG.md has an entry with notes")
+	equal(
+		newest:find("\n- **" .. whatsNew .. "**", 1, true) ~= nil,
+		true,
+		"the update line is a lead of " .. newest:match("^[^\n]*")
+	)
+end
+
 Client.report("core_spec")

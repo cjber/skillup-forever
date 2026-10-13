@@ -117,6 +117,17 @@ local function LoadDB()
 			loaded[key] = DEFAULTS[key]
 		end
 	end
+	-- Earlier versions saved a trainer row that showed no skill requirement as needing 0, which planned
+	-- learning it at once; the bundled requirement stands in for those.
+	for _, recipes in pairs(loaded.trainer) do
+		if type(recipes) == "table" then
+			for recipeID, seen in pairs(recipes) do
+				if type(seen) ~= "table" or type(seen[2]) ~= "number" or seen[2] <= 0 then
+					recipes[recipeID] = nil
+				end
+			end
+		end
+	end
 	-- A mode no longer saved, or a typo, reads as the default gather.
 	for key, mode in pairs(loaded.collectModes) do
 		if mode ~= "gather" and mode ~= "auction" then
@@ -426,7 +437,7 @@ end
 local function Audit()
 	local ctx = ProfessionsFrame and ProfessionsFrame:IsShown() and ns.SkillContext()
 	if not ctx then
-		ns.Print("open a profession first.")
+		ns.Print(L["open a profession first."])
 		return
 	end
 	local skill = ctx.skill

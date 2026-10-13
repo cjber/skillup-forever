@@ -176,6 +176,12 @@ do
 	equal(ns.db.craftValue, "auction", "a valid craft value stays")
 	equal(ns.db.sortMode, "cost", "a valid sort stays")
 	equal(ns.db.reagentTooltip, "full", "a valid reagent tooltip mode stays")
+	-- A trainer requirement saved as 0 (an unknown one, before) is dropped; a recorded one stays.
+	env.SkillUpForeverDB = { trainer = { [185] = { [1] = { 40, 0 }, [2] = { 50, 30 }, [3] = { 60 } } } }
+	callbacks.SkillUpForever()
+	equal(ns.db.trainer[185][1], nil, "a requirement saved as 0 is dropped")
+	equal(ns.db.trainer[185][3], nil, "and one saved without any")
+	equal(ns.db.trainer[185][2][2], 30, "a recorded requirement stays")
 end
 
 Client.report("core_spec")

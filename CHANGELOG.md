@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **A trainer that shows no skill requirement is not saved as needing none.** Such a recipe keeps the bundled requirement, and one saved as 0 by an earlier version is dropped, so the route no longer plans to learn it before you can.
+
 - **No more secret-number errors on item tooltips.** When the game hands over an item count, sell price or tooltip item it won't let addons read, SkillUp uses the last count it saw (or the bundled price) instead of failing with "attempt to perform arithmetic on a secret number value". Before, one such read could keep failing until `/reload`.
 
 - **The merchant's buy button asks first.** *Buy tracked reagents* now lists what it will buy and the total cost, and buys nothing until you click *Buy*. A change in your bags or route while it is open closes the question. Turn off *Show the buy button at merchants* under Route and trainer to remove the button.

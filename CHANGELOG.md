@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Recipes start where Forever lets you make them.** Forever lowered many recipes' skill ranges but its data kept the old Classic starting skill on some, so Runed Copper Belt and Breastplate showed red while the game showed orange, and Heavy Sharpening Stone showed `?`. A recipe now starts at what its pattern asks, or moves down with its range, and a bundled trainer requirement moves down the same way: Heavy Sharpening Stone is trained at 100, not 125, and about 40 trainer recipes that went grey before the trainer would teach them are back in the route. A trainer's own number, once you visit, still wins (#107).
+
 ## [0.9.3] - 2026-10-13
 
 - **Data checked against Forever 1.60.1.70338.** The bundled data is unchanged apart from its build pin.

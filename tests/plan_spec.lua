@@ -213,8 +213,9 @@ equal(#ns.RecipeBands(FirstAid(40), 1), 0, "no thresholds, no bands")
 
 -- The skill where a recipe can be learned, the number the crafted gear view shows for its recipe:
 -- a trainer's own requirement, not the data's placeholder first threshold.
-equal(ns.LearnSkill(FirstAid(40), 3848), 110, "Double-stitched Woolen Shoulders is taught at 110")
-equal(ns.LearnSkill(FirstAid(40), 2166), 120, "Toughened Leather Armor is taught at 120")
+-- classic-db's 110 and 120 moved down as far as Forever moved each recipe's range from Classic Era's.
+equal(ns.LearnSkill(FirstAid(40), 3848), 85, "Double-stitched Woolen Shoulders is taught at 85")
+equal(ns.LearnSkill(FirstAid(40), 2166), 95, "Toughened Leather Armor is taught at 95")
 equal(ns.LearnSkill(FirstAid(40), 19819), 290, "a recipe with no trainer takes its pattern's skill")
 -- A Forever-added recipe with no trainer: the pattern that teaches it carries the real requirement,
 -- where the client's own orange sits at its placeholder 1.

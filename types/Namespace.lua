@@ -63,6 +63,7 @@
 ---@field AuctionatorAutoscan fun(): boolean?
 ---@field AuctionListName fun(profession: string): string
 ---@field Have fun(itemID: integer): number
+---@field Readable fun(value: any): any
 ---@field AltCounts fun(itemID: integer): {name: string, count: number}[]
 ---@field RouteReagents fun(plan: SkillUpPlan): SkillUpNeededItem[]
 ---@field InitLive fun()

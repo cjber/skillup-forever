@@ -341,6 +341,7 @@ do
 	local auction = { [4] = 8 }
 	local runtime = {
 		Model = Model,
+		Readable = ns.Readable,
 		RecipeData = {
 			[10] = { reagents = { { itemID = 1, quantity = 2 } }, output = { itemID = 2, quantity = 3 } },
 			[11] = { reagents = { { itemID = 1, quantity = 2 }, { itemID = 4, quantity = 1 } } },

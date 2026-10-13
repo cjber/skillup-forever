@@ -544,7 +544,7 @@ function ns.NextCraft(plan)
 		crafts = ns.Model.CoveredCrafts(thresholds, craft.from + m, profession.max + m, ups)
 	end
 	-- RecipeInfo has no count; this one includes the client's reagent and resource rules.
-	local count = math.min(crafts, C_TradeSkillUI.GetCraftableCount(recipeID))
+	local count = math.min(crafts, ns.Readable(C_TradeSkillUI.GetCraftableCount(recipeID)) or 0)
 	if count > 0 then
 		return {
 			recipeID = recipeID,

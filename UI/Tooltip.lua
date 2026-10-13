@@ -393,7 +393,8 @@ end
 ---@param key string
 local function OnModifierChanged(_, _, key)
 	if (key == "LSHIFT" or key == "RSHIFT") and ns.db.reagentTooltip == "route" and GameTooltip:IsShown() then
-		local _, _, itemID = GameTooltip:GetItem()
+		-- Read through ns.Readable first, as AddUses does: a secret id errors even on its truth test.
+		local itemID = ns.Readable((select(3, GameTooltip:GetItem())))
 		if itemID and GameTooltip.RefreshData then
 			GameTooltip:RefreshData()
 		end

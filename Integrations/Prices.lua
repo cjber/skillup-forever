@@ -302,7 +302,7 @@ local itemInfoPending = false
 ---@param itemID integer
 ---@return number?
 local function SellPrice(itemID)
-	local sell = select(11, C_Item.GetItemInfo(itemID))
+	local sell = ns.Readable((select(11, C_Item.GetItemInfo(itemID))))
 	if sell == nil then
 		itemInfoPending = true
 		C_Item.RequestLoadItemDataByID(itemID)

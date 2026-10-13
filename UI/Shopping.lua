@@ -17,11 +17,20 @@ function ns.HasAuctionator()
 	return api and api.CreateShoppingList and api.ConvertToSearchString and true or false
 end
 
--- Bags and bank: the client knows bank counts once the bank has been opened.
+-- The last count the client let us read per item, for when it hands over a secret one.
+local lastCounts = {}
+
+-- Bags and bank: the client knows bank counts once the bank has been opened. A secret count would turn every
+-- sum, comparison and cache it reaches secret until a reload, so it reads as the last count seen instead.
 ---@param itemID integer
 ---@return number
 function ns.Have(itemID)
-	return C_Item.GetItemCount(itemID, true)
+	local count = ns.Readable(C_Item.GetItemCount(itemID, true))
+	if count then
+		lastCounts[itemID] = count
+		return count
+	end
+	return lastCounts[itemID] or 0
 end
 
 -- What your other characters on this realm and faction hold (bags, bank, mail),

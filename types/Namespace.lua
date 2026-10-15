@@ -48,6 +48,7 @@
 ---@field SafeCall fun(label: string, fn: function, ...: any): boolean, ... run fn as pcall does, keeping a failure for /su report and passing it to the error handler (Core/SafeCall.lua)
 ---@field RecordError fun(label: string, message: any, stack?: string) keep an error caught some other way for the report
 ---@field CaughtErrors fun(): SkillUpCaughtError[] this session's caught errors, oldest first, as copies
+---@field CutText fun(text: string, limit: integer): string `text` at most `limit` bytes, cut on a character boundary with "..."
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
 ---@field LearnSkill fun(profession: SkillUpContext, recipeID: integer): number

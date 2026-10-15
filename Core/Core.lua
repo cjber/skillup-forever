@@ -599,7 +599,9 @@ SLASH_SKILLUPFOREVER2 = "/su"
 local function Slash(msg)
 	local command, argument = strtrim(msg):lower():match("^(%S*)%s*(.-)$")
 	if command == "report" then
-		ns.Report.Show(ns.Report.Text(ns.ReportLines()))
+		-- SkillUp's lines can fail in the very state being reported: the header and caught errors still show.
+		local ok, lines = ns.SafeCall("report lines", ns.ReportLines)
+		ns.Report.Show(ns.Report.Text(ok and lines or { "Report lines failed: " .. tostring(lines) }))
 	elseif command == "audit" then
 		Audit()
 	elseif command == "trainers" then

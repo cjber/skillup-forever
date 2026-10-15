@@ -120,6 +120,82 @@ do
 	equal(#text <= 2000, true, "report: still one message")
 end
 
+-- The client's stack lines are kept as LuaJIT's are; a long message is cut on a character boundary; a nested
+-- SafeCall names its own label.
+do
+	local c = Load()
+	local ns = c.ns
+	c.allowErrors = true
+	ns.RecordError(
+		"client",
+		"boom",
+		table.concat({
+			'[string "@Interface/AddOns/SkillUpForever/Core/Changes.lua"]:132: in function <...>',
+			"[C]: in function 'xpcall'",
+			"[Interface/AddOns/SkillUpForever/Core/Core.lua]:600: in function 'Slash'",
+		}, "\n")
+	)
+	local stack = ns.CaughtErrors()[1].stack
+	has(stack, 'Changes.lua"]:132', "client stack: a string chunk line")
+	has(stack, "Core.lua]:600", "client stack: a file line")
+	equal(stack:find("[C]", 1, true), nil, "client stack: C frames left out")
+	ns.RecordError("utf8", ("é"):rep(200))
+	local message = ns.CaughtErrors()[2].message
+	equal(message:sub(-3), "...", "utf8: cut")
+	equal(#message <= 300, true, "utf8: within the limit")
+	equal(select(2, message:sub(1, -4):gsub("é", "")) * 2, #message - 3, "utf8: whole characters only")
+	ns.SafeCall("outer", function()
+		ns.SafeCall("inner", error, "inner failed", 0)
+	end)
+	local caught = ns.CaughtErrors()
+	equal(caught[#caught].label, "inner", "nested: the inner label")
+	equal(#caught, 3, "nested: the outer call didn't fail")
+end
+
+-- Escape closes the window like a panel; long SkillUp lines are capped, so the caught errors and the addon list
+-- still fit.
+do
+	local c = Load()
+	local ns = c.ns
+	c.allowErrors = true
+	ns.SafeCall("kept", error, "still shown", 0)
+	local long = {}
+	for index = 1, 100 do
+		long[index] = ("line %03d "):format(index) .. ("x"):rep(60)
+	end
+	ns.ReportLines = function()
+		return long
+	end
+	c.G.SlashCmdList.SKILLUPFOREVER("report")
+	local frame, edit = Window(c)
+	local special = false
+	for _, name in ipairs(c.G.UISpecialFrames) do
+		special = special or (name == "SkillUpForeverReport" and c.G[name] == frame)
+	end
+	equal(special, true, "Escape: the window is a special frame")
+	local text = edit:GetText()
+	equal(#text <= 2000, true, "long lines: one message")
+	has(text, "line 001 ", "long lines: the first kept")
+	equal(text:find("line 100 ", 1, true), nil, "long lines: the last cut")
+	has(text, "- [kept] x1 still shown", "long lines: the errors still shown")
+	has(text, "Other addons (", "long lines: the addon list still shown")
+end
+
+-- SkillUp's own lines failing still opens the report, with the header and the error.
+do
+	local c = Load()
+	c.allowErrors = true
+	c.ns.ReportLines = function()
+		error("lines broke", 0)
+	end
+	c.G.SlashCmdList.SKILLUPFOREVER("report")
+	local _, edit = Window(c)
+	local text = edit:GetText()
+	has(text, "SkillUpForever 1.2.3", "lines failed: the header")
+	has(text, "Report lines failed: lines broke", "lines failed: said")
+	has(text, "- [report lines] x1 lines broke", "lines failed: caught")
+end
+
 -- Many other addons: the list says how many more, and the report stays one message.
 do
 	local c = Load()

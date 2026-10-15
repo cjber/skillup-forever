@@ -800,9 +800,7 @@ function Client.load(options)
 			end
 		end
 	end
-	G.GetTime = function()
-		return c.now or 0
-	end
+	G.UISpecialFrames = {}
 	G.strtrim = function(text)
 		return (text:gsub("^%s+", ""):gsub("%s+$", ""))
 	end

@@ -405,8 +405,111 @@ local function OnModifierChanged(_, _, key)
 	end
 end
 
+-- Gathering (#122): the skill a herb or ore node asks, found by the name on its tooltip, and a skinnable
+-- corpse's. Both are coloured from your live skill: orange from the requirement, then yellow, green and grey
+-- this far past it, Classic's gathering bands.
+local GATHER_BANDS = { 0, 25, 50, 100 }
+local SKINNING = 393
+-- Classic asks a skinner for 1 up to level 10, ten points a level to 20 and five times the level above that.
+-- Nobody has checked Forever kept it, so until someone does a skinnable corpse shows "?" (#122). Once it is
+-- confirmed in game, set this to true.
+local SKINNING_RULE_CONFIRMED = false
+
+-- Classic's rule: the skill skinning a corpse of this level asks; nil for an unknown level.
+---@param level number?
+---@return number?
+function ns.ClassicSkinningSkill(level)
+	if not level or level < 1 then
+		return nil
+	elseif level <= 10 then
+		return 1
+	elseif level <= 20 then
+		return (level - 10) * 10
+	end
+	return level * 5
+end
+
+-- What the tooltip uses: nothing while the rule is unconfirmed.
+---@param level number?
+---@return number?
+function ns.SkinningSkill(level)
+	return SKINNING_RULE_CONFIRMED and ns.ClassicSkinningSkill(level) or nil
+end
+
+-- "Mining 175" and how it colours at your skill, for a gathering profession you have; "?" for an unknown
+-- requirement. Nothing for a profession you don't have.
+---@param tooltip GameTooltip
+---@param skillLine integer
+---@param required number?
+local function AddGatherLine(tooltip, skillLine, required)
+	local profession = ns.PlayerProfessions()[skillLine]
+	if not profession then
+		return
+	end
+	if not required then
+		local r, g, b = ns.COLORS.unknown:GetRGB()
+		tooltip:AddDoubleLine(profession.name, "?", 1, 1, 1, r, g, b)
+		return
+	end
+	local t = {}
+	for i, past in ipairs(GATHER_BANDS) do
+		t[i] = required + past
+	end
+	local band, color = Band(t, profession.skill)
+	local r, g, b = color:GetRGB()
+	tooltip:AddDoubleLine(string.format(L["%s %d"], profession.name, required), band, 1, 1, 1, r, g, b)
+end
+
+-- The first line of a tooltip's data, when it can be read.
+---@param data TooltipData?
+---@return string?
+local function FirstLine(data)
+	local lines = data and data.lines
+	local first = lines and lines[1]
+	return first and ns.Readable(first.leftText)
+end
+
+-- A herb or ore node, by its tooltip's name. The bundled names are classic-db's English ones, so another
+-- client language shows nothing rather than a wrong match.
+---@param tooltip GameTooltip
+---@param data TooltipData
+local function AddNodeSkill(tooltip, data)
+	if not ns.db.gatherTooltip or tooltip:IsForbidden() or GetLocale() ~= "enUS" then
+		return
+	end
+	local name = FirstLine(data)
+	local node = name and ns.NodeSkills[name]
+	if node then
+		AddGatherLine(tooltip, node[1], node[2])
+	end
+end
+
+-- A corpse the game marks skinnable: its line is the client's own UNIT_SKINNABLE_LEATHER, in every language.
+---@param tooltip GameTooltip
+---@param data TooltipData
+local function AddSkinningSkill(tooltip, data)
+	if not ns.db.gatherTooltip or tooltip:IsForbidden() then
+		return
+	end
+	local skinnable = false
+	for _, line in ipairs(data and data.lines or {}) do
+		if ns.Readable(line.leftText) == UNIT_SKINNABLE_LEATHER then
+			skinnable = true
+			break
+		end
+	end
+	if not skinnable then
+		return
+	end
+	local _, unit = tooltip:GetUnit()
+	local level = unit and ns.Readable(UnitLevel(unit))
+	AddGatherLine(tooltip, SKINNING, ns.SkinningSkill(level))
+end
+
 function ns.AttachItemTooltips()
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, AddUses)
+	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Object, AddNodeSkill)
+	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, AddSkinningSkill)
 	local events = CreateFrame("Frame")
 	events:RegisterEvent("MODIFIER_STATE_CHANGED")
 	events:SetScript("OnEvent", OnModifierChanged)

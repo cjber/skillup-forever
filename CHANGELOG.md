@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Herb and ore nodes show the skill they need.** Hovering a node names the Herbalism or Mining skill it asks for and colours it at your skill, orange, yellow, green or grey like a recipe, so you can see which nodes still give skill-ups. It works on English clients, and there's a setting to turn it off. Skinnable corpses show `?` for now, until someone checks that Forever kept Classic's skinning rule.
+
 - **Check the trainer requirements SkillUp guesses with /su trainers.** Where Forever moved a recipe's colours, SkillUp moves the skill its trainer asks for by the same amount, which is right for most recipes but not all. The new command lists those guesses per profession, which ones a trainer you visited agreed with or showed differently, and which ones your trainer should teach at your current skill, so one visit settles them. Paste what it prints into an issue and the wrong ones get fixed in the data.
 
 ## [0.10.0] - 2026-10-15

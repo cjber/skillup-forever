@@ -10,7 +10,7 @@ import sys
 import urllib.error
 from collections import defaultdict
 
-from gen_recipes import threshold_ids
+from gen_recipes import lua_string, threshold_ids
 from gen_thresholds import BUILD, ROOT, db2
 from gen_trainer import (
     CLASSICDB_COMMIT,
@@ -88,6 +88,28 @@ def gathered(tables, locks, items):
     if ambiguous:
         raise ValueError(f"Reagents gathered by several skills: {ambiguous}")
     return {item: skills.pop() for item, skills in found.items()}
+
+
+def node_skills(tables, locks):
+    """[enUS node name] = (gathering skill line, required skill): what a herb or ore node asks, by the name its
+    tooltip shows. classic-db ties a node to its lock (`data0`), the client's Lock DB2 gives that lock's skill
+    and rank (#122). A name two nodes share with different requirements is left out: the tooltip can't tell
+    them apart."""
+    lock_rank = {}
+    for row in locks:
+        for i in range(8):
+            if row[f"Type_{i}"] == LOCK_KEY_SKILL and row[f"_Index_{i}"] in LOCK_SKILLS:
+                rank = int(row[f"Skill_{i}"])
+                if rank < 0:
+                    raise ValueError(f"Lock {row['ID']}: negative required skill {rank}")
+                lock_rank[int(row["ID"])] = (LOCK_SKILLS[row[f"_Index_{i}"]], rank)
+    found = defaultdict(set)
+    for node in tables["gameobject_template"]:
+        need = node["type"] == CHEST and lock_rank.get(int(node["data0"]))
+        # A lock asking no skill (quest plants, bushes) gives no skill-up to colour.
+        if need and need[1] > 0 and node["name"]:
+            found[node["name"]].add(need)
+    return {name: needs.pop() for name, needs in found.items() if len(needs) == 1}
 
 
 def trainer_caps(trainer, teaches, rank_of):
@@ -197,6 +219,7 @@ def generate(ids, tables, effect_rows, locks):
             skill: sorted(caps.items()) for skill, caps in trainer_caps(tables["npc_trainer"], teaches, rank_of).items()
         },
         "gathered": gathered(tables, locks, reagent_items()),
+        "nodes": node_skills(tables, locks),
     }
 
 
@@ -238,6 +261,17 @@ def render(data):
         "ns.GatheredBy = {",
     ]
     lines += [f"\t[{item}] = {skill}," for item, skill in sorted(data["gathered"].items())]
+    lines += [
+        "}",
+        "",
+        "-- [node name, enUS] = { gathering skill line, required skill }: classic-db's lock for the node, the",
+        "-- client's Lock DB2 for what that lock asks. A name shared by nodes asking different skills is left out.",
+        "-- stylua: ignore",
+        "ns.NodeSkills = {",
+    ]
+    lines += [
+        f"\t[{lua_string(name)}] = {{ {skill}, {rank} }}," for name, (skill, rank) in sorted(data["nodes"].items())
+    ]
     lines.append("}")
     return "\n".join(lines) + "\n"
 
@@ -253,13 +287,13 @@ def main():
         threshold_ids(),
         dump_tables(classicdb(**options), TABLES),
         teach_effects(**options),
-        db2("Lock", ["ID"] + [f"{c}_{i}" for c in ("Type", "_Index") for i in range(8)], **options),
+        db2("Lock", ["ID"] + [f"{c}_{i}" for c in ("Type", "_Index", "Skill") for i in range(8)], **options),
     )
     OUTPUT.write_text(render(data), encoding="utf-8")
     print(
         f"Wrote {OUTPUT.relative_to(ROOT)}: {len(data['drops'])} scrolls with named drops, "
         f"{len(data['world'])} world drops, {sum(map(len, data['trainers'].values()))} trainers, "
-        f"{len(data['gathered'])} gathered reagents"
+        f"{len(data['gathered'])} gathered reagents, {len(data['nodes'])} gathering nodes"
     )
 
 

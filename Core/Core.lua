@@ -17,6 +17,7 @@ local DEFAULTS = {
 	showGearTab = false,
 	merchantButton = true, -- the merchant window's "Buy tracked reagents" button
 	reagentTooltip = "route",
+	gatherTooltip = true, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from
 	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet
 	skippedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = true }: "Not this recipe", left out of every route
@@ -57,7 +58,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Check the trainer requirements SkillUp guesses with /su trainers."]
+ns.WHATS_NEW = L["Herb and ore nodes show the skill they need."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

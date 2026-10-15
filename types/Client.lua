@@ -31,6 +31,7 @@ ARTISAN = "Artisan"
 DEFAULT = "Default"
 OFF = "Off"
 TOTAL = "Total"
+UNIT_SKINNABLE_LEATHER = "Skinnable"
 ITEM_MIN_SKILL = "Requires %s (%d)"
 
 ---@class SkillUpProfessionFrame : Frame

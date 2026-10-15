@@ -475,7 +475,7 @@ env = setmetatable({
 	OFF = "Off",
 	Enum = {
 		TradeskillRelativeDifficulty = { Optimal = 0, Medium = 1, Easy = 2, Trivial = 3 },
-		TooltipDataType = { Item = 0 },
+		TooltipDataType = { Item = 0, Unit = 2, Object = 4 },
 		CraftingReagentType = { Basic = 0 },
 		TrainerType = { Tradeskills = 1 },
 	},
@@ -543,6 +543,14 @@ env = setmetatable({
 	GetBuildInfo = function()
 		return "1.60.1", "70205", "Sep 24 2026", 16001
 	end,
+	-- The gathering node tooltip matches English names only.
+	GetLocale = function()
+		return "enUS"
+	end,
+	-- The client's lines on a corpse that can be gathered from.
+	UNIT_SKINNABLE_LEATHER = "Skinnable",
+	UNIT_SKINNABLE_HERB = "Requires Herbalism",
+	UNIT_SKINNABLE_ROCK = "Requires Mining",
 	UnitName = function()
 		return "Player"
 	end,

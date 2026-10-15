@@ -445,7 +445,7 @@ end
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddNodeSkill(tooltip, data)
-	if not ns.db.gatherTooltip or tooltip:IsForbidden() or GetLocale() ~= "enUS" then
+	if not ns.Usable(tooltip) or not ns.db.gatherTooltip or GetLocale() ~= "enUS" then
 		return
 	end
 	local name = FirstLine(data)
@@ -480,7 +480,7 @@ end
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddCorpseSkill(tooltip, data)
-	if not ns.db.gatherTooltip or tooltip:IsForbidden() then
+	if not ns.Usable(tooltip) or not ns.db.gatherTooltip then
 		return
 	end
 	local skillLine

@@ -12,7 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
-- **No error from a vendor the game hides.** When the game keeps a vendor's name or ID hidden, SkillUp no longer tries to record where it stands, and the reagent tooltip skips a tooltip the game protects.
+- **No error from a vendor the game hides.** When the game keeps a vendor's name or ID hidden, SkillUp no longer tries to record where that vendor stands.
 
 - **First Aid and Cooking routes go past 150.** No trainer teaches Expert First Aid or Expert Cooking: you buy a book and read it at 125. The route now plans that step, "Buy and read Expert First Aid - Under Wraps at 125", with the book's price and the nearest vendor that sells it, and carries on to 225 instead of stopping at Journeyman. Artisan comes from a quest the game's data doesn't name, so routes still stop at 225 for now.
 

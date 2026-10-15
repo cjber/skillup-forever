@@ -196,6 +196,68 @@ do
 	has(text, "- [report lines] x1 lines broke", "lines failed: caught")
 end
 
+-- With a profession open, the audit: its summary, six mismatches and how many more.
+do
+	local thresholds, recipes = {}, {}
+	for id = 301, 308 do
+		thresholds[id] = { 1, 30, 45, 60 }
+		recipes[id] = { skillLine = 129, reagents = {} }
+	end
+	local c = Client.load({ data = { Thresholds = thresholds, RecipeData = recipes, TrainerInferred = {} } })
+	c.professions = { { name = "First Aid", icon = 1, rank = 30, max = 75, id = 129 } }
+	c.Boot()
+	for id = 301, 308 do
+		-- The game says orange where the table says yellow at 30.
+		c.live[id] = { info = { name = "Bandage " .. id, learned = true, relativeDifficulty = 1, maxTrivialLevel = 0 } }
+	end
+	c.G.ProfessionsFrame = {
+		IsShown = function()
+			return true
+		end,
+	}
+	c.G.Professions = {
+		GetProfessionInfo = function()
+			return { skillLevel = 30, maxSkillLevel = 75, displayName = "First Aid" }
+		end,
+	}
+	local text = table.concat(c.ns.ReportLines(), "\n")
+	has(text, "Audit: First Aid at 30: 8 checked, 8 mismatched, 0 without data.", "the audit's summary")
+	has(text, "  Bandage 301 (301): table 1/30/45/60 says yellow, game says orange", "a mismatch")
+	has(text, "  and 2 more", "six shown, the rest counted")
+end
+
+-- The trainer checks: only this character's professions, each one a trainer showed differently, six of them
+-- and how many more.
+do
+	local recipes, fees, seen, spells = {}, {}, {}, {}
+	for id = 101, 108 do
+		recipes[id] = { skillLine = 129, reagents = {} }
+		fees[id] = { 100, 10 }
+		seen[id] = { 100, 20, 20 }
+		spells[id] = "Bandage " .. id
+	end
+	recipes[201] = { skillLine = 171, reagents = {} }
+	fees[201] = { 100, 10 }
+	local c = Client.load({
+		saved = { trainer = { [129] = seen, [171] = { [201] = { 100, 30, 30 } } } },
+		data = {
+			Thresholds = {},
+			RecipeData = recipes,
+			TrainerFees = fees,
+			TrainerRanks = {},
+			TrainerInferred = { [101] = 5 },
+		},
+	})
+	c.spells = spells
+	c.professions = { { name = "First Aid", icon = 1, rank = 30, max = 75, id = 129 } }
+	c.Boot()
+	local text = table.concat(c.ns.ReportLines(), "\n")
+	has(text, "Trainers: First Aid 1 moved, 0 confirmed, 8 wrong", "this character's profession, counted")
+	has(text, "  Bandage 101 (101): bundled 10, trainer 20", "each one shown differently")
+	has(text, "  and 2 more", "six shown, the rest counted")
+	equal(text:find("(201)", 1, true), nil, "a profession this character lacks is left out")
+end
+
 -- Many other addons: the list says how many more, and the report stays one message.
 do
 	local c = Load()

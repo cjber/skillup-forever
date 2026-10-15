@@ -617,7 +617,12 @@ local function Slash(msg)
 	end
 end
 SlashCmdList.SKILLUPFOREVER = function(msg)
-	ns.SafeCall("slash command", Slash, msg)
+	-- Without Core/SafeCall.lua (a /reload after an update that added it) the command runs as it is.
+	if ns.SafeCall then
+		ns.SafeCall("slash command", Slash, msg)
+	else
+		Slash(msg)
+	end
 end
 
 function SkillUpForever_OnAddonCompartmentClick()
@@ -640,6 +645,9 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 			and ns.PlanRoute
 			and ns.CraftedGear
 			and ns.Changed
+			and ns.SafeCall
+			and ns.Report
+			and ns.ReportLines
 		)
 	then
 		ns.Print("|cffff4040" .. L["files are missing: restart the game (not /reload) after updating."] .. "|r")

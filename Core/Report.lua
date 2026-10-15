@@ -2,9 +2,9 @@
 local _, ns = ...
 
 -- SkillUp's own lines in /su report (cjber/adventure-guide-forever#156): the settings that change a number, the
--- data providers, each profession with its route, then /su audit's and /su trainers' lines, each cut so the
--- caught errors after them still fit in one message. English throughout, so a report reads the same in every
--- locale.
+-- data providers, each profession with its route, then /su audit's lines and the trainer checks for this
+-- character's professions, each list cut so the caught errors after it still fit in one message. Field labels and
+-- reasons are English; profession and recipe names are the client's.
 
 -- How many of a list's detail lines the report keeps; the rest are counted.
 local DETAIL_SHOWN = 6
@@ -48,13 +48,13 @@ function ns.ReportLines()
 			Provider(ns.HasAuctionator())
 		),
 	}
+	local professions = ns.PlayerProfessions()
 	local routable = ns.RouteProfessions()
 	local skillLines = {}
-	for skillLine in pairs(ns.PlayerProfessions()) do
+	for skillLine in pairs(professions) do
 		skillLines[#skillLines + 1] = skillLine
 	end
 	table.sort(skillLines)
-	local professions = ns.PlayerProfessions()
 	for _, skillLine in ipairs(skillLines) do
 		local p = professions[skillLine]
 		local line = ("%s [%d]: %d+%d/%d"):format(p.name, skillLine, p.base, p.modifier, p.max)
@@ -66,7 +66,7 @@ function ns.ReportLines()
 					plan.target,
 					plan.reached,
 					#plan.steps,
-					ns.RouteBlocked(plan) or plan.stopReason or "ok"
+					plan.stopReason or (#plan.crafts == 0 and "nothing to craft" or "ok")
 				)
 		end
 		lines[#lines + 1] = line
@@ -78,20 +78,43 @@ function ns.ReportLines()
 	else
 		lines[#lines + 1] = "Audit: no profession open"
 	end
-	-- /su trainers' summary for this character's professions only, and its detail lines.
-	local names = {}
-	for _, p in pairs(professions) do
-		names[p.name] = true
-	end
-	local summaries, details = {}, {}
-	for _, line in ipairs(ns.TrainerReport()) do
-		if line:find("^  ") then
-			details[#details + 1] = strtrim(line)
-		elseif names[line:match("^(.-):")] then
-			summaries[#summaries + 1] = line
+	-- The bundled trainer requirements a trainer could prove wrong (/su trainers), for this character's
+	-- professions: how many were moved from classic-db's, confirmed at a trainer, and each one shown differently.
+	local counts, wrong = {}, {}
+	for _, check in ipairs(ns.TrainerChecks()) do
+		if professions[check.skillLine] then
+			local count = counts[check.skillLine] or { moved = 0, confirmed = 0, wrong = 0 }
+			counts[check.skillLine] = count
+			if check.classic then
+				count.moved = count.moved + 1
+			end
+			if check.shown and check.shown == check.bundled then
+				count.confirmed = count.confirmed + 1
+			elseif check.shown then
+				count.wrong = count.wrong + 1
+				local name = C_Spell.GetSpellName(check.recipeID) or "?"
+				wrong[#wrong + 1] = ("%s (%d): bundled %s, trainer %d"):format(
+					name,
+					check.recipeID,
+					tostring(check.bundled or "-"),
+					check.shown
+				)
+			end
 		end
 	end
-	lines[#lines + 1] = "Trainers: " .. (summaries[1] and table.concat(summaries, " ") or "nothing to check")
-	AddDetails(lines, details, 1)
+	local summaries = {}
+	for _, skillLine in ipairs(skillLines) do
+		local count = counts[skillLine]
+		if count then
+			summaries[#summaries + 1] = ("%s %d moved, %d confirmed, %d wrong"):format(
+				professions[skillLine].name,
+				count.moved,
+				count.confirmed,
+				count.wrong
+			)
+		end
+	end
+	lines[#lines + 1] = "Trainers: " .. (summaries[1] and table.concat(summaries, "; ") or "nothing to check")
+	AddDetails(lines, wrong, 1)
 	return lines
 end

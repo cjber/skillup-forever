@@ -3,7 +3,7 @@
 
 tools/screenshots.py runs the addon's own Lua under LuaJIT for the route, tracker, trainer and reagent scenes and
 ports Core/Model.lua, Integrations/Prices.lua, UI/RecipeList.lua and UI/Tooltip.lua for the rest. Each image's dump
-is those files' hashes, so a change to any of them needs a fresh render. Generated `Data/` is left out: the daily
+is the hashes of the files in SOURCES, so a change to any of them needs a fresh render. Generated `Data/` is left out: the daily
 data refresh moves it and cannot render, and the release re-renders every image (the release skill).
 docs/screenshots/scenes.sha256 holds each image's hash beside its dump's; after a render, `--record` rewrites it
 (with `--force` for an image that came out the same).
@@ -23,14 +23,24 @@ except ModuleNotFoundError:
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs/screenshots"
+# The files whose code shapes what the scenes show: the planner and its data readers, the windows, tooltips and
+# route list they draw, and the text. The rest of the addon loads in the Lua scene too, but cannot change a pixel
+# (settings, the report window, caught errors, trainer audits), so editing it needs no render.
 SOURCES = (
-    "Locales/enUS.lua",
-    "SkillUpForever.toc",
     "tools/screenshots.py",
-    "Core/*.lua",
-    "Integrations/*.lua",
-    "UI/*.lua",
-    "UI/*.xml",
+    "SkillUpForever.toc",
+    "Locales/enUS.lua",
+    "Core/Core.lua",
+    "Core/Model.lua",
+    "Core/Plan.lua",
+    "Core/Gear.lua",
+    "Integrations/Prices.lua",
+    "Integrations/Sources.lua",
+    "UI/Gear.lua",
+    "UI/List.lua",
+    "UI/RecipeList.lua",
+    "UI/Route.lua",
+    "UI/Tooltip.lua",
 )
 SCENES = {
     path.name: functools.partial(screens.files, ROOT, SOURCES)

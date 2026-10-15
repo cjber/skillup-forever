@@ -32,6 +32,8 @@ DEFAULT = "Default"
 OFF = "Off"
 TOTAL = "Total"
 UNIT_SKINNABLE_LEATHER = "Skinnable"
+UNIT_SKINNABLE_HERB = "Requires Herbalism"
+UNIT_SKINNABLE_ROCK = "Requires Mining"
 ITEM_MIN_SKILL = "Requires %s (%d)"
 
 ---@class SkillUpProfessionFrame : Frame

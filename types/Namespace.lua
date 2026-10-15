@@ -138,8 +138,6 @@
 ---@field ProfessionTrainers table<integer, number[][]>
 ---@field GatheredBy table<integer, integer>
 ---@field NodeSkills table<string, number[]> { gathering skill line, required skill } per enUS herb or ore node name.
----@field SkinningSkill fun(level: number?): number?
----@field ClassicSkinningSkill fun(level: number?): number?
 ---@field ScrollDrops table<integer, number[][]>
 ---@field WorldDrops table<integer, boolean>
 ---@field Questie SkillUpQuestie

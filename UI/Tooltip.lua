@@ -405,36 +405,8 @@ local function OnModifierChanged(_, _, key)
 	end
 end
 
--- Gathering (#122): the skill a herb or ore node asks, found by the name on its tooltip, and a skinnable
--- corpse's. Both are coloured from your live skill: orange from the requirement, then yellow, green and grey
--- this far past it, Classic's gathering bands.
-local GATHER_BANDS = { 0, 25, 50, 100 }
-local SKINNING = 393
--- Classic asks a skinner for 1 up to level 10, ten points a level to 20 and five times the level above that.
--- Nobody has checked Forever kept it, so until someone does a skinnable corpse shows "?" (#122). Once it is
--- confirmed in game, set this to true.
-local SKINNING_RULE_CONFIRMED = false
-
--- Classic's rule: the skill skinning a corpse of this level asks; nil for an unknown level.
----@param level number?
----@return number?
-function ns.ClassicSkinningSkill(level)
-	if not level or level < 1 then
-		return nil
-	elseif level <= 10 then
-		return 1
-	elseif level <= 20 then
-		return (level - 10) * 10
-	end
-	return level * 5
-end
-
--- What the tooltip uses: nothing while the rule is unconfirmed.
----@param level number?
----@return number?
-function ns.SkinningSkill(level)
-	return SKINNING_RULE_CONFIRMED and ns.ClassicSkinningSkill(level) or nil
-end
+-- Gathering (#122): the skill a herb or ore node asks, found by the name on its tooltip, and a gatherable
+-- corpse's. Both are coloured from your live skill with Classic's gathering bands (Model.GatherThresholds).
 
 -- "Mining 175" and how it colours at your skill, for a gathering profession you have; "?" for an unknown
 -- requirement. Nothing for a profession you don't have.
@@ -451,11 +423,7 @@ local function AddGatherLine(tooltip, skillLine, required)
 		tooltip:AddDoubleLine(profession.name, "?", 1, 1, 1, r, g, b)
 		return
 	end
-	local t = {}
-	for i, past in ipairs(GATHER_BANDS) do
-		t[i] = required + past
-	end
-	local band, color = Band(t, profession.skill)
+	local band, color = Band(ns.Model.GatherThresholds(required), profession.skill)
 	local r, g, b = color:GetRGB()
 	tooltip:AddDoubleLine(string.format(L["%s %d"], profession.name, required), band, 1, 1, 1, r, g, b)
 end
@@ -484,32 +452,56 @@ local function AddNodeSkill(tooltip, data)
 	end
 end
 
--- A corpse the game marks skinnable: its line is the client's own UNIT_SKINNABLE_LEATHER, in every language.
+-- The line the client adds to a corpse something can be gathered from, in its own words in every language,
+-- and the gathering skill each one is for: Skinning, Herbalism, Mining.
+---@type table<string, integer>?
+local corpseLines
+
+---@return table<string, integer>
+local function CorpseLines()
+	if not corpseLines then
+		corpseLines = {}
+		for text, skillLine in pairs({
+			[UNIT_SKINNABLE_LEATHER or false] = 393,
+			[UNIT_SKINNABLE_HERB or false] = 182,
+			[UNIT_SKINNABLE_ROCK or false] = 186,
+		}) do
+			if text then
+				corpseLines[text] = skillLine
+			end
+		end
+	end
+	return corpseLines
+end
+
 ---@param tooltip GameTooltip
 ---@param data TooltipData
-local function AddSkinningSkill(tooltip, data)
+local function AddCorpseSkill(tooltip, data)
 	if not ns.db.gatherTooltip or tooltip:IsForbidden() then
 		return
 	end
-	local skinnable = false
+	local skillLine
+	local lines = CorpseLines()
 	for _, line in ipairs(data and data.lines or {}) do
-		if ns.Readable(line.leftText) == UNIT_SKINNABLE_LEATHER then
-			skinnable = true
+		local text = ns.Readable(line.leftText)
+		skillLine = text and lines[text]
+		if skillLine then
 			break
 		end
 	end
-	if not skinnable then
+	if not skillLine then
 		return
 	end
-	local _, unit = tooltip:GetUnit()
+	-- Read before any test: a secret unit token errors even on its truth test.
+	local unit = ns.Readable((select(2, tooltip:GetUnit())))
 	local level = unit and ns.Readable(UnitLevel(unit))
-	AddGatherLine(tooltip, SKINNING, ns.SkinningSkill(level))
+	AddGatherLine(tooltip, skillLine, ns.Model.CorpseSkill(level))
 end
 
 function ns.AttachItemTooltips()
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, AddUses)
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Object, AddNodeSkill)
-	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, AddSkinningSkill)
+	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, AddCorpseSkill)
 	local events = CreateFrame("Frame")
 	events:RegisterEvent("MODIFIER_STATE_CHANGED")
 	events:SetScript("OnEvent", OnModifierChanged)

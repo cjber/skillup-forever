@@ -75,7 +75,8 @@ publishes it as the notes.
   Missing data renders `?`, never a guess. A gathering node has no colour in the game: its tooltip colours
   your live skill against the node's waivered requirement with Classic's gathering bands (orange to 25 past
   it, yellow to 50, green to 100). Nodes are matched by their enUS name, so other locales show nothing.
-  Skinning shows `?` until Classic's level rule is confirmed on Forever (`SKINNING_RULE_CONFIRMED`).
+  A corpse (skinning, or herbalism and mining on a corpse) shows `?` until Classic's level rule is confirmed on
+  Forever (`CORPSE_RULE_CONFIRMED` in `Core/Model.lua`).
 - Never stretch art: an icon, atlas or texture is drawn at its native aspect, through `UI/Art.lua` (`Art.Fit`,
   `Art.Markup`); only nine-slice pieces, bars and fills stretch by design. `tools/lint_art.py` refuses a raw
   setter elsewhere unless its line says why its shape is right: `-- art-ok: <reason>`.

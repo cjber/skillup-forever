@@ -759,6 +759,7 @@ function Client.load(options)
 		return c.locale
 	end
 	G.UNIT_SKINNABLE_LEATHER = "Skinnable"
+	G.UNIT_SKINNABLE_HERB, G.UNIT_SKINNABLE_ROCK = "Requires Herbalism", "Requires Mining"
 	G.SlashCmdList = {}
 	G.strtrim = function(text)
 		return (text:gsub("^%s+", ""):gsub("%s+$", ""))

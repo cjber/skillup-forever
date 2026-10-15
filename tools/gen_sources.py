@@ -57,13 +57,22 @@ def reagent_items():
     return items
 
 
-def gathered(tables, locks, items):
-    """[reagent] = the gathering skill line that yields it at least GATHER_CHANCE% of the time."""
-    lock_skill = {}
+def lock_requirements(locks):
+    """[lock] = (gathering skill line, required skill), from the client's Lock DB2."""
+    requirements = {}
     for row in locks:
         for i in range(8):
             if row[f"Type_{i}"] == LOCK_KEY_SKILL and row[f"_Index_{i}"] in LOCK_SKILLS:
-                lock_skill[int(row["ID"])] = LOCK_SKILLS[row[f"_Index_{i}"]]
+                rank = int(row[f"Skill_{i}"])
+                if rank < 0:
+                    raise ValueError(f"Lock {row['ID']}: negative required skill {rank}")
+                requirements[int(row["ID"])] = (LOCK_SKILLS[row[f"_Index_{i}"]], rank)
+    return requirements
+
+
+def gathered(tables, locks, items):
+    """[reagent] = the gathering skill line that yields it at least GATHER_CHANCE% of the time."""
+    lock_skill = {lock: need[0] for lock, need in lock_requirements(locks).items()}
     references = defaultdict(list)
     for row in tables["reference_loot_template"]:
         references[int(row["entry"])].append(row)
@@ -94,22 +103,16 @@ def node_skills(tables, locks):
     """[enUS node name] = (gathering skill line, required skill): what a herb or ore node asks, by the name its
     tooltip shows. classic-db ties a node to its lock (`data0`), the client's Lock DB2 gives that lock's skill
     and rank (#122). A name two nodes share with different requirements is left out: the tooltip can't tell
-    them apart."""
-    lock_rank = {}
-    for row in locks:
-        for i in range(8):
-            if row[f"Type_{i}"] == LOCK_KEY_SKILL and row[f"_Index_{i}"] in LOCK_SKILLS:
-                rank = int(row[f"Skill_{i}"])
-                if rank < 0:
-                    raise ValueError(f"Lock {row['ID']}: negative required skill {rank}")
-                lock_rank[int(row["ID"])] = (LOCK_SKILLS[row[f"_Index_{i}"]], rank)
+    them apart; the second value lists those names, for the run's output."""
+    lock_rank = lock_requirements(locks)
     found = defaultdict(set)
     for node in tables["gameobject_template"]:
         need = node["type"] == CHEST and lock_rank.get(int(node["data0"]))
         # A lock asking no skill (quest plants, bushes) gives no skill-up to colour.
         if need and need[1] > 0 and node["name"]:
             found[node["name"]].add(need)
-    return {name: needs.pop() for name, needs in found.items() if len(needs) == 1}
+    shared = sorted(name for name, needs in found.items() if len(needs) > 1)
+    return {name: needs.pop() for name, needs in found.items() if len(needs) == 1}, shared
 
 
 def trainer_caps(trainer, teaches, rank_of):
@@ -219,7 +222,7 @@ def generate(ids, tables, effect_rows, locks):
             skill: sorted(caps.items()) for skill, caps in trainer_caps(tables["npc_trainer"], teaches, rank_of).items()
         },
         "gathered": gathered(tables, locks, reagent_items()),
-        "nodes": node_skills(tables, locks),
+        **dict(zip(("nodes", "shared_nodes"), node_skills(tables, locks), strict=True)),
     }
 
 
@@ -293,7 +296,8 @@ def main():
     print(
         f"Wrote {OUTPUT.relative_to(ROOT)}: {len(data['drops'])} scrolls with named drops, "
         f"{len(data['world'])} world drops, {sum(map(len, data['trainers'].values()))} trainers, "
-        f"{len(data['gathered'])} gathered reagents, {len(data['nodes'])} gathering nodes"
+        f"{len(data['gathered'])} gathered reagents, {len(data['nodes'])} gathering nodes "
+        f"(left out, shared by nodes asking different skills: {data['shared_nodes']})"
     )
 
 

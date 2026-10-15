@@ -73,7 +73,10 @@ item's required level, class and subclass (its armour or weapon type), inventory
 `Core/Gear.lua`'s class proficiency table (the client's `SkillRaceClassInfo`). `ns.RecipeScrolls`
 holds, per recipe spell, the pattern or recipe item that teaches it and the skill that item asks for,
 from the same build's `ItemEffect` and `ItemSparse`: where the client's `SkillLineAbility` orange sits
-at its placeholder 1, this is the recipe's real learn requirement. It imports the threshold generator's build,
+at its placeholder 1, this is the recipe's real learn requirement. `ns.RankBooks` holds the profession ranks a book teaches
+(Forever's Expert First Aid, Cooking and Fishing): the rank spell (`SpellEffect` SKILL or SKILL_STEP, tier in
+its base points), the spell that learns it (LEARN_SPELL), the item that casts that (`ItemEffect`) and what the
+book asks and costs (`ItemSparse`). The route reads a rank from a book only where no trainer teaches it. It imports the threshold generator's build,
 snapshot date, cache and profession discovery; run thresholds first when changing
 builds. All five generators accept `--offline` and `--refresh`. To verify the data
 is fresh and reproducible:
@@ -96,7 +99,8 @@ classic-db's required skill is Classic's: where Forever moved a recipe's yellow 
 together from Classic Era's, the requirement moves as far (Forever moved its patterns'
 requirements that way for all but a few recipes both clients teach by pattern), never below 1. It also writes `ns.TrainerRanks`: each profession rank a trainer teaches (the
 taught spell's `SKILL` effect gives the skill line and the new cap), with fee,
-required skill and level. Ranks that come from books or quests are absent.
+required skill and level. Ranks that come from books or quests are absent. `ns.TrainerInferred` keeps classic-db's
+requirement for each one the range rule moved, so `/su trainers` can show which a trainer confirmed (#124).
 
 `gen_sources.py` writes `Data/Sources.lua`: what neither QuestieDB nor AtlasLoot holds about
 where recipes come from, from the same classic-db dump. Who sells a scroll or a reagent, the
@@ -123,6 +127,10 @@ comes from QuestieDB.
 10% of the time: herb and mining nodes (`gameobject_template` chests whose `Lock`
 needs the skill) and `skinning_loot_template`, with reference loot expanded. Rarer
 finds (gems in veins) are left out.
+
+`ns.NodeSkills` maps a herb or ore node's enUS name to the gathering skill and rank it asks for: the node's
+`gameobject_template` lock (`data0`) joined to the client's `Lock` DB2 (a WFA-28 waiver in `AGENTS.md`). A lock
+asking no skill (quest plants) is left out, and so is a name that nodes asking different skills share.
 
 The recipe generator joins `SkillLineAbility` to `SpellReagents` and base-difficulty
 `SpellEffect` rows. Reagents are sorted by item ID and repeated slots combined.

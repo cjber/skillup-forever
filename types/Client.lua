@@ -31,6 +31,9 @@ ARTISAN = "Artisan"
 DEFAULT = "Default"
 OFF = "Off"
 TOTAL = "Total"
+UNIT_SKINNABLE_LEATHER = "Skinnable"
+UNIT_SKINNABLE_HERB = "Requires Herbalism"
+UNIT_SKINNABLE_ROCK = "Requires Mining"
 ITEM_MIN_SKILL = "Requires %s (%d)"
 
 ---@class SkillUpProfessionFrame : Frame
@@ -237,12 +240,17 @@ ClassTrainerFrame = nil
 ---@type {GetTrainerType: fun(): number}
 C_Trainer = {}
 
+---@class SkillUpTrackerStep
+---@field text string
+---@field book string|false|nil A rank's book, by name: got at a vendor, not a trainer.
+---@field nearest fun(byTravel: boolean?): integer?, string The NPC to go to, and its tooltip label.
+
 ---@class SkillUpTrackerBlock : Frame
 ---@field id integer
 ---@field profession string
 ---@field plan SkillUpPlan
 ---@field items SkillUpNeededItem[]
----@field steps {cap: number, text: string}[]
+---@field steps SkillUpTrackerStep[]
 ---@field vendorMissing {name: string, itemID: integer, vendor: integer}[]
 ---@field SetHeader fun(self: SkillUpTrackerBlock, text: string)
 ---@field AddObjective fun(self: SkillUpTrackerBlock, id: string|number, text: string, template?: string, useFullHeight?: boolean, dashStyle?: number, colorStyle?: SkillUpObjectiveColor): Frame

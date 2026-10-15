@@ -40,6 +40,8 @@
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
 ---@field Gear SkillUpGear
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
+---@field TrainerChecks fun(): SkillUpTrainerCheck[]
+---@field TrainerReport fun(): string[]
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
 ---@field LearnSkill fun(profession: SkillUpContext, recipeID: integer): number
@@ -49,6 +51,7 @@
 ---@field UnpricedReagents fun(plan: SkillUpPlan): integer[]
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field RankText fun(rank: SkillUpRank): string
+---@field RankBookName fun(rank: SkillUpRank): string
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?
@@ -98,6 +101,7 @@
 ---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource, first?: integer)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
+---@field NearestForRank fun(profession: SkillUpContext, rank: SkillUpRank, byTravel?: boolean): integer?, string
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
 ---@field AddCompanionHint fun(tooltip: GameTooltip)
 ---@field AnnounceUpdate fun()
@@ -123,14 +127,17 @@
 ---@field VendorPrices table<integer, number>
 ---@field RecipeData table<integer, SkillUpRecipe>
 ---@field RecipeScrolls table<integer, number[]> { scroll item, required skill } per recipe spell.
+---@field RankBooks table<integer, number[][]> per skill line: { cap, book item, list price, required skill, level }.
 ---@field ItemGear table<integer, number[]>
 ---@field ItemSellPrices table<integer, number>
 ---@field RecipeNames table<integer, table<string, integer|false>>
 ---@field ProfessionSkillLines table<string, integer>
 ---@field TrainerFees table<integer, number[]>
 ---@field TrainerRanks table<integer, number[][]>
+---@field TrainerInferred table<integer, number> classic-db's required skill, where the bundled one was moved from it.
 ---@field ProfessionTrainers table<integer, number[][]>
 ---@field GatheredBy table<integer, integer>
+---@field NodeSkills table<string, number[]> { gathering skill line, required skill } per enUS herb or ore node name.
 ---@field ScrollDrops table<integer, number[][]>
 ---@field WorldDrops table<integer, boolean>
 ---@field Questie SkillUpQuestie
@@ -152,6 +159,7 @@
 ---@field showGearTab boolean
 ---@field merchantButton boolean
 ---@field reagentTooltip 'off'|'route'|'full'
+---@field gatherTooltip boolean
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field showAllGear table<string, boolean>
 ---@field skippedRecipes table<string, table<integer, true>>
@@ -162,7 +170,7 @@
 ---@field learned table<string, table<integer, boolean>>
 ---@field professionIDs table<string, integer>
 ---@field trackedProfessions table<integer, boolean>
----@field trainer table<integer, table<integer, number[]>>
+---@field trainer table<integer, table<integer, number[]>> { fee, required skill, required skill the trainer showed? }
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
 ---@field sellers table<integer, SkillUpSeller>
@@ -281,7 +289,8 @@ SkillUpForeverDB = nil
 ---@class SkillUpRank
 ---@field name string
 ---@field cap number
----@field fee number
+---@field fee number The trainer's fee, or a book's price.
+---@field book? integer The item that teaches the rank when no trainer does: bought and read, not trained.
 ---@field reqSkill number
 ---@field level number
 
@@ -551,6 +560,15 @@ SkillUpForeverDB = nil
 ---@field kind string
 ---@field recipeID? integer
 ---@field ambiguous? boolean
+
+-- A bundled trainer requirement a visit could prove wrong (/su trainers).
+---@class SkillUpTrainerCheck
+---@field skillLine integer
+---@field recipeID integer
+---@field bundled? number
+---@field classic? number classic-db's, where the bundled one was moved from it.
+---@field shown? number What a trainer showed.
+---@field visited boolean Whether a trainer listed it, requirement or not.
 
 ---@class SkillUpTrainerState
 ---@field services SkillUpTrainerService[]

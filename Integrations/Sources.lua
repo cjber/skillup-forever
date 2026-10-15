@@ -431,7 +431,8 @@ end
 ---@return string
 function ns.NearestForRank(profession, rank, byTravel)
 	if rank.book then
-		return ns.NearestVendor(rank.book, byTravel), L["Nearest vendor"]
+		-- A book in the bags is read where you stand.
+		return not ns.RankHeld(rank) and ns.NearestVendor(rank.book, byTravel) or nil, L["Nearest vendor"]
 	end
 	return ns.NearestTrainer(profession, rank.cap, byTravel), L["Nearest trainer"]
 end

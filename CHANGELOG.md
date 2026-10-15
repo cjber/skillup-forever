@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **Your quests stay below the Forever tracker with EllesmereUI and other UI suites.** When the game, Edit Mode or a UI addon put the quest tracker back in its saved spot, the Forever sections waited for the next quest event to restack, so your quests sat over them until then. The column now follows the quest tracker as soon as it moves, still without touching the game's own tracker code.
+
 - **Value gathered materials at what they'd sell for.** A new Prices setting, off by default, prices a material your professions gather at its Auctionator price after the 5% cut, or its vendor sell price if that is more, instead of free. That is what crafting with it costs you, so the route picks a vendor-reagent recipe over one that burns valuable ore, and recipe rows and tooltips show the same cost. A material with neither price stays free. Thanks to berserkerlxl for the idea.
 
 - **Not this recipe.** Right-click a step or a suggested recipe on the route page and choose *Not this recipe* to leave it out of every route on this character, as training, a sub-craft or a scroll to find. The route plans around it, or says nothing else gets there. A *Skipped* row under the route, the tracker's header menu and `/su unskip` bring a recipe back with *Show again*; `/su skipped` lists them.

@@ -212,7 +212,7 @@ local function RankTooltip(tooltip, profession, rank)
 	end
 	local held = ns.RankHeld(rank)
 	if held then
-		GameTooltip_AddNormalLine(tooltip, L["It's in your bags: read it."])
+		GameTooltip_AddNormalLine(tooltip, L["You have this book: read it."])
 	else
 		AddLine(tooltip, rank.book and L["Price"] or L["Fee"], Money(rank.fee))
 	end
@@ -419,8 +419,9 @@ local function RenderRoute(list, plan)
 			})
 		elseif rank then
 			local detail
-			if ns.RankHeld(rank) then
-				detail = string.format(L["In your bags, requires %s (%d)"], profession.name, rank.reqSkill)
+			local held = ns.RankHeld(rank)
+			if held then
+				detail = string.format(L["You have it, requires %s (%d)"], profession.name, rank.reqSkill)
 			else
 				local text = rank.book and L["Price %s, requires %s (%d)"] or L["Fee %s, requires %s (%d)"]
 				detail = string.format(text, Money(rank.fee), profession.name, rank.reqSkill)
@@ -433,7 +434,8 @@ local function RenderRoute(list, plan)
 				tooltip = function(tooltip)
 					RankTooltip(tooltip, profession, rank)
 				end,
-				click = RankClick(profession, rank),
+				-- A book you have has nowhere to send you.
+				click = not held and RankClick(profession, rank) or nil,
 			})
 		elseif training then
 			list:Add({

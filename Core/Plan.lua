@@ -32,7 +32,7 @@ function ns.RankBookName(rank)
 	return string.format(L["the %s book"], rank.name)
 end
 
--- A rank's book already in the bags: only reading it is left, with nothing to buy and nowhere to go.
+-- A rank's book already held (bags or bank, as ns.Have counts): only reading it is left, with nothing to buy.
 ---@param rank SkillUpRank
 ---@return boolean
 function ns.RankHeld(rank)

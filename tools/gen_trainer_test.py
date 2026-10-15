@@ -48,7 +48,9 @@ class RequirementTests(unittest.TestCase):
             {"SpellID": "99", "DifficultyID": "0", "Effect": "118", "EffectBasePoints": "1", "EffectMiscValue_0": "164"}
         )
         trainer = [self.trainer(10, 125), self.trainer(11, 125), self.trainer(12, 10), self.trainer(13, 50)]
-        fees, _, _ = generate({2674, 9985, 3}, trainer, effects, {2674: -25, 3: -25})
+        fees, _, _, inferred = generate({2674, 9985, 3}, trainer, effects, {2674: -25, 3: -25})
         self.assertEqual(fees[2674], (900, 100))
         self.assertEqual(fees[9985], (900, 125))
         self.assertEqual(fees[3], (900, 1))
+        # Issue #124: a moved requirement keeps classic-db's, so a trainer visit can confirm or correct it.
+        self.assertEqual(inferred, {2674: 125, 3: 10})

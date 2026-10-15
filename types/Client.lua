@@ -242,7 +242,7 @@ C_Trainer = {}
 ---@field profession string
 ---@field plan SkillUpPlan
 ---@field items SkillUpNeededItem[]
----@field steps {cap: number, text: string}[]
+---@field steps {cap: number, text: string, book: integer?}[]
 ---@field vendorMissing {name: string, itemID: integer, vendor: integer}[]
 ---@field SetHeader fun(self: SkillUpTrackerBlock, text: string)
 ---@field AddObjective fun(self: SkillUpTrackerBlock, id: string|number, text: string, template?: string, useFullHeight?: boolean, dashStyle?: number, colorStyle?: SkillUpObjectiveColor): Frame

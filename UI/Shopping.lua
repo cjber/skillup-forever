@@ -438,12 +438,25 @@ function ModuleMixin:OnBlockHeaderClick(block)
 			end)
 		end
 		-- The layout picked by straight line; a click ranks by travel time.
-		local cap = block.steps[1] and block.steps[1].cap
-		local trainer = cap and ns.NearestTrainer(block.plan.profession, cap)
-		if trainer then
-			root:CreateButton(L["Waypoint to a trainer"], function()
-				ns.SetWaypoint(ns.NearestTrainer(block.plan.profession, cap, true) or trainer)
-			end)
+		local first = block.steps[1]
+		local book = first and first.book
+		if book then
+			-- A rank from a book is bought at a vendor.
+			local vendor = ns.NearestVendor(book)
+			if vendor then
+				local name = C_Item.GetItemNameByID(book) or first.text
+				root:CreateButton(string.format(L["Waypoint to a vendor: %s"], name), function()
+					ns.SetWaypoint(ns.NearestVendor(book, true) or vendor)
+				end)
+			end
+		elseif first then
+			local cap = first.cap
+			local trainer = ns.NearestTrainer(block.plan.profession, cap)
+			if trainer then
+				root:CreateButton(L["Waypoint to a trainer"], function()
+					ns.SetWaypoint(ns.NearestTrainer(block.plan.profession, cap, true) or trainer)
+				end)
+			end
 		end
 		for _, item in ipairs(block.vendorMissing) do
 			root:CreateButton(string.format(L["Waypoint to a vendor: %s"], item.name), function()
@@ -488,13 +501,13 @@ end
 
 -- The ranks and recipes to train, in the order the route page lists them.
 ---@param plan SkillUpPlan
----@return {cap: number, text: string}[]
+---@return {cap: number, text: string, book: integer?}[]
 local function TrainingSteps(plan)
 	local steps = {}
 	for _, step in ipairs(plan.steps) do
 		local rank, training = step.rank, step.training
 		if rank then
-			steps[#steps + 1] = { cap = rank.cap, text = ns.RankText(rank) }
+			steps[#steps + 1] = { cap = rank.cap, text = ns.RankText(rank), book = rank.book }
 		elseif training then
 			local name = C_Spell.GetSpellName(training.recipeID) or string.format(L["recipe %d"], training.recipeID)
 			steps[#steps + 1] = { cap = training.cap, text = string.format(L["Train %s at %d"], name, training.usedAt) }
@@ -521,12 +534,22 @@ function ModuleMixin:LayoutContents()
 		if #steps > 0 then
 			local more = #steps > 1 and string.format(" |cff808080(%s)|r", string.format(L["+%d more"], #steps - 1))
 				or ""
-			local cap = steps[1].cap
-			local trainer = ns.NearestTrainer(info, cap)
-			local line = block:AddObjective("Train", steps[1].text .. more, trainer and LINE_TEMPLATE or nil)
-			if trainer then
-				Waypointed(line, steps[1].text, L["Nearest trainer"], function()
-					return ns.NearestTrainer(info, cap, true)
+			local cap, book = steps[1].cap, steps[1].book
+			-- A rank from a book is bought at a vendor; everything else is trained.
+			---@type fun(byTravel: boolean?): integer?
+			local nearest = function(byTravel)
+				return ns.NearestTrainer(info, cap, byTravel)
+			end
+			if book then
+				nearest = function(byTravel)
+					return ns.NearestVendor(book, byTravel)
+				end
+			end
+			local npc = nearest()
+			local line = block:AddObjective("Train", steps[1].text .. more, npc and LINE_TEMPLATE or nil)
+			if npc then
+				Waypointed(line, steps[1].text, book and L["Nearest vendor"] or L["Nearest trainer"], function()
+					return nearest(true)
 				end)
 			end
 		end

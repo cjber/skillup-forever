@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves.
 
 ## [Unreleased]
 
+- **First Aid and Cooking routes go past 150.** No trainer teaches Expert First Aid or Expert Cooking: you buy a book and read it at 125. The route now plans that step, "Buy and read Expert First Aid - Under Wraps at 125", with the book's price and the nearest vendor that sells it, and carries on to 225 instead of stopping at Journeyman. Artisan comes from a quest the game's data doesn't name, so routes still stop at 225 for now.
+
 ## [0.10.0] - 2026-10-15
 
 - **Data checked against Forever 1.60.1.70374.** The bundled data is unchanged apart from its build pin.

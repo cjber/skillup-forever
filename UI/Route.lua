@@ -207,13 +207,20 @@ end
 local function RankTooltip(tooltip, profession, rank)
 	GameTooltip_SetTitle(tooltip, string.format("%s %s", rank.name, profession.name))
 	GameTooltip_AddHighlightLine(tooltip, string.format(L["Raises your skill cap to %d."], rank.cap))
-	AddLine(tooltip, L["Fee"], Money(rank.fee))
+	if rank.book then
+		GameTooltip_AddNormalLine(tooltip, L["No trainer teaches this rank: a book does."])
+	end
+	AddLine(tooltip, rank.book and L["Price"] or L["Fee"], Money(rank.fee))
 	RequiresLine(tooltip, profession, rank.reqSkill)
 	if rank.level > 0 then
 		local color = UnitLevel("player") < rank.level and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
 		AddLine(tooltip, L["Requires"], string.format(L["level %d"], rank.level), color)
 	end
-	ns.AddNearest(tooltip, L["Nearest trainer"], ns.NearestTrainer(profession, rank.cap, true))
+	if rank.book then
+		ns.AddNearest(tooltip, L["Nearest vendor"], ns.NearestVendor(rank.book, true))
+	else
+		ns.AddNearest(tooltip, L["Nearest trainer"], ns.NearestTrainer(profession, rank.cap, true))
+	end
 end
 
 -- A waypoint to the nearest trainer teaching up to `cap`.
@@ -223,6 +230,18 @@ end
 local function TrainerClick(profession, cap)
 	return function()
 		local npcID = ns.NearestTrainer(profession, cap, true)
+		if npcID then
+			ns.SetWaypoint(npcID)
+		end
+	end
+end
+
+-- A waypoint to the nearest vendor selling `itemID`: a book that teaches a rank.
+---@param itemID integer
+---@return fun()
+local function VendorClick(itemID)
+	return function()
+		local npcID = ns.NearestVendor(itemID, true)
 		if npcID then
 			ns.SetWaypoint(npcID)
 		end
@@ -397,12 +416,17 @@ local function RenderRoute(list, plan)
 			list:Add({
 				icon = profession.icon,
 				text = ns.RankText(rank),
-				detail = string.format(L["Fee %s, requires %s (%d)"], Money(rank.fee), profession.name, rank.reqSkill),
+				detail = string.format(
+					rank.book and L["Price %s, requires %s (%d)"] or L["Fee %s, requires %s (%d)"],
+					Money(rank.fee),
+					profession.name,
+					rank.reqSkill
+				),
 				color = NORMAL_FONT_COLOR,
 				tooltip = function(tooltip)
 					RankTooltip(tooltip, profession, rank)
 				end,
-				click = TrainerClick(profession, rank.cap),
+				click = rank.book and VendorClick(rank.book) or TrainerClick(profession, rank.cap),
 			})
 		elseif training then
 			list:Add({

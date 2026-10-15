@@ -21,6 +21,17 @@ end
 ---@param rank SkillUpRank
 ---@return string
 function ns.RankText(rank)
+	if rank.book then
+		local name = C_Item.GetItemNameByID(rank.book)
+		if not name then
+			C_Item.RequestLoadItemDataByID(rank.book)
+			name = string.format(L["the %s book"], rank.name)
+		end
+		if rank.level > UnitLevel("player") then
+			return string.format(L["Buy and read %s at %d (level %d)"], name, rank.reqSkill, rank.level)
+		end
+		return string.format(L["Buy and read %s at %d"], name, rank.reqSkill)
+	end
 	if rank.level > UnitLevel("player") then
 		return string.format(L["Train %s at %d (level %d)"], rank.name, rank.reqSkill, rank.level)
 	end
@@ -42,29 +53,40 @@ function ns.RouteProfessions()
 	return professions
 end
 
--- The ranks a trainer teaches above the current cap, in order, and the highest cap
--- they reach. It stops at a gap: a rank that comes from a book or quest isn't known.
+-- The ranks above the current cap, in order, and the highest cap they reach: a trainer's, else
+-- a book's (Expert First Aid and Cooking). It stops at a gap: a rank that comes from a quest isn't known.
 ---@param profession SkillUpContext
 ---@return SkillUpRank[]
 ---@return number
 local function NextRanks(profession)
-	local byCap = {}
-	for _, rank in ipairs(ns.TrainerRanks[profession.skillLine] or {}) do
-		byCap[rank[1]] = rank
-	end
-	-- What a trainer was seen to charge for a rank wins over its base fee.
+	-- What a trainer was seen to charge for a rank, or a merchant for a book, wins over the bundled price.
 	local seen = ns.db.trainerRanks[profession.skillLine] or {}
-	local ranks, cap = {}, profession.max
-	while byCap[cap + RANK_SPAN] do
-		local rank = byCap[cap + RANK_SPAN]
-		ranks[#ranks + 1] = {
+	local byCap = {}
+	for _, rank in ipairs(ns.RankBooks[profession.skillLine] or {}) do
+		local cap, book = rank[1], rank[2]
+		byCap[cap] = {
+			name = RANK_NAMES[cap],
+			cap = cap,
+			fee = ns.db.vendor[book] or rank[3],
+			reqSkill = rank[4],
+			level = rank[5],
+			book = book,
+		}
+	end
+	for _, rank in ipairs(ns.TrainerRanks[profession.skillLine] or {}) do
+		byCap[rank[1]] = {
 			name = RANK_NAMES[rank[1]],
 			cap = rank[1],
 			fee = seen[rank[1]] or rank[2],
 			reqSkill = rank[3],
 			level = rank[4],
 		}
-		cap = rank[1]
+	end
+	local ranks, cap = {}, profession.max
+	while byCap[cap + RANK_SPAN] and byCap[cap + RANK_SPAN].name do
+		local rank = byCap[cap + RANK_SPAN]
+		ranks[#ranks + 1] = rank
+		cap = rank.cap
 	end
 	return ranks, cap
 end
@@ -519,10 +541,10 @@ function ns.NextCraft(plan)
 	elseif ns.OpenSkillLine() ~= profession.skillLine then
 		return { text = L["Craft next"], reason = string.format(L["Open %s to craft from here."], profession.name) }
 	elseif profession.capped and plan.ranks[1] then
-		return {
-			text = L["Craft next"],
-			reason = string.format(L["Train %s first: you're at your cap."], plan.ranks[1].name),
-		}
+		local rank = plan.ranks[1]
+		local first = rank.book and L["Read the %s book first: you're at your cap."]
+			or L["Train %s first: you're at your cap."]
+		return { text = L["Craft next"], reason = string.format(first, rank.name) }
 	end
 	local recipeID = craft.recipeID
 	local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)

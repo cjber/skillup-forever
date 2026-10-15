@@ -98,7 +98,8 @@ local function Apply(kinds)
 	for _, name in ipairs(ORDER) do
 		local handler = stale[name] and handlers[name]
 		if handler then
-			handler()
+			-- One failing cache or view doesn't stop the rest; the error is kept for /su report.
+			ns.SafeCall("stale " .. name, handler)
 		end
 	end
 end
@@ -128,8 +129,8 @@ frame:SetScript("OnEvent", function(_, event)
 		kinds[EVENTS[event]] = true
 	end
 	for _, watcher in ipairs(watchers[event] or {}) do
-		local kind = watcher()
-		if kind then
+		local ok, kind = ns.SafeCall(event, watcher)
+		if ok and kind then
 			kinds[kind] = true
 		end
 	end

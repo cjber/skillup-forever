@@ -96,6 +96,7 @@ local env = setmetatable({
 	HIGHLIGHT_FONT_COLOR = color,
 	GRAY_FONT_COLOR = color,
 }, { __index = _G })
+setfenv(assert(loadfile("Core/SafeCall.lua")), env)("SkillUpForever", ns)
 setfenv(assert(loadfile("Core/Changes.lua")), env)("SkillUpForever", ns)
 setfenv(assert(loadfile("UI/List.lua")), env)("SkillUpForever", ns)
 

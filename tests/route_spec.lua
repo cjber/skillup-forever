@@ -232,6 +232,7 @@ for _, file in ipairs({
 	"Data/Recipes.lua",
 	"Data/Trainer.lua",
 	"Core/Model.lua",
+	"Core/SafeCall.lua",
 	"Core/Changes.lua",
 	"Core/Plan.lua",
 	"UI/Route.lua",

@@ -242,6 +242,31 @@ function Client.load(options)
 	function Methods:CreateFontString()
 		return NewFrame(nil, self)
 	end
+	function Methods:CreateTexture()
+		return NewFrame(nil, self)
+	end
+	function Methods:GetText()
+		return self.text or ""
+	end
+	function Methods:GetParent()
+		return self.parent
+	end
+	-- The report window's stock frame and edit box: its title, portrait, focus and selection. c.focus is the edit
+	-- box with the keyboard focus, and `highlighted` the text selected in it.
+	function Methods:SetTitle(title)
+		self.title = title
+	end
+	function Methods:GetPortrait()
+		self.portrait = self.portrait or NewFrame(nil, self)
+		return self.portrait
+	end
+	function Methods:SetFocus()
+		c.focus = self
+	end
+	function Methods:HighlightText()
+		self.highlighted = self.text
+	end
+	Methods.RegisterForDrag, Methods.StartMoving, Methods.StopMovingOrSizing = noop, noop, noop
 
 	-- What the tracker section's stock template gives it; the shared host lays it out with these.
 	local TrackerModule = {}
@@ -403,6 +428,9 @@ function Client.load(options)
 			return c.npc and c.npc.name
 		end
 		return c.player.name
+	end
+	G.UnitRace = function()
+		return "Orc", "Orc"
 	end
 	G.UnitClass = function()
 		return c.player.className or "Shaman", c.player.classFile or "SHAMAN", c.player.classID or 64
@@ -741,6 +769,20 @@ function Client.load(options)
 	end
 	G.TooltipDataProcessor = { AddTooltipPostCall = noop }
 	G.SlashCmdList = {}
+	-- The game's error handler: an error SafeCall caught still fails the spec, as it would reach BugSack in game.
+	c.errors = {}
+	G.geterrorhandler = function()
+		return function(message)
+			c.errors[#c.errors + 1] = tostring(message)
+			if not c.allowErrors then
+				io.stderr:write("error handler: ", tostring(message), "\n")
+				os.exit(1)
+			end
+		end
+	end
+	G.GetTime = function()
+		return c.now or 0
+	end
 	G.strtrim = function(text)
 		return (text:gsub("^%s+", ""):gsub("%s+$", ""))
 	end
@@ -753,15 +795,38 @@ function Client.load(options)
 	G.time = function()
 		return c.now
 	end
+	c.locale = c.locale or "enUS"
+	G.GetLocale = function()
+		return c.locale
+	end
 	G.GetBuildInfo = function()
 		return "1.60.1", c.build, "Sep 24 2026", 16001, "wow", "1.60.1." .. c.build
 	end
+	-- c.addons: the other loaded addons, { name, version }, in the AddOns list after this one.
+	c.addons = {}
 	G.C_AddOns = {
-		GetAddOnMetadata = function(_, field)
+		GetAddOnMetadata = function(addon, field)
+			if field == "Version" then
+				if addon == ADDON then
+					return "1.2.3"
+				end
+				for _, other in ipairs(c.addons) do
+					if other[1] == addon then
+						return other[2]
+					end
+				end
+			end
 			return field == "X-Flavor" and "Forever" or nil
 		end,
-		IsAddOnLoaded = function()
-			return false
+		IsAddOnLoaded = function(addon)
+			return type(addon) == "number" and addon <= #c.addons + 1
+		end,
+		GetNumAddOns = function()
+			return #c.addons + 1
+		end,
+		GetAddOnInfo = function(index)
+			local name = index == 1 and ADDON or (c.addons[index - 1] or {})[1]
+			return name, name
 		end,
 		DoesAddOnExist = function()
 			return false

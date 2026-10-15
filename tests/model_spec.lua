@@ -394,6 +394,7 @@ do
 			},
 		},
 	}, { __index = _G })
+	setfenv(assert(loadfile("Core/SafeCall.lua")), env)("SkillUpForever", runtime)
 	setfenv(assert(loadfile("Core/Changes.lua")), env)("SkillUpForever", runtime)
 	setfenv(assert(loadfile("Integrations/Prices.lua")), env)("SkillUpForever", runtime)
 	runtime.InitPrices()

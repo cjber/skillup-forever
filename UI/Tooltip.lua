@@ -366,13 +366,16 @@ end
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddUses(tooltip, data)
+	if not ns.Usable(tooltip) then
+		return
+	end
 	local itemID = data and data.id
 	-- Checked before anything tests the id: even its truth test errors while it is secret.
 	if issecretvalue and issecretvalue(itemID) then
 		return
 	end
 	local mode = ns.db.reagentTooltip
-	if mode == "off" or not itemID or tooltip:IsForbidden() then
+	if mode == "off" or not itemID then
 		return
 	end
 	local uses = Uses(itemID)

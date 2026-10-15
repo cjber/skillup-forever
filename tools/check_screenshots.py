@@ -3,8 +3,8 @@
 
 tools/screenshots.py runs the addon's own Lua under LuaJIT for the route, tracker, trainer and reagent scenes and
 ports Core/Model.lua, Integrations/Prices.lua, UI/RecipeList.lua and UI/Tooltip.lua for the rest. Each image's dump
-is the hashes of the files in SOURCES, so a change to any of them needs a fresh render. Generated `Data/` is left out: the daily
-data refresh moves it and cannot render, and the release re-renders every image (the release skill).
+is the hashes of the files in SOURCES, so a change to any of them needs a fresh render. Generated `Data/` is left
+out: the daily data refresh moves it and cannot render, and the release re-renders every image (the release skill).
 docs/screenshots/scenes.sha256 holds each image's hash beside its dump's; after a render, `--record` rewrites it
 (with `--force` for an image that came out the same).
 

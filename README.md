@@ -30,6 +30,7 @@ The recipe tooltip draws the thresholds on the game's own bar with your skill ma
 - **Shopping lists** count reagents against your bags and bank. *Buy reagents* chooses whether materials your professions gather are free or bought. Track the list beside quests, buy vendor stock and keep an Auctionator list up to date. [Shopping details](docs/route.md#shopping-list).
 - **Trainer annotations** show chance and cost, with a green arrow on the recipe that best extends or cheapens your route.
 - **Reagent tooltips** show what tracked routes need. Hold Shift for every recipe that uses the item and still skills up.
+- **Gathering nodes** show the Herbalism or Mining skill they need, coloured at yours, on English clients.
 - **Crafted gear** shows the newest item you could craft for each slot, with its recipe, reagents and learning location. Enable its tab in settings. [Gear details](docs/gear.md).
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
@@ -70,7 +71,7 @@ Open a profession and the numbers are already there.
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 | `/su trainers` | List the trainer skill requirements SkillUp guessed, which ones a trainer has confirmed or shown differently, and which your trainer should teach at your skill now |
 
-Settings cover rows and tooltips, what crafts count for, sort order, the route and crafted gear tabs, trainer annotations, reagent tooltips and companion hints.
+Settings cover rows and tooltips, what crafts count for, sort order, the route and crafted gear tabs, trainer annotations, reagent and gathering tooltips and companion hints.
 
 ## Prices
 
@@ -114,7 +115,7 @@ Run `luajit tests/bench.lua` from the repository root to measure loading, route 
 
 ## Licence
 
-GPL-3.0-or-later. Per-build thresholds come from the game via [wago.tools](https://wago.tools). Trainer fees, who trains what, drop chances and gathered reagents come from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0); vendors, quests, NPC places and scroll recipes are read in game from your own Questie and AtlasLoot, and none of their data is bundled; vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1).
+GPL-3.0-or-later. Per-build thresholds come from the game via [wago.tools](https://wago.tools). Trainer fees, who trains what, drop chances and gathered reagents come from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0); vendors, quests, NPC places and scroll recipes are read in game from your own Questie and AtlasLoot, and none of their data is bundled; vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1). Every input, its pin and licence, and what ships: [THIRD_PARTY.md](THIRD_PARTY.md).
 
 Made by Cillian Berragan · [cillian.dev](https://cillian.dev) · [GitHub](https://github.com/cjber) · [Twitter](https://twitter.com/cjberragan)
 

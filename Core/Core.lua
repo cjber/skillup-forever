@@ -124,11 +124,11 @@ local function LoadDB()
 	-- learning it at once; the bundled requirement stands in for those. A shown requirement that is no
 	-- skill is forgotten, so /su trainers never reports it.
 	for skillLine, recipes in pairs(loaded.trainer) do
-		if type(recipes) ~= "table" then
+		if type(skillLine) ~= "number" or type(recipes) ~= "table" then
 			loaded.trainer[skillLine] = nil
 		else
 			for recipeID, seen in pairs(recipes) do
-				if type(seen) ~= "table" or type(seen[2]) ~= "number" or seen[2] <= 0 then
+				if type(recipeID) ~= "number" or type(seen) ~= "table" or type(seen[2]) ~= "number" or seen[2] <= 0 then
 					recipes[recipeID] = nil
 				elseif seen[3] ~= nil and (type(seen[3]) ~= "number" or seen[3] <= 0) then
 					seen[3] = nil

@@ -144,7 +144,8 @@ end
 
 -- Every bundled trainer requirement a trainer could prove wrong (#124): those moved from classic-db's by how far
 -- Forever moved the recipe's range, and any a trainer showed differently. `shown` is what a trainer showed, nil
--- until this character's profession trainer has been opened since this was recorded.
+-- until this character's profession trainer has been opened since this was recorded; `visited` is whether a
+-- trainer listed the recipe at all.
 ---@return SkillUpTrainerCheck[]
 function ns.TrainerChecks()
 	local checks, listed = {}, {}
@@ -152,6 +153,9 @@ function ns.TrainerChecks()
 	---@param recipeID integer
 	local function Add(skillLine, recipeID)
 		local key = skillLine .. ":" .. recipeID
+		if listed[key] then
+			return
+		end
 		local seen = ns.db.trainer[skillLine] and ns.db.trainer[skillLine][recipeID]
 		local bundled = ns.TrainerFees[recipeID]
 		local check = {
@@ -160,13 +164,14 @@ function ns.TrainerChecks()
 			bundled = bundled and bundled[2],
 			classic = ns.TrainerInferred[recipeID],
 			shown = seen and seen[3],
+			visited = seen ~= nil,
 		}
-		if not listed[key] and (check.classic or (check.shown and check.shown ~= check.bundled)) then
+		if check.classic or (check.shown and check.shown ~= check.bundled) then
 			listed[key] = true
 			checks[#checks + 1] = check
 		end
 	end
-	for recipeID in pairs(ns.TrainerFees) do
+	for recipeID in pairs(ns.TrainerInferred) do
 		local recipe = ns.RecipeData[recipeID]
 		if recipe then
 			Add(recipe.skillLine, recipeID)
@@ -200,10 +205,6 @@ end
 -- the current skill if the bundled value is right, so a visit now settles them.
 ---@return string[]
 function ns.TrainerReport()
-	local names = {}
-	for name, skillLine in pairs(ns.ProfessionSkillLines) do
-		names[skillLine] = names[skillLine] or name
-	end
 	local professions = ns.PlayerProfessions()
 	local lines, groups, order = {}, {}, {}
 	for _, check in ipairs(ns.TrainerChecks()) do
@@ -228,14 +229,17 @@ function ns.TrainerReport()
 				check.shown
 			)
 		end
+		-- Between the guess and classic-db's, the trainer's answer settles which is right. A recipe a trainer
+		-- already listed (with or without a requirement) has had its visit.
 		local profession = professions[check.skillLine]
 		if
 			profession
-			and not check.shown
 			and check.classic
+			and check.bundled
+			and not check.visited
 			and not ns.IsLearned(check.recipeID)
-			and check.bundled <= profession.base
-			and profession.base < check.classic
+			and math.min(check.bundled, check.classic) <= profession.base
+			and profession.base < math.max(check.bundled, check.classic)
 		then
 			group.now[#group.now + 1] = string.format(
 				L["%s (%d): bundled %d, classic-db %d"],
@@ -253,7 +257,7 @@ function ns.TrainerReport()
 		local group = groups[skillLine]
 		lines[#lines + 1] = string.format(
 			L["%s: %d moved, %d confirmed at a trainer, %d wrong."],
-			names[skillLine] or tostring(skillLine),
+			ns.Gear.ProfessionName(skillLine),
 			group.moved,
 			group.confirmed,
 			#group.wrong

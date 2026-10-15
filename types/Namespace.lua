@@ -562,6 +562,7 @@ SkillUpForeverDB = nil
 ---@field bundled? number
 ---@field classic? number classic-db's, where the bundled one was moved from it.
 ---@field shown? number What a trainer showed.
+---@field visited boolean Whether a trainer listed it, requirement or not.
 
 ---@class SkillUpTrainerState
 ---@field services SkillUpTrainerService[]

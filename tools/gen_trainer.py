@@ -157,7 +157,8 @@ def generate(ids, trainer, effect_rows, moved=None):
             if taught in ids:
                 entry = (cost, max(required + moved.get(taught, 0), 1))
                 fees[taught][entry] += 1
-                classic[(taught, entry)] = required
+                # Requirements the clamp to 1 merges keep the strictest, whatever the row order.
+                classic[(taught, entry)] = max(required, classic.get((taught, entry), required))
             if rank_of.get(taught, (None,))[0] == skill:
                 ranks[skill][(rank_of[taught][1], cost, required, level)] += 1
     if not fees:
@@ -167,7 +168,9 @@ def generate(ids, trainer, effect_rows, moved=None):
     conflicts = sorted(recipe for recipe, c in fees.items() if len(c) > 1)
     # The requirements this rule moved, with classic-db's own: what a trainer visit confirms or corrects (#124).
     inferred = {
-        recipe: classic[(recipe, entry)] for recipe, entry in chosen.items() if classic[(recipe, entry)] != entry[1]
+        recipe: classic[(recipe, entry)]
+        for recipe, entry in chosen.items()
+        if moved.get(recipe) and classic[(recipe, entry)] != entry[1]
     }
     by_cap = defaultdict(dict)
     for skill, seen in ranks.items():

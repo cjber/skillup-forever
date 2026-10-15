@@ -184,7 +184,11 @@ do
 	equal(ns.db.trainer[185][2][2], 30, "a recorded requirement stays")
 	-- Issue #124: the requirement a trainer showed is kept only as a skill; a profession saved as no table goes.
 	env.SkillUpForeverDB = {
-		trainer = { [185] = { [1] = { 40, 30, 25 }, [2] = { 50, 30, "x" }, [3] = { 60, 30, 0 } }, [186] = 5 },
+		trainer = {
+			[185] = { [1] = { 40, 30, 25 }, [2] = { 50, 30, "x" }, [3] = { 60, 30, 0 }, ["4"] = { 60, 30, 30 } },
+			[186] = 5,
+			["164"] = {},
+		},
 	}
 	callbacks.SkillUpForever()
 	equal(ns.db.trainer[185][1][3], 25, "a shown requirement stays")
@@ -192,6 +196,8 @@ do
 	equal(ns.db.trainer[185][3][3], nil, "and one of 0")
 	equal(ns.db.trainer[185][3][2], 30, "while the row itself stays")
 	equal(ns.db.trainer[186], nil, "a profession saved as no table is dropped")
+	equal(ns.db.trainer["164"], nil, "and one saved under no number")
+	equal(ns.db.trainer[185]["4"], nil, "as is a recipe")
 end
 
 -- The update line belongs to the release it ships in: a bold lead of the newest CHANGELOG.md entry

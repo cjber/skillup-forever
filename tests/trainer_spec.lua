@@ -19,7 +19,11 @@ local ns = {
 	RecipeNames = { [COOKING] = { ["Spice Bread"] = BREAD } },
 	TrainerFees = {},
 	TrainerInferred = {},
-	ProfessionSkillLines = { Cooking = COOKING },
+	Gear = {
+		ProfessionName = function(skillLine)
+			return skillLine == COOKING and "Cooking" or "?"
+		end,
+	},
 	RecipeScrolls = {},
 	Catalogue = { Recipe = function() end },
 	TrainerRanks = { [COOKING] = { { 150, 500, 50, 10 } } },
@@ -191,6 +195,13 @@ report = table.concat(ns.TrainerReport(), "\n")
 equal(report:find("Cooking: 3 moved, 1 confirmed at a trainer, 1 wrong.", 1, true) ~= nil, true, "after a visit")
 equal(report:find("(" .. STEW .. "): bundled 40, the trainer wants 60", 1, true) ~= nil, true, "the miss")
 equal(report:find("classic-db", 1, true), nil, "nothing seen is left to check at this skill")
+
+-- A recipe a trainer listed without any requirement has had its visit, and is not asked for again.
+ns.db.trainer[COOKING][STEW] = nil
+Open({ { "Stew", "available", 40, nil, STEW } })
+equal(Checks()[STEW].visited, true, "listed with no requirement")
+equal(Checks()[STEW].shown, nil, "shows none")
+equal(table.concat(ns.TrainerReport(), "\n"):find("classic-db", 1, true), nil, "and is not due another visit")
 
 -- A trainer teaching a recipe the bundled data has no trainer for is listed too.
 ns.db.trainer[COOKING][CAMPFIRE] = nil

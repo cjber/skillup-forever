@@ -1,5 +1,6 @@
 name: Wrong number
 description: A skill, colour, chance, cost, trainer requirement or route step SkillUp shows differs from what the game does.
+title: "Wrong number: "
 labels: [bug]
 body:
   - type: markdown

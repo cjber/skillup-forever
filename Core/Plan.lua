@@ -18,19 +18,32 @@ function ns.RankName(cap)
 	return RANK_NAMES[cap]
 end
 
+-- What a rank's book is called: its item name, else "the Expert book" while the item loads.
+---@param rank SkillUpRank
+---@return string
+function ns.RankBookName(rank)
+	local name = rank.book and C_Item.GetItemNameByID(rank.book)
+	if name then
+		return name
+	end
+	if rank.book then
+		C_Item.RequestLoadItemDataByID(rank.book)
+	end
+	return string.format(L["the %s book"], rank.name)
+end
+
 ---@param rank SkillUpRank
 ---@return string
 function ns.RankText(rank)
 	if rank.book then
-		local name = C_Item.GetItemNameByID(rank.book)
-		if not name then
-			C_Item.RequestLoadItemDataByID(rank.book)
-			name = string.format(L["the %s book"], rank.name)
-		end
+		local name = ns.RankBookName(rank)
+		-- A book already in the bags only needs reading.
+		local held = ns.Have(rank.book) > 0
 		if rank.level > UnitLevel("player") then
-			return string.format(L["Buy and read %s at %d (level %d)"], name, rank.reqSkill, rank.level)
+			local text = held and L["Read %s at %d (level %d)"] or L["Buy and read %s at %d (level %d)"]
+			return string.format(text, name, rank.reqSkill, rank.level)
 		end
-		return string.format(L["Buy and read %s at %d"], name, rank.reqSkill)
+		return string.format(held and L["Read %s at %d"] or L["Buy and read %s at %d"], name, rank.reqSkill)
 	end
 	if rank.level > UnitLevel("player") then
 		return string.format(L["Train %s at %d (level %d)"], rank.name, rank.reqSkill, rank.level)
@@ -93,7 +106,7 @@ end
 
 -- The chosen target in base skill, per profession; the trainer plans to it too.
 -- A target already reached gives way to the default. Past the cap is fine up to
--- the last rank a trainer teaches; the route trains those ranks on the way.
+-- the last rank a trainer or book teaches; the route takes those ranks on the way.
 ---@param profession SkillUpContext
 ---@return number
 local function RouteTarget(profession)
@@ -542,9 +555,9 @@ function ns.NextCraft(plan)
 		return { text = L["Craft next"], reason = string.format(L["Open %s to craft from here."], profession.name) }
 	elseif profession.capped and plan.ranks[1] then
 		local rank = plan.ranks[1]
-		local first = rank.book and L["Read the %s book first: you're at your cap."]
-			or L["Train %s first: you're at your cap."]
-		return { text = L["Craft next"], reason = string.format(first, rank.name) }
+		local reason = rank.book and string.format(L["Read %s first: you're at your cap."], ns.RankBookName(rank))
+			or string.format(L["Train %s first: you're at your cap."], rank.name)
+		return { text = L["Craft next"], reason = reason }
 	end
 	local recipeID = craft.recipeID
 	local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)

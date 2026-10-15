@@ -15,8 +15,10 @@ from gen_thresholds import (
     ENCHANT_ITEM,
     ITEM_DEPRECATED,
     LEARN_SPELL,
+    RANK_SKILL,
     ROOT,
     SKILL,
+    SKILL_STEP,
     SOURCE_DATE,
     TELEPORT_UNITS,
     TRANS_DOOR,
@@ -36,10 +38,6 @@ YIELD_MODIFIERS = (
     "ScalingClass",
     "EffectTriggerSpell",
 )
-# SKILL_STEP sets Apprentice and Journeyman, SKILL (118) Expert and Artisan; on this build both carry the
-# tier (1-4) as their base points, and each tier raises the cap by RANK_SKILL.
-SKILL_STEP = 44
-RANK_SKILL = 75
 
 
 def threshold_ids():
@@ -196,7 +194,7 @@ def rank_books(effect_rows, item_rows, item_effect_rows, effect_link_rows, profe
                 int(sparse["RequiredSkillRank"]),
                 int(sparse["RequiredLevel"]),
             )
-            if price < 0 or level < 0 or not 0 < required < cap:
+            if price < 0 or level < 0 or not 0 <= required < cap:
                 raise ValueError(f"Rank book {item}: price {price}, skill {required}, level {level} for cap {cap}")
             held = books[skill].get(cap)
             # Where two books teach one rank, the one asking least, then the cheaper.

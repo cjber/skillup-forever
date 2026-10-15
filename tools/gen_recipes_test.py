@@ -55,7 +55,11 @@ class RankBookTests(unittest.TestCase):
 
     def test_contradictory_book_fails(self):
         with self.assertRaisesRegex(ValueError, "Rank book 16084"):
-            rank_books(self.effects, [item(16084, required=0)], self.item_effects, self.links, {129})
+            rank_books(self.effects, [item(16084, required=225)], self.item_effects, self.links, {129})
+
+    def test_a_book_asking_no_skill_is_kept(self):
+        books = rank_books(self.effects, [item(16084, required=0)], self.item_effects, self.links, {129})
+        self.assertEqual(books, {129: [(225, 16084, 10000, 0, 0)]})
 
 
 if __name__ == "__main__":

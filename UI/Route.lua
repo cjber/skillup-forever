@@ -216,11 +216,8 @@ local function RankTooltip(tooltip, profession, rank)
 		local color = UnitLevel("player") < rank.level and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
 		AddLine(tooltip, L["Requires"], string.format(L["level %d"], rank.level), color)
 	end
-	if rank.book then
-		ns.AddNearest(tooltip, L["Nearest vendor"], ns.NearestVendor(rank.book, true))
-	else
-		ns.AddNearest(tooltip, L["Nearest trainer"], ns.NearestTrainer(profession, rank.cap, true))
-	end
+	local npcID, label = ns.NearestForRank(profession, rank, true)
+	ns.AddNearest(tooltip, label, npcID)
 end
 
 -- A waypoint to the nearest trainer teaching up to `cap`.
@@ -236,12 +233,13 @@ local function TrainerClick(profession, cap)
 	end
 end
 
--- A waypoint to the nearest vendor selling `itemID`: a book that teaches a rank.
----@param itemID integer
+-- A waypoint to where a rank is got: its book's vendor, or a trainer.
+---@param profession SkillUpProfession
+---@param rank SkillUpRank
 ---@return fun()
-local function VendorClick(itemID)
+local function RankClick(profession, rank)
 	return function()
-		local npcID = ns.NearestVendor(itemID, true)
+		local npcID = ns.NearestForRank(profession, rank, true)
 		if npcID then
 			ns.SetWaypoint(npcID)
 		end
@@ -426,7 +424,7 @@ local function RenderRoute(list, plan)
 				tooltip = function(tooltip)
 					RankTooltip(tooltip, profession, rank)
 				end,
-				click = rank.book and VendorClick(rank.book) or TrainerClick(profession, rank.cap),
+				click = RankClick(profession, rank),
 			})
 		elseif training then
 			list:Add({

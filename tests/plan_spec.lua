@@ -47,8 +47,9 @@ local ns = {
 ns.Reagents = function(id)
 	return ns.RecipeData[id].reagents
 end
-ns.Have = function()
-	return 0
+local bags = {}
+ns.Have = function(id)
+	return bags[id] or 0
 end
 local env = setmetatable({
 	APPRENTICE = "Apprentice",
@@ -178,7 +179,14 @@ equal(Plan(FirstAid(120, 0, 150), 170).steps[2].rank.fee, 9000, "a merchant's pr
 ns.db.vendor[UNDER_WRAPS] = nil
 local capped = Plan(FirstAid(150, 0, 150), 170)
 equal(Kinds(capped), "rank craft", "at the cap, the book comes first")
-equal(ns.NextCraft(capped).reason, "Read the Expert book first: you're at your cap.", "and is read before crafting")
+equal(
+	ns.NextCraft(capped).reason,
+	"Read Expert First Aid - Under Wraps first: you're at your cap.",
+	"and is read before crafting"
+)
+bags[UNDER_WRAPS] = 1
+equal(ns.RankText(book), "Read Expert First Aid - Under Wraps at 125", "a book in the bags only needs reading")
+bags[UNDER_WRAPS] = nil
 equal(Plan(FirstAid(200, 0, 225), 300).target, 225, "Artisan comes from a quest the data can't name: the route stops")
 known[HEAVY_WOOL], costs[HEAVY_WOOL], itemNames[UNDER_WRAPS] = nil, nil, nil
 

@@ -49,6 +49,7 @@
 ---@field UnpricedReagents fun(plan: SkillUpPlan): integer[]
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field RankText fun(rank: SkillUpRank): string
+---@field RankBookName fun(rank: SkillUpRank): string
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?
@@ -98,6 +99,7 @@
 ---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource, first?: integer)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
+---@field NearestForRank fun(profession: SkillUpContext, rank: SkillUpRank, byTravel?: boolean): integer?, string
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
 ---@field AddCompanionHint fun(tooltip: GameTooltip)
 ---@field AnnounceUpdate fun()

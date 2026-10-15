@@ -284,5 +284,28 @@ equal(book and book.text, "Buy and read the Journeyman book at 70", "read at the
 equal(book and book.detail, "Gina, Darkshire · 500c", "from the nearest vendor, at the book's price")
 equal(book and book.cost, 500, "costing the book")
 equal(book and book.nav, true, "the vendor can be routed to")
+-- Bought and not yet read: nothing to buy, only the reading.
+c.bags[BOOK] = 1
+c.Fire("BAG_UPDATE_DELAYED")
+book = nil
+for _, step in ipairs(Tailoring().steps) do
+	if step.itemID == BOOK then
+		book = step
+	end
+end
+equal(book and book.kind, "train", "a book in the bags is not bought again")
+equal(book and book.text, "Read the Journeyman book at 70", "only read")
+equal(book and book.cost, nil, "at no cost")
+equal(book and book.nav, false, "with nowhere to go")
+-- The book's name arriving rebuilds the list.
+c.items[BOOK] = { name = "Journeyman's Handbook" }
+c.Fire("ITEM_DATA_LOAD_RESULT")
+book = nil
+for _, step in ipairs(Tailoring().steps) do
+	if step.itemID == BOOK then
+		book = step
+	end
+end
+equal(book and book.text, "Read Journeyman's Handbook at 70", "named once the item loads")
 
 Client.report("api_spec")

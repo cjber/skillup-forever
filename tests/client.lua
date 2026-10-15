@@ -761,13 +761,33 @@ function Client.load(options)
 		TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 },
 		CraftingReagentType = { Basic = 0 },
 		RecipeRequirementType = { SpellFocus = 0, Totem = 1, Area = 2 },
-		TooltipDataType = { Item = 0 },
+		TooltipDataType = { Item = 0, Unit = 2, Object = 4 },
 		UIMapType = { Continent = 2, Zone = 3, Dungeon = 4, Micro = 5 },
 	}
 	G.CreateColor = function(r, g, b)
-		return { r = r, g = g, b = b }
+		return {
+			r = r,
+			g = g,
+			b = b,
+			GetRGB = function(self)
+				return self.r, self.g, self.b
+			end,
+		}
 	end
-	G.TooltipDataProcessor = { AddTooltipPostCall = noop }
+	-- [tooltip data type] = the post-calls the addon added, for a spec to run against its own tooltip.
+	c.postCalls = {}
+	G.TooltipDataProcessor = {
+		AddTooltipPostCall = function(kind, call)
+			c.postCalls[kind] = c.postCalls[kind] or {}
+			table.insert(c.postCalls[kind], call)
+		end,
+	}
+	c.locale = "enUS"
+	G.GetLocale = function()
+		return c.locale
+	end
+	G.UNIT_SKINNABLE_LEATHER = "Skinnable"
+	G.UNIT_SKINNABLE_HERB, G.UNIT_SKINNABLE_ROCK = "Requires Herbalism", "Requires Mining"
 	G.SlashCmdList = {}
 	-- The game's error handler: an error SafeCall caught still fails the spec, as it would reach BugSack in game.
 	c.errors = {}
@@ -794,10 +814,6 @@ function Client.load(options)
 	end
 	G.time = function()
 		return c.now
-	end
-	c.locale = c.locale or "enUS"
-	G.GetLocale = function()
-		return c.locale
 	end
 	G.GetBuildInfo = function()
 		return "1.60.1", c.build, "Sep 24 2026", 16001, "wow", "1.60.1." .. c.build

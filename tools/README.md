@@ -51,6 +51,12 @@ lines, `SpellName` supplies comments, and `SpellEffect` excludes gathering abili
 `Model.Get` returns unknown for a contradictory row, including one a live grey
 threshold makes, so displays and plans cannot use it.
 
+A recipe nobody can learn or make in this build is left out, and so is out of every other `Data/` file: every
+item that teaches it (directly, or through a `LEARN_SPELL` teaching spell) is missing from `ItemSparse`, and so is
+the item it makes (or, for a recipe that makes no item, one of its reagents), and no classic-db trainer teaches it.
+A recipe no item was ever linked to teach is kept. Forever 70425 retired the Tinkerbox schematics this way; their
+items stay in `Item` but leave `ItemSparse`. The generator prints the recipes it leaves out.
+
 Coverage prints per skill line, including skipped/duplicate rows and missing
 names. Gathering abilities and test professions are excluded. Shared recipes
 count once per profession but occupy one output key. DB2 download/schema failures

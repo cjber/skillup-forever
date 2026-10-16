@@ -152,7 +152,74 @@ class ThresholdSourceTest(unittest.TestCase):
         self.assertEqual(gen_thresholds.shifts(forever, classic), {1: -25})
 
 
+class RetiredRecipeTest(unittest.TestCase):
+    # Forever 70425 took the Tinkerbox schematics and the Tinkerbox out of ItemSparse (they stay in Item), so nobody
+    # can learn or make Tinkerbox (1226206) or Tinker: Teleport (1226210, taught through a LEARN_SPELL and making
+    # no item, but using the Tinkerbox as a reagent).
+    @staticmethod
+    def effect(spell, kind, item=0, trigger=0):
+        return {
+            "SpellID": str(spell),
+            "DifficultyID": "0",
+            "Effect": str(kind),
+            "EffectItemType": str(item),
+            "EffectTriggerSpell": str(trigger),
+        }
+
+    @staticmethod
+    def reagents(spell, *items):
+        row = {"SpellID": str(spell)}
+        row.update({f"Reagent_{i}": str(items[i]) if i < len(items) else "0" for i in range(8)})
+        return row
+
+    def retired(self, sparse, trainer_taught=()):
+        ids = {1226206, 1226210, 3000, 3001}
+        effects = [
+            self.effect(1226206, gen_thresholds.CREATE_ITEM, item=238737),
+            self.effect(1229402, gen_thresholds.LEARN_SPELL, trigger=1226210),
+            self.effect(3000, gen_thresholds.CREATE_ITEM, item=3100),
+            self.effect(3001, gen_thresholds.CREATE_ITEM, item=3101),
+        ]
+        item_effects = [
+            {"ID": "1", "SpellID": "1226206"},
+            {"ID": "2", "SpellID": "1229402"},
+            {"ID": "3", "SpellID": "3000"},
+        ]
+        links = [
+            {"ItemID": "238782", "ItemEffectID": "1"},
+            {"ItemID": "240018", "ItemEffectID": "2"},
+            {"ItemID": "3200", "ItemEffectID": "3"},
+        ]
+        reagents = [self.reagents(1226206, 10558), self.reagents(1226210, 238737, 15994), self.reagents(3001, 2589)]
+        return gen_thresholds.retired_recipes(ids, effects, set(sparse), item_effects, links, reagents, trainer_taught)
+
+    def test_a_recipe_with_no_live_teacher_and_nothing_to_make_is_retired(self):
+        # 3000's pattern (3200) and product (3100) are gone too; 3001 has no pattern at all, so it is kept.
+        self.assertEqual(self.retired({10558, 15994, 2589, 3101}), {1226206, 1226210, 3000})
+
+    def test_a_live_pattern_or_product_keeps_it(self):
+        self.assertEqual(self.retired({238782, 238737, 240018, 3200, 3100, 10558, 15994}), set())
+        # The pattern alone, or the product alone, is enough.
+        self.assertEqual(self.retired({3200, 10558, 15994}), {1226206, 1226210})
+        self.assertEqual(self.retired({3100, 10558, 15994}), {1226206, 1226210})
+
+    def test_a_trainer_recipe_is_kept(self):
+        self.assertEqual(self.retired({10558, 15994}, trainer_taught={1226206, 3000}), {1226210})
+
+    def test_a_retired_recipe_is_not_emitted(self):
+        rows = [ThresholdSourceTest.row(None, spell, 1, 260, 280) for spell in (1226206, 3001)]
+        effects = {1226206: {24}, 3001: {24}}
+        emitted, coverage, _ = gen_thresholds.generate(rows, {}, {164}, {}, effects, retired={1226206})
+        self.assertEqual(set(emitted), {3001})
+        self.assertIn("retired=1", coverage[0])
+
+
 class GeneratedThresholdsTest(unittest.TestCase):
+    def test_the_tinkerbox_recipes_are_left_out(self):
+        content = (gen_thresholds.OUTPUT).read_text(encoding="utf-8")
+        for spell in range(1226206, 1226213):
+            self.assertNotIn(f"\t[{spell}] =", content)
+
     # Model.Get answers nil for a row that is not ordered, and the recipe shows "?".
     def test_every_bundled_row_is_ordered(self):
         content = (gen_thresholds.OUTPUT).read_text(encoding="utf-8")

@@ -27,6 +27,9 @@ PHRASE = re.compile(r'\bL\["((?:\\.|[^"\\\n])*)"\]')
 def phrases() -> list[str]:
     found = set()
     for path in runtime_files(ROOT):
+        # A translation's keys are this template's own phrases: reading them would keep a removed one alive.
+        if path.parent.name == "Locales":
+            continue
         found.update(PHRASE.findall(path.read_text()))
     return sorted(found)
 

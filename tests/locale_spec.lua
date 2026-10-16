@@ -108,4 +108,70 @@ local ns = {}
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 equal(ns.L["Craft next"], "Craft next", "a missing translation is the English phrase")
 
+-- A sample argument for each placeholder in the English key, in order.
+local function Samples(key)
+	local args = {}
+	for conversion in key:gsub("%%%%", ""):gmatch("%%[%-+#0]*%d*%.?%d*([a-zA-Z])") do
+		args[#args + 1] = conversion == "s" and "Sample" or 7
+	end
+	return args
+end
+
+-- string.format with WoW's positional placeholders (%2$s), which LuaJIT's lacks.
+local function Format(text, args)
+	if not text:find("%%%d+%$") then
+		return string.format(text, unpack(args))
+	end
+	local ordered = {}
+	local plain = text:gsub("%%(%d+)%$", function(position)
+		ordered[#ordered + 1] = args[tonumber(position)]
+		return "%"
+	end)
+	return string.format(plain, unpack(ordered))
+end
+equal(Format("%2$s, %1$d", { 3, "a" }), "a, 3", "positional placeholders reorder their arguments")
+
+-- Every translation the TOC loads: its GetLocale guard, then each line formats with the English key's arguments.
+local loaded = 0
+for line in Read("SkillUpForever.toc"):gmatch("[^\r\n]+") do
+	local locale = line:match("^Locales\\(%a%a%u%u)%.lua$")
+	if locale and locale ~= "enUS" then
+		loaded = loaded + 1
+		local path = "Locales/" .. locale .. ".lua"
+		local header = Read(path):match("^[^\n]*")
+		equal(
+			header:find("^%-%- Machine translated %(%d+%-%d+%-%d+%); corrections welcome: https://") ~= nil,
+			true,
+			path .. " starts with the machine-translation note"
+		)
+		local stub = { L = setmetatable({}, getmetatable(ns.L)) }
+		local chunk = assert(loadfile(path))
+		local env = setmetatable({
+			GetLocale = function()
+				return "enUS"
+			end,
+		}, { __index = _G })
+		setfenv(chunk, env)
+		chunk("SkillUpForever", stub)
+		equal(next(stub.L), nil, path .. " leaves another client's phrases alone")
+		env.GetLocale = function()
+			return locale
+		end
+		chunk("SkillUpForever", stub)
+		local count = 0
+		for key, text in pairs(stub.L) do
+			count = count + 1
+			local args = Samples(key)
+			equal(type(text), "string", path .. ": " .. key .. " is text")
+			-- A line with no placeholder is shown as it is ("5% cut"), never formatted.
+			if #args > 0 or key:find("%%%%") then
+				local ok, result = pcall(Format, text, args)
+				equal(ok, true, path .. ": " .. key .. " formats (" .. tostring(result) .. ")")
+			end
+		end
+		equal(count > 0, true, path .. " translates something")
+	end
+end
+equal(loaded, 9, "the TOC loads a translation for each client language Forever ships besides English")
+
 Client.report("locale_spec")

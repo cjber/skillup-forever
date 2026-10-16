@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-10-16
+
 - **In your language.** SkillUp is now in German, French, Spanish (Spain and Latin America), Brazilian Portuguese, Russian, Korean and Chinese (simplified and traditional), using the game's own words for professions, trainers and reagents. It's machine translated, and corrections are welcome through the translation issue form. A few French lines are Brainc3ll's, from Legacy Forever. Herb and ore tooltips still need the English client.
 
 ## [0.14.0] - 2026-10-16

@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Bronze Warhammer is trained by 110.** A player made it at 110 on Forever, where SkillUp's data still asked for Classic's 125, so routes put it off until 125. It now plans it from 110, and `/su trainers` lists it among the guesses a trainer visit confirms. Heavy Sharpening Stone (100) and Patterned Bronze Bracers (95), from the same report, were already right. Thanks to kopuliak.
+
 ## [0.11.0] - 2026-10-15
 
 - **First Aid and Cooking routes go past 150.** No trainer teaches Expert First Aid or Expert Cooking: you buy a book and read it at 125. The route now plans that step, "Buy and read Expert First Aid - Under Wraps at 125", with the book's price and the nearest vendor that sells it, and carries on to 225 instead of stopping at Journeyman. Artisan comes from a quest the game's data doesn't name, so routes still stop at 225 for now.

@@ -248,7 +248,7 @@ L["Show the levelling route tab"] = "Mostrar la pestaña de ruta de progreso"
 L["Show thresholds tooltip"] = "Mostrar descripción de umbrales"
 L["Show tracked professions"] = "Mostrar profesiones seguidas"
 L["Shows the Legacy challenges you can advance in each zone."] =
-	"Muestra los desafíos de leyenda que puedes avanzar en cada zona."
+	"Muestra los desafíos de legado que puedes avanzar en cada zona."
 L["Skill  %d/%d     Target"] = "Habilidad  %d/%d     Objetivo"
 L["Skill points a craft"] = "Puntos de habilidad por creación"
 L["Skill range start"] = "Inicio del rango"

@@ -8,7 +8,9 @@ zhCN and zhTW (the client has no Italian). Those files are machine translated, u
 professions, trainers, reagents and the rest, and say so on their first line. Some frFR lines are Brainc3ll's, from
 Legacy Forever; in that file each machine line ends `-- mt`. A human line always wins over a machine one.
 
-To correct a line, change the text on the right in `<locale>.lua` and remove its `-- mt` if it has one. Keep the
+To correct a line, change the text on the right in `<locale>.lua` and remove its `-- mt` if it has one. In a file
+that is all machine translated, the first correction makes it mixed: every line you didn't touch then gets `-- mt`,
+so a later machine pass only ever replaces marked lines. Keep the
 `%d` and `%s` bits; `%2$s` style numbering works if your word order needs it. Then open a pull request, or paste
 the lines into the [translation form](https://github.com/cjber/skillup-forever/issues/new?template=translation.yml)
 and I'll add them.

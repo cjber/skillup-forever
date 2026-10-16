@@ -1,5 +1,5 @@
--- Copy to Locales/deDE.lua (or your locale), translate the text on the right of each line and
--- delete the lines you leave in English. List the file in SkillUpForever.toc after Locales\enUS.lua.
+-- Every phrase SkillUp shows, with its English text: the template the Locales/<locale>.lua files follow.
+-- Each client language already has its file; to correct a line, edit that file (Locales/README.md).
 local _, ns = ...
 if GetLocale() ~= "deDE" then
 	return

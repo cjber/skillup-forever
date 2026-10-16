@@ -108,10 +108,10 @@ local ns = {}
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 equal(ns.L["Craft next"], "Craft next", "a missing translation is the English phrase")
 
--- A sample argument for each placeholder in the English key, in order.
+-- A sample argument for each placeholder in the English key, in order (a positional %2$s counts as one).
 local function Samples(key)
 	local args = {}
-	for conversion in key:gsub("%%%%", ""):gmatch("%%[%-+#0]*%d*%.?%d*([a-zA-Z])") do
+	for conversion in key:gsub("%%%%", ""):gsub("%%%d+%$", "%%"):gmatch("%%[%-+#0]*%d*%.?%d*([a-zA-Z])") do
 		args[#args + 1] = conversion == "s" and "Sample" or 7
 	end
 	return args
@@ -138,12 +138,10 @@ for line in Read("SkillUpForever.toc"):gmatch("[^\r\n]+") do
 	if locale and locale ~= "enUS" then
 		loaded = loaded + 1
 		local path = "Locales/" .. locale .. ".lua"
-		local header = Read(path):match("^[^\n]*")
-		equal(
-			header:find("^%-%- Machine translated %(%d+%-%d+%-%d+%); corrections welcome: https://") ~= nil,
-			true,
-			path .. " starts with the machine-translation note"
-		)
+		-- A file with machine lines says so on its first line; one that people have fully translated need not.
+		local source = Read(path)
+		local marked = source:find("^%-%- Machine translated %(%d+%-%d+%-%d+%); corrections welcome: https://") ~= nil
+		equal(marked or not source:find("%-%- mt\n"), true, path .. " starts with the machine-translation note")
 		local stub = { L = setmetatable({}, getmetatable(ns.L)) }
 		local chunk = assert(loadfile(path))
 		local env = setmetatable({
@@ -164,6 +162,8 @@ for line in Read("SkillUpForever.toc"):gmatch("[^\r\n]+") do
 			local args = Samples(key)
 			equal(type(text), "string", path .. ": " .. key .. " is text")
 			-- A line with no placeholder is shown as it is ("5% cut"), never formatted.
+			-- Lua ignores spare arguments, so a dropped placeholder is caught by counting.
+			equal(#Samples(text), #args, path .. ": " .. key .. " keeps its placeholders")
 			if #args > 0 or key:find("%%%%") then
 				local ok, result = pcall(Format, text, args)
 				equal(ok, true, path .. ": " .. key .. " formats (" .. tostring(result) .. ")")
@@ -172,6 +172,7 @@ for line in Read("SkillUpForever.toc"):gmatch("[^\r\n]+") do
 		equal(count > 0, true, path .. " translates something")
 	end
 end
-equal(loaded, 9, "the TOC loads a translation for each client language Forever ships besides English")
+-- check_locales checks every Locales/<locale>.lua is in the TOC; this only needs some to have run.
+equal(loaded > 0, true, "the TOC loads the translations")
 
 Client.report("locale_spec")

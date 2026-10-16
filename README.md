@@ -35,7 +35,7 @@ The recipe tooltip draws the thresholds on the game's own bar with your skill ma
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
 
-The route tab from 48 to 73: train the vest, craft 28, and where reagents come from.
+The route tab from 48 to 73: belts to 56, then train the pants, cure the hides they need and craft the rest of the way, with where each reagent comes from.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/gear.png" width="640" alt="The Crafted gear tab: item slots down both sides and along the bottom, each showing the newest crafted item, with one slot's recipe, reagents and status in the middle"></p>
 

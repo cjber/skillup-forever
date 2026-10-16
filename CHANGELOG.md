@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-16
+
 - **First Aid and Cooking routes go to 300.** Artisan First Aid and Artisan Cooking come from a quest, not a trainer: Triage for First Aid, with one quest for each side, and Clamlette Surprise for Cooking, both at 225 and level 35. The route now adds that step, "Complete Triage at 225", points you to the quest giver, and carries on past 225 instead of stopping. The quest's name and giver come from Questie; without it the step says "the Artisan quest".
 
 - **SkillUp lets go of the quest tracker when it has nothing to show.** To fit the Forever sections above your quests, SkillUp moves the game's quest tracker. It kept holding it there with no route tracked, *Show tracked professions* off or All Objectives collapsed. Now the tracker goes straight back to where the game, Edit Mode or your UI addon put it, and SkillUp moves it again only once a section has something to show. Thanks to chuujitsuna and another player on CurseForge, who found it stuck mid-screen or over the minimap.
@@ -19,6 +21,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 - **Bronze Warhammer is trained by 110.** A player made it at 110 on Forever, where SkillUp's data still asked for Classic's 125, so routes put it off until 125. It now plans it from 110, and `/su trainers` lists it among the guesses a trainer visit confirms. Heavy Sharpening Stone (100) and Patterned Bronze Bracers (95), from the same report, were already right. Thanks to kopuliak.
 
 - **The tracker keeps up in combat.** Collapsing All Objectives during a fight now hides the Forever sections straight away, and a route's lines update as you craft or loot instead of waiting for combat to end.
+
+- **Data checked against Forever 1.60.1.70425.** The new build adds a few crafts to the gathering professions and First Aid, such as Camp Chair, Rock Garden, Greenhouse and First Aid Kit, removes the Tinkerbox patterns, moves Greater Mender's Potion to its new pattern and changes the vendor sell price of 72 items, so some recipes' net costs move.
 
 ### For addon authors
 

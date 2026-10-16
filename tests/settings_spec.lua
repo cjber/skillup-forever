@@ -150,8 +150,8 @@ local ns = {
 	TITLE = "SkillUp Forever",
 	-- UI/ForeverFamily.lua builds the page; forever_family_spec.lua covers what is on it.
 	Family = {
-		CreatePanel = function(parent, db, current)
-			return { parent = parent, db = db, current = current }
+		CreatePanel = function(parent, db, current, locale)
+			return { parent = parent, db = db, current = current, locale = locale }
 		end,
 	},
 	db = {},
@@ -228,6 +228,7 @@ expected[#expected + 1] = "button@" .. addOnCategory.name
 assert(canvas and canvas.name == "Forever addons", "the Forever addons page is registered")
 assert(canvas.frame.parent == nil and canvas.frame.current == "SkillUpForever", "the panel marks this addon's row")
 assert(canvas.frame.db() == ns.db, "the panel reads and writes SkillUp's saved variables")
+assert(canvas.frame.locale == ns.L, "the panel reads SkillUp's own translations")
 Button("Forever addons").initializer.onClick()
 assert(opened == canvas:GetID(), "the Forever addons button opens its page")
 for _, entry in ipairs(registered) do

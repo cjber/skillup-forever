@@ -172,12 +172,16 @@ RETIRED = {
 }
 
 
-def check_retired(retired, effect_rows, sparse_ids, item_effect_rows, effect_link_rows, reagent_rows):
-    """Fail when a RETIRED recipe can be learned or made again in this build.
+def check_retired(retired, spells, effect_rows, sparse_ids, item_effect_rows, effect_link_rows, reagent_rows):
+    """Fail when a RETIRED recipe can be learned or made again in this build, or is no longer a recipe in it.
 
-    That is when an item that teaches it (directly, or through a LEARN_SPELL teaching spell) is in ItemSparse, or
-    the item it makes, or for a recipe that makes no item, every one of its reagents.
+    It can be learned or made when an item that teaches it (directly, or through a LEARN_SPELL teaching spell) is
+    in ItemSparse and not deprecated, or the item it makes is, or for a recipe that makes no item, every one of its
+    reagents. `sparse_ids` holds the ItemSparse items, deprecated ones left out by the caller.
     """
+    gone = sorted(set(retired) - spells)
+    if gone:
+        raise ValueError(f"RETIRED recipes are no longer in SkillLineAbility; remove them: {gone}")
     learns = defaultdict(set)
     outputs = defaultdict(set)
     for row in effect_rows:
@@ -207,8 +211,11 @@ def check_retired(retired, effect_rows, sparse_ids, item_effect_rows, effect_lin
             for effect in effects_of.get(teaching, ())
             for item in items_of.get(effect, ())
         }
-        made = outputs.get(spell)
-        craftable = bool(made & sparse_ids) if made else bool(reagents.get(spell)) and reagents[spell] <= sparse_ids
+        made, needs = outputs.get(spell), reagents.get(spell)
+        if made:
+            craftable = bool(made & sparse_ids)
+        else:
+            craftable = bool(needs) and needs <= sparse_ids
         if teachers & sparse_ids or craftable:
             back.append(f"{spell} ({retired[spell]})")
     if back:
@@ -387,11 +394,11 @@ def main():
     item_effect_rows = db2("ItemEffect", ("ID", "SpellID"), **options)
     effect_link_rows = db2("ItemXItemEffect", ("ItemID", "ItemEffectID"), **options)
     scrolls = scroll_requirements(spells, sparse_rows, item_effect_rows, effect_link_rows)
-    retired = set(RETIRED)
     check_retired(
         RETIRED,
+        spells,
         effect_rows,
-        {int(row["ID"]) for row in sparse_rows},
+        {int(row["ID"]) for row in sparse_rows if not int(row.get("Flags_0") or 0) & ITEM_DEPRECATED},
         item_effect_rows,
         effect_link_rows,
         db2("SpellReagents", ("SpellID", *(f"Reagent_{i}" for i in range(8))), **options),
@@ -400,7 +407,7 @@ def main():
     names = {int(row["ID"]): row["Name_lang"] for row in name_rows}
     effects = spell_effects(effect_rows)
     emitted, coverage, sources = generate(
-        ability_rows, skills, selected, names, effects, ability_values(classic_rows), scrolls, retired
+        ability_rows, skills, selected, names, effects, ability_values(classic_rows), scrolls, set(RETIRED)
     )
     if not emitted:
         raise ValueError("No usable recipes; leaving existing generated output untouched")

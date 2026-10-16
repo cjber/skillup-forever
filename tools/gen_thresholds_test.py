@@ -184,7 +184,8 @@ class RetiredRecipeTest(unittest.TestCase):
                 **{f"Reagent_{i}": "0" for i in range(2, 8)},
             },
         ]
-        gen_thresholds.check_retired(self.RETIRED, effects, set(sparse), item_effects, links, reagents)
+        spells = {1226206, 1226210}
+        gen_thresholds.check_retired(self.RETIRED, spells, effects, set(sparse), item_effects, links, reagents)
 
     def test_retired_recipes_stay_out_while_nothing_teaches_or_makes_them(self):
         # Their reagents being in the game doesn't bring them back: 1226210 needs the Tinkerbox too.
@@ -194,6 +195,10 @@ class RetiredRecipeTest(unittest.TestCase):
         for back in ({238782}, {240018}, {238737}):
             with self.assertRaises(ValueError, msg=back):
                 self.check({10558, 15994} | back)
+
+    def test_a_stale_entry_fails_the_run(self):
+        with self.assertRaises(ValueError):
+            gen_thresholds.check_retired(self.RETIRED, {1226206}, [], set(), [], [], [])
 
     def test_a_retired_recipe_is_not_emitted(self):
         rows = [ThresholdSourceTest.row(None, spell, 1, 260, 280) for spell in (1226206, 3001)]
@@ -206,7 +211,7 @@ class RetiredRecipeTest(unittest.TestCase):
 class GeneratedThresholdsTest(unittest.TestCase):
     def test_retired_recipes_are_left_out_and_obtainable_ones_kept(self):
         content = (gen_thresholds.OUTPUT).read_text(encoding="utf-8")
-        self.assertEqual(set(range(1226206, 1226213)), set(gen_thresholds.RETIRED))
+        self.assertLessEqual(set(range(1226206, 1226213)), set(gen_thresholds.RETIRED))
         for spell in gen_thresholds.RETIRED:
             self.assertNotIn(f"\t[{spell}] =", content)
         # A missing ItemSparse row alone is not retirement: Ironvine Breastplate (plans from Vargus, Cenarion

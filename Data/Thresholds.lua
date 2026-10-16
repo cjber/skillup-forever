@@ -7,19 +7,18 @@
 -- inside the range; else the same build's pattern requirement (ItemSparse, ItemEffect), deprecated
 -- patterns left out; else, for a minimum left at Classic Era 1.15.9.70003's on a range Forever moved,
 -- that minimum moved as far; else the client's placeholder 1, and the learn requirement gates the
--- recipe at runtime. A recipe no player can learn or craft is left out: every item that teaches it and the
--- item it makes (or, making none, a reagent) are missing from ItemSparse, and no trainer teaches it.
--- 2246 unique recipe spell IDs; a shared recipe counts in each profession below.
+-- recipe at runtime. Recipes the game retired (RETIRED in gen_thresholds.py) are left out.
+-- 2347 unique recipe spell IDs; a shared recipe counts in each profession below.
 -- First Aid (129): 31 emitted / 9 skipped (grey<=yellow=9); orange placeholder=16, scroll=15
--- Blacksmithing (164): 443 emitted / 84 skipped (grey<=yellow=54, retired=30); orange dropped=1, placeholder=101, scroll=330, shifted=9
--- Leatherworking (165): 524 emitted / 92 skipped (grey<=yellow=75, retired=17); orange placeholder=115, scroll=409
--- Alchemy (171): 192 emitted / 20 skipped (grey<=yellow=10, retired=10); orange placeholder=53, scroll=136
+-- Blacksmithing (164): 472 emitted / 55 skipped (duplicate recipe row=1, grey<=yellow=54); orange dropped=1, placeholder=130, scroll=330, shifted=9
+-- Leatherworking (165): 541 emitted / 75 skipped (grey<=yellow=75); orange placeholder=132, scroll=409
+-- Alchemy (171): 202 emitted / 10 skipped (grey<=yellow=10); orange placeholder=63, scroll=136
 -- Herbalism (182): 2 emitted / 15 skipped (grey<=yellow=15); orange placeholder=1, scroll=1
--- Cooking (185): 130 emitted / 11 skipped (grey<=yellow=10, retired=1); orange placeholder=15, scroll=115
--- Mining (186): 10 emitted / 23 skipped (gathering ability=3, grey<=yellow=19, retired=1); orange placeholder=9, scroll=1
--- Tailoring (197): 418 emitted / 68 skipped (grey<=yellow=54, retired=14); orange placeholder=108, scroll=310
--- Engineering (202): 252 emitted / 43 skipped (grey<=yellow=26, retired=17); orange placeholder=88, scroll=164
--- Enchanting (333): 241 emitted / 31 skipped (grey<=yellow=11, retired=20); orange placeholder=78, scroll=163
+-- Cooking (185): 131 emitted / 10 skipped (grey<=yellow=10); orange placeholder=16, scroll=115
+-- Mining (186): 11 emitted / 22 skipped (gathering ability=3, grey<=yellow=19); orange placeholder=10, scroll=1
+-- Tailoring (197): 432 emitted / 54 skipped (grey<=yellow=54); orange placeholder=122, scroll=310
+-- Engineering (202): 262 emitted / 33 skipped (grey<=yellow=26, retired=7); orange placeholder=98, scroll=164
+-- Enchanting (333): 261 emitted / 11 skipped (grey<=yellow=11); orange placeholder=98, scroll=163
 -- Fishing (356): 1 emitted / 13 skipped (grey<=yellow=13); orange scroll=1
 -- Skinning (393): 2 emitted / 10 skipped (grey<=yellow=10); orange placeholder=1, scroll=1
 -- Alchemy (2937): 0 emitted / 0 skipped; no SkillLineAbility rows
@@ -61,6 +60,7 @@ ns.Thresholds = {
 	[2334] = { 50, 80, 100, 120 }, -- Elixir of Minor Fortitude
 	[2335] = { 60, 90, 110, 130 }, -- Swiftness Potion
 	[2337] = { 1, 85, 105, 125 }, -- SpellName unavailable
+	[2365] = { 1, 100, 120, 140 }, -- Draught of Tongues
 	[2385] = { 1, 45, 57, 70 }, -- Brown Linen Vest
 	[2386] = { 1, 65, 82, 100 }, -- Linen Boots
 	[2387] = { 1, 35, 47, 60 }, -- Linen Cloak
@@ -847,6 +847,7 @@ ns.Thresholds = {
 	[16971] = { 255, 280, 292, 305 }, -- Huge Thorium Battleaxe
 	[16973] = { 255, 280, 292, 305 }, -- Enchanted Battlehammer
 	[16978] = { 255, 280, 292, 305 }, -- Blazing Rapier
+	[16980] = { 1, 285, 297, 310 }, -- Rune Edge
 	[16983] = { 260, 285, 297, 310 }, -- Serenity
 	[16984] = { 265, 290, 302, 315 }, -- Volcanic Hammer
 	[16985] = { 265, 290, 302, 315 }, -- Corruption
@@ -1279,6 +1280,9 @@ ns.Thresholds = {
 	[28243] = { 300, 320, 330, 340 }, -- Icebane Gauntlets
 	[28244] = { 300, 320, 330, 340 }, -- Icebane Bracers
 	[28327] = { 275, 295, 305, 315 }, -- Steam Tonk Controller
+	[28461] = { 1, 320, 330, 340 }, -- Ironvine Breastplate
+	[28462] = { 1, 320, 330, 340 }, -- Ironvine Gloves
+	[28463] = { 1, 320, 330, 340 }, -- Ironvine Belt
 	[28472] = { 1, 320, 330, 340 }, -- Bramblewood Helm
 	[28473] = { 1, 320, 330, 340 }, -- Bramblewood Boots
 	[28474] = { 1, 320, 330, 340 }, -- Bramblewood Belt
@@ -1297,6 +1301,7 @@ ns.Thresholds = {
 	[429354] = { 1, 160, 172, 185 }, -- Void-Touched Leather Gloves
 	[429869] = { 1, 160, 172, 185 }, -- Void-Touched Leather Gauntlets
 	[430397] = { 1, 100, 110, 120 }, -- Blackfathom Sharpening Stone
+	[430409] = { 1, 100, 110, 120 }, -- Blackfathom Mana Oil
 	[431362] = { 205, 205, 210, 215 }, -- Soul Vessel
 	[435481] = { 1, 200, 217, 235 }, -- Enchant Weapon - Dismantle
 	[435610] = { 225, 225, 230, 235 }, -- Gneuro-Linked Arcano-Filament Monocle
@@ -1386,8 +1391,14 @@ ns.Thresholds = {
 	[461675] = { 300, 320, 330, 340 }, -- Refined Arcanite Reaper
 	[461677] = { 270, 300, 310, 320 }, -- Living Green Dragonscale Gauntlets
 	[461690] = { 300, 320, 330, 340 }, -- Mastercrafted Shifting Cloak
+	[461692] = { 1, 285, 290, 295 }, -- Synthetic Gordok Ogre Suit
 	[461706] = { 300, 320, 330, 340 }, -- Swift Flight Vambraces
 	[461708] = { 300, 315, 330, 345 }, -- Incandescent Mooncloth Robe
+	[461710] = { 1, 320, 330, 340 }, -- Fiery Core Sharpshooter Rifle
+	[461712] = { 1, 320, 330, 340 }, -- Refined Hammer of the Titans
+	[461714] = { 1, 315, 327, 340 }, -- Desecration
+	[461716] = { 1, 320, 330, 340 }, -- Deadly Heartseeker
+	[461718] = { 1, 310, 322, 335 }, -- Tranquility
 	[461720] = { 260, 280, 290, 300 }, -- Living Green Dragonscale Breastplate
 	[461722] = { 290, 310, 320, 330 }, -- Devilcore Gauntlets
 	[461724] = { 300, 320, 330, 340 }, -- Devilcore Leggings
@@ -1412,11 +1423,97 @@ ns.Thresholds = {
 	[470359] = { 300, 325, 345, 365 }, -- Darkclaw Bisque
 	[470370] = { 300, 325, 345, 365 }, -- Smoked Redgill
 	[471400] = { 300, 310, 320, 330 }, -- Magnificent Trollshine
+	[1213481] = { 1, 320, 330, 340 }, -- Razorspike Headcage
+	[1213484] = { 1, 320, 330, 340 }, -- Razorspike Shoulderplate
+	[1213490] = { 1, 320, 330, 340 }, -- Razorspike Battleplate
+	[1213492] = { 1, 320, 330, 340 }, -- Obsidian Reaver
+	[1213498] = { 1, 320, 330, 340 }, -- Obsidian Champion
+	[1213500] = { 1, 320, 330, 340 }, -- Obsidian Destroyer
+	[1213502] = { 1, 320, 330, 340 }, -- Obsidian Stormhammer
+	[1213504] = { 1, 320, 330, 340 }, -- Obsidian Sageblade
+	[1213506] = { 1, 320, 330, 340 }, -- Obsidian Defender
+	[1213513] = { 1, 320, 330, 340 }, -- Glowing Chitin Armor Kit
+	[1213519] = { 1, 320, 330, 340 }, -- Sharpened Chitin Armor Kit
+	[1213521] = { 1, 320, 330, 340 }, -- Razorbramble Cowl
+	[1213523] = { 1, 320, 330, 340 }, -- Razorbramble Shoulderpads
+	[1213525] = { 1, 320, 330, 340 }, -- Razorbramble Leathers
+	[1213527] = { 1, 315, 330, 345 }, -- Vampiric Cowl
+	[1213530] = { 1, 315, 330, 345 }, -- Vampiric Shawl
+	[1213532] = { 1, 315, 330, 345 }, -- Vampiric Robe
+	[1213534] = { 1, 320, 330, 340 }, -- Qiraji Silk Scarf
+	[1213536] = { 1, 320, 330, 340 }, -- Qiraji Silk Cape
+	[1213538] = { 1, 320, 330, 340 }, -- Qiraji Silk Cloak
+	[1213540] = { 1, 320, 330, 340 }, -- Qiraji Silk Drape
+	[1213544] = { 1, 315, 322, 330 }, -- Flask of Unyielding Sorrow
+	[1213546] = { 1, 315, 322, 330 }, -- Flask of Ancient Knowledge
+	[1213548] = { 1, 315, 322, 330 }, -- Flask of the Old Gods
+	[1213552] = { 1, 315, 322, 330 }, -- Flask of Madness
+	[1213559] = { 1, 315, 322, 330 }, -- Elixir of the Honey Badger
+	[1213563] = { 1, 315, 322, 330 }, -- Elixir of the Mage-Lord
+	[1213565] = { 1, 315, 322, 330 }, -- Elixir of the Ironside
+	[1213571] = { 1, 315, 322, 330 }, -- Elixir of Alacrity
+	[1213573] = { 1, 315, 322, 330 }, -- Arcane Megabomb
+	[1213576] = { 1, 315, 322, 330 }, -- The Fumigator
+	[1213578] = { 1, 315, 322, 330 }, -- Obsidian Bomb
+	[1213586] = { 1, 315, 322, 330 }, -- G00 DV-1B3 Generator
+	[1213588] = { 1, 315, 322, 330 }, -- Tuned Force Reactive Disk
+	[1213593] = { 1, 320, 340, 360 }, -- Speedstone
+	[1213595] = { 1, 320, 340, 360 }, -- Tear of the Dreamer
+	[1213598] = { 1, 320, 340, 360 }, -- Lodestone of Retaliation
+	[1213600] = { 1, 320, 340, 360 }, -- Enchanted Stopwatch
+	[1213603] = { 1, 320, 340, 360 }, -- Ruby-Encrusted Broach
+	[1213607] = { 1, 320, 340, 360 }, -- Scroll: Wrath of the Swarm
+	[1213610] = { 1, 320, 340, 360 }, -- Enchanted Repellent
 	[1213616] = { 1, 320, 340, 360 }, -- Enchant Chest - Living Stats
 	[1213622] = { 300, 320, 340, 360 }, -- Enchant Gloves - Holy Power
 	[1213626] = { 300, 320, 340, 360 }, -- Enchant Gloves - Arcane Power
+	[1213628] = { 1, 320, 340, 360 }, -- Enchanted Prayer Tome
+	[1213633] = { 1, 320, 340, 360 }, -- Enchanted Totem
+	[1213635] = { 1, 320, 340, 360 }, -- Enchanted Mushroom
+	[1213638] = { 1, 315, 322, 330 }, -- Smelt Obsidian-Infused Thorium Bar
+	[1213643] = { 1, 315, 322, 330 }, -- Obsidian Grinding Stone
+	[1213646] = { 1, 315, 322, 330 }, -- Obsidian Blasting Powder
+	[1213709] = { 1, 320, 330, 340 }, -- Ironvine Belt
+	[1213711] = { 1, 320, 330, 340 }, -- Ironvine Gloves
+	[1213715] = { 1, 320, 330, 340 }, -- Ironvine Breastplate
+	[1213717] = { 1, 320, 330, 340 }, -- Sandstalker Bracers
+	[1213720] = { 1, 320, 330, 340 }, -- Sandstalker Gauntlets
+	[1213723] = { 1, 320, 330, 340 }, -- Sandstalker Breastplate
+	[1213726] = { 1, 320, 330, 340 }, -- Spitfire Bracers
+	[1213728] = { 1, 320, 330, 340 }, -- Spitfire Gauntlets
+	[1213731] = { 1, 320, 330, 340 }, -- Spitfire Breastplate
+	[1213734] = { 1, 320, 330, 340 }, -- Bramblewood Belt
+	[1213736] = { 1, 320, 330, 340 }, -- Bramblewood Boots
+	[1213738] = { 1, 320, 330, 340 }, -- Bramblewood Helm
+	[1213740] = { 1, 315, 330, 345 }, -- Sylvan Shoulders
+	[1213742] = { 1, 315, 330, 345 }, -- Sylvan Crown
+	[1213744] = { 1, 315, 330, 345 }, -- Sylvan Vest
+	[1213746] = { 1, 320, 330, 340 }, -- Heavy Obsidian Belt
+	[1213748] = { 1, 320, 330, 340 }, -- Light Obsidian Belt
+	[1213751] = { 1, 320, 330, 340 }, -- Dreamscale Breastplate
+	[1214137] = { 1, 320, 330, 340 }, -- Obsidian Heartseeker
+	[1214145] = { 1, 320, 330, 340 }, -- Obsidian Shotgun
+	[1214173] = { 1, 315, 322, 330 }, -- Bolt of Qiraji Silk
+	[1214257] = { 1, 320, 330, 340 }, -- Black Grasp of the Destroyer
+	[1214270] = { 1, 320, 330, 340 }, -- Jagged Obsidian Shield
+	[1214274] = { 1, 320, 330, 340 }, -- Obsidian Mail Tunic
+	[1214303] = { 1, 320, 330, 340 }, -- Dreamscale Kilt
+	[1214306] = { 1, 320, 330, 340 }, -- Dreamscale Bracers
+	[1214307] = { 1, 320, 330, 340 }, -- Dreamscale Mitts
+	[1214309] = { 1, 320, 330, 340 }, -- Dreamscale Visor
+	[1215507] = { 1, 320, 330, 340 }, -- Thick Obsidian Breastplate
+	[1216005] = { 1, 320, 340, 360 }, -- Libram of Righteousness
+	[1216007] = { 1, 320, 340, 360 }, -- Libram of the Exorcist
+	[1216010] = { 1, 320, 340, 360 }, -- Libram of Sanctity
+	[1216014] = { 1, 320, 340, 360 }, -- Totem of Pyroclastic Thunder
+	[1216016] = { 1, 320, 340, 360 }, -- Totem of Thunderous Strikes
+	[1216018] = { 1, 320, 340, 360 }, -- Totem of Flowing Magma
+	[1216020] = { 1, 320, 340, 360 }, -- Idol of Sidereal Wrath
+	[1216022] = { 1, 320, 340, 360 }, -- Idol of Feline Ferocity
+	[1216024] = { 1, 320, 340, 360 }, -- Idol of Ursin Power
 	[1217189] = { 1, 320, 340, 360 }, -- Enchant Bracer - Spell Power
 	[1217203] = { 1, 320, 340, 360 }, -- Enchant Bracer - Agility
+	[1217207] = { 1, 320, 330, 340 }, -- Obsidian Scope
 	[1219577] = { 300, 320, 340, 360 }, -- Enchant Off-Hand - Superior Intellect
 	[1219578] = { 300, 320, 340, 360 }, -- Enchant Off-Hand - Excellent Spirit
 	[1219579] = { 300, 320, 340, 360 }, -- Enchant Off-Hand - Wisdom
@@ -1602,6 +1699,7 @@ ns.Thresholds = {
 	[1250156] = { 25, 35, 55, 75 }, -- Tasty Raptor Bites
 	[1250157] = { 75, 80, 87, 95 }, -- Breakfast Omelette
 	[1250158] = { 275, 280, 295, 310 }, -- Clam Linguine
+	[1250775] = { 1, 205, 207, 210 }, -- Revealing Draught
 	[1250776] = { 195, 200, 202, 205 }, -- Potion of Predatory Senses
 	[1250777] = { 275, 280, 282, 285 }, -- Elixir of Cunning
 	[1250778] = { 250, 255, 257, 260 }, -- Elixir of the Phalanx
@@ -2045,6 +2143,7 @@ ns.Thresholds = {
 	[1266941] = { 300, 320, 330, 340 }, -- SAF-T Nitro Boosts
 	[1266942] = { 300, 320, 330, 340 }, -- EZ-Thro Magnetic Displacer
 	[1266943] = { 300, 320, 330, 340 }, -- SAF-T Teleport
+	[1270632] = { 1, 80, 82, 85 }, -- Critter Cookie
 	[1270633] = { 25, 30, 37, 45 }, -- Skywall Souffle
 	[1270635] = { 35, 40, 47, 55 }, -- Pincer Bites
 	[1283400] = { 90, 95, 100, 105 }, -- Journeyman Campfire
@@ -2119,6 +2218,7 @@ ns.Thresholds = {
 	[1292986] = { 300, 320, 325, 330 }, -- Handguards of Glory
 	[1292987] = { 300, 320, 325, 330 }, -- Pauldrons of Glory
 	[1292988] = { 300, 320, 325, 330 }, -- Sabatons of Glory
+	[1293088] = { 1, 125, 135, 145 }, -- 9-60 Battery Pack
 	[1293559] = { 300, 320, 325, 330 }, -- Flask of Natural Accuracy
 	[1293560] = { 300, 320, 325, 330 }, -- Flask of Natural Aggression
 	[1293561] = { 300, 320, 325, 330 }, -- Flask of Natural Precision

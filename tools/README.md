@@ -51,11 +51,11 @@ lines, `SpellName` supplies comments, and `SpellEffect` excludes gathering abili
 `Model.Get` returns unknown for a contradictory row, including one a live grey
 threshold makes, so displays and plans cannot use it.
 
-A recipe nobody can learn or make in this build is left out, and so is out of every other `Data/` file: every
-item that teaches it (directly, or through a `LEARN_SPELL` teaching spell) is missing from `ItemSparse`, and so is
-the item it makes (or, for a recipe that makes no item, one of its reagents), and no classic-db trainer teaches it.
-A recipe no item was ever linked to teach is kept. Forever 70425 retired the Tinkerbox schematics this way; their
-items stay in `Item` but leave `ItemSparse`. The generator prints the recipes it leaves out.
+A recipe the game retired is left out, and so is out of every other `Data/` file: `RETIRED` in `gen_thresholds.py`
+lists each with the build that retired it. `ItemSparse` is partial (about 40% of `Item` rows have no `ItemSparse`
+row, many live patterns among them), so a missing row alone does not mean an item is gone; an item that leaves
+`ItemSparse` between pinned builds does. Forever 70425 retired the Tinkerbox schematics and the Tinkerbox that way.
+The run fails if a later build brings back an item that teaches or makes a listed recipe, so it gets reviewed.
 
 Coverage prints per skill line, including skipped/duplicate rows and missing
 names. Gathering abilities and test professions are excluded. Shared recipes

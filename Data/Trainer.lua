@@ -4,8 +4,8 @@
 -- wow_classic_era 1.15.9.70003; recipes limited to wow_classic_beta 1.60.1.70425 thresholds.
 -- Specialisation-gated rows are left out. Fees seen at a trainer win.
 -- A required skill moves as far as Forever 1.60.1.70425 moved the recipe's yellow and grey from
--- Classic Era 1.15.9.70003's (SkillLineAbility), and no higher than the skill players made it at
--- for [9985].
+-- Classic Era 1.15.9.70003's (SkillLineAbility).
+-- No higher than the skill players made it at for [9985] (SEEN_REQUIREMENTS).
 -- recipes=413; conflicts resolved to the most common: [10621, 10647, 13622].
 ---@type string, SkillUpNamespace
 local _, ns = ...

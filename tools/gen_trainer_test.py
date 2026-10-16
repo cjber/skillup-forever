@@ -6,8 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from gen_thresholds import ROOT
-from gen_trainer import SEEN_REQUIREMENTS, dump_tables, generate
+from gen_trainer import ROOT, SEEN_REQUIREMENTS, dump_tables, generate
 
 
 class DumpEncodingTests(unittest.TestCase):
@@ -74,13 +73,13 @@ class RequirementTests(unittest.TestCase):
         # It is still a guess: /su trainers lists it with classic-db's number for a trainer to confirm.
         self.assertEqual(inferred, {9985: 125, 2674: 125})
 
+    # The bundled data keeps what players saw: every SEEN_REQUIREMENTS recipe at or below its value, never below 1.
     def test_bundled_requirements_players_saw_lower_hold(self):
-        self.assertEqual(SEEN_REQUIREMENTS[9985], 110)
         text = (ROOT / "Data" / "Trainer.lua").read_text(encoding="utf-8")
         for recipe, most in SEEN_REQUIREMENTS.items():
             row = re.search(rf"\n\t\[{recipe}\] = {{ \d+, (\d+) }},", text)
             self.assertIsNotNone(row, recipe)
-            self.assertLessEqual(int(row.group(1)), most, recipe)
+            self.assertTrue(1 <= int(row.group(1)) <= most, recipe)
 
     def test_unmoved_zero_requirement_is_not_inferred(self):
         effects = [

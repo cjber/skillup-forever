@@ -19,6 +19,7 @@ Data\Vendor.lua
 Data\Recipes.lua
 Data\Trainer.lua
 Data\Sources.lua
+UI\ForeverFamily.lua
 Core\SafeCall.lua
 Core\Model.lua
 Core\Changes.lua
@@ -32,7 +33,6 @@ Integrations\Catalogue.lua
 Integrations\Prices.lua
 UI\Art.lua
 UI\Report.lua
-UI\ForeverFamily.lua
 UI\Settings.lua
 UI\Tooltip.lua
 UI\RecipeList.lua

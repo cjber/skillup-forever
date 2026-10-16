@@ -35,7 +35,10 @@ local function Database()
 			[RISE_SELLER] = { name = "Rise Seller", spawns = { [ELDER_RISE] = { { 70, 30 } } }, side = "AH" },
 			[STORMWIND_SELLER] = { name = "Stormwind Seller", spawns = { [STORMWIND] = { { 62, 70 } } }, side = "AH" },
 		},
-		quests = { [401] = { name = "A Fine Shirt", races = 77 }, [402] = { name = "For All", races = 0 } },
+		quests = {
+			[401] = { name = "A Fine Shirt", races = 77, starts = { SELLER } },
+			[402] = { name = "For All", races = 0 },
+		},
 		areas = { [ELWYNN] = 1429 },
 		parents = { [GOLDSHIRE] = ELWYNN, [ELDER_RISE] = THUNDER_BLUFF },
 	}
@@ -171,6 +174,8 @@ equal(shirt.quests[1], 401, "and its quest")
 equal(C.Quest(401).title, "A Fine Shirt", "a quest's title")
 equal(C.Quest(401).side, "A", "a quest only Alliance races may take")
 equal(C.Quest(402).side, "", "a quest anyone may take")
+equal(C.Quest(401).starters[1], SELLER, "who gives a quest")
+equal(#C.Quest(402).starters, 0, "and none for a quest QuestieDB names no giver for")
 local robe = C.Recipe(ROBE)
 equal(robe.drops[1][1], BOSS, "a drop is the bundled one")
 equal(robe.drops[1][2], 12.5, "at AtlasLoot's chance where it has one")

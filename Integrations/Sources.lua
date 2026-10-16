@@ -422,8 +422,8 @@ function ns.NearestTrainer(profession, cap, byTravel)
 	return ns.NearestNPC(C.Trainers(profession.skillLine, cap), byTravel)
 end
 
--- Where a rank is got: the nearest vendor of its book, else the nearest trainer teaching it, and the
--- tooltip label for that NPC.
+-- Where a rank is got: the nearest vendor of its book, the nearest giver of its quest, else the nearest trainer
+-- teaching it, and the tooltip label for that NPC.
 ---@param profession SkillUpContext
 ---@param rank SkillUpRank
 ---@param byTravel boolean?
@@ -433,6 +433,10 @@ function ns.NearestForRank(profession, rank, byTravel)
 	if rank.book then
 		-- A book you already have is not bought again.
 		return not ns.RankHeld(rank) and ns.NearestVendor(rank.book, byTravel) or nil, L["Nearest vendor"]
+	end
+	if rank.quest then
+		local quest = C.Quest(rank.quest)
+		return quest and ns.NearestNPC(quest.starters, byTravel) or nil, L["Quest giver"]
 	end
 	return ns.NearestTrainer(profession, rank.cap, byTravel), L["Nearest trainer"]
 end

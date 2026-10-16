@@ -59,6 +59,7 @@
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field RankText fun(rank: SkillUpRank): string
 ---@field RankBookName fun(rank: SkillUpRank): string
+---@field RankQuestName fun(rank: SkillUpRank): string
 ---@field RankHeld fun(rank: SkillUpRank): boolean
 ---@field PlanCost fun(plan: SkillUpPlan): number
 ---@field CreateList fun(parent: Frame): SkillUpList
@@ -138,6 +139,7 @@
 ---@field RecipeData table<integer, SkillUpRecipe>
 ---@field RecipeScrolls table<integer, number[]> { scroll item, required skill } per recipe spell.
 ---@field RankBooks table<integer, number[][]> per skill line: { cap, book item, list price, required skill, level }.
+---@field RankQuests table<integer, (number|string)[][]> per skill line: { cap, quest, required skill, level, side }.
 ---@field ItemGear table<integer, number[]>
 ---@field ItemSellPrices table<integer, number>
 ---@field RecipeNames table<integer, table<string, integer|false>>
@@ -301,6 +303,7 @@ SkillUpForeverDB = nil
 ---@field cap number
 ---@field fee number The trainer's fee, or a book's price.
 ---@field book? integer The item that teaches the rank when no trainer does: bought and read, not trained.
+---@field quest? integer The quest that teaches the rank when no trainer or book does (Artisan First Aid, Cooking).
 ---@field reqSkill number
 ---@field level number
 
@@ -606,6 +609,7 @@ SkillUpForeverDB = nil
 ---@class SkillUpSourceQuest
 ---@field title string
 ---@field side ''|'A'|'H'
+---@field starters integer[] The NPCs who give the quest.
 
 -- Where a recipe's scroll comes from. The skill it needs is AtlasLoot's, so nil without it.
 ---@class SkillUpScrollSource

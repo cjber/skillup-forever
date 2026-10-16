@@ -2,7 +2,8 @@
 local _, ns = ...
 
 -- QuestieDB, read at runtime through its public tables: who sells or drops an item and which quests reward
--- it, where an NPC stands and whose side it is on, and what a quest is called. Nothing of it is bundled.
+-- it, where an NPC stands and whose side it is on, and what a quest is called and who gives it. Nothing of it is
+-- bundled.
 
 local ADDON = "QuestieDB"
 -- The contract this file was written against. QuestieDB accepts a range, so a newer additive release keeps
@@ -14,7 +15,7 @@ local READY_WAIT = 60
 local FIELDS = {
 	Item = { "vendors", "questRewards", "npcDrops", "class", "teachesSpell" },
 	Npc = { "name", "spawns", "zoneID", "friendlyToFaction" },
-	Quest = { "requiredRaces", "name" },
+	Quest = { "requiredRaces", "name", "startedBy" },
 }
 local RECIPE_CLASS = 9
 -- ChrRaces bits: Human, Dwarf, Night Elf, Gnome; Orc, Undead, Tauren, Troll.
@@ -258,7 +259,7 @@ function Q.NPC(npcID)
 	return npc
 end
 
--- A quest's title and the side that may take it ("" for both).
+-- A quest's title, the side that may take it ("" for both) and the NPCs who give it.
 ---@param questID integer
 ---@return SkillUpSourceQuest?
 function Q.Quest(questID)
@@ -268,5 +269,7 @@ function Q.Quest(questID)
 	end
 	local races = tonumber(values[1]) or 0
 	local alliance, horde = bit.band(races, ALLIANCE_RACES) ~= 0, bit.band(races, HORDE_RACES) ~= 0
-	return { title = values[2], side = alliance == horde and "" or alliance and "A" or "H" }
+	-- startedBy is { NPCs, objects, items }; only an NPC can be walked to and waypointed.
+	local starts = type(values[3]) == "table" and values[3][1]
+	return { title = values[2], side = alliance == horde and "" or alliance and "A" or "H", starters = IDs(starts) }
 end

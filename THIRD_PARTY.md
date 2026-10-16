@@ -37,12 +37,12 @@ CI tools (StyLua, ruff, luacheck, lua-language-server, actionlint, zizmor, gitle
 
 ## Ideas and contributors
 
-Credit for ideas and reports, where no code or data was taken.
+Credit for the ideas, translations and reports behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
-| [Polestar](https://github.com/fitzforge/polestar) by Fitz | The ideas for Expert and Artisan First Aid and Cooking from books and quests (#121) and the skill colour on gathering nodes and skinnable mobs (#122); `/su report` and the shared tooling's issue forms, zip check, `tools/doctor.py`, stale-screenshot check, this file and `.editorconfig` (cjber/adventure-guide-forever#156-#165) | GPL-3.0. Inspired only; no code was copied. Fitz is welcome to use our code. |
+| [Polestar](https://github.com/fitzforge/polestar) by Fitz | The ideas for Expert and Artisan First Aid and Cooking from books and quests (#121) and the skill colour on gathering nodes and skinnable mobs (#122); `/su report` and the shared tooling's zip check, `tools/doctor.py`, stale-screenshot check and `.editorconfig`, plus this file, the issue forms and the "For addon authors" changelog subsection (cjber/adventure-guide-forever#156-#158, #160-#163, #165) | GPL-3.0. Inspired only; no code was copied. Fitz is welcome to use our code. |
 | kopuliak, on CurseForge | Found recipes Forever lets you make earlier than Classic, such as Bronze Warhammer at 110 (#107, #123) | |
 | chuujitsuna, on CurseForge | Found the quest tracker stuck mid-screen while SkillUp held it (#136) | |
 
-Thanks also to everyone who reported a bug on CurseForge.
+Thanks also to everyone else who reported a bug, here or on CurseForge.

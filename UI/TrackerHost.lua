@@ -458,6 +458,25 @@ local function LayoutModules(width, available, reserve)
 	host:SetHeight(math.max(1, height))
 	return hasSections
 end
+-- Hands the native frame back to the slot Blizzard, Edit Mode or a UI addon gave it, clamp included, when it is still
+-- where our last restack left it. One moved since is already in someone else's hands and stays where it is. Out of
+-- combat only: the native frame is protected.
+local function ReleaseNative()
+	local currentPoint, currentRelative, currentRelativePoint, currentX, currentY = ObjectiveTrackerFrame:GetPoint()
+	if
+		nativeAnchor
+		and (
+			currentRelative == host
+			or IsAppliedNativeAnchor(currentPoint, currentRelative, currentRelativePoint, currentX, currentY)
+		)
+	then
+		ObjectiveTrackerFrame:ClearAllPoints()
+		local saved = nativeAnchor.saved
+		ObjectiveTrackerFrame:SetPoint(saved.point, saved.relativeTo, saved.relativePoint, saved.x, saved.y)
+	end
+	appliedNativeAnchor = nil
+	RestoreNativeClamp()
+end
 -- Switches the host between attached and detached when the settings or combat state allow, and returns the settings
 -- that chose the mode.
 local function ApplyAttachment()
@@ -467,21 +486,7 @@ local function ApplyAttachment()
 		attached = desired
 	elseif not InCombatLockdown() and desired ~= attached then
 		if not desired then
-			local currentPoint, currentRelative, currentRelativePoint, currentX, currentY =
-				ObjectiveTrackerFrame:GetPoint()
-			if
-				nativeAnchor
-				and (
-					currentRelative == host
-					or IsAppliedNativeAnchor(currentPoint, currentRelative, currentRelativePoint, currentX, currentY)
-				)
-			then
-				ObjectiveTrackerFrame:ClearAllPoints()
-				local saved = nativeAnchor.saved
-				ObjectiveTrackerFrame:SetPoint(saved.point, saved.relativeTo, saved.relativePoint, saved.x, saved.y)
-				appliedNativeAnchor = nil
-			end
-			RestoreNativeClamp()
+			ReleaseNative()
 		end
 		attached = desired
 	end
@@ -639,22 +644,21 @@ local function LayoutAttached()
 	-- with no reserved gap.
 	local collapsed = NativeCollapsed()
 	local headerCandidate = not collapsed and NativeHeaderShown()
-	local hasSections = false
-	if collapsed then
+	local headerReserve = headerCandidate and HEADER_TOP_PADDING or 0
+	if collapsed or not LayoutModules(width, math.max(0, available - headerReserve), headerReserve) then
+		-- Nothing to stack (All Objectives is collapsed, or no section has content): the native tracker goes back to
+		-- its own slot and is left alone, so an addon with nothing to show never holds the quest tracker in place.
 		RestoreNativeHeader()
+		ReleaseNative()
 		host:SetHeight(1)
 		host:Hide()
-	else
-		host:Show()
-		local reserve = headerCandidate and HEADER_TOP_PADDING or 0
-		hasSections = LayoutModules(width, math.max(0, available - reserve), reserve)
-		if hasSections and headerCandidate then
-			AdoptNativeHeader()
-		else
-			RestoreNativeHeader()
-		end
+		return
 	end
-	local headerReserve = hasSections and headerCandidate and HEADER_TOP_PADDING or 0
+	if headerCandidate then
+		AdoptNativeHeader()
+	else
+		RestoreNativeHeader()
+	end
 	-- If the combined column would run below the screen, move the whole
 	-- column upward from its saved edit-mode slot.  The offset is calculated
 	-- from the original point each pass, so repeated refreshes never drift.

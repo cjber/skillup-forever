@@ -246,7 +246,7 @@ function ns.RegisterSettings()
 		category,
 		ns.Family.CreatePanel(nil, function()
 			return ns.db
-		end, addonName, L),
+		end, addonName),
 		L["Forever addons"]
 	)
 	Settings.RegisterInitializer(

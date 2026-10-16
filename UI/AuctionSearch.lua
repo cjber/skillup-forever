@@ -7,7 +7,10 @@ local L = ns.L
 
 local CALLER = "SkillUp Forever"
 -- The one Auctionator list this writes, replaced on every search.
-local CRAFT_LIST = "SkillUp: crafting"
+local CRAFT_LIST = ns.AuctionListName("crafting")
+-- Where a reagent's price comes from, as the route's shopping list groups it: only the auction house's and the
+-- unpriced are searched there, as with the route's own Auctionator list.
+local AUCTION_SOURCES = { auctionator = true }
 
 -- How many of a recipe to search reagents for: the crafts the route plans for it, else one.
 ---@param recipeID integer
@@ -21,12 +24,19 @@ function ns.PlannedCrafts(recipeID)
 			if craft.recipeID == recipeID then
 				total = total + craft.crafts
 			end
+			-- A recipe the route makes reagents with counts its sub-crafts too.
+			for _, sub in ipairs(craft.subcrafts or {}) do
+				if sub.recipeID == recipeID then
+					total = total + sub.crafts
+				end
+			end
 		end
 	end
 	return total > 0 and math.ceil(total) or 1
 end
 
--- Each basic reagent `count` crafts need that the bags and bank (once it has been opened) lack, in recipe order.
+-- Each basic reagent `count` crafts need that the bags and bank (once it has been opened) lack, in recipe order:
+-- the auction house's and the unpriced ones. A vendor's reagent, or one you gather, is not searched for there.
 ---@param recipeID integer
 ---@param count integer
 ---@return SkillUpShoppingItem[]
@@ -34,23 +44,26 @@ function ns.ReagentShortfall(recipeID, count)
 	local short = {}
 	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
 		local missing = reagent.quantity * count - ns.Have(reagent.itemID)
-		if missing > 0 then
+		local source = ns.PriceSource(reagent.itemID)
+		if missing > 0 and (source == nil or AUCTION_SOURCES[source]) then
 			short[#short + 1] = { itemID = reagent.itemID, count = missing }
 		end
 	end
 	return short
 end
 
--- Without Auctionator, which reagent the next click puts in the game's search box, per recipe and count.
+-- Without Auctionator, which reagent the next click puts in the game's search box, per recipe, count and what is
+-- still short, so buying one starts the round again rather than skipping the next.
 local nextIndex, nextKey = 1, nil
 
 -- Searches the auction house for what `count` crafts of the recipe still lack. With Auctionator, one shopping
 -- list of exact names with quantities, searched at once; without it, the game's own search box gets the next
--- missing reagent's name on each call. Returns how it searched ("auctionator", "game" or "none") and, for the
--- game's search, the reagent it put there.
+-- missing reagent's name on each call. Returns how it searched: "auctionator", "game" with the reagent it put in
+-- the box, "unfilled" with the reagent it could not (its name not loaded yet, or the auction house not on a
+-- Buy tab), or "none".
 ---@param recipeID integer
 ---@param count integer
----@return 'auctionator'|'game'|'none'
+---@return 'auctionator'|'game'|'unfilled'|'none'
 ---@return SkillUpShoppingItem?
 function ns.SearchReagents(recipeID, count)
 	local short = ns.ReagentShortfall(recipeID, count)
@@ -60,40 +73,62 @@ function ns.SearchReagents(recipeID, count)
 	if ns.HasAuctionator() then
 		local api = Auctionator.API.v1
 		ns.WithItemNames(short, function()
-			local searches, names = {}, {}
-			for _, item in ipairs(short) do
-				local name = assert(C_Item.GetItemNameByID(item.itemID))
-				names[#names + 1] = name
-				searches[#searches + 1] =
-					api.ConvertToSearchString(CALLER, { searchString = name, isExact = true, quantity = item.count })
+			-- Names can arrive after the auction house has closed; Auctionator searches only while it is open.
+			if not (AuctionHouseFrame and AuctionHouseFrame:IsShown()) then
+				return
 			end
-			api.CreateShoppingList(CALLER, CRAFT_LIST, searches)
-			-- MultiSearchAdvanced keeps the quantities; an older Auctionator searches the exact names.
-			if api.MultiSearchAdvanced then
-				pcall(api.MultiSearchAdvanced, CALLER, searches)
-			elseif api.MultiSearchExact then
-				pcall(api.MultiSearchExact, CALLER, names)
-			end
+			ns.SafeCall("auction house reagent search", function()
+				local searches, names = {}, {}
+				for _, item in ipairs(short) do
+					local name = assert(C_Item.GetItemNameByID(item.itemID))
+					names[#names + 1] = name
+					searches[#searches + 1] = api.ConvertToSearchString(
+						CALLER,
+						{ searchString = name, isExact = true, quantity = item.count }
+					)
+				end
+				api.CreateShoppingList(CALLER, CRAFT_LIST, searches)
+				-- MultiSearchAdvanced keeps the quantities; an older Auctionator searches the exact names.
+				if api.MultiSearchAdvanced then
+					api.MultiSearchAdvanced(CALLER, searches)
+				elseif api.MultiSearchExact then
+					api.MultiSearchExact(CALLER, names)
+				end
+			end)
 		end)
 		return "auctionator"
 	end
-	local key = recipeID .. "x" .. count
+	local parts = { tostring(recipeID), tostring(count) } ---@type string[]
+	for _, item in ipairs(short) do
+		parts[#parts + 1] = item.itemID .. ":" .. item.count
+	end
+	local key = table.concat(parts, ",")
 	if key ~= nextKey or nextIndex > #short then
 		nextKey, nextIndex = key, 1
 	end
 	local item = short[nextIndex]
-	nextIndex = nextIndex + 1
 	local name = C_Item.GetItemNameByID(item.itemID)
 	if not name then
 		C_Item.RequestLoadItemDataByID(item.itemID)
-		return "game", item
+		return "unfilled", item
 	end
 	-- The auction house's own public setter, which Blizzard's item clicks use: it fills the search box and
-	-- starts nothing, so the player's own Search click runs the query.
-	if AuctionHouseFrame and AuctionHouseFrame:IsShown() then
-		AuctionHouseFrame:SetSearchText(name) -- taint-ok: a verified safe contract, a text setter that queries nothing
+	-- starts nothing, so the player's own Search click runs the query. It declines off the Buy tabs.
+	local house = AuctionHouseFrame
+	if not (house and house:IsShown()) then
+		return "unfilled", item
 	end
+	local filled = house:SetSearchText(name) -- taint-ok: verified safe contract, a setter that queries nothing
+	if not filled then
+		return "unfilled", item
+	end
+	nextIndex = nextIndex + 1
 	return "game", item
+end
+
+-- A closed auction house starts the next visit's round from the first reagent.
+local function ForgetRound()
+	nextKey, nextIndex = nil, 1
 end
 
 ---@class SkillUpAuctionBar : Frame
@@ -164,6 +199,8 @@ local function OnSearch()
 	elseif how == "game" and item then
 		local name = C_Item.GetItemNameByID(item.itemID) or string.format(L["item %d"], item.itemID)
 		ns.Print(string.format(L["searching for %s: you need %d more."], name, item.count))
+	elseif how == "unfilled" then
+		ns.Print(L["open the auction house's Buy tab, then search again."])
 	end
 end
 
@@ -174,9 +211,13 @@ function ns.AttachAuctionSearch()
 		return
 	end
 	bar = CreateFrame("Frame", nil, page) --[[@as SkillUpAuctionBar]]
-	bar:SetSize(360, 26)
-	bar:SetPoint("BOTTOMLEFT", form, "BOTTOMLEFT", 12, 8)
-	bar:SetFrameLevel(form:GetFrameLevel() + 10)
+	bar:SetSize(250, 26)
+	-- Beside the page's own Create All button, below the recipe, clear of its Track Recipe checkbox.
+	if page.CreateAllButton then
+		bar:SetPoint("RIGHT", page.CreateAllButton, "LEFT", -12, 0)
+	else
+		bar:SetPoint("BOTTOMLEFT", form, "BOTTOMLEFT", 160, 8)
+	end
 	bar.Label = bar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	bar.Label:SetPoint("LEFT", bar, "LEFT", 0, 0)
 	bar.Label:SetText(L["Reagents for"])
@@ -197,7 +238,7 @@ function ns.AttachAuctionSearch()
 	bar.Crafts:SetPoint("LEFT", bar.Count, "RIGHT", 4, 0)
 	bar.Crafts:SetText(L["crafts"])
 	bar.Search = CreateFrame("Button", nil, bar, "UIPanelButtonTemplate") --[[@as Button]]
-	bar.Search:SetText(L["Search the auction house"])
+	bar.Search:SetText(L["Search"])
 	bar.Search:SetSize(bar.Search:GetTextWidth() + 32, 22)
 	bar.Search:SetPoint("LEFT", bar.Crafts, "RIGHT", 10, 0)
 	bar.Search:SetScript("OnClick", OnSearch)
@@ -212,6 +253,9 @@ end
 
 for _, event in ipairs({ "AUCTION_HOUSE_SHOW", "AUCTION_HOUSE_CLOSED" }) do
 	ns.WhenEvent(event, function()
+		if event == "AUCTION_HOUSE_CLOSED" then
+			ForgetRound()
+		end
 		-- Blizzard shows or hides its frame on the same event; read it a frame later.
 		C_Timer.After(0, Refresh)
 	end)

@@ -55,6 +55,7 @@ ProfessionsFrame = nil
 ---@class SkillUpCraftingPage : Frame
 ---@field RecipeList SkillUpRecipeList
 ---@field SchematicForm SkillUpSchematicForm
+---@field CreateAllButton? Button
 ---@field Init fun(self: SkillUpCraftingPage, info: ProfessionInfo)
 
 ---@class SkillUpSchematicForm : Frame

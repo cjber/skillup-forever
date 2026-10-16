@@ -44,6 +44,9 @@ local ns = {
 	OpenSkillLine = function()
 		return open
 	end,
+	PlayerSide = function()
+		return ({ Alliance = "A", Horde = "H" })[faction]
+	end,
 	PlayerProfessions = function()
 		return { [129] = { name = "First Aid" }, [182] = { name = "Herbalism" } }
 	end,

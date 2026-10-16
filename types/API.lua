@@ -15,7 +15,7 @@
 ---@field questID? integer The quest that teaches a rank no trainer or book does (a train step).
 ---@field count? number
 ---@field cost? number Copper: a purchase or training fee.
----@field nav boolean Navigate can route to the vendor or trainer.
+---@field nav boolean Navigate can route to the vendor, trainer or quest giver.
 
 ---@class SkillUpAPIRecipe
 ---@field spellID integer

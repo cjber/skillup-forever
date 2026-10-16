@@ -60,6 +60,7 @@
 ---@field RankText fun(rank: SkillUpRank): string
 ---@field RankBookName fun(rank: SkillUpRank): string
 ---@field RankQuestName fun(rank: SkillUpRank): string
+---@field PlayerSide fun(): 'A'|'H'|nil
 ---@field RankHeld fun(rank: SkillUpRank): boolean
 ---@field PlanCost fun(plan: SkillUpPlan): number
 ---@field CreateList fun(parent: Frame): SkillUpList
@@ -139,7 +140,7 @@
 ---@field RecipeData table<integer, SkillUpRecipe>
 ---@field RecipeScrolls table<integer, number[]> { scroll item, required skill } per recipe spell.
 ---@field RankBooks table<integer, number[][]> per skill line: { cap, book item, list price, required skill, level }.
----@field RankQuests table<integer, (number|string)[][]> per skill line: { cap, quest, required skill, level, side }.
+---@field RankQuests table<integer, (number|string)[][]> per skill line: { cap, quest, required skill, level, side "A"/"H" }.
 ---@field ItemGear table<integer, number[]>
 ---@field ItemSellPrices table<integer, number>
 ---@field RecipeNames table<integer, table<string, integer|false>>

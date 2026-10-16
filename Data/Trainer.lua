@@ -658,10 +658,10 @@ ns.TrainerInferred = {
 }
 
 -- [skill line] = profession ranks a quest teaches: { cap, quest, required base skill, level, side },
--- side "A" or "H" for one side's quest, "" for both (classic-db quest_template RewSpell/RewSpellCast).
+-- one row a side, "A" or "H" (classic-db quest_template RewSpell/RewSpellCast).
 -- stylua: ignore
 ns.RankQuests = {
 	[129] = { { 300, 6624, 225, 35, "A" }, { 300, 6622, 225, 35, "H" } },
-	[185] = { { 300, 6610, 225, 35, "" } },
-	[356] = { { 300, 6607, 225, 35, "" } },
+	[185] = { { 300, 6610, 225, 35, "A" }, { 300, 6610, 225, 35, "H" } },
+	[356] = { { 300, 6607, 225, 35, "A" }, { 300, 6607, 225, 35, "H" } },
 }

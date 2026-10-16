@@ -15,8 +15,10 @@ local READY_WAIT = 60
 local FIELDS = {
 	Item = { "vendors", "questRewards", "npcDrops", "class", "teachesSpell" },
 	Npc = { "name", "spawns", "zoneID", "friendlyToFaction" },
-	Quest = { "requiredRaces", "name", "startedBy" },
+	Quest = { "requiredRaces", "name" },
 }
+-- Read when the schema has it, never required: without it a quest only lacks a giver to point to.
+local QUEST_WITH_GIVERS = { "requiredRaces", "name", "startedBy" }
 local RECIPE_CLASS = 9
 -- ChrRaces bits: Human, Dwarf, Night Elf, Gnome; Orc, Undead, Tauren, Troll.
 local ALLIANCE_RACES, HORDE_RACES = 77, 178
@@ -36,6 +38,8 @@ local lib
 local zones
 ---@type SkillUpProviderState
 local state = "missing"
+-- The quest fields this QuestieDB has: FIELDS.Quest, with startedBy when its schema names it.
+local questFields = FIELDS.Quest
 
 -- One of ZoneDB's tables, which QuestieDB keeps as Lua source: run with no globals, since it is only a
 -- table literal.
@@ -95,6 +99,8 @@ end
 
 local function Settle()
 	lib, zones = Fit()
+	local meta = lib and lib.Meta.QuestMeta
+	questFields = meta and meta.questKeys.startedBy and QUEST_WITH_GIVERS or FIELDS.Quest
 	state = lib and "ready" or (type(LibQuestieDB) == "table" and "unfit" or "missing")
 end
 
@@ -263,7 +269,7 @@ end
 ---@param questID integer
 ---@return SkillUpSourceQuest?
 function Q.Quest(questID)
-	local values = lib and lib.Quest.GetAll(questID, FIELDS.Quest)
+	local values = lib and lib.Quest.GetAll(questID, questFields)
 	if not (values and type(values[2]) == "string") then
 		return nil
 	end

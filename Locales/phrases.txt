@@ -240,6 +240,7 @@ L["Visit a vendor to price reagents. Auction prices need Auctionator."] = "Visit
 L["Waist"] = "Waist"
 L["Waypoint to a trainer"] = "Waypoint to a trainer"
 L["Waypoint to a vendor: %s"] = "Waypoint to a vendor: %s"
+L["Waypoint to the quest giver: %s"] = "Waypoint to the quest giver: %s"
 L["Waypoint tooltips say when Shortest Path Forever, not installed or turned off, would plot the route."] = "Waypoint tooltips say when Shortest Path Forever, not installed or turned off, would plot the route."
 L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] = "What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."
 L["What's new after an update"] = "What's new after an update"

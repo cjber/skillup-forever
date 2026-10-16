@@ -156,8 +156,8 @@ def rank_quests(quests, effect_rows):
     """[skill line] = [(cap, quest, required skill, level, side)]: a profession rank a quest teaches (#121).
 
     A quest's reward spell (RewSpell, or RewSpellCast, which casts the teaching spell) is the rank spell itself
-    or learns it. Neither the client nor QuestieDB ties a quest to the spell it rewards. Side is "A" or "H" for a
-    quest only one side may take, "" for both; one quest a side per rank.
+    or learns it. Neither the client nor QuestieDB ties a quest to the spell it rewards. One row a side ("A",
+    "H") per rank, so the addon only matches its side: a quest both sides take is in both.
     """
     teaches, rank_of = spell_maps(effect_rows)
     found = defaultdict(dict)
@@ -182,16 +182,11 @@ def rank_quests(quests, effect_rows):
             held = found[skill].get((cap, each))
             # Where two quests teach one rank to a side, the one asking least, then the lower ID.
             if held is None or (required, level, quest) < (held[1], held[2], held[0]):
-                found[skill][(cap, each)] = (quest, required, level, side)
-    rows = {}
-    for skill, by in sorted(found.items()):
-        seen = set()
-        rows[skill] = []
-        for (cap, _), (quest, required, level, side) in sorted(by.items()):
-            if (cap, quest) not in seen:
-                seen.add((cap, quest))
-                rows[skill].append((cap, quest, required, level, side))
-    return rows
+                found[skill][(cap, each)] = (quest, required, level)
+    return {
+        skill: [(cap, quest, required, level, side) for (cap, side), (quest, required, level) in sorted(by.items())]
+        for skill, by in sorted(found.items())
+    }
 
 
 def generate(ids, trainer, effect_rows, moved=None, seen_at=None):
@@ -299,7 +294,7 @@ def render(fees, conflicts, ranks, inferred, quests=None):
         [
             "",
             "-- [skill line] = profession ranks a quest teaches: { cap, quest, required base skill, level, side },",
-            '-- side "A" or "H" for one side\'s quest, "" for both (classic-db quest_template RewSpell/RewSpellCast).',
+            '-- one row a side, "A" or "H" (classic-db quest_template RewSpell/RewSpellCast).',
             "-- stylua: ignore",
             "ns.RankQuests = {",
         ]

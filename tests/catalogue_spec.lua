@@ -291,6 +291,13 @@ equal(c.ns.Catalogue.NPC(SELLER), nil, "so no NPC")
 db = Database()
 db.without = "vendors"
 equal(Load(db, nil).ns.Catalogue.Status().questie, "unfit", "a schema without a field read is not read")
+-- A quest's givers are optional: a schema without them is still read, and its quests have no giver.
+db = Database()
+db.without = "startedBy"
+c = Load(db, nil)
+equal(c.ns.Catalogue.Status().questie, "ready", "a schema without quest givers is read")
+equal(c.ns.Catalogue.Quest(401).title, "A Fine Shirt", "its quests are named")
+equal(#c.ns.Catalogue.Quest(401).starters, 0, "with no giver")
 equal(Load(Database(), nil, { flavour = "Vanilla" }).ns.Catalogue.Status().questie, "unfit", "nor another game's")
 
 --[[ Delayed readiness ]]

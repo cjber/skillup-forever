@@ -101,8 +101,6 @@ function ns.RouteProfessions()
 	return professions
 end
 
-local SIDES = { Alliance = "A", Horde = "H" }
-
 -- The ranks above the current cap, in order, and the highest cap they reach: a trainer's, else a book's
 -- (Expert First Aid and Cooking), else a quest's your side can take (Artisan First Aid and Cooking). It stops
 -- at a gap.
@@ -114,14 +112,12 @@ local function NextRanks(profession)
 	local seen = ns.db.trainerRanks[profession.skillLine] or {}
 	local byCap = {}
 	local quests = ns.RankQuests and ns.RankQuests[profession.skillLine] or {}
-	local side = #quests > 0 and SIDES[UnitFactionGroup("player") or ""]
+	local side = #quests > 0 and ns.PlayerSide and ns.PlayerSide()
 	for _, rank in ipairs(quests) do
 		local cap, quest, reqSkill, level, questSide = rank[1], rank[2], rank[3], rank[4], rank[5]
 		---@cast cap number
-		---@cast reqSkill number
-		local held = byCap[cap]
-		-- Your side's quest, or one both sides take; where two would do, the one asking least.
-		if (questSide == "" or questSide == side) and (not held or reqSkill < held.reqSkill) then
+		-- The generator already picked one quest a side for each rank.
+		if questSide == side then
 			byCap[cap] =
 				{ name = RANK_NAMES[cap], cap = cap, fee = 0, reqSkill = reqSkill, level = level, quest = quest }
 		end

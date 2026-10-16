@@ -9,10 +9,16 @@ local L = ns.L
 local C = ns.Catalogue
 local FACTION_CODES = { Alliance = "A", Horde = "H" }
 
+-- This character's side as the data writes it, "A" or "H"; nil while the client doesn't say.
+---@return 'A'|'H'|nil
+function ns.PlayerSide()
+	return FACTION_CODES[UnitFactionGroup("player") or ""]
+end
+
 ---@param faction string?
 ---@return boolean
 local function OurFaction(faction)
-	return faction == "" or (faction ~= nil and faction == FACTION_CODES[UnitFactionGroup("player")])
+	return faction == "" or (faction ~= nil and faction == ns.PlayerSide())
 end
 
 -- Whether this character can deal with the NPC: one hostile to both sides, or unknown, trades with nobody.
@@ -115,7 +121,7 @@ function ns.SeeVendor(itemIDs)
 	if not (npcID and name and where) then
 		return false
 	end
-	local side = FACTION_CODES[UnitFactionGroup("player")]
+	local side = ns.PlayerSide()
 	return C.SawVendor(
 		npcID,
 		{ name = name, side = side, map = where.map, x = where.x, y = where.y, items = {} },

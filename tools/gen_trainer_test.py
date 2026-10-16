@@ -141,13 +141,16 @@ class RankQuestTests(unittest.TestCase):
         ]
         self.assertEqual(
             rank_quests(quests, self.EFFECTS),
-            {129: [(300, 6624, 225, 35, "A"), (300, 6622, 225, 35, "H")], 185: [(300, 6610, 225, 35, "")]},
+            {
+                129: [(300, 6624, 225, 35, "A"), (300, 6622, 225, 35, "H")],
+                185: [(300, 6610, 225, 35, "A"), (300, 6610, 225, 35, "H")],
+            },
         )
 
     def test_the_quest_asking_least_wins_per_side(self):
         quests = [self.quest(9001, 18260, 0, 0, "185", "250"), self.quest(9000, 0, 18261, 77, "185", "225")]
         self.assertEqual(
-            rank_quests(quests, self.EFFECTS), {185: [(300, 9000, 225, 35, "A"), (300, 9001, 250, 35, "")]}
+            rank_quests(quests, self.EFFECTS), {185: [(300, 9000, 225, 35, "A"), (300, 9001, 250, 35, "H")]}
         )
 
     def test_a_requirement_at_the_cap_is_refused(self):

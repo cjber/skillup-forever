@@ -243,7 +243,7 @@ local function TrainerClick(profession, cap)
 	end
 end
 
--- A waypoint to where a rank is got: its book's vendor, or a trainer.
+-- A waypoint to where a rank is got: its book's vendor, its quest's giver, or a trainer.
 ---@param profession SkillUpProfession
 ---@param rank SkillUpRank
 ---@return fun()

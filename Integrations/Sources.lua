@@ -460,22 +460,34 @@ function ns.NearestVendor(itemID, byTravel)
 end
 
 local SHORTEST_PATH = "ShortestPathForever"
+local ADVENTURE_GUIDE = "AdventureGuideForever"
+-- Hint keys are shared by every Forever addon (UI/ForeverFamily.lua), so they start with this addon's folder.
+local HINT_TRAVEL = "SkillUpForever:travel"
+local HINT_QUEST_CHAIN = "SkillUpForever:questChain"
 
--- Under a waypoint click: what Shortest Path Forever would add, when it isn't running.
+-- Under a waypoint click to the nearest NPC: what Shortest Path Forever would add. Not installed, it's one of
+-- the family hints; installed but turned off, the line says how to get the feature back, under the same setting.
 ---@param tooltip GameTooltip
 function ns.AddCompanionHint(tooltip)
-	if not ns.db.companionHints or C_AddOns.IsAddOnLoaded(SHORTEST_PATH) then
-		return
-	end
-	local hint
-	if not C_AddOns.DoesAddOnExist(SHORTEST_PATH) then
-		hint = L["Install Shortest Path Forever for walked routes and boat times."]
-	else
+	local Family = ns.Family
+	if Family.Hint(ns.db, HINT_TRAVEL, SHORTEST_PATH) then
+		GameTooltip_AddDisabledLine(
+			tooltip,
+			L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."]
+		)
+	elseif ns.db.suggestFamily ~= false and Family.State(SHORTEST_PATH) == "off" then
 		local _, _, _, _, reason = C_AddOns.GetAddOnInfo(SHORTEST_PATH)
-		hint = reason == "DISABLED" and L["Enable Shortest Path Forever for walked routes and boat times."] or nil
+		if reason == "DISABLED" then
+			GameTooltip_AddDisabledLine(tooltip, L["Enable Shortest Path Forever for walked routes and boat times."])
+		end
 	end
-	if hint then
-		GameTooltip_AddDisabledLine(tooltip, hint)
+end
+
+-- Under an Artisan quest step, when Adventure Guide Forever isn't installed.
+---@param tooltip GameTooltip
+function ns.AddQuestChainHint(tooltip)
+	if ns.Family.Hint(ns.db, HINT_QUEST_CHAIN, ADVENTURE_GUIDE) then
+		GameTooltip_AddDisabledLine(tooltip, L["Adventure Guide Forever can plan this quest chain."])
 	end
 end
 

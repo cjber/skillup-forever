@@ -228,6 +228,9 @@ local function RankTooltip(tooltip, profession, rank)
 		local npcID, label = ns.NearestForRank(profession, rank, true)
 		ns.AddNearest(tooltip, label, npcID)
 	end
+	if rank.quest then
+		ns.AddQuestChainHint(tooltip)
+	end
 end
 
 -- A waypoint to the nearest trainer teaching up to `cap`.

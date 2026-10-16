@@ -5,6 +5,7 @@
 ---@field Art SkillUpArt
 ---@field TrackerHost? ForeverTrackerHostAPI
 ---@field TrackerHostSettings fun(): ForeverTrackerSettings
+---@field Family ForeverFamilyAPI
 ---@field Print fun(msg: string)
 ---@field Changed fun(kind: SkillUpChange)
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
@@ -121,6 +122,7 @@
 ---@field NearestForRank fun(profession: SkillUpContext, rank: SkillUpRank, byTravel?: boolean): integer?, string
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
 ---@field AddCompanionHint fun(tooltip: GameTooltip)
+---@field AddQuestChainHint fun(tooltip: GameTooltip)
 ---@field AnnounceUpdate fun()
 ---@field WHATS_NEW string
 ---@field FormatNet fun(copper: number, profit: boolean): string
@@ -183,7 +185,8 @@
 ---@field showAllGear table<string, boolean>
 ---@field skippedRecipes table<string, table<integer, true>>
 ---@field whatsNew boolean
----@field companionHints boolean
+---@field suggestFamily boolean
+---@field familyDismissed table<string, boolean>
 ---@field lastVersion string
 ---@field routeTargets table<integer, number>
 ---@field learned table<string, table<integer, boolean>>
@@ -205,13 +208,14 @@
 ---@field build? string The client build it was last seen on.
 ---@field items table<integer, true>
 
----@class SkillUpDB : SkillUpDefaults
+---@class SkillUpDB : SkillUpDefaults, ForeverFamilyDB
 ---@field trackerHost? ForeverTrackerSettings
 ---@field showReagentTooltip? boolean Legacy migration only.
 ---@field scanAuctions? boolean Legacy migration only.
 ---@field tracked? table<integer, boolean> Legacy migration only.
 ---@field auctions? table Legacy migration only.
 ---@field gatherFree? boolean Legacy migration only.
+---@field companionHints? boolean Legacy migration only: off turns suggestFamily off once.
 
 ---@type SkillUpDB
 SkillUpForeverDB = nil

@@ -30,9 +30,10 @@ CLASSICDB_URL = (
 )
 CLASSICDB_CACHE = CACHE / f"classicdb-{CLASSICDB_COMMIT[:7]}.sql.gz"
 PROFESSION_SKILLS = {129, 164, 165, 171, 182, 185, 186, 197, 202, 333, 356, 393}
-# Requirements players saw lower in Forever than the rule below gives (#123; added to as #124's visits report): [recipe] = the most the trainer can
-# ask, as the skill a player made the recipe at. A higher requirement comes down to it, and it lists with the moved
-# ones in ns.TrainerInferred so /su trainers asks a trainer to confirm it; a trainer's own number still wins.
+# Requirements players saw lower in Forever than the rule below gives (#123, and #124's trainer visits):
+# [recipe] = the most the trainer can ask, as the skill a player made the recipe at. A higher requirement comes
+# down to it, and it lists with the moved ones in ns.TrainerInferred so /su trainers asks a trainer to confirm
+# it; a trainer's own number still wins.
 SEEN_REQUIREMENTS = {
     9985: 110,  # Bronze Warhammer: made at 110 (kopuliak, CurseForge 2026-10-08; #123)
 }

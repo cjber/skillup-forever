@@ -20,6 +20,7 @@ local ORDER = {
 	"routeTab",
 	"gear",
 	"tooltip",
+	"auctionSearch",
 }
 
 ---@type table<SkillUpChange, table<SkillUpStale, true>>
@@ -63,6 +64,7 @@ local STALE = {
 		trainer = true,
 		routeTab = true,
 		gear = true,
+		auctionSearch = true,
 	},
 }
 

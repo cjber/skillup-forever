@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-16
+
 - **Search a recipe's reagents at the auction house for as many crafts as you want.** With the auction house open, the Professions window shows *Reagents for [ ] crafts* beside *Create All*, starting at what your route plans for that recipe, and *Search* looks for the auction house reagents that many still need after your bags and bank, so there's nothing to work out on a calculator. With Auctionator it searches a shopping list with the quantities; without it, each click puts the next reagent in the game's search box and says how many you need. It only searches, and *Search reagents at the auction house* turns it off. Thanks to the CurseForge player who asked.
 
 ## [0.12.0] - 2026-10-16

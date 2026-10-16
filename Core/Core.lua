@@ -24,7 +24,6 @@ local DEFAULTS = {
 	skippedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = true }: "Not this recipe", left out of every route
 	whatsNew = true,
 	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (UI/ForeverFamily.lua)
-	familyDismissed = {}, -- [hint key] = true: a hint the player chose never to see again
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
 	-- [npcID] = { name, side, map, x, y, build, items = { [itemID] = true } }: vendors seen selling a reagent or scroll
@@ -655,6 +654,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 			and ns.SafeCall
 			and ns.Report
 			and ns.ReportLines
+			and ns.Family
 		)
 	then
 		ns.Print("|cffff4040" .. L["files are missing: restart the game (not /reload) after updating."] .. "|r")

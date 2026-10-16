@@ -120,8 +120,8 @@
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field NearestForRank fun(profession: SkillUpContext, rank: SkillUpRank, byTravel?: boolean): integer?, string
----@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
----@field AddCompanionHint fun(tooltip: GameTooltip)
+---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer, single?: boolean)
+---@field AddCompanionHint fun(tooltip: GameTooltip, single?: boolean)
 ---@field AddQuestChainHint fun(tooltip: GameTooltip)
 ---@field AnnounceUpdate fun()
 ---@field WHATS_NEW string
@@ -186,7 +186,6 @@
 ---@field skippedRecipes table<string, table<integer, true>>
 ---@field whatsNew boolean
 ---@field suggestFamily boolean
----@field familyDismissed table<string, boolean>
 ---@field lastVersion string
 ---@field routeTargets table<integer, number>
 ---@field learned table<string, table<integer, boolean>>

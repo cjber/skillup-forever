@@ -12,7 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
-- **A Forever addons page in settings, and a quiet line where one would help.** Without Shortest Path Forever, the tooltips on a route's trainer and vendor steps say that with it, SkillUp picks the nearest by travel time and leads you there. Without Adventure Guide Forever, an Artisan quest step says it can plan the quest chain. Nothing shows for an addon you have, even one you've turned off. A new *Forever addons* page in SkillUp's settings lists all five, says whether each is on, and gives a link to copy for the ones you don't have. *Suggest my other Forever addons* on that page turns the lines off; it replaces *Suggest companion addons*, and if you'd turned that off, it stays off.
+- **A Forever addons page in settings, and a quiet line where one would help.** Without Shortest Path Forever, the tooltips on a route's trainer and vendor steps say that with it, SkillUp picks the nearest by travel time and leads you there. Without Adventure Guide Forever, an Artisan quest step says it can plan the quest chain. Neither shows for an addon you have; one you've turned off still gets its "Enable ..." line. A new *Forever addons* page in SkillUp's settings lists all five, says whether each is on, and gives a link to copy for each. *Suggest my other Forever addons* on that page turns the lines off; it replaces *Suggest companion addons*, and if you'd turned that off, it stays off.
 
 ## [0.13.0] - 2026-10-16
 

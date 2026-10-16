@@ -339,7 +339,7 @@ local function SuggestionTooltip(tooltip, profession, suggestion)
 			tooltip,
 			string.format(L["Click for a waypoint to %s."], ns.NPCLocation(npcID).name)
 		)
-		ns.AddCompanionHint(tooltip)
+		ns.AddCompanionHint(tooltip, true)
 	end
 	GameTooltip_AddInstructionLine(tooltip, L["Shift-click to link the scroll."])
 	AddSkipHint(tooltip)

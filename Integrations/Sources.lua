@@ -465,21 +465,35 @@ local ADVENTURE_GUIDE = "AdventureGuideForever"
 local HINT_TRAVEL = "SkillUpForever:travel"
 local HINT_QUEST_CHAIN = "SkillUpForever:questChain"
 
--- Under a waypoint click to the nearest NPC: what Shortest Path Forever would add. Not installed, it's one of
--- the family hints; installed but turned off, the line says how to get the feature back, under the same setting.
----@param tooltip GameTooltip
-function ns.AddCompanionHint(tooltip)
-	local Family = ns.Family
-	if Family.Hint(ns.db, HINT_TRAVEL, SHORTEST_PATH) then
-		GameTooltip_AddDisabledLine(
-			tooltip,
-			L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."]
-		)
-	elseif ns.db.suggestFamily ~= false and Family.State(SHORTEST_PATH) == "off" then
+-- Whether Shortest Path Forever is installed but switched off in the AddOns list. A read the client won't give
+-- (a secret value, or no C_AddOns) is "don't know", so no line.
+---@return boolean
+local function ShortestPathDisabled()
+	local ok, disabled = pcall(function()
 		local _, _, _, _, reason = C_AddOns.GetAddOnInfo(SHORTEST_PATH)
-		if reason == "DISABLED" then
-			GameTooltip_AddDisabledLine(tooltip, L["Enable Shortest Path Forever for walked routes and boat times."])
+		return reason == "DISABLED"
+	end)
+	return ok and disabled == true
+end
+
+-- Under a waypoint click: what Shortest Path Forever would add. Not installed, it's one of the family hints;
+-- installed but switched off, the line says how to get the feature back, under the same setting. `single` is a
+-- waypoint to one fixed NPC, where there is no nearest to pick.
+---@param tooltip GameTooltip
+---@param single? boolean
+function ns.AddCompanionHint(tooltip, single)
+	local Family = ns.Family
+	local state = Family.State(SHORTEST_PATH)
+	if state == "missing" then
+		if Family.Hint(ns.db, HINT_TRAVEL, SHORTEST_PATH) then
+			GameTooltip_AddDisabledLine(
+				tooltip,
+				single and L["With Shortest Path Forever, a click leads you there."]
+					or L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."]
+			)
 		end
+	elseif state == "off" and ns.db.suggestFamily ~= false and ShortestPathDisabled() then
+		GameTooltip_AddDisabledLine(tooltip, L["Enable Shortest Path Forever for walked routes and boat times."])
 	end
 end
 
@@ -496,7 +510,8 @@ end
 ---@param tooltip GameTooltip
 ---@param label string
 ---@param npcID integer?
-function ns.AddNearest(tooltip, label, npcID)
+---@param single? boolean `npcID` is the one place, not the nearest of several
+function ns.AddNearest(tooltip, label, npcID, single)
 	if not npcID then
 		local hint = C.Hint(true)
 		if hint then
@@ -507,5 +522,5 @@ function ns.AddNearest(tooltip, label, npcID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	AddNPC(tooltip, label, npcID, nil, true)
 	GameTooltip_AddInstructionLine(tooltip, L["Click for a waypoint."])
-	ns.AddCompanionHint(tooltip)
+	ns.AddCompanionHint(tooltip, single)
 end

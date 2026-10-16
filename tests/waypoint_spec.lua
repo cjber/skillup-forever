@@ -141,9 +141,9 @@ ns.db = { suggestFamily = true, familyDismissed = {} }
 local TRAVEL = "With Shortest Path Forever, this picks the nearest by travel time and leads you there."
 local ENABLE = "Enable Shortest Path Forever for walked routes and boat times."
 local CHAIN = "Adventure Guide Forever can plan this quest chain."
-local function Hint(state)
+local function Hint(state, single)
 	addons.ShortestPathForever, hints = state, {}
-	ns.AddCompanionHint({})
+	ns.AddCompanionHint({}, single)
 	equal(#hints <= 1, true, "at most one Shortest Path line")
 	return hints[1]
 end
@@ -156,6 +156,13 @@ equal(Hint(nil), TRAVEL, "missing: the travel-time line")
 equal(Hint("disabled"), ENABLE, "turned off: how to get it back")
 equal(Hint("installed"), nil, "installed but not loaded for another reason: nothing")
 equal(Hint("loaded"), nil, "running: no hint")
+equal(Hint(nil, true), "With Shortest Path Forever, a click leads you there.", "one fixed NPC: no nearest to pick")
+local getInfo = env.C_AddOns.GetAddOnInfo
+env.C_AddOns.GetAddOnInfo = function()
+	error("secret value")
+end
+equal(Hint("disabled"), nil, "an answer the client won't give shows no line")
+env.C_AddOns.GetAddOnInfo = getInfo
 equal(Chain(nil), CHAIN, "Adventure Guide missing: the quest chain line")
 equal(Chain("disabled"), nil, "Adventure Guide turned off: the player chose that")
 equal(Chain("loaded"), nil, "Adventure Guide running: no hint")

@@ -713,6 +713,44 @@ check(
 	native.point[1] == "CENTER" and native.point[4] == 40 and native.point[5] == 20 and native.clamped == true,
 	"an empty host leaves a moved native frame where it was put"
 )
+-- Content returning stacks from that new slot, and emptying again hands the frame back to it, not the old one.
+first.GetContentsHeight = function()
+	return 80
+end
+host:MarkDirty()
+drain()
+check(
+	host.shown ~= false and native.point[1] == "TOPLEFT" and native.point[2] == parent and native.clamped == false,
+	"content returning restacks the native frame from the slot it was moved to"
+)
+check(host.point[1] == "TOP" and host.point[3] == "CENTER", "the column takes the moved slot's top edge")
+first.GetContentsHeight = function()
+	return 0
+end
+host:MarkDirty()
+drain()
+check(
+	native.point[1] == "CENTER" and native.point[4] == 40 and native.point[5] == 20 and native.clamped == true,
+	"emptying again hands the native frame back to the slot it was moved to"
+)
+-- A section that gains content in combat after an empty handback shows: the host is addon-owned.
+combat = true
+host.scripts.OnEvent(host, "PLAYER_REGEN_DISABLED")
+drain()
+first.GetContentsHeight = function()
+	return 80
+end
+host.scripts.OnEvent(host, "QUEST_LOG_UPDATE")
+drain()
+check(host.shown == true, "content arriving in combat shows the emptied host again")
+check(native.point[1] == "CENTER" and native.point[5] == 20, "combat never writes the released native frame")
+first.GetContentsHeight = function()
+	return 0
+end
+combat = false
+host.scripts.OnEvent(host, "PLAYER_REGEN_ENABLED")
+drain()
+check(host.shown == false and native.point[1] == "CENTER", "leaving combat empty keeps the native frame released")
 native:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -100)
 first.GetContentsHeight = function()
 	return 80

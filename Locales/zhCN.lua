@@ -49,6 +49,7 @@ L["Annotate trainer recipes"] = "标注训练师配方"
 L["Another craft makes this recipe, not yours."] = "此配方由其他专业制造，而不是你的专业。"
 L["Another crafter"] = "其他制造者"
 L["At the %d cap: no trainer teaches the next rank."] = "已达上限%d：没有训练师教授下一等级。"
+L["At the cursor"] = "鼠标位置"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"AtlasLoot已安装但未运行：请在插件列表中启用，或在过期时更新。"
 L["Attach to quest tracker"] = "附着到任务追踪栏"
@@ -60,6 +61,7 @@ L["Auctionator's scan when the auction house opens is off: turn it on in Auction
 	"Auctionator在打开拍卖行时的扫描已关闭：请在Auctionator的“Basic Options”中开启。"
 L["Auctionator, %s"] = "Auctionator，%s"
 L["Back"] = "背部"
+L["Beside the Professions window"] = "专业窗口旁边"
 L["Buy"] = "购买"
 L["Buy %d %s"] = "购买%d个%s"
 L["Buy %s for %s?"] = "购买%s，花费%s？"
@@ -93,7 +95,6 @@ L["Craft next"] = "制造下一个"
 L["Crafted gear"] = "制造装备"
 L["Crafts"] = "制造次数"
 L["Crafts %d now."] = "现在制造%d个。"
-L["Data checked against Forever 1.60.1.70450."] = "已按 Forever 1.60.1.70450 核对数据。"
 L["Don't count it"] = "不计入"
 L["Don't suggest this again"] = "不再推荐"
 L["Drag to move"] = "拖动以移动"
@@ -145,6 +146,7 @@ L["Need %d more %s"] = "还需要%d个%s"
 L["Need a %s in your bags."] = "背包中需要%s。"
 L["Needs %s %d"] = "需要%s %d"
 L["Net per craft"] = "每次制造净成本"
+L["Next to the recipe"] = "配方旁边"
 L["No crafted gear for your level and class yet."] = "暂无适合你等级和职业的制造装备。"
 L["No crafted gear you can make yet. Tick the box above to see gear you cannot make."] =
 	"暂无你能制造的装备。勾选上方的选项以查看你不能制造的装备。"
@@ -204,6 +206,7 @@ L["Reagents for"] = "材料用于"
 L["Reagents in hand"] = "材料已备齐"
 L["Reagents still needed"] = "仍需的材料"
 L["Recipe rows"] = "配方行"
+L["Recipe tooltip position"] = "配方提示位置"
 L["Recipes from vendors, quests and drops that would carry it on:"] =
 	"可以继续提升的商人、任务和掉落配方："
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
@@ -267,6 +270,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "推荐我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s训练师教授。"
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"
+L["The recipe tooltip moves beside the Professions window, clear of the reagents."] =
+	"配方提示现在显示在专业窗口旁边，不再挡住材料。"
 L["The rest comes from a vendor or your gathering."] = "其余来自商人或你的采集。"
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"路线按%d个计算，十次中有九次能达到%d；运气差时需要更多。"
@@ -306,6 +311,8 @@ L["Waypoint to the quest giver: %s"] = "前往任务NPC的路径点：%s"
 L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
 	"鼠标悬停物品时显示的专业信息：你追踪的路线需要多少（按住Shift查看所有使用它的配方）、所有此类配方及其颜色，或不显示。"
 L["What's new after an update"] = "更新后的新内容"
+L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
+	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"拍卖行打开时，专业窗口可以搜索所选配方的材料：数量为扣除背包和银行后，你选择的制造次数仍需要的数量。Auctionator的购物清单会带上数量；没有它时，每次点击会把下一个材料填入搜索框。"
 L["With Shortest Path Forever, a click leads you there."] = "有Shortest Path Forever时，点击即可带你前往。"

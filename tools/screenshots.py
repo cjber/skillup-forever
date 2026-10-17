@@ -1184,7 +1184,7 @@ def source_text(p):
 
 def recipe_tooltip_lines(ui, recipe_id):
     """UI/Tooltip.lua ShowRecipeTooltip + AddCost for a learned recipe at SKILL. Returns the lines and the index
-    of the first blank line GameTooltip_InsertFrame added for the bar."""
+    of the first blank line AddBar added for the bar."""
     d = describe(recipe_id)
     t = d["thresholds"]
     lines = [
@@ -1227,11 +1227,11 @@ BAR_WIDTH, MIN_LABEL_GAP = 250, 18  # UI/Tooltip.lua
 BAR_SCALE = BAR_WIDTH / 439
 BAR_HEIGHT = 18 * BAR_SCALE
 BAR_FRAME_HEIGHT = BAR_HEIGHT + 30
-BAR_PADDING = 4  # GameTooltip_InsertFrame(tooltip, bar, 4)
+BAR_PADDING = 4  # UI/Tooltip.lua BAR_PADDING
 
 
 def bar_blank_lines():
-    """GameTooltip_InsertFrame: enough blank GameTooltipText lines to hold the frame and its padding."""
+    """UI/Tooltip.lua BAR_LINES: enough blank GameTooltipText lines to hold the frame and its padding."""
     text_height = FONTS["GameTooltipText"].height
     return math.ceil(round(BAR_FRAME_HEIGHT + BAR_PADDING) / (text_height + TOOLTIP_LINE_GAP))
 
@@ -1502,11 +1502,15 @@ def professions_frame(ui):
     return canvas, hovered
 
 
+def beside_window(ui):
+    """UI/Tooltip.lua's default recipe tooltip place: its TOPLEFT at the overview side tab's TOPRIGHT, (4, 0)."""
+    return FRAME_MARGIN + FRAME_W + ui.atlas("common-sidetab").width + 4, FRAME_MARGIN + 60
+
+
 def window_scene(ui):
-    frame, (hx, hy, hw, _) = professions_frame(ui)
+    frame, _ = professions_frame(ui)
     tip = recipe_tooltip(ui, HOVERED)
-    # SetOwner(row, "ANCHOR_RIGHT"): the tooltip's BOTTOMLEFT at the row's TOPRIGHT.
-    return scene(ui, [(frame, 0, 0), (tip, hx + hw, hy - tip.height)])
+    return scene(ui, [(frame, 0, 0), (tip, *beside_window(ui))])
 
 
 # ------------------------------------------------------------------------------- scenes from the Lua's output
@@ -1993,9 +1997,9 @@ def render_demo():
     states = []
     for skill in DEMO_SKILLS:
         SKILL = skill
-        frame, (hx, hy, hw, _) = professions_frame(ui)
+        frame, _ = professions_frame(ui)
         tip = recipe_tooltip(ui, HOVERED)
-        states.append([(frame, 0, 0), (tip, hx + hw, hy - tip.height)])
+        states.append([(frame, 0, 0), (tip, *beside_window(ui))])
     SKILL = DEMO_SKILLS[0]
     # One frame for every skill: the union of what any state draws, so nothing jumps between states.
     boxes = []

@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **More players credited.** THIRD_PARTY.md now thanks SilentGentlemanSG, whose stray click on *Buy tracked reagents* led to the button asking first in 0.10.0.
+
 ## [0.15.1] - 2026-10-17
 
 - **Data checked against Forever 1.60.1.70450.** The bundled data is unchanged apart from its build pin.

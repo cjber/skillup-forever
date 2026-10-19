@@ -12,6 +12,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.1] - 2026-10-19
+
+- **A new plan no longer freezes the game.** Working out a plan after the cache was dropped re-planned every tracked profession in one frame: 850 to 1050 ms and about 54 MB of Lua memory with five professions, measured with the client's own profiler. A replan now takes 70 to 90 ms and a few MB, with the same plans to the bit. Thanks to Mouchoir for the fix.
+
+- **A skill-up in another skill line no longer throws away every plan.** Every weapon and defence skill-up dropped the plans, so the next redraw rebuilt them all; at low level that was every few fights. A profession's own skill-up still rebuilds that profession's plan. Thanks to Mouchoir, and to CtrlDKhayos on CurseForge for the report.
+
 ## [0.18.0] - 2026-10-19
 
 - **The levelling route tab makes room for other profession tabs.** When another addon already uses the next tab slot, ours sits below it instead of being hidden underneath. Thanks to Bolthorr for reporting the collision.

@@ -35,6 +35,7 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Eine Schaltfläche über dem Händlerfenster, die die Reagenzien kauft, die Eure verfolgten Routen bei diesem Händler noch brauchen. Sie fragt vorher nach, mit den Gesamtkosten."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Ein Material, das Eure Berufe sammeln, kostet, was sein Verkauf einbrächte, statt nichts: sein Auktionspreis nach 5 % Gebühr oder sein Verkaufspreis beim Händler, falls höher. Gilt für die Route und die Kosten in den Rezeptzeilen. Auktionspreise brauchen Auctionator."
+L["A new plan no longer freezes the game."] = "Ein neuer Plan lässt das Spiel nicht mehr einfrieren."
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Ein Seitenreiter am Berufsfenster unter dem Routenreiter, der für jeden Platz den neuesten hergestellten Gegenstand zeigt, den dieser Charakter anlegen kann."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -277,8 +278,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Zieht den Verkaufswert des hergestellten Gegenstands von seinen Kosten ab. Auktionspreise brauchen Auctionator, gelten nach 5 % Gebühr und verkaufen sich vielleicht nicht."
 L["Suggest my other Forever addons"] = "Meine anderen Forever-Addons vorschlagen"
 L["Taught by %s trainers."] = "Gelehrt von Lehrern für %s."
-L["The levelling route tab makes room for other profession tabs."] =
-	"Die Levelroute-Registerkarte macht Platz für andere Berufsregisterkarten."
 L["The place this recipe is taught isn't known yet."] = "Wo dieses Rezept gelehrt wird, ist noch unbekannt."
 L["The rest comes from a vendor or your gathering."] = "Der Rest kommt von einem Händler oder aus Eurem Sammeln."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =

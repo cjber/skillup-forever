@@ -36,6 +36,7 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Un botón sobre la ventana del mercader que compra los componentes que tus rutas seguidas aún necesitan de ese mercader. Primero pregunta, con el costo total."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Un material que recogen tus profesiones cuesta lo que obtendrías al venderlo en lugar de nada: su precio de subasta tras la comisión del 5 %, o su precio de venta al vendedor si es mayor. Se usa para la ruta y los costos de las filas de recetas. Los precios de subasta necesitan Auctionator."
+L["A new plan no longer freezes the game."] = "Un nuevo plan ya no congela el juego."
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Una pestaña lateral en la ventana de profesiones, bajo la de la ruta, con el objeto creado más reciente que este personaje puede equipar en cada ranura."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -279,8 +280,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Resta del costo lo que vale vender el objeto creado. Los precios de subasta necesitan Auctionator, son tras la comisión del 5 % y puede que no se vendan."
 L["Suggest my other Forever addons"] = "Sugerir mis otros addons Forever"
 L["Taught by %s trainers."] = "Lo enseñan los instructores de %s."
-L["The levelling route tab makes room for other profession tabs."] =
-	"La pestaña de la ruta de subida de nivel deja espacio a otras pestañas de profesión."
 L["The place this recipe is taught isn't known yet."] = "Aún no se sabe dónde se enseña esta receta."
 L["The rest comes from a vendor or your gathering."] = "El resto viene de un vendedor o de tu recolección."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =

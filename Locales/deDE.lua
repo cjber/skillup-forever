@@ -278,8 +278,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Zieht den Verkaufswert des hergestellten Gegenstands von seinen Kosten ab. Auktionspreise brauchen Auctionator, gelten nach 5 % Gebühr und verkaufen sich vielleicht nicht."
 L["Suggest my other Forever addons"] = "Meine anderen Forever-Addons vorschlagen"
 L["Taught by %s trainers."] = "Gelehrt von Lehrern für %s."
-L["The levelling route tab makes room for other profession tabs."] =
-	"Die Levelroute-Registerkarte macht Platz für andere Berufsregisterkarten."
 L["The place this recipe is taught isn't known yet."] = "Wo dieses Rezept gelehrt wird, ist noch unbekannt."
 L["The rest comes from a vendor or your gathering."] = "Der Rest kommt von einem Händler oder aus Eurem Sammeln."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =

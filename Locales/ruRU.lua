@@ -36,8 +36,8 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Кнопка над окном торговца, которая покупает у него реагенты, еще нужные вашим отслеживаемым маршрутам. Сначала спрашивает подтверждение и показывает общую стоимость."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Материал, который добывают ваши профессии, стоит столько, сколько принесла бы его продажа, а не ноль: цена на аукционе за вычетом 5% комиссии или цена продажи торговцу, если она выше. Учитывается в маршруте и стоимости в строках рецептов. Для цен аукциона нужен Auctionator."
-L["Questie's quest tracker can be moved again."] =
-	"Отслеживание заданий Questie снова можно перемещать."
+L["The skill bar is on the recipe itself, not just the hover."] =
+	"Полоса навыка теперь на самом рецепте, а не только при наведении." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Боковая вкладка окна профессий под вкладкой маршрута: самый новый созданный предмет, который этот персонаж может надеть, для каждой ячейки."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -416,3 +416,6 @@ L["your bags and bank already hold the reagents for that many."] =
 	"в сумках и банке уже есть реагенты на это количество."
 L["No step yet: learn or train a %s recipe that skills up."] =
 	"Пока нет шага: изучите или освойте рецепт (%s), повышающий навык."
+L["Show thresholds bar on the recipe"] = "Показывать полосу порогов на рецепте" -- mt
+L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
+	"Оранжевый, жёлтый, зелёный и серый пороги и ваше место на них, под рецептом в окне профессий. Отключите, если она закрывает реагенты." -- mt

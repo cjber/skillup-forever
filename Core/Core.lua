@@ -73,7 +73,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Questie's quest tracker can be moved again."]
+ns.WHATS_NEW = L["The skill bar is on the recipe itself, not just the hover."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

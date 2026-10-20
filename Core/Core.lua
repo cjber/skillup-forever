@@ -73,7 +73,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The shared Forever tracker can be locked in place."]
+ns.WHATS_NEW = L["The quest tracker can be moved again, and the reagent section no longer errors under All Objectives."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

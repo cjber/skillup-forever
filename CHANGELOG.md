@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.7] - 2026-10-21
+
+- **The quest tracker can be moved again, and the reagent section no longer errors under All Objectives.** A module of ours sat in the objective tracker column on its own, pinned above Blizzard's sections, so Questie's quest list and the game's own quest tracker could no longer be dragged or re-placed in Edit Mode. The reagent section now goes through the shared Forever tracker host, re-reads where it hangs every time it lays out instead of caching the frame, and hides itself rather than raising if that anchor has gone away. Thanks to Fareed and ThePNAG on CurseForge.
+
 ## [0.18.6] - 2026-10-20
 
 - **The shared Forever tracker can be locked in place.** *Lock the tracker* (Settings, Objective tracker) sits under *Attach to quest tracker* and is off by default. While it is on, the grip at the top of the column says the tracker is locked instead of offering to move it, and a drag does nothing, so a column placed where you want it stays there. Thanks to Alex21xx on CurseForge for the request.

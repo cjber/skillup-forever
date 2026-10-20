@@ -41,6 +41,8 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 	"Garde le suivi Forever partagé là où vous l'avez placé. La poignée en haut ne le déplace plus." -- mt
 L["Lock the tracker"] = "Verrouiller le suivi" -- mt
 L["The shared Forever tracker can be locked in place."] = "The shared Forever tracker can be locked in place." -- mt
+L["The quest tracker can be moved again, and the reagent section no longer errors under All Objectives."] =
+	"Le suivi de quêtes peut de nouveau être déplacé, et la section des composants ne provoque plus d'erreur dans « Tous les objectifs »." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Un onglet latéral de la fenêtre des métiers, sous l'onglet du parcours, qui liste pour chaque emplacement le plus récent objet fabriqué que ce personnage peut équiper." -- mt
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =

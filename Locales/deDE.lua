@@ -35,11 +35,15 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Eine Schaltfläche über dem Händlerfenster, die die Reagenzien kauft, die Eure verfolgten Routen bei diesem Händler noch brauchen. Sie fragt vorher nach, mit den Gesamtkosten."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Ein Material, das Eure Berufe sammeln, kostet, was sein Verkauf einbrächte, statt nichts: sein Auktionspreis nach 5 % Gebühr oder sein Verkaufspreis beim Händler, falls höher. Gilt für die Route und die Kosten in den Rezeptzeilen. Auktionspreise brauchen Auctionator."
-L["Questie's quest tracker can be moved again."] = "Questies Quest-Tracker lässt sich wieder verschieben."
+L["The skill bar is on the recipe itself, not just the hover."] =
+	"Der Fertigkeitsbalken steht jetzt am Rezept selbst, nicht nur beim Darüberfahren." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Ein Seitenreiter am Berufsfenster unter dem Routenreiter, der für jeden Platz den neuesten hergestellten Gegenstand zeigt, den dieser Charakter anlegen kann."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
 	"Ein Seitenreiter am Berufsfenster mit einer Route zu Eurer Zielfertigkeit und ihren Reagenzien. Verfolgte Berufe bleiben so oder so in der Questzielverfolgung."
+L["Show thresholds bar on the recipe"] = "Fertigkeitsbalken beim Rezept anzeigen" -- mt
+L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
+	"Die orangen, gelben, grünen und grauen Schwellen und wo Eure Fertigkeit liegt, unter dem Rezept im Berufsfenster. Ausschalten, wenn er die Reagenzien verdeckt." -- mt
 L["AH"] = "AH"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Zeigt den Beginn des Schwierigkeitsbereichs jedes Rezepts. Das ist nicht die Fertigkeit, die zum Erlernen nötig ist."

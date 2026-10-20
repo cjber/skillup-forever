@@ -37,7 +37,8 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Un bouton au-dessus de la fenêtre du marchand qui achète les composants dont vos parcours suivis ont encore besoin chez ce marchand. Il demande d'abord confirmation, avec le coût total." -- mt
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Un matériau que vos métiers récoltent coûte ce que sa vente rapporterait au lieu de rien : son prix aux enchères après la commission de 5 %, ou son prix de vente au marchand s'il est plus élevé. Utilisé pour le parcours et les coûts sur les lignes de recettes. Les prix aux enchères nécessitent Auctionator." -- mt
-L["Questie's quest tracker can be moved again."] = "Le suivi de quêtes de Questie peut de nouveau être déplacé." -- mt
+L["The skill bar is on the recipe itself, not just the hover."] =
+	"La barre de compétence est maintenant sur la recette elle-même, pas seulement au survol." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Un onglet latéral de la fenêtre des métiers, sous l'onglet du parcours, qui liste pour chaque emplacement le plus récent objet fabriqué que ce personnage peut équiper." -- mt
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -396,3 +397,6 @@ L["your bags and bank already hold the reagents for that many."] =
 	"vos sacs et votre banque contiennent déjà les composants pour autant." -- mt
 L["No step yet: learn or train a %s recipe that skills up."] =
 	"Pas encore d'étape : apprenez ou entraînez une recette de %s qui fait monter la compétence." -- mt
+L["Show thresholds bar on the recipe"] = "Afficher la barre de seuils sur la recette" -- mt
+L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
+	"Les seuils orange, jaune, vert et gris et l'emplacement de votre compétence, sous la recette dans la fenêtre des métiers. Désactivez-le s'il couvre les composants." -- mt

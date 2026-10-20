@@ -35,7 +35,8 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Um botão acima da janela do mercador que compra os reagentes que suas rotas rastreadas ainda precisam desse mercador. Ele pergunta antes, com o custo total."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Um material que suas profissões coletam custa o que renderia vendê-lo, em vez de nada: o preço no leilão após a taxa de 5%, ou o preço de venda ao comerciante, se for maior. Usado na rota e nos custos das linhas de receita. Preços de leilão precisam do Auctionator."
-L["Questie's quest tracker can be moved again."] = "O rastreador de missões do Questie pode ser movido novamente."
+L["The skill bar is on the recipe itself, not just the hover."] =
+	"A barra de perícia agora fica na própria receita, não só ao passar o mouse." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Uma aba lateral na janela de profissões, abaixo da aba da rota, com o item criado mais recente que este personagem pode equipar em cada espaço."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -391,3 +392,6 @@ L["your bags and bank already hold the reagents for that many."] =
 	"suas bolsas e banco já têm os reagentes para essa quantidade."
 L["No step yet: learn or train a %s recipe that skills up."] =
 	"Nenhum passo ainda: aprenda ou treine uma receita de %s que suba a habilidade."
+L["Show thresholds bar on the recipe"] = "Mostrar a barra de limites na receita" -- mt
+L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
+	"Os limites laranja, amarelo, verde e cinza e onde sua perícia está, sob a receita na janela de profissões. Desative se cobrir os reagentes." -- mt

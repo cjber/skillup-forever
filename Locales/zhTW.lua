@@ -35,7 +35,8 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"商人視窗上方的按鈕，向該商人購買你追蹤的路線仍需要的材料。購買前會先確認並顯示總價。"
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"你的專業技能採集的材料按出售所得計價，而不是免費：扣除5%手續費後的拍賣價，或較高時按商人收購價。用於路線和配方列的成本。拍賣價需要Auctionator。"
-L["Questie's quest tracker can be moved again."] = "Questie 的任務追蹤器又可以移動了。"
+L["The skill bar is on the recipe itself, not just the hover."] =
+	"技能條現在顯示在配方本身上，而不只是滑鼠移過時。" -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"專業技能視窗側邊的標籤頁（在路線標籤頁下方），列出此角色每個部位可裝備的最新製造物品。"
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -387,3 +388,6 @@ L["your bags and bank already hold the reagents for that many."] =
 	"你的背包和銀行已有足夠這麼多次的材料。"
 L["No step yet: learn or train a %s recipe that skills up."] =
 	"暫無步驟：學習或訓練一個能提升技能點的%s配方。"
+L["Show thresholds bar on the recipe"] = "在配方上顯示技能門檻條" -- mt
+L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
+	"橙色、黃色、綠色和灰色門檻以及你的技能位置，顯示在專業視窗的配方下方。如果遮住材料請關閉。" -- mt

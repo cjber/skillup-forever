@@ -40,8 +40,6 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
 L["Lock the tracker"] = "Закрепить трекер"
 L["The shared Forever tracker can be locked in place."] = "The shared Forever tracker can be locked in place." -- mt
-L["The skill bar is on the recipe itself, not just the hover."] =
-	"Полоса навыка теперь на самом рецепте, а не только при наведении." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Боковая вкладка окна профессий под вкладкой маршрута: самый новый созданный предмет, который этот персонаж может надеть, для каждой ячейки."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =

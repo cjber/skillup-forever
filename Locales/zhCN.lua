@@ -39,8 +39,6 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 	"将共享的 Forever 追踪器保持在您放置的位置。顶部的拖拽手柄不再移动它。"
 L["Lock the tracker"] = "锁定追踪器"
 L["The shared Forever tracker can be locked in place."] = "The shared Forever tracker can be locked in place." -- mt
-L["The skill bar is on the recipe itself, not just the hover."] =
-	"技能条现在显示在配方本身上，而不只是悬停时。" -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"专业窗口侧边的标签页（在路线标签页下方），列出此角色每个部位可装备的最新制造物品。"
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =

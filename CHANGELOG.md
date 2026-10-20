@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.5] - 2026-10-20
+
+- **The shared Forever tracker can be locked in place.** *Lock the tracker* (Settings, Objective tracker) sits under *Attach to quest tracker* and is off by default. While it is on, the grip at the top of the column says the tracker is locked instead of offering to move it, and a drag does nothing, so a column placed where you want it stays there. Thanks to Alex21xx on CurseForge for the request.
+
 ## [0.18.4] - 2026-10-20
 
 - **The skill bar is on the recipe itself, not just the hover.** Selecting a recipe in the Professions window now draws its orange, yellow, green and grey thresholds, with where your skill sits, under the recipe name: the same bar the tooltip shows, from the same numbers, so the two can never disagree. It follows the selected recipe at the rank you know, moves as your skill moves, and hides when nothing is selected. If it covers the reagents on an unusual layout, *Recipe rows* in Settings turns it off. Thanks to trias6657 for the idea.

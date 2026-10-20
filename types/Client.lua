@@ -288,6 +288,8 @@ ObjectiveTrackerFrame = nil
 ---@field SetAttached fun(attached: boolean)
 ---@field OnAttachmentChanged fun(callback: fun(attached: boolean))
 ---@field SavePosition fun(x: number, y: number)
+---@field IsLocked fun(): boolean
+---@field SetLocked fun(value: boolean)
 ---@field Attach fun(module: Frame)
 ---@field IsAttached fun(module: Frame?): boolean
 ---@type ForeverTrackerHostAPI?
@@ -406,6 +408,7 @@ function GetTrainerTradeskillRankValues() end
 
 ---@class ForeverTrackerSettings
 ---@field attached boolean
+---@field locked? boolean the grip ignores drag while the tracker is locked
 ---@field scale? number tracker size, 1 is the stock size
 ---@field x? number
 ---@field y? number

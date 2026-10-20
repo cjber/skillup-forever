@@ -183,7 +183,11 @@ end
 ---@return ForeverTrackerSettings
 function ns.TrackerHostSettings()
 	if type(ns.db.trackerHost) ~= "table" then
-		ns.db.trackerHost = { attached = true }
+		ns.db.trackerHost = { attached = true, locked = false }
+	end
+	-- Lock defaults off, and a trackerHost saved before it existed simply gains the key.
+	if type(ns.db.trackerHost.locked) ~= "boolean" then
+		ns.db.trackerHost.locked = false
 	end
 	return ns.db.trackerHost
 end

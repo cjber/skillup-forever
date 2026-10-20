@@ -192,6 +192,31 @@ function ns.RegisterSettings()
 				Settings.NotifyUpdate(variable)
 			end)
 		end
+		-- Lock keeps the detached column where it is: the grip ignores drag while it is on. It only writes the saved
+		-- switch, so it is safe to toggle in combat.
+		if host and host.GetSettings and host.SetLocked then
+			local lock = Settings.RegisterProxySetting(
+				rows,
+				"SkillUpForever_trackerLocked",
+				Settings.VarType.Boolean,
+				L["Lock the tracker"],
+				false,
+				function()
+					return host.GetSettings().locked == true
+				end,
+				function(value)
+					host.SetLocked(value == true)
+				end
+			)
+			Settings.RegisterInitializer(
+				rows,
+				Settings.CreateCheckboxInitializer(
+					lock,
+					nil,
+					L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."]
+				)
+			)
+		end
 
 		Checkbox(
 			rows,

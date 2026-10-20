@@ -572,6 +572,7 @@ SkillUpForeverDB = nil
 ---@field Track Button
 ---@field Collect CheckButton
 ---@field CollectLabel FontString
+---@field collectChanges boolean? whether the Buy reagents switch changes the route last drawn
 ---@field Vendor Button
 ---@field vendorItems integer[]
 ---@field RouteList SkillUpList

@@ -495,6 +495,11 @@ local function RenderRoute(list, plan)
 			string.format(L["Route incomplete: %d recipes left out, their reagents not priced yet."], plan.unpriced)
 		)
 	end
+	if #plan.steps == 0 and not blocked and plan.stopReason ~= "no_recipe" then
+		-- Nothing to craft and nothing to train: an uncapped profession with no priced craft still says so in
+		-- the list, rather than drawing an empty route (#190).
+		list:Message(string.format(L["No step yet: learn or train a %s recipe that skills up."], profession.name))
+	end
 	RenderSkipped(list, profession)
 end
 
@@ -690,13 +695,13 @@ local function CollectChanges(reagents)
 	return false
 end
 
--- Grey the label with the box, so a switch that changes nothing reads as off. A switch that is on always stays
--- enabled, so it can be turned off again (#162).
----@param enabled boolean
-local function SetCollectEnabled(enabled)
-	enabled = enabled or ns.CollectMode() == "auction"
-	page.Collect:SetEnabled(enabled)
-	page.CollectLabel:SetTextColor((enabled and NORMAL_FONT_COLOR or GRAY_FONT_COLOR):GetRGB())
+-- The switch always stays clickable: a box drawn checked while it is disabled is a switch you cannot turn
+-- off (#162, #190). When it changes nothing for this route the label is greyed and the tooltip says so.
+---@param changes boolean
+local function SetCollectEnabled(changes)
+	page.collectChanges = changes
+	page.Collect:Enable()
+	page.CollectLabel:SetTextColor((changes and NORMAL_FONT_COLOR or GRAY_FONT_COLOR):GetRGB())
 end
 
 -- "Need 7 more Light Hide" when the step is short of a reagent, else the plan's own reason.
@@ -921,16 +926,13 @@ local function CreateButtons()
 	-- vendor and the auction house. Sits with the route it changes, not in the settings panel.
 	local collect = CreateFrame("CheckButton", nil, page, "UICheckButtonTemplate") --[[@as CheckButton]]
 	collect:SetScript("OnClick", function()
-		if not collect:IsEnabled() then
-			return
-		end
 		ns.SetCollectMode(ns.CollectMode() == "gather" and "auction" or "gather")
 		Render()
 	end)
 	collect:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_TOP")
 		GameTooltip_SetTitle(GameTooltip, L["Buy reagents at the auction house"])
-		if collect:IsEnabled() then
+		if page.collectChanges ~= false then
 			-- luacheck: push no max line length
 			GameTooltip_AddNormalLine(
 				GameTooltip,

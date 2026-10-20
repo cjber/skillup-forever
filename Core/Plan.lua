@@ -467,7 +467,9 @@ end)
 ---@return SkillUpPlan
 function ns.PlanRoute(profession)
 	local target = RouteTarget(profession)
-	local key = table.concat({ profession.skill, profession.modifier, profession.max, target }, ":")
+	-- The collect mode is part of the key: a switch that is on prices the reagents this character could gather,
+	-- so a plan made under the other mode is a different route (#190).
+	local key = table.concat({ profession.skill, profession.modifier, profession.max, target, ns.CollectMode() }, ":")
 	local cached = plans[profession.skillLine]
 	if cached and cached.key == key then
 		cached.plan.profession = profession

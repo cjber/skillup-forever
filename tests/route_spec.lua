@@ -311,16 +311,23 @@ routeTab:Click()
 local reagentList = lists[2]
 equal(reagentList.rows[1] and reagentList.rows[1].text, "item 2589", "an unpriced reagent is listed")
 equal(requested[2589], true, "and its name is asked for")
--- A route with nothing this character gathers cannot be switched to buying, so it is off and says why.
-equal(collect.enabled, false, "a route with nothing to gather disables the switch")
-collect:Click()
-equal(page.collectMode, nil, "and a click on the disabled switch changes nothing")
+-- A route with nothing this character gathers cannot be switched to buying, but the switch stays clickable and
+-- says what it does to it (#190: a box drawn checked while disabled could never be turned off again).
+equal(collect.enabled, true, "a route with nothing to gather leaves the switch enabled")
+equal(collect.checked, false, "and it shows gathering")
 collect:Enter()
 equal(
 	disabledLines[#disabledLines],
 	"Nothing on this route is yours to gather, so the switch changes nothing for it.",
-	"the disabled switch's tooltip says why"
+	"the switch's tooltip says it changes nothing here"
 )
+collect:Click()
+equal(page.collectMode, "auction", "so a click still turns buying on")
+equal(collect.checked, true, "and the switch shows it")
+collect:Click()
+equal(page.collectMode, "gather", "and clicking again turns it off, whatever the route holds")
+equal(collect.enabled, true, "the switch never disables itself")
+equal(collect.checked, false, "and shows gathering again")
 -- Turned on, the switch stays enabled even on a route with nothing to gather, so it can always be turned off
 -- again (#162: it stuck on, disabled, once every recipe was left out of the route).
 page.collectMode = "auction"
@@ -330,7 +337,8 @@ equal(collect.checked, true, "and shows on")
 collect:Click()
 equal(page.collectMode, "gather", "so a click turns it off")
 routeTab:Click()
-equal(collect.enabled, false, "and off, with nothing to gather, it is disabled again")
+equal(collect.enabled, true, "and off, with nothing to gather, it is still clickable")
+equal(collect.checked, false, "and shows gathering")
 page.collectMode = nil
 equal(routeTab.checked, true, "opening the route selects its tab")
 eventFrame:Event("SKILL_LINES_CHANGED")
@@ -413,19 +421,54 @@ end
 suggestion.tooltip(itemTooltip)
 equal(titles[1], "Spell 3276", "a recipe named otherwise is still named there")
 
--- The collect switch: gather by default, auction after a click, and back.
-equal(collect.enabled, true, "a route with a reagent this character gathers enables the switch")
+-- A route with nothing to craft, nothing to train and no reason to stop still says so in the list rather than
+-- drawing it blank (#190: buying on with nothing priced left the route empty).
+local savedPlan, savedReagents = page.PlanRoute, page.Reagents
+page.PlanRoute = function(profession)
+	return {
+		profession = profession,
+		target = 100,
+		crafts = {},
+		steps = {},
+		ranks = {},
+		cost = 0,
+		unpriced = 0,
+		unpricedRecipes = {},
+		reached = 1,
+	}
+end
+page.Reagents = function()
+	return {}
+end
+routeTab:Click()
+local emptyMessages = table.concat(lists[1].messages, " | ")
+equal(
+	emptyMessages:find("No step yet: learn or train a First Aid recipe that skills up.", 1, true) ~= nil,
+	true,
+	"a route with no step and no reason says why in the list"
+)
+page.PlanRoute, page.Reagents = savedPlan, savedReagents
+
+-- The collect switch: gather by default, auction after a click, and back. Always clickable, so the tooltip
+-- carries whether the switch changes this route (#190).
+equal(collect.enabled, true, "the switch is always clickable")
 equal(collect.checked, false, "the switch starts on gathering")
 local explained
 pageEnv.GameTooltip_AddNormalLine = function(_, text)
 	explained = text
 end
+local savedRouteReagents = page.RouteReagents
+page.RouteReagents = function()
+	return { { itemID = 1, need = 1, source = "gather" } }
+end
+routeTab:Click()
 collect:Enter()
 equal(
 	explained,
 	"On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing.",
-	"the enabled switch's tooltip explains what it does"
+	"the switch's tooltip explains what it does when the route gathers a reagent"
 )
+page.RouteReagents = savedRouteReagents
 collect:Click()
 equal(page.collectMode, "auction", "clicking asks for auction mode")
 equal(collect.checked, true, "and the switch shows it")

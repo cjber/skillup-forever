@@ -72,7 +72,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["A new plan no longer freezes the game."]
+ns.WHATS_NEW = L["The Buy reagents switch can always be turned off, and a route with nothing in it says why."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

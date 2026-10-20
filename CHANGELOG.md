@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Questie's quest tracker can be dragged again with SkillUp loaded.** Watching Questie's list for moves anchored a small frame of ours to it, which put the list inside our own layout's anchor family. Questie reads the list's four corners and then clears its points before setting them again, so a layout pass of ours landing in that window could find no coordinates, error at `TrackerBaseFrame.lua:355` with `attempt to perform arithmetic on local 'yTop'` and leave the list unanchored: invisible and impossible to drag. The list is now watched through its own show, hide and move calls, with nothing of ours anchored to it, and the sections hold their place while the player is dragging it. Thanks to procque, Fareed and the Questie team's report for finding it.
+
 ## [0.18.2] - 2026-10-20
 
 - **The Buy reagents switch can always be turned off, and a route with nothing in it says why.** The switch greyed itself out whenever the route had nothing your professions could gather, so a switch already on could be stuck on with no way back. It now stays clickable everywhere, greys only its label, and its tooltip says when it changes nothing for the route. The route is also planned separately for each setting, so turning buying on cannot show the other setting's steps, and a profession with nothing to craft now says so in the list instead of drawing it empty. Thanks to kurila11478 for the report.

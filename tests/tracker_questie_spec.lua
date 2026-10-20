@@ -167,7 +167,11 @@ local function scenario(options)
 				target[key] = value
 			end
 		end,
-		hooksecurefunc = function() end,
+		-- Record the secure hooks so the spec can fire them the way Questie's own calls would.
+		hooksecurefunc = function(target, name, callback)
+			target.secure = target.secure or {}
+			target.secure[name] = callback
+		end,
 		CreateFramePoolCollection = function()
 			return {}
 		end,
@@ -220,6 +224,7 @@ local function scenario(options)
 	return {
 		host = host,
 		native = native,
+		frames = frames,
 		questie = questie,
 		slot = slot,
 		settings = settings,
@@ -285,6 +290,38 @@ for _, scale in ipairs({ 0.75, 1, 1.25 }) do
 				label .. ": Questie's frame is untouched"
 			)
 			check(s.host.width == s.native.width, label .. ": the column keeps the tracker's width")
+
+			-- Nothing of ours may sit in Questie's anchor family. Questie reads the list's own corners and then clears
+			-- its points (TrackerBaseFrame.lua, _UpdateTrackerPosition); a frame of ours anchored to the list left
+			-- those reads nil and the list unanchored and undraggable (Questie/Questie#8076, #188).
+			local anchored = false
+			for _, other in ipairs(s.frames) do
+				if other.point and other.point[2] == s.questie then
+					anchored = true
+				end
+			end
+			check(not anchored, label .. ": no Forever frame is anchored to Questie's list")
+			check(s.questie.secure and s.questie.secure.SetPoint, label .. ": Questie's own moves are watched")
+			for _, method in ipairs({ "ClearAllPoints", "StopMovingOrSizing", "SetWidth", "SetHeight" }) do
+				check(s.questie.secure[method], label .. ": a Questie " .. method .. " is watched")
+			end
+
+			-- While the player drags the list Questie owns its geometry: the column holds its place, then follows the
+			-- list to where the player let go of it.
+			s.questie.height = 400
+			s.questie.isMoving = true
+			local heldLeft, heldTop = bounds(s.host)
+			s.questie.hooks.OnSizeChanged(s.questie)
+			s.drain()
+			local stillLeft, stillTop = bounds(s.host)
+			check(
+				near(heldLeft, stillLeft) and near(heldTop, stillTop),
+				label .. ": a drag of Questie's list holds the column still"
+			)
+			s.questie.isMoving = false
+			s.questie.secure.StopMovingOrSizing(s.questie)
+			s.drain()
+			check(clears(s.host, s.questie), label .. ": the column follows the list when the drag ends")
 
 			-- Questie hides its list: the column returns to the native slot.
 			s.questie:Hide()

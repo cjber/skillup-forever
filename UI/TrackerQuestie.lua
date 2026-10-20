@@ -21,17 +21,28 @@ local function BaseFrame()
 	return rawget(_G, "Questie_BaseFrame")
 end
 
--- The list's show, hide and size hooks and an addon-owned probe on its bottom right corner call `onChange` when the
--- list toggles, grows or is dragged.
+-- The list's own scripts and its own move and resize calls call `onChange` when the list toggles, grows or is dragged.
+-- Nothing of ours is ever anchored to it: a probe frame reaching from the screen's corner to the list's corner put the
+-- list inside our layout's anchor family, and Questie's drag code (Modules/Tracker/TrackerBaseFrame.lua,
+-- _UpdateTrackerPosition) reads the list's GetLeft and GetTop just before it clears the list's points, so a layout pass
+-- of ours running in that window left it nothing to read (Questie/Questie#8076, #188). The hooks only observe.
 local function Watch(frame, onChange)
 	watched = true
 	frame:HookScript("OnShow", onChange)
 	frame:HookScript("OnHide", onChange)
-	frame:HookScript("OnSizeChanged", onChange)
-	local probe = CreateFrame("Frame", nil, UIParent)
-	probe:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 0, 0)
-	probe:SetPoint("TOPRIGHT", frame, "BOTTOMRIGHT", 0, 0)
-	probe:SetScript("OnSizeChanged", onChange)
+	frame:HookScript("OnDragStop", onChange)
+	-- While the player drags or resizes the list its geometry is in flux and Questie owns it: the column holds its
+	-- place, then one reflow follows the list to where the player let go of it.
+	local function Moved()
+		if frame.isMoving or frame.isSizing then
+			return
+		end
+		onChange()
+	end
+	frame:HookScript("OnSizeChanged", Moved)
+	for _, method in ipairs({ "SetPoint", "ClearAllPoints", "StopMovingOrSizing", "SetWidth", "SetHeight", "SetScale" }) do
+		hooksecurefunc(frame, method, Moved)
+	end
 end
 
 -- Questie's list while it is on screen, or nil. A list anchored to `host` moves with it, so it can never be cleared:

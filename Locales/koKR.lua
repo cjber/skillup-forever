@@ -35,6 +35,9 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"상인 창 위에 버튼이 생겨, 추적 중인 경로에 아직 필요한 재료를 그 상인에게서 구매합니다. 먼저 총 비용과 함께 확인합니다."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator가 필요합니다."
+L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
+	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
+L["Lock the tracker"] = "추적기 잠금"
 L["The skill bar is on the recipe itself, not just the hover."] =
 	"숙련도 막대가 이제 마우스를 올릴 때뿐 아니라 제조법 자체에도 표시됩니다." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -291,6 +294,8 @@ L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] 
 L["The source of this recipe isn't known."] = "이 제조법의 출처는 알려지지 않았습니다."
 L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into your bug report."] =
 	"텍스트가 선택되었습니다. Ctrl+C(Mac은 Cmd+C)로 복사한 뒤 버그 보고서에 붙여 넣으세요."
+L["The tracker is locked. Turn off Lock the tracker to move it."] =
+	"추적기가 잠겨 있습니다. 추적기 잠금을 끄면 이동할 수 있습니다."
 L["These reagents have no vendor price. Auction prices need Auctionator."] =
 	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator가 필요합니다."
 L["This addon"] = "이 애드온"

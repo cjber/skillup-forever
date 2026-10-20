@@ -35,6 +35,9 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Eine Schaltfläche über dem Händlerfenster, die die Reagenzien kauft, die Eure verfolgten Routen bei diesem Händler noch brauchen. Sie fragt vorher nach, mit den Gesamtkosten."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Ein Material, das Eure Berufe sammeln, kostet, was sein Verkauf einbrächte, statt nichts: sein Auktionspreis nach 5 % Gebühr oder sein Verkaufspreis beim Händler, falls höher. Gilt für die Route und die Kosten in den Rezeptzeilen. Auktionspreise brauchen Auctionator."
+L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
+	"Hält die gemeinsame Forever-Verfolgung dort, wo Ihr sie hingelegt habt. Der Griff oben zieht sie nicht mehr."
+L["Lock the tracker"] = "Verfolgung sperren"
 L["The skill bar is on the recipe itself, not just the hover."] =
 	"Der Fertigkeitsbalken steht jetzt am Rezept selbst, nicht nur beim Darüberfahren." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -289,6 +292,8 @@ L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] 
 L["The source of this recipe isn't known."] = "Die Quelle dieses Rezepts ist unbekannt."
 L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into your bug report."] =
 	"Der Text ist markiert. Drückt Strg+C (Cmd+C auf dem Mac) zum Kopieren und fügt ihn dann in Euren Fehlerbericht ein."
+L["The tracker is locked. Turn off Lock the tracker to move it."] =
+	"Die Verfolgung ist gesperrt. Schaltet Verfolgung sperren aus, um sie zu verschieben."
 L["These reagents have no vendor price. Auction prices need Auctionator."] =
 	"Diese Reagenzien haben keinen Händlerpreis. Auktionspreise brauchen Auctionator."
 L["This addon"] = "Dieses Addon"

@@ -35,6 +35,9 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"商人窗口上方的按钮，从该商人处购买你追踪的路线仍需要的材料。购买前会先确认并显示总价。"
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"你的专业采集的材料按出售所得计价，而不是免费：扣除5%手续费后的拍卖价，或更高时按商人收购价。用于路线和配方行的成本。拍卖价需要Auctionator。"
+L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
+	"将共享的 Forever 追踪器保持在您放置的位置。顶部的拖拽手柄不再移动它。"
+L["Lock the tracker"] = "锁定追踪器"
 L["The skill bar is on the recipe itself, not just the hover."] =
 	"技能条现在显示在配方本身上，而不只是悬停时。" -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -282,6 +285,8 @@ L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] 
 L["The source of this recipe isn't known."] = "此配方的来源未知。"
 L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into your bug report."] =
 	"文本已选中。按Ctrl+C（Mac上为Cmd+C）复制，然后粘贴到你的错误报告中。"
+L["The tracker is locked. Turn off Lock the tracker to move it."] =
+	"追踪器已锁定。关闭“锁定追踪器”即可移动它。"
 L["These reagents have no vendor price. Auction prices need Auctionator."] =
 	"这些材料没有商人价格。拍卖价需要Auctionator。"
 L["This addon"] = "本插件"

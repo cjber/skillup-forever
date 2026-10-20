@@ -132,7 +132,7 @@ local env = setmetatable({
 }, { __index = _G })
 
 local refreshed = 0
-local trackerState = { attached = true }
+local trackerState = { attached = true, locked = false }
 local attachmentChanged
 local ns = {
 	TrackerHost = {
@@ -142,6 +142,9 @@ local ns = {
 		SetAttached = function(value)
 			trackerState.attached = value
 			attachmentChanged()
+		end,
+		SetLocked = function(value)
+			trackerState.locked = value
 		end,
 		OnAttachmentChanged = function(callback)
 			attachmentChanged = callback
@@ -218,7 +221,8 @@ local groups = {
 	{ "Prices", "slider:craftValue checkbox:valueGathered" },
 	{
 		"Route and trainer",
-		"checkbox:showTracker checkbox:trackerAttached checkbox:showRouteTab checkbox:showGearTab"
+		"checkbox:showTracker checkbox:trackerAttached checkbox:trackerLocked checkbox:showRouteTab"
+			.. " checkbox:showGearTab"
 			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:showTrainer",
 	},
 	{ "Tooltips and sorting", "slider:reagentTooltip checkbox:gatherTooltip slider:sortMode" },
@@ -300,3 +304,11 @@ assert(notified[#notified] == "SkillUpForever_trackerAttached", "attachment chan
 trackerState.attached = true
 attachmentChanged()
 assert(attachment:GetValue() == true, "another addon reattaches the same host")
+
+-- Lock starts off, sits under the attach row, and drives the shared host rather than a copy of its own.
+local lock = settings.SkillUpForever_trackerLocked
+assert(lock:GetValue() == false, "the shared tracker starts unlocked")
+lock:SetValue(true)
+assert(trackerState.locked == true and lock:GetValue(), "locking writes the shared host settings")
+lock:SetValue(false)
+assert(trackerState.locked == false and not lock:GetValue(), "unlocking writes them back")

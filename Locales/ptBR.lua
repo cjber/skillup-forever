@@ -35,6 +35,9 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Um botão acima da janela do mercador que compra os reagentes que suas rotas rastreadas ainda precisam desse mercador. Ele pergunta antes, com o custo total."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Um material que suas profissões coletam custa o que renderia vendê-lo, em vez de nada: o preço no leilão após a taxa de 5%, ou o preço de venda ao comerciante, se for maior. Usado na rota e nos custos das linhas de receita. Preços de leilão precisam do Auctionator."
+L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
+	"Mantém o rastreador Forever compartilhado onde você o colocou. A alça no topo não o arrasta mais."
+L["Lock the tracker"] = "Travar o rastreador"
 L["The skill bar is on the recipe itself, not just the hover."] =
 	"A barra de perícia agora fica na própria receita, não só ao passar o mouse." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -285,6 +288,8 @@ L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] 
 L["The source of this recipe isn't known."] = "A origem desta receita é desconhecida."
 L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into your bug report."] =
 	"O texto está selecionado. Pressione Ctrl+C (Cmd+C no Mac) para copiá-lo e cole-o no seu relatório de erro."
+L["The tracker is locked. Turn off Lock the tracker to move it."] =
+	"O rastreador está travado. Desative Travar o rastreador para movê-lo."
 L["These reagents have no vendor price. Auction prices need Auctionator."] =
 	"Estes reagentes não têm preço de comerciante. Preços de leilão precisam do Auctionator."
 L["This addon"] = "Este AddOn"

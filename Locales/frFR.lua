@@ -37,6 +37,9 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Un bouton au-dessus de la fenêtre du marchand qui achète les composants dont vos parcours suivis ont encore besoin chez ce marchand. Il demande d'abord confirmation, avec le coût total." -- mt
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Un matériau que vos métiers récoltent coûte ce que sa vente rapporterait au lieu de rien : son prix aux enchères après la commission de 5 %, ou son prix de vente au marchand s'il est plus élevé. Utilisé pour le parcours et les coûts sur les lignes de recettes. Les prix aux enchères nécessitent Auctionator." -- mt
+L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
+	"Garde le suivi Forever partagé là où vous l'avez placé. La poignée en haut ne le déplace plus." -- mt
+L["Lock the tracker"] = "Verrouiller le suivi" -- mt
 L["The skill bar is on the recipe itself, not just the hover."] =
 	"La barre de compétence est maintenant sur la recette elle-même, pas seulement au survol." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -291,6 +294,8 @@ L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] 
 L["The source of this recipe isn't known."] = "La source de cette recette est inconnue." -- mt
 L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into your bug report."] =
 	"Le texte est sélectionné : Ctrl+C (Cmd+C sur Mac) pour le copier, puis collez-le dans votre rapport de bug." -- mt
+L["The tracker is locked. Turn off Lock the tracker to move it."] =
+	"Le suivi est verrouillé. Désactivez Verrouiller le suivi pour le déplacer." -- mt
 L["These reagents have no vendor price. Auction prices need Auctionator."] =
 	"Ces composants n'ont pas de prix chez les marchands. Les prix aux enchères nécessitent Auctionator." -- mt
 L["This addon"] = "Cet addon" -- mt

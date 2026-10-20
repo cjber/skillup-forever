@@ -49,6 +49,10 @@ local ns = {
 	PlayerProfessions = function()
 		return { [COOKING] = { name = "Cooking", base = 60 } }
 	end,
+	-- Gathering by default, as the saved variable reads back.
+	CollectMode = function()
+		return "gather"
+	end,
 }
 local frame = {
 	IsShown = function()

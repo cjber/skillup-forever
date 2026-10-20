@@ -7,6 +7,7 @@ local equal = Client.equal
 local LINEN, HEAVY, WOOL, CLOTH = 3275, 3276, 3277, 2589
 local known, costs, sources, skipped = {}, {}, {}, {}
 local auctionator, open, craftable, level, faction = false, 129, 99, 20, "Alliance"
+local collectMode = "gather"
 local questTitles = {}
 local dropPlans
 local itemNames, requested = {}, {}
@@ -40,6 +41,10 @@ local ns = {
 	end,
 	HasAuctionator = function()
 		return auctionator
+	end,
+	-- Gather by default: a reagent this character gathers is free until a spec turns buying on.
+	CollectMode = function()
+		return collectMode
 	end,
 	OpenSkillLine = function()
 		return open
@@ -129,6 +134,15 @@ equal(ns.RouteProfessions()[129].name, "First Aid", "a crafting profession can b
 equal(ns.RouteProfessions()[182], nil, "a gathering one can't")
 equal(ns.RankName(150), "Journeyman", "the 150 cap is Journeyman")
 equal(ns.RankName(60), nil, "a cap no rank ends at has no name")
+
+-- The collect mode is part of the plan cache key: the same skill and target planned under the other mode is a
+-- different route, so it is planned again rather than served from the cache (#190).
+collectMode = "gather"
+local gathered = Plan(FirstAid(1), 100)
+equal(ns.PlanRoute(gathered.profession), gathered, "the same skill, target and mode reuses the cached plan")
+collectMode = "auction"
+equal(ns.PlanRoute(gathered.profession) ~= gathered, true, "turning buying on plans again")
+collectMode = "gather"
 
 -- Where the known recipes run out.
 known[LINEN], costs[LINEN] = true, 1

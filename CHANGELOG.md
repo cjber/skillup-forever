@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The Buy reagents switch can always be turned off, and a route with nothing in it says why.** The switch greyed itself out whenever the route had nothing your professions could gather, so a switch already on could be stuck on with no way back. It now stays clickable everywhere, greys only its label, and its tooltip says when it changes nothing for the route. The route is also planned separately for each setting, so turning buying on cannot show the other setting's steps, and a profession with nothing to craft now says so in the list instead of drawing it empty. Thanks to kurila11478 for the report.
+
 ## [0.18.1] - 2026-10-19
 
 - **A new plan no longer freezes the game.** Working out a plan after the cache was dropped re-planned every tracked profession in one frame: 850 to 1050 ms and about 54 MB of Lua memory with five professions, measured with the client's own profiler. A replan now takes 70 to 90 ms and a few MB, with the same plans to the bit. Thanks to Mouchoir for the fix.

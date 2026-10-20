@@ -84,4 +84,6 @@ Translated into German, French, Spanish, Brazilian Portuguese, Russian, Korean a
 
 Source: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever), GPL-3.0-or-later.
 
+The addon is free. If it saves you time, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber59408).
+
 Built with AI assistance.

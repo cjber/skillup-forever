@@ -35,7 +35,7 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Um botão acima da janela do mercador que compra os reagentes que suas rotas rastreadas ainda precisam desse mercador. Ele pergunta antes, com o custo total."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Um material que suas profissões coletam custa o que renderia vendê-lo, em vez de nada: o preço no leilão após a taxa de 5%, ou o preço de venda ao comerciante, se for maior. Usado na rota e nos custos das linhas de receita. Preços de leilão precisam do Auctionator."
-L["A new plan no longer freezes the game."] = "Um novo plano não congela mais o jogo."
+L["The Buy reagents switch can always be turned off, and a route with nothing in it says why."] = "O botão Comprar reagentes sempre pode ser desativado, e uma rota vazia explica por quê." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Uma aba lateral na janela de profissões, abaixo da aba da rota, com o item criado mais recente que este personagem pode equipar em cada espaço."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =

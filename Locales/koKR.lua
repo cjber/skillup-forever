@@ -35,8 +35,7 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"상인 창 위에 버튼이 생겨, 추적 중인 경로에 아직 필요한 재료를 그 상인에게서 구매합니다. 먼저 총 비용과 함께 확인합니다."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator가 필요합니다."
-L["The Buy reagents switch can always be turned off, and a route with nothing in it says why."] =
-	"Reagenzien kaufen 스위치는 항상 끌 수 있고, 빈 경로는 그 이유를 알려 줍니다." -- mt
+L["Questie's quest tracker can be moved again."] = "Questie의 퀘스트 추적기를 다시 옮길 수 있습니다."
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"전문 기술 창의 경로 탭 아래에 있는 측면 탭으로, 이 캐릭터가 각 슬롯에 착용할 수 있는 가장 최신 제작 아이템을 보여줍니다."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -395,3 +394,5 @@ L["you gather it (%s), valued at its AH price"] = "직접 채집 (%s), 경매장
 L["you gather it (%s), valued at its vendor sell price"] = "직접 채집 (%s), 상점 판매 가격으로 계산"
 L["your bags and bank already hold the reagents for that many."] =
 	"가방과 은행에 그만큼의 재료가 이미 있습니다."
+L["No step yet: learn or train a %s recipe that skills up."] =
+	"아직 단계가 없습니다: 숙련도가 오르는 %s 제조법을 배우거나 익히세요."

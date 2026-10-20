@@ -167,11 +167,7 @@ local function scenario(options)
 				target[key] = value
 			end
 		end,
-		-- Record the secure hooks so the spec can fire them the way Questie's own calls would.
-		hooksecurefunc = function(target, name, callback)
-			target.secure = target.secure or {}
-			target.secure[name] = callback
-		end,
+		hooksecurefunc = function() end,
 		CreateFramePoolCollection = function()
 			return {}
 		end,
@@ -229,6 +225,14 @@ local function scenario(options)
 		slot = slot,
 		settings = settings,
 		drain = drain,
+		-- One watcher tick, the way the game runs the ticker's OnUpdate.
+		tick = function(delta)
+			for _, other in ipairs(frames) do
+				if other.scripts.OnUpdate then
+					other.scripts.OnUpdate(other, delta or 1)
+				end
+			end
+		end,
 		pending = function()
 			return #timers
 		end,
@@ -301,10 +305,11 @@ for _, scale in ipairs({ 0.75, 1, 1.25 }) do
 				end
 			end
 			check(not anchored, label .. ": no Forever frame is anchored to Questie's list")
-			check(s.questie.secure and s.questie.secure.SetPoint, label .. ": Questie's own moves are watched")
-			for _, method in ipairs({ "ClearAllPoints", "StopMovingOrSizing", "SetWidth", "SetHeight" }) do
-				check(s.questie.secure[method], label .. ": a Questie " .. method .. " is watched")
-			end
+			-- A move nothing of the list's own announces - a profile load, MoveAnything - is still noticed.
+			s.questie:SetPoint("TOPLEFT", s.host.parent, "TOPLEFT", 24, -100)
+			s.tick(1)
+			s.drain()
+			check(clears(s.host, s.questie), label .. ": a move of Questie's list is noticed and the column follows")
 
 			-- While the player drags the list Questie owns its geometry: the column holds its place, then follows the
 			-- list to where the player let go of it.
@@ -319,7 +324,7 @@ for _, scale in ipairs({ 0.75, 1, 1.25 }) do
 				label .. ": a drag of Questie's list holds the column still"
 			)
 			s.questie.isMoving = false
-			s.questie.secure.StopMovingOrSizing(s.questie)
+			s.questie.hooks.OnDragStop(s.questie)
 			s.drain()
 			check(clears(s.host, s.questie), label .. ": the column follows the list when the drag ends")
 

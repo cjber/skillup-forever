@@ -36,8 +36,7 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Un botón sobre la ventana del mercader que compra los componentes que tus rutas seguidas aún necesitan de ese mercader. Primero pregunta, con el coste total."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Un material que recogen tus profesiones cuesta lo que obtendrías al venderlo en lugar de nada: su precio de subasta tras la comisión del 5 %, o su precio de venta al vendedor si es mayor. Se usa para la ruta y los costes de las filas de recetas. Los precios de subasta necesitan Auctionator."
-L["The Buy reagents switch can always be turned off, and a route with nothing in it says why."] =
-	"El interruptor de comprar reactivos siempre se puede desactivar, y una ruta vacía dice por qué." -- mt
+L["Questie's quest tracker can be moved again."] = "El rastreador de misiones de Questie se puede volver a mover."
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Una pestaña lateral en la ventana de profesiones, bajo la de la ruta, con el objeto creado más reciente que este personaje puede equipar en cada ranura."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -394,3 +393,5 @@ L["you gather it (%s), valued at its vendor sell price"] =
 	"lo recoges tú (%s), valorado a su precio de venta al vendedor"
 L["your bags and bank already hold the reagents for that many."] =
 	"tus bolsas y banco ya tienen los componentes para esa cantidad."
+L["No step yet: learn or train a %s recipe that skills up."] =
+	"Aún no hay paso: aprende o entrena una receta de %s que suba habilidad."

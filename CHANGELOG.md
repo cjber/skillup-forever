@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.3] - 2026-10-20
+
+- **Questie's quest tracker can be moved again.** With a Forever section in the tracker, Questie's quest list and the game's own quest tracker could no longer be dragged, and could vanish. A frame of ours sat between UIParent and Questie's list, and Questie's own drag code reads the list's corners and then clears its points mid-gesture, so a layout pass of ours landing in that window left it nothing to read. Nothing of ours is anchored to the list any more: it is watched through its own show, hide, drag-stop and size calls, the column holds its place while you drag or resize it, and it reflows once when you let go. Thanks to procque and Fareed on CurseForge, and to the Questie team for the report that named the cause in Questie/Questie#8076.
+
 ## [0.18.2] - 2026-10-20
 
 - **The Buy reagents switch can always be turned off, and a route with nothing in it says why.** The switch greyed itself out whenever the route had nothing your professions could gather, so a switch already on could be stuck on with no way back. It now stays clickable everywhere, greys only its label, and its tooltip says when it changes nothing for the route. The route is also planned separately for each setting, so turning buying on cannot show the other setting's steps, and a profession with nothing to craft now says so in the list instead of drawing it empty. Thanks to kurila11478 for the report.

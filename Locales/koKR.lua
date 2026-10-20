@@ -38,6 +38,7 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
 L["Lock the tracker"] = "추적기 잠금"
+L["The shared Forever tracker can be locked in place."] = "The shared Forever tracker can be locked in place." -- mt
 L["The skill bar is on the recipe itself, not just the hover."] =
 	"숙련도 막대가 이제 마우스를 올릴 때뿐 아니라 제조법 자체에도 표시됩니다." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

@@ -40,6 +40,7 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Garde le suivi Forever partagé là où vous l'avez placé. La poignée en haut ne le déplace plus." -- mt
 L["Lock the tracker"] = "Verrouiller le suivi" -- mt
+L["The shared Forever tracker can be locked in place."] = "The shared Forever tracker can be locked in place." -- mt
 L["The skill bar is on the recipe itself, not just the hover."] =
 	"La barre de compétence est maintenant sur la recette elle-même, pas seulement au survol." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

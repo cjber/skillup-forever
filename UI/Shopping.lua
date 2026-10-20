@@ -10,6 +10,8 @@ local MAX_OBJECTIVES = 6
 local module
 ---@type Button?
 local buyButton
+-- Set when the anchor cannot be read: the section then stays out of the tracker instead of raising.
+local detached = false
 
 ---@return boolean
 function ns.HasAuctionator()
@@ -405,7 +407,7 @@ end
 
 ---@return boolean
 function ns.TrackerAttached()
-	return module ~= nil and ForeverTrackerHost ~= nil and ForeverTrackerHost.IsAttached(module)
+	return module ~= nil and not detached and ForeverTrackerHost ~= nil and ForeverTrackerHost.IsAttached(module)
 end
 
 local function RefreshTracker()
@@ -423,6 +425,77 @@ function ns.SetTracked(skillLine, tracked)
 	ns.db.trackedProfessions[skillLine] = tracked
 	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 	ns.Changed("tracking")
+end
+
+---@type fun()
+local Attach
+
+---@param target SkillUpTrackerModule
+---@param container Frame
+local function SetContainer(target, container)
+	---@diagnostic disable-next-line: undefined-field
+	target:SetContainer(container)
+end
+
+-- Where the section hangs right now. The shared host and Blizzard's tracker
+-- both replace frames during a layout, so this is read on every use, never cached.
+---@return Frame?
+local function Anchor()
+	if not module then
+		return nil
+	end
+	local parent = module:GetParent()
+	local host = ForeverTrackerHost
+	if host and host.Attach then
+		if not parent or (host.IsAttached and not host.IsAttached(module)) then
+			host.Attach(module)
+			parent = module:GetParent()
+		end
+	elseif not parent then
+		Attach()
+		parent = module and module:GetParent()
+	end
+	local native = ObjectiveTrackerFrame
+	if native and parent == native.Header then
+		-- Blizzard recreates the heading frame as it lays out All Objectives, so a
+		-- point on that copy is a dead point. Fall back to the host or the tracker.
+		if host and host.Attach then
+			host.Attach(module)
+		elseif module then
+			SetContainer(module, native)
+		end
+		parent = module and module:GetParent()
+	end
+	return parent
+end
+
+---@return boolean
+local function AnchorAvailable()
+	local parent = Anchor()
+	return parent ~= nil and not (parent.GetPoint and not parent:GetPoint())
+end
+
+local function Detach()
+	detached = true
+	if module then
+		module:Hide()
+	end
+end
+
+Attach = function()
+	if not module or detached then
+		return
+	end
+	local host = ForeverTrackerHost
+	if host and host.Attach then
+		host.Attach(module)
+		return
+	end
+	-- No shared host yet: the template's own container layout places the section,
+	-- rather than reserving a uiOrder above Blizzard's sections.
+	if ObjectiveTrackerFrame then
+		SetContainer(module, ObjectiveTrackerFrame)
+	end
 end
 
 ---@class SkillUpModuleMixin : SkillUpTrackerModule
@@ -528,80 +601,85 @@ end
 
 -- Compact, quest style, under "Tailoring to 125": the next thing to train, then
 -- only the reagents still missing, as "12/20 Linen Cloth". The page has the rest.
+---@param self SkillUpTrackerModule
+---@param entry SkillUpTracked
+---@return boolean
+local function LayoutEntry(self, entry)
+	local plan = entry.plan
+	local info = plan.profession
+	local block = self:GetBlock(info.skillLine)
+	block.profession, block.items = info.name, entry.items
+	block.vendorMissing, block.plan = {}, plan
+	block:SetHeader(string.format(L["%s to %d"], info.name, plan.target))
+	local steps = TrainingSteps(plan)
+	block.steps = steps
+	if #steps > 0 then
+		local more = #steps > 1 and string.format(" |cff808080(%s)|r", string.format(L["+%d more"], #steps - 1)) or ""
+		local first = steps[1]
+		local npc, label = first.nearest()
+		local line = block:AddObjective("Train", first.text .. more, npc and LINE_TEMPLATE or nil)
+		if npc then
+			Waypointed(line, first.text, label, function()
+				return (first.nearest(true))
+			end, first.quest and true)
+		end
+	end
+	local shown = 0
+	for _, item in ipairs(entry.items) do
+		local have = ns.Have(item.itemID)
+		if have < item.need then
+			if shown == MAX_OBJECTIVES then
+				block:AddObjective("Extra", "...", nil, nil, OBJECTIVE_DASH_STYLE_HIDE)
+				break
+			end
+			shown = shown + 1
+			local name = C_Item.GetItemNameByID(item.itemID)
+			if not name then
+				C_Item.RequestLoadItemDataByID(item.itemID)
+				name = string.format(L["item %d"], item.itemID)
+			end
+			local gather = item.source == "gather" and string.format(" |cff808080(%s)|r", L["gather"]) or ""
+			local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
+			local text = string.format("%d/%d %s%s", have, item.need, name, gather)
+			local line = block:AddObjective(item.itemID, text, vendor and LINE_TEMPLATE or nil)
+			if vendor then
+				local itemID = item.itemID
+				Waypointed(line, name, L["Nearest vendor"], function()
+					return ns.NearestVendor(itemID, true)
+				end)
+				block.vendorMissing[#block.vendorMissing + 1] = { name = name, itemID = item.itemID, vendor = vendor }
+			end
+		end
+	end
+	local blocked = ns.RouteBlocked(plan)
+	if blocked then
+		block:AddObjective("Blocked", blocked)
+	elseif shown == 0 then
+		block:AddObjective("Ready", L["Reagents in hand"], nil, nil, nil, OBJECTIVE_TRACKER_COLOR.Complete)
+	end
+	return self:LayoutBlock(block)
+end
+
 function ModuleMixin:LayoutContents()
-	if not ns.db.showTracker then
+	if not ns.db.showTracker or detached then
 		return
 	end
 	for _, entry in ipairs(ns.TrackedNeeds()) do
-		local plan = entry.plan
-		local info = plan.profession
-		local block = self:GetBlock(info.skillLine)
-		block.profession, block.items = info.name, entry.items
-		block.vendorMissing, block.plan = {}, plan
-		block:SetHeader(string.format(L["%s to %d"], info.name, plan.target))
-		local steps = TrainingSteps(plan)
-		block.steps = steps
-		if #steps > 0 then
-			local more = #steps > 1 and string.format(" |cff808080(%s)|r", string.format(L["+%d more"], #steps - 1))
-				or ""
-			local first = steps[1]
-			local npc, label = first.nearest()
-			local line = block:AddObjective("Train", first.text .. more, npc and LINE_TEMPLATE or nil)
-			if npc then
-				Waypointed(line, first.text, label, function()
-					return (first.nearest(true))
-				end, first.quest and true)
-			end
+		if not AnchorAvailable() then
+			ns.Print(L["couldn't add tracked reagents to the objective tracker; please report it."])
+			Detach()
+			return
 		end
-		local shown = 0
-		for _, item in ipairs(entry.items) do
-			local have = ns.Have(item.itemID)
-			if have < item.need then
-				if shown == MAX_OBJECTIVES then
-					block:AddObjective("Extra", "...", nil, nil, OBJECTIVE_DASH_STYLE_HIDE)
-					break
-				end
-				shown = shown + 1
-				local name = C_Item.GetItemNameByID(item.itemID)
-				if not name then
-					C_Item.RequestLoadItemDataByID(item.itemID)
-					name = string.format(L["item %d"], item.itemID)
-				end
-				local gather = item.source == "gather" and string.format(" |cff808080(%s)|r", L["gather"]) or ""
-				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
-				local text = string.format("%d/%d %s%s", have, item.need, name, gather)
-				local line = block:AddObjective(item.itemID, text, vendor and LINE_TEMPLATE or nil)
-				if vendor then
-					local itemID = item.itemID
-					Waypointed(line, name, L["Nearest vendor"], function()
-						return ns.NearestVendor(itemID, true)
-					end)
-					block.vendorMissing[#block.vendorMissing + 1] =
-						{ name = name, itemID = item.itemID, vendor = vendor }
-				end
-			end
+		local ok, keep = pcall(LayoutEntry, self, entry)
+		if not ok then
+			ns.Print(L["couldn't add tracked reagents to the objective tracker; please report it."])
+			Detach()
+			return
 		end
-		local blocked = ns.RouteBlocked(plan)
-		if blocked then
-			block:AddObjective("Blocked", blocked)
-		elseif shown == 0 then
-			block:AddObjective("Ready", L["Reagents in hand"], nil, nil, nil, OBJECTIVE_TRACKER_COLOR.Complete)
-		end
-		if not self:LayoutBlock(block) then
+		if not keep then
 			return
 		end
 	end
-end
-
-local function Attach()
-	if not module then
-		return
-	end
-	if ForeverTrackerHost then
-		ForeverTrackerHost.Attach(module)
-		return
-	end
-	-- The shared private host is optional; stay inert until it loads.
 end
 
 local function CreateModule()
@@ -609,14 +687,15 @@ local function CreateModule()
 		ns.Print(L["the objective tracker isn't available, so tracked reagents can't be shown."])
 		return
 	end
-	local created = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", UIParent, "ObjectiveTrackerModuleTemplate")
+	local hostFrame = ForeverTrackerHost --[[@as Frame?]]
+	local parent = hostFrame and type(hostFrame.GetParent) == "function" and hostFrame or UIParent
+	local created = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", parent, "ObjectiveTrackerModuleTemplate")
 	---@cast created SkillUpTrackerModule
 	module = created
 	Mixin(module, ModuleMixin)
 	module:SetHeader(ModuleMixin.headerText)
-	-- Above every Blizzard section (quests start at 1), so quests filling the tracker
-	-- can't push it out of sight.
-	module.uiOrder = -2
+	-- No uiOrder: the shared host owns the section's place and the template lays
+	-- it out when the host is missing.
 	EventUtil.ContinueAfterAllEvents(function()
 		C_Timer.After(0, function()
 			Attach()

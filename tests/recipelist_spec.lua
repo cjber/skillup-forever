@@ -49,6 +49,7 @@ local ns = {
 	AttachRoute = noop,
 	AttachGear = noop,
 	AttachAuctionSearch = noop,
+	AttachDetailsBar = noop,
 	WhenStale = noop,
 	ShowRecipeTooltip = noop,
 	Print = function(msg)

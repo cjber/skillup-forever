@@ -8,6 +8,7 @@ local DEFAULTS = {
 	showSkill = false,
 	showTooltip = true,
 	recipeTooltip = "window", -- where the recipe tooltip goes: beside the Professions window, at the cursor, by the row
+	detailsBar = true, -- the recipe tooltip's skill bar under the selected recipe, on the crafting page itself
 	showCost = true,
 	rowCost = "skillup", -- what a recipe row's money is: "skillup" (cost per skill-up) or "craft" (net per craft)
 	craftValue = "vendor",

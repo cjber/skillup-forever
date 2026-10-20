@@ -12,6 +12,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.6] - 2026-10-20
+
+- **The shared Forever tracker can be locked in place.** *Lock the tracker* (Settings, Objective tracker) sits under *Attach to quest tracker* and is off by default. While it is on, the grip at the top of the column says the tracker is locked instead of offering to move it, and a drag does nothing, so a column placed where you want it stays there. Thanks to Alex21xx on CurseForge for the request.
+
+- **0.18.5 is reissued as 0.18.6.** The 0.18.5 tag was cut, but that build never published, so the tracker lock ships here instead. Nothing else changed from 0.18.5.
+
 ## [0.18.5] - 2026-10-20
 
 - **The shared Forever tracker can be locked in place.** *Lock the tracker* (Settings, Objective tracker) sits under *Attach to quest tracker* and is off by default. While it is on, the grip at the top of the column says the tracker is locked instead of offering to move it, and a drag does nothing, so a column placed where you want it stays there. Thanks to Alex21xx on CurseForge for the request.

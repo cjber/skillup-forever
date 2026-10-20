@@ -38,7 +38,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"將共用的 Forever 追蹤器保持在您放置的位置。頂部的拖曳握把不再移動它。"
 L["Lock the tracker"] = "鎖定追蹤器"
-L["The shared Forever tracker can be locked in place."] = "The shared Forever tracker can be locked in place." -- mt
+L["The quest tracker can be moved again, and the reagent section no longer errors under All Objectives."] =
+	"任務追蹤器又可以移動了，材料部分在「所有目標」下不再報錯。" -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"專業技能視窗側邊的標籤頁（在路線標籤頁下方），列出此角色每個部位可裝備的最新製造物品。"
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =

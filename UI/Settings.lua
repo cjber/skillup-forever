@@ -109,6 +109,13 @@ function ns.RegisterSettings()
 			L["Orange, yellow, green and grey thresholds when hovering a recipe."]
 		)
 
+		Checkbox(
+			rows,
+			"detailsBar",
+			L["Show thresholds bar on the recipe"],
+			L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."]
+		)
+
 		Choice(
 			rows,
 			"recipeTooltip",

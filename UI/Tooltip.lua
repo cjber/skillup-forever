@@ -18,12 +18,10 @@ local BAR_FRAME_HEIGHT = BAR_HEIGHT + 30
 local BAR_PADDING = 4
 local BAR_LINES = math.ceil(math.floor(BAR_FRAME_HEIGHT + BAR_PADDING + 0.5) / (12 + 2))
 
----@type SkillUpBar
-local bar
-
 -- The profession window's header skill bar (ProfessionsRankBarTemplate art), scaled down to tooltip size at its
--- own aspect.
-local function CreateBar()
+-- own aspect. The tooltip and the crafting page's details pane each ask ns.LayoutSkillBar for one of these.
+---@return SkillUpBar
+function ns.CreateSkillBar()
 	local frame = CreateFrame("Frame", nil, UIParent) --[[@as SkillUpBar]]
 	frame:SetSize(BAR_WIDTH, BAR_FRAME_HEIGHT)
 
@@ -61,28 +59,13 @@ local function CreateBar()
 	return frame
 end
 
--- The tooltips the bar has been put into, whose clearing hides it again.
----@type table<GameTooltip, true>
-local hooked = {}
-
--- Cleared for anything else, the tooltip no longer has the bar's blank lines.
----@param tooltip GameTooltip
-local function HideBar(tooltip)
-	if not ns.Usable(tooltip) then
-		return
-	end
-	if bar then
-		bar:Hide()
-	end
-end
-
 -- Lays the four colour bands out over [orange, grey + tail]; the tail keeps the
 -- grey band visible and gives the marker somewhere to sit once a recipe is grey.
+---@param bar SkillUpBar a frame ns.CreateSkillBar made
 ---@param t number[]
 ---@param skill number
 ---@return SkillUpBar
-local function LayoutBar(t, skill)
-	bar = bar or CreateBar()
+function ns.LayoutSkillBar(bar, t, skill)
 	local height = BAR_HEIGHT
 	local lo = t[1]
 	local hi = t[4] + math.max(3, math.floor((t[4] - t[1]) * 0.12 + 0.5))
@@ -120,6 +103,25 @@ local function LayoutBar(t, skill)
 	return bar
 end
 
+-- The one bar a tooltip has, made the first time it needs it and kept afterwards.
+---@type SkillUpBar?
+local bar
+
+-- The tooltips the bar has been put into, whose clearing hides it again.
+---@type table<GameTooltip, true>
+local hooked = {}
+
+-- Cleared for anything else, the tooltip no longer has the bar's blank lines.
+---@param tooltip GameTooltip
+local function HideBar(tooltip)
+	if not ns.Usable(tooltip) then
+		return
+	end
+	if bar then
+		bar:Hide()
+	end
+end
+
 -- Puts the bar into the tooltip below line `after`. Blizzard's GameTooltip_InsertFrame measures the tooltip to
 -- do this, and from our recipe-list handler those measurements are secret, so its arithmetic errored and the
 -- error was blamed on SkillUp (#161). Here nothing reads the tooltip: the blank lines are our own, counted from
@@ -129,7 +131,8 @@ end
 ---@param t number[]
 ---@param skill number
 local function AddBar(tooltip, after, t, skill)
-	local frame = LayoutBar(t, skill)
+	bar = bar or ns.CreateSkillBar()
+	local frame = ns.LayoutSkillBar(bar, t, skill)
 	for _ = 1, BAR_LINES do
 		GameTooltip_AddBlankLineToTooltip(tooltip)
 	end

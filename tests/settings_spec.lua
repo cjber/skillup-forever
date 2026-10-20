@@ -212,7 +212,8 @@ end
 local groups = {
 	{
 		"Recipe rows",
-		"checkbox:showRowText checkbox:showSkill checkbox:showTooltip slider:recipeTooltip checkbox:showCost slider:rowCost",
+		"checkbox:showRowText checkbox:showSkill checkbox:showTooltip checkbox:detailsBar slider:recipeTooltip"
+			.. " checkbox:showCost slider:rowCost",
 	},
 	{ "Prices", "slider:craftValue checkbox:valueGathered" },
 	{
@@ -259,6 +260,10 @@ assert(
 assert(craftValue.initializer.options.formatter(3) == "Auction" and craftValue.initializer.tooltip:find("5%% cut"))
 assert(Row("sortMode").initializer.options.formatter(1) == "Default")
 assert(Row("valueGathered").initializer.tooltip:find("vendor sell price if that is more"), "gathered value floor")
+assert(
+	Row("detailsBar").initializer.tooltip:find("reagents"),
+	"the details bar can be turned off when it covers the reagents"
+)
 assert(Row("showRowText").initializer.tooltip:find("Skill%-up chance"))
 Row("showRowText").initializer.setting.changed()
 assert(refreshed == 1, "a change is reported once")

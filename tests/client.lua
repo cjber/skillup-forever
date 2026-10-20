@@ -255,6 +255,26 @@ function Client.load(options)
 	function Methods:GetText()
 		return self.text or ""
 	end
+	-- Anchors as { point, relativeTo, relativePoint, x, y }, the latest first visit a frame's point is set.
+	function Methods:SetPoint(point, relativeTo, relativePoint, x, y)
+		if type(relativeTo) == "number" then
+			point, relativeTo, relativePoint, x, y = point, nil, nil, relativeTo, relativePoint
+		end
+		self.points = self.points or {}
+		table.insert(self.points, 1, { point, relativeTo, relativePoint, x or 0, y or 0 })
+	end
+	function Methods:ClearAllPoints()
+		self.points = {}
+	end
+	function Methods:SetWidth(width)
+		self.width = width
+	end
+	function Methods:SetHeight(height)
+		self.height = height
+	end
+	function Methods:SetSize(width, height)
+		self.width, self.height = width, height
+	end
 	function Methods:GetParent()
 		return self.parent
 	end

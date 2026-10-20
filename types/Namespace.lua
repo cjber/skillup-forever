@@ -85,6 +85,12 @@
 ---@field ReagentShortfall fun(recipeID: integer, count: integer): SkillUpShoppingItem[], integer
 ---@field SearchReagents fun(recipeID: integer, count: integer): 'auctionator'|'game'|'loading'|'unfilled'|'elsewhere'|'none', SkillUpShoppingItem?
 ---@field AttachAuctionSearch fun()
+---@field AttachDetailsBar fun() the recipe tooltip's bar under the selected recipe, on the crafting page
+---@field CreateSkillBar fun(): SkillUpBar
+---@field LayoutSkillBar fun(bar: SkillUpBar, t: number[], skill: number): SkillUpBar
+---@field DetailsBar fun(t: number[]?, skill: number?): number[]?, number? the details pane's bar: thresholds and skill, nil without either
+---@field DetailsBarTop fun(): integer the details bar's TOPLEFT, below the details pane's TOPLEFT
+---@field DetailsBarRecipe fun(info: TradeSkillRecipeInfo?): integer? the recipe the details bar draws
 ---@field AuctionatorAutoscan fun(): boolean?
 ---@field AuctionListName fun(profession: string): string
 ---@field Have fun(itemID: integer): number
@@ -185,6 +191,7 @@
 ---@field showGearTab boolean
 ---@field merchantButton boolean
 ---@field auctionSearch boolean
+---@field detailsBar boolean
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field gatherTooltip boolean
 ---@field collectModes table<string, SkillUpCollectMode>
@@ -360,7 +367,7 @@ SkillUpForeverDB = nil
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipes'|'window'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'
----@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'gear'|'tooltip'|'auctionSearch'
+---@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'gear'|'tooltip'|'auctionSearch'|'detailsBar'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'

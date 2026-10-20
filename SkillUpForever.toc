@@ -53,6 +53,7 @@ UI\Art.lua
 UI\Report.lua
 UI\Settings.lua
 UI\Tooltip.lua
+UI\DetailsBar.lua
 UI\RecipeList.lua
 Integrations\Sources.lua
 UI\List.lua

@@ -422,5 +422,4 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "Показывать полосу порогов на рецепте" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Оранжевый, жёлтый, зелёный и серый пороги и ваше место на них, под рецептом в окне профессий. Отключите, если она закрывает реагенты." -- mt
-L["Back to a goal level already planned is instant; the level it already has rebuilds nothing."] =
-	"Возврат к уже спланированному целевому уровню происходит мгновенно, а повторный ввод текущего уровня больше не перестраивает маршрут."
+L["Sections that grow in combat no longer get cut off."] = "Разделы, которые растут в бою, больше не обрезаются."

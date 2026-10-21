@@ -397,5 +397,4 @@ L["your bags and bank already hold the reagents for that many."] =
 	"Eure Taschen und Bank haben die Reagenzien dafür schon."
 L["No step yet: learn or train a %s recipe that skills up."] =
 	"Noch kein Schritt: lernt oder erlernt ein %s-Rezept, das Fertigkeit bringt."
-L["Back to a goal level already planned is instant; the level it already has rebuilds nothing."] =
-	"Ein bereits geplantes Ziellevel wird sofort wieder geladen, und das erneute Eingeben des aktuellen Levels baut die Route nicht mehr neu."
+L["Sections that grow in combat no longer get cut off."] = "Abschnitte, die im Kampf wachsen, werden nicht mehr abgeschnitten."

@@ -73,8 +73,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW =
-	L["Switching the goal level back to one already planned is instant, and re-entering the current level no longer rebuilds the route."]
+ns.WHATS_NEW = L["Back to a goal level already planned is instant; the level it already has rebuilds nothing."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

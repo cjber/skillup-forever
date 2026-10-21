@@ -14,7 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [0.18.8] - 2026-10-21
 
-- **Switching the goal level back to one already planned is instant, and re-entering the current level no longer rebuilds the route.** The planner kept exactly one plan per profession, so any goal level you had used before was planned from scratch again, and leaving the goal-level box rebuilt the route even when the number had not changed. It now keeps the last eight plans per profession, keyed by skill, cap, goal level and collect mode, and the box ignores a value it already holds. Thanks to CtrlDKhayos on CurseForge.
+- **Back to a goal level already planned is instant; the level it already has rebuilds nothing.** The planner kept exactly one plan per profession, so any goal level you had used before was planned from scratch again, and leaving the goal-level box rebuilt the route even when the number had not changed. It now keeps the last eight plans per profession, keyed by skill, cap, goal level and collect mode, and the box ignores a value it already holds. Thanks to CtrlDKhayos on CurseForge.
 
 ## [0.18.7] - 2026-10-21
 

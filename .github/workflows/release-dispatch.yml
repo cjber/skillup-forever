@@ -1,0 +1,16 @@
+name: release-dispatch
+on:
+  push:
+    branches: ["release-dispatch/**"]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          gh api -X POST repos/cjber/skillup-forever/actions/workflows/release.yml/dispatches \
+            -f ref=main -f 'inputs[version]=0.18.12' -f 'inputs[commit]=dc04554a6fd3fe7232743164ab53ab6614ab488f'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

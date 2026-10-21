@@ -144,6 +144,57 @@ collectMode = "auction"
 equal(ns.PlanRoute(gathered.profession) ~= gathered, true, "turning buying on plans again")
 collectMode = "gather"
 
+-- #189: a profession keeps its last few targets' plans, so returning to one doesn't plan it again.
+local builds = 0
+local planWithTraining = ns.Model.PlanWithTraining
+ns.Model.PlanWithTraining = function(...)
+	builds = builds + 1
+	return planWithTraining(...)
+end
+dropPlans()
+local baseline = builds
+ns.db.routeTargets[129] = 80
+local plan80 = ns.PlanRoute(FirstAid(1))
+equal(builds - baseline, 1, "the first plan for a target is built")
+ns.db.routeTargets[129] = 100
+ns.PlanRoute(FirstAid(1))
+equal(builds - baseline, 2, "another target is planned")
+ns.db.routeTargets[129] = 80
+equal(ns.PlanRoute(FirstAid(1)), plan80, "returning to a planned target reuses its plan")
+equal(builds - baseline, 2, "without planning it again")
+
+-- Nine distinct targets fill the per-profession cache past its eight, evicting the oldest.
+dropPlans()
+baseline = builds
+local planned = {}
+for target = 2, 10 do
+	ns.db.routeTargets[129] = target
+	planned[target] = ns.PlanRoute(FirstAid(1))
+end
+equal(builds - baseline, 9, "nine distinct targets are planned")
+ns.db.routeTargets[129] = 9
+equal(ns.PlanRoute(FirstAid(1)), planned[9], "the newest target is still cached")
+equal(builds - baseline, 9, "without planning again")
+ns.db.routeTargets[129] = 2
+ns.PlanRoute(FirstAid(1))
+equal(builds - baseline, 10, "the ninth target pushed the oldest out of the cache")
+
+-- The plans stale signal clears the cache, so the next ask plans afresh.
+dropPlans()
+ns.db.routeTargets[129] = 9
+local beforeStale = ns.PlanRoute(FirstAid(1))
+local mark = builds
+dropPlans()
+equal(ns.PlanRoute(FirstAid(1)) ~= beforeStale, true, "the plans stale signal clears the cache")
+equal(builds - mark, 1, "so the target is planned again")
+ns.Model.PlanWithTraining = planWithTraining
+
+-- #189: committing the target the box already holds changes nothing.
+ns.db.routeTargets[129] = 100
+equal(ns.TargetChanged(129, 100), false, "the stored target has not changed")
+equal(ns.TargetChanged(129, 110), true, "a new target has")
+equal(ns.db.routeTargets[129], 100, "and asking never writes it")
+
 -- Where the known recipes run out.
 known[LINEN], costs[LINEN] = true, 1
 local short = Plan(FirstAid(1), 100)

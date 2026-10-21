@@ -15,12 +15,21 @@ local function Stub()
 		__index = function(self, key)
 			local value
 			if key == "SetScript" or key == "HookScript" then
-				value = function(_, name, fn)
+				value = function(frame, name, fn)
 					local previous = key == "HookScript" and scripts[name]
 					scripts[name] = previous and function(...)
 						previous(...)
 						fn(...)
 					end or fn
+					rawset(frame, "scripts", scripts)
+				end
+			elseif key == "SetText" then
+				value = function(frame, text)
+					rawset(frame, "text", text)
+				end
+			elseif key == "GetText" then
+				value = function(frame)
+					return rawget(frame, "text")
 				end
 			elseif key == "SetChecked" then
 				value = function(frame, checked)
@@ -280,7 +289,7 @@ pageEnv.ProfessionsFrame.rightProfessionTabs = { professionTab }
 pageEnv.ProfessionsFrame.GetChildren = function()
 	return unpack(children)
 end
-local collect, vendor, buttons = nil, nil, {}
+local collect, vendor, targetBox, buttons = nil, nil, nil, {}
 pageEnv.CreateFrame = function(_, _, _, template)
 	local frame = template == "LargeSideTabButtonTemplate" and SideTab(0, 0) or Stub()
 	tabs[#tabs + 1] = frame
@@ -290,6 +299,8 @@ pageEnv.CreateFrame = function(_, _, _, template)
 	elseif template == "UIPanelButtonTemplate" then
 		vendor = frame
 		buttons[#buttons + 1] = frame
+	elseif template == "InputBoxTemplate" then
+		targetBox = frame
 	end
 	return frame
 end
@@ -311,6 +322,23 @@ routeTab:Click()
 local reagentList = lists[2]
 equal(reagentList.rows[1] and reagentList.rows[1].text, "item 2589", "an unpriced reagent is listed")
 equal(requested[2589], true, "and its name is asked for")
+
+-- #189: leaving the level box with the number it already holds changes nothing.
+local changedKinds = {}
+local realChanged = page.Changed
+page.Changed = function(kind)
+	changedKinds[#changedKinds + 1] = kind
+	return realChanged(kind)
+end
+targetBox:SetText("100")
+targetBox.scripts.OnEditFocusLost(targetBox)
+equal(#changedKinds, 0, "an unchanged target asks for no change")
+targetBox:SetText("110")
+targetBox.scripts.OnEditFocusLost(targetBox)
+equal(changedKinds[1], "target", "a changed target asks for one")
+page.db.routeTargets[129] = 100
+realChanged("target")
+page.Changed = realChanged
 -- A route with nothing this character gathers cannot be switched to buying, but the switch stays clickable and
 -- says what it does to it (#190: a box drawn checked while disabled could never be turned off again).
 equal(collect.enabled, true, "a route with nothing to gather leaves the switch enabled")

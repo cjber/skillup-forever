@@ -405,3 +405,5 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "Afficher la barre de seuils sur la recette" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Les seuils orange, jaune, vert et gris et l'emplacement de votre compétence, sous la recette dans la fenêtre des métiers. Désactivez-le s'il couvre les composants." -- mt
+L["Switching the goal level back to one already planned is instant, and re-entering the current level no longer rebuilds the route."] =
+	"Revenir à un niveau cible déjà planifié est instantané, et saisir à nouveau le niveau actuel ne reconstruit plus l'itinéraire."

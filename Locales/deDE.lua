@@ -399,3 +399,5 @@ L["your bags and bank already hold the reagents for that many."] =
 	"Eure Taschen und Bank haben die Reagenzien dafür schon."
 L["No step yet: learn or train a %s recipe that skills up."] =
 	"Noch kein Schritt: lernt oder erlernt ein %s-Rezept, das Fertigkeit bringt."
+L["Switching the goal level back to one already planned is instant, and re-entering the current level no longer rebuilds the route."] =
+	"Ein bereits geplantes Ziellevel wird sofort wieder geladen, und das erneute Eingeben des aktuellen Levels baut die Route nicht mehr neu."

@@ -424,3 +424,5 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "Показывать полосу порогов на рецепте" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Оранжевый, жёлтый, зелёный и серый пороги и ваше место на них, под рецептом в окне профессий. Отключите, если она закрывает реагенты." -- mt
+L["Switching the goal level back to one already planned is instant, and re-entering the current level no longer rebuilds the route."] =
+	"Возврат к уже спланированному целевому уровню происходит мгновенно, а повторный ввод текущего уровня больше не перестраивает маршрут."

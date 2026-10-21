@@ -404,3 +404,5 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "Mostrar la barra de umbrales en la receta" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Los umbrales naranja, amarillo, verde y gris y dónde está tu habilidad, bajo la receta en la ventana de profesiones. Desactívalo si tapa los componentes." -- mt
+L["Switching the goal level back to one already planned is instant, and re-entering the current level no longer rebuilds the route."] =
+	"Volver a un nivel objetivo ya planificado es instantáneo, y volver a introducir el nivel actual ya no reconstruye la ruta."

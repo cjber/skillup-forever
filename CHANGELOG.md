@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.10] - 2026-10-21
+
+- **The tracker no longer errors out beside another Forever addon's sections.** Our profession reagent section carries no ordering of its own, and the shared tracker host compared it against sections that do, so with Shortest Path Forever, Adventure Guide Forever or Legacy Forever loaded the layout pass died with `attempt to compare nil with number` on every refresh (297 times on the report). The shared host now keeps ordered sections in their order and places unordered ones after them in the order they were added; the ordering rule also moved into its own file so the host stays inside the project's file-size rule. Thanks to Torpdotorgx and dryzee on CurseForge.
+
 ## [0.18.9] - 2026-10-21
 
 - **Sections that grow in combat no longer get cut off.** While you were in combat, a section that gained lines was drawn inside the height the column had before it grew, so the new lines stayed clipped until the fight ended. The column now measures the taller content and keeps that height for the rest of the fight, and a collapsed native tracker header no longer leaves a blank gap at the top. This is the same shared tracker host fix the other Forever addons already carry, so the quest tracker reports from Syrberus and Fareed are covered here too. Thanks to Syrberus and Fareed on CurseForge.

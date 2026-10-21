@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.12] - 2026-10-21
+
+- **Bag clicks no longer taint the objective tracker.** The reagent section used to hand itself to the game's own tracker through Blizzard's container call, which could register our section with Blizzard's tracker manager and taint protected UI paths; it now keeps the parent to itself, so the reagent list still sits under the tracker while clicking items in your bags stays clean.
+
 ## [0.18.11] - 2026-10-21
 
 - **The game's All Objectives header stays in its own frame.** The shared tracker host used to lift that header out of the objective tracker and hang it above the Forever rows; the game re-anchors it on every tracker update, so the two fought and left a stranded header with a blank band under it. Nothing of ours touches that header any more - no re-anchor, no show or hide, no reserved gap - so the reagent section starts cleanly under the header and stays there through refreshes. Already released in Shortest Path Forever 1.21.8.

@@ -453,8 +453,20 @@ local function Finish(profession, target, route)
 	return plan
 end
 
+-- Whether committing a route target would change it: an entered value equal to the stored target is a no-op,
+-- so leaving the level box doesn't re-plan the route for nothing (#189).
+---@param skillLine integer
+---@param value number
+---@return boolean
+function ns.TargetChanged(skillLine, value)
+	return ns.db.routeTargets[skillLine] ~= value
+end
+
 -- Planning with training re-plans once per candidate, so plans are kept until
--- prices, recipes, fees or targets change; skill is part of the key.
+-- prices, recipes, fees or targets change; skill is part of the key. A profession keeps its last
+-- few targets' plans, so going back to a target already planned doesn't plan it again (#189).
+local PLAN_CACHE_SIZE = 8
+---@type table<integer, { plans: table<string, SkillUpPlan>, order: string[] }>
 local plans = {}
 
 ns.WhenStale("plans", function()
@@ -470,14 +482,24 @@ function ns.PlanRoute(profession)
 	-- The collect mode is part of the key: a switch that is on prices the reagents this character could gather,
 	-- so a plan made under the other mode is a different route (#190).
 	local key = table.concat({ profession.skill, profession.modifier, profession.max, target, ns.CollectMode() }, ":")
-	local cached = plans[profession.skillLine]
-	if cached and cached.key == key then
-		cached.plan.profession = profession
-		return cached.plan
+	local cache = plans[profession.skillLine]
+	if not cache then
+		cache = { plans = {}, order = {} }
+		plans[profession.skillLine] = cache
+	end
+	local cached = cache.plans[key]
+	if cached then
+		cached.profession = profession
+		return cached
 	end
 	local snapshot = Snapshot(profession, target)
 	local plan = Finish(profession, target, ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot)))
-	plans[profession.skillLine] = { key = key, plan = plan }
+	cache.plans[key] = plan
+	cache.order[#cache.order + 1] = key
+	if #cache.order > PLAN_CACHE_SIZE then
+		local oldest = table.remove(cache.order, 1)
+		cache.plans[oldest] = nil
+	end
 	return plan
 end
 

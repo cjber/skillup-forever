@@ -59,6 +59,7 @@
 ---@field RouteBlocked fun(plan: SkillUpPlan): string?
 ---@field UnpricedReagents fun(plan: SkillUpPlan): integer[]
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
+---@field TargetChanged fun(skillLine: integer, value: number): boolean Whether committing a route target would change it
 ---@field RankText fun(rank: SkillUpRank): string
 ---@field RankBookName fun(rank: SkillUpRank): string
 ---@field RankQuestName fun(rank: SkillUpRank): string

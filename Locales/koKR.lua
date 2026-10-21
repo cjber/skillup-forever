@@ -403,5 +403,3 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "제조법에 숙련도 기준 막대 표시" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"주황, 노랑, 초록, 회색 기준과 현재 숙련도 위치를 전문 기술 창의 제조법 아래에 표시합니다. 재료를 가리면 끄세요." -- mt
-L["Sections that grow in combat no longer get cut off."] =
-	"전투 중에 늘어나는 구역이 더 이상 잘리지 않습니다."

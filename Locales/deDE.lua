@@ -397,5 +397,3 @@ L["your bags and bank already hold the reagents for that many."] =
 	"Eure Taschen und Bank haben die Reagenzien dafür schon."
 L["No step yet: learn or train a %s recipe that skills up."] =
 	"Noch kein Schritt: lernt oder erlernt ein %s-Rezept, das Fertigkeit bringt."
-L["Sections that grow in combat no longer get cut off."] =
-	"Abschnitte, die im Kampf wachsen, werden nicht mehr abgeschnitten."

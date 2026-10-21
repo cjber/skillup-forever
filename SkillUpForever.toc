@@ -61,6 +61,7 @@ UI\Route.lua
 UI\Gear.lua
 UI\Shopping.xml
 UI\TrackerQuestie.lua
+UI\TrackerLock.lua
 UI\TrackerHost.lua
 UI\Shopping.lua
 UI\AuctionSearch.lua

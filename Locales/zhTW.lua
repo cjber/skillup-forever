@@ -38,8 +38,6 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"將共用的 Forever 追蹤器保持在您放置的位置。頂部的拖曳握把不再移動它。"
 L["Lock the tracker"] = "鎖定追蹤器"
-L["The quest tracker can be moved again, and the reagent section no longer errors under All Objectives."] =
-	"任務追蹤器又可以移動了，材料部分在「所有目標」下不再報錯。" -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"專業技能視窗側邊的標籤頁（在路線標籤頁下方），列出此角色每個部位可裝備的最新製造物品。"
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -396,3 +394,5 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "在配方上顯示技能門檻條" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"橙色、黃色、綠色和灰色門檻以及你的技能位置，顯示在專業視窗的配方下方。如果遮住材料請關閉。" -- mt
+L["Back to a goal level already planned is instant; the level it already has rebuilds nothing."] =
+	"切換回已經規劃過的目標等級會立即顯示，重新輸入目前等級也不再重建路線。"

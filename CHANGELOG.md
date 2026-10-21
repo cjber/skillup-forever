@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.8] - 2026-10-21
+
+- **Back to a goal level already planned is instant; the level it already has rebuilds nothing.** The planner kept exactly one plan per profession, so any goal level you had used before was planned from scratch again, and leaving the goal-level box rebuilt the route even when the number had not changed. It now keeps the last eight plans per profession, keyed by skill, cap, goal level and collect mode, and the box ignores a value it already holds. Thanks to CtrlDKhayos on CurseForge.
+
 ## [0.18.7] - 2026-10-21
 
 - **The quest tracker can be moved again, and the reagent section no longer errors under All Objectives.** A module of ours sat in the objective tracker column on its own, pinned above Blizzard's sections, so Questie's quest list and the game's own quest tracker could no longer be dragged or re-placed in Edit Mode. The reagent section now goes through the shared Forever tracker host, re-reads where it hangs every time it lays out instead of caching the frame, and hides itself rather than raising if that anchor has gone away. Thanks to Fareed and ThePNAG on CurseForge.

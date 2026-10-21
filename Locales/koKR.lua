@@ -38,8 +38,6 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
 L["Lock the tracker"] = "추적기 잠금"
-L["The quest tracker can be moved again, and the reagent section no longer errors under All Objectives."] =
-	'퀘스트 추적기를 다시 옮길 수 있고, 재료 칸은 "모든 목표"에서 더 이상 오류를 내지 않습니다.' -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"전문 기술 창의 경로 탭 아래에 있는 측면 탭으로, 이 캐릭터가 각 슬롯에 착용할 수 있는 가장 최신 제작 아이템을 보여줍니다."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -405,3 +403,5 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "제조법에 숙련도 기준 막대 표시" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"주황, 노랑, 초록, 회색 기준과 현재 숙련도 위치를 전문 기술 창의 제조법 아래에 표시합니다. 재료를 가리면 끄세요." -- mt
+L["Back to a goal level already planned is instant; the level it already has rebuilds nothing."] =
+	"이미 계획한 목표 레벨로 되돌리면 즉시 표시되고, 현재 레벨을 다시 입력해도 경로를 다시 만들지 않습니다."

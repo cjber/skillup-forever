@@ -40,8 +40,6 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Garde le suivi Forever partagé là où vous l'avez placé. La poignée en haut ne le déplace plus." -- mt
 L["Lock the tracker"] = "Verrouiller le suivi" -- mt
-L["The quest tracker can be moved again, and the reagent section no longer errors under All Objectives."] =
-	"Le suivi de quêtes peut de nouveau être déplacé, et la section des composants ne provoque plus d'erreur dans « Tous les objectifs »." -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Un onglet latéral de la fenêtre des métiers, sous l'onglet du parcours, qui liste pour chaque emplacement le plus récent objet fabriqué que ce personnage peut équiper." -- mt
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -405,3 +403,5 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "Afficher la barre de seuils sur la recette" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Les seuils orange, jaune, vert et gris et l'emplacement de votre compétence, sous la recette dans la fenêtre des métiers. Désactivez-le s'il couvre les composants." -- mt
+L["Back to a goal level already planned is instant; the level it already has rebuilds nothing."] =
+	"Revenir à un niveau cible déjà planifié est instantané, et saisir à nouveau le niveau actuel ne reconstruit plus l'itinéraire."

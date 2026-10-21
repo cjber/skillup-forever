@@ -38,8 +38,6 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Hält die gemeinsame Forever-Verfolgung dort, wo Ihr sie hingelegt habt. Der Griff oben zieht sie nicht mehr."
 L["Lock the tracker"] = "Verfolgung sperren"
-L["The quest tracker can be moved again, and the reagent section no longer errors under All Objectives."] =
-	'Die Quest-Verfolgung lässt sich wieder verschieben, und der Reagenzien-Abschnitt meldet unter "Alle Ziele" keinen Fehler mehr.' -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Ein Seitenreiter am Berufsfenster unter dem Routenreiter, der für jeden Platz den neuesten hergestellten Gegenstand zeigt, den dieser Charakter anlegen kann."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -399,3 +397,5 @@ L["your bags and bank already hold the reagents for that many."] =
 	"Eure Taschen und Bank haben die Reagenzien dafür schon."
 L["No step yet: learn or train a %s recipe that skills up."] =
 	"Noch kein Schritt: lernt oder erlernt ein %s-Rezept, das Fertigkeit bringt."
+L["Back to a goal level already planned is instant; the level it already has rebuilds nothing."] =
+	"Ein bereits geplantes Ziellevel wird sofort wieder geladen, und das erneute Eingeben des aktuellen Levels baut die Route nicht mehr neu."

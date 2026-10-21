@@ -39,8 +39,6 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
 L["Lock the tracker"] = "Закрепить трекер"
-L["The quest tracker can be moved again, and the reagent section no longer errors under All Objectives."] =
-	'Отслеживание заданий снова можно перемещать, а раздел реагентов больше не выдаёт ошибку в "Все задачи".' -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Боковая вкладка окна профессий под вкладкой маршрута: самый новый созданный предмет, который этот персонаж может надеть, для каждой ячейки."
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
@@ -424,3 +422,5 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "Показывать полосу порогов на рецепте" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Оранжевый, жёлтый, зелёный и серый пороги и ваше место на них, под рецептом в окне профессий. Отключите, если она закрывает реагенты." -- mt
+L["Back to a goal level already planned is instant; the level it already has rebuilds nothing."] =
+	"Возврат к уже спланированному целевому уровню происходит мгновенно, а повторный ввод текущего уровня больше не перестраивает маршрут."

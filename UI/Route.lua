@@ -804,6 +804,9 @@ end
 local function CommitTarget(editBox)
 	local value = tonumber(editBox:GetText())
 	if selected and value then
+		if not ns.TargetChanged(selected, value) then
+			return
+		end
 		ns.db.routeTargets[selected] = value
 		ns.Changed("target")
 	else

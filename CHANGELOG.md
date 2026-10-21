@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.9] - 2026-10-21
+
+- **Sections that grow in combat no longer get cut off.** While you were in combat, a section that gained lines was drawn inside the height the column had before it grew, so the new lines stayed clipped until the fight ended. The column now measures the taller content and keeps that height for the rest of the fight, and a collapsed native tracker header no longer leaves a blank gap at the top. This is the same shared tracker host fix the other Forever addons already carry, so the quest tracker reports from Syrberus and Fareed are covered here too. Thanks to Syrberus and Fareed on CurseForge.
+
 ## [0.18.8] - 2026-10-21
 
 - **Back to a goal level already planned is instant; the level it already has rebuilds nothing.** The planner kept exactly one plan per profession, so any goal level you had used before was planned from scratch again, and leaving the goal-level box rebuilt the route even when the number had not changed. It now keeps the last eight plans per profession, keyed by skill, cap, goal level and collect mode, and the box ignores a value it already holds. Thanks to CtrlDKhayos on CurseForge.

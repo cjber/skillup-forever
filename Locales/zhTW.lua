@@ -394,5 +394,4 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "在配方上顯示技能門檻條" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"橙色、黃色、綠色和灰色門檻以及你的技能位置，顯示在專業視窗的配方下方。如果遮住材料請關閉。" -- mt
-L["Back to a goal level already planned is instant; the level it already has rebuilds nothing."] =
-	"切換回已經規劃過的目標等級會立即顯示，重新輸入目前等級也不再重建路線。"
+L["Sections that grow in combat no longer get cut off."] = "戰鬥中變長的區塊不再被截斷。"

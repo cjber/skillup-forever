@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.11] - 2026-10-21
+
+- **Blizzard's *All Objectives* header stays where the game puts it.** The shared tracker host used to lift that header out of the objective tracker and hang it above the Forever rows; the game re-anchors it on every tracker update, so the two fought and left a stranded header with a blank band under it. Nothing of ours touches that header any more - no re-anchor, no show or hide, no reserved gap - so the reagent section starts cleanly under the header and stays there through refreshes. Already released in Shortest Path Forever 1.21.8.
+
 ## [0.18.10] - 2026-10-21
 
 - **The tracker no longer errors out beside another Forever addon's sections.** Our profession reagent section carries no ordering of its own, and the shared tracker host compared it against sections that do, so with Shortest Path Forever, Adventure Guide Forever or Legacy Forever loaded the layout pass died with `attempt to compare nil with number` on every refresh (297 times on the report). The shared host now keeps ordered sections in their order and places unordered ones after them in the order they were added; the ordering rule also moved into its own file so the host stays inside the project's file-size rule. Thanks to Torpdotorgx and dryzee on CurseForge.

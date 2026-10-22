@@ -73,7 +73,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Bag clicks no longer taint the objective tracker."]
+ns.WHATS_NEW = L["The objective tracker can be dragged in Edit Mode again without vanishing."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.18.13] - 2026-10-22
+
+- **The objective tracker can be dragged in Edit Mode again without vanishing.** With snapping on, moving the tracker made it disappear and raised `EditModeSystemTemplates.lua:607: attempt to perform arithmetic on local 'left' (a nil value)` over and over: Blizzard's own move takes the native frame from one anchor to none mid-drag, and both our geometry probe and the hidden companion column were still hanging off that frame at the time. Both now let go before Edit Mode moves the tracker, the native anchor and screen clamp go back to the game outside combat, and queued layouts stay paused until you leave Edit Mode, so the column returns to its usual place afterwards. Thanks to zazomazzo on GitHub.
+
 ## [0.18.12] - 2026-10-21
 
 - **Bag clicks no longer taint the objective tracker.** The reagent section used to hand itself to the game's own tracker through Blizzard's container call, which could register our section with Blizzard's tracker manager and taint protected UI paths; it now keeps the parent to itself, so the reagent list still sits under the tracker while clicking items in your bags stays clean.

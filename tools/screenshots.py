@@ -714,6 +714,7 @@ env = setmetatable({
 	-- The optional databases the addon reads through their public tables: absent in this scene.
 	AtlasLoot = false,
 	LibQuestieDB = false,
+	Syndicator = false,
 	-- No other Forever addon has loaded UI/ForeverFamily.lua: this copy sets the global.
 	ForeverFamily = false,
 }, {
@@ -852,6 +853,7 @@ local route = {
 	collect = Widget(page.Collect),
 	collectLabel = Widget(page.CollectLabel),
 	vendor = Widget(page.Vendor),
+	shoppingList = Widget(page.ShoppingList),
 	lists = {},
 }
 for _, list in ipairs(lists) do
@@ -1021,7 +1023,24 @@ for _, row in ipairs(detail.OtherRows) do
 	gear.others[#gear.others + 1] = GearRow(row)
 end
 
-io.write(Json({ route = route, tracker = tracker, trainer = trainer, reagent = reagent, gear = gear }))
+local shopping = {}
+for _, profession in ipairs(ns.ShoppingList()) do
+	local out = {
+		profession = profession.profession, total = profession.total, unpriced = profession.unpriced, items = {},
+	}
+	for _, row in ipairs(profession.items) do
+		if row.missing > 0 then
+			out.items[#out.items + 1] = {
+				itemID = row.itemID, need = row.need, have = row.have, missing = row.missing,
+				source = row.source, price = row.price, priceAge = row.priceAge, cost = row.cost,
+			}
+		end
+	end
+	shopping[#shopping + 1] = out
+end
+io.write(Json({
+	route = route, tracker = tracker, trainer = trainer, reagent = reagent, gear = gear, shopping = shopping,
+}))
 """
 
 
@@ -1676,18 +1695,64 @@ def route_frame(ui, scene_data):
     draw_list(canvas, route_x, top, route_right - route_x, bottom - top, route_list["rows"])
     inset_frame(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, "Reagents  (have / need)")
     draw_list(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, reagent_list["rows"])
-    # Nearest vendor at the route's BOTTOMLEFT, Craft at its BOTTOMRIGHT; Track at the reagents'
-    # BOTTOMRIGHT.
-    vendor = route["vendor"]
-    if vendor.get("shown"):
-        panel_button(canvas, route_x, bottom + 10, 120, 22, vendor["text"], vendor.get("enabled", True))
+    # Shopping list, vendor and craft share the bottom row; Track sits at the reagents' bottom right.
     craft = route["craft"]
     craft_w = min(canvas.text_width(craft["text"], F_NORMAL) + 32, 240)
-    panel_button(canvas, route_right - craft_w, bottom + 10, craft_w, 22, craft["text"], craft["enabled"])
     track = route["track"]
-    panel_button(canvas, reagents_right - 130, bottom + 10, 130, 22, track["text"], track.get("enabled", True))
+    track_x = reagents_right - 130
+    panel_button(canvas, track_x, bottom + 10, 130, 22, track["text"], track.get("enabled", True))
+    craft_x = track_x - 8 - craft_w
+    panel_button(canvas, craft_x, bottom + 10, craft_w, 22, craft["text"], craft["enabled"])
+    vendor = route["vendor"]
+    if vendor.get("shown"):
+        panel_button(canvas, craft_x - 8 - 120, bottom + 10, 120, 22, vendor["text"], vendor.get("enabled", True))
+    shopping = route["shoppingList"]
+    panel_button(
+        canvas, craft_x - 8 - 120 - 8 - 110, bottom + 10, 110, 22, shopping["text"], shopping.get("enabled", True)
+    )
     profession_tabs(canvas, fx, fy, "route")
     portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, route["portrait"], "Leatherworking")
+    return canvas
+
+
+def shopping_list_scene(ui, scene_data):
+    """Standalone shopping window, with rows emitted by SkillUpForever.API.ShoppingList in the Lua scene."""
+    w, h, margin = 620, 510, 24
+    canvas = ui.canvas(w + margin * 2, h + margin * 2)
+    x, y = margin, margin
+    portrait_frame_art(canvas, x, y, w, h, 136247, "Shopping list")
+    inset_frame(canvas, x + 12, y + 64, w - 24, h - 124)
+    left, top = x + 30, y + 82
+    shopping = scene_data["shopping"]
+    total = sum(profession["total"] for profession in shopping)
+    unpriced = sum(profession["unpriced"] for profession in shopping)
+    sources = (("gather", "Gather"), ("vendor", "Vendor"), ("auction", "Auction house"), ("unknown", "Unknown"))
+    for source, title in sources:
+        rows = [row for profession in shopping for row in profession["items"] if row["source"] == source]
+        if not rows:
+            continue
+        canvas.text(left + 8, top, title, F_NORMAL, box_height=24)
+        top += 27
+        for row in rows[:2]:
+            item = ui.item(row["itemID"])
+            canvas.draw(ui.texture(item.icon), left + 8, top, 30, 30)
+            canvas.text(left + 48, top, item.name, F_NORMAL, box_height=18)
+            detail = f"Need {row['need']}, have {row['have']}, missing {row['missing']}"
+            if row.get("price"):
+                detail += f"  {money(row['price'])} each"
+                if row.get("priceAge") is not None:
+                    detail += f", price seen {row['priceAge']} days ago"
+                detail += f"  {money(row['cost'])}"
+            else:
+                detail += "  price unknown"
+            canvas.text(left + 48, top + 16, detail, F_SMALL, box_height=16)
+            top += 36
+    foot = f"Total for priced items: {money(total)}"
+    if unpriced:
+        foot += f"  {unpriced} items have no price yet"
+    canvas.text(left + 8, y + h - 46, foot, F_NORMAL, box_height=20)
+    panel_button(canvas, left + 8, y + h - 28, 112, 22, "Copy list")
+    panel_button(canvas, left + 128, y + h - 28, 140, 22, "Plan buy trip")
     return canvas
 
 
@@ -2048,6 +2113,7 @@ def main():
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
     data = lua_scene(ui)
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")
+    scene(ui, [(shopping_list_scene(ui, data), 0, 0)]).save(OUT / "shopping-list.png")
     gear_scene(ui, data).save(OUT / "gear.png")
     tracker_scene(ui, data).save(OUT / "tracker.png")
     trainer_scene(ui, data).save(OUT / "trainer.png")

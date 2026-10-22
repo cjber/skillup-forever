@@ -33,6 +33,8 @@ SOURCES = (
     "Core/Core.lua",
     "Core/Model.lua",
     "Core/Plan.lua",
+    "Core/API.lua",
+    "Core/Changes.lua",
     "Core/Gear.lua",
     "Integrations/Prices.lua",
     "Integrations/Sources.lua",
@@ -40,6 +42,7 @@ SOURCES = (
     "UI/List.lua",
     "UI/RecipeList.lua",
     "UI/Route.lua",
+    "UI/ShoppingList.lua",
     "UI/Tooltip.lua",
 )
 SCENES = {

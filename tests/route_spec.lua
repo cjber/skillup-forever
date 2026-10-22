@@ -297,7 +297,7 @@ pageEnv.CreateFrame = function(_, _, _, template)
 	if template == "UICheckButtonTemplate" then
 		collect = frame
 	elseif template == "UIPanelButtonTemplate" then
-		vendor = frame
+		vendor = vendor or frame
 		buttons[#buttons + 1] = frame
 	elseif template == "InputBoxTemplate" then
 		targetBox = frame
@@ -518,6 +518,11 @@ page.SetWaypoint = function(npcID)
 	return true
 end
 routeTab:Click()
+for _, button in ipairs(buttons) do
+	if button.text == "Nearest vendor" then
+		vendor = button
+	end
+end
 equal(vendor.shown, true, "a missing vendor reagent shows the nearest-vendor button")
 vendor:Click()
 equal(page.travel, true, "the vendor is ranked by the travel integration")

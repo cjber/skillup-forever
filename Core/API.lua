@@ -357,7 +357,235 @@ local function Build()
 end
 
 ---@class SkillUpPublicAPI
-local API = { version = 1 }
+local API = { version = 1, minor = 2 }
+
+---@param skillLineID integer?
+---@return SkillUpAPIShoppingProfession[]
+function API.ShoppingList(skillLineID)
+	if not ns.db then
+		return {}
+	end
+	local entries = {}
+	local tracked = ns.TrackedNeeds()
+	for _, entry in ipairs(tracked) do
+		if not skillLineID or entry.plan.profession.skillLine == skillLineID then
+			local result = {
+				profession = entry.plan.profession.name,
+				skillLine = entry.plan.profession.skillLine,
+				items = {},
+				total = 0,
+				unpriced = 0,
+			}
+			local bySource = {}
+			for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
+				bySource[source] = {}
+			end
+			for _, item in ipairs(entry.items) do
+				local price = ns.Price(item.itemID)
+				local have = ns.Have(item.itemID)
+				local missing = math.max(item.need - have, 0)
+				local row = {
+					itemID = item.itemID,
+					need = item.need,
+					have = have,
+					missing = missing,
+					source = item.source,
+					price = price and price.copper or nil,
+					priceAge = price and price.source == "auctionator" and price.days or nil,
+					cost = price and missing * price.copper or nil,
+					alt = ns.AltCounts(item.itemID),
+				}
+				bySource[row.source][#bySource[row.source] + 1] = row
+			end
+			for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
+				table.sort(bySource[source], function(a, b)
+					return a.itemID < b.itemID
+				end)
+				for _, row in ipairs(bySource[source]) do
+					result.items[#result.items + 1] = row
+					if row.missing > 0 then
+						if row.cost then
+							result.total = result.total + row.cost
+						else
+							result.unpriced = result.unpriced + 1
+						end
+					end
+				end
+			end
+			entries[#entries + 1] = result
+		end
+	end
+	table.sort(entries, function(a, b)
+		return a.profession == b.profession and a.skillLine < b.skillLine or a.profession < b.profession
+	end)
+	return entries
+end
+ns.ShoppingList = API.ShoppingList
+
+---@param copper number
+---@return string
+local function PlainMoney(copper)
+	copper = ns.Model.RoundMoney(copper)
+	local text = ns.FormatNet(copper, false)
+	text = text:gsub("|T.-GoldIcon.-|t", "g"):gsub("|T.-SilverIcon.-|t", "s")
+	text = text:gsub("|T.-CopperIcon.-|t", "c")
+	return text
+end
+
+---@param skillLineID integer?
+---@return string
+function ns.ShoppingText(skillLineID)
+	local lists = API.ShoppingList(skillLineID)
+	local professions = {}
+	for _, list in ipairs(lists) do
+		professions[#professions + 1] = list.profession
+	end
+	local lines = {
+		L["SkillUp Forever shopping list"],
+		#professions > 0 and table.concat(professions, ", ") or L["No tracked profession"],
+	}
+	local total = 0
+	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
+		local bucket = {}
+		for _, list in ipairs(lists) do
+			for _, row in ipairs(list.items) do
+				if row.source == source and row.missing > 0 then
+					local name = C_Item.GetItemNameByID(row.itemID)
+					if not name then
+						C_Item.RequestLoadItemDataByID(row.itemID)
+						name = string.format(L["item %d"], row.itemID)
+					end
+					local text
+					if row.price then
+						text = string.format(L["%d x %s - %s each"], row.missing, name, PlainMoney(row.price))
+						if row.priceAge then
+							text = text .. string.format(L[", price seen %d days ago"], row.priceAge)
+						end
+						text = text .. " - " .. PlainMoney(row.cost)
+						total = total + row.cost
+					else
+						text = string.format(L["%d x %s - price unknown"], row.missing, name)
+					end
+					bucket[#bucket + 1] = text
+				end
+			end
+		end
+		if #bucket > 0 then
+			local titles =
+				{ gather = L["Gather"], vendor = L["Vendor"], auction = L["Auction house"], unknown = L["Unknown"] }
+			lines[#lines + 1] = titles[source]
+			for _, line in ipairs(bucket) do
+				lines[#lines + 1] = line
+			end
+		end
+	end
+	lines[#lines + 1] = L["Total for priced items: "] .. PlainMoney(total)
+	return table.concat(lines, "\n")
+end
+
+---@param skillLineID integer?
+---@return boolean
+function ns.ShoppingTrip(skillLineID)
+	local lists = API.ShoppingList(skillLineID)
+	local byVendor, vendorItems, trainers = {}, {}, {}
+	local anyMissing = false
+	for _, list in ipairs(lists) do
+		local profession = ns.RouteProfessions()[list.skillLine]
+		local plan = profession and ns.PlanRoute(profession)
+		for _, row in ipairs(list.items) do
+			if row.missing > 0 then
+				anyMissing = true
+				if row.source == "vendor" then
+					local npcID = ns.NearestVendor(row.itemID, true)
+					if npcID then
+						byVendor[npcID] = true
+						vendorItems[npcID] = vendorItems[npcID] or {}
+						vendorItems[npcID][#vendorItems[npcID] + 1] = row.itemID
+					end
+				end
+			end
+		end
+		if plan and plan.steps and plan.steps[1] and plan.steps[1].training then
+			local npcID = ns.NearestTrainer(profession, plan.steps[1].training.cap, true)
+			if npcID then
+				trainers[npcID] = true
+			end
+		end
+	end
+	if not anyMissing then
+		ns.Print(L["Nothing is missing from the shopping list."])
+		return false
+	end
+	local stops = {}
+	local ids = {}
+	for id in pairs(byVendor) do
+		ids[#ids + 1] = id
+	end
+	local api = ShortestPathForever and ShortestPathForever.API
+	local map = C_Map.GetBestMapForUnit("player")
+	local point = map and C_Map.GetPlayerMapPosition(map, "player")
+	local x, y
+	if point then
+		x, y = point:GetXY()
+	end
+	local travel = {}
+	for _, id in ipairs(ids) do
+		local where = ns.NPCLocation(id)
+		travel[id] = api
+				and api.Estimate
+				and map
+				and x
+				and y
+				and where.map
+				and api.Estimate(map, x, y, where.map, where.x, where.y)
+			or math.huge
+	end
+	table.sort(ids, function(a, b)
+		return travel[a] == travel[b] and a < b or travel[a] < travel[b]
+	end)
+	for _, id in ipairs(ids) do
+		local where = ns.NPCLocation(id)
+		if where.map and where.x and where.y then
+			local names = {}
+			for _, itemID in ipairs(vendorItems[id]) do
+				names[#names + 1] = C_Item.GetItemNameByID(itemID) or string.format(L["item %d"], itemID)
+			end
+			stops[#stops + 1] = {
+				map = where.map,
+				x = where.x,
+				y = where.y,
+				title = where.name .. L[": "] .. table.concat(names, L[", "]),
+				kind = "vendor",
+			}
+		end
+	end
+	-- The catalogue exposes no faction-aware auctioneer location contract; never guess an NPC here.
+	local trainerIDs = {}
+	for id in pairs(trainers) do
+		trainerIDs[#trainerIDs + 1] = id
+	end
+	table.sort(trainerIDs)
+	for _, id in ipairs(trainerIDs) do
+		local where = ns.NPCLocation(id)
+		if where.map and where.x and where.y then
+			stops[#stops + 1] = { map = where.map, x = where.x, y = where.y, title = where.name, kind = "trainer" }
+		end
+	end
+	while #stops > 64 do
+		table.remove(stops)
+	end
+	if api and type(api.NavigateRoute) == "function" and #stops > 0 and api.NavigateRoute("SkillUpForever", stops) then
+		return true
+	end
+	local first = ids[1]
+	if first then
+		ns.Print(L["Shortest Path Forever cannot plan the full trip; setting a waypoint to the first vendor."])
+		ns.SetWaypoint(first)
+	else
+		ns.Print(L["Shortest Path Forever is needed to plan this trip."])
+	end
+	return false
+end
 
 ---@return SkillUpAPIProfession[]
 function API.Professions()

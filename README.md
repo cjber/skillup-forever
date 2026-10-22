@@ -38,6 +38,10 @@ The recipe tooltip draws the thresholds on the game's own bar with your skill ma
 
 The route tab from 48 to 73: belts to 56, then train the pants, cure the hides they need and craft the rest of the way, with where each reagent comes from.
 
+The shopping list groups what is missing by source, shows bag and alt holdings alongside current prices, and can start a vendor trip.
+
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/shopping-list.png" width="640" alt="The standalone SkillUp shopping list with source groups, missing counts and prices"></p>
+
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/gear.png" width="640" alt="The Crafted gear tab: item slots down both sides and along the bottom, each showing the newest crafted item, with one slot's recipe, reagents and status in the middle"></p>
 
 The gear tab, turned on in settings: each slot shows the newest thing this character could craft for it.
@@ -69,6 +73,7 @@ Open a profession and the numbers are already there.
 | `/su unskip <ID>`, `/su unskip all` | Show a skipped recipe, or every one, in the route again |
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 | `/su report` | Show a report to copy into a bug report: versions, professions, routes, the audit and recent errors |
+| `/su shopping`, `/su shop` | Open the shopping list for tracked professions, copy it, or plan a buy trip with Shortest Path Forever |
 | `/su trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer has confirmed or shown differently |
 
 Settings cover rows and tooltips, what crafts count for, sort order, the route and crafted gear tabs, trainer annotations, reagent and gathering tooltips and Forever addon hints. Turn off **Show tracked professions** to hide the tracker, or **Attach to quest tracker** to drag the Forever column.

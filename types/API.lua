@@ -48,9 +48,29 @@
 
 ---@class SkillUpPublicAPI
 ---@field version integer
+---@field minor integer
 ---@field Professions fun(): SkillUpAPIProfession[] Most actionable first.
 ---@field Navigate fun(skillLineID: integer, stepIndex: integer): boolean
 ---@field OpenRecipes fun(skillLineID: integer): boolean
+---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[] Fresh copy for tracked routes; empty when no matching tracked route exists.
+
+---@class SkillUpAPIShoppingItem
+---@field itemID integer
+---@field need number
+---@field have number
+---@field missing number
+---@field source SkillUpShoppingSource
+---@field price? number Copper per item.
+---@field priceAge? number Days since Auctionator's observation.
+---@field cost? number Copper for missing units; nil if unpriced.
+---@field alt {name: string, count: number}[]
+
+---@class SkillUpAPIShoppingProfession
+---@field profession string Localized route name.
+---@field skillLine integer
+---@field items SkillUpAPIShoppingItem[]
+---@field total number Copper for priced missing items.
+---@field unpriced integer Count of missing items without a price.
 
 ---@class SkillUpPublicAddon
 ---@field API SkillUpPublicAPI

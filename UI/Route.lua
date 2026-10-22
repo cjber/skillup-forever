@@ -978,6 +978,11 @@ local function CreateButtons()
 	end)
 	vendor:SetScript("OnLeave", GameTooltip_Hide)
 	page.Vendor = vendor
+	local shoppingList = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
+	shoppingList:SetSize(110, 22)
+	shoppingList:SetText(L["Shopping list"])
+	shoppingList:SetScript("OnClick", ns.OpenShoppingList)
+	page.ShoppingList = shoppingList
 end
 
 -- Occupies the crafting page's place, as the overview page does.
@@ -1007,6 +1012,7 @@ local function CreatePage()
 	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
 	page.Craft:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
 	page.Vendor:SetPoint("RIGHT", page.Craft, "LEFT", -8, 0)
+	page.ShoppingList:SetPoint("RIGHT", page.Vendor, "LEFT", -8, 0)
 	-- The portrait follows the profession shown here, and is given back on the way out.
 	local portrait
 	page:SetScript("OnShow", function()

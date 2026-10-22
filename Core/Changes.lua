@@ -22,6 +22,7 @@ local ORDER = {
 	"tooltip",
 	"auctionSearch",
 	"detailsBar",
+	"shoppingList",
 }
 
 ---@type table<SkillUpChange, table<SkillUpStale, true>>
@@ -38,13 +39,22 @@ local STALE = {
 		gear = true,
 		auctionSearch = true,
 		detailsBar = true,
+		shoppingList = true,
 	},
 	-- The profession window opened, moved to another profession or redrew its list: what shows it follows,
 	-- from plans kept as they are. What the window holds that the plans lack, its scan reports as recipes.
-	window = { api = true, route = true, tracker = true, gear = true, auctionSearch = true, detailsBar = true },
+	window = {
+		api = true,
+		route = true,
+		tracker = true,
+		gear = true,
+		auctionSearch = true,
+		detailsBar = true,
+		shoppingList = true,
+	},
 	-- A skill line moved: often a weapon or defense skill-up in combat, nothing a plan reads. A plan is keyed by
 	-- its profession's skill, bonus and cap, so a profession's own skill-up rebuilds that one plan on its next ask.
-	skill = { api = true, route = true, tracker = true, detailsBar = true },
+	skill = { api = true, route = true, tracker = true, detailsBar = true, shoppingList = true },
 	-- A profession learned or dropped changes what counts as gathered, so what things cost.
 	professions = {
 		prices = true,
@@ -54,22 +64,31 @@ local STALE = {
 		recipeList = true,
 		tracker = true,
 		gear = true,
+		shoppingList = true,
 	},
-	prices = { prices = true, plans = true, api = true, route = true, recipeList = true, tracker = true },
-	bags = { api = true, route = true, tracker = true },
+	prices = {
+		prices = true,
+		plans = true,
+		api = true,
+		route = true,
+		recipeList = true,
+		tracker = true,
+		shoppingList = true,
+	},
+	bags = { api = true, route = true, tracker = true, shoppingList = true },
 	-- Item data arrived; `names` when the public list was waiting on it.
-	items = { route = true, tracker = true, gear = true },
+	items = { route = true, tracker = true, gear = true, shoppingList = true },
 	names = { api = true },
-	level = { api = true, route = true, tracker = true, gear = true },
+	level = { api = true, route = true, tracker = true, gear = true, shoppingList = true },
 	zone = { api = true },
 	-- A merchant opened, restocked or closed: the tracker's buy button.
-	merchant = { tracker = true },
+	merchant = { tracker = true, shoppingList = true },
 	-- Fees and requirements recorded at a trainer.
-	fees = { plans = true, api = true, route = true, tracker = true },
+	fees = { plans = true, api = true, route = true, tracker = true, shoppingList = true },
 	-- Where scrolls, vendors and trainers are, read from Questie and AtlasLoot or seen at a merchant's window.
-	sources = { api = true, route = true, tracker = true, tooltip = true, gear = true },
-	target = { plans = true, api = true, route = true, tracker = true },
-	tracking = { api = true, route = true, tracker = true },
+	sources = { api = true, route = true, tracker = true, tooltip = true, gear = true, shoppingList = true },
+	target = { plans = true, api = true, route = true, tracker = true, shoppingList = true },
+	tracking = { api = true, route = true, tracker = true, shoppingList = true },
 	settings = {
 		prices = true,
 		plans = true,
@@ -82,6 +101,7 @@ local STALE = {
 		gear = true,
 		auctionSearch = true,
 		detailsBar = true,
+		shoppingList = true,
 	},
 }
 

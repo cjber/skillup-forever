@@ -31,6 +31,7 @@ Syndicator = nil
 ---@class SkillUpShortestPathAPI
 ---@field version integer
 ---@field Navigate? fun(owner: string, map: integer, x: number, y: number, title?: string): boolean
+---@field NavigateRoute? fun(owner: string, stops: {map: integer, x: number, y: number, title?: string, kind?: string}[]): boolean
 ---@field Estimate? fun(fromMap: integer, fromX: number, fromY: number, toMap: integer, toX: number, toY: number): seconds: number?, reason: ("combat"|"invalid"|"unreachable")?
 ---@type {API: SkillUpShortestPathAPI?}?
 ShortestPathForever = nil

@@ -65,6 +65,7 @@ UI\TrackerLock.lua
 UI\TrackerOrder.lua
 UI\TrackerHost.lua
 UI\Shopping.lua
+UI\ShoppingList.lua
 UI\AuctionSearch.lua
 Integrations\Trainer.lua
 Core\API.lua

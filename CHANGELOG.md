@@ -12,6 +12,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **A shopping list follows every tracked route.** Open it with `/su shopping` or `/su shop` to see missing materials by source, copy a plain text list, or plan vendor and trainer stops with Shortest Path Forever.
+
+### For addon authors
+
+- `SkillUpForever.API.minor` is now `2`; `API.ShoppingList(skillLineID?)` returns a fresh per-profession copy with need, holdings, price and totals.
+
 ## [0.18.13] - 2026-10-22
 
 - **The objective tracker can be dragged in Edit Mode again without vanishing.** With snapping on, moving the tracker made it disappear and raised `EditModeSystemTemplates.lua:607: attempt to perform arithmetic on local 'left' (a nil value)` over and over: Blizzard's own move takes the native frame from one anchor to none mid-drag, and both our geometry probe and the hidden companion column were still hanging off that frame at the time. Both now let go before Edit Mode moves the tracker, the native anchor and screen clamp go back to the game outside combat, and queued layouts stay paused until you leave Edit Mode, so the column returns to its usual place afterwards. Thanks to zazomazzo on GitHub.

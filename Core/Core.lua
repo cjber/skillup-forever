@@ -73,7 +73,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The objective tracker can be dragged in Edit Mode again without vanishing."]
+ns.WHATS_NEW = L["A shopping list follows every tracked route."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -628,6 +628,8 @@ local function Slash(msg)
 		-- SkillUp's lines can fail in the very state being reported: the header and caught errors still show.
 		local ok, lines = ns.SafeCall("report lines", ns.ReportLines)
 		ns.Report.Show(ns.Report.Text(ok and lines or { "Report lines failed: " .. tostring(lines) }))
+	elseif command == "shopping" or command == "shop" then
+		ns.OpenShoppingList()
 	elseif command == "audit" then
 		Audit()
 	elseif command == "trainers" then

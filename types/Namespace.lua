@@ -111,6 +111,10 @@
 ---@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
+---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[]
+---@field ShoppingText fun(skillLineID?: integer): string
+---@field ShoppingTrip fun(skillLineID?: integer): boolean
+---@field OpenShoppingList fun()
 ---@field TrackerAttached fun(): boolean
 ---@field SetTracked fun(skillLine: integer, tracked: boolean)
 ---@field AutoTrack fun(skillLine?: integer): boolean
@@ -368,7 +372,7 @@ SkillUpForeverDB = nil
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipes'|'window'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'
----@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'gear'|'tooltip'|'auctionSearch'|'detailsBar'
+---@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'gear'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
@@ -582,6 +586,7 @@ SkillUpForeverDB = nil
 ---@field CollectLabel FontString
 ---@field collectChanges boolean? whether the Buy reagents switch changes the route last drawn
 ---@field Vendor Button
+---@field ShoppingList Button
 ---@field vendorItems integer[]
 ---@field RouteList SkillUpList
 ---@field ReagentList SkillUpList

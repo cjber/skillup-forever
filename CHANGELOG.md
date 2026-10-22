@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-10-22
+
 - **A shopping list follows every tracked route.** Open it with `/su shopping` or `/su shop` to see missing materials by source, copy a plain text list, or plan vendor and trainer stops with Shortest Path Forever.
 
 ### For addon authors

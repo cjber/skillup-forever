@@ -14,7 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [0.19.2] - 2026-10-23
 
-- **Report a bug or request a feature from the game.** `/sk issue` (also `/sk bug` and `/sk feature`) opens a composer: write what went wrong, pick Bug or Feature request, and the window hands you a ready-made GitHub issue link, selected so Ctrl+C and a paste opens the new issue with your words and the addon's system report already filled in. Copy report still puts the same text in your hands for Discord.
+- **Report a bug or request a feature from the game.** `/su issue` (also `/su bug` and `/su feature`) opens a composer: write what went wrong, pick Bug or Feature request, and the window hands you a ready-made GitHub issue link, selected so Ctrl+C and a paste opens the new issue with your words and the addon's system report already filled in. Copy report still puts the same text in your hands for Discord.
 
 ## [0.19.1] - 2026-10-23
 

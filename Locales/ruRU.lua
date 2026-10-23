@@ -18,7 +18,6 @@ L["%s (%d): bundled %s, the trainer wants %d"] = "%s (%d): в аддоне %s, �
 L["%s (unlearned)"] = "%s (не изучено)"
 L["%s is at %s."] = "%s находится здесь: %s."
 L["%s is in %s."] = "%s находится в зоне %s."
-L["%s to %d"] = "%s до %d"
 L["%s trainer"] = "Учитель (%s)"
 L["%s until %d"] = "%s до %d"
 L["%s, %d"] = "%s, %d"
@@ -422,3 +421,7 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "Показывать полосу порогов на рецепте" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Оранжевый, жёлтый, зелёный и серый пороги и ваше место на них, под рецептом в окне профессий. Отключите, если она закрывает реагенты." -- mt
+L["%s (%s to %d)"] = "%s (%s до %d)" -- mt
+L["Buying for %s"] = "Покупка для %s" -- mt
+L["The shopping list says which skill level it is buying for."] =
+	"Список покупок показывает, до какого уровня навыка он закупает." -- mt

@@ -18,7 +18,6 @@ L["%s (%d): bundled %s, the trainer wants %d"] = "%s (%d): 내장 %s, 전문가 
 L["%s (unlearned)"] = "%s (배우지 않음)"
 L["%s is at %s."] = "%s은(는) %s에 있습니다."
 L["%s is in %s."] = "%s은(는) %s에 있습니다."
-L["%s to %d"] = "%s → %d"
 L["%s trainer"] = "%s 기술 전문가"
 L["%s until %d"] = "%s (%d까지)"
 L["%s, %d"] = "%s, %d"
@@ -403,3 +402,7 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "제조법에 숙련도 기준 막대 표시" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"주황, 노랑, 초록, 회색 기준과 현재 숙련도 위치를 전문 기술 창의 제조법 아래에 표시합니다. 재료를 가리면 끄세요." -- mt
+L["%s (%s to %d)"] = "%s (%s %d까지)" -- mt
+L["Buying for %s"] = "%s을(를) 위해 구매" -- mt
+L["The shopping list says which skill level it is buying for."] =
+	"쇼핑 목록이 어느 숙련도까지 구매하는지 표시합니다." -- mt

@@ -18,7 +18,6 @@ L["%s (%d): bundled %s, the trainer wants %d"] = "%s（%d）：内置%s，训练
 L["%s (unlearned)"] = "%s（未学习）"
 L["%s is at %s."] = "%s位于%s。"
 L["%s is in %s."] = "%s在%s。"
-L["%s to %d"] = "%s至%d"
 L["%s trainer"] = "%s训练师"
 L["%s until %d"] = "%s直到%d"
 L["%s, %d"] = "%s，%d"
@@ -393,3 +392,7 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "在配方上显示技能阈值条" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"橙色、黄色、绿色和灰色阈值以及你的技能位置，显示在专业窗口的配方下方。如果遮挡材料请关闭。" -- mt
+L["%s (%s to %d)"] = "%s（%s 至 %d）" -- mt
+L["Buying for %s"] = "为 %s 采购" -- mt
+L["The shopping list says which skill level it is buying for."] =
+	"购物清单会显示它要购买到哪个技能等级。" -- mt

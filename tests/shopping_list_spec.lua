@@ -4,7 +4,7 @@ local equal = Client.equal
 local c = Client.load({
 	boot = false,
 	saved = {
-		routeTargets = { [197] = 60, [164] = 60 },
+		routeTargets = { [197] = 60, [164] = 70 },
 		trackedProfessions = { [197] = true, [164] = true },
 	},
 	data = {
@@ -71,11 +71,13 @@ c.G.Syndicator = {
 	},
 }
 local api = c.G.SkillUpForever.API
-equal(api.minor, 2, "API minor version")
+equal(api.minor, 3, "API minor version")
 local lists = api.ShoppingList()
 equal(#lists, 2, "both tracked professions are present")
 equal(lists[1].profession, "Blacksmithing", "profession names sort deterministically")
 equal(lists[2].profession, "Tailoring", "second profession remains separate")
+equal(lists[1].target, 70, "the API carries the saved route target")
+equal(lists[2].target, 60, "each profession keeps its own target")
 local byID = {}
 for _, row in ipairs(lists[2].items) do
 	byID[row.itemID] = row

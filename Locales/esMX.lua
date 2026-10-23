@@ -18,7 +18,6 @@ L["%s (%d): bundled %s, the trainer wants %d"] = "%s (%d): incluido %s, el instr
 L["%s (unlearned)"] = "%s (sin aprender)"
 L["%s is at %s."] = "%s está en %s."
 L["%s is in %s."] = "%s está en %s."
-L["%s to %d"] = "%s hasta %d"
 L["%s trainer"] = "Instructor de %s"
 L["%s until %d"] = "%s hasta %d"
 L["%s, %d"] = "%s, %d"
@@ -402,3 +401,7 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 L["Show thresholds bar on the recipe"] = "Mostrar la barra de umbrales en la receta" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Los umbrales naranja, amarillo, verde y gris y dónde está tu habilidad, bajo la receta en la ventana de profesiones. Desactívalo si tapa los componentes." -- mt
+L["%s (%s to %d)"] = "%s (%s hasta %d)" -- mt
+L["Buying for %s"] = "Comprando para %s" -- mt
+L["The shopping list says which skill level it is buying for."] =
+	"La lista de compras indica para qué nivel de habilidad compra." -- mt

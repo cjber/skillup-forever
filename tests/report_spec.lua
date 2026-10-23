@@ -9,6 +9,9 @@ local equal = Client.equal
 local function has(text, part, label)
 	equal(text:find(part, 1, true) ~= nil, true, ("%s: %q in\n%s"):format(label, part, text))
 end
+local function lacks(text, part, label)
+	equal(text:find(part, 1, true) == nil, true, ("%s: %q unexpectedly in\n%s"):format(label, part, text))
+end
 
 local BANDAGE, SILK = 1, 3
 local function Load()
@@ -29,6 +32,44 @@ local function Load()
 	c.professions = { { name = "First Aid", icon = 1, rank = 10, max = 75, id = 129 } }
 	c.Boot()
 	return c
+end
+
+do
+	local c = Load()
+	local report = c.ns.Report
+	c.website = "https://github.com/cjber/skillup-forever/"
+	equal(report.Encode("a b&#é~"), "a%20b%26%23%C3%A9~", "URL encoding")
+	equal(report.Repo(), "cjber/skillup-forever", "repo from X-Website")
+	c.website = nil
+	equal(report.Repo(), "", "missing X-Website")
+	c.website = "https://github.com/cjber/skillup-forever/"
+	local issue = report.Issue("feature", "Feature request: one & two", "details", { "system line" })
+	has(issue, "template=report.md", "issue template")
+	has(issue, "labels=enhancement", "feature label")
+	has(issue, "title=Feature%20request%3A%20one%20%26%20two", "encoded title")
+	has(
+		report.Body("feature", "Feature request: one", "details", { "system line" }),
+		"### System information",
+		"markdown system section"
+	)
+	equal(#report.Issue("bug", "Bug: long", ("x"):rep(4000), { "system line" }) < 7000, true, "long detail URL cap")
+	local previousBugGrabber = c.G.BugGrabber
+	c.G.BugGrabber = {
+		GetDB = function()
+			return {
+				{ message = "stale session error", stack = "Old.lua:4", session = 6, counter = 8 },
+				{ message = "direct Lua failure", stack = "Addon/Feature.lua:42", session = 7, counter = 2 },
+			}
+		end,
+		GetSessionId = function()
+			return 7
+		end,
+	}
+	local issueBody = c.ns.Report.Body("bug", "Bug: direct Lua failure", "it broke", {})
+	has(issueBody, "direct Lua failure", "BugGrabber runtime error in issue body")
+	has(issueBody, "Addon/Feature.lua:42", "BugGrabber trace in issue body")
+	lacks(issueBody, "stale session error", "old BugGrabber errors are excluded")
+	c.G.BugGrabber = previousBugGrabber
 end
 
 -- The report window: the frame /su report made, with its edit box.

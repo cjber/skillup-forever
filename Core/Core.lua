@@ -628,6 +628,11 @@ local function Slash(msg)
 		-- SkillUp's lines can fail in the very state being reported: the header and caught errors still show.
 		local ok, lines = ns.SafeCall("report lines", ns.ReportLines)
 		ns.Report.Show(ns.Report.Text(ok and lines or { "Report lines failed: " .. tostring(lines) }))
+	elseif command == "issue" or command == "bug" or command == "feature" then
+		ns.Report.Compose(command == "feature" and "feature" or "bug")
+	elseif command == "help" then
+		ns.Print(L["/su report - show a report to copy into a bug report"])
+		ns.Print(L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"])
 	elseif command == "shopping" or command == "shop" then
 		ns.OpenShoppingList()
 	elseif command == "audit" then

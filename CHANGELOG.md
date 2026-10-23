@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.19.5] - 2026-10-23
+
 - **The trainer requirements you have seen can be copied out.** `/su export` (also `/su export trainers`) opens a window holding the requirement each trainer actually showed your character, written as a `SEEN_REQUIREMENTS` table you can paste into a report. A number no bundled rule guessed right then gets corrected for everyone, not only for you (#124).
 
 ## [0.19.4] - 2026-10-23

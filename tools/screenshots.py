@@ -1026,7 +1026,8 @@ end
 local shopping = {}
 for _, profession in ipairs(ns.ShoppingList()) do
 	local out = {
-		profession = profession.profession, total = profession.total, unpriced = profession.unpriced, items = {},
+		profession = profession.profession, target = profession.target,
+		total = profession.total, unpriced = profession.unpriced, items = {},
 	}
 	for _, row in ipairs(profession.items) do
 		if row.missing > 0 then
@@ -1721,22 +1722,26 @@ def shopping_list_scene(ui, scene_data):
     canvas = ui.canvas(w + margin * 2, h + margin * 2)
     x, y = margin, margin
     portrait_frame_art(canvas, x, y, w, h, 136247, "Shopping list")
-    inset_frame(canvas, x + 12, y + 64, w - 24, h - 124)
-    left, top = x + 30, y + 82
     shopping = scene_data["shopping"]
+    # GameFontHighlightSmall under the title, right of the portrait: every plan the window buys for.
+    plans = ", ".join(f"{profession['profession']} to {profession['target']}" for profession in shopping)
+    canvas.text(x + 82, y + 36, f"Buying for {plans}" if plans else "", F_SMALL, box_height=28)
+    inset_frame(canvas, x + 12, y + 70, w - 24, h - 130)
+    left, top = x + 30, y + 88
     total = sum(profession["total"] for profession in shopping)
     unpriced = sum(profession["unpriced"] for profession in shopping)
     sources = (("gather", "Gather"), ("vendor", "Vendor"), ("auction", "Auction house"), ("unknown", "Unknown"))
     for source, title in sources:
-        rows = [row for profession in shopping for row in profession["items"] if row["source"] == source]
+        rows = [(p, row) for p in shopping for row in p["items"] if row["source"] == source]
         if not rows:
             continue
         canvas.text(left + 8, top, title, F_NORMAL, box_height=24)
         top += 27
-        for row in rows[:2]:
+        for profession, row in rows[:2]:
             item = ui.item(row["itemID"])
             canvas.draw(ui.texture(item.icon), left + 8, top, 30, 30)
-            canvas.text(left + 48, top, item.name, F_NORMAL, box_height=18)
+            name = f"{item.name} ({profession['profession']} to {profession['target']})"
+            canvas.text(left + 48, top, name, F_NORMAL, box_height=18)
             detail = f"Need {row['need']}, have {row['have']}, missing {row['missing']}"
             if row.get("price"):
                 detail += f"  {money(row['price'])} each"

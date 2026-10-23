@@ -423,5 +423,3 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 	"Оранжевый, жёлтый, зелёный и серый пороги и ваше место на них, под рецептом в окне профессий. Отключите, если она закрывает реагенты." -- mt
 L["%s (%s to %d)"] = "%s (%s до %d)" -- mt
 L["Buying for %s"] = "Покупка для %s" -- mt
-L["The shopping list says which skill level it is buying for."] =
-	"Список покупок показывает, до какого уровня навыка он закупает." -- mt

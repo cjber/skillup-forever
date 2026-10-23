@@ -36,6 +36,7 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Кнопка над окном торговца, которая покупает у него реагенты, еще нужные вашим отслеживаемым маршрутам. Сначала спрашивает подтверждение и показывает общую стоимость."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Материал, который добывают ваши профессии, стоит столько, сколько принесла бы его продажа, а не ноль: цена на аукционе за вычетом 5% комиссии или цена продажи торговцу, если она выше. Учитывается в маршруте и стоимости в строках рецептов. Для цен аукциона нужен Auctionator."
+L["Data checked against Forever 1.60.1.70532."] = "Данные сверены с Forever 1.60.1.70532."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
 L["Lock the tracker"] = "Закрепить трекер"

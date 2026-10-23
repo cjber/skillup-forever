@@ -201,6 +201,49 @@ local function RecipeName(recipeID)
 	return C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
 end
 
+-- /su export trainers (#124): the requirements a trainer has actually shown this character, as a table literal for
+-- tools/gen_trainer.py's SEEN_REQUIREMENTS, so a player can paste them into a report and the guess improves for
+-- everyone. A row that saved only a fee and the bundled requirement has seen nothing; where two skill lines hold
+-- one recipe, the longest requirement wins. Reads ns.db.trainer and formats it: nothing here writes, prints or
+-- waits on the world. The keys are bracketed because Lua has no `key: value` field: that is the form loadstring
+-- reads back, and the one a player can paste into the generator's dictionary by hand.
+---@return string[] lines the table, empty when no trainer has shown a requirement yet
+function ns.TrainerExport()
+	local longest = {}
+	for skillLine, recipes in pairs(ns.db.trainer) do
+		for recipeID, row in pairs(recipes) do
+			local shown = type(row) == "table" and row[3]
+			if type(shown) == "number" and shown > 0 then
+				local best = longest[recipeID]
+				if not best or shown > best.shown then
+					longest[recipeID] = { shown = shown, skillLine = skillLine }
+				end
+			end
+		end
+	end
+	local recipeIDs = {}
+	for recipeID in pairs(longest) do
+		recipeIDs[#recipeIDs + 1] = recipeID
+	end
+	if #recipeIDs == 0 then
+		return {}
+	end
+	table.sort(recipeIDs)
+	local lines = { "SEEN_REQUIREMENTS = {" }
+	for _, recipeID in ipairs(recipeIDs) do
+		local entry = longest[recipeID]
+		local profession = entry.skillLine and ns.Gear.ProfessionName(entry.skillLine)
+		-- A control character in a name would end the comment line and break the table.
+		local comment = RecipeName(recipeID):gsub("%c", " ")
+		if profession then
+			comment = comment .. ", " .. profession
+		end
+		lines[#lines + 1] = string.format("    [%d] = %d, -- %s", recipeID, entry.shown, comment)
+	end
+	lines[#lines + 1] = "}"
+	return lines
+end
+
 -- What /su trainers prints: per profession, how many moved requirements a trainer has confirmed, each one a
 -- trainer showed differently, and, for a profession this character has, the ones its trainer should teach at
 -- the current skill if the bundled value is right, so a visit now settles them.

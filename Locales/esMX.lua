@@ -403,5 +403,3 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 	"Los umbrales naranja, amarillo, verde y gris y dónde está tu habilidad, bajo la receta en la ventana de profesiones. Desactívalo si tapa los componentes." -- mt
 L["%s (%s to %d)"] = "%s (%s hasta %d)" -- mt
 L["Buying for %s"] = "Comprando para %s" -- mt
-L["The shopping list says which skill level it is buying for."] =
-	"La lista de compras indica para qué nivel de habilidad compra." -- mt

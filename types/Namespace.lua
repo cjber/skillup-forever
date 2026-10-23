@@ -44,6 +44,7 @@
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
 ---@field TrainerReport fun(): string[]
+---@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/su export)
 ---@field AuditLines fun(): string[]? /su audit's lines with a profession open, nil with none
 ---@field ReportLines fun(): string[] SkillUp's own lines in /su report (Core/Report.lua)
 ---@field Report SkillUpReportModule the report window (UI/Report.lua)

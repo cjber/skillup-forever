@@ -394,5 +394,3 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 	"橙色、黄色、绿色和灰色阈值以及你的技能位置，显示在专业窗口的配方下方。如果遮挡材料请关闭。" -- mt
 L["%s (%s to %d)"] = "%s（%s 至 %d）" -- mt
 L["Buying for %s"] = "为 %s 采购" -- mt
-L["The shopping list says which skill level it is buying for."] =
-	"购物清单会显示它要购买到哪个技能等级。" -- mt

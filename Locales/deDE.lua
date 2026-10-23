@@ -398,5 +398,3 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 	"Noch kein Schritt: lernt oder erlernt ein %s-Rezept, das Fertigkeit bringt."
 L["%s (%s to %d)"] = "%s (%s bis %d)" -- mt
 L["Buying for %s"] = "Einkauf für %s" -- mt
-L["The shopping list says which skill level it is buying for."] =
-	"Die Einkaufsliste zeigt, für welche Fertigkeitsstufe sie einkauft." -- mt

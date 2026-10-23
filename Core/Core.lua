@@ -73,7 +73,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The shopping list says which skill level it is buying for."]
+ns.WHATS_NEW = L["The trainer requirements you have seen can be copied out."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -620,6 +620,26 @@ local function Unskip(argument)
 	ns.Print(string.format(L["Show again: %s"], name))
 end
 
+-- /su export trainers (#124): the requirements this character's trainers actually showed, as a table for
+-- tools/gen_trainer.py's SEEN_REQUIREMENTS, so a value no bundled rule guessed right can be fixed for everyone.
+-- Trainers are the only export, so /su export does the same as /su export trainers. The copy window when it can
+-- open, the same lines in chat when it cannot: nothing is written, nothing prints on login, nothing waits on an
+-- event, and there is no protected call in it.
+local function Export()
+	local lines = ns.TrainerExport()
+	if not lines[1] then
+		ns.Print(L["no trainer requirement seen yet: open a profession trainer, then try again."])
+		return
+	end
+	local text = table.concat(lines, "\n")
+	local shown = ns.Report and ns.Report.Show and ns.SafeCall and ns.SafeCall("export window", ns.Report.Show, text)
+	if not shown then
+		for _, line in ipairs(lines) do
+			ns.Print(line)
+		end
+	end
+end
+
 SLASH_SKILLUPFOREVER1 = "/skillup"
 SLASH_SKILLUPFOREVER2 = "/su"
 local function Slash(msg)
@@ -633,6 +653,7 @@ local function Slash(msg)
 	elseif command == "help" then
 		ns.Print(L["/su report - show a report to copy into a bug report"])
 		ns.Print(L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"])
+		ns.Print(L["/su export - show the trainer requirements this character has seen, to paste into a report"])
 	elseif command == "shopping" or command == "shop" then
 		ns.OpenShoppingList()
 	elseif command == "audit" then
@@ -641,6 +662,8 @@ local function Slash(msg)
 		for _, line in ipairs(ns.TrainerReport()) do
 			ns.Print(line)
 		end
+	elseif command == "export" then
+		Export()
 	elseif command == "skipped" then
 		ListSkipped()
 	elseif command == "unskip" then

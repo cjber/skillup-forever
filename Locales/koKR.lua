@@ -404,5 +404,3 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 	"주황, 노랑, 초록, 회색 기준과 현재 숙련도 위치를 전문 기술 창의 제조법 아래에 표시합니다. 재료를 가리면 끄세요." -- mt
 L["%s (%s to %d)"] = "%s (%s %d까지)" -- mt
 L["Buying for %s"] = "%s을(를) 위해 구매" -- mt
-L["The shopping list says which skill level it is buying for."] =
-	"쇼핑 목록이 어느 숙련도까지 구매하는지 표시합니다." -- mt

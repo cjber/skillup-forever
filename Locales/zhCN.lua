@@ -35,6 +35,7 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"商人窗口上方的按钮，从该商人处购买你追踪的路线仍需要的材料。购买前会先确认并显示总价。"
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"你的专业采集的材料按出售所得计价，而不是免费：扣除5%手续费后的拍卖价，或更高时按商人收购价。用于路线和配方行的成本。拍卖价需要Auctionator。"
+L["Data checked against Forever 1.60.1.70532."] = "数据已对照 Forever 1.60.1.70532 校验。"
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"将共享的 Forever 追踪器保持在您放置的位置。顶部的拖拽手柄不再移动它。"
 L["Lock the tracker"] = "锁定追踪器"

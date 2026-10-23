@@ -35,6 +35,7 @@ L["A button above a merchant's window that buys the reagents your tracked routes
 	"Eine Schaltfläche über dem Händlerfenster, die die Reagenzien kauft, die Eure verfolgten Routen bei diesem Händler noch brauchen. Sie fragt vorher nach, mit den Gesamtkosten."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Ein Material, das Eure Berufe sammeln, kostet, was sein Verkauf einbrächte, statt nichts: sein Auktionspreis nach 5 % Gebühr oder sein Verkaufspreis beim Händler, falls höher. Gilt für die Route und die Kosten in den Rezeptzeilen. Auktionspreise brauchen Auctionator."
+L["Data checked against Forever 1.60.1.70532."] = "Daten gegen Forever 1.60.1.70532 geprüft."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Hält die gemeinsame Forever-Verfolgung dort, wo Ihr sie hingelegt habt. Der Griff oben zieht sie nicht mehr."
 L["Lock the tracker"] = "Verfolgung sperren"

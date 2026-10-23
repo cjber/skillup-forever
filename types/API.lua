@@ -68,6 +68,7 @@
 ---@class SkillUpAPIShoppingProfession
 ---@field profession string Localized route name.
 ---@field skillLine integer
+---@field target number Base skill the profession's plan buys to.
 ---@field items SkillUpAPIShoppingItem[]
 ---@field total number Copper for priced missing items.
 ---@field unpriced integer Count of missing items without a price.

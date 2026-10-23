@@ -73,7 +73,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The Forever addons link box selects its address without a Lua error."]
+ns.WHATS_NEW = L["The shopping list says which skill level it is buying for."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

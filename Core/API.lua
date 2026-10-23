@@ -5,6 +5,8 @@ local L = ns.L
 -- SkillUpForever.API, version 1: each profession's next steps, recipes and reagents,
 -- read from the same levelling plan the route tab shows, for other addons to draw.
 -- Built once and kept until Core/Changes.lua says it is stale.
+-- API.ShoppingList's records carry `target`: the base skill that profession's plan buys to,
+-- the same number the route tab's Target box shows.
 
 local MAX_STEPS = 3
 local MAX_RECIPES = 5
@@ -357,7 +359,7 @@ local function Build()
 end
 
 ---@class SkillUpPublicAPI
-local API = { version = 1, minor = 2 }
+local API = { version = 1, minor = 3 }
 
 ---@param skillLineID integer?
 ---@return SkillUpAPIShoppingProfession[]
@@ -372,6 +374,7 @@ function API.ShoppingList(skillLineID)
 			local result = {
 				profession = entry.plan.profession.name,
 				skillLine = entry.plan.profession.skillLine,
+				target = entry.plan.target,
 				items = {},
 				total = 0,
 				unpriced = 0,

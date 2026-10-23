@@ -2,7 +2,7 @@
 local addonName, ns = ...
 local L = ns.L
 local ICON = "Interface\\AddOns\\" .. addonName .. "\\media\\Icon"
-local frame, body, scroll, copyWindow, copyEdit, shown, footer
+local frame, body, scroll, copyWindow, copyEdit, shown, footer, summary
 
 local function Name(itemID)
 	local name = C_Item.GetItemNameByID(itemID)
@@ -75,6 +75,12 @@ local function Refresh()
 		child:SetParent(nil)
 	end
 	local lists = ns.ShoppingList()
+	-- The window groups by source, not profession, so the header names every plan it is buying for.
+	local plans = {}
+	for _, list in ipairs(lists) do
+		plans[#plans + 1] = string.format(L["%s to %d"], list.profession, list.target)
+	end
+	summary:SetText(#plans > 0 and string.format(L["Buying for %s"], table.concat(plans, ", ")) or "")
 	local top, any, total, unpriced = -10, false, 0, 0
 	local headings =
 		{ gather = L["Gather"], vendor = L["Vendor"], auction = L["Auction house"], unknown = L["Unknown"] }
@@ -108,7 +114,9 @@ local function Refresh()
 				local name = item:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 				name:SetPoint("TOPLEFT", icon, "TOPRIGHT", 8, 0)
 				name:SetWidth(460)
-				name:SetText(string.format(L["%s (%s)"], Name(row.itemID), entry.list.profession))
+				name:SetText(
+					string.format(L["%s (%s to %d)"], Name(row.itemID), entry.list.profession, entry.list.target)
+				)
 				local alt = row.alt[1] and string.format(L["on %s"], row.alt[1].name) or ""
 				local unit = row.price and ns.FormatNet(ns.Model.RoundMoney(row.price), false) or L["price unknown"]
 				local cost = row.cost and ns.FormatNet(ns.Model.RoundMoney(row.cost), false) or "-"
@@ -168,8 +176,14 @@ local function Create()
 	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 	frame:SetTitle(L["Shopping list"])
 	ns.Art.Icon(frame:GetPortrait(), ICON, 62)
+	-- Clear of the portrait, which overhangs the top-left corner, and above the list.
+	summary = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	summary:SetPoint("TOPLEFT", 82, -36)
+	summary:SetPoint("RIGHT", -16, 0)
+	summary:SetJustifyH("LEFT")
+	summary:SetHeight(28)
 	local inset = CreateFrame("Frame", nil, frame, "InsetFrameTemplate")
-	inset:SetPoint("TOPLEFT", 10, -60)
+	inset:SetPoint("TOPLEFT", 10, -70)
 	inset:SetPoint("BOTTOMRIGHT", -10, 48)
 	scroll = CreateFrame("ScrollFrame", nil, inset, "ScrollFrameTemplate")
 	scroll:SetPoint("TOPLEFT", 8, -8)

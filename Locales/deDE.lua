@@ -18,7 +18,6 @@ L["%s (%d): bundled %s, the trainer wants %d"] = "%s (%d): mitgeliefert %s, der 
 L["%s (unlearned)"] = "%s (nicht erlernt)"
 L["%s is at %s."] = "%s ist bei %s."
 L["%s is in %s."] = "%s ist in %s."
-L["%s to %d"] = "%s bis %d"
 L["%s trainer"] = "Lehrer für %s"
 L["%s until %d"] = "%s bis %d"
 L["%s, %d"] = "%s, %d"
@@ -397,3 +396,7 @@ L["your bags and bank already hold the reagents for that many."] =
 	"Eure Taschen und Bank haben die Reagenzien dafür schon."
 L["No step yet: learn or train a %s recipe that skills up."] =
 	"Noch kein Schritt: lernt oder erlernt ein %s-Rezept, das Fertigkeit bringt."
+L["%s (%s to %d)"] = "%s (%s bis %d)" -- mt
+L["Buying for %s"] = "Einkauf für %s" -- mt
+L["The shopping list says which skill level it is buying for."] =
+	"Die Einkaufsliste zeigt, für welche Fertigkeitsstufe sie einkauft." -- mt

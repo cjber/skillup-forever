@@ -852,6 +852,9 @@ function Client.load(options)
 	c.addons = {}
 	G.C_AddOns = {
 		GetAddOnMetadata = function(addon, field)
+			if field == "X-Website" and addon == ADDON then
+				return c.website
+			end
 			if field == "Version" then
 				if addon == ADDON then
 					return "1.2.3"

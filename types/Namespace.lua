@@ -2,6 +2,7 @@
 
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
+---@field ReportTitle string the localized title shown by the shared report window
 ---@field Art SkillUpArt
 ---@field TrackerHost? ForeverTrackerHostAPI
 ---@field TrackerHostSettings fun(): ForeverTrackerSettings
@@ -47,7 +48,7 @@
 ---@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/su export)
 ---@field AuditLines fun(): string[]? /su audit's lines with a profession open, nil with none
 ---@field ReportLines fun(): string[] SkillUp's own lines in /su report (Core/Report.lua)
----@field Report SkillUpReportModule the report window (UI/Report.lua)
+---@field Report ForeverReportModule the report window (UI/Report.lua)
 ---@field SafeCall fun(label: string, fn: function, ...: any): boolean, ... run fn as pcall does, keeping a failure for /su report and passing it to the error handler (Core/SafeCall.lua)
 ---@field RecordError fun(label: string, message: any, stack?: string) keep an error caught some other way for the report
 ---@field CaughtErrors fun(): SkillUpCaughtError[] this session's caught errors, oldest first, as copies

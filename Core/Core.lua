@@ -1,6 +1,7 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
 local L = ns.L
+ns.ReportTitle = L["SkillUp report"]
 
 ---@type SkillUpDefaults
 local DEFAULTS = {
@@ -73,7 +74,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The trainer requirements you have seen can be copied out."]
+ns.WHATS_NEW = L["Report and issue text selects when focused."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -644,12 +645,8 @@ SLASH_SKILLUPFOREVER1 = "/skillup"
 SLASH_SKILLUPFOREVER2 = "/su"
 local function Slash(msg)
 	local command, argument = strtrim(msg):lower():match("^(%S*)%s*(.-)$")
-	if command == "report" then
-		-- SkillUp's lines can fail in the very state being reported: the header and caught errors still show.
-		local ok, lines = ns.SafeCall("report lines", ns.ReportLines)
-		ns.Report.Show(ns.Report.Text(ok and lines or { "Report lines failed: " .. tostring(lines) }))
-	elseif command == "issue" or command == "bug" or command == "feature" then
-		ns.Report.Compose(command == "feature" and "feature" or "bug")
+	if ns.Report and ns.Report.Command and ns.Report.Command(command, argument) then
+		return
 	elseif command == "help" then
 		ns.Print(L["/su report - show a report to copy into a bug report"])
 		ns.Print(L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"])

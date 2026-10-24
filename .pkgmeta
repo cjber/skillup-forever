@@ -15,3 +15,5 @@ ignore:
   - stylua.toml
   - Locales/phrases.txt
   - Locales/README.md
+  - .agents
+  - .claude

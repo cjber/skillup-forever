@@ -68,7 +68,7 @@ On-demand tools for audits. Output is candidates, never verdicts.
 | Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sift/runs/jscpd --ignore "Data/**,tools/.cache/**,.sift/**" .` | 4 Python clones: the `argparse` preamble repeated in each `tools/gen_*.py` (a small idiom); 1 Lua clone: the stub frame in the two tracker specs, which are shared files (see Conventions) |
 | Live roots | `rg -n 'hooksecurefunc|RegisterEvent|RegisterCallback|SetScript|AddTooltipPostCall|AddInitializedFrameCallback|Menu.ModifyMenu|SLASH_|SlashCmdList' -g '*.lua'` | — |
 | Data byte-compare | copy the primary checkout's ignored `tools/.cache/`, then `python3 tools/gen_<name>.py --offline` and `git status Data` | only `gen_thresholds` and `gen_vendor` run from the usual cache; the others need the classic-db and era DB2 downloads (drop `--offline` once) |
-| Standards | `python3 <sift>/scripts/agents.py standards` | resolves the pinned `wow-forever-addon` URL from cache; offline with no cached copy it prints `unknown-standard` (set `SIFT_STANDARDS_PATH=~/skills` to use the local clone) |
+| Standards | `python3 <sift>/scripts/agents.py standards` | resolves the pinned `wow-forever-addon` URL from cache; offline with no cached copy it prints `unknown-standard` (set `SIFT_STANDARDS_PATH=~/forever-core` to use the local clone) |
 
 ## Live roots
 

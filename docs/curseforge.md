@@ -58,6 +58,7 @@ Open a profession and the numbers are already there.
 - `/su skipped` lists the recipes you said *Not this recipe* to, and `/su unskip <ID>` (or `all`) brings them back.
 - `/su audit`, with a profession open, prints where the bundled thresholds differ from the colours the game shows.
 - `/su report` shows a report to copy into a bug report.
+- `/su issue` opens a ready-made GitHub issue link to report a bug or request a feature.
 - `/su trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
 Missing data shows `?`. Settings cover rows and tooltips, prices, the route and gear tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints.

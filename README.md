@@ -73,6 +73,7 @@ Open a profession and the numbers are already there.
 | `/su unskip <ID>`, `/su unskip all` | Show a skipped recipe, or every one, in the route again |
 | `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
 | `/su report` | Show a report to copy into a bug report: versions, professions, routes, the audit and recent errors |
+| `/su issue` | Open a ready-made GitHub issue link to report a bug or request a feature |
 | `/su shopping`, `/su shop` | Open the shopping list for tracked professions, copy it, or plan a buy trip with Shortest Path Forever |
 | `/su trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer has confirmed or shown differently |
 

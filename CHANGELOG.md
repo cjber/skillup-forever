@@ -12,6 +12,13 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.19.9] - 2026-10-26
+
+- **The addon now ships the suite's dead-code gate, and an unused details-bar accessor is gone.**
+  `tools/deadcode.py` scans the addon for namespace members no code reads, Lua files no TOC loads and media
+  nothing references, and runs as its own CI job; adopting it removed `ns.DetailsBarTop()`, which nothing called.
+  Nothing changes in game.
+
 ## [0.19.8] - 2026-10-26
 
 - **The addon now ships the suite's shared settings-page code.** Forever Core's settings-page chrome (`UI/SettingsPage.lua`) and its spec are vendored byte for byte so the suite's shared-code drift gate covers this addon; SkillUp keeps drawing its own settings page, so nothing changes in game.

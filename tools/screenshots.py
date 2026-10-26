@@ -2,7 +2,7 @@
 
     python3 tools/screenshots.py
 
-Needs Pillow and the wowmock library (env WOWMOCK, default ~/.claude/skills/wow-mock-screenshots). Assets
+Needs Pillow and the wowmock library (env FOREVER_CORE, default sibling forever-core checkout). Assets
 are fetched from wago.tools once and cached under ~/.cache/wowmock/<build>/.
 
 Every number drawn comes from this repository: thresholds, reagents, sell prices, vendor prices and
@@ -23,9 +23,10 @@ import sys
 import tempfile
 from pathlib import Path
 
-WOWMOCK = Path(os.environ.get("WOWMOCK", Path.home() / ".claude" / "skills" / "wow-mock-screenshots"))
-if not (WOWMOCK / "wowmock.py").exists():
-    sys.exit(f"wowmock.py not found in {WOWMOCK}; set WOWMOCK to the directory that holds it")
+FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
+WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
+if not (WOWMOCK / "wowmock.py").is_file():
+    sys.exit(f"wowmock.py not found in {WOWMOCK}; set FOREVER_CORE to the forever-core checkout")
 sys.path.insert(0, str(WOWMOCK))
 
 REPO = Path(__file__).resolve().parent.parent

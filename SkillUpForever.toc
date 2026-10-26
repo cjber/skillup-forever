@@ -52,6 +52,7 @@ Integrations\Prices.lua
 UI\Art.lua
 UI\Report.lua
 UI\Settings.lua
+UI\SettingsPage.lua
 UI\Tooltip.lua
 UI\DetailsBar.lua
 UI\RecipeList.lua

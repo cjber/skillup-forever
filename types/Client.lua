@@ -314,6 +314,8 @@ Settings.VarType = { Boolean = "boolean", String = "string", Number = "number" }
 ---@param name string
 ---@return SkillUpCategory
 function Settings.RegisterVerticalLayoutCategory(name) end
+---@return any
+function Settings.RegisterCanvasLayoutCategory(frame, name) end
 ---@param parent SkillUpCategory
 ---@param name string
 ---@return SkillUpCategory

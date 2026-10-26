@@ -182,9 +182,8 @@ root with:
 python3 tools/screenshots.py
 ```
 
-It needs Pillow and `wowmock.py` from the `wow-mock-screenshots` skill in the
-cjber/skills checkout, found at `~/.claude/skills/wow-mock-screenshots` by
-default; set `WOWMOCK` to another directory that holds it. Art and fonts come
+It needs Pillow and the shared `wowmock.py` in the sibling `forever-core` checkout.
+Set `FOREVER_CORE` to that checkout if it is in another location. Art and fonts come
 from wago.tools for the pinned Forever build and are cached under
 `~/.cache/wowmock/`. Every number drawn comes from `Data/*.lua` through a port
 of `Core/Model.lua`, or (route, tracker, trainer and reagent scenes) from the addon's own Lua run

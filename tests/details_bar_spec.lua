@@ -74,9 +74,6 @@ t, skill = ns.DetailsBar(ns.Model.Get(LEARNED_BANDAGE), ctx and ctx.skill)
 equal(t[4], 85, "the learned rank's grey")
 equal(skill, 40, "at the skill the window reports")
 
--- Where the bar hangs: under the recipe's name and description, inside the details pane's art.
-equal(ns.DetailsBarTop() <= -60, true, "the bar sits past the details pane's top, under the recipe")
-
 -- The tooltip's bar and the details pane's are one drawing: one function lays out a bar of either caller's
 -- making, over [orange, grey + tail] as the tooltip always has.
 local made = ns.CreateSkillBar()

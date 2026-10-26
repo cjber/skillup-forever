@@ -30,12 +30,6 @@ function ns.DetailsBar(t, skill)
 	return t, skill
 end
 
--- The bar's TOPLEFT below the details pane's TOPLEFT, in pixels.
----@return integer
-function ns.DetailsBarTop()
-	return DETAILS_BAR_TOP
-end
-
 -- The recipe whose bar is drawn: the highest learned version of the selected one, as the recipe tooltip draws it.
 ---@param info TradeSkillRecipeInfo?
 ---@return integer?

@@ -92,7 +92,6 @@
 ---@field CreateSkillBar fun(): SkillUpBar
 ---@field LayoutSkillBar fun(bar: SkillUpBar, t: number[], skill: number): SkillUpBar
 ---@field DetailsBar fun(t: number[]?, skill: number?): number[]?, number? the details pane's bar: thresholds and skill, nil without either
----@field DetailsBarTop fun(): integer the details bar's TOPLEFT, below the details pane's TOPLEFT
 ---@field DetailsBarRecipe fun(info: TradeSkillRecipeInfo?): integer? the recipe the details bar draws
 ---@field AuctionatorAutoscan fun(): boolean?
 ---@field AuctionListName fun(profession: string): string

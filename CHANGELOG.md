@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Profession data regenerated for client build 1.60.1.70630.** Trainer requirements, recipes, sources, vendor prices and skill thresholds are rebuilt from the new build, and the generators now read the newest Forever build from wago.tools' `wowf` product as well as `wow_classic_beta`. wago lists newer builds only under `wowf`, so the daily refresh had been reporting itself already current and skipped regeneration; that is why the bundled data sat on the previous build.
+
 ## [0.19.9] - 2026-10-26
 
 - **The addon now ships the suite's dead-code gate, and an unused details-bar accessor is gone.**

@@ -53,6 +53,8 @@
 ---@field Navigate fun(skillLineID: integer, stepIndex: integer): boolean
 ---@field OpenRecipes fun(skillLineID: integer): boolean
 ---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[] Fresh copy for tracked routes; empty when no matching tracked route exists.
+---@field RequiredMaterials fun(recipeID: integer, crafts?: number): {itemID: integer, count: number}[]? Raw inputs after known, cheaper sub-crafts are expanded.
+---@field SubComponents fun(recipeID: integer, crafts?: number): SkillUpSubCraft[]? Known cheaper recipes needed to make the recipe's inputs.
 
 ---@class SkillUpAPIShoppingItem
 ---@field itemID integer

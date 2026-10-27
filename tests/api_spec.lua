@@ -59,6 +59,7 @@ local c = Client.load({
 })
 local ns, API = c.ns, c.G.SkillUpForever.API
 equal(API.version, 1, "version 1")
+equal(API.minor, 4, "minor version includes recipe materials helpers")
 equal(#API.Professions(), 0, "nothing before the saved variables load")
 
 c.spells = {
@@ -96,6 +97,15 @@ equal(early[1].nav, false, "and routes nowhere")
 equal(early[3].detail, "Leatherworking trainer · 1800c", "nor does training name a trainer")
 c.Advance(0)
 list = API.Professions()
+local rawInputs = API.RequiredMaterials(GLOVES, 2)
+equal(#rawInputs, 2, "both unexpanded recipe inputs")
+equal(rawInputs[1].itemID, LEATHER, "raw leather item")
+equal(rawInputs[1].count, 12, "raw leather scales with requested crafts")
+equal(rawInputs[2].itemID, THREAD, "raw thread item")
+equal(rawInputs[2].count, 4, "raw thread scales with requested crafts")
+local components = API.SubComponents(GLOVES, 2)
+equal(#components, 0, "no valued sub-component recipes")
+equal(API.RequiredMaterials(999999), nil, "unknown recipe returns nil")
 -- Tracked first, then reagents in hand, then a purchase first, then nothing to do.
 equal(#list, 4, "one entry per profession")
 equal(list[1].name, "Tailoring", "a tracked profession leads")

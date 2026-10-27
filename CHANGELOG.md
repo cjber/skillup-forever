@@ -12,6 +12,14 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-10-27
+
+- **Other addons can now ask SkillUp Forever what a recipe really costs to craft.** `API.RequiredMaterials` returns the raw inputs for any recipe at a requested craft count, with the cheaper sub-crafts it already knows how to make folded out, and `API.SubComponents` returns those sub-craft recipes. Commissions Forever uses both to work out what a turn-in costs without carrying its own copy of the profession plan.
+
+### For addon authors
+
+- `SkillUpForever.API.minor` is now `4`. `API.RequiredMaterials(recipeID, crafts?)` returns `{ itemID, count }[]` and `API.SubComponents(recipeID, crafts?)` returns the valued sub-craft recipes, both `nil` for an unknown recipe. `ns.RecipeMaterials(recipeID, crafts)` is the shared price-aware entry point behind them.
+
 ## [0.19.10] - 2026-10-27
 
 - **Profession data regenerated for client build 1.60.1.70630.** Trainer requirements, recipes, sources, vendor prices and skill thresholds are rebuilt from the new build, and the generators now read the newest Forever build from wago.tools' `wowf` product as well as `wow_classic_beta`. wago lists newer builds only under `wowf`, so the daily refresh had been reporting itself already current and skipped regeneration; that is why the bundled data sat on the previous build.

@@ -2,6 +2,7 @@
 
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
+---@field RecipeMaterials fun(recipeID: integer, crafts: number): SkillUpSubCraft[]?, {itemID: integer, count: number}[]?
 ---@field ReportTitle string the localized title shown by the shared report window
 ---@field Art SkillUpArt
 ---@field TrackerHost? ForeverTrackerHostAPI

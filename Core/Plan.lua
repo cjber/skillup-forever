@@ -355,6 +355,17 @@ local function Expand(recipeID, crafts, depth, making)
 	return subcrafts, raw
 end
 
+-- Public, price-aware bill of materials for other addons. Unknown recipes return nil.
+---@param recipeID integer
+---@param crafts number
+---@return SkillUpSubCraft[]?, {itemID: integer, count: number}[]?
+function ns.RecipeMaterials(recipeID, crafts)
+	if not ns.RecipeData[recipeID] or type(crafts) ~= "number" or crafts <= 0 then
+		return nil, nil
+	end
+	return Expand(recipeID, crafts, 0, {})
+end
+
 -- The order the plan is walked in: each rank once the route passes the cap below it, a recipe's
 -- training just before its first craft, the sub-crafts that make its reagents, then the craft.
 ---@param plan SkillUpPlan

@@ -71,7 +71,7 @@ c.G.Syndicator = {
 	},
 }
 local api = c.G.SkillUpForever.API
-equal(api.minor, 3, "API minor version")
+equal(api.minor, 4, "API minor version")
 local lists = api.ShoppingList()
 equal(#lists, 2, "both tracked professions are present")
 equal(lists[1].profession, "Blacksmithing", "profession names sort deterministically")

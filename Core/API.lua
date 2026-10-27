@@ -359,7 +359,23 @@ local function Build()
 end
 
 ---@class SkillUpPublicAPI
-local API = { version = 1, minor = 3 }
+local API = { version = 1, minor = 4 }
+
+---@param recipeID integer
+---@param crafts number?
+---@return {itemID: integer, count: number}[]?
+function API.RequiredMaterials(recipeID, crafts)
+	local _, raw = ns.RecipeMaterials(recipeID, crafts or 1)
+	return raw
+end
+
+---@param recipeID integer
+---@param crafts number?
+---@return SkillUpSubCraft[]?
+function API.SubComponents(recipeID, crafts)
+	local subcrafts = ns.RecipeMaterials(recipeID, crafts or 1)
+	return subcrafts
+end
 
 ---@param skillLineID integer?
 ---@return SkillUpAPIShoppingProfession[]

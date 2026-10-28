@@ -10,7 +10,7 @@ from pathlib import Path
 from forever_tools import wago
 
 USER_AGENT = "SkillUpForever/1.0"
-BUILD = "1.60.1.70658"
+BUILD = "1.60.1.70685"
 # The Classic Era build Forever's thresholds are compared with: where Forever moved a recipe's yellow and
 # grey but kept Classic's minimum, the minimum is stale. gen_trainer.py reads its teaching spells too.
 TEACH_BUILD = "1.15.9.70576"

@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.20.1] - 2026-10-28
+
+- **Profession data re-pinned to client build 1.60.1.70658.** Recipes, sources, trainer requirements, vendor prices and skill thresholds are read against the newer Forever build and recorded with it. Regenerating against this build produces no change to the bundled numbers, so nothing a player sees changes.
+
 ## [0.20.0] - 2026-10-27
 
 - **Other addons can now ask SkillUp Forever what a recipe really costs to craft.** `API.RequiredMaterials` returns the raw inputs for any recipe at a requested craft count, with the cheaper sub-crafts it already knows how to make folded out, and `API.SubComponents` returns those sub-craft recipes. Commissions Forever uses both to work out what a turn-in costs without carrying its own copy of the profession plan.

@@ -12,7 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
-## [[skillup-forever]] - 2026-10-28
+## [0.20.2] - 2026-10-28
 
 - **Profession data re-pinned to client build 1.60.1.70685.** Recipes, sources, trainer requirements, vendor prices and skill thresholds are read against the newer Forever build; regenerating against it produces no change to the bundled numbers, so nothing a player sees changes.
 

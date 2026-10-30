@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.20.4] - 2026-10-30
+
+- **THIRD_PARTY.md credits more of the players behind the addon.** Its Ideas and contributors table gains rows for players whose reports, ideas or fixes shipped but were not yet credited there. Thanks to Mouchoir and zazomazzo for what they reported, asked for and fixed.
+
 ## [0.20.3] - 2026-10-30
 
 - **Profession data re-pinned to client build 1.60.1.70707.** Recipes, sources, trainer requirements, vendor prices and skill thresholds are read against the newer Forever build; regenerating against it produces no change to the bundled numbers, so nothing a player sees changes.

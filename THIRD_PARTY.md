@@ -53,5 +53,7 @@ Credit for the ideas and reports behind the addon.
 | Bolthorr, on CurseForge | Reported the levelling route tab colliding with All The Things' profession tab (#179) | |
 | Syrberus, on CurseForge | Reported the secret-number error on recipe tooltips, with the full error (#161, 0.16.0) | |
 | deathmvp1 and berserkerlxl, on CurseForge | Found Questie's quest list covering the Forever tracker sections, which now move clear of it (cjber/shortest-path-forever#214) | |
+| [Mouchoir](https://github.com/Mouchoir) | Found and fixed the profession window's stutters and freezes on tab switches, combat skill-ups and re-plans (#176, #183, #185) and the route reagent error on a missing tool priced through Auctionator (#174) | Code contributor (#173, #175, #182, #184) |
+| [zazomazzo](https://github.com/zazomazzo) | Fixed the objective tracker vanishing when dragged in Edit Mode with snapping on (#221, merged as #222) | Code contributor |
 
 Thanks also to everyone else who reported a bug or asked for a feature, here or on CurseForge.

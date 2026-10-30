@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.20.3] - 2026-10-30
+
+- **Profession data re-pinned to client build 1.60.1.70707.** Recipes, sources, trainer requirements, vendor prices and skill thresholds are read against the newer Forever build; regenerating against it produces no change to the bundled numbers, so nothing a player sees changes.
+
 ## [0.20.2] - 2026-10-28
 
 - **Profession data re-pinned to client build 1.60.1.70685.** Recipes, sources, trainer requirements, vendor prices and skill thresholds are read against the newer Forever build; regenerating against it produces no change to the bundled numbers, so nothing a player sees changes.

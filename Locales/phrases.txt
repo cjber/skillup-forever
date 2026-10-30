@@ -192,7 +192,7 @@ L["Plans the quickest way anywhere and guides you there, with live boat and zepp
 L["Price"] = "Price"
 L["Price %s, requires %s (%d)"] = "Price %s, requires %s (%d)"
 L["Prices"] = "Prices"
-L["Profession data re-pinned to client build 1.60.1.70685."] = "Profession data re-pinned to client build 1.60.1.70685."
+L["Profession data re-pinned to client build 1.60.1.70707."] = "Profession data re-pinned to client build 1.60.1.70707."
 L["Profession reagents"] = "Profession reagents"
 L["Profit per craft"] = "Profit per craft"
 L["Profit per skill-up"] = "Profit per skill-up"

@@ -29,7 +29,8 @@ python3 tools/lint_multivalue.py
 python3 tools/lint_art.py
 python3 tools/lint_secret.py
 python3 tools/check_editorconfig.py
-python3 tools/check_locales.py
+# A locale gap fails the PR that adds the English string, not the release that ships it.
+python3 tools/check_locales.py --release
 python3 tools/check_family.py
 # A fresh output path prevents a crashed server from reusing an earlier clean report.
 report_dir=$(mktemp -d)

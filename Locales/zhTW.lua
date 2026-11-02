@@ -395,3 +395,49 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 	"橙色、黃色、綠色和灰色門檻以及你的技能位置，顯示在專業視窗的配方下方。如果遮住材料請關閉。" -- mt
 L["%s (%s to %d)"] = "%s（%s 至 %d）" -- mt
 L["Buying for %s"] = "為 %s 採購" -- mt
+L["  %d items have no price yet"] = "  %d 件物品還沒有價格"
+L["%d x %s - %s each"] = "%d x %s - 每個 %s"
+L["%d x %s - price unknown"] = "%d x %s - 價格未知"
+L["%s to %d"] = "%s至%d"
+L[", "] = "，"
+L[", price seen %d days ago"] = "，%d 天前的價格"
+L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/su export - 顯示此角色見過的訓練師要求，以便貼到報告中"
+L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/su issue - 回報錯誤或請求功能，並附上現成的 GitHub issue 連結"
+L["/su report - show a report to copy into a bug report"] = "/su report - 顯示報告，以便複製到錯誤回報中"
+L[": "] = "："
+L["A buy trip needs Shortest Path Forever."] = "購買行程需要 Shortest Path Forever。"
+L["Bug"] = "錯誤"
+L["Bug: "] = "錯誤："
+L["Copy issue link"] = "複製 issue 連結"
+L["Copy list"] = "複製清單"
+L["Copy report"] = "複製報告"
+L["Feature request"] = "功能請求"
+L["Feature request: "] = "功能請求："
+L["Gather"] = "採集"
+L["More players are credited for their reports and fixes."] =
+	"更多玩家因他們的回報與修正而獲得署名。"
+L["Need %d, have %d, missing %d  %s  %s each  %s"] = "需要 %d，現有 %d，缺少 %d  %s  每個 %s  %s"
+L["No tracked profession"] = "沒有追蹤的專業"
+L["Nothing is missing from the shopping list."] = "購物清單裡沒有缺少的東西。"
+L["Nothing to buy"] = "沒有要買的東西"
+L["Plan buy trip"] = "規劃購買"
+L["Report a bug or request a feature"] = "回報錯誤或請求功能"
+L["Shopping list"] = "購物清單"
+L["Shortest Path Forever cannot plan the full trip; setting a waypoint to the first vendor."] =
+	"Shortest Path Forever 無法規劃整個行程；已設定前往第一個商人的導航點。"
+L["Shortest Path Forever is needed to plan this trip."] = "規劃此行程需要 Shortest Path Forever。"
+L["SkillUp Forever shopping list"] = "SkillUp Forever 購物清單"
+L["The link is selected. Press Ctrl+C (Cmd+C on a Mac), then paste into a browser; GitHub opens a filled-in issue."] =
+	"連結已選取。按Ctrl+C（Mac上為Cmd+C），然後貼到瀏覽器中；GitHub 會開啟填好的 issue。"
+L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."] =
+	"文字已選取。按Ctrl+C（Mac上為Cmd+C）複製。"
+L["Title"] = "標題"
+L["Total for priced items: "] = "有價格物品合計："
+L["Unknown"] = "未知"
+L["What happened, or what you would like"] = "發生了什麼，或你希望有什麼"
+L["no trainer requirement seen yet: open a profession trainer, then try again."] =
+	"尚未見到訓練師要求：開啟專業訓練師，然後再試一次。"
+L["on %s"] = "在%s身上"
+L["price unknown"] = "價格未知"

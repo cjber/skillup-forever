@@ -404,3 +404,52 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 	"주황, 노랑, 초록, 회색 기준과 현재 숙련도 위치를 전문 기술 창의 제조법 아래에 표시합니다. 재료를 가리면 끄세요." -- mt
 L["%s (%s to %d)"] = "%s (%s %d까지)" -- mt
 L["Buying for %s"] = "%s을(를) 위해 구매" -- mt
+L["  %d items have no price yet"] = "  %d개 아이템은 아직 가격이 없습니다"
+L["%d x %s - %s each"] = "%d x %s - 개당 %s"
+L["%d x %s - price unknown"] = "%d x %s - 가격 없음"
+L["%s to %d"] = "%s, %d까지"
+L[", "] = ", "
+L[", price seen %d days ago"] = ", %d일 전 확인한 가격"
+L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/su export - 이 캐릭터가 확인한 전문가 요구 조건을 표시합니다. 보고서에 붙여 넣을 수 있습니다."
+L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/su issue - GitHub 이슈 링크가 준비된 상태로 버그를 신고하거나 기능을 요청합니다."
+L["/su report - show a report to copy into a bug report"] =
+	"/su report - 버그 보고서에 복사할 보고서를 표시합니다."
+L[": "] = ": "
+L["A buy trip needs Shortest Path Forever."] =
+	"구매 경로를 계획하려면 Shortest Path Forever가 필요합니다."
+L["Bug"] = "버그"
+L["Bug: "] = "버그: "
+L["Copy issue link"] = "이슈 링크 복사"
+L["Copy list"] = "목록 복사"
+L["Copy report"] = "보고서 복사"
+L["Feature request"] = "기능 요청"
+L["Feature request: "] = "기능 요청: "
+L["Gather"] = "채집"
+L["More players are credited for their reports and fixes."] =
+	"보고와 수정에 참여한 더 많은 플레이어를 명단에 올렸습니다."
+L["Need %d, have %d, missing %d  %s  %s each  %s"] = "필요 %d, 보유 %d, 부족 %d  %s  개당 %s  %s"
+L["No tracked profession"] = "추적 중인 전문 기술 없음"
+L["Nothing is missing from the shopping list."] = "구매 목록에서 빠진 것이 없습니다."
+L["Nothing to buy"] = "구매할 것 없음"
+L["Plan buy trip"] = "구매 경로 계획"
+L["Report a bug or request a feature"] = "버그 신고 또는 기능 요청"
+L["Shopping list"] = "구매 목록"
+L["Shortest Path Forever cannot plan the full trip; setting a waypoint to the first vendor."] =
+	"Shortest Path Forever가 전체 경로를 계획할 수 없습니다. 첫 상인으로 웨이포인트를 설정합니다."
+L["Shortest Path Forever is needed to plan this trip."] =
+	"이 경로를 계획하려면 Shortest Path Forever가 필요합니다."
+L["SkillUp Forever shopping list"] = "SkillUp Forever 구매 목록"
+L["The link is selected. Press Ctrl+C (Cmd+C on a Mac), then paste into a browser; GitHub opens a filled-in issue."] =
+	"링크가 선택되었습니다. Ctrl+C(Mac은 Cmd+C)로 복사한 뒤 브라우저에 붙여 넣으십시오. GitHub에서 내용이 채워진 이슈가 열립니다."
+L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."] =
+	"텍스트가 선택되었습니다. Ctrl+C(Mac은 Cmd+C)로 복사하십시오."
+L["Title"] = "제목"
+L["Total for priced items: "] = "가격이 있는 아이템 합계: "
+L["Unknown"] = "알 수 없음"
+L["What happened, or what you would like"] = "무슨 일이 있었는지 또는 원하는 점"
+L["no trainer requirement seen yet: open a profession trainer, then try again."] =
+	"아직 확인한 전문가 요구 조건이 없습니다. 전문 기술 전문가를 연 뒤 다시 시도하십시오."
+L["on %s"] = "%s 보유"
+L["price unknown"] = "가격 없음"

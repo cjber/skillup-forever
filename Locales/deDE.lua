@@ -398,3 +398,50 @@ L["No step yet: learn or train a %s recipe that skills up."] =
 	"Noch kein Schritt: lernt oder erlernt ein %s-Rezept, das Fertigkeit bringt."
 L["%s (%s to %d)"] = "%s (%s bis %d)" -- mt
 L["Buying for %s"] = "Einkauf für %s" -- mt
+L["  %d items have no price yet"] = "  %d Gegenstände haben noch keinen Preis"
+L["%d x %s - %s each"] = "%d x %s - je %s"
+L["%d x %s - price unknown"] = "%d x %s - Preis unbekannt"
+L["%s to %d"] = "%s bis %d"
+L[", "] = ", "
+L[", price seen %d days ago"] = ", Preis vor %d Tagen gesehen"
+L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/su export - zeigt die Lehreranforderungen, die dieser Charakter gesehen hat, zum Einfügen in einen Bericht"
+L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/su issue - meldet einen Fehler oder wünscht eine Funktion, mit fertigem GitHub-Issue-Link"
+L["/su report - show a report to copy into a bug report"] =
+	"/su report - zeigt einen Bericht zum Kopieren in einen Fehlerbericht"
+L[": "] = ": "
+L["A buy trip needs Shortest Path Forever."] = "Eine Einkaufsreise braucht Shortest Path Forever."
+L["Bug"] = "Fehler"
+L["Bug: "] = "Fehler: "
+L["Copy issue link"] = "Issue-Link kopieren"
+L["Copy list"] = "Liste kopieren"
+L["Copy report"] = "Bericht kopieren"
+L["Feature request"] = "Funktionswunsch"
+L["Feature request: "] = "Funktionswunsch: "
+L["Gather"] = "Sammeln"
+L["More players are credited for their reports and fixes."] =
+	"Weitere Spieler werden für ihre Berichte und Korrekturen genannt."
+L["Need %d, have %d, missing %d  %s  %s each  %s"] = "Braucht %d, habt %d, fehlen %d  %s  je %s  %s"
+L["No tracked profession"] = "Kein Beruf verfolgt"
+L["Nothing is missing from the shopping list."] = "Auf der Einkaufsliste fehlt nichts."
+L["Nothing to buy"] = "Nichts zu kaufen"
+L["Plan buy trip"] = "Einkaufsreise planen"
+L["Report a bug or request a feature"] = "Fehler melden oder Funktion wünschen"
+L["Shopping list"] = "Einkaufsliste"
+L["Shortest Path Forever cannot plan the full trip; setting a waypoint to the first vendor."] =
+	"Shortest Path Forever kann die ganze Reise nicht planen; Wegpunkt zum ersten Händler wird gesetzt."
+L["Shortest Path Forever is needed to plan this trip."] = "Für diese Reise wird Shortest Path Forever benötigt."
+L["SkillUp Forever shopping list"] = "SkillUp Forever Einkaufsliste"
+L["The link is selected. Press Ctrl+C (Cmd+C on a Mac), then paste into a browser; GitHub opens a filled-in issue."] =
+	"Der Link ist markiert. Drückt Strg+C (Cmd+C auf dem Mac) und fügt ihn dann in einen Browser ein; GitHub öffnet ein vorausgefülltes Issue."
+L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."] =
+	"Der Text ist markiert. Drückt Strg+C (Cmd+C auf dem Mac), um ihn zu kopieren."
+L["Title"] = "Titel"
+L["Total for priced items: "] = "Gesamt für bepreiste Gegenstände: "
+L["Unknown"] = "Unbekannt"
+L["What happened, or what you would like"] = "Was passiert ist oder was Ihr Euch wünscht"
+L["no trainer requirement seen yet: open a profession trainer, then try again."] =
+	"noch keine Lehreranforderung gesehen: Öffnet einen Berufslehrer und versucht es dann erneut."
+L["on %s"] = "bei %s"
+L["price unknown"] = "Preis unbekannt"

@@ -399,3 +399,51 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 	"Os limites laranja, amarelo, verde e cinza e onde sua perícia está, sob a receita na janela de profissões. Desative se cobrir os reagentes." -- mt
 L["%s (%s to %d)"] = "%s (%s até %d)" -- mt
 L["Buying for %s"] = "Comprando para %s" -- mt
+L["  %d items have no price yet"] = "  %d itens ainda não têm preço"
+L["%d x %s - %s each"] = "%d x %s - %s cada"
+L["%d x %s - price unknown"] = "%d x %s - preço desconhecido"
+L["%s to %d"] = "%s a %d"
+L[", "] = ", "
+L[", price seen %d days ago"] = ", preço visto há %d dias"
+L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/su export - mostra os requisitos de instrutor que este personagem viu, para colar em um relatório"
+L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/su issue - relata um erro ou pede um recurso com um link de issue do GitHub pronto"
+L["/su report - show a report to copy into a bug report"] =
+	"/su report - mostra um relatório para copiar em um relatório de erro"
+L[": "] = ": "
+L["A buy trip needs Shortest Path Forever."] = "Uma viagem de compra precisa do Shortest Path Forever."
+L["Bug"] = "Erro"
+L["Bug: "] = "Erro: "
+L["Copy issue link"] = "Copiar link da issue"
+L["Copy list"] = "Copiar lista"
+L["Copy report"] = "Copiar relatório"
+L["Feature request"] = "Pedir recurso"
+L["Feature request: "] = "Pedido de recurso: "
+L["Gather"] = "Coleta"
+L["More players are credited for their reports and fixes."] =
+	"Mais jogadores são creditados por seus relatos e correções."
+L["Need %d, have %d, missing %d  %s  %s each  %s"] = "Precisa %d, tem %d, faltam %d  %s  %s cada  %s"
+L["No tracked profession"] = "Nenhuma profissão rastreada"
+L["Nothing is missing from the shopping list."] = "Não falta nada na lista de compras."
+L["Nothing to buy"] = "Nada para comprar"
+L["Plan buy trip"] = "Planejar compra"
+L["Report a bug or request a feature"] = "Relatar um erro ou pedir um recurso"
+L["Shopping list"] = "Lista de compras"
+L["Shortest Path Forever cannot plan the full trip; setting a waypoint to the first vendor."] =
+	"O Shortest Path Forever não consegue planejar a viagem inteira; definindo um ponto de referência até o primeiro comerciante."
+L["Shortest Path Forever is needed to plan this trip."] =
+	"O Shortest Path Forever é necessário para planejar esta viagem."
+L["SkillUp Forever shopping list"] = "Lista de compras do SkillUp Forever"
+L["The link is selected. Press Ctrl+C (Cmd+C on a Mac), then paste into a browser; GitHub opens a filled-in issue."] =
+	"O link está selecionado. Pressione Ctrl+C (Cmd+C no Mac) e cole em um navegador; o GitHub abre uma issue já preenchida."
+L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."] =
+	"O texto está selecionado. Pressione Ctrl+C (Cmd+C no Mac) para copiá-lo."
+L["Title"] = "Título"
+L["Total for priced items: "] = "Total dos itens com preço: "
+L["Unknown"] = "Desconhecido"
+L["What happened, or what you would like"] = "O que aconteceu, ou o que você gostaria"
+L["no trainer requirement seen yet: open a profession trainer, then try again."] =
+	"nenhum requisito de instrutor visto ainda: abra um instrutor de profissão e tente de novo."
+L["on %s"] = "em %s"
+L["price unknown"] = "preço desconhecido"

@@ -423,3 +423,54 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 	"Оранжевый, жёлтый, зелёный и серый пороги и ваше место на них, под рецептом в окне профессий. Отключите, если она закрывает реагенты." -- mt
 L["%s (%s to %d)"] = "%s (%s до %d)" -- mt
 L["Buying for %s"] = "Покупка для %s" -- mt
+L["  %d items have no price yet"] = "  %d предметов пока без цены"
+L["%d x %s - %s each"] = "%d x %s - %s за штуку"
+L["%d x %s - price unknown"] = "%d x %s - цена неизвестна"
+L["%s to %d"] = "%s до %d"
+L[", "] = ", "
+L[", price seen %d days ago"] = ", цена замечена %d дн. назад"
+L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/su export - показать требования учителя, которые видел этот персонаж, чтобы вставить их в отчет"
+L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/su issue - сообщить об ошибке или попросить новую возможность с готовой ссылкой на issue GitHub"
+L["/su report - show a report to copy into a bug report"] =
+	"/su report - показать отчет, чтобы скопировать его в сообщение об ошибке"
+L[": "] = ": "
+L["A buy trip needs Shortest Path Forever."] =
+	"Для поездки за покупками нужен Shortest Path Forever."
+L["Bug"] = "Ошибка"
+L["Bug: "] = "Ошибка: "
+L["Copy issue link"] = "Копировать ссылку на issue"
+L["Copy list"] = "Копировать список"
+L["Copy report"] = "Копировать отчет"
+L["Feature request"] = "Пожелание"
+L["Feature request: "] = "Пожелание: "
+L["Gather"] = "Добыча"
+L["More players are credited for their reports and fixes."] =
+	"Больше игроков указано за их отчеты и исправления."
+L["Need %d, have %d, missing %d  %s  %s each  %s"] =
+	"Нужно %d, есть %d, не хватает %d  %s  %s за штуку  %s"
+L["No tracked profession"] = "Нет отслеживаемых профессий"
+L["Nothing is missing from the shopping list."] = "В списке покупок все есть."
+L["Nothing to buy"] = "Нечего покупать"
+L["Plan buy trip"] = "Спланировать покупки"
+L["Report a bug or request a feature"] =
+	"Сообщить об ошибке или попросить новую возможность"
+L["Shopping list"] = "Список покупок"
+L["Shortest Path Forever cannot plan the full trip; setting a waypoint to the first vendor."] =
+	"Shortest Path Forever не может спланировать весь путь; ставится точка маршрута к первому торговцу."
+L["Shortest Path Forever is needed to plan this trip."] =
+	"Для планирования этого пути нужен Shortest Path Forever."
+L["SkillUp Forever shopping list"] = "Список покупок SkillUp Forever"
+L["The link is selected. Press Ctrl+C (Cmd+C on a Mac), then paste into a browser; GitHub opens a filled-in issue."] =
+	"Ссылка выделена. Нажмите Ctrl+C (Cmd+C на Mac) и вставьте ее в браузере; GitHub откроет заполненное issue."
+L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."] =
+	"Текст выделен. Нажмите Ctrl+C (Cmd+C на Mac), чтобы скопировать его."
+L["Title"] = "Название"
+L["Total for priced items: "] = "Всего по предметам с ценой: "
+L["Unknown"] = "Неизвестно"
+L["What happened, or what you would like"] = "Что случилось или что вы хотите"
+L["no trainer requirement seen yet: open a profession trainer, then try again."] =
+	"требования учителя пока не видны: откройте учителя профессии и повторите попытку."
+L["on %s"] = "у %s"
+L["price unknown"] = "цена неизвестна"

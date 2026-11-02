@@ -1,107 +1,49 @@
 -- Run from the repository root: luajit tests/plan_spec.lua
--- The levelling plan over the bundled First Aid data, with no frames loaded:
--- Linen Bandage (3275), and Heavy Linen Bandage (3276), which a trainer teaches at 40 for 1s.
+-- The levelling plan over the bundled First Aid data, on the shared stub client: Linen Bandage (3275), and Heavy
+-- Linen Bandage (3276), which a trainer teaches at 40 for 1s.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local LINEN, HEAVY, WOOL, CLOTH = 3275, 3276, 3277, 2589
-local known, costs, sources, skipped = {}, {}, {}, {}
-local auctionator, open, craftable, level, faction = false, 129, 99, 20, "Alliance"
-local collectMode = "gather"
-local questTitles = {}
-local dropPlans
-local itemNames, requested = {}, {}
-local ns = {
-	db = { trainer = {}, trainerRanks = {}, routeTargets = {}, vendor = {} },
-	Catalogue = {
-		Recipe = function(recipeID)
-			return sources[recipeID]
-		end,
-		Quest = function(questID)
-			return questTitles[questID] and { title = questTitles[questID], side = "", starters = {} }
-		end,
-	},
-	WhenStale = function(_, drop)
-		dropPlans = drop
-	end,
-	IsLearned = function(id)
-		return known[id] == true
-	end,
-	IsSkipped = function(id)
-		return skipped[id] == true
-	end,
-	NetCost = function(id)
-		return costs[id]
-	end,
-	PriceSource = function(id)
-		return sources[id]
-	end,
-	Price = function(id)
-		return sources[id] and { copper = 1, source = sources[id] }
-	end,
-	HasAuctionator = function()
-		return auctionator
-	end,
-	-- Gather by default: a reagent this character gathers is free until a spec turns buying on.
-	CollectMode = function()
-		return collectMode
-	end,
-	OpenSkillLine = function()
+local HEAVY_WOOL, UNDER_WRAPS = 3278, 16084
+local MAGEWEAVE, TRIAGE_A, TRIAGE_H = 10840, 6624, 6622
+local WOOL_CLOTH, MAGEWEAVE_CLOTH = 2592, 4338
+-- A cloth costs 2c at a merchant, and the client sells each bandage for 1c less than its cloth: one craft of any
+-- of them nets 1c while its cloth is priced. Only linen cloth is priced until a case prices another.
+local SELLS = { [1251] = 1, [2581] = 3, [3530] = 1, [3531] = 3, [8544] = 1, [8545] = 3 }
+
+local c = Client.load({
+	saved = { vendor = { [CLOTH] = 2 } },
+})
+local ns, G = c.ns, c.G
+c.level, c.craftable = 20, 99
+c.professions = {
+	{ name = "First Aid", id = 129, rank = 1, max = 75 },
+	{ name = "Herbalism", id = 182, rank = 1, max = 75 },
+}
+c.spells[LINEN], c.spells[HEAVY] = "Linen Bandage", "Heavy Linen Bandage"
+for itemID, sell in pairs(SELLS) do
+	c.items[itemID] = { sell = sell }
+end
+-- Auctionator is installed only where a case says so.
+local auctionator = G.Auctionator
+G.Auctionator = nil
+-- The profession on show in the Professions window.
+local open = { professionName = "First Aid", professionID = 129 }
+G.Professions = {
+	GetProfessionInfo = function()
 		return open
 	end,
-	PlayerSide = function()
-		return ({ Alliance = "A", Horde = "H" })[faction]
-	end,
-	PlayerProfessions = function()
-		return { [129] = { name = "First Aid" }, [182] = { name = "Herbalism" } }
-	end,
 }
-ns.Reagents = function(id)
-	return ns.RecipeData[id].reagents
+
+-- A recipe the character knows, or no longer knows.
+local function Know(recipeID, known)
+	c.known[recipeID] = known or nil
 end
-local bags = {}
-ns.Have = function(id)
-	return bags[id] or 0
-end
-local env = setmetatable({
-	APPRENTICE = "Apprentice",
-	JOURNEYMAN = "Journeyman",
-	EXPERT = "Expert",
-	ARTISAN = "Artisan",
-	UnitLevel = function()
-		return level
-	end,
-	UnitFactionGroup = function()
-		return faction
-	end,
-	C_Spell = {
-		GetSpellName = function(id)
-			return ({ [LINEN] = "Linen Bandage", [HEAVY] = "Heavy Linen Bandage" })[id]
-		end,
-	},
-	C_TradeSkillUI = {
-		GetCraftableCount = function()
-			return craftable
-		end,
-	},
-	C_Item = {
-		GetItemNameByID = function(id)
-			return itemNames[id]
-		end,
-		RequestLoadItemDataByID = function(id)
-			requested[#requested + 1] = id
-		end,
-	},
-}, { __index = _G })
-for _, file in ipairs({
-	"Locales/enUS.lua",
-	"Data/Thresholds.lua",
-	"Data/Recipes.lua",
-	"Data/Trainer.lua",
-	"Core/Model.lua",
-	"Core/Plan.lua",
-}) do
-	setfenv(assert(loadfile(file)), env)("SkillUpForever", ns)
+-- A cloth at a merchant, at Auctionator's last scan, or priced nowhere.
+local function ClothPrice(itemID, vendor, auction)
+	ns.db.vendor[itemID], c.auction[itemID] = vendor, auction
+	ns.Changed("prices")
 end
 
 local function FirstAid(base, modifier, max)
@@ -119,7 +61,7 @@ end
 -- A fresh plan for a new setup: the cache is keyed on skill and target, not on what is known.
 local function Plan(profession, target)
 	ns.db.routeTargets[129] = target
-	dropPlans()
+	ns.Changed("target")
 	return ns.PlanRoute(profession)
 end
 local function Kinds(plan)
@@ -137,12 +79,13 @@ equal(ns.RankName(60), nil, "a cap no rank ends at has no name")
 
 -- The collect mode is part of the plan cache key: the same skill and target planned under the other mode is a
 -- different route, so it is planned again rather than served from the cache (#190).
-collectMode = "gather"
+local character = ns.CharacterKey()
+ns.db.collectModes[character] = "gather"
 local gathered = Plan(FirstAid(1), 100)
 equal(ns.PlanRoute(gathered.profession), gathered, "the same skill, target and mode reuses the cached plan")
-collectMode = "auction"
+ns.db.collectModes[character] = "auction"
 equal(ns.PlanRoute(gathered.profession) ~= gathered, true, "turning buying on plans again")
-collectMode = "gather"
+ns.db.collectModes[character] = "gather"
 
 -- #189: a profession keeps its last few targets' plans, so returning to one doesn't plan it again.
 local builds = 0
@@ -151,7 +94,7 @@ ns.Model.PlanWithTraining = function(...)
 	builds = builds + 1
 	return planWithTraining(...)
 end
-dropPlans()
+ns.Changed("target")
 local baseline = builds
 ns.db.routeTargets[129] = 80
 local plan80 = ns.PlanRoute(FirstAid(1))
@@ -164,7 +107,7 @@ equal(ns.PlanRoute(FirstAid(1)), plan80, "returning to a planned target reuses i
 equal(builds - baseline, 2, "without planning it again")
 
 -- Nine distinct targets fill the per-profession cache past its eight, evicting the oldest.
-dropPlans()
+ns.Changed("target")
 baseline = builds
 local planned = {}
 for target = 2, 10 do
@@ -180,11 +123,11 @@ ns.PlanRoute(FirstAid(1))
 equal(builds - baseline, 10, "the ninth target pushed the oldest out of the cache")
 
 -- The plans stale signal clears the cache, so the next ask plans afresh.
-dropPlans()
+ns.Changed("target")
 ns.db.routeTargets[129] = 9
 local beforeStale = ns.PlanRoute(FirstAid(1))
 local mark = builds
-dropPlans()
+ns.Changed("target")
 equal(ns.PlanRoute(FirstAid(1)) ~= beforeStale, true, "the plans stale signal clears the cache")
 equal(builds - mark, 1, "so the target is planned again")
 ns.Model.PlanWithTraining = planWithTraining
@@ -195,8 +138,9 @@ equal(ns.TargetChanged(129, 100), false, "the stored target has not changed")
 equal(ns.TargetChanged(129, 110), true, "a new target has")
 equal(ns.db.routeTargets[129], 100, "and asking never writes it")
 
--- Where the known recipes run out.
-known[LINEN], costs[LINEN] = true, 1
+-- Where the known recipes run out: a trainer was seen to want 200 for Heavy Linen Bandage, past the target.
+Know(LINEN, true)
+ns.db.trainer[129] = { [HEAVY] = { 100, 200 } }
 local short = Plan(FirstAid(1), 100)
 equal(short.target, 100, "the saved target")
 equal(short.reached, 60, "Linen Bandage alone stops at 60")
@@ -209,9 +153,10 @@ equal(ns.PlanRoute(FirstAid(1)), short, "the same skill and target is the same p
 equal(Plan(FirstAid(1), 100) ~= short, true, "an invalidated plan is planned again")
 equal(Plan(FirstAid(1), 0).target, 26, "no target, or one already reached, is 25 points on")
 equal(Plan(FirstAid(60), 300).target, 300, "a target goes up to the last rank a trainer, book or quest teaches")
+ns.db.trainer[129] = nil
 
 -- A rank is trained between the crafts either side of the skill it needs.
-known[HEAVY], costs[HEAVY] = true, 1
+Know(HEAVY, true)
 local ranked = Plan(FirstAid(40), 90)
 equal(Kinds(ranked), "craft rank craft", "crafts, the rank, then crafts on")
 equal(ranked.steps[1].craft.to, 50, "crafts up to the skill Journeyman needs")
@@ -228,13 +173,13 @@ local charged = Plan(FirstAid(40), 90)
 equal(charged.steps[2].rank.fee, 450, "a fee seen at a trainer wins")
 equal(charged.cost, 450 + 10 + 92, "and is the one in the cost")
 ns.db.trainerRanks[129] = nil
-ranked.ranks[1].level, level = 10, 5
+ranked.ranks[1].level, c.level = 10, 5
 equal(ns.RankText(ranked.ranks[1]), "Train Journeyman at 50 (level 10)", "with the level while below it")
-level = 20
+c.level = 20
 
 -- Issue #121: no trainer teaches Expert First Aid; the book Expert First Aid - Under Wraps does, at 125.
-local HEAVY_WOOL, UNDER_WRAPS = 3278, 16084
-known[HEAVY_WOOL], costs[HEAVY_WOOL] = true, 1
+Know(HEAVY_WOOL, true)
+ClothPrice(WOOL_CLOTH, 2)
 local expert = Plan(FirstAid(120, 0, 150), 170)
 equal(Kinds(expert), "craft rank craft", "crafts, the book, then crafts on")
 equal(expert.steps[1].craft.to, 125, "crafts up to the skill the book asks")
@@ -245,9 +190,10 @@ equal(book.cap, 225, "raising the cap to 225")
 equal(book.reqSkill, 125, "read at 125")
 equal(book.fee, 10000, "for the book's list price")
 equal(expert.reached, 170, "the route goes on past 150")
+c.requested = {}
 equal(ns.RankText(book), "Buy and read the Expert book at 125", "named by its rank until the item loads")
-equal(requested[#requested], UNDER_WRAPS, "and the item is asked for")
-itemNames[UNDER_WRAPS] = "Expert First Aid - Under Wraps"
+equal(c.requested[UNDER_WRAPS], true, "and the item is asked for")
+c.items[UNDER_WRAPS] = { name = "Expert First Aid - Under Wraps" }
 equal(ns.RankText(book), "Buy and read Expert First Aid - Under Wraps at 125", "then by its name")
 ns.db.vendor[UNDER_WRAPS] = 9000
 equal(Plan(FirstAid(120, 0, 150), 170).steps[2].rank.fee, 9000, "a merchant's price wins")
@@ -261,14 +207,14 @@ equal(
 )
 equal(ns.PlanCost(capped), capped.cost, "the route pays for a book it still has to buy")
 equal(capped.cost >= 10000, true, "which the plan counts")
-bags[UNDER_WRAPS] = 1
+c.bags[UNDER_WRAPS] = 1
 equal(ns.RankText(book), "Read Expert First Aid - Under Wraps at 125", "a book in the bags only needs reading")
 equal(ns.RankHeld(book), true, "and is held")
 equal(ns.PlanCost(capped), capped.cost - 10000, "so the route no longer pays for it")
-bags[UNDER_WRAPS] = nil
+c.bags[UNDER_WRAPS] = nil
 -- Artisan First Aid comes from Triage, one quest a side (classic-db quest_template, #121).
-local MAGEWEAVE, TRIAGE_A, TRIAGE_H = 10840, 6624, 6622
-known[MAGEWEAVE], costs[MAGEWEAVE] = true, 1
+Know(MAGEWEAVE, true)
+ClothPrice(MAGEWEAVE_CLOTH, 2)
 local artisan = Plan(FirstAid(220, 0, 225), 250)
 equal(Kinds(artisan), "craft rank craft", "crafts, the quest, then crafts on")
 local quest = artisan.steps[2].rank
@@ -279,36 +225,44 @@ equal(quest.reqSkill, 225, "at 225")
 equal(quest.level, 35, "from level 35")
 equal(quest.fee, 0, "for no fee")
 equal(artisan.reached, 250, "the route goes on past 225")
-level = 40
+c.level = 40
 equal(ns.RankText(quest), "Complete the Artisan quest at 225", "named by its rank without Questie")
-questTitles[TRIAGE_A] = "Triage"
+-- QuestieDB loads, and its title for Triage is read.
+G.LibQuestieDB = Client.QuestieDB({ quests = { [TRIAGE_A] = { name = "Triage" } } })
+c.Fire("ADDON_LOADED", "QuestieDB")
 equal(ns.RankText(quest), "Complete Triage at 225", "then by QuestieDB's title")
-level = 20
+c.level = 20
 equal(ns.RankText(quest), "Complete Triage at 225 (level 35)", "with the level while below it")
 equal(
 	ns.NextCraft(Plan(FirstAid(225, 0, 225), 250)).reason,
 	"Complete Triage first: you're at your cap.",
 	"at the cap, the quest comes before crafting"
 )
-faction = "Horde"
+c.player.faction = "Horde"
 equal(Plan(FirstAid(220, 0, 225), 250).steps[2].rank.quest, TRIAGE_H, "the Horde take their own Triage")
-faction = "Alliance"
-known[MAGEWEAVE], costs[MAGEWEAVE], questTitles[TRIAGE_A] = nil, nil, nil
-known[HEAVY_WOOL], costs[HEAVY_WOOL], itemNames[UNDER_WRAPS] = nil, nil, nil
+c.player.faction = "Alliance"
+Know(MAGEWEAVE, false)
+ClothPrice(MAGEWEAVE_CLOTH, nil)
+Know(HEAVY_WOOL, false)
+ClothPrice(WOOL_CLOTH, nil)
+c.items[UNDER_WRAPS] = nil
 
 -- Every reagent the crafts use, totalled, in the bucket its price puts it in.
 local cloth = ranked.crafts[1].crafts * 2 + ranked.crafts[2].crafts * 2
+ClothPrice(CLOTH, nil)
 local reagents = ns.RouteReagents(ranked)
 equal(#reagents, 1, "one reagent")
 equal(reagents[1].itemID, CLOTH, "linen cloth")
 equal(reagents[1].need, cloth, "two a craft, for both halves of the split")
 equal(reagents[1].source, "unknown", "no price, no source")
-sources[CLOTH] = "auctionator"
+G.Auctionator = auctionator
+ClothPrice(CLOTH, nil, 2)
 equal(ns.RouteReagents(ranked)[1].source, "auction", "an auction price is the auction bucket")
-sources[CLOTH] = nil
+G.Auctionator = nil
+ClothPrice(CLOTH, 2)
 
 -- A recipe to train is trained just before its first craft, with what the trainer wants for it.
-known[HEAVY] = nil
+Know(HEAVY, false)
 local trained = Plan(FirstAid(40), 75)
 equal(Kinds(trained), "train craft", "the training, then its craft")
 local training = trained.training[1]
@@ -326,15 +280,16 @@ equal(quoted.training[1].reqSkill, 50, "and so does the skill it wanted")
 equal(quoted.training[1].usedAt, 50, "nothing is crafted before it can be taught")
 ns.db.trainer[129] = nil
 -- Not this recipe: a skipped recipe is never trained, and the route carries on with what is left.
-skipped[HEAVY] = true
+ns.SetSkipped(HEAVY, true)
 local unskipped = Plan(FirstAid(40), 75)
 equal(#unskipped.training, 0, "a skipped recipe is not trained")
 equal(unskipped.crafts[1].recipeID, LINEN, "the route crafts what is left")
-skipped[LINEN] = true
+ns.SetSkipped(LINEN, true)
 local nothing = Plan(FirstAid(40), 75)
 equal(#nothing.crafts, 0, "skipping every recipe leaves nothing to craft")
 equal(ns.RouteBlocked(nothing), "Nothing you know skills up past 40.", "the usual no-route state")
-skipped = {}
+ns.SetSkipped(HEAVY, false)
+ns.SetSkipped(LINEN, false)
 
 -- The plan is in base skill whatever the racial bonus; thresholds are met with the bonus.
 local bonus = Plan(FirstAid(40, 15), 75)
@@ -345,18 +300,18 @@ equal(bonus.reached, 75, "reached in base skill")
 equal(bonus.training[1].usedAt, 40, "training is placed in base skill")
 equal(bonus.training[1].reqSkill, 40, "at the base skill the trainer wants")
 equal(bonus.crafts[1].color, "yellow", "55 with the bonus is yellow")
-known[HEAVY] = true
+Know(HEAVY, true)
 local bonusRank = Plan(FirstAid(40, 15), 90)
 equal(Kinds(bonusRank), "craft rank craft", "the rank still splits the crafts")
 equal(bonusRank.steps[1].craft.to, 50, "at the base skill it needs")
-known[LINEN] = nil
+Know(LINEN, false)
 equal(Plan(FirstAid(40, 15), 150).reached, 85, "Heavy Linen Bandage goes grey at 100 with the bonus")
-known[LINEN] = true
+Know(LINEN, true)
 
--- The difficulty bands a recipe still has from where it can be learned.
-local function Bands(recipeID)
+-- The difficulty bands a recipe still has from where it can be learned, in this client or `on` another.
+local function Bands(recipeID, on)
 	local parts = {}
-	for index, band in ipairs(ns.RecipeBands(FirstAid(40), recipeID)) do
+	for index, band in ipairs((on or ns).RecipeBands(FirstAid(40), recipeID)) do
 		parts[index] = band.color .. " " .. band.from
 	end
 	return table.concat(parts, ", ")
@@ -366,11 +321,16 @@ equal(Bands(HEAVY), "orange 40, yellow 50, green 75, grey 100", "from where the 
 ns.db.trainer[129] = { [HEAVY] = { 80, 60 } }
 equal(Bands(HEAVY), "yellow 60, green 75, grey 100", "a band over before it can be learned is dropped")
 ns.db.trainer[129] = nil
-sources[LINEN] = { skill = 35 }
-equal(Bands(LINEN), "yellow 35, green 45, grey 60", "a scroll's required skill counts the same")
-sources[LINEN] = {}
-equal(Bands(LINEN), "orange 1, yellow 30, green 45, grey 60", "a scroll of unknown skill starts with the data")
-sources[LINEN] = nil
+-- A client whose AtlasLoot names a scroll for Linen Bandage, asking `skill` (nil when it doesn't say), with First
+-- Aid's scroll sources read: Linen Bandage's bands there.
+local function ScrollBands(skill)
+	local scroll = Client.load({ atlasLoot = { recipes = { [900001] = { 129, skill, LINEN } } } })
+	scroll.ns.Catalogue.EnsureProfession(129)
+	scroll.Advance(0)
+	return Bands(LINEN, scroll.ns)
+end
+equal(ScrollBands(35), "yellow 35, green 45, grey 60", "a scroll's required skill counts the same")
+equal(ScrollBands(nil), "orange 1, yellow 30, green 45, grey 60", "a scroll of unknown skill starts with the data")
 equal(#ns.RecipeBands(FirstAid(40), 1), 0, "no thresholds, no bands")
 
 -- The skill where a recipe can be learned, the number the crafted gear view shows for its recipe:
@@ -405,7 +365,7 @@ local hood = ns.RecipeBands(leatherworking, 1255109)
 equal(hood[1].color .. " " .. hood[1].from, "orange 100", "the hood's first band starts at the pattern's skill")
 
 -- Why there is nothing to craft.
-costs[LINEN], costs[HEAVY] = nil, nil
+ClothPrice(CLOTH, nil)
 local unpriced = Plan(FirstAid(40), 75)
 equal(#unpriced.steps, 0, "nothing priced, nothing to walk")
 equal(unpriced.unpriced, 2, "both known recipes are left out")
@@ -414,27 +374,29 @@ equal(
 	"These reagents have no vendor price. Auction prices need Auctionator.",
 	"unpriced without Auctionator"
 )
-auctionator = true
+G.Auctionator = auctionator
 equal(
 	ns.RouteBlocked(unpriced),
 	"Auctionator hasn't seen these reagents yet: scan the auction house with it to price them.",
 	"unpriced with it"
 )
-auctionator = false
+G.Auctionator = nil
 local missing = ns.UnpricedReagents(unpriced)
 equal(#missing, 1, "the reagent that keeps them out, once")
 equal(missing[1], CLOTH, "linen cloth")
-sources[CLOTH] = "vendor"
+ClothPrice(CLOTH, 2)
 equal(#ns.UnpricedReagents(unpriced), 0, "a priced reagent isn't listed")
-sources[CLOTH] = nil
+ClothPrice(CLOTH, nil)
 equal(Plan(FirstAid(70), 75).unpriced, 1, "a grey recipe keeps nothing out")
-costs[LINEN], costs[HEAVY] = 1, 1
-known[LINEN], known[HEAVY] = nil, nil
+ClothPrice(CLOTH, 2)
+Know(LINEN, false)
+Know(HEAVY, false)
 ns.db.trainer[129] = { [HEAVY] = { 100, 200 } }
 equal(ns.RouteBlocked(Plan(FirstAid(40), 75)), "Nothing you know skills up past 40.", "nothing known")
 equal(ns.RouteBlocked(Plan(FirstAid(40, 15), 75)), "Nothing you know skills up past 40.", "in base skill")
 ns.db.trainer[129] = nil
-known[LINEN], known[HEAVY] = true, true
+Know(LINEN, true)
+Know(HEAVY, true)
 equal(
 	ns.RouteBlocked(Plan(FirstAid(150, 0, 150), 200)),
 	"At the 150 cap: no trainer teaches the next rank.",
@@ -443,24 +405,24 @@ equal(
 
 -- The next craft: the first craft, as often as it needs and the client allows.
 local five = Plan(FirstAid(10), 15)
-craftable = 2
+c.craftable = 2
 local craft = ns.NextCraft(five)
 equal(craft.count, 2, "the client count limits the batch")
 equal(craft.recipeID, LINEN, "an available batch can be crafted")
 equal(craft.text, "Craft 2 of 5× Linen Bandage", "and says how many of the route's it can make")
-craftable = 12
+c.craftable = 12
 equal(ns.NextCraft(five).count, 5, "never crafts beyond the planned step")
-craftable = 0
+c.craftable = 0
 craft = ns.NextCraft(five)
 equal(craft.recipeID, nil, "zero available disables crafting")
 equal(craft.text, "Craft 5× Linen Bandage", "the label still names the craft")
 equal(craft.reason, "Missing reagents for this step.", "zero available explains the disabled button")
 equal(craft.missing.itemID, CLOTH, "and names the reagent it is short of")
 equal(craft.missing.count, 5, "with how many more it needs")
-craftable = 99
-open = 171
+c.craftable = 99
+open = { professionName = "Alchemy", professionID = 171 }
 equal(ns.NextCraft(five).reason, "Open First Aid to craft from here.", "another profession is open")
-open = 129
+open = { professionName = "First Aid", professionID = 129 }
 -- Heavy Linen Bandage from 70 to the 75 cap: five points whose chance falls from 0.6 to 0.52.
 equal(ns.NextCraft(Plan(FirstAid(70), 90)).count, 13, "crafts only to the cap until the rank is trained")
 -- With a +15 bonus the same thresholds are met from 55 base, and the cap of 75 base is 90 with it.
@@ -470,26 +432,27 @@ equal(
 	"Train Journeyman first: you're at your cap.",
 	"at the cap the rank comes first"
 )
-known[HEAVY] = nil
+Know(HEAVY, false)
 equal(ns.NextCraft(Plan(FirstAid(60), 75)).reason, "Train Heavy Linen Bandage first.", "an unlearned recipe")
-known[LINEN] = nil
+Know(LINEN, false)
 equal(ns.NextCraft(Plan(FirstAid(100), 110)).reason, "Nothing to craft on this route.", "an empty plan")
-known[LINEN] = true
+Know(LINEN, true)
 
 -- The trainer window: which of its offers to train next.
-ns.db.routeTargets[129], costs[WOOL] = 75, 1
+ns.db.routeTargets[129] = 75
+ClothPrice(WOOL_CLOTH, 2)
 local offers = { { recipeID = WOOL, fee = 250 }, { recipeID = HEAVY, fee = 100 } }
 equal(ns.BestTraining(FirstAid(40), {}, offers), HEAVY, "the offer that carries the route on")
 equal(ns.BestTraining(FirstAid(40), {}, { offers[1] }), nil, "not one the target never uses")
 equal(ns.BestTraining(FirstAid(75), {}, offers), nil, "nothing at the cap")
-skipped[HEAVY] = true
+ns.SetSkipped(HEAVY, true)
 equal(ns.BestTraining(FirstAid(40), {}, offers), nil, "not one the player skipped")
-skipped = {}
-known[HEAVY] = true
+ns.SetSkipped(HEAVY, false)
+Know(HEAVY, true)
 equal(ns.BestTraining(FirstAid(40), {}, offers), nil, "not one already learned")
-known[HEAVY] = nil
+Know(HEAVY, false)
 ns.db.routeTargets[129] = 150
-known[LINEN] = nil
+Know(LINEN, false)
 offers = { { recipeID = WOOL, fee = 250 } }
 equal(ns.BestTraining(FirstAid(60, 0, 150), {}, offers), nil, "nothing gets to where Wool Bandage starts")
 equal(

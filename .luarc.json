@@ -13,8 +13,7 @@
     ".release",
     ".claude",
     ".bugpatrol",
-    ".speedpatrol",
-    ".sloppatrol"
+    ".speedpatrol"
   ],
   "workspace.checkThirdParty": false,
   "workspace.maxPreload": 10000,

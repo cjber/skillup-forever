@@ -36,6 +36,7 @@ L["A material your professions gather costs what selling it would bring instead 
 	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator가 필요합니다."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
+L["Every line now reads in all nine languages."] = "이제 모든 문구가 아홉 개 언어로 표시됩니다."
 L["Lock the tracker"] = "추적기 잠금"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"전문 기술 창의 경로 탭 아래에 있는 측면 탭으로, 이 캐릭터가 각 슬롯에 착용할 수 있는 가장 최신 제작 아이템을 보여줍니다."
@@ -427,8 +428,6 @@ L["Copy report"] = "보고서 복사"
 L["Feature request"] = "기능 요청"
 L["Feature request: "] = "기능 요청: "
 L["Gather"] = "채집"
-L["More players are credited for their reports and fixes."] =
-	"보고와 수정에 참여한 더 많은 플레이어를 명단에 올렸습니다."
 L["Need %d, have %d, missing %d  %s  %s each  %s"] = "필요 %d, 보유 %d, 부족 %d  %s  개당 %s  %s"
 L["No tracked profession"] = "추적 중인 전문 기술 없음"
 L["Nothing is missing from the shopping list."] = "구매 목록에서 빠진 것이 없습니다."

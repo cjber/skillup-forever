@@ -37,6 +37,7 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Un material que recogen tus profesiones cuesta lo que obtendrías al venderlo en lugar de nada: su precio de subasta tras la comisión del 5 %, o su precio de venta al vendedor si es mayor. Se usa para la ruta y los costes de las filas de recetas. Los precios de subasta necesitan Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Mantiene el rastreador compartido Forever donde lo pones. El tirador de arriba ya no lo arrastra."
+L["Every line now reads in all nine languages."] = "Ahora todas las líneas están en los nueve idiomas."
 L["Lock the tracker"] = "Bloquear el rastreador"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Una pestaña lateral en la ventana de profesiones, bajo la de la ruta, con el objeto creado más reciente que este personaje puede equipar en cada ranura."
@@ -425,7 +426,6 @@ L["Copy report"] = "Copiar informe"
 L["Feature request"] = "Sugerir función"
 L["Feature request: "] = "Sugerencia: "
 L["Gather"] = "Recolección"
-L["More players are credited for their reports and fixes."] = "Más jugadores aparecen por sus informes y correcciones."
 L["Need %d, have %d, missing %d  %s  %s each  %s"] = "Necesitas %d, tienes %d, faltan %d  %s  %s cada uno  %s"
 L["No tracked profession"] = "Ninguna profesión seguida"
 L["Nothing is missing from the shopping list."] = "No falta nada en la lista de compras."

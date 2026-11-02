@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.20.5] - 2026-11-02
+
+- **Every line now reads in all nine languages.** The thirty-nine strings the shopping list, report and planner work added were still English in German, Spanish, French, Korean, Portuguese, Russian and both Chinese files; they are translated now, so no window falls back to English. The PR check asks for the same thing: `tools/typecheck.sh` runs the locale check with `--release`, so an English line added without its translations fails the change that adds it.
+
 ## [0.20.4] - 2026-10-30
 
 - **More players are credited for their reports and fixes.** THIRD_PARTY.md's Ideas and contributors table gains rows for players whose reports, ideas or fixes shipped but were not yet credited there. Thanks to Mouchoir and zazomazzo for what they reported, asked for and fixed.

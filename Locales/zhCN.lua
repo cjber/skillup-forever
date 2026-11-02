@@ -36,6 +36,7 @@ L["A material your professions gather costs what selling it would bring instead 
 	"你的专业采集的材料按出售所得计价，而不是免费：扣除5%手续费后的拍卖价，或更高时按商人收购价。用于路线和配方行的成本。拍卖价需要Auctionator。"
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"将共享的 Forever 追踪器保持在您放置的位置。顶部的拖拽手柄不再移动它。"
+L["Every line now reads in all nine languages."] = "现在所有文本都有九种语言的译文。"
 L["Lock the tracker"] = "锁定追踪器"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"专业窗口侧边的标签页（在路线标签页下方），列出此角色每个部位可装备的最新制造物品。"
@@ -415,8 +416,6 @@ L["Copy report"] = "复制报告"
 L["Feature request"] = "功能请求"
 L["Feature request: "] = "功能请求："
 L["Gather"] = "采集"
-L["More players are credited for their reports and fixes."] =
-	"更多玩家因他们的报告和修正而获得署名。"
 L["Need %d, have %d, missing %d  %s  %s each  %s"] = "需要 %d，已有 %d，缺少 %d  %s  每个 %s  %s"
 L["No tracked profession"] = "没有追踪的专业"
 L["Nothing is missing from the shopping list."] = "购物清单里没有缺少的东西。"

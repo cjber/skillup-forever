@@ -37,6 +37,8 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Материал, который добывают ваши профессии, стоит столько, сколько принесла бы его продажа, а не ноль: цена на аукционе за вычетом 5% комиссии или цена продажи торговцу, если она выше. Учитывается в маршруте и стоимости в строках рецептов. Для цен аукциона нужен Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
+L["Every line now reads in all nine languages."] =
+	"Теперь все строки есть на всех девяти языках."
 L["Lock the tracker"] = "Закрепить трекер"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Боковая вкладка окна профессий под вкладкой маршрута: самый новый созданный предмет, который этот персонаж может надеть, для каждой ячейки."
@@ -446,8 +448,6 @@ L["Copy report"] = "Копировать отчет"
 L["Feature request"] = "Пожелание"
 L["Feature request: "] = "Пожелание: "
 L["Gather"] = "Добыча"
-L["More players are credited for their reports and fixes."] =
-	"Больше игроков указано за их отчеты и исправления."
 L["Need %d, have %d, missing %d  %s  %s each  %s"] =
 	"Нужно %d, есть %d, не хватает %d  %s  %s за штуку  %s"
 L["No tracked profession"] = "Нет отслеживаемых профессий"

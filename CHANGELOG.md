@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [0.20.6] - 2026-11-02
+
 - **Learning a recipe and reopening the route are quicker.** Learning a recipe no longer rebuilds the index of which recipes make each item, since that index only reads the bundled recipes, and the route's skill ceiling is read without building every rank. The harness benchmark runs about a third faster.
 
 ### For addon authors

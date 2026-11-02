@@ -1,9 +1,9 @@
 ---
-name: sift-project
-description: "Project profile for sift in SkillUp Forever: the exact quality-gate and evidence commands, live roots that must never be deleted as dead code, exclusions, conventions and risk order. Load before running sift or any code-quality, cleanup or dead-code work in this repository."
+name: sloppatrol-project
+description: "Project profile for Sloppatrol in SkillUp Forever: the exact quality-gate and evidence commands, live roots that must never be deleted as dead code, exclusions, conventions and risk order. Load before running Sloppatrol or any code-quality, cleanup or dead-code work in this repository."
 ---
 
-# sift project profile — SkillUp Forever
+# Sloppatrol project profile — SkillUp Forever
 
 SkillUp Forever is a World of Warcraft addon for the WoW: Forever client (Classic content on the
 mainline 12.x UI/API, `## Interface: 16001`). It runs inside the game's Lua 5.1 sandbox; there is
@@ -28,10 +28,10 @@ Run in order from the repository root. All must pass before and after any audit 
 | Changelog | `python3 tools/changelog.py --check` | every tagged version has a `CHANGELOG.md` entry |
 | Workflows | `uvx --from actionlint-py==1.7.12.25 actionlint && uvx zizmor@1.30.1 --offline .github` | exit 0 |
 | Secrets | `gitleaks git --redact --no-banner .` | `no leaks found` |
-| Project rules | `python3 .sift/gate.py --base origin/main && python3 .sift/agents.py check` | exit 0 |
+| Project rules | `python3 .sloppatrol/gate.py --base origin/main && python3 .sloppatrol/agents.py check` | exit 0 |
 
-CI (`.github/workflows/ci.yml`) runs all of these; its `sift` job runs the changelog check and the
-vendored `.sift/gate.py` and `.sift/agents.py`. LuaLS checks all TOC files against pinned WoW API annotations plus
+CI (`.github/workflows/ci.yml`) runs all of these; its `project-rules` job runs the changelog check and the
+vendored `.sloppatrol/gate.py` and `.sloppatrol/agents.py`. LuaLS checks all TOC files against pinned WoW API annotations plus
 `types/`; there is no ast-grep rule set.
 
 The tests are a headless harness, not the game client. `tests/client.lua` is the one stub client: it loads
@@ -65,10 +65,10 @@ On-demand tools for audits. Output is candidates, never verdicts.
 | Types (Python) | `uvx ty check tools --extra-search-path tools --output-format concise` | exits 1; baseline 7: `re.fullmatch(...).groups()` on a possible `None` (gen_thresholds.py), `defaultdict(Counter)` inferred as `Counter[str]` (gen_trainer.py, twice), untyped `json.load` result (latest_build.py), `ast.Module(body=...)` given a narrower list type (screenshots_test.py), unresolved `wowmock` (the wow-mock-screenshots library, put on `sys.path` at run time; screenshots.py) and unresolved `PIL` when ty cannot see Pillow |
 | Dead code (Lua) | `luacheck . --no-color` (unused locals/values) + the live-root searches below | a function stored on `ns` is never "unused" to luacheck — search every file for `ns.<Name>` |
 | Dead code (Python) | `uvx vulture tools --min-confidence 60` | clean at baseline; generator functions are imported across files (`from gen_thresholds import …`) |
-| Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sift/runs/jscpd --ignore "Data/**,tools/.cache/**,.sift/**" .` | 4 Python clones: the `argparse` preamble repeated in each `tools/gen_*.py` (a small idiom); 1 Lua clone: the stub frame in the two tracker specs, which are shared files (see Conventions) |
+| Duplication | `npx --yes jscpd@4 --silent --reporters json --output .sloppatrol/runs/jscpd --ignore "Data/**,tools/.cache/**,.sloppatrol/**" .` | 4 Python clones: the `argparse` preamble repeated in each `tools/gen_*.py` (a small idiom); 1 Lua clone: the stub frame in the two tracker specs, which are shared files (see Conventions) |
 | Live roots | `rg -n 'hooksecurefunc|RegisterEvent|RegisterCallback|SetScript|AddTooltipPostCall|AddInitializedFrameCallback|Menu.ModifyMenu|SLASH_|SlashCmdList' -g '*.lua'` | — |
 | Data byte-compare | copy the primary checkout's ignored `tools/.cache/`, then `python3 tools/gen_<name>.py --offline` and `git status Data` | only `gen_thresholds` and `gen_vendor` run from the usual cache; the others need the classic-db and era DB2 downloads (drop `--offline` once) |
-| Standards | `python3 <sift>/scripts/agents.py standards` | resolves the pinned `wow-forever-addon` URL from cache; offline with no cached copy it prints `unknown-standard` (set `SIFT_STANDARDS_PATH=~/forever-core` to use the local clone) |
+| Standards (`wow-forever-addon`) | load the `wow-forever-addon` skill that AGENTS.md declares under `## Standards` | an audit reviews the addon against its WFA ids |
 
 ## Live roots
 

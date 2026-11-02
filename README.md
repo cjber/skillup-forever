@@ -125,7 +125,7 @@ With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path
 
 ## Development
 
-Link the checkout into the game (`ln -s "$PWD" ".../Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands) ([tools/README.md](tools/README.md) covers the data generators). CI runs the same gate plus actionlint, zizmor, gitleaks and sift; a daily job opens a pull request on a newer Forever build.
+Link the checkout into the game (`ln -s "$PWD" ".../Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands) ([tools/README.md](tools/README.md) covers the data generators). CI runs the same gate plus actionlint, zizmor, gitleaks and the project rules; a daily job opens a pull request on a newer Forever build.
 
 Run `luajit tests/bench.lua` to measure loading, route rebuilds, event bursts and cached lookups in the headless client. These are CPU timings, not in-game latency measurements.
 

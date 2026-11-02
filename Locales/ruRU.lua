@@ -37,8 +37,6 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Материал, который добывают ваши профессии, стоит столько, сколько принесла бы его продажа, а не ноль: цена на аукционе за вычетом 5% комиссии или цена продажи торговцу, если она выше. Учитывается в маршруте и стоимости в строках рецептов. Для цен аукциона нужен Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
-L["Learning a recipe and reopening the route are quicker."] =
-	"Изучение рецепта и повторное открытие маршрута стали быстрее."
 L["Lock the tracker"] = "Закрепить трекер"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Боковая вкладка окна профессий под вкладкой маршрута: самый новый созданный предмет, который этот персонаж может надеть, для каждой ячейки."
@@ -297,6 +295,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Вычитает из стоимости цену продажи созданного предмета. Для цен аукциона нужен Auctionator, они указаны за вычетом 5% комиссии, и предмет может не продаться."
 L["Suggest my other Forever addons"] = "Предлагать другие мои модификации Forever"
 L["Taught by %s trainers."] = "Обучают учителя (%s)."
+L["The first stable release, ready for the WoW: Forever launch."] =
+	"Первая стабильная версия, готовая к запуску WoW: Forever."
 L["The place this recipe is taught isn't known yet."] =
 	"Где обучают этому рецепту, пока неизвестно."
 L["The rest comes from a vendor or your gathering."] =

@@ -37,8 +37,6 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Un material que recogen tus profesiones cuesta lo que obtendrías al venderlo en lugar de nada: su precio de subasta tras la comisión del 5 %, o su precio de venta al vendedor si es mayor. Se usa para la ruta y los costes de las filas de recetas. Los precios de subasta necesitan Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Mantiene el rastreador compartido Forever donde lo pones. El tirador de arriba ya no lo arrastra."
-L["Learning a recipe and reopening the route are quicker."] =
-	"Aprender una receta y volver a abrir la ruta es más rápido."
 L["Lock the tracker"] = "Bloquear el rastreador"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Una pestaña lateral en la ventana de profesiones, bajo la de la ruta, con el objeto creado más reciente que este personaje puede equipar en cada ranura."
@@ -283,6 +281,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Resta del coste lo que vale vender el objeto creado. Los precios de subasta necesitan Auctionator, son tras la comisión del 5 % y puede que no se vendan."
 L["Suggest my other Forever addons"] = "Sugerir mis otros addons Forever"
 L["Taught by %s trainers."] = "Lo enseñan los instructores de %s."
+L["The first stable release, ready for the WoW: Forever launch."] =
+	"La primera versión estable, lista para el lanzamiento de WoW: Forever."
 L["The place this recipe is taught isn't known yet."] = "Aún no se sabe dónde se enseña esta receta."
 L["The rest comes from a vendor or your gathering."] = "El resto viene de un vendedor o de tu recolección."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =

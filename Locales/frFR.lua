@@ -38,8 +38,6 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Un matériau que vos métiers récoltent coûte ce que sa vente rapporterait au lieu de rien : son prix aux enchères après la commission de 5 %, ou son prix de vente au marchand s'il est plus élevé. Utilisé pour le parcours et les coûts sur les lignes de recettes. Les prix aux enchères nécessitent Auctionator." -- mt
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Garde le suivi Forever partagé là où vous l'avez placé. La poignée en haut ne le déplace plus." -- mt
-L["Learning a recipe and reopening the route are quicker."] =
-	"Apprendre une recette et rouvrir l'itinéraire est plus rapide." -- mt
 L["Lock the tracker"] = "Verrouiller le suivi" -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Un onglet latéral de la fenêtre des métiers, sous l'onglet du parcours, qui liste pour chaque emplacement le plus récent objet fabriqué que ce personnage peut équiper." -- mt
@@ -286,6 +284,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Soustrait de son coût ce que l'objet fabriqué rapporte à la vente. Les prix aux enchères nécessitent Auctionator, s'entendent après la commission de 5 % et ne garantissent pas la vente." -- mt
 L["Suggest my other Forever addons"] = "Suggérer mes autres addons Forever" -- mt
 L["Taught by %s trainers."] = "Enseignée par les maîtres de métier (%s)." -- mt
+L["The first stable release, ready for the WoW: Forever launch."] =
+	"La première version stable, prête pour le lancement de WoW: Forever." -- mt
 L["The place this recipe is taught isn't known yet."] = "On ne sait pas encore où cette recette est enseignée." -- mt
 L["The rest comes from a vendor or your gathering."] = "Le reste vient d'un marchand ou de votre récolte." -- mt
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =

@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-02
+
+- **The first stable release, ready for the WoW: Forever launch.** SkillUp Forever 1.0 works as 0.20.6 did: the recipe colours, the route, the shopping list and the tracker are unchanged. The version number now marks the addon as ready for everyday play, and the chat line after the update says so in every shipped language.
+
 ## [0.20.6] - 2026-11-02
 
 - **Learning a recipe and reopening the route are quicker.** Learning a recipe no longer rebuilds the index of which recipes make each item, since that index only reads the bundled recipes, and the route's skill ceiling is read without building every rank. The harness benchmark runs about a third faster.

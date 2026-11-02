@@ -36,7 +36,6 @@ L["A material your professions gather costs what selling it would bring instead 
 	"你的专业采集的材料按出售所得计价，而不是免费：扣除5%手续费后的拍卖价，或更高时按商人收购价。用于路线和配方行的成本。拍卖价需要Auctionator。"
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"将共享的 Forever 追踪器保持在您放置的位置。顶部的拖拽手柄不再移动它。"
-L["Learning a recipe and reopening the route are quicker."] = "学习配方和重新打开路线更快了。"
 L["Lock the tracker"] = "锁定追踪器"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"专业窗口侧边的标签页（在路线标签页下方），列出此角色每个部位可装备的最新制造物品。"
@@ -276,6 +275,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"从成本中减去制造物品的售价。拍卖价需要Auctionator，已扣除5%手续费，且不一定能卖出。"
 L["Suggest my other Forever addons"] = "推荐我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s训练师教授。"
+L["The first stable release, ready for the WoW: Forever launch."] =
+	"首个稳定版本，为 WoW: Forever 上线做好准备。"
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"
 L["The rest comes from a vendor or your gathering."] = "其余来自商人或你的采集。"
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =

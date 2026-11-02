@@ -151,6 +151,41 @@ local function NextRanks(profession)
 	return ranks, cap
 end
 
+-- The caps a rank teaches, per skill line and side: bundled data, so made once a session.
+---@type table<string, table<number, true>>
+local rankCaps = {}
+
+-- The highest cap NextRanks reaches, without building its ranks: every cached plan lookup asks for it.
+---@param profession SkillUpContext
+---@return number
+local function RankCeiling(profession)
+	local skillLine = profession.skillLine
+	local quests = ns.RankQuests and ns.RankQuests[skillLine] or {}
+	local side = #quests > 0 and ns.PlayerSide and ns.PlayerSide()
+	local key = skillLine .. ":" .. tostring(side)
+	local caps = rankCaps[key]
+	if not caps then
+		caps = {}
+		for _, rank in ipairs(quests) do
+			if rank[5] == side then
+				caps[rank[1]] = true
+			end
+		end
+		for _, rank in ipairs(ns.RankBooks[skillLine] or {}) do
+			caps[rank[1]] = true
+		end
+		for _, rank in ipairs(ns.TrainerRanks[skillLine] or {}) do
+			caps[rank[1]] = true
+		end
+		rankCaps[key] = caps
+	end
+	local cap = profession.max
+	while caps[cap + RANK_SPAN] and RANK_NAMES[cap + RANK_SPAN] do
+		cap = cap + RANK_SPAN
+	end
+	return cap
+end
+
 -- The chosen target in base skill, per profession; the trainer plans to it too.
 -- A target already reached gives way to the default. Past the cap is fine up to
 -- the last rank a trainer, book or quest teaches; the route takes those ranks on the way.
@@ -158,7 +193,7 @@ end
 ---@return number
 local function RouteTarget(profession)
 	local saved = ns.db.routeTargets[profession.skillLine]
-	local _, ceiling = NextRanks(profession)
+	local ceiling = RankCeiling(profession)
 	return math.min(saved and saved > profession.base and saved or profession.base + 25, ceiling)
 end
 
@@ -355,15 +390,34 @@ local function Expand(recipeID, crafts, depth, making)
 	return subcrafts, raw
 end
 
--- Public, price-aware bill of materials for other addons. Unknown recipes return nil.
+-- Public, price-aware bill of materials for other addons: one raw entry per item, in first-seen order.
+-- Unknown recipes and a craft count that is not a whole number above zero return nil.
 ---@param recipeID integer
----@param crafts number
+---@param crafts integer
 ---@return SkillUpSubCraft[]?, {itemID: integer, count: number}[]?
 function ns.RecipeMaterials(recipeID, crafts)
-	if not ns.RecipeData[recipeID] or type(crafts) ~= "number" or crafts <= 0 then
+	if
+		not ns.RecipeData[recipeID]
+		or type(crafts) ~= "number"
+		or crafts < 1
+		or crafts == math.huge
+		or crafts % 1 ~= 0
+	then
 		return nil, nil
 	end
-	return Expand(recipeID, crafts, 0, {})
+	local subcrafts, raw = Expand(recipeID, crafts, 0, {})
+	local merged, byItem = {}, {}
+	for _, item in ipairs(raw) do
+		local entry = byItem[item.itemID]
+		if entry then
+			entry.count = entry.count + item.count
+		else
+			entry = { itemID = item.itemID, count = item.count }
+			byItem[item.itemID] = entry
+			merged[#merged + 1] = entry
+		end
+	end
+	return subcrafts, merged
 end
 
 -- The order the plan is walked in: each rank once the route passes the cap below it, a recipe's

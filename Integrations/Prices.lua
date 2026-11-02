@@ -259,11 +259,8 @@ local function ResetCraftCosts()
 	obtainCost, subCraft = {}, {}
 end
 
-local function ResetMakers()
-	craftMakers = nil
-end
-
--- The recipes that make `itemID`, lowest recipe ID first, from the bundled and live reagent data.
+-- The recipes that make `itemID`, lowest recipe ID first, from the bundled recipe data. Built once, like
+-- the reagent index: the bundle does not change in a session.
 ---@param itemID integer
 ---@return integer[]
 local function MakersOf(itemID)
@@ -489,7 +486,6 @@ function ns.InitPrices()
 		end
 		fromBundle = {}
 		ResetCraftCosts()
-		ResetMakers()
 	end)
 	ns.WhenStale("prices", function()
 		priceCache = {}

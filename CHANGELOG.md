@@ -12,6 +12,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Learning a recipe and reopening the route are quicker.** Learning a recipe no longer rebuilds the index of which recipes make each item, since that index only reads the bundled recipes, and the route's skill ceiling is read without building every rank. The harness benchmark runs about a third faster.
+
+### For addon authors
+
+- `API.RequiredMaterials` lists each raw item once. An item a sub-craft is made from and that the recipe also uses directly was listed twice, so a caller that keyed the result by item ID kept only one of the counts. It and `API.SubComponents` now return `nil` for a craft count that is not a whole number above zero, where NaN, infinity and fractions used to give unusable counts.
+
 ## [0.20.5] - 2026-11-02
 
 - **Every line now reads in all nine languages.** The thirty-nine strings the shopping list, report and planner work added were still English in German, Spanish, French, Korean, Portuguese, Russian and both Chinese files; they are translated now, so no window falls back to English. The PR check asks for the same thing: `tools/typecheck.sh` runs the locale check with `--release`, so an English line added without its translations fails the change that adds it.

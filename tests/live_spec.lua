@@ -192,6 +192,23 @@ equal(subReagents[1].itemID, HIDE, "the hide the reagent is made from")
 equal(subReagents[1].need, sub.crafts[1].crafts * 2, "two a craft of the reagent")
 equal(subReagents[1].source, "vendor", "priced where it is sold")
 
+-- Other addons get one entry an item: the hide the reagent is made from adds to the hide used directly.
+ns3.RecipeData[202] = {
+	skillLine = 129,
+	reagents = { { itemID = LEATHER, quantity = 1 }, { itemID = HIDE, quantity = 1 } },
+	output = { itemID = 40, quantity = 1 },
+}
+local skillUp = c3.G.SkillUpForever.API
+local rawInputs = skillUp.RequiredMaterials(202, 3)
+equal(#rawInputs, 1, "the same raw item is listed once")
+equal(rawInputs[1].itemID, HIDE, "the hide")
+equal(rawInputs[1].count, 9, "two a sub-craft plus one direct, three times")
+equal(#skillUp.SubComponents(202, 3), 1, "the reagent's sub-craft")
+for _, crafts in ipairs({ 0, -1, 1.5, 0 / 0, math.huge }) do
+	equal(skillUp.RequiredMaterials(202, crafts), nil, "no bill for " .. tostring(crafts) .. " crafts")
+end
+ns3.RecipeData[202] = nil
+
 -- Not this recipe on the sub-craft: the reagent is bought instead of made.
 ns3.SetSkipped(200, true)
 equal(ns3.SubCraft(LEATHER), nil, "a skipped recipe never makes a reagent")

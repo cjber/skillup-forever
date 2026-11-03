@@ -1156,6 +1156,7 @@ from wowmock import (
     backdrop,
     coin_texture_string,
     crop_coords,
+    dialog_border,
     draw_money,
     filter_dropdown,
     minimal_checkbox,
@@ -2147,10 +2148,25 @@ def chat_preview(ui, lines):
     return scene(ui, [(canvas, 0, 0)])
 
 
+def merchant_confirm_scene(ui):
+    """UI/Shopping.lua Confirm: native opaque dialog with sample merchant purchase data."""
+    width, height = 320, 112
+    canvas = ui.canvas(width, height)
+    dialog_border(canvas, 0, 0, width, height, background=(0, 0, 0, 1))
+    text = "Buy 10 Linen Cloth for " + coin_texture_string(200, 12) + "?"
+    canvas.text(20, 18, text, FONTS["GameFontHighlight"])
+    button_width, button_height, inset = 110, 22, 4
+    button_y = height - 16 - button_height
+    ui_panel_button(canvas, width / 2 - inset - button_width, button_y, button_width, button_height, "Buy")
+    ui_panel_button(canvas, width / 2 + inset, button_y, button_width, button_height, "Cancel")
+    return scene(ui, [(canvas, 0, 0)])
+
+
 def main():
     scale = float(os.environ.get("SCALE", "2"))
     ui = Ui(build=BUILD, scale=scale)
     OUT.mkdir(parents=True, exist_ok=True)
+    merchant_confirm_scene(ui).save(OUT / "merchant-confirm.png")
     window_scene(ui).save(OUT / "window.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
     data = lua_scene(ui)

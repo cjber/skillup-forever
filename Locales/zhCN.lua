@@ -469,4 +469,4 @@ L["Share observed recipe totals with guild and group"] = "与公会和队伍共�
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
 
-L["Auctionator lists stay with their character."] = "Auctionator 列表按角色分别保存。" -- mt
+L["Shopping confirmations use the native dialog surface."] = "购买确认窗口使用原生对话框背景。" -- mt

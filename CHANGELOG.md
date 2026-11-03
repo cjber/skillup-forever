@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Shopping confirmations use the native dialog surface.** The purchase prompt keeps its gold-bordered buttons and uses an opaque NineSlice background. Shared CI also rejects legacy templates and backdrop globals that select loose chrome.
+
 ## [1.0.4] - 2026-11-03
 
 - **Auctionator lists stay with their character.** Route and crafting lists include the character and realm, so switching characters does not replace another character's supplies. Existing lists with the old shared names are left untouched and can be removed in Auctionator. Thanks to cjber for the report (#284).

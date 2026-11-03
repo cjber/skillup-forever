@@ -44,6 +44,7 @@ SOURCES = (
     "UI/RecipeList.lua",
     "UI/Route.lua",
     "UI/ShoppingList.lua",
+    "UI/Shopping.lua",
     "UI/Tooltip.lua",
 )
 SCENES = {

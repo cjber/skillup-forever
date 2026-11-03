@@ -509,5 +509,5 @@ L["Share observed recipe totals with guild and group"] =
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 
-L["Auctionator lists stay with their character."] =
-	"Списки Auctionator сохраняются отдельно для каждого персонажа." -- mt
+L["Shopping confirmations use the native dialog surface."] =
+	"Подтверждения покупок используют стандартный фон диалогового окна." -- mt

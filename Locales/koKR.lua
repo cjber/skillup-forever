@@ -487,4 +487,5 @@ L["Share observed recipe totals with guild and group"] = "관찰한 제조법 �
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 
-L["Auctionator lists stay with their character."] = "Auctionator 목록은 캐릭터별로 유지됩니다." -- mt
+L["Shopping confirmations use the native dialog surface."] =
+	"구매 확인 창이 기본 대화 상자 배경을 사용합니다." -- mt

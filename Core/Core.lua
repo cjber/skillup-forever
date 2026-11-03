@@ -74,7 +74,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The first stable release, ready for the WoW: Forever launch."]
+ns.WHATS_NEW = L["The profession data now matches the 1.60.1.70753 build."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

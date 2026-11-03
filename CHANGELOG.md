@@ -14,7 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [1.0.5] - 2026-11-03
 
-- **Preview screenshots share the suite's art pin.** The rendered scenes in `docs/screenshots` now take their window art from Forever Core's canonical art pin instead of a copy kept here, so a preview cannot show chrome the shipped client does not draw. A new regression test fails when an asset lookup bypasses the pin. Profession data generation stays on the build it already targets.
+- **Preview screenshots use the game's own art.** The rendered scenes in `docs/screenshots` now take their window art from Forever Core's canonical art pin instead of a copy kept here, so a preview cannot show chrome the shipped client does not draw. A new regression test fails when an asset lookup bypasses the pin. Profession data generation stays on the build it already targets.
 
 ## [1.0.4] - 2026-11-03
 

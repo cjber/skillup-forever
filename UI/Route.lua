@@ -1046,11 +1046,11 @@ local function SelectPage()
 	local professions = ns.RouteProfessions()
 	local open = ns.OpenSkillLine()
 	selected = professions[open] and open or professions[selected] and selected or next(professions)
+	-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly.
+	ProfessionsFrame.CraftingPage:Show()
 	ProfessionsFrame.CraftingPage:Hide()
 	ProfessionsFrame.BookPage:Hide()
 	page:Show()
-	ProfessionsFrame:RightTabSelected(tab)
-	-- RightTabSelected checks Blizzard's tabs only, and a second click does not fire OnShow.
 	SyncChecks()
 end
 

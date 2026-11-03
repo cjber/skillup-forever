@@ -508,11 +508,11 @@ local SyncChecks
 
 local function SelectPage()
 	ns.HideRoute()
+	-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly.
+	ProfessionsFrame.CraftingPage:Show()
 	ProfessionsFrame.CraftingPage:Hide()
 	ProfessionsFrame.BookPage:Hide()
 	page:Show()
-	ProfessionsFrame:RightTabSelected(tab)
-	-- RightTabSelected checks Blizzard's tabs only, and a second click does not fire OnShow.
 	SyncChecks()
 end
 

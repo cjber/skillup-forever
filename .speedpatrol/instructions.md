@@ -10,3 +10,9 @@ benchmarks run the headless harness the specs use, which stubs the client API an
 - Generated data and vendored code are never edited by hand.
 - Commit only the files the change needs: no profiler output or scratch files.
 - Never launch the game, Battle.net, Lutris or Wine, and never use the network.
+
+## On pull requests
+
+`.github/workflows/speedpatrol.yml` runs `speedpatrol compare` on every pull request: three A/B rounds
+against the base branch, over `harness.bench` only, failing the job on a regression. CI's `check` job
+runs `tests/bench.lua` as well; `gate.specs` is for the local patrol.

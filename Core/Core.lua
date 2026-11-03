@@ -25,6 +25,7 @@ local DEFAULTS = {
 	gatherTooltip = true, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from
 	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet
+	pinnedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = priority }: most recently pinned wins
 	skippedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = true }: "Not this recipe", left out of every route
 	whatsNew = true,
 	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (UI/ForeverFamily.lua)
@@ -74,7 +75,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["No more error while the game is still loading your character."]
+ns.WHATS_NEW = L["Pin a recipe for skill-ups."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -166,6 +167,25 @@ local function LoadDB()
 		else
 			for recipeID, skipped in pairs(recipes) do
 				if type(recipeID) ~= "number" or skipped ~= true then
+					recipes[recipeID] = nil
+				end
+			end
+		end
+	end
+	for key, recipes in pairs(loaded.pinnedRecipes) do
+		if type(key) ~= "string" or type(recipes) ~= "table" then
+			loaded.pinnedRecipes[key] = nil
+		else
+			for recipeID, priority in pairs(recipes) do
+				if
+					type(recipeID) ~= "number"
+					or recipeID <= 0
+					or recipeID % 1 ~= 0
+					or type(priority) ~= "number"
+					or priority <= 0
+					or priority % 1 ~= 0
+					or (loaded.skippedRecipes[key] and loaded.skippedRecipes[key][recipeID])
+				then
 					recipes[recipeID] = nil
 				end
 			end
@@ -420,6 +440,67 @@ function ns.SetSkipped(recipeID, skip)
 	local skipped = ns.db.skippedRecipes[key] or {}
 	skipped[recipeID] = skip and true or nil
 	ns.db.skippedRecipes[key] = next(skipped) and skipped or nil
+	if skip and ns.db.pinnedRecipes[key] then
+		ns.db.pinnedRecipes[key][recipeID] = nil
+	end
+	ns.Changed("settings")
+end
+
+---@param recipeID integer
+---@return integer
+function ns.PinPreference(recipeID)
+	local key = ns.CharacterKey()
+	return key and ns.db.pinnedRecipes[key] and ns.db.pinnedRecipes[key][recipeID] or 0
+end
+
+---@param skillLine integer?
+---@return {recipeID: integer, name: string}[]
+function ns.PinnedRecipes(skillLine)
+	local list = {}
+	local key = ns.CharacterKey()
+	for recipeID in pairs(key and ns.db.pinnedRecipes[key] or {}) do
+		local recipe = ns.RecipeData[recipeID]
+		if not skillLine or (recipe and recipe.skillLine == skillLine) then
+			list[#list + 1] = {
+				recipeID = recipeID,
+				name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID),
+			}
+		end
+	end
+	table.sort(list, function(a, b)
+		local ap, bp = ns.PinPreference(a.recipeID), ns.PinPreference(b.recipeID)
+		return ap > bp or (ap == bp and a.recipeID < b.recipeID)
+	end)
+	return list
+end
+
+---@param recipeID integer
+---@param pin boolean
+function ns.SetPinned(recipeID, pin)
+	local key = ns.CharacterKey()
+	if not key then
+		return
+	end
+	local pins = ns.db.pinnedRecipes[key] or {}
+	pins[recipeID] = nil
+	if pin then
+		-- Compact saved priorities before appending so they cannot overflow after repeated choices.
+		local ids = {}
+		for id in pairs(pins) do
+			ids[#ids + 1] = id
+		end
+		table.sort(ids, function(a, b)
+			return pins[a] < pins[b] or (pins[a] == pins[b] and a < b)
+		end)
+		for priority, id in ipairs(ids) do
+			pins[id] = priority
+		end
+		pins[recipeID] = #ids + 1
+		if ns.db.skippedRecipes[key] then
+			ns.db.skippedRecipes[key][recipeID] = nil
+		end
+	end
+	ns.db.pinnedRecipes[key] = next(pins) and pins or nil
 	ns.Changed("settings")
 end
 

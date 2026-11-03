@@ -225,7 +225,6 @@ L["Recipes from vendors, quests and drops that would carry it on:"] =
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
 	"Benötigte Fertigkeit, Chance auf Fertigkeitspunkt und Kosten bei Rezepten von Berufslehrern, und welches Ihr für Eure Route als Nächstes lernen solltet."
 L["Requires"] = "Benötigt"
-L["Right-click if you don't want this recipe."] = "Rechtsklick, wenn Ihr dieses Rezept nicht wollt."
 L["Route"] = "Route"
 L["Route and trainer"] = "Route und Lehrer"
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
@@ -283,8 +282,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "Meine anderen Forever-Addons vorschlagen"
 L["Taught by %s trainers."] = "Gelehrt von Lehrern für %s."
 L["The place this recipe is taught isn't known yet."] = "Wo dieses Rezept gelehrt wird, ist noch unbekannt."
-L["No more error while the game is still loading your character."] =
-	"Kein Fehler mehr, während das Spiel Euren Charakter noch lädt." -- mt
 L["The rest comes from a vendor or your gathering."] = "Der Rest kommt von einem Händler oder aus Eurem Sammeln."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"Die Route rechnet mit %d, um in 9 von 10 Fällen %d zu erreichen; mit weniger Glück braucht Ihr mehr."
@@ -445,3 +442,20 @@ L["no trainer requirement seen yet: open a profession trainer, then try again."]
 	"noch keine Lehreranforderung gesehen: Öffnet einen Berufslehrer und versucht es dann erneut."
 L["on %s"] = "bei %s"
 L["price unknown"] = "Preis unbekannt"
+L["Unpin recipe"] = "Rezept lösen" -- mt
+L["Pin for skill-ups"] = "Für Fertigkeitspunkte anheften" -- mt
+L["Right-click to pin or skip this recipe."] = "Rechtsklick zum Anheften oder Überspringen dieses Rezepts." -- mt
+L["Unpin: %s"] = "Lösen: %s" -- mt
+L["Pinned for skill-ups."] = "Für Fertigkeitspunkte angeheftet." -- mt
+L["Skill range unknown."] = "Fertigkeitsbereich unbekannt." -- mt
+L["Already grey: no skill-ups."] = "Bereits grau: keine Fertigkeitspunkte." -- mt
+L["Requires skill %d."] = "Benötigt Fertigkeit %d." -- mt
+L["Learn this recipe first."] = "Lernt zuerst dieses Rezept." -- mt
+L["Reagents not priced yet."] = "Reagenzpreise noch unbekannt." -- mt
+L["Outside this route or a newer pin takes priority."] =
+	"Außerhalb dieser Route oder ein neueres angeheftetes Rezept hat Vorrang." -- mt
+L["Pinned: %s"] = "Angeheftet: %s" -- mt
+L["The newest pin takes priority where skill ranges overlap."] =
+	"Bei überlappenden Fertigkeitsbereichen hat das zuletzt angeheftete Rezept Vorrang." -- mt
+L["Pinned (%d)"] = "Angeheftet (%d)" -- mt
+L["Pin a recipe for skill-ups."] = "Ein Rezept für Fertigkeitspunkte anheften." -- mt

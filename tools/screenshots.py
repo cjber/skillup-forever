@@ -755,6 +755,7 @@ end
 
 -- The addon's own start-up (LoadDB and the attaches), minus the recipe list.
 loaded[ADDON]()
+ns.SetPinned(9059, true) -- Handstitched Leather Bracers: chosen for skill-ups in this scene.
 ns.NearestTrainer = function() end
 ns.NearestVendor = function() end
 
@@ -1568,15 +1569,8 @@ def fit_text(canvas, text, font, width):
 
 
 def panel_button(canvas, x, y, w, h, text, enabled=True):
-    """UIPanelButtonTemplate, enabled (ui_panel_button) or in its Disabled texture with GameFontDisable."""
-    if enabled:
-        ui_panel_button(canvas, x, y, w, h, text)
-        return
-    texture = canvas.ui.texture("interface/buttons/ui-panel-button-disabled.blp")
-    canvas.draw(crop_coords(texture, 0, 0.09375, 0, 0.6875), x, y, 12, h)
-    canvas.draw(crop_coords(texture, 0.09375, 0.53125, 0, 0.6875), x + 12, y, w - 24, h)
-    canvas.draw(crop_coords(texture, 0.53125, 0.625, 0, 0.6875), x + w - 12, y, 12, h)
-    canvas.text(x, y, text, F_NORMAL, DISABLED_FONT_COLOR, justify="CENTER", width=w, box_height=h)
+    """SharedButtonSmallTemplate with its native enabled or disabled atlas state."""
+    ui_panel_button(canvas, x, y, w, h, text, state="normal" if enabled else "disabled")
 
 
 def inset_frame(canvas, x, y, w, h, title=None):

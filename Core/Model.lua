@@ -249,7 +249,7 @@ local function Rank(recipe, skill)
 	return key, Model.Chance(recipe.thresholds, skill)
 end
 
--- Whether a recipe ranked `key` and `chance` goes before the best so far: a cheaper point, then a better
+-- Among recipes that can gain skill, the most recent pin wins; otherwise a cheaper point, then a better
 -- chance, then the lower recipe ID. A tie keeps the best so far.
 ---@param recipe SkillUpCandidate
 ---@param key number?
@@ -259,12 +259,21 @@ end
 ---@param bestChance number?
 ---@return boolean
 local function Beats(recipe, key, chance, best, bestKey, bestChance)
-	return key ~= nil
-		and (
-			not best
-			or key < bestKey
-			or (key == bestKey and chance > bestChance)
-			or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
+	if key == nil then
+		return false
+	end
+	if not best then
+		return true
+	end
+	local preference, bestPreference = recipe.preference or 0, best.preference or 0
+	return preference > bestPreference
+		or (
+			preference == bestPreference
+			and (
+				key < bestKey
+				or (key == bestKey and chance > bestChance)
+				or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
+			)
 		)
 end
 
@@ -454,33 +463,48 @@ function Model.PlanRoute(snapshot)
 	return (Planner(snapshot).Route())
 end
 
--- Reach comes first when the learned route is blocked; compare costs only for
--- equal endpoints. Each candidate is a separate purchase, charged exactly once.
+-- Reach comes first, then a pin the resulting route uses, then savings for equal endpoints.
+-- Each candidate is a separate purchase, charged exactly once.
 ---@param planner SkillUpPlanner
 ---@param services SkillUpService[]
 ---@return {recipeID: integer, savings: number, reachedSkill: number}?
 local function Recommend(planner, services)
 	local baseline, picked = planner.Route()
-	local best
+	local best, bestPreference
 	for _, service in ipairs(services) do
 		local route = planner.Changes(service, picked) and planner.Route(service) or baseline
+		local preference = 0
+		for _, segment in ipairs(route.segments) do
+			if segment.recipeID == service.recipeID then
+				preference = service.preference or 0
+				break
+			end
+		end
 		local savings = baseline.expectedCost - (route.expectedCost + service.fee)
 		local helps = route.reachedSkill > baseline.reachedSkill
-			or (route.reachedSkill == baseline.reachedSkill and savings > 0)
+			or (route.reachedSkill == baseline.reachedSkill and (savings > 0 or preference > 0))
 		if
 			helps
 			and (
 				not best
 				or route.reachedSkill > best.reachedSkill
-				or (route.reachedSkill == best.reachedSkill and savings > best.savings)
 				or (
 					route.reachedSkill == best.reachedSkill
-					and savings == best.savings
-					and service.recipeID < best.recipeID
+					and (
+						preference > bestPreference
+						or (
+							preference == bestPreference
+							and (
+								savings > best.savings
+								or (savings == best.savings and service.recipeID < best.recipeID)
+							)
+						)
+					)
 				)
 			)
 		then
 			best = { recipeID = service.recipeID, savings = savings, reachedSkill = route.reachedSkill }
+			bestPreference = preference
 		end
 	end
 	return best
@@ -495,7 +519,7 @@ function Model.RecommendTraining(snapshot, services)
 end
 
 -- The learned route plus whatever training pays for itself: keep adding the
--- service RecommendTraining picks (reach first, then savings net of its fee),
+-- service RecommendTraining picks (reach first, then pin priority, then savings net of its fee),
 -- then drop any a later addition made unnecessary. Greedy, so not guaranteed
 -- optimal, but each fee is charged once and only for recipes the route uses.
 ---@param snapshot SkillUpSnapshot

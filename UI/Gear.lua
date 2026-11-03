@@ -698,7 +698,7 @@ local function CreateDetail(inset)
 	detail.Reagents:SetText(L["Reagents"])
 	detail.ReagentRows = {}
 
-	detail.Action = CreateFrame("Button", nil, body, "UIPanelButtonTemplate") --[[@as SkillUpGearAction]]
+	detail.Action = CreateFrame("Button", nil, body, "SharedButtonSmallTemplate") --[[@as SkillUpGearAction]]
 	detail.Action:SetSize(130, 22)
 	detail.Action:SetScript("OnClick", function(self)
 		if self.click then

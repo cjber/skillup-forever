@@ -218,7 +218,6 @@ L["Recipes from vendors, quests and drops that would carry it on:"] =
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
 	"在專業技能訓練師的配方上顯示所需技能、技能提升機率和成本，並指出你的路線下一步最適合學習哪個。"
 L["Requires"] = "需要"
-L["Right-click if you don't want this recipe."] = "如果不想要此配方，請點擊右鍵。"
 L["Route"] = "路線"
 L["Route and trainer"] = "路線和訓練師"
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
@@ -276,7 +275,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "推薦我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s訓練師教授。"
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪裡學習此配方。"
-L["No more error while the game is still loading your character."] = "遊戲仍在載入角色時不再出錯。" -- mt
 L["The rest comes from a vendor or your gathering."] = "其餘來自商人或你的採集。"
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"路線按%d個計算，十次中有九次能達到%d；運氣差時需要更多。"
@@ -440,3 +438,19 @@ L["no trainer requirement seen yet: open a profession trainer, then try again."]
 	"尚未見到訓練師要求：開啟專業訓練師，然後再試一次。"
 L["on %s"] = "在%s身上"
 L["price unknown"] = "價格未知"
+L["Unpin recipe"] = "取消釘選配方" -- mt
+L["Pin for skill-ups"] = "釘選以提升技能" -- mt
+L["Right-click to pin or skip this recipe."] = "右鍵點擊可釘選或略過此配方。" -- mt
+L["Unpin: %s"] = "取消釘選：%s" -- mt
+L["Pinned for skill-ups."] = "已釘選以提升技能。" -- mt
+L["Skill range unknown."] = "技能範圍未知。" -- mt
+L["Already grey: no skill-ups."] = "已經變灰：無法提升技能。" -- mt
+L["Requires skill %d."] = "需要技能 %d。" -- mt
+L["Learn this recipe first."] = "請先學習此配方。" -- mt
+L["Reagents not priced yet."] = "材料尚無價格。" -- mt
+L["Outside this route or a newer pin takes priority."] = "不在此路線內，或較新釘選的配方優先。" -- mt
+L["Pinned: %s"] = "已釘選：%s" -- mt
+L["The newest pin takes priority where skill ranges overlap."] =
+	"技能範圍重疊時，最近釘選的配方優先。" -- mt
+L["Pinned (%d)"] = "已釘選（%d）" -- mt
+L["Pin a recipe for skill-ups."] = "釘選配方以提升技能。" -- mt

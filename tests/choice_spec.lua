@@ -53,6 +53,14 @@ equal(ns.db.valueGathered, false, "gathered materials are free by default")
 equal(ns.Price(ORE).copper, 0, "so ore this character mines costs nothing")
 equal(Plan().crafts[1].recipeID, FROM_ORE, "and the route crafts from it")
 
+-- Pins invalidate the cached route without changing the price of either recipe.
+local oreCost = ns.NetCost(FROM_ORE)
+ns.SetPinned(FROM_FLUX, true)
+equal(Plan().crafts[1].recipeID, FROM_FLUX, "pinning rebuilds the route with the more expensive choice")
+equal(ns.NetCost(FROM_ORE), oreCost, "a pin does not change craft pricing")
+ns.SetPinned(FROM_FLUX, false)
+equal(Plan().crafts[1].recipeID, FROM_ORE, "unpinning rebuilds the automatic route")
+
 -- On, ore is worth its auction price after the cut, which beats its vendor sell price.
 c.SetSetting("valueGathered", true)
 equal(ns.Price(ORE).copper, 95, "a gathered material costs its auction price after the 5% cut")

@@ -169,6 +169,15 @@ page = {
 	-- The route page hides the gear page when it takes over; this spec loads the route file alone.
 	HideGear = function() end,
 	-- Recipes this character said Not this recipe to: none until a spec skips one.
+	PinPreference = function(id)
+		return page.pins and page.pins[id] or 0
+	end,
+	PinnedRecipes = function()
+		return page.pinned or {}
+	end,
+	SetPinned = function(id, pin)
+		page.setPinned = { id, pin }
+	end,
 	SkippedRecipes = function()
 		return page.skipped or {}
 	end,
@@ -296,7 +305,7 @@ pageEnv.CreateFrame = function(_, _, _, template)
 	children[#children + 1] = frame
 	if template == "UICheckButtonTemplate" then
 		collect = frame
-	elseif template == "UIPanelButtonTemplate" then
+	elseif template == "SharedButtonSmallTemplate" then
 		vendor = vendor or frame
 		buttons[#buttons + 1] = frame
 	elseif template == "InputBoxTemplate" then
@@ -749,13 +758,22 @@ pageEnv.GameTooltip_AddInstructionLine = function(_, text)
 	instructions[#instructions + 1] = text
 end
 craftRow.tooltip(Stub())
-equal(instructions[#instructions], "Right-click if you don't want this recipe.", "a step's tooltip says how to skip it")
+equal(instructions[#instructions], "Right-click to pin or skip this recipe.", "a step's tooltip says how to skip it")
 local craftMenu = MenuRoot()
 craftRow.menu(nil, craftMenu)
 equal(craftMenu.title, "Spell 3275", "a step's menu is titled with its recipe")
 equal(craftMenu.buttons[1].text, "Not this recipe", "and offers Not this recipe")
 craftMenu.buttons[1].action()
 equal(page.setSkipped[1] == 3275 and page.setSkipped[2], true, "which skips that recipe")
+equal(craftMenu.buttons[2].text, "Pin for skill-ups", "a step offers pinning")
+craftMenu.buttons[2].action()
+equal(page.setPinned[1] == 3275 and page.setPinned[2], true, "pinning selects that recipe")
+page.pins = { [3275] = 1 }
+local pinnedMenu = MenuRoot()
+craftRow.menu(nil, pinnedMenu)
+equal(pinnedMenu.buttons[2].text, "Unpin recipe", "a pinned step offers unpinning")
+pinnedMenu.buttons[2].action()
+equal(page.setPinned[1] == 3275 and page.setPinned[2], false, "unpinning restores automatic choices")
 local skippedRow = lists[1].rows[#lists[1].rows]
 equal(skippedRow.text, "Skipped (1)", "the skipped recipes are one row under the route")
 local skippedMenu = MenuRoot()
@@ -767,6 +785,19 @@ page.skipped = nil
 routeTab:Click()
 Drain()
 equal(lists[1].rows[#lists[1].rows].text ~= "Skipped (1)", true, "nothing skipped, no row")
+
+-- Pins remain visible with a reason even when the route cannot use them.
+page.pinned = { { recipeID = 3275, name = "Linen Bandage" } }
+routeTab:Click()
+Drain()
+local pinRow = lists[1].rows[#lists[1].rows]
+equal(pinRow.text, "Pinned: Linen Bandage", "the route lists its saved pin")
+equal(pinRow.detail, "Pinned for skill-ups.", "the pin says when this route uses it")
+page.pinned = { { recipeID = 3276, name = "Heavy Linen Bandage" } }
+routeTab:Click()
+Drain()
+equal(lists[1].rows[#lists[1].rows].detail, "Requires skill 40.", "a waiting pin explains its skill requirement")
+page.pinned = nil
 
 -- The page names the latest auction source and flags old prices.
 page.Price = function()

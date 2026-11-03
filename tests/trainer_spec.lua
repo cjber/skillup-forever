@@ -46,6 +46,9 @@ local ns = {
 	NetCost = function()
 		return 1
 	end,
+	PinPreference = function()
+		return 0
+	end,
 	PlayerProfessions = function()
 		return { [COOKING] = { name = "Cooking", base = 60 } }
 	end,

@@ -218,7 +218,6 @@ L["Recipes from vendors, quests and drops that would carry it on:"] =
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
 	"在专业训练师的配方上显示所需技能、技能提升几率和成本，并指出你的路线下一步最适合学习哪个。"
 L["Requires"] = "需要"
-L["Right-click if you don't want this recipe."] = "如果不想要此配方，请右键点击。"
 L["Route"] = "路线"
 L["Route and trainer"] = "路线和训练师"
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
@@ -276,7 +275,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "推荐我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s训练师教授。"
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"
-L["No more error while the game is still loading your character."] = "游戏仍在加载角色时不再出错。" -- mt
 L["The rest comes from a vendor or your gathering."] = "其余来自商人或你的采集。"
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"路线按%d个计算，十次中有九次能达到%d；运气差时需要更多。"
@@ -439,3 +437,19 @@ L["no trainer requirement seen yet: open a profession trainer, then try again."]
 	"尚未见到训练师要求：打开专业训练师，然后重试。"
 L["on %s"] = "在%s身上"
 L["price unknown"] = "价格未知"
+L["Unpin recipe"] = "取消固定配方" -- mt
+L["Pin for skill-ups"] = "固定用于提升技能" -- mt
+L["Right-click to pin or skip this recipe."] = "右键点击可固定或跳过此配方。" -- mt
+L["Unpin: %s"] = "取消固定：%s" -- mt
+L["Pinned for skill-ups."] = "已固定用于提升技能。" -- mt
+L["Skill range unknown."] = "技能范围未知。" -- mt
+L["Already grey: no skill-ups."] = "已经变灰：无法提升技能。" -- mt
+L["Requires skill %d."] = "需要技能 %d。" -- mt
+L["Learn this recipe first."] = "请先学习此配方。" -- mt
+L["Reagents not priced yet."] = "材料尚无价格。" -- mt
+L["Outside this route or a newer pin takes priority."] = "不在此路线内，或较新固定的配方优先。" -- mt
+L["Pinned: %s"] = "已固定：%s" -- mt
+L["The newest pin takes priority where skill ranges overlap."] =
+	"技能范围重叠时，最近固定的配方优先。" -- mt
+L["Pinned (%d)"] = "已固定（%d）" -- mt
+L["Pin a recipe for skill-ups."] = "固定配方以提升技能。" -- mt

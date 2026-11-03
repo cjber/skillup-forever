@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Pin a recipe for skill-ups.** Right-click a route recipe to prefer it through its usable range, including its trainer visit. The newest pin wins where ranges overlap. Pinned rows explain missing prices, requirements and grey recipes, and the tracker menu lets you remove pins.
+
+- **Controls use the Forever asset set.** Shopping list and route controls use the native gold-bordered buttons, and CI rejects legacy loose chrome in runtime UI and screenshot renderers.
+
 ## [1.0.2] - 2026-11-03
 
 - **Custom profession pages switch cleanly.** Route and Crafted gear hand off through the native crafting page without leaving another addon page visible or changing Blizzard's gamepad tab state.

@@ -146,12 +146,16 @@ local function RecipeMenu(recipeID)
 		root:CreateButton(L["Not this recipe"], function()
 			ns.SetSkipped(recipeID, true)
 		end)
+		local pinned = ns.PinPreference(recipeID) > 0
+		root:CreateButton(pinned and L["Unpin recipe"] or L["Pin for skill-ups"], function()
+			ns.SetPinned(recipeID, not pinned)
+		end)
 	end
 end
 
 ---@param tooltip GameTooltip
 local function AddSkipHint(tooltip)
-	GameTooltip_AddInstructionLine(tooltip, L["Right-click if you don't want this recipe."])
+	GameTooltip_AddInstructionLine(tooltip, L["Right-click to pin or skip this recipe."])
 end
 
 ---@param tooltip GameTooltip
@@ -283,6 +287,66 @@ function ns.AddSkippedMenu(description, skillLine)
 	end
 end
 
+---@param description RootMenuDescriptionProxy|ElementMenuDescriptionProxy
+---@param skillLine integer
+function ns.AddPinnedMenu(description, skillLine)
+	for _, recipe in ipairs(ns.PinnedRecipes(skillLine)) do
+		description:CreateButton(string.format(L["Unpin: %s"], recipe.name), function()
+			ns.SetPinned(recipe.recipeID, false)
+		end)
+	end
+end
+
+---@param plan SkillUpPlan
+---@param recipeID integer
+---@return string
+local function PinStatus(plan, recipeID)
+	for _, craft in ipairs(plan.crafts) do
+		if craft.recipeID == recipeID then
+			return L["Pinned for skill-ups."]
+		end
+	end
+	local profession = plan.profession
+	local thresholds = ns.Model.Get(recipeID)
+	if not thresholds then
+		return L["Skill range unknown."]
+	end
+	if profession.skill >= thresholds[4] then
+		return L["Already grey: no skill-ups."]
+	end
+	if ns.LearnSkill(profession, recipeID) > profession.skill then
+		return string.format(L["Requires skill %d."], ns.LearnSkill(profession, recipeID) - profession.modifier)
+	end
+	if not ns.IsLearned(recipeID) then
+		return L["Learn this recipe first."]
+	end
+	if ns.NetCost(recipeID) == nil then
+		return L["Reagents not priced yet."]
+	end
+	return L["Outside this route or a newer pin takes priority."]
+end
+
+---@param list SkillUpList
+---@param plan SkillUpPlan
+local function RenderPinned(list, plan)
+	for _, recipe in ipairs(ns.PinnedRecipes(plan.profession.skillLine)) do
+		list:Add({
+			icon = RecipeIcon(recipe.recipeID),
+			text = string.format(L["Pinned: %s"], recipe.name),
+			detail = PinStatus(plan, recipe.recipeID),
+			color = NORMAL_FONT_COLOR,
+			tooltip = function(tooltip)
+				RecipeTitle(tooltip, recipe.recipeID, recipe.name)
+				GameTooltip_AddHighlightLine(tooltip, PinStatus(plan, recipe.recipeID))
+				GameTooltip_AddInstructionLine(tooltip, L["The newest pin takes priority where skill ranges overlap."])
+				AddSkipHint(tooltip)
+			end,
+			click = RecipeClick(recipe.recipeID),
+			menu = RecipeMenu(recipe.recipeID),
+		})
+	end
+end
+
 -- One row under the route for what it leaves out by choice, so a skip is never silent: click or right-click
 -- it to bring a recipe back.
 ---@param list SkillUpList
@@ -406,6 +470,7 @@ local function RenderRoute(list, plan)
 	local blocked = ns.RouteBlocked(plan)
 	if blocked and profession.capped and #plan.ranks == 0 then
 		list:Message(blocked)
+		RenderPinned(list, plan)
 		return
 	end
 	for _, step in ipairs(plan.steps) do
@@ -500,6 +565,7 @@ local function RenderRoute(list, plan)
 		-- the list, rather than drawing an empty route (#190).
 		list:Message(string.format(L["No step yet: learn or train a %s recipe that skills up."], profession.name))
 	end
+	RenderPinned(list, plan)
 	RenderSkipped(list, profession)
 end
 
@@ -871,7 +937,7 @@ local function CreateHeader()
 end
 
 local function CreateButtons()
-	local track = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
+	local track = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate") --[[@as Button]]
 	-- Wide enough for both labels, so the Craft button beside it stays put when tracking toggles.
 	track:SetText(L["Stop tracking"])
 	local stop = track:GetTextWidth() + 32
@@ -888,7 +954,7 @@ local function CreateButtons()
 	page.Track = track
 
 	-- CraftRecipe needs this click's hardware event, so the craft is set up in Render.
-	local craft = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as SkillUpCraftButton]]
+	local craft = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate") --[[@as SkillUpCraftButton]]
 	craft:SetScript("OnClick", function(self)
 		if self.recipeID then
 			C_TradeSkillUI.CraftRecipe(self.recipeID, self.count)
@@ -960,7 +1026,7 @@ local function CreateButtons()
 	page.CollectLabel = label
 
 	-- One click to the nearest vendor selling any vendor reagent the route still needs.
-	local vendor = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
+	local vendor = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate") --[[@as Button]]
 	vendor:SetSize(120, 22)
 	vendor:SetText(L["Nearest vendor"])
 	vendor:SetWidth(math.max(120, vendor:GetTextWidth() + 32))
@@ -978,7 +1044,7 @@ local function CreateButtons()
 	end)
 	vendor:SetScript("OnLeave", GameTooltip_Hide)
 	page.Vendor = vendor
-	local shoppingList = CreateFrame("Button", nil, page, "UIPanelButtonTemplate") --[[@as Button]]
+	local shoppingList = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate") --[[@as Button]]
 	shoppingList:SetSize(110, 22)
 	shoppingList:SetText(L["Shopping list"])
 	shoppingList:SetScript("OnClick", ns.OpenShoppingList)

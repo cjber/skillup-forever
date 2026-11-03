@@ -227,7 +227,6 @@ L["Recipes from vendors, quests and drops that would carry it on:"] =
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
 	"Compétence requise, chance de gain et coût sur les recettes des maîtres de métier, et laquelle apprendre ensuite pour votre parcours." -- mt
 L["Requires"] = "Requiert" -- mt
-L["Right-click if you don't want this recipe."] = "Clic droit si vous ne voulez pas de cette recette." -- mt
 L["Route"] = "Parcours" -- mt
 L["Route and trainer"] = "Parcours et maître" -- mt
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
@@ -285,8 +284,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "Suggérer mes autres addons Forever" -- mt
 L["Taught by %s trainers."] = "Enseignée par les maîtres de métier (%s)." -- mt
 L["The place this recipe is taught isn't known yet."] = "On ne sait pas encore où cette recette est enseignée." -- mt
-L["No more error while the game is still loading your character."] =
-	"Plus d'erreur pendant que le jeu charge encore votre personnage." -- mt
 L["The rest comes from a vendor or your gathering."] = "Le reste vient d'un marchand ou de votre récolte." -- mt
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"Le parcours compte %d pour atteindre %d 9 fois sur 10 ; avec moins de chance, il en faut plus." -- mt
@@ -452,3 +449,20 @@ L["no trainer requirement seen yet: open a profession trainer, then try again."]
 	"aucune condition de maître vue pour l'instant : ouvrez un maître de métier, puis réessayez."
 L["on %s"] = "sur %s"
 L["price unknown"] = "prix inconnu"
+L["Unpin recipe"] = "Détacher la recette" -- mt
+L["Pin for skill-ups"] = "Épingler pour progresser" -- mt
+L["Right-click to pin or skip this recipe."] = "Clic droit pour épingler ou ignorer cette recette." -- mt
+L["Unpin: %s"] = "Détacher : %s" -- mt
+L["Pinned for skill-ups."] = "Épinglée pour progresser." -- mt
+L["Skill range unknown."] = "Plage de compétence inconnue." -- mt
+L["Already grey: no skill-ups."] = "Déjà grise : aucun gain de compétence." -- mt
+L["Requires skill %d."] = "Requiert une compétence de %d." -- mt
+L["Learn this recipe first."] = "Apprenez cette recette d’abord." -- mt
+L["Reagents not priced yet."] = "Prix des composants encore inconnus." -- mt
+L["Outside this route or a newer pin takes priority."] =
+	"Hors de ce parcours ou une recette épinglée plus récemment est prioritaire." -- mt
+L["Pinned: %s"] = "Épinglée : %s" -- mt
+L["The newest pin takes priority where skill ranges overlap."] =
+	"La recette épinglée le plus récemment est prioritaire si les plages se chevauchent." -- mt
+L["Pinned (%d)"] = "Épinglées (%d)" -- mt
+L["Pin a recipe for skill-ups."] = "Épinglez une recette pour progresser." -- mt

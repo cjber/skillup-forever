@@ -245,6 +245,7 @@ local function Snapshot(profession, target, known)
 				recipeID = recipeID,
 				thresholds = thresholds,
 				netCost = ns.NetCost(recipeID),
+				preference = ns.PinPreference(recipeID),
 				skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(recipeID) or 1,
 			}
 		end
@@ -281,6 +282,7 @@ local function Trainable(profession, snapshot)
 					recipeID = recipeID,
 					thresholds = taught,
 					netCost = ns.NetCost(recipeID),
+					preference = ns.PinPreference(recipeID),
 					fee = training[1],
 					skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(recipeID) or 1,
 				}
@@ -615,6 +617,8 @@ function ns.BestTraining(profession, known, offers)
 					thresholds[4],
 				},
 				netCost = ns.NetCost(offer.recipeID),
+				preference = ns.PinPreference(offer.recipeID),
+				skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(offer.recipeID) or 1,
 				fee = offer.fee,
 			}
 		end

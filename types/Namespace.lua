@@ -22,9 +22,13 @@
 ---@field SetCollectMode fun(mode: SkillUpCollectMode)
 ---@field ShowAllGear fun(): boolean
 ---@field SetShowAllGear fun(show: boolean)
+---@field PinPreference fun(recipeID: integer): integer
+---@field SetPinned fun(recipeID: integer, pin: boolean)
+---@field PinnedRecipes fun(skillLine: integer?): {recipeID: integer, name: string}[]
 ---@field IsSkipped fun(recipeID: integer): boolean
 ---@field SetSkipped fun(recipeID: integer, skip: boolean)
 ---@field SkippedRecipes fun(skillLine: integer?): {recipeID: integer, name: string}[]
+---@field AddPinnedMenu fun(description: RootMenuDescriptionProxy|ElementMenuDescriptionProxy, skillLine: integer)
 ---@field AddSkippedMenu fun(description: RootMenuDescriptionProxy|ElementMenuDescriptionProxy, skillLine: integer)
 ---@field SkillContext fun(): SkillUpContext?
 ---@field PlayerProfessions fun(): table<integer, SkillUpProfession>
@@ -204,6 +208,7 @@
 ---@field gatherTooltip boolean
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field showAllGear table<string, boolean>
+---@field pinnedRecipes table<string, table<integer, integer>>
 ---@field skippedRecipes table<string, table<integer, true>>
 ---@field whatsNew boolean
 ---@field suggestFamily boolean
@@ -270,6 +275,7 @@ SkillUpForeverDB = nil
 ---@field recipeID integer
 ---@field thresholds number[]
 ---@field netCost? number
+---@field preference? integer Most recently pinned recipe wins.
 ---@field skillUps? integer Skill points one craft grants, from the client.
 
 -- A reagent a learned recipe makes for less than it costs to buy, as its own craft step.

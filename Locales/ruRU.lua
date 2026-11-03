@@ -236,8 +236,6 @@ L["Recipes from vendors, quests and drops that would carry it on:"] =
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
 	"Требуемый навык, шанс повышения и стоимость в рецептах учителей профессий, а также какой изучить следующим для вашего маршрута."
 L["Requires"] = "Требуется"
-L["Right-click if you don't want this recipe."] =
-	"Щелкните правой кнопкой, если этот рецепт не нужен."
 L["Route"] = "Маршрут"
 L["Route and trainer"] = "Маршрут и учитель"
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
@@ -297,8 +295,6 @@ L["Suggest my other Forever addons"] = "Предлагать другие мои
 L["Taught by %s trainers."] = "Обучают учителя (%s)."
 L["The place this recipe is taught isn't known yet."] =
 	"Где обучают этому рецепту, пока неизвестно."
-L["No more error while the game is still loading your character."] =
-	"Больше нет ошибки, пока игра ещё загружает вашего персонажа." -- mt
 L["The rest comes from a vendor or your gathering."] =
 	"Остальное — от торговца или из вашей добычи."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
@@ -474,3 +470,21 @@ L["no trainer requirement seen yet: open a profession trainer, then try again."]
 	"требования учителя пока не видны: откройте учителя профессии и повторите попытку."
 L["on %s"] = "у %s"
 L["price unknown"] = "цена неизвестна"
+L["Unpin recipe"] = "Открепить рецепт" -- mt
+L["Pin for skill-ups"] = "Закрепить для повышения навыка" -- mt
+L["Right-click to pin or skip this recipe."] =
+	"Щёлкните правой кнопкой, чтобы закрепить или пропустить рецепт." -- mt
+L["Unpin: %s"] = "Открепить: %s" -- mt
+L["Pinned for skill-ups."] = "Закреплён для повышения навыка." -- mt
+L["Skill range unknown."] = "Диапазон навыка неизвестен." -- mt
+L["Already grey: no skill-ups."] = "Уже серый: навык не повышается." -- mt
+L["Requires skill %d."] = "Требуется навык %d." -- mt
+L["Learn this recipe first."] = "Сначала изучите этот рецепт." -- mt
+L["Reagents not priced yet."] = "Цены на реагенты ещё неизвестны." -- mt
+L["Outside this route or a newer pin takes priority."] =
+	"Вне этого маршрута или более новый закреплённый рецепт имеет приоритет." -- mt
+L["Pinned: %s"] = "Закреплён: %s" -- mt
+L["The newest pin takes priority where skill ranges overlap."] =
+	"При пересечении диапазонов приоритет у рецепта, закреплённого последним." -- mt
+L["Pinned (%d)"] = "Закреплено (%d)" -- mt
+L["Pin a recipe for skill-ups."] = "Закрепите рецепт для повышения навыка." -- mt

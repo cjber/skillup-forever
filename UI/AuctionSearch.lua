@@ -259,7 +259,7 @@ function ns.AttachAuctionSearch()
 	bar.Crafts = bar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	bar.Crafts:SetPoint("LEFT", bar.Count, "RIGHT", 4, 0)
 	bar.Crafts:SetText(L["crafts"])
-	bar.Search = CreateFrame("Button", nil, bar, "UIPanelButtonTemplate") --[[@as Button]]
+	bar.Search = CreateFrame("Button", nil, bar, "SharedButtonSmallTemplate") --[[@as Button]]
 	bar.Search:SetText(L["Search"])
 	bar.Search:SetSize(bar.Search:GetTextWidth() + 32, 22)
 	bar.Search:SetPoint("LEFT", bar.Crafts, "RIGHT", 10, 0)

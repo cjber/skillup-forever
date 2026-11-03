@@ -8,11 +8,19 @@ A map tab under the Professions window's side tabs opens a SkillUp page. Pick an
 
 ### How it picks
 
-- Each skill point takes the recipe with the lowest cost per skill-up at that point.
+- Each skill point uses the most recently pinned recipe that can gain skill, or the recipe with the lowest cost per skill-up when none is pinned.
 - A step asks for enough crafts to reach its target in nine runs out of ten, worked out from the chance at each skill point on the way, not from the average. An orange recipe is unchanged; a yellow or green one carries its risk in its price, so the route leans on it less.
-- Recipes a trainer teaches are included when they pay for themselves, shown as a *Train* step with its fee. The fee is counted once, and never before the trainer would teach them.
+- Recipes a trainer teaches are included when they pay for themselves or you pin them, shown as a *Train* step with its fee. The fee is counted once, and never before the trainer would teach them.
 - Recipes with an unpriced reagent are left out and counted.
 - Recipes you said *Not this recipe* to are left out (see below).
+
+### Pin a recipe
+
+Right-click a step or suggestion and choose *Pin for skill-ups* to prefer it throughout its usable skill range, even when another recipe is cheaper. The newest pin wins where ranges overlap. Pins belong to this character and remain until you choose *Unpin recipe*. Pinning restores a skipped recipe; skipping a pinned recipe removes its pin.
+
+Pinned rows under the route explain when a recipe cannot be used, such as when it is grey, not learned or missing reagent prices. Pins never invent a price or bypass a trainer's skill requirement. A pinned trainer recipe gets a *Train* step and its fee is counted normally. Automatic choices resume outside the pin's range. Pins do not change which recipe makes a reagent most cheaply.
+
+Right-click a pinned row to remove its pin, or use the *Pinned* list in the tracker's header menu.
 
 ### Not this recipe
 

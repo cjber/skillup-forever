@@ -341,7 +341,7 @@ local function Confirm()
 	frame.Text:SetPoint("TOPLEFT", 20, -18)
 	frame.Text:SetPoint("TOPRIGHT", -20, -18)
 	frame.Text:SetJustifyH("CENTER")
-	frame.Accept = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate") --[[@as Button]]
+	frame.Accept = CreateFrame("Button", nil, frame, "SharedButtonSmallTemplate") --[[@as Button]]
 	frame.Accept:SetSize(110, 22)
 	frame.Accept:SetPoint("BOTTOMRIGHT", frame, "BOTTOM", -4, 16)
 	frame.Accept:SetText(L["Buy"])
@@ -352,7 +352,7 @@ local function Confirm()
 			BuyMissing(cost)
 		end
 	end)
-	frame.Cancel = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate") --[[@as Button]]
+	frame.Cancel = CreateFrame("Button", nil, frame, "SharedButtonSmallTemplate") --[[@as Button]]
 	frame.Cancel:SetSize(110, 22)
 	frame.Cancel:SetPoint("BOTTOMLEFT", frame, "BOTTOM", 4, 16)
 	frame.Cancel:SetText(L["Cancel"])
@@ -395,7 +395,7 @@ local function RefreshBuyButton()
 		return
 	end
 	if not buyButton then
-		buyButton = CreateFrame("Button", nil, MerchantFrame, "UIPanelButtonTemplate") --[[@as Button]]
+		buyButton = CreateFrame("Button", nil, MerchantFrame, "SharedButtonSmallTemplate") --[[@as Button]]
 		buyButton:SetPoint("BOTTOMRIGHT", MerchantFrame, "TOPRIGHT", 0, 2)
 		buyButton:SetScript("OnClick", AskToBuy)
 	end
@@ -529,6 +529,10 @@ function ModuleMixin:OnBlockHeaderClick(block)
 			end)
 		end
 		-- Recipes left out with Not this recipe on the route page, each with Show again.
+		local pinned = #ns.PinnedRecipes(block.id)
+		if pinned > 0 then
+			ns.AddPinnedMenu(root:CreateButton(string.format(L["Pinned (%d)"], pinned)), block.id)
+		end
 		local skipped = #ns.SkippedRecipes(block.id)
 		if skipped > 0 then
 			ns.AddSkippedMenu(root:CreateButton(string.format(L["Skipped (%d)"], skipped)), block.id)

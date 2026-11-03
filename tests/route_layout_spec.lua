@@ -379,6 +379,9 @@ local ns = {
 	SkippedRecipes = function()
 		return {}
 	end,
+	PinnedRecipes = function()
+		return {}
+	end,
 	HasAuctionator = function()
 		return true
 	end,

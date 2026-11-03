@@ -221,7 +221,6 @@ L["Recipes from vendors, quests and drops that would carry it on:"] =
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
 	"Perícia necessária, chance de ponto e custo nas receitas dos instrutores de profissão, e qual é melhor treinar em seguida para sua rota."
 L["Requires"] = "Requer"
-L["Right-click if you don't want this recipe."] = "Clique com o botão direito se não quiser esta receita."
 L["Route"] = "Rota"
 L["Route and trainer"] = "Rota e instrutor"
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
@@ -279,8 +278,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "Sugerir meus outros AddOns Forever"
 L["Taught by %s trainers."] = "Ensinada por instrutores de %s."
 L["The place this recipe is taught isn't known yet."] = "Ainda não se sabe onde esta receita é ensinada."
-L["No more error while the game is still loading your character."] =
-	"Nenhum erro mais enquanto o jogo ainda carrega seu personagem." -- mt
 L["The rest comes from a vendor or your gathering."] = "O resto vem de um comerciante ou da sua coleta."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"A rota conta com %d para chegar a %d em 9 de 10 vezes; com menos sorte, serão necessários mais."
@@ -447,3 +444,20 @@ L["no trainer requirement seen yet: open a profession trainer, then try again."]
 	"nenhum requisito de instrutor visto ainda: abra um instrutor de profissão e tente de novo."
 L["on %s"] = "em %s"
 L["price unknown"] = "preço desconhecido"
+L["Unpin recipe"] = "Desafixar receita" -- mt
+L["Pin for skill-ups"] = "Fixar para ganhar perícia" -- mt
+L["Right-click to pin or skip this recipe."] = "Clique com o botão direito para fixar ou ignorar esta receita." -- mt
+L["Unpin: %s"] = "Desafixar: %s" -- mt
+L["Pinned for skill-ups."] = "Fixada para ganhar perícia." -- mt
+L["Skill range unknown."] = "Faixa de perícia desconhecida." -- mt
+L["Already grey: no skill-ups."] = "Já está cinza: não concede perícia." -- mt
+L["Requires skill %d."] = "Requer perícia %d." -- mt
+L["Learn this recipe first."] = "Aprenda esta receita primeiro." -- mt
+L["Reagents not priced yet."] = "Reagentes ainda sem preço." -- mt
+L["Outside this route or a newer pin takes priority."] =
+	"Fora desta rota ou uma receita fixada mais recentemente tem prioridade." -- mt
+L["Pinned: %s"] = "Fixada: %s" -- mt
+L["The newest pin takes priority where skill ranges overlap."] =
+	"A receita fixada mais recentemente tem prioridade quando as faixas se sobrepõem." -- mt
+L["Pinned (%d)"] = "Fixadas (%d)" -- mt
+L["Pin a recipe for skill-ups."] = "Fixe uma receita para ganhar perícia." -- mt

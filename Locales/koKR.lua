@@ -226,7 +226,6 @@ L["Recipes from vendors, quests and drops that would carry it on:"] =
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
 	"기술 전문가 제조법에 요구 숙련도, 숙련도 상승 확률, 비용을 표시하고, 경로상 다음에 배우기 좋은 것을 알려줍니다."
 L["Requires"] = "요구 사항"
-L["Right-click if you don't want this recipe."] = "이 제조법을 원하지 않으면 오른쪽 클릭하세요."
 L["Route"] = "경로"
 L["Route and trainer"] = "경로와 전문가"
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
@@ -285,8 +284,6 @@ L["Suggest my other Forever addons"] = "제 다른 Forever 애드온 추천"
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
 L["The place this recipe is taught isn't known yet."] =
 	"이 제조법을 배우는 곳은 아직 알려지지 않았습니다."
-L["No more error while the game is still loading your character."] =
-	"게임이 아직 캐릭터를 불러오는 동안 나던 오류가 더 이상 없습니다." -- mt
 L["The rest comes from a vendor or your gathering."] = "나머지는 상인이나 채집으로 얻습니다."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"경로는 %d개로 10번 중 9번은 %d에 도달한다고 봅니다. 운이 나쁘면 더 필요합니다."
@@ -453,3 +450,21 @@ L["no trainer requirement seen yet: open a profession trainer, then try again."]
 	"아직 확인한 전문가 요구 조건이 없습니다. 전문 기술 전문가를 연 뒤 다시 시도하십시오."
 L["on %s"] = "%s 보유"
 L["price unknown"] = "가격 없음"
+L["Unpin recipe"] = "제조법 고정 해제" -- mt
+L["Pin for skill-ups"] = "숙련도 상승에 고정" -- mt
+L["Right-click to pin or skip this recipe."] =
+	"오른쪽 클릭으로 이 제조법을 고정하거나 제외합니다." -- mt
+L["Unpin: %s"] = "고정 해제: %s" -- mt
+L["Pinned for skill-ups."] = "숙련도 상승에 고정됨." -- mt
+L["Skill range unknown."] = "숙련도 범위를 알 수 없습니다." -- mt
+L["Already grey: no skill-ups."] = "이미 회색: 숙련도가 오르지 않습니다." -- mt
+L["Requires skill %d."] = "숙련도 %d 필요." -- mt
+L["Learn this recipe first."] = "먼저 이 제조법을 배우세요." -- mt
+L["Reagents not priced yet."] = "아직 재료 가격이 없습니다." -- mt
+L["Outside this route or a newer pin takes priority."] =
+	"경로 밖이거나 최근 고정한 제조법이 우선합니다." -- mt
+L["Pinned: %s"] = "고정: %s" -- mt
+L["The newest pin takes priority where skill ranges overlap."] =
+	"숙련도 범위가 겹치면 최근 고정한 제조법이 우선합니다." -- mt
+L["Pinned (%d)"] = "고정됨 (%d)" -- mt
+L["Pin a recipe for skill-ups."] = "숙련도 상승에 제조법을 고정하세요." -- mt

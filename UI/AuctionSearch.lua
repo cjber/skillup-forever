@@ -6,8 +6,6 @@ local L = ns.L
 -- what its reagents still lack for that many (#142). It only searches; buying stays the player's.
 
 local CALLER = "SkillUp Forever"
--- The one Auctionator list this writes, replaced on every search.
-local CRAFT_LIST = ns.AuctionListName("crafting")
 -- Where a reagent's price comes from, as the route's shopping list groups it: only the auction house's and the
 -- unpriced are searched there, as with the route's own Auctionator list.
 local AUCTION_SOURCES = { auctionator = true }
@@ -94,7 +92,10 @@ function ns.SearchReagents(recipeID, count)
 						{ searchString = name, isExact = true, quantity = item.count }
 					)
 				end
-				api.CreateShoppingList(CALLER, CRAFT_LIST, searches)
+				local listName = ns.AuctionListName("crafting")
+				if listName then
+					api.CreateShoppingList(CALLER, listName, searches)
+				end
 				-- MultiSearchAdvanced keeps the quantities; an older Auctionator searches the exact names.
 				if api.MultiSearchAdvanced then
 					api.MultiSearchAdvanced(CALLER, searches)

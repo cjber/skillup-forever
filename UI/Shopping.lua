@@ -71,11 +71,12 @@ local function WithNames(items, callback)
 end
 ns.WithItemNames = WithNames
 
--- The name of the shopping list this addon keeps for a profession in Auctionator.
+-- Auctionator replaces same-named lists account-wide, so each character owns its own namespace.
 ---@param profession string
----@return string
+---@return string?
 function ns.AuctionListName(profession)
-	return "SkillUp: " .. profession
+	local character = ns.CharacterKey()
+	return character and ("SkillUp: " .. character .. ": " .. profession) or nil
 end
 
 -- Auctionator's own "scan when the auction house opens" option, read through its config table. nil
@@ -155,7 +156,7 @@ local function SyncAuctionator()
 		local name = ns.AuctionListName(entry.plan.profession.name)
 		local missing = MissingFromAuction(entry.items)
 		local signature = AuctionSignature(missing)
-		if auctionLists[name] ~= signature then
+		if name and auctionLists[name] ~= signature then
 			auctionLists[name] = signature
 			WriteAuctionList(name, missing)
 		end

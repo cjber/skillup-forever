@@ -452,7 +452,6 @@ L["Pinned: %s"] = "已固定：%s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"技能范围重叠时，最近固定的配方优先。" -- mt
 L["Pinned (%d)"] = "已固定（%d）" -- mt
-L["Pin a recipe for skill-ups."] = "固定配方以提升技能。" -- mt
 
 L["%d. %s (you): %d"] = "%d. %s（你）：%d"
 L["%d. %s: %d"] = "%d. %s：%d"
@@ -469,3 +468,5 @@ L["/su share on|off - control sharing with guild and group"] = "/su share on|off
 L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
+
+L["Auctionator lists stay with their character."] = "Auctionator 列表按角色分别保存。" -- mt

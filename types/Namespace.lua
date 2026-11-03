@@ -102,7 +102,7 @@
 ---@field DetailsBar fun(t: number[]?, skill: number?): number[]?, number? the details pane's bar: thresholds and skill, nil without either
 ---@field DetailsBarRecipe fun(info: TradeSkillRecipeInfo?): integer? the recipe the details bar draws
 ---@field AuctionatorAutoscan fun(): boolean?
----@field AuctionListName fun(profession: string): string
+---@field AuctionListName fun(profession: string): string?
 ---@field Have fun(itemID: integer): number
 ---@field Readable fun(value: any): any
 ---@field Usable fun(frame?: Frame): boolean

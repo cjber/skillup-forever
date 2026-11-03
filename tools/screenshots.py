@@ -608,6 +608,15 @@ env = setmetatable({
 			return "{coin:" .. copper .. "}"
 		end,
 	},
+	Item = { CreateFromItemID = function(_, itemID) return itemID end },
+	ContinuableContainer = {
+		Create = function()
+			return {
+				AddContinuable = function() end,
+				ContinueOnLoad = function(_, callback) callback() end,
+			}
+		end,
+	},
 	C_Item = {
 		GetItemNameByID = function(itemID)
 			return "{item:" .. itemID .. "}"
@@ -837,6 +846,9 @@ ns.CreateList = function()
 	return list
 end
 local first = #created + 1
+if STATE.buyReagents then
+	ns.db.collectModes[ns.CharacterKey()] = "auction"
+end
 ns.AttachRoute()
 assert(not hooks.RefreshRightTabs and not hooks.RightTabSelected, "native profession methods stay untouched")
 local page = created[first]
@@ -1093,7 +1105,7 @@ def addon_atlases(ui):
     return {name: {"width": ui.atlas(name).width, "height": ui.atlas(name).height} for name in sorted(literals & names)}
 
 
-def lua_scene(ui):
+def lua_scene(ui, *, buy_reagents=False):
     """What the route page, tracker, trainer and reagent tooltip draw for the scene's character."""
     canvas = ui.canvas(1, 1)
     professions = [
@@ -1101,6 +1113,7 @@ def lua_scene(ui):
         for name, icon, rank, top, line in PROFESSIONS
     ]
     state = {
+        "buyReagents": buy_reagents,
         "level": LEVEL,
         "money": MONEY,
         "learned": LEARNED,
@@ -2143,6 +2156,7 @@ def main():
     data = lua_scene(ui)
     chat_preview(ui, data["chat"]).save(OUT / "leaderboard.png")
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")
+    scene(ui, [(route_frame(ui, lua_scene(ui, buy_reagents=True)), 0, 0)]).save(OUT / "route-auctionator.png")
     scene(ui, [(shopping_list_scene(ui, data), 0, 0)]).save(OUT / "shopping-list.png")
     gear_scene(ui, data).save(OUT / "gear.png")
     tracker_scene(ui, data).save(OUT / "tracker.png")

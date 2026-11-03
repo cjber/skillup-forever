@@ -460,7 +460,6 @@ L["Pinned: %s"] = "Fixada: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"A receita fixada mais recentemente tem prioridade quando as faixas se sobrepõem." -- mt
 L["Pinned (%d)"] = "Fixadas (%d)" -- mt
-L["Pin a recipe for skill-ups."] = "Fixe uma receita para ganhar perícia." -- mt
 
 L["%d. %s (you): %d"] = "%d. %s (você): %d"
 L["%d. %s: %d"] = "%d. %s: %d"
@@ -480,3 +479,5 @@ L["/su share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] = "Compartilhar totais de receitas observadas com guilda e grupo"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Ativado por padrão. Desative para parar de enviar e receber totais e ocultar outros jogadores. As observações locais são mantidas."
+
+L["Auctionator lists stay with their character."] = "As listas do Auctionator ficam separadas por personagem." -- mt

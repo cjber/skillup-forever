@@ -467,7 +467,6 @@ L["Pinned: %s"] = "고정: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"숙련도 범위가 겹치면 최근 고정한 제조법이 우선합니다." -- mt
 L["Pinned (%d)"] = "고정됨 (%d)" -- mt
-L["Pin a recipe for skill-ups."] = "숙련도 상승에 제조법을 고정하세요." -- mt
 
 L["%d. %s (you): %d"] = "%d. %s (나): %d"
 L["%d. %s: %d"] = "%d. %s: %d"
@@ -487,3 +486,5 @@ L["/su share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
+
+L["Auctionator lists stay with their character."] = "Auctionator 목록은 캐릭터별로 유지됩니다." -- mt

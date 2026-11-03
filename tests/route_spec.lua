@@ -149,7 +149,7 @@ page = {
 		return page.auctionAutoscan
 	end,
 	AuctionListName = function(profession)
-		return "SkillUp: " .. profession
+		return not page.identityMissing and ("SkillUp: Tester-Realm: " .. profession) or nil
 	end,
 	IsTracked = function()
 		return false
@@ -664,10 +664,22 @@ lists[2].messages = {}
 eventFrame:Event("BAG_UPDATE_DELAYED")
 Drain()
 equal(
-	table.concat(lists[2].messages, " | "):find("Kept in the Auctionator list 'SkillUp: First Aid'.", 1, true) ~= nil,
+	table
+		.concat(lists[2].messages, " | ")
+		:find("Kept in the Auctionator list 'SkillUp: Tester-Realm: First Aid'.", 1, true) ~= nil,
 	true,
 	"the reagent list names the Auctionator list"
 )
+page.identityMissing = true
+lists[2].messages = {}
+eventFrame:Event("BAG_UPDATE_DELAYED")
+Drain()
+equal(
+	table.concat(lists[2].messages, " | "):find("Kept in the Auctionator list", 1, true),
+	nil,
+	"an unknown character has no saved-list message"
+)
+page.identityMissing = nil
 page.HasAuctionator = function()
 	return false
 end

@@ -58,6 +58,12 @@ At the trainer, every recipe shows its chance and cost; a green arrow marks the 
 
 Hover a reagent to see how much your tracked routes need.
 
+`/su leaderboard` (or `/su stats`) ranks distinct recipes SkillUp has observed as learned on your character against totals reported by guild and group members. Repeated scans and relearning the same recipe do not increase the total. Recipes in linked or guild profession views do not count.
+
+![Chat output from the observed recipe leaderboard](docs/screenshots/leaderboard.png)
+
+Sharing defaults on. Turn it off with `/su share off` or the checkbox in Settings > AddOns > SkillUp Forever. This stops sending and receiving totals and hides other players while keeping your local observations. `/su share on` resumes sharing. Reported totals are not verified.
+
 ## Install
 
 Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forever) or [Wago Addons](https://addons.wago.io/addons/skillup-forever), or download the zip from [Releases](https://github.com/cjber/skillup-forever/releases). To install the zip by hand, extract it into the WoW: Forever client's `Interface/AddOns/` folder (`_forever_` on the live client, `_classic_beta_` on the beta).

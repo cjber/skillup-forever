@@ -465,3 +465,22 @@ L["The newest pin takes priority where skill ranges overlap."] =
 	"La receta fijada más reciente tiene prioridad cuando los rangos se superponen." -- mt
 L["Pinned (%d)"] = "Fijadas (%d)" -- mt
 L["Pin a recipe for skill-ups."] = "Fija una receta para subir habilidad." -- mt
+
+L["%d. %s (you): %d"] = "%d. %s (tú): %d"
+L["%d. %s: %d"] = "%d. %s: %d"
+L["Distinct recipes observed learned on this character"] =
+	"Recetas distintas observadas como aprendidas por este personaje"
+L["Guild and group totals are player-reported, not verified."] =
+	"Los totales de hermandad y grupo los declaran los jugadores y no están verificados."
+L["No guild or group member has reported yet."] = "Ningún miembro de hermandad o grupo ha informado todavía."
+L["Sharing is on. Use /su share off to stop sharing."] =
+	"Compartir está activado. Usa /su share off para desactivarlo."
+L["Sharing is off. Other players are hidden; your own history is kept."] =
+	"Compartir está desactivado. Los demás jugadores están ocultos; se conserva tu historial."
+L["/su leaderboard - rank distinct recipes observed learned; also /su stats"] =
+	"/su leaderboard - clasifica recetas distintas observadas como aprendidas; también /su stats"
+L["/su share on|off - control sharing with guild and group"] =
+	"/su share on|off - controla lo que compartes con hermandad y grupo"
+L["Share observed recipe totals with guild and group"] = "Compartir totales de recetas observadas con hermandad y grupo"
+L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
+	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."

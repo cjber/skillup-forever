@@ -488,3 +488,24 @@ L["The newest pin takes priority where skill ranges overlap."] =
 	"При пересечении диапазонов приоритет у рецепта, закреплённого последним." -- mt
 L["Pinned (%d)"] = "Закреплено (%d)" -- mt
 L["Pin a recipe for skill-ups."] = "Закрепите рецепт для повышения навыка." -- mt
+
+L["%d. %s (you): %d"] = "%d. %s (вы): %d"
+L["%d. %s: %d"] = "%d. %s: %d"
+L["Distinct recipes observed learned on this character"] =
+	"Различные рецепты, замеченные как изученные этим персонажем"
+L["Guild and group totals are player-reported, not verified."] =
+	"Итоги гильдии и группы сообщают сами игроки; они не проверены."
+L["No guild or group member has reported yet."] =
+	"Никто из гильдии или группы ещё не сообщил данные."
+L["Sharing is on. Use /su share off to stop sharing."] =
+	"Обмен включён. Команда /su share off отключает его."
+L["Sharing is off. Other players are hidden; your own history is kept."] =
+	"Обмен отключён. Другие игроки скрыты; ваша история сохранена."
+L["/su leaderboard - rank distinct recipes observed learned; also /su stats"] =
+	"/su leaderboard - рейтинг различных рецептов, замеченных как изученные; также /su stats"
+L["/su share on|off - control sharing with guild and group"] =
+	"/su share on|off - управление обменом с гильдией и группой"
+L["Share observed recipe totals with guild and group"] =
+	"Делиться итогами наблюдений рецептов с гильдией и группой"
+L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
+	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."

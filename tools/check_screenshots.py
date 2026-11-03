@@ -31,6 +31,7 @@ SOURCES = (
     "SkillUpForever.toc",
     "Locales/enUS.lua",
     "Core/Core.lua",
+    "Core/Stats.lua",
     "Core/Model.lua",
     "Core/Plan.lua",
     "Core/API.lua",

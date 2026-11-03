@@ -1139,6 +1139,7 @@ def lua_scene(ui, *, buy_reagents=False):
 
 # ------------------------------------------------------------------------------------------------ render
 
+import wowmock
 from PIL import Image, ImageOps
 from wowmock import (
     FONTS,
@@ -1172,8 +1173,6 @@ from wowmock import (
     ui_panel_button,
     wrap_text,
 )
-
-from gen_thresholds import BUILD
 
 FRIZ = "fonts/frizqt__.ttf"
 ARIAL = "fonts/arialn.ttf"
@@ -2091,7 +2090,7 @@ DEMO_MAX_BYTES = 2_000_000  # the stores' gallery limit
 
 def render_demo():
     global SKILL
-    ui = Ui(build=BUILD, scale=1)  # at the GIF's final size, so one-pixel lines stay crisp
+    ui = Ui(build=wowmock.BUILD, scale=1)  # at the GIF's final size, so one-pixel lines stay crisp
     states = []
     for skill in DEMO_SKILLS:
         SKILL = skill
@@ -2149,7 +2148,7 @@ def chat_preview(ui, lines):
 
 def main():
     scale = float(os.environ.get("SCALE", "2"))
-    ui = Ui(build=BUILD, scale=scale)
+    ui = Ui(build=wowmock.BUILD, scale=scale)
     OUT.mkdir(parents=True, exist_ok=True)
     window_scene(ui).save(OUT / "window.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")

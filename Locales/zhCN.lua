@@ -276,6 +276,7 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "推荐我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s训练师教授。"
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"
+L["The profession data now matches the 1.60.1.70753 build."] = "专业技能数据现已匹配 1.60.1.70753 版本。" -- mt
 L["The rest comes from a vendor or your gathering."] = "其余来自商人或你的采集。"
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"路线按%d个计算，十次中有九次能达到%d；运气差时需要更多。"

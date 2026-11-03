@@ -204,6 +204,8 @@ L["Plans the cheapest route to your next profession rank."] =
 	"Прокладывает самый дешевый путь к следующему рангу профессии."
 L["Plans the quickest way anywhere and guides you there, with live boat and zeppelin times."] =
 	"Прокладывает самый быстрый путь куда угодно и ведет вас туда, с расписанием кораблей и дирижаблей в реальном времени."
+L["Preview screenshots use the game's own art."] =
+	"Скриншоты предпросмотра используют графику самой игры." -- mt
 L["Price"] = "Цена"
 L["Price %s, requires %s (%d)"] = "Цена %s, требуется: %s (%d)"
 L["Prices"] = "Цены"
@@ -508,6 +510,3 @@ L["Share observed recipe totals with guild and group"] =
 	"Делиться итогами наблюдений рецептов с гильдией и группой"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
-
-L["Auctionator lists stay with their character."] =
-	"Списки Auctionator сохраняются отдельно для каждого персонажа." -- mt

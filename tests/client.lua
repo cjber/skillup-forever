@@ -397,6 +397,12 @@ function Client.load(options)
 	end
 
 	local timers = {}
+	G.GetTime = function()
+		return c.now
+	end
+	G.GetServerTime = function()
+		return 1700000000 + math.floor(c.now)
+	end
 	G.C_Timer = {
 		After = function(delay, fn)
 			timers[#timers + 1] = { at = c.now + delay, fn = fn }

@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **A leaderboard for recipes observed learned.** `/su leaderboard` (or `/su stats`) compares your character's distinct recipe observations with totals reported by guild and group members. Repeated scans and relearning do not add to the score. Sharing defaults on; the settings checkbox or `/su share off` stops sending and receiving and hides other players while keeping your history. A saved off choice stays off. Totals are player-reported, not verified.
+
 - **Pin a recipe for skill-ups.** Right-click a route recipe to prefer it through its usable range, including its trainer visit. The newest pin wins where ranges overlap. Pinned rows explain missing prices, requirements and grey recipes, and the tracker menu lets you remove pins.
 
 - **Controls use the Forever asset set.** Shopping list and route controls use the native gold-bordered buttons, and CI rejects legacy loose chrome in runtime UI and screenshot renderers.

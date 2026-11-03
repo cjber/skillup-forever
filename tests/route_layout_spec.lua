@@ -901,6 +901,25 @@ equal(gearPage:IsShown(), false, "and still hides the gear page")
 equal(routeTab.checked, true, "with the route tab checked")
 equal(gearTab.checked, false, "and the gear tab unchecked")
 
+-- Other addons dismiss their custom pages when the native crafting page shows.
+local foreignPage = NewRegion(ProfessionsFrame)
+ProfessionsFrame.CraftingPage:HookScript("OnShow", function()
+	foreignPage:Hide()
+end)
+for _, target in ipairs({
+	{ tab = routeTab, page = routePage, other = gearPage, name = "route" },
+	{ tab = gearTab, page = gearPage, other = routePage, name = "gear" },
+}) do
+	ProfessionsFrame.CraftingPage:Hide()
+	foreignPage:Show()
+	target.tab.scripts.OnMouseUp(nil, "LeftButton", true)
+	equal(foreignPage:IsShown(), false, target.name .. " dismisses another addon's page")
+	equal(target.page:IsShown(), true, target.name .. " stays visible after the native handoff")
+	equal(target.other:IsShown(), false, target.name .. " hides the other SkillUp page")
+	equal(target.tab.checked, true, target.name .. " stays checked after the native handoff")
+	equal(ProfessionsFrame.CraftingPage:IsShown(), false, target.name .. " leaves the native page hidden")
+end
+
 -- Blizzard's own tabs hand the window back through their page showing.
 ProfessionsFrame.BookPage:Show()
 equal(routePage:IsShown(), false, "the overview hides the route page")

@@ -56,9 +56,8 @@ class RendererBuildTests(unittest.TestCase):
             if keyword.arg == "build"
         ]
         self.assertEqual(len(builds), 2)
-        self.assertTrue(all(isinstance(value, ast.Attribute) for value in builds))
-        self.assertTrue(all(value.attr == "BUILD" for value in builds))
-        self.assertTrue(all(isinstance(value.value, ast.Name) and value.value.id == "wowmock" for value in builds))
+        self.assertTrue(all(isinstance(value, ast.Name) and value.id == "UI_ART_BUILD" for value in builds))
+        self.assertIn('UI_ART_BUILD = "1.60.1.70124"', SOURCE.read_text(encoding="utf-8"))
 
 
 class LuaDecoderTests(unittest.TestCase):

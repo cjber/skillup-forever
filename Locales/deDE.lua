@@ -283,7 +283,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "Meine anderen Forever-Addons vorschlagen"
 L["Taught by %s trainers."] = "Gelehrt von Lehrern für %s."
 L["The place this recipe is taught isn't known yet."] = "Wo dieses Rezept gelehrt wird, ist noch unbekannt."
-L["The profession data now matches the 1.60.1.70753 build."] = "Die Berufsdaten entsprechen jetzt dem Build 1.60.1.70753." -- mt
+L["The profession data now matches the 1.60.1.70753 build."] =
+	"Die Berufsdaten entsprechen jetzt dem Build 1.60.1.70753." -- mt
 L["The rest comes from a vendor or your gathering."] = "Der Rest kommt von einem Händler oder aus Eurem Sammeln."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"Die Route rechnet mit %d, um in 9 von 10 Fällen %d zu erreichen; mit weniger Glück braucht Ihr mehr."

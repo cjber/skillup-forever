@@ -285,7 +285,8 @@ L["Suggest my other Forever addons"] = "제 다른 Forever 애드온 추천"
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
 L["The place this recipe is taught isn't known yet."] =
 	"이 제조법을 배우는 곳은 아직 알려지지 않았습니다."
-L["The profession data now matches the 1.60.1.70753 build."] = "전문 기술 데이터가 이제 1.60.1.70753 빌드와 일치합니다." -- mt
+L["The profession data now matches the 1.60.1.70753 build."] =
+	"전문 기술 데이터가 이제 1.60.1.70753 빌드와 일치합니다." -- mt
 L["The rest comes from a vendor or your gathering."] = "나머지는 상인이나 채집으로 얻습니다."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"경로는 %d개로 10번 중 9번은 %d에 도달한다고 봅니다. 운이 나쁘면 더 필요합니다."

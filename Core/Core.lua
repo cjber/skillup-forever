@@ -74,7 +74,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The profession data now matches the 1.60.1.70753 build."]
+ns.WHATS_NEW = L["No more error while the game is still loading your character."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -294,10 +294,26 @@ function ns.PlayerProfessions()
 	return professions
 end
 
--- This character's key in the account-wide saved variables.
----@return string
+-- This character's realm in the client's normalized form (no spaces or hyphens). GetNormalizedRealmName returns nil
+-- early in loading, so it falls back to GetRealmName stripped the same way; nil when the client has neither yet.
+---@return string?
+function ns.NormalizedRealm()
+	local realm = GetNormalizedRealmName()
+	if not realm or realm == "" then
+		realm = ((GetRealmName() or ""):gsub("[%s%-]", ""))
+	end
+	return realm ~= "" and realm or nil
+end
+
+-- This character's key in the account-wide saved variables, "Name-Realm". Nil while the client has no name or realm
+-- for it yet: callers then read the defaults and save nothing.
+---@return string?
 function ns.CharacterKey()
-	return UnitName("player") .. "-" .. GetNormalizedRealmName()
+	local name, realm = UnitName("player"), ns.NormalizedRealm()
+	if not name or name == "" or not realm then
+		return nil
+	end
+	return name .. "-" .. realm
 end
 
 -- The client's own build number, nil when it doesn't report one.
@@ -349,13 +365,18 @@ end
 -- "auction" buys it at a vendor or the auction house like any other.
 ---@return SkillUpCollectMode
 function ns.CollectMode()
-	local mode = ns.db.collectModes[ns.CharacterKey()]
+	local key = ns.CharacterKey()
+	local mode = key and ns.db.collectModes[key]
 	return mode == "auction" and "auction" or "gather"
 end
 
 ---@param mode SkillUpCollectMode
 function ns.SetCollectMode(mode)
-	ns.db.collectModes[ns.CharacterKey()] = mode
+	local key = ns.CharacterKey()
+	if not key then
+		return
+	end
+	ns.db.collectModes[key] = mode
 	ns.Changed("settings")
 end
 
@@ -363,12 +384,17 @@ end
 -- per character, like the collect mode.
 ---@return boolean
 function ns.ShowAllGear()
-	return ns.db.showAllGear[ns.CharacterKey()] == true
+	local key = ns.CharacterKey()
+	return key ~= nil and ns.db.showAllGear[key] == true
 end
 
 ---@param show boolean
 function ns.SetShowAllGear(show)
-	ns.db.showAllGear[ns.CharacterKey()] = show and true or nil
+	local key = ns.CharacterKey()
+	if not key then
+		return
+	end
+	ns.db.showAllGear[key] = show and true or nil
 	ns.Changed("settings")
 end
 
@@ -377,7 +403,8 @@ end
 ---@param recipeID integer
 ---@return boolean
 function ns.IsSkipped(recipeID)
-	local skipped = ns.db and ns.db.skippedRecipes[ns.CharacterKey()]
+	local key = ns.CharacterKey()
+	local skipped = ns.db and key and ns.db.skippedRecipes[key]
 	return skipped ~= nil and skipped[recipeID] == true
 end
 
@@ -385,6 +412,9 @@ end
 ---@param skip boolean
 function ns.SetSkipped(recipeID, skip)
 	local key = ns.CharacterKey()
+	if not key then
+		return
+	end
 	local skipped = ns.db.skippedRecipes[key] or {}
 	skipped[recipeID] = skip and true or nil
 	ns.db.skippedRecipes[key] = next(skipped) and skipped or nil
@@ -396,7 +426,8 @@ end
 ---@return {recipeID: integer, name: string}[]
 function ns.SkippedRecipes(skillLine)
 	local list = {}
-	for recipeID in pairs(ns.db.skippedRecipes[ns.CharacterKey()] or {}) do
+	local key = ns.CharacterKey()
+	for recipeID in pairs(key and ns.db.skippedRecipes[key] or {}) do
 		local recipe = ns.RecipeData[recipeID]
 		if not skillLine or (recipe and recipe.skillLine == skillLine) then
 			local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
@@ -417,6 +448,9 @@ end
 -- professions not opened yet, and every session while SavedVariables fail to load.
 local function LearnedRecipes()
 	local key = ns.CharacterKey()
+	if not key then
+		return {}
+	end
 	ns.db.learned[key] = ns.db.learned[key] or {}
 	return ns.db.learned[key]
 end

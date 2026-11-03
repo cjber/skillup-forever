@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **No more error while the game is still loading your character.** Opening the shopping list or the route before the client had reported your realm raised "attempt to concatenate a nil value". The addon now reads the realm's display name when the normalized one is not there yet, and until either arrives your per-character settings show their defaults and nothing is saved.
+
 ## [1.0.1] - 2026-11-03
 
 - **The profession data now matches the 1.60.1.70753 build.** Enchant Boots - Speed is in the recipe list for the first time, with its pattern, its reagents and its thresholds, and the five enchant patterns the build added join the scroll list so a pattern you own is recognised. Nothing you already had moves.

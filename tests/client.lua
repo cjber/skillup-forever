@@ -469,6 +469,9 @@ function Client.load(options)
 	G.GetNormalizedRealmName = function()
 		return c.player.realm
 	end
+	G.GetRealmName = function()
+		return c.player.realm
+	end
 	G.UnitFactionGroup = function()
 		return c.player.faction
 	end

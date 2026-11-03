@@ -45,7 +45,7 @@ function ns.AltCounts(itemID)
 		return {}
 	end
 	local info = api.GetInventoryInfoByItemID(itemID, true, true)
-	local me, realm = UnitName("player"), GetNormalizedRealmName()
+	local me, realm = UnitName("player"), ns.NormalizedRealm()
 	local alts = {}
 	for _, character in ipairs(info and info.characters or {}) do
 		local count = character.bags + character.bank + character.mail

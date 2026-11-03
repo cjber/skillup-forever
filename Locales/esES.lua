@@ -282,8 +282,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "Sugerir mis otros addons Forever"
 L["Taught by %s trainers."] = "Lo enseñan los instructores de %s."
 L["The place this recipe is taught isn't known yet."] = "Aún no se sabe dónde se enseña esta receta."
-L["The profession data now matches the 1.60.1.70753 build."] =
-	"Los datos de profesión ahora coinciden con la versión 1.60.1.70753." -- mt
+L["No more error while the game is still loading your character."] =
+	"Ya no hay ningún error mientras el juego aún carga tu personaje." -- mt
 L["The rest comes from a vendor or your gathering."] = "El resto viene de un vendedor o de tu recolección."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"La ruta cuenta con %d para llegar a %d 9 de cada 10 veces; con peor suerte harán falta más."

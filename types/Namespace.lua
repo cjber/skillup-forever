@@ -13,7 +13,8 @@
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
 ---@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
----@field CharacterKey fun(): string
+---@field CharacterKey fun(): string?
+---@field NormalizedRealm fun(): string?
 ---@field ClientBuild fun(): string?
 ---@field NoteBuild fun()
 ---@field SellerFresh fun(seller: SkillUpSeller): boolean

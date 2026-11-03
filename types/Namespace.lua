@@ -2,6 +2,8 @@
 
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
+---@field PeerStats ForeverPeerStatsNamespace
+---@field Stats SkillUpStats
 ---@field RecipeMaterials fun(recipeID: integer, crafts: number): SkillUpSubCraft[]?, {itemID: integer, count: number}[]?
 ---@field ReportTitle string the localized title shown by the shared report window
 ---@field Art SkillUpArt
@@ -188,6 +190,9 @@
 ---@field InitCatalogue fun()
 
 ---@class SkillUpDefaults
+---@field statsShare boolean
+---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
+---@field peerStats table<string, table>
 ---@field showRowText boolean
 ---@field showSkill boolean
 ---@field showTooltip boolean

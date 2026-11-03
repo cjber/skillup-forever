@@ -453,3 +453,19 @@ L["The newest pin takes priority where skill ranges overlap."] =
 	"技能范围重叠时，最近固定的配方优先。" -- mt
 L["Pinned (%d)"] = "已固定（%d）" -- mt
 L["Pin a recipe for skill-ups."] = "固定配方以提升技能。" -- mt
+
+L["%d. %s (you): %d"] = "%d. %s（你）：%d"
+L["%d. %s: %d"] = "%d. %s：%d"
+L["Distinct recipes observed learned on this character"] = "观察到此角色已学会的不同配方"
+L["Guild and group totals are player-reported, not verified."] =
+	"公会和队伍总数由玩家自行报告，未经验证。"
+L["No guild or group member has reported yet."] = "尚无公会或队伍成员报告数据。"
+L["Sharing is on. Use /su share off to stop sharing."] = "共享已开启。使用 /su share off 停止共享。"
+L["Sharing is off. Other players are hidden; your own history is kept."] =
+	"共享已关闭。其他玩家已隐藏，你自己的历史记录会保留。"
+L["/su leaderboard - rank distinct recipes observed learned; also /su stats"] =
+	"/su leaderboard - 查看观察到已学会的不同配方排名；也可使用 /su stats"
+L["/su share on|off - control sharing with guild and group"] = "/su share on|off - 控制与公会和队伍共享"
+L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
+L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
+	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"

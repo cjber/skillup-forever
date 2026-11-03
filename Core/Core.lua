@@ -38,6 +38,9 @@ local DEFAULTS = {
 	builds = {},
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
+	statsShare = true,
+	observedRecipes = {}, -- ["Name-Realm"] = { ids = { [recipeID] = true }, eventUnix = latest observation }
+	peerStats = {}, -- ["Name-Realm"] = peer rows for this character's guild and groups
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
 	trackedProfessions = {}, -- [profession skill line] = true tracked, false stopped by hand, nil undecided
 	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
@@ -547,6 +550,9 @@ function ns.NoteLearnedRecipe(recipeID, learned)
 	local flag = learned or nil
 	local changed = learnedRecipes[recipeID] ~= flag
 	learnedRecipes[recipeID] = flag
+	if learned == true then
+		ns.Stats.Observe(recipeID)
+	end
 	return changed
 end
 
@@ -768,6 +774,17 @@ local function Slash(msg)
 		ns.Print(L["/su report - show a report to copy into a bug report"])
 		ns.Print(L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"])
 		ns.Print(L["/su export - show the trainer requirements this character has seen, to paste into a report"])
+		ns.Print(L["/su leaderboard - rank distinct recipes observed learned; also /su stats"])
+		ns.Print(L["/su share on|off - control sharing with guild and group"])
+	elseif command == "leaderboard" or command == "stats" then
+		if ns.Stats and ns.db then
+			ns.Stats.Print()
+		end
+	elseif command == "share" and (argument == "on" or argument == "off") then
+		if ns.Stats and ns.db then
+			Settings.SetValue("SkillUpForever_statsShare", argument == "on")
+			ns.Stats.Print()
+		end
 	elseif command == "shopping" or command == "shop" then
 		ns.OpenShoppingList()
 	elseif command == "audit" then
@@ -819,6 +836,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 			and ns.Report
 			and ns.ReportLines
 			and ns.Family
+			and ns.Stats
 		)
 	then
 		ns.Print("|cffff4040" .. L["files are missing: restart the game (not /reload) after updating."] .. "|r")

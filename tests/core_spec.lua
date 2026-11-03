@@ -52,6 +52,7 @@ for _, complete in ipairs({ false, true }) do
 		AttachTrainer = Init,
 	}
 	if complete then
+		ns.Stats = {}
 		assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
 		ns.TrainerFees, ns.TrainerRanks, ns.Catalogue = {}, {}, {}
 		ns.InitCatalogue = function() end
@@ -136,6 +137,7 @@ do
 		Report = {},
 		ReportLines = function() end,
 		Family = {},
+		Stats = {},
 	}
 	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
 	local env = Env(messages, callbacks)

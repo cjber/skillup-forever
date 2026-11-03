@@ -228,7 +228,7 @@ local groups = {
 	{ "Tooltips and sorting", "slider:reagentTooltip checkbox:gatherTooltip slider:sortMode" },
 	{ "Addon", "checkbox:whatsNew" },
 }
-local kinds, expected = {}, {}
+local kinds, expected = {}, { "checkbox:statsShare@" .. addOnCategory.name }
 for _, group in ipairs(groups) do
 	local name, rows = group[1], group[2]
 	for kind in rows:gmatch("%S+") do

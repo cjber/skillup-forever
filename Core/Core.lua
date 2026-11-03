@@ -264,33 +264,35 @@ end
 
 -- The player's professions by skill line, secondary ones included. GetProfessions
 -- leaves nil gaps for empty slots, so walk its full return count.
----@return table<integer, SkillUpProfession>
-function ns.PlayerProfessions()
-	local professions = {}
-	local function Add(...)
-		for i = 1, select("#", ...) do
-			local index = select(i, ...)
-			if index then
-				local name, icon, rank, maxRank, _, _, reported, modifier = GetProfessionInfo(index)
-				local skillLine = ns.ProfessionSkillLine(name, reported)
-				if skillLine then
-					modifier = modifier or 0
-					professions[skillLine] = {
-						skillLine = skillLine,
-						professionID = reported,
-						name = name,
-						icon = icon,
-						base = rank,
-						max = maxRank,
-						modifier = modifier,
-						skill = rank + modifier,
-						capped = maxRank > 0 and rank >= maxRank,
-					}
-				end
+---@param professions table<integer, SkillUpProfession>
+local function AddProfessions(professions, ...)
+	for i = 1, select("#", ...) do
+		local index = select(i, ...)
+		if index then
+			local name, icon, rank, maxRank, _, _, reported, modifier = GetProfessionInfo(index)
+			local skillLine = ns.ProfessionSkillLine(name, reported)
+			if skillLine then
+				modifier = modifier or 0
+				professions[skillLine] = {
+					skillLine = skillLine,
+					professionID = reported,
+					name = name,
+					icon = icon,
+					base = rank,
+					max = maxRank,
+					modifier = modifier,
+					skill = rank + modifier,
+					capped = maxRank > 0 and rank >= maxRank,
+				}
 			end
 		end
 	end
-	Add(GetProfessions())
+end
+
+---@return table<integer, SkillUpProfession>
+function ns.PlayerProfessions()
+	local professions = {}
+	AddProfessions(professions, GetProfessions())
 	return professions
 end
 

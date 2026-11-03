@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Profession plans do less work when recipes or prices change.** Each replan reads the recipes for that profession, and repeated profession and reagent lookups allocate less temporary data.
+
 - **No more error while the game is still loading your character.** Opening the shopping list or the route before the client had reported your realm raised "attempt to concatenate a nil value". The addon now reads the realm's display name when the normalized one is not there yet, and until either arrives your per-character settings show their defaults and nothing is saved.
 
 ## [1.0.1] - 2026-11-03

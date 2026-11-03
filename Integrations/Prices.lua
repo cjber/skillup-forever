@@ -294,10 +294,11 @@ local function OutputQuantity(recipeID)
 end
 
 -- Copper for one unit of `itemID`: buying it, or the cheaper recipe that makes it. `stack` holds the
--- items already being priced, so a cycle reads as unpriced instead of recursing. Memoised per item.
+-- items already being priced, so a cycle reads as unpriced instead of recursing; nil at the top, made on the
+-- first miss of the memo. Memoised per item.
 ---@param itemID integer
 ---@param depth integer
----@param stack table<integer, true>
+---@param stack table<integer, true>?
 ---@return number?
 local function ObtainCost(itemID, depth, stack)
 	if depth <= 0 then
@@ -310,7 +311,9 @@ local function ObtainCost(itemID, depth, stack)
 	elseif cached ~= nil then
 		return cached
 	end
-	if stack[itemID] then
+	if stack == nil then
+		stack = {}
+	elseif stack[itemID] then
 		return nil
 	end
 	local buy = ns.Price(itemID)
@@ -357,7 +360,7 @@ end
 ---@param itemID integer
 ---@return {recipeID: integer, quantity: number}?
 function ns.SubCraft(itemID)
-	ObtainCost(itemID, MAX_SUB_DEPTH, {})
+	ObtainCost(itemID, MAX_SUB_DEPTH)
 	local maker = subCraft[itemID]
 	return maker or nil
 end
@@ -373,7 +376,7 @@ local function ReagentCost(reagents)
 	end
 	local total = 0
 	for _, reagent in ipairs(reagents) do
-		local each = ObtainCost(reagent.itemID, MAX_SUB_DEPTH, {})
+		local each = ObtainCost(reagent.itemID, MAX_SUB_DEPTH)
 		if not each then
 			return nil
 		end

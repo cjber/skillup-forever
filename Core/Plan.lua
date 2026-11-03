@@ -204,6 +204,30 @@ local function Skipped(recipeID)
 	return ns.IsSkipped ~= nil and ns.IsSkipped(recipeID)
 end
 
+-- The bundled recipes of each skill line, in the order pairs gives them: built once, as the bundle never
+-- changes after load, so a replan walks its own profession instead of every recipe.
+---@type table<integer, integer[]>?
+local bySkillLine
+---@type table?
+local indexedData
+
+---@param skillLine integer
+---@return integer[]
+local function RecipesOf(skillLine)
+	if indexedData ~= ns.RecipeData or not bySkillLine then
+		bySkillLine, indexedData = {}, ns.RecipeData
+		for recipeID, recipe in pairs(ns.RecipeData) do
+			local list = bySkillLine[recipe.skillLine]
+			if not list then
+				list = {}
+				bySkillLine[recipe.skillLine] = list
+			end
+			list[#list + 1] = recipeID
+		end
+	end
+	return bySkillLine[skillLine] or {}
+end
+
 -- What the planner works from: the recipes this character knows, for any of its professions, from
 -- the bundled recipe data plus the learned record, so the profession needn't be open. `known` adds
 -- recipes the caller knows are learned. Skills here are effective (base + bonus), as the
@@ -214,8 +238,8 @@ end
 ---@return SkillUpSnapshot
 local function Snapshot(profession, target, known)
 	local recipes = {}
-	for recipeID, recipe in pairs(ns.RecipeData) do
-		local thresholds = recipe.skillLine == profession.skillLine and not Skipped(recipeID) and ns.Model.Get(recipeID)
+	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
+		local thresholds = not Skipped(recipeID) and ns.Model.Get(recipeID)
 		if thresholds and (known and known[recipeID] or ns.IsLearned(recipeID)) then
 			recipes[#recipes + 1] = {
 				recipeID = recipeID,
@@ -247,8 +271,8 @@ end
 ---@return SkillUpService[]
 local function Trainable(profession, snapshot)
 	local services = {}
-	for recipeID, recipe in pairs(ns.RecipeData) do
-		local training = recipe.skillLine == profession.skillLine and ns.TrainingFor(profession, recipeID)
+	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
+		local training = ns.TrainingFor(profession, recipeID)
 		local t = training and not ns.IsLearned(recipeID) and not Skipped(recipeID) and ns.Model.Get(recipeID)
 		if training and t then
 			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }

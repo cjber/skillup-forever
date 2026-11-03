@@ -10,7 +10,7 @@
 ---@field MultiSearchAdvanced? fun(caller: string, searches: string[])
 ---@field MultiSearchExact? fun(caller: string, names: string[])
 -- Config is Auctionator's own settings table, which has no public API contract.
----@type {API: {v1: SkillUpAuctionatorAPI}, Config?: {Options: {AUTOSCAN: string}, Get: fun(name: string): any}}?
+---@type {API: {v1: SkillUpAuctionatorAPI}, Config?: {Options: {AUTO_LIST_SEARCH: string}, Get: fun(name: string): any}}?
 Auctionator = nil
 
 ---@class SkillUpInventoryCharacter

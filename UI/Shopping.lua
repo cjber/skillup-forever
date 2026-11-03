@@ -87,7 +87,7 @@ function ns.AuctionatorAutoscan()
 		if not (config and config.Options) then
 			return nil
 		end
-		return config.Get(config.Options.AUTOSCAN)
+		return config.Get(config.Options.AUTO_LIST_SEARCH)
 	end)
 	if ok and type(value) == "boolean" then
 		return value

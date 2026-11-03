@@ -16,6 +16,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Controls use the Forever asset set.** Shopping list and route controls use the native gold-bordered buttons, and CI rejects legacy loose chrome in runtime UI and screenshot renderers.
 
+- **The profession tabs sit clear of What's Training?'s own tab.** That addon pins its own profession tab to the window's bottom-right corner, which lands in the same strip as ours without joining Blizzard's tab list, and the placement check only looked at the next Blizzard slot, so our tabs could sit on top of it. They now sit under the lowest tab already in the column.
+
+- **What's Training?'s page no longer swallows clicks on ours.** Its page is drawn above the crafting page and stays open when another tab is chosen; our pages now draw in the HIGH layer, above it and below dialogs, so the tab you clicked is the page you get.
+
+- **The "Auctionator's autoscan is off" hint can appear again.** It read Auctionator's old `AUTOSCAN` option, which no longer exists, so the note never showed even with the option off. It reads `AUTO_LIST_SEARCH` now.
+
 ## [1.0.2] - 2026-11-03
 
 - **Custom profession pages switch cleanly.** Route and Crafted gear hand off through the native crafting page without leaving another addon page visible or changing Blizzard's gamepad tab state.

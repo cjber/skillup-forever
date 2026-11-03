@@ -1056,6 +1056,10 @@ local function CreatePage()
 	page = CreateFrame("Frame", nil, ProfessionsFrame) --[[@as SkillUpPage]]
 	page:SetAllPoints(ProfessionsFrame.CraftingPage)
 	page:SetFrameLevel(ProfessionsFrame.CraftingPage:GetFrameLevel())
+	-- What's Training? paints its own page at the portrait container's level, over CraftingPage's, and never
+	-- hides it when another tab is chosen. HIGH sits above that page and below dialogs, so this one keeps the
+	-- clicks while both are open.
+	page:SetFrameStrata("HIGH")
 	page:Hide()
 	CreateHeader()
 	CreateButtons()
@@ -1146,21 +1150,27 @@ end
 ---@param anchor Frame
 ---@return Frame?
 local function OccupiedSlot(anchor)
-	local left, targetTop = anchor:GetLeft(), anchor:GetBottom()
-	if type(left) ~= "number" or type(targetTop) ~= "number" then
+	local left = anchor:GetLeft()
+	if type(left) ~= "number" then
 		return nil
 	end
-	targetTop = targetTop - 2
+	-- The lowest frame already anchored flush with the column, not just Blizzard's next slot: What's Training?
+	-- pins its tab to the window's bottom-right corner, which lands in the same strip without joining the tab array.
+	local lowest, lowestBottom
 	for _, sibling in ipairs({ ProfessionsFrame:GetChildren() }) do
 		if sibling ~= tab and sibling:IsShown() then
-			local siblingLeft, siblingTop = sibling:GetLeft(), sibling:GetTop()
-			if type(siblingLeft) == "number" and type(siblingTop) == "number" then
-				if math.abs(siblingLeft - left) < 1 and math.abs(siblingTop - targetTop) < 1 then
-					return sibling
-				end
+			local siblingLeft, siblingBottom = sibling:GetLeft(), sibling:GetBottom()
+			if
+				type(siblingLeft) == "number"
+				and type(siblingBottom) == "number"
+				and math.abs(siblingLeft - left) < 1
+				and (not lowestBottom or siblingBottom < lowestBottom)
+			then
+				lowest, lowestBottom = sibling, siblingBottom
 			end
 		end
 	end
+	return lowest
 end
 
 local function PlaceTab()

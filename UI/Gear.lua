@@ -732,6 +732,10 @@ local function CreatePage()
 	page = CreateFrame("Frame", nil, ProfessionsFrame) --[[@as SkillUpGearPage]]
 	page:SetAllPoints(ProfessionsFrame.CraftingPage)
 	page:SetFrameLevel(ProfessionsFrame.CraftingPage:GetFrameLevel())
+	-- What's Training? paints its own page at the portrait container's level, over CraftingPage's, and never
+	-- hides it when another tab is chosen. HIGH sits above that page and below dialogs, so this one keeps the
+	-- clicks while both are open.
+	page:SetFrameStrata("HIGH")
 	page:Hide()
 	-- The inset's own heading is the page title, so it sits under the window's title bar and portrait.
 	local inset = CreateFrame("Frame", nil, page, "InsetFrameTemplate") --[[@as Frame]]

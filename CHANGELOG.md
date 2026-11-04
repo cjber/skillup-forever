@@ -14,8 +14,6 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [1.0.9] - 2026-11-04
 
-- **Shift-clicking a recipe in the route links it in chat again.** The link used a compatibility function that only exists while the game's deprecation fallbacks are enabled, so without them the click raised a Lua error. It now uses the chat frame's own link insertion, which the client loads at startup.
-
 
 - **Shift-clicking a recipe in the route reliably links it in chat.** The link used a compatibility function that only exists while the game's deprecation fallbacks are enabled. Without them, the click raised a Lua error. It now uses the chat frame's own link insertion.
 

@@ -469,5 +469,5 @@ L["Share observed recipe totals with guild and group"] = "与公会和队伍共�
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
 
-L["Profession data regenerated against the 1.60.1.70755 build."] = "已根据 1.60.1.70755 版本重新生成专业数据。" -- mt
-	"即使旧版插件先加载，系列链接的按钮也会保留金色边框。" -- mt
+L["Profession data regenerated against the 1.60.1.70755 build."] =
+	"已根据 1.60.1.70755 版本重新生成专业数据。" -- mt

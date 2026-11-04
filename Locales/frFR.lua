@@ -486,5 +486,5 @@ L["Share observed recipe totals with guild and group"] =
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 
-L["Profession data regenerated against the 1.60.1.70755 build."] = "Données de métiers régénérées pour la version 1.60.1.70755." -- mt
-	"Les liens de la famille conservent leurs boutons à bordure dorée lorsqu’un ancien addon est chargé en premier." -- mt
+L["Profession data regenerated against the 1.60.1.70755 build."] =
+	"Données de métiers régénérées pour la version 1.60.1.70755." -- mt

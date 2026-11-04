@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The objective tracker column stays still as you enter and leave combat.** It no longer jumps in height or drops its last line during a fight, and the quest list below it stays where it is.
+
 ## [1.0.10] - 2026-11-04
 
 - **Profession data now names the 1.60.1.70790 build.** Thresholds, recipes, vendors, trainer requirements and sources are regenerated from the new Forever client build, so every number the addon shows comes from the client you are running. The regenerated skill ranges match the previous build, so nothing a player sees changes.

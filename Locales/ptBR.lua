@@ -480,4 +480,5 @@ L["Share observed recipe totals with guild and group"] = "Compartilhar totais de
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Ativado por padrão. Desative para parar de enviar e receber totais e ocultar outros jogadores. As observações locais são mantidas."
 
-L["Profession data now names the 1.60.1.70790 build."] = "Os dados de profissão agora indicam a compilação 1.60.1.70790 do Forever." -- mt
+L["Profession data now names the 1.60.1.70790 build."] =
+	"Os dados de profissão agora indicam a compilação 1.60.1.70790 do Forever." -- mt

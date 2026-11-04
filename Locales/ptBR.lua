@@ -480,5 +480,5 @@ L["Share observed recipe totals with guild and group"] = "Compartilhar totais de
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Ativado por padrão. Desative para parar de enviar e receber totais e ocultar outros jogadores. As observações locais são mantidas."
 
-L["Family links keep their gold-bordered buttons when an older addon loads first."] =
+L["Profession data regenerated against the 1.60.1.70755 build."] = "Dados de profissão regenerados para a compilação 1.60.1.70755." -- mt
 	"Os links da família mantêm seus botões com borda dourada quando um addon antigo é carregado primeiro." -- mt

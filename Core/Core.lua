@@ -78,7 +78,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Family links keep their gold-bordered buttons when an older addon loads first."]
+ns.WHATS_NEW = L["Profession data regenerated against the 1.60.1.70755 build."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.8] - 2026-11-04
+
+- **Profession data regenerated against the 1.60.1.70755 build.** The profession data (trainer ranks, vendor stock, skill thresholds and sources) is rebuilt from the new Forever client build. The regenerated values match the previous build, so the skill numbers you see do not move.
+
 ## [1.0.7] - 2026-11-04
 
 - **Family links keep their gold-bordered buttons when an older addon loads first.** The shared window takes over from older installed copies, so an addon that loads first can no longer keep the legacy button implementation whatever the load order.

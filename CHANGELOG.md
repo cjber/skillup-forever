@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-11-04
+
 - **Shopping confirmations use the native dialog surface.** The purchase prompt keeps its gold-bordered buttons and uses an opaque NineSlice background. Shared CI also rejects legacy templates and backdrop globals that select loose chrome.
 
 ## [1.0.5] - 2026-11-03

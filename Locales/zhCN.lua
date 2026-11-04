@@ -187,6 +187,7 @@ L["Picks quests for your level and plans them into one journey."] =
 L["Plans the cheapest route to your next profession rank."] = "规划升到下一专业等级最省钱的路线。"
 L["Plans the quickest way anywhere and guides you there, with live boat and zeppelin times."] =
 	"规划前往任何地点的最快路线并为你引路，附带船只和飞艇的实时时刻。"
+L["Preview screenshots use the game's own art."] = "预览截图使用游戏自带的图形。" -- mt
 L["Price"] = "价格"
 L["Price %s, requires %s (%d)"] = "价格%s，需要%s（%d）"
 L["Prices"] = "价格"
@@ -468,5 +469,3 @@ L["/su share on|off - control sharing with guild and group"] = "/su share on|off
 L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
-
-L["Auctionator lists stay with their character."] = "Auctionator 列表按角色分别保存。" -- mt

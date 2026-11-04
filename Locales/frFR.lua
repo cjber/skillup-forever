@@ -196,6 +196,7 @@ L["Plans the cheapest route to your next profession rank."] =
 	"Prévoit le chemin le moins cher vers votre prochain rang de métier." -- mt
 L["Plans the quickest way anywhere and guides you there, with live boat and zeppelin times."] =
 	"Trouve le chemin le plus rapide vers n'importe où et vous y guide, avec les horaires des bateaux et zeppelins." -- mt
+L["Preview screenshots use the game's own art."] = "Les captures d apercu utilisent l art du jeu lui-meme." -- mt
 L["Price"] = "Prix" -- mt
 L["Price %s, requires %s (%d)"] = "Prix %s, %s (%d) requis" -- mt
 L["Prices"] = "Prix" -- mt
@@ -485,5 +486,3 @@ L["Share observed recipe totals with guild and group"] =
 	"Partager les totaux de recettes observées avec la guilde et le groupe"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
-
-L["Auctionator lists stay with their character."] = "Les listes Auctionator restent propres à chaque personnage." -- mt

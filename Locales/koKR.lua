@@ -195,6 +195,8 @@ L["Plans the cheapest route to your next profession rank."] =
 	"다음 전문 기술 등급까지 가장 저렴한 경로를 계획합니다."
 L["Plans the quickest way anywhere and guides you there, with live boat and zeppelin times."] =
 	"어디든 가장 빠른 길을 계획해 안내하며, 배와 비행선 시간을 실시간으로 보여줍니다."
+L["Preview screenshots use the game's own art."] =
+	"미리보기 스크린샷은 게임 자체의 그래픽을 사용합니다." -- mt
 L["Price"] = "가격"
 L["Price %s, requires %s (%d)"] = "가격 %s, 요구 사항: %s (%d)"
 L["Prices"] = "가격"
@@ -486,5 +488,3 @@ L["/su share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
-
-L["Auctionator lists stay with their character."] = "Auctionator 목록은 캐릭터별로 유지됩니다." -- mt

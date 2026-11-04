@@ -487,5 +487,5 @@ L["Share observed recipe totals with guild and group"] = "관찰한 제조법 �
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 
-L["Shopping confirmations use the native dialog surface."] =
-	"구매 확인 창이 기본 대화 상자 배경을 사용합니다." -- mt
+L["Family links keep their gold-bordered buttons when an older addon loads first."] =
+	"이전 버전의 애드온이 먼저 로드되어도 애드온 모음 링크의 버튼은 금색 테두리를 유지합니다." -- mt

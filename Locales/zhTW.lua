@@ -470,4 +470,5 @@ L["Share observed recipe totals with guild and group"] = "與公會和隊伍共�
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 
-L["Shopping confirmations use the native dialog surface."] = "購買確認視窗使用原生對話框背景。" -- mt
+L["Family links keep their gold-bordered buttons when an older addon loads first."] =
+	"即使舊版插件先載入，系列連結的按鈕也會保留金色邊框。" -- mt

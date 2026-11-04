@@ -484,5 +484,5 @@ L["Share observed recipe totals with guild and group"] = "Compartir totales de r
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
 
-L["Shopping confirmations use the native dialog surface."] =
-	"Las confirmaciones de compra usan el fondo de diálogo nativo." -- mt
+L["Family links keep their gold-bordered buttons when an older addon loads first."] =
+	"Los enlaces de la familia conservan sus botones con borde dorado cuando se carga primero un addon antiguo." -- mt

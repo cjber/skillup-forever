@@ -268,7 +268,7 @@ end
 local function RecipeClick(recipeID)
 	return function()
 		if IsModifiedClick("CHATLINK") then
-			ChatEdit_InsertLink(C_Spell.GetSpellLink(recipeID))
+			ChatFrameUtil.InsertLink(C_Spell.GetSpellLink(recipeID))
 		else
 			ns.ShowRecipe(recipeID)
 		end
@@ -416,7 +416,7 @@ local function SuggestionClick(suggestion)
 		if IsModifiedClick("CHATLINK") then
 			local _, link = C_Item.GetItemInfo(suggestion.source.item)
 			if link then
-				ChatEdit_InsertLink(link)
+				ChatFrameUtil.InsertLink(link)
 			end
 		else
 			local npcID = ns.SuggestionNPC(suggestion)

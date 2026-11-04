@@ -215,9 +215,10 @@ function GameTooltip_AddInstructionLine(tooltip, text) end
 function GameTooltip_InsertFrame(tooltip, frame, padding) end
 function GameTooltip_Hide() end
 
----@param link string
+ChatFrameUtil = {}
+---@param text string?
 ---@return boolean
-function ChatEdit_InsertLink(link) end
+function ChatFrameUtil.InsertLink(text) end
 ---@param link string
 ---@return boolean
 function HandleModifiedItemClick(link) end

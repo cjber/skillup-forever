@@ -484,5 +484,5 @@ L["Share observed recipe totals with guild and group"] = "Compartir totales de r
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
 
-L["Profession data regenerated against the 1.60.1.70755 build."] =
-	"Datos de profesión regenerados con la compilación 1.60.1.70755." -- mt
+L["Shift-clicking a recipe in the route reliably links it in chat."] =
+	"Mayús-clic en una receta de la ruta la enlaza en el chat de forma fiable." -- mt

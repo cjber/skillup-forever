@@ -572,7 +572,7 @@ local env = setmetatable({
 	IsModifiedClick = function()
 		return false
 	end,
-	ChatEdit_InsertLink = noop,
+	ChatFrameUtil = { InsertLink = noop },
 	HandleModifiedItemClick = noop,
 }, {
 	__index = function(_, key)

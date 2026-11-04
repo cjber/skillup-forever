@@ -509,5 +509,5 @@ L["Share observed recipe totals with guild and group"] =
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 
-L["Profession data regenerated against the 1.60.1.70755 build."] =
-	"Данные профессий пересозданы для сборки 1.60.1.70755." -- mt
+L["Shift-clicking a recipe in the route reliably links it in chat."] =
+	"Shift-щелчок по рецепту в маршруте надёжно вставляет ссылку в чат." -- mt

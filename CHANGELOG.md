@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Shift-clicking a recipe in the route reliably links it in chat.** The link used a compatibility function that only exists while the game's deprecation fallbacks are enabled. Without them, the click raised a Lua error. It now uses the chat frame's own link insertion.
+
 ## [1.0.8] - 2026-11-04
 
 - **Profession data regenerated against the 1.60.1.70755 build.** The profession data (trainer ranks, vendor stock, skill thresholds and sources) is rebuilt from the new Forever client build. The regenerated values match the previous build, so the skill numbers you see do not move.

@@ -476,5 +476,4 @@ L["Share observed recipe totals with guild and group"] = "Beobachtete Rezeptsumm
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."
 
-L["Shift-clicking a recipe in the route reliably links it in chat."] =
-	"Umschalt-Klick auf ein Rezept in der Route verlinkt es zuverlässig im Chat." -- mt
+L["Profession data now names the 1.60.1.70790 build."] = "Die Berufsdaten nennen jetzt den Build 1.60.1.70790 von Forever." -- mt

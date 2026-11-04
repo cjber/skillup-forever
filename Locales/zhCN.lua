@@ -469,5 +469,4 @@ L["Share observed recipe totals with guild and group"] = "与公会和队伍共�
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
 
-L["Shift-clicking a recipe in the route reliably links it in chat."] =
-	"在路线中按住 Shift 点击配方，可稳定地将其链接到聊天。" -- mt
+L["Profession data now names the 1.60.1.70790 build."] = "专业数据现在标注的是 Forever 1.60.1.70790 版本。" -- mt

@@ -487,5 +487,4 @@ L["Share observed recipe totals with guild and group"] = "관찰한 제조법 �
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 
-L["Shift-clicking a recipe in the route reliably links it in chat."] =
-	"경로의 제작법을 Shift-클릭하면 채팅에 안정적으로 링크됩니다." -- mt
+L["Profession data now names the 1.60.1.70790 build."] = "전문 기술 데이터가 이제 Forever 1.60.1.70790 빌드를 표시합니다." -- mt

@@ -11,8 +11,7 @@ SOURCE = Path(__file__).with_name("screenshots.py")
 
 
 def port(name, *constants, scope=None):
-    """One function from screenshots.py with the constants it reads, compiled alone: the script needs Pillow and
-    wowmock to import."""
+    """Compile one screenshots.py function with the constants it reads."""
     tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
     nodes = [
         node
@@ -30,7 +29,6 @@ def port(name, *constants, scope=None):
 class CraftValueTests(unittest.TestCase):
     def test_matches_item_value(self):
         craft_value = port("model_craft_value")
-        # (sell, auction, mode) -> what Prices.lua's ItemValue returns, nil as None.
         cases = {
             (None, None, "none"): (None, None),
             (50, 100, "vendor"): (50, "vendor"),

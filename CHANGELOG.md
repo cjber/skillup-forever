@@ -14,6 +14,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Shopping confirmations use the native dialog surface.** The purchase prompt keeps its gold-bordered buttons and uses an opaque NineSlice background. Shared CI also rejects legacy templates and backdrop globals that select loose chrome.
 
+## [1.0.5] - 2026-11-03
+
+- **Preview screenshots use the game's own art.** The rendered scenes in `docs/screenshots` now take their window art from Forever Core's canonical art pin instead of a copy kept here, so a preview cannot show chrome the shipped client does not draw. A new regression test fails when an asset lookup bypasses the pin. Profession data generation stays on the build it already targets.
+
 ## [1.0.4] - 2026-11-03
 
 - **Auctionator lists stay with their character.** Route and crafting lists include the character and realm, so switching characters does not replace another character's supplies. Existing lists with the old shared names are left untouched and can be removed in Auctionator. Thanks to cjber for the report (#284).

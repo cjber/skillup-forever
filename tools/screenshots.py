@@ -1174,10 +1174,9 @@ from wowmock import (
     wrap_text,
 )
 
-from gen_thresholds import BUILD
-
 FRIZ = "fonts/frizqt__.ttf"
 ARIAL = "fonts/arialn.ttf"
+UI_ART_BUILD = "1.60.1.70124"
 F_ROW = Font(FRIZ, 12, WHITE)  # GameFontHighlight_NoShadow
 F_DIVIDER = Font(FRIZ, 12, NORMAL)  # GameFontNormal_NoShadow
 F_NORMAL = FONTS["GameFontNormal"]
@@ -2092,7 +2091,7 @@ DEMO_MAX_BYTES = 2_000_000  # the stores' gallery limit
 
 def render_demo():
     global SKILL
-    ui = Ui(build=BUILD, scale=1)  # at the GIF's final size, so one-pixel lines stay crisp
+    ui = Ui(build=UI_ART_BUILD, scale=1)  # at the GIF's final size, so one-pixel lines stay crisp
     states = []
     for skill in DEMO_SKILLS:
         SKILL = skill
@@ -2164,7 +2163,7 @@ def merchant_confirm_scene(ui):
 
 def main():
     scale = float(os.environ.get("SCALE", "2"))
-    ui = Ui(build=BUILD, scale=scale)
+    ui = Ui(build=UI_ART_BUILD, scale=scale)
     OUT.mkdir(parents=True, exist_ok=True)
     merchant_confirm_scene(ui).save(OUT / "merchant-confirm.png")
     window_scene(ui).save(OUT / "window.png")

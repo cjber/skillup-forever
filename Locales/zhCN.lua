@@ -471,6 +471,4 @@ L["Share observed recipe totals with guild and group"] = "与公会和队伍共�
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
 
-
-L["Tall tracker sections stay under your quests."] =
-	"较高的追踪器区块会留在任务下方。" -- mt
+L["Tall tracker sections stay under your quests."] = "较高的追踪器区块会留在任务下方。" -- mt

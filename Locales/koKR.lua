@@ -489,6 +489,4 @@ L["Share observed recipe totals with guild and group"] = "관찰한 제조법 �
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 
-
-L["Tall tracker sections stay under your quests."] =
-	"긴 추적기 섹션은 퀘스트 아래에 유지됩니다." -- mt
+L["Tall tracker sections stay under your quests."] = "긴 추적기 섹션은 퀘스트 아래에 유지됩니다." -- mt

@@ -488,4 +488,4 @@ L["Share observed recipe totals with guild and group"] =
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 
-L["Long lists in the Professions window scroll."] = "Les longues listes de la fenêtre des métiers défilent." -- mt
+L["The Forever addons settings page ends with a Ko-fi link."] = "La page de réglages des addons Forever se termine par un lien Ko-fi." -- mt

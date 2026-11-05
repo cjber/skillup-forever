@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.15] - 2026-11-05
+
+- **The Forever addons settings page ends with a Ko-fi link.** If the addons help you, its Copy link button shows the address, ready to paste into your browser. Nothing is locked behind it, and it shows nowhere else.
+
 ## [1.0.14] - 2026-11-05
 
 - **Long lists in the Professions window scroll.** The skipped and pinned route menus, the profession dropdown and a shopping list's block menu show 20 entries at a time and scroll the rest, so every entry stays reachable on any screen. The shared settings page also drops a dropdown helper nothing used.

@@ -472,4 +472,4 @@ L["Share observed recipe totals with guild and group"] = "與公會和隊伍共�
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 
-L["Long lists in the Professions window scroll."] = "專業視窗中的長列表可以捲動." -- mt
+L["The Forever addons settings page ends with a Ko-fi link."] = "Forever 插件設定頁面末端有一個 Ko-fi 連結。" -- mt

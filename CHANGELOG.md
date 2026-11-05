@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.11] - 2026-11-05
+
+- **The objective tracker column stays still as you enter and leave combat.** All Objectives and your quests keep their place at the top, and the Forever sections always follow below them, so nothing swaps order, jumps or loses a line when a fight starts or ends.
+
 ## [1.0.10] - 2026-11-04
 
 - **Profession data now names the 1.60.1.70790 build.** Thresholds, recipes, vendors, trainer requirements and sources are regenerated from the new Forever client build, so every number the addon shows comes from the client you are running. The regenerated skill ranges match the previous build, so nothing a player sees changes.

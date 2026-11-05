@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The settings page opens without an error.** Its title asked the game for a font Forever does not have, which logged a Lua error each time the page was built; it now uses the font the game's own settings pages title with.
+
 ## [1.0.12] - 2026-11-05
 
 - **Opening the Professions window no longer shows a Lua error.** With both side tabs on, the levelling route tab could try to sit under the crafted gear tab, which already sat under it, so the game refused the anchor and raised an error. The route tab now always comes first and the crafted gear tab follows it, below any tab another addon has added to the column.

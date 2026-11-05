@@ -484,5 +484,4 @@ L["Share observed recipe totals with guild and group"] = "Compartir totales de r
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
 
-L["Opening the Professions window no longer shows a Lua error."] =
-	"Abrir la ventana de profesiones ya no muestra un error de Lua." -- mt
+L["The settings page opens without an error."] = "La página de opciones se abre sin errores." -- mt

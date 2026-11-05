@@ -509,5 +509,5 @@ L["Share observed recipe totals with guild and group"] =
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 
-L["Opening the Professions window no longer shows a Lua error."] =
-	"Открытие окна профессий больше не вызывает ошибку Lua." -- mt
+L["The settings page opens without an error."] =
+	"Страница настроек открывается без ошибки." -- mt

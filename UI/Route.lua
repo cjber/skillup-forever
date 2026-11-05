@@ -1145,25 +1145,53 @@ function ns.ShowRecipe(recipeID)
 	end
 end
 
--- Directly under the last profession tab Forever shows, in the same tab art.
+-- Whether a frame hangs off one of our tabs, directly or through the frames it is anchored to.
+---@param frame Region
+---@param ours table<Region, boolean>
+---@param seen table<Region, boolean>
+---@return boolean
+local function HangsOff(frame, ours, seen)
+	if ours[frame] then
+		return true
+	end
+	-- A frame anchored through a protected one refuses GetPoint; it is not one of ours either way.
+	if seen[frame] or frame:IsAnchoringRestricted() then
+		return false
+	end
+	seen[frame] = true
+	for index = 1, frame:GetNumPoints() do
+		-- Anything a frame anchors to is itself anchorable.
+		local _, relative = frame:GetPoint(index)
+		if
+			relative and HangsOff(relative --[[@as Region]], ours, seen)
+		then
+			return true
+		end
+	end
+	return false
+end
+
+-- The lowest frame already anchored flush with the tab column, not just Blizzard's next slot: All The Things
+-- takes the next slot without joining Blizzard's tab array, and What's Training? pins its tab to the window's
+-- bottom-right corner, which lands in the same strip. A frame that hangs off our tabs is below them, not above.
 ---@param anchor Frame
+---@param ours table<Region, boolean>
 ---@return Frame?
-local function OccupiedSlot(anchor)
+local function OccupiedSlot(anchor, ours)
 	local left = anchor:GetLeft()
 	if type(left) ~= "number" then
 		return nil
 	end
-	-- The lowest frame already anchored flush with the column, not just Blizzard's next slot: What's Training?
-	-- pins its tab to the window's bottom-right corner, which lands in the same strip without joining the tab array.
 	local lowest, lowestBottom
 	for _, sibling in ipairs({ ProfessionsFrame:GetChildren() }) do
-		if sibling ~= tab and sibling:IsShown() then
+		if sibling:IsShown() then
 			local siblingLeft, siblingBottom = sibling:GetLeft(), sibling:GetBottom()
 			if
 				type(siblingLeft) == "number"
 				and type(siblingBottom) == "number"
 				and math.abs(siblingLeft - left) < 1
 				and (not lowestBottom or siblingBottom < lowestBottom)
+				and not HangsOff(sibling, ours, {})
 			then
 				lowest, lowestBottom = sibling, siblingBottom
 			end
@@ -1172,20 +1200,31 @@ local function OccupiedSlot(anchor)
 	return lowest
 end
 
-local function PlaceTab()
+-- Our side tabs in one order, top to bottom: the route, then crafted gear, under the last tab the column
+-- already holds, in the same tab art. Only this places them, so neither ever anchors above the other.
+local function PlaceTabs()
+	local column = { tab, ns.GearTab }
+	local ours = {}
+	for _, sideTab in ipairs(column) do
+		ours[sideTab] = true
+	end
 	---@type Frame
-	local last = ProfessionsFrame.ProfessionsOverviewTab
+	local above = ProfessionsFrame.ProfessionsOverviewTab
 	for _, professionTab in ipairs(ProfessionsFrame.rightProfessionTabs or {}) do
 		if professionTab:IsShown() then
-			last = professionTab
+			above = professionTab
 		end
 	end
-	-- Addons such as All The Things can already occupy the next tab slot without joining Blizzard's tab array.
-	-- Use their visible tab as the anchor so the route remains reachable below it.
-	last = OccupiedSlot(last) or last
-	tab:ClearAllPoints()
-	tab:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -2)
+	above = OccupiedSlot(above, ours) or above
+	for _, sideTab in ipairs(column) do
+		sideTab:ClearAllPoints()
+		sideTab:SetPoint("TOPLEFT", above, "BOTTOMLEFT", 0, -2)
+		if sideTab:IsShown() then
+			above = sideTab
+		end
+	end
 end
+ns.PlaceSideTabs = PlaceTabs
 
 -- Blizzard reselects its profession tab on skill updates; keep ours checked while our page shows.
 function SyncChecks()
@@ -1209,10 +1248,7 @@ local function RefreshRouteTab()
 		Deselect()
 		ProfessionsFrame.CraftingPage:Show()
 	end
-	-- The gear tab sits under this one, so it moves when this one does.
-	if ns.PlaceGearTab then
-		ns.PlaceGearTab()
-	end
+	PlaceTabs()
 end
 
 local function CreateTab()
@@ -1227,10 +1263,9 @@ local function CreateTab()
 			SelectPage()
 		end
 	end)
-	PlaceTab()
 	RefreshRouteTab()
 	ns.RouteTab = tab
-	ProfessionsFrame:HookScript("OnShow", PlaceTab)
+	ProfessionsFrame:HookScript("OnShow", PlaceTabs)
 	page:HookScript("OnShow", SyncChecks)
 end
 
@@ -1251,11 +1286,7 @@ function ns.AttachRoute()
 	-- Run after Blizzard handles the same event; never replace or hook its frame methods.
 	local function AfterBlizzard()
 		C_Timer.After(0, function()
-			PlaceTab()
-			-- The gear tab sits under this one, so it moves with it.
-			if ns.PlaceGearTab then
-				ns.PlaceGearTab()
-			end
+			PlaceTabs()
 			SyncChecks()
 			-- The window's own profession starts tracking on its own when its route has steps.
 			if ProfessionsFrame:IsShown() then

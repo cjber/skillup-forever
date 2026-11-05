@@ -286,6 +286,12 @@ local function SideTab(left, top)
 	frame.ClearAllPoints = function(self)
 		self.point = nil
 	end
+	frame.GetNumPoints = function(self)
+		return self.point and 1 or 0
+	end
+	frame.GetPoint = function(self)
+		return unpack(self.point)
+	end
 	frame:Show()
 	return frame
 end

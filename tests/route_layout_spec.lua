@@ -121,8 +121,48 @@ local function NewRegion(parent)
 		else
 			relative, relativePoint, x, y = parent, point, args[2], args[3]
 		end
+		-- The client refuses an anchor to a region that already hangs off this one.
+		local function DependsOnSelf(other)
+			if other == self then
+				return true
+			end
+			for _, anchor in ipairs(other and other.points or {}) do
+				if DependsOnSelf(anchor.relative) then
+					return true
+				end
+			end
+			return false
+		end
+		if DependsOnSelf(relative) then
+			error("Action[SetPoint] failed because[Cannot anchor to a region dependent on it]", 2)
+		end
 		self.points[#self.points + 1] =
 			{ point = point, relative = relative, relativePoint = relativePoint, x = x or 0, y = y or 0 }
+	end
+	function region:GetNumPoints()
+		return #self.points
+	end
+	function region:GetPoint(index)
+		local anchor = self.points[index or 1]
+		if anchor then
+			return anchor.point, anchor.relative, anchor.relativePoint, anchor.x, anchor.y
+		end
+	end
+	function region:GetLeft()
+		return (Rect(self))
+	end
+	function region:GetBottom()
+		local _, bottom = Rect(self)
+		return bottom
+	end
+	function region:GetChildren()
+		local children = {}
+		for _, child in ipairs(created) do
+			if child.parent == self and child.template ~= "texture" then
+				children[#children + 1] = child
+			end
+		end
+		return unpack(children)
 	end
 	function region:ClearAllPoints()
 		self.points = {}
@@ -256,6 +296,9 @@ ProfessionsFrame.CraftingPage.width, ProfessionsFrame.CraftingPage.height = 673,
 ProfessionsFrame.BookPage = NewRegion(ProfessionsFrame)
 ProfessionsFrame.ProfessionsOverviewTab = NewRegion(ProfessionsFrame)
 ProfessionsFrame.rightProfessionTabs = {}
+-- Blizzard's tab column hangs off the window's right edge.
+ProfessionsFrame.ProfessionsOverviewTab:SetPoint("TOPLEFT", ProfessionsFrame, "TOPLEFT", 676, -40)
+ProfessionsFrame.ProfessionsOverviewTab:SetSize(43, 55)
 ProfessionsFrame.portrait = NewRegion(ProfessionsFrame)
 ProfessionsFrame.portrait:SetPoint("TOPLEFT", 0, 0)
 ProfessionsFrame.portrait:SetSize(64, 64)
@@ -669,6 +712,43 @@ local tab = tabs[1]
 local page = pageFrame
 ns.db.showGearTab = true
 ns.AttachGear()
+
+-- The side tabs keep one order however the window opens: Blizzard's column, any other addon's tab already
+-- in it, the route, then crafted gear. A tab another addon hangs under ours is never the slot ours go under,
+-- or the client refuses the anchor and the route tab loses its place.
+local gearTabFrame = tabs[2]
+local function Below(lower, upper)
+	local anchor = lower.points[1]
+	return #lower.points == 1 and anchor.relative == upper and anchor.relativePoint == "BOTTOMLEFT"
+end
+local function OpenWindow()
+	local ok, err = pcall(ProfessionsFrame.scripts.OnShow, ProfessionsFrame)
+	equal(ok, true, "the window opens without an anchor error: " .. tostring(err))
+end
+OpenWindow()
+equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "the route tab sits under Blizzard's column")
+equal(Below(gearTabFrame, tab), true, "and the gear tab under the route tab")
+-- What's Training? pins its tab into the column from the window corner; another addon stacks under ours.
+local cornerTab = NewRegion(ProfessionsFrame)
+cornerTab:SetPoint("TOPLEFT", ProfessionsFrame, "TOPLEFT", 676, -100)
+cornerTab:SetSize(43, 55)
+local hangingTab = NewRegion(ProfessionsFrame)
+hangingTab:SetPoint("TOPLEFT", gearTabFrame, "BOTTOMLEFT", 0, -2)
+hangingTab:SetSize(43, 55)
+OpenWindow()
+equal(Below(tab, cornerTab), true, "the route tab goes under a corner-pinned tab")
+equal(Below(gearTabFrame, tab), true, "the gear tab still follows the route tab")
+-- With the route tab off, the gear tab takes its slot.
+ns.db.showRouteTab = false
+ns.Changed("settings")
+equal(Below(gearTabFrame, cornerTab), true, "the gear tab takes the route tab's slot when that is off")
+ns.db.showRouteTab = true
+ns.Changed("settings")
+equal(Below(gearTabFrame, tab), true, "and goes back under it when it is on")
+cornerTab:Hide()
+hangingTab:Hide()
+OpenWindow()
+
 tab.scripts.OnMouseUp(nil, "LeftButton", true)
 equal(page ~= nil, true, "the route page is created")
 equal(page.RouteList ~= nil and page.ReagentList ~= nil, true, "with its two lists")

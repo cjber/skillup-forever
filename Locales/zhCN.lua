@@ -469,5 +469,5 @@ L["Share observed recipe totals with guild and group"] = "与公会和队伍共�
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
 
-L["The objective tracker column stays still as you enter and leave combat."] =
-	"进入和离开战斗时，目标追踪栏保持不动。" -- mt
+L["Opening the Professions window no longer shows a Lua error."] =
+	"打开专业技能窗口时不再显示 Lua 错误。" -- mt

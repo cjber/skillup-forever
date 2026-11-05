@@ -486,5 +486,5 @@ L["Share observed recipe totals with guild and group"] =
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 
-L["The objective tracker column stays still as you enter and leave combat."] =
-	"La colonne du suivi des objectifs reste immobile quand vous entrez en combat et en sortez." -- mt
+L["Opening the Professions window no longer shows a Lua error."] =
+	"L’ouverture de la fenêtre des métiers n’affiche plus d’erreur Lua." -- mt

@@ -86,7 +86,7 @@
 ---@field GearTab? SkillUpSideTab
 ---@field HideRoute fun()
 ---@field HideGear fun()
----@field PlaceGearTab? fun()
+---@field PlaceSideTabs fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
 ---@field OpenSettings fun()

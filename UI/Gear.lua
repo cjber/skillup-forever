@@ -538,26 +538,10 @@ function SyncChecks()
 	end
 end
 
--- Directly under the route tab, or under the last profession tab when that is off.
-local function PlaceTab()
-	local above = ProfessionsFrame.ProfessionsOverviewTab
-	if ns.RouteTab and ns.RouteTab:IsShown() then
-		above = ns.RouteTab
-	else
-		for _, professionTab in ipairs(ProfessionsFrame.rightProfessionTabs or {}) do
-			if professionTab:IsShown() then
-				above = professionTab
-			end
-		end
-	end
-	tab:ClearAllPoints()
-	tab:SetPoint("TOPLEFT", above, "BOTTOMLEFT", 0, -2)
-end
-
 -- The tab can be turned off in settings; an open page goes back to crafting.
 local function RefreshTab()
 	tab:SetShown(ns.db.showGearTab)
-	PlaceTab()
+	ns.PlaceSideTabs()
 	if not ns.db.showGearTab and page:IsShown() then
 		Deselect()
 		ProfessionsFrame.CraftingPage:Show()
@@ -763,11 +747,8 @@ local function CreateTab()
 			SelectPage()
 		end
 	end)
-	PlaceTab()
-	RefreshTab()
 	ns.GearTab = tab
-	ns.PlaceGearTab = PlaceTab
-	ProfessionsFrame:HookScript("OnShow", PlaceTab)
+	RefreshTab()
 	page:HookScript("OnShow", SyncChecks)
 end
 

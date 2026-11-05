@@ -160,7 +160,7 @@ local function AddFilterMenu(owner, rootDescription)
 	end
 	rootDescription:CreateDivider()
 	rootDescription:CreateTitle(L["Sort by"])
-	for _, option in ipairs(ns.SORT_OPTIONS) do
+	for _, option in ipairs(ns.SORT_OPTIONS) do -- menu-scroll-ok: SORT_OPTIONS is four fixed sort modes
 		rootDescription:CreateRadio(option[2], function(mode)
 			return ns.db.sortMode == mode
 		end, function(mode)

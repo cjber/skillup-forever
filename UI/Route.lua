@@ -8,6 +8,8 @@ local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
 local SKIPPED_ICON = "Interface\\Icons\\INV_Misc_Note_01"
 -- An Auctionator price older than a day is flagged: auction prices move that fast.
 local STALE_AFTER = 24 * 3600
+-- A menu built from a list scrolls past 20 rows of 20 px; a submenu never clamps to the screen (WFA-36).
+local MENU_EXTENT = 20 * 20
 
 ---@type SkillUpPage
 local page
@@ -280,6 +282,7 @@ end
 ---@param description RootMenuDescriptionProxy|ElementMenuDescriptionProxy
 ---@param skillLine integer
 function ns.AddSkippedMenu(description, skillLine)
+	description:SetScrollMode(MENU_EXTENT)
 	for _, recipe in ipairs(ns.SkippedRecipes(skillLine)) do
 		description:CreateButton(string.format(L["Show again: %s"], recipe.name), function()
 			ns.SetSkipped(recipe.recipeID, false)
@@ -290,6 +293,7 @@ end
 ---@param description RootMenuDescriptionProxy|ElementMenuDescriptionProxy
 ---@param skillLine integer
 function ns.AddPinnedMenu(description, skillLine)
+	description:SetScrollMode(MENU_EXTENT)
 	for _, recipe in ipairs(ns.PinnedRecipes(skillLine)) do
 		description:CreateButton(string.format(L["Unpin: %s"], recipe.name), function()
 			ns.SetPinned(recipe.recipeID, false)
@@ -895,6 +899,7 @@ local function CreateHeader()
 	-- Clear of the portrait, which overhangs the top-left corner.
 	dropdown:SetPoint("TOPLEFT", 76, -32)
 	dropdown:SetupMenu(function(_, root)
+		root:SetScrollMode(MENU_EXTENT)
 		local professions = {}
 		for _, profession in pairs(ns.RouteProfessions()) do
 			professions[#professions + 1] = profession

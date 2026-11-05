@@ -128,6 +128,9 @@ equal(#ns.SkippedRecipes(171), 0, "and another profession none")
 local function MenuDescription()
 	local description = { buttons = {} }
 	function description.CreateTitle() end
+	function description.SetScrollMode(_, extent)
+		description.scrollExtent = extent
+	end
 	function description.CreateButton(_, text, action)
 		local button = MenuDescription()
 		button.text, button.action = text, action
@@ -158,6 +161,8 @@ for _, button in ipairs(root.buttons) do
 end
 equal(skippedMenu ~= nil, true, "the tracker's header menu counts the skipped recipes")
 equal(skippedMenu.buttons[1].text, "Show again: Copper Chain Belt", "and shows each one again")
+equal(root.scrollExtent, 400, "the header menu scrolls past 20 rows")
+equal(skippedMenu.scrollExtent, 400, "and so does the skipped list")
 skippedMenu.buttons[1].action()
 equal(ns.IsSkipped(FROM_ORE), false, "from there")
 ns.SetSkipped(FROM_ORE, true)

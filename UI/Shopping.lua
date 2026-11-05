@@ -5,6 +5,8 @@ local L = ns.L
 local CALLER = "SkillUp Forever"
 -- Missing reagents shown per profession before "...".
 local MAX_OBJECTIVES = 6
+-- The header menu lists each missing vendor item, so it scrolls past 20 rows of 20 px (WFA-36).
+local MENU_EXTENT = 20 * 20
 
 ---@type SkillUpTrackerModule?
 local module
@@ -505,6 +507,7 @@ local ModuleMixin = { headerText = L["Profession reagents"] }
 ---@param block SkillUpTrackerBlock
 function ModuleMixin:OnBlockHeaderClick(block)
 	MenuUtil.CreateContextMenu(self:GetContextMenuParent(), function(_, root)
+		root:SetScrollMode(MENU_EXTENT)
 		root:CreateTitle(block.profession)
 		-- Only while this profession is open: the client crafts from the open one.
 		local craft = ns.NextCraft(block.plan)

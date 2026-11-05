@@ -752,6 +752,9 @@ local function MenuRoot()
 	function root.CreateButton(_, text, action)
 		root.buttons[#root.buttons + 1] = { text = text, action = action }
 	end
+	function root.SetScrollMode(_, extent)
+		root.scrollExtent = extent
+	end
 	return root
 end
 local skipCraft = { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" }
@@ -797,6 +800,7 @@ equal(skippedRow.text, "Skipped (1)", "the skipped recipes are one row under the
 local skippedMenu = MenuRoot()
 skippedRow.menu(nil, skippedMenu)
 equal(skippedMenu.buttons[1].text, "Show again: Heavy Linen Bandage", "its menu shows each one again")
+equal(skippedMenu.scrollExtent, 400, "and scrolls past 20 rows")
 skippedMenu.buttons[1].action()
 equal(page.setSkipped[1] == 3276 and page.setSkipped[2], false, "by unskipping it")
 page.skipped = nil

@@ -42,6 +42,8 @@ L["A side tab on the Professions window listing the newest crafted item this cha
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
 	"Ein Seitenreiter am Berufsfenster mit einer Route zu Eurer Zielfertigkeit und ihren Reagenzien. Verfolgte Berufe bleiben so oder so in der Questzielverfolgung."
 L["Show thresholds bar on the recipe"] = "Fertigkeitsbalken beim Rezept anzeigen" -- mt
+L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
+	"Die Forever-Addons sind kostenlos, und nichts ist hinter einer Bezahlung versteckt. Wenn sie Euch helfen, könnt Ihr mir einen Kaffee spendieren." -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Die orangen, gelben, grünen und grauen Schwellen und wo Eure Fertigkeit liegt, unter dem Rezept im Berufsfenster. Ausschalten, wenn er die Reagenzien verdeckt." -- mt
 L["AH"] = "AH"

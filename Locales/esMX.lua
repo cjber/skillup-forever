@@ -486,5 +486,6 @@ L["Share observed recipe totals with guild and group"] = "Compartir totales de r
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
 
-L["The Forever addons settings page ends with a Ko-fi link."] =
-	"La página de ajustes de los addons Forever termina con un enlace de Ko-fi." -- mt
+
+L["Tall tracker sections stay under your quests."] =
+	"Las secciones altas del rastreador se quedan bajo tus misiones." -- mt

@@ -509,6 +509,5 @@ L["Share observed recipe totals with guild and group"] =
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 
-	"Страница настроек открывается без ошибки." -- mt
 L["Long lists in the Professions window scroll."] =
 	"Длинные списки в окне профессий прокручиваются." -- mt

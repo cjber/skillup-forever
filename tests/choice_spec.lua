@@ -152,13 +152,40 @@ local module = c.G.SkillUpForeverObjectiveTracker
 function module.GetContextMenuParent()
 	return module
 end
+-- Blacksmithing is the open profession, so its next craft is actionable in the menu. The menu callback runs
+-- as addon code: it must hand off to the client's secure craft button, never call the protected craft API.
+local craftCalls = 0
+c.G.C_TradeSkillUI.CraftRecipe = function()
+	craftCalls = craftCalls + 1
+end
+c.G.Professions = {
+	GetProfessionInfo = function()
+		return { professionName = "Blacksmithing", professionID = 164 }
+	end,
+}
+local craftRecipeID = ns.NextCraft(block.plan).recipeID
+equal(craftRecipeID ~= nil, true, "the tracked profession has a craft to offer")
 module:OnBlockHeaderClick(block)
-local skippedMenu
+local skippedMenu, craftMenuEntry
 for _, button in ipairs(root.buttons) do
 	if button.text == "Skipped (1)" then
 		skippedMenu = button
 	end
+	if button.text:find("^Craft") then
+		craftMenuEntry = button
+	end
 end
+equal(craftMenuEntry ~= nil, true, "the tracker's header menu offers the next craft")
+local shownRecipe
+local realShowRecipe = ns.ShowRecipe
+ns.ShowRecipe = function(recipeID, anyProfession)
+	shownRecipe = { recipeID, anyProfession }
+end
+craftMenuEntry.action()
+ns.ShowRecipe = realShowRecipe
+equal(craftCalls, 0, "and opens it instead of calling the protected craft API itself")
+equal(shownRecipe[1], craftRecipeID, "opening the craft's recipe in the native page")
+equal(shownRecipe[2], true, "even when the route page shows another profession")
 equal(skippedMenu ~= nil, true, "the tracker's header menu counts the skipped recipes")
 equal(skippedMenu.buttons[1].text, "Show again: Copper Chain Belt", "and shows each one again")
 equal(root.scrollExtent, 400, "the header menu scrolls past 20 rows")

@@ -100,6 +100,7 @@ L["Craft %d× %s"] = "%d× %s herstellen"
 L["Craft %s"] = "%s herstellen"
 L["Craft next"] = "Als Nächstes herstellen"
 L["Crafted gear"] = "Hergestellte Ausrüstung"
+L["Crafting from the route works with a controller."] = "Herstellen über die Route funktioniert mit einem Controller."
 L["Crafts"] = "Herstellungen"
 L["Crafts %d now."] = "Stellt jetzt %d her."
 L["Don't count it"] = "Nicht anrechnen"
@@ -477,5 +478,3 @@ L["/su share on|off - control sharing with guild and group"] = "/su share on|off
 L["Share observed recipe totals with guild and group"] = "Beobachtete Rezeptsummen mit Gilde und Gruppe teilen"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."
-
-L["Tall tracker sections stay under your quests."] = "Hohe Tracker-Abschnitte bleiben unter deinen Quests." -- mt

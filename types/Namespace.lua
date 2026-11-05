@@ -79,7 +79,7 @@
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?
----@field ShowRecipe fun(recipeID: integer)
+---@field ShowRecipe fun(recipeID: integer, anyProfession?: boolean)
 ---@field AttachRoute fun()
 ---@field AttachGear fun()
 ---@field RouteTab? SkillUpSideTab

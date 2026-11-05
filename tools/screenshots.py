@@ -461,6 +461,7 @@ env = setmetatable({
 	GetNumGroupMembers = function() return 0 end,
 	GetTime = function() return 0 end,
 	GetServerTime = function() return 1700000000 end,
+	InCombatLockdown = function() return false end,
 	-- Colours as Blizzard defines them (Core/Core.lua's ns.COLORS takes the difficulty ones).
 	RED_FONT_COLOR = Color(unpack(STATE.colors.red)),
 	DIFFICULT_DIFFICULTY_COLOR = Color(unpack(STATE.colors.orange)),

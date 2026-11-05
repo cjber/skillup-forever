@@ -98,6 +98,7 @@ L["Craft %d× %s"] = "Fabriquer %d× %s" -- mt
 L["Craft %s"] = "Fabriquer %s" -- mt
 L["Craft next"] = "Fabriquer la suivante" -- mt
 L["Crafted gear"] = "Équipement fabriqué" -- mt
+L["Crafting from the route works with a controller."] = "Fabriquer depuis l'itinéraire fonctionne à la manette." -- mt
 L["Crafts"] = "Fabrications" -- mt
 L["Crafts %d now."] = "En fabrique %d maintenant." -- mt
 L["Don't count it"] = "Ne pas compter" -- mt
@@ -487,5 +488,3 @@ L["Share observed recipe totals with guild and group"] =
 	"Partager les totaux de recettes observées avec la guilde et le groupe"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
-
-L["Tall tracker sections stay under your quests."] = "Les sections hautes du suivi restent sous vos quetes." -- mt

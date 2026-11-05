@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Crafting from the route works with a controller.** The route's Craft button called the game's protected craft function from addon code, which tainted the client's own crafting path: the craft never finished and controller input stayed blocked until `/reload`. The button now asks a secure button to run the craft as the client's own, and the tracked-reagents menu opens the recipe so its native Craft button does the same. A redraw during a fight waits for the fight to end before it touches that secure button, so it cannot trip the same block itself.
+
 ## [1.0.16] - 2026-11-05
 - **Tall tracker sections stay under your quests.** A section that fills the room left below the quest tracker now shows what fits there instead of the whole column jumping beside the tracker. Each section gets the room the ones above it left, less the gap under it, so the column never runs past the bottom of the screen. The column only moves above or beside the tracker when nothing fits below it at all.
 

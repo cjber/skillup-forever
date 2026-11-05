@@ -98,6 +98,8 @@ L["Craft %d× %s"] = "제작 %d× %s"
 L["Craft %s"] = "%s 제작"
 L["Craft next"] = "다음 제작"
 L["Crafted gear"] = "제작 장비"
+L["Crafting from the route works with a controller."] =
+	"경로에서 제작하기가 컨트롤러에서도 작동합니다."
 L["Crafts"] = "제작 횟수"
 L["Crafts %d now."] = "지금 %d개 제작합니다."
 L["Don't count it"] = "반영 안 함"
@@ -488,5 +490,3 @@ L["/su share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
-
-L["Tall tracker sections stay under your quests."] = "긴 추적기 섹션은 퀘스트 아래에 유지됩니다." -- mt

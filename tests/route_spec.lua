@@ -7,6 +7,16 @@ local function FirstAid(skill)
 	return { skillLine = 129, name = "First Aid", skill = skill, base = skill, max = 75, modifier = 0 }
 end
 
+-- What a secure frame must not be asked to change while the player is in combat. A redraw that touches one of
+-- these is the ADDON_ACTION_BLOCKED the route's craft button must not cause.
+local inCombat = false
+local secureCalls = {}
+local function TouchSecure(frame, method)
+	if inCombat and rawget(frame, "secure") then
+		secureCalls[#secureCalls + 1] = method
+	end
+end
+
 -- The route page, drawn into stub frames: every frame method is a no-op but the
 -- scripts, which run, and the lists, which record their rows.
 local function Stub()
@@ -31,13 +41,32 @@ local function Stub()
 				value = function(frame)
 					return rawget(frame, "text")
 				end
+			elseif key == "SetAttribute" then
+				value = function(frame, name, attribute)
+					TouchSecure(frame, "SetAttribute")
+					local attributes = rawget(frame, "attributes") or {}
+					attributes[name] = attribute
+					rawset(frame, "attributes", attributes)
+				end
+			elseif key == "GetAttribute" then
+				value = function(frame, name)
+					local attributes = rawget(frame, "attributes") or {}
+					return attributes[name]
+				end
 			elseif key == "SetChecked" then
 				value = function(frame, checked)
 					rawset(frame, "checked", checked)
 				end
 			elseif key == "SetEnabled" then
 				value = function(frame, enabled)
+					TouchSecure(frame, "SetEnabled")
 					rawset(frame, "enabled", enabled and true or false)
+				end
+			elseif key == "SetSize" then
+				value = function(frame, width, height)
+					TouchSecure(frame, "SetSize")
+					rawset(frame, "width", width)
+					rawset(frame, "height", height)
 				end
 			elseif key == "IsEnabled" then
 				value = function(frame)
@@ -74,6 +103,7 @@ local function Stub()
 				end
 			elseif key == "SetShown" then
 				value = function(frame, shown)
+					TouchSecure(frame, "SetShown")
 					rawset(frame, "shown", shown == true)
 				end
 			elseif key == "IsShown" then
@@ -200,6 +230,7 @@ page.NearestNPC = function()
 end
 local timers = {}
 local disabledLines = {}
+local craftCalls = 0
 local pageEnv = setmetatable({
 	-- SafeCall hands a caught error to the game's handler: here it fails the spec.
 	geterrorhandler = function()
@@ -227,6 +258,12 @@ local pageEnv = setmetatable({
 	},
 	Professions = false,
 	ProfessionsFrame = Stub(),
+	-- The protected API the addon must never call itself: only the client's secure macro may.
+	C_TradeSkillUI = {
+		CraftRecipe = function()
+			craftCalls = craftCalls + 1
+		end,
+	},
 	C_Spell = {
 		GetSpellName = function(id)
 			return "Spell " .. id
@@ -244,6 +281,9 @@ local pageEnv = setmetatable({
 })
 pageEnv.GameTooltip_AddDisabledLine = function(_, text)
 	disabledLines[#disabledLines + 1] = text
+end
+pageEnv.InCombatLockdown = function()
+	return inCombat
 end
 -- Core/Changes.lua's frame is the only one made while the files load: the game's events arrive on it.
 local eventFrame
@@ -304,7 +344,8 @@ pageEnv.ProfessionsFrame.rightProfessionTabs = { professionTab }
 pageEnv.ProfessionsFrame.GetChildren = function()
 	return unpack(children)
 end
-local collect, vendor, targetBox, buttons = nil, nil, nil, {}
+local collect, vendor, targetBox, craftButton = nil, nil, nil, nil
+local buttons = {}
 pageEnv.CreateFrame = function(_, _, _, template)
 	local frame = template == "LargeSideTabButtonTemplate" and SideTab(0, 0) or Stub()
 	tabs[#tabs + 1] = frame
@@ -316,6 +357,9 @@ pageEnv.CreateFrame = function(_, _, _, template)
 		buttons[#buttons + 1] = frame
 	elseif template == "InputBoxTemplate" then
 		targetBox = frame
+	elseif template and template:find("SecureActionButtonTemplate", 1, true) then
+		craftButton = frame
+		rawset(frame, "secure", true)
 	end
 	return frame
 end
@@ -692,6 +736,8 @@ end
 page.collectMode = nil
 
 -- A click on Craft asks for a redraw itself, so the page follows a craft even if a game event is missed.
+-- The button is secure and carries the craft as macro text, so the client runs the protected craft itself:
+-- an addon call here would taint the craft path and block a controller's own craft afterwards (#313).
 page.NextCraft = function()
 	return { recipeID = 3275, count = 3, planned = 5, to = 20, text = "Craft 3 of 5× Spell 3275" }
 end
@@ -700,8 +746,51 @@ Drain()
 for index = #timers, 1, -1 do
 	timers[index] = nil
 end
-buttons[2]:Click()
+equal(craftButton ~= nil, true, "the route's Craft button is a secure action button")
+equal(craftButton.attributes.type, "macro", "and runs the craft as a macro")
+equal(
+	craftButton.attributes.macrotext,
+	"/run C_TradeSkillUI.CraftRecipe(3275, 3)",
+	"with the step's recipe and the count the bags allow"
+)
+craftButton:Click()
+equal(craftCalls, 0, "the addon never calls the protected craft API itself")
 equal(#timers > 0, true, "a craft click schedules a redraw")
+
+-- A secure button's attributes, enabled state, size and visibility are protected in combat, yet bag and skill
+-- events still redraw the page. The latest wanted craft waits, one update, for PLAYER_REGEN_ENABLED.
+local settled = {
+	macrotext = craftButton.attributes.macrotext,
+	enabled = craftButton.enabled,
+	width = craftButton.width,
+	shown = craftButton.shown,
+}
+inCombat = true
+page.NextCraft = function()
+	return { recipeID = 3276, count = 7, planned = 7, to = 30, text = "Craft 7× Spell 3276" }
+end
+eventFrame:Event("BAG_UPDATE_DELAYED")
+Drain()
+equal(#secureCalls, 0, "a redraw in combat makes no protected call on the craft button")
+equal(craftButton.attributes.macrotext, settled.macrotext, "the macro waits for combat to end")
+equal(craftButton.enabled, settled.enabled, "the enabled state waits")
+equal(craftButton.width, settled.width, "the size waits")
+equal(craftButton.shown, settled.shown, "the visibility waits")
+page.NextCraft = function()
+	return { recipeID = 3277, count = 2, planned = 4, to = 40, text = "Craft 2 of 4× Spell 3277" }
+end
+eventFrame:Event("SKILL_LINES_CHANGED")
+Drain()
+equal(#secureCalls, 0, "a second redraw in combat still makes no protected call")
+inCombat = false
+eventFrame:Event("PLAYER_REGEN_ENABLED")
+equal(#secureCalls, 0, "the queued update is applied once combat ends")
+equal(
+	craftButton.attributes.macrotext,
+	"/run C_TradeSkillUI.CraftRecipe(3277, 2)",
+	"the latest craft of the combat redraws wins"
+)
+equal(craftButton.enabled, true, "and the button is ready to craft")
 
 -- A route with crafts and an unpriced reagent is marked incomplete, and the reagent it left out is
 -- still named in the reagent list.

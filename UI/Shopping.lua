@@ -511,9 +511,13 @@ function ModuleMixin:OnBlockHeaderClick(block)
 		root:CreateTitle(block.profession)
 		-- Only while this profession is open: the client crafts from the open one.
 		local craft = ns.NextCraft(block.plan)
-		if craft.recipeID then
+		local recipeID = craft.recipeID
+		if recipeID then
+			---@cast recipeID integer
+			-- A menu callback runs as addon code, so calling the protected craft API here taints the client's
+			-- craft path (#313). Open the recipe instead: its own Craft button then crafts securely.
 			root:CreateButton(craft.text, function()
-				C_TradeSkillUI.CraftRecipe(craft.recipeID, craft.count)
+				ns.ShowRecipe(recipeID, true)
 			end)
 		end
 		-- The layout picked by straight line; a click ranks by travel time.

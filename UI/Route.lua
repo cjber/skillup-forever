@@ -785,15 +785,71 @@ local function CraftReason(craft)
 	return string.format(L["Need %d more %s"], craft.missing.count, name)
 end
 
+---@class SkillUpPendingCraft
+---@field craft? SkillUpCraft
+---@field shown? boolean
+
+---@type SkillUpPendingCraft?
+local pendingCraft
+
 ---@param craft SkillUpCraft
-local function SetCraft(craft)
+local function ApplyCraft(craft)
 	local button = page.Craft
-	button.recipeID, button.count = craft.recipeID, craft.count
+	local recipeID, count = craft.recipeID, craft.count
+	button.recipeID, button.count = recipeID, count
+	-- SecureTemplates runs type="macro" from the template's secure OnClick and hands the macrotext attribute to
+	-- C_Macro.RunMacroText. SetAttribute stores it untainted, so the embedded /run is the client's craft rather
+	-- than an addon's protected call. Clearing the text keeps a disabled button from crafting the previous step.
+	button:SetAttribute("type", "macro")
+	if recipeID and count and count > 0 then
+		button:SetAttribute("macrotext", string.format("/run C_TradeSkillUI.CraftRecipe(%d, %d)", recipeID, count))
+		button:SetEnabled(true)
+	else
+		button:SetAttribute("macrotext", nil)
+		button:SetEnabled(false)
+	end
 	button.title, button.planned, button.to = craft.text, craft.planned, craft.to
 	button.reason = CraftReason(craft)
 	button:SetText(craft.text)
 	button:SetSize(math.min(button:GetTextWidth() + 32, 240), 22)
-	button:SetEnabled(button.recipeID ~= nil)
+end
+
+---@param craft SkillUpCraft
+local function SetCraft(craft)
+	if InCombatLockdown() then
+		-- The button is secure: its attributes, enabled state, size and visibility are protected in combat.
+		-- Keep only the latest wanted craft; PLAYER_REGEN_ENABLED applies it once combat ends.
+		pendingCraft = pendingCraft or {}
+		pendingCraft.craft = craft
+		return
+	end
+	pendingCraft = nil
+	ApplyCraft(craft)
+end
+
+---@param shown boolean
+local function ShowCraft(shown)
+	if InCombatLockdown() then
+		pendingCraft = pendingCraft or {}
+		pendingCraft.shown = shown
+		return
+	end
+	page.Craft:SetShown(shown)
+end
+
+-- One queued update, latest redraw winning, applied as soon as combat lockdown ends.
+local function ApplyPendingCraft()
+	local queued = pendingCraft
+	if not queued or InCombatLockdown() then
+		return
+	end
+	pendingCraft = nil
+	if queued.shown ~= nil then
+		page.Craft:SetShown(queued.shown)
+	end
+	if queued.craft then
+		ApplyCraft(queued.craft)
+	end
 end
 
 local function Render()
@@ -802,7 +858,7 @@ local function Render()
 	page.Skill:SetShown(profession ~= nil)
 	page.Target:SetShown(profession ~= nil)
 	page.Track:SetEnabled(profession ~= nil)
-	page.Craft:SetShown(profession ~= nil)
+	ShowCraft(profession ~= nil)
 	page.Collect:SetChecked(ns.CollectMode() == "auction")
 	page.RouteList:Begin()
 	page.ReagentList:Begin()
@@ -957,14 +1013,15 @@ local function CreateButtons()
 	end)
 	page.Track = track
 
-	-- CraftRecipe needs this click's hardware event, so the craft is set up in Render.
-	local craft = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate") --[[@as SkillUpCraftButton]]
-	craft:SetScript("OnClick", function(self)
-		if self.recipeID then
-			C_TradeSkillUI.CraftRecipe(self.recipeID, self.count)
-			-- The craft's bag and skill events redraw it; ask for one too, so a craft is never missed.
-			RefreshRoute()
-		end
+	-- CraftRecipe is protected: called from this addon, it taints the client's craft path and a controller's
+	-- own craft afterwards is blocked (#313). The button is secure and runs a macro as the client's code, with
+	-- the recipe and count stored as attributes in Render.
+	local craft = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate,SecureActionButtonTemplate")
+	---@cast craft SkillUpCraftButton
+	craft:RegisterForClicks("AnyUp")
+	craft:HookScript("OnClick", function()
+		-- The craft's bag and skill events redraw it; ask for one too, so a craft is never missed.
+		RefreshRoute()
 	end)
 	craft:SetMotionScriptsWhileDisabled(true)
 	craft:SetScript("OnEnter", function(self)
@@ -1137,9 +1194,10 @@ ns.HideRoute = Deselect
 
 -- Back to the crafting page, as its tab would, with the recipe selected.
 ---@param recipeID integer
-function ns.ShowRecipe(recipeID)
+---@param anyProfession? boolean Open it even when the route page shows another profession.
+function ns.ShowRecipe(recipeID, anyProfession)
 	local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
-	if not (info and info.learned and selected == ns.OpenSkillLine()) then
+	if not (info and info.learned and (anyProfession or selected == ns.OpenSkillLine())) then
 		return
 	end
 	local craftingPage = ProfessionsFrame.CraftingPage
@@ -1288,6 +1346,7 @@ function ns.AttachRoute()
 	end)
 	ns.WhenStale("route", RefreshRoute)
 	ns.WhenStale("routeTab", RefreshRouteTab)
+	ns.WhenEvent("PLAYER_REGEN_ENABLED", ApplyPendingCraft)
 	-- Run after Blizzard handles the same event; never replace or hook its frame methods.
 	local function AfterBlizzard()
 		C_Timer.After(0, function()

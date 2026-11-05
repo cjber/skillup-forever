@@ -487,5 +487,4 @@ L["Share observed recipe totals with guild and group"] = "관찰한 제조법 �
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 
-L["The settings page opens without an error."] = "설정 페이지가 오류 없이 열립니다." -- mt
 L["Long lists in the Professions window scroll."] = "전문 기술 창의 긴 목록을 스크롤할 수 있습니다." -- mt

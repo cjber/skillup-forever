@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.14] - 2026-11-05
+
+- **Long lists in the Professions window scroll.** The skipped and pinned route menus, the profession dropdown and a shopping list's block menu show 20 entries at a time and scroll the rest, so every entry stays reachable on any screen. The shared settings page also drops a dropdown helper nothing used.
+
 ## [1.0.13] - 2026-11-05
 
 - **The settings page opens without an error.** Its title asked the game for a font Forever does not have, which logged a Lua error each time the page was built; it now uses the font the game's own settings pages title with.

@@ -511,3 +511,5 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 
 L["The settings page opens without an error."] =
 	"Страница настроек открывается без ошибки." -- mt
+L["Long lists in the Professions window scroll."] =
+	"Длинные списки в окне профессий прокручиваются." -- mt

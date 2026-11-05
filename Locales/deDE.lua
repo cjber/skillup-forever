@@ -477,3 +477,4 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."
 
 L["The settings page opens without an error."] = "Die Einstellungsseite öffnet sich ohne Fehler." -- mt
+L["Long lists in the Professions window scroll."] = "Lange Listen im Berufe-Fenster lassen sich scrollen." -- mt

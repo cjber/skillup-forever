@@ -471,3 +471,4 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 
 L["The settings page opens without an error."] = "設定頁面開啟時不再報錯。" -- mt
+L["Long lists in the Professions window scroll."] = "專業視窗中的長列表可以捲動." -- mt

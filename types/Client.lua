@@ -434,3 +434,4 @@ function GetTrainerTradeskillRankValues() end
 ---@field TrackerLock? ForeverTrackerLock the grip and its Lock switch, from UI/TrackerLock.lua
 ---@field TrackerHostSettings? fun(): ForeverTrackerSettings
 ---@field L table<string, string>
+---@field ContextMenu? fun(owner: Frame, generator: fun(owner: Frame, root: any)): any the addon's own context menu, when it draws one

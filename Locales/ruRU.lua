@@ -101,10 +101,9 @@ L["Craft %d× %s"] = "Создать %d× %s"
 L["Craft %s"] = "Создать %s"
 L["Craft next"] = "Создать следующее"
 L["Crafted gear"] = "Созданное снаряжение"
-L["Crafting from the route works with a controller."] =
-	"Создание по маршруту работает с контроллером."
+L["Crafting from the route no longer blocks a potion or a conversion."] =
+	"Crafting from the route no longer blocks a potion or a conversion."
 L["Crafts"] = "Созданий"
-L["Crafts %d now."] = "Создает %d сейчас."
 L["Don't count it"] = "Не учитывать"
 L["Don't suggest this again"] = "Больше не предлагать"
 L["Drag to move"] = "Перетащите, чтобы переместить"

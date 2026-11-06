@@ -4,11 +4,14 @@ local L = ns.L
 
 local BAR_WIDTH = 250
 local MIN_LABEL_GAP = 18
--- ProfessionsRankBarTemplate's proportions: a fill 439 by 18 inside art 451 by 29, at the tooltip bar's width.
-local BAR_SCALE = BAR_WIDTH / 439
+-- ProfessionsRankBarTemplate's art is 451 by 29, with a fill 439 by 18 inside it. The band fill is 10 high
+-- native, so the art is scaled by 10/18 to about 250.6 wide and the bands run across the fill's 439 * 10/18.
+local BAR_SCALE = 10 / 18
 local BAR_HEIGHT = 18 * BAR_SCALE
--- The fill the client's own Camelot progress bars use; tinted per difficulty band.
-local BAND_ATLAS = "common-stat-bar-white"
+local BAR_FILL_WIDTH = 439 * BAR_SCALE
+-- The client's cooldown manager fill, 124 by 10 native: it stays 10 high and only its width varies, so the
+-- bands do too. Tinted per difficulty band.
+local BAND_ATLAS = "UI-HUD-CoolDownManager-Bar"
 -- Forever's rested-XP pip, taller than it is wide.
 local MARKER_ATLAS = "ui-hud-experiencebar-frame-pip-camelot"
 local MARKER_HEIGHT = BAR_HEIGHT * 1.3
@@ -40,7 +43,7 @@ function ns.CreateSkillBar()
 	frame.segments = {}
 	for i, color in ipairs({ "orange", "yellow", "green", "grey" }) do
 		local seg = track:CreateTexture(nil, "ARTWORK", nil, 1)
-		seg:SetAtlas(BAND_ATLAS) -- art-ok: a status bar fill, stretched to its band
+		seg:SetAtlas(BAND_ATLAS) -- art-ok: a bar fill, at its native 10 high; only its width follows the band
 		seg:SetVertexColor(ns.COLORS[color]:GetRGB())
 		seg:SetHeight(BAR_HEIGHT)
 		frame.segments[i] = seg
@@ -70,7 +73,7 @@ function ns.LayoutSkillBar(bar, t, skill)
 	local lo = t[1]
 	local hi = t[4] + math.max(3, math.floor((t[4] - t[1]) * 0.12 + 0.5))
 	local function X(value)
-		return (math.min(math.max(value, lo), hi) - lo) / (hi - lo) * BAR_WIDTH
+		return (math.min(math.max(value, lo), hi) - lo) / (hi - lo) * BAR_FILL_WIDTH
 	end
 
 	local edges = { t[1], t[2], t[3], t[4], hi }

@@ -294,7 +294,7 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 L["The place this recipe is taught isn't known yet."] = "The place this recipe is taught isn't known yet."
 L["The rest comes from a vendor or your gathering."] = "The rest comes from a vendor or your gathering."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] = "The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."
-L["The skill bar and the selected gear slot use the game's current art."] = "The skill bar and the selected gear slot use the game's current art."
+L["The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."] = "The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."
 L["The source of this recipe isn't known."] = "The source of this recipe isn't known."
 L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into your bug report."] = "The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into your bug report."
 L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."] = "The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."

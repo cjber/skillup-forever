@@ -128,7 +128,7 @@ local blanks = 0
 while lines[2 + blanks + 1] == " " do
 	blanks = blanks + 1
 end
--- 18 x 250/439 for the bar, 30 for its labels and 4 above it, at 14 a line.
+-- 10 for the bar, 30 for its labels and 4 above it, at 14 a line.
 equal(blanks, 4, "the bar has four blank lines of its own")
 equal(lines[2 + blanks + 1]:match("^Skill%-up chance") ~= nil, true, "and the chance follows them")
 equal(minimumWidth, 250, "the tooltip is at least as wide as the bar")

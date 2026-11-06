@@ -97,8 +97,8 @@ L["Craft %d× %s"] = "Создать %d× %s"
 L["Craft %s"] = "Создать %s"
 L["Craft next"] = "Создать следующее"
 L["Crafted gear"] = "Созданное снаряжение"
-L["The skill bar and the selected gear slot use the game's current art."] =
-	"The skill bar and the selected gear slot use the game's current art."
+L["The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."] =
+	"The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."
 L["Crafts"] = "Созданий"
 L["Don't count it"] = "Не учитывать"
 L["Don't suggest this again"] = "Больше не предлагать"

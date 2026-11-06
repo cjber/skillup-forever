@@ -252,6 +252,10 @@ function Client.load(options)
 	function Methods:CreateTexture()
 		return NewFrame(nil, self)
 	end
+	-- The atlas a texture was given, so a spec can check which art it draws.
+	function Methods:SetAtlas(atlas)
+		self.atlas = atlas
+	end
 	function Methods:GetText()
 		return self.text or ""
 	end

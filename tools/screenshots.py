@@ -1280,8 +1280,9 @@ def recipe_tooltip_lines(ui, recipe_id):
 
 
 BAR_WIDTH, MIN_LABEL_GAP = 250, 18  # UI/Tooltip.lua
-BAR_SCALE = BAR_WIDTH / 439
+BAR_SCALE = 10 / 18
 BAR_HEIGHT = 18 * BAR_SCALE
+BAR_FILL_WIDTH = 439 * BAR_SCALE
 BAR_FRAME_HEIGHT = BAR_HEIGHT + 30
 BAR_PADDING = 4  # UI/Tooltip.lua BAR_PADDING
 
@@ -1302,9 +1303,9 @@ def skill_bar(ui, t, skill):
     lo, hi = t[0], t[3] + max(3, math.floor((t[3] - t[0]) * 0.12 + 0.5))
 
     def x_of(value):
-        return (min(max(value, lo), hi) - lo) / (hi - lo) * BAR_WIDTH
+        return (min(max(value, lo), hi) - lo) / (hi - lo) * BAR_FILL_WIDTH
 
-    band = ui.atlas("common-stat-bar-white")
+    band = ui.atlas("UI-HUD-CoolDownManager-Bar")
     edges = [t[0], t[1], t[2], t[3], hi]
     for i, color in enumerate(("orange", "yellow", "green", "grey")):
         left, right = x_of(edges[i]), x_of(edges[i + 1])

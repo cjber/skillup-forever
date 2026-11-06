@@ -7,8 +7,12 @@ local equal = Client.equal
 
 local BANDAGE, LEARNED_BANDAGE, HEAVY = 1, 2, 3
 
--- The bar's art asks the client for these atlases; each is fitted at its own aspect.
+-- The bar's art asks the client for these atlases; each is fitted at its own aspect. The band fill is the
+-- cooldown manager's 124 by 10 atlas, drawn at its native height.
 local ATLASES = { ["Professions-skillbar-bg"] = { width = 451, height = 29 } }
+local BAND_ATLAS = "UI-HUD-CoolDownManager-Bar"
+local BAND_HEIGHT = 10
+local BAR_FILL_WIDTH = 439 * 10 / 18
 
 local c = Client.load({
 	data = {
@@ -94,11 +98,13 @@ end
 local lefts = {}
 for index, segment in ipairs(made.segments) do
 	lefts[index] = segment.points[1][4]
+	equal(segment.atlas, BAND_ATLAS, "band " .. index .. " draws the cooldown manager fill")
+	equal(segment.height, BAND_HEIGHT, "band " .. index .. " is the atlas's native height")
 	equal((segment.width or 0) > 0, true, "band " .. index .. " is drawn")
 	equal(
-		lefts[index] >= 0 and lefts[index] + (segment.width or 0) <= 250,
+		lefts[index] >= 0 and lefts[index] + (segment.width or 0) <= BAR_FILL_WIDTH,
 		true,
-		"band " .. index .. " stays in the bar"
+		"band " .. index .. " stays in the bar's fill"
 	)
 end
 for index = 2, 4 do
@@ -106,11 +112,11 @@ for index = 2, 4 do
 end
 -- The pip's x is where the player's skill falls between the first threshold and the grey's tail.
 local tail = t[4] + math.max(3, math.floor((t[4] - t[1]) * 0.12 + 0.5))
-local expected = (40 - t[1]) / (tail - t[1]) * 250
+local expected = (40 - t[1]) / (tail - t[1]) * BAR_FILL_WIDTH
 equal(math.abs(made.marker.points[1][4] - expected) < 0.001, true, "the pip sits at the player's skill")
 
 -- A skill past every threshold is still placed: the bar is the frame's, not the recipe's.
 ns.LayoutSkillBar(made, t, 300)
-equal(made.marker.points[1][4], 250, "past grey, the pip waits at the bar's end")
+equal(math.abs(made.marker.points[1][4] - BAR_FILL_WIDTH) < 0.001, true, "past grey, the pip waits at the fill's end")
 
 Client.report("details_bar_spec")

@@ -91,8 +91,8 @@ L["Craft %d× %s"] = "制造%d× %s"
 L["Craft %s"] = "制造%s"
 L["Craft next"] = "制造下一个"
 L["Crafted gear"] = "制造装备"
-L["The skill bar and the selected gear slot use the game's current art."] =
-	"The skill bar and the selected gear slot use the game's current art."
+L["The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."] =
+	"The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."
 L["Crafts"] = "制造次数"
 L["Don't count it"] = "不计入"
 L["Don't suggest this again"] = "不再推荐"

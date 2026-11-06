@@ -475,5 +475,5 @@ L["/su share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] = "Compartilhar totais de receitas observadas com guilda e grupo"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Ativado por padrão. Desative para parar de enviar e receber totais e ocultar outros jogadores. As observações locais são mantidas."
-L["A route no longer stays on a free or profitable recipe as it goes grey."] =
-	"A route no longer stays on a free or profitable recipe as it goes grey."
+L["You appear once on leaderboards with a two-part name."] =
+	"Com um nome de duas partes, você aparece apenas uma vez na classificação." -- mt

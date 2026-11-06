@@ -9,5 +9,4 @@ local L = setmetatable({}, {
 	end,
 })
 ns.L = L
-L["A route no longer stays on a free or profitable recipe as it goes grey."] =
-	"A route no longer stays on a free or profitable recipe as it goes grey."
+L["You appear once on leaderboards with a two-part name."] = "You appear once on leaderboards with a two-part name."

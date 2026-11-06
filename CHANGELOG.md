@@ -12,6 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.20] - 2026-11-06
 - **The skill bar and the selected gear slot use the game's current art.** The tooltip and details bar filled its difficulty bands with a texture the client has carried since before Legion, and a selected gear slot washed the icon with the old check highlight. The bands now use the fill the game's own progress bars use, keeping their colours, and a selected slot shows the professions window's gold glow, so the icon underneath stays readable.
 
 ## [1.0.19] - 2026-11-06

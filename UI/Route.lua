@@ -797,15 +797,19 @@ local function ApplyCraft(craft)
 	local button = page.Craft
 	local recipeID, count = craft.recipeID, craft.count
 	button.recipeID, button.count = recipeID, count
-	-- SecureTemplates runs type="macro" from the template's secure OnClick and hands the macrotext attribute to
-	-- C_Macro.RunMacroText. SetAttribute stores it untainted, so the embedded /run is the client's craft rather
-	-- than an addon's protected call. Clearing the text keeps a disabled button from crafting the previous step.
-	button:SetAttribute("type", "macro")
-	if recipeID and count and count > 0 then
-		button:SetAttribute("macrotext", string.format("/run C_TradeSkillUI.CraftRecipe(%d, %d)", recipeID, count))
+	-- CraftRecipe is protected: a /run or macro supplied by addon code runs in the addon's context, taints the
+	-- client's craft path, and a potion or profession conversion can be refused until /reload (#327, #313). A
+	-- secure spell attribute is resolved by the client itself, exactly as clicking the recipe in the
+	-- Professions window, so the craft never runs as addon code. Clearing both attributes keeps a disabled
+	-- button from crafting the previous step.
+	local spell = recipeID and C_Spell.GetSpellName(recipeID)
+	if spell and count and count > 0 then
+		button:SetAttribute("type", "spell")
+		button:SetAttribute("spell", spell)
 		button:SetEnabled(true)
 	else
-		button:SetAttribute("macrotext", nil)
+		button:SetAttribute("type", nil)
+		button:SetAttribute("spell", nil)
 		button:SetEnabled(false)
 	end
 	button.title, button.planned, button.to = craft.text, craft.planned, craft.to
@@ -1014,8 +1018,8 @@ local function CreateButtons()
 	page.Track = track
 
 	-- CraftRecipe is protected: called from this addon, it taints the client's craft path and a controller's
-	-- own craft afterwards is blocked (#313). The button is secure and runs a macro as the client's code, with
-	-- the recipe and count stored as attributes in Render.
+	-- own craft afterwards is blocked (#313). The button is secure and casts the recipe's spell as the
+	-- client's own code, with the spell attribute set in ApplyCraft.
 	local craft = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate,SecureActionButtonTemplate")
 	---@cast craft SkillUpCraftButton
 	craft:RegisterForClicks("AnyUp")
@@ -1030,7 +1034,6 @@ local function CreateButtons()
 			GameTooltip_SetTitle(GameTooltip, self.reason)
 		elseif self.planned then
 			GameTooltip_SetTitle(GameTooltip, self.title)
-			GameTooltip_AddNormalLine(GameTooltip, string.format(L["Crafts %d now."], self.count))
 			if self.count < self.planned then
 				GameTooltip_AddNormalLine(
 					GameTooltip,
@@ -1045,7 +1048,7 @@ local function CreateButtons()
 					self.to
 				)
 			)
-			GameTooltip_AddInstructionLine(GameTooltip, string.format(L["Click to craft %d."], self.count))
+			GameTooltip_AddInstructionLine(GameTooltip, string.format(L["Click to craft %d."], 1))
 		end
 		GameTooltip:Show()
 	end)

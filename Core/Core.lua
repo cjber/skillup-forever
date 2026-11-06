@@ -19,7 +19,7 @@ local DEFAULTS = {
 	showRouteTab = true,
 	showTracker = true,
 	showGearTab = false,
-	merchantButton = true, -- the merchant window's "Buy tracked reagents" button
+	merchantButton = true, -- the merchant window's "Reagents still needed" button
 	auctionSearch = true, -- the Professions window's reagent search while the auction house is open
 	reagentTooltip = "route",
 	gatherTooltip = true, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
@@ -78,7 +78,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Crafting from the route works with a controller."]
+ns.WHATS_NEW = L["Crafting from the route no longer blocks a potion or a conversion."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

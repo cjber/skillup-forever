@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Crafting from the route no longer blocks a potion or a conversion.** The route's Craft button ran a `/run` macro supplied by addon code, and macro text an addon gives a secure button still runs in that addon's context: calling the game's protected craft function that way tainted the craft path, so using a potion or turning one essence into another could be refused until `/reload` (#327, #313). The button now sets a spell attribute, which the client resolves itself exactly as clicking the recipe in the Professions window, so no craft runs as addon code. One click now casts the recipe once, as the client's own Craft button does, so a step that wants several crafts takes several clicks.
+
 ## [1.0.17] - 2026-11-05
 
 - **Crafting from the route works with a controller.** The route's Craft button called the game's protected craft function from addon code, which tainted the client's own crafting path: the craft never finished and controller input stayed blocked until `/reload`. The button now asks a secure button to run the craft as the client's own, and the tracked-reagents menu opens the recipe so its native Craft button does the same. A redraw during a fight waits for the fight to end before it touches that secure button, so it cannot trip the same block itself.

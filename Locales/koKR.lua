@@ -98,10 +98,9 @@ L["Craft %d× %s"] = "제작 %d× %s"
 L["Craft %s"] = "%s 제작"
 L["Craft next"] = "다음 제작"
 L["Crafted gear"] = "제작 장비"
-L["Crafting from the route works with a controller."] =
-	"경로에서 제작하기가 컨트롤러에서도 작동합니다."
+L["Crafting from the route no longer blocks a potion or a conversion."] =
+	"Crafting from the route no longer blocks a potion or a conversion."
 L["Crafts"] = "제작 횟수"
-L["Crafts %d now."] = "지금 %d개 제작합니다."
 L["Don't count it"] = "반영 안 함"
 L["Don't suggest this again"] = "다시 제안하지 않기"
 L["Drag to move"] = "끌어서 이동"

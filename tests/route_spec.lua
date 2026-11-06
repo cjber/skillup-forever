@@ -736,8 +736,8 @@ end
 page.collectMode = nil
 
 -- A click on Craft asks for a redraw itself, so the page follows a craft even if a game event is missed.
--- The button is secure and carries the craft as macro text, so the client runs the protected craft itself:
--- an addon call here would taint the craft path and block a controller's own craft afterwards (#313).
+-- The button is secure and carries the recipe's own spell name, so the client casts it as its own code:
+-- an addon call or a macro here would taint the craft path and block later player actions (#327, #313).
 page.NextCraft = function()
 	return { recipeID = 3275, count = 3, planned = 5, to = 20, text = "Craft 3 of 5× Spell 3275" }
 end
@@ -747,12 +747,9 @@ for index = #timers, 1, -1 do
 	timers[index] = nil
 end
 equal(craftButton ~= nil, true, "the route's Craft button is a secure action button")
-equal(craftButton.attributes.type, "macro", "and runs the craft as a macro")
-equal(
-	craftButton.attributes.macrotext,
-	"/run C_TradeSkillUI.CraftRecipe(3275, 3)",
-	"with the step's recipe and the count the bags allow"
-)
+equal(craftButton.attributes.type, "spell", "and casts the recipe as a spell")
+equal(craftButton.attributes.spell, "Spell 3275", "with the recipe's own spell name")
+equal(craftButton.attributes.macrotext, nil, "and no addon-written macro")
 craftButton:Click()
 equal(craftCalls, 0, "the addon never calls the protected craft API itself")
 equal(#timers > 0, true, "a craft click schedules a redraw")
@@ -760,7 +757,8 @@ equal(#timers > 0, true, "a craft click schedules a redraw")
 -- A secure button's attributes, enabled state, size and visibility are protected in combat, yet bag and skill
 -- events still redraw the page. The latest wanted craft waits, one update, for PLAYER_REGEN_ENABLED.
 local settled = {
-	macrotext = craftButton.attributes.macrotext,
+	type = craftButton.attributes.type,
+	spell = craftButton.attributes.spell,
 	enabled = craftButton.enabled,
 	width = craftButton.width,
 	shown = craftButton.shown,
@@ -772,7 +770,8 @@ end
 eventFrame:Event("BAG_UPDATE_DELAYED")
 Drain()
 equal(#secureCalls, 0, "a redraw in combat makes no protected call on the craft button")
-equal(craftButton.attributes.macrotext, settled.macrotext, "the macro waits for combat to end")
+equal(craftButton.attributes.type, settled.type, "the spell type waits for combat to end")
+equal(craftButton.attributes.spell, settled.spell, "the spell waits")
 equal(craftButton.enabled, settled.enabled, "the enabled state waits")
 equal(craftButton.width, settled.width, "the size waits")
 equal(craftButton.shown, settled.shown, "the visibility waits")
@@ -785,12 +784,20 @@ equal(#secureCalls, 0, "a second redraw in combat still makes no protected call"
 inCombat = false
 eventFrame:Event("PLAYER_REGEN_ENABLED")
 equal(#secureCalls, 0, "the queued update is applied once combat ends")
-equal(
-	craftButton.attributes.macrotext,
-	"/run C_TradeSkillUI.CraftRecipe(3277, 2)",
-	"the latest craft of the combat redraws wins"
-)
+equal(craftButton.attributes.type, "spell", "the latest craft of the combat redraws wins")
+equal(craftButton.attributes.spell, "Spell 3277", "with its recipe's spell name")
 equal(craftButton.enabled, true, "and the button is ready to craft")
+
+-- A step with nothing to craft disables the button and clears both secure attributes, so a later click cannot
+-- repeat the recipe that was armed before it.
+page.NextCraft = function()
+	return { text = "Craft next", reason = "Nothing to craft on this route." }
+end
+routeTab:Click()
+Drain()
+equal(craftButton.attributes.type, nil, "a disabled craft button carries no spell type")
+equal(craftButton.attributes.spell, nil, "and no spell name")
+equal(craftButton.enabled, false, "and is disabled")
 
 -- A route with crafts and an unpriced reagent is marked incomplete, and the reagent it left out is
 -- still named in the reagent list.

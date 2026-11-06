@@ -31,8 +31,8 @@ L["/su skipped lists the recipes you skipped, with their IDs."] =
 	"/su skipped показывает пропущенные рецепты с их ID."
 L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID> возвращает один рецепт, /su unskip all — все."
-L["A button above a merchant's window that buys the reagents your tracked routes still need from that merchant. It asks first, with the total cost."] =
-	"Кнопка над окном торговца, которая покупает у него реагенты, еще нужные вашим отслеживаемым маршрутам. Сначала спрашивает подтверждение и показывает общую стоимость."
+L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
+	"Кнопка над окном торговца, которая показывает реагенты, еще нужные вашим отслеживаемым маршрутам у этого торговца, и их общую стоимость. Покупайте их в окне самого торговца."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Материал, который добывают ваши профессии, стоит столько, сколько принесла бы его продажа, а не ноль: цена на аукционе за вычетом 5% комиссии или цена продажи торговцу, если она выше. Учитывается в маршруте и стоимости в строках рецептов. Для цен аукциона нужен Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
@@ -68,16 +68,12 @@ L["Auctionator's scan when the auction house opens is off: turn it on in Auction
 L["Auctionator, %s"] = "Auctionator, %s"
 L["Back"] = "Спина"
 L["Beside the Professions window"] = "Рядом с окном профессий"
-L["Buy"] = "Купить"
 L["Buy %d %s"] = "Купить %d %s"
-L["Buy %s for %s?"] = "Купить %s за %s?"
 L["Buy and read %s at %d"] = "Купить и прочитать %s на %d"
 L["Buy and read %s at %d (level %d)"] = "Купить и прочитать %s на %d (уровень %d)"
 L["Buy reagents"] = "Купить реагенты"
 L["Buy reagents at the auction house"] = "Купить реагенты на аукционе"
-L["Buy tracked reagents  %s"] = "Купить отслеживаемые реагенты  %s"
 L["Can learn it"] = "Можно изучить"
-L["Cancel"] = "Отмена"
 L["Cheapest skill-up"] = "Самый дешевый рост навыка"
 L["Chest"] = "Грудь"
 L["Click for a waypoint to %s."] = "Щелкните, чтобы поставить точку маршрута: %s."
@@ -380,8 +376,6 @@ L["no skipped recipes: right-click a step on the route page and choose Not this 
 	"пропущенных рецептов нет: щелкните правой кнопкой по шагу на странице маршрута и выберите «Не этот рецепт»."
 L["no trainer requirements to check."] = "нет требований учителей для проверки."
 L["none"] = "нет"
-L["not enough money for every missing reagent here."] =
-	"не хватает денег на все недостающие здесь реагенты."
 L["nothing to search for here: what's missing comes from a vendor or your gathering."] =
 	"здесь искать нечего: недостающее — от торговца или из вашей добычи."
 L["open a profession first."] = "сначала откройте профессию."

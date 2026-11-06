@@ -30,8 +30,8 @@ L["/su skipped lists the recipes you skipped, with their IDs."] =
 	"/su skipped: 건너뛴 제조법을 ID와 함께 보여줍니다."
 L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID>는 하나를, /su unskip all은 모두 다시 보여줍니다."
-L["A button above a merchant's window that buys the reagents your tracked routes still need from that merchant. It asks first, with the total cost."] =
-	"상인 창 위에 버튼이 생겨, 추적 중인 경로에 아직 필요한 재료를 그 상인에게서 구매합니다. 먼저 총 비용과 함께 확인합니다."
+L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
+	"상인 창 위에 버튼이 생겨, 추적 중인 경로에 아직 필요한 재료와 총 비용을 보여 줍니다. 상인의 창에서 직접 구매하세요."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator가 필요합니다."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
@@ -67,16 +67,12 @@ L["Auctionator's scan when the auction house opens is off: turn it on in Auction
 L["Auctionator, %s"] = "Auctionator, %s"
 L["Back"] = "등"
 L["Beside the Professions window"] = "전문 기술 창 옆"
-L["Buy"] = "구매"
 L["Buy %d %s"] = "%d개 구매: %s"
-L["Buy %s for %s?"] = "%s을(를) %s에 구매하시겠습니까?"
 L["Buy and read %s at %d"] = "%s 구매 후 읽기 (%d)"
 L["Buy and read %s at %d (level %d)"] = "%s 구매 후 읽기 (%d, 레벨 %d)"
 L["Buy reagents"] = "재료 구매"
 L["Buy reagents at the auction house"] = "경매장에서 재료 구매"
-L["Buy tracked reagents  %s"] = "추적 재료 구매  %s"
 L["Can learn it"] = "배울 수 있음"
-L["Cancel"] = "취소"
 L["Cheapest skill-up"] = "가장 저렴한 숙련도 상승"
 L["Chest"] = "가슴"
 L["Click for a waypoint to %s."] = "클릭하면 %s(으)로 웨이포인트를 설정합니다."
@@ -365,7 +361,6 @@ L["no skipped recipes: right-click a step on the route page and choose Not this 
 	'건너뛴 제조법이 없습니다: 경로 페이지에서 단계를 오른쪽 클릭하고 "이 제조법 제외"를 선택하세요.'
 L["no trainer requirements to check."] = "확인할 전문가 요구 사항이 없습니다."
 L["none"] = "없음"
-L["not enough money for every missing reagent here."] = "여기서 부족한 재료를 모두 살 돈이 없습니다."
 L["nothing to search for here: what's missing comes from a vendor or your gathering."] =
 	"여기서 검색할 것이 없습니다: 부족한 것은 상인이나 채집으로 얻습니다."
 L["open a profession first."] = "먼저 전문 기술 창을 여세요."

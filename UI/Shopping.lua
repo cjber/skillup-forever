@@ -244,56 +244,12 @@ local function MerchantPurchases()
 	return purchases, cost
 end
 
--- Set by a click until the bags show what it bought: the missing counts only drop then, so a second
--- click before that would place the same order again.
----@type table?
-local ordered
--- A purchase the server refuses (full bags) changes no bag and closes no merchant, so nothing else
--- would bring the button back. Long enough for a slow bag update, short enough to try again.
-local ORDER_TIMEOUT = 3
+-- BuyMerchantItem is protected: called from addon code it taints the client's merchant path, and the
+-- player's own purchases can then be refused until /reload (#327). This client has no secure attribute
+-- that buys a chosen quantity, so the addon does not buy at all: the button lists what the route still
+-- needs and the player buys it from the merchant's own window.
 
--- BuyMerchantItem counts units, priced per merchant stack, and takes at most
--- GetMerchantItemMaxStack units a call (Blizzard's MerchantFrame does the same).
----@param expected number? the cost the player agreed to; anything else is not bought
-local function BuyMissing(expected)
-	if ordered then
-		return
-	end
-	local purchases, cost = MerchantPurchases()
-	if expected and cost ~= expected then
-		return
-	end
-	if cost > GetMoney() then
-		ns.Print(L["not enough money for every missing reagent here."])
-		return
-	end
-	for _, purchase in ipairs(purchases) do
-		local perCall = math.max(math.floor(GetMerchantItemMaxStack(purchase.index) / purchase.stack), 1)
-			* purchase.stack
-		local remaining = purchase.count
-		while remaining > 0 do
-			local count = math.min(remaining, perCall)
-			BuyMerchantItem(purchase.index, count)
-			remaining = remaining - count
-		end
-	end
-	if #purchases == 0 then
-		return
-	end
-	local order = {}
-	ordered = order
-	if buyButton then
-		buyButton:SetEnabled(false)
-	end
-	C_Timer.After(ORDER_TIMEOUT, function()
-		if ordered == order then
-			ordered = nil
-			ns.Changed("merchant")
-		end
-	end)
-end
-
--- What a purchase buys, for the confirmation: the first few items by name and how many more.
+-- What is missing here, for the prompt: the first few items by name and how many more.
 local LISTED_PURCHASES = 4
 
 ---@param purchases {index: integer, count: integer}[]
@@ -312,12 +268,11 @@ local function PurchaseList(purchases)
 	return table.concat(parts, ", ")
 end
 
--- The addon's own confirmation, on the merchant's window so it goes when the merchant does. One click
--- spends gold on every missing reagent, so the player sees what and how much before anything is bought.
+-- What the tracked routes still need here, on the merchant's window so it goes when the merchant does.
+-- The player buys it from the merchant's own window; the addon only shows what and how much.
 ---@class SkillUpBuyConfirm : Frame
 ---@field Text FontString
----@field Accept Button
----@field Cancel Button
+---@field Close Button
 ---@field cost number?
 ---@type SkillUpBuyConfirm?
 local confirm
@@ -344,32 +299,18 @@ local function Confirm()
 	frame.Text:SetPoint("TOPLEFT", 20, -18)
 	frame.Text:SetPoint("TOPRIGHT", -20, -18)
 	frame.Text:SetJustifyH("CENTER")
-	frame.Accept = CreateFrame("Button", nil, frame, "SharedButtonSmallTemplate") --[[@as Button]]
-	frame.Accept:SetSize(110, 22)
-	frame.Accept:SetPoint("BOTTOMRIGHT", frame, "BOTTOM", -4, 16)
-	frame.Accept:SetText(L["Buy"])
-	frame.Accept:SetScript("OnClick", function()
-		local cost = frame.cost
-		HideConfirm()
-		if cost then
-			BuyMissing(cost)
-		end
-	end)
-	frame.Cancel = CreateFrame("Button", nil, frame, "SharedButtonSmallTemplate") --[[@as Button]]
-	frame.Cancel:SetSize(110, 22)
-	frame.Cancel:SetPoint("BOTTOMLEFT", frame, "BOTTOM", 4, 16)
-	frame.Cancel:SetText(L["Cancel"])
-	frame.Cancel:SetScript("OnClick", HideConfirm)
+	frame.Close = CreateFrame("Button", nil, frame, "SharedButtonSmallTemplate") --[[@as Button]]
+	frame.Close:SetSize(110, 22)
+	frame.Close:SetPoint("BOTTOM", frame, "BOTTOM", 0, 16)
+	frame.Close:SetText(L["Close"])
+	frame.Close:SetScript("OnClick", HideConfirm)
 	frame:Hide()
 	confirm = frame
 	return frame
 end
 
--- The button asks first: what it would buy here and what that costs.
+-- What is missing here and what it costs; the player buys it from the merchant's own window.
 local function AskToBuy()
-	if ordered then
-		return
-	end
 	local purchases, cost = MerchantPurchases()
 	if #purchases == 0 then
 		return
@@ -377,7 +318,12 @@ local function AskToBuy()
 	local frame = Confirm()
 	frame.cost = cost
 	frame.Text:SetText(
-		string.format(L["Buy %s for %s?"], PurchaseList(purchases), C_CurrencyInfo.GetCoinTextureString(cost))
+		string.format(
+			"%s  %s  %s",
+			L["Reagents still needed"],
+			PurchaseList(purchases),
+			C_CurrencyInfo.GetCoinTextureString(cost)
+		)
 	)
 	frame:Show()
 end
@@ -402,9 +348,8 @@ local function RefreshBuyButton()
 		buyButton:SetPoint("BOTTOMRIGHT", MerchantFrame, "TOPRIGHT", 0, 2)
 		buyButton:SetScript("OnClick", AskToBuy)
 	end
-	buyButton:SetText(string.format(L["Buy tracked reagents  %s"], C_CurrencyInfo.GetCoinTextureString(cost)))
+	buyButton:SetText(string.format("%s  %s", L["Reagents still needed"], C_CurrencyInfo.GetCoinTextureString(cost)))
 	buyButton:SetSize(buyButton:GetTextWidth() + 32, 22)
-	buyButton:SetEnabled(not ordered)
 	buyButton:Show()
 end
 
@@ -726,10 +671,4 @@ end
 function ns.InitShopping()
 	CreateModule()
 	ns.WhenStale("tracker", RefreshTracker)
-	-- The order arrived, or its merchant is gone: the refresh these events bring offers the button again.
-	local function OrderSettled()
-		ordered = nil
-	end
-	ns.WhenEvent("BAG_UPDATE_DELAYED", OrderSettled)
-	ns.WhenEvent("MERCHANT_CLOSED", OrderSettled)
 end

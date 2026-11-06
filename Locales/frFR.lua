@@ -32,8 +32,8 @@ L["/su skipped lists the recipes you skipped, with their IDs."] =
 	"/su skipped liste les recettes ignorées, avec leur ID." -- mt
 L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID> en réaffiche une, /su unskip all les réaffiche toutes." -- mt
-L["A button above a merchant's window that buys the reagents your tracked routes still need from that merchant. It asks first, with the total cost."] =
-	"Un bouton au-dessus de la fenêtre du marchand qui achète les composants dont vos parcours suivis ont encore besoin chez ce marchand. Il demande d'abord confirmation, avec le coût total." -- mt
+L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
+	"Un bouton au-dessus de la fenêtre du marchand qui affiche les composants dont vos parcours suivis ont encore besoin chez ce marchand et leur coût total. Achetez-les dans la fenêtre du marchand." -- mt
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Un matériau que vos métiers récoltent coûte ce que sa vente rapporterait au lieu de rien : son prix aux enchères après la commission de 5 %, ou son prix de vente au marchand s'il est plus élevé. Utilisé pour le parcours et les coûts sur les lignes de recettes. Les prix aux enchères nécessitent Auctionator." -- mt
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
@@ -67,16 +67,12 @@ L["Auctionator's scan when the auction house opens is off: turn it on in Auction
 L["Auctionator, %s"] = "Auctionator, %s" -- mt
 L["Back"] = "Dos" -- mt
 L["Beside the Professions window"] = "À côté de la fenêtre des métiers" -- mt
-L["Buy"] = "Acheter" -- mt
 L["Buy %d %s"] = "Acheter %d %s" -- mt
-L["Buy %s for %s?"] = "Acheter %s pour %s ?" -- mt
 L["Buy and read %s at %d"] = "Acheter et lire %s à %d" -- mt
 L["Buy and read %s at %d (level %d)"] = "Acheter et lire %s à %d (niveau %d)" -- mt
 L["Buy reagents"] = "Acheter les composants" -- mt
 L["Buy reagents at the auction house"] = "Acheter les composants à l'hôtel des ventes" -- mt
-L["Buy tracked reagents  %s"] = "Acheter les composants suivis  %s" -- mt
 L["Can learn it"] = "Peut l'apprendre" -- mt
-L["Cancel"] = "Annuler" -- mt
 L["Cheapest skill-up"] = "Point de compétence le moins cher" -- mt
 L["Chest"] = "Torse" -- mt
 L["Click for a waypoint to %s."] = "Cliquez pour un point de passage vers %s." -- mt
@@ -363,7 +359,6 @@ L["no skipped recipes: right-click a step on the route page and choose Not this 
 	"aucune recette ignorée : faites un clic droit sur une étape du parcours et choisissez « Pas cette recette »." -- mt
 L["no trainer requirements to check."] = "aucune condition de maître à vérifier." -- mt
 L["none"] = "aucun" -- mt
-L["not enough money for every missing reagent here."] = "pas assez d'argent pour tous les composants manquants ici." -- mt
 L["nothing to search for here: what's missing comes from a vendor or your gathering."] =
 	"rien à chercher ici : ce qui manque vient d'un marchand ou de votre récolte." -- mt
 L["open a profession first."] = "ouvrez d'abord un métier." -- mt

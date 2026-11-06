@@ -30,8 +30,8 @@ L["+%d more"] = "另有%d個"
 L["/su skipped lists the recipes you skipped, with their IDs."] = "/su skipped 列出你跳過的配方及其ID。"
 L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID> 恢復顯示一個，/su unskip all 恢復全部。"
-L["A button above a merchant's window that buys the reagents your tracked routes still need from that merchant. It asks first, with the total cost."] =
-	"商人視窗上方的按鈕，向該商人購買你追蹤的路線仍需要的材料。購買前會先確認並顯示總價。"
+L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
+	"商人視窗上方的按鈕，顯示你追蹤的路線仍需要從該商人處購買的材料及其總價。請在商人視窗中自行購買。"
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"你的專業技能採集的材料按出售所得計價，而不是免費：扣除5%手續費後的拍賣價，或較高時按商人收購價。用於路線和配方列的成本。拍賣價需要Auctionator。"
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
@@ -64,16 +64,12 @@ L["Auctionator's scan when the auction house opens is off: turn it on in Auction
 L["Auctionator, %s"] = "Auctionator，%s"
 L["Back"] = "背部"
 L["Beside the Professions window"] = "專業技能視窗旁邊"
-L["Buy"] = "購買"
 L["Buy %d %s"] = "購買%d個%s"
-L["Buy %s for %s?"] = "購買%s，花費%s？"
 L["Buy and read %s at %d"] = "購買並閱讀%s（技能%d）"
 L["Buy and read %s at %d (level %d)"] = "購買並閱讀%s（技能%d，等級%d）"
 L["Buy reagents"] = "購買材料"
 L["Buy reagents at the auction house"] = "在拍賣場購買材料"
-L["Buy tracked reagents  %s"] = "購買追蹤的材料  %s"
 L["Can learn it"] = "可以學習"
-L["Cancel"] = "取消"
 L["Cheapest skill-up"] = "最便宜的技能提升"
 L["Chest"] = "胸部"
 L["Click for a waypoint to %s."] = "點擊設定前往%s的導航點。"
@@ -355,7 +351,6 @@ L["no skipped recipes: right-click a step on the route page and choose Not this 
 	"沒有跳過的配方：在路線頁面右鍵點擊一個步驟並選擇「不要此配方」。"
 L["no trainer requirements to check."] = "沒有需要檢查的訓練師要求。"
 L["none"] = "無"
-L["not enough money for every missing reagent here."] = "錢不夠購買這裡所有缺少的材料。"
 L["nothing to search for here: what's missing comes from a vendor or your gathering."] =
 	"這裡沒有可搜尋的：缺少的來自商人或你的採集。"
 L["open a profession first."] = "請先開啟一個專業技能。"

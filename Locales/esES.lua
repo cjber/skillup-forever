@@ -31,8 +31,8 @@ L["/su skipped lists the recipes you skipped, with their IDs."] =
 	"/su skipped muestra las recetas que omitiste, con sus ID."
 L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID> vuelve a mostrar una, /su unskip all todas."
-L["A button above a merchant's window that buys the reagents your tracked routes still need from that merchant. It asks first, with the total cost."] =
-	"Un botón sobre la ventana del mercader que compra los componentes que tus rutas seguidas aún necesitan de ese mercader. Primero pregunta, con el coste total."
+L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
+	"Un botón sobre la ventana del mercader que muestra los componentes que tus rutas seguidas aún necesitan de ese mercader y su coste total. Cómpralos en la ventana del propio mercader."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Un material que recogen tus profesiones cuesta lo que obtendrías al venderlo en lugar de nada: su precio de subasta tras la comisión del 5 %, o su precio de venta al vendedor si es mayor. Se usa para la ruta y los costes de las filas de recetas. Los precios de subasta necesitan Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
@@ -67,16 +67,12 @@ L["Auctionator's scan when the auction house opens is off: turn it on in Auction
 L["Auctionator, %s"] = "Auctionator, %s"
 L["Back"] = "Espalda"
 L["Beside the Professions window"] = "Junto a la ventana de profesiones"
-L["Buy"] = "Comprar"
 L["Buy %d %s"] = "Comprar %d %s"
-L["Buy %s for %s?"] = "¿Comprar %s por %s?"
 L["Buy and read %s at %d"] = "Comprar y leer %s a %d"
 L["Buy and read %s at %d (level %d)"] = "Comprar y leer %s a %d (nivel %d)"
 L["Buy reagents"] = "Comprar componentes"
 L["Buy reagents at the auction house"] = "Comprar componentes en la casa de subastas"
-L["Buy tracked reagents  %s"] = "Comprar componentes seguidos  %s"
 L["Can learn it"] = "Puedes aprenderla"
-L["Cancel"] = "Cancelar"
 L["Cheapest skill-up"] = "Subida de habilidad más barata"
 L["Chest"] = "Pecho"
 L["Click for a waypoint to %s."] = "Haz clic para un punto de ruta a %s."
@@ -361,8 +357,6 @@ L["no skipped recipes: right-click a step on the route page and choose Not this 
 	'no hay recetas omitidas: haz clic derecho en un paso de la página de ruta y elige "Esta receta no".'
 L["no trainer requirements to check."] = "no hay requisitos de instructor que comprobar."
 L["none"] = "ninguno"
-L["not enough money for every missing reagent here."] =
-	"no tienes dinero suficiente para todos los componentes que faltan aquí."
 L["nothing to search for here: what's missing comes from a vendor or your gathering."] =
 	"nada que buscar aquí: lo que falta viene de un vendedor o de tu recolección."
 L["open a profession first."] = "abre primero una profesión."

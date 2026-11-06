@@ -30,8 +30,8 @@ local function Code(text)
 	return text:gsub("%-%-[^\n]*", "")
 end
 
--- BuyMerchantItem is deliberately absent: this client does not protect it, so the merchant buy button stays.
 local FORBIDDEN = {
+	{ "%f[%a]Buy%w*%s*%(", "protected merchant purchase" },
 	{ "%f[%a]Pickup%w*%s*%(", "protected pickup" },
 	{ "C_TradeSkillUI%.Craft%w*%s*%(", "protected craft" },
 	{ "%f[%a]Use%u%w*%s*%(", "protected item use" },

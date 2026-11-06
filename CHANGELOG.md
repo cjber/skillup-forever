@@ -12,7 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
-- **Crafting from the route no longer blocks a potion or a conversion.** The route's Craft button ran a `/run` macro supplied by addon code, and macro text an addon gives a secure button still runs in that addon's context: calling the game's protected craft function that way tainted the craft path, so using a potion or turning one essence into another could be refused until `/reload` (#327, #313). The button now sets a spell attribute, which the client resolves itself exactly as clicking the recipe in the Professions window, so no craft runs as addon code. One click now casts the recipe once, as the client's own Craft button does, so a step that wants several crafts takes several clicks.
+- **Crafting from the route no longer blocks a potion or a conversion.** The route's Craft button ran a `/run` macro supplied by addon code, and macro text an addon gives a secure button still runs in that addon's context: calling the game's protected craft function that way tainted the craft path, so using a potion or turning one essence into another could be refused until `/reload` (#327, #313). The button now sets a spell attribute, which the client resolves itself exactly as clicking the recipe in the Professions window, so no craft runs as addon code. One click now casts the recipe once, as the client's own Craft button does, so a step that wants several crafts takes several clicks. The merchant button no longer calls the protected buy function either: it lists what the tracked routes still need and the total cost, and you buy it from the merchant's own window.
 
 ## [1.0.17] - 2026-11-05
 

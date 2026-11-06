@@ -126,7 +126,8 @@ equal(
 c.auction[SILK] = 10
 c.AuctionatorScan()
 
--- The merchant's button and its purchase, including missing stack data: seven cloth short of the route.
+-- The merchant's button lists what the route still needs, including whole merchant stacks. The addon
+-- never buys: BuyMerchantItem is protected, so the player buys from the merchant's own window (#327).
 local function Needed()
 	return ns.TrackedNeeds()[1].items[1].need
 end
@@ -136,91 +137,52 @@ c.merchant = { { itemID = SILK, name = "Linen Cloth", price = 100, stackCount = 
 c.Fire("MERCHANT_SHOW")
 local button
 for _, frame in ipairs(c.frames) do
-	if frame.parent == c.G.MerchantFrame then
+	if frame.parent == c.G.MerchantFrame and not frame.Close then
 		button = frame
 	end
 end
-equal(button.shown, true, "known merchant stack enables purchasing")
-equal(button.text, "Buy tracked reagents  200c", "purchase price accounts for whole stacks")
--- The button asks first, on a dialog of the addon's own on the merchant's window.
+equal(button.shown, true, "known merchant stack shows what is needed")
+equal(button.text, "Reagents still needed  200c", "with the cost of whole stacks")
+-- The button lists it on a dialog of the addon's own on the merchant's window.
 local function Dialog()
 	for _, frame in ipairs(c.frames) do
-		if frame.parent == c.G.MerchantFrame and frame.Accept then
+		if frame.parent == c.G.MerchantFrame and frame.Close then
 			return frame
 		end
 	end
 end
-equal(Dialog(), nil, "nothing asks before a click")
+equal(Dialog(), nil, "nothing shows before a click")
 button.scripts.OnClick()
 local dialog = Dialog()
-equal(dialog.shown, true, "a click asks before buying")
-equal(dialog.Text.text, "Buy 10 Linen Cloth for 200c?", "with what it buys and the total cost")
-equal(#c.purchased, 0, "and buys nothing yet")
-dialog.Cancel.scripts.OnClick()
-equal(dialog.shown, false, "cancel closes it")
-equal(#c.purchased, 0, "having bought nothing")
--- The need changes while it is open: what it showed is not what a click would buy, so it goes.
+equal(dialog.shown, true, "a click lists what is missing")
+equal(dialog.Text.text, "Reagents still needed  10 Linen Cloth  200c", "with the items and the total cost")
+equal(#c.purchased, 0, "and buys nothing itself")
+dialog.Close.scripts.OnClick()
+equal(dialog.shown, false, "Close hides the list")
+-- The need changes while it is open: what it showed is out of date, so it goes.
 button.scripts.OnClick()
 c.bags[SILK] = c.bags[SILK] + 5
 c.Fire("BAG_UPDATE_DELAYED")
-equal(dialog.shown, false, "a changed cost closes the question")
-dialog.Accept.scripts.OnClick()
-equal(#c.purchased, 0, "and a late accept buys nothing")
+equal(dialog.shown, false, "a changed cost closes the list")
 c.bags[SILK] = c.bags[SILK] - 5
 c.Fire("BAG_UPDATE_DELAYED")
-equal(button.text, "Buy tracked reagents  200c", "the full need is back")
+equal(button.text, "Reagents still needed  200c", "the full need is back")
 -- The player can do without the button.
 c.SetSetting("merchantButton", false)
 equal(button.shown, false, "the setting hides the button")
 c.SetSetting("merchantButton", true)
 equal(button.shown, true, "and brings it back")
--- A click only reaches a button that is enabled, and buys once the player accepts.
-local function Click()
-	if button:IsEnabled() then
-		button.scripts.OnClick()
-		if dialog.shown then
-			dialog.Accept.scripts.OnClick()
-		end
-	end
-end
-Click()
-equal(dialog.shown, false, "accepting closes the question")
-equal(c.purchased[1].count, 10, "purchase callback buys complete stacks in units")
-equal(button:IsEnabled(), false, "the button is off while the order is on its way")
-Click()
 button.scripts.OnClick()
-c.Fire("MERCHANT_UPDATE")
-c.AuctionatorScan()
-Click()
-equal(#c.purchased, 1, "a second click before the bags update orders nothing more")
--- The server refused it (full bags): no bag changes, and the button comes back for another try.
-c.Advance(3)
-equal(button:IsEnabled(), true, "an order that never arrives gives the button back")
-Click()
-equal(#c.purchased, 2, "which orders again")
--- The merchant closing ends the wait too, and a settled order's timer cannot cut a later order's wait short.
-c.merchant = nil
-c.Fire("MERCHANT_CLOSED")
-c.merchant = { { itemID = SILK, price = 100, stackCount = 5 } }
-c.Fire("MERCHANT_SHOW")
-equal(button:IsEnabled(), true, "another merchant starts with the button on")
-c.Advance(2)
-Click()
-equal(#c.purchased, 3, "and takes an order")
-c.Advance(1)
-equal(button:IsEnabled(), false, "which the earlier order's timer leaves waiting")
-c.bags[SILK] = c.bags[SILK] + 5
-c.Fire("BAG_UPDATE_DELAYED")
-equal(button:IsEnabled(), true, "the bag update gives the button back")
-equal(button.text, "Buy tracked reagents  100c", "for what is still missing")
-c.Advance(3)
+equal(#c.purchased, 0, "the addon never calls the protected merchant buy function")
+equal(button:IsEnabled(), true, "the button stays available while the list is open")
+dialog.Close.scripts.OnClick()
 for _, invalid in ipairs({ false, 0, -1 }) do
 	c.merchant[1].stackCount = invalid or nil
 	c.purchased = {}
 	c.Fire("MERCHANT_UPDATE")
-	equal(button.shown, false, "unknown or invalid stack hides purchase action")
+	equal(button.shown, false, "unknown or invalid stack hides the list button")
 	button.scripts.OnClick()
-	equal(#c.purchased, 0, "unknown or invalid stack cannot buy invented units")
+	equal(#c.purchased, 0, "unknown or invalid stack cannot invent units")
 end
 c.merchant = nil
 c.Fire("MERCHANT_CLOSED")

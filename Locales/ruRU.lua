@@ -97,8 +97,8 @@ L["Craft %d× %s"] = "Создать %d× %s"
 L["Craft %s"] = "Создать %s"
 L["Craft next"] = "Создать следующее"
 L["Crafted gear"] = "Созданное снаряжение"
-L["Crafting from the route no longer blocks a potion or a conversion."] =
-	"Crafting from the route no longer blocks a potion or a conversion."
+L["The tracker column steps aside for EQ Objective Tracker."] =
+	"Колонка трекера уступает место EQ Objective Tracker." -- mt
 L["Crafts"] = "Созданий"
 L["Don't count it"] = "Не учитывать"
 L["Don't suggest this again"] = "Больше не предлагать"

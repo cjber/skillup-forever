@@ -91,8 +91,8 @@ L["Craft %d× %s"] = "制造%d× %s"
 L["Craft %s"] = "制造%s"
 L["Craft next"] = "制造下一个"
 L["Crafted gear"] = "制造装备"
-L["Crafting from the route no longer blocks a potion or a conversion."] =
-	"Crafting from the route no longer blocks a potion or a conversion."
+L["The tracker column steps aside for EQ Objective Tracker."] =
+	"追踪栏避开 EQ 目标追踪器。" -- mt
 L["Crafts"] = "制造次数"
 L["Don't count it"] = "不计入"
 L["Don't suggest this again"] = "不再推荐"

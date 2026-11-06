@@ -9,7 +9,7 @@ A map tab under the Professions window's side tabs opens a SkillUp page. Pick an
 ### How it picks
 
 - Each skill point uses the most recently pinned recipe that can gain skill, or the recipe with the lowest cost per skill-up when none is pinned.
-- A step asks for enough crafts to reach its target in nine runs out of ten, worked out from the chance at each skill point on the way, not from the average. An orange recipe is unchanged; a yellow or green one carries its risk in its price, so the route leans on it less.
+- A step asks for enough crafts to reach its target in nine runs out of ten, worked out from the chance at each skill point on the way, not from the average. An orange recipe is unchanged; a yellow or green one carries its risk in its price, so the route leans on it less. The craft that earns a point costs its net, and the extra crafts a falling chance needs are priced at its reagents, so a near-grey recipe does not hold the route into grey.
 - Recipes a trainer teaches are included when they pay for themselves or you pin them, shown as a *Train* step with its fee. The fee is counted once, and never before the trainer would teach them.
 - Recipes with an unpriced reagent are left out and counted.
 - Recipes you said *Not this recipe* to are left out (see below).

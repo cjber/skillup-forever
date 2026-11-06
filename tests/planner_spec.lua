@@ -77,7 +77,17 @@ function Reference.PlanRoute(snapshot)
 		local best, bestKey, bestChance
 		for _, recipe in ipairs(priced) do
 			local chance = Model.Chance(recipe.thresholds, skill)
-			local key = Reference.CostPerPoint(math.max(recipe.netCost, 0), recipe.thresholds, skill, recipe.skillUps)
+			local ups = math.max(recipe.skillUps or 1, 1)
+			local key
+			if chance and chance > 0 then
+				local net = math.max(recipe.netCost, 0)
+				if recipe.reagentCost then
+					local covered = Reference.CoveredCrafts(recipe.thresholds, skill, skill + ups, ups)
+					key = (net + recipe.reagentCost * math.max(covered - 1, 0)) / ups
+				else
+					key = Reference.CostPerPoint(net, recipe.thresholds, skill, ups)
+				end
+			end
 			if
 				key
 				and (

@@ -97,8 +97,6 @@ L["Craft %d× %s"] = "Создать %d× %s"
 L["Craft %s"] = "Создать %s"
 L["Craft next"] = "Создать следующее"
 L["Crafted gear"] = "Созданное снаряжение"
-L["The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."] =
-	"The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."
 L["Crafts"] = "Созданий"
 L["Don't count it"] = "Не учитывать"
 L["Don't suggest this again"] = "Больше не предлагать"
@@ -505,3 +503,5 @@ L["Share observed recipe totals with guild and group"] =
 	"Делиться итогами наблюдений рецептов с гильдией и группой"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
+L["A route no longer stays on a free or profitable recipe as it goes grey."] =
+	"A route no longer stays on a free or profitable recipe as it goes grey."

@@ -78,7 +78,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."]
+ns.WHATS_NEW = L["A route no longer stays on a free or profitable recipe as it goes grey."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

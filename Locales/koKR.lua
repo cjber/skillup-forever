@@ -94,8 +94,6 @@ L["Craft %d× %s"] = "제작 %d× %s"
 L["Craft %s"] = "%s 제작"
 L["Craft next"] = "다음 제작"
 L["Crafted gear"] = "제작 장비"
-L["The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."] =
-	"The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."
 L["Crafts"] = "제작 횟수"
 L["Don't count it"] = "반영 안 함"
 L["Don't suggest this again"] = "다시 제안하지 않기"
@@ -484,3 +482,5 @@ L["/su share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
+L["A route no longer stays on a free or profitable recipe as it goes grey."] =
+	"A route no longer stays on a free or profitable recipe as it goes grey."

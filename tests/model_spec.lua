@@ -214,6 +214,28 @@ local profitable = Model.PlanRoute({
 })
 equal(profitable.segments[1].recipeID, 20, "a profit never rewards a lower chance")
 near(profitable.expectedCost, -10, "negative expected cost is retained")
+-- A free recipe is free for the craft that earns each point, but the extra crafts a falling chance needs
+-- are priced at its reagents, so it cannot hold the route into grey.
+local freeNearGrey = Model.PlanRoute({
+	skill = 2,
+	target = 4,
+	recipes = {
+		{ recipeID = 20, thresholds = { 1, 1, 3, 5 }, netCost = 0, reagentCost = 100 },
+		candidate(10, flat, 10),
+	},
+})
+equal(freeNearGrey.segments[1].recipeID, 10, "a free recipe's extra crafts are priced at its reagents")
+-- The rule is the same at 1c: a near-grey recipe pays for the extra crafts its falling chance needs, so a
+-- dearer recipe at full chance can win. A branch that prices only netCost <= 0 would keep the 1c one.
+local cheapNearGrey = Model.PlanRoute({
+	skill = 2,
+	target = 3,
+	recipes = {
+		{ recipeID = 20, thresholds = { 1, 1, 3, 5 }, netCost = 1, reagentCost = 100 },
+		candidate(10, flat, 20),
+	},
+})
+equal(cheapNearGrey.segments[1].recipeID, 10, "a 1c near-grey recipe pays for its extra crafts too")
 local partial = Model.PlanRoute({
 	skill = 1,
 	target = 6,

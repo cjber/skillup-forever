@@ -238,15 +238,25 @@ function Model.CostPerPoint(cost, thresholds, skill, skillUps)
 end
 
 -- A recipe's place in a route's order at a skill: what a point there costs, nil when a craft there gains none,
--- and the chance that breaks a tie. A profit ranks as free: a falling chance would otherwise favour near-grey
--- crafts that take many times the crafts per point.
+-- and the chance that breaks a tie. The craft that earns the point costs its net, and each extra craft a
+-- falling chance needs costs its reagents, so a near-grey recipe cannot rank as free into grey.
 ---@param recipe SkillUpCandidate
 ---@param skill number
 ---@return number?
 ---@return number?
 local function Rank(recipe, skill)
-	local key = Model.CostPerPoint(math.max(recipe.netCost, 0), recipe.thresholds, skill, recipe.skillUps)
-	return key, Model.Chance(recipe.thresholds, skill)
+	local thresholds, ups = recipe.thresholds, math.max(recipe.skillUps or 1, 1)
+	local chance = Model.Chance(thresholds, skill)
+	if not chance or chance <= 0 then
+		return nil, chance
+	end
+	local net = math.max(recipe.netCost, 0)
+	-- Without a reagent cost only the net is known, so the old per-craft price carries the falling chance.
+	if not recipe.reagentCost then
+		return Model.CostPerPoint(net, thresholds, skill, ups), chance
+	end
+	local covered = Model.CoveredCrafts(thresholds, skill, skill + ups, ups)
+	return (net + recipe.reagentCost * math.max(covered - 1, 0)) / ups, chance
 end
 
 -- Among recipes that can gain skill, the most recent pin wins; otherwise a cheaper point, then a better

@@ -280,6 +280,7 @@ SkillUpForeverDB = nil
 ---@field recipeID integer
 ---@field thresholds number[]
 ---@field netCost? number
+---@field reagentCost? number What one craft's reagents cost, before the crafted item's value.
 ---@field preference? integer Most recently pinned recipe wins.
 ---@field skillUps? integer Skill points one craft grants, from the client.
 

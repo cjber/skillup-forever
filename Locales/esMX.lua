@@ -94,8 +94,6 @@ L["Craft %d× %s"] = "Crear %d× %s"
 L["Craft %s"] = "Crear %s"
 L["Craft next"] = "Crear la siguiente"
 L["Crafted gear"] = "Equipo creado"
-L["The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."] =
-	"The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed."
 L["Crafts"] = "Creaciones"
 L["Don't count it"] = "No contarlo"
 L["Don't suggest this again"] = "No volver a sugerir"
@@ -480,3 +478,5 @@ L["/su share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] = "Compartir totales de recetas observadas con hermandad y grupo"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
+L["A route no longer stays on a free or profitable recipe as it goes grey."] =
+	"A route no longer stays on a free or profitable recipe as it goes grey."

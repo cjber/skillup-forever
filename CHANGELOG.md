@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
+- **A route no longer stays on a free or profitable recipe as it goes grey.** A craft that costs nothing after its sale price, or makes money, was ranked as free at every skill, so the route kept it even when a skill-up needed dozens of crafts: Tailoring 40 to 75 asked for 190 Linen Bags and 1202 Linen Cloth. The craft that earns each point now counts its net cost, and the extra crafts a falling chance needs count at the recipe's reagent cost, for every priced recipe, so the route switches to one that is cheaper to walk. Thanks to a CurseForge player for the report.
 
 ## [1.0.21] - 2026-11-06
 - **The skill bar's difficulty bands are drawn at the bar art's native height instead of squashed.** The tooltip and details bar pulled a 240 by 15 fill down to about 10.25 high, which flattened the art; the bands now use the client's 124 by 10 cooldown manager fill, keeping its height and varying only its width with each band.

@@ -228,6 +228,18 @@ local function RecipesOf(skillLine)
 	return bySkillLine[skillLine] or {}
 end
 
+-- One craft's reagent cost, what it makes and its net: the price module's answer. A headless client
+-- without that module knows only the net, which stands in for both.
+---@param recipeID integer
+---@return number?, SkillUpValue?, number?
+local function RecipeCosts(recipeID)
+	if ns.CraftCost then
+		return ns.CraftCost(recipeID)
+	end
+	local net = ns.NetCost(recipeID)
+	return net, nil, net
+end
+
 -- What the planner works from: the recipes this character knows, for any of its professions, from
 -- the bundled recipe data plus the learned record, so the profession needn't be open. `known` adds
 -- recipes the caller knows are learned. Skills here are effective (base + bonus), as the
@@ -241,10 +253,12 @@ local function Snapshot(profession, target, known)
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
 		local thresholds = not Skipped(recipeID) and ns.Model.Get(recipeID)
 		if thresholds and (known and known[recipeID] or ns.IsLearned(recipeID)) then
+			local reagentCost, _, netCost = RecipeCosts(recipeID)
 			recipes[#recipes + 1] = {
 				recipeID = recipeID,
 				thresholds = thresholds,
-				netCost = ns.NetCost(recipeID),
+				netCost = netCost,
+				reagentCost = reagentCost,
 				preference = ns.PinPreference(recipeID),
 				skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(recipeID) or 1,
 			}
@@ -278,10 +292,12 @@ local function Trainable(profession, snapshot)
 		if training and t then
 			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
 			if taught[1] <= snapshot.target and t[4] > snapshot.skill then
+				local reagentCost, _, netCost = RecipeCosts(recipeID)
 				services[#services + 1] = {
 					recipeID = recipeID,
 					thresholds = taught,
-					netCost = ns.NetCost(recipeID),
+					netCost = netCost,
+					reagentCost = reagentCost,
 					preference = ns.PinPreference(recipeID),
 					fee = training[1],
 					skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(recipeID) or 1,
@@ -608,6 +624,7 @@ function ns.BestTraining(profession, known, offers)
 	for _, offer in ipairs(offers) do
 		local thresholds = ns.Model.Get(offer.recipeID)
 		if thresholds and not ns.IsLearned(offer.recipeID) and not Skipped(offer.recipeID) then
+			local reagentCost, _, netCost = RecipeCosts(offer.recipeID)
 			services[#services + 1] = {
 				recipeID = offer.recipeID,
 				thresholds = {
@@ -616,7 +633,8 @@ function ns.BestTraining(profession, known, offers)
 					thresholds[3],
 					thresholds[4],
 				},
-				netCost = ns.NetCost(offer.recipeID),
+				netCost = netCost,
+				reagentCost = reagentCost,
 				preference = ns.PinPreference(offer.recipeID),
 				skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(offer.recipeID) or 1,
 				fee = offer.fee,

@@ -1304,7 +1304,7 @@ def skill_bar(ui, t, skill):
     def x_of(value):
         return (min(max(value, lo), hi) - lo) / (hi - lo) * BAR_WIDTH
 
-    band = ui.texture("interface/targetingframe/ui-statusbar.blp")
+    band = ui.atlas("common-stat-bar-white")
     edges = [t[0], t[1], t[2], t[3], hi]
     for i, color in enumerate(("orange", "yellow", "green", "grey")):
         left, right = x_of(edges[i]), x_of(edges[i + 1])
@@ -1512,13 +1512,10 @@ def create_controls(canvas, fx, fy, count):
     three_slice_button(canvas, right - 9 - create_w, bottom - 7 - 28, create_w, 28, "Create")
     # CreateMultipleInputBox: NumericInputSpinnerTemplate 31x20 at BOTTOMLEFT (-185, 11).
     ix, iy = right - 185, bottom - 11 - 20
-    border = ui.texture("interface/common/common-input-border.blp")
-    canvas.draw(crop_coords(border, 0, 0.0625, 0, 0.625), ix - 5, iy, 8, 20)
-    canvas.draw(crop_coords(border, 0.0625, 0.9375, 0, 0.625), ix + 3, iy, 31 - 8 - 3, 20)
-    canvas.draw(crop_coords(border, 0.9375, 1, 0, 0.625), ix + 31 - 8, iy, 8, 20)
+    input_border(canvas, ix, iy, 31, 20)
     canvas.text(ix, iy, "1", FONTS["GameFontHighlight"], box_height=20)
-    canvas.draw(ui.texture("interface/buttons/ui-spellbookicon-nextpage-up.blp"), ix + 31, iy - 1, 23, 22)
-    canvas.draw(ui.texture("interface/buttons/ui-spellbookicon-prevpage-up.blp"), ix - 5 - 6 - 23 + 5, iy - 1, 23, 22)
+    canvas.draw(ui.atlas("Profession-button-arrow-right"), ix + 31 + 0.5, iy - 1, 22, 22)
+    canvas.draw(ui.atlas("Profession-button-arrow-left"), ix - 29.5, iy - 1, 22, 22)
 
 
 def profession_tabs(canvas, fx, fy, selected, gear_tab=False):
@@ -1679,12 +1676,19 @@ def dropdown(canvas, x, y, w, text):
     return h
 
 
+def input_border(canvas, x, y, w, h):
+    """InputBoxVisualTemplate (Blizzard_SharedXML/Shared/InputBox/InputBoxTemplates.xml): common-search-border
+    Left 8x20 at LEFT (-5, 0), Right 8x20 at RIGHT, Middle between them."""
+    ui = canvas.ui
+    top = y + (h - 20) / 2
+    canvas.draw(ui.atlas("common-search-border-left"), x - 5, top, 8, 20)
+    canvas.draw(ui.atlas("common-search-border-middle"), x + 3, top, w - 8 - 3, 20)
+    canvas.draw(ui.atlas("common-search-border-right"), x + w - 8, top, 8, 20)
+
+
 def input_box(canvas, x, y, w, h, text):
-    """InputBoxTemplate: the common-input-border three-slice (Left 8 at -5) and ChatFontNormal text."""
-    border = canvas.ui.texture("interface/common/common-input-border.blp")
-    canvas.draw(crop_coords(border, 0, 0.0625, 0, 0.625), x - 5, y, 8, h)
-    canvas.draw(crop_coords(border, 0.0625, 0.9375, 0, 0.625), x + 3, y, w - 8 - 3, h)
-    canvas.draw(crop_coords(border, 0.9375, 1, 0, 0.625), x + w - 8, y, 8, h)
+    """InputBoxTemplate: the common-search-border three-slice (Left 8 at -5) and ChatFontNormal text."""
+    input_border(canvas, x, y, w, h)
     canvas.text(x, y, text, F_CHAT, box_height=h)
 
 
@@ -1844,7 +1848,7 @@ def gear_slot(canvas, x, y, index, slot):
         # SetDesaturated(true) keeps the art's alpha; convert through L so the transparent corners stay clear.
         canvas.draw(art.convert("LA").convert("RGBA"), x, y, GEAR_ICON, GEAR_ICON)
     if slot.get("selected"):
-        canvas.draw(ui.texture("interface/buttons/checkbuttonhilight.blp"), x, y, GEAR_ICON, GEAR_ICON, blend="ADD")
+        canvas.draw(ui.atlas("Profession-square-frame-glow"), x, y, GEAR_ICON, GEAR_ICON, blend="ADD")
 
 
 def gear_row(canvas, x, y, w, row, text_color=None):
@@ -2023,8 +2027,6 @@ def trainer_row(canvas, x, y, service):
     available = service["kind"] == "available"
     if not available:
         canvas.fill(x + 2, y + 2, TRAINER_ROW_W - 4, TRAINER_ROW_H - 4, (0, 0, 0, 0.45))
-    textures = ui.texture("interface/classtrainerframe/trainertextures.blp")
-    canvas.draw(crop_coords(textures, 0.00195313, 0.57421875, 0.65820313, 0.75), x, y, TRAINER_ROW_W, TRAINER_ROW_H)
     item = ui.item(NS["RecipeData"][service["recipeID"]]["output"]["itemID"])
     icon = ui.texture(item.icon)
     if not available:
@@ -2058,19 +2060,28 @@ def trainer_scene(ui, scene_data):
     m = 8
     canvas = ui.canvas(TRAINER_INSET_W + 2 * m, TRAINER_INSET_H + 2 * m)
     x, y = m, m
-    # The Inset takes its parent's level: its marble Bg (sublevel -5), the frame's BG from the ScrollBox's
-    # (-3, 4) to (3, -4), then the Inset's border.
+    # The Inset takes its parent's level: its marble Bg (sublevel -5), the list's own backdrop from the
+    # ScrollBox's (-3, 4) to (3, -4), then the Inset's border.
     marble = ui.texture("interface/framegeneral/ui-background-marble.blp")
     tiled(canvas, marble, x + 2, y + 2, TRAINER_INSET_W - 4, TRAINER_INSET_H - 4, 256, 256)
     box_x, box_y = x + 5, y + 5
-    textures = ui.texture("interface/classtrainerframe/trainertextures.blp")
-    background = crop_coords(textures, 0.00195313, 0.5859375, 0.00195313, 0.65429688)
-    canvas.draw(background, box_x - 3, box_y - 4, TRAINER_BOX_W + 6, TRAINER_BOX_H + 8)
+    canvas.draw(
+        ui.atlas("Professions-background-summarylist"),
+        box_x - 3,
+        box_y - 4,
+        TRAINER_BOX_W + 6,
+        TRAINER_BOX_H + 8,
+    )
     canvas.nine_slice(INSET_FRAME_LAYOUT, x, y, TRAINER_INSET_W, TRAINER_INSET_H)
     top = box_y + 1  # the view's padding: 1 top, 1 left
-    for service in scene_data["trainer"]:
+    rows = scene_data["trainer"]
+    rule = ui.atlas("Options_HorizontalDivider")
+    for index, service in enumerate(rows):
         trainer_row(canvas, box_x + 1, top, service)
         top += TRAINER_ROW_H
+        # The professions window's own rule between list rows, as the crafting page splits its list.
+        if index < len(rows) - 1:
+            canvas.draw(rule, box_x + 1, top - 1, TRAINER_ROW_W, 1, NORMAL)
     return scene(ui, [(canvas, 0, 0)])
 
 

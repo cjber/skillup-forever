@@ -94,8 +94,8 @@ L["Craft %d× %s"] = "제작 %d× %s"
 L["Craft %s"] = "%s 제작"
 L["Craft next"] = "다음 제작"
 L["Crafted gear"] = "제작 장비"
-L["The tracker column steps aside for EQ Objective Tracker."] =
-	"추적기 열이 EQ Objective Tracker를 피해 자리를 비웁니다." -- mt
+L["The skill bar and the selected gear slot use the game's current art."] =
+	"The skill bar and the selected gear slot use the game's current art."
 L["Crafts"] = "제작 횟수"
 L["Don't count it"] = "반영 안 함"
 L["Don't suggest this again"] = "다시 제안하지 않기"

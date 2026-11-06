@@ -97,8 +97,8 @@ L["Craft %d× %s"] = "Создать %d× %s"
 L["Craft %s"] = "Создать %s"
 L["Craft next"] = "Создать следующее"
 L["Crafted gear"] = "Созданное снаряжение"
-L["The tracker column steps aside for EQ Objective Tracker."] =
-	"Колонка трекера уступает место EQ Objective Tracker." -- mt
+L["The skill bar and the selected gear slot use the game's current art."] =
+	"The skill bar and the selected gear slot use the game's current art."
 L["Crafts"] = "Созданий"
 L["Don't count it"] = "Не учитывать"
 L["Don't suggest this again"] = "Больше не предлагать"

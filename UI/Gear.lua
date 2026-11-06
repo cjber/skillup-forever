@@ -589,9 +589,9 @@ local function CreateSlotButton(inset, index)
 	button.mark:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 3, -3)
 	-- art-ok: the square button highlight over a square ICON button
 	button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
-	-- The stock checked highlight, blended so the icon under it stays readable.
+	-- The professions window's square-slot glow, blended so the icon under it stays readable.
 	button.select = button:CreateTexture(nil, "OVERLAY")
-	button.select:SetTexture("Interface\\Buttons\\CheckButtonHilight") -- art-ok: square art over a square ICON button
+	button.select:SetAtlas("Profession-square-frame-glow") -- art-ok: a square glow over a square ICON button
 	button.select:SetBlendMode("ADD")
 	button.select:SetAllPoints()
 	button:SetScript("OnClick", function()

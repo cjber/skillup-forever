@@ -91,7 +91,8 @@ L["Craft %d× %s"] = "製造%d× %s"
 L["Craft %s"] = "製造%s"
 L["Craft next"] = "製造下一個"
 L["Crafted gear"] = "製造裝備"
-L["The tracker column steps aside for EQ Objective Tracker."] = "追蹤欄避開 EQ 目標追蹤器。" -- mt
+L["The skill bar and the selected gear slot use the game's current art."] =
+	"The skill bar and the selected gear slot use the game's current art."
 L["Crafts"] = "製造次數"
 L["Don't count it"] = "不計入"
 L["Don't suggest this again"] = "不再推薦"

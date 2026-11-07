@@ -461,8 +461,6 @@ L["Forever standing"] = "Forever 总排名"
 L["Forever: %s overall"] = "Forever：总计 %s"
 L["Forever: %s overall this week"] = "Forever：本周总计 %s"
 L["No one has reported yet."] = "还没有人上报。"
-L["On by default. Everyone running a Forever addon shares unless they turn this off. Turning it off stops sending and receiving totals and hides other players; local observations stay."] =
-	"默认开启。所有使用 Forever 插件的玩家都会共享，除非将其关闭。关闭后会停止发送和接收总数，并隐藏其他玩家；本地观察记录会保留。"
 L["Others' values are player-reported."] = "其他玩家的数值由玩家自行上报。"
 L["Overall"] = "总览"
 L["Player"] = "玩家"

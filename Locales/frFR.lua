@@ -476,8 +476,6 @@ L["Forever standing"] = "Classement Forever" -- mt
 L["Forever: %s overall"] = "Forever : %s au total" -- mt
 L["Forever: %s overall this week"] = "Forever : %s au total cette semaine" -- mt
 L["No one has reported yet."] = "Personne n'a encore rien signalé." -- mt
-L["On by default. Everyone running a Forever addon shares unless they turn this off. Turning it off stops sending and receiving totals and hides other players; local observations stay."] =
-	"Activé par défaut. Tous les joueurs ayant un addon Forever partagent, sauf s'ils désactivent cette option. La désactiver arrête l'envoi et la réception des totaux et masque les autres joueurs ; les observations locales sont conservées." -- mt
 L["Others' values are player-reported."] = "Les valeurs des autres sont déclarées par les joueurs." -- mt
 L["Overall"] = "Général" -- mt
 L["Player"] = "Joueur" -- mt

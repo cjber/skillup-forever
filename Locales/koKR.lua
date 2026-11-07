@@ -477,8 +477,6 @@ L["Forever standing"] = "Forever 종합 순위"
 L["Forever: %s overall"] = "Forever: 종합 %s"
 L["Forever: %s overall this week"] = "Forever: 이번 주 종합 %s"
 L["No one has reported yet."] = "아직 아무도 보고하지 않았습니다."
-L["On by default. Everyone running a Forever addon shares unless they turn this off. Turning it off stops sending and receiving totals and hides other players; local observations stay."] =
-	"기본으로 켜져 있습니다. Forever 애드온을 사용하는 모든 플레이어는 끄지 않는 한 공유합니다. 끄면 합계를 보내고 받는 것이 중단되고 다른 플레이어가 숨겨지며, 로컬 관찰 기록은 유지됩니다."
 L["Others' values are player-reported."] = "다른 플레이어의 값은 플레이어가 보고한 것입니다."
 L["Overall"] = "종합"
 L["Player"] = "플레이어"

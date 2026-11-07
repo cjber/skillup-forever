@@ -24,6 +24,17 @@ local function RecipeName(recipeID)
 	return C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
 end
 
+---@param itemID integer
+---@return string
+local function ItemName(itemID)
+	local name = C_Item.GetItemNameByID(itemID)
+	if not name then
+		C_Item.RequestLoadItemDataByID(itemID)
+		name = string.format(L["item %d"], itemID)
+	end
+	return name
+end
+
 ---@param copper number
 ---@return string
 local function Money(copper)
@@ -197,13 +208,23 @@ end
 ---@param profession SkillUpProfession
 ---@param step SkillUpPlanTraining
 local function TrainTooltip(tooltip, profession, step)
-	RecipeTitle(tooltip, step.recipeID, string.format(L["Train %s"], RecipeName(step.recipeID)))
-	GameTooltip_AddHighlightLine(tooltip, string.format(L["Taught by %s trainers."], profession.name))
-	AddLine(tooltip, L["Fee"], Money(step.fee))
+	if step.scroll then
+		tooltip:SetItemByID(step.scroll)
+		GameTooltip_AddBlankLineToTooltip(tooltip)
+		GameTooltip_AddNormalLine(tooltip, string.format(L["Buy %s"], ItemName(step.scroll)))
+	else
+		RecipeTitle(tooltip, step.recipeID, string.format(L["Train %s"], RecipeName(step.recipeID)))
+		GameTooltip_AddHighlightLine(tooltip, string.format(L["Taught by %s trainers."], profession.name))
+	end
+	AddLine(tooltip, step.scroll and L["Price"] or L["Fee"], Money(step.fee))
 	RequiresLine(tooltip, profession, step.reqSkill)
 	AddLine(tooltip, L["First used at"], tostring(step.usedAt))
 	AddBands(tooltip, profession, step.recipeID)
-	ns.AddNearest(tooltip, L["Nearest trainer"], ns.NearestTrainer(profession, step.cap, true))
+	ns.AddNearest(
+		tooltip,
+		step.scroll and L["Nearest vendor"] or L["Nearest trainer"],
+		step.scroll and ns.NearestScrollVendor(step.recipeID, true) or ns.NearestTrainer(profession, step.cap, true)
+	)
 	AddSkipHint(tooltip)
 end
 
@@ -246,6 +267,18 @@ end
 local function TrainerClick(profession, cap)
 	return function()
 		local npcID = ns.NearestTrainer(profession, cap, true)
+		if npcID then
+			ns.SetWaypoint(npcID)
+		end
+	end
+end
+
+-- A waypoint to the nearest vendor selling a recipe's scroll.
+---@param recipeID integer
+---@return fun()
+local function ScrollClick(recipeID)
+	return function()
+		local npcID = ns.NearestScrollVendor(recipeID, true)
 		if npcID then
 			ns.SetWaypoint(npcID)
 		end
@@ -515,11 +548,13 @@ local function RenderRoute(list, plan)
 				click = not held and RankClick(profession, rank) or nil,
 			})
 		elseif training then
+			local scroll = training.scroll
 			list:Add({
-				icon = TRAIN_ICON,
-				text = string.format(L["Train %s"], RecipeName(training.recipeID)),
+				icon = scroll and C_Item.GetItemIconByID(scroll) or TRAIN_ICON,
+				text = scroll and string.format(L["Buy %s"], ItemName(scroll))
+					or string.format(L["Train %s"], RecipeName(training.recipeID)),
 				detail = string.format(
-					L["Fee %s, requires %s (%d)"],
+					scroll and L["Price %s, requires %s (%d)"] or L["Fee %s, requires %s (%d)"],
 					Money(training.fee),
 					profession.name,
 					training.reqSkill
@@ -528,7 +563,7 @@ local function RenderRoute(list, plan)
 				tooltip = function(tooltip)
 					TrainTooltip(tooltip, profession, training)
 				end,
-				click = TrainerClick(profession, training.cap),
+				click = scroll and ScrollClick(training.recipeID) or TrainerClick(profession, training.cap),
 				menu = RecipeMenu(training.recipeID),
 			})
 		elseif craft then
@@ -574,6 +609,7 @@ local function RenderRoute(list, plan)
 end
 
 local SOURCE_TEXT = { gather = L["gather"], vendor = L["vendor"], auction = L["AH"], unknown = L["no price"] }
+local LIMITED_VENDOR = L["vendor, limited stock"]
 
 ---@param tooltip GameTooltip
 ---@param item SkillUpNeededItem
@@ -604,6 +640,9 @@ local function ReagentTooltip(tooltip, item)
 		AddLine(tooltip, L["To buy"], Money(price.copper * (item.need - have)))
 	end
 	if item.source == "vendor" then
+		if item.limited then
+			GameTooltip_AddNormalLine(tooltip, string.format(L["Sells %d at a time"], item.limited))
+		end
 		ns.AddNearest(tooltip, L["Nearest vendor"], ns.NearestVendor(item.itemID, true))
 	end
 end
@@ -645,11 +684,12 @@ local function RenderReagents(list, reagents)
 			name = string.format(L["item %d"], item.itemID)
 		end
 		local have = ns.Have(item.itemID)
+		local sourceText = item.limited and LIMITED_VENDOR or SOURCE_TEXT[item.source]
 		list:Add({
 			icon = C_Item.GetItemIconByID(item.itemID) or 134400,
 			iconColor = QualityColor(item.itemID),
 			text = name,
-			detail = string.format(L["%s, %d/%d"], SOURCE_TEXT[item.source], math.min(have, item.need), item.need),
+			detail = string.format(L["%s, %d/%d"], sourceText, math.min(have, item.need), item.need),
 			detailColor = have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
 			tooltip = function(tooltip)
 				ReagentTooltip(tooltip, item)

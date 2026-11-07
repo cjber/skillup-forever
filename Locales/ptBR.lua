@@ -66,6 +66,8 @@ L["Auctionator, %s"] = "Auctionator, %s"
 L["Back"] = "Costas"
 L["Beside the Professions window"] = "Ao lado da janela de profissões"
 L["Buy %d %s"] = "Comprar %d %s"
+L["Buy %s"] = "Comprar %s" -- mt
+L["Buy %s at %d"] = "Comprar %s em %d" -- mt
 L["Buy and read %s at %d"] = "Comprar e ler %s em %d"
 L["Buy and read %s at %d (level %d)"] = "Comprar e ler %s em %d (nível %d)"
 L["Buy reagents"] = "Comprar reagentes"
@@ -508,8 +510,10 @@ L["you loot it from creatures, valued at its AH price"] =
 	"você o saqueia de criaturas, avaliado pelo preço de leilão" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"você o saqueia de criaturas, avaliado pelo preço de venda ao comerciante" -- mt
-L["Meat and fish on a Cooking route count as yours to get."] =
-	"A carne e o peixe de uma rota de Culinária contam como obtidos por você." -- mt
 L["Shift-click crafts all %d."] = "Shift-clique cria todos os %d." -- mt
 L["The game's Craft button is not ready for this recipe."] =
 	"O botão Criar do jogo não está pronto para esta receita." -- mt
+L["vendor, limited stock"] = "vendedor, estoque limitado" -- mt
+L["Sells %d at a time"] = "Vende %d por vez" -- mt
+L["Recipes you have not learned can sit in the recipe list too."] =
+	"Receitas que você ainda não aprendeu também podem aparecer na lista de receitas." -- mt

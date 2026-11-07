@@ -545,12 +545,28 @@ local function TrainingSteps(plan)
 			}
 		elseif training then
 			local name = C_Spell.GetSpellName(training.recipeID) or string.format(L["recipe %d"], training.recipeID)
-			steps[#steps + 1] = {
-				text = string.format(L["Train %s at %d"], name, training.usedAt),
-				nearest = function(byTravel)
-					return ns.NearestTrainer(profession, training.cap, byTravel), L["Nearest trainer"]
-				end,
-			}
+			if training.scroll then
+				local scroll = training.scroll
+				---@cast scroll integer
+				local scrollName = C_Item.GetItemNameByID(scroll)
+				if not scrollName then
+					C_Item.RequestLoadItemDataByID(scroll)
+					scrollName = string.format(L["item %d"], scroll)
+				end
+				steps[#steps + 1] = {
+					text = string.format(L["Buy %s at %d"], scrollName, training.usedAt),
+					nearest = function(byTravel)
+						return ns.NearestScrollVendor(training.recipeID, byTravel), L["Nearest vendor"]
+					end,
+				}
+			else
+				steps[#steps + 1] = {
+					text = string.format(L["Train %s at %d"], name, training.usedAt),
+					nearest = function(byTravel)
+						return ns.NearestTrainer(profession, training.cap, byTravel), L["Nearest trainer"]
+					end,
+				}
+			end
 		end
 	end
 	return steps

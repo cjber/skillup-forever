@@ -43,6 +43,7 @@
 ---@field Price fun(itemID: integer): SkillUpPrice?
 ---@field PriceSource fun(itemID: integer): SkillUpPriceSource?
 ---@field CanGather fun(itemID: integer): string? The profession name, or "loot" for a reagent creatures drop.
+---@field IsLimitedStock fun(itemID: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
 ---@field ObtainCost fun(itemID: integer): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
 ---@field LiveSchematicsArrived fun(recipeIDs: integer[]): boolean
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
@@ -148,6 +149,7 @@
 ---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource, first?: integer)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
+---@field NearestScrollVendor fun(recipeID: integer, byTravel?: boolean): integer?
 ---@field NearestForRank fun(profession: SkillUpContext, rank: SkillUpRank, byTravel?: boolean): integer?, string
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer, single?: boolean)
 ---@field AddCompanionHint fun(tooltip: GameTooltip, single?: boolean)
@@ -190,6 +192,7 @@
 ---@field ProfessionTrainers table<integer, number[][]>
 ---@field GatheredBy table<integer, integer>
 ---@field LootedFrom table<integer, boolean> Reagents a creature drops, which any character can loot.
+---@field LimitedStock table<integer, table<integer, number>> Per item, the vendors that limit its stock and by how much.
 ---@field NodeSkills table<string, number[]> { gathering skill line, required skill } per enUS herb or ore node name.
 ---@field ScrollDrops table<integer, number[][]>
 ---@field WorldDrops table<integer, boolean>
@@ -236,6 +239,7 @@
 ---@field trainer table<integer, table<integer, number[]>> { fee, required skill, required skill the trainer showed? }
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
+---@field stock table<integer, table<integer, number|false>> Per item, per vendor: the most it was seen selling at a time, false for unlimited.
 ---@field sellers table<integer, SkillUpSeller>
 ---@field builds string[] The client builds this install has run with, oldest first.
 
@@ -338,8 +342,9 @@ SkillUpForeverDB = nil
 ---@field recipeID integer
 ---@field fee number
 ---@field usedAt number Where the plan first crafts it.
----@field reqSkill number What the trainer wants for it.
+---@field reqSkill number What the trainer or scroll wants for it.
 ---@field cap number The cap a trainer must teach to for it.
+---@field scroll? integer The scroll a vendor sells that teaches it, when no trainer does.
 
 -- One of a rank to train, a recipe to train or a craft, in the order they are walked.
 ---@class SkillUpRouteStep
@@ -476,6 +481,7 @@ SkillUpForeverDB = nil
 ---@field itemID integer
 ---@field need number
 ---@field source SkillUpShoppingSource
+---@field limited? number How many the nearest vendor sells at a time, when it limits its stock.
 
 ---@class SkillUpTracked
 ---@field plan SkillUpPlan

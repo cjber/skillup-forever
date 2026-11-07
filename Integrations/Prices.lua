@@ -176,6 +176,33 @@ function ns.PriceSource(itemID)
 	return price and price.source
 end
 
+-- The stock the vendor the route sends the player to has of this item, when it limits it; nil when it does
+-- not, or when nobody is known to sell it. What the window showed that vendor sell replaces the bundled
+-- limit, and false there means unlimited. What the route says instead of implying a reagent list can be
+-- bought in one visit (#358).
+---@param itemID integer
+---@return number?
+function ns.IsLimitedStock(itemID)
+	local seen = ns.db.stock and ns.db.stock[itemID]
+	local bundled = ns.LimitedStock and ns.LimitedStock[itemID]
+	if not (seen or bundled) then
+		return nil
+	end
+	local vendor = ns.NearestVendor(itemID, true)
+	if not vendor then
+		return nil
+	end
+	if seen then
+		local stock = seen[vendor]
+		if stock == false then
+			return nil
+		elseif stock ~= nil then
+			return stock
+		end
+	end
+	return bundled and bundled[vendor] or nil
+end
+
 -- The client's own schematic, basic reagents only: optional and finishing slots don't have to be filled.
 -- Nil when it has none with reagents, as for a recipe outside the open profession.
 ---@param recipeID integer
@@ -473,33 +500,72 @@ function ns.NetCost(recipeID)
 	return net
 end
 
+-- The open merchant's NPC id, from its creature GUID: Creature-0-1-0-0-5001-0000000001. A GUID the client
+-- keeps secret names no merchant.
+---@return integer?
+local function MerchantNPC()
+	local guid = ns.Readable(UnitGUID("npc"))
+	return guid and tonumber(guid:match("^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)"))
+end
+
+-- What the open window shows this vendor sells at a time: the highest count seen as it restocks, or false
+-- once it shows no limit. A count of zero says nothing about the stock, so it is not kept.
+---@param itemID integer
+---@param npcID integer
+---@param numAvailable integer
+---@return boolean changed
+local function RecordStock(itemID, npcID, numAvailable)
+	local vendors = ns.db.stock[itemID]
+	if not vendors then
+		vendors = {}
+		ns.db.stock[itemID] = vendors
+	end
+	local seen = vendors[npcID]
+	if numAvailable < 0 then
+		if seen ~= false then
+			vendors[npcID] = false
+			return true
+		end
+		return false
+	elseif numAvailable > 0 and seen ~= false and (type(seen) ~= "number" or numAvailable > seen) then
+		vendors[npcID] = numAvailable
+		return true
+	end
+	return false
+end
+
 -- Vendor prices: recorded per unit for anything bought with plain money. Without a stack size the
--- unit price isn't known, so the last one seen stays. The vendor is noted as a seller of what it shows.
+-- unit price isn't known, so the last one seen stays. The vendor is noted as a seller of what it shows, and
+-- as the latest word on its stock: what the window says replaces the bundled limit for that vendor.
 ---@return SkillUpChange?
 local function RecordMerchant()
-	local changed, sold = false, {}
+	local changed, stocked, sold = false, false, {}
+	local npcID = MerchantNPC()
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
 		local info = C_MerchantFrame.GetItemInfo(index)
 		sold[#sold + 1] = itemID
-		if
-			itemID
-			and info
-			and info.price
-			and info.price > 0
-			and info.stackCount
-			and info.stackCount > 0
-			and not info.hasExtendedCost
-		then
-			local each = info.price / info.stackCount
-			if ns.db.vendor[itemID] ~= each then
-				ns.db.vendor[itemID] = each
-				changed = true
+		if itemID and info then
+			if npcID and type(info.numAvailable) == "number" and RecordStock(itemID, npcID, info.numAvailable) then
+				stocked = true
+			end
+			if
+				info.price
+				and info.price > 0
+				and info.stackCount
+				and info.stackCount > 0
+				and not info.hasExtendedCost
+			then
+				local each = info.price / info.stackCount
+				if ns.db.vendor[itemID] ~= each then
+					ns.db.vendor[itemID] = each
+					changed = true
+				end
 			end
 		end
 	end
 	local seen = ns.SeeVendor(sold)
-	return changed and "prices" or seen and "sources" or nil
+	return changed and "prices" or (seen or stocked) and "sources" or nil
 end
 
 local function PricesChanged()
@@ -509,6 +575,9 @@ end
 function ns.InitPrices()
 	if type(ns.db.vendor) ~= "table" then
 		ns.db.vendor = {}
+	end
+	if type(ns.db.stock) ~= "table" then
+		ns.db.stock = {}
 	end
 	ns.WhenStale("schematics", function()
 		-- A schematic the client gave stays: switching profession tabs must not send every other profession

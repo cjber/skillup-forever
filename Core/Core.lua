@@ -33,6 +33,8 @@ local DEFAULTS = {
 	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (UI/ForeverFamily.lua)
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
+	-- [itemID] = { [npcID] = count or false }: the most a vendor was seen selling at a time, false for unlimited
+	stock = {},
 	-- [npcID] = { name, side, map, x, y, build, items = { [itemID] = true } }: vendors seen selling a reagent or scroll
 	sellers = {},
 	-- The client builds this install has run with, oldest first: a vendor stops being named two builds
@@ -80,7 +82,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Meat and fish on a Cooking route count as yours to get."]
+ns.WHATS_NEW = L["Recipes you have not learned can sit in the recipe list too."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -132,6 +134,22 @@ local function LoadDB()
 	for _, seller in pairs(loaded.sellers) do
 		if type(seller) == "table" and seller.build == nil then
 			seller.build = build
+		end
+	end
+	-- Stock seen at a vendor is how many it sells at a time, or false for unlimited; a row for no item, a
+	-- count that is not a positive whole number and anything else is forgotten.
+	for itemID, vendors in pairs(loaded.stock) do
+		if type(itemID) ~= "number" or type(vendors) ~= "table" then
+			loaded.stock[itemID] = nil
+		else
+			for npcID, stock in pairs(vendors) do
+				if
+					type(npcID) ~= "number"
+					or not (stock == false or (type(stock) == "number" and stock > 0 and stock % 1 == 0))
+				then
+					vendors[npcID] = nil
+				end
+			end
 		end
 	end
 	-- A choice the menu no longer offers (or a typo) goes back to its default.

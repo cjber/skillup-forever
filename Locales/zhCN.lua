@@ -65,6 +65,8 @@ L["Auctionator, %s"] = "Auctionator，%s"
 L["Back"] = "背部"
 L["Beside the Professions window"] = "专业窗口旁边"
 L["Buy %d %s"] = "购买%d个%s"
+L["Buy %s"] = "购买%s" -- mt
+L["Buy %s at %d"] = "在%2$d购买%1$s" -- mt
 L["Buy and read %s at %d"] = "购买并阅读%s（技能%d）"
 L["Buy and read %s at %d (level %d)"] = "购买并阅读%s（技能%d，等级%d）"
 L["Buy reagents"] = "购买材料"
@@ -498,7 +500,9 @@ L["you loot it from creatures"] = "你从生物身上拾取" -- mt
 L["you loot it from creatures, valued at its AH price"] = "你从生物身上拾取，按拍卖行价格计算" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"你从生物身上拾取，按商人出售价格计算" -- mt
-L["Meat and fish on a Cooking route count as yours to get."] =
-	"烹饪路线上的肉类和鱼类算作你自己获取的。" -- mt
 L["Shift-click crafts all %d."] = "按住Shift点击制造全部%d个。" -- mt
 L["The game's Craft button is not ready for this recipe."] = "游戏自带的制造按钮尚未对这份配方就绪。" -- mt
+L["vendor, limited stock"] = "商人，库存有限" -- mt
+L["Sells %d at a time"] = "每次出售 %d 个" -- mt
+L["Recipes you have not learned can sit in the recipe list too."] =
+	"未学会的配方现在也可以显示在配方列表中。" -- mt

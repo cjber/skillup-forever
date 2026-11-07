@@ -69,6 +69,8 @@ L["Auctionator, %s"] = "Auctionator, %s"
 L["Back"] = "Спина"
 L["Beside the Professions window"] = "Рядом с окном профессий"
 L["Buy %d %s"] = "Купить %d %s"
+L["Buy %s"] = "Купить %s" -- mt
+L["Buy %s at %d"] = "Купить %s на %d" -- mt
 L["Buy and read %s at %d"] = "Купить и прочитать %s на %d"
 L["Buy and read %s at %d (level %d)"] = "Купить и прочитать %s на %d (уровень %d)"
 L["Buy reagents"] = "Купить реагенты"
@@ -538,8 +540,10 @@ L["you loot it from creatures, valued at its AH price"] =
 	"вы выбиваете его из существ, по цене аукциона" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"вы выбиваете его из существ, по цене продажи торговцу" -- mt
-L["Meat and fish on a Cooking route count as yours to get."] =
-	"Мясо и рыба на маршруте Кулинарии считаются добытыми вами." -- mt
 L["Shift-click crafts all %d."] = "Shift-щелчок создает все %d." -- mt
 L["The game's Craft button is not ready for this recipe."] =
 	"Кнопка «Создать» в игре не готова для этого рецепта." -- mt
+L["vendor, limited stock"] = "торговец, ограниченный запас" -- mt
+L["Sells %d at a time"] = "Продаёт по %d за раз" -- mt
+L["Recipes you have not learned can sit in the recipe list too."] =
+	"Невыученные рецепты теперь тоже можно показать в списке рецептов." -- mt

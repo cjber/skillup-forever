@@ -166,6 +166,26 @@ local function Train(profession, text, cap, fee)
 	end or nil
 end
 
+-- A recipe no trainer teaches: buy its scroll from a vendor, and go to that vendor, not a trainer (#358).
+---@param training SkillUpPlanTraining
+---@return SkillUpAPIStep
+---@return (fun(): integer?)?
+local function Scroll(training)
+	local vendor = ns.NearestScrollVendor(training.recipeID)
+	local step = {
+		kind = "train",
+		text = string.format(L["Buy %s"], ItemName(training.scroll)),
+		detail = Detail(vendor, L["Vendor"], training.fee),
+		itemID = training.scroll,
+		spellID = training.recipeID,
+		cost = training.fee > 0 and training.fee or nil,
+		nav = vendor ~= nil,
+	}
+	return step, vendor and function()
+		return ns.NearestScrollVendor(training.recipeID, true)
+	end or nil
+end
+
 -- A rank no trainer teaches: buy its book from a vendor and read it, or only read it when the bags hold it.
 ---@param rank SkillUpRank
 ---@return SkillUpAPIStep
@@ -251,8 +271,13 @@ local function Steps(plan)
 			Add(Train(profession, ns.RankText(rank), rank.cap, rank.fee)) -- multi-value: the step and its picker
 		elseif training then
 			local name = C_Spell.GetSpellName(training.recipeID) or string.format(L["recipe %d"], training.recipeID)
-			local step, pick = Train(profession, string.format(L["Train %s"], name), training.cap, training.fee)
-			step.spellID, step.itemID = training.recipeID, OutputItem(training.recipeID)
+			local step, pick
+			if training.scroll then
+				step, pick = Scroll(training)
+			else
+				step, pick = Train(profession, string.format(L["Train %s"], name), training.cap, training.fee)
+				step.spellID, step.itemID = training.recipeID, OutputItem(training.recipeID)
+			end
 			Add(step, pick)
 		elseif craft then
 			local recipeID = craft.recipeID
@@ -525,8 +550,16 @@ function ns.ShoppingTrip(skillLineID)
 				end
 			end
 		end
-		if plan and plan.steps and plan.steps[1] and plan.steps[1].training then
-			local npcID = ns.NearestTrainer(profession, plan.steps[1].training.cap, true)
+		local first = plan and plan.steps and plan.steps[1] and plan.steps[1].training
+		if first and first.scroll then
+			local npcID = ns.NearestScrollVendor(first.recipeID, true)
+			if npcID then
+				byVendor[npcID] = true
+				vendorItems[npcID] = vendorItems[npcID] or {}
+				vendorItems[npcID][#vendorItems[npcID] + 1] = first.scroll
+			end
+		elseif first then
+			local npcID = ns.NearestTrainer(profession, first.cap, true)
 			if npcID then
 				trainers[npcID] = true
 			end

@@ -459,6 +459,16 @@ function ns.NearestVendor(itemID, byTravel)
 	return found and ns.NearestNPC(found.vendors, byTravel)
 end
 
+-- The nearest vendor of a recipe's scroll, from the catalogue's record of who sells that recipe's scroll;
+-- nil until the profession's sources are read, or for a recipe no vendor sells.
+---@param recipeID integer
+---@param byTravel boolean?
+---@return integer?
+function ns.NearestScrollVendor(recipeID, byTravel)
+	local source = C.Recipe(recipeID)
+	return source and #source.vendors > 0 and ns.NearestNPC(source.vendors, byTravel) or nil
+end
+
 local SHORTEST_PATH = "ShortestPathForever"
 local ADVENTURE_GUIDE = "AdventureGuideForever"
 -- Hint keys are shared by every Forever addon (UI/ForeverFamily.lua), so they start with this addon's folder.

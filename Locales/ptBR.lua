@@ -478,7 +478,5 @@ L["/su share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] = "Compartilhar totais de receitas observadas com guilda e grupo"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Ativado por padrão. Desative para parar de enviar e receber totais e ocultar outros jogadores. As observações locais são mantidas."
-L["You appear once on leaderboards with a two-part name."] =
-	"Com um nome de duas partes, você aparece apenas uma vez na classificação." -- mt
 L["The recipe list fits long recipe names, and says how many you can make beside them."] =
 	"The recipe list fits long recipe names, and says how many you can make beside them."

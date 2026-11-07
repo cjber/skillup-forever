@@ -468,7 +468,5 @@ L["/su share on|off - control sharing with guild and group"] = "/su share on|off
 L["Share observed recipe totals with guild and group"] = "與公會和隊伍共享觀察到的配方總數"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
-L["You appear once on leaderboards with a two-part name."] =
-	"名字由兩部分組成時，你在排行榜上只出現一次。" -- mt
 L["The recipe list fits long recipe names, and says how many you can make beside them."] =
 	"The recipe list fits long recipe names, and says how many you can make beside them."

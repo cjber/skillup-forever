@@ -507,7 +507,5 @@ L["Share observed recipe totals with guild and group"] =
 	"Делиться итогами наблюдений рецептов с гильдией и группой"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
-L["You appear once on leaderboards with a two-part name."] =
-	"С именем из двух частей вы появляетесь в таблице лидеров только один раз." -- mt
 L["The recipe list fits long recipe names, and says how many you can make beside them."] =
 	"The recipe list fits long recipe names, and says how many you can make beside them."

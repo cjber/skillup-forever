@@ -14,6 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [1.0.29] - 2026-11-07
 - **Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item.** A recipe opened from the route page, or from the tracked-reagents menu, was selected in Blizzard's recipe list by this addon, and changing a row setting or the sort did the same through the page's own rebuild. That wrote the list's selection and the recipe's schematic as the addon's, and the game's craft path reads them, so using a potion or turning one essence into another could be refused until `/reload` (#350, thanks Ekallo). The recipe now opens through the game's own `C_TradeSkillUI.OpenRecipe`, and a redraw re-sorts and redraws the rows in place instead of rebuilding Blizzard's page, so no addon code touches the selection.
+- **Skill-up percentages include Working Overtime.** Picking the Legacy talent adds its 10% to every yellow and green recipe's chance, and the route and costs follow (#349).
 - **A locked tracker stays quiet until you hover it.** With *Lock the tracker* on, the Forever column's grip no longer shows the long "tracker is locked" sentence all the time, where it overlapped whatever sat below and ran off screen at an edge. The grip stays blank until the pointer is over it, and the sentence is in its tooltip. Thanks to MrFIXlT for the request (cjber/forever-core#193).
 
 ## [1.0.28] - 2026-11-07

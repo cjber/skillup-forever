@@ -159,6 +159,7 @@ function Client.load(options)
 		professions = {},
 		spells = {}, -- [spellID] = name
 		known = {}, -- [spellID] = true: in the spellbook
+		auras = {}, -- [spellID] = true: an aura the player has
 		items = {}, -- [itemID] = { name, sell }; a missing field is item data the client has not loaded
 		bags = {}, -- [itemID] = count
 		schematics = {}, -- [recipeID] = { reagents = { { itemID, quantity } }, output = itemID }: the open window's
@@ -516,6 +517,14 @@ function Client.load(options)
 	G.C_SpellBook = {
 		IsSpellKnown = function(id)
 			return c.known[id] == true
+		end,
+	}
+	G.IsPlayerSpell = function(id)
+		return c.known[id] == true
+	end
+	G.C_UnitAuras = {
+		GetPlayerAuraBySpellID = function(id)
+			return c.auras[id] and { spellId = id } or nil
 		end,
 	}
 	G.C_TradeSkillUI = {

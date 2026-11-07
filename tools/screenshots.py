@@ -235,8 +235,10 @@ SKILL_LINE_NAMES = {line: name for name, _, _, _, line in PROFESSIONS}
 
 def price(item_id):
     """Integrations/Prices.lua ns.Price in gather mode: free when one of the
-    character's professions gathers it, else vendor (when it's no dearer than
-    the auction house), else auction."""
+    character's professions gathers it or a creature drops it, else vendor (when
+    it's no dearer than the auction house), else auction."""
+    if NS.get("LootedFrom", {}).get(item_id):
+        return {"copper": 0, "source": "gather", "loot": True}
     profession = SKILL_LINE_NAMES.get(NS["GatheredBy"].get(item_id))
     if profession:
         return {"copper": 0, "source": "gather", "profession": profession}
@@ -711,6 +713,15 @@ env = setmetatable({
 	C_Trainer = {
 		GetTrainerType = function()
 			return 1
+		end,
+	},
+	-- The scene's character has not taken the Legacy talent the addon reads for Working Overtime.
+	IsPlayerSpell = function()
+		return false
+	end,
+	C_UnitAuras = {
+		GetPlayerAuraBySpellID = function()
+			return nil
 		end,
 	},
 	C_TooltipInfo = {
@@ -1261,6 +1272,8 @@ def format_row(d):
 
 def source_text(p):
     """UI/Tooltip.lua ns.PriceSourceText, for an Auctionator price seen today."""
+    if p.get("loot"):
+        return "you loot it from creatures"
     if p["source"] == "gather":
         return f"you gather it ({p['profession']})"
     return "vendor" if p["source"] == "vendor" else "Auctionator, today"

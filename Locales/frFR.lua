@@ -1,3 +1,11 @@
+-- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
+-- Lines ending -- mt are machine translated; the others are Brainc3ll's, from Legacy Forever.
+local _, ns = ...
+if GetLocale() ~= "frFR" then
+	return
+end
+local L = ns.L
+
 L["%d %s"] = "%d %s" -- mt
 L["%d crafts to %d, %s"] = "%d fabrications jusqu'à %d, %s" -- mt
 L["%d crafts to %d, %s, at %s"] = "%d fabrications jusqu'à %d, %s, à : %s" -- mt
@@ -152,8 +160,6 @@ L["Not in this route: you chose Not this recipe."] =
 	"Absente de ce parcours : vous avez choisi « Pas cette recette »." -- mt
 L["Not installed"] = "Non installé" -- mt
 L["Not this recipe"] = "Pas cette recette" -- mt
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"Vous ne récoltez rien sur ce parcours, l'option ne change donc rien ici." -- mt
 L["Nothing priced you know skills up past %d."] =
 	"Rien de ce que vous connaissez et qui a un prix ne fait progresser au-delà de %d." -- mt
 L["Nothing to buy for this route."] = "Rien à acheter pour ce parcours." -- mt
@@ -162,10 +168,6 @@ L["Nothing you know skills up past %d."] = "Rien de ce que vous connaissez ne fa
 L["Off hand"] = "Main gauche" -- mt
 L["On"] = "Activé" -- mt
 L["On %s"] = "Sur %s" -- mt
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"Activé : un composant que vous pourriez récolter est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : le récolter ne coûte rien." -- mt
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"Activé : un composant que vous pourriez récolter est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : le récolter coûte sa valeur de vente." -- mt
 L["One line in chat the first time a new version loads."] =
 	"Une ligne dans la discussion au premier chargement d'une nouvelle version." -- mt
 L["Open"] = "Ouvrir"
@@ -500,6 +502,16 @@ L["Not learned · %s"] = "Non apprise · %s" -- mt
 L["Trainer"] = "Maître" -- mt
 L["Recipe item"] = "Recette" -- mt
 L["listing unlearned recipes failed: %s"] = "échec de la liste des recettes non apprises : %s" -- mt
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"Les recettes non apprises peuvent apparaître dans la liste des recettes." -- mt
-L["Skill-up percentages include Working Overtime."] = "Les chances de progression incluent Working Overtime." -- mt
+L["The Forever Leaderboards tab wears a game icon."] = "L'onglet Forever Leaderboards porte une icône du jeu." -- mt
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"Vous ne pouvez rien récolter, pêcher ou piller sur des créatures sur ce parcours, l'option ne change donc rien ici." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"Activé : un composant que vous pourriez récolter, pêcher ou piller sur des créatures est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : vous le procurer vous-même ne coûte rien." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"Activé : un composant que vous pourriez récolter, pêcher ou piller sur des créatures est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : vous le procurer vous-même coûte sa valeur de vente." -- mt
+L["Loot %d %s from creatures"] = "Piller %d %s sur des créatures" -- mt
+L["you loot it from creatures"] = "vous le pillez sur des créatures" -- mt
+L["you loot it from creatures, valued at its AH price"] =
+	"vous le pillez sur des créatures, valorisé à son prix aux enchères" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"vous le pillez sur des créatures, valorisé à son prix de vente au marchand" -- mt

@@ -1,3 +1,10 @@
+-- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
+local _, ns = ...
+if GetLocale() ~= "esMX" then
+	return
+end
+local L = ns.L
+
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d creaciones hasta %d, %s"
 L["%d crafts to %d, %s, at %s"] = "%d creaciones hasta %d, %s, en: %s"
@@ -151,8 +158,6 @@ L["No trainer teaches this rank: a quest does."] = "Ningún instructor enseña e
 L["Not in this route: you chose Not this recipe."] = 'No está en esta ruta: elegiste "Esta receta no".'
 L["Not installed"] = "No instalado"
 L["Not this recipe"] = "Esta receta no"
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"En esta ruta no recoges nada tú, así que la opción no cambia nada."
 L["Nothing priced you know skills up past %d."] = "Nada con precio que conozcas sube la habilidad más allá de %d."
 L["Nothing to buy for this route."] = "Nada que comprar para esta ruta."
 L["Nothing to craft on this route."] = "Nada que crear en esta ruta."
@@ -160,10 +165,6 @@ L["Nothing you know skills up past %d."] = "Nada que conozcas sube la habilidad 
 L["Off hand"] = "Mano izquierda"
 L["On"] = "Activado"
 L["On %s"] = "En %s"
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"Activado: un componente que podrías recoger se valora al precio del vendedor o de la casa de subastas. Desactivado: recogerlo no cuesta nada."
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"Activado: un componente que podrías recoger se valora al precio del vendedor o de la casa de subastas. Desactivado: recogerlo cuesta lo que valdría venderlo."
 L["One line in chat the first time a new version loads."] =
 	"Una línea en el chat la primera vez que se carga una versión nueva."
 L["Open"] = "Abrir"
@@ -498,7 +499,15 @@ L["Not learned · %s"] = "Sin aprender · %s"
 L["Trainer"] = "Instructor"
 L["Recipe item"] = "Receta"
 L["listing unlearned recipes failed: %s"] = "no se pudieron listar las recetas sin aprender: %s"
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"Las recetas sin aprender pueden aparecer en la lista de recetas."
-L["Skill-up percentages include Working Overtime."] =
-	"Los porcentajes de subida de habilidad incluyen Working Overtime." -- mt
+L["The Forever Leaderboards tab wears a game icon."] = "La pestaña Forever Leaderboards lleva un icono del juego." -- mt
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"En esta ruta no puedes recoger, pescar ni saquear de criaturas nada, así que la opción no cambia nada." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"Activado: un componente que podrías recoger, pescar o saquear de criaturas se valora al precio del vendedor o de la casa de subastas. Desactivado: conseguirlo tú mismo no cuesta nada." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"Activado: un componente que podrías recoger, pescar o saquear de criaturas se valora al precio del vendedor o de la casa de subastas. Desactivado: conseguirlo tú mismo cuesta lo que valdría venderlo." -- mt
+L["Loot %d %s from creatures"] = "Saquear %d %s de criaturas" -- mt
+L["you loot it from creatures"] = "lo saqueas de criaturas" -- mt
+L["you loot it from creatures, valued at its AH price"] = "lo saqueas de criaturas, valorado a su precio de subasta" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"lo saqueas de criaturas, valorado a su precio de venta al vendedor" -- mt

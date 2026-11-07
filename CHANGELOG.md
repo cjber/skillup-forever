@@ -11,7 +11,18 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
-- **Recipes you have not learned can sit in the recipe list too.** A new setting, off by default, adds the open profession's unlearned recipes under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks, so what is ahead is in the same list. Unlearned rows cannot be selected or crafted. Thanks to prokn4h for the request.
+
+- **Recipes you have not learned can sit in the recipe list too.** A new setting, off by default, adds the open profession's unlearned recipes under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks, so what is ahead is in the same list. Unlearned rows cannot be selected or crafted. Thanks to prokn4h for the request (cjber/skillup-forever#361).
+- **Meat and fish on a Cooking route count as yours to get.** Fish count as gathered when you know Fishing, and the parts creatures carry (meat, eggs, scales, feathers, venom sacs, elemental essences) count as gathered for every character, so with Buy reagents off they cost nothing and the switch no longer says it changes nothing for a Cooking route. Cloth, herbs and ore are unchanged: cloth is still bought, and herbs and ore still need the profession. A looted reagent's step reads "Loot ... from creatures" (cjber/skillup-forever#367).
+
+## [1.0.30] - 2026-11-07
+
+- **The Forever Leaderboards tab wears a game icon.** SkillUp's tab in the shared window now draws the game's own blacksmithing icon instead of the addon's logo, so it sits beside the overall trophy without a second gold frame. The TOC, minimap and the rest of the addon keep the addon's icon. (cjber/forever-core#180)
+
+## [1.0.29] - 2026-11-07
+- **Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item.** A recipe opened from the route page, or from the tracked-reagents menu, was selected in Blizzard's recipe list by this addon, and changing a row setting or the sort did the same through the page's own rebuild. That wrote the list's selection and the recipe's schematic as the addon's, and the game's craft path reads them, so using a potion or turning one essence into another could be refused until `/reload` (#350, thanks Ekallo). The recipe now opens through the game's own `C_TradeSkillUI.OpenRecipe`, and a redraw re-sorts and redraws the rows in place instead of rebuilding Blizzard's page, so no addon code touches the selection.
+- **Skill-up percentages include Working Overtime.** Picking the Legacy talent adds its 10% to every yellow and green recipe's chance, and the route and costs follow (#349).
+- **A locked tracker stays quiet until you hover it.** With *Lock the tracker* on, the Forever column's grip no longer shows the long "tracker is locked" sentence all the time, where it overlapped whatever sat below and ran off screen at an edge. The grip stays blank until the pointer is over it, and the sentence is in its tooltip. Thanks to MrFIXlT for the request (cjber/forever-core#193).
 
 ## [1.0.28] - 2026-11-07
 - **The reagent prices add up to the Reagents total.** Each reagent line is priced the same way the total counts it - the cheaper of buying the reagent and making it - so a reagent your own recipe makes for less no longer shows its higher purchase price on the line against a lower total (Copper Bars 11s 34c against an 11s 32c total; Heavy Leather 51s against 32s), and a craft that loses money shows its red minus on Net per craft as it already did on Per skill-up. Thanks to derzwiebelritter and trias6657 for the reports (cjber/skillup-forever#360).

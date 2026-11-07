@@ -8,7 +8,7 @@ local Stats = {}
 ns.Stats = Stats
 
 local METRIC = "recipes_observed_learned"
-local ICON = "Interface\\AddOns\\SkillUpForever\\media\\Icon"
+local TAB_ICON = "Interface\\Icons\\Trade_BlackSmithing"
 local cached, count, pending = nil, 0, false
 
 local function Character()
@@ -164,7 +164,7 @@ ns.WhenEvent("PLAYER_LOGIN", Schedule)
 if ns.Leaderboards then
 	ns.Leaderboards:Register("skillup", {
 		title = ns.TITLE,
-		icon = ICON,
+		icon = TAB_ICON,
 		metric = ns.L["Recipes observed"],
 		board = Board,
 		revision = Stats.Revision,

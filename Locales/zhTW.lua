@@ -1,3 +1,10 @@
+-- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
+local _, ns = ...
+if GetLocale() ~= "zhTW" then
+	return
+end
+local L = ns.L
+
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "製造%d次至%d，%s"
 L["%d crafts to %d, %s, at %s"] = "製造%d次至%d，%s，地點：%s"
@@ -147,8 +154,6 @@ L["No trainer teaches this rank: a quest does."] = "沒有訓練師教授此等�
 L["Not in this route: you chose Not this recipe."] = "不在此路線中：你選擇了「不要此配方」。"
 L["Not installed"] = "未安裝"
 L["Not this recipe"] = "不要此配方"
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"此路線中沒有你自己採集的材料，所以此開關對它沒有影響。"
 L["Nothing priced you know skills up past %d."] = "你已知且有價格的配方都無法將技能提升到%d以上。"
 L["Nothing to buy for this route."] = "此路線無需購買任何物品。"
 L["Nothing to craft on this route."] = "此路線無需製造任何物品。"
@@ -156,10 +161,6 @@ L["Nothing you know skills up past %d."] = "你已知的配方都無法將技能
 L["Off hand"] = "副手"
 L["On"] = "開啟"
 L["On %s"] = "在%s"
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"開啟：你可以採集的材料按商人或拍賣場價格計算。關閉：採集不計成本。"
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"開啟：你可以採集的材料按商人或拍賣場價格計算。關閉：採集按其售價計算。"
 L["One line in chat the first time a new version loads."] = "新版本首次載入時在聊天框顯示一行。"
 L["Open"] = "開啟"
 L["Open %s to craft from here."] = "開啟%s以便在此製造。"
@@ -487,6 +488,15 @@ L["Not learned · %s"] = "未學習 · %s"
 L["Trainer"] = "訓練師"
 L["Recipe item"] = "配方"
 L["listing unlearned recipes failed: %s"] = "列出未學習的配方失敗：%s"
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"未學習的配方也可以顯示在配方列表中。"
-L["Skill-up percentages include Working Overtime."] = "技能提升機率計入 Working Overtime。" -- mt
+L["The Forever Leaderboards tab wears a game icon."] = "Forever Leaderboards 分頁使用遊戲內圖示。" -- mt
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"這條路線沒有你可以採集、釣魚或從生物身上拾取的東西，所以此開關不會改變什麼。" -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"開啟時，你可以採集、釣魚或從生物身上拾取的素材按商人或拍賣場價格計算。關閉時，自己取得不花費任何費用。" -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"開啟時，你可以採集、釣魚或從生物身上拾取的素材按商人或拍賣場價格計算。關閉時，自己取得需要按出售價值計算。" -- mt
+L["Loot %d %s from creatures"] = "從生物身上拾取 %d 個%s" -- mt
+L["you loot it from creatures"] = "你從生物身上拾取" -- mt
+L["you loot it from creatures, valued at its AH price"] = "你從生物身上拾取，按拍賣場價格計算" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"你從生物身上拾取，按商人出售價格計算" -- mt

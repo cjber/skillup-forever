@@ -1,3 +1,10 @@
+-- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
+local _, ns = ...
+if GetLocale() ~= "ruRU" then
+	return
+end
+local L = ns.L
+
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d созд. до %d, %s"
 L["%d crafts to %d, %s, at %s"] = "%d созд. до %d, %s, у: %s"
@@ -160,8 +167,6 @@ L["Not in this route: you chose Not this recipe."] =
 	"Не в маршруте: вы выбрали «Не этот рецепт»."
 L["Not installed"] = "Не установлено"
 L["Not this recipe"] = "Не этот рецепт"
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"На этом маршруте вы ничего не добываете сами, поэтому переключатель здесь ничего не меняет."
 L["Nothing priced you know skills up past %d."] =
 	"Ничто известное вам с ценой не повышает навык выше %d."
 L["Nothing to buy for this route."] = "Для этого маршрута покупать нечего."
@@ -171,10 +176,6 @@ L["Nothing you know skills up past %d."] =
 L["Off hand"] = "Левая рука"
 L["On"] = "Вкл."
 L["On %s"] = "На %s"
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"Вкл.: реагент, который вы могли бы добыть, оценивается по цене торговца или аукциона. Выкл.: добыча ничего не стоит."
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"Вкл.: реагент, который вы могли бы добыть, оценивается по цене торговца или аукциона. Выкл.: добыча стоит столько, сколько принесла бы продажа."
 L["One line in chat the first time a new version loads."] =
 	"Одна строка в чате при первой загрузке новой версии."
 L["Open"] = "Открыть"
@@ -525,7 +526,17 @@ L["Trainer"] = "Учитель"
 L["Recipe item"] = "Рецепт"
 L["listing unlearned recipes failed: %s"] =
 	"не удалось показать неизученные рецепты: %s"
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"Неизученные рецепты могут отображаться в списке рецептов."
-L["Skill-up percentages include Working Overtime."] =
-	"Шансы повышения навыка учитывают Working Overtime." -- mt
+L["The Forever Leaderboards tab wears a game icon."] =
+	"Вкладка Forever Leaderboards использует игровую иконку." -- mt
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"На этом маршруте вам нечего собрать, выловить или выбить из существ, поэтому переключатель здесь ничего не меняет." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"Включено: реагент, который вы могли бы собрать, выловить или выбить из существ, считается по цене торговца или аукциона. Выключено: добыть его самому ничего не стоит." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"Включено: реагент, который вы могли бы собрать, выловить или выбить из существ, считается по цене торговца или аукциона. Выключено: добыть его самому стоит столько, сколько дала бы его продажа." -- mt
+L["Loot %d %s from creatures"] = "Выбить %d %s из существ" -- mt
+L["you loot it from creatures"] = "вы выбиваете его из существ" -- mt
+L["you loot it from creatures, valued at its AH price"] =
+	"вы выбиваете его из существ, по цене аукциона" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"вы выбиваете его из существ, по цене продажи торговцу" -- mt

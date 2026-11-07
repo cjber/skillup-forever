@@ -117,7 +117,8 @@ local function Acquire(itemID, count)
 	if price and price.source == "gather" then
 		return {
 			kind = "gather",
-			text = string.format(L["Gather %d %s"], count, name),
+			text = price.loot and string.format(L["Loot %d %s from creatures"], count, name)
+				or string.format(L["Gather %d %s"], count, name),
 			detail = price.profession,
 			itemID = itemID,
 			count = count,

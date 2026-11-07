@@ -82,7 +82,6 @@ AuctionHouseFrame = nil
 ---@field LockedIcon Texture
 ---@field SkillUps FontString
 ---@field Label FontString
----@field SkillUpText? FontString
 ---@field subText FontString
 
 ---@class SkillUpRecipeNodeData
@@ -114,6 +113,7 @@ function CreateTreeDataProvider() end
 ---@class SkillUpRecipeScrollBox : SkillUpScrollBox, CallbackRegistryMixin
 ---@field GetDataProvider fun(self: SkillUpRecipeScrollBox): SkillUpTreeProvider?
 ---@field SetDataProvider fun(self: SkillUpRecipeScrollBox, provider: SkillUpTreeProvider, retain?: boolean)
+---@field ForEachFrame fun(self: SkillUpRecipeScrollBox, callback: fun(frame: SkillUpRecipeRow, elementData: SkillUpTreeNode))
 
 ---@class SkillUpScrollBar : Frame
 ---@field SetHideIfUnscrollable fun(self: SkillUpScrollBar, hide: boolean)

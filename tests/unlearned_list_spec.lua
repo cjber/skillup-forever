@@ -288,15 +288,21 @@ local function Row()
 		},
 		mouse = true,
 		width = 276,
+		texts = {},
 	}
 	function row:GetWidth()
 		return self.width
 	end
-	function row.CreateFontString()
-		return Font()
+	function row:CreateFontString()
+		local text = Font()
+		self.texts[#self.texts + 1] = text
+		return text
 	end
 	function row:EnableMouse(value)
 		self.mouse = value
+	end
+	function row:GetText()
+		return self.texts[#self.texts]
 	end
 	return row
 end
@@ -319,7 +325,7 @@ decorate(ns, row, {
 		}
 	end,
 })
-assert(row.SkillUpText.text == "Not learned · Trainer 60", "the row says where and at what skill")
+assert(row:GetText().text == "Not learned · Trainer 60", "the row says where and at what skill")
 assert(row.Count.shown == false, "an unlearned row has no craftable count")
 assert(row.mouse == false, "and takes no click")
 
@@ -330,7 +336,7 @@ decorate(ns, row, {
 	end,
 })
 assert(row.mouse == true, "a learned row takes clicks")
-assert(row.SkillUpText.text == "50%", "and shows the skill-up text")
+assert(row:GetText().text == "50%", "and shows the skill-up text")
 
 -- With the row text off, an unlearned row still says it is not learned.
 ns.db.showRowText = false
@@ -352,6 +358,6 @@ decorate(ns, row, {
 		}
 	end,
 })
-assert(row.SkillUpText.shown and row.SkillUpText.text == "Not learned · Recipe item 80", "the marker stays")
+assert(row:GetText().shown and row:GetText().text == "Not learned · Recipe item 80", "the marker stays")
 
 print("unlearned_list_spec: setting, categories, dedupe, width, marker, source and click: ok")

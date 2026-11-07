@@ -1,3 +1,10 @@
+-- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
+local _, ns = ...
+if GetLocale() ~= "deDE" then
+	return
+end
+local L = ns.L
+
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d-mal herstellen bis %d, %s"
 L["%d crafts to %d, %s, at %s"] = "%d-mal herstellen bis %d, %s, an: %s"
@@ -154,8 +161,6 @@ L["Not in this route: you chose Not this recipe."] =
 	"Nicht in dieser Route: Ihr habt „Nicht dieses Rezept“ gewählt."
 L["Not installed"] = "Nicht installiert"
 L["Not this recipe"] = "Nicht dieses Rezept"
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"Auf dieser Route sammelt Ihr nichts selbst, der Schalter ändert hier also nichts."
 L["Nothing priced you know skills up past %d."] = "Nichts Bepreistes, das Ihr kennt, bringt Fertigkeit über %d."
 L["Nothing to buy for this route."] = "Für diese Route ist nichts zu kaufen."
 L["Nothing to craft on this route."] = "Auf dieser Route ist nichts herzustellen."
@@ -163,10 +168,6 @@ L["Nothing you know skills up past %d."] = "Nichts, das Ihr kennt, bringt Fertig
 L["Off hand"] = "Schildhand"
 L["On"] = "An"
 L["On %s"] = "Bei %s"
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"An: Ein Reagenz, das Ihr sammeln könntet, wird zum Händler- oder Auktionspreis gerechnet. Aus: Sammeln kostet nichts."
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"An: Ein Reagenz, das Ihr sammeln könntet, wird zum Händler- oder Auktionspreis gerechnet. Aus: Sammeln kostet seinen Verkaufswert."
 L["One line in chat the first time a new version loads."] =
 	"Eine Chatzeile, wenn eine neue Version zum ersten Mal lädt."
 L["Open"] = "Öffnen"
@@ -492,6 +493,15 @@ L["Not learned · %s"] = "Nicht erlernt · %s"
 L["Trainer"] = "Lehrer"
 L["Recipe item"] = "Rezept"
 L["listing unlearned recipes failed: %s"] = "Auflisten nicht erlernter Rezepte fehlgeschlagen: %s"
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"Nicht erlernte Rezepte können in der Rezeptliste stehen."
-L["Skill-up percentages include Working Overtime."] = "Die Skill-up-Chancen berücksichtigen Working Overtime." -- mt
+L["The Forever Leaderboards tab wears a game icon."] = "Die Registerkarte Forever Leaderboards trägt ein Spielsymbol." -- mt
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"Auf dieser Route könnt Ihr nichts sammeln, fischen oder von Kreaturen erbeuten, der Schalter ändert hier also nichts." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"An: Ein Reagenz, das Ihr sammeln, fischen oder von Kreaturen erbeuten könntet, wird zum Händler- oder Auktionspreis gerechnet. Aus: Es selbst zu besorgen kostet nichts." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"An: Ein Reagenz, das Ihr sammeln, fischen oder von Kreaturen erbeuten könntet, wird zum Händler- oder Auktionspreis gerechnet. Aus: Es selbst zu besorgen kostet seinen Verkaufswert." -- mt
+L["Loot %d %s from creatures"] = "%d %s von Kreaturen erbeuten" -- mt
+L["you loot it from creatures"] = "Ihr erbeutet es von Kreaturen" -- mt
+L["you loot it from creatures, valued at its AH price"] = "Ihr erbeutet es von Kreaturen, zum Auktionspreis bewertet" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"Ihr erbeutet es von Kreaturen, zum Händlerverkaufspreis bewertet" -- mt

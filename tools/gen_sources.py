@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Generate what neither QuestieDB nor AtlasLoot holds about where recipes come from, for the pinned Forever
 client (stdlib only): a scroll's named drops and their chances, the scrolls that are world drops, which NPC
-trains a profession and how far, and which reagents a gathering skill yields. Who sells what, the quests, and
-every NPC's name and place are read in game from the player's QuestieDB and AtlasLoot."""
+trains a profession and how far, which reagents a gathering skill yields, and which reagents creatures drop
+often enough to loot. Who sells what, the quests, and every NPC's name and place are read in game from the
+player's QuestieDB and AtlasLoot."""
 
 import argparse
 import re
@@ -29,9 +30,16 @@ REAGENT = re.compile(r"itemID = (\d+), quantity")
 LOCK_KEY_SKILL = "2"
 LOCK_SKILLS = {"2": 182, "3": 186}
 SKINNING = 393
+FISHING = 356
 CHEST = "3"  # gameobject type; data0 is its lock, data1 its loot
 # Below this, a gathered item is a lucky find (gems in veins), not something to plan on.
 GATHER_CHANCE = 10
+# A creature's own part is a reagent, trade good or miscellaneous item; a potion, drink or recipe scroll is not.
+LOOT_CLASSES = {"5", "7", "15"}
+# Something this many creatures drop is farmable; one boss's or quest NPC's drop is a one-off.
+LOOT_CREATURES = 3
+# Random humanoid drops every Tailoring and First Aid route buys; counting them free would zero those routes.
+CLOTH = {2589, 2592, 4306, 4338, 14047, 14256}
 # A group's explicit chances may not sum past 100; the server allows this much rounding before it objects.
 GROUP_CHANCE = 101
 RECIPE_CLASS = "9"
@@ -43,6 +51,7 @@ TABLES = (
     "gameobject_template",
     "gameobject_loot_template",
     "skinning_loot_template",
+    "fishing_loot_template",
     "npc_trainer",
 )
 # A scroll this many creatures drop is a world drop, not worth naming three of them. Measured:
@@ -71,7 +80,12 @@ def lock_requirements(locks):
 
 
 def gathered(tables, locks, items):
-    """[reagent] = the gathering skill line that yields it at least GATHER_CHANCE% of the time."""
+    """[reagent] = the gathering skill line that yields it at least GATHER_CHANCE% of the time.
+
+    Herb and ore nodes, skinning and fishing all yield reagents. A reagent several skills yield keeps the
+    lowest skill line, in the order Herbalism, Mining, Fishing, Skinning: the table has one source per
+    reagent, and the offline data has no overlap to choose between.
+    """
     lock_skill = {lock: need[0] for lock, need in lock_requirements(locks).items()}
     references = defaultdict(list)
     for row in tables["reference_loot_template"]:
@@ -84,19 +98,42 @@ def gathered(tables, locks, items):
         skill = node["type"] == CHEST and lock_skill.get(int(node["data0"]))
         if skill:
             sources.append((skill, loot.get(int(node["data1"]), [])))
-    skinning = defaultdict(list)
-    for row in tables["skinning_loot_template"]:
-        skinning[int(row["entry"])].append(row)
-    sources.extend((SKINNING, rows) for rows in skinning.values())
+    for table, skill in (("skinning_loot_template", SKINNING), ("fishing_loot_template", FISHING)):
+        loot_by_entry = defaultdict(list)
+        for row in tables[table]:
+            loot_by_entry[int(row["entry"])].append(row)
+        sources.extend((skill, rows) for rows in loot_by_entry.values())
     found = defaultdict(set)
     for skill, rows in sources:
         for item, share in loot_items(rows, references):
             if item in items and share * 100 >= GATHER_CHANCE:
                 found[item].add(skill)
-    ambiguous = sorted(item for item, skills in found.items() if len(skills) > 1)
-    if ambiguous:
-        raise ValueError(f"Reagents gathered by several skills: {ambiguous}")
-    return {item: skills.pop() for item, skills in found.items()}
+    return {item: min(skills) for item, skills in found.items()}
+
+
+def looted_from(tables, items, gathered_items):
+    """[reagent] = true when at least LOOT_CREATURES creatures drop it directly at GATHER_CHANCE% or more.
+
+    Only a creature's own rows count: a reference pool is shared by many creatures and holds cloth, potions
+    and world drops, not the parts a beast carries. A material a profession gathers stays behind that
+    profession, and cloth is left out because every Tailoring and First Aid route buys it.
+    """
+    classes = {int(row["entry"]): row["class"] for row in tables["item_template"]}
+    creatures = defaultdict(list)
+    for row in tables["creature_loot_template"]:
+        creatures[int(row["entry"])].append(row)
+    found = defaultdict(set)
+    for entry, rows in creatures.items():
+        for row, chance in loot_chances(rows):
+            if int(row["mincountOrRef"]) < 0:
+                continue
+            item = int(row["item"])
+            if chance < GATHER_CHANCE or item not in items:
+                continue
+            if item in gathered_items or item in CLOTH or classes.get(item) not in LOOT_CLASSES:
+                continue
+            found[item].add(entry)
+    return {item for item, by in found.items() if len(by) >= LOOT_CREATURES}
 
 
 def node_skills(tables, locks):
@@ -215,13 +252,16 @@ def scroll_items(ids, rows, teaches):
 def generate(ids, tables, effect_rows, locks):
     teaches, rank_of = spell_maps(effect_rows)
     drops, world = scroll_drops(tables, scroll_items(ids, tables["item_template"], teaches))
+    items = reagent_items()
+    gathered_items = gathered(tables, locks, items)
     return {
         "drops": {item: sorted(by.items(), key=lambda kv: (-kv[1], kv[0]))[:DROPS_KEPT] for item, by in drops.items()},
         "world": sorted(world),
         "trainers": {
             skill: sorted(caps.items()) for skill, caps in trainer_caps(tables["npc_trainer"], teaches, rank_of).items()
         },
-        "gathered": gathered(tables, locks, reagent_items()),
+        "gathered": gathered_items,
+        "looted": sorted(looted_from(tables, items, gathered_items)),
         **dict(zip(("nodes", "shared_nodes"), node_skills(tables, locks), strict=True)),
     }
 
@@ -230,9 +270,9 @@ def render(data):
     lines = [
         "-- Generated by tools/gen_sources.py — do not edit.",
         f"-- Source: CMaNGOS classic-db {CLASSICDB_COMMIT} (GPL-3.0): item_template, creature_loot_template,",
-        "-- reference_loot_template, npc_trainer, gameobject(_loot)_template, skinning_loot_template. Which item",
-        f"-- is a recipe scroll and which spell is a rank: wago.tools SpellEffect, wow_classic_era {TEACH_BUILD};",
-        f"-- gathering locks: wago.tools Lock, wow_classic_beta {BUILD}.",
+        "-- reference_loot_template, npc_trainer, gameobject(_loot)_template, skinning_loot_template,",
+        "-- fishing_loot_template. Which item is a recipe scroll and which spell is a rank: wago.tools SpellEffect,",
+        f"-- wow_classic_era {TEACH_BUILD}; gathering locks: wago.tools Lock, wow_classic_beta {BUILD}.",
         "-- Neither QuestieDB nor AtlasLoot holds these; all else about a recipe's sources is read from them.",
         f"-- scrolls with named drops={len(data['drops'])}, world drops={len(data['world'])}.",
         "---@type string, SkillUpNamespace",
@@ -267,6 +307,15 @@ def render(data):
     lines += [
         "}",
         "",
+        f"-- [reagent item] = true: {LOOT_CREATURES}+ creatures drop it directly ({GATHER_CHANCE}%+ of the time),",
+        "-- so anyone can loot it",
+        "-- stylua: ignore",
+        "ns.LootedFrom = {",
+    ]
+    lines += [f"\t[{item}] = true," for item in data["looted"]]
+    lines += [
+        "}",
+        "",
         "-- [node name, enUS] = { gathering skill line, required skill }: classic-db's lock for the node, the",
         "-- client's Lock DB2 for what that lock asks. A name shared by nodes asking different skills is left out.",
         "-- stylua: ignore",
@@ -296,7 +345,8 @@ def main():
     print(
         f"Wrote {OUTPUT.relative_to(ROOT)}: {len(data['drops'])} scrolls with named drops, "
         f"{len(data['world'])} world drops, {sum(map(len, data['trainers'].values()))} trainers, "
-        f"{len(data['gathered'])} gathered reagents, {len(data['nodes'])} gathering nodes "
+        f"{len(data['gathered'])} gathered reagents, {len(data['looted'])} lootable reagents, "
+        f"{len(data['nodes'])} gathering nodes "
         f"(left out, shared by nodes asking different skills: {data['shared_nodes']})"
     )
 

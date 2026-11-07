@@ -503,5 +503,5 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"你從生物身上拾取，按商人出售價格計算" -- mt
 L["vendor, limited stock"] = "商人，庫存有限" -- mt
 L["Sells %d at a time"] = "每次出售 %d 個" -- mt
-L["Meat and fish on a Cooking route count as yours to get."] =
-	"烹飪路線上的肉類和魚類算作你自己取得的。" -- mt
+L["Recipes you have not learned can sit in the recipe list too."] =
+	"未學會的配方現在也可以顯示在配方列表中。" -- mt

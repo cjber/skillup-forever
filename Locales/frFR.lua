@@ -518,5 +518,5 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"vous le pillez sur des créatures, valorisé à son prix de vente au marchand" -- mt
 L["vendor, limited stock"] = "vendeur, stock limité" -- mt
 L["Sells %d at a time"] = "Vend %d à la fois" -- mt
-L["Meat and fish on a Cooking route count as yours to get."] =
-	"La viande et le poisson d'une route de Cuisine comptent comme récupérés par vous." -- mt
+L["Recipes you have not learned can sit in the recipe list too."] =
+	"Les recettes que vous n'avez pas apprises peuvent aussi figurer dans la liste des recettes." -- mt

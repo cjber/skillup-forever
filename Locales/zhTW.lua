@@ -36,6 +36,7 @@ L["A material your professions gather costs what selling it would bring instead 
 	"你的專業技能採集的材料按出售所得計價，而不是免費：扣除5%手續費後的拍賣價，或較高時按商人收購價。用於路線和配方列的成本。拍賣價需要Auctionator。"
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"將共用的 Forever 追蹤器保持在您放置的位置。頂部的拖曳握把不再移動它。"
+L["Leaderboards show full names."] = "排行榜顯示完整名稱。" -- mt
 L["Lock the tracker"] = "鎖定追蹤器"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"專業技能視窗側邊的標籤頁（在路線標籤頁下方），列出此角色每個部位可裝備的最新製造物品。"
@@ -271,7 +272,6 @@ L["Suggest my other Forever addons"] = "推薦我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s訓練師教授。"
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 插件全部免費，沒有任何付費才能使用的內容。如果它們對你有幫助，可以請我喝杯咖啡。" -- mt
-L["The Forever Leaderboards window opens."] = "Forever Leaderboards 視窗已開啟。" -- mt
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪裡學習此配方。"
 L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
 	"配方列表和視窗會加寬，以容納目前專業最長的配方名稱，最寬到螢幕空間為止。關閉後保持視窗原有寬度。"

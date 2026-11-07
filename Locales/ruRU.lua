@@ -37,6 +37,7 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Материал, который добывают ваши профессии, стоит столько, сколько принесла бы его продажа, а не ноль: цена на аукционе за вычетом 5% комиссии или цена продажи торговцу, если она выше. Учитывается в маршруте и стоимости в строках рецептов. Для цен аукциона нужен Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
+L["Leaderboards show full names."] = "Таблицы лидеров показывают полные имена." -- mt
 L["Lock the tracker"] = "Закрепить трекер"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Боковая вкладка окна профессий под вкладкой маршрута: самый новый созданный предмет, который этот персонаж может надеть, для каждой ячейки."
@@ -290,7 +291,6 @@ L["Suggest my other Forever addons"] = "Предлагать другие мои
 L["Taught by %s trainers."] = "Обучают учителя (%s)."
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Аддоны Forever бесплатны, и ничего в них не закрыто за оплатой. Если они вам помогают, можете угостить меня кофе." -- mt
-L["The Forever Leaderboards window opens."] = "Окно Forever Leaderboards открывается." -- mt
 L["The place this recipe is taught isn't known yet."] =
 	"Где обучают этому рецепту, пока неизвестно."
 L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =

@@ -36,6 +36,7 @@ L["A material your professions gather costs what selling it would bring instead 
 	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator가 필요합니다."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
+L["Leaderboards show full names."] = "순위표에 전체 이름이 표시됩니다." -- mt
 L["Lock the tracker"] = "추적기 잠금"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"전문 기술 창의 경로 탭 아래에 있는 측면 탭으로, 이 캐릭터가 각 슬롯에 착용할 수 있는 가장 최신 제작 아이템을 보여줍니다."
@@ -279,7 +280,6 @@ L["Suggest my other Forever addons"] = "제 다른 Forever 애드온 추천"
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 애드온은 무료이며 잠긴 기능이 없습니다. 도움이 되셨다면 커피 한 잔 사 주세요." -- mt
-L["The Forever Leaderboards window opens."] = "Forever Leaderboards 창이 열립니다." -- mt
 L["The place this recipe is taught isn't known yet."] =
 	"이 제조법을 배우는 곳은 아직 알려지지 않았습니다."
 L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =

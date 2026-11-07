@@ -37,6 +37,7 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Un material que recogen tus profesiones cuesta lo que obtendrías al venderlo en lugar de nada: su precio de subasta tras la comisión del 5 %, o su precio de venta al vendedor si es mayor. Se usa para la ruta y los costes de las filas de recetas. Los precios de subasta necesitan Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Mantiene el rastreador compartido Forever donde lo pones. El tirador de arriba ya no lo arrastra."
+L["Leaderboards show full names."] = "Las tablas de clasificación muestran los nombres completos." -- mt
 L["Lock the tracker"] = "Bloquear el rastreador"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Una pestaña lateral en la ventana de profesiones, bajo la de la ruta, con el objeto creado más reciente que este personaje puede equipar en cada ranura."
@@ -277,7 +278,6 @@ L["Suggest my other Forever addons"] = "Sugerir mis otros addons Forever"
 L["Taught by %s trainers."] = "Lo enseñan los instructores de %s."
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Los addons Forever son gratuitos y no hay nada bloqueado tras un pago. Si te ayudan, puedes invitarme a un café." -- mt
-L["The Forever Leaderboards window opens."] = "Se abre la ventana de Forever Leaderboards." -- mt
 L["The place this recipe is taught isn't known yet."] = "Aún no se sabe dónde se enseña esta receta."
 L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
 	"La lista de recetas se ensancha hasta el nombre de receta más largo del oficio abierto, y la ventana con ella, hasta el espacio que tenga tu pantalla. Desactívalo para mantener el ancho propio de la ventana."

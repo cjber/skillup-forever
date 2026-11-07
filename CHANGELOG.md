@@ -12,6 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+
+## [1.0.33] - 2026-11-07
+
 - **Crafting from the route works on Forever.** The route page's Craft button no longer tries to cast the recipe by its spell name, which this client ignores. It opens the planned recipe through the client's own `OpenRecipe` and forwards the click to the Professions window's own Create button, so the craft happens as your own click and still never runs as addon code, and it now takes the click on press as well as release so the key-down setting cannot swallow it (cjber/skillup-forever#385).
 
 ## [1.0.32] - 2026-11-07

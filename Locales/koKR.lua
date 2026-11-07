@@ -508,5 +508,3 @@ L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
 	"SkillUp 제작법 순위표가 공유 Forever Leaderboards 창에 합류합니다."
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
-L["The recipe list fits long recipe names, and says how many you can make beside them."] =
-	"The recipe list fits long recipe names, and says how many you can make beside them."

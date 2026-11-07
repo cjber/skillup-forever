@@ -79,7 +79,7 @@ function ns.RegisterSettings()
 		category,
 		"statsShare",
 		L["Share observed recipe totals with guild and group"],
-		L["On by default. Everyone running a Forever addon shares unless they turn this off. Turning it off stops sending and receiving totals and hides other players; local observations stay."]
+		L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."]
 	)
 
 	-- Rows are grouped onto a stock subpage each; the category itself is the index, one button per group. A

@@ -504,5 +504,3 @@ L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
 	"La tabla de recetas de SkillUp se une a la ventana compartida Forever Leaderboards."
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
-L["The recipe list fits long recipe names, and says how many you can make beside them."] =
-	"The recipe list fits long recipe names, and says how many you can make beside them."

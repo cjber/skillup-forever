@@ -493,5 +493,3 @@ L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
 	"SkillUp 的配方排行榜加入了共用的 Forever Leaderboards 視窗。"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
-L["The recipe list fits long recipe names, and says how many you can make beside them."] =
-	"The recipe list fits long recipe names, and says how many you can make beside them."

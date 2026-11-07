@@ -355,6 +355,14 @@ local function ObtainCost(itemID, depth, stack)
 	return cost
 end
 
+-- What one unit of `itemID` costs to obtain: the cheaper of buying it and crafting it, the same number
+-- `ReagentCost` totals. The tooltip prices each line with it so the lines and the Reagents total agree (#360).
+---@param itemID integer
+---@return number?
+function ns.ObtainCost(itemID)
+	return ObtainCost(itemID, MAX_SUB_DEPTH)
+end
+
 -- The recipe that makes `itemID` for less than buying it, with one craft's output; nil when buying
 -- is cheaper, nothing learned makes it, or one of its own reagents has no price.
 ---@param itemID integer

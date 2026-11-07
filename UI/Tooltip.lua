@@ -241,10 +241,15 @@ local function AddCost(tooltip, recipeID, d)
 		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
 		local left = reagent.quantity > 1 and string.format("%s x%d", name, reagent.quantity) or name
 		local price = ns.Price(reagent.itemID)
-		if price then
+		-- The line and the Reagents total below must price a reagent the same way: the total counts what it
+		-- costs to obtain, cheaper to craft where a known recipe beats buying it, so the line does too (#360).
+		local each = ns.ObtainCost and ns.ObtainCost(reagent.itemID) or (price and price.copper)
+		local maker = each and price and each < price.copper and ns.SubCraft and ns.SubCraft(reagent.itemID)
+		if each then
+			local source = maker and L["crafted"] or (price and ns.PriceSourceText(price) or L["crafted"])
 			tooltip:AddDoubleLine(
 				left,
-				string.format("%s |cff808080(%s)|r", Money(price.copper * reagent.quantity), ns.PriceSourceText(price)),
+				string.format("%s |cff808080(%s)|r", Money(each * reagent.quantity), source),
 				1,
 				1,
 				1,
@@ -278,9 +283,10 @@ local function AddCost(tooltip, recipeID, d)
 			1,
 			1
 		)
+		-- A loss carries the same red minus the per-skill-up line below uses, so the two rows read alike (#360).
 		tooltip:AddDoubleLine(
 			net < 0 and L["Profit per craft"] or L["Net per craft"],
-			Money(math.abs(net)),
+			ns.FormatSigned(math.abs(net), net < 0),
 			1,
 			0.82,
 			0,

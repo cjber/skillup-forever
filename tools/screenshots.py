@@ -7,7 +7,7 @@ are fetched from wago.tools once and cached under ~/.cache/wowmock/<build>/.
 
 Every number drawn comes from this repository: thresholds, reagents, sell prices, vendor prices and
 what each gathering profession covers from Data/*.lua. The window, tooltip and demo push them through a
-Python port of Core/Model.lua, Integrations/Prices.lua, UI/RecipeList.lua's sort and the formatting in
+Python port of Core/Model.lua, Integrations/Prices.lua, UI/RecipeList.lua's sort and width and the formatting in
 Core/Core.lua and UI/Tooltip.lua; the route, tracker, trainer and reagent scenes run the addon's own Lua under
 luajit (lua_scene) and only draw its output.
 Only the scene's state (professions, skill, bags, auction prices) is chosen here.
@@ -295,8 +295,8 @@ def sorted_recipes():
     return sorted(LEARNED, key=key), sorted(UNLEARNED, key=key)
 
 
-def craftable_count(recipe_id):
-    counts = [BAGS.get(r["itemID"], 0) // r["quantity"] for r in reagents(recipe_id)]
+def craftable_count(recipe_id, bags=BAGS):
+    counts = [bags.get(r["itemID"], 0) // r["quantity"] for r in reagents(recipe_id)]
     return min(counts) if counts else 0
 
 
@@ -1188,6 +1188,11 @@ DISABLED_FONT_COLOR = (0.5, 0.5, 0.5)
 FRAME_W, FRAME_H = 673, 594  # Camelot ProfessionsFrame
 LIST_X, LIST_Y, LIST_W = 5, 72, 304  # CraftingPage.RecipeList (OverrideArt width)
 LIST_H = FRAME_H - LIST_Y - 5
+# UI/RecipeList.lua: the list's own chrome (its insets, tree padding and the SkillUps button), the gap FitLabel
+# keeps before SkillUp's row text, and the screen margin widening stops at.
+LIST_CHROME = 59
+TEXT_GAP = 14
+SCREEN_W, SCREEN_MARGIN = 1920, 32
 ROW_H, ROW_GAP, ROW_PAD = 20, 1, 5  # recipe rows; the tree view's spacing and top padding
 DIVIDER_H = 70  # RecipeList.lua: the "Unlearned" divider after learned recipes
 SCHEMATIC_W, SCHEMATIC_H = 360, 484
@@ -1353,7 +1358,24 @@ def list_rows():
     return rows
 
 
-def recipe_row(canvas, x, y, w, recipe_id, learned, selected, hovered):
+def craft_list_width(ui, bags=BAGS):
+    """UI/RecipeList.lua: the list as wide as its widest name, count and SkillUp row text, capped to the screen."""
+    measure = ui.canvas(1, 1)
+    widest = LIST_W
+    learned_ids, unlearned_ids = sorted_recipes()
+    for learned, ids in ((True, learned_ids), (False, unlearned_ids)):
+        for recipe_id in ids:
+            width = measure.text_width(recipe_name(recipe_id), F_ROW) + LIST_CHROME
+            count = craftable_count(recipe_id, bags) if learned else 0
+            if count > 0:
+                width += measure.text_width(f" ({count}) ", F_ROW)
+            # The row text is on by default: its width and the gap FitLabel keeps clear of it.
+            width += measure.text_width(format_row(describe(recipe_id)), F_ROW) + TEXT_GAP
+            widest = max(widest, width)
+    return max(LIST_W, min(widest, LIST_W + SCREEN_W - 2 * SCREEN_MARGIN - FRAME_W))
+
+
+def recipe_row(canvas, x, y, w, recipe_id, learned, selected, hovered, bags=BAGS):
     """ProfessionsRecipeListRecipeTemplate (20 high) at (x, y, w) with SkillUp's text on its right."""
     ui = canvas.ui
     d = describe(recipe_id)
@@ -1366,9 +1388,9 @@ def recipe_row(canvas, x, y, w, recipe_id, learned, selected, hovered):
     label_x = x - 9 + 26 + 4
     color = WHITE if hovered else (PROFESSION_RECIPE_COLOR if learned else DISABLED_FONT_COLOR)
     label_w = canvas.text(label_x, y, recipe_name(recipe_id), F_ROW, color, box_height=ROW_H)
-    count = craftable_count(recipe_id) if learned else 0
+    count = craftable_count(recipe_id, bags) if learned else 0
     if count > 0:
-        canvas.text(label_x + label_w, y, f" [{count}] ", F_ROW, color, box_height=ROW_H)
+        canvas.text(label_x + label_w, y, f" ({count}) ", F_ROW, color, box_height=ROW_H)
     text = format_row(d)
     canvas.text(x, y, text, F_ROW, row_color(d), box_height=ROW_H, justify="RIGHT", width=w - 4)
     if selected:
@@ -1389,13 +1411,14 @@ def divider_row(canvas, x, y):
     canvas.draw(rule, x + 5, bottom - 5 - 2, 250, 2, (*NORMAL, 0.5), blend="ADD")
 
 
-def recipe_list(canvas, x, y):
+def recipe_list(canvas, x, y, list_w, bags=BAGS):
     """CraftingPage.RecipeList at (x, y). Returns the hovered row's rect."""
     ui = canvas.ui
-    canvas.draw(ui.atlas("Professions-background-summarylist"), x, y, LIST_W, LIST_H)
-    filter_x, _, _, _ = filter_dropdown(canvas, x + LIST_W - 8, y + 9)
+    canvas.draw(ui.atlas("Professions-background-summarylist"), x, y, list_w, LIST_H)
+    filter_x, _, _, _ = filter_dropdown(canvas, x + list_w - 8, y + 9)
     search_box(canvas, x + 13, y + 8, filter_x - 4 - (x + 13))
-    box_x, box_y, box_w = x + 8, y + 35, LIST_W - 8 - 20
+    box_x, box_y, box_w = x + 8, y + 35, list_w - 8 - 20
+    row_w = box_w - 5  # the tree view's right padding
     minimal_scrollbar(canvas, box_x + box_w, box_y, LIST_H - 35 - 5)
     top = box_y + ROW_PAD
     hovered_rect = None
@@ -1405,9 +1428,9 @@ def recipe_list(canvas, x, y):
             divider_row(canvas, box_x, top)
             top += DIVIDER_H + ROW_GAP
             continue
-        recipe_row(canvas, box_x, top, box_w, rid, learned, rid == SELECTED, rid == HOVERED)
+        recipe_row(canvas, box_x, top, row_w, rid, learned, rid == SELECTED, rid == HOVERED, bags)
         if rid == HOVERED:
-            hovered_rect = (box_x, top, box_w, ROW_H)
+            hovered_rect = (box_x, top, row_w, ROW_H)
         top += ROW_H + ROW_GAP
     return hovered_rect
 
@@ -1436,7 +1459,7 @@ def rank_bar(canvas, x, y, name, skill, max_skill):
     canvas.draw(ui.atlas("common-icon-chatlink"), bx - 1, by - 1, 25, 25)
 
 
-def schematic(canvas, x, y, recipe_id):
+def schematic(canvas, x, y, recipe_id, bags=BAGS):
     """SchematicFormCraftingTemplate (Camelot, 360 wide) for a recipe: card art, the output icon and name,
     description, reagent slots, Track Recipe."""
     ui = canvas.ui
@@ -1476,12 +1499,12 @@ def schematic(canvas, x, y, recipe_id):
     canvas.text(rx, ry, "Reagents:", F_NORMAL_SMALL, box_height=20)
     sx, sy = rx + 1, ry + 20
     for reagent in reagents(recipe_id):
-        reagent_slot(canvas, sx, sy, reagent)
+        reagent_slot(canvas, sx, sy, reagent, bags)
         sx += 180 + 5
     minimal_checkbox(canvas, x + 17, y + SCHEMATIC_H - 11 - 26, "Track Recipe", color=DISABLED_FONT_COLOR)
 
 
-def reagent_slot(canvas, x, y, reagent):
+def reagent_slot(canvas, x, y, reagent, bags=BAGS):
     """ProfessionsReagentSlotTemplate (180x50): the 39x39 button at LEFT and "have/need Name" beside it."""
     ui = canvas.ui
     item = ui.item(reagent["itemID"])
@@ -1489,7 +1512,7 @@ def reagent_slot(canvas, x, y, reagent):
     canvas.draw(ui.atlas("Professions-Slot-bg"), bx, by, 39, 39)
     canvas.draw(ui.texture(item.icon), bx, by, 39, 39)
     canvas.draw(ui.atlas("Professions-Slot-Frame"), bx, by, 40, 40)
-    text = f"{BAGS.get(reagent['itemID'], 0)}/{reagent['quantity']} {item.name}"
+    text = f"{bags.get(reagent['itemID'], 0)}/{reagent['quantity']} {item.name}"
     # The Name box is 108 wide, but the client wraps "23/5 Light Leather" (105.5-106.7 units by our metrics,
     # depending on the render scale) in it, so it keeps some slack at the right edge.
     lines = wrap_text(canvas, text, F_ROW, 108 - 4)
@@ -1498,10 +1521,10 @@ def reagent_slot(canvas, x, y, reagent):
         canvas.text(x + 46, top + i * F_ROW.height, line, F_ROW)
 
 
-def create_controls(canvas, fx, fy, count):
+def create_controls(canvas, fx, fy, count, frame_w=FRAME_W):
     """CraftingPage's bottom row, Camelot anchors: Create All, the quantity spinner, Create."""
     ui = canvas.ui
-    right, bottom = fx + FRAME_W, fy + FRAME_H
+    right, bottom = fx + frame_w, fy + FRAME_H
     all_text = f"Create All [{count}]"
     all_w = max(80, canvas.text_width(all_text, F_NORMAL) + 30)
     three_slice_button(canvas, right - 362, bottom - 7 - 28, all_w, 28, all_text)
@@ -1515,10 +1538,10 @@ def create_controls(canvas, fx, fy, count):
     canvas.draw(ui.atlas("Profession-button-arrow-left"), ix - 29.5, iy - 1, 22, 22)
 
 
-def profession_tabs(canvas, fx, fy, selected, gear_tab=False):
+def profession_tabs(canvas, fx, fy, selected, gear_tab=False, frame_w=FRAME_W):
     """The side tabs on the frame's right: overview, one per profession, then SkillUp's route tab ("route")
     and, when that setting is on, its crafted gear tab ("gear") below it."""
-    x, y = fx + FRAME_W, fy + 60
+    x, y = fx + frame_w, fy + 60
     y += side_tab(canvas, x, y, OVERVIEW_TAB_ICON) + 2
     for name, icon, *_ in PROFESSIONS:
         y += side_tab(canvas, x, y, icon, selected=name == selected) + 2
@@ -1534,33 +1557,90 @@ OVERVIEW_TAB_ICON = 136241
 FRAME_MARGIN = 24  # room for the metal corners and portrait around the frame
 TABS_MARGIN = 60
 
+# UI/FrameArt.lua: where each atlas's native left part ends, the column repeated across the extra width, and
+# how many extra native columns the stock background has beyond its atlas (2 of inset at each side).
+BACKGROUND_ART = (129, 32, 4)
+TEMPLATE_ART = (429, 32, 0)
 
-def professions_frame(ui):
+
+def art_piece(atlas, left, right):
+    """UI/FrameArt.lua's SetTexCoord crop: source columns [left, right) of an atlas, at native scale."""
+    image = atlas.image
+    return image.crop(
+        (
+            round(left / atlas.width * image.width),
+            0,
+            round(right / atlas.width * image.width),
+            image.height,
+        )
+    )
+
+
+def extend_art(canvas, atlas_name, x, y, total_w, h, split):
+    """UI/FrameArt.lua's three pieces across `total_w`: the left art native, the column repeated at native
+    scale, and the right edge re-anchored at the right. With no extra width the client's stretched draw stays."""
+    atlas = canvas.ui.atlas(atlas_name)
+    left, column, right_extra = split
+    extra = total_w - atlas.width - right_extra
+    if extra <= 0:
+        canvas.draw(atlas, x, y, total_w, h)
+        return
+    copies = math.ceil(extra / column)
+    right_from = left + copies * column - extra
+    canvas.draw(art_piece(atlas, 0, left), x, y, left, h)
+    for index in range(copies):
+        canvas.draw(art_piece(atlas, left, left + column), x + left + index * column, y, column, h)
+    right_w = atlas.width - right_from + right_extra
+    canvas.draw(art_piece(atlas, right_from - right_extra, atlas.width), x + total_w - right_w, y, right_w, h)
+
+
+def frame_art(canvas, fx, fy, frame_w):
+    """The frame's Bg and the crafting page's Template2, extended when the list makes the window wider."""
+    extend_art(canvas, "Profession-Background-Overview", fx + 2, fy + 21, frame_w - 4, FRAME_H - 23, BACKGROUND_ART)
+    extend_art(canvas, "Profession-Background-Template2", fx + 3, fy + 21, frame_w - 8, 570, TEMPLATE_ART)
+
+
+def professions_frame(ui, bags=BAGS):
     """The Leatherworking window at SKILL with SELECTED selected and HOVERED under the cursor. Returns the
-    canvas and the hovered row's rect."""
+    canvas, the hovered row's rect and the window's width."""
     m = FRAME_MARGIN
-    canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m)
+    list_w = craft_list_width(ui, bags)
+    frame_w = FRAME_W + (list_w - LIST_W)
+    canvas = ui.canvas(frame_w + m + TABS_MARGIN, FRAME_H + 2 * m)
     fx, fy = m, m
-    canvas.draw(ui.atlas("Profession-Background-Overview"), fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23)
-    canvas.draw(ui.atlas("Profession-Background-Template2"), fx + 3, fy + 21)
-    hovered = recipe_list(canvas, fx + LIST_X, fy + LIST_Y)
-    schematic(canvas, fx + LIST_X + LIST_W + 2, fy + LIST_Y, SELECTED)
-    create_controls(canvas, fx, fy, craftable_count(SELECTED))
-    profession_tabs(canvas, fx, fy, "Leatherworking")
-    portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, 136247, "Leatherworking")
+    frame_art(canvas, fx, fy, frame_w)
+    hovered = recipe_list(canvas, fx + LIST_X, fy + LIST_Y, list_w, bags)
+    schematic(canvas, fx + LIST_X + list_w + 2, fy + LIST_Y, SELECTED, bags)
+    create_controls(canvas, fx, fy, craftable_count(SELECTED, bags), frame_w)
+    profession_tabs(canvas, fx, fy, "Leatherworking", frame_w=frame_w)
+    portrait_frame_art(canvas, fx, fy, frame_w, FRAME_H, 136247, "Leatherworking")
     rank_bar(canvas, fx + 110, fy + 40, "Leatherworking", SKILL, MAX_SKILL)
-    return canvas, hovered
+    return canvas, hovered, frame_w
 
 
-def beside_window(ui):
+def beside_window(ui, frame_w=FRAME_W):
     """UI/Tooltip.lua's default recipe tooltip place: its TOPLEFT at the overview side tab's TOPRIGHT, (4, 0)."""
-    return FRAME_MARGIN + FRAME_W + ui.atlas("common-sidetab").width + 4, FRAME_MARGIN + 60
+    return FRAME_MARGIN + frame_w + ui.atlas("common-sidetab").width + 4, FRAME_MARGIN + 60
 
 
-def window_scene(ui):
-    frame, _ = professions_frame(ui)
+def window_scene(ui, bags=BAGS):
+    frame, _, frame_w = professions_frame(ui, bags)
     tip = recipe_tooltip(ui, HOVERED)
-    return scene(ui, [(frame, 0, 0), (tip, *beside_window(ui))])
+    return scene(ui, [(frame, 0, 0), (tip, *beside_window(ui, frame_w))])
+
+
+def wide_bags():
+    """Enough of every reagent that every learned recipe shows a count: the longest rows the list can hold."""
+    bags = {}
+    for recipe_id in LEARNED:
+        for reagent in reagents(recipe_id):
+            bags[reagent["itemID"]] = 400
+    return bags
+
+
+def window_wide_scene(ui):
+    """A Leatherworking list with a long name and craftable counts, which makes the list and window wider."""
+    return window_scene(ui, wide_bags())
 
 
 # ------------------------------------------------------------------------------- scenes from the Lua's output
@@ -1698,7 +1778,7 @@ def route_frame(ui, scene_data):
     m = FRAME_MARGIN
     canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m)
     fx, fy = m, m
-    canvas.draw(ui.atlas("Profession-Background-Overview"), fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23)
+    extend_art(canvas, "Profession-Background-Overview", fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23, BACKGROUND_ART)
     # Header: the profession dropdown, "Skill  48/75     Target" and the target box.
     dx, dy, dw = fx + 76, fy + 32, 180
     dh = dropdown(canvas, dx, dy, dw, "Leatherworking")
@@ -1960,7 +2040,7 @@ def gear_scene(ui, scene_data):
     m = FRAME_MARGIN
     canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m)
     fx, fy = m, m
-    canvas.draw(ui.atlas("Profession-Background-Overview"), fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23)
+    extend_art(canvas, "Profession-Background-Overview", fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23, BACKGROUND_ART)
     inset_x, inset_y, inset_w, inset_h = fx + 16, fy + 88, FRAME_W - 32, FRAME_H - 132
     inset_frame(canvas, inset_x, inset_y, inset_w, inset_h, "Crafted gear")
     # The doll: six slots down each side, then the three weapon slots along the bottom.
@@ -2104,9 +2184,9 @@ def render_demo():
     states = []
     for skill in DEMO_SKILLS:
         SKILL = skill
-        frame, _ = professions_frame(ui)
+        frame, _, frame_w = professions_frame(ui)
         tip = recipe_tooltip(ui, HOVERED)
-        states.append([(frame, 0, 0), (tip, *beside_window(ui))])
+        states.append([(frame, 0, 0), (tip, *beside_window(ui, frame_w))])
     SKILL = DEMO_SKILLS[0]
     # One frame for every skill: the union of what any state draws, so nothing jumps between states.
     boxes = []
@@ -2165,6 +2245,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     merchant_confirm_scene(ui).save(OUT / "merchant-confirm.png")
     window_scene(ui).save(OUT / "window.png")
+    window_wide_scene(ui).save(OUT / "window-wide.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
     data = lua_scene(ui)
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")

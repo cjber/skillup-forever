@@ -46,6 +46,7 @@ ITEM_MIN_SKILL = "Requires %s (%d)"
 ---@class SkillUpProfessionFrame : Frame
 ---@field CraftingPage SkillUpCraftingPage
 ---@field BookPage Frame
+---@field Bg Texture
 ---@field professionInfo? ProfessionInfo
 ---@field ProfessionsOverviewTab SkillUpSideTab
 ---@field rightProfessionTabs SkillUpSideTab[]

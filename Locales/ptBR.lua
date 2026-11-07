@@ -275,6 +275,8 @@ L["Taught by %s trainers."] = "Ensinada por instrutores de %s."
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Os addons Forever são gratuitos, sem nada bloqueado por pagamento. Se eles ajudarem, você pode me pagar um café." -- mt
 L["The place this recipe is taught isn't known yet."] = "Ainda não se sabe onde esta receita é ensinada."
+L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
+	"A lista de receitas se alarga até o nome de receita mais longo da profissão aberta, e a janela junto, até o espaço da sua tela. Desative para manter a largura original da janela."
 L["The rest comes from a vendor or your gathering."] = "O resto vem de um comerciante ou da sua coleta."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"A rota conta com %d para chegar a %d em 9 de 10 vezes; com menos sorte, serão necessários mais."
@@ -320,6 +322,7 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Onde a dica aparece ao passar o cursor sobre uma receita. Ao lado da janela, ela não cobre os reagentes."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Com a casa de leilões aberta, a janela de profissões oferece uma busca pelos reagentes da receita selecionada: tantos quanto as criações escolhidas ainda precisam depois das bolsas e do banco. A lista de compras do Auctionator leva as quantidades; sem ela, cada clique coloca o próximo reagente na caixa de busca."
+L["Widen the recipe list to fit recipe names"] = "Alargar a lista de receitas para caber os nomes"
 L["With Shortest Path Forever, a click leads you there."] =
 	"Com o Shortest Path Forever, um clique leva você até lá."
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
@@ -496,3 +499,7 @@ L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su sta
 L["total"] = "total"
 L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
 	"A tabela de receitas do SkillUp entra na janela compartilhada Forever Leaderboards."
+L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
+	"Ativado por padrão. Desative para parar de enviar e receber totais e ocultar outros jogadores. As observações locais são mantidas."
+L["The recipe list fits long recipe names, and says how many you can make beside them."] =
+	"The recipe list fits long recipe names, and says how many you can make beside them."

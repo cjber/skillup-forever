@@ -79,7 +79,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The reagent prices add up to the Reagents total."]
+ns.WHATS_NEW = L["Skill-up percentages include Working Overtime."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -203,6 +203,33 @@ local function LoadDB()
 	end
 	SkillUpForeverDB = loaded
 	ns.db = loaded
+end
+
+-- Legacy talent 1225451, Working Overtime: +10 percentage points to every tradeskill skill-up chance.
+local WORKING_OVERTIME = 1225451
+local WORKING_OVERTIME_BONUS = 0.10
+
+-- Whether the player has it, by spell ID: the spellbook or the aura the Legacy panel may apply.
+---@return boolean
+local function HasWorkingOvertime()
+	-- The pinned retail annotations mark IsPlayerSpell deprecated; Forever still exposes it for this read.
+	---@diagnostic disable-next-line: deprecated
+	if type(IsPlayerSpell) == "function" and IsPlayerSpell(WORKING_OVERTIME) == true then
+		return true
+	end
+	if type(C_UnitAuras) == "table" and type(C_UnitAuras.GetPlayerAuraBySpellID) == "function" then
+		return C_UnitAuras.GetPlayerAuraBySpellID(WORKING_OVERTIME) ~= nil
+	end
+	return false
+end
+
+-- Puts the talent's bonus in the Model; true when it moved, so its events only refresh on a real change.
+---@return boolean changed
+local function ReadChanceBonus()
+	if not (ns.Model and ns.Model.SetChanceBonus) then
+		return false
+	end
+	return ns.Model.SetChanceBonus(HasWorkingOvertime() and WORKING_OVERTIME_BONUS or 0)
 end
 
 ---@return ForeverTrackerSettings
@@ -844,9 +871,17 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	end
 	LoadDB()
 	ns.NoteBuild()
+	ReadChanceBonus()
 	ns.InitCatalogue()
 	ns.WhenEvent("TRADE_SKILL_LIST_UPDATE", NoteProfessionName)
 	ns.WhenEvent("SKILL_LINES_CHANGED", ForgetDroppedProfessions)
+	local function TalentChanged()
+		if ReadChanceBonus() then
+			return "talents"
+		end
+	end
+	ns.WhenEvent("SPELLS_CHANGED", TalentChanged)
+	ns.WhenEvent("TRAIT_CONFIG_UPDATED", TalentChanged)
 	ns.InitLive()
 	ns.InitPrices()
 	ns.RegisterSettings()

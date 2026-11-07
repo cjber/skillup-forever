@@ -3,6 +3,13 @@
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
+local GATHER_TOOLTIP = table.concat({
+	"On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. ",
+	"Off, getting it yourself costs nothing.",
+})
+local NOTHING_TOOLTIP = "Nothing on this route can be gathered, fished or looted by you, "
+	.. "so the switch changes nothing for it."
+
 local function FirstAid(skill)
 	return { skillLine = 129, name = "First Aid", skill = skill, base = skill, max = 75, modifier = 0 }
 end
@@ -159,13 +166,22 @@ page = {
 	},
 	PriceSource = function(itemID)
 		-- A reagent another profession gathers is free while the switch is off and bought while it is on.
-		if page.GatheredBy[itemID] and page.PlayerProfessions()[page.GatheredBy[itemID]] then
+		if page.CanGather(itemID) then
 			return page.CollectMode() == "gather" and "gather" or "vendor"
 		end
 		return ({ "vendor", "vendor", "auctionator" })[itemID]
 	end,
 	-- One reagent per bucket, the first one this character's First Aid gathers.
 	GatheredBy = { [1] = 129 },
+	LootedFrom = {},
+	CanGather = function(itemID)
+		if page.LootedFrom[itemID] then
+			return "loot"
+		end
+		local skillLine = page.GatheredBy[itemID]
+		local profession = skillLine and page.PlayerProfessions()[skillLine]
+		return profession and profession.name or nil
+	end,
 	PlayerProfessions = function()
 		return { [129] = FirstAid(1) }
 	end,
@@ -403,11 +419,48 @@ page.Changed = realChanged
 equal(collect.enabled, true, "a route with nothing to gather leaves the switch enabled")
 equal(collect.checked, false, "and it shows gathering")
 collect:Enter()
+equal(disabledLines[#disabledLines], NOTHING_TOOLTIP, "the switch's tooltip says it changes nothing here")
+-- A reagent a creature drops is one anyone can loot, so it gives the switch something to change.
+local savedLootPlan, savedLootReagents, savedLootHave = page.PlanRoute, page.RouteReagents, page.Have
+page.Have = function()
+	return 0
+end
+page.PlanRoute = function(profession)
+	return {
+		profession = profession,
+		target = 100,
+		crafts = {},
+		steps = {},
+		ranks = {},
+		cost = 0,
+		unpriced = 0,
+		unpricedRecipes = {},
+		reached = 1,
+	}
+end
+page.RouteReagents = function()
+	return { { itemID = 2589, need = 1, source = "gather" } }
+end
+local normalLines = {}
+local savedNormal = pageEnv.GameTooltip_AddNormalLine
+pageEnv.GameTooltip_AddNormalLine = function(_, text)
+	normalLines[#normalLines + 1] = text
+end
+page.LootedFrom[2589] = true
+routeTab:Click()
+collect:Enter()
 equal(
-	disabledLines[#disabledLines],
-	"Nothing on this route is yours to gather, so the switch changes nothing for it.",
-	"the switch's tooltip says it changes nothing here"
+	normalLines[#normalLines],
+	GATHER_TOOLTIP,
+	"a route whose reagent can be looted gives the switch something to change"
 )
+page.LootedFrom[2589] = nil
+routeTab:Click()
+local disabled = #disabledLines
+collect:Enter()
+equal(#disabledLines, disabled + 1, "and one nothing can be looted for says it changes nothing again")
+pageEnv.GameTooltip_AddNormalLine = savedNormal
+page.PlanRoute, page.RouteReagents, page.Have = savedLootPlan, savedLootReagents, savedLootHave
 collect:Click()
 equal(page.collectMode, "auction", "so a click still turns buying on")
 equal(collect.checked, true, "and the switch shows it")
@@ -550,11 +603,7 @@ page.RouteReagents = function()
 end
 routeTab:Click()
 collect:Enter()
-equal(
-	explained,
-	"On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing.",
-	"the switch's tooltip explains what it does when the route gathers a reagent"
-)
+equal(explained, GATHER_TOOLTIP, "the switch's tooltip explains what it does when the route gathers a reagent")
 page.RouteReagents = savedRouteReagents
 collect:Click()
 equal(page.collectMode, "auction", "clicking asks for auction mode")

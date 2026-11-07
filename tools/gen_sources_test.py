@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 import gen_sources
-from gen_sources import CHEST, gathered, node_skills
+from gen_sources import CHEST, gathered, looted_from, node_skills
 
 MINE, VEIN, LOOT = "7", "70", "700"
 
@@ -28,6 +28,10 @@ def lock(lock_id=MINE, rank=125):
     return row
 
 
+def item(entry, item_class):
+    return {"entry": str(entry), "class": str(item_class)}
+
+
 class NodeSkillTests(unittest.TestCase):
     # Issue #122: a node's required skill is its classic-db lock's in the client's Lock DB2, by its name.
     def nodes(self, *nodes):
@@ -47,14 +51,24 @@ class NodeSkillTests(unittest.TestCase):
 
 
 class GatheredTests(unittest.TestCase):
-    def found(self, node_loot, references):
+    def found(self, node_loot, references, fishing=None, skinning=None):
         tables = {
             "gameobject_template": [{"type": CHEST, "data0": MINE, "data1": LOOT, "entry": VEIN}],
             "gameobject_loot_template": node_loot,
             "reference_loot_template": references,
-            "skinning_loot_template": [],
+            "skinning_loot_template": skinning or [],
+            "fishing_loot_template": fishing or [],
         }
         return gathered(tables, [lock()], {1, 2, 3, 4})
+
+    def test_fishing_yields_reagents_and_a_shared_one_keeps_the_lowest_skill(self):
+        found = self.found(
+            [],
+            [],
+            fishing=[loot("800", 1, 25), loot("801", 2, 9), loot("802", 3, 10)],
+            skinning=[loot("900", 3, 100)],
+        )
+        self.assertEqual(found, {1: 356, 3: 356})
 
     def test_references_scale_and_nest(self):
         found = self.found(
@@ -141,6 +155,47 @@ class GatheredTests(unittest.TestCase):
     def test_no_scroll_is_an_error(self):
         with self.assertRaisesRegex(ValueError, "No recipe items resolved"):
             gen_sources.scroll_items({700}, [{"class": "7", "entry": "502"}], {})
+
+
+class LootedTests(unittest.TestCase):
+    def looted(self, rows, classes, items, gathered_items=frozenset()):
+        tables = {"creature_loot_template": rows, "item_template": classes}
+        return looted_from(tables, set(items), gathered_items)
+
+    def test_only_direct_rows_count(self):
+        tables = {
+            "creature_loot_template": [loot("900", 0, 100, ref=10)],
+            "reference_loot_template": [loot("10", 1, 100)],
+            "item_template": [item(1, 7)],
+        }
+        self.assertEqual(looted_from(tables, {1}, set()), set())
+
+    def test_only_reagent_trade_good_and_miscellaneous_classes(self):
+        classes = [item(1, 5), item(2, 7), item(3, 15), item(4, 9)]
+        rows = [loot(str(900 + n), i, 100) for n in range(3) for i in (1, 2, 3, 4)]
+        self.assertEqual(self.looted(rows, classes, (1, 2, 3, 4)), {1, 2, 3})
+
+    def test_three_creatures_make_it_farmable(self):
+        rows = [
+            loot("900", 1, 100),
+            loot("901", 1, 100),
+            loot("902", 2, 100),
+            loot("903", 2, 100),
+            loot("904", 2, 100),
+        ]
+        self.assertEqual(self.looted(rows, [item(1, 7), item(2, 7)], (1, 2)), {2})
+
+    def test_a_gathered_reagent_stays_behind_its_profession(self):
+        rows = [loot(str(900 + n), 1, 100) for n in range(3)]
+        self.assertEqual(self.looted(rows, [item(1, 7)], (1,), {1}), set())
+
+    def test_cloth_is_never_free(self):
+        rows = [loot(str(900 + n), 2589, 100) for n in range(3)]
+        self.assertEqual(self.looted(rows, [item(2589, 7)], (2589,)), set())
+
+    def test_chance_below_the_gather_chance_is_left_out(self):
+        rows = [loot(str(900 + n), 1, 9) for n in range(3)]
+        self.assertEqual(self.looted(rows, [item(1, 7)], (1,)), set())
 
 
 if __name__ == "__main__":

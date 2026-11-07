@@ -113,4 +113,36 @@ ns = Client.load({ data = DATA, auctionator = false }).ns
 equal(ns.Price(1), nil, "without Auctionator an auction-only reagent has no price")
 equal(ns.Price(2).source, "vendor", "without Auctionator the bundled vendor price is used")
 
+-- A creature's drop is gathered by anyone: no profession needed, and the price says it is loot.
+local LOOTED, FISH = 10, 20
+local loot = Client.load({
+	data = { GatheredBy = {}, LootedFrom = { [LOOTED] = true }, VendorPrices = {}, RecipeData = {} },
+})
+local lootNs = loot.ns
+equal(lootNs.CanGather(LOOTED), "loot", "a reagent creatures drop needs no profession")
+local looted = lootNs.Price(LOOTED)
+equal(looted.source, "gather", "a looted reagent is priced as gathered")
+equal(looted.profession, nil, "with no profession")
+equal(looted.loot, true, "and marked as loot")
+equal(lootNs.PriceSourceText(looted), "you loot it from creatures", "which the tooltip says")
+loot.items[LOOTED] = { sell = 25 }
+lootNs.db.valueGathered = true
+lootNs.Changed("prices")
+equal(
+	lootNs.PriceSourceText(lootNs.Price(LOOTED)),
+	"you loot it from creatures, valued at its vendor sell price",
+	"and values it when Value gathered materials is on"
+)
+
+-- A fish is only gathered when the character knows Fishing.
+local fish = Client.load({
+	data = { GatheredBy = { [FISH] = 356 }, VendorPrices = {}, RecipeData = {} },
+})
+equal(fish.ns.CanGather(FISH), nil, "a fish needs Fishing")
+equal(fish.ns.Price(FISH), nil, "so a character without it has no gathered price")
+fish.professions = { { name = "Fishing", icon = 1, rank = 1, max = 75, id = 356 } }
+fish.ns.Changed("prices")
+equal(fish.ns.CanGather(FISH), "Fishing", "with Fishing it is gathered")
+equal(fish.ns.Price(FISH).profession, "Fishing", "and priced under that profession")
+
 Client.report("prices_spec")

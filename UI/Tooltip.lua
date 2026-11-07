@@ -213,7 +213,13 @@ end
 ---@param price SkillUpPrice
 ---@return string
 function ns.PriceSourceText(price)
-	if price.worth == "auction" then
+	if price.loot and price.worth == "auction" then
+		return L["you loot it from creatures, valued at its AH price"]
+	elseif price.loot and price.worth == "vendor" then
+		return L["you loot it from creatures, valued at its vendor sell price"]
+	elseif price.loot then
+		return L["you loot it from creatures"]
+	elseif price.worth == "auction" then
 		return string.format(L["you gather it (%s), valued at its AH price"], price.profession)
 	elseif price.worth == "vendor" then
 		return string.format(L["you gather it (%s), valued at its vendor sell price"], price.profession)

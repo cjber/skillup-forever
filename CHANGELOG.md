@@ -12,6 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Meat and fish on a Cooking route count as yours to get.** Fish count as gathered when you know Fishing, and the parts creatures carry (meat, eggs, scales, feathers, venom sacs, elemental essences) count as gathered for every character, so with Buy reagents off they cost nothing and the switch no longer says it changes nothing for a Cooking route. Cloth, herbs and ore are unchanged: cloth is still bought, and herbs and ore still need the profession. A looted reagent's step reads "Loot ... from creatures" (cjber/skillup-forever#367).
 
 ## [1.0.30] - 2026-11-07
 

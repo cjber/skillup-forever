@@ -12,6 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.28] - 2026-11-07
+- **The reagent prices now add up to the Reagents total, and a loss reads as a loss.** Each reagent line is priced the same way the total counts it - the cheaper of buying the reagent and making it - so a reagent your own recipe makes for less no longer shows its higher purchase price on the line against a lower total (Copper Bars 11s 34c against an 11s 32c total; Heavy Leather 51s against 32s), and a craft that loses money shows its red minus on Net per craft as it already did on Per skill-up. Thanks to derzwiebelritter and trias6657 for the reports (cjber/skillup-forever#360).
+
 ## [1.0.27] - 2026-11-07
 - **Leaderboards show full names.** The Forever Leaderboards rows and tooltips show a player's first name and surname, such as "Dirtyjoke Lovetties", instead of one run-together word or the first name alone. (cjber/forever-core#179)
 

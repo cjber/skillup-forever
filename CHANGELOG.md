@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.29] - 2026-11-07
+- **Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item.** A recipe opened from the route page, or from the tracked-reagents menu, was selected in Blizzard's recipe list by this addon, and changing a row setting or the sort did the same through the page's own rebuild. That wrote the list's selection and the recipe's schematic as the addon's, and the game's craft path reads them, so using a potion or turning one essence into another could be refused until `/reload` (#350, thanks Ekallo). The recipe now opens through the game's own `C_TradeSkillUI.OpenRecipe`, and a redraw re-sorts and redraws the rows in place instead of rebuilding Blizzard's page, so no addon code touches the selection.
+- **A locked tracker stays quiet until you hover it.** With *Lock the tracker* on, the Forever column's grip no longer shows the long "tracker is locked" sentence all the time, where it overlapped whatever sat below and ran off screen at an edge. The grip stays blank until the pointer is over it, and the sentence is in its tooltip. Thanks to MrFIXlT for the request (cjber/forever-core#193).
+
 ## [1.0.28] - 2026-11-07
 - **The reagent prices add up to the Reagents total.** Each reagent line is priced the same way the total counts it - the cheaper of buying the reagent and making it - so a reagent your own recipe makes for less no longer shows its higher purchase price on the line against a lower total (Copper Bars 11s 34c against an 11s 32c total; Heavy Leather 51s against 32s), and a craft that loses money shows its red minus on Net per craft as it already did on Per skill-up. Thanks to derzwiebelritter and trias6657 for the reports (cjber/skillup-forever#360).
 

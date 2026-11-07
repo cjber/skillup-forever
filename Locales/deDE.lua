@@ -179,6 +179,8 @@ L["One line in chat the first time a new version loads."] =
 L["Open"] = "Öffnen"
 L["Open %s to craft from here."] = "Öffnet %s, um von hier aus herzustellen."
 L["Open recipe"] = "Rezept öffnen"
+L["Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item."] =
+	"Ein Rezept zu öffnen oder eines über sein Rechtsklickmenü zu überspringen blockiert nicht mehr die Verwendung eines Gegenstands."
 L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
 	"Schwellen für Orange, Gelb, Grün und Grau beim Überfahren eines Rezepts."
 L["Per craft"] = "Pro Herstellung"
@@ -495,4 +497,3 @@ L["total"] = "gesamt"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."
 L["crafted"] = "hergestellt" -- mt
-L["The reagent prices add up to the Reagents total."] = "Die Reagenzienpreise ergeben jetzt die Reagenzien-Summe." -- mt

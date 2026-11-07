@@ -171,6 +171,8 @@ L["One line in chat the first time a new version loads."] = "新版本首次載�
 L["Open"] = "開啟"
 L["Open %s to craft from here."] = "開啟%s以便在此製造。"
 L["Open recipe"] = "開啟配方"
+L["Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item."] =
+	"開啟配方，或從其右鍵選單中略過配方，不再阻擋使用物品。"
 L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
 	"滑鼠停在配方上時顯示橙、黃、綠、灰的分界點。"
 L["Per craft"] = "每次製作"
@@ -490,4 +492,3 @@ L["total"] = "總計"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 L["crafted"] = "製作" -- mt
-L["The reagent prices add up to the Reagents total."] = "材料價格現在與材料合計一致。" -- mt

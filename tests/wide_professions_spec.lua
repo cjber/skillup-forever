@@ -230,6 +230,7 @@ assert(list == 316 and window == 685, string.format("capped to %s/%s", list, win
 
 -- The count follows the name in parentheses whether or not SkillUp's own row text is on.
 local count = Font()
+local rowTexts = {}
 local row = {
 	Count = count,
 	Label = Font(),
@@ -247,7 +248,9 @@ local row = {
 		return 276
 	end,
 	CreateFontString = function()
-		return Font()
+		local text = Font()
+		rowTexts[#rowTexts + 1] = text
+		return text
 	end,
 }
 counts[2] = 3
@@ -276,5 +279,6 @@ decorate(ns, row, {
 	end,
 })
 assert(row.Label.width < 260, "FitLabel keeps the name clear of the row text")
-assert(row.SkillUpText:IsShown(), "the row text is drawn")
+assert(rowTexts[#rowTexts]:IsShown(), "the row text is drawn")
+assert(row.SkillUpText == nil, "the row text lives off the client's row, not on it (#350)")
 print("wide_professions_spec: measurement, widening, cap, combat deferral, restore, count and FitLabel: ok")

@@ -159,11 +159,16 @@ local function FitLabel(row, text)
 	end
 end
 
----@param _ SkillUpNamespace
+-- Our row text, keyed by the client's row rather than stored on it: a field an addon writes into a Blizzard
+-- frame is a taint risk on that frame's own click path (#350), and the recipe row is the frame the player
+-- clicks. A weak key lets a released row be collected.
+---@type table<SkillUpRecipeRow, FontString>
+local rowTexts = setmetatable({}, { __mode = "k" })
+
 ---@param row SkillUpRecipeRow
----@param node SkillUpTreeNode
-local function DecorateRow(_, row, node)
-	local data = node and node:GetData()
+---@param elementData SkillUpTreeNode
+local function DecorateRow(row, elementData)
+	local data = elementData and elementData:GetData()
 	if not data then
 		return
 	end
@@ -184,11 +189,11 @@ local function DecorateRow(_, row, node)
 		row.Count:Hide()
 	end
 
-	local text = row.SkillUpText
+	local text = rowTexts[row]
 	if not text then
 		text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight_NoShadow")
 		text:SetJustifyH("RIGHT")
-		row.SkillUpText = text
+		rowTexts[row] = text
 	end
 	if not ns.db.showRowText then
 		text:Hide()
@@ -226,37 +231,47 @@ local SORT_KEYS = {
 -- Forever's categories hold one or two recipes each, so sorting inside them changes
 -- nothing. A sort instead flattens the list: learned recipes, then unlearned ones.
 local replacing = false
+-- The provider the client built, kept so Default can put it back, and the providers we built ourselves, so
+-- neither is taken for the client's. Restoring the client's own provider is what lets Default work without
+-- calling the crafting page's Init, which writes the recipe selection and schematic as ours (#350).
+---@type SkillUpTreeProvider?
+local nativeProvider
+---@type table<SkillUpTreeProvider, true>
+local builtProviders = setmetatable({}, { __mode = "k" })
 
 ---@param node SkillUpTreeNode
----@param learned TradeSkillRecipeInfo[]
----@param unlearned TradeSkillRecipeInfo[]
+---@param learned SkillUpRecipeNodeData[]
+---@param unlearned SkillUpRecipeNodeData[]
 ---@param seen table<integer, boolean>
 local function CollectRecipes(node, learned, unlearned, seen)
 	for _, child in ipairs(node:GetNodes()) do
-		local info = child:GetData().recipeInfo
+		local data = child:GetData()
+		local info = data.recipeInfo
 		if not info then
 			CollectRecipes(child, learned, unlearned, seen)
 		elseif not info.favoritesInstance and not seen[info.recipeID] then
 			seen[info.recipeID] = true
+			-- The client's own node data goes into the sorted provider: a table of ours would be the addon's,
+			-- and the selection keeps it for the craft path to read (#350).
 			local list = info.learned and learned or unlearned
-			list[#list + 1] = info
+			list[#list + 1] = data
 		end
 	end
 end
 
----@param list TradeSkillRecipeInfo[]
+---@param list SkillUpRecipeNodeData[]
 ---@param key SkillUpSortKey
 ---@param ctx SkillUpContext?
 local function SortRecipes(list, key, ctx)
 	local keys = {}
-	for _, info in ipairs(list) do
-		keys[info] = key(info, ctx)
+	for _, data in ipairs(list) do
+		keys[data] = key(data.recipeInfo, ctx)
 	end
 	table.sort(list, function(a, b)
 		if keys[a] ~= keys[b] then
 			return keys[a] < keys[b]
 		end
-		return strcmputf8i(a.name, b.name) < 0
+		return strcmputf8i(a.recipeInfo.name, b.recipeInfo.name) < 0
 	end)
 end
 
@@ -271,14 +286,14 @@ local function BuildSorted(source, key)
 	SortRecipes(unlearned, key, ctx)
 
 	local sorted = CreateTreeDataProvider()
-	for _, info in ipairs(learned) do
-		sorted:Insert({ recipeInfo = info })
+	for _, data in ipairs(learned) do
+		sorted:Insert(data)
 	end
 	-- Blizzard's divider template draws the "Unlearned" label itself.
 	if #unlearned > 0 then
 		sorted:Insert({ isDivider = true, dividerHeight = #learned > 0 and 70 or 30 })
-		for _, info in ipairs(unlearned) do
-			sorted:Insert({ recipeInfo = info })
+		for _, data in ipairs(unlearned) do
+			sorted:Insert(data)
 		end
 	end
 	return sorted
@@ -286,9 +301,27 @@ end
 
 ---@param scrollBox SkillUpRecipeScrollBox
 local function ApplySort(scrollBox)
-	local key = SORT_KEYS[ns.db.sortMode]
+	if replacing then
+		return
+	end
 	local source = scrollBox:GetDataProvider()
-	if replacing or not key or not source or not source.GetRootNode then
+	if not (source and source.GetRootNode) then
+		return
+	end
+	-- A provider the client built replaces the one we kept; ours replacing itself does not.
+	if not builtProviders[source] then
+		nativeProvider = source
+	end
+	local key = SORT_KEYS[ns.db.sortMode]
+	if not key then
+		-- Default brings the client's categories back. Its own provider is restored in place: asking the
+		-- crafting page to Init would write its recipe selection and schematic from addon code, and the
+		-- craft path reads them (#350).
+		if builtProviders[source] and nativeProvider then
+			replacing = true
+			scrollBox:SetDataProvider(nativeProvider, ScrollBoxConstants.RetainScrollPosition)
+			replacing = false
+		end
 		return
 	end
 	local ok, sorted = pcall(BuildSorted, source, key)
@@ -297,9 +330,25 @@ local function ApplySort(scrollBox)
 		ns.Print(string.format(L["sorting failed and has been turned off: %s"], tostring(sorted)))
 		return
 	end
+	builtProviders[sorted] = true
 	replacing = true
 	scrollBox:SetDataProvider(sorted, ScrollBoxConstants.RetainScrollPosition)
 	replacing = false
+end
+
+-- Redraws the rows on screen from what they hold. A settings, price or profession change used to rebuild
+-- the list through the crafting page's Init, which wrote Blizzard's recipe selection and schematic from
+-- addon code: the craft path reads that state, so a potion or conversion could be refused until /reload
+-- (#350). Nothing here changes the client's selection.
+local function Redecorate()
+	if not (recipeList and recipeList.ScrollBox and recipeList.ScrollBox.ForEachFrame) then
+		return
+	end
+	recipeList.ScrollBox:ForEachFrame(function(row, elementData)
+		if elementData and elementData.GetData then
+			DecorateRow(row, elementData)
+		end
+	end)
 end
 
 -- A "Sort by" section at the bottom of Blizzard's own Filter menu. The same menu
@@ -328,7 +377,9 @@ function ns.AttachRecipeList()
 	measure:Hide()
 	-- No iterateExisting: it calls back as (frame, data), not (owner, frame, data),
 	-- and the list is still empty when Blizzard_Professions finishes loading.
-	ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)
+	ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, function(_, row, elementData)
+		DecorateRow(row, elementData)
+	end, ns)
 	recipeList.ScrollBox:RegisterCallback("OnDataProviderReassigned", function(scrollBox)
 		ApplySort(scrollBox)
 		if replacing then
@@ -348,11 +399,13 @@ function ns.AttachRecipeList()
 		end
 	end)
 	Menu.ModifyMenu("MENU_PROFESSIONS_FILTER", AddFilterMenu)
-	-- Rebuilding through the crafting page re-runs Blizzard's provider, which our
-	-- data-provider callback then re-sorts.
+	-- A row setting, a price or a profession changed: redraw the rows and re-sort in place. Never rebuild
+	-- the page through Blizzard's Init, which would write its recipe selection and schematic as ours (#350).
 	ns.WhenStale("recipeList", function()
 		if recipeList:IsVisible() and ProfessionsFrame.professionInfo then
-			ProfessionsFrame.CraftingPage:Init(ProfessionsFrame.professionInfo)
+			ApplySort(recipeList.ScrollBox)
+			Redecorate()
+			MeasureProvider(recipeList.ScrollBox:GetDataProvider())
 		end
 		ns.FitRecipeListWidth()
 	end)

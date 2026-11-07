@@ -1203,12 +1203,13 @@ function ns.ShowRecipe(recipeID, anyProfession)
 	if not (info and info.learned and (anyProfession or selected == ns.OpenSkillLine())) then
 		return
 	end
-	local craftingPage = ProfessionsFrame.CraftingPage
-	craftingPage:Show()
+	-- Let the client open its own recipe. Showing the page and selecting the recipe here wrote the recipe
+	-- list's selection and the schematic from addon code, and the craft path reads them: a potion or a
+	-- conversion could then be refused until /reload (#350). C_TradeSkillUI.OpenRecipe hands the same
+	-- selection to Blizzard's own code, as its recipe tracker and crafted gear page do.
+	ProfessionsFrame.CraftingPage:Show()
 	ProfessionsFrame:RefreshRightTabs()
-	if craftingPage.RecipeList and craftingPage.RecipeList.SelectRecipe then
-		craftingPage.RecipeList:SelectRecipe(info, true)
-	end
+	C_TradeSkillUI.OpenRecipe(recipeID)
 end
 
 -- Whether a frame hangs off one of our tabs, directly or through the frames it is anchored to.

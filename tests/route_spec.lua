@@ -1040,4 +1040,24 @@ page.PlanRoute, page.Have, page.NearestForRank, page.AddNearest = realPlan, save
 pageEnv.UnitLevel, pageEnv.GameTooltip_AddNormalLine, pageEnv.C_Item.GetItemNameByID =
 	nil, savedNormalLine, savedItemName
 
+-- Opening a recipe hands it to the client. Selecting it in Blizzard's list from addon code wrote the list's
+-- selection and the schematic as ours, and the craft path reads them (#350).
+local selected, openedRecipe
+local craftingPage = Stub()
+craftingPage.RecipeList = {
+	SelectRecipe = function()
+		selected = true
+	end,
+}
+pageEnv.ProfessionsFrame.CraftingPage = craftingPage
+pageEnv.C_TradeSkillUI.GetRecipeInfo = function()
+	return { learned = true, recipeID = 3275 }
+end
+pageEnv.C_TradeSkillUI.OpenRecipe = function(recipeID)
+	openedRecipe = recipeID
+end
+page.ShowRecipe(3275, true)
+equal(selected, nil, "opening a recipe does not select it in Blizzard's list from addon code")
+equal(openedRecipe, 3275, "the client opens its own recipe")
+
 Client.report("route_spec")

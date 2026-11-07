@@ -44,6 +44,7 @@ L["A side tab on the Professions window with a route to your target skill and it
 L["Show thresholds bar on the recipe"] = "Fertigkeitsbalken beim Rezept anzeigen" -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Die Forever-Addons sind kostenlos, und nichts ist hinter einer Bezahlung versteckt. Wenn sie Euch helfen, könnt Ihr mir einen Kaffee spendieren." -- mt
+L["The Forever Leaderboards window opens."] = "Das Forever-Leaderboards-Fenster öffnet sich." -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Die orangen, gelben, grünen und grauen Schwellen und wo Eure Fertigkeit liegt, unter dem Rezept im Berufsfenster. Ausschalten, wenn er die Reagenzien verdeckt." -- mt
 L["AH"] = "AH"
@@ -492,7 +493,5 @@ L["board"] = "Liste"
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - öffnet Forever Leaderboards auf der Registerkarte dieses Addons (auch /su stats)"
 L["total"] = "gesamt"
-L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
-	"SkillUps Rezeptliste wird Teil des gemeinsamen Forever-Leaderboards-Fensters."
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."

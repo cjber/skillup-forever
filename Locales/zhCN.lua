@@ -271,6 +271,7 @@ L["Suggest my other Forever addons"] = "推荐我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s训练师教授。"
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 插件全部免费，没有任何付费才能使用的内容。如果它们对你有帮助，可以请我喝杯咖啡。" -- mt
+L["The Forever Leaderboards window opens."] = "Forever Leaderboards 窗口已打开。" -- mt
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"
 L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
 	"配方列表和窗口会加宽，以容纳当前专业最长的配方名称，最宽到屏幕空间为止。关闭后保持窗口原有宽度。"
@@ -486,7 +487,5 @@ L["board"] = "排行榜"
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /su stats）"
 L["total"] = "总计"
-L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
-	"SkillUp 的配方排行榜加入了共享的 Forever Leaderboards 窗口。"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"

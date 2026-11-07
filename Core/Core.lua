@@ -79,7 +79,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["SkillUp's recipe board joins the shared Forever Leaderboards window."]
+ns.WHATS_NEW = L["The Forever Leaderboards window opens."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

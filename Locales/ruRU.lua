@@ -290,6 +290,7 @@ L["Suggest my other Forever addons"] = "Предлагать другие мои
 L["Taught by %s trainers."] = "Обучают учителя (%s)."
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Аддоны Forever бесплатны, и ничего в них не закрыто за оплатой. Если они вам помогают, можете угостить меня кофе." -- mt
+L["The Forever Leaderboards window opens."] = "Окно Forever Leaderboards открывается." -- mt
 L["The place this recipe is taught isn't known yet."] =
 	"Где обучают этому рецепту, пока неизвестно."
 L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
@@ -524,7 +525,5 @@ L["board"] = "таблица"
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - открывает Forever Leaderboards на вкладке этого аддона (также /su stats)"
 L["total"] = "всего"
-L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
-	"Таблица рецептов SkillUp входит в общее окно Forever Leaderboards."
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."

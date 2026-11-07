@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
+- **The Forever Leaderboards window opens.** `/flb` and `/forever` no longer raise a Lua error on first open: the list's rows now have a fixed height (cjber/forever-core#174).
 
 ## [1.0.25] - 2026-11-07
 - **SkillUp's recipe board joins the shared Forever Leaderboards window.** `/su leaderboard` and `/su stats` now open one window for every installed Forever addon on SkillUp's tab, with this week's and all-time observed recipe totals, the overall standing across the boards, and the player's place in the unit tooltip. Sharing is on by default: everyone running a Forever addon appears unless they turn it off, and the window's Share my progress switch, `/su share off` or the settings checkbox keeps them off. Recipes already observed stay counted, and reported totals remain player-reported.

@@ -499,7 +499,6 @@ L["Not learned · %s"] = "Sin aprender · %s"
 L["Trainer"] = "Instructor"
 L["Recipe item"] = "Receta"
 L["listing unlearned recipes failed: %s"] = "no se pudieron listar las recetas sin aprender: %s"
-L["The Forever Leaderboards tab wears a game icon."] = "La pestaña Forever Leaderboards lleva un icono del juego." -- mt
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"En esta ruta no puedes recoger, pescar ni saquear de criaturas nada, así que la opción no cambia nada." -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -511,3 +510,5 @@ L["you loot it from creatures"] = "lo saqueas de criaturas" -- mt
 L["you loot it from creatures, valued at its AH price"] = "lo saqueas de criaturas, valorado a su precio de subasta" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"lo saqueas de criaturas, valorado a su precio de venta al vendedor" -- mt
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"La carne y el pescado de una ruta de Cocina cuentan como obtenidos por ti." -- mt

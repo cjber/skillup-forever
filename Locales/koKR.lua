@@ -503,8 +503,6 @@ L["Not learned · %s"] = "배우지 않음 · %s"
 L["Trainer"] = "전문 기술 교관"
 L["Recipe item"] = "제조법"
 L["listing unlearned recipes failed: %s"] = "배우지 않은 제조법을 표시하지 못했습니다: %s"
-L["The Forever Leaderboards tab wears a game icon."] =
-	"Forever Leaderboards 탭에 게임 아이콘이 표시됩니다." -- mt
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"이 경로에서는 채집하거나 낚시하거나 몬스터에게서 약탈할 수 있는 것이 없어, 이 스위치는 아무것도 바꾸지 않습니다." -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -517,3 +515,5 @@ L["you loot it from creatures, valued at its AH price"] =
 	"몬스터에게서 약탈하며 경매 가격으로 계산합니다" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"몬스터에게서 약탈하며 상인 판매 가격으로 계산합니다" -- mt
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"요리 경로의 고기와 생선은 직접 구한 것으로 칩니다." -- mt

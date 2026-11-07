@@ -487,7 +487,6 @@ L["Not learned · %s"] = "未学习 · %s"
 L["Trainer"] = "训练师"
 L["Recipe item"] = "配方"
 L["listing unlearned recipes failed: %s"] = "列出未学习的配方失败：%s"
-L["The Forever Leaderboards tab wears a game icon."] = "Forever Leaderboards 标签页使用游戏内图标。" -- mt
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"这条路线没有你可以采集、钓鱼或从生物身上拾取的东西，所以此开关不会改变什么。" -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -499,3 +498,5 @@ L["you loot it from creatures"] = "你从生物身上拾取" -- mt
 L["you loot it from creatures, valued at its AH price"] = "你从生物身上拾取，按拍卖行价格计算" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"你从生物身上拾取，按商人出售价格计算" -- mt
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"烹饪路线上的肉类和鱼类算作你自己获取的。" -- mt

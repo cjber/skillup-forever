@@ -1,10 +1,3 @@
--- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
-local _, ns = ...
-if GetLocale() ~= "koKR" then
-	return
-end
-local L = ns.L
-
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d회 제작, %d까지, %s"
 L["%d crafts to %d, %s, at %s"] = "%d회 제작, %d까지, %s, 장소: %s"
@@ -466,7 +459,6 @@ L["Pinned: %s"] = "고정: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"숙련도 범위가 겹치면 최근 고정한 제조법이 우선합니다." -- mt
 L["Pinned (%d)"] = "고정됨 (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - 길드 및 파티와의 공유 설정"
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
@@ -488,7 +480,6 @@ L["This week"] = "이번 주"
 L["Uses Forever addons"] = "Forever 애드온 사용 중"
 L["Your guild and group"] = "내 길드와 파티"
 L["boards"] = "순위표"
-
 L["1st"] = "1위"
 L["2nd"] = "2위"
 L["3rd"] = "3위"
@@ -498,7 +489,6 @@ L["6th"] = "6위"
 L["7th"] = "7위"
 L["8th"] = "8위"
 L["board"] = "순위표"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - 이 애드온 탭에서 Forever Leaderboards를 엽니다 (/su stats도 가능)"
 L["total"] = "합계"
@@ -510,3 +500,4 @@ L["vendor, limited stock"] = "상인, 한정 재고"
 L["Cooking routes use recipes you can buy and meat you can farm."] =
 	"요리 경로는 구매할 수 있는 조리법과 사냥으로 얻을 수 있는 고기를 사용합니다."
 L["Sells %d at a time"] = "한 번에 %d개 판매"
+L["Skill-up percentages include Working Overtime."] = "숙련도 상승 확률에 Working Overtime이 반영됩니다." -- mt

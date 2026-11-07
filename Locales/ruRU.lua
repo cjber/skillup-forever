@@ -1,10 +1,3 @@
--- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
-local _, ns = ...
-if GetLocale() ~= "ruRU" then
-	return
-end
-local L = ns.L
-
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d созд. до %d, %s"
 L["%d crafts to %d, %s, at %s"] = "%d созд. до %d, %s, у: %s"
@@ -486,7 +479,6 @@ L["Pinned: %s"] = "Закреплён: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"При пересечении диапазонов приоритет у рецепта, закреплённого последним." -- mt
 L["Pinned (%d)"] = "Закреплено (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - управление обменом с гильдией и группой"
 L["Share observed recipe totals with guild and group"] =
@@ -510,7 +502,6 @@ L["This week"] = "Эта неделя"
 L["Uses Forever addons"] = "Использует аддоны Forever"
 L["Your guild and group"] = "Ваша гильдия и группа"
 L["boards"] = "таблиц"
-
 L["1st"] = "1-й"
 L["2nd"] = "2-й"
 L["3rd"] = "3-й"
@@ -520,7 +511,6 @@ L["6th"] = "6-й"
 L["7th"] = "7-й"
 L["8th"] = "8-й"
 L["board"] = "таблица"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - открывает Forever Leaderboards на вкладке этого аддона (также /su stats)"
 L["total"] = "всего"
@@ -532,3 +522,5 @@ L["vendor, limited stock"] = "торговец, ограниченный зап�
 L["Cooking routes use recipes you can buy and meat you can farm."] =
 	"Маршруты кулинарии используют рецепты, которые можно купить, и мясо, которое можно добыть."
 L["Sells %d at a time"] = "Продаёт по %d за раз"
+L["Skill-up percentages include Working Overtime."] =
+	"Шансы повышения навыка учитывают Working Overtime." -- mt

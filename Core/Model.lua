@@ -107,6 +107,21 @@ function Model.Color(t, skill)
 	return "grey"
 end
 
+-- The bonus a Legacy talent gives every yellow and green chance, in percentage points. It is state
+-- rather than an argument so every route, plan and row that asks Chance sees the same talent; orange
+-- stays certain and grey stays impossible, since a grey recipe can give no skill-up to improve.
+local chanceBonus = 0
+
+-- Sets that bonus; returns whether it changed, so a reader on a game event only refreshes on a real change.
+---@param bonus number
+---@return boolean changed
+function Model.SetChanceBonus(bonus)
+	local value = math.max(0, tonumber(bonus) or 0)
+	local changed = value ~= chanceBonus
+	chanceBonus = value
+	return changed
+end
+
 ---@param t number[]?
 ---@param skill number
 ---@return number?
@@ -120,7 +135,7 @@ function Model.Chance(t, skill)
 	if skill >= t[4] then
 		return 0
 	end
-	return (t[4] - skill) / (t[4] - t[2])
+	return math.min(1, (t[4] - skill) / (t[4] - t[2]) + chanceBonus)
 end
 
 -- Expected spend per skill point: one craft costs `cost` and succeeds with `chance`.

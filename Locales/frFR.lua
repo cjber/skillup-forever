@@ -1,11 +1,3 @@
--- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
--- Lines ending -- mt are machine translated; the others are Brainc3ll's, from Legacy Forever.
-local _, ns = ...
-if GetLocale() ~= "frFR" then
-	return
-end
-local L = ns.L
-
 L["%d %s"] = "%d %s" -- mt
 L["%d crafts to %d, %s"] = "%d fabrications jusqu'à %d, %s" -- mt
 L["%d crafts to %d, %s, at %s"] = "%d fabrications jusqu'à %d, %s, à : %s" -- mt
@@ -464,7 +456,6 @@ L["Pinned: %s"] = "Épinglée : %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"La recette épinglée le plus récemment est prioritaire si les plages se chevauchent." -- mt
 L["Pinned (%d)"] = "Épinglées (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - contrôle le partage avec la guilde et le groupe"
 L["Share observed recipe totals with guild and group"] =
@@ -487,7 +478,6 @@ L["This week"] = "Cette semaine" -- mt
 L["Uses Forever addons"] = "Utilise des addons Forever" -- mt
 L["Your guild and group"] = "Votre guilde et votre groupe" -- mt
 L["boards"] = "tableaux" -- mt
-
 L["1st"] = "1er" -- mt
 L["2nd"] = "2e" -- mt
 L["3rd"] = "3e" -- mt
@@ -497,7 +487,6 @@ L["6th"] = "6e" -- mt
 L["7th"] = "7e" -- mt
 L["8th"] = "8e" -- mt
 L["board"] = "tableau" -- mt
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - ouvre Forever Leaderboards sur l'onglet de cet addon (aussi /su stats)" -- mt
 L["total"] = "total" -- mt
@@ -509,3 +498,4 @@ L["vendor, limited stock"] = "vendeur, stock limité" -- mt
 L["Cooking routes use recipes you can buy and meat you can farm."] =
 	"Les routes de cuisine utilisent des recettes que vous pouvez acheter et de la viande que vous pouvez farmer." -- mt
 L["Sells %d at a time"] = "Vend %d à la fois" -- mt
+L["Skill-up percentages include Working Overtime."] = "Les chances de progression incluent Working Overtime." -- mt

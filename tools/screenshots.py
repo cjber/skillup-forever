@@ -116,7 +116,7 @@ def parse_lua_tables(text):
 
 def load_data():
     ns = {}
-    for name in ("Recipes", "Thresholds", "Vendor", "Sources"):
+    for name in ("Recipes", "Thresholds", "Vendor", "Sources", "Trainer"):
         ns.update(parse_lua_tables((REPO / "Data" / f"{name}.lua").read_text()))
     ns["RecipeName"] = {rid: name for names in ns["RecipeNames"].values() for name, rid in names.items()}
     return ns
@@ -199,6 +199,28 @@ COLORS = {  # Core/Core.lua ns.COLORS: the client's GlobalColor rows it names
 SKILL, MAX_SKILL = 48, 75
 LEARNED = [2152, 2149, 9058, 9059, 7126, 2153, 3753, 3816, 9060, 9062, 2881, 1229432]
 UNLEARNED = [8322]  # Moonglow Vest: taught by a quest
+# What the new unlearned setting adds at this skill: a trainer and a recipe item available now, then one of
+# each still ahead. Their rows say where and at what skill, as UI/RecipeList.lua draws them.
+ADDED_UNLEARNED = [2160, 5244, 2161, 2164]
+
+
+def unlearned_source(recipe_id):
+    """Core/Plan.lua ns.LearnSource: a trainer's requirement, else a recipe item's, in effective skill."""
+    trainer = NS["TrainerFees"].get(recipe_id)
+    if trainer:
+        return "Trainer", trainer[1]
+    scroll = NS["RecipeScrolls"].get(recipe_id)
+    if scroll:
+        return "Recipe item", scroll[1]
+    return None
+
+
+def unlearned_text(recipe_id):
+    """UI/RecipeList.lua UnlearnedText: the grey marker on a recipe the addon added."""
+    source = unlearned_source(recipe_id)
+    return None if source is None else f"Not learned · {source[0]} {source[1]}"
+
+
 BAGS = {2318: 23}  # Light Leather
 AUCTION = {2318: 90, 783: 320, 2934: 8}  # Light Leather, Light Hide, Ruined Leather Scraps (copper), from Auctionator
 PROFESSIONS = [  # GetProfessions order, as the side tabs show them: name, icon, rank, max, skill line
@@ -284,15 +306,20 @@ def recipe_name(recipe_id):
     return NS["RecipeName"][recipe_id]
 
 
-def sorted_recipes():
-    """RecipeList.lua BuildSorted with sortMode "cost": learned, then unlearned, each by perSkillUp, ties by
-    name; None sorts last."""
+def sorted_recipes(unlearned=None):
+    """RecipeList.lua's list: learned recipes sorted as BuildSorted does, then unlearned ones by the skill
+    they are learned at, as ns.UnlearnedRecipes sorts the added ones."""
 
     def key(recipe_id):
         per = describe(recipe_id)["perSkillUp"]
         return (math.inf if per is None else per, recipe_name(recipe_id).lower())
 
-    return sorted(LEARNED, key=key), sorted(UNLEARNED, key=key)
+    def unlearned_key(recipe_id):
+        source = unlearned_source(recipe_id)
+        return (math.inf if source is None else source[1], recipe_name(recipe_id).lower())
+
+    ids = UNLEARNED if unlearned is None else unlearned
+    return sorted(LEARNED, key=key), sorted(ids, key=unlearned_key)
 
 
 def craftable_count(recipe_id, bags=BAGS):
@@ -1348,21 +1375,21 @@ def recipe_tooltip(ui, recipe_id):
     return canvas
 
 
-def list_rows():
+def list_rows(unlearned=None):
     """The recipe list's rows top to bottom: ("recipe", id, learned) and ("divider", None, False)."""
-    learned, unlearned = sorted_recipes()
+    learned, unlearned_ids = sorted_recipes(unlearned)
     rows = [("recipe", rid, True) for rid in learned]
-    if unlearned:
+    if unlearned_ids:
         rows.append(("divider", None, False))
-        rows += [("recipe", rid, False) for rid in unlearned]
+        rows += [("recipe", rid, False) for rid in unlearned_ids]
     return rows
 
 
-def craft_list_width(ui, bags=BAGS):
+def craft_list_width(ui, bags=BAGS, unlearned=None, marked=False):
     """UI/RecipeList.lua: the list as wide as its widest name, count and SkillUp row text, capped to the screen."""
     measure = ui.canvas(1, 1)
     widest = LIST_W
-    learned_ids, unlearned_ids = sorted_recipes()
+    learned_ids, unlearned_ids = sorted_recipes(unlearned)
     for learned, ids in ((True, learned_ids), (False, unlearned_ids)):
         for recipe_id in ids:
             width = measure.text_width(recipe_name(recipe_id), F_ROW) + LIST_CHROME
@@ -1370,18 +1397,19 @@ def craft_list_width(ui, bags=BAGS):
             if count > 0:
                 width += measure.text_width(f" ({count}) ", F_ROW)
             # The row text is on by default: its width and the gap FitLabel keeps clear of it.
-            width += measure.text_width(format_row(describe(recipe_id)), F_ROW) + TEXT_GAP
+            text = unlearned_text(recipe_id) if marked and not learned else format_row(describe(recipe_id))
+            width += measure.text_width(text, F_ROW) + TEXT_GAP
             widest = max(widest, width)
     return max(LIST_W, min(widest, LIST_W + SCREEN_W - 2 * SCREEN_MARGIN - FRAME_W))
 
 
-def recipe_row(canvas, x, y, w, recipe_id, learned, selected, hovered, bags=BAGS):
+def recipe_row(canvas, x, y, w, recipe_id, learned, selected, hovered, bags=BAGS, marked=False):
     """ProfessionsRecipeListRecipeTemplate (20 high) at (x, y, w) with SkillUp's text on its right."""
     ui = canvas.ui
     d = describe(recipe_id)
     icon_atlas = SKILL_UP_ICONS.get(d["color"])
     skill_ups_y = y + (ROW_H - 15) / 2 - (1 if d["color"] == "orange" else 0)
-    if icon_atlas:
+    if not (marked and not learned) and icon_atlas:
         icon = ui.atlas(icon_atlas)
         # SkillUps (26x15) at LEFT (-9, yOfs); its icon at RIGHT (0, -1), atlas size.
         canvas.draw(icon, x - 9 + 26 - icon.width, skill_ups_y + (15 - icon.height) / 2 + 1)
@@ -1391,8 +1419,18 @@ def recipe_row(canvas, x, y, w, recipe_id, learned, selected, hovered, bags=BAGS
     count = craftable_count(recipe_id, bags) if learned else 0
     if count > 0:
         canvas.text(label_x + label_w, y, f" ({count}) ", F_ROW, color, box_height=ROW_H)
-    text = format_row(d)
-    canvas.text(x, y, text, F_ROW, row_color(d), box_height=ROW_H, justify="RIGHT", width=w - 4)
+    text = unlearned_text(recipe_id) if marked and not learned else format_row(d)
+    marker = marked and not learned
+    canvas.text(
+        x,
+        y,
+        text,
+        F_ROW,
+        DISABLED_FONT_COLOR if marker else row_color(d),
+        box_height=ROW_H,
+        justify="RIGHT",
+        width=w - 4,
+    )
     if selected:
         overlay = ui.atlas("Professions_Recipe_Active")
         canvas.draw(overlay, x + (w - overlay.width) / 2, y + (ROW_H - overlay.height) / 2 + 1)
@@ -1411,7 +1449,7 @@ def divider_row(canvas, x, y):
     canvas.draw(rule, x + 5, bottom - 5 - 2, 250, 2, (*NORMAL, 0.5), blend="ADD")
 
 
-def recipe_list(canvas, x, y, list_w, bags=BAGS):
+def recipe_list(canvas, x, y, list_w, bags=BAGS, unlearned=None, marked=False):
     """CraftingPage.RecipeList at (x, y). Returns the hovered row's rect."""
     ui = canvas.ui
     canvas.draw(ui.atlas("Professions-background-summarylist"), x, y, list_w, LIST_H)
@@ -1422,13 +1460,13 @@ def recipe_list(canvas, x, y, list_w, bags=BAGS):
     minimal_scrollbar(canvas, box_x + box_w, box_y, LIST_H - 35 - 5)
     top = box_y + ROW_PAD
     hovered_rect = None
-    for row in list_rows():
+    for row in list_rows(unlearned):
         kind, rid, learned = row
         if kind == "divider":
             divider_row(canvas, box_x, top)
             top += DIVIDER_H + ROW_GAP
             continue
-        recipe_row(canvas, box_x, top, row_w, rid, learned, rid == SELECTED, rid == HOVERED, bags)
+        recipe_row(canvas, box_x, top, row_w, rid, learned, rid == SELECTED, rid == HOVERED, bags, marked)
         if rid == HOVERED:
             hovered_rect = (box_x, top, row_w, ROW_H)
         top += ROW_H + ROW_GAP
@@ -1600,16 +1638,16 @@ def frame_art(canvas, fx, fy, frame_w):
     extend_art(canvas, "Profession-Background-Template2", fx + 3, fy + 21, frame_w - 8, 570, TEMPLATE_ART)
 
 
-def professions_frame(ui, bags=BAGS):
+def professions_frame(ui, bags=BAGS, unlearned=None, marked=False):
     """The Leatherworking window at SKILL with SELECTED selected and HOVERED under the cursor. Returns the
     canvas, the hovered row's rect and the window's width."""
     m = FRAME_MARGIN
-    list_w = craft_list_width(ui, bags)
+    list_w = craft_list_width(ui, bags, unlearned, marked)
     frame_w = FRAME_W + (list_w - LIST_W)
     canvas = ui.canvas(frame_w + m + TABS_MARGIN, FRAME_H + 2 * m)
     fx, fy = m, m
     frame_art(canvas, fx, fy, frame_w)
-    hovered = recipe_list(canvas, fx + LIST_X, fy + LIST_Y, list_w, bags)
+    hovered = recipe_list(canvas, fx + LIST_X, fy + LIST_Y, list_w, bags, unlearned, marked)
     schematic(canvas, fx + LIST_X + list_w + 2, fy + LIST_Y, SELECTED, bags)
     create_controls(canvas, fx, fy, craftable_count(SELECTED, bags), frame_w)
     profession_tabs(canvas, fx, fy, "Leatherworking", frame_w=frame_w)
@@ -1623,8 +1661,8 @@ def beside_window(ui, frame_w=FRAME_W):
     return FRAME_MARGIN + frame_w + ui.atlas("common-sidetab").width + 4, FRAME_MARGIN + 60
 
 
-def window_scene(ui, bags=BAGS):
-    frame, _, frame_w = professions_frame(ui, bags)
+def window_scene(ui, bags=BAGS, unlearned=None, marked=False):
+    frame, _, frame_w = professions_frame(ui, bags, unlearned, marked)
     tip = recipe_tooltip(ui, HOVERED)
     return scene(ui, [(frame, 0, 0), (tip, *beside_window(ui, frame_w))])
 
@@ -1641,6 +1679,12 @@ def wide_bags():
 def window_wide_scene(ui):
     """A Leatherworking list with a long name and craftable counts, which makes the list and window wider."""
     return window_scene(ui, wide_bags())
+
+
+def window_unlearned_scene(ui):
+    """The recipe list with the unlearned setting on: the bundle's unlearned recipes under the divider, greyed
+    and marked with their source and skill."""
+    return window_scene(ui, BAGS, ADDED_UNLEARNED, marked=True)
 
 
 # ------------------------------------------------------------------------------- scenes from the Lua's output
@@ -2246,6 +2290,7 @@ def main():
     merchant_confirm_scene(ui).save(OUT / "merchant-confirm.png")
     window_scene(ui).save(OUT / "window.png")
     window_wide_scene(ui).save(OUT / "window-wide.png")
+    window_unlearned_scene(ui).save(OUT / "window-unlearned.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
     data = lua_scene(ui)
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")

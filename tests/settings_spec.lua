@@ -166,6 +166,7 @@ local ns = {
 		sortMode = "default",
 		showRowText = true,
 		wideRecipeList = true,
+		showUnlearned = false,
 	},
 	RECIPE_TOOLTIP_OPTIONS = { { "window", "Beside" }, { "cursor", "Cursor" }, { "row", "Row" } },
 	ROW_COST_OPTIONS = { { "skillup", "Per skill-up" }, { "craft", "Per craft" } },
@@ -216,7 +217,7 @@ end
 local groups = {
 	{
 		"Recipe rows",
-		"checkbox:wideRecipeList checkbox:showRowText checkbox:showSkill checkbox:showTooltip"
+		"checkbox:wideRecipeList checkbox:showUnlearned checkbox:showRowText checkbox:showSkill checkbox:showTooltip"
 			.. " checkbox:detailsBar slider:recipeTooltip checkbox:showCost slider:rowCost",
 	},
 	{ "Prices", "slider:craftValue checkbox:valueGathered" },
@@ -265,6 +266,8 @@ assert(
 assert(craftValue.initializer.options.formatter(3) == "Auction" and craftValue.initializer.tooltip:find("5%% cut"))
 assert(Row("sortMode").initializer.options.formatter(1) == "Default")
 assert(Row("wideRecipeList").initializer.tooltip:find("longest recipe name"), "the wide list explains its fit")
+assert(Row("showUnlearned").initializer.setting.default == false, "unlearned recipes start off")
+assert(Row("showUnlearned").initializer.tooltip:find("greyed"), "the unlearned list explains how it draws")
 assert(Row("valueGathered").initializer.tooltip:find("vendor sell price if that is more"), "gathered value floor")
 assert(
 	Row("detailsBar").initializer.tooltip:find("reagents"),

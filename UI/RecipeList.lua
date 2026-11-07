@@ -35,6 +35,18 @@ local function SameWidth(a, b)
 	return a ~= nil and b ~= nil and math.abs(a - b) < 0.5
 end
 
+-- An added recipe's row text: that it is not learned, and where and at what skill it is learned. Grey,
+-- like the name Blizzard greys for a recipe it knows is unlearned.
+---@param entry SkillUpUnlearnedRecipe
+---@return string
+local function UnlearnedText(entry)
+	local source = entry.kind == "trainer" and L["Trainer"] or L["Recipe item"]
+	if entry.skill > 0 then
+		source = string.format(L["%s %d"], source, entry.skill)
+	end
+	return string.format(L["Not learned · %s"], source)
+end
+
 ---@param recipeID integer
 ---@return integer
 local function CraftableCount(recipeID)
@@ -51,6 +63,10 @@ local function RecipeWidth(info, depth)
 	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
 	measure:SetText(recipeInfo.name or "")
 	local width = depth * TREE_INDENT + measure:GetStringWidth() + LIST_CHROME
+	if recipeInfo.skillUpUnlearned then
+		measure:SetText(UnlearnedText(recipeInfo.skillUpUnlearned))
+		return width + measure:GetStringWidth() + TEXT_GAP
+	end
 	local count = CraftableCount(recipeInfo.recipeID)
 	if count > 0 then
 		measure:SetFormattedText(" (%d) ", count)
@@ -173,10 +189,11 @@ local function DecorateRow(_, row, node)
 	end
 
 	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
+	local entry = recipeInfo.skillUpUnlearned
 
 	-- The client's own count says how many the bags can make; give it the parentheses the list reads better
 	-- with, and keep it whether or not our row text is on.
-	local count = CraftableCount(recipeInfo.recipeID)
+	local count = not entry and CraftableCount(recipeInfo.recipeID) or 0
 	if count > 0 then
 		row.Count:SetFormattedText(" (%d) ", count)
 		row.Count:Show()
@@ -189,6 +206,23 @@ local function DecorateRow(_, row, node)
 		text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight_NoShadow")
 		text:SetJustifyH("RIGHT")
 		row.SkillUpText = text
+	end
+	if entry then
+		text:ClearAllPoints()
+		text:SetPoint("RIGHT", row, "RIGHT", -4, 0)
+		text:SetText(UnlearnedText(entry))
+		text:SetTextColor(GRAY_FONT_COLOR:GetRGB())
+		text:Show()
+		FitLabel(row, text)
+		-- A recipe this character has not learned cannot be selected or crafted: no click reaches the row,
+		-- so Blizzard's selection never runs for it.
+		if row.EnableMouse then
+			row:EnableMouse(false)
+		end
+		return
+	end
+	if row.EnableMouse then
+		row:EnableMouse(true)
 	end
 	if not ns.db.showRowText then
 		text:Hide()
@@ -226,6 +260,8 @@ local SORT_KEYS = {
 -- Forever's categories hold one or two recipes each, so sorting inside them changes
 -- nothing. A sort instead flattens the list: learned recipes, then unlearned ones.
 local replacing = false
+-- One failure is said once, not on every redraw.
+local warned = false
 
 ---@param node SkillUpTreeNode
 ---@param learned TradeSkillRecipeInfo[]
@@ -242,6 +278,49 @@ local function CollectRecipes(node, learned, unlearned, seen)
 			list[#list + 1] = info
 		end
 	end
+end
+
+---@param node SkillUpTreeNode
+---@param seen table<integer, boolean>
+local function CollectIDs(node, seen)
+	for _, child in ipairs(node:GetNodes()) do
+		local info = child:GetData().recipeInfo
+		if info then
+			seen[info.recipeID] = true
+		else
+			CollectIDs(child, seen)
+		end
+	end
+end
+
+-- The row data for one recipe the bundle knows this character has not learned.
+---@param entry SkillUpUnlearnedRecipe
+---@return TradeSkillRecipeInfo
+local function UnlearnedInfo(entry)
+	-- A row draws only these fields; the client's full recipe record needs data this recipe has never loaded.
+	---@diagnostic disable-next-line: missing-fields
+	return {
+		recipeID = entry.recipeID,
+		name = entry.name,
+		learned = false,
+		canSkillUp = false,
+		skillUpUnlearned = entry,
+	} --[[@as TradeSkillRecipeInfo]]
+end
+
+-- The bundled recipes missing from the client's list, in the order ns.UnlearnedRecipes sorted them.
+---@param seen table<integer, boolean>
+---@param ctx SkillUpContext
+---@return TradeSkillRecipeInfo[]
+local function UnlearnedMissing(seen, ctx)
+	local missing = {}
+	for _, entry in ipairs(ns.UnlearnedRecipes(ctx)) do
+		if not seen[entry.recipeID] then
+			seen[entry.recipeID] = true
+			missing[#missing + 1] = UnlearnedInfo(entry)
+		end
+	end
+	return missing
 end
 
 ---@param list TradeSkillRecipeInfo[]
@@ -262,11 +341,16 @@ end
 
 ---@param source SkillUpTreeProvider
 ---@param key SkillUpSortKey
+---@param ctx SkillUpContext?
 ---@return SkillUpTreeProvider
-local function BuildSorted(source, key)
-	local ctx = ns.SkillContext()
-	local learned, unlearned = {}, {}
-	CollectRecipes(source:GetRootNode(), learned, unlearned, {})
+local function BuildSorted(source, key, ctx)
+	local learned, unlearned, seen = {}, {}, {}
+	CollectRecipes(source:GetRootNode(), learned, unlearned, seen)
+	if ns.db.showUnlearned and ctx then
+		for _, info in ipairs(UnlearnedMissing(seen, ctx)) do
+			unlearned[#unlearned + 1] = info
+		end
+	end
 	SortRecipes(learned, key, ctx)
 	SortRecipes(unlearned, key, ctx)
 
@@ -284,21 +368,109 @@ local function BuildSorted(source, key)
 	return sorted
 end
 
+-- Whether this part of the client's tree holds a recipe the list should keep. A favourites entry is a
+-- recipe too, so its category stays even when every entry in it is one.
+---@param node SkillUpTreeNode
+---@return boolean
+local function HasRecipe(node)
+	for _, child in ipairs(node:GetNodes()) do
+		local info = child:GetData().recipeInfo
+		if info then
+			return true
+		elseif HasRecipe(child) then
+			return true
+		end
+	end
+	return false
+end
+
+-- The client's categories, copied as they are, with the bundled unlearned recipes after them. A copy
+-- loses Blizzard's sort comparator, so the order inserted here is the order drawn. A favourite is
+-- copied into its favourites category and into its own category, as the native list draws it.
+---@param source SkillUpTreeProvider
+---@param extra TradeSkillRecipeInfo[]
+---@return SkillUpTreeProvider
+local function BuildCategories(source, extra)
+	local copied = CreateTreeDataProvider()
+	local count = 0
+	---@param node SkillUpTreeNode
+	---@param target SkillUpTreeProvider|SkillUpTreeNode
+	local function Clone(node, target)
+		for _, child in ipairs(node:GetNodes()) do
+			local data = child:GetData()
+			local info = data.recipeInfo
+			if info then
+				count = count + 1
+				target:Insert({ recipeInfo = info })
+			elseif data.categoryInfo then
+				if HasRecipe(child) then
+					local category = target:Insert({ categoryInfo = data.categoryInfo })
+					if child.IsCollapsed and child:IsCollapsed() and category.SetCollapsed then
+						category:SetCollapsed(true)
+					end
+					Clone(child, category)
+				end
+			elseif data.isDivider then
+				target:Insert({ isDivider = true, dividerHeight = data.dividerHeight })
+			elseif data.topPadding or data.bottomPadding then
+				target:Insert({ topPadding = data.topPadding, bottomPadding = data.bottomPadding })
+			end
+		end
+	end
+	Clone(source:GetRootNode(), copied)
+	if #extra > 0 then
+		copied:Insert({ isDivider = true, dividerHeight = count > 0 and 70 or 30 })
+		for _, info in ipairs(extra) do
+			copied:Insert({ recipeInfo = info })
+		end
+	end
+	return copied
+end
+
+---@param source SkillUpTreeProvider
+---@param key SkillUpSortKey?
+---@param ctx SkillUpContext?
+---@return SkillUpTreeProvider?
+local function BuildProvider(source, key, ctx)
+	if key then
+		return BuildSorted(source, key, ctx)
+	end
+	if not (ns.db.showUnlearned and ctx) then
+		return nil
+	end
+	local seen = {}
+	CollectIDs(source:GetRootNode(), seen)
+	local extra = UnlearnedMissing(seen, ctx)
+	if #extra == 0 then
+		return nil
+	end
+	return BuildCategories(source, extra)
+end
+
 ---@param scrollBox SkillUpRecipeScrollBox
-local function ApplySort(scrollBox)
+local function ApplyList(scrollBox)
 	local key = SORT_KEYS[ns.db.sortMode]
 	local source = scrollBox:GetDataProvider()
-	if replacing or not key or not source or not source.GetRootNode then
+	if replacing or not source or not source.GetRootNode then
 		return
 	end
-	local ok, sorted = pcall(BuildSorted, source, key)
+	local ok, built = pcall(BuildProvider, source, key, ns.SkillContext())
 	if not ok then
-		ns.SetSortMode("blizzard")
-		ns.Print(string.format(L["sorting failed and has been turned off: %s"], tostring(sorted)))
+		if key then
+			ns.SetSortMode("blizzard")
+			ns.Print(string.format(L["sorting failed and has been turned off: %s"], tostring(built)))
+		elseif not warned then
+			warned = true
+			ns.Print(string.format(L["listing unlearned recipes failed: %s"], tostring(built)))
+		end
 		return
 	end
+	if not built then
+		return
+	end
+	---@cast built SkillUpTreeProvider
 	replacing = true
-	scrollBox:SetDataProvider(sorted, ScrollBoxConstants.RetainScrollPosition)
+	scrollBox:SetDataProvider(built, ScrollBoxConstants.RetainScrollPosition)
 	replacing = false
 end
 
@@ -330,7 +502,7 @@ function ns.AttachRecipeList()
 	-- and the list is still empty when Blizzard_Professions finishes loading.
 	ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)
 	recipeList.ScrollBox:RegisterCallback("OnDataProviderReassigned", function(scrollBox)
-		ApplySort(scrollBox)
+		ApplyList(scrollBox)
 		if replacing then
 			return
 		end

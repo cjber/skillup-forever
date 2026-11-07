@@ -505,5 +505,12 @@ L["total"] = "합계"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 L["crafted"] = "제작됨" -- mt
-L["The reagent prices add up to the Reagents total."] =
-	"이제 재료 가격의 합이 재료 합계와 일치합니다." -- mt
+L["List unlearned recipes"] = "배우지 않은 제조법 표시"
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
+	"열린 전문 기술에서 배우지 않은 제조법을 '배우지 않음' 구분선 아래에 추가하고, 회색으로 표시하며 교관 또는 제조법과 필요한 숙련도를 함께 보여 줍니다. 선택하거나 제작할 수는 없습니다."
+L["Not learned · %s"] = "배우지 않음 · %s"
+L["Trainer"] = "전문 기술 교관"
+L["Recipe item"] = "제조법"
+L["listing unlearned recipes failed: %s"] = "배우지 않은 제조법을 표시하지 못했습니다: %s"
+L["Recipes you have not learned can sit in the recipe list too."] =
+	"배우지 않은 제조법도 제조법 목록에 표시할 수 있습니다."

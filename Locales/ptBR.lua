@@ -498,4 +498,12 @@ L["total"] = "total"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Ativado por padrão. Desative para parar de enviar e receber totais e ocultar outros jogadores. As observações locais são mantidas."
 L["crafted"] = "fabricado" -- mt
-L["The reagent prices add up to the Reagents total."] = "Os preços dos reagentes agora somam o total de reagentes." -- mt
+L["List unlearned recipes"] = "Listar receitas não aprendidas"
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
+	"Adiciona as receitas da profissão aberta que você não aprendeu sob um divisor Não aprendida, em cinza e marcadas com um instrutor ou uma receita e a perícia exigida. Elas não podem ser selecionadas nem fabricadas."
+L["Not learned · %s"] = "Não aprendida · %s"
+L["Trainer"] = "Instrutor"
+L["Recipe item"] = "Receita"
+L["listing unlearned recipes failed: %s"] = "falha ao listar receitas não aprendidas: %s"
+L["Recipes you have not learned can sit in the recipe list too."] =
+	"Receitas não aprendidas podem aparecer na lista de receitas."

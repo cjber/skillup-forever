@@ -7,6 +7,7 @@ ns.ReportTitle = L["SkillUp report"]
 local DEFAULTS = {
 	showRowText = true,
 	wideRecipeList = true, -- widen the recipe list and the window to the longest recipe name in the open profession
+	showUnlearned = false, -- also list recipes this character has not learned, greyed, with where they are learned
 	showSkill = false,
 	showTooltip = true,
 	recipeTooltip = "window", -- where the recipe tooltip goes: beside the Professions window, at the cursor, by the row
@@ -79,7 +80,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The reagent prices add up to the Reagents total."]
+ns.WHATS_NEW = L["Recipes you have not learned can sit in the recipe list too."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

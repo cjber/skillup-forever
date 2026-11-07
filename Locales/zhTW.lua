@@ -490,4 +490,12 @@ L["total"] = "總計"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 L["crafted"] = "製作" -- mt
-L["The reagent prices add up to the Reagents total."] = "材料價格現在與材料合計一致。" -- mt
+L["List unlearned recipes"] = "列出未學習的配方"
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
+	"在「未學習」分隔線下列出目前專業中你尚未學習的配方，以灰色顯示，並標明訓練師或配方以及所需技能。它們無法被選取或製作。"
+L["Not learned · %s"] = "未學習 · %s"
+L["Trainer"] = "訓練師"
+L["Recipe item"] = "配方"
+L["listing unlearned recipes failed: %s"] = "列出未學習的配方失敗：%s"
+L["Recipes you have not learned can sit in the recipe list too."] =
+	"未學習的配方也可以顯示在配方列表中。"

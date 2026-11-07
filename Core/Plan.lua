@@ -313,6 +313,23 @@ end
 
 local BAND_NAMES = { "orange", "yellow", "green", "grey" }
 
+-- Where the bundle says a recipe is learned: a trainer's service or the pattern or recipe item that
+-- teaches it, and the effective skill (base plus the profession's modifier) it asks. Nil for anything
+-- else, including a quest, which only the catalogue knows.
+---@param profession SkillUpContext
+---@param recipeID integer
+---@return SkillUpLearnSource?
+function ns.LearnSource(profession, recipeID)
+	local training = ns.TrainingFor(profession, recipeID)
+	if training then
+		return { kind = "trainer", skill = training[2] + profession.modifier }
+	end
+	local scroll = ns.RecipeScrolls[recipeID]
+	if scroll then
+		return { kind = "scroll", skill = scroll[2] + profession.modifier, itemID = scroll[1] }
+	end
+end
+
 -- The skill where a recipe can first be learned: what a trainer asks, else the requirement of the
 -- pattern or recipe item that teaches it, else the catalogue's scroll skill, else nothing the data
 -- knows. The client's own orange is not a requirement: for many recipes it is left at 1.
@@ -320,19 +337,53 @@ local BAND_NAMES = { "orange", "yellow", "green", "grey" }
 ---@param recipeID integer
 ---@return number
 function ns.LearnSkill(profession, recipeID)
-	local training = ns.TrainingFor(profession, recipeID)
-	if training then
-		return training[2] + profession.modifier
-	end
-	local scroll = ns.RecipeScrolls[recipeID]
-	if scroll then
-		return scroll[2] + profession.modifier
+	local learned = ns.LearnSource(profession, recipeID)
+	if learned then
+		return learned.skill
 	end
 	local source = ns.Catalogue.Recipe(recipeID)
 	if source and source.skill then
 		return source.skill + profession.modifier
 	end
 	return 0
+end
+
+-- The recipes of this profession the character has not learned that the bundle can place: a trainer's
+-- or a recipe item's, with the skill each asks. Sorted by that skill, so the ones this character can
+-- learn now come first, then what is still ahead; a trainer's before a recipe item's at the same skill.
+---@param profession SkillUpContext
+---@return SkillUpUnlearnedRecipe[]
+function ns.UnlearnedRecipes(profession)
+	local found = {}
+	for recipeID, recipe in pairs(ns.RecipeData) do
+		if recipe.skillLine == profession.skillLine and not ns.IsLearned(recipeID) then
+			local source = ns.LearnSource(profession, recipeID)
+			if source then
+				local name = C_Spell.GetSpellName(recipeID)
+				local thresholds = ns.Model.Get(recipeID)
+				if name and thresholds then
+					found[#found + 1] = {
+						recipeID = recipeID,
+						name = name,
+						kind = source.kind,
+						skill = source.skill,
+						itemID = source.itemID,
+						thresholds = thresholds,
+					}
+				end
+			end
+		end
+	end
+	table.sort(found, function(a, b)
+		if a.skill ~= b.skill then
+			return a.skill < b.skill
+		elseif a.kind ~= b.kind then
+			return a.kind == "trainer"
+		end
+		local order = strcmputf8i(a.name, b.name)
+		return order < 0 or (order == 0 and a.recipeID < b.recipeID)
+	end)
+	return found
 end
 
 -- Each difficulty band a recipe still has and the skill it starts at, from where the recipe can

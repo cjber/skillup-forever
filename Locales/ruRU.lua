@@ -527,5 +527,13 @@ L["total"] = "всего"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 L["crafted"] = "создано" -- mt
-L["The reagent prices add up to the Reagents total."] =
-	"Цены реагентов теперь совпадают с их общей суммой." -- mt
+L["List unlearned recipes"] = "Показывать неизученные рецепты"
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
+	"Добавляет неизученные рецепты открытой профессии под разделителем «Не изучено», серым и с пометкой учителя или рецепта и требуемого навыка. Их нельзя выбрать или изготовить."
+L["Not learned · %s"] = "Не изучено · %s"
+L["Trainer"] = "Учитель"
+L["Recipe item"] = "Рецепт"
+L["listing unlearned recipes failed: %s"] =
+	"не удалось показать неизученные рецепты: %s"
+L["Recipes you have not learned can sit in the recipe list too."] =
+	"Неизученные рецепты могут отображаться в списке рецептов."

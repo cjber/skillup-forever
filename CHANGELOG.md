@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
+- **Recipes you have not learned can sit in the recipe list too.** A new setting, off by default, adds the open profession's unlearned recipes under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks, so what is ahead is in the same list. Unlearned rows cannot be selected or crafted. Thanks to prokn4h for the request.
 
 ## [1.0.28] - 2026-11-07
 - **The reagent prices add up to the Reagents total.** Each reagent line is priced the same way the total counts it - the cheaper of buying the reagent and making it - so a reagent your own recipe makes for less no longer shows its higher purchase price on the line against a lower total (Copper Bars 11s 34c against an 11s 32c total; Heavy Leather 51s against 32s), and a craft that loses money shows its red minus on Net per craft as it already did on Per skill-up. Thanks to derzwiebelritter and trias6657 for the reports (cjber/skillup-forever#360).

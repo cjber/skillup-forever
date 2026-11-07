@@ -42,6 +42,7 @@
 ---@field RowColor fun(d: SkillUpDescription): ColorMixin
 ---@field Price fun(itemID: integer): SkillUpPrice?
 ---@field PriceSource fun(itemID: integer): SkillUpPriceSource?
+---@field ObtainCost fun(itemID: integer): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
 ---@field LiveSchematicsArrived fun(recipeIDs: integer[]): boolean
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
 ---@field UsedIn fun(itemID: integer): integer[]

@@ -147,6 +147,10 @@ maps stays behind that profession, and cloth (Linen, Wool, Silk, Mageweave, Rune
 left out because every Tailoring and First Aid route buys it. Anyone can kill a creature, so these
 count as gatherable for every character with no profession needed.
 
+`ns.LimitedStock` keeps, per item, the vendors whose `npc_vendor` row has a `maxcount` above zero, so
+the route can say the nearest seller's stock is limited rather than imply the whole reagent list can be
+bought at once.
+
 `ns.NodeSkills` maps a herb or ore node's enUS name to the gathering skill and rank it asks for: the node's
 `gameobject_template` lock (`data0`) joined to the client's `Lock` DB2 (a WFA-28 waiver in `AGENTS.md`). A lock
 asking no skill (quest plants) is left out, and so is a name that nodes asking different skills share.

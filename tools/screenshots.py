@@ -648,6 +648,14 @@ env = setmetatable({
 			return learned[spellID] == true
 		end,
 	},
+	IsPlayerSpell = function(spellID)
+		return learned[spellID] == true
+	end,
+	C_UnitAuras = {
+		GetPlayerAuraBySpellID = function()
+			return nil
+		end,
+	},
 	C_TradeSkillUI = {
 		GetRecipeSchematic = function() end,
 		GetBaseProfessionInfo = function()

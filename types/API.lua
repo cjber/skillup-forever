@@ -10,7 +10,7 @@
 ---@field kind SkillUpAPIStepKind
 ---@field text string Short imperative line, "Craft 3 Toughened Leather Gloves".
 ---@field detail? string "142 to 145", "Name, Zone · fee".
----@field itemID? integer Reagent to get, the craft's or trained recipe's product, or a rank's book to buy or read.
+---@field itemID? integer Reagent to get, the craft's product, or a rank's book or a recipe's scroll to buy or read.
 ---@field spellID? integer Recipe to craft or train.
 ---@field questID? integer The quest that teaches a rank no trainer or book does (a train step).
 ---@field count? number

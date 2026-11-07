@@ -65,6 +65,8 @@ L["Auctionator, %s"] = "Auctionator，%s"
 L["Back"] = "背部"
 L["Beside the Professions window"] = "專業技能視窗旁邊"
 L["Buy %d %s"] = "購買%d個%s"
+L["Buy %s"] = "購買%s" -- mt
+L["Buy %s at %d"] = "在%2$d購買%1$s" -- mt
 L["Buy and read %s at %d"] = "購買並閱讀%s（技能%d）"
 L["Buy and read %s at %d (level %d)"] = "購買並閱讀%s（技能%d，等級%d）"
 L["Buy reagents"] = "購買材料"
@@ -493,3 +495,5 @@ L["you loot it from creatures"] = "你從生物身上拾取" -- mt
 L["you loot it from creatures, valued at its AH price"] = "你從生物身上拾取，按拍賣場價格計算" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"你從生物身上拾取，按商人出售價格計算" -- mt
+L["vendor, limited stock"] = "商人，庫存有限" -- mt
+L["Sells %d at a time"] = "每次出售 %d 個" -- mt

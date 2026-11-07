@@ -68,6 +68,8 @@ L["Auctionator, %s"] = "Auctionator, %s"
 L["Back"] = "등"
 L["Beside the Professions window"] = "전문 기술 창 옆"
 L["Buy %d %s"] = "%d개 구매: %s"
+L["Buy %s"] = "%s 구매" -- mt
+L["Buy %s at %d"] = "%s 구매 (%d)" -- mt
 L["Buy and read %s at %d"] = "%s 구매 후 읽기 (%d)"
 L["Buy and read %s at %d (level %d)"] = "%s 구매 후 읽기 (%d, 레벨 %d)"
 L["Buy reagents"] = "재료 구매"
@@ -510,3 +512,5 @@ L["you loot it from creatures, valued at its AH price"] =
 	"몬스터에게서 약탈하며 경매 가격으로 계산합니다" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"몬스터에게서 약탈하며 상인 판매 가격으로 계산합니다" -- mt
+L["vendor, limited stock"] = "상인, 한정 재고" -- mt
+L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt

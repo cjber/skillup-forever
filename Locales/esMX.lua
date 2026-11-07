@@ -68,6 +68,8 @@ L["Auctionator, %s"] = "Auctionator, %s"
 L["Back"] = "Espalda"
 L["Beside the Professions window"] = "Junto a la ventana de profesiones"
 L["Buy %d %s"] = "Comprar %d %s"
+L["Buy %s"] = "Comprar %s" -- mt
+L["Buy %s at %d"] = "Comprar %s a %d" -- mt
 L["Buy and read %s at %d"] = "Comprar y leer %s a %d"
 L["Buy and read %s at %d (level %d)"] = "Comprar y leer %s a %d (nivel %d)"
 L["Buy reagents"] = "Comprar componentes"
@@ -504,3 +506,5 @@ L["you loot it from creatures"] = "lo saqueas de criaturas" -- mt
 L["you loot it from creatures, valued at its AH price"] = "lo saqueas de criaturas, valorado a su precio de subasta" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"lo saqueas de criaturas, valorado a su precio de venta al vendedor" -- mt
+L["vendor, limited stock"] = "vendedor, existencias limitadas" -- mt
+L["Sells %d at a time"] = "Vende %d a la vez" -- mt

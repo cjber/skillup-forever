@@ -69,6 +69,8 @@ L["Auctionator, %s"] = "Auctionator, %s"
 L["Back"] = "Спина"
 L["Beside the Professions window"] = "Рядом с окном профессий"
 L["Buy %d %s"] = "Купить %d %s"
+L["Buy %s"] = "Купить %s" -- mt
+L["Buy %s at %d"] = "Купить %s на %d" -- mt
 L["Buy and read %s at %d"] = "Купить и прочитать %s на %d"
 L["Buy and read %s at %d (level %d)"] = "Купить и прочитать %s на %d (уровень %d)"
 L["Buy reagents"] = "Купить реагенты"
@@ -532,3 +534,5 @@ L["you loot it from creatures, valued at its AH price"] =
 	"вы выбиваете его из существ, по цене аукциона" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"вы выбиваете его из существ, по цене продажи торговцу" -- mt
+L["vendor, limited stock"] = "торговец, ограниченный запас" -- mt
+L["Sells %d at a time"] = "Продаёт по %d за раз" -- mt

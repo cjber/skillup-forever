@@ -353,4 +353,89 @@ local giver, label = ns.NearestForRank(lwRoute, questRank)
 equal(giver, TELONIS, "the route page and tracker send you to the quest's giver")
 equal(label, "Quest giver", "labelled as such")
 
+-- A recipe no trainer teaches, sold as a scroll at a vendor (#358): the training step buys that scroll, and
+-- navigation names its vendor, never a trainer.
+local COOKING, SCROLL, SCROLL_RECIPE, SCROLL_VENDOR = 185, 6329, 7754, 9001
+local scrollClient = Client.load({
+	auctionator = false,
+	saved = { routeTargets = { [COOKING] = 60 } },
+	data = {
+		Thresholds = { [SCROLL_RECIPE] = { 50, 90, 110, 130 } },
+		RecipeData = {
+			[SCROLL_RECIPE] = {
+				skillLine = COOKING,
+				reagents = { { itemID = 2678, quantity = 1 }, { itemID = 6317, quantity = 1 } },
+				output = { itemID = 6316, quantity = 1 },
+			},
+		},
+		RecipeScrolls = { [SCROLL_RECIPE] = { SCROLL, 50 } },
+		TrainerFees = {},
+		TrainerRanks = {},
+		RankBooks = {},
+		ProfessionTrainers = {},
+		RankQuests = {},
+		VendorPrices = { [SCROLL] = 500, [2678] = 10, [6317] = 3 },
+		ItemSellPrices = {},
+		GatheredBy = {},
+		ScrollDrops = {},
+		WorldDrops = {},
+	},
+	questie = {
+		items = { [SCROLL] = { class = 9, vendors = { SCROLL_VENDOR }, teaches = SCROLL_RECIPE } },
+		npcs = {
+			[SCROLL_VENDOR] = { name = "Fish Vendor", spawns = { [10] = { { 50, 50 } } }, side = "AH" },
+		},
+		areas = { [10] = 10 },
+	},
+})
+local scrollNs = scrollClient.ns
+scrollClient.level = 60
+scrollClient.player.faction = "Alliance"
+scrollClient.maps = { [0] = { mapID = 10, name = "Darkshire" } }
+scrollClient.items[SCROLL] = { name = "Recipe: Loch Frenzy Delight" }
+scrollClient.items[6316] = { name = "Loch Frenzy Delight", sell = 0 }
+scrollClient.items[2678] = { name = "Mild Spices" }
+scrollClient.items[6317] = { name = "Loch Frenzy" }
+scrollClient.professions = { { name = "Cooking", icon = 1, rank = 50, max = 75, id = COOKING } }
+scrollNs.db.routeTargets[COOKING] = 60
+scrollNs.Catalogue.EnsureProfession(COOKING)
+scrollClient.Advance(0)
+local scrollAPI = scrollClient.G.SkillUpForever.API
+local trainerAsked = false
+local nearestTrainer = scrollNs.NearestTrainer
+scrollNs.NearestTrainer = function(...)
+	trainerAsked = true
+	return nearestTrainer(...)
+end
+local scrollEntry
+for _, entry in ipairs(scrollAPI.Professions()) do
+	if entry.skillLineID == COOKING then
+		scrollEntry = entry
+	end
+end
+local scrollPlan = scrollNs.PlanRoute(scrollNs.RouteProfessions()[COOKING])
+equal(scrollPlan.training[1] and scrollPlan.training[1].scroll, SCROLL, "the plan carries the scroll item")
+local scrollStep = scrollEntry and scrollEntry.steps[1]
+equal(scrollStep and scrollStep.text, "Buy Recipe: Loch Frenzy Delight", "the API step buys the scroll")
+equal(scrollStep and scrollStep.itemID, SCROLL, "with the scroll as its item")
+equal(scrollStep and scrollStep.spellID, SCROLL_RECIPE, "and the recipe it teaches")
+equal(scrollStep and scrollStep.cost, 500, "at the scroll's price")
+equal(scrollStep and scrollStep.nav, true, "the vendor can be routed to")
+equal(trainerAsked, false, "a scroll step never asks for a trainer")
+scrollClient.G.ShortestPathForever = {
+	API = {
+		version = 1,
+		Estimate = function()
+			return 60
+		end,
+		Navigate = function(_, _, _, _, title)
+			scrollClient.routed = title
+			return true
+		end,
+	},
+}
+equal(scrollAPI.Navigate(COOKING, 1), true, "the scroll step routes")
+equal(scrollClient.routed, "Fish Vendor", "to its vendor, not a trainer")
+equal(trainerAsked, false, "even when it routes")
+
 Client.report("api_spec")

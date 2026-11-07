@@ -495,3 +495,4 @@ L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su sta
 L["total"] = "gesamt"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."
+L["crafted"] = "hergestellt" -- mt

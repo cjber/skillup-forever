@@ -505,3 +505,4 @@ L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su sta
 L["total"] = "합계"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
+L["crafted"] = "제작됨" -- mt

@@ -495,7 +495,6 @@ L["total"] = "total" -- mt
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 L["crafted"] = "fabriqué" -- mt
-L["The Forever Leaderboards tab wears a game icon."] = "L'onglet Forever Leaderboards porte une icône du jeu." -- mt
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"Vous ne pouvez rien récolter, pêcher ou piller sur des créatures sur ce parcours, l'option ne change donc rien ici." -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -508,3 +507,5 @@ L["you loot it from creatures, valued at its AH price"] =
 	"vous le pillez sur des créatures, valorisé à son prix aux enchères" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"vous le pillez sur des créatures, valorisé à son prix de vente au marchand" -- mt
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"La viande et le poisson d'une route de Cuisine comptent comme récupérés par vous." -- mt

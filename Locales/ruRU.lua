@@ -518,8 +518,6 @@ L["total"] = "всего"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 L["crafted"] = "создано" -- mt
-L["The Forever Leaderboards tab wears a game icon."] =
-	"Вкладка Forever Leaderboards использует игровую иконку." -- mt
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"На этом маршруте вам нечего собрать, выловить или выбить из существ, поэтому переключатель здесь ничего не меняет." -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -532,3 +530,5 @@ L["you loot it from creatures, valued at its AH price"] =
 	"вы выбиваете его из существ, по цене аукциона" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"вы выбиваете его из существ, по цене продажи торговцу" -- mt
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"Мясо и рыба на маршруте Кулинарии считаются добытыми вами." -- mt

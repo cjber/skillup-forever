@@ -176,8 +176,6 @@ L["One line in chat the first time a new version loads."] =
 L["Open"] = "Abrir"
 L["Open %s to craft from here."] = "Abre %s para crear desde aquí."
 L["Open recipe"] = "Abrir receta"
-L["Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item."] =
-	"Abrir una receta, u omitirla desde su menú contextual, ya no bloquea el uso de un objeto."
 L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
 	"Umbrales naranja, amarillo, verde y gris al pasar el cursor sobre una receta."
 L["Per craft"] = "Por fabricación"
@@ -503,3 +501,4 @@ L["total"] = "total"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
 L["crafted"] = "fabricado" -- mt
+L["The Forever Leaderboards tab wears a game icon."] = "La pestaña Forever Leaderboards lleva un icono del juego." -- mt

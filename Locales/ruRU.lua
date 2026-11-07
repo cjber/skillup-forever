@@ -187,8 +187,6 @@ L["One line in chat the first time a new version loads."] =
 L["Open"] = "Открыть"
 L["Open %s to craft from here."] = "Откройте %s, чтобы создавать отсюда."
 L["Open recipe"] = "Открыть рецепт"
-L["Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item."] =
-	"Открытие рецепта или его исключение через контекстное меню больше не блокирует использование предмета."
 L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
 	"Пороги оранжевого, желтого, зеленого и серого цвета при наведении на рецепт."
 L["Per craft"] = "За создание"
@@ -529,3 +527,5 @@ L["total"] = "всего"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 L["crafted"] = "создано" -- mt
+L["The Forever Leaderboards tab wears a game icon."] =
+	"Вкладка Forever Leaderboards использует игровую иконку." -- mt

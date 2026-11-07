@@ -178,8 +178,6 @@ L["One line in chat the first time a new version loads."] =
 L["Open"] = "열기"
 L["Open %s to craft from here."] = "여기서 제작하려면 %s을(를) 여세요."
 L["Open recipe"] = "제조법 열기"
-L["Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item."] =
-	"제조법을 열거나 우클릭 메뉴에서 제외해도 더 이상 아이템 사용이 차단되지 않습니다."
 L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
 	"제조법에 마우스를 올리면 주황, 노랑, 초록, 회색 구간을 표시합니다."
 L["Per craft"] = "제작당"
@@ -507,3 +505,5 @@ L["total"] = "합계"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 L["crafted"] = "제작됨" -- mt
+L["The Forever Leaderboards tab wears a game icon."] =
+	"Forever Leaderboards 탭에 게임 아이콘이 표시됩니다." -- mt

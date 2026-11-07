@@ -11,6 +11,10 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
+
+
+## [1.0.30] - 2026-11-07
+
 - **The Forever Leaderboards tab wears a game icon.** SkillUp's tab in the shared window now draws the game's own blacksmithing icon instead of the addon's logo, so it sits beside the overall trophy without a second gold frame. The TOC, minimap and the rest of the addon keep the addon's icon. (cjber/forever-core#180)
 
 ## [1.0.29] - 2026-11-07

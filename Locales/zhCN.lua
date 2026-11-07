@@ -171,8 +171,6 @@ L["One line in chat the first time a new version loads."] = "新版本首次加�
 L["Open"] = "打开"
 L["Open %s to craft from here."] = "打开%s以便在此制造。"
 L["Open recipe"] = "打开配方"
-L["Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item."] =
-	"打开配方，或从其右键菜单中跳过配方，不再阻止使用物品。"
 L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
 	"鼠标悬停在配方上时显示橙、黄、绿、灰的分界点。"
 L["Per craft"] = "每次制作"
@@ -491,3 +489,4 @@ L["total"] = "总计"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
 L["crafted"] = "制作" -- mt
+L["The Forever Leaderboards tab wears a game icon."] = "Forever Leaderboards 标签页使用游戏内图标。" -- mt

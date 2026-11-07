@@ -501,7 +501,6 @@ L["total"] = "total"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
 L["crafted"] = "fabricado" -- mt
-L["The reagent prices add up to the Reagents total."] = "Los precios de los reactivos ya suman el total de reactivos." -- mt
 L["farm"] = "farmear"
 L["vendor, limited stock"] = "vendedor, existencias limitadas"
 L["Cooking routes use recipes you can buy and meat you can farm."] =

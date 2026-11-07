@@ -515,5 +515,4 @@ L["The game's Craft button is not ready for this recipe."] =
 	"O botão Criar do jogo não está pronto para esta receita." -- mt
 L["vendor, limited stock"] = "vendedor, estoque limitado" -- mt
 L["Sells %d at a time"] = "Vende %d por vez" -- mt
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"Receitas que você ainda não aprendeu também podem aparecer na lista de receitas." -- mt
+L["Crafting from the route works on Forever."] = "Fabricar pela rota funciona no Forever." -- mt

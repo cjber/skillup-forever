@@ -505,5 +505,4 @@ L["Shift-click crafts all %d."] = "按住Shift點擊製造全部%d個。" -- mt
 L["The game's Craft button is not ready for this recipe."] = "遊戲內建的製造按鈕尚未對這份配方就緒。" -- mt
 L["vendor, limited stock"] = "商人，庫存有限" -- mt
 L["Sells %d at a time"] = "每次出售 %d 個" -- mt
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"未學會的配方現在也可以顯示在配方列表中。" -- mt
+L["Crafting from the route works on Forever."] = "從路線製作在 Forever 上可用。" -- mt

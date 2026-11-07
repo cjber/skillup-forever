@@ -545,5 +545,4 @@ L["The game's Craft button is not ready for this recipe."] =
 	"Кнопка «Создать» в игре не готова для этого рецепта." -- mt
 L["vendor, limited stock"] = "торговец, ограниченный запас" -- mt
 L["Sells %d at a time"] = "Продаёт по %d за раз" -- mt
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"Невыученные рецепты теперь тоже можно показать в списке рецептов." -- mt
+L["Crafting from the route works on Forever."] = "Создание по маршруту работает на Forever." -- mt

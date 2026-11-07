@@ -12,7 +12,11 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
-- **The route's Craft button crafts again on Forever.** It presses the Professions window's own Create button, so the game runs the craft as its own code: a click makes one, and Shift-click presses Create All. When the route's step fits in the bags, a click makes all of it too. The button waits until the window shows the route's recipe and its own Craft button is ready, and it never writes into Blizzard's crafting page (cjber/skillup-forever#385).
+- **The route's Craft button can make the whole step.** Shift-click presses the Professions window's Create All, and when the route's step fits in your bags a plain click makes all of it. The button now waits until the window shows the route's recipe and its own Create button is ready, and it opens the recipe once per step instead of on every redraw (cjber/skillup-forever#385).
+
+## [1.0.33] - 2026-11-07
+
+- **Crafting from the route works on Forever.** The route page's Craft button no longer tries to cast the recipe by its spell name, which this client ignores. It opens the planned recipe through the client's own `OpenRecipe` and forwards the click to the Professions window's own Create button, so the craft happens as your own click and still never runs as addon code, and it now takes the click on press as well as release so the key-down setting cannot swallow it (cjber/skillup-forever#385).
 
 ## [1.0.32] - 2026-11-07
 

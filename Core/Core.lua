@@ -6,6 +6,7 @@ ns.ReportTitle = L["SkillUp report"]
 ---@type SkillUpDefaults
 local DEFAULTS = {
 	showRowText = true,
+	wideRecipeList = true, -- widen the recipe list and the window to the longest recipe name in the open profession
 	showSkill = false,
 	showTooltip = true,
 	recipeTooltip = "window", -- where the recipe tooltip goes: beside the Professions window, at the cursor, by the row

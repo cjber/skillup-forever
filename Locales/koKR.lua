@@ -485,5 +485,7 @@ L["/su share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
+L["You appear once on leaderboards with a two-part name."] =
+	"이름이 두 부분이면 순위표에 한 번만 표시됩니다." -- mt
 L["The recipe list fits long recipe names, and says how many you can make beside them."] =
 	"The recipe list fits long recipe names, and says how many you can make beside them."

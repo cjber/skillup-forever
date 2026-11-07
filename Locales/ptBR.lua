@@ -36,7 +36,6 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Um material que suas profissões coletam custa o que renderia vendê-lo, em vez de nada: o preço no leilão após a taxa de 5%, ou o preço de venda ao comerciante, se for maior. Usado na rota e nos custos das linhas de receita. Preços de leilão precisam do Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Mantém o rastreador Forever compartilhado onde você o colocou. A alça no topo não o arrasta mais."
-L["Leaderboards show full names."] = "As tabelas de classificação mostram os nomes completos." -- mt
 L["Lock the tracker"] = "Travar o rastreador"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Uma aba lateral na janela de profissões, abaixo da aba da rota, com o item criado mais recente que este personagem pode equipar em cada espaço."

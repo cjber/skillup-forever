@@ -37,7 +37,6 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Материал, который добывают ваши профессии, стоит столько, сколько принесла бы его продажа, а не ноль: цена на аукционе за вычетом 5% комиссии или цена продажи торговцу, если она выше. Учитывается в маршруте и стоимости в строках рецептов. Для цен аукциона нужен Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
-L["Leaderboards show full names."] = "Таблицы лидеров показывают полные имена." -- mt
 L["Lock the tracker"] = "Закрепить трекер"
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Боковая вкладка окна профессий под вкладкой маршрута: самый новый созданный предмет, который этот персонаж может надеть, для каждой ячейки."

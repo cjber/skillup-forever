@@ -38,7 +38,6 @@ L["A material your professions gather costs what selling it would bring instead 
 	"Un matériau que vos métiers récoltent coûte ce que sa vente rapporterait au lieu de rien : son prix aux enchères après la commission de 5 %, ou son prix de vente au marchand s'il est plus élevé. Utilisé pour le parcours et les coûts sur les lignes de recettes. Les prix aux enchères nécessitent Auctionator." -- mt
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Garde le suivi Forever partagé là où vous l'avez placé. La poignée en haut ne le déplace plus." -- mt
-L["Leaderboards show full names."] = "Les classements affichent les noms complets." -- mt
 L["Lock the tracker"] = "Verrouiller le suivi" -- mt
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
 	"Un onglet latéral de la fenêtre des métiers, sous l'onglet du parcours, qui liste pour chaque emplacement le plus récent objet fabriqué que ce personnage peut équiper." -- mt

@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
+- **Meat and fish on a Cooking route count as yours to get.** Fish count as gathered when you know Fishing, and the parts creatures carry (meat, eggs, scales, feathers, venom sacs, elemental essences) count as gathered for every character, so with Buy reagents off they cost nothing and the switch no longer says it changes nothing for a Cooking route. Cloth, herbs and ore are unchanged: cloth is still bought, and herbs and ore still need the profession. A looted reagent's step reads "Loot ... from creatures" (cjber/skillup-forever#367).
+
 - **The Forever Leaderboards tab wears a game icon.** SkillUp's tab in the shared window now draws the game's own blacksmithing icon instead of the addon's logo, so it sits beside the overall trophy without a second gold frame. The TOC, minimap and the rest of the addon keep the addon's icon. (cjber/forever-core#180)
 
 ## [1.0.29] - 2026-11-07

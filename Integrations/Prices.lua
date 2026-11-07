@@ -96,25 +96,46 @@ local function SaleValue(itemID)
 	return sell, sell and "vendor" or nil
 end
 
--- What another of your professions gathers costs nothing, or, with *Value gathered materials* on, what it
--- would sell for. A material neither price is known for stays free. Nil for one you don't gather.
+-- Whether this character can get `itemID` without buying it: a creature anyone can kill drops it ("loot"), or
+-- one of their professions gathers it (that profession's name). Nil when neither. One predicate for Prices and
+-- the route's Buy reagents switch, so they cannot disagree.
+---@param itemID integer
+---@return string?
+function ns.CanGather(itemID)
+	local skillLine = ns.GatheredBy and ns.GatheredBy[itemID]
+	if skillLine then
+		professions = professions or ns.PlayerProfessions()
+		local profession = professions[skillLine]
+		return profession and profession.name or nil
+	end
+	if ns.LootedFrom and ns.LootedFrom[itemID] then
+		return "loot"
+	end
+	return nil
+end
+
+-- What another of your professions gathers, or any reagent creatures drop, costs nothing; or, with *Value
+-- gathered materials* on, what it would sell for. A material neither price is known for stays free. Nil for
+-- one you cannot get yourself.
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function Gathered(itemID)
-	local skillLine = ns.GatheredBy[itemID]
-	if not skillLine then
-		return nil
-	end
-	professions = professions or ns.PlayerProfessions()
-	local profession = professions[skillLine]
-	if not profession then
+	local source = ns.CanGather(itemID)
+	if not source then
 		return nil
 	end
 	local worth, from = nil, nil
 	if ns.db.valueGathered then
 		worth, from = SaleValue(itemID)
 	end
-	return { copper = worth or 0, source = "gather", profession = profession.name, worth = from }
+	---@type SkillUpPrice
+	local price = { copper = worth or 0, source = "gather", worth = from }
+	if source == "loot" then
+		price.loot = true
+	else
+		price.profession = source
+	end
+	return price
 end
 
 -- Cheapest known unit price and where it came from: "gather", "vendor" or

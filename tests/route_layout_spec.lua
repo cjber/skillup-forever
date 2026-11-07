@@ -403,6 +403,7 @@ local ns = {
 		__index = Color,
 	}),
 	GatheredBy = {},
+	LootedFrom = {},
 	FormatNet = function(copper)
 		return tostring(copper)
 	end,
@@ -539,6 +540,14 @@ local ns = {
 	WhenEvent = noop,
 	Print = noop,
 }
+function ns.CanGather(itemID)
+	if ns.LootedFrom[itemID] then
+		return "loot"
+	end
+	local skillLine = ns.GatheredBy[itemID]
+	local profession = skillLine and ns.PlayerProfessions()[skillLine]
+	return profession and profession.name or nil
+end
 
 local env = setmetatable({
 	-- SafeCall hands a caught error to the game's handler: here it fails the spec.

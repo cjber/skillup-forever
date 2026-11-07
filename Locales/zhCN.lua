@@ -154,8 +154,6 @@ L["No trainer teaches this rank: a quest does."] = "没有训练师教授此等�
 L["Not in this route: you chose Not this recipe."] = "不在此路线中：你选择了“不要此配方”。"
 L["Not installed"] = "未安装"
 L["Not this recipe"] = "不要此配方"
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"此路线中没有你自己采集的材料，所以此开关对它没有影响。"
 L["Nothing priced you know skills up past %d."] = "你已知且有价格的配方都无法将技能提升到%d以上。"
 L["Nothing to buy for this route."] = "此路线无需购买任何物品。"
 L["Nothing to craft on this route."] = "此路线无需制造任何物品。"
@@ -163,10 +161,6 @@ L["Nothing you know skills up past %d."] = "你已知的配方都无法将技能
 L["Off hand"] = "副手"
 L["On"] = "开启"
 L["On %s"] = "在%s"
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"开启：你可以采集的材料按商人或拍卖行价格计算。关闭：采集不计成本。"
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"开启：你可以采集的材料按商人或拍卖行价格计算。关闭：采集按其售价计算。"
 L["One line in chat the first time a new version loads."] = "新版本首次加载时在聊天框显示一行。"
 L["Open"] = "打开"
 L["Open %s to craft from here."] = "打开%s以便在此制造。"
@@ -453,7 +447,6 @@ L["Pinned: %s"] = "已固定：%s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"技能范围重叠时，最近固定的配方优先。" -- mt
 L["Pinned (%d)"] = "已固定（%d）" -- mt
-
 L["/su share on|off - control sharing with guild and group"] = "/su share on|off - 控制与公会和队伍共享"
 L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
 L["(you)"] = "(你)"
@@ -474,7 +467,6 @@ L["This week"] = "本周"
 L["Uses Forever addons"] = "使用 Forever 插件"
 L["Your guild and group"] = "你的公会和队伍"
 L["boards"] = "排行榜"
-
 L["1st"] = "第1名"
 L["2nd"] = "第2名"
 L["3rd"] = "第3名"
@@ -484,10 +476,20 @@ L["6th"] = "第6名"
 L["7th"] = "第7名"
 L["8th"] = "第8名"
 L["board"] = "排行榜"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /su stats）"
 L["total"] = "总计"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
 L["crafted"] = "制作" -- mt
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"这条路线没有你可以采集、钓鱼或从生物身上拾取的东西，所以此开关不会改变什么。" -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"开启时，你可以采集、钓鱼或从生物身上拾取的素材按商人或拍卖行价格计算。关闭时，自己获取不花费任何费用。" -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"开启时，你可以采集、钓鱼或从生物身上拾取的素材按商人或拍卖行价格计算。关闭时，自己获取需要按出售价值计算。" -- mt
+L["Loot %d %s from creatures"] = "从生物身上拾取 %d 个%s" -- mt
+L["you loot it from creatures"] = "你从生物身上拾取" -- mt
+L["you loot it from creatures, valued at its AH price"] = "你从生物身上拾取，按拍卖行价格计算" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"你从生物身上拾取，按商人出售价格计算" -- mt

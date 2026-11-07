@@ -159,8 +159,6 @@ L["Not in this route: you chose Not this recipe."] =
 	'경로에서 제외됨: "이 제조법 제외"를 선택했습니다.'
 L["Not installed"] = "설치 안 됨"
 L["Not this recipe"] = "이 제조법 제외"
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"이 경로에는 직접 채집할 재료가 없어, 이 설정은 아무것도 바꾸지 않습니다."
 L["Nothing priced you know skills up past %d."] =
 	"아는 제조법 중 가격이 있는 것으로는 %d 이상 숙련도가 오르지 않습니다."
 L["Nothing to buy for this route."] = "이 경로에 구매할 것이 없습니다."
@@ -169,10 +167,6 @@ L["Nothing you know skills up past %d."] = "아는 제조법으로는 %d 이상 
 L["Off hand"] = "보조장비"
 L["On"] = "켬"
 L["On %s"] = "%s에서"
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"켜면 채집할 수 있는 재료도 상인이나 경매장 가격으로 계산합니다. 끄면 채집 비용은 0입니다."
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"켜면 채집할 수 있는 재료도 상인이나 경매장 가격으로 계산합니다. 끄면 채집 비용은 판매 가격입니다."
 L["One line in chat the first time a new version loads."] =
 	"새 버전을 처음 불러올 때 대화창에 한 줄 표시합니다."
 L["Open"] = "열기"
@@ -468,7 +462,6 @@ L["Pinned: %s"] = "고정: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"숙련도 범위가 겹치면 최근 고정한 제조법이 우선합니다." -- mt
 L["Pinned (%d)"] = "고정됨 (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - 길드 및 파티와의 공유 설정"
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
@@ -490,7 +483,6 @@ L["This week"] = "이번 주"
 L["Uses Forever addons"] = "Forever 애드온 사용 중"
 L["Your guild and group"] = "내 길드와 파티"
 L["boards"] = "순위표"
-
 L["1st"] = "1위"
 L["2nd"] = "2위"
 L["3rd"] = "3위"
@@ -500,10 +492,21 @@ L["6th"] = "6위"
 L["7th"] = "7위"
 L["8th"] = "8위"
 L["board"] = "순위표"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - 이 애드온 탭에서 Forever Leaderboards를 엽니다 (/su stats도 가능)"
 L["total"] = "합계"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 L["crafted"] = "제작됨" -- mt
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"이 경로에서는 채집하거나 낚시하거나 몬스터에게서 약탈할 수 있는 것이 없어, 이 스위치는 아무것도 바꾸지 않습니다." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"켜면 채집하거나 낚시하거나 몬스터에게서 약탈할 수 있는 재료를 상인이나 경매장 가격으로 계산합니다. 끄면 직접 구하는 데 비용이 들지 않습니다." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"켜면 채집하거나 낚시하거나 몬스터에게서 약탈할 수 있는 재료를 상인이나 경매장 가격으로 계산합니다. 끄면 직접 구하는 데 판매 가격만큼 듭니다." -- mt
+L["Loot %d %s from creatures"] = "몬스터에게서 %d개 %s 약탈" -- mt
+L["you loot it from creatures"] = "몬스터에게서 약탈합니다" -- mt
+L["you loot it from creatures, valued at its AH price"] =
+	"몬스터에게서 약탈하며 경매 가격으로 계산합니다" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"몬스터에게서 약탈하며 상인 판매 가격으로 계산합니다" -- mt

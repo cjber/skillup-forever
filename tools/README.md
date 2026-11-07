@@ -136,8 +136,16 @@ comes from QuestieDB.
 
 `ns.GatheredBy` maps reagents to the gathering profession that yields them at least
 10% of the time: herb and mining nodes (`gameobject_template` chests whose `Lock`
-needs the skill) and `skinning_loot_template`, with reference loot expanded. Rarer
-finds (gems in veins) are left out.
+needs the skill), `skinning_loot_template` and `fishing_loot_template`, with reference loot
+expanded. Rarer finds (gems in veins) are left out. A reagent several skills yield keeps
+the lowest skill line (Herbalism, Mining, Fishing, Skinning); the pinned data has no overlap.
+
+`ns.LootedFrom` marks reagents at least three creatures drop directly at 10% or more, and whose
+`item_template` class is Reagent, Trade Goods or Miscellaneous. A shared reference pool is skipped:
+it holds cloth, potions and world drops, not a beast's own parts. A reagent `ns.GatheredBy` already
+maps stays behind that profession, and cloth (Linen, Wool, Silk, Mageweave, Runecloth, Felcloth) is
+left out because every Tailoring and First Aid route buys it. Anyone can kill a creature, so these
+count as gatherable for every character with no profession needed.
 
 `ns.NodeSkills` maps a herb or ore node's enUS name to the gathering skill and rank it asks for: the node's
 `gameobject_template` lock (`data0`) joined to the client's `Lock` DB2 (a WFA-28 waiver in `AGENTS.md`). A lock

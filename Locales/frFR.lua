@@ -160,8 +160,6 @@ L["Not in this route: you chose Not this recipe."] =
 	"Absente de ce parcours : vous avez choisi « Pas cette recette »." -- mt
 L["Not installed"] = "Non installé" -- mt
 L["Not this recipe"] = "Pas cette recette" -- mt
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"Vous ne récoltez rien sur ce parcours, l'option ne change donc rien ici." -- mt
 L["Nothing priced you know skills up past %d."] =
 	"Rien de ce que vous connaissez et qui a un prix ne fait progresser au-delà de %d." -- mt
 L["Nothing to buy for this route."] = "Rien à acheter pour ce parcours." -- mt
@@ -170,10 +168,6 @@ L["Nothing you know skills up past %d."] = "Rien de ce que vous connaissez ne fa
 L["Off hand"] = "Main gauche" -- mt
 L["On"] = "Activé" -- mt
 L["On %s"] = "Sur %s" -- mt
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"Activé : un composant que vous pourriez récolter est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : le récolter ne coûte rien." -- mt
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"Activé : un composant que vous pourriez récolter est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : le récolter coûte sa valeur de vente." -- mt
 L["One line in chat the first time a new version loads."] =
 	"Une ligne dans la discussion au premier chargement d'une nouvelle version." -- mt
 L["Open"] = "Ouvrir"
@@ -466,7 +460,6 @@ L["Pinned: %s"] = "Épinglée : %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"La recette épinglée le plus récemment est prioritaire si les plages se chevauchent." -- mt
 L["Pinned (%d)"] = "Épinglées (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - contrôle le partage avec la guilde et le groupe"
 L["Share observed recipe totals with guild and group"] =
@@ -489,7 +482,6 @@ L["This week"] = "Cette semaine" -- mt
 L["Uses Forever addons"] = "Utilise des addons Forever" -- mt
 L["Your guild and group"] = "Votre guilde et votre groupe" -- mt
 L["boards"] = "tableaux" -- mt
-
 L["1st"] = "1er" -- mt
 L["2nd"] = "2e" -- mt
 L["3rd"] = "3e" -- mt
@@ -499,10 +491,21 @@ L["6th"] = "6e" -- mt
 L["7th"] = "7e" -- mt
 L["8th"] = "8e" -- mt
 L["board"] = "tableau" -- mt
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - ouvre Forever Leaderboards sur l'onglet de cet addon (aussi /su stats)" -- mt
 L["total"] = "total" -- mt
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 L["crafted"] = "fabriqué" -- mt
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"Vous ne pouvez rien récolter, pêcher ou piller sur des créatures sur ce parcours, l'option ne change donc rien ici." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"Activé : un composant que vous pourriez récolter, pêcher ou piller sur des créatures est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : vous le procurer vous-même ne coûte rien." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"Activé : un composant que vous pourriez récolter, pêcher ou piller sur des créatures est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : vous le procurer vous-même coûte sa valeur de vente." -- mt
+L["Loot %d %s from creatures"] = "Piller %d %s sur des créatures" -- mt
+L["you loot it from creatures"] = "vous le pillez sur des créatures" -- mt
+L["you loot it from creatures, valued at its AH price"] =
+	"vous le pillez sur des créatures, valorisé à son prix aux enchères" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"vous le pillez sur des créatures, valorisé à son prix de vente au marchand" -- mt

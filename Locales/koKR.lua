@@ -519,5 +519,4 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"몬스터에게서 약탈하며 상인 판매 가격으로 계산합니다" -- mt
 L["vendor, limited stock"] = "상인, 한정 재고" -- mt
 L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"배우지 않은 제조법도 제조법 목록에 표시할 수 있습니다." -- mt
+L["Crafting from the route works on Forever."] = "경로에서 제작하기가 Forever에서 작동합니다." -- mt

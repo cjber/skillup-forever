@@ -542,5 +542,4 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"вы выбиваете его из существ, по цене продажи торговцу" -- mt
 L["vendor, limited stock"] = "торговец, ограниченный запас" -- mt
 L["Sells %d at a time"] = "Продаёт по %d за раз" -- mt
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"Невыученные рецепты теперь тоже можно показать в списке рецептов." -- mt
+L["Crafting from the route works on Forever."] = "Создание по маршруту работает на Forever." -- mt

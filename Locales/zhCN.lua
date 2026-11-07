@@ -502,5 +502,4 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"你从生物身上拾取，按商人出售价格计算" -- mt
 L["vendor, limited stock"] = "商人，库存有限" -- mt
 L["Sells %d at a time"] = "每次出售 %d 个" -- mt
-L["Recipes you have not learned can sit in the recipe list too."] =
-	"未学会的配方现在也可以显示在配方列表中。" -- mt
+L["Crafting from the route works on Forever."] = "从路线制作在 Forever 上可用。" -- mt

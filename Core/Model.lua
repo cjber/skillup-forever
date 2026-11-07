@@ -275,12 +275,15 @@ local function Rank(recipe, skill)
 end
 
 -- Whether a recipe is in the green band at this skill: still craftable, but the long grind a next recipe
--- should replace when one can gain there (#358).
----@param recipe SkillUpCandidate
+-- should replace when one can gain there (#358). The band is read straight off the thresholds rather than
+-- through Model.Color, because this is asked twice per candidate inside the route's hottest loop and a
+-- function call plus a string comparison there is what a plan of every recipe can feel. Green is exactly
+-- "thresholds present, skill at or past the third one, and still short of the fourth".
+---@param thresholds number[]|nil
 ---@param skill number
 ---@return boolean
-local function Green(recipe, skill)
-	return Model.Color(recipe.thresholds, skill) == "green"
+local function Green(thresholds, skill)
+	return thresholds ~= nil and skill >= thresholds[3] and skill < thresholds[4]
 end
 
 -- Among recipes that can gain skill, the most recent pin wins; then one outside the green band over one
@@ -305,7 +308,7 @@ local function Beats(recipe, key, chance, best, bestKey, bestChance, skill)
 	if preference ~= bestPreference then
 		return preference > bestPreference
 	end
-	local green, bestGreen = Green(recipe, skill), Green(best, skill)
+	local green, bestGreen = Green(recipe.thresholds, skill), Green(best.thresholds, skill)
 	if green ~= bestGreen then
 		return not green
 	end

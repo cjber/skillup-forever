@@ -290,13 +290,14 @@ local function VendorTraining(recipeID)
 	end
 	---@type number?
 	local fee = ns.db.vendor[item] or (ns.VendorPrices and ns.VendorPrices[item])
-	local source = ns.Catalogue and type(ns.Catalogue.Recipe) == "function" and ns.Catalogue.Recipe(recipeID)
-	if not fee and not (source and #source.vendors > 0) then
-		return nil
-	end
 	if not fee then
-		local price = ns.Price(item)
-		fee = price and price.source == "vendor" and price.copper or nil
+		-- Only now is the catalogue worth asking: with a fee already in hand it is never consulted, and
+		-- this runs once per recipe of the profession on every plan build.
+		local source = ns.Catalogue and type(ns.Catalogue.Recipe) == "function" and ns.Catalogue.Recipe(recipeID)
+		if source and #source.vendors > 0 then
+			local price = ns.Price(item)
+			fee = price and price.source == "vendor" and price.copper or nil
+		end
 	end
 	if not fee then
 		return nil

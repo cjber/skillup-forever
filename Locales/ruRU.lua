@@ -292,6 +292,8 @@ L["The Forever addons are free, with nothing locked behind them. If they help, y
 	"Аддоны Forever бесплатны, и ничего в них не закрыто за оплатой. Если они вам помогают, можете угостить меня кофе." -- mt
 L["The place this recipe is taught isn't known yet."] =
 	"Где обучают этому рецепту, пока неизвестно."
+L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
+	"Список рецептов расширяется до самого длинного названия рецепта открытой профессии, а окно — вместе с ним, в пределах экрана. Выключите, чтобы оставить исходную ширину окна."
 L["The rest comes from a vendor or your gathering."] =
 	"Остальное — от торговца или из вашей добычи."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
@@ -339,6 +341,8 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Пока открыт аукцион, окно профессий предлагает поиск реагентов выбранного рецепта: столько, сколько еще нужно для выбранного числа созданий с учетом сумок и банка. Список покупок Auctionator передает количество; без него каждый щелчок вставляет следующий реагент в поле поиска."
+L["Widen the recipe list to fit recipe names"] =
+	"Расширить список рецептов под названия"
 L["With Shortest Path Forever, a click leads you there."] =
 	"С Shortest Path Forever щелчок приведет вас туда."
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
@@ -503,5 +507,5 @@ L["Share observed recipe totals with guild and group"] =
 	"Делиться итогами наблюдений рецептов с гильдией и группой"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
-L["A route no longer stays on a free or profitable recipe as it goes grey."] =
-	"A route no longer stays on a free or profitable recipe as it goes grey."
+L["The recipe list fits long recipe names, and says how many you can make beside them."] =
+	"The recipe list fits long recipe names, and says how many you can make beside them."

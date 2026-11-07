@@ -47,6 +47,8 @@
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
+---@field FitRecipeListWidth fun() fit the open profession's recipe list, and the window with it, to its longest name
+---@field FitFrameArt fun(extra: number) redraw the frame's art for that much widening, or the stock art at 0
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
 ---@field Gear SkillUpGear
@@ -194,6 +196,7 @@
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field peerStats table<string, table>
 ---@field showRowText boolean
+---@field wideRecipeList boolean
 ---@field showSkill boolean
 ---@field showTooltip boolean
 ---@field recipeTooltip 'window'|'cursor'|'row'

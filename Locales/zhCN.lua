@@ -272,6 +272,8 @@ L["Taught by %s trainers."] = "由%s训练师教授。"
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 插件全部免费，没有任何付费才能使用的内容。如果它们对你有帮助，可以请我喝杯咖啡。" -- mt
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"
+L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
+	"配方列表和窗口会加宽，以容纳当前专业最长的配方名称，最宽到屏幕空间为止。关闭后保持窗口原有宽度。"
 L["The rest comes from a vendor or your gathering."] = "其余来自商人或你的采集。"
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"路线按%d个计算，十次中有九次能达到%d；运气差时需要更多。"
@@ -317,6 +319,7 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"拍卖行打开时，专业窗口可以搜索所选配方的材料：数量为扣除背包和银行后，你选择的制造次数仍需要的数量。Auctionator的购物清单会带上数量；没有它时，每次点击会把下一个材料填入搜索框。"
+L["Widen the recipe list to fit recipe names"] = "加宽配方列表以容纳配方名称"
 L["With Shortest Path Forever, a click leads you there."] = "有Shortest Path Forever时，点击即可带你前往。"
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
 	"有Shortest Path Forever时，会按路程时间选择最近的并带你前往。"
@@ -464,5 +467,5 @@ L["/su share on|off - control sharing with guild and group"] = "/su share on|off
 L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
-L["A route no longer stays on a free or profitable recipe as it goes grey."] =
-	"A route no longer stays on a free or profitable recipe as it goes grey."
+L["The recipe list fits long recipe names, and says how many you can make beside them."] =
+	"The recipe list fits long recipe names, and says how many you can make beside them."

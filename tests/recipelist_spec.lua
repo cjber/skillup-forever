@@ -39,7 +39,7 @@ local function tree()
 end
 local ns = {
 	L = {},
-	db = { sortMode = "skill" },
+	db = { sortMode = "skill", wideRecipeList = true },
 	Model = {
 		Get = function(id)
 			return { id }
@@ -51,6 +51,10 @@ local ns = {
 	AttachAuctionSearch = noop,
 	AttachDetailsBar = noop,
 	WhenStale = noop,
+	WhenEvent = noop,
+	Readable = function(value)
+		return value
+	end,
 	ShowRecipeTooltip = noop,
 	Print = function(msg)
 		error(msg)
@@ -59,8 +63,53 @@ local ns = {
 		error("unexpected sort failure")
 	end,
 }
+local recipeList = { ScrollBox = box, width = 304, visible = true }
+function recipeList:GetWidth()
+	return self.width
+end
+function recipeList:SetWidth(width)
+	self.width = width
+end
+function recipeList:IsVisible()
+	return self.visible
+end
+function recipeList.CreateFontString()
+	return {
+		SetText = noop,
+		SetFormattedText = noop,
+		Hide = noop,
+		GetStringWidth = function()
+			return 100
+		end,
+	}
+end
+local frame = { CraftingPage = { RecipeList = recipeList }, width = 673 }
+function frame:GetWidth()
+	return self.width
+end
+function frame:SetWidth(width)
+	self.width = width
+end
 local env = setmetatable({
-	ProfessionsFrame = { CraftingPage = { RecipeList = { ScrollBox = box } } },
+	ProfessionsFrame = frame,
+	Professions = {
+		GetHighestLearnedRecipe = function(info)
+			return info
+		end,
+	},
+	C_TradeSkillUI = {
+		GetCraftableCount = function()
+			return 0
+		end,
+	},
+	UIParent = {
+		GetWidth = function()
+			return 1024
+		end,
+	},
+	InCombatLockdown = function()
+		return false
+	end,
 	ScrollUtil = { AddInitializedFrameCallback = noop },
 	EventRegistry = { RegisterCallback = noop },
 	Menu = { ModifyMenu = noop },

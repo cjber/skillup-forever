@@ -55,6 +55,18 @@ local STALE = {
 	-- A skill line moved: often a weapon or defense skill-up in combat, nothing a plan reads. A plan is keyed by
 	-- its profession's skill, bonus and cap, so a profession's own skill-up rebuilds that one plan on its next ask.
 	skill = { api = true, route = true, tracker = true, detailsBar = true, shoppingList = true },
+	-- A Legacy talent changed what a skill-up is worth: every chance shown, planned or priced moves.
+	talents = {
+		plans = true,
+		api = true,
+		route = true,
+		recipeList = true,
+		tracker = true,
+		trainer = true,
+		detailsBar = true,
+		tooltip = true,
+		shoppingList = true,
+	},
 	-- A profession learned or dropped changes what counts as gathered, so what things cost.
 	professions = {
 		prices = true,

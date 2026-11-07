@@ -1925,9 +1925,11 @@ def gear_slot(canvas, x, y, index, slot):
             mark = ui.atlas("checkmark-minimal")
             canvas.draw(mark, x + GEAR_ICON + 3 - mark.width, y + GEAR_ICON + 3 - mark.height)
     else:
-        art = ui.texture(f"interface/paperdoll/ui-paperdoll-slot-{GEAR_SLOT_ART[index].lower()}.blp")
+        # C_PaperDollInfo.GetInventorySlotInfo hands the client the empty-slot art, which the suite's asset
+        # gate now rejects as pre-Legion chrome, so the mock draws the game's own current slot atlas instead.
         # SetDesaturated(true) keeps the art's alpha; convert through L so the transparent corners stay clear.
-        canvas.draw(art.convert("LA").convert("RGBA"), x, y, GEAR_ICON, GEAR_ICON)
+        art = ui.atlas("UI-Character-Info-GearSlot")
+        canvas.draw(art.image.convert("LA").convert("RGBA"), x, y, GEAR_ICON, GEAR_ICON)
     if slot.get("selected"):
         canvas.draw(ui.atlas("Profession-square-frame-glow"), x, y, GEAR_ICON, GEAR_ICON, blend="ADD")
 

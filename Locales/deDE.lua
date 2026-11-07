@@ -1,10 +1,3 @@
--- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
-local _, ns = ...
-if GetLocale() ~= "deDE" then
-	return
-end
-local L = ns.L
-
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d-mal herstellen bis %d, %s"
 L["%d crafts to %d, %s, at %s"] = "%d-mal herstellen bis %d, %s, an: %s"
@@ -451,7 +444,6 @@ L["Pinned: %s"] = "Angeheftet: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"Bei überlappenden Fertigkeitsbereichen hat das zuletzt angeheftete Rezept Vorrang." -- mt
 L["Pinned (%d)"] = "Angeheftet (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] = "/su share on|off - Teilen mit Gilde und Gruppe steuern"
 L["Share observed recipe totals with guild and group"] = "Beobachtete Rezeptsummen mit Gilde und Gruppe teilen"
 L["(you)"] = "(du)"
@@ -472,7 +464,6 @@ L["This week"] = "Diese Woche"
 L["Uses Forever addons"] = "Nutzt Forever-Addons"
 L["Your guild and group"] = "Deine Gilde und Gruppe"
 L["boards"] = "Ranglisten"
-
 L["1st"] = "1."
 L["2nd"] = "2."
 L["3rd"] = "3."
@@ -482,14 +473,12 @@ L["6th"] = "6."
 L["7th"] = "7."
 L["8th"] = "8."
 L["board"] = "Liste"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - öffnet Forever Leaderboards auf der Registerkarte dieses Addons (auch /su stats)"
 L["total"] = "gesamt"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."
 L["crafted"] = "hergestellt" -- mt
-
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"Auf dieser Route könnt Ihr nichts sammeln, fischen oder von Kreaturen erbeuten, der Schalter ändert hier also nichts." -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -501,6 +490,12 @@ L["you loot it from creatures"] = "Ihr erbeutet es von Kreaturen" -- mt
 L["you loot it from creatures, valued at its AH price"] = "Ihr erbeutet es von Kreaturen, zum Auktionspreis bewertet" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"Ihr erbeutet es von Kreaturen, zum Händlerverkaufspreis bewertet" -- mt
-
 L["Meat and fish on a Cooking route count as yours to get."] =
 	"Fleisch und Fisch auf einer Kochroute zählen als selbst beschafft." -- mt
+L["Skill-up percentages include Working Overtime."] = "Die Skill-up-Chancen berücksichtigen Working Overtime." -- mt
+L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
+	"Auf dieser Route sammelt Ihr nichts selbst, der Schalter ändert hier also nichts."
+L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
+	"An: Ein Reagenz, das Ihr sammeln könntet, wird zum Händler- oder Auktionspreis gerechnet. Aus: Sammeln kostet nichts."
+L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
+	"An: Ein Reagenz, das Ihr sammeln könntet, wird zum Händler- oder Auktionspreis gerechnet. Aus: Sammeln kostet seinen Verkaufswert."

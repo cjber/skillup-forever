@@ -1,10 +1,3 @@
--- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
-local _, ns = ...
-if GetLocale() ~= "ruRU" then
-	return
-end
-local L = ns.L
-
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d созд. до %d, %s"
 L["%d crafts to %d, %s, at %s"] = "%d созд. до %d, %s, у: %s"
@@ -480,7 +473,6 @@ L["Pinned: %s"] = "Закреплён: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"При пересечении диапазонов приоритет у рецепта, закреплённого последним." -- mt
 L["Pinned (%d)"] = "Закреплено (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - управление обменом с гильдией и группой"
 L["Share observed recipe totals with guild and group"] =
@@ -504,7 +496,6 @@ L["This week"] = "Эта неделя"
 L["Uses Forever addons"] = "Использует аддоны Forever"
 L["Your guild and group"] = "Ваша гильдия и группа"
 L["boards"] = "таблиц"
-
 L["1st"] = "1-й"
 L["2nd"] = "2-й"
 L["3rd"] = "3-й"
@@ -514,14 +505,12 @@ L["6th"] = "6-й"
 L["7th"] = "7-й"
 L["8th"] = "8-й"
 L["board"] = "таблица"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - открывает Forever Leaderboards на вкладке этого аддона (также /su stats)"
 L["total"] = "всего"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 L["crafted"] = "создано" -- mt
-
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"На этом маршруте вам нечего собрать, выловить или выбить из существ, поэтому переключатель здесь ничего не меняет." -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -534,6 +523,13 @@ L["you loot it from creatures, valued at its AH price"] =
 	"вы выбиваете его из существ, по цене аукциона" -- mt
 L["you loot it from creatures, valued at its vendor sell price"] =
 	"вы выбиваете его из существ, по цене продажи торговцу" -- mt
-
 L["Meat and fish on a Cooking route count as yours to get."] =
 	"Мясо и рыба на маршруте кулинарии считаются добытыми вами." -- mt
+L["Skill-up percentages include Working Overtime."] =
+	"Шансы повышения навыка учитывают Working Overtime." -- mt
+L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
+	"На этом маршруте вы ничего не добываете сами, поэтому переключатель здесь ничего не меняет."
+L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
+	"Вкл.: реагент, который вы могли бы добыть, оценивается по цене торговца или аукциона. Выкл.: добыча ничего не стоит."
+L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
+	"Вкл.: реагент, который вы могли бы добыть, оценивается по цене торговца или аукциона. Выкл.: добыча стоит столько, сколько принесла бы продажа."

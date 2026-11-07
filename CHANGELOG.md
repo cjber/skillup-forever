@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.34] - 2026-11-07
+
 - **The route's Craft button can make the whole step.** Shift-click presses the Professions window's Create All, and when the route's step fits in your bags a plain click makes all of it. The button now waits until the window shows the route's recipe and its own Create button is ready, and it opens the recipe once per step instead of on every redraw (cjber/skillup-forever#385).
 
 ## [1.0.33] - 2026-11-07

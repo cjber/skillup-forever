@@ -521,4 +521,5 @@ L["The game's Craft button is not ready for this recipe."] =
 	"Le bouton Fabriquer du jeu n'est pas prêt pour cette recette." -- mt
 L["vendor, limited stock"] = "vendeur, stock limité" -- mt
 L["Sells %d at a time"] = "Vend %d à la fois" -- mt
-L["Crafting from the route works on Forever."] = "Fabriquer depuis l itineraire fonctionne sur Forever." -- mt
+L["The route's Craft button can make the whole step."] =
+	"Le bouton Fabriquer de l'itinéraire peut maintenant faire toute l'étape." -- mt

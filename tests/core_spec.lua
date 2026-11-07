@@ -226,8 +226,9 @@ do
 	equal(ns.db.trainer[185]["4"], nil, "as is a recipe")
 end
 
--- The update line belongs to the release it ships in: a bold lead of the newest CHANGELOG.md entry
--- (Unreleased while it has notes). 0.9.2 and 0.9.3 went out still announcing 0.9.1's.
+-- The update line belongs to the release it ships in: a bold lead of the newest released CHANGELOG.md
+-- entry. The Unreleased section is work in progress and does not count until the version is cut.
+-- 0.9.2 and 0.9.3 went out still announcing 0.9.1's.
 do
 	local function Read(path)
 		local file = assert(io.open(path))
@@ -243,7 +244,9 @@ do
 	while at and not newest do
 		local nextAt = changelog:find("\n## ", at + 1, true)
 		local section = nextAt and changelog:sub(at + 4, nextAt) or ""
-		newest = section:find("\n%- %*%*") and section or nil
+		if not section:find("^%[Unreleased%]") then
+			newest = section:find("\n%- %*%*") and section or nil
+		end
 		at = nextAt
 	end
 	equal(newest ~= nil, true, "CHANGELOG.md has an entry with notes")

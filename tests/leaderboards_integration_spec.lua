@@ -14,7 +14,7 @@ G.C_ChatInfo = {
 local spec = ns.Leaderboards and ns.Leaderboards.boards.skillup
 equal(spec ~= nil, true, "the shared window has this addon's board")
 equal(spec.title, "SkillUp Forever", "the tab carries the addon's title")
-equal(spec.icon, "Interface\\AddOns\\SkillUpForever\\media\\Icon", "the tab carries the addon's icon")
+equal(spec.icon, "Interface\\Icons\\Trade_BlackSmithing", "the tab wears the game's blacksmithing icon")
 equal(spec.metric, "Recipes observed", "the heading names the metric")
 equal(spec.sharing(), true, "sharing is on unless saved off")
 equal(type(spec.revision()), "number", "the revision is a number")

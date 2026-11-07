@@ -492,3 +492,4 @@ L["total"] = "總計"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 L["crafted"] = "製作" -- mt
+L["Skill-up percentages include Working Overtime."] = "技能提升機率計入 Working Overtime。" -- mt

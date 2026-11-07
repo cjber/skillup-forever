@@ -506,3 +506,4 @@ L["total"] = "total" -- mt
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 L["crafted"] = "fabriqué" -- mt
+L["Skill-up percentages include Working Overtime."] = "Les chances de progression incluent Working Overtime." -- mt

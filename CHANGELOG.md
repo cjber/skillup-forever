@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
+- **The Forever Leaderboards tab wears a game icon.** SkillUp's tab in the shared window now draws the game's own blacksmithing icon instead of the addon's logo, so it sits beside the overall trophy without a second gold frame. The TOC, minimap and the rest of the addon keep the addon's icon. (cjber/forever-core#180)
 
 ## [1.0.29] - 2026-11-07
 - **Opening a recipe, or skipping one from its right-click menu, no longer blocks using an item.** A recipe opened from the route page, or from the tracked-reagents menu, was selected in Blizzard's recipe list by this addon, and changing a row setting or the sort did the same through the page's own rebuild. That wrote the list's selection and the recipe's schematic as the addon's, and the game's craft path reads them, so using a potion or turning one essence into another could be refused until `/reload` (#350, thanks Ekallo). The recipe now opens through the game's own `C_TradeSkillUI.OpenRecipe`, and a redraw re-sorts and redraws the rows in place instead of rebuilding Blizzard's page, so no addon code touches the selection.

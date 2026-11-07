@@ -545,6 +545,8 @@ SkillUpForeverDB = nil
 ---@field planned? number
 ---@field to? number
 ---@field reason? string
+---@field clickCount? number Crafts one plain click makes.
+---@field shiftCount? number Crafts a Shift-click makes, when it differs from a plain click.
 
 -- A class's list of craftable items, one entry a slot, newest first.
 ---@class SkillUpGearItem

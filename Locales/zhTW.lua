@@ -501,3 +501,5 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"你從生物身上拾取，按商人出售價格計算" -- mt
 L["Meat and fish on a Cooking route count as yours to get."] =
 	"烹飪路線上的肉類和魚類算作你自己取得的。" -- mt
+L["Shift-click crafts all %d."] = "按住Shift點擊製造全部%d個。" -- mt
+L["The game's Craft button is not ready for this recipe."] = "遊戲內建的製造按鈕尚未對這份配方就緒。" -- mt

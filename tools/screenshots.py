@@ -689,6 +689,13 @@ env = setmetatable({
 		GetAllRecipeIDs = function()
 			return {}
 		end,
+		GetRecipeInfo = function(recipeID)
+			return { learned = true, recipeID = recipeID }
+		end,
+		OpenRecipe = function() end,
+	},
+	EventRegistry = {
+		RegisterCallback = function() end,
 	},
 	Auctionator = {
 		API = {
@@ -814,6 +821,17 @@ end
 -- The addon's own start-up (LoadDB and the attaches), minus the recipe list.
 loaded[ADDON]()
 ns.SetPinned(9059, true) -- Handstitched Leather Bracers: chosen for skill-ups in this scene.
+-- The client's crafting page shows the route's next step, so the route's Craft button is armed as it would
+-- be in game. The scene reads that recipe; it selects nothing in Blizzard's page itself (#350, #385).
+local routeCraft
+local realNextCraft = ns.NextCraft
+ns.NextCraft = function(plan)
+	routeCraft = realNextCraft(plan)
+	return routeCraft
+end
+env.ProfessionsFrame.CraftingPage.SchematicForm.GetRecipeInfo = function()
+	return routeCraft and routeCraft.recipeID and { recipeID = routeCraft.recipeID, learned = true } or nil
+end
 ns.NearestTrainer = function() end
 ns.NearestVendor = function() end
 

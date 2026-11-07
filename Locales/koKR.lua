@@ -517,3 +517,6 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"몬스터에게서 약탈하며 상인 판매 가격으로 계산합니다" -- mt
 L["Meat and fish on a Cooking route count as yours to get."] =
 	"요리 경로의 고기와 생선은 직접 구한 것으로 칩니다." -- mt
+L["Shift-click crafts all %d."] = "Shift-클릭으로 %d개를 모두 제작합니다." -- mt
+L["The game's Craft button is not ready for this recipe."] =
+	"게임의 제작 버튼이 이 제조법에 준비되지 않았습니다." -- mt

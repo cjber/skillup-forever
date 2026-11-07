@@ -789,35 +789,124 @@ end
 
 ---@type SkillUpPendingCraft?
 local pendingCraft
+-- The step last drawn, so the client's own recipe-selection events can redraw the same step.
+---@type SkillUpCraft?
+local currentCraft
+-- The recipe the client was asked to open and has not shown yet, so a redraw does not ask again.
+---@type integer?
+local requestedRecipe
+-- The recipe of the step last drawn, so a new step asks for its recipe again.
+---@type integer?
+local appliedRecipe
+
+-- The recipe the crafting page shows, or nil when it shows none. Reading it is taint free; selecting one
+-- in Blizzard's list from addon code wrote the selection and schematic the craft path reads (#350).
+---@return TradeSkillRecipeInfo?
+local function ShownRecipe()
+	local craftingPage = ProfessionsFrame and ProfessionsFrame.CraftingPage
+	local form = craftingPage and craftingPage.SchematicForm
+	if form and form.GetRecipeInfo then
+		return form:GetRecipeInfo()
+	end
+end
+
+-- The first recipe of a rank chain. Blizzard's list shows that one and its schematic shows the highest learned
+-- rank, so the chain, not one rank's ID, decides whether the page shows the route's recipe.
+---@param recipeInfo TradeSkillRecipeInfo?
+---@return integer?
+local function FirstRecipeID(recipeInfo)
+	local seen = {}
+	while recipeInfo and recipeInfo.previousRecipeID and not seen[recipeInfo.recipeID] do
+		seen[recipeInfo.recipeID] = true
+		recipeInfo = C_TradeSkillUI.GetRecipeInfo(recipeInfo.previousRecipeID)
+	end
+	return recipeInfo and recipeInfo.recipeID
+end
+
+-- Ask the client to show the route's recipe, as its own recipe tracker does, and say whether the page shows
+-- it now. Opening is C_TradeSkillUI.OpenRecipe's job: never select, Init or Show Blizzard's page from here
+-- (#350, #376).
+---@param recipeID integer
+---@return boolean
+local function RequestRecipe(recipeID)
+	local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
+	if not (info and info.learned) then
+		return false
+	end
+	local first = FirstRecipeID(info)
+	local shown = ShownRecipe()
+	if shown and FirstRecipeID(shown) == first then
+		requestedRecipe = nil
+		return true
+	end
+	if requestedRecipe ~= first then
+		requestedRecipe = first
+		C_TradeSkillUI.OpenRecipe(recipeID)
+	end
+	return false
+end
 
 ---@param craft SkillUpCraft
 local function ApplyCraft(craft)
 	local button = page.Craft
 	local recipeID, count = craft.recipeID, craft.count
 	button.recipeID, button.count = recipeID, count
-	-- CraftRecipe is protected: a /run or macro supplied by addon code runs in the addon's context, taints the
-	-- client's craft path, and a potion or profession conversion can be refused until /reload (#327, #313). A
-	-- secure spell attribute is resolved by the client itself, exactly as clicking the recipe in the
-	-- Professions window, so the craft never runs as addon code. Clearing both attributes keeps a disabled
-	-- button from crafting the previous step.
-	local spell = recipeID and C_Spell.GetSpellName(recipeID)
-	if spell and count and count > 0 then
-		button:SetAttribute("type", "spell")
-		button:SetAttribute("spell", spell)
+	if recipeID ~= appliedRecipe then
+		appliedRecipe, requestedRecipe = recipeID, nil
+	end
+
+	local craftingPage = ProfessionsFrame and ProfessionsFrame.CraftingPage
+	local create = craftingPage and craftingPage.CreateButton
+	local createAll = craftingPage and craftingPage.CreateAllButton
+	local craftable = recipeID and ns.Readable(C_TradeSkillUI.GetCraftableCount(recipeID)) or 0
+	craftable = craftable or 0
+	-- Create All is the button the client disables when a recipe cannot be made in batches.
+	local canCreateAll = createAll and createAll:IsEnabled() and craftable > 0
+	local all = canCreateAll and count and count >= craftable
+	local onRecipe = recipeID and count and count > 0 and RequestRecipe(recipeID)
+	local ready = onRecipe and create and create:IsEnabled()
+
+	-- A secure type="click" presses the Professions window's own Create button, as Blizzard's own gamepad code
+	-- does (Blizzard_ProfessionsFrame.lua, Create/CreateAll, lines 979-985), and the client runs the protected
+	-- craft as its own code: calling CraftRecipe from here would taint the craft path a potion or a conversion
+	-- reads (#313, #327, #350). Plain click makes one, unless the route's count fits in the bags, when it is
+	-- Create All; Shift-click is always Create All. Clearing every attribute keeps a disabled button from
+	-- pressing the recipe that was armed before it.
+	if ready then
+		button:SetAttribute("type", "click")
+		button:SetAttribute("clickbutton", all and createAll or create)
+		button:SetAttribute("shift-type1", "click")
+		button:SetAttribute("shift-clickbutton1", canCreateAll and createAll or nil)
 		button:SetEnabled(true)
+		button.clickCount = all and craftable or 1
+		button.shiftCount = not all and canCreateAll and craftable or nil
 	else
 		button:SetAttribute("type", nil)
-		button:SetAttribute("spell", nil)
+		button:SetAttribute("clickbutton", nil)
+		button:SetAttribute("shift-type1", nil)
+		button:SetAttribute("shift-clickbutton1", nil)
 		button:SetEnabled(false)
+		button.clickCount, button.shiftCount = nil, nil
 	end
-	button.title, button.planned, button.to = craft.text, craft.planned, craft.to
-	button.reason = CraftReason(craft)
-	button:SetText(craft.text)
+
+	local text = craft.text
+	if ready and not all and recipeID and count then
+		text = count > 1 and string.format(L["Craft %d of %d× %s"], 1, count, RecipeName(recipeID))
+			or string.format(L["Craft %d× %s"], 1, RecipeName(recipeID))
+	end
+	local reason = CraftReason(craft)
+	if not reason and recipeID and count and count > 0 and not ready then
+		reason = L["The game's Craft button is not ready for this recipe."]
+	end
+	button.title, button.planned, button.to = text, craft.planned, craft.to
+	button.reason = reason
+	button:SetText(text)
 	button:SetSize(math.min(button:GetTextWidth() + 32, 240), 22)
 end
 
 ---@param craft SkillUpCraft
 local function SetCraft(craft)
+	currentCraft = craft
 	if InCombatLockdown() then
 		-- The button is secure: its attributes, enabled state, size and visibility are protected in combat.
 		-- Keep only the latest wanted craft; PLAYER_REGEN_ENABLED applies it once combat ends.
@@ -827,6 +916,14 @@ local function SetCraft(craft)
 	end
 	pendingCraft = nil
 	ApplyCraft(craft)
+end
+
+-- The crafting page's selection or its own Create button changed: re-read them for the step on the route.
+-- The route page owns the button while it shows; a change on the native page is not ours to answer.
+local function RefreshCraft()
+	if currentCraft and page:IsShown() then
+		SetCraft(currentCraft)
+	end
 end
 
 ---@param shown boolean
@@ -865,6 +962,7 @@ local function Render()
 	page.RouteList:Begin()
 	page.ReagentList:Begin()
 	if not profession then
+		currentCraft = nil
 		SetCollectEnabled(false)
 		page.Vendor:Hide()
 		page.vendorItems = {}
@@ -1016,11 +1114,14 @@ local function CreateButtons()
 	page.Track = track
 
 	-- CraftRecipe is protected: called from this addon, it taints the client's craft path and a controller's
-	-- own craft afterwards is blocked (#313). The button is secure and casts the recipe's spell as the
-	-- client's own code, with the spell attribute set in ApplyCraft.
+	-- own craft afterwards is blocked (#313). The button is secure and presses the Professions window's own
+	-- Create button as the client's code, with that button set as an attribute in ApplyCraft.
 	local craft = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate,SecureActionButtonTemplate")
 	---@cast craft SkillUpCraftButton
-	craft:RegisterForClicks("AnyUp")
+	-- Forever's ActionButtonUseKeyDown is 1 by default, and a secure button with no useOnKeyDown follows it:
+	-- the action runs on the down event (SecureTemplates.lua, SecureActionButton_ShouldUseOnKeyDown and
+	-- SecureActionButton_OnClick, lines 792-822). Register both, or a key-bound press never reaches the button.
+	craft:RegisterForClicks("AnyUp", "AnyDown")
 	craft:HookScript("OnClick", function()
 		-- The craft's bag and skill events redraw it; ask for one too, so a craft is never missed.
 		RefreshRoute()
@@ -1046,7 +1147,13 @@ local function CreateButtons()
 					self.to
 				)
 			)
-			GameTooltip_AddInstructionLine(GameTooltip, string.format(L["Click to craft %d."], 1))
+			GameTooltip_AddInstructionLine(GameTooltip, string.format(L["Click to craft %d."], self.clickCount or 1))
+			if self.shiftCount then
+				GameTooltip_AddInstructionLine(
+					GameTooltip,
+					string.format(L["Shift-click crafts all %d."], self.shiftCount)
+				)
+			end
 		end
 		GameTooltip:Show()
 	end)
@@ -1349,6 +1456,11 @@ function ns.AttachRoute()
 	ns.WhenStale("route", RefreshRoute)
 	ns.WhenStale("routeTab", RefreshRouteTab)
 	ns.WhenEvent("PLAYER_REGEN_ENABLED", ApplyPendingCraft)
+	-- The crafting page's own selection and Create button decide whether this button is armed. These are the
+	-- client's own callbacks after it has written them, never a write of ours into its frames (#350).
+	EventRegistry:RegisterCallback("Professions.RecipeSelected", RefreshCraft, ns)
+	EventRegistry:RegisterCallback("Professions.CraftingDisplayRefresh", RefreshCraft, ns)
+	EventRegistry:RegisterCallback("Professions.TransactionUpdated", RefreshCraft, ns)
 	-- Run after Blizzard handles the same event; never replace or hook its frame methods.
 	local function AfterBlizzard()
 		C_Timer.After(0, function()

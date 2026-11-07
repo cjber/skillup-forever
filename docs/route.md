@@ -32,7 +32,7 @@ A *Skipped (N)* row under the route counts what you left out of this profession;
 
 Each step is one row: the recipe's full-size icon in its stock border, the name beside it and, under it, the crafts, the skill it reaches and the cost. A *Train* step shows its fee and the skill the trainer wants instead. Hover one for the crafted item, its colour bands, the reagents for that step and its cost, or click it to open the recipe.
 
-*Craft* under the route crafts its first step as many times as it needs and your bags allow, while that profession is open. Its label says what it will make and how many the bags allow now; hover it for how many the route asks for and why a worse run may need more. When the step cannot be crafted, the button and the page name the reagent and how many more are needed.
+*Craft* under the route presses the Professions window's own Create button for its first step, while that profession is open, so the game runs the craft itself. A click makes one, or all the bags allow when the route's step fits in them; Shift-click makes all the bags allow. Its label says what a click makes; hover it for how many the route asks for and why a worse run may need more. The button waits until the window shows the route's recipe and its own Craft button is ready. When the step cannot be crafted, the button and the page name the reagent and how many more are needed.
 
 ### Training
 
@@ -89,7 +89,7 @@ Gathering is free time, but the materials are not: you could sell them instead. 
 Opening a profession's own window, or a trainer that teaches it, starts tracking that profession on its own when its route still has steps, so the tracker and its waypoints arrive without pressing *Track*. A profession you stop tracking by hand stays stopped until you track it again.
 
 - Click the training line or a vendor reagent's line for a waypoint to the nearest trainer or vendor. Hover it to see who and where.
-- Its header menu crafts the next step while that profession is open, and sets a waypoint to a trainer or to a vendor for a missing reagent.
+- Its header menu opens the recipe for the next step while that profession is open, and sets a waypoint to a trainer or to a vendor for a missing reagent.
 
 ### Buying
 

@@ -512,3 +512,6 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"lo saqueas de criaturas, valorado a su precio de venta al vendedor" -- mt
 L["Meat and fish on a Cooking route count as yours to get."] =
 	"La carne y el pescado de una ruta de Cocina cuentan como obtenidos por ti." -- mt
+L["Shift-click crafts all %d."] = "Mayús-clic crea los %d." -- mt
+L["The game's Craft button is not ready for this recipe."] =
+	"El botón Crear del juego no está listo para esta receta." -- mt

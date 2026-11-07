@@ -293,6 +293,23 @@ end
 local ProfessionsFrame = NewRegion(nil)
 ProfessionsFrame.CraftingPage = NewRegion(ProfessionsFrame)
 ProfessionsFrame.CraftingPage.width, ProfessionsFrame.CraftingPage.height = 673, 594
+-- The route's Craft button reads the shown recipe and the page's own Create buttons; this spec draws the
+-- page, not a craft, so the page shows none and the buttons are off.
+ProfessionsFrame.CraftingPage.SchematicForm = {
+	GetRecipeInfo = function()
+		return nil
+	end,
+}
+ProfessionsFrame.CraftingPage.CreateButton = {
+	IsEnabled = function()
+		return false
+	end,
+}
+ProfessionsFrame.CraftingPage.CreateAllButton = {
+	IsEnabled = function()
+		return false
+	end,
+}
 ProfessionsFrame.BookPage = NewRegion(ProfessionsFrame)
 ProfessionsFrame.ProfessionsOverviewTab = NewRegion(ProfessionsFrame)
 ProfessionsFrame.rightProfessionTabs = {}
@@ -601,6 +618,9 @@ local env = setmetatable({
 			opened[#opened + 1] = recipeID
 		end,
 		GetRecipeInfo = function() end,
+	},
+	EventRegistry = {
+		RegisterCallback = noop,
 	},
 	GameTooltip = NewRegion(nil),
 	GameTooltip_SetTitle = noop,

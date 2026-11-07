@@ -540,3 +540,6 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"вы выбиваете его из существ, по цене продажи торговцу" -- mt
 L["Meat and fish on a Cooking route count as yours to get."] =
 	"Мясо и рыба на маршруте Кулинарии считаются добытыми вами." -- mt
+L["Shift-click crafts all %d."] = "Shift-щелчок создает все %d." -- mt
+L["The game's Craft button is not ready for this recipe."] =
+	"Кнопка «Создать» в игре не готова для этого рецепта." -- mt

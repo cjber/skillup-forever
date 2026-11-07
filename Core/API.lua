@@ -95,7 +95,7 @@ end
 ---@param item SkillUpNeededItem
 ---@return SkillUpAPIReagentSource?
 local function ReagentSource(item)
-	if item.source == "gather" then
+	if item.source == "gather" or item.source == "farm" then
 		return "gather"
 	elseif item.source == "vendor" then
 		return "vendor"
@@ -114,11 +114,11 @@ end
 local function Acquire(itemID, count)
 	local name = ItemName(itemID)
 	local price = ns.Price(itemID)
-	if price and price.source == "gather" then
+	if price and (price.source == "gather" or price.source == "farm") then
 		return {
 			kind = "gather",
 			text = string.format(L["Gather %d %s"], count, name),
-			detail = price.profession,
+			detail = price.source == "farm" and L["farm"] or price.profession,
 			itemID = itemID,
 			count = count,
 			nav = false,

@@ -462,7 +462,6 @@ L["Pinned: %s"] = "Fijada: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"La receta fijada más reciente tiene prioridad cuando los rangos se solapan." -- mt
 L["Pinned (%d)"] = "Fijadas (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - controla lo que compartes con hermandad y grupo"
 L["Share observed recipe totals with guild and group"] = "Compartir totales de recetas observadas con hermandad y grupo"
@@ -484,7 +483,6 @@ L["This week"] = "Esta semana"
 L["Uses Forever addons"] = "Usa complementos Forever"
 L["Your guild and group"] = "Tu hermandad y grupo"
 L["boards"] = "tablas"
-
 L["1st"] = "1.º"
 L["2nd"] = "2.º"
 L["3rd"] = "3.º"
@@ -494,7 +492,6 @@ L["6th"] = "6.º"
 L["7th"] = "7.º"
 L["8th"] = "8.º"
 L["board"] = "tabla"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - abre Forever Leaderboards en la pestaña de este complemento (también /su stats)"
 L["total"] = "total"
@@ -502,3 +499,6 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
 L["crafted"] = "fabricado" -- mt
 L["The Forever Leaderboards tab wears a game icon."] = "La pestaña Forever Leaderboards lleva un icono del juego." -- mt
+L["farm"] = "farmear"
+L["vendor, limited stock"] = "vendedor, existencias limitadas"
+L["Sells %d at a time"] = "Vende %d a la vez"

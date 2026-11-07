@@ -106,7 +106,10 @@ local function MissingFromAuction(items)
 	local missing = {}
 	for _, item in ipairs(items) do
 		local count = item.need - ns.Have(item.itemID)
-		if (item.source == "auction" or item.source == "unknown" or item.source == "gather") and count > 0 then
+		if
+			(item.source == "auction" or item.source == "unknown" or item.source == "gather" or item.source == "farm")
+			and count > 0
+		then
 			missing[#missing + 1] = { itemID = item.itemID, count = count }
 		end
 	end

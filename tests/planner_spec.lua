@@ -74,7 +74,7 @@ function Reference.PlanRoute(snapshot)
 	end
 	while route.reachedSkill < snapshot.target do
 		local skill = route.reachedSkill
-		local best, bestKey, bestChance
+		local best, bestKey, bestChance, bestGreen
 		for _, recipe in ipairs(priced) do
 			local chance = Model.Chance(recipe.thresholds, skill)
 			local ups = math.max(recipe.skillUps or 1, 1)
@@ -88,16 +88,23 @@ function Reference.PlanRoute(snapshot)
 					key = Reference.CostPerPoint(net, recipe.thresholds, skill, ups)
 				end
 			end
+			local green = Model.Color(recipe.thresholds, skill) == "green"
 			if
 				key
 				and (
 					not best
-					or key < bestKey
-					or (key == bestKey and chance > bestChance)
-					or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
+					or (green ~= bestGreen and not green)
+					or (
+						green == bestGreen
+						and (
+							key < bestKey
+							or (key == bestKey and chance > bestChance)
+							or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
+						)
+					)
 				)
 			then
-				best, bestKey, bestChance = recipe, key, chance
+				best, bestKey, bestChance, bestGreen = recipe, key, chance, green
 			end
 		end
 		if not best then

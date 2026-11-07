@@ -69,6 +69,12 @@ for _, complete in ipairs({ false, true }) do
 		tracked = { [1] = true },
 		auctions = {},
 		vendor = { [1] = 5 },
+		stock = {
+			[1] = { [7] = 5, [8] = false },
+			[2] = { [9] = 0, [10] = "many" },
+			[3] = 4,
+			bad = { [11] = 3 },
+		},
 		priceDays = { Realm = { [1] = { [1] = 5 } } },
 		latestPrice = false,
 		sellers = {
@@ -96,6 +102,12 @@ for _, complete in ipairs({ false, true }) do
 		equal(ns.db.tracked, nil, "the old scan list is dropped")
 		equal(ns.db.scanAuctions, nil, "the old scan setting is dropped")
 		equal(ns.db.vendor[1], 5, "vendor prices are kept")
+		equal(ns.db.stock[1][7], 5, "stock seen at a vendor is kept")
+		equal(ns.db.stock[1][8], false, "an unlimited vendor stays unlimited")
+		equal(ns.db.stock[2][9], nil, "a zero stock is forgotten")
+		equal(ns.db.stock[2][10], nil, "a stock that is not a count is forgotten")
+		equal(ns.db.stock[3], nil, "a stock row that is not a table is forgotten")
+		equal(ns.db.stock.bad, nil, "a stock row for no item is forgotten")
 		equal(ns.db.gatherFree, nil, "the old account-wide gather setting is dropped")
 		equal(ns.db.priceDays, nil, "obsolete auction history is dropped")
 		equal(ns.db.latestPrice, nil, "obsolete auction price option is dropped")

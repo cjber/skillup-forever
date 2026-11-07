@@ -274,16 +274,27 @@ local function Rank(recipe, skill)
 	return (net + recipe.reagentCost * math.max(covered - 1, 0)) / ups, chance
 end
 
--- Among recipes that can gain skill, the most recent pin wins; otherwise a cheaper point, then a better
--- chance, then the lower recipe ID. A tie keeps the best so far.
+-- Whether a recipe is in the green band at this skill: still craftable, but the long grind a next recipe
+-- should replace when one can gain there (#358).
+---@param recipe SkillUpCandidate
+---@param skill number
+---@return boolean
+local function Green(recipe, skill)
+	return Model.Color(recipe.thresholds, skill) == "green"
+end
+
+-- Among recipes that can gain skill, the most recent pin wins; then one outside the green band over one
+-- inside it, so a route moves on instead of grinding; otherwise a cheaper point, then a better chance, then
+-- the lower recipe ID. A tie keeps the best so far.
 ---@param recipe SkillUpCandidate
 ---@param key number?
 ---@param chance number?
 ---@param best SkillUpCandidate|false|nil
 ---@param bestKey number?
 ---@param bestChance number?
+---@param skill number
 ---@return boolean
-local function Beats(recipe, key, chance, best, bestKey, bestChance)
+local function Beats(recipe, key, chance, best, bestKey, bestChance, skill)
 	if key == nil then
 		return false
 	end
@@ -291,15 +302,16 @@ local function Beats(recipe, key, chance, best, bestKey, bestChance)
 		return true
 	end
 	local preference, bestPreference = recipe.preference or 0, best.preference or 0
-	return preference > bestPreference
-		or (
-			preference == bestPreference
-			and (
-				key < bestKey
-				or (key == bestKey and chance > bestChance)
-				or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
-			)
-		)
+	if preference ~= bestPreference then
+		return preference > bestPreference
+	end
+	local green, bestGreen = Green(recipe, skill), Green(best, skill)
+	if green ~= bestGreen then
+		return not green
+	end
+	return key < bestKey
+		or (key == bestKey and chance > bestChance)
+		or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
 end
 
 -- What a route is planned from: a snapshot's recipes, and the ones a training search adds to the end of
@@ -352,7 +364,7 @@ local function Planner(snapshot)
 			best = false
 			for _, recipe in ipairs(priced) do
 				local key, chance = RankAt(recipe, skill)
-				if Beats(recipe, key, chance, best, bestKey, bestChance) then
+				if Beats(recipe, key, chance, best, bestKey, bestChance, skill) then
 					best, bestKey, bestChance = recipe, key, chance
 				end
 			end
@@ -394,7 +406,7 @@ local function Planner(snapshot)
 		costOf[recipe.recipeID] = recipe.netCost
 		for skill, best in pairs(bests) do
 			local key, chance = RankAt(recipe, skill)
-			if Beats(recipe, key, chance, best, bestKeys[skill], bestChances[skill]) then
+			if Beats(recipe, key, chance, best, bestKeys[skill], bestChances[skill], skill) then
 				bests[skill], bestKeys[skill], bestChances[skill] = recipe, key, chance
 			end
 		end
@@ -417,7 +429,7 @@ local function Planner(snapshot)
 			local best, bestKey, bestChance = BestAt(skill)
 			if extra then
 				local key, chance = RankAt(extra, skill)
-				if Beats(extra, key, chance, best, bestKey, bestChance) then
+				if Beats(extra, key, chance, best, bestKey, bestChance, skill) then
 					best = extra
 				end
 			end
@@ -467,7 +479,7 @@ local function Planner(snapshot)
 		for _, skill in ipairs(picked) do
 			local best, bestKey, bestChance = BestAt(skill)
 			local key, chance = RankAt(extra, skill)
-			if Beats(extra, key, chance, best, bestKey, bestChance) then
+			if Beats(extra, key, chance, best, bestKey, bestChance, skill) then
 				return true
 			end
 		end
@@ -595,9 +607,9 @@ end
 -- The shopping list's buckets, in the order it lists them, and the price source that fills each;
 -- a reagent with no price goes in "unknown". Everything that walks the list walks this.
 ---@type SkillUpShoppingSource[]
-Model.SHOPPING_SOURCES = { "gather", "vendor", "auction", "unknown" }
+Model.SHOPPING_SOURCES = { "gather", "farm", "vendor", "auction", "unknown" }
 ---@type table<SkillUpPriceSource, SkillUpShoppingSource>
-local BUCKET = { gather = "gather", vendor = "vendor", auctionator = "auction" }
+local BUCKET = { gather = "gather", farm = "farm", vendor = "vendor", auctionator = "auction" }
 
 -- The shopping list's bucket for a price source: what every item in the list carries as its source.
 ---@param source SkillUpPriceSource?

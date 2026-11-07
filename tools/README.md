@@ -139,6 +139,13 @@ comes from QuestieDB.
 needs the skill) and `skinning_loot_template`, with reference loot expanded. Rarer
 finds (gems in veins) are left out.
 
+`ns.ReagentDrops` marks every reagent `creature_loot_template` can give, direct or
+through `reference_loot_template` at any chance: the route prices those as farmed
+when no vendor or auction price is known. `ns.LimitedStock` keeps, per item, the
+vendors whose `npc_vendor` row has a `maxcount` above zero, so the route can say the
+nearest seller's stock is limited rather than imply the whole reagent list can be
+bought at once.
+
 `ns.NodeSkills` maps a herb or ore node's enUS name to the gathering skill and rank it asks for: the node's
 `gameobject_template` lock (`data0`) joined to the client's `Lock` DB2 (a WFA-28 waiver in `AGENTS.md`). A lock
 asking no skill (quest plants) is left out, and so is a name that nodes asking different skills share.

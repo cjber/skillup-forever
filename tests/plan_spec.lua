@@ -12,8 +12,11 @@ local WOOL_CLOTH, MAGEWEAVE_CLOTH = 2592, 4338
 -- of them nets 1c while its cloth is priced. Only linen cloth is priced until a case prices another.
 local SELLS = { [1251] = 1, [2581] = 3, [3530] = 1, [3531] = 3, [8544] = 1, [8545] = 3 }
 
+-- This spec prices its own reagents: no cloth is a creature drop here, so an unpriced one stays out of the
+-- route. tests/cooking_route_spec.lua covers the bundled farm data (#358).
 local c = Client.load({
 	saved = { vendor = { [CLOTH] = 2 } },
+	data = { ReagentDrops = {}, LimitedStock = {} },
 })
 local ns, G = c.ns, c.G
 c.level, c.craftable = 20, 99

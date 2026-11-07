@@ -277,7 +277,34 @@ function ns.TrainingFor(profession, recipeID)
 	return seen and seen[recipeID] or ns.TrainerFees[recipeID]
 end
 
--- Trainer-taught recipes of this profession not yet learned that could skill up
+-- { fee, required base skill }: a recipe's scroll sold by a vendor, whose price is the fee, nil for a
+-- recipe with no such scroll. A price seen at a merchant proves the vendor sells it; else the catalogue
+-- must name a vendor, so a drop nobody sells is never planned as a purchase (#358).
+---@param recipeID integer
+---@return number[]?
+local function VendorTraining(recipeID)
+	local scroll = ns.RecipeScrolls and ns.RecipeScrolls[recipeID]
+	local item = scroll and scroll[1]
+	if not item then
+		return nil
+	end
+	---@type number?
+	local fee = ns.db.vendor[item] or (ns.VendorPrices and ns.VendorPrices[item])
+	local source = ns.Catalogue and type(ns.Catalogue.Recipe) == "function" and ns.Catalogue.Recipe(recipeID)
+	if not fee and not (source and #source.vendors > 0) then
+		return nil
+	end
+	if not fee then
+		local price = ns.Price(item)
+		fee = price and price.source == "vendor" and price.copper or nil
+	end
+	if not fee then
+		return nil
+	end
+	return { fee, scroll[2] }
+end
+
+-- Trainer-taught or vendor-sold recipes of this profession not yet learned that could skill up
 -- somewhere between here and the target. Nothing is used before the trainer would
 -- teach it: the thresholds' first value is where a recipe turns orange, not where
 -- it's taught.
@@ -287,7 +314,7 @@ end
 local function Trainable(profession, snapshot)
 	local services = {}
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
-		local training = ns.TrainingFor(profession, recipeID)
+		local training = ns.TrainingFor(profession, recipeID) or VendorTraining(recipeID)
 		local t = training and not ns.IsLearned(recipeID) and not Skipped(recipeID) and ns.Model.Get(recipeID)
 		if training and t then
 			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
@@ -527,13 +554,13 @@ local function Finish(profession, target, route)
 	end
 	local training = {}
 	for index, step in ipairs(route.training) do
-		local reqSkill = ns.TrainingFor(profession, step.recipeID)[2]
+		local reqSkill = ns.LearnSkill(profession, step.recipeID) - m
 		training[index] = {
 			recipeID = step.recipeID,
 			fee = step.fee,
 			usedAt = step.atSkill - m,
 			reqSkill = reqSkill,
-			-- A trainer teaches recipes needing less than the cap they train to.
+			-- A trainer or scroll teaches recipes needing less than the cap they train to.
 			cap = reqSkill + 1,
 		}
 	end
@@ -666,7 +693,12 @@ function ns.RouteReagents(plan)
 	local items = {}
 	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
 		for _, item in ipairs(list[source]) do
-			items[#items + 1] = { itemID = item.itemID, need = item.count, source = source }
+			items[#items + 1] = {
+				itemID = item.itemID,
+				need = item.count,
+				source = source,
+				limited = source == "vendor" and ns.IsLimitedStock ~= nil and ns.IsLimitedStock(item.itemID) or nil,
+			}
 		end
 	end
 	-- A carried tool the route needs goes in once, after the reagents, so its place is stable.

@@ -491,3 +491,8 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 L["crafted"] = "製作" -- mt
 L["The reagent prices add up to the Reagents total."] = "材料價格現在與材料合計一致。" -- mt
+L["farm"] = "採集"
+L["vendor, limited stock"] = "商人，庫存有限"
+L["Cooking routes use recipes you can buy and meat you can farm."] =
+	"烹飪路線會使用你可以購買的食譜和可以採集的肉類。"
+L["Sells %d at a time"] = "每次出售 %d 個"

@@ -86,7 +86,16 @@ local STALE = {
 	-- Fees and requirements recorded at a trainer.
 	fees = { plans = true, api = true, route = true, tracker = true, shoppingList = true },
 	-- Where scrolls, vendors and trainers are, read from Questie and AtlasLoot or seen at a merchant's window.
-	sources = { api = true, route = true, tracker = true, tooltip = true, gear = true, shoppingList = true },
+	-- A vendor-sold recipe's scroll price is a plan input too (#358).
+	sources = {
+		plans = true,
+		api = true,
+		route = true,
+		tracker = true,
+		tooltip = true,
+		gear = true,
+		shoppingList = true,
+	},
 	target = { plans = true, api = true, route = true, tracker = true, shoppingList = true },
 	tracking = { api = true, route = true, tracker = true, shoppingList = true },
 	settings = {

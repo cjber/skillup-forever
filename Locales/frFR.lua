@@ -506,3 +506,8 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 L["crafted"] = "fabriqué" -- mt
 L["The reagent prices add up to the Reagents total."] =
 	"Le prix des composants correspond désormais au total des composants." -- mt
+L["farm"] = "farmer" -- mt
+L["vendor, limited stock"] = "vendeur, stock limité" -- mt
+L["Cooking routes use recipes you can buy and meat you can farm."] =
+	"Les routes de cuisine utilisent des recettes que vous pouvez acheter et de la viande que vous pouvez farmer." -- mt
+L["Sells %d at a time"] = "Vend %d à la fois" -- mt

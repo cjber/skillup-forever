@@ -507,3 +507,8 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 L["crafted"] = "제작됨" -- mt
 L["The reagent prices add up to the Reagents total."] =
 	"이제 재료 가격의 합이 재료 합계와 일치합니다." -- mt
+L["farm"] = "파밍"
+L["vendor, limited stock"] = "상인, 한정 재고"
+L["Cooking routes use recipes you can buy and meat you can farm."] =
+	"요리 경로는 구매할 수 있는 조리법과 사냥으로 얻을 수 있는 고기를 사용합니다."
+L["Sells %d at a time"] = "한 번에 %d개 판매"

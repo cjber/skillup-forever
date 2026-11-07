@@ -529,3 +529,8 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 L["crafted"] = "создано" -- mt
 L["The reagent prices add up to the Reagents total."] =
 	"Цены реагентов теперь совпадают с их общей суммой." -- mt
+L["farm"] = "фарм"
+L["vendor, limited stock"] = "торговец, ограниченный запас"
+L["Cooking routes use recipes you can buy and meat you can farm."] =
+	"Маршруты кулинарии используют рецепты, которые можно купить, и мясо, которое можно добыть."
+L["Sells %d at a time"] = "Продаёт по %d за раз"

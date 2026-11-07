@@ -171,7 +171,7 @@ function Client.load(options)
 		auctionAutoscan = nil, -- Auctionator's "scan when the auction house opens" option
 		shoppingLists = {}, -- [list name] = the searches Auctionator was last given
 		auctionSearches = {}, -- each MultiSearchAdvanced call's searches, in order
-		merchant = nil, -- { { itemID, price, stackCount, ... } } while a merchant window is open
+		merchant = nil, -- { { itemID, price, stackCount, numAvailable, ... } } while a merchant window is open
 		npc = nil, -- { id, name }: who the player is dealing with, the client's "npc" unit
 		money = 1000000,
 		level = 60,

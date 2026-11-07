@@ -186,6 +186,9 @@
 ---@field TrainerInferred table<integer, number> classic-db's required skill, where the bundled one was moved from it.
 ---@field ProfessionTrainers table<integer, number[][]>
 ---@field GatheredBy table<integer, integer>
+---@field ReagentDrops table<integer, boolean> Reagents a creature's loot can give, so they can be farmed.
+---@field LimitedStock table<integer, table<integer, number>> Per item, the vendors that limit its stock and by how much.
+---@field IsLimitedStock fun(itemID: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
 ---@field NodeSkills table<string, number[]> { gathering skill line, required skill } per enUS herb or ore node name.
 ---@field ScrollDrops table<integer, number[][]>
 ---@field WorldDrops table<integer, boolean>
@@ -231,6 +234,7 @@
 ---@field trainer table<integer, table<integer, number[]>> { fee, required skill, required skill the trainer showed? }
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
+---@field stock table<integer, table<integer, number|false>> Per item, per vendor: the most it was seen selling at a time, false for unlimited.
 ---@field sellers table<integer, SkillUpSeller>
 ---@field builds string[] The client builds this install has run with, oldest first.
 
@@ -394,9 +398,9 @@ SkillUpForeverDB = nil
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipes'|'window'|'skill'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'
 ---@alias SkillUpStale 'schematics'|'prices'|'plans'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'gear'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
----@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
+---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'|'farm'
 ---@alias SkillUpCollectMode 'gather'|'auction'
----@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
+---@alias SkillUpShoppingSource 'gather'|'farm'|'vendor'|'auction'|'unknown'
 ---@class SkillUpPrice
 ---@field copper number
 ---@field source SkillUpPriceSource
@@ -453,6 +457,7 @@ SkillUpForeverDB = nil
 ---@field itemID integer
 ---@field need number
 ---@field source SkillUpShoppingSource
+---@field limited? number How many the nearest vendor sells at a time, when it limits its stock.
 
 ---@class SkillUpTracked
 ---@field plan SkillUpPlan

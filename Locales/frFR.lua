@@ -465,23 +465,46 @@ L["The newest pin takes priority where skill ranges overlap."] =
 	"La recette épinglée le plus récemment est prioritaire si les plages se chevauchent." -- mt
 L["Pinned (%d)"] = "Épinglées (%d)" -- mt
 
-L["%d. %s (you): %d"] = "%d. %s (vous) : %d"
-L["%d. %s: %d"] = "%d. %s : %d"
-L["Distinct recipes observed learned on this character"] =
-	"Recettes distinctes observées comme apprises par ce personnage"
-L["Guild and group totals are player-reported, not verified."] =
-	"Les totaux de guilde et de groupe sont déclarés par les joueurs, sans vérification."
-L["No guild or group member has reported yet."] = "Aucun membre de guilde ou de groupe ne s’est encore signalé."
-L["Sharing is on. Use /su share off to stop sharing."] =
-	"Le partage est activé. Utilisez /su share off pour l’arrêter."
-L["Sharing is off. Other players are hidden; your own history is kept."] =
-	"Le partage est désactivé. Les autres joueurs sont masqués ; votre historique est conservé."
-L["/su leaderboard - rank distinct recipes observed learned; also /su stats"] =
-	"/su leaderboard - classe les recettes distinctes observées comme apprises ; aussi /su stats"
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - contrôle le partage avec la guilde et le groupe"
 L["Share observed recipe totals with guild and group"] =
 	"Partager les totaux de recettes observées avec la guilde et le groupe"
+L["(you)"] = "(vous)" -- mt
+L["All time"] = "Tout le temps" -- mt
+L["Forever Leaderboards"] = "Forever Leaderboards" -- mt
+L["Forever standing"] = "Classement Forever" -- mt
+L["Forever: %s overall"] = "Forever : %s au total" -- mt
+L["Forever: %s overall this week"] = "Forever : %s au total cette semaine" -- mt
+L["No one has reported yet."] = "Personne n'a encore rien signalé." -- mt
+L["On by default. Everyone running a Forever addon shares unless they turn this off. Turning it off stops sending and receiving totals and hides other players; local observations stay."] =
+	"Activé par défaut. Tous les joueurs ayant un addon Forever partagent, sauf s'ils désactivent cette option. La désactiver arrête l'envoi et la réception des totaux et masque les autres joueurs ; les observations locales sont conservées." -- mt
+L["Others' values are player-reported."] = "Les valeurs des autres sont déclarées par les joueurs." -- mt
+L["Overall"] = "Général" -- mt
+L["Player"] = "Joueur" -- mt
+L["Points for placing on each addon's board."] = "Points pour un classement sur le tableau de chaque addon." -- mt
+L["Rank"] = "Rang" -- mt
+L["Recipes observed"] = "Recettes observées" -- mt
+L["Share my progress"] = "Partager ma progression" -- mt
+L["This week"] = "Cette semaine" -- mt
+L["Uses Forever addons"] = "Utilise des addons Forever" -- mt
+L["Your guild and group"] = "Votre guilde et votre groupe" -- mt
+L["boards"] = "tableaux" -- mt
+
+L["1st"] = "1er" -- mt
+L["2nd"] = "2e" -- mt
+L["3rd"] = "3e" -- mt
+L["4th"] = "4e" -- mt
+L["5th"] = "5e" -- mt
+L["6th"] = "6e" -- mt
+L["7th"] = "7e" -- mt
+L["8th"] = "8e" -- mt
+L["board"] = "tableau" -- mt
+
+L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
+	"/su leaderboard - ouvre Forever Leaderboards sur l'onglet de cet addon (aussi /su stats)" -- mt
+L["total"] = "total" -- mt
+L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
+	"Le tableau des recettes de SkillUp rejoint la fenêtre partagée Forever Leaderboards." -- mt
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 L["The recipe list fits long recipe names, and says how many you can make beside them."] =

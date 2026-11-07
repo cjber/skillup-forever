@@ -22,6 +22,13 @@ local L = ns.L
 """
 # The phrase as written in the source, escapes included, so it pastes back into Lua unchanged.
 PHRASE = re.compile(r'\bL\["((?:\\.|[^"\\\n])*)"\]')
+# A shared window may choose a phrase in a bracket expression: `L[count == 1 and "board" or "boards"]` uses both,
+# so each string alternative is a phrase too.
+ALTERNATIVE = re.compile(r"\bL\[([^\]]*)\]")
+STRING = re.compile(r'"((?:\\.|[^"\\\n])*)"')
+# A phrase may also be picked from a local string list: `local phrase = ORDINALS[rank]` then `L[phrase]`.
+TABLE = re.compile(r"\blocal\s+(\w+)\s*=\s*\{([^}]*)\}")
+LOOKUP = re.compile(r"\blocal\s+(\w+)\s*=\s*(\w+)\s*\[")
 
 
 def phrases() -> list[str]:
@@ -30,7 +37,14 @@ def phrases() -> list[str]:
         # A translation's keys are this template's own phrases: reading them would keep a removed one alive.
         if path.parent.name == "Locales":
             continue
-        found.update(PHRASE.findall(path.read_text()))
+        text = path.read_text()
+        found.update(PHRASE.findall(text))
+        for expression in ALTERNATIVE.findall(text):
+            found.update(STRING.findall(expression))
+        tables = {name: STRING.findall(body) for name, body in TABLE.findall(text)}
+        for alias, table in LOOKUP.findall(text):
+            if table in tables and re.search(rf"\bL\[\s*{alias}\s*\]", text):
+                found.update(tables[table])
     return sorted(found)
 
 

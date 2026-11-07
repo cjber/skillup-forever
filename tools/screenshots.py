@@ -735,6 +735,7 @@ env = setmetatable({
 	Syndicator = false,
 	-- No other Forever addon has loaded UI/ForeverFamily.lua: this copy sets the global.
 	ForeverFamily = false,
+	ForeverLeaderboards = false,
 	ForeverPeerStats = false,
 }, {
 	__index = function(_, key)
@@ -1063,17 +1064,12 @@ for _, profession in ipairs(ns.ShoppingList()) do
 	end
 	shopping[#shopping + 1] = out
 end
-local chat = {}
-env.DEFAULT_CHAT_FRAME.AddMessage = function(_, line)
-	chat[#chat + 1] = line
-end
 for _, id in ipairs(STATE.learned) do
 	ns.NoteLearnedRecipe(id, true)
 end
-ns.Stats.Print()
 io.write(Json({
 	route = route, tracker = tracker, trainer = trainer, reagent = reagent,
-	gear = gear, shopping = shopping, chat = chat,
+	gear = gear, shopping = shopping,
 }))
 """
 
@@ -2229,17 +2225,6 @@ def render_demo():
     return content
 
 
-def chat_preview(ui, lines):
-    """Actual /su leaderboard output in ChatFontNormal (Blizzard_Fonts_Shared/Shared/Fonts.xml)."""
-    font = Font(ARIAL, 14, WHITE, (1, -1))
-    measure = ui.canvas(1, 1)
-    width = max(measure.text_width(line, font) for line in lines)
-    canvas = ui.canvas(width + 24, len(lines) * 22 + 16)
-    for index, line in enumerate(lines):
-        canvas.text(12, 8 + index * 22, line, font)
-    return scene(ui, [(canvas, 0, 0)])
-
-
 def merchant_confirm_scene(ui):
     """UI/Shopping.lua Confirm: native opaque dialog with sample merchant purchase data."""
     width, height = 320, 112
@@ -2263,7 +2248,6 @@ def main():
     window_wide_scene(ui).save(OUT / "window-wide.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
     data = lua_scene(ui)
-    chat_preview(ui, data["chat"]).save(OUT / "leaderboard.png")
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")
     scene(ui, [(route_frame(ui, lua_scene(ui, buy_reagents=True)), 0, 0)]).save(OUT / "route-auctionator.png")
     scene(ui, [(shopping_list_scene(ui, data), 0, 0)]).save(OUT / "shopping-list.png")

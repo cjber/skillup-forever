@@ -24,6 +24,10 @@ EventUtil = {}
 ---@type EditModeManagerFrame?
 EditModeManagerFrame = nil
 
+-- UI/Leaderboards.lua publishes the shared window every Forever addon registers into.
+---@type ForeverLeaderboardsAPI?
+ForeverLeaderboards = nil
+
 -- GlobalStrings the client defines from its GlobalStrings DB2 in the player's language
 -- (enUS values from wago.tools, Forever build 1.60.1.70009).
 APPRENTICE = "Apprentice"
@@ -122,14 +126,21 @@ function CreateDataProvider(tbl) end
 ---@field SetElementExtent fun(self: SkillUpScrollView, extent: number)
 ---@field SetElementExtentCalculator fun(self: SkillUpScrollView, calculator: fun(dataIndex: integer, elementData: SkillUpListElement): number)
 ---@field SetElementFactory fun(self: SkillUpScrollView, elementFactory: SkillUpElementFactory)
+---@field SetElementInitializer fun(self: SkillUpScrollView, template: string, initializer: fun(button: Button, element: any))
+---@field SetPadding fun(self: SkillUpScrollView, ...: number)
 ---@return SkillUpScrollView
 function CreateScrollBoxListLinearView() end
+
+---@class ForeverClassColor
+---@field GetRGB fun(self: ForeverClassColor): number, number, number
+---@type table<string, ForeverClassColor>?
+RAID_CLASS_COLORS = nil
 
 ---@type {UpdateImmediately: boolean, RetainScrollPosition: boolean}
 ScrollBoxConstants = {}
 ScrollUtil = {}
----@param box SkillUpScrollBox
----@param bar SkillUpScrollBar
+---@param box Frame
+---@param bar any
 ---@param view SkillUpScrollView
 function ScrollUtil.InitScrollBoxListWithScrollBar(box, bar, view) end
 ---@param box SkillUpRecipeScrollBox

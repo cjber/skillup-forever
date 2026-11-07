@@ -9,6 +9,8 @@ local L = setmetatable({}, {
 	end,
 })
 ns.L = L
+L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
+	"SkillUp's recipe board joins the shared Forever Leaderboards window."
 L["The recipe list fits long recipe names, and says how many you can make beside them."] =
 	"The recipe list fits long recipe names, and says how many you can make beside them."
 L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =

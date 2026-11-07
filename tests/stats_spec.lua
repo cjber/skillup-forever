@@ -124,9 +124,13 @@ local reloaded = Client.load({ saved = saved })
 equal(Own(reloaded), 5, "reload restores the deduplicated score")
 equal(reloaded.ns.db.statsShare, false, "reload preserves a saved opt-out")
 equal(#reloaded.ns.Stats.Board(), 1, "reload with sharing off hides cached peers")
+reloaded.ns.Leaderboards = {
+	Open = function(_, key)
+		reloaded.opened = key
+	end,
+}
 reloaded.G.SlashCmdList.SKILLUPFOREVER("leaderboard")
-equal(reloaded.chat[1]:find("observed learned", 1, true) ~= nil, true, "the label describes observations")
-equal(reloaded.chat[#reloaded.chat]:find("Sharing is off", 1, true) ~= nil, true, "chat exposes participation")
+equal(reloaded.opened, "skillup", "the leaderboard command opens this addon's tab")
 reloaded.live[3275] = { info = { learned = true } }
 reloaded.Fire("TRADE_SKILL_LIST_UPDATE")
 reloaded.Advance(0)

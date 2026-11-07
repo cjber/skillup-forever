@@ -3,16 +3,18 @@ max_line_length = 120
 exclude_files = { "tools/.cache/**", ".release/**", ".types/**", "types/**", ".claude/**", ".bugpatrol/runs/**", ".speedpatrol/runs/**", ".sloppatrol/runs/**" }
 ignore = { "212/_.*" } -- unused args prefixed with _
 
-globals = { "ForeverFamily", "ForeverTrackerHost",
+globals = { "ForeverFamily", "ForeverLeaderboards", "ForeverTrackerHost",
 	"SkillUpForeverDB",
 	"SkillUpForever",
 	"SkillUpForever_OnAddonCompartmentClick",
 	"SLASH_SKILLUPFOREVER1",
 	"SLASH_SKILLUPFOREVER2",
+	"SLASH_FOREVERLEADERBOARDS1",
+	"SLASH_FOREVERLEADERBOARDS2",
 	"SlashCmdList",
 }
 
-read_globals = { "CreateFramePoolCollection", "C_XMLUtil",
+read_globals = { "CreateFramePoolCollection", "C_XMLUtil", "C_DateAndTime",
 	"C_ChatInfo", "GetServerTime", "GetTime", "IsInGuild", "IsInGroup", "IsInRaid",
 	"C_TradeSkillUI", "CreateColor", "CreateFrame", "CreateTreeDataProvider", "ScrollBoxConstants", "strcmputf8i", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
 	"GameTooltip", "GameTooltip_AddColoredLine", "GameTooltip_AddDisabledLine", "GameTooltip_InsertFrame",
@@ -34,6 +36,7 @@ read_globals = { "CreateFramePoolCollection", "C_XMLUtil",
 	"ShortestPathForever", "InCombatLockdown", "GetLocale", "C_AddOns",
 	"LibQuestieDB", "Questie", "AtlasLoot", "bit", "debugprofilestop", "loadstring", "setfenv",
 	"UNKNOWN", "UNIT_SKINNABLE_LEATHER", "UNIT_SKINNABLE_HERB", "UNIT_SKINNABLE_ROCK", "UnitRace", "geterrorhandler", "debugstack", "ChatFontNormal", "UISpecialFrames", "APPRENTICE", "JOURNEYMAN", "EXPERT", "ARTISAN", "DEFAULT", "OFF", "TOTAL",
+	"RAID_CLASS_COLORS", "GREEN_FONT_COLOR", "GetGuildRosterInfo", "GetNumGuildMembers",
 }
 
 files["Data/Thresholds.lua"] = { max_line_length = false }

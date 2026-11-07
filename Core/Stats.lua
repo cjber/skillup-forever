@@ -8,6 +8,7 @@ local Stats = {}
 ns.Stats = Stats
 
 local METRIC = "recipes_observed_learned"
+local ICON = "Interface\\AddOns\\SkillUpForever\\media\\Icon"
 local cached, count, pending = nil, 0, false
 
 local function Character()
@@ -102,29 +103,74 @@ function Stats.SetEnabled(enabled)
 	peer:SetEnabled(enabled == true)
 end
 
-function Stats.Board()
+-- The current character's total, which both boards measure from.
+local function Local()
 	local record = Record()
-	return peer:Board(METRIC, "all", record and count or 0, record and record.eventUnix)
+	return record and count or 0, record and record.eventUnix
 end
 
-function Stats.Print()
-	local L = ns.L
-	ns.Print(L["Distinct recipes observed learned on this character"])
-	ns.Print(L["Guild and group totals are player-reported, not verified."])
-	local board = Stats.Board()
-	for _, row in ipairs(board) do
-		if row.rank <= 10 or row.self then
-			ns.Print((row.self and L["%d. %s (you): %d"] or L["%d. %s: %d"]):format(row.rank, row.name, row.value))
+function Stats.Board()
+	local value, unix = Local()
+	return peer:Board(METRIC, "all", value, unix)
+end
+
+function Stats.WeekBoard()
+	local value, unix = Local()
+	return peer:WeekBoard(METRIC, "all", value, unix)
+end
+
+---@return integer
+function Stats.Revision()
+	return peer:Revision()
+end
+
+-- One row per ranked player, in the shared window's shape. The all-time board keeps the cumulative total in the value
+-- column; the weekly board draws the progress since the reset there and the cumulative total in grey.
+---@param scope ForeverLeaderboardsScope
+---@return ForeverLeaderboardsRow[]
+local function Board(scope)
+	local weekly = scope == "week"
+	local ranked = weekly and Stats.WeekBoard() or Stats.Board()
+	local totals
+	if weekly then
+		totals = {}
+		for _, row in ipairs(Stats.Board()) do
+			totals[row.identity] = row.value
+			totals[row.name:lower()] = row.value
 		end
 	end
-	if Enabled() then
-		if #board == 1 then
-			ns.Print(L["No guild or group member has reported yet."])
-		end
-		ns.Print(L["Sharing is on. Use /su share off to stop sharing."])
-	else
-		ns.Print(L["Sharing is off. Other players are hidden; your own history is kept."])
+	local rows = {}
+	for _, row in ipairs(ranked) do
+		local total = totals and (totals[row.identity] or totals[row.name:lower()])
+		rows[#rows + 1] = {
+			name = row.name,
+			value = row.value,
+			extra = total and (total .. " " .. ns.L["total"]) or nil,
+			you = row.self == true,
+		}
+	end
+	return rows
+end
+
+--- Open Forever Leaderboards on this addon's tab.
+function Stats.Open()
+	if ns.Leaderboards then
+		ns.Leaderboards:Open("skillup")
 	end
 end
 
 ns.WhenEvent("PLAYER_LOGIN", Schedule)
+
+if ns.Leaderboards then
+	ns.Leaderboards:Register("skillup", {
+		title = ns.TITLE,
+		icon = ICON,
+		metric = ns.L["Recipes observed"],
+		board = Board,
+		revision = Stats.Revision,
+		sharing = Enabled,
+		setSharing = function(shared)
+			Settings.SetValue("SkillUpForever_statsShare", shared == true)
+		end,
+	})
+end

@@ -79,7 +79,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The recipe list fits long recipe names, and says how many you can make beside them."]
+ns.WHATS_NEW = L["SkillUp's recipe board joins the shared Forever Leaderboards window."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -775,16 +775,15 @@ local function Slash(msg)
 		ns.Print(L["/su report - show a report to copy into a bug report"])
 		ns.Print(L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"])
 		ns.Print(L["/su export - show the trainer requirements this character has seen, to paste into a report"])
-		ns.Print(L["/su leaderboard - rank distinct recipes observed learned; also /su stats"])
+		ns.Print(L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"])
 		ns.Print(L["/su share on|off - control sharing with guild and group"])
 	elseif command == "leaderboard" or command == "stats" then
-		if ns.Stats and ns.db then
-			ns.Stats.Print()
+		if ns.Stats then
+			ns.Stats.Open()
 		end
 	elseif command == "share" and (argument == "on" or argument == "off") then
 		if ns.Stats and ns.db then
 			Settings.SetValue("SkillUpForever_statsShare", argument == "on")
-			ns.Stats.Print()
 		end
 	elseif command == "shopping" or command == "shop" then
 		ns.OpenShoppingList()

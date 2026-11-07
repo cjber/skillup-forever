@@ -1,10 +1,3 @@
--- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
-local _, ns = ...
-if GetLocale() ~= "zhCN" then
-	return
-end
-local L = ns.L
-
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "制造%d次至%d，%s"
 L["%d crafts to %d, %s, at %s"] = "制造%d次至%d，%s，地点：%s"
@@ -451,7 +444,6 @@ L["Pinned: %s"] = "已固定：%s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"技能范围重叠时，最近固定的配方优先。" -- mt
 L["Pinned (%d)"] = "已固定（%d）" -- mt
-
 L["/su share on|off - control sharing with guild and group"] = "/su share on|off - 控制与公会和队伍共享"
 L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
 L["(you)"] = "(你)"
@@ -472,7 +464,6 @@ L["This week"] = "本周"
 L["Uses Forever addons"] = "使用 Forever 插件"
 L["Your guild and group"] = "你的公会和队伍"
 L["boards"] = "排行榜"
-
 L["1st"] = "第1名"
 L["2nd"] = "第2名"
 L["3rd"] = "第3名"
@@ -482,7 +473,6 @@ L["6th"] = "第6名"
 L["7th"] = "第7名"
 L["8th"] = "第8名"
 L["board"] = "排行榜"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /su stats）"
 L["total"] = "总计"
@@ -498,3 +488,4 @@ L["Recipe item"] = "配方"
 L["listing unlearned recipes failed: %s"] = "列出未学习的配方失败：%s"
 L["Recipes you have not learned can sit in the recipe list too."] =
 	"未学习的配方也可以显示在配方列表中。"
+L["Skill-up percentages include Working Overtime."] = "技能提升几率计入 Working Overtime。" -- mt

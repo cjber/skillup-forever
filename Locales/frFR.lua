@@ -1,11 +1,3 @@
--- Machine translated (2026-10-16); corrections welcome: https://github.com/cjber/skillup-forever/issues/new?template=translation.yml
--- Lines ending -- mt are machine translated; the others are Brainc3ll's, from Legacy Forever.
-local _, ns = ...
-if GetLocale() ~= "frFR" then
-	return
-end
-local L = ns.L
-
 L["%d %s"] = "%d %s" -- mt
 L["%d crafts to %d, %s"] = "%d fabrications jusqu'à %d, %s" -- mt
 L["%d crafts to %d, %s, at %s"] = "%d fabrications jusqu'à %d, %s, à : %s" -- mt
@@ -464,7 +456,6 @@ L["Pinned: %s"] = "Épinglée : %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"La recette épinglée le plus récemment est prioritaire si les plages se chevauchent." -- mt
 L["Pinned (%d)"] = "Épinglées (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - contrôle le partage avec la guilde et le groupe"
 L["Share observed recipe totals with guild and group"] =
@@ -487,7 +478,6 @@ L["This week"] = "Cette semaine" -- mt
 L["Uses Forever addons"] = "Utilise des addons Forever" -- mt
 L["Your guild and group"] = "Votre guilde et votre groupe" -- mt
 L["boards"] = "tableaux" -- mt
-
 L["1st"] = "1er" -- mt
 L["2nd"] = "2e" -- mt
 L["3rd"] = "3e" -- mt
@@ -497,14 +487,12 @@ L["6th"] = "6e" -- mt
 L["7th"] = "7e" -- mt
 L["8th"] = "8e" -- mt
 L["board"] = "tableau" -- mt
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - ouvre Forever Leaderboards sur l'onglet de cet addon (aussi /su stats)" -- mt
 L["total"] = "total" -- mt
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 L["crafted"] = "fabriqué" -- mt
-
 L["List unlearned recipes"] = "Lister les recettes non apprises" -- mt
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
 	"Ajoute les recettes du métier ouvert que vous n'avez pas apprises sous un séparateur Non apprises, grisées et marquées d'un maître ou d'une recette et de la compétence demandée. Elles ne peuvent être ni sélectionnées ni fabriquées." -- mt
@@ -514,3 +502,4 @@ L["Recipe item"] = "Recette" -- mt
 L["listing unlearned recipes failed: %s"] = "échec de la liste des recettes non apprises : %s" -- mt
 L["Recipes you have not learned can sit in the recipe list too."] =
 	"Les recettes non apprises peuvent apparaître dans la liste des recettes." -- mt
+L["Skill-up percentages include Working Overtime."] = "Les chances de progression incluent Working Overtime." -- mt

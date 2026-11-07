@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
+- **The recipe list fits long recipe names, and says how many you can make beside them.** The Professions window widens its recipe list to the longest name in the open profession, up to the room your screen has, and the count your bags can make now sits in parentheses after the name. Turn the setting off to keep the window's own width.
 
 ## [1.0.23] - 2026-11-06
 - **You appear once on leaderboards with a two-part name.** A Forever name like Hel Io no longer shows twice, once as you and once as a reported player with the same value.

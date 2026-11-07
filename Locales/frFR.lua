@@ -281,6 +281,8 @@ L["Taught by %s trainers."] = "Enseignée par les maîtres de métier (%s)." -- 
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Les addons Forever sont gratuits et rien n'est réservé aux donateurs. S'ils vous aident, vous pouvez m'offrir un café." -- mt
 L["The place this recipe is taught isn't known yet."] = "On ne sait pas encore où cette recette est enseignée." -- mt
+L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
+	"La liste des recettes s'élargit jusqu'au nom de recette le plus long du métier ouvert, et la fenêtre avec elle, dans la limite de votre écran. Désactivez pour garder la largeur d'origine de la fenêtre." -- mt
 L["The rest comes from a vendor or your gathering."] = "Le reste vient d'un marchand ou de votre récolte." -- mt
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"Le parcours compte %d pour atteindre %d 9 fois sur 10 ; avec moins de chance, il en faut plus." -- mt
@@ -326,6 +328,7 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Où l'infobulle s'affiche quand vous survolez une recette. À côté de la fenêtre, elle ne cache pas les composants." -- mt
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Quand l'hôtel des ventes est ouvert, la fenêtre des métiers propose de chercher les composants de la recette choisie : autant qu'il en faut encore aux fabrications choisies, après vos sacs et votre banque. La liste d'achats d'Auctionator reprend les quantités ; sans elle, chaque clic met le composant suivant dans le champ de recherche." -- mt
+L["Widen the recipe list to fit recipe names"] = "Élargir la liste des recettes pour afficher les noms en entier" -- mt
 L["With Shortest Path Forever, a click leads you there."] = "Avec Shortest Path Forever, un clic vous y mène." -- mt
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
 	"Avec Shortest Path Forever, ceci choisit le plus proche en temps de trajet et vous y mène." -- mt
@@ -483,3 +486,5 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 L["You appear once on leaderboards with a two-part name."] =
 	"Avec un nom en deux parties, vous n'apparaissez qu'une fois dans le classement." -- mt
+L["The recipe list fits long recipe names, and says how many you can make beside them."] =
+	"The recipe list fits long recipe names, and says how many you can make beside them."

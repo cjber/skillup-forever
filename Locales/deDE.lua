@@ -279,6 +279,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Suggest my other Forever addons"] = "Meine anderen Forever-Addons vorschlagen"
 L["Taught by %s trainers."] = "Gelehrt von Lehrern für %s."
 L["The place this recipe is taught isn't known yet."] = "Wo dieses Rezept gelehrt wird, ist noch unbekannt."
+L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
+	"Die Rezeptliste wird so breit wie der längste Rezeptname im geöffneten Beruf, und das Fenster mit ihr, bis zur Breite Eures Bildschirms. Ausschalten behält die Fensterbreite des Spiels."
 L["The rest comes from a vendor or your gathering."] = "Der Rest kommt von einem Händler oder aus Eurem Sammeln."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"Die Route rechnet mit %d, um in 9 von 10 Fällen %d zu erreichen; mit weniger Glück braucht Ihr mehr."
@@ -324,6 +326,7 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Wo der Tooltip erscheint, wenn Ihr mit der Maus über ein Rezept fahrt. Neben dem Fenster verdeckt er die Reagenzien nicht."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Bei offenem Auktionshaus bietet das Berufsfenster eine Suche nach den Reagenzien des gewählten Rezepts an: so viele, wie die gewählten Herstellungen nach Taschen und Bank noch brauchen. Auctionators Einkaufsliste übernimmt die Mengen; ohne sie setzt jeder Klick das nächste Reagenz ins Suchfeld."
+L["Widen the recipe list to fit recipe names"] = "Rezeptliste an Rezeptnamen anpassen"
 L["With Shortest Path Forever, a click leads you there."] = "Mit Shortest Path Forever führt Euch ein Klick dorthin."
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
 	"Mit Shortest Path Forever wählt dies den nach Reisezeit nächsten und führt Euch dorthin."
@@ -473,3 +476,5 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."
 L["You appear once on leaderboards with a two-part name."] =
 	"Mit einem zweiteiligen Namen erscheinst du nur einmal in der Rangliste." -- mt
+L["The recipe list fits long recipe names, and says how many you can make beside them."] =
+	"The recipe list fits long recipe names, and says how many you can make beside them."

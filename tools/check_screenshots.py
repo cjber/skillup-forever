@@ -40,6 +40,7 @@ SOURCES = (
     "Integrations/Prices.lua",
     "Integrations/Sources.lua",
     "UI/Gear.lua",
+    "UI/FrameArt.lua",
     "UI/List.lua",
     "UI/RecipeList.lua",
     "UI/Route.lua",

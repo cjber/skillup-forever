@@ -449,20 +449,41 @@ L["The newest pin takes priority where skill ranges overlap."] =
 	"技能范围重叠时，最近固定的配方优先。" -- mt
 L["Pinned (%d)"] = "已固定（%d）" -- mt
 
-L["%d. %s (you): %d"] = "%d. %s（你）：%d"
-L["%d. %s: %d"] = "%d. %s：%d"
-L["Distinct recipes observed learned on this character"] = "观察到此角色已学会的不同配方"
-L["Guild and group totals are player-reported, not verified."] =
-	"公会和队伍总数由玩家自行报告，未经验证。"
-L["No guild or group member has reported yet."] = "尚无公会或队伍成员报告数据。"
-L["Sharing is on. Use /su share off to stop sharing."] = "共享已开启。使用 /su share off 停止共享。"
-L["Sharing is off. Other players are hidden; your own history is kept."] =
-	"共享已关闭。其他玩家已隐藏，你自己的历史记录会保留。"
-L["/su leaderboard - rank distinct recipes observed learned; also /su stats"] =
-	"/su leaderboard - 查看观察到已学会的不同配方排名；也可使用 /su stats"
 L["/su share on|off - control sharing with guild and group"] = "/su share on|off - 控制与公会和队伍共享"
 L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
-L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
-	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
-L["You appear once on leaderboards with a two-part name."] =
-	"名字由两部分组成时，你在排行榜上只出现一次。" -- mt
+L["(you)"] = "(你)"
+L["All time"] = "全部时间"
+L["Forever Leaderboards"] = "Forever Leaderboards"
+L["Forever standing"] = "Forever 总排名"
+L["Forever: %s overall"] = "Forever：总计 %s"
+L["Forever: %s overall this week"] = "Forever：本周总计 %s"
+L["No one has reported yet."] = "还没有人上报。"
+L["On by default. Everyone running a Forever addon shares unless they turn this off. Turning it off stops sending and receiving totals and hides other players; local observations stay."] =
+	"默认开启。所有使用 Forever 插件的玩家都会共享，除非将其关闭。关闭后会停止发送和接收总数，并隐藏其他玩家；本地观察记录会保留。"
+L["Others' values are player-reported."] = "其他玩家的数值由玩家自行上报。"
+L["Overall"] = "总览"
+L["Player"] = "玩家"
+L["Points for placing on each addon's board."] = "在每个插件的排行榜上获得名次的分数。"
+L["Rank"] = "排名"
+L["Recipes observed"] = "已观察配方"
+L["Share my progress"] = "共享我的进度"
+L["This week"] = "本周"
+L["Uses Forever addons"] = "使用 Forever 插件"
+L["Your guild and group"] = "你的公会和队伍"
+L["boards"] = "排行榜"
+
+L["1st"] = "第1名"
+L["2nd"] = "第2名"
+L["3rd"] = "第3名"
+L["4th"] = "第4名"
+L["5th"] = "第5名"
+L["6th"] = "第6名"
+L["7th"] = "第7名"
+L["8th"] = "第8名"
+L["board"] = "排行榜"
+
+L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
+	"/su leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /su stats）"
+L["total"] = "总计"
+L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
+	"SkillUp 的配方排行榜加入了共享的 Forever Leaderboards 窗口。"

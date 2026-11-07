@@ -47,6 +47,8 @@ Core\Plan.lua
 Core\Gear.lua
 Core\Core.lua
 Core\PeerStats.lua
+Core\LeaderboardsData.lua
+UI\Leaderboards.lua
 Core\Stats.lua
 Integrations\Questie.lua
 Integrations\AtlasLoot.lua

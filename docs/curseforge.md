@@ -43,6 +43,7 @@ Hover a reagent to see how much your routes need.
 - **Trainer annotations** mark the best recipe to train next. Reagent tooltips show what tracked routes need.
 - **Gathering nodes** show the Herbalism or Mining skill they need, coloured at yours, on English clients.
 - **Crafted gear** shows the newest craft for each slot, with its recipe, reagents and learning location. Enable its tab in settings.
+- **Forever Leaderboards** rank the distinct recipes SkillUp has observed as learned on your character against guild and group totals, for this week or all time, in the shared window every Forever addon uses. The window also shows the overall standing across installed Forever addons and puts a player's place in the unit tooltip.
 
 ## Prices
 
@@ -58,6 +59,8 @@ Open a profession and the numbers are already there.
 
 - `/su` opens the settings (also in Settings > AddOns and the minimap's addon compartment).
 - `/su skipped` lists the recipes you said *Not this recipe* to, and `/su unskip <ID>` (or `all`) brings them back.
+- `/su leaderboard` opens the Forever Leaderboards window on SkillUp's tab (also `/su stats`).
+- `/su share on|off` controls sharing with your guild and group. Sharing is on by default, and the window's Share my progress switch and the settings checkbox turn it off.
 - `/su audit`, with a profession open, prints where the bundled thresholds differ from the colours the game shows.
 - `/su report` shows a report to copy into a bug report.
 - `/su issue` opens a ready-made GitHub issue link to report a bug or request a feature.

@@ -9,4 +9,5 @@ local L = setmetatable({}, {
 	end,
 })
 ns.L = L
-L["You appear once on leaderboards with a two-part name."] = "You appear once on leaderboards with a two-part name."
+L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
+	"SkillUp's recipe board joins the shared Forever Leaderboards window."

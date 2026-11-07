@@ -58,11 +58,9 @@ At the trainer, every recipe shows its chance and cost; a green arrow marks the 
 
 Hover a reagent to see how much your tracked routes need.
 
-`/su leaderboard` (or `/su stats`) ranks distinct recipes SkillUp has observed as learned on your character against totals reported by guild and group members. Repeated scans and relearning the same recipe do not increase the total. Recipes in linked or guild profession views do not count.
+`/su leaderboard` (or `/su stats`) opens the shared Forever Leaderboards window on SkillUp's tab, ranking distinct recipes SkillUp has observed as learned on your character against totals reported by guild and group members, for this week or all time. The window also shows the overall standing across every installed Forever addon and puts a player's place in the unit tooltip. Repeated scans and relearning the same recipe do not increase the total. Recipes in linked or guild profession views do not count.
 
-![Chat output from the observed recipe leaderboard](docs/screenshots/leaderboard.png)
-
-Sharing defaults on. Turn it off with `/su share off` or the checkbox in Settings > AddOns > SkillUp Forever. This stops sending and receiving totals and hides other players while keeping your local observations. `/su share on` resumes sharing. Reported totals are not verified.
+Sharing is on by default: everyone running a Forever addon appears on the boards unless they turn it off. Turn it off with `/su share off`, the Share my progress switch in the window, or the checkbox in Settings > AddOns > SkillUp Forever. This stops sending and receiving totals and hides other players while keeping your local observations. `/su share on` resumes sharing. Reported totals are not verified.
 
 ## Install
 

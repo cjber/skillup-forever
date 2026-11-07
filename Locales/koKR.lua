@@ -464,23 +464,42 @@ L["The newest pin takes priority where skill ranges overlap."] =
 	"숙련도 범위가 겹치면 최근 고정한 제조법이 우선합니다." -- mt
 L["Pinned (%d)"] = "고정됨 (%d)" -- mt
 
-L["%d. %s (you): %d"] = "%d. %s (나): %d"
-L["%d. %s: %d"] = "%d. %s: %d"
-L["Distinct recipes observed learned on this character"] =
-	"이 캐릭터가 배운 것으로 관찰된 고유 제조법"
-L["Guild and group totals are player-reported, not verified."] =
-	"길드 및 파티 합계는 플레이어가 직접 보고하며 검증되지 않았습니다."
-L["No guild or group member has reported yet."] = "아직 보고한 길드원이나 파티원이 없습니다."
-L["Sharing is on. Use /su share off to stop sharing."] =
-	"공유가 켜져 있습니다. /su share off로 끌 수 있습니다."
-L["Sharing is off. Other players are hidden; your own history is kept."] =
-	"공유가 꺼져 있습니다. 다른 플레이어는 숨겨지며 내 기록은 유지됩니다."
-L["/su leaderboard - rank distinct recipes observed learned; also /su stats"] =
-	"/su leaderboard - 배운 것으로 관찰된 고유 제조법 순위; /su stats도 가능"
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - 길드 및 파티와의 공유 설정"
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
-L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
-	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
-L["You appear once on leaderboards with a two-part name."] =
-	"이름이 두 부분이면 순위표에 한 번만 표시됩니다." -- mt
+L["(you)"] = "(나)"
+L["All time"] = "전체 기간"
+L["Forever Leaderboards"] = "Forever Leaderboards"
+L["Forever standing"] = "Forever 종합 순위"
+L["Forever: %s overall"] = "Forever: 종합 %s"
+L["Forever: %s overall this week"] = "Forever: 이번 주 종합 %s"
+L["No one has reported yet."] = "아직 아무도 보고하지 않았습니다."
+L["On by default. Everyone running a Forever addon shares unless they turn this off. Turning it off stops sending and receiving totals and hides other players; local observations stay."] =
+	"기본으로 켜져 있습니다. Forever 애드온을 사용하는 모든 플레이어는 끄지 않는 한 공유합니다. 끄면 합계를 보내고 받는 것이 중단되고 다른 플레이어가 숨겨지며, 로컬 관찰 기록은 유지됩니다."
+L["Others' values are player-reported."] = "다른 플레이어의 값은 플레이어가 보고한 것입니다."
+L["Overall"] = "종합"
+L["Player"] = "플레이어"
+L["Points for placing on each addon's board."] = "각 애드온 순위표에 오른 점수입니다."
+L["Rank"] = "순위"
+L["Recipes observed"] = "관찰한 제작법"
+L["Share my progress"] = "내 진행 상황 공유"
+L["This week"] = "이번 주"
+L["Uses Forever addons"] = "Forever 애드온 사용 중"
+L["Your guild and group"] = "내 길드와 파티"
+L["boards"] = "순위표"
+
+L["1st"] = "1위"
+L["2nd"] = "2위"
+L["3rd"] = "3위"
+L["4th"] = "4위"
+L["5th"] = "5위"
+L["6th"] = "6위"
+L["7th"] = "7위"
+L["8th"] = "8위"
+L["board"] = "순위표"
+
+L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
+	"/su leaderboard - 이 애드온 탭에서 Forever Leaderboards를 엽니다 (/su stats도 가능)"
+L["total"] = "합계"
+L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
+	"SkillUp 제작법 순위표가 공유 Forever Leaderboards 창에 합류합니다."

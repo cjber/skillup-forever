@@ -483,25 +483,44 @@ L["The newest pin takes priority where skill ranges overlap."] =
 	"При пересечении диапазонов приоритет у рецепта, закреплённого последним." -- mt
 L["Pinned (%d)"] = "Закреплено (%d)" -- mt
 
-L["%d. %s (you): %d"] = "%d. %s (вы): %d"
-L["%d. %s: %d"] = "%d. %s: %d"
-L["Distinct recipes observed learned on this character"] =
-	"Различные рецепты, замеченные как изученные этим персонажем"
-L["Guild and group totals are player-reported, not verified."] =
-	"Итоги гильдии и группы сообщают сами игроки; они не проверены."
-L["No guild or group member has reported yet."] =
-	"Никто из гильдии или группы ещё не сообщил данные."
-L["Sharing is on. Use /su share off to stop sharing."] =
-	"Обмен включён. Команда /su share off отключает его."
-L["Sharing is off. Other players are hidden; your own history is kept."] =
-	"Обмен отключён. Другие игроки скрыты; ваша история сохранена."
-L["/su leaderboard - rank distinct recipes observed learned; also /su stats"] =
-	"/su leaderboard - рейтинг различных рецептов, замеченных как изученные; также /su stats"
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - управление обменом с гильдией и группой"
 L["Share observed recipe totals with guild and group"] =
 	"Делиться итогами наблюдений рецептов с гильдией и группой"
-L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
-	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
-L["You appear once on leaderboards with a two-part name."] =
-	"С именем из двух частей вы появляетесь в таблице лидеров только один раз." -- mt
+L["(you)"] = "(вы)"
+L["All time"] = "За всё время"
+L["Forever Leaderboards"] = "Forever Leaderboards"
+L["Forever standing"] = "Общий рейтинг Forever"
+L["Forever: %s overall"] = "Forever: %s в сумме"
+L["Forever: %s overall this week"] = "Forever: %s в сумме за эту неделю"
+L["No one has reported yet."] = "Пока никто не сообщил."
+L["On by default. Everyone running a Forever addon shares unless they turn this off. Turning it off stops sending and receiving totals and hides other players; local observations stay."] =
+	"Включено по умолчанию. Все, у кого установлен аддон Forever, делятся данными, пока не отключат это. Отключение останавливает отправку и получение итогов и скрывает других игроков; локальные наблюдения сохраняются."
+L["Others' values are player-reported."] = "Значения других сообщают сами игроки."
+L["Overall"] = "Общий"
+L["Player"] = "Игрок"
+L["Points for placing on each addon's board."] =
+	"Очки за место в таблице каждого аддона."
+L["Rank"] = "Место"
+L["Recipes observed"] = "Наблюдаемые рецепты"
+L["Share my progress"] = "Делиться прогрессом"
+L["This week"] = "Эта неделя"
+L["Uses Forever addons"] = "Использует аддоны Forever"
+L["Your guild and group"] = "Ваша гильдия и группа"
+L["boards"] = "таблиц"
+
+L["1st"] = "1-й"
+L["2nd"] = "2-й"
+L["3rd"] = "3-й"
+L["4th"] = "4-й"
+L["5th"] = "5-й"
+L["6th"] = "6-й"
+L["7th"] = "7-й"
+L["8th"] = "8-й"
+L["board"] = "таблица"
+
+L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
+	"/su leaderboard - открывает Forever Leaderboards на вкладке этого аддона (также /su stats)"
+L["total"] = "всего"
+L["SkillUp's recipe board joins the shared Forever Leaderboards window."] =
+	"Таблица рецептов SkillUp входит в общее окно Forever Leaderboards."

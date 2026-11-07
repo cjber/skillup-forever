@@ -119,8 +119,10 @@ publishes it as the notes.
 - WFA-28: a gathering node's required skill (`ns.NodeSkills`): CMaNGOS classic-db `gameobject_template` lock with
   the client's `Lock` DB2; neither database ties a node to a lock (owner decision 2026-10-15).
 
-A scroll's vendor price and limited stock are in neither database and are not bundled: the price is the one
-seen at a merchant's window. `Data/Recipes.lua`, `Data/Thresholds.lua` and `Data/Vendor.lua` come from the
+A scroll's vendor price is in neither database and is not bundled: it is the one seen at a merchant's
+window. Which vendor limits an item's stock (CMaNGOS `npc_vendor.maxcount`) is bundled per vendor in
+`Data/Sources.lua` as `ns.LimitedStock`; which reagents creatures drop is that dump's loot tables, bundled as
+`ns.ReagentDrops`. `Data/Recipes.lua`, `Data/Thresholds.lua` and `Data/Vendor.lua` come from the
 client's own DB2 tables through wago.tools, not a classic-db dump: they stay as they are.
 
 ## Secure UI regression checks

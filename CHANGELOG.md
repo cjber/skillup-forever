@@ -11,6 +11,8 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
+- **Cooking routes use recipes you can buy and meat you can farm.** A recipe sold as a scroll at a vendor is now planned like a trainer's, with the scroll's price as its fee and its required skill as where it can be learned, so a cheap vendor recipe replaces the long green stretch that used to end a route. A reagent that only creatures drop and that no vendor or auction house prices is farmed at no cost, shown as farm in the reagent list, instead of leaving its recipe out. A reagent the vendor the route sends you to stocks in a limited amount now says so, using the stock that vendor's own window shows where you have seen it and the bundled data otherwise, and its tooltip gives how many are sold at a time; a vendor seen selling unlimited stock clears a bundled limit, rather than showing a whole 280-craft route as a single purchase (#358).
+
 - **The Forever Leaderboards tab wears a game icon.** SkillUp's tab in the shared window now draws the game's own blacksmithing icon instead of the addon's logo, so it sits beside the overall trophy without a second gold frame. The TOC, minimap and the rest of the addon keep the addon's icon. (cjber/forever-core#180)
 
 ## [1.0.29] - 2026-11-07

@@ -454,7 +454,6 @@ L["Pinned: %s"] = "已釘選：%s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"技能範圍重疊時，最近釘選的配方優先。" -- mt
 L["Pinned (%d)"] = "已釘選（%d）" -- mt
-
 L["/su share on|off - control sharing with guild and group"] = "/su share on|off - 控制與公會和隊伍共享"
 L["Share observed recipe totals with guild and group"] = "與公會和隊伍共享觀察到的配方總數"
 L["(you)"] = "(你)"
@@ -475,7 +474,6 @@ L["This week"] = "本週"
 L["Uses Forever addons"] = "使用 Forever 插件"
 L["Your guild and group"] = "你的公會和隊伍"
 L["boards"] = "排行榜"
-
 L["1st"] = "第1名"
 L["2nd"] = "第2名"
 L["3rd"] = "第3名"
@@ -485,10 +483,12 @@ L["6th"] = "第6名"
 L["7th"] = "第7名"
 L["8th"] = "第8名"
 L["board"] = "排行榜"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - 在此插件分頁開啟 Forever Leaderboards（也可用 /su stats）"
 L["total"] = "總計"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 L["crafted"] = "製作" -- mt
+L["farm"] = "採集"
+L["vendor, limited stock"] = "商人，庫存有限"
+L["Sells %d at a time"] = "每次出售 %d 個"

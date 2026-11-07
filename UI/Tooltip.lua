@@ -219,6 +219,8 @@ function ns.PriceSourceText(price)
 		return string.format(L["you gather it (%s), valued at its vendor sell price"], price.profession)
 	elseif price.source == "gather" then
 		return string.format(L["you gather it (%s)"], price.profession)
+	elseif price.source == "farm" then
+		return L["farm"]
 	elseif price.source == "vendor" then
 		return L["vendor"]
 	elseif price.source == "auctionator" then

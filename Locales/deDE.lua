@@ -459,7 +459,6 @@ L["Pinned: %s"] = "Angeheftet: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"Bei überlappenden Fertigkeitsbereichen hat das zuletzt angeheftete Rezept Vorrang." -- mt
 L["Pinned (%d)"] = "Angeheftet (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] = "/su share on|off - Teilen mit Gilde und Gruppe steuern"
 L["Share observed recipe totals with guild and group"] = "Beobachtete Rezeptsummen mit Gilde und Gruppe teilen"
 L["(you)"] = "(du)"
@@ -480,7 +479,6 @@ L["This week"] = "Diese Woche"
 L["Uses Forever addons"] = "Nutzt Forever-Addons"
 L["Your guild and group"] = "Deine Gilde und Gruppe"
 L["boards"] = "Ranglisten"
-
 L["1st"] = "1."
 L["2nd"] = "2."
 L["3rd"] = "3."
@@ -490,10 +488,12 @@ L["6th"] = "6."
 L["7th"] = "7."
 L["8th"] = "8."
 L["board"] = "Liste"
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - öffnet Forever Leaderboards auf der Registerkarte dieses Addons (auch /su stats)"
 L["total"] = "gesamt"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."
 L["crafted"] = "hergestellt" -- mt
+L["farm"] = "Farmen"
+L["vendor, limited stock"] = "Händler, begrenzter Vorrat"
+L["Sells %d at a time"] = "Verkauft %d auf einmal"

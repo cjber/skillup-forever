@@ -466,7 +466,6 @@ L["Pinned: %s"] = "Épinglée : %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"La recette épinglée le plus récemment est prioritaire si les plages se chevauchent." -- mt
 L["Pinned (%d)"] = "Épinglées (%d)" -- mt
-
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - contrôle le partage avec la guilde et le groupe"
 L["Share observed recipe totals with guild and group"] =
@@ -489,7 +488,6 @@ L["This week"] = "Cette semaine" -- mt
 L["Uses Forever addons"] = "Utilise des addons Forever" -- mt
 L["Your guild and group"] = "Votre guilde et votre groupe" -- mt
 L["boards"] = "tableaux" -- mt
-
 L["1st"] = "1er" -- mt
 L["2nd"] = "2e" -- mt
 L["3rd"] = "3e" -- mt
@@ -499,10 +497,12 @@ L["6th"] = "6e" -- mt
 L["7th"] = "7e" -- mt
 L["8th"] = "8e" -- mt
 L["board"] = "tableau" -- mt
-
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - ouvre Forever Leaderboards sur l'onglet de cet addon (aussi /su stats)" -- mt
 L["total"] = "total" -- mt
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 L["crafted"] = "fabriqué" -- mt
+L["farm"] = "farmer" -- mt
+L["vendor, limited stock"] = "vendeur, stock limité" -- mt
+L["Sells %d at a time"] = "Vend %d à la fois" -- mt

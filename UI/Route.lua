@@ -573,7 +573,14 @@ local function RenderRoute(list, plan)
 	RenderSkipped(list, profession)
 end
 
-local SOURCE_TEXT = { gather = L["gather"], vendor = L["vendor"], auction = L["AH"], unknown = L["no price"] }
+local SOURCE_TEXT = {
+	gather = L["gather"],
+	farm = L["farm"],
+	vendor = L["vendor"],
+	auction = L["AH"],
+	unknown = L["no price"],
+}
+local LIMITED_VENDOR = L["vendor, limited stock"]
 
 ---@param tooltip GameTooltip
 ---@param item SkillUpNeededItem
@@ -591,7 +598,7 @@ local function ReagentTooltip(tooltip, item)
 		GameTooltip_AddDisabledLine(tooltip, ns.UnpricedHint())
 		return
 	end
-	if price.source == "gather" then
+	if price.source == "gather" or price.source == "farm" then
 		AddLine(tooltip, L["Source"], ns.PriceSourceText(price))
 		-- Valued at what it would sell for: the cost of crafting with it instead, never a price to buy at.
 		if price.worth then
@@ -604,6 +611,9 @@ local function ReagentTooltip(tooltip, item)
 		AddLine(tooltip, L["To buy"], Money(price.copper * (item.need - have)))
 	end
 	if item.source == "vendor" then
+		if item.limited then
+			GameTooltip_AddNormalLine(tooltip, string.format(L["Sells %d at a time"], item.limited))
+		end
 		ns.AddNearest(tooltip, L["Nearest vendor"], ns.NearestVendor(item.itemID, true))
 	end
 end
@@ -645,11 +655,12 @@ local function RenderReagents(list, reagents)
 			name = string.format(L["item %d"], item.itemID)
 		end
 		local have = ns.Have(item.itemID)
+		local sourceText = item.limited and LIMITED_VENDOR or SOURCE_TEXT[item.source]
 		list:Add({
 			icon = C_Item.GetItemIconByID(item.itemID) or 134400,
 			iconColor = QualityColor(item.itemID),
 			text = name,
-			detail = string.format(L["%s, %d/%d"], SOURCE_TEXT[item.source], math.min(have, item.need), item.need),
+			detail = string.format(L["%s, %d/%d"], sourceText, math.min(have, item.need), item.need),
 			detailColor = have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
 			tooltip = function(tooltip)
 				ReagentTooltip(tooltip, item)

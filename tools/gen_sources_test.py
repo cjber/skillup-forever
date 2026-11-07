@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 import gen_sources
-from gen_sources import CHEST, gathered, node_skills
+from gen_sources import CHEST, creature_drops, gathered, limited_stock, node_skills
 
 MINE, VEIN, LOOT = "7", "70", "700"
 
@@ -44,6 +44,40 @@ class NodeSkillTests(unittest.TestCase):
     def test_a_name_asking_two_skills_is_left_out_and_reported(self):
         both = self.nodes(("Iron Deposit", MINE), ("Iron Deposit", "8"), ("Mithril Deposit", "8"))
         self.assertEqual(both, ({"Mithril Deposit": (186, 175)}, ["Iron Deposit"]))
+
+
+class ReagentDropTests(unittest.TestCase):
+    def test_creature_loot_marks_a_reagent_directly_or_through_a_reference(self):
+        tables = {
+            "creature_loot_template": [
+                loot("900", 1, 50),
+                loot("901", 0, 100, ref=10),
+                loot("902", 99, 50),  # not a reagent
+            ],
+            "reference_loot_template": [loot("10", 2, 25)],
+        }
+        self.assertEqual(creature_drops(tables, {1, 2}), [1, 2])
+
+    def test_a_zero_chance_reagent_is_not_farmable(self):
+        tables = {
+            "creature_loot_template": [loot("900", 1, 0)],
+            "reference_loot_template": [],
+        }
+        self.assertEqual(creature_drops(tables, {1}), [])
+
+
+class LimitedStockTests(unittest.TestCase):
+    def vendor(self, item, maxcount, npc=1):
+        return {"entry": str(npc), "item": str(item), "maxcount": str(maxcount)}
+
+    def test_a_limited_row_is_kept_per_vendor(self):
+        self.assertEqual(limited_stock([self.vendor(1, 5, 10), self.vendor(1, 2, 11)]), {1: {10: 5, 11: 2}})
+
+    def test_one_vendor_selling_unlimited_does_not_hide_another_vendors_limit(self):
+        self.assertEqual(limited_stock([self.vendor(1, 5, 10), self.vendor(1, 0, 11)]), {1: {10: 5}})
+
+    def test_unlimited_stock_is_left_out(self):
+        self.assertEqual(limited_stock([self.vendor(1, 0, 10), self.vendor(2, 3, 11)]), {2: {11: 3}})
 
 
 class GatheredTests(unittest.TestCase):
@@ -122,6 +156,11 @@ class GatheredTests(unittest.TestCase):
             loot("903", 500, 0.5),
             loot("900", 501, 50),
         ]
+        # Scroll 500 is limited at one vendor only: another selling it unlimited must not hide that.
+        tables["npc_vendor"] = [
+            {"entry": "900", "item": "500", "maxcount": "5"},
+            {"entry": "901", "item": "500", "maxcount": "0"},
+        ]
         with (
             patch.object(gen_sources, "spell_maps", return_value=({600: {700}}, {})),
             patch.object(gen_sources, "reagent_items", return_value=set()),
@@ -132,9 +171,13 @@ class GatheredTests(unittest.TestCase):
         self.assertEqual(data["drops"], {500: [(901, 20.0), (900, 5.0), (902, 1.0)]})
         self.assertEqual(data["world"], [])
         self.assertEqual(data["trainers"], {197: [(30, 300), (31, 150)]})
+        self.assertEqual(data["reagent_drops"], [])
+        self.assertEqual(data["limited"], {500: {900: 5}})
         rendered = gen_sources.render(data)
         self.assertIn("\t[500] = { { 901, 20 }, { 900, 5 }, { 902, 1 } },", rendered)
         self.assertIn("\t[197] = { { 30, 300 }, { 31, 150 } },", rendered)
+        self.assertIn("ns.ReagentDrops = {", rendered)
+        self.assertIn("\t[500] = { [900] = 5 },", rendered)
         for moved in ("RecipeSources", "SourceNPCs", "SourceQuests", "ReagentVendors", "InstanceNames"):
             self.assertNotIn(moved, rendered)
 

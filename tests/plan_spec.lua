@@ -14,6 +14,7 @@ local SELLS = { [1251] = 1, [2581] = 3, [3530] = 1, [3531] = 3, [8544] = 1, [854
 
 local c = Client.load({
 	saved = { vendor = { [CLOTH] = 2 } },
+	data = { LootedFrom = {} },
 })
 local ns, G = c.ns, c.G
 c.level, c.craftable = 20, 99

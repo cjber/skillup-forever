@@ -160,8 +160,6 @@ L["Not in this route: you chose Not this recipe."] =
 	"Absente de ce parcours : vous avez choisi « Pas cette recette »." -- mt
 L["Not installed"] = "Non installé" -- mt
 L["Not this recipe"] = "Pas cette recette" -- mt
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"Vous ne récoltez rien sur ce parcours, l'option ne change donc rien ici." -- mt
 L["Nothing priced you know skills up past %d."] =
 	"Rien de ce que vous connaissez et qui a un prix ne fait progresser au-delà de %d." -- mt
 L["Nothing to buy for this route."] = "Rien à acheter pour ce parcours." -- mt
@@ -170,10 +168,6 @@ L["Nothing you know skills up past %d."] = "Rien de ce que vous connaissez ne fa
 L["Off hand"] = "Main gauche" -- mt
 L["On"] = "Activé" -- mt
 L["On %s"] = "Sur %s" -- mt
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"Activé : un composant que vous pourriez récolter est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : le récolter ne coûte rien." -- mt
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"Activé : un composant que vous pourriez récolter est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : le récolter coûte sa valeur de vente." -- mt
 L["One line in chat the first time a new version loads."] =
 	"Une ligne dans la discussion au premier chargement d'une nouvelle version." -- mt
 L["Open"] = "Ouvrir"
@@ -504,5 +498,19 @@ L["total"] = "total" -- mt
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activé par défaut. Désactivez pour arrêter l’envoi et la réception des totaux et masquer les autres joueurs. Les observations locales sont conservées."
 L["crafted"] = "fabriqué" -- mt
-L["The reagent prices add up to the Reagents total."] =
-	"Le prix des composants correspond désormais au total des composants." -- mt
+
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"Vous ne pouvez rien récolter, pêcher ou piller sur des créatures sur ce parcours, l'option ne change donc rien ici." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"Activé : un composant que vous pourriez récolter, pêcher ou piller sur des créatures est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : vous le procurer vous-même ne coûte rien." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"Activé : un composant que vous pourriez récolter, pêcher ou piller sur des créatures est compté au prix du marchand ou de l'hôtel des ventes. Désactivé : vous le procurer vous-même coûte sa valeur de vente." -- mt
+L["Loot %d %s from creatures"] = "Piller %d %s sur des créatures" -- mt
+L["you loot it from creatures"] = "vous le pillez sur des créatures" -- mt
+L["you loot it from creatures, valued at its AH price"] =
+	"vous le pillez sur des créatures, valorisé à son prix aux enchères" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"vous le pillez sur des créatures, valorisé à son prix de vente au marchand" -- mt
+
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"La viande et le poisson d'un parcours de cuisine comptent comme obtenus par vous." -- mt

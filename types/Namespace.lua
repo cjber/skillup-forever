@@ -42,6 +42,7 @@
 ---@field RowColor fun(d: SkillUpDescription): ColorMixin
 ---@field Price fun(itemID: integer): SkillUpPrice?
 ---@field PriceSource fun(itemID: integer): SkillUpPriceSource?
+---@field CanGather fun(itemID: integer): string? The profession name, or "loot" for a reagent creatures drop.
 ---@field ObtainCost fun(itemID: integer): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
 ---@field LiveSchematicsArrived fun(recipeIDs: integer[]): boolean
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
@@ -186,6 +187,7 @@
 ---@field TrainerInferred table<integer, number> classic-db's required skill, where the bundled one was moved from it.
 ---@field ProfessionTrainers table<integer, number[][]>
 ---@field GatheredBy table<integer, integer>
+---@field LootedFrom table<integer, boolean> Reagents a creature drops, which any character can loot.
 ---@field NodeSkills table<string, number[]> { gathering skill line, required skill } per enUS herb or ore node name.
 ---@field ScrollDrops table<integer, number[][]>
 ---@field WorldDrops table<integer, boolean>
@@ -402,7 +404,8 @@ SkillUpForeverDB = nil
 ---@field source SkillUpPriceSource
 ---@field days? number Auctionator ages only: whole days since the newest observation.
 ---@field ageUnavailable? boolean Auctionator age API unavailable or failed, last-buyout prices only.
----@field profession? string Gathered reagents only.
+---@field profession? string Gathered reagents only: the profession that yields it.
+---@field loot? boolean A reagent creatures drop, which any character can loot: no profession needed.
 ---@field worth? 'auction'|'vendor' Gathered reagents valued at what they sell for: which price that is.
 
 ---@class SkillUpValue

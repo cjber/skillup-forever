@@ -11,6 +11,7 @@ verbatim rather than rewritten as the addon moves. API changes other addons' aut
 optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
+- **Meat and fish on a Cooking route count as yours to get.** Fish count as gathered when you know Fishing, and the parts creatures carry (meat, eggs, scales, feathers, venom sacs, elemental essences) count as gathered for every character, so with Buy reagents off they cost nothing and the switch no longer says it changes nothing for a Cooking route. Cloth, herbs and ore are unchanged: cloth is still bought, and herbs and ore still need the profession. A looted reagent's step reads "Loot ... from creatures" (cjber/skillup-forever#367).
 
 ## [1.0.28] - 2026-11-07
 - **The reagent prices add up to the Reagents total.** Each reagent line is priced the same way the total counts it - the cheaper of buying the reagent and making it - so a reagent your own recipe makes for less no longer shows its higher purchase price on the line against a lower total (Copper Bars 11s 34c against an 11s 32c total; Heavy Leather 51s against 32s), and a craft that loses money shows its red minus on Net per craft as it already did on Per skill-up. Thanks to derzwiebelritter and trias6657 for the reports (cjber/skillup-forever#360).

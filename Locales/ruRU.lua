@@ -167,8 +167,6 @@ L["Not in this route: you chose Not this recipe."] =
 	"Не в маршруте: вы выбрали «Не этот рецепт»."
 L["Not installed"] = "Не установлено"
 L["Not this recipe"] = "Не этот рецепт"
-L["Nothing on this route is yours to gather, so the switch changes nothing for it."] =
-	"На этом маршруте вы ничего не добываете сами, поэтому переключатель здесь ничего не меняет."
 L["Nothing priced you know skills up past %d."] =
 	"Ничто известное вам с ценой не повышает навык выше %d."
 L["Nothing to buy for this route."] = "Для этого маршрута покупать нечего."
@@ -178,10 +176,6 @@ L["Nothing you know skills up past %d."] =
 L["Off hand"] = "Левая рука"
 L["On"] = "Вкл."
 L["On %s"] = "На %s"
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."] =
-	"Вкл.: реагент, который вы могли бы добыть, оценивается по цене торговца или аукциона. Выкл.: добыча ничего не стоит."
-L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."] =
-	"Вкл.: реагент, который вы могли бы добыть, оценивается по цене торговца или аукциона. Выкл.: добыча стоит столько, сколько принесла бы продажа."
 L["One line in chat the first time a new version loads."] =
 	"Одна строка в чате при первой загрузке новой версии."
 L["Open"] = "Открыть"
@@ -527,5 +521,19 @@ L["total"] = "всего"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 L["crafted"] = "создано" -- mt
-L["The reagent prices add up to the Reagents total."] =
-	"Цены реагентов теперь совпадают с их общей суммой." -- mt
+
+L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
+	"На этом маршруте вам нечего собрать, выловить или выбить из существ, поэтому переключатель здесь ничего не меняет." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"Включено: реагент, который вы могли бы собрать, выловить или выбить из существ, считается по цене торговца или аукциона. Выключено: добыть его самому ничего не стоит." -- mt
+L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"Включено: реагент, который вы могли бы собрать, выловить или выбить из существ, считается по цене торговца или аукциона. Выключено: добыть его самому стоит столько, сколько дала бы его продажа." -- mt
+L["Loot %d %s from creatures"] = "Выбить %d %s из существ" -- mt
+L["you loot it from creatures"] = "вы выбиваете его из существ" -- mt
+L["you loot it from creatures, valued at its AH price"] =
+	"вы выбиваете его из существ, по цене аукциона" -- mt
+L["you loot it from creatures, valued at its vendor sell price"] =
+	"вы выбиваете его из существ, по цене продажи торговцу" -- mt
+
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"Мясо и рыба на маршруте кулинарии считаются добытыми вами." -- mt

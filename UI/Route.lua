@@ -750,15 +750,13 @@ local function NearestRouteVendor(itemIDs)
 	return ns.NearestNPC(candidates, true)
 end
 
--- Whether pricing instead of gathering could change this route: at least one reagent is one of this
--- character's professions gathers, so in gather mode it costs nothing.
+-- Whether pricing instead of getting it yourself could change this route: at least one reagent is one this
+-- character can gather, fish or loot from creatures, so in gather mode it costs nothing.
 ---@param reagents SkillUpNeededItem[]
 ---@return boolean
 local function CollectChanges(reagents)
-	local professions = ns.PlayerProfessions()
 	for _, item in ipairs(reagents) do
-		local skillLine = ns.GatheredBy[item.itemID]
-		if skillLine and professions[skillLine] then
+		if ns.CanGather(item.itemID) then
 			return true
 		end
 	end
@@ -1070,14 +1068,14 @@ local function CreateButtons()
 			GameTooltip_AddNormalLine(
 				GameTooltip,
 				ns.db.valueGathered
-						and L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs what it would sell for."]
-					or L["On, a reagent you could gather is priced at a vendor or the auction house; off, gathering it costs nothing."]
+						and L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."]
+					or L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."]
 			)
 			-- luacheck: pop
 		else
 			GameTooltip_AddDisabledLine(
 				GameTooltip,
-				L["Nothing on this route is yours to gather, so the switch changes nothing for it."]
+				L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."]
 			)
 		end
 		GameTooltip:Show()

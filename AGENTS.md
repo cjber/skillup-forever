@@ -111,8 +111,11 @@ publishes it as the notes.
 - WFA-28: a recipe scroll's drop chances and world-drop marking (`ns.ScrollDrops`, `ns.WorldDrops`): CMaNGOS
   classic-db loot tables, QuestieDB's drop tables cover no recipe scroll and AtlasLoot's rates cover a few
   dungeon bosses; AtlasLoot's rate replaces the bundled one where it has one.
-- WFA-28: which gathering skill yields a reagent (`ns.GatheredBy`): CMaNGOS classic-db node and skinning loot,
-  neither database ties an item to a gathering skill.
+- WFA-28: which gathering skill yields a reagent (`ns.GatheredBy`): CMaNGOS classic-db node, skinning and
+  fishing loot, neither database ties an item to a gathering skill.
+- WFA-28: which reagents a creature drops often enough to loot (`ns.LootedFrom`): CMaNGOS classic-db
+  `creature_loot_template` direct rows and `item_template` classes; QuestieDB's drop tables are read in game,
+  not bundled.
 - WFA-28: the quest that teaches a profession rank (its reward spell, `ns.RankQuests`): CMaNGOS classic-db
   `quest_template` RewSpell/RewSpellCast; neither the client nor QuestieDB links a quest to the spell it rewards.
   The quest's title and giver are QuestieDB's (owner decision 2026-10-16, delegated).

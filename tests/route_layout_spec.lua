@@ -958,7 +958,7 @@ equal(paneOtherLeft >= paneLeft and paneOtherRight <= paneRight, true, "the othe
 -- The action button: a known pick opens the recipe, a trainable one sets a waypoint to where it is
 -- taught, and one out of reach is disabled with the reason why.
 pane.Action:Click()
-equal(opened[1], 2001, "a known pick's button opens its recipe")
+equal(opened[#opened], 2001, "a known pick's button opens its recipe")
 pane.OtherRows[1]:Click()
 equal(pane.Action.text, "Set waypoint", "a trainable pick's button names the waypoint")
 pane.Action:Click()

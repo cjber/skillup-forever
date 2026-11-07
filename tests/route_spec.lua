@@ -60,6 +60,10 @@ local function Stub()
 					local attributes = rawget(frame, "attributes") or {}
 					return attributes[name]
 				end
+			elseif key == "RegisterForClicks" then
+				value = function(frame, ...)
+					rawset(frame, "clicks", { ... })
+				end
 			elseif key == "SetChecked" then
 				value = function(frame, checked)
 					rawset(frame, "checked", checked)
@@ -119,10 +123,19 @@ local function Stub()
 				end
 			elseif key == "Click" then
 				value = function(frame)
+					if scripts.PreClick then
+						scripts.PreClick(frame, "LeftButton")
+					end
 					if scripts.OnClick then
 						scripts.OnClick(frame)
 					else
 						scripts.OnMouseUp(frame, "LeftButton", true)
+					end
+					-- SecureActionButtonTemplate's type="click" hands the click to its clickbutton.
+					local attributes = rawget(frame, "attributes") or {}
+					local target = attributes.type == "click" and attributes.clickbutton
+					if target and target ~= frame then
+						target:Click()
 					end
 				end
 			else
@@ -247,6 +260,8 @@ end
 local timers = {}
 local disabledLines = {}
 local craftCalls = 0
+local openedRecipes = {}
+local nativeCrafts = 0
 local pageEnv = setmetatable({
 	-- SafeCall hands a caught error to the game's handler: here it fails the spec.
 	geterrorhandler = function()
@@ -278,6 +293,9 @@ local pageEnv = setmetatable({
 	C_TradeSkillUI = {
 		CraftRecipe = function()
 			craftCalls = craftCalls + 1
+		end,
+		OpenRecipe = function(recipeID)
+			openedRecipes[#openedRecipes + 1] = recipeID
 		end,
 	},
 	C_Spell = {
@@ -362,6 +380,14 @@ pageEnv.ProfessionsFrame.GetChildren = function()
 end
 local collect, vendor, targetBox, craftButton = nil, nil, nil, nil
 local buttons = {}
+-- The Professions window's own secure Create button, which the route's button must click.
+local nativeCreateButton = Stub()
+nativeCreateButton.Click = function()
+	nativeCrafts = nativeCrafts + 1
+end
+local craftingPage = Stub()
+craftingPage.CreateButton = nativeCreateButton
+pageEnv.ProfessionsFrame.CraftingPage = craftingPage
 pageEnv.CreateFrame = function(_, _, _, template)
 	local frame = template == "LargeSideTabButtonTemplate" and SideTab(0, 0) or Stub()
 	tabs[#tabs + 1] = frame
@@ -785,8 +811,9 @@ end
 page.collectMode = nil
 
 -- A click on Craft asks for a redraw itself, so the page follows a craft even if a game event is missed.
--- The button is secure and carries the recipe's own spell name, so the client casts it as its own code:
--- an addon call or a macro here would taint the craft path and block later player actions (#327, #313).
+-- A recipe is not castable by spell name in this client, so the secure button forwards its click to the
+-- Professions window's own Create button, after selecting the recipe through OpenRecipe: an addon call to
+-- CraftRecipe or a macro here would taint the craft path and block later player actions (#385, #327, #313).
 page.NextCraft = function()
 	return { recipeID = 3275, count = 3, planned = 5, to = 20, text = "Craft 3 of 5× Spell 3275" }
 end
@@ -796,10 +823,17 @@ for index = #timers, 1, -1 do
 	timers[index] = nil
 end
 equal(craftButton ~= nil, true, "the route's Craft button is a secure action button")
-equal(craftButton.attributes.type, "spell", "and casts the recipe as a spell")
-equal(craftButton.attributes.spell, "Spell 3275", "with the recipe's own spell name")
-equal(craftButton.attributes.macrotext, nil, "and no addon-written macro")
+equal(craftButton.attributes.type, "click", "and forwards its click to the Professions window")
+equal(craftButton.attributes.clickbutton, nativeCreateButton, "to the native Create button")
+equal(craftButton.attributes.spell, nil, "never casting the recipe by spell name")
+equal(craftButton.attributes.macrotext, nil, "and carrying no addon-written macro")
+equal(openedRecipes[#openedRecipes], 3275, "the recipe is selected through the client's OpenRecipe")
+equal(craftButton.clicks[1], "AnyUp", "the button takes a click on release")
+equal(craftButton.clicks[2], "AnyDown", "and on press, so ActionButtonUseKeyDown cannot swallow it")
+local craftsBefore = nativeCrafts
 craftButton:Click()
+equal(nativeCrafts, craftsBefore + 1, "a craft click reaches the native Create button")
+equal(openedRecipes[#openedRecipes], 3275, "and selects the recipe just before it")
 equal(craftCalls, 0, "the addon never calls the protected craft API itself")
 equal(#timers > 0, true, "a craft click schedules a redraw")
 
@@ -807,11 +841,12 @@ equal(#timers > 0, true, "a craft click schedules a redraw")
 -- events still redraw the page. The latest wanted craft waits, one update, for PLAYER_REGEN_ENABLED.
 local settled = {
 	type = craftButton.attributes.type,
-	spell = craftButton.attributes.spell,
+	clickbutton = craftButton.attributes.clickbutton,
 	enabled = craftButton.enabled,
 	width = craftButton.width,
 	shown = craftButton.shown,
 }
+local openedBeforeCombat = #openedRecipes
 inCombat = true
 page.NextCraft = function()
 	return { recipeID = 3276, count = 7, planned = 7, to = 30, text = "Craft 7× Spell 3276" }
@@ -819,8 +854,9 @@ end
 eventFrame:Event("BAG_UPDATE_DELAYED")
 Drain()
 equal(#secureCalls, 0, "a redraw in combat makes no protected call on the craft button")
-equal(craftButton.attributes.type, settled.type, "the spell type waits for combat to end")
-equal(craftButton.attributes.spell, settled.spell, "the spell waits")
+equal(craftButton.attributes.type, settled.type, "the click type waits for combat to end")
+equal(craftButton.attributes.clickbutton, settled.clickbutton, "the click target waits")
+equal(#openedRecipes, openedBeforeCombat, "and no recipe is selected in combat")
 equal(craftButton.enabled, settled.enabled, "the enabled state waits")
 equal(craftButton.width, settled.width, "the size waits")
 equal(craftButton.shown, settled.shown, "the visibility waits")
@@ -833,20 +869,43 @@ equal(#secureCalls, 0, "a second redraw in combat still makes no protected call"
 inCombat = false
 eventFrame:Event("PLAYER_REGEN_ENABLED")
 equal(#secureCalls, 0, "the queued update is applied once combat ends")
-equal(craftButton.attributes.type, "spell", "the latest craft of the combat redraws wins")
-equal(craftButton.attributes.spell, "Spell 3277", "with its recipe's spell name")
+equal(craftButton.attributes.type, "click", "the latest craft of the combat redraws wins")
+equal(craftButton.attributes.clickbutton, nativeCreateButton, "with the native Create button")
+equal(openedRecipes[#openedRecipes], 3277, "and its recipe selected through OpenRecipe")
 equal(craftButton.enabled, true, "and the button is ready to craft")
 
--- A step with nothing to craft disables the button and clears both secure attributes, so a later click cannot
+-- A step with nothing to craft disables the button and clears the secure attributes, so a later click cannot
 -- repeat the recipe that was armed before it.
 page.NextCraft = function()
 	return { text = "Craft next", reason = "Nothing to craft on this route." }
 end
 routeTab:Click()
 Drain()
-equal(craftButton.attributes.type, nil, "a disabled craft button carries no spell type")
+equal(craftButton.attributes.type, nil, "a disabled craft button carries no click type")
+equal(craftButton.attributes.clickbutton, nil, "and no click target")
 equal(craftButton.attributes.spell, nil, "and no spell name")
 equal(craftButton.enabled, false, "and is disabled")
+
+-- With no native Create button to forward to, the route's craft button stays disabled. It never falls back to
+-- calling the protected CraftRecipe API from addon code (#385).
+local savedCraftingPage = pageEnv.ProfessionsFrame.CraftingPage
+local savedNextCraft = page.NextCraft
+local noCreatePage = Stub()
+noCreatePage.CreateButton = false
+pageEnv.ProfessionsFrame.CraftingPage = noCreatePage
+page.NextCraft = function()
+	return { recipeID = 3275, count = 3, planned = 5, to = 20, text = "Craft 3 of 5× Spell 3275" }
+end
+local openedBeforeFallback = #openedRecipes
+routeTab:Click()
+Drain()
+equal(craftButton.attributes.type, nil, "no native Create button leaves the click type unset")
+equal(craftButton.attributes.clickbutton, nil, "with no click target")
+equal(craftButton.enabled, false, "so the button stays disabled")
+equal(#openedRecipes, openedBeforeFallback, "and no recipe is selected for a craft that cannot run")
+equal(craftCalls, 0, "never falling back to the protected craft API")
+pageEnv.ProfessionsFrame.CraftingPage = savedCraftingPage
+page.NextCraft = savedNextCraft
 
 -- A route with crafts and an unpriced reagent is marked incomplete, and the reagent it left out is
 -- still named in the reagent list.
@@ -1092,7 +1151,6 @@ pageEnv.UnitLevel, pageEnv.GameTooltip_AddNormalLine, pageEnv.C_Item.GetItemName
 -- Opening a recipe hands it to the client. Selecting it in Blizzard's list from addon code wrote the list's
 -- selection and the schematic as ours, and the craft path reads them (#350).
 local selected, openedRecipe
-local craftingPage = Stub()
 craftingPage.RecipeList = {
 	SelectRecipe = function()
 		selected = true

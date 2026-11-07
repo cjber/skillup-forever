@@ -685,6 +685,7 @@ env = setmetatable({
 	},
 	C_TradeSkillUI = {
 		GetRecipeSchematic = function() end,
+		OpenRecipe = function() end,
 		GetBaseProfessionInfo = function()
 			return { professionName = STATE.open.name, professionID = STATE.open.skillLine }
 		end,

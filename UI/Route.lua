@@ -830,6 +830,21 @@ end
 ---@type SkillUpPendingCraft?
 local pendingCraft
 
+-- The Professions window's own secure Create button. A recipe is not castable by spell name in this client,
+-- so the route's secure button forwards its click here instead (#385).
+---@return Button?
+local function NativeCreateButton()
+	local crafting = ProfessionsFrame and ProfessionsFrame.CraftingPage
+	return crafting and crafting.CreateButton or nil
+end
+
+-- Select the recipe through the client's own code, as ns.ShowRecipe does: writing the recipe list's selection
+-- or schematic from addon code tainted the craft path (#350). Never call C_TradeSkillUI.CraftRecipe here.
+---@param recipeID integer
+local function SelectRecipe(recipeID)
+	C_TradeSkillUI.OpenRecipe(recipeID)
+end
+
 ---@param craft SkillUpCraft
 local function ApplyCraft(craft)
 	local button = page.Craft
@@ -837,16 +852,20 @@ local function ApplyCraft(craft)
 	button.recipeID, button.count = recipeID, count
 	-- CraftRecipe is protected: a /run or macro supplied by addon code runs in the addon's context, taints the
 	-- client's craft path, and a potion or profession conversion can be refused until /reload (#327, #313). A
-	-- secure spell attribute is resolved by the client itself, exactly as clicking the recipe in the
-	-- Professions window, so the craft never runs as addon code. Clearing both attributes keeps a disabled
-	-- button from crafting the previous step.
-	local spell = recipeID and C_Spell.GetSpellName(recipeID)
-	if spell and count and count > 0 then
-		button:SetAttribute("type", "spell")
-		button:SetAttribute("spell", spell)
+	-- secure click attribute forwards the click to the Professions window's own Create button, which crafts as
+	-- the player's own click (#385). Clearing both attributes keeps a disabled button from crafting the
+	-- previous step; with no native Create button to forward to, the craft button stays disabled rather than
+	-- falling back to the protected CraftRecipe API.
+	local createButton = recipeID and count and count > 0 and NativeCreateButton()
+	if createButton and recipeID then
+		SelectRecipe(recipeID)
+		button:SetAttribute("type", "click")
+		button:SetAttribute("clickbutton", createButton)
+		button:SetAttribute("spell", nil)
 		button:SetEnabled(true)
 	else
 		button:SetAttribute("type", nil)
+		button:SetAttribute("clickbutton", nil)
 		button:SetAttribute("spell", nil)
 		button:SetEnabled(false)
 	end
@@ -1056,11 +1075,19 @@ local function CreateButtons()
 	page.Track = track
 
 	-- CraftRecipe is protected: called from this addon, it taints the client's craft path and a controller's
-	-- own craft afterwards is blocked (#313). The button is secure and casts the recipe's spell as the
-	-- client's own code, with the spell attribute set in ApplyCraft.
+	-- own craft afterwards is blocked (#313). The secure button forwards a click to the Professions window's
+	-- own Create button, with both attributes set in ApplyCraft (#385).
 	local craft = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate,SecureActionButtonTemplate")
 	---@cast craft SkillUpCraftButton
-	craft:RegisterForClicks("AnyUp")
+	-- Both directions: ActionButtonUseKeyDown is on by default and would swallow an AnyUp-only click.
+	craft:RegisterForClicks("AnyUp", "AnyDown")
+	-- The native Create button crafts whatever the crafting page has selected, so hand it this button's recipe
+	-- just before the secure click reaches it.
+	craft:SetScript("PreClick", function(self)
+		if self.recipeID then
+			SelectRecipe(self.recipeID)
+		end
+	end)
 	craft:HookScript("OnClick", function()
 		-- The craft's bag and skill events redraw it; ask for one too, so a craft is never missed.
 		RefreshRoute()

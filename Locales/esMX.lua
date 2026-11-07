@@ -494,7 +494,13 @@ L["total"] = "total"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
 L["crafted"] = "fabricado" -- mt
-L["The Forever Leaderboards tab wears a game icon."] = "La pestaña Forever Leaderboards lleva un icono del juego." -- mt
+L["List unlearned recipes"] = "Listar recetas sin aprender"
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
+	"Añade las recetas de la profesión abierta que no has aprendido bajo un separador Sin aprender, en gris y marcadas con un instructor o una receta y la habilidad que piden. No se pueden seleccionar ni fabricar."
+L["Not learned · %s"] = "Sin aprender · %s"
+L["Trainer"] = "Instructor"
+L["Recipe item"] = "Receta"
+L["listing unlearned recipes failed: %s"] = "no se pudieron listar las recetas sin aprender: %s"
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"En esta ruta no puedes recoger, pescar ni saquear de criaturas nada, así que la opción no cambia nada." -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -508,3 +514,5 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"lo saqueas de criaturas, valorado a su precio de venta al vendedor" -- mt
 L["vendor, limited stock"] = "vendedor, existencias limitadas" -- mt
 L["Sells %d at a time"] = "Vende %d a la vez" -- mt
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"La carne y el pescado de una ruta de Cocina cuentan como obtenidos por ti." -- mt

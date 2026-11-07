@@ -86,16 +86,22 @@ AuctionHouseFrame = nil
 
 ---@class SkillUpRecipeNodeData
 ---@field recipeInfo? TradeSkillRecipeInfo
+---@field categoryInfo? table
 ---@field isDivider? boolean
 ---@field dividerHeight? number
+---@field topPadding? boolean
+---@field bottomPadding? boolean
 
 ---@class SkillUpTreeNode
 ---@field GetData fun(self: SkillUpTreeNode): SkillUpRecipeNodeData
 ---@field GetNodes fun(self: SkillUpTreeNode): SkillUpTreeNode[]
+---@field Insert fun(self: SkillUpTreeNode, data: SkillUpRecipeNodeData): SkillUpTreeNode
+---@field IsCollapsed? fun(self: SkillUpTreeNode): boolean
+---@field SetCollapsed? fun(self: SkillUpTreeNode, collapsed: boolean)
 
 ---@class SkillUpTreeProvider
 ---@field GetRootNode fun(self: SkillUpTreeProvider): SkillUpTreeNode
----@field Insert fun(self: SkillUpTreeProvider, data: SkillUpRecipeNodeData)
+---@field Insert fun(self: SkillUpTreeProvider, data: SkillUpRecipeNodeData): SkillUpTreeNode
 
 ---@return SkillUpTreeProvider
 function CreateTreeDataProvider() end
@@ -408,6 +414,7 @@ function CreateSettingsButtonInitializer(name, buttonText, onClick, tooltip, add
 
 ---@class TradeSkillRecipeInfo
 ---@field favoritesInstance? boolean
+---@field skillUpUnlearned? SkillUpUnlearnedRecipe
 
 -- TooltipData's ID is supplied for item/spell tooltips in Forever, but is absent
 -- from Ketho's hand-written TooltipData structure at the pinned revision.

@@ -483,7 +483,13 @@ L["total"] = "總計"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 L["crafted"] = "製作" -- mt
-L["The Forever Leaderboards tab wears a game icon."] = "Forever Leaderboards 分頁使用遊戲內圖示。" -- mt
+L["List unlearned recipes"] = "列出未學習的配方"
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
+	"在「未學習」分隔線下列出目前專業中你尚未學習的配方，以灰色顯示，並標明訓練師或配方以及所需技能。它們無法被選取或製作。"
+L["Not learned · %s"] = "未學習 · %s"
+L["Trainer"] = "訓練師"
+L["Recipe item"] = "配方"
+L["listing unlearned recipes failed: %s"] = "列出未學習的配方失敗：%s"
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"這條路線沒有你可以採集、釣魚或從生物身上拾取的東西，所以此開關不會改變什麼。" -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -497,3 +503,5 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"你從生物身上拾取，按商人出售價格計算" -- mt
 L["vendor, limited stock"] = "商人，庫存有限" -- mt
 L["Sells %d at a time"] = "每次出售 %d 個" -- mt
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"烹飪路線上的肉類和魚類算作你自己取得的。" -- mt

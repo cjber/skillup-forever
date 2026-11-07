@@ -498,8 +498,13 @@ L["total"] = "합계"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 L["crafted"] = "제작됨" -- mt
-L["The Forever Leaderboards tab wears a game icon."] =
-	"Forever Leaderboards 탭에 게임 아이콘이 표시됩니다." -- mt
+L["List unlearned recipes"] = "배우지 않은 제조법 표시"
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
+	"열린 전문 기술에서 배우지 않은 제조법을 '배우지 않음' 구분선 아래에 추가하고, 회색으로 표시하며 교관 또는 제조법과 필요한 숙련도를 함께 보여 줍니다. 선택하거나 제작할 수는 없습니다."
+L["Not learned · %s"] = "배우지 않음 · %s"
+L["Trainer"] = "전문 기술 교관"
+L["Recipe item"] = "제조법"
+L["listing unlearned recipes failed: %s"] = "배우지 않은 제조법을 표시하지 못했습니다: %s"
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"이 경로에서는 채집하거나 낚시하거나 몬스터에게서 약탈할 수 있는 것이 없어, 이 스위치는 아무것도 바꾸지 않습니다." -- mt
 L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -514,3 +519,5 @@ L["you loot it from creatures, valued at its vendor sell price"] =
 	"몬스터에게서 약탈하며 상인 판매 가격으로 계산합니다" -- mt
 L["vendor, limited stock"] = "상인, 한정 재고" -- mt
 L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt
+L["Meat and fish on a Cooking route count as yours to get."] =
+	"요리 경로의 고기와 생선은 직접 구한 것으로 칩니다." -- mt

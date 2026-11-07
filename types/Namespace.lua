@@ -70,7 +70,9 @@
 ---@field CutText fun(text: string, limit: integer): string `text` at most `limit` bytes, cut on a character boundary with "..."
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
+---@field LearnSource fun(profession: SkillUpContext, recipeID: integer): SkillUpLearnSource?
 ---@field LearnSkill fun(profession: SkillUpContext, recipeID: integer): number
+---@field UnlearnedRecipes fun(profession: SkillUpContext): SkillUpUnlearnedRecipe[]
 ---@field RecipeNPC fun(profession: SkillUpContext, recipeID: integer): integer?
 ---@field BestTraining fun(profession: SkillUpContext, known: table<integer, boolean>, offers: {recipeID: integer, fee: number}[]): integer?
 ---@field RouteBlocked fun(plan: SkillUpPlan): string?
@@ -205,6 +207,7 @@
 ---@field peerStats table<string, table>
 ---@field showRowText boolean
 ---@field wideRecipeList boolean
+---@field showUnlearned boolean
 ---@field showSkill boolean
 ---@field showTooltip boolean
 ---@field recipeTooltip 'window'|'cursor'|'row'
@@ -429,9 +432,26 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpRecipeInfo
 ---@field recipeID integer
+---@field name? string
 ---@field learned? boolean
 ---@field canSkillUp? boolean
 ---@field relativeDifficulty? number
+---@field skillUpUnlearned? SkillUpUnlearnedRecipe The bundle's source when this row is one the addon added.
+
+-- Where the bundle says a recipe is learned, in effective skill (base plus the profession's modifier).
+---@class SkillUpLearnSource
+---@field kind 'trainer'|'scroll'
+---@field skill number
+---@field itemID? integer The pattern or recipe item that teaches it, for a scroll.
+
+-- One recipe the character has not learned, with the skill and the bundle's source it takes to learn it.
+---@class SkillUpUnlearnedRecipe
+---@field recipeID integer
+---@field name string
+---@field kind 'trainer'|'scroll'
+---@field skill number
+---@field itemID? integer
+---@field thresholds number[]
 
 -- What Core/Live.lua records for one recipe from the client's own recipe read.
 ---@class SkillUpLiveRecipe

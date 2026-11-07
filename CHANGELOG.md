@@ -12,7 +12,11 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Recipes you have not learned can sit in the recipe list too.** A new setting, off by default, adds the open profession's unlearned recipes under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks, so what is ahead is in the same list. Unlearned rows cannot be selected or crafted. Thanks to prokn4h for the request (cjber/skillup-forever#361).
 - **Cooking routes use recipes you can buy from vendors and know when stock is limited.** A recipe sold as a scroll at a vendor is now planned like a trainer's, with the scroll's price as its fee and its required skill as where it can be learned, so a cheap vendor recipe replaces the long green stretch that used to end a route. A reagent the vendor the route sends you to stocks in a limited amount now says so, using the stock that vendor's own window shows where you have seen it and the bundled data otherwise, and its tooltip gives how many are sold at a time; a vendor seen selling unlimited stock clears a bundled limit, rather than showing a whole 280-craft route as a single purchase. (cjber/skillup-forever#358).
+
+## [1.0.31] - 2026-11-07
+
 - **Meat and fish on a Cooking route count as yours to get.** Fish count as gathered when you know Fishing, and the parts creatures carry (meat, eggs, scales, feathers, venom sacs, elemental essences) count as gathered for every character, so with Buy reagents off they cost nothing and the switch no longer says it changes nothing for a Cooking route. Cloth, herbs and ore are unchanged: cloth is still bought, and herbs and ore still need the profession. A looted reagent's step reads "Loot ... from creatures" (cjber/skillup-forever#367).
 
 ## [1.0.30] - 2026-11-07

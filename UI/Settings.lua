@@ -106,6 +106,13 @@ function ns.RegisterSettings()
 
 		Checkbox(
 			rows,
+			"showUnlearned",
+			L["List unlearned recipes"],
+			L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."]
+		)
+
+		Checkbox(
+			rows,
 			"showRowText",
 			L["Show skill on recipe rows"],
 			L["Skill-up chance and cost per skill-up at the right of each recipe."]

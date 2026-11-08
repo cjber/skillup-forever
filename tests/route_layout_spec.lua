@@ -23,6 +23,9 @@ end
 
 local function noop() end
 local created, insets, tabs, pageFrame = {}, {}, {}, nil
+-- While the client shows a panel through its secure path, an addon's Hide is blocked; this spec counts any
+-- the page still asks for there (#393).
+local inShowPath, hidesInShowPath = false, 0
 
 -- Where a point sits inside a region: its own fraction of the region's width and height.
 local function Fraction(point)
@@ -208,6 +211,9 @@ local function NewRegion(parent)
 		end
 	end
 	function region:Hide()
+		if inShowPath and not self.ignoreHides then
+			hidesInShowPath = hidesInShowPath + 1
+		end
 		self.shown = false
 	end
 	function region:IsShown()
@@ -386,6 +392,12 @@ local function Color()
 end
 
 local timers = {}
+-- The page hides and the native page handoff happen on the next frame; run everything queued.
+local function Flush()
+	while #timers > 0 do
+		table.remove(timers, 1)()
+	end
+end
 local waypoints, opened, showAll = {}, {}, false
 local reagents = {
 	{ itemID = 1, need = 50, source = "gather" },
@@ -779,6 +791,7 @@ hangingTab:Hide()
 OpenWindow()
 
 tab.scripts.OnMouseUp(nil, "LeftButton", true)
+Flush()
 equal(page ~= nil, true, "the route page is created")
 equal(page.RouteList ~= nil and page.ReagentList ~= nil, true, "with its two lists")
 
@@ -922,6 +935,7 @@ equal(switch.points[1].relative, gearInset, "the switch hangs off the gear inset
 
 -- The gear tab shows the page and hides the route's; the first render fills the doll.
 gearTab.scripts.OnMouseUp(nil, "LeftButton", true)
+Flush()
 equal(gearPage:IsShown(), true, "the gear tab shows the gear page")
 equal(routePage:IsShown(), false, "and hides the route page")
 equal(gearTab.checked, true, "with the gear tab checked")
@@ -998,13 +1012,16 @@ switch.scripts.OnClick(switch)
 equal(showAll, true, "the switch saves the choice")
 
 routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
+Flush()
 equal(routePage:IsShown(), true, "the route tab shows the route page")
 equal(gearPage:IsShown(), false, "and hides the gear page")
 equal(routeTab.checked, true, "with the route tab checked")
 equal(gearTab.checked, false, "and the gear tab unchecked")
 
 gearTab.scripts.OnMouseUp(nil, "LeftButton", true)
+Flush()
 routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
+Flush()
 equal(routePage:IsShown(), true, "a second route click shows the route page again")
 equal(gearPage:IsShown(), false, "and still hides the gear page")
 equal(routeTab.checked, true, "with the route tab checked")
@@ -1022,6 +1039,7 @@ for _, target in ipairs({
 	ProfessionsFrame.CraftingPage:Hide()
 	foreignPage:Show()
 	target.tab.scripts.OnMouseUp(nil, "LeftButton", true)
+	Flush()
 	equal(foreignPage:IsShown(), false, target.name .. " dismisses another addon's page")
 	equal(target.page:IsShown(), true, target.name .. " stays visible after the native handoff")
 	equal(target.other:IsShown(), false, target.name .. " hides the other SkillUp page")
@@ -1031,12 +1049,38 @@ end
 
 -- Blizzard's own tabs hand the window back through their page showing.
 ProfessionsFrame.BookPage:Show()
+Flush()
 equal(routePage:IsShown(), false, "the overview hides the route page")
 equal(gearPage:IsShown(), false, "and the gear page")
 equal(routeTab.checked, false, "the route tab unchecks")
 equal(gearTab.checked, false, "and the gear tab too")
 ProfessionsFrame.CraftingPage:Show()
+Flush()
 equal(routePage:IsShown(), false, "a profession page hides the route page")
 equal(gearPage:IsShown(), false, "and the gear page")
+
+-- #393: the client shows the Professions window through its secure panel path (SetAttribute, ShowUIPanel,
+-- SetUIPanel, Show), where a Hide from addon code is blocked. The route tab is selected, and the window then
+-- shows its native pages: no Hide may run until the deferred pass, and that pass keeps the route page shown.
+routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
+Flush()
+equal(routePage:IsShown(), true, "the route page is showing before the window opens")
+-- The foreign page's hook above is another addon's work, not this one's.
+foreignPage.ignoreHides = true
+hidesInShowPath = 0
+inShowPath = true
+local ok, err = pcall(function()
+	ProfessionsFrame:Show()
+	ProfessionsFrame.CraftingPage:Show()
+	ProfessionsFrame.BookPage:Show()
+end)
+inShowPath = false
+equal(ok, true, "the window opens without a blocked Hide: " .. tostring(err))
+equal(hidesInShowPath, 0, "opening the window hides no frame from inside the show path")
+Flush()
+equal(routePage:IsShown(), true, "the deferred pass leaves the route page shown")
+equal(ProfessionsFrame.CraftingPage:IsShown(), false, "and hides the native crafting page")
+equal(ProfessionsFrame.BookPage:IsShown(), false, "and the book page")
+equal(routeTab.checked, true, "and keeps the route tab checked")
 
 Client.report("route_layout_spec")

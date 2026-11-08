@@ -506,22 +506,63 @@ end
 
 local SyncChecks
 
+-- The client runs the window's OnShow inside a secure panel call, where an addon's Hide is blocked (#393).
+-- Record what the player asked for now and do the frame work on the next frame.
+local pageWanted = false
+local pageToken = 0
+local opening = false
+
+local function HidePageLater()
+	local token = pageToken
+	C_Timer.After(0, function()
+		if token ~= pageToken or pageWanted or not ProfessionsFrame:IsShown() then
+			return
+		end
+		page:Hide()
+	end)
+end
+
+local function HideNativePagesLater()
+	local token = pageToken
+	C_Timer.After(0, function()
+		if token ~= pageToken or not pageWanted or not ProfessionsFrame:IsShown() then
+			return
+		end
+		ProfessionsFrame.CraftingPage:Hide()
+		ProfessionsFrame.BookPage:Hide()
+	end)
+end
+
 local function SelectPage()
 	ns.HideRoute()
-	-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly.
+	-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly. Its own
+	-- OnShow may run our Deselect, so the gear page is marked wanted after that.
 	ProfessionsFrame.CraftingPage:Show()
-	ProfessionsFrame.CraftingPage:Hide()
-	ProfessionsFrame.BookPage:Hide()
+	pageWanted = true
+	pageToken = pageToken + 1
 	page:Show()
 	SyncChecks()
+	HideNativePagesLater()
 end
 
 -- Blizzard's own tabs show their page explicitly, which hands the window back.
 local function Deselect()
-	page:Hide()
+	pageWanted = false
+	pageToken = pageToken + 1
 	tab:SetChecked(false)
+	HidePageLater()
 end
 ns.HideGear = Deselect
+
+-- The native pages hand the window back when the player picks one, but the client also shows them while
+-- opening the window; a page already on show stays.
+local function NativePageShown()
+	if opening and pageWanted then
+		HideNativePagesLater()
+		return
+	end
+	Deselect()
+end
 
 -- Blizzard reselects its profession tab on skill updates; keep ours checked while our page shows.
 function SyncChecks()
@@ -749,14 +790,21 @@ local function CreateTab()
 	end)
 	ns.GearTab = tab
 	RefreshTab()
+	ProfessionsFrame:HookScript("OnShow", function()
+		opening = true
+		ns.PlaceSideTabs()
+		C_Timer.After(0, function()
+			opening = false
+		end)
+	end)
 	page:HookScript("OnShow", SyncChecks)
 end
 
 function ns.AttachGear()
 	CreatePage()
 	CreateTab()
-	ProfessionsFrame.CraftingPage:HookScript("OnShow", Deselect)
-	ProfessionsFrame.BookPage:HookScript("OnShow", Deselect)
+	ProfessionsFrame.CraftingPage:HookScript("OnShow", NativePageShown)
+	ProfessionsFrame.BookPage:HookScript("OnShow", NativePageShown)
 	-- A reopened window starts on the crafting page, as Blizzard expects.
 	ProfessionsFrame:HookScript("OnHide", function()
 		if page:IsShown() then

@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.35] - 2026-11-08
+
+- **Opening the Professions window no longer raises a blocked action.** The route and gear pages used to hide their frames from inside the client's own panel show path, which the client refuses with ADDON_ACTION_BLOCKED. The page work now runs on the next frame, so the window opens and closes cleanly whichever way it is opened (cjber/skillup-forever#393).
+
 ## [1.0.34] - 2026-11-07
 
 - **The route's Craft button can make the whole step.** Shift-click presses the Professions window's Create All, and when the route's step fits in your bags a plain click makes all of it. The button now waits until the window shows the route's recipe and its own Create button is ready, and it opens the recipe once per step instead of on every redraw (cjber/skillup-forever#385).

@@ -527,5 +527,5 @@ L["This route is mostly %s: %d recipes are left out until their reagents are pri
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
-L["Self-supplied reagents can now be priced at market values."] =
-	"Self-supplied reagents can now be priced at market values." -- mt
+L["A profitable recipe no longer gets cheaper the longer a route runs on it, and a craft's time now counts."] =
+	"수익성 있는 제조법은 경로가 오래 사용할수록 더 싸지지 않으며, 이제 제작 시간도 계산됩니다." -- mt

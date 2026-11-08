@@ -248,7 +248,8 @@ do
 		file:close()
 		return text
 	end
-	local whatsNew = Read("Core/Core.lua"):match('\nns%.WHATS_NEW = L%["([^"]+)"%]')
+	-- Stylua wraps the assignment when the phrase is long: the value may start on the next line.
+	local whatsNew = Read("Core/Core.lua"):match('\nns%.WHATS_NEW =%s*L%["([^"]+)"%]')
 	local newest
 	-- Each "## " heading to the next: a section is split off before it is searched.
 	local changelog = Read("CHANGELOG.md") .. "\n## "

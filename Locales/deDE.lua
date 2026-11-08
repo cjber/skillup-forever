@@ -511,4 +511,5 @@ L["The game's Craft button is not ready for this recipe."] =
 	"Die Herstellen-Schaltfläche des Spiels ist für dieses Rezept nicht bereit." -- mt
 L["vendor, limited stock"] = "Händler, begrenzter Vorrat" -- mt
 L["Sells %d at a time"] = "Verkauft %d auf einmal" -- mt
-L["Opening the Professions window no longer raises a blocked action."] = "Das Berufefenster zu öffnen löst keine blockierte Aktion mehr aus." -- mt
+L["Opening the Professions window no longer raises a blocked action."] =
+	"Das Berufefenster zu öffnen löst keine blockierte Aktion mehr aus." -- mt

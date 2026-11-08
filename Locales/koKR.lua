@@ -522,4 +522,5 @@ L["The game's Craft button is not ready for this recipe."] =
 	"게임의 제작 버튼이 이 제조법에 준비되지 않았습니다." -- mt
 L["vendor, limited stock"] = "상인, 한정 재고" -- mt
 L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt
-L["Opening the Professions window no longer raises a blocked action."] = "전문 기술 창을 열어도 더 이상 차단된 동작이 발생하지 않습니다." -- mt
+L["Opening the Professions window no longer raises a blocked action."] =
+	"전문 기술 창을 열어도 더 이상 차단된 동작이 발생하지 않습니다." -- mt

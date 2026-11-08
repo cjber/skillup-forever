@@ -206,6 +206,35 @@ for _, candidates in ipairs({
 	equal(tied.segments[1].crafts, 2, "certain crafts stay integral")
 	equal(tied.expectedCost, 200, "zero-cost route still charges its crafts' time")
 end
+-- #357: two recipes that cost the same and skill up the same, the one whose product is a buff the player
+-- can use comes first. Without a buff the lower recipe ID still wins, and a cheaper point still beats a buff.
+local buffTie = Model.PlanRoute({
+	skill = 1,
+	target = 3,
+	recipes = {
+		{ recipeID = 20, thresholds = flat, netCost = 0, buff = true },
+		{ recipeID = 10, thresholds = flat, netCost = 0 },
+	},
+})
+equal(buffTie.segments[1].recipeID, 20, "a usable buff wins a tie on cost and chance")
+local plainTie = Model.PlanRoute({
+	skill = 1,
+	target = 3,
+	recipes = {
+		{ recipeID = 20, thresholds = flat, netCost = 0 },
+		{ recipeID = 10, thresholds = flat, netCost = 0 },
+	},
+})
+equal(plainTie.segments[1].recipeID, 10, "without a buff the lower recipe ID still wins")
+local buffCostly = Model.PlanRoute({
+	skill = 1,
+	target = 3,
+	recipes = {
+		{ recipeID = 20, thresholds = flat, netCost = 10, buff = true },
+		{ recipeID = 10, thresholds = flat, netCost = 0 },
+	},
+})
+equal(buffCostly.segments[1].recipeID, 10, "a cheaper point still beats a buff")
 local fractional = Model.PlanRoute({
 	skill = 2,
 	target = 4,

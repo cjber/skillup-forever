@@ -261,6 +261,7 @@ end
 ---@return SkillUpSnapshot
 local function Snapshot(profession, target, known)
 	local recipes = {}
+	local level = UnitLevel("player") or 0
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
 		local thresholds = not Skipped(recipeID) and ns.Model.Get(recipeID)
 		if thresholds and (known and known[recipeID] or ns.IsLearned(recipeID)) then
@@ -272,6 +273,7 @@ local function Snapshot(profession, target, known)
 				reagentCost = reagentCost,
 				preference = ns.PinPreference(recipeID),
 				skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(recipeID) or 1,
+				buff = ns.UsableBuff(recipeID, level),
 			}
 		end
 	end
@@ -324,6 +326,7 @@ end
 ---@return SkillUpService[]
 local function Trainable(profession, snapshot)
 	local services = {}
+	local level = UnitLevel("player") or 0
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
 		local training = ns.TrainingFor(profession, recipeID) or VendorTraining(recipeID)
 		local t = training and not ns.IsLearned(recipeID) and not Skipped(recipeID) and ns.Model.Get(recipeID)
@@ -339,6 +342,7 @@ local function Trainable(profession, snapshot)
 					preference = ns.PinPreference(recipeID),
 					fee = training[1],
 					skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(recipeID) or 1,
+					buff = ns.UsableBuff(recipeID, level),
 				}
 			end
 		end
@@ -693,8 +697,11 @@ end)
 function ns.PlanRoute(profession)
 	local target = RouteTarget(profession)
 	-- The collect mode is part of the key: a switch that is on prices the reagents this character could gather,
-	-- so a plan made under the other mode is a different route (#190).
-	local key = table.concat({ profession.skill, profession.modifier, profession.max, target, ns.CollectMode() }, ":")
+	-- so a plan made under the other mode is a different route (#190). The level is too: a plan made at another
+	-- level may prefer a buff that level could not use (#357).
+	local level = UnitLevel("player") or 0
+	local key =
+		table.concat({ profession.skill, profession.modifier, profession.max, target, ns.CollectMode(), level }, ":")
 	local cache = plans[profession.skillLine]
 	if not cache then
 		cache = { plans = {}, order = {} }
@@ -727,6 +734,7 @@ function ns.BestTraining(profession, known, offers)
 		return nil
 	end
 	local services = {}
+	local level = UnitLevel("player") or 0
 	for _, offer in ipairs(offers) do
 		local thresholds = ns.Model.Get(offer.recipeID)
 		if thresholds and not ns.IsLearned(offer.recipeID) and not Skipped(offer.recipeID) then
@@ -744,6 +752,7 @@ function ns.BestTraining(profession, known, offers)
 				preference = ns.PinPreference(offer.recipeID),
 				skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(offer.recipeID) or 1,
 				fee = offer.fee,
+				buff = ns.UsableBuff(offer.recipeID, level),
 			}
 		end
 	end

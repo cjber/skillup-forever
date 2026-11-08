@@ -153,6 +153,15 @@ function ns.BuffLevel(recipeID)
 	return facts and facts[LEVEL] or 0
 end
 
+-- Whether the product is a buff this character's level can use.
+---@param recipeID integer
+---@param level number
+---@return boolean
+function ns.UsableBuff(recipeID, level)
+	local required = ns.BuffLevel(recipeID)
+	return required ~= nil and required <= level
+end
+
 ---@class SkillUpGear
 local Gear = {}
 ns.Gear = Gear

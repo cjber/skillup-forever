@@ -84,13 +84,19 @@ function Reference.PlanRoute(snapshot)
 				local covered = Reference.CoveredCrafts(recipe.thresholds, skill, skill + ups, ups)
 				key = (Model.StepCost(recipe.netCost, recipe.reagentCost, covered, Model.CRAFT_TIME_COST) or 0) / ups
 			end
+			local buff = recipe.buff == true
+			local bestBuff = best and best.buff == true
 			if
 				key
 				and (
 					not best
 					or key < bestKey
 					or (key == bestKey and chance > bestChance)
-					or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
+					or (
+						key == bestKey
+						and chance == bestChance
+						and ((buff and not bestBuff) or (buff == bestBuff and recipe.recipeID < best.recipeID))
+					)
 				)
 			then
 				best, bestKey, bestChance = recipe, key, chance

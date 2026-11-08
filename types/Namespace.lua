@@ -66,6 +66,7 @@
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
 ---@field BuffLevel fun(recipeID: integer): integer? The product's required level when it is a buff, else nil.
+---@field UsableBuff fun(recipeID: integer, level: number): boolean Whether the product is a buff this level can use.
 ---@field Gear SkillUpGear
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
@@ -324,6 +325,7 @@ SkillUpForeverDB = nil
 ---@field reagentCost? number What one craft's reagents cost, before the crafted item's value.
 ---@field preference? integer Most recently pinned recipe wins.
 ---@field skillUps? integer Skill points one craft grants, from the client.
+---@field buff? boolean The product is a buff this character's level can use.
 
 -- A reagent a learned recipe makes for less than it costs to buy, as its own craft step.
 ---@class SkillUpSubCraft

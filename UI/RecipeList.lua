@@ -383,15 +383,6 @@ local function BuildSorted(source, key, ctx)
 	return sorted
 end
 
--- Whether the buff filter keeps a recipe: its product is a buff this character's level can use.
----@param recipeInfo TradeSkillRecipeInfo
----@param level number
----@return boolean
-local function UsableBuff(recipeInfo, level)
-	local required = ns.BuffLevel(recipeInfo.recipeID)
-	return required ~= nil and required <= level
-end
-
 -- The buff filter's default order: highest required level first, then the name SortRecipes breaks ties on.
 ---@param recipeInfo TradeSkillRecipeInfo
 ---@return number
@@ -412,7 +403,7 @@ local function BuildBuffs(source, key, ctx)
 	local clientLearned, clientUnlearned = {}, {}
 	CollectRecipes(source:GetRootNode(), clientLearned, clientUnlearned, seen)
 	for _, data in ipairs(clientLearned) do
-		if UsableBuff(data.recipeInfo, level) then
+		if ns.UsableBuff(data.recipeInfo.recipeID, level) then
 			learned[#learned + 1] = data
 		end
 	end
@@ -423,7 +414,7 @@ local function BuildBuffs(source, key, ctx)
 		end
 	end
 	for _, data in ipairs(clientUnlearned) do
-		if UsableBuff(data.recipeInfo, level) then
+		if ns.UsableBuff(data.recipeInfo.recipeID, level) then
 			unlearned[#unlearned + 1] = data
 		end
 	end

@@ -296,7 +296,7 @@ local function Rank(recipe, skill)
 end
 
 -- Among recipes that can gain skill, the most recent pin wins; otherwise a cheaper point, then a better
--- chance, then the lower recipe ID. A tie keeps the best so far.
+-- chance, then a buff the player can use, then the lower recipe ID. A tie keeps the best so far.
 ---@param recipe SkillUpCandidate
 ---@param key number?
 ---@param chance number?
@@ -312,13 +312,18 @@ local function Beats(recipe, key, chance, best, bestKey, bestChance)
 		return true
 	end
 	local preference, bestPreference = recipe.preference or 0, best.preference or 0
+	local buff, bestBuff = recipe.buff == true, best.buff == true
 	return preference > bestPreference
 		or (
 			preference == bestPreference
 			and (
 				key < bestKey
 				or (key == bestKey and chance > bestChance)
-				or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
+				or (
+					key == bestKey
+					and chance == bestChance
+					and ((buff and not bestBuff) or (buff == bestBuff and recipe.recipeID < best.recipeID))
+				)
 			)
 		)
 end

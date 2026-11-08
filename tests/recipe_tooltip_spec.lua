@@ -7,19 +7,35 @@ local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local BANDAGE, LINEN, BANDAGE_ITEM = 1, 3, 50
+local TRAINED, SCROLLED, SCROLL_ITEM = 2, 4, 51
 
 local c = Client.load({
 	boot = false,
 	data = {
-		Thresholds = { [BANDAGE] = { 1, 30, 45, 60 } },
+		Thresholds = {
+			[BANDAGE] = { 1, 30, 45, 60 },
+			[TRAINED] = { 1, 25, 50, 75 },
+			[SCROLLED] = { 1, 30, 45, 60 },
+		},
 		RecipeData = {
 			[BANDAGE] = {
 				skillLine = 129,
 				reagents = { { itemID = LINEN, quantity = 1 } },
 				output = { itemID = BANDAGE_ITEM, quantity = 1 },
 			},
+			[TRAINED] = {
+				skillLine = 129,
+				reagents = { { itemID = LINEN, quantity = 2 } },
+				output = { itemID = BANDAGE_ITEM, quantity = 1 },
+			},
+			[SCROLLED] = {
+				skillLine = 129,
+				reagents = { { itemID = LINEN, quantity = 1 } },
+				output = { itemID = BANDAGE_ITEM, quantity = 1 },
+			},
 		},
-		TrainerFees = {},
+		TrainerFees = { [TRAINED] = { 10, 40 } },
+		RecipeScrolls = { [SCROLLED] = { SCROLL_ITEM, 45 } },
 		TrainerRanks = { [129] = {} },
 		ItemSellPrices = {},
 		GatheredBy = {},
@@ -32,13 +48,14 @@ local G, ns = c.G, c.ns
 -- The game's tooltip: it keeps its lines, the font string each line is drawn in and its script hooks. A read
 -- of its geometry, line count or spacing fails the spec: those are what came back secret.
 local lines, hooks = {}, {}
+local doubleLines = {}
 local minimumWidth, owner, points
 local tooltip = setmetatable({
 	GetName = function()
 		return "GameTooltip"
 	end,
 	SetOwner = function(self, frame, anchor)
-		owner, points, lines = { frame, anchor }, {}, {}
+		owner, points, lines, doubleLines = { frame, anchor }, {}, {}, {}
 		for _, hook in ipairs(hooks.OnTooltipCleared or {}) do
 			hook(self)
 		end
@@ -47,7 +64,8 @@ local tooltip = setmetatable({
 		lines[#lines + 1] = text
 		G["GameTooltipTextLeft" .. #lines] = rawget(G, "GameTooltipTextLeft" .. #lines) or { line = #lines }
 	end,
-	AddDoubleLine = function(self, left)
+	AddDoubleLine = function(self, left, right)
+		doubleLines[#doubleLines + 1] = { left, right }
 		self:AddLine(left)
 	end,
 	SetPoint = function(_, ...)
@@ -178,5 +196,58 @@ equal(#points, 0, "with no point of its own")
 c.SetSetting("recipeTooltip", "row")
 ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
 equal(owner[1] == row and owner[2], "ANCHOR_RIGHT", "or next to the recipe row")
+
+-- An unlearned recipe the addon added gets the same tooltip, with where it is learned as well: its row
+-- already carries the source, so the hover never rebuilds the unlearned list, the route or the prices.
+local function HasLine(text)
+	for _, line in ipairs(lines) do
+		if line == text then
+			return true
+		end
+	end
+	return false
+end
+local rebuilt
+ns.PlanRoute = function()
+	rebuilt = "route"
+end
+ns.InitPrices = function()
+	rebuilt = "prices"
+end
+ns.UnlearnedRecipes = function()
+	rebuilt = "unlearned list"
+end
+ns.ShowRecipeTooltip(ns, row, {
+	recipeInfo = {
+		recipeID = TRAINED,
+		name = "Unlearned Trainer",
+		learned = false,
+		skillUpUnlearned = {
+			recipeID = TRAINED,
+			name = "Unlearned Trainer",
+			kind = "trainer",
+			skill = 40,
+			thresholds = { 1, 25, 50, 75 },
+		},
+	},
+})
+equal(lines[1], "Unlearned Trainer", "the added row keeps its title")
+equal(HasLine("Skill range starts at 1"), true, "and its skill range")
+equal(HasLine("Skill-up chance: 100%"), true, "the chance still colours the tooltip")
+equal(HasLine("Not learned · Trainer 40"), true, "the tooltip says where it is learned and at what skill")
+equal(HasLine("Linen Cloth x2"), true, "each reagent's count is listed")
+local total
+for _, pair in ipairs(doubleLines) do
+	if pair[1] == "Reagents" then
+		total = pair[2]
+	end
+end
+equal(total, "20", "one craft's reagents are priced from the addon's sources")
+equal(rebuilt, nil, "hovering rebuilds neither the route, the prices nor the unlearned list")
+
+-- A recipe the client lists unlearned and the bundle places by a recipe item reads the same tables.
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = { recipeID = SCROLLED, name = "Unlearned Recipe Item", learned = false } })
+equal(lines[1], "Unlearned Recipe Item", "the client's own unlearned row gets the tooltip too")
+equal(HasLine("Not learned · Recipe item 45"), true, "with the recipe item and the skill it asks")
 
 Client.report("recipe_tooltip_spec")

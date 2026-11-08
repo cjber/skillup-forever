@@ -86,6 +86,7 @@
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
 ---@field LearnSource fun(profession: SkillUpContext, recipeID: integer): SkillUpLearnSource?
+---@field LearnSourceText fun(source: SkillUpLearnSource|SkillUpUnlearnedRecipe): string
 ---@field LearnSkill fun(profession: SkillUpContext, recipeID: integer): number
 ---@field UnlearnedRecipes fun(profession: SkillUpContext): SkillUpUnlearnedRecipe[]
 ---@field RecipeNPC fun(profession: SkillUpContext, recipeID: integer): integer?

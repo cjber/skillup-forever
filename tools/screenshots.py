@@ -683,13 +683,10 @@ env = setmetatable({
 			return learned[spellID] == true
 		end,
 	},
-	IsPlayerSpell = function(spellID)
-		return learned[spellID] == true
-	end,
-	C_UnitAuras = {
-		GetPlayerAuraBySpellID = function()
-			return nil
-		end,
+	-- The scene's character has spent no points in Working Overtime: no Legacy talent config to read.
+	C_Traits = {
+		GetConfigIDByTreeID = function() end,
+		GetNodeInfo = function() end,
 	},
 	C_TradeSkillUI = {
 		GetRecipeSchematic = function() end,
@@ -739,14 +736,10 @@ env = setmetatable({
 			return 1
 		end,
 	},
-	-- The scene's character has not taken the Legacy talent the addon reads for Working Overtime.
-	IsPlayerSpell = function()
-		return false
-	end,
-	C_UnitAuras = {
-		GetPlayerAuraBySpellID = function()
-			return nil
-		end,
+	-- The scene's character has spent no points in Working Overtime: no Legacy talent config to read.
+	C_Traits = {
+		GetConfigIDByTreeID = function() end,
+		GetNodeInfo = function() end,
 	},
 	C_TooltipInfo = {
 		GetTrainerService = function(index)

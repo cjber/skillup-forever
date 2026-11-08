@@ -178,6 +178,13 @@ function ns.RegisterSettings()
 			L["Value gathered materials at what they'd sell for"],
 			L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."]
 		)
+
+		Checkbox(
+			rows,
+			"auctionOnly",
+			L["Price self-supplied reagents at auction values"],
+			L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."]
+		)
 	end)
 
 	Section(L["Route and trainer"], function(rows)

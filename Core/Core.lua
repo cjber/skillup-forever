@@ -16,6 +16,7 @@ local DEFAULTS = {
 	rowCost = "skillup", -- what a recipe row's money is: "skillup" (cost per skill-up) or "craft" (net per craft)
 	craftValue = "vendor",
 	valueGathered = false, -- a reagent you gather costs what it would sell for, not nothing
+	auctionOnly = false, -- a self-supplied reagent costs a market price, and is unpriced when none is known
 	sortMode = "blizzard",
 	showTrainer = true,
 	showRouteTab = true,
@@ -82,7 +83,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["A route that leans on one cheap reagent now says so."]
+ns.WHATS_NEW = L["Self-supplied reagents can now be priced at market values."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

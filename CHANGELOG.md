@@ -18,6 +18,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **A profitable recipe no longer gets cheaper the longer a route runs on it, and a craft's time now counts.** Rough Bronze Leggings sold for more than their Bronze Bars, so Blacksmithing 105 to 150 asked for 183 of them and training that would have replaced them never showed a saving. The route now charges the first craft of a step at the recipe's net, never a profit, and the extra crafts a falling chance needs at its reagents, and gives every craft a small price for its time, so a stretch at 1 in 30 no longer looks free even when its reagents are gathered. Thanks to jakeyjake07 for the report (cjber/skillup-forever#400).
 
+## [1.0.37] - 2026-11-08
+
+- **Self-supplied reagents can now be priced at market values.** A new Prices setting, off by default, stops a reagent you gather, loot or already own from counting as free: it takes its Auctionator price after the 5% cut, or its vendor sell price when that is higher, so the route, shopping list and cost totals describe what a fresh character would pay. A reagent with no market price stays unpriced instead of becoming free, and the route page and report say which pricing mode is on (cjber/skillup-forever#399, CurseForge 8664058).
+
 ## [1.0.36] - 2026-11-08
 
 - **A route that leans on one cheap reagent now says so.** A recipe the addon has no reagent price for is left out of the plan, so a route can end up sitting on one low-tier pattern and printing totals nobody could farm, which is what a Leatherworking route from 35 to 100 did with Light Leather (cjber/skillup-forever#394). The route page now warns when a route is mostly one reagent while recipes were left out, naming the reagent and how many recipes are waiting on a price. Saving and scanning the auction house with Auctionator is still what fills those prices in.

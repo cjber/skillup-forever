@@ -134,6 +134,39 @@ equal(
 	"and values it when Value gathered materials is on"
 )
 
+-- Self-supplied pricing: off, a looted reagent is free as before; on, the same reagent takes a market price,
+-- and one no market prices stays unpriced rather than free.
+local MARKETED, UNMARKETED = 30, 40
+local self = Client.load({
+	data = {
+		GatheredBy = {},
+		LootedFrom = { [MARKETED] = true, [UNMARKETED] = true },
+		VendorPrices = {},
+		RecipeData = {},
+	},
+})
+local selfNs = self.ns
+self.auction = { [MARKETED] = 200 }
+equal(selfNs.db.auctionOnly, false, "self-supplied reagents count as gathered by default")
+equal(selfNs.Price(MARKETED).copper, 0, "off, a looted reagent is free")
+equal(selfNs.Price(MARKETED).source, "gather", "and still gathered")
+self.SetSetting("auctionOnly", true)
+equal(selfNs.Price(MARKETED).copper, 190, "on, the same looted reagent is worth its auction price after the cut")
+equal(selfNs.Price(MARKETED).source, "auctionator", "so the shopping list puts it with the auction house")
+equal(selfNs.Model.ShoppingSource(selfNs.PriceSource(MARKETED)), "auction", "in the auction bucket")
+equal(
+	selfNs.PriceSourceText(selfNs.Price(MARKETED)),
+	"you loot it from creatures, valued at its AH price",
+	"while still saying where it comes from"
+)
+equal(selfNs.Price(UNMARKETED), nil, "on, a gathered reagent no market prices stays unpriced")
+self.items[MARKETED] = { sell = 250 }
+selfNs.Changed("prices")
+equal(selfNs.Price(MARKETED).copper, 250, "on, the vendor sell price is the floor")
+equal(selfNs.Price(MARKETED).source, "vendor", "so the shopping list puts it with vendors")
+self.SetSetting("auctionOnly", false)
+equal(selfNs.Price(MARKETED).copper, 0, "off again, it is free as before")
+
 -- A fish is only gathered when the character knows Fishing.
 local fish = Client.load({
 	data = { GatheredBy = { [FISH] = 356 }, VendorPrices = {}, RecipeData = {} },

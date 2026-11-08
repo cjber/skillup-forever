@@ -13,7 +13,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 ## [Unreleased]
 
 - **The Professions window's Filter menu can show only the buffs you can use.** *Only buffs for your level* lists the recipes whose product is an elixir, flask, Well Fed food, protection potion, sharpening stone, oil, armour kit or scope you can use at your level, highest required level first. Unlearned ones follow when *List unlearned recipes* is on, with where they are learned. Healing potions, bandages and plain food restore rather than buff, so they are left out. The filter is also in the addon's settings (#357).
-- **Gray Leather Boots plan from Leatherworking 35, as the trainer teaches them.** A Leatherworking trainer lists the pattern at 35, where the bundled guess said 75 (Classic's 100 moved as far as Forever moved its skill range). The same visit confirmed the bundled requirement of the eight other moved Leatherworking recipes that trainer teaches, so only this one changes (#124).
+
+## [1.1.1] - 2026-11-08
+
+- **A Leatherworking pattern now plans from the skill its trainer teaches it at.** Gray Leather Boots plan from Leatherworking 35, as a Leatherworking trainer lists them, where the bundled guess said 75 (Classic's 100 moved as far as Forever moved its skill range). The same visit confirmed the bundled requirement of the eight other moved Leatherworking recipes that trainer teaches, so only this one changes (#124).
 
 ## [1.1.0] - 2026-11-08
 

@@ -271,8 +271,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Subtrai do custo o valor de venda do item criado. Preços de leilão precisam do Auctionator, são após a taxa de 5% e podem não vender."
 L["Suggest my other Forever addons"] = "Sugerir meus outros AddOns Forever"
 L["Taught by %s trainers."] = "Ensinada por instrutores de %s."
-L["Recipes you have not learned now show the same tooltip as the ones you know."] =
-	"Receitas que você não aprendeu agora mostram a mesma dica das que você conhece." -- mt
+L["A Leatherworking pattern now plans from the skill its trainer teaches it at."] =
+	"Um molde de couraria agora é planejado a partir da perícia em que seu instrutor o ensina." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Os addons Forever são gratuitos, sem nada bloqueado por pagamento. Se eles ajudarem, você pode me pagar um café." -- mt
 L["The place this recipe is taught isn't known yet."] = "Ainda não se sabe onde esta receita é ensinada."

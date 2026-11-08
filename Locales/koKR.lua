@@ -30,8 +30,8 @@ L["/su skipped lists the recipes you skipped, with their IDs."] =
 	"/su skipped: 건너뛴 제조법을 ID와 함께 보여줍니다."
 L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID>는 하나를, /su unskip all은 모두 다시 보여줍니다."
-L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
-	"상인 창 위에 버튼이 생겨, 추적 중인 경로에 아직 필요한 재료와 총 비용을 보여 줍니다. 상인의 창에서 직접 구매하세요."
+L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
+	"상인 창에 재료 탭을 추가해 추적 중인 경로가 이 상인에게서 아직 필요한 재료와 총 비용을 보여 줍니다. 구매는 상인 창에서 직접 하세요."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator가 필요합니다."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
@@ -70,6 +70,7 @@ L["Beside the Professions window"] = "전문 기술 창 옆"
 L["Buy %d %s"] = "%d개 구매: %s"
 L["Buy %s"] = "%s 구매" -- mt
 L["Buy %s at %d"] = "%s 구매 (%d)" -- mt
+L["Buy all"] = "모두 구매"
 L["Buy and read %s at %d"] = "%s 구매 후 읽기 (%d)"
 L["Buy and read %s at %d (level %d)"] = "%s 구매 후 읽기 (%d, 레벨 %d)"
 L["Buy reagents"] = "재료 구매"
@@ -243,7 +244,7 @@ L["Show profession routes in the objective tracker. Hiding them keeps your track
 	"목표 추적기에 전문 기술 경로를 표시합니다. 숨겨도 추적 중인 전문 기술과 목표는 유지됩니다."
 L["Show skill on recipe rows"] = "제조법 행에 숙련도 표시"
 L["Show skill range start on rows"] = "행에 구간 시작점 표시"
-L["Show the buy button at merchants"] = "상인에서 구매 버튼 표시"
+L["Show the merchant Reagents tab"] = "상인 재료 탭 표시"
 L["Show the crafted gear tab"] = "제작 장비 탭 표시"
 L["Show the levelling route tab"] = "숙련도 경로 탭 표시"
 L["Show thresholds tooltip"] = "구간 툴팁 표시"

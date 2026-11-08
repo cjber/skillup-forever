@@ -30,8 +30,8 @@ L["+%d more"] = "另有%d個"
 L["/su skipped lists the recipes you skipped, with their IDs."] = "/su skipped 列出你跳過的配方及其ID。"
 L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID> 恢復顯示一個，/su unskip all 恢復全部。"
-L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
-	"商人視窗上方的按鈕，顯示你追蹤的路線仍需要從該商人處購買的材料及其總價。請在商人視窗中自行購買。"
+L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
+	"在商人視窗顯示材料分頁，列出你追蹤的路線仍需要向該商人購買的材料及其總費用。請在商人視窗中購買。"
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"你的專業技能採集的材料按出售所得計價，而不是免費：扣除5%手續費後的拍賣價，或較高時按商人收購價。用於路線和配方列的成本。拍賣價需要Auctionator。"
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
@@ -67,6 +67,7 @@ L["Beside the Professions window"] = "專業技能視窗旁邊"
 L["Buy %d %s"] = "購買%d個%s"
 L["Buy %s"] = "購買%s" -- mt
 L["Buy %s at %d"] = "在%2$d購買%1$s" -- mt
+L["Buy all"] = "全部購買"
 L["Buy and read %s at %d"] = "購買並閱讀%s（技能%d）"
 L["Buy and read %s at %d (level %d)"] = "購買並閱讀%s（技能%d，等級%d）"
 L["Buy reagents"] = "購買材料"
@@ -235,7 +236,7 @@ L["Show profession routes in the objective tracker. Hiding them keeps your track
 	"在目標追蹤器中顯示專業技能路線。隱藏時會保留你追蹤的專業技能和目標。"
 L["Show skill on recipe rows"] = "在配方列顯示技能"
 L["Show skill range start on rows"] = "在列上顯示區間起點"
-L["Show the buy button at merchants"] = "在商人處顯示購買按鈕"
+L["Show the merchant Reagents tab"] = "顯示商人材料分頁"
 L["Show the crafted gear tab"] = "顯示製造裝備標籤頁"
 L["Show the levelling route tab"] = "顯示升級路線標籤頁"
 L["Show thresholds tooltip"] = "顯示分界點提示"

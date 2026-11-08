@@ -12,6 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The merchant's reagents now sit in the window's own Reagents tab.** The red button that floated above the title bar is gone: a merchant that sells something a tracked route still needs gets a third tab beside Merchant and Buyback, in the same tab art. It lists those reagents in the merchant's item cells with the cost of whole stacks, and *Buy all* with the total sits where the page row was, opening the same confirmation first. Merchant and Buyback work as before, and *Show the merchant Reagents tab* turns it off. Seen in game at Dalmond, Auberdine (#410).
 - **The Forever Leaderboards window and `/forever` come from the newest addon installed.** Whichever Forever addon loaded first used to keep its own copy of the window, even an older one, so recent fixes such as full Forever names and `/forever debug` reached you only by chance. The newest copy now takes over (cjber/forever-core#235).
 ## [1.0.39] - 2026-11-08
 

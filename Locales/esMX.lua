@@ -31,8 +31,8 @@ L["/su skipped lists the recipes you skipped, with their IDs."] =
 	"/su skipped muestra las recetas que omitiste, con sus ID."
 L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID> vuelve a mostrar una, /su unskip all todas."
-L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
-	"Un botón sobre la ventana del mercader que muestra los componentes que tus rutas seguidas aún necesitan de ese mercader y su costo total. Cómpralos en la ventana del propio mercader."
+L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
+	"Una pestaña Componentes en la ventana del mercader que muestra los componentes que tus rutas seguidas aún necesitan de ese mercader y su coste total. Cómpralos en la propia ventana del mercader."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Un material que recogen tus profesiones cuesta lo que obtendrías al venderlo en lugar de nada: su precio de subasta tras la comisión del 5 %, o su precio de venta al vendedor si es mayor. Se usa para la ruta y los costos de las filas de recetas. Los precios de subasta necesitan Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
@@ -70,6 +70,7 @@ L["Beside the Professions window"] = "Junto a la ventana de profesiones"
 L["Buy %d %s"] = "Comprar %d %s"
 L["Buy %s"] = "Comprar %s" -- mt
 L["Buy %s at %d"] = "Comprar %s a %d" -- mt
+L["Buy all"] = "Comprar todo"
 L["Buy and read %s at %d"] = "Comprar y leer %s a %d"
 L["Buy and read %s at %d (level %d)"] = "Comprar y leer %s a %d (nivel %d)"
 L["Buy reagents"] = "Comprar componentes"
@@ -241,7 +242,7 @@ L["Show profession routes in the objective tracker. Hiding them keeps your track
 	"Muestra las rutas de profesión en el rastreador de objetivos. Ocultarlas conserva tus profesiones seguidas y objetivos."
 L["Show skill on recipe rows"] = "Mostrar habilidad en las filas"
 L["Show skill range start on rows"] = "Mostrar inicio del rango en las filas"
-L["Show the buy button at merchants"] = "Mostrar el botón de compra en los mercaderes"
+L["Show the merchant Reagents tab"] = "Mostrar la pestaña Componentes del mercader"
 L["Show the crafted gear tab"] = "Mostrar la pestaña de equipo creado"
 L["Show the levelling route tab"] = "Mostrar la pestaña de ruta de progreso"
 L["Show thresholds tooltip"] = "Mostrar descripción de umbrales"

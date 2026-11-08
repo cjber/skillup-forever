@@ -426,8 +426,11 @@ local function Surfaces(c)
 		ns.db.trackedProfessions[129] = true
 		c.bags[3] = 0
 		ns.Changed("merchant")
-		local buy = ButtonIn(G.MerchantFrame, ns.L["Reagents still needed"])
-		assert(buy, "the merchant's buy button exists")
+		local tab = rawget(G, "SkillUpForeverMerchantTab")
+		assert(tab and tab:IsShown(), "the merchant's Reagents tab exists")
+		tab.scripts.OnClick(tab)
+		local buy = rawget(G, "SkillUpForeverMerchantBuyAll")
+		assert(buy and buy:IsShown(), "the tab's Buy all button is shown")
 		buy.scripts.OnClick(buy)
 		local confirm
 		for _, child in ipairs({ G.MerchantFrame:GetChildren() }) do

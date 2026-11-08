@@ -126,24 +126,41 @@ equal(
 c.auction[SILK] = 10
 c.AuctionatorScan()
 
--- The merchant's button lists what the route still needs, including whole merchant stacks. The addon
--- never buys: BuyMerchantItem is protected, so the player buys from the merchant's own window (#327).
+-- The merchant's own Reagents tab lists what the route still needs, including whole merchant stacks, in the
+-- merchant's item cells, with Buy all where the page row was. The addon never buys: BuyMerchantItem is
+-- protected, so the player buys from the merchant's own window (#327).
 local function Needed()
 	return ns.TrackedNeeds()[1].items[1].need
 end
 c.bags[SILK] = Needed() - 7
 c.money = 10000
+c.items[SILK].icon = 1234
 c.merchant = { { itemID = SILK, name = "Linen Cloth", price = 100, stackCount = 5 } }
 c.Fire("MERCHANT_SHOW")
-local button
-for _, frame in ipairs(c.frames) do
-	if frame.parent == c.G.MerchantFrame and not frame.Close then
-		button = frame
-	end
-end
-equal(button.shown, true, "known merchant stack shows what is needed")
-equal(button.text, "Reagents still needed  200c", "with the cost of whole stacks")
--- The button lists it on a dialog of the addon's own on the merchant's window.
+local tab = rawget(c.G, "SkillUpForeverMerchantTab")
+local page = rawget(c.G, "SkillUpForeverMerchantPage")
+equal(tab ~= nil, true, "the merchant window has a Reagents tab")
+equal(tab.parent, c.G.MerchantFrame, "a Reagents tab belongs to the merchant window")
+equal(tab.text, "Reagents", "named for the reagents")
+equal(tab.shown, true, "a known merchant stack shows the tab")
+equal(page.shown, false, "its page waits for the tab")
+-- The tab lists it in the merchant's own cells, and Buy all sits where the page row was.
+tab.scripts.OnClick(tab)
+equal(page.shown, true, "selecting the tab shows the page")
+equal(c.G.MerchantItem1.alpha, 0, "the stock item cells make way")
+equal(c.G.MerchantPageText.alpha, 0, "the page row makes way")
+equal(c.G.MerchantBuyBackItem.alpha ~= 0, true, "the buyback cell stays in sight, as it stays clickable")
+equal(c.G.MerchantFrameTab1.alpha, 0, "the stock tab it came from reads unselected")
+local cover = rawget(c.G, "SkillUpForeverMerchantTabCover")
+equal(cover.shown, true, "and an unselected copy covers it")
+local cell = page.Items[1]
+equal(cell.frame.shown, true, "the first reagent fills a merchant item cell")
+equal(cell.name:GetText(), "Linen Cloth", "with its name")
+equal(cell.price:GetText(), "200c", "and the cost of whole stacks")
+equal(cell.button.Icon.texture, 1234, "and its icon")
+local buy = rawget(c.G, "SkillUpForeverMerchantBuyAll")
+equal(buy.text, "Buy all  200c", "Buy all has the total")
+-- Buy all lists the need on a dialog of the addon's own on the merchant's window.
 local function Dialog()
 	for _, frame in ipairs(c.frames) do
 		if frame.parent == c.G.MerchantFrame and frame.Close then
@@ -152,7 +169,7 @@ local function Dialog()
 	end
 end
 equal(Dialog(), nil, "nothing shows before a click")
-button.scripts.OnClick()
+buy.scripts.OnClick()
 local dialog = Dialog()
 equal(dialog.shown, true, "a click lists what is missing")
 equal(dialog.Text.text, "Reagents still needed  10 Linen Cloth  200c", "with the items and the total cost")
@@ -160,33 +177,57 @@ equal(#c.purchased, 0, "and buys nothing itself")
 dialog.Close.scripts.OnClick()
 equal(dialog.shown, false, "Close hides the list")
 -- The need changes while it is open: what it showed is out of date, so it goes.
-button.scripts.OnClick()
+buy.scripts.OnClick()
 c.bags[SILK] = c.bags[SILK] + 5
 c.Fire("BAG_UPDATE_DELAYED")
 equal(dialog.shown, false, "a changed cost closes the list")
 c.bags[SILK] = c.bags[SILK] - 5
 c.Fire("BAG_UPDATE_DELAYED")
-equal(button.text, "Reagents still needed  200c", "the full need is back")
--- The player can do without the button.
+equal(buy.text, "Buy all  200c", "the full need is back")
+-- Merchant and Buyback work as before: selecting either one hides the page and puts the window back.
+c.ClickTab(2)
+equal(page.shown, false, "Buyback hides the addon page")
+equal(cover.shown, false, "the cover goes with it")
+equal(c.G.MerchantItem1.alpha, 1, "the stock item cells return")
+equal(c.G.MerchantPageText.alpha, 1, "with their page row")
+equal(c.G.MerchantFrameTab1.alpha, 1, "and the stock tab comes back")
+tab.scripts.OnClick(tab)
+equal(c.G.MerchantFrameTab2.alpha, 0, "the selected Buyback tab is the one covered")
+cover.scripts.OnClick()
+equal(page.shown, false, "the cover returns to Buyback")
+equal(c.G.MerchantFrameTab2.alpha, 1, "and uncovers it")
+-- Switching tabs keeps the window as it was and reuses the page, so its place in the list is kept.
+c.G.MerchantFrame.width, c.G.MerchantFrame.height = 336, 444
+tab.scripts.OnClick(tab)
+c.ClickTab(1)
+tab.scripts.OnClick(tab)
+equal(rawget(c.G, "SkillUpForeverMerchantPage"), page, "the page is kept across tabs")
+equal(c.G.MerchantFrame.width, 336, "switching tabs keeps the window width")
+equal(c.G.MerchantFrame.height, 444, "and its height")
+-- The player can do without the tab, and its page goes with it.
 c.SetSetting("merchantButton", false)
-equal(button.shown, false, "the setting hides the button")
+equal(tab.shown, false, "the setting hides the tab")
+equal(page.shown, false, "and closes its page")
+equal(c.G.MerchantItem1.alpha, 1, "putting the merchant's cells back")
 c.SetSetting("merchantButton", true)
-equal(button.shown, true, "and brings it back")
-button.scripts.OnClick()
+equal(tab.shown, true, "and brings it back")
+equal(page.shown, false, "with the page still closed")
+tab.scripts.OnClick(tab)
+buy.scripts.OnClick()
 equal(#c.purchased, 0, "the addon never calls the protected merchant buy function")
-equal(button:IsEnabled(), true, "the button stays available while the list is open")
 dialog.Close.scripts.OnClick()
 for _, invalid in ipairs({ false, 0, -1 }) do
 	c.merchant[1].stackCount = invalid or nil
 	c.purchased = {}
 	c.Fire("MERCHANT_UPDATE")
-	equal(button.shown, false, "unknown or invalid stack hides the list button")
-	button.scripts.OnClick()
+	equal(tab.shown, false, "unknown or invalid stack hides the tab")
+	tab.scripts.OnClick(tab)
+	equal(page.shown, false, "and cannot open its page")
 	equal(#c.purchased, 0, "unknown or invalid stack cannot invent units")
 end
 c.merchant = nil
 c.Fire("MERCHANT_CLOSED")
-equal(button.shown, false, "the button goes with the merchant")
+equal(tab.shown, false, "the tab goes with the merchant")
 equal(#c.chat, 0, "and none of it says anything in chat")
 
 -- The Auctionator list of what the tracked route still buys is kept up to date on its own: written

@@ -10,8 +10,6 @@ local MENU_EXTENT = 20 * 20
 
 ---@type SkillUpTrackerModule?
 local module
----@type Button?
-local buyButton
 -- Set when the anchor cannot be read: the section then stays out of the tracker instead of raising.
 local detached = false
 
@@ -236,8 +234,9 @@ local function MerchantPurchases()
 				count = math.min(count, info.numAvailable * stack)
 			end
 			if count > 0 then
-				purchases[#purchases + 1] = { index = index, count = count, stack = stack }
-				cost = cost + info.price * count / stack
+				local itemCost = info.price * count / stack
+				purchases[#purchases + 1] = { index = index, count = count, stack = stack, cost = itemCost }
+				cost = cost + itemCost
 			end
 		end
 	end
@@ -328,29 +327,318 @@ local function AskToBuy()
 	frame:Show()
 end
 
-local function RefreshBuyButton()
+-- The merchant's own Reagents tab: a third tab in the same bottom art as Merchant and Buyback, shown only while
+-- this merchant sells something a tracked route still needs. Its page draws item cells over the merchant's item
+-- grid and puts Buy all where the page row was. The stock tabs and their content are only ever hidden by alpha:
+-- Blizzard still decides what is shown, so leaving the tab puts the window back exactly as it was.
+
+---@class SkillUpMerchantItemButton : Button
+---@field Icon Texture
+---@field Count FontString
+---@field SplitStack fun()?
+---@field merchantIndex integer?
+
+---@class SkillUpMerchantItemFrame : Frame
+---@field Name FontString
+---@field ItemButton SkillUpMerchantItemButton
+
+---@class SkillUpMerchantCell
+---@field frame SkillUpMerchantItemFrame
+---@field button SkillUpMerchantItemButton
+---@field name FontString
+---@field price FontString
+
+---@class SkillUpMerchantPage : Frame
+---@field Items SkillUpMerchantCell[]
+
+-- Two columns of five merchant cells, at the stock item frame's own size and gaps.
+local TAB_TEMPLATE = "CharacterFrameTabButtonTemplate"
+local CELLS_PER_PAGE = 10
+local CELL_WIDTH, CELL_HEIGHT = 153, 44
+local COLUMN_GAP, ROW_GAP = 12, 8
+local CELL_LEFT, CELL_TOP = 4, -9
+-- The stock window's page row, which the page covers. The buyback cell stays: it sits in the bottom bar with the
+-- repair buttons, outside the page, where a cell hidden by alpha alone would still buy back on a click.
+local STOCK_CONTENT = { "MerchantPageText", "MerchantPrevPageButton", "MerchantNextPageButton" }
+
+---@type SkillUpMerchantPage?
+local merchantPage
+---@type Button?
+local merchantTab
+---@type Button?
+local merchantBuyAll
+---@type Button?
+local merchantCover
+---@type Frame?
+local coveredTab
+local merchantSelected, merchantShown = false, false
+---@type {index: integer, count: integer, cost: number}[]
+local merchantPurchases = {}
+local merchantTotal = 0
+local merchantPageIndex, merchantPageCount = 1, 1
+
+---@type fun(selected: boolean)
+local SelectMerchantTab
+
+-- The cover over the stock tab that was selected before this one. It is our own copy in the unselected art, so
+-- Merchant and Buyback never look selected beside Reagents, and a click on it returns to that tab.
+local function HideCover()
+	if coveredTab then
+		coveredTab:SetAlpha(1)
+		coveredTab = nil
+	end
+	if merchantCover then
+		merchantCover:Hide()
+	end
+end
+
+---@param tabID integer
+local function ShowCover(tabID)
+	local native = _G["MerchantFrameTab" .. tabID] --[[@as Button?]]
+	if not (native and native:IsShown()) then
+		HideCover()
+		return
+	end
+	if not merchantCover then
+		local cover = CreateFrame("Button", "SkillUpForeverMerchantTabCover", MerchantFrame, TAB_TEMPLATE)
+		merchantCover = cover --[[@as Button]]
+		merchantCover:Hide()
+		merchantCover:SetScript("OnClick", function()
+			SelectMerchantTab(false)
+		end)
+	end
+	if coveredTab and coveredTab ~= native then
+		coveredTab:SetAlpha(1)
+	end
+	merchantCover:SetText(native:GetText() or "")
+	PanelTemplates_DeselectTab(merchantCover)
+	merchantCover:Show()
+	if merchantCover.SetFrameLevel then
+		merchantCover:SetFrameLevel(native:GetFrameLevel() + 1)
+	end
+	merchantCover:ClearAllPoints()
+	merchantCover:SetPoint("TOPLEFT", native, "TOPLEFT")
+	merchantCover:SetSize(native:GetWidth(), native:GetHeight())
+	native:SetAlpha(0)
+	coveredTab = native
+end
+
+-- The stock content frames stay where Blizzard put them; alpha keeps which ones Blizzard shows and leaves the
+-- window's height, page and scroll alone when the player goes back.
+---@param hidden boolean
+local function HideStockContent(hidden)
+	local alpha = hidden and 0 or 1
+	for index = 1, 12 do
+		local item = _G["MerchantItem" .. index]
+		if item then
+			item:SetAlpha(alpha)
+		end
+	end
+	for _, name in ipairs(STOCK_CONTENT) do
+		local frame = _G[name]
+		if frame then
+			frame:SetAlpha(alpha)
+		end
+	end
+end
+
+---@param selected boolean
+SelectMerchantTab = function(selected)
+	if selected and (not ns.db.merchantButton or #merchantPurchases == 0 or not merchantTab) then
+		selected = false
+	end
+	if selected == merchantSelected then
+		return
+	end
+	merchantSelected = selected
+	if selected then
+		---@cast merchantTab Button
+		---@cast merchantPage SkillUpMerchantPage
+		PanelTemplates_SelectTab(merchantTab)
+		HideStockContent(true)
+		merchantPage:Show()
+		ShowCover(MerchantFrame.selectedTab or 1)
+	else
+		if merchantPage then
+			merchantPage:Hide()
+		end
+		HideCover()
+		HideStockContent(false)
+		if merchantTab then
+			PanelTemplates_DeselectTab(merchantTab)
+		end
+	end
+end
+
+---@param index integer
+---@return SkillUpMerchantCell
+local function CreateMerchantCell(index)
+	-- The merchant's own item cell: its slot, label art, name and item button. Its click buys, which the addon
+	-- never does, so the scripts the template brought are replaced by a tooltip only.
+	-- Named, as the template names its regions and item button after the cell ("$parentName").
+	local name = "SkillUpForeverMerchantItem" .. index
+	local frame = CreateFrame("Frame", name, merchantPage, "MerchantItemTemplate") --[[@as SkillUpMerchantItemFrame]]
+	frame:SetSize(CELL_WIDTH, CELL_HEIGHT)
+	local button = frame.ItemButton --[[@as SkillUpMerchantItemButton]]
+	-- The template's own money frame and alternate currency frame are not used: the cost of the whole stack is
+	-- one coin string under the name.
+	for _, child in ipairs({ frame:GetChildren() }) do
+		if child ~= button and child ~= frame.Name then
+			child:Hide()
+		end
+	end
+	button:SetScript("OnClick", nil)
+	button:SetScript("OnDragStart", nil)
+	button.SplitStack = nil
+	button:SetScript("OnEnter", function(self)
+		if not self.merchantIndex then
+			return
+		end
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:SetMerchantItem(self.merchantIndex)
+		GameTooltip:Show()
+	end)
+	button:SetScript("OnLeave", GameTooltip_Hide)
+	local price = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	price:SetPoint("TOPLEFT", frame.Name, "BOTTOMLEFT", 0, 0)
+	return { frame = frame, button = button, name = frame.Name, price = price }
+end
+
+local RenderMerchantPage
+
+local function EnsureMerchantFrames()
+	if merchantTab then
+		return
+	end
+	-- Selecting either stock tab leaves our page; the stock click runs first, so its content is already back.
+	for index = 1, 2 do
+		local stock = _G["MerchantFrameTab" .. index]
+		if stock then
+			stock:HookScript("OnClick", function()
+				SelectMerchantTab(false)
+			end)
+		end
+	end
+	local tab = CreateFrame("Button", "SkillUpForeverMerchantTab", MerchantFrame, TAB_TEMPLATE)
+	merchantTab = tab --[[@as Button]]
+	merchantTab:SetID(3)
+	merchantTab:SetText(L["Reagents"])
+	merchantTab:SetPoint("LEFT", _G["MerchantFrameTab2"], "RIGHT", -16, 0)
+	merchantTab:SetScript("OnClick", function()
+		SelectMerchantTab(true)
+	end)
+	PanelTemplates_DeselectTab(merchantTab)
+
+	merchantPage = CreateFrame("Frame", "SkillUpForeverMerchantPage", MerchantFrame) --[[@as SkillUpMerchantPage]]
+	merchantPage:SetPoint("TOPLEFT", MerchantFrame, "TOPLEFT", 7, -60)
+	merchantPage:SetPoint("BOTTOMRIGHT", MerchantFrame, "BOTTOMRIGHT", -7, 52)
+	merchantPage:SetFrameLevel(MerchantFrame:GetFrameLevel() + 10)
+	merchantPage:EnableMouse(true)
+	merchantPage:EnableMouseWheel(true)
+	merchantPage:SetScript("OnMouseWheel", function(_, delta)
+		if merchantPageCount <= 1 then
+			return
+		end
+		local page = math.max(1, math.min(merchantPageCount, merchantPageIndex + (delta > 0 and -1 or 1)))
+		if page ~= merchantPageIndex then
+			merchantPageIndex = page
+			RenderMerchantPage()
+		end
+	end)
+	merchantPage:Hide()
+	merchantPage.Items = {}
+	for index = 1, CELLS_PER_PAGE do
+		local cell = CreateMerchantCell(index)
+		local column, row = (index - 1) % 2, math.floor((index - 1) / 2)
+		cell.frame:SetPoint(
+			"TOPLEFT",
+			merchantPage,
+			"TOPLEFT",
+			CELL_LEFT + column * (CELL_WIDTH + COLUMN_GAP),
+			CELL_TOP - row * (CELL_HEIGHT + ROW_GAP)
+		)
+		merchantPage.Items[index] = cell
+	end
+
+	local buy = CreateFrame("Button", "SkillUpForeverMerchantBuyAll", merchantPage, "SharedButtonSmallTemplate")
+	merchantBuyAll = buy --[[@as Button]]
+	merchantBuyAll:SetPoint("BOTTOM", merchantPage, "BOTTOM", 0, 33)
+	merchantBuyAll:SetScript("OnClick", AskToBuy)
+end
+
+-- The page shows what the merchant sells that the routes still need, whole stacks and all, at the cost of those
+-- stacks. More than ten kinds page with the wheel so every one is reachable; the page row itself is Buy all.
+RenderMerchantPage = function()
+	merchantPageCount = math.max(1, math.ceil(#merchantPurchases / CELLS_PER_PAGE))
+	if merchantPageIndex > merchantPageCount then
+		merchantPageIndex = merchantPageCount
+	end
+	---@cast merchantPage SkillUpMerchantPage
+	local first = (merchantPageIndex - 1) * CELLS_PER_PAGE
+	for index, cell in ipairs(merchantPage.Items) do
+		local purchase = merchantPurchases[first + index]
+		if purchase then
+			local itemID = GetMerchantItemID(purchase.index)
+			local info = C_MerchantFrame.GetItemInfo(purchase.index)
+			cell.name:SetText((info and info.name) or C_Item.GetItemNameByID(itemID) or UNKNOWN)
+			cell.price:SetText(C_CurrencyInfo.GetCoinTextureString(purchase.cost))
+			cell.button.merchantIndex = purchase.index
+			local icon = (info and info.texture) or C_Item.GetItemIconByID(itemID)
+			if icon then
+				cell.button.Icon:SetTexture(icon) -- art-ok: an item icon keeps its own square shape
+			else
+				cell.button.Icon:SetTexture(nil) -- art-ok: clears another item's icon, so no shape is drawn
+			end
+			cell.button.Count:SetText(purchase.count > 1 and tostring(purchase.count) or "")
+			cell.frame:Show()
+		else
+			cell.button.merchantIndex = nil
+			cell.button.Count:SetText("")
+			cell.frame:Hide()
+		end
+	end
+	---@cast merchantBuyAll Button
+	merchantBuyAll:SetText(L["Buy all"] .. "  " .. C_CurrencyInfo.GetCoinTextureString(merchantTotal))
+	merchantBuyAll:SetSize(merchantBuyAll:GetTextWidth() + 32, 22)
+end
+
+local function RefreshMerchant()
+	local shown = MerchantFrame ~= nil and MerchantFrame:IsShown()
+	if shown ~= merchantShown then
+		if not shown then
+			SelectMerchantTab(false)
+		end
+		merchantShown = shown
+	end
 	local purchases, cost = {}, 0
-	if ns.db.merchantButton and MerchantFrame and MerchantFrame:IsShown() then
+	if ns.db.merchantButton and shown then
 		purchases, cost = MerchantPurchases()
 	end
+	merchantPurchases, merchantTotal = purchases, cost
 	-- Whatever the player agreed to is out of date once the merchant, the bags or the route change.
 	if confirm and confirm.cost ~= cost then
 		HideConfirm()
 	end
 	if #purchases == 0 then
-		if buyButton then
-			buyButton:Hide()
+		SelectMerchantTab(false)
+		if merchantTab then
+			merchantTab:Hide()
+		end
+		if merchantPage then
+			merchantPage:Hide()
 		end
 		return
 	end
-	if not buyButton then
-		buyButton = CreateFrame("Button", nil, MerchantFrame, "SharedButtonSmallTemplate") --[[@as Button]]
-		buyButton:SetPoint("BOTTOMRIGHT", MerchantFrame, "TOPRIGHT", 0, 2)
-		buyButton:SetScript("OnClick", AskToBuy)
+	EnsureMerchantFrames()
+	RenderMerchantPage()
+	---@cast merchantTab Button
+	merchantTab:Show()
+	if merchantSelected then
+		---@cast merchantPage SkillUpMerchantPage
+		merchantPage:Show()
+		HideStockContent(true)
+		ShowCover(MerchantFrame.selectedTab or 1)
 	end
-	buyButton:SetText(string.format("%s  %s", L["Reagents still needed"], C_CurrencyInfo.GetCoinTextureString(cost)))
-	buyButton:SetSize(buyButton:GetTextWidth() + 32, 22)
-	buyButton:Show()
 end
 
 ---@return boolean
@@ -363,7 +651,7 @@ local function RefreshTracker()
 	if module then
 		module:MarkDirty()
 	end
-	RefreshBuyButton()
+	RefreshMerchant()
 end
 
 ---@param skillLine integer

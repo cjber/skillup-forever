@@ -10,8 +10,17 @@ DEFAULT_CHAT_FRAME = nil
 -- Frames Escape closes, by name.
 ---@type string[]
 UISpecialFrames = {}
----@type Frame
+---@class SkillUpMerchantFrame : Frame
+---@field selectedTab integer
+---@type SkillUpMerchantFrame
 MerchantFrame = nil
+
+-- Blizzard_SharedXML/Mainline/SharedUIPanelTemplates.lua: a frame's own tab row, one tab at a time.
+---@param tab Frame
+function PanelTemplates_SelectTab(tab) end
+
+---@param tab Frame
+function PanelTemplates_DeselectTab(tab) end
 ---@type table<string, number>
 SOUNDKIT = {}
 ---@type {Refresh: number}

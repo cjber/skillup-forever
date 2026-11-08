@@ -31,8 +31,8 @@ L["/su skipped lists the recipes you skipped, with their IDs."] =
 	"/su skipped показывает пропущенные рецепты с их ID."
 L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID> возвращает один рецепт, /su unskip all — все."
-L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
-	"Кнопка над окном торговца, которая показывает реагенты, еще нужные вашим отслеживаемым маршрутам у этого торговца, и их общую стоимость. Покупайте их в окне самого торговца."
+L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
+	"Вкладка «Реагенты» в окне торговца со списком реагентов, которые ещё нужны вашим отслеживаемым маршрутам у этого торговца, и их общей стоимостью. Покупайте их в окне торговца."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
 	"Материал, который добывают ваши профессии, стоит столько, сколько принесла бы его продажа, а не ноль: цена на аукционе за вычетом 5% комиссии или цена продажи торговцу, если она выше. Учитывается в маршруте и стоимости в строках рецептов. Для цен аукциона нужен Auctionator."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
@@ -71,6 +71,7 @@ L["Beside the Professions window"] = "Рядом с окном професси�
 L["Buy %d %s"] = "Купить %d %s"
 L["Buy %s"] = "Купить %s" -- mt
 L["Buy %s at %d"] = "Купить %s на %d" -- mt
+L["Buy all"] = "Купить всё"
 L["Buy and read %s at %d"] = "Купить и прочитать %s на %d"
 L["Buy and read %s at %d (level %d)"] = "Купить и прочитать %s на %d (уровень %d)"
 L["Buy reagents"] = "Купить реагенты"
@@ -254,7 +255,7 @@ L["Show profession routes in the objective tracker. Hiding them keeps your track
 	"Показывать маршруты профессий в списке задач. Скрытие сохраняет отслеживаемые профессии и цели."
 L["Show skill on recipe rows"] = "Навык в строках рецептов"
 L["Show skill range start on rows"] = "Начало диапазона в строках"
-L["Show the buy button at merchants"] = "Кнопка покупки у торговцев"
+L["Show the merchant Reagents tab"] = "Показывать вкладку «Реагенты» у торговца"
 L["Show the crafted gear tab"] = "Вкладка созданного снаряжения"
 L["Show the levelling route tab"] = "Вкладка маршрута прокачки"
 L["Show thresholds tooltip"] = "Подсказка с порогами"

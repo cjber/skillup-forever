@@ -265,8 +265,8 @@ function ns.RegisterSettings()
 		Checkbox(
 			rows,
 			"merchantButton",
-			L["Show the buy button at merchants"],
-			L["A button above a merchant's window that shows the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."]
+			L["Show the merchant Reagents tab"],
+			L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."]
 		)
 
 		Checkbox(

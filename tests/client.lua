@@ -327,6 +327,19 @@ function Client.load(options)
 			self:Hide()
 		end
 	end
+	-- Alpha is how the addon hides Blizzard's own merchant content without changing what Blizzard shows.
+	function Methods:SetAlpha(alpha)
+		self.alpha = alpha
+	end
+	function Methods:GetAlpha()
+		return self.alpha or 1
+	end
+	function Methods:SetID(id)
+		self.id = id
+	end
+	function Methods:GetID()
+		return self.id
+	end
 	function Methods:IsShown()
 		return self.shown
 	end
@@ -380,6 +393,9 @@ function Client.load(options)
 	-- The atlas a texture was given, so a spec can check which art it draws.
 	function Methods:SetAtlas(atlas)
 		self.atlas = atlas
+	end
+	function Methods:SetTexture(texture)
+		self.texture = texture
 	end
 	function Methods:GetTexture()
 		self.texture = self.texture or NewFrame(nil, self)
@@ -538,6 +554,15 @@ function Client.load(options)
 			end
 		elseif template == "LargeSideTabButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
+		elseif template == "ItemButtonTemplate" then
+			frame.Icon = NewFrame(nil, frame)
+			frame.Count = NewFrame(nil, frame)
+		elseif template == "MerchantItemTemplate" then
+			frame.Name = NewFrame(nil, frame)
+			local button = NewFrame(nil, frame)
+			button.Icon = NewFrame(nil, button)
+			button.Count = NewFrame(nil, button)
+			frame.ItemButton = button
 		end
 		if type(template) == "string" and template:find("SecureActionButtonTemplate", 1, true) then
 			frame.protected = true
@@ -550,6 +575,25 @@ function Client.load(options)
 	G.MerchantFrame = NewFrame("MerchantFrame")
 	G.MerchantFrame.IsShown = function()
 		return c.merchant ~= nil
+	end
+	G.MerchantFrame.selectedTab = 1
+	for index = 1, 2 do
+		local tab = NewFrame("MerchantFrameTab" .. index, G.MerchantFrame)
+		tab:SetID(index)
+		tab:SetText(index == 1 and "Merchant" or "Buyback")
+	end
+	for index = 1, 12 do
+		NewFrame("MerchantItem" .. index, G.MerchantFrame)
+	end
+	NewFrame("MerchantBuyBackItem", G.MerchantFrame)
+	NewFrame("MerchantPageText", G.MerchantFrame)
+	NewFrame("MerchantPrevPageButton", G.MerchantFrame)
+	NewFrame("MerchantNextPageButton", G.MerchantFrame)
+	G.PanelTemplates_SelectTab = function(tab)
+		tab.selected = true
+	end
+	G.PanelTemplates_DeselectTab = function(tab)
+		tab.selected = false
 	end
 	G.DEFAULT_CHAT_FRAME = {
 		AddMessage = function(_, message)
@@ -607,6 +651,14 @@ function Client.load(options)
 				frame.scripts.OnEvent(frame, event, ...)
 			end
 		end
+	end
+
+	-- A click on one of the merchant window's own tabs: it selects the tab, as Blizzard's script does, then runs
+	-- the scripts and hooks the addon attached.
+	function c.ClickTab(id)
+		local tab = G["MerchantFrameTab" .. id]
+		G.MerchantFrame.selectedTab = id
+		Scripts(tab, "OnClick")
 	end
 
 	---@return integer frames how many frames registered for the event

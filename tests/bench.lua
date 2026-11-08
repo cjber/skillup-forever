@@ -60,17 +60,22 @@ end
 local c = Client.load({ boot = false })
 local ns = c.ns
 
--- The client surfaces the harness does not stub for the tooltip path.
+-- The client surfaces the harness does not stub for the tooltip path, and a hook that captures the item
+-- tooltip post-call the addon registers.
 local noop = function() end
+local tooltipPostCall
+c.G.TooltipDataProcessor = {
+	AddTooltipPostCall = function(kind, fn)
+		if kind == c.G.Enum.TooltipDataType.Item then
+			tooltipPostCall = fn
+		end
+	end,
+}
 c.G.GameTooltip = {
 	IsForbidden = function()
 		return false
 	end,
-	GetUnit = function()
-		return "target", "target"
-	end,
 	SetOwner = noop,
-	AddLine = noop,
 	AddDoubleLine = noop,
 	Show = noop,
 }
@@ -113,23 +118,6 @@ for _, path in ipairs(fileOrder) do
 end
 print(string.format("%-46s compile %8.4f ms   run %8.4f ms", "ALL TOC files", compileTotal * 1000, runTotal * 1000))
 print(string.format("%-52s %10.4f ms", "Boot (ADDON_LOADED init, first time)", bootTime * 1000))
-
--- The post-calls the addon registered: an item, an object, and the unit call. The harness's plain-function
--- stub does not keep the shared Leaderboards unit hook, so its work is timed through the same Data.AddTooltip
--- the hook calls.
-local ITEM, OBJECT, UNIT = c.G.Enum.TooltipDataType.Item, c.G.Enum.TooltipDataType.Object, c.G.Enum.TooltipDataType.Unit
-local itemCalls, objectCalls, unitCalls = c.postCalls[ITEM] or {}, c.postCalls[OBJECT] or {}, c.postCalls[UNIT] or {}
-local itemPostCall, objectPostCall = itemCalls[1], objectCalls[1]
-local corpsePostCall = unitCalls[#unitCalls]
-local leaderboardData, leaderboardAPI = ns.LeaderboardsData, ns.Leaderboards
-local leaderboardPostCall = leaderboardData
-	and leaderboardAPI
-	and function()
-		leaderboardData.AddTooltip(leaderboardAPI, c.G.GameTooltip)
-	end
-local nodeName = next(ns.NodeSkills or {})
-local objectData = nodeName and { lines = { { leftText = nodeName } } } or nil
-local unitData = { lines = { { leftText = "Skinnable" } } }
 
 local lw = ns.PlayerProfessions()[LW]
 
@@ -203,24 +191,9 @@ end)
 report("tracker LayoutContents (marks dirty)", 500, function()
 	c.Tracker()
 end)
-if itemPostCall then
+if tooltipPostCall then
 	report("item tooltip post-call (reagent, route mode)", 5000, function()
-		itemPostCall(c.G.GameTooltip, { id = 2318 })
-	end)
-end
-if objectPostCall and objectData then
-	report("object tooltip post-call (same node)", 50000, function()
-		objectPostCall(c.G.GameTooltip, objectData)
-	end)
-end
-if corpsePostCall then
-	report("unit tooltip post-call (same corpse)", 50000, function()
-		corpsePostCall(c.G.GameTooltip, unitData)
-	end)
-end
-if leaderboardPostCall then
-	report("leaderboards unit tooltip hook (same unit)", 50000, function()
-		leaderboardPostCall()
+		tooltipPostCall(c.G.GameTooltip, { id = 2318 })
 	end)
 end
 

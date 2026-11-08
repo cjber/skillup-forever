@@ -504,7 +504,7 @@ L["Shift-click crafts all %d."] = "按住Shift点击制造全部%d个。" -- mt
 L["The game's Craft button is not ready for this recipe."] = "游戏自带的制造按钮尚未对这份配方就绪。" -- mt
 L["vendor, limited stock"] = "商人，库存有限" -- mt
 L["Sells %d at a time"] = "每次出售 %d 个" -- mt
-L["Opening the Professions window no longer raises a blocked action."] =
-	"打开专业窗口不再触发被阻止的操作。" -- mt
+L["A route that leans on one cheap reagent now says so."] =
+	"依赖单一廉价材料的路线现在会提示这一点。" -- mt
 L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
 	"这条路线主要需要%s：在材料定价前有%d个配方被排除。" -- mt

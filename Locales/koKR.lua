@@ -522,7 +522,7 @@ L["The game's Craft button is not ready for this recipe."] =
 	"게임의 제작 버튼이 이 제조법에 준비되지 않았습니다." -- mt
 L["vendor, limited stock"] = "상인, 한정 재고" -- mt
 L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt
-L["Opening the Professions window no longer raises a blocked action."] =
-	"전문 기술 창을 열어도 더 이상 차단된 동작이 발생하지 않습니다." -- mt
+L["A route that leans on one cheap reagent now says so."] =
+	"값싼 재료 하나에 의존하는 경로는 이제 그 사실을 알려줍니다." -- mt
 L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
 	"이 경로는 대부분 %s입니다: 재료 가격이 책정될 때까지 제조법 %d개가 제외됩니다." -- mt

@@ -521,7 +521,7 @@ L["The game's Craft button is not ready for this recipe."] =
 	"Le bouton Fabriquer du jeu n'est pas prêt pour cette recette." -- mt
 L["vendor, limited stock"] = "vendeur, stock limité" -- mt
 L["Sells %d at a time"] = "Vend %d à la fois" -- mt
-L["Opening the Professions window no longer raises a blocked action."] =
-	"Ouvrir la fenêtre des métiers ne déclenche plus d'action bloquée." -- mt
+L["A route that leans on one cheap reagent now says so."] =
+	"Une route qui repose sur un seul composant bon marché le dit maintenant." -- mt
 L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
 	"Ce parcours est surtout %s : %d recettes sont écartées tant que leurs composants n'ont pas de prix." -- mt

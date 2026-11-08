@@ -14,7 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [1.1.1] - 2026-11-08
 
-- **Gray Leather Boots plan from Leatherworking 35, as the trainer teaches them.** A Leatherworking trainer lists the pattern at 35, where the bundled guess said 75 (Classic's 100 moved as far as Forever moved its skill range). The same visit confirmed the bundled requirement of the eight other moved Leatherworking recipes that trainer teaches, so only this one changes (#124).
+- **A Leatherworking pattern now plans from the skill its trainer teaches it at.** Gray Leather Boots plan from Leatherworking 35, as a Leatherworking trainer lists them, where the bundled guess said 75 (Classic's 100 moved as far as Forever moved its skill range). The same visit confirmed the bundled requirement of the eight other moved Leatherworking recipes that trainer teaches, so only this one changes (#124).
 
 ## [1.1.0] - 2026-11-08
 

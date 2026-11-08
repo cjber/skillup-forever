@@ -471,6 +471,8 @@ local ns = {
 		return false
 	end,
 	SetTracked = noop,
+	-- The page's profession picker asks the client for the gamepad check; this spec is about its layout.
+	StepDropdownUnderGamepad = noop,
 	SkippedRecipes = function()
 		return {}
 	end,

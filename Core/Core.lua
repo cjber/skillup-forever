@@ -111,6 +111,64 @@ function ns.Print(msg)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99" .. ns.TITLE .. "|r " .. msg)
 end
 
+-- Under the gamepad interface, Blizzard's gamepad frame manager takes every menu that shows (MenuProxy.OnShow)
+-- into its focus in the same call: FrameShown writes shownFrames, isUIFocused and fallThroughCatcherActive under
+-- the taint of whoever opened the menu. The next secure reader of that state (FrameHidden as a window closes, or
+-- FrameShown at the next ShowUIPanel) then makes its protected SetPreferredGamepadInteractTarget call tainted,
+-- which the client refuses and blames on this addon. No addon code can open a Blizzard menu untainted, so under
+-- the gamepad interface SkillUp opens none (#398).
+---@return boolean
+function ns.GamepadUI()
+	return InputUtil.IsGamepadUIEnabled()
+end
+
+-- A Blizzard context menu from our own code: under the gamepad interface it would taint the gamepad focus, so
+-- the player gets a line instead and no menu opens.
+---@param owner Frame
+---@param generator fun(owner: Frame, root: RootMenuDescriptionProxy)
+---@return any
+function ns.ContextMenu(owner, generator)
+	if ns.GamepadUI() then
+		UIErrorsFrame:AddMessage(L["This menu needs mouse and keyboard."], 1, 1, 0)
+		return nil
+	end
+	return MenuUtil.CreateContextMenu(owner, generator)
+end
+
+-- A dropdown's own OpenMenu, under the gamepad interface, without opening a menu: a press steps to the next
+-- selectable radio (wrapping to the first), the same pick the mouse wheel makes (DropdownButtonMixin:Increment).
+-- Otherwise it opens the menu as the client's OpenMenu does.
+---@param dropdown DropdownButton
+function ns.StepDropdownUnderGamepad(dropdown)
+	function dropdown:OpenMenu()
+		if not ns.GamepadUI() then
+			return DropdownButtonMixin.OpenMenu(self)
+		end
+		if not self:IsEnabled() then
+			return
+		end
+		self:GenerateMenu()
+		local _, nextRadio = self:CollectSelectionData()
+		if nextRadio then
+			self:Pick(nextRadio, MenuInputContext.MouseWheel)
+			return
+		end
+		local menuDescription = self:GetMenuDescription()
+		local first
+		if menuDescription then
+			MenuUtil.TraverseMenu(menuDescription, function(description)
+				if description:IsRadio() and description:CanSelect() then
+					first = description
+					return true
+				end
+			end)
+		end
+		if first then
+			self:Pick(first, MenuInputContext.MouseWheel)
+		end
+	end
+end
+
 -- Forever's SavedVariables often fail to load (forever-bugs#34), so defaults
 -- are always the base and whatever did load is merged over them.
 local function LoadDB()

@@ -47,3 +47,7 @@ read_globals[#read_globals + 1] = "EditModeManagerFrame"
 read_globals[#read_globals + 1] = "AuctionHouseFrame"
 
 read_globals[#read_globals + 1] = "MinimalSliderWithSteppersMixin"
+read_globals[#read_globals + 1] = "InputUtil"
+read_globals[#read_globals + 1] = "UIErrorsFrame"
+read_globals[#read_globals + 1] = "DropdownButtonMixin"
+read_globals[#read_globals + 1] = "MenuInputContext"

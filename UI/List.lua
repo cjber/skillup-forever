@@ -76,7 +76,7 @@ local function BuildRow(row)
 		if button == "RightButton" then
 			if row.menu then
 				GameTooltip_Hide()
-				MenuUtil.CreateContextMenu(row, row.menu)
+				ns.ContextMenu(row, row.menu)
 			end
 		elseif row.click then
 			row.click(row)

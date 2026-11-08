@@ -412,7 +412,7 @@ local function RenderSkipped(list, profession)
 		end,
 		click = function(row)
 			GameTooltip_Hide()
-			MenuUtil.CreateContextMenu(row, Menu)
+			ns.ContextMenu(row, Menu)
 		end,
 		menu = Menu,
 	})
@@ -1126,6 +1126,7 @@ local function CreateHeader()
 			end)
 		end
 	end)
+	ns.StepDropdownUnderGamepad(dropdown)
 	page.Profession = dropdown
 
 	local skill = page:CreateFontString(nil, "OVERLAY", "GameFontNormal")

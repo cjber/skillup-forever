@@ -22,6 +22,9 @@
 ---@field TrackerHostSettings fun(): ForeverTrackerSettings
 ---@field Family ForeverFamilyAPI
 ---@field Print fun(msg: string)
+---@field GamepadUI fun(): boolean Whether the client is in its gamepad interface.
+---@field ContextMenu fun(owner: Frame, generator: fun(owner: Frame, root: RootMenuDescriptionProxy)): any Opens a Blizzard context menu, or under the gamepad interface shows a line instead and returns nil.
+---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
 ---@field Changed fun(kind: SkillUpChange)
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
 ---@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)

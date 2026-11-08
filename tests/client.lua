@@ -641,6 +641,12 @@ function Client.load(options)
 			c.chat[#c.chat + 1] = message
 		end,
 	}
+	-- The gamepad interface starts off; a spec turns it on the way the client's own check would report it.
+	G.InputUtil = {
+		IsGamepadUIEnabled = function()
+			return false
+		end,
+	}
 	-- Blizzard's tracker manager is never entered, and no native method is hooked.
 	if options.trackerManager ~= false then
 		G.ObjectiveTrackerManager = setmetatable({}, {

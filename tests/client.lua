@@ -193,7 +193,13 @@ end
 
 function Client.load(options)
 	options = options or {}
-	local G = setmetatable({}, { __index = ReadGlobal })
+	-- The host's globals are copied in once, so the addon's reads of the standard library are plain table reads and
+	-- the bench times the addon rather than this lookup; ReadGlobal only runs for a name the copy lacks.
+	local G = {}
+	for key, value in pairs(_G) do
+		G[key] = value
+	end
+	setmetatable(G, { __index = ReadGlobal })
 	local c = {
 		G = G,
 		ns = {},

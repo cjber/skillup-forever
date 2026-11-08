@@ -11,7 +11,7 @@ local COPPER = 1
 
 local c = Client.load({
 	boot = false,
-	saved = { routeTargets = { [FIRST_AID] = 50 } },
+	saved = { routeTargets = { [FIRST_AID] = 50 }, trackedProfessions = { [FIRST_AID] = true } },
 	data = {
 		Thresholds = { [BANDAGE] = { 1, 30, 45, 60 } },
 		RecipeData = {
@@ -65,6 +65,7 @@ local function Reset()
 end
 Wrap("UsedIn", ns)
 Wrap("TrackedNeeds", ns)
+Wrap("RouteReagents", ns)
 Wrap("PlayerProfessions", ns)
 Wrap("Get", ns.Model)
 Wrap("GatherThresholds", ns.Model)
@@ -114,6 +115,24 @@ equal(calls.UsedIn, 1, "a recipe change drops the item's answer")
 Reset()
 itemPost(tooltip, data)
 equal(calls.UsedIn, 0, "and the new answer is cached too")
+
+-- Moving across many bag items sets a different tooltip each time. The tracked routes are indexed once for
+-- the move, so neither their plans nor their material lists are worked out again for every item. Before the
+-- index, TrackedNeeds and RouteReagents ran once per distinct item, which is what made a bag hover stutter.
+ns.Changed("bags")
+Reset()
+for itemID = 1000, 1049 do
+	itemPost(tooltip, { id = itemID })
+end
+equal(calls.TrackedNeeds, 1, "a move across 50 items works out the tracked routes once")
+equal(calls.RouteReagents, 1, "and builds their material list once")
+ns.Changed("bags")
+Reset()
+itemPost(tooltip, { id = 2000 })
+equal(calls.TrackedNeeds, 1, "a bag change drops the route index")
+Reset()
+itemPost(tooltip, { id = 2001 })
+equal(calls.TrackedNeeds, 0, "and the next item reads it")
 
 -- Herb and ore nodes: the line for a node's skill is looked up by the skill it asks, not recomputed.
 local node = Tooltip()

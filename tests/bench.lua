@@ -290,3 +290,63 @@ for _ = 1, 5 do
 	collectgarbage("restart")
 end
 print(string.format("COLD full replan avg (5 professions): %.1f ms, %.2f MB", replanTime * 200, replanMemory / 5120))
+
+print("== first hover of each reagent item, over a bag of them ==")
+-- The frame-rate report on #412: a bag holds many different reagent items, so every item is an uncached
+-- first hover while the pointer moves across it. An action bar holds a handful, so only their first hovers
+-- pay this. Four crafters are tracked with real plans, and the item tooltip's post-call is timed over 50
+-- distinct reagent items, dropping the tooltip cache before each pass as a bag change would.
+local hoverPost = h.postCalls[h.G.Enum.TooltipDataType.Item]
+hoverPost = hoverPost and hoverPost[1]
+h.G.IsShiftKeyDown = function()
+	return false
+end
+h.G.GameTooltip = c.G.GameTooltip
+local hoverTracked = {}
+for _, profession in pairs(h.ns.RouteProfessions()) do
+	h.ns.SetTracked(profession.skillLine, true)
+	hoverTracked[#hoverTracked + 1] = profession
+end
+if hoverPost then
+	local seen, hoverItems = {}, {}
+	local function AddItem(itemID)
+		if itemID and not seen[itemID] then
+			seen[itemID] = true
+			hoverItems[#hoverItems + 1] = itemID
+		end
+	end
+	for _, entry in ipairs(h.ns.TrackedNeeds()) do
+		for _, item in ipairs(entry.items) do
+			AddItem(item.itemID)
+		end
+	end
+	for _, profession in ipairs(hoverTracked) do
+		for _, recipe in pairs(h.ns.RecipeData) do
+			if recipe.skillLine == profession.skillLine then
+				for _, reagent in ipairs(recipe.reagents) do
+					AddItem(reagent.itemID)
+				end
+			end
+		end
+	end
+	table.sort(hoverItems)
+	local count = math.min(50, #hoverItems)
+	local passes, hoverTime = 5, 0
+	for _ = 1, passes do
+		h.ns.Changed("bags")
+		for index = 1, count do
+			local started = os.clock()
+			hoverPost(h.G.GameTooltip, { id = hoverItems[index] })
+			hoverTime = hoverTime + os.clock() - started
+		end
+	end
+	print(
+		string.format(
+			"%-52s %10.4f ms/item  %9.2f ms total  x%d",
+			string.format("first hover x%d (%d tracked)", count, #hoverTracked),
+			hoverTime * 1000 / (passes * count),
+			hoverTime * 1000,
+			passes * count
+		)
+	)
+end

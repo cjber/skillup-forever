@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Moving across a bag of reagents does far less work per item.** Each new item hover rebuilt every tracked route's material list, so a bag or the character panel, with dozens of different items, paid that cost on every item while a handful of action-bar items paid it once. The tracked routes are now indexed once per change and a hover only looks up its own item. Thanks to 0xTrk, user_gxp60l4cnnhigc69 and Setuaro for the reports (cjber/skillup-forever#412, CurseForge 8667390).
+
 ## [1.0.40] - 2026-11-08
 
 - **The Forever Leaderboards window and `/forever` come from the newest addon installed.** Whichever Forever addon loaded first used to keep its own copy of the window, even an older one, so recent fixes such as full Forever names and `/forever debug` reached you only by chance. The newest copy now takes over (cjber/forever-core#235).

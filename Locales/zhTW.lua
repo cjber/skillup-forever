@@ -507,3 +507,5 @@ L["vendor, limited stock"] = "商人，庫存有限" -- mt
 L["Sells %d at a time"] = "每次出售 %d 個" -- mt
 L["Opening the Professions window no longer raises a blocked action."] =
 	"開啟專業視窗不再觸發被封鎖的動作。" -- mt
+L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
+	"這條路線主要需要%s：在材料定價前有%d個配方被排除。" -- mt

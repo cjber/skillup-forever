@@ -517,3 +517,5 @@ L["vendor, limited stock"] = "vendedor, estoque limitado" -- mt
 L["Sells %d at a time"] = "Vende %d por vez" -- mt
 L["Opening the Professions window no longer raises a blocked action."] =
 	"Abrir a janela de profissões não gera mais uma ação bloqueada." -- mt
+L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
+	"Esta rota é principalmente %s: %d receitas ficam de fora até que seus reagentes tenham preço." -- mt

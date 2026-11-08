@@ -524,3 +524,5 @@ L["vendor, limited stock"] = "상인, 한정 재고" -- mt
 L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt
 L["Opening the Professions window no longer raises a blocked action."] =
 	"전문 기술 창을 열어도 더 이상 차단된 동작이 발생하지 않습니다." -- mt
+L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
+	"이 경로는 대부분 %s입니다: 재료 가격이 책정될 때까지 제조법 %d개가 제외됩니다." -- mt

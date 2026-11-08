@@ -547,3 +547,5 @@ L["vendor, limited stock"] = "торговец, ограниченный зап�
 L["Sells %d at a time"] = "Продаёт по %d за раз" -- mt
 L["Opening the Professions window no longer raises a blocked action."] =
 	"Открытие окна профессий больше не вызывает заблокированное действие." -- mt
+L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
+	"Этот маршрут в основном %s: рецептов %d остаются исключенными, пока у их реагентов нет цены." -- mt

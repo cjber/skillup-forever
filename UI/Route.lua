@@ -599,6 +599,17 @@ local function RenderRoute(list, plan)
 			string.format(L["Route incomplete: %d recipes left out, their reagents not priced yet."], plan.unpriced)
 		)
 	end
+	local notice = ns.RouteNotice(plan)
+	if notice then
+		list:Message(
+			string.format(
+				L["This route is mostly %s: %d recipes are left out until their reagents are priced."],
+				ItemName(notice.itemID),
+				notice.recipes
+			),
+			ns.COLORS.orange
+		)
+	end
 	if #plan.steps == 0 and not blocked and plan.stopReason ~= "no_recipe" then
 		-- Nothing to craft and nothing to train: an uncapped profession with no priced craft still says so in
 		-- the list, rather than drawing an empty route (#190).

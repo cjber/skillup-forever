@@ -782,6 +782,40 @@ function ns.UnpricedReagents(plan)
 	return items
 end
 
+-- The reagent a route leans on hardest, and how much of the route's reagent units it is. A missing reagent
+-- price is what leaves a route sitting on one low-tier pattern: the higher-tier recipes that would spread it
+-- out are left out, so its totals describe a chain nobody farms (#394).
+---@param plan SkillUpPlan
+---@return { itemID: integer, need: integer, share: number }?
+function ns.DominantReagent(plan)
+	local total, top, topNeed = 0, nil, 0
+	for _, item in ipairs(ns.RouteReagents(plan)) do
+		total = total + item.need
+		if item.need > topNeed then
+			top, topNeed = item.itemID, item.need
+		end
+	end
+	if total == 0 then
+		return nil
+	end
+	return { itemID = top, need = topNeed, share = topNeed / total }
+end
+
+-- A one-line warning for a route that is mostly one reagent while recipes were left out for want of a price;
+-- nil when the route is spread out or nothing was left out.
+---@param plan SkillUpPlan
+---@return { itemID: integer, need: integer, recipes: integer }?
+function ns.RouteNotice(plan)
+	if plan.unpriced <= 0 or #plan.crafts == 0 then
+		return nil
+	end
+	local dominant = ns.DominantReagent(plan)
+	if not dominant or dominant.share < 0.5 then
+		return nil
+	end
+	return { itemID = dominant.itemID, need = dominant.need, recipes = plan.unpriced }
+end
+
 -- Why a plan has nothing to craft, as the page and the tracker say it; nil when it has.
 ---@param plan SkillUpPlan
 ---@return string?

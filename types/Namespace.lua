@@ -77,6 +77,8 @@
 ---@field BestTraining fun(profession: SkillUpContext, known: table<integer, boolean>, offers: {recipeID: integer, fee: number}[]): integer?
 ---@field RouteBlocked fun(plan: SkillUpPlan): string?
 ---@field UnpricedReagents fun(plan: SkillUpPlan): integer[]
+---@field DominantReagent fun(plan: SkillUpPlan): { itemID: integer, need: integer, share: number }?
+---@field RouteNotice fun(plan: SkillUpPlan): { itemID: integer, need: integer, recipes: integer }?
 ---@field PlanRoute fun(profession: SkillUpProfession): SkillUpPlan
 ---@field TargetChanged fun(skillLine: integer, value: number): boolean Whether committing a route target would change it
 ---@field RankText fun(rank: SkillUpRank): string

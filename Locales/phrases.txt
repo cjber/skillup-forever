@@ -327,6 +327,7 @@ L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."] = "The text
 L["The tracker is locked. Turn off Lock the tracker to move it."] = "The tracker is locked. Turn off Lock the tracker to move it."
 L["These reagents have no vendor price. Auction prices need Auctionator."] = "These reagents have no vendor price. Auction prices need Auctionator."
 L["This addon"] = "This addon"
+L["This route is mostly %s: %d recipes are left out until their reagents are priced."] = "This route is mostly %s: %d recipes are left out until their reagents are priced."
 L["This week"] = "This week"
 L["Title"] = "Title"
 L["To buy"] = "To buy"

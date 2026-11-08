@@ -157,6 +157,12 @@ local OPTIONAL_GLOBALS = {
 	ForeverPeerStats = true,
 	-- UI/TrackerHost.lua: the shared tracker host another Forever addon may publish before this one loads.
 	ForeverTrackerHost = true,
+	-- Core/SafeCall.lua: the shared error journal registry, published by whichever Forever addon loads it first.
+	ForeverErrorJournal = true,
+	-- Core/Log.lua: the shared debug log switch, published by whichever Forever addon loads it first.
+	ForeverDebugLog = true,
+	-- Core/SafeCall.lua: BugGrabber, when that error display is installed, so its captures join the journal.
+	BugGrabber = true,
 	-- SavedVariables: the addon's own table, nil before the client loads it or when its file is missing.
 	SkillUpForeverDB = true,
 	-- Questie: its addon table and database, present only when Questie is installed and enabled.
@@ -615,6 +621,10 @@ function Client.load(options)
 	local timers = {}
 	G.GetTime = function()
 		return c.now
+	end
+	-- The client's own date for the shared log's lines (Core/Log.lua), fixed so its specs are deterministic.
+	G.date = function()
+		return "2026-11-08 12:00:00"
 	end
 	G.GetServerTime = function()
 		return 1700000000 + math.floor(c.now)
@@ -1157,16 +1167,31 @@ function Client.load(options)
 	G.UNIT_SKINNABLE_LEATHER = "Skinnable"
 	G.UNIT_SKINNABLE_HERB, G.UNIT_SKINNABLE_ROCK = "Requires Herbalism", "Requires Mining"
 	G.SlashCmdList = {}
-	-- The game's error handler: an error SafeCall caught still fails the spec, as it would reach BugSack in game.
+	-- The game's error handler: one current function, which seterrorhandler replaces and geterrorhandler returns.
+	-- Before an addon installs one, the default records the error where the specs look, and an error SafeCall caught
+	-- still fails the spec, as it would reach BugSack in game. Dispatching says that default is already recording an
+	-- error, so a handler that saves it and forwards to it in the same dispatch records that error once, not twice.
 	c.errors = {}
-	G.geterrorhandler = function()
-		return function(message)
-			c.errors[#c.errors + 1] = tostring(message)
-			if not c.allowErrors then
-				io.stderr:write("error handler: ", tostring(message), "\n")
-				os.exit(1)
-			end
+	local dispatching = false
+	local function DefaultHandler(message)
+		if dispatching then
+			return
 		end
+		dispatching = true
+		local text = tostring(message)
+		c.errors[#c.errors + 1] = text
+		if not c.allowErrors then
+			io.stderr:write("error handler: ", text, "\n")
+			os.exit(1)
+		end
+		dispatching = false
+	end
+	local currentHandler = DefaultHandler
+	G.geterrorhandler = function()
+		return currentHandler
+	end
+	G.seterrorhandler = function(handler)
+		currentHandler = handler
 	end
 	G.UISpecialFrames = {}
 	G.strtrim = function(text)
@@ -1177,6 +1202,10 @@ function Client.load(options)
 	G.DEFAULT, G.OFF, G.UNKNOWN = "Default", "Off", "Unknown"
 	G.debugprofilestop = function()
 		return 0
+	end
+	-- The client's stack reader: debug.traceback text from the caller `start` levels up, as the game's debugstack is.
+	G.debugstack = function(start)
+		return debug.traceback("", tonumber(start) or 1)
 	end
 	G.time = function()
 		return c.now

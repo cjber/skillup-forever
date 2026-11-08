@@ -46,6 +46,10 @@ local DEFAULTS = {
 	statsShare = true,
 	observedRecipes = {}, -- ["Name-Realm"] = { ids = { [recipeID] = true }, eventUnix = latest observation }
 	peerStats = {}, -- ["Name-Realm"] = peer rows for this character's guild and groups
+	-- The shared error journal (Core/SafeCall.lua): earlier sessions' errors, listed in the report after a /reload.
+	errors = {},
+	-- The shared log (Core/Log.lua): the recent lines that led up to a bug, cut into the report after them.
+	log = { lines = {}, pinned = false },
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
 	trackedProfessions = {}, -- [profession skill line] = true tracked, false stopped by hand, nil undecided
 	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
@@ -954,6 +958,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 			and ns.CraftedGear
 			and ns.Changed
 			and ns.SafeCall
+			and ns.AttachLog
 			and ns.Report
 			and ns.ReportLines
 			and ns.Family
@@ -964,6 +969,10 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 		return
 	end
 	LoadDB()
+	-- The saved journal is attached once the saved variables and their defaults are in: what SafeCall recorded before
+	-- this line (the client's own early errors) arrives with it, and a /reload keeps it.
+	ns.AttachErrorJournal(SkillUpForeverDB.errors)
+	ns.AttachLog(SkillUpForeverDB.log)
 	ns.NoteBuild()
 	ReadChanceBonus()
 	ns.InitCatalogue()

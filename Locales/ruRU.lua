@@ -552,3 +552,20 @@ L["A reagent you gather, loot or already own costs what selling it would bring -
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
 L["A profitable recipe no longer gets cheaper the longer a route runs on it, and a craft's time now counts."] =
 	"Выгодный рецепт больше не дешевеет, чем дольше маршрут его использует, и время изготовления теперь учитывается." -- mt
+
+-- Shared debug log (Forever Core's Core/Log.lua).
+L["Debug log is off."] = "Журнал отладки выключен."
+L["Debug log is on for this session."] = "Журнал отладки включён для этого сеанса."
+L["Debug log is on and pinned for this character."] =
+	"Журнал отладки включён и закреплён для этого персонажа."
+L["Debug log is already on and pinned for this character."] =
+	"Журнал отладки уже включён и закреплён для этого персонажа."
+L["Debug log is off for this session; it is still pinned."] =
+	"Журнал отладки выключен для этого сеанса; закрепление сохранено."
+L["Debug log is off and unpinned."] = "Журнал отладки выключен, закрепление снято."
+L["No addon has attached its log yet."] =
+	"Ни один аддон ещё не подключил свой журнал."
+L["%s (last %d):"] = "%s (последние %d):"
+L["%s: no lines yet."] = "%s: строк пока нет."
+L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
+	"Использование: /forever debug, /forever debug pin, /forever debug off, /forever debug show"

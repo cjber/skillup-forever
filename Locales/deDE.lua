@@ -518,3 +518,19 @@ L["A reagent you gather, loot or already own costs what selling it would bring -
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
 L["A profitable recipe no longer gets cheaper the longer a route runs on it, and a craft's time now counts."] =
 	"Ein gewinnbringendes Rezept wird nicht mehr billiger, je länger eine Route darauf läuft, und die Zeit einer Herstellung zählt jetzt mit." -- mt
+
+-- Shared debug log (Forever Core's Core/Log.lua).
+L["Debug log is off."] = "Das Debug-Protokoll ist aus."
+L["Debug log is on for this session."] = "Das Debug-Protokoll ist für diese Sitzung an."
+L["Debug log is on and pinned for this character."] =
+	"Das Debug-Protokoll ist an und für diesen Charakter dauerhaft aktiviert."
+L["Debug log is already on and pinned for this character."] =
+	"Das Debug-Protokoll ist bereits an und für diesen Charakter dauerhaft aktiviert."
+L["Debug log is off for this session; it is still pinned."] =
+	"Das Debug-Protokoll ist für diese Sitzung aus; es bleibt dauerhaft aktiviert."
+L["Debug log is off and unpinned."] = "Das Debug-Protokoll ist aus und nicht mehr dauerhaft aktiviert."
+L["No addon has attached its log yet."] = "Noch kein Addon hat sein Protokoll angehängt."
+L["%s (last %d):"] = "%s (letzte %d):"
+L["%s: no lines yet."] = "%s: noch keine Zeilen."
+L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
+	"Verwendung: /forever debug, /forever debug pin, /forever debug off, /forever debug show"

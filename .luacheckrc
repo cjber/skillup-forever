@@ -35,7 +35,7 @@ read_globals = { "CreateFramePoolCollection", "C_XMLUtil", "C_DateAndTime",
 	"C_Map", "C_SuperTrack", "CreateVector2D", "TomTom", "UiMapPoint", "UnitPosition", "Syndicator", "tContains",
 	"ShortestPathForever", "InCombatLockdown", "GetLocale", "C_AddOns",
 	"LibQuestieDB", "Questie", "AtlasLoot", "bit", "debugprofilestop", "loadstring", "setfenv",
-	"UNKNOWN", "UNIT_SKINNABLE_LEATHER", "UNIT_SKINNABLE_HERB", "UNIT_SKINNABLE_ROCK", "UnitRace", "geterrorhandler", "debugstack", "ChatFontNormal", "UISpecialFrames", "APPRENTICE", "JOURNEYMAN", "EXPERT", "ARTISAN", "DEFAULT", "OFF", "TOTAL",
+	"UNKNOWN", "UNIT_SKINNABLE_LEATHER", "UNIT_SKINNABLE_HERB", "UNIT_SKINNABLE_ROCK", "UnitRace", "geterrorhandler", "debugstack", "date", "ChatFontNormal", "UISpecialFrames", "APPRENTICE", "JOURNEYMAN", "EXPERT", "ARTISAN", "DEFAULT", "OFF", "TOTAL",
 	"RAID_CLASS_COLORS", "GREEN_FONT_COLOR", "GetGuildRosterInfo", "GetNumGuildMembers",
 }
 

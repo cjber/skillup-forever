@@ -68,8 +68,7 @@ publishes it as the notes.
   that order, each receiving `local addonName, ns = ...`; a new file goes in the TOC or never runs.
 - The specs are a headless harness with stubbed client APIs. `tests/client.lua` is the shared stub client: it
   loads the TOC in order, and a spec over it sets what the client holds, not an `ns` function. Anything the specs
-  cannot reach (frames, menus, tooltips, the tracker) is checked in game: list those checks in the PR as `/reload`
-  tests for the user. Never drive the game client.
+  cannot reach (frames, menus, tooltips, the tracker) is checked in game: check them in the headless client (forever-core's `wow-forever-addon/in-game.md`) and list in the PR what was checked; what waits on the player's own session goes in the PR as `/reload` tests for the user.
 - Host globals go in `.luacheckrc`; LuaLS gets WoW APIs from the pinned Ketho annotations.
   Add missing Forever/integration APIs with real types in `types/`, never `diagnostics.globals`.
 - Every TOC file, including generated data, stays in the LuaLS and multi-value gates.

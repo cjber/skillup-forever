@@ -12,7 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.40] - 2026-11-08
+
 - **The Forever Leaderboards window and `/forever` come from the newest addon installed.** Whichever Forever addon loaded first used to keep its own copy of the window, even an older one, so recent fixes such as full Forever names and `/forever debug` reached you only by chance. The newest copy now takes over (cjber/forever-core#235).
+
 ## [1.0.39] - 2026-11-08
 
 - **Tooltips stay cheap while the pointer rests on an item.** The client sets the same tooltip again and again while it is shown, and the addon worked out the item's uses, the tracked routes that need it and its gathering lines every time. Each answer is now kept by item, node and corpse until a recipe, skill, bag, plan or setting change drops it, so a repeated set only draws the lines it already worked out. Thanks to Setuaro for the report (cjber/skillup-forever#412, CurseForge 8665828).

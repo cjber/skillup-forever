@@ -129,14 +129,16 @@ function ns.SeeVendor(itemIDs)
 	)
 end
 
--- Those of these NPCs this character can deal with, nearest first. Ties keep the data's order, so the same
--- few are estimated each time.
+-- Those of these NPCs `usable` accepts, nearest first. Ties keep the data's order, so the same few are estimated
+-- each time. `usable` defaults to the faction check for the NPCs you trade or train with.
 ---@param npcIDs integer[]
+---@param usable? fun(npcID: integer): boolean
 ---@return {npcID: integer, distance: number, index: integer}[]
-local function Ranked(npcIDs)
+local function Ranked(npcIDs, usable)
 	local candidates = {}
+	usable = usable or Usable
 	for index, npcID in ipairs(npcIDs) do
-		if Usable(npcID) then
+		if usable(npcID) then
 			candidates[#candidates + 1] = { npcID = npcID, distance = Distance(npcID), index = index }
 		end
 	end
@@ -176,6 +178,41 @@ function ns.NearestNPC(npcIDs, byTravel)
 		end
 	end
 	return best and best.npcID
+end
+
+-- The zone a reagent drops in: the nearest creature that drops it. Creatures are killed, not traded with, so no
+-- faction tells any of them apart. Nil until the drops are read, for an item nothing drops, and when none of the
+-- droppers has a distance and they do not all share one zone map: the data's order is no measure of nearness.
+---@param itemID integer
+---@return string?
+function ns.DropZone(itemID)
+	if not C.EnsureDrops(itemID) then
+		return nil
+	end
+	local found = C.ItemSources(itemID)
+	local drops = found and found.drops
+	if not (drops and drops[1]) then
+		return nil
+	end
+	local nearest = Ranked(drops, function()
+		return true
+	end)[1]
+	if nearest and nearest.distance < math.huge then
+		return ns.NPCLocation(nearest.npcID).label
+	end
+	local map, zone
+	for _, npcID in ipairs(drops) do
+		local npc = C.NPC(npcID)
+		local id = npc and npc.map
+		if id then
+			if map == nil then
+				map, zone = id, ns.NPCLocation(npcID).label
+			elseif id ~= map then
+				return nil
+			end
+		end
+	end
+	return zone
 end
 
 -- Shortest Path Forever's route when it takes one (it declines in combat, with its

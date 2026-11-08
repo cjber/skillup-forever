@@ -532,3 +532,7 @@ L["%s (last %d):"] = "%s（最近 %d 筆）："
 L["%s: no lines yet."] = "%s：還沒有記錄行。"
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"用法：/forever debug、/forever debug pin、/forever debug off、/forever debug show"
+L["%s: %s"] = "%s：%s" -- mt
+L["%s drops in %s"] = "%s 在 %s 掉落" -- mt
+L["Made by %s %d"] = "%s %d 製作" -- mt
+L["Made by %s"] = "%s 製作" -- mt

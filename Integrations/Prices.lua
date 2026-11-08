@@ -342,6 +342,7 @@ local function MakersOf(itemID)
 	end
 	return craftMakers[itemID] or {}
 end
+ns.MakersOf = MakersOf
 
 -- One craft of `recipeID` makes this many, or nil when the data does not say.
 ---@param recipeID integer

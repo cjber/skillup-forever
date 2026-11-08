@@ -67,6 +67,7 @@
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
 ---@field BuffLevel fun(recipeID: integer): integer? The product's required level when it is a buff, else nil.
 ---@field UsableBuff fun(recipeID: integer, level: number): boolean Whether the product is a buff this level can use.
+---@field BuffText fun(itemID: integer): string? The buff a crafted item leaves, in the game's own words; nil for an item that leaves none.
 ---@field Gear SkillUpGear
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
@@ -149,6 +150,7 @@
 ---@field ToolItemID fun(name: string): integer?
 ---@field MissingToolItems fun(plan: SkillUpPlan): integer[]
 ---@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
+---@field MakersOf fun(itemID: integer): integer[] The recipes that make the item, lowest recipe ID first.
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[]
@@ -160,6 +162,7 @@
 ---@field AutoTrack fun(skillLine?: integer): boolean
 ---@field InitShopping fun()
 ---@field NPCLocation fun(npcID: integer): SkillUpLocation
+---@field DropZone fun(itemID: integer): string? The nearest zone a creature drops the item in, nil until the drops are read or when there is none.
 ---@field LocationText fun(where: SkillUpLocation): string
 ---@field SeeVendor fun(itemIDs: integer[]): boolean
 ---@field NearestNPC fun(npcIDs: integer[], byTravel?: boolean): integer?

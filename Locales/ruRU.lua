@@ -576,3 +576,7 @@ L["%s (last %d):"] = "%s (последние %d):"
 L["%s: no lines yet."] = "%s: строк пока нет."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"Использование: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
+L["%s: %s"] = "%s: %s" -- mt
+L["%s drops in %s"] = "%s выпадает в %s" -- mt
+L["Made by %s %d"] = "Изготовлено: %s %d" -- mt
+L["Made by %s"] = "Изготовлено: %s" -- mt

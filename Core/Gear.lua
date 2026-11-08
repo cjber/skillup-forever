@@ -162,6 +162,46 @@ function ns.UsableBuff(recipeID, level)
 	return required ~= nil and required <= level
 end
 
+-- [spellID] = true while its description is on the way, so one redraw covers every tooltip that showed its name.
+---@type table<integer, true>
+local pendingText = {}
+
+-- The tooltips that showed a spell's name alone are rebuilt when its description arrives.
+---@param spellID integer
+---@param spell SpellMixin
+local function WhenSpellTextArrives(spellID, spell)
+	if pendingText[spellID] then
+		return
+	end
+	pendingText[spellID] = true
+	spell:ContinueOnSpellLoad(function()
+		pendingText[spellID] = nil
+		ns.Changed("names")
+	end)
+end
+
+-- The buff an item leaves in the game's own words, nil for an item that leaves none. A spell whose data the client
+-- has not loaded yet gives its name alone, and the tooltips are redrawn once its description arrives (#357).
+---@param itemID integer
+---@return string?
+function ns.BuffText(itemID)
+	local spellID = ns.BuffItems[itemID]
+	if not spellID then
+		return nil
+	end
+	local name = C_Spell.GetSpellName(spellID)
+	if not name then
+		return nil
+	end
+	local spell = Spell:CreateFromSpellID(spellID)
+	if not spell:IsSpellDataCached() then
+		WhenSpellTextArrives(spellID, spell)
+		return name
+	end
+	local description = C_Spell.GetSpellDescription(spellID)
+	return description and string.format(L["%s: %s"], name, description) or name
+end
+
 ---@class SkillUpGear
 local Gear = {}
 ns.Gear = Gear

@@ -551,3 +551,7 @@ L["%s (last %d):"] = "%s (최근 %d개):"
 L["%s: no lines yet."] = "%s: 아직 줄이 없습니다."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"사용법: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
+L["%s: %s"] = "%s: %s" -- mt
+L["%s drops in %s"] = "%s: %s에서 드롭됩니다" -- mt
+L["Made by %s %d"] = "%s %d 제작" -- mt
+L["Made by %s"] = "%s 제작" -- mt

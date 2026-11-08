@@ -70,6 +70,9 @@ local professions = {}
 -- [itemID] = false while its vendors are being read, then true.
 ---@type table<integer, boolean>
 local vendorsRead = {}
+-- [itemID] = false while its droppers are being read, then true.
+---@type table<integer, boolean>
+local dropsRead = {}
 -- [recipeID] = every scroll QuestieDB says teaches it; nil until its items have been gone through.
 ---@type table<integer, integer[]>?
 local taught
@@ -78,7 +81,7 @@ local scanning = false
 
 -- Everything read so far is dropped and read again: a provider became ready, so a miss may now be a hit.
 local function Reset()
-	items, npcs, quests, professions, vendorsRead, taught, scanning = {}, {}, {}, {}, {}, nil, false
+	items, npcs, quests, professions, vendorsRead, dropsRead, taught, scanning = {}, {}, {}, {}, {}, {}, nil, false
 	queue, head, tail = {}, 1, 0
 	if running then
 		dirty = true
@@ -424,27 +427,44 @@ function C.EnsureProfession(skillLine)
 	return false
 end
 
--- True once an item's vendors are read, so the nearest can be picked without a read on the way.
+-- True once the NPCs of one of an item's source lists are read, so the nearest can be picked without a read on
+-- the way. `read` is that list's own record of what has been asked for, and `field` the list it names.
 ---@param itemID integer
+---@param read table<integer, boolean>
+---@param field 'vendors'|'drops'
 ---@return boolean
-function C.EnsureVendors(itemID)
-	-- Without Questie nobody is known to sell anything, and there is nothing to read.
+local function EnsureNPCs(itemID, read, field)
+	-- Without Questie nobody is known, and there is nothing to read.
 	if Q.State() ~= "ready" then
 		return true
 	end
-	if vendorsRead[itemID] ~= nil then
-		return vendorsRead[itemID]
+	if read[itemID] ~= nil then
+		return read[itemID]
 	end
-	vendorsRead[itemID] = false
+	read[itemID] = false
 	Enqueue(function()
 		local found = C.ItemSources(itemID)
-		ReadNPCs(found and found.vendors or {})
+		ReadNPCs(found and found[field] or {})
 		Enqueue(function()
-			vendorsRead[itemID] = true
+			read[itemID] = true
 			dirty = true
 		end)
 	end)
 	return false
+end
+
+-- True once an item's vendors are read, so the nearest can be picked without a read on the way.
+---@param itemID integer
+---@return boolean
+function C.EnsureVendors(itemID)
+	return EnsureNPCs(itemID, vendorsRead, "vendors")
+end
+
+-- True once an item's droppers are read, so the nearest can be picked without a read on the way.
+---@param itemID integer
+---@return boolean
+function C.EnsureDrops(itemID)
+	return EnsureNPCs(itemID, dropsRead, "drops")
 end
 
 -- Starts looking for the providers. An addon that loads later is picked up, and so is Questie finishing

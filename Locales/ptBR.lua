@@ -544,3 +544,7 @@ L["%s (last %d):"] = "%s (últimas %d):"
 L["%s: no lines yet."] = "%s: ainda não há linhas."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"Uso: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
+L["%s: %s"] = "%s: %s" -- mt
+L["%s drops in %s"] = "%s cai em %s" -- mt
+L["Made by %s %d"] = "Feito por %s %d" -- mt
+L["Made by %s"] = "Feito por %s" -- mt

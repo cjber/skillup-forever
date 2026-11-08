@@ -14,6 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **The Professions window's Filter menu can show only the buffs you can use.** *Only buffs for your level* lists the recipes whose product is an elixir, flask, Well Fed food, protection potion, sharpening stone, oil, armour kit or scope you can use at your level, highest required level first. Unlearned ones follow when *List unlearned recipes* is on, with where they are learned. Healing potions, bandages and plain food restore rather than buff, so they are left out. The filter is also in the addon's settings (#357).
 - **The levelling route prefers a buff you can use when two recipes are otherwise equal.** When two recipes cost the same per skill point and have the same chance, the route now takes the one whose product is a buff your level can use, so the crafts leave you with something useful, before falling back to the lower recipe ID. A recipe that costs more per point still loses (#357).
+- **A buff recipe's tooltip now says what the buff does and where its reagents drop.** The recipe tooltip shows the buff in the game's own words, and with Questie each reagent gets the nearest zone it drops in. A buff consumable's own tooltip names the profession and skill that make it (#357).
 
 ## [1.1.1] - 2026-11-08
 

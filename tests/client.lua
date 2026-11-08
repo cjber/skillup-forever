@@ -216,6 +216,9 @@ function Client.load(options)
 		-- { name, icon, rank, max, id, modifier } in spellbook order; `id` is what the client reports for it.
 		professions = {},
 		spells = {}, -- [spellID] = name
+		spellDescriptions = {}, -- [spellID] = the game's own description of its effect
+		spellCached = {}, -- [spellID] = true: the client's spell data has loaded
+		spellLoads = {}, -- [spellID] = the callbacks waiting for that data
 		known = {}, -- [spellID] = true: in the spellbook
 		skillLines = {}, -- { skillID, name, isHeader, rank, ... } in the client's skill-line order
 		auras = {}, -- [spellID] = true: an aura the player has
@@ -241,6 +244,7 @@ function Client.load(options)
 		opened = {}, -- profession IDs passed to OpenTradeSkill
 		purchased = {}, -- { index, count } per BuyMerchantItem call
 		requested = {}, -- [itemID] = true: item data asked for
+		tradeSkillNames = {}, -- [skillLine] = the display name the client gives a profession
 		tracker = {}, -- modules attached to the shared tracker host
 	}
 	G._G = G
@@ -798,10 +802,36 @@ function Client.load(options)
 		GetSpellName = function(id)
 			return c.spells[id]
 		end,
+		GetSpellDescription = function(id)
+			return c.spellDescriptions[id]
+		end,
 		GetSpellTexture = function(id)
 			return c.spellIcons and c.spellIcons[id] or nil
 		end,
 	}
+	-- The client's spell data handle: its data is cached once a spec says so, and waiters run when it loads.
+	G.Spell = {
+		CreateFromSpellID = function(_, id)
+			return {
+				IsSpellDataCached = function()
+					return c.spellCached[id] == true
+				end,
+				ContinueOnSpellLoad = function(_, callback)
+					c.spellLoads[id] = c.spellLoads[id] or {}
+					table.insert(c.spellLoads[id], callback)
+				end,
+			}
+		end,
+	}
+	-- The client finished loading a spell's data: its description reads, and the addon's waiters run.
+	function c.LoadSpellData(id)
+		c.spellCached[id] = true
+		local callbacks = c.spellLoads[id] or {}
+		c.spellLoads[id] = nil
+		for _, callback in ipairs(callbacks) do
+			callback()
+		end
+	end
 	G.C_SpellBook = {
 		IsSpellKnown = function(id)
 			return c.known[id] == true
@@ -859,6 +889,10 @@ function Client.load(options)
 		end,
 		GetCraftableCount = function()
 			return c.craftable
+		end,
+		-- The client's own name for a profession's skill line, nil for one it does not know.
+		GetTradeSkillDisplayName = function(skillLine)
+			return c.tradeSkillNames[skillLine]
 		end,
 	}
 

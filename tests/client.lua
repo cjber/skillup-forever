@@ -145,9 +145,55 @@ end
 -- manager), boot (false to stop before the addon's ADDON_LOADED; c.Boot() then runs it), questie and atlasLoot
 -- (what a synthetic QuestieDB and AtlasLoot hold, as Client.QuestieDB and Client.AtlasLoot take it; a client
 -- has neither without them), build (the client build GetBuildInfo reports).
+-- Globals the addon reads by plain name that the harness does not stub: each is optional, so a client without it
+-- reads nil. Each entry says who defines it. Anything else the addon reads must be stubbed in this file first, so a
+-- client API it calls is either here or in the pinned annotations.
+local OPTIONAL_GLOBALS = {
+	-- UI/ForeverFamily.lua: the shared family table, published by whichever Forever addon loads it first.
+	ForeverFamily = true,
+	-- UI/Leaderboards.lua: the shared leaders window, published by whichever Forever addon loads it first.
+	ForeverLeaderboards = true,
+	-- Core/PeerStats.lua: the shared peer stats manager, published by whichever Forever addon loads it first.
+	ForeverPeerStats = true,
+	-- UI/TrackerHost.lua: the shared tracker host another Forever addon may publish before this one loads.
+	ForeverTrackerHost = true,
+	-- SavedVariables: the addon's own table, nil before the client loads it or when its file is missing.
+	SkillUpForeverDB = true,
+	-- Questie: its addon table and database, present only when Questie is installed and enabled.
+	Questie = true,
+	LibQuestieDB = true,
+	-- AtlasLoot: its addon table, present only when AtlasLoot Classic is installed and enabled.
+	AtlasLoot = true,
+	-- Auctionator: its addon table, present only when Auctionator is installed and enabled.
+	Auctionator = true,
+	-- TomTom: its addon table, present only when TomTom is installed and enabled.
+	TomTom = true,
+	-- Shortest Path Forever: its addon table, present only when that Forever addon is installed.
+	ShortestPathForever = true,
+	-- Syndicator: its addon table, present only when Syndicator is installed and enabled.
+	Syndicator = true,
+	-- AuctionHouseFrame: Blizzard's auction house frame, present once Blizzard_AuctionHouseUI loads.
+	AuctionHouseFrame = true,
+}
+
+-- A global the addon reads that this stub never set is a spec failure, not nil. Lua's own standard library stays
+-- readable through the host's _G; only names that exist there are handed on.
+---@param _ table
+---@param key string
+local function ReadGlobal(_, key)
+	local value = rawget(_G, key)
+	if value ~= nil then
+		return value
+	end
+	if OPTIONAL_GLOBALS[key] then
+		return nil
+	end
+	error("unknown global read by the addon: " .. tostring(key), 2)
+end
+
 function Client.load(options)
 	options = options or {}
-	local G = setmetatable({}, { __index = _G })
+	local G = setmetatable({}, { __index = ReadGlobal })
 	local c = {
 		G = G,
 		ns = {},
@@ -159,6 +205,7 @@ function Client.load(options)
 		professions = {},
 		spells = {}, -- [spellID] = name
 		known = {}, -- [spellID] = true: in the spellbook
+		skillLines = {}, -- { skillID, name, isHeader, rank, ... } in the client's skill-line order
 		auras = {}, -- [spellID] = true: an aura the player has
 		items = {}, -- [itemID] = { name, sell }; a missing field is item data the client has not loaded
 		bags = {}, -- [itemID] = count
@@ -204,14 +251,36 @@ function Client.load(options)
 		local frame = setmetatable({
 			parent = parent,
 			scripts = {},
+			hooks = {},
+			children = {},
 			events = {},
 			shown = true,
 		}, frameMeta)
+		if parent and parent.children then
+			parent.children[#parent.children + 1] = frame
+		end
 		c.frames[#c.frames + 1] = frame
 		if name then
 			G[name] = frame
 		end
 		return frame
+	end
+	-- A protected frame's visibility, enabled state and attributes cannot change in combat; a write is recorded so
+	-- the exercise spec can fail on it.
+	local function Guarded(frame)
+		if frame.protected and c.combat then
+			c.protectedCalls = c.protectedCalls or {}
+			c.protectedCalls[#c.protectedCalls + 1] = frame
+		end
+	end
+	local function Scripts(frame, name)
+		local script = frame.scripts[name]
+		if script then
+			script(frame)
+		end
+		for _, hooked in ipairs((frame.hooks or {})[name] or {}) do
+			hooked(frame)
+		end
 	end
 	function Methods:RegisterEvent(event)
 		self.events[event] = true
@@ -219,32 +288,75 @@ function Client.load(options)
 	function Methods:SetScript(name, fn)
 		self.scripts[name] = fn
 	end
+	function Methods:HookScript(name, fn)
+		self.hooks[name] = self.hooks[name] or {}
+		table.insert(self.hooks[name], fn)
+	end
 	function Methods:Show()
+		Guarded(self)
+		local was = self.shown
 		self.shown = true
+		if not was then
+			Scripts(self, "OnShow")
+		end
 	end
 	function Methods:Hide()
+		Guarded(self)
+		local was = self.shown
 		self.shown = false
+		if was then
+			Scripts(self, "OnHide")
+		end
 	end
 	function Methods:SetShown(shown)
-		self.shown = shown and true or false
+		if shown then
+			self:Show()
+		else
+			self:Hide()
+		end
 	end
 	function Methods:IsShown()
 		return self.shown
 	end
 	function Methods:SetEnabled(enabled)
+		Guarded(self)
 		self.disabled = not enabled
 	end
 	function Methods:IsEnabled()
 		return not self.disabled
 	end
+	function Methods.IsAnchoringRestricted()
+		return false
+	end
+	function Methods:SetAttribute(name, value)
+		Guarded(self)
+		self.attributes = self.attributes or {}
+		self.attributes[name] = value
+	end
 	function Methods:SetText(text)
 		self.text = text
+	end
+	function Methods:GetFontString()
+		self.fontString = self.fontString or NewFrame(nil, self)
+		return self.fontString
 	end
 	function Methods.GetTextWidth()
 		return 100
 	end
 	function Methods.GetStringWidth()
 		return 100
+	end
+	function Methods.GetStringHeight()
+		return 20
+	end
+	function Methods:SetChecked(checked)
+		self.checked = checked and true or false
+	end
+	function Methods:GetChecked()
+		return self.checked == true
+	end
+	function Methods:IsChecked()
+		return self.checked == true
 	end
 	-- A font string keeps its text like a frame does.
 	function Methods:CreateFontString()
@@ -256,6 +368,10 @@ function Client.load(options)
 	-- The atlas a texture was given, so a spec can check which art it draws.
 	function Methods:SetAtlas(atlas)
 		self.atlas = atlas
+	end
+	function Methods:GetTexture()
+		self.texture = self.texture or NewFrame(nil, self)
+		return self.texture
 	end
 	function Methods:GetText()
 		return self.text or ""
@@ -283,6 +399,79 @@ function Client.load(options)
 	function Methods:GetParent()
 		return self.parent
 	end
+	function Methods:GetChildren()
+		return unpack(self.children or {})
+	end
+	function Methods:SetParent(parent)
+		self.parent = parent
+	end
+	function Methods:GetWidth()
+		return self.width or 100
+	end
+	function Methods:GetHeight()
+		return self.height or 20
+	end
+	function Methods:GetSize()
+		return self:GetWidth(), self:GetHeight()
+	end
+	function Methods:GetLeft()
+		return self.left or 0
+	end
+	function Methods:GetTop()
+		return self.top or self:GetHeight()
+	end
+	function Methods:GetRight()
+		return self:GetLeft() + self:GetWidth()
+	end
+	function Methods:GetBottom()
+		return self:GetTop() - self:GetHeight()
+	end
+	function Methods:GetCenter()
+		return self:GetLeft() + self:GetWidth() / 2, self:GetTop() - self:GetHeight() / 2
+	end
+	function Methods:GetNumPoints()
+		return self.points and #self.points or 0
+	end
+	function Methods:GetPoint(index)
+		local point = self.points and self.points[index or 1]
+		return point and unpack(point) or nil
+	end
+	function Methods:GetFrameLevel()
+		return self.level or 1
+	end
+	function Methods:SetFrameLevel(level)
+		self.level = level
+	end
+	function Methods:GetFrameStrata()
+		return self.strata or "MEDIUM"
+	end
+	function Methods:SetFrameStrata(strata)
+		self.strata = strata
+	end
+	function Methods:GetScale()
+		return self.scale or 1
+	end
+	function Methods:GetEffectiveScale()
+		return self.scale or 1
+	end
+	-- The click handler a side tab's template calls on a left mouse-up.
+	function Methods:SetCustomOnMouseUpHandler(fn)
+		self.mouseUp = fn
+	end
+	-- A dropdown's menu builder: the client calls it when the player opens the menu, with a root to fill.
+	function Methods:SetupMenu(fn)
+		self.menuSetup = fn
+	end
+	function Methods:GenerateMenu()
+		if self.menuSetup then
+			self.menuSetup(self, {
+				SetScrollMode = noop,
+				CreateRadio = noop,
+				CreateButton = noop,
+				CreateTitle = noop,
+			})
+		end
+	end
 	-- The report window's stock frame and edit box: its title, portrait, focus and selection. c.focus is the edit
 	-- box with the keyboard focus, and `highlighted` the text selected in it.
 	function Methods:SetTitle(title)
@@ -294,11 +483,21 @@ function Client.load(options)
 	end
 	function Methods:SetFocus()
 		c.focus = self
+		self.focused = true
+	end
+	function Methods:HasFocus()
+		return self.focused == true
+	end
+	function Methods:ClearFocus()
+		self.focused = false
 	end
 	function Methods:HighlightText()
 		self.highlighted = self.text
 	end
 	Methods.RegisterForDrag, Methods.StartMoving, Methods.StopMovingOrSizing = noop, noop, noop
+	function Methods:RegisterForClicks(...)
+		self.clicks = { ... }
+	end
 
 	-- What the tracker section's stock template gives it; the shared host lays it out with these.
 	local TrackerModule = {}
@@ -325,10 +524,16 @@ function Client.load(options)
 			for key, method in pairs(TrackerModule) do
 				frame[key] = method
 			end
+		elseif template == "LargeSideTabButtonTemplate" then
+			frame.Icon = NewFrame(nil, frame)
+		end
+		if type(template) == "string" and template:find("SecureActionButtonTemplate", 1, true) then
+			frame.protected = true
 		end
 		return frame
 	end
 	G.UIParent = NewFrame("UIParent")
+	G.UIParent:SetPoint("CENTER")
 	G.ObjectiveTrackerFrame = NewFrame("ObjectiveTrackerFrame")
 	G.MerchantFrame = NewFrame("MerchantFrame")
 	G.MerchantFrame.IsShown = function()
@@ -489,11 +694,23 @@ function Client.load(options)
 	G.UnitLevel = function()
 		return c.level
 	end
+	G.IsInGroup = function()
+		return c.group ~= nil
+	end
+	G.IsInRaid = function()
+		return c.raid == true
+	end
+	G.IsInGuild = function()
+		return c.guild == true
+	end
+	G.GetNumGroupMembers = function()
+		return c.groupMembers or 0
+	end
 	G.UnitPosition = function()
 		return c.player.x, c.player.y, 0, c.player.instance
 	end
 	G.InCombatLockdown = function()
-		return false
+		return c.combat == true
 	end
 	G.GetMoney = function()
 		return c.money
@@ -512,6 +729,9 @@ function Client.load(options)
 	G.C_Spell = {
 		GetSpellName = function(id)
 			return c.spells[id]
+		end,
+		GetSpellTexture = function(id)
+			return c.spellIcons and c.spellIcons[id] or nil
 		end,
 	}
 	G.C_SpellBook = {
@@ -640,6 +860,16 @@ function Client.load(options)
 	end
 
 	--[[ Auctionator ]]
+
+	-- The client's addon-message channel, which peer stats shares totals on.
+	G.C_ChatInfo = {
+		RegisterAddonMessagePrefix = function()
+			return true
+		end,
+		SendAddonMessage = function()
+			return 0
+		end,
+	}
 
 	local scanned = {}
 	-- Item:CreateFromItemID and ContinuableContainer are what Auctionator's name lookups need; the
@@ -817,6 +1047,7 @@ function Client.load(options)
 		RecipeRequirementType = { SpellFocus = 0, Totem = 1, Area = 2 },
 		TooltipDataType = { Item = 0, Unit = 2, Object = 4 },
 		UIMapType = { Continent = 2, Zone = 3, Dungeon = 4, Micro = 5 },
+		TrainerType = { Tradeskills = 1 },
 	}
 	G.CreateColor = function(r, g, b)
 		return {
@@ -828,12 +1059,89 @@ function Client.load(options)
 			end,
 		}
 	end
+	-- The client's own text colours, which Core/Model.lua and the row views read.
+	G.RED_FONT_COLOR = G.CreateColor(1, 0.1, 0.1)
+	G.DIFFICULT_DIFFICULTY_COLOR = G.CreateColor(1, 0.5, 0.25)
+	G.FAIR_DIFFICULTY_COLOR = G.CreateColor(1, 1, 0)
+	G.EASY_DIFFICULTY_COLOR = G.CreateColor(0.25, 0.75, 0.25)
+	G.TRIVIAL_DIFFICULTY_COLOR = G.CreateColor(0.5, 0.5, 0.5)
+	G.GRAY_FONT_COLOR = G.CreateColor(0.6, 0.6, 0.6)
+	G.HIGHLIGHT_FONT_COLOR = G.CreateColor(1, 1, 1)
+	G.NORMAL_FONT_COLOR = G.CreateColor(1, 0.82, 0)
+	-- The client's tooltip helpers; a spec that checks a tooltip's lines replaces the ones it reads.
+	G.GameTooltip_Hide = noop
+	G.GameTooltip_AddColoredLine = noop
+	G.GameTooltip_AddColoredDoubleLine = noop
+	G.GameTooltip_AddNormalLine = noop
+	G.GameTooltip_AddDisabledLine = noop
+	G.GameTooltip_SetTitle = noop
+	G.GameTooltip_AddBlankLineToTooltip = noop
+	-- A boolean that is secret in a restricted context; nothing the harness creates is secret.
+	G.issecretvalue = function()
+		return false
+	end
 	-- [tooltip data type] = the post-calls the addon added, for a spec to run against its own tooltip.
 	c.postCalls = {}
 	G.TooltipDataProcessor = {
 		AddTooltipPostCall = function(kind, call)
 			c.postCalls[kind] = c.postCalls[kind] or {}
 			table.insert(c.postCalls[kind], call)
+		end,
+	}
+	-- The client's callback registry, which the addon joins from its own code.
+	c.callbacks = {}
+	G.EventRegistry = {
+		RegisterCallback = function(_, event, callback, owner)
+			c.callbacks[event] = c.callbacks[event] or {}
+			table.insert(c.callbacks[event], { callback = callback, owner = owner })
+		end,
+		UnregisterCallback = noop,
+	}
+	-- A scroll box's initializer callback, called for each row as the client makes it.
+	G.ScrollUtil = {
+		AddInitializedFrameCallback = noop,
+	}
+	G.Menu = { ModifyMenu = noop }
+	-- The client's scroll-box list: a view the addon fills with row initialisers, and its data provider.
+	G.CreateScrollBoxListLinearView = function()
+		return {
+			SetElementExtent = noop,
+			SetElementExtentCalculator = noop,
+			SetElementInitializer = noop,
+			SetElementFactory = noop,
+		}
+	end
+	G.CreateDataProvider = function(rows)
+		return { rows = rows }
+	end
+	G.ScrollBoxConstants = { RetainScrollPosition = true }
+	G.ScrollUtil.InitScrollBoxListWithScrollBar = noop
+	G.GREEN_FONT_COLOR = G.CreateColor(0.1, 1, 0.1)
+	G.tContains = function(list, value)
+		for _, entry in ipairs(list) do
+			if entry == value then
+				return true
+			end
+		end
+		return false
+	end
+	G.C_Trainer = {
+		GetTrainerType = function()
+			return G.Enum.TrainerType.Tradeskills
+		end,
+	}
+	G.C_Texture = {
+		GetAtlasInfo = function()
+			return { width = 1, height = 1 }
+		end,
+	}
+	-- The client's skill lines, with SkillLineAttributes' documented fields when a line sets them.
+	G.C_SkillInfo = {
+		GetNumSkillLines = function()
+			return #c.skillLines
+		end,
+		GetSkillLineInfo = function(index)
+			return c.skillLines[index]
 		end,
 	}
 	c.locale = "enUS"

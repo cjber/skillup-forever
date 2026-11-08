@@ -45,7 +45,7 @@ local tooltip = setmetatable({
 	end,
 	AddLine = function(_, text)
 		lines[#lines + 1] = text
-		G["GameTooltipTextLeft" .. #lines] = G["GameTooltipTextLeft" .. #lines] or { line = #lines }
+		G["GameTooltipTextLeft" .. #lines] = rawget(G, "GameTooltipTextLeft" .. #lines) or { line = #lines }
 	end,
 	AddDoubleLine = function(self, left)
 		self:AddLine(left)

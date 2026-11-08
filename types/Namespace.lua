@@ -1,5 +1,14 @@
 ---@meta
 
+-- One /skillup command: its word and aliases, the arguments it accepts (nil accepts any), its handler and the line
+-- /su help prints (nil for a command the help leaves out).
+---@class SkillUpSlashCommand
+---@field word string
+---@field aliases? string[]
+---@field arguments? string[]
+---@field handler fun(command: string, argument: string)
+---@field help? string
+
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
 ---@field PeerStats ForeverPeerStatsNamespace
@@ -64,6 +73,7 @@
 ---@field AuditLines fun(): string[]? /su audit's lines with a profession open, nil with none
 ---@field ReportLines fun(): string[] SkillUp's own lines in /su report (Core/Report.lua)
 ---@field Report ForeverReportModule the report window (UI/Report.lua)
+---@field SlashCommands SkillUpSlashCommand[] the /skillup commands, in dispatch and help order
 ---@field SafeCall fun(label: string, fn: function, ...: any): boolean, ... run fn as pcall does, keeping a failure for /su report and passing it to the error handler (Core/SafeCall.lua)
 ---@field RecordError fun(label: string, message: any, stack?: string) keep an error caught some other way for the report
 ---@field CaughtErrors fun(): ForeverCaughtError[] this session's caught errors, oldest first, as copies

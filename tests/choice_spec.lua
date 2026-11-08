@@ -88,7 +88,9 @@ end
 c.AuctionatorScan()
 equal(ns.Price(ORE).copper, 0, "an unreadable sell price and no auction price leave it free, not guessed")
 equal(ns.Price(ORE).worth, nil, "with no value claimed")
-c.G.issecretvalue = nil
+c.G.issecretvalue = function()
+	return false
+end
 c.AuctionatorScan()
 
 -- Buying instead of gathering ignores the setting: the ore is then bought like any other reagent.

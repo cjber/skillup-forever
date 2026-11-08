@@ -815,41 +815,114 @@ end
 
 SLASH_SKILLUPFOREVER1 = "/skillup"
 SLASH_SKILLUPFOREVER2 = "/su"
+
+-- The /skillup commands, in dispatch order. The shared report commands come first, as they did before the table,
+-- so the table order is also the order /su help prints. `arguments`, when set, lists the only values the command
+-- accepts; nil accepts any argument. `help` is the line /su help prints, or nil for a command the help leaves out.
+---@return nil
+local function Help()
+	for _, entry in ipairs(ns.SlashCommands) do
+		if entry.help then
+			ns.Print(entry.help)
+		end
+	end
+end
+
+-- The shared report window's own dispatch, which owns the report, issue, bug and feature words.
+---@param command string
+---@param argument string
+local function ReportCommand(command, argument)
+	if ns.Report and ns.Report.Command then
+		ns.Report.Command(command, argument)
+	end
+end
+
+local BUG, FEATURE = "bug", "feature"
+local SHARE_ON, SHARE_OFF = "on", "off"
+---@type SkillUpSlashCommand[]
+ns.SlashCommands = {
+	{
+		word = "report",
+		handler = ReportCommand,
+		help = L["/su report - show a report to copy into a bug report"],
+	},
+	{
+		word = "issue",
+		aliases = { BUG, FEATURE },
+		handler = ReportCommand,
+		help = L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"],
+	},
+	{ word = "help", handler = Help },
+	{
+		word = "export",
+		handler = Export,
+		help = L["/su export - show the trainer requirements this character has seen, to paste into a report"],
+	},
+	{
+		word = "leaderboard",
+		aliases = { "stats" },
+		handler = function()
+			if ns.Stats then
+				ns.Stats.Open()
+			end
+		end,
+		help = L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"],
+	},
+	{
+		word = "share",
+		arguments = { SHARE_ON, SHARE_OFF },
+		handler = function(_, argument)
+			if ns.Stats and ns.db then
+				Settings.SetValue("SkillUpForever_statsShare", argument == SHARE_ON)
+			end
+		end,
+		help = L["/su share on|off - control sharing with guild and group"],
+	},
+	{
+		word = "shopping",
+		aliases = { "shop" },
+		handler = function()
+			ns.OpenShoppingList()
+		end,
+	},
+	{ word = "audit", handler = Audit },
+	{
+		word = "trainers",
+		handler = function()
+			for _, line in ipairs(ns.TrainerReport()) do
+				ns.Print(line)
+			end
+		end,
+	},
+	{ word = "skipped", handler = ListSkipped },
+	{
+		word = "unskip",
+		handler = function(_, argument)
+			Unskip(argument)
+		end,
+	},
+}
+
+---@param msg string
 local function Slash(msg)
 	local command, argument = strtrim(msg):lower():match("^(%S*)%s*(.-)$")
-	if ns.Report and ns.Report.Command and ns.Report.Command(command, argument) then
-		return
-	elseif command == "help" then
-		ns.Print(L["/su report - show a report to copy into a bug report"])
-		ns.Print(L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"])
-		ns.Print(L["/su export - show the trainer requirements this character has seen, to paste into a report"])
-		ns.Print(L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"])
-		ns.Print(L["/su share on|off - control sharing with guild and group"])
-	elseif command == "leaderboard" or command == "stats" then
-		if ns.Stats then
-			ns.Stats.Open()
+	for _, entry in ipairs(ns.SlashCommands) do
+		local matches = command == entry.word
+		for _, alias in ipairs(entry.aliases or {}) do
+			matches = matches or command == alias
 		end
-	elseif command == "share" and (argument == "on" or argument == "off") then
-		if ns.Stats and ns.db then
-			Settings.SetValue("SkillUpForever_statsShare", argument == "on")
+		if matches then
+			local accepted = entry.arguments == nil
+			for _, value in ipairs(entry.arguments or {}) do
+				accepted = accepted or value == argument
+			end
+			if accepted then
+				entry.handler(command, argument)
+				return
+			end
 		end
-	elseif command == "shopping" or command == "shop" then
-		ns.OpenShoppingList()
-	elseif command == "audit" then
-		Audit()
-	elseif command == "trainers" then
-		for _, line in ipairs(ns.TrainerReport()) do
-			ns.Print(line)
-		end
-	elseif command == "export" then
-		Export()
-	elseif command == "skipped" then
-		ListSkipped()
-	elseif command == "unskip" then
-		Unskip(argument)
-	else
-		ns.OpenSettings()
 	end
+	ns.OpenSettings()
 end
 SlashCmdList.SKILLUPFOREVER = function(msg)
 	-- Without Core/SafeCall.lua (a /reload after an update that added it) the command runs as it is.

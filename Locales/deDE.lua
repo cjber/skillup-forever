@@ -511,7 +511,10 @@ L["The game's Craft button is not ready for this recipe."] =
 	"Die Herstellen-Schaltfläche des Spiels ist für dieses Rezept nicht bereit." -- mt
 L["vendor, limited stock"] = "Händler, begrenzter Vorrat" -- mt
 L["Sells %d at a time"] = "Verkauft %d auf einmal" -- mt
-L["A route that leans on one cheap reagent now says so."] =
-	"Eine Route, die auf einem einzigen billigen Reagenz beruht, sagt das jetzt auch." -- mt
 L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
 	"Diese Route besteht überwiegend aus %s: %d Rezepte bleiben ausgelassen, bis ihre Reagenzien einen Preis haben." -- mt
+L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
+L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
+	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
+L["Self-supplied reagents can now be priced at market values."] =
+	"Self-supplied reagents can now be priced at market values." -- mt

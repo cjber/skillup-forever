@@ -505,7 +505,10 @@ L["Shift-click crafts all %d."] = "按住Shift點擊製造全部%d個。" -- mt
 L["The game's Craft button is not ready for this recipe."] = "遊戲內建的製造按鈕尚未對這份配方就緒。" -- mt
 L["vendor, limited stock"] = "商人，庫存有限" -- mt
 L["Sells %d at a time"] = "每次出售 %d 個" -- mt
-L["A route that leans on one cheap reagent now says so."] =
-	"這條依賴單一廉價材料的路线現在會提示這一點。" -- mt
 L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
 	"這條路線主要需要%s：在材料定價前有%d個配方被排除。" -- mt
+L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
+L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
+	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
+L["Self-supplied reagents can now be priced at market values."] =
+	"Self-supplied reagents can now be priced at market values." -- mt

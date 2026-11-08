@@ -36,9 +36,10 @@ end
 function ns.ReportLines()
 	local db = ns.db
 	local lines = {
-		("Settings: crafts count %s, gathered %s, reagent tooltips %s, sort %s"):format(
+		("Settings: crafts count %s, gathered %s, auction only %s, reagent tooltips %s, sort %s"):format(
 			db.craftValue,
 			db.valueGathered and "valued" or "free",
+			db.auctionOnly and "on" or "off",
 			db.reagentTooltip,
 			db.sortMode
 		),

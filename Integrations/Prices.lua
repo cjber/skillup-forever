@@ -115,8 +115,9 @@ function ns.CanGather(itemID)
 end
 
 -- What another of your professions gathers, or any reagent creatures drop, costs nothing; or, with *Value
--- gathered materials* on, what it would sell for. A material neither price is known for stays free. Nil for
--- one you cannot get yourself.
+-- gathered materials* on, what it would sell for. With *Price self-supplied reagents at auction values* on it is
+-- always a market price, and a material no market prices stays unpriced rather than free. Nil for one you cannot
+-- get yourself, or one the setting leaves without a market price.
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function Gathered(itemID)
@@ -124,12 +125,22 @@ local function Gathered(itemID)
 	if not source then
 		return nil
 	end
+	local marketOnly = ns.db.auctionOnly
 	local worth, from = nil, nil
-	if ns.db.valueGathered then
+	if ns.db.valueGathered or marketOnly then
 		worth, from = SaleValue(itemID)
 	end
+	if marketOnly and not (worth and worth > 0) then
+		-- No market price: leave it unknown, never a free material (issue #399).
+		return nil
+	end
 	---@type SkillUpPrice
-	local price = { copper = worth or 0, source = "gather", worth = from }
+	local price = {
+		copper = worth or 0,
+		-- Priced from the market, a self-supplied reagent is bought there in the shopping list too.
+		source = marketOnly and (from == "auction" and "auctionator" or "vendor") or "gather",
+		worth = from,
+	}
 	if source == "loot" then
 		price.loot = true
 	else

@@ -1225,7 +1225,7 @@ local function CreateButtons()
 			-- luacheck: push no max line length
 			GameTooltip_AddNormalLine(
 				GameTooltip,
-				ns.db.valueGathered
+				(ns.db.valueGathered or ns.db.auctionOnly)
 						and L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."]
 					or L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."]
 			)

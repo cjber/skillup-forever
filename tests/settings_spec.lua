@@ -167,6 +167,8 @@ local ns = {
 		showRowText = true,
 		wideRecipeList = true,
 		showUnlearned = false,
+		valueGathered = false,
+		auctionOnly = false,
 	},
 	RECIPE_TOOLTIP_OPTIONS = { { "window", "Beside" }, { "cursor", "Cursor" }, { "row", "Row" } },
 	ROW_COST_OPTIONS = { { "skillup", "Per skill-up" }, { "craft", "Per craft" } },
@@ -220,7 +222,7 @@ local groups = {
 		"checkbox:wideRecipeList checkbox:showUnlearned checkbox:showRowText checkbox:showSkill checkbox:showTooltip"
 			.. " checkbox:detailsBar slider:recipeTooltip checkbox:showCost slider:rowCost",
 	},
-	{ "Prices", "slider:craftValue checkbox:valueGathered" },
+	{ "Prices", "slider:craftValue checkbox:valueGathered checkbox:auctionOnly" },
 	{
 		"Route and trainer",
 		"checkbox:showTracker checkbox:trackerAttached checkbox:trackerLocked checkbox:showRouteTab"
@@ -269,6 +271,10 @@ assert(Row("wideRecipeList").initializer.tooltip:find("longest recipe name"), "t
 assert(Row("showUnlearned").initializer.setting.default == false, "unlearned recipes start off")
 assert(Row("showUnlearned").initializer.tooltip:find("greyed"), "the unlearned list explains how it draws")
 assert(Row("valueGathered").initializer.tooltip:find("vendor sell price if that is more"), "gathered value floor")
+assert(
+	Row("auctionOnly").initializer.tooltip:find("stays unpriced rather than free"),
+	"market-priced self-supplied reagents never fall back to free"
+)
 assert(
 	Row("detailsBar").initializer.tooltip:find("reagents"),
 	"the details bar can be turned off when it covers the reagents"

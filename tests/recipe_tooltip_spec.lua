@@ -197,6 +197,20 @@ c.SetSetting("recipeTooltip", "row")
 ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
 equal(owner[1] == row and owner[2], "ANCHOR_RIGHT", "or next to the recipe row")
 
+-- Issue #412: the recipe list sets the same recipe's tooltip again and again. The built lines, reagent
+-- rows included, are kept by recipe id, so a repeated set draws them instead of building them again.
+ns.Changed("recipes")
+local builds = 0
+local describe = ns.Describe
+ns.Describe = function(...)
+	builds = builds + 1
+	return describe(...)
+end
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(builds, 1, "the same recipe's tooltip is built once, however often it is set")
+ns.Describe = describe
+
 -- An unlearned recipe the addon added gets the same tooltip, with where it is learned as well: its row
 -- already carries the source, so the hover never rebuilds the unlearned list, the route or the prices.
 local function HasLine(text)

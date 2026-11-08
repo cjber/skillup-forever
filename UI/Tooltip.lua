@@ -233,139 +233,6 @@ function ns.PriceSourceText(price)
 	error("unknown price source: " .. tostring(price.source))
 end
 
--- One line per reagent with its price and source, then the craft and per-skill-up totals.
----@param tooltip GameTooltip
----@param recipeID integer
----@param d SkillUpDescription
-local function AddCost(tooltip, recipeID, d)
-	local reagents = ns.Reagents(recipeID)
-	if not reagents or #reagents == 0 then
-		return
-	end
-	GameTooltip_AddBlankLineToTooltip(tooltip)
-	for _, reagent in ipairs(reagents) do
-		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
-		local left = reagent.quantity > 1 and string.format("%s x%d", name, reagent.quantity) or name
-		local price = ns.Price(reagent.itemID)
-		-- The line and the Reagents total below must price a reagent the same way: the total counts what it
-		-- costs to obtain, cheaper to craft where a known recipe beats buying it, so the line does too (#360).
-		local each = ns.ObtainCost and ns.ObtainCost(reagent.itemID) or (price and price.copper)
-		local maker = each and price and each < price.copper and ns.SubCraft and ns.SubCraft(reagent.itemID)
-		if each then
-			local source = maker and L["crafted"] or (price and ns.PriceSourceText(price) or L["crafted"])
-			tooltip:AddDoubleLine(
-				left,
-				string.format("%s |cff808080(%s)|r", Money(each * reagent.quantity), source),
-				1,
-				1,
-				1,
-				1,
-				1,
-				1
-			)
-		else
-			tooltip:AddDoubleLine(left, L["no price"], 1, 1, 1, 0.5, 0.5, 0.5)
-		end
-	end
-	if not d.cost then
-		GameTooltip_AddDisabledLine(tooltip, ns.UnpricedHint())
-		return
-	end
-	tooltip:AddDoubleLine(L["Reagents"], Money(d.cost), 1, 0.82, 0, 1, 1, 1)
-	local net = d.net
-	if d.value and net then
-		local sells = d.value.quantity ~= 1 and string.format(L["Sells for x%g"], d.value.quantity) or L["Sells for"]
-		tooltip:AddDoubleLine(
-			sells,
-			string.format(
-				"%s |cff808080(%s)|r",
-				Money(d.value.copper),
-				d.value.source == "auction" and L["AH"] or L["vendor"]
-			),
-			1,
-			0.82,
-			0,
-			1,
-			1,
-			1
-		)
-		-- A loss carries the same red minus the per-skill-up line below uses, so the two rows read alike (#360).
-		tooltip:AddDoubleLine(
-			net < 0 and L["Profit per craft"] or L["Net per craft"],
-			ns.FormatSigned(math.abs(net), net < 0),
-			1,
-			0.82,
-			0,
-			1,
-			1,
-			1
-		)
-	end
-	local perSkillUp = d.perSkillUp
-	if perSkillUp then
-		local label = perSkillUp < 0 and L["Profit per skill-up"] or L["Per skill-up"]
-		tooltip:AddDoubleLine(label, ns.FormatSigned(math.abs(perSkillUp), perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
-	end
-end
-
----@param _ SkillUpNamespace
----@param row SkillUpRecipeRow
----@param data SkillUpRecipeNodeData
-function ns.ShowRecipeTooltip(_, row, data)
-	local info = data.recipeInfo
-	if not ns.db.showTooltip or not info then
-		return
-	end
-	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
-	local ctx = ns.SkillContext()
-	local d = ns.Describe(recipeInfo, ctx)
-	-- Where an unlearned recipe is learned: the added row already carries the bundle's source, and one the
-	-- client itself lists unlearned reads the same trainer and scroll tables, so a hover never walks the
-	-- profession's recipes or rebuilds the route.
-	---@type SkillUpLearnSource|SkillUpUnlearnedRecipe|nil
-	local learn = recipeInfo.skillUpUnlearned
-	if not learn and recipeInfo.learned == false and ctx then
-		learn = ns.LearnSource(ctx, recipeInfo.recipeID)
-	end
-
-	local tooltip = GameTooltip
-	local where = ns.db.recipeTooltip
-	if where == "cursor" then
-		tooltip:SetOwner(row, "ANCHOR_CURSOR")
-	elseif where == "row" then
-		tooltip:SetOwner(row, "ANCHOR_RIGHT")
-	else
-		-- Beside the window, past the side tabs on its right edge and level with the first: by the row, the
-		-- tooltip covered the reagents (#163).
-		tooltip:SetOwner(row, "ANCHOR_NONE")
-		tooltip:SetPoint("TOPLEFT", ProfessionsFrame.ProfessionsOverviewTab or ProfessionsFrame, "TOPRIGHT", 4, 0)
-	end
-	GameTooltip_SetTitle(tooltip, recipeInfo.name)
-	local t = d.thresholds
-	if t and ctx then
-		local reqColor = ctx.skill < t[1] and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
-		GameTooltip_AddColoredLine(tooltip, string.format(L["Skill range starts at %d"], t[1]), reqColor)
-		-- The title and the line above: SetOwner cleared the tooltip.
-		AddBar(tooltip, 2, t, ctx.skill)
-		if d.chance then
-			GameTooltip_AddColoredLine(
-				tooltip,
-				string.format(L["Skill-up chance: %d%%"], math.floor(d.chance * 100 + 0.5)),
-				ns.COLORS[d.color]
-			)
-		end
-	else
-		GameTooltip_AddDisabledLine(tooltip, L["No skill data for this recipe yet."])
-	end
-	if learn then
-		GameTooltip_AddDisabledLine(tooltip, string.format(L["Not learned · %s"], ns.LearnSourceText(learn)))
-	end
-	if ns.db.showCost then
-		AddCost(tooltip, recipeInfo.recipeID, d)
-	end
-	tooltip:Show()
-end
-
 local MAX_USES = 5
 local BAND_LABELS = { orange = L["orange"], yellow = L["yellow"], green = L["green"] }
 -- The threshold each band ends at.
@@ -414,6 +281,17 @@ local function DoubleLine(left, right, color)
 	return { kind = "double", text = left, right = right, r = r, g = g, b = b }
 end
 
+-- A double line whose right column is a raw colour, as the recipe rows' own palette gives it.
+---@param left string
+---@param right string
+---@param r number
+---@param g number
+---@param b number
+---@return SkillUpTooltipLine
+local function TintedLine(left, right, r, g, b)
+	return { kind = "double", text = left, right = right, r = r, g = g, b = b }
+end
+
 ---@param tooltip GameTooltip
 ---@param lines SkillUpTooltipLine[]
 local function Draw(tooltip, lines)
@@ -432,6 +310,161 @@ local function Draw(tooltip, lines)
 			error("unknown tooltip line: " .. tostring(line.kind))
 		end
 	end
+end
+
+-- One line per reagent with its price and source, then the craft and per-skill-up totals.
+---@param recipeID integer
+---@param d SkillUpDescription
+---@return SkillUpTooltipLine[]
+local function CostLines(recipeID, d)
+	local lines = {}
+	local reagents = ns.Reagents(recipeID)
+	if not reagents or #reagents == 0 then
+		return lines
+	end
+	lines[#lines + 1] = BlankLine()
+	for _, reagent in ipairs(reagents) do
+		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
+		local left = reagent.quantity > 1 and string.format("%s x%d", name, reagent.quantity) or name
+		local price = ns.Price(reagent.itemID)
+		-- The line and the Reagents total below must price a reagent the same way: the total counts what it
+		-- costs to obtain, cheaper to craft where a known recipe beats buying it, so the line does too (#360).
+		local each = ns.ObtainCost and ns.ObtainCost(reagent.itemID) or (price and price.copper)
+		local maker = each and price and each < price.copper and ns.SubCraft and ns.SubCraft(reagent.itemID)
+		if each then
+			local source = maker and L["crafted"] or (price and ns.PriceSourceText(price) or L["crafted"])
+			lines[#lines + 1] =
+				TintedLine(left, string.format("%s |cff808080(%s)|r", Money(each * reagent.quantity), source), 1, 1, 1)
+		else
+			lines[#lines + 1] = TintedLine(left, L["no price"], 0.5, 0.5, 0.5)
+		end
+	end
+	if not d.cost then
+		lines[#lines + 1] = DisabledLine(ns.UnpricedHint())
+		return lines
+	end
+	lines[#lines + 1] = TintedLine(L["Reagents"], Money(d.cost), 1, 0.82, 0)
+	local net = d.net
+	if d.value and net then
+		local sells = d.value.quantity ~= 1 and string.format(L["Sells for x%g"], d.value.quantity) or L["Sells for"]
+		lines[#lines + 1] = TintedLine(
+			sells,
+			string.format(
+				"%s |cff808080(%s)|r",
+				Money(d.value.copper),
+				d.value.source == "auction" and L["AH"] or L["vendor"]
+			),
+			1,
+			0.82,
+			0
+		)
+		-- A loss carries the same red minus the per-skill-up line below uses, so the two rows read alike (#360).
+		lines[#lines + 1] = TintedLine(
+			net < 0 and L["Profit per craft"] or L["Net per craft"],
+			ns.FormatSigned(math.abs(net), net < 0),
+			1,
+			0.82,
+			0
+		)
+	end
+	local perSkillUp = d.perSkillUp
+	if perSkillUp then
+		local label = perSkillUp < 0 and L["Profit per skill-up"] or L["Per skill-up"]
+		lines[#lines + 1] = TintedLine(label, ns.FormatSigned(math.abs(perSkillUp), perSkillUp < 0), 1, 0.82, 0)
+	end
+	return lines
+end
+
+-- The recipe tooltip's built lines, by recipe: the client sets the tooltip again and again while the pointer
+-- rests on a row, so a repeated set only draws them (#412). A change drops the cache with the item lines.
+---@class SkillUpRecipeLines
+---@field title string
+---@field above SkillUpTooltipLine[]
+---@field below SkillUpTooltipLine[]
+---@field thresholds number[]?
+---@field skill number?
+---@field learnText string?
+
+---@type table<integer, SkillUpRecipeLines>
+local recipeLines = {}
+
+---@param recipeInfo TradeSkillRecipeInfo|SkillUpRecipeInfo
+---@param ctx SkillUpContext?
+---@return SkillUpRecipeLines
+local function RecipeLines(recipeInfo, ctx)
+	local recipeID = recipeInfo.recipeID
+	-- Where an unlearned recipe is learned joins the cache key: the added row carries the bundle's source and a
+	-- recipe the client lists unlearned reads the trainer and scroll tables, so a hover never rebuilds the
+	-- profession's recipes, the route or the prices (cjber/skillup-forever#426).
+	---@type SkillUpLearnSource|SkillUpUnlearnedRecipe|nil
+	local learn = recipeInfo.skillUpUnlearned
+	if not learn and recipeInfo.learned == false and ctx then
+		learn = ns.LearnSource(ctx, recipeID)
+	end
+	local learnText = learn and ns.LearnSourceText(learn) or nil
+	local cached = recipeLines[recipeID]
+	if cached and cached.learnText == learnText then
+		return cached
+	end
+	local d = ns.Describe(recipeInfo, ctx)
+	local built = { title = recipeInfo.name or "", above = {}, below = {}, learnText = learnText }
+	local t = d.thresholds
+	if t and ctx then
+		local reqColor = ctx.skill < t[1] and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
+		built.above[1] = ColoredLine(string.format(L["Skill range starts at %d"], t[1]), reqColor)
+		built.thresholds, built.skill = t, ctx.skill
+		if d.chance then
+			built.below[1] = ColoredLine(
+				string.format(L["Skill-up chance: %d%%"], math.floor(d.chance * 100 + 0.5)),
+				ns.COLORS[d.color]
+			)
+		end
+	else
+		built.below[1] = DisabledLine(L["No skill data for this recipe yet."])
+	end
+	if learnText then
+		built.below[#built.below + 1] = DisabledLine(string.format(L["Not learned · %s"], learnText))
+	end
+	if ns.db.showCost then
+		for _, line in ipairs(CostLines(recipeID, d)) do
+			built.below[#built.below + 1] = line
+		end
+	end
+	recipeLines[recipeID] = built
+	return built
+end
+
+---@param _ SkillUpNamespace
+---@param row SkillUpRecipeRow
+---@param data SkillUpRecipeNodeData
+function ns.ShowRecipeTooltip(_, row, data)
+	local info = data.recipeInfo
+	if not ns.db.showTooltip or not info then
+		return
+	end
+	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
+	local built = RecipeLines(recipeInfo, ns.SkillContext())
+
+	local tooltip = GameTooltip
+	local where = ns.db.recipeTooltip
+	if where == "cursor" then
+		tooltip:SetOwner(row, "ANCHOR_CURSOR")
+	elseif where == "row" then
+		tooltip:SetOwner(row, "ANCHOR_RIGHT")
+	else
+		-- Beside the window, past the side tabs on its right edge and level with the first: by the row, the
+		-- tooltip covered the reagents (#163).
+		tooltip:SetOwner(row, "ANCHOR_NONE")
+		tooltip:SetPoint("TOPLEFT", ProfessionsFrame.ProfessionsOverviewTab or ProfessionsFrame, "TOPRIGHT", 4, 0)
+	end
+	GameTooltip_SetTitle(tooltip, built.title)
+	Draw(tooltip, built.above)
+	if built.thresholds and built.skill then
+		-- The title and the line above: SetOwner cleared the tooltip.
+		AddBar(tooltip, 2, built.thresholds, built.skill)
+	end
+	Draw(tooltip, built.below)
+	tooltip:Show()
 end
 
 -- "yellow until 115": the band the recipe is in now and where it ends.
@@ -550,7 +583,7 @@ local itemLines = {}
 local gatherLines = {}
 
 local function ClearTooltipLines()
-	itemLines, gatherLines, routeNeeds = {}, {}, nil
+	itemLines, gatherLines, recipeLines, routeNeeds = {}, {}, {}, nil
 end
 ns.WhenStale("tooltipCache", ClearTooltipLines)
 

@@ -107,6 +107,18 @@ function Model.Color(t, skill)
 	return "grey"
 end
 
+-- Working Overtime (Legacy talent 1225451): 4 percentage points per point spent, capped at 20 with all
+-- five points. The aura the Legacy panel applies carries the points spent.
+Model.WORKING_OVERTIME_PER_POINT = 0.04
+Model.WORKING_OVERTIME_POINTS_MAX = 5
+
+---@param points number?
+---@return number
+function Model.WorkingOvertimeBonus(points)
+	local spent = math.max(0, math.min(tonumber(points) or 0, Model.WORKING_OVERTIME_POINTS_MAX))
+	return spent * Model.WORKING_OVERTIME_PER_POINT
+end
+
 -- The bonus a Legacy talent gives every yellow and green chance, in percentage points. It is state
 -- rather than an argument so every route, plan and row that asks Chance sees the same talent; orange
 -- stays certain and grey stays impossible, since a grey recipe can give no skill-up to improve.

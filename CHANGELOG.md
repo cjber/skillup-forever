@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Tooltips stay cheap while the pointer rests on an item.** The client sets the same tooltip again and again while it is shown, and the addon worked out the item's uses, the tracked routes that need it and its gathering lines every time. Each answer is now kept by item, node and corpse until a recipe, skill, bag, plan or setting change drops it, so a repeated set only draws the lines it already worked out. Thanks to Setuaro for the report (cjber/skillup-forever#412, CurseForge 8665828).
+
 ## [1.0.38] - 2026-11-08
 
 - **The Forever addons settings page no longer writes the client's bare `Text` name.** Its check box came from a Blizzard template under an unnamed page, so the label landed on a global another addon or the game could read as its own. The page is named now (cjber/forever-core#208).

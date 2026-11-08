@@ -46,15 +46,19 @@ equal(iron[1].right, "orange until 150", "orange from there to 25 past it, at 14
 local copper = Show(OBJECT, { "Copper Vein" })
 equal(copper[1].right, "grey", "grey 100 past the requirement")
 c.professions[1].rank = 120
+c.Fire("SKILL_LINES_CHANGED")
 equal(Show(OBJECT, { "Iron Deposit" })[1].right, "Skill range starts at 125", "below it, where it starts")
 c.professions[1].rank = 160
+c.Fire("SKILL_LINES_CHANGED")
 equal(Show(OBJECT, { "Iron Deposit" })[1].right, "yellow until 175", "yellow from 25 past it")
 equal(#Show(OBJECT, { "Mailbox" }), 0, "an object that is no node gets nothing")
 
 -- Only for a profession you have, only in English, and only while the setting is on.
 c.professions[1].name, c.professions[1].id = "Tailoring", 197
+c.Fire("SKILL_LINES_CHANGED")
 equal(#Show(OBJECT, { "Iron Deposit" }), 0, "no Mining, no line")
 c.professions[1].name, c.professions[1].id = "Mining", 186
+c.Fire("SKILL_LINES_CHANGED")
 c.locale = "deDE"
 equal(#Show(OBJECT, { "Iron Deposit" }), 0, "another language matches nothing")
 c.locale = "enUS"

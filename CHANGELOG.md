@@ -12,7 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-08
+
 - **Gray Leather Boots plan from Leatherworking 35, as the trainer teaches them.** A Leatherworking trainer lists the pattern at 35, where the bundled guess said 75 (Classic's 100 moved as far as Forever moved its skill range). The same visit confirmed the bundled requirement of the eight other moved Leatherworking recipes that trainer teaches, so only this one changes (#124).
+
 ## [1.1.0] - 2026-11-08
 
 - **The tracker can have a background.** Right-click any section's title in the Forever tracker and pick *Tracker background*: Off, or the game's tooltip fill at 25, 50, 75 or 100%, so quest text stays readable over bright ground. The choice is shared by every Forever addon in the column (cjber/forever-core#246).

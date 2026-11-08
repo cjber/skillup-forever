@@ -266,6 +266,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"從成本中減去製造物品的售價。拍賣價需要Auctionator，已扣除5%手續費，且不一定能賣出。"
 L["Suggest my other Forever addons"] = "推薦我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s訓練師教授。"
+L["The Forever Leaderboards window and `/forever` come from the newest addon installed."] =
+	"Forever Leaderboards 視窗和 `/forever` 來自最新安裝的插件。" -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 插件全部免費，沒有任何付費才能使用的內容。如果它們對你有幫助，可以請我喝杯咖啡。" -- mt
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪裡學習此配方。"
@@ -511,7 +513,6 @@ L["This route is mostly %s: %d recipes are left out until their reagents are pri
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
-L["Tooltips stay cheap while the pointer rests on an item."] = "滑鼠指標停在物品上時，提示依然輕量。" -- mt
 
 -- Shared debug log (Forever Core's Core/Log.lua).
 L["Debug log is off."] = "偵錯記錄已關閉。"

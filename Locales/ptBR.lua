@@ -269,6 +269,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Subtrai do custo o valor de venda do item criado. Preços de leilão precisam do Auctionator, são após a taxa de 5% e podem não vender."
 L["Suggest my other Forever addons"] = "Sugerir meus outros AddOns Forever"
 L["Taught by %s trainers."] = "Ensinada por instrutores de %s."
+L["The Forever Leaderboards window and `/forever` come from the newest addon installed."] =
+	"A janela do Forever Leaderboards e `/forever` vêm do addon instalado mais recentemente." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Os addons Forever são gratuitos, sem nada bloqueado por pagamento. Se eles ajudarem, você pode me pagar um café." -- mt
 L["The place this recipe is taught isn't known yet."] = "Ainda não se sabe onde esta receita é ensinada."
@@ -521,8 +523,6 @@ L["This route is mostly %s: %d recipes are left out until their reagents are pri
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
-L["Tooltips stay cheap while the pointer rests on an item."] =
-	"As dicas continuam leves enquanto o ponteiro repousa sobre um item." -- mt
 
 -- Shared debug log (Forever Core's Core/Log.lua).
 L["Debug log is off."] = "O registro de depuração está desativado."

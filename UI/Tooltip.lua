@@ -464,28 +464,52 @@ local function Uses(itemID)
 	return uses
 end
 
+-- The tracked routes' items, by item: built once after a change, so a hover across many items matches its
+-- own instead of rebuilding every tracked route's material list each time.
+---@type table<integer, { entry: SkillUpTracked, item: SkillUpNeededItem }[]>?
+local routeNeeds
+---@return table<integer, { entry: SkillUpTracked, item: SkillUpNeededItem }[]>
+local function RouteNeedsIndex()
+	local index = routeNeeds
+	if index then
+		return index
+	end
+	index = {}
+	for _, entry in ipairs(ns.TrackedNeeds()) do
+		for _, item in ipairs(entry.items) do
+			local rows = index[item.itemID]
+			if not rows then
+				rows = {}
+				index[item.itemID] = rows
+			end
+			rows[#rows + 1] = { entry = entry, item = item }
+		end
+	end
+	routeNeeds = index
+	return index
+end
+
 -- "Route: 28/567 · Leatherworking to 150" for each tracked route that needs the item.
 ---@param itemID integer
 ---@return SkillUpTooltipLine[]
 local function RouteNeedsLines(itemID)
 	local lines = {}
-	for _, entry in ipairs(ns.TrackedNeeds()) do
-		for _, item in ipairs(entry.items) do
-			if item.itemID == itemID then
-				if #lines == 0 then
-					lines[#lines + 1] = BlankLine()
-				end
-				local have = ns.Have(itemID)
-				local text = string.format(
-					L["Route: %d/%d · %s to %d"],
-					math.min(have, item.need),
-					item.need,
-					entry.plan.profession.name,
-					entry.plan.target
-				)
-				lines[#lines + 1] = ColoredLine(text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
-			end
-		end
+	local rows = RouteNeedsIndex()[itemID]
+	if not rows then
+		return lines
+	end
+	lines[1] = BlankLine()
+	local have = ns.Have(itemID)
+	for _, row in ipairs(rows) do
+		local item = row.item
+		local text = string.format(
+			L["Route: %d/%d · %s to %d"],
+			math.min(have, item.need),
+			item.need,
+			row.entry.plan.profession.name,
+			row.entry.plan.target
+		)
+		lines[#lines + 1] = ColoredLine(text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
 	end
 	return lines
 end
@@ -515,7 +539,7 @@ local itemLines = {}
 local gatherLines = {}
 
 local function ClearTooltipLines()
-	itemLines, gatherLines = {}, {}
+	itemLines, gatherLines, routeNeeds = {}, {}, nil
 end
 ns.WhenStale("tooltipCache", ClearTooltipLines)
 

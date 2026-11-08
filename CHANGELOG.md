@@ -13,7 +13,13 @@ optional `### For addon authors` subsection after a version's player bullets.
 ## [Unreleased]
 
 - **The merchant's reagents now sit in the window's own Reagents tab.** The red button that floated above the title bar is gone: a merchant that sells something a tracked route still needs gets a third tab beside Merchant and Buyback, in the same tab art. It lists those reagents in the merchant's item cells with the cost of whole stacks, and *Buy all* with the total sits where the page row was, opening the same confirmation first. Merchant and Buyback work as before, and *Show the merchant Reagents tab* turns it off. Seen in game at Dalmond, Auberdine (#410).
+- **Moving across a bag of reagents does far less work per item.** Each new item hover rebuilt every tracked route's material list, so a bag or the character panel, with dozens of different items, paid that cost on every item while a handful of action-bar items paid it once. The tracked routes are now indexed once per change and a hover only looks up its own item. Thanks to 0xTrk, user_gxp60l4cnnhigc69 and Setuaro for the reports (cjber/skillup-forever#412, CurseForge 8667390).
+- **Controller players no longer trip the client's gamepad block when the Professions window opens.** The route and gear side tabs were frames carrying the side-tab template's mouse scripts, and the gamepad interface's navigation reads a frame's mouse scripts when it focuses a window. Reading ours there tainted the gamepad action bar, so the protected `SetPreferredGamepadInteractTarget()` was refused and blamed on SkillUp. The tabs are real buttons now, so that scan never reads a script this addon created. Thanks to Viper2042 for the report (cjber/skillup-forever#398, CurseForge 8664985).
+
+## [1.0.40] - 2026-11-08
+
 - **The Forever Leaderboards window and `/forever` come from the newest addon installed.** Whichever Forever addon loaded first used to keep its own copy of the window, even an older one, so recent fixes such as full Forever names and `/forever debug` reached you only by chance. The newest copy now takes over (cjber/forever-core#235).
+
 ## [1.0.39] - 2026-11-08
 
 - **Tooltips stay cheap while the pointer rests on an item.** The client sets the same tooltip again and again while it is shown, and the addon worked out the item's uses, the tracked routes that need it and its gathering lines every time. Each answer is now kept by item, node and corpse until a recipe, skill, bag, plan or setting change drops it, so a repeated set only draws the lines it already worked out. Thanks to Setuaro for the report (cjber/skillup-forever#412, CurseForge 8665828).

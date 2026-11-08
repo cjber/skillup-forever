@@ -276,8 +276,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"제작 아이템의 판매 가격을 비용에서 뺍니다. 경매 가격은 Auctionator가 필요하고, 5% 수수료를 뺀 값이며, 팔리지 않을 수도 있습니다."
 L["Suggest my other Forever addons"] = "제 다른 Forever 애드온 추천"
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
-L["A Leatherworking pattern now plans from the skill its trainer teaches it at."] =
-	"가죽세공 도안이 이제 전문기술 상인이 가르치는 숙련도부터 계획됩니다." -- mt
+L["Working Overtime now gives 4% per point, up to 20% at five."] =
+	"Working Overtime이 이제 포인트당 4%, 5포인트에 최대 20%를 줍니다." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 애드온은 무료이며 잠긴 기능이 없습니다. 도움이 되셨다면 커피 한 잔 사 주세요." -- mt
 L["The place this recipe is taught isn't known yet."] =

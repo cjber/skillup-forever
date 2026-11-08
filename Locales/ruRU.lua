@@ -287,8 +287,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Вычитает из стоимости цену продажи созданного предмета. Для цен аукциона нужен Auctionator, они указаны за вычетом 5% комиссии, и предмет может не продаться."
 L["Suggest my other Forever addons"] = "Предлагать другие мои модификации Forever"
 L["Taught by %s trainers."] = "Обучают учителя (%s)."
-L["A Leatherworking pattern now plans from the skill its trainer teaches it at."] =
-	"Выкройка кожевничества теперь планируется с того навыка, на котором её обучает учитель." -- mt
+L["Working Overtime now gives 4% per point, up to 20% at five."] =
+	"Working Overtime теперь даёт 4% за очко, до 20% при пяти." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Аддоны Forever бесплатны, и ничего в них не закрыто за оплатой. Если они вам помогают, можете угостить меня кофе." -- mt
 L["The place this recipe is taught isn't known yet."] =

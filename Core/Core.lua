@@ -87,7 +87,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["A Leatherworking pattern now plans from the skill its trainer teaches it at."]
+ns.WHATS_NEW = L["Working Overtime now gives 4% per point, up to 20% at five."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

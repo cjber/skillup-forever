@@ -12,6 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Controller players no longer trip the client's gamepad block when the Professions window opens.** The route and gear side tabs were frames carrying the side-tab template's mouse scripts, and the gamepad interface's navigation reads a frame's mouse scripts when it focuses a window. Reading ours there tainted the gamepad action bar, so the protected `SetPreferredGamepadInteractTarget()` was refused and blamed on SkillUp. The tabs are real buttons now, so that scan never reads a script this addon created. Thanks to Viper2042 for the report (cjber/skillup-forever#398, CurseForge 8664985).
 - **The Forever Leaderboards window and `/forever` come from the newest addon installed.** Whichever Forever addon loaded first used to keep its own copy of the window, even an older one, so recent fixes such as full Forever names and `/forever debug` reached you only by chance. The newest copy now takes over (cjber/forever-core#235).
 ## [1.0.39] - 2026-11-08
 

@@ -115,8 +115,9 @@ local function overlaps(a, b)
 	return al < br and bl < ar and ab < bt and bb < at
 end
 
-local function NewRegion(parent)
-	local region = { parent = parent, points = {}, scripts = {}, shown = true, enabled = true }
+local function NewRegion(parent, frameType)
+	local region =
+		{ parent = parent, frameType = frameType or "Frame", points = {}, scripts = {}, shown = true, enabled = true }
 	function region:SetPoint(...)
 		local args = { ... }
 		local point = args[1]
@@ -251,6 +252,15 @@ local function NewRegion(parent)
 	function region:SetScript(name, fn)
 		self.scripts[name] = fn
 	end
+	function region:GetScript(name)
+		return self.scripts[name]
+	end
+	function region:IsObjectType(kind)
+		return self.frameType == kind
+	end
+	function region:GetSize()
+		return self.width or 0, self.height or 0
+	end
 	function region:HookScript(name, fn)
 		local previous = self.scripts[name]
 		self.scripts[name] = previous and function(...)
@@ -263,13 +273,13 @@ local function NewRegion(parent)
 		self.events[event] = true
 	end
 	function region:CreateFontString()
-		local font = NewRegion(self)
+		local font = NewRegion(self, "FontString")
 		font.height = 12
 		created[#created + 1] = font
 		return font
 	end
 	function region:CreateTexture()
-		local texture = NewRegion(self)
+		local texture = NewRegion(self, "Texture")
 		created[#created + 1] = texture
 		return texture
 	end
@@ -341,11 +351,14 @@ titleBar:SetPoint("TOPLEFT", 0, 0)
 titleBar:SetPoint("TOPRIGHT", 0, 0)
 titleBar:SetHeight(21)
 
-local function CreateFrame(_, _, parent, template)
-	local region = NewRegion(parent)
+local function CreateFrame(frameType, _, parent, template)
+	local region = NewRegion(parent, frameType)
 	region.template = template
 	if template == "LargeSideTabButtonTemplate" then
-		region.Icon = NewRegion(region)
+		region.Icon = NewRegion(region, "Texture")
+		-- The template's own XML gives it OnMouseDown and OnMouseUp scripts, as the client's does.
+		region.scripts.OnMouseDown = noop
+		region.scripts.OnMouseUp = noop
 		tabs[#tabs + 1] = region
 	elseif template == "InsetFrameTemplate" then
 		insets[#insets + 1] = region
@@ -1128,5 +1141,29 @@ Flush()
 equal(ProfessionsFrame.CraftingPage:IsShown(), true, "the deferred pass returns the window to the crafting page")
 equal(ProfessionsFrame:IsShown(), false, "while the window stays closed")
 equal(routeTab.checked, false, "and unchecks the route tab")
+
+-- #398: under the gamepad interface, opening the Professions window runs SmartNavigation's panel scan
+-- (Blizzard_GamepadSmartNavigation, FindButtons and SmartNavigation_CanFocusFrame at Forever 1.60.1). For a
+-- frame that is not a Button or an EditBox it calls GetScript("OnMouseUp") and GetScript("OnMouseDown") to
+-- tell a button-like frame from a plain one. That read is inside the gamepad's own call, so a script on a
+-- frame this addon made taints the call: the action bar's protected SetPreferredGamepadInteractTarget is
+-- then refused and blamed on us. Our side tabs are the only button-like frames here, and both must be real
+-- Buttons so the scan never reads their scripts.
+local scriptReads = {}
+local function ScanForScriptReads(frame)
+	local isButton = frame:IsObjectType("Button") or frame:IsObjectType("EditBox")
+	if not isButton then
+		if frame:GetScript("OnMouseUp") ~= nil or frame:GetScript("OnMouseDown") ~= nil then
+			scriptReads[#scriptReads + 1] = frame
+		end
+	end
+	for _, child in ipairs({ frame:GetChildren() }) do
+		ScanForScriptReads(child)
+	end
+end
+ScanForScriptReads(ProfessionsFrame)
+equal(#scriptReads, 0, "the gamepad scan reads no script from a frame SkillUp made")
+equal(routeTab:IsObjectType("Button"), true, "the route side tab is a Button, so the scan skips its scripts")
+equal(gearTab:IsObjectType("Button"), true, "and the gear side tab is one too")
 
 Client.report("route_layout_spec")

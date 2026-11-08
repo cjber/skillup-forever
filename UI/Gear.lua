@@ -789,7 +789,12 @@ local function CreatePage()
 end
 
 local function CreateTab()
-	tab = CreateFrame("Frame", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
+	-- A real Button, not a Frame with the same art: under the gamepad interface SmartNavigation's panel scan
+	-- calls GetScript("OnMouseUp") and GetScript("OnMouseDown") on every frame that is not a Button or an
+	-- EditBox, and that read of our frame's template scripts runs in the gamepad's own call. The protected
+	-- SetPreferredGamepadInteractTarget it later calls is then refused and blamed on us (#398). The client
+	-- itself inherits this art into Buttons (Blizzard_CollectionsTabs.xml), so the tab looks and clicks the same.
+	tab = CreateFrame("Button", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
 	-- art-ok: a square icon in the square LargeSideTabButtonTemplate sizes for it
 	tab.Icon:SetTexture("Interface\\Icons\\INV_Chest_Chain_05")
 	tab:SetFillToInterior(true)

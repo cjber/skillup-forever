@@ -276,8 +276,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"제작 아이템의 판매 가격을 비용에서 뺍니다. 경매 가격은 Auctionator가 필요하고, 5% 수수료를 뺀 값이며, 팔리지 않을 수도 있습니다."
 L["Suggest my other Forever addons"] = "제 다른 Forever 애드온 추천"
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
-L["The Forever Leaderboards window and `/forever` come from the newest addon installed."] =
-	"Forever Leaderboards 창과 `/forever`는 가장 최근에 설치한 애드온에서 가져옵니다." -- mt
+L["Recipes you have not learned now show the same tooltip as the ones you know."] =
+	"배우지 않은 제조법도 이제 아는 제조법과 같은 툴팁을 보여 줍니다." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 애드온은 무료이며 잠긴 기능이 없습니다. 도움이 되셨다면 커피 한 잔 사 주세요." -- mt
 L["The place this recipe is taught isn't known yet."] =

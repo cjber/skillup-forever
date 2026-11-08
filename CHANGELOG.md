@@ -12,6 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-08
+
+- **The tracker can have a background.** Right-click any section's title in the Forever tracker and pick *Tracker background*: Off, or the game's tooltip fill at 25, 50, 75 or 100%, so quest text stays readable over bright ground. The choice is shared by every Forever addon in the column (cjber/forever-core#246).
 - **Recipes you have not learned now show the same tooltip as the ones you know.** Hovering one under the Unlearned divider lists its reagents with counts, prices one craft from your own price sources, draws the skill-up colours and chance, and says whether a trainer or a recipe item teaches it and at what skill. The rows still take no click, so they are never selected or crafted. Thanks to prokn4h for the request (cjber/skillup-forever#420, CurseForge 8658050).
 - **The merchant's reagents now sit in the window's own Reagents tab.** The red button that floated above the title bar is gone: a merchant that sells something a tracked route still needs gets a third tab beside Merchant and Buyback, in the same tab art. It lists those reagents in the merchant's item cells with the cost of whole stacks, and *Buy all* with the total sits where the page row was, opening the same confirmation first. Merchant and Buyback work as before, and *Show the merchant Reagents tab* turns it off. Seen in game at Dalmond, Auberdine (#410).
 - **Moving across a bag of reagents does far less work per item.** Each new item hover rebuilt every tracked route's material list, so a bag or the character panel, with dozens of different items, paid that cost on every item while a handful of action-bar items paid it once. The tracked routes are now indexed once per change and a hover only looks up its own item. Thanks to 0xTrk, user_gxp60l4cnnhigc69 and Setuaro for the reports (cjber/skillup-forever#412, CurseForge 8667390).

@@ -277,8 +277,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Soustrait de son coût ce que l'objet fabriqué rapporte à la vente. Les prix aux enchères nécessitent Auctionator, s'entendent après la commission de 5 % et ne garantissent pas la vente." -- mt
 L["Suggest my other Forever addons"] = "Suggérer mes autres addons Forever" -- mt
 L["Taught by %s trainers."] = "Enseignée par les maîtres de métier (%s)." -- mt
-L["The Forever Leaderboards window and `/forever` come from the newest addon installed."] =
-	"La fenêtre Forever Leaderboards et `/forever` viennent de l'addon installé le plus récemment." -- mt
+L["Recipes you have not learned now show the same tooltip as the ones you know."] =
+	"Les recettes que vous n'avez pas apprises affichent maintenant la même infobulle que celles que vous connaissez." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Les addons Forever sont gratuits et rien n'est réservé aux donateurs. S'ils vous aident, vous pouvez m'offrir un café." -- mt
 L["The place this recipe is taught isn't known yet."] = "On ne sait pas encore où cette recette est enseignée." -- mt

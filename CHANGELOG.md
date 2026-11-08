@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The Forever addons settings page no longer writes the client's bare `Text` name.** Its check box came from a Blizzard template under an unnamed page, so the label landed on a global another addon or the game could read as its own. The page is named now (cjber/forever-core#208).
+
 - **Closing the Professions window on the route or gear page no longer shows a Blizzard page from inside the game's own hide.** The window went back to its crafting page from the close itself, which runs in the client's secure panel path, the same kind of mistake 1.0.35 fixed for opening it. That page work now runs on the next frame. This may be behind a controller player's blocked SetPreferredGamepadInteractTarget report (cjber/skillup-forever#398). Thanks to Viper2042 for the report.
 
 - **The levelling route tab stays beside the Professions window with All The Things loaded.** All The Things keeps the window's side tab column in a frame of its own and puts its own tab in the next free slot inside it, and the addon took that frame for the lowest tab, so the route tab slid down under the window and looked attached to nothing. It now sits under the tab already in the column, beside the window, and opens the route inside it. Thanks to TechnoHunter for reporting it (cjber/skillup-forever#402).

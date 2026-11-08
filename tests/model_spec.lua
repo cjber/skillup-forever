@@ -153,6 +153,12 @@ equal(Model.CoveredCrafts(cloak, 5, 5), 0, "no points need no crafts")
 equal(Model.CostPerPoint(10, cloak, 20), 10, "a certain point costs one craft")
 equal(Model.CostPerPoint(10, cloak, 55), 40, "a half chance point carries its risk")
 equal(Model.CostPerPoint(10, cloak, 70), nil, "a grey point cannot be bought")
+equal(Model.StepCost(10, nil, 5), 50, "a known net prices every craft without a reagent cost")
+equal(Model.StepCost(-10, nil, 5), 0, "a profit never lowers a step's cost")
+equal(Model.StepCost(10, 4, 5), 26, "the first craft costs its net, the rest their reagents")
+equal(Model.StepCost(10, 4, 5, 1), 31, "and every craft may add its time")
+equal(Model.StepCost(nil, 4, 5), nil, "an unpriced recipe has no step cost")
+equal(Model.StepCost(10, 4, 0), 0, "no crafts cost nothing")
 equal(Model.RoundMoney(80.4), 80, "copper stays copper")
 equal(Model.RoundMoney(0), 0, "free recipes stay free")
 equal(Model.RoundMoney(0.2), 1, "never rounds to nothing")
@@ -183,7 +189,7 @@ equal(route.segments[1].toSkill, 3, "yellow recipe used while cheap")
 equal(route.segments[2].recipeID, 20, "switch when expected cost rises")
 equal(route.segments[2].fromSkill, 3, "consecutive segments meet")
 equal(route.segments[2].toSkill, 5, "last segment reaches target")
-near(route.expectedCost, 50, "route sums net costs")
+near(route.expectedCost, 450, "route sums net costs and each craft's time")
 equal(route.reachedSkill, 5, "route reaches target")
 equal(route.stopReason, nil, "successful route has no stop reason")
 equal(route.excluded.unpriced, 1, "unpriced counted once across all skills")
@@ -198,7 +204,7 @@ for _, candidates in ipairs({
 	equal(tied.segments[1].recipeID, 10, "zero-cost tie breaks by recipe ID")
 	equal(#tied.segments, 1, "same recipe coalesces")
 	equal(tied.segments[1].crafts, 2, "certain crafts stay integral")
-	equal(tied.expectedCost, 0, "zero-cost route remains eligible")
+	equal(tied.expectedCost, 200, "zero-cost route still charges its crafts' time")
 end
 local fractional = Model.PlanRoute({
 	skill = 2,
@@ -206,14 +212,47 @@ local fractional = Model.PlanRoute({
 	recipes = { candidate(10, { 1, 1, 3, 5 }, 3) },
 })
 equal(fractional.segments[1].crafts, 5, "a two point step with a falling chance covers in five crafts")
-near(fractional.expectedCost, 15, "cost uses the covered crafts")
+near(fractional.expectedCost, 515, "cost uses the covered crafts and their time")
 local profitable = Model.PlanRoute({
 	skill = 3,
 	target = 4,
 	recipes = { candidate(20, flat, -10), candidate(10, { 1, 1, 3, 5 }, -6) },
 })
 equal(profitable.segments[1].recipeID, 20, "a profit never rewards a lower chance")
-near(profitable.expectedCost, -10, "negative expected cost is retained")
+near(profitable.expectedCost, 100, "a profit never lowers the route's cost")
+-- #400: a profitable recipe's route total cannot fall as it adds crafts, so training that replaces the long
+-- green run still shows a saving and is recommended.
+local leggings = { recipeID = 1, thresholds = { 105, 120, 135, 150 }, netCost = -277, reagentCost = 300 }
+local breastplate = {
+	recipeID = 2,
+	thresholds = { 105, 135, 150, 165 },
+	netCost = 1500,
+	reagentCost = 1500,
+	fee = 500,
+}
+local profitableTraining = Model.PlanWithTraining(
+	{ skill = 105, target = 150, recipes = { leggings } },
+	{ breastplate }
+)
+equal(
+	profitableTraining.training[1] and profitableTraining.training[1].recipeID,
+	2,
+	"a profitable recipe's run to grey no longer hides the trained recipe"
+)
+local profitableCrafts = 0
+for _, segment in ipairs(profitableTraining.segments) do
+	profitableCrafts = profitableCrafts + segment.crafts
+end
+equal(profitableCrafts < 183, true, "the route is shorter than the profitable run to grey")
+equal(profitableTraining.expectedCost >= 0, true, "a profitable route never earns money")
+-- #400: a recipe whose reagents are free still pays for the crafts a falling chance needs, so a
+-- 1-in-30 stretch costs its time rather than nothing.
+local freeTime = Model.PlanRoute({
+	skill = 1,
+	target = 3,
+	recipes = { { recipeID = 1, thresholds = { 1, 1, 3, 5 }, netCost = 0, reagentCost = 0 } },
+})
+equal(freeTime.expectedCost > 0, true, "a free recipe's falling chance costs its time")
 -- A free recipe is free for the craft that earns each point, but the extra crafts a falling chance needs
 -- are priced at its reagents, so it cannot hold the route into grey.
 local freeNearGrey = Model.PlanRoute({
@@ -249,7 +288,7 @@ local partial = Model.PlanRoute({
 equal(partial.reachedSkill, 3, "unreachable gap stops at first missing point")
 equal(partial.stopReason, "no_recipe", "partial route reports no recipe")
 equal(partial.segments[1].toSkill, 3, "partial route retains completed segment")
-near(partial.expectedCost, 50, "partial route retains covered cost")
+near(partial.expectedCost, 550, "partial route retains covered cost and time")
 equal(partial.excluded.unpriced, 1, "partial route retains exclusions")
 for _, target in ipairs({ 1, 0 }) do
 	local complete = Model.PlanRoute({ skill = 1, target = target, recipes = {} })

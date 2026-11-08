@@ -149,9 +149,34 @@ function Model.CostPerSkillUp(cost, chance)
 	return cost / chance
 end
 
+-- What a step of `crafts` costs: the craft that earns its first point at the recipe's net, never a
+-- profit, and every craft after it at its reagents, because it is made only to fish for a skill-up.
+-- Each craft also costs its time, so a free recipe's long run to grey is not free (#400).
+---@param netCost number?
+---@param reagentCost number?
+---@param crafts number
+---@param timeCost number?
+---@return number?
+function Model.StepCost(netCost, reagentCost, crafts, timeCost)
+	if not netCost then
+		return nil
+	end
+	if crafts <= 0 then
+		return 0
+	end
+	local time = timeCost or 0
+	local first = math.max(netCost, 0) + time
+	local extra = (reagentCost or math.max(netCost, 0)) + time
+	return first + extra * (crafts - 1)
+end
+
 -- The chance a run of crafts has to reach its skill goal, so a route is planned to cover an
 -- unlucky run rather than the average one.
 Model.CONFIDENCE = 0.9
+
+-- What a craft's time is worth, in copper. A craft takes a few seconds, and without a price on that
+-- a free recipe's last point before grey, which can take dozens of crafts, would still look free (#400).
+Model.CRAFT_TIME_COST = 100
 
 -- The crafts that reach `to` from `from` with Model.CONFIDENCE certainty: the fewest crafts whose
 -- odds of every needed skill point are at least that, worked out point by point because the
@@ -254,7 +279,7 @@ end
 
 -- A recipe's place in a route's order at a skill: what a point there costs, nil when a craft there gains none,
 -- and the chance that breaks a tie. The craft that earns the point costs its net, and each extra craft a
--- falling chance needs costs its reagents, so a near-grey recipe cannot rank as free into grey.
+-- falling chance needs costs its reagents and its time, so a near-grey recipe cannot rank as free into grey.
 ---@param recipe SkillUpCandidate
 ---@param skill number
 ---@return number?
@@ -265,13 +290,9 @@ local function Rank(recipe, skill)
 	if not chance or chance <= 0 then
 		return nil, chance
 	end
-	local net = math.max(recipe.netCost, 0)
-	-- Without a reagent cost only the net is known, so the old per-craft price carries the falling chance.
-	if not recipe.reagentCost then
-		return Model.CostPerPoint(net, thresholds, skill, ups), chance
-	end
 	local covered = Model.CoveredCrafts(thresholds, skill, skill + ups, ups)
-	return (net + recipe.reagentCost * math.max(covered - 1, 0)) / ups, chance
+	local cost = Model.StepCost(recipe.netCost, recipe.reagentCost, covered, Model.CRAFT_TIME_COST)
+	return (cost or 0) / ups, chance
 end
 
 -- Among recipes that can gain skill, the most recent pin wins; otherwise a cheaper point, then a better
@@ -312,7 +333,7 @@ end
 ---@return SkillUpPlanner
 local function Planner(snapshot)
 	local from, target = snapshot.skill, snapshot.target
-	local priced, thresholds, costOf = {}, {}, {}
+	local priced, thresholds, costOf, reagentOf = {}, {}, {}, {}
 	local excluded = { unpriced = 0, recipes = {} }
 	-- [recipe][skill]: its rank there, the key false where it gains nothing.
 	local keys, chances = {}, {}
@@ -392,6 +413,7 @@ local function Planner(snapshot)
 		priced[#priced + 1] = recipe
 		thresholds[recipe.recipeID] = recipe.thresholds
 		costOf[recipe.recipeID] = recipe.netCost
+		reagentOf[recipe.recipeID] = recipe.reagentCost
 		for skill, best in pairs(bests) do
 			local key, chance = RankAt(recipe, skill)
 			if Beats(recipe, key, chance, best, bestKeys[skill], bestChances[skill]) then
@@ -442,12 +464,13 @@ local function Planner(snapshot)
 		-- recipe in the list with its ID.
 		for _, segment in ipairs(route.segments) do
 			local recipeID = segment.recipeID
-			local t, cost = thresholds[recipeID], costOf[recipeID]
+			local t, cost, reagentCost = thresholds[recipeID], costOf[recipeID], reagentOf[recipeID]
 			if extra and extra.recipeID == recipeID then
-				t, cost = extra.thresholds, extra.netCost
+				t, cost, reagentCost = extra.thresholds, extra.netCost, extra.reagentCost
 			end
 			segment.crafts = Covered(t, segment.fromSkill, segment.toSkill, segment.skillUps)
-			route.expectedCost = route.expectedCost + cost * segment.crafts
+			route.expectedCost = route.expectedCost
+				+ (Model.StepCost(cost, reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
 		end
 		return route, picked
 	end

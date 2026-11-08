@@ -1,9 +1,9 @@
 -- Run from the repository root: luajit tests/planner_spec.lua
 -- A training search keeps what one re-plan works out for the next (the planner in Core/Model.lua). It must plan
--- exactly what re-planning every candidate from scratch planned. That planner, as v0.18.0 shipped it, is kept
--- below as the reference, and both run on seeded random snapshots and on a character half-way through five
--- professions with every reagent priced. Equal means equal: the same segments, crafts, costs and training,
--- every number to the last bit.
+-- exactly what re-planning every candidate from scratch planned. That full replan is kept below as the
+-- reference, with the same cost rule (net first, then reagents and time), and both run on seeded random
+-- snapshots and on a character half-way through five professions with every reagent priced. Equal means equal:
+-- the same segments, crafts, costs and training, every number to the last bit.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
@@ -59,7 +59,7 @@ function Reference.PlanRoute(snapshot)
 		reachedSkill = snapshot.skill,
 		excluded = { unpriced = 0, recipes = {} },
 	}
-	local priced, thresholds, costOf = {}, {}, {}
+	local priced, thresholds, costOf, reagentOf = {}, {}, {}, {}
 	for _, recipe in ipairs(snapshot.recipes) do
 		if recipe.netCost == nil then
 			if recipe.thresholds[4] > snapshot.skill then
@@ -70,6 +70,7 @@ function Reference.PlanRoute(snapshot)
 			priced[#priced + 1] = recipe
 			thresholds[recipe.recipeID] = recipe.thresholds
 			costOf[recipe.recipeID] = recipe.netCost
+			reagentOf[recipe.recipeID] = recipe.reagentCost
 		end
 	end
 	while route.reachedSkill < snapshot.target do
@@ -80,13 +81,8 @@ function Reference.PlanRoute(snapshot)
 			local ups = math.max(recipe.skillUps or 1, 1)
 			local key
 			if chance and chance > 0 then
-				local net = math.max(recipe.netCost, 0)
-				if recipe.reagentCost then
-					local covered = Reference.CoveredCrafts(recipe.thresholds, skill, skill + ups, ups)
-					key = (net + recipe.reagentCost * math.max(covered - 1, 0)) / ups
-				else
-					key = Reference.CostPerPoint(net, recipe.thresholds, skill, ups)
-				end
+				local covered = Reference.CoveredCrafts(recipe.thresholds, skill, skill + ups, ups)
+				key = (Model.StepCost(recipe.netCost, recipe.reagentCost, covered, Model.CRAFT_TIME_COST) or 0) / ups
 			end
 			if
 				key
@@ -120,7 +116,15 @@ function Reference.PlanRoute(snapshot)
 	for _, segment in ipairs(route.segments) do
 		segment.crafts =
 			Reference.CoveredCrafts(thresholds[segment.recipeID], segment.fromSkill, segment.toSkill, segment.skillUps)
-		route.expectedCost = route.expectedCost + costOf[segment.recipeID] * segment.crafts
+		route.expectedCost = route.expectedCost
+			+ (
+				Model.StepCost(
+					costOf[segment.recipeID],
+					reagentOf[segment.recipeID],
+					segment.crafts,
+					Model.CRAFT_TIME_COST
+				) or 0
+			)
 	end
 	return route
 end
@@ -249,6 +253,14 @@ local function NetCost()
 	return Random(1, 8000) / 4
 end
 
+-- A known reagent cost, sometimes free, so both the net and the reagents carry a step's cost.
+local function ReagentCost()
+	if Random(1, 4) == 1 then
+		return nil
+	end
+	return Random(0, 8000) / 4
+end
+
 -- Recipes drawn from a small pool, so a list now and then holds one twice, or a service one the list has. A
 -- recipe keeps its thresholds wherever it appears: its crafts are counted from the last copy in the list, and
 -- the planner (old and new) never stops counting points another copy's thresholds call grey.
@@ -268,6 +280,7 @@ local function Candidate(target, fee)
 		recipeID = recipeID,
 		thresholds = recipe.thresholds,
 		netCost = NetCost(),
+		reagentCost = ReagentCost(),
 		skillUps = skillUps and recipe.thresholds[4] - skillUps >= target - 1 and skillUps or nil,
 		fee = fee and Random(0, 20) * 50 or nil,
 	}

@@ -240,6 +240,17 @@ local function RecipeCosts(recipeID)
 	return net, nil, net
 end
 
+-- What a step's crafts cost, by the same rule the planner uses: its first craft at the recipe's net, the
+-- rest at its reagents, so a long run to grey never lowers the total (#400). Time stays in the planner's
+-- own cost: the route page's money is what the player pays.
+---@param recipeID integer
+---@param crafts number
+---@return number
+function ns.StepCost(recipeID, crafts)
+	local reagentCost, _, netCost = RecipeCosts(recipeID)
+	return ns.Model.StepCost(netCost, reagentCost, crafts) or 0
+end
+
 -- What the planner works from: the recipes this character knows, for any of its professions, from
 -- the bundled recipe data plus the learned record, so the profession needn't be open. `known` adds
 -- recipes the caller knows are learned. Skills here are effective (base + bonus), as the
@@ -624,7 +635,7 @@ local function Finish(profession, target, route)
 	-- What the steps ask for, after any rank split them: the crafts and their cost.
 	local crafting = 0
 	for _, craft in ipairs(crafts) do
-		crafting = crafting + (ns.NetCost(craft.recipeID) or 0) * craft.crafts
+		crafting = crafting + ns.StepCost(craft.recipeID, craft.crafts)
 	end
 	---@type SkillUpPlan
 	local plan = {

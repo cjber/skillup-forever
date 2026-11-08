@@ -361,6 +361,9 @@ local function SideTab(left, top)
 	frame.GetBottom = function(self)
 		return self.top - self.height
 	end
+	frame.GetHeight = function(self)
+		return self.height
+	end
 	frame.SetPoint = function(self, point, relativeTo, relativePoint, x, y)
 		self.point = { point, relativeTo, relativePoint, x, y }
 		self.left = relativeTo:GetLeft() + (x or 0)

@@ -185,7 +185,7 @@ local function CraftTooltip(tooltip, profession, craft)
 	AddToolLines(tooltip, recipeID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	AddReagentLines(tooltip, recipeID, craft.crafts)
-	AddLine(tooltip, L["Cost"], Money(ns.NetCost(recipeID) * craft.crafts))
+	AddLine(tooltip, L["Cost"], Money(ns.StepCost(recipeID, craft.crafts)))
 	if ns.IsLearned(recipeID) and profession.skillLine == ns.OpenSkillLine() then
 		GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
 	end
@@ -567,7 +567,7 @@ local function RenderRoute(list, plan)
 				menu = RecipeMenu(training.recipeID),
 			})
 		elseif craft then
-			local money = Money(ns.NetCost(craft.recipeID) * craft.crafts)
+			local money = Money(ns.StepCost(craft.recipeID, craft.crafts))
 			list:Add({
 				icon = RecipeIcon(craft.recipeID),
 				text = RecipeName(craft.recipeID),
@@ -1358,6 +1358,18 @@ local function HideNativePagesLater()
 	end)
 end
 
+-- The client runs the window's OnHide inside a secure panel call as well, where showing a native page is the
+-- same mistake as hiding one there (#398). Return the window to its crafting page once the call has ended.
+local function ShowCraftingPageLater()
+	local token = pageToken
+	C_Timer.After(0, function()
+		if token ~= pageToken or pageWanted or ProfessionsFrame:IsShown() then
+			return
+		end
+		ProfessionsFrame.CraftingPage:Show()
+	end)
+end
+
 local function SelectPage()
 	ns.HideGear()
 	local professions = ns.RouteProfessions()
@@ -1435,30 +1447,64 @@ local function HangsOff(frame, ours, seen)
 	return false
 end
 
--- The lowest frame already anchored flush with the tab column, not just Blizzard's next slot: All The Things
+-- A side tab is no taller than the tab the column starts with. A frame that spans the column is the frame the
+-- tabs hang in, not a tab: All The Things on Forever reparents Blizzard's tabs into one such frame on the
+-- window's right edge and anchors its own tab in the next free slot inside it, so the tab in the slot is
+-- inside that frame, and the frame itself is never mistaken for the lowest tab (#402).
+---@param frame Frame
+---@param left number
+---@param slotHeight number
+---@param ours table<Region, boolean>
+---@param seen table<Region, boolean>
+---@return Frame?
+---@return number?
+local function LowestTab(frame, left, slotHeight, ours, seen)
+	if seen[frame] or not frame:IsShown() then
+		return nil
+	end
+	seen[frame] = true
+	local frameLeft, frameBottom, height = frame:GetLeft(), frame:GetBottom(), frame:GetHeight()
+	if
+		type(frameLeft) ~= "number"
+		or type(frameBottom) ~= "number"
+		or type(height) ~= "number"
+		or math.abs(frameLeft - left) >= 1
+	then
+		return nil
+	end
+	-- A frame tall enough to hold two tabs is the column holding them, not a tab.
+	if height >= slotHeight * 2 then
+		local lowest, lowestBottom
+		for _, child in ipairs({ frame:GetChildren() }) do
+			local candidate, bottom = LowestTab(child --[[@as Frame]], left, slotHeight, ours, seen)
+			if candidate and (not lowestBottom or bottom < lowestBottom) then
+				lowest, lowestBottom = candidate, bottom
+			end
+		end
+		return lowest, lowestBottom
+	end
+	if HangsOff(frame, ours, {}) then
+		return nil
+	end
+	return frame, frameBottom
+end
+
+-- The lowest tab already anchored flush with the tab column, not just Blizzard's next slot: All The Things
 -- takes the next slot without joining Blizzard's tab array, and What's Training? pins its tab to the window's
 -- bottom-right corner, which lands in the same strip. A frame that hangs off our tabs is below them, not above.
 ---@param anchor Frame
 ---@param ours table<Region, boolean>
 ---@return Frame?
 local function OccupiedSlot(anchor, ours)
-	local left = anchor:GetLeft()
-	if type(left) ~= "number" then
+	local left, slotHeight = anchor:GetLeft(), anchor:GetHeight()
+	if type(left) ~= "number" or type(slotHeight) ~= "number" then
 		return nil
 	end
 	local lowest, lowestBottom
 	for _, sibling in ipairs({ ProfessionsFrame:GetChildren() }) do
-		if sibling:IsShown() then
-			local siblingLeft, siblingBottom = sibling:GetLeft(), sibling:GetBottom()
-			if
-				type(siblingLeft) == "number"
-				and type(siblingBottom) == "number"
-				and math.abs(siblingLeft - left) < 1
-				and (not lowestBottom or siblingBottom < lowestBottom)
-				and not HangsOff(sibling, ours, {})
-			then
-				lowest, lowestBottom = sibling, siblingBottom
-			end
+		local candidate, bottom = LowestTab(sibling --[[@as Frame]], left, slotHeight, ours, {})
+		if candidate and (not lowestBottom or bottom < lowestBottom) then
+			lowest, lowestBottom = candidate, bottom
 		end
 	end
 	return lowest
@@ -1548,7 +1594,7 @@ function ns.AttachRoute()
 	ProfessionsFrame:HookScript("OnHide", function()
 		if page:IsShown() then
 			Deselect()
-			ProfessionsFrame.CraftingPage:Show()
+			ShowCraftingPageLater()
 		end
 	end)
 	ns.WhenStale("route", RefreshRoute)

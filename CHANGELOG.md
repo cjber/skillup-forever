@@ -12,6 +12,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Closing the Professions window on the route or gear page no longer shows a Blizzard page from inside the game's own hide.** The window went back to its crafting page from the close itself, which runs in the client's secure panel path, the same kind of mistake 1.0.35 fixed for opening it. That page work now runs on the next frame. This may be behind a controller player's blocked SetPreferredGamepadInteractTarget report (cjber/skillup-forever#398). Thanks to Viper2042 for the report.
+
+- **The levelling route tab stays beside the Professions window with All The Things loaded.** All The Things keeps the window's side tab column in a frame of its own and puts its own tab in the next free slot inside it, and the addon took that frame for the lowest tab, so the route tab slid down under the window and looked attached to nothing. It now sits under the tab already in the column, beside the window, and opens the route inside it. Thanks to TechnoHunter for reporting it (cjber/skillup-forever#402).
+
+- **A profitable recipe no longer gets cheaper the longer a route runs on it, and a craft's time now counts.** Rough Bronze Leggings sold for more than their Bronze Bars, so Blacksmithing 105 to 150 asked for 183 of them and training that would have replaced them never showed a saving. The route now charges the first craft of a step at the recipe's net, never a profit, and the extra crafts a falling chance needs at its reagents, and gives every craft a small price for its time, so a stretch at 1 in 30 no longer looks free even when its reagents are gathered. Thanks to jakeyjake07 for the report (cjber/skillup-forever#400).
+
 ## [1.0.36] - 2026-11-08
 
 - **A route that leans on one cheap reagent now says so.** A recipe the addon has no reagent price for is left out of the plan, so a route can end up sitting on one low-tier pattern and printing totals nobody could farm, which is what a Leatherworking route from 35 to 100 did with Light Leather (cjber/skillup-forever#394). The route page now warns when a route is mostly one reagent while recipes were left out, naming the reagent and how many recipes are waiting on a price. Saving and scanning the auction house with Auctionator is still what fills those prices in.

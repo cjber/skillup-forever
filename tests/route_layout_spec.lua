@@ -26,6 +26,8 @@ local created, insets, tabs, pageFrame = {}, {}, {}, nil
 -- While the client shows a panel through its secure path, an addon's Hide is blocked; this spec counts any
 -- the page still asks for there (#393).
 local inShowPath, hidesInShowPath = false, 0
+-- The client hides the window through the same secure path; a Show asked for from inside it is #398.
+local inHidePath, showsInHidePath = false, 0
 
 -- Where a point sits inside a region: its own fraction of the region's width and height.
 local function Fraction(point)
@@ -205,6 +207,9 @@ local function NewRegion(parent)
 		self.shown = shown and true or false
 	end
 	function region:Show()
+		if inHidePath and not self.ignoreHides then
+			showsInHidePath = showsInHidePath + 1
+		end
 		self.shown = true
 		if self.scripts.OnShow then
 			self.scripts.OnShow(self)
@@ -215,6 +220,9 @@ local function NewRegion(parent)
 			hidesInShowPath = hidesInShowPath + 1
 		end
 		self.shown = false
+		if self.scripts.OnHide then
+			self.scripts.OnHide(self)
+		end
 	end
 	function region:IsShown()
 		return self.shown
@@ -297,6 +305,7 @@ local function NewRegion(parent)
 end
 
 local ProfessionsFrame = NewRegion(nil)
+ProfessionsFrame.width, ProfessionsFrame.height = 673, 594
 ProfessionsFrame.CraftingPage = NewRegion(ProfessionsFrame)
 ProfessionsFrame.CraftingPage.width, ProfessionsFrame.CraftingPage.height = 673, 594
 -- The route's Craft button reads the shown recipe and the page's own Create buttons; this spec draws the
@@ -789,6 +798,26 @@ equal(Below(gearTabFrame, tab), true, "and goes back under it when it is on")
 cornerTab:Hide()
 hangingTab:Hide()
 OpenWindow()
+-- All The Things on Forever keeps the column's tabs in one full-height frame on the window's right edge and
+-- anchors its own tab in the next free slot inside it (#402). That frame is the column, not the lowest tab:
+-- the route tab goes under the tab in it, beside the window, not under the window's bottom.
+local sidebar = NewRegion(ProfessionsFrame)
+sidebar:SetPoint("TOPLEFT", ProfessionsFrame, "TOPLEFT", 676, 0)
+sidebar:SetPoint("BOTTOMLEFT", ProfessionsFrame, "TOPLEFT", 676, -594)
+sidebar:SetWidth(1)
+local thirdPartyTab = NewRegion(sidebar)
+thirdPartyTab:SetPoint("TOPLEFT", ProfessionsFrame.ProfessionsOverviewTab, "BOTTOMLEFT", 0, -2)
+thirdPartyTab:SetSize(43, 55)
+OpenWindow()
+equal(Below(tab, thirdPartyTab), true, "the route tab goes under a third-party tab inside the column frame")
+equal(Below(gearTabFrame, tab), true, "the gear tab still follows the route tab")
+equal(Below(tab, sidebar), false, "the column frame itself is never the slot the route tab hangs under")
+local _, tabBottom, _, tabTop = Rect(tab)
+local _, windowBottom, _, windowTop = Rect(ProfessionsFrame)
+equal(tabBottom > windowBottom and tabTop < windowTop, true, "and the route tab stays beside the window")
+thirdPartyTab:Hide()
+sidebar:Hide()
+OpenWindow()
 
 tab.scripts.OnMouseUp(nil, "LeftButton", true)
 Flush()
@@ -1082,5 +1111,22 @@ equal(routePage:IsShown(), true, "the deferred pass leaves the route page shown"
 equal(ProfessionsFrame.CraftingPage:IsShown(), false, "and hides the native crafting page")
 equal(ProfessionsFrame.BookPage:IsShown(), false, "and the book page")
 equal(routeTab.checked, true, "and keeps the route tab checked")
+
+-- #398: the client hides the window through the same secure panel path, where showing a Blizzard page from
+-- addon code is blocked. The route page is showing, and the window closes: no Show may run until the deferred
+-- pass, and that pass returns the window to its crafting page.
+equal(routePage:IsShown(), true, "the route page is showing before the window closes")
+showsInHidePath = 0
+inHidePath = true
+local hideOk, hideErr = pcall(function()
+	ProfessionsFrame:Hide()
+end)
+inHidePath = false
+equal(hideOk, true, "the window closes without a blocked Show: " .. tostring(hideErr))
+equal(showsInHidePath, 0, "closing the window shows no frame from inside the hide path")
+Flush()
+equal(ProfessionsFrame.CraftingPage:IsShown(), true, "the deferred pass returns the window to the crafting page")
+equal(ProfessionsFrame:IsShown(), false, "while the window stays closed")
+equal(routeTab.checked, false, "and unchecks the route tab")
 
 Client.report("route_layout_spec")

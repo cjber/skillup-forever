@@ -533,6 +533,18 @@ local function HideNativePagesLater()
 	end)
 end
 
+-- The client runs the window's OnHide inside a secure panel call as well, where showing a native page is the
+-- same mistake as hiding one there (#398). Return the window to its crafting page once the call has ended.
+local function ShowCraftingPageLater()
+	local token = pageToken
+	C_Timer.After(0, function()
+		if token ~= pageToken or pageWanted or ProfessionsFrame:IsShown() then
+			return
+		end
+		ProfessionsFrame.CraftingPage:Show()
+	end)
+end
+
 local function SelectPage()
 	ns.HideRoute()
 	-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly. Its own
@@ -809,7 +821,7 @@ function ns.AttachGear()
 	ProfessionsFrame:HookScript("OnHide", function()
 		if page:IsShown() then
 			Deselect()
-			ProfessionsFrame.CraftingPage:Show()
+			ShowCraftingPageLater()
 		end
 	end)
 	ns.WhenStale("gear", Refresh)

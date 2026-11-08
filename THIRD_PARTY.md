@@ -50,6 +50,7 @@ Credit for the ideas and reports behind the addon.
 | kurila11478, on CurseForge | Found *Buy reagents* stuck on with an empty route (#162, 0.16.0), and again stuck on with a blank levelling route (#190) | |
 | trias6657, on CurseForge | Asked for net per craft on recipe rows, also on recipes that give no skill, and a red minus on costs (0.17.0); asked for the skill threshold bar on the selected recipe, not only the hover (0.18.4) | |
 | Bolthorr, on CurseForge | Reported the levelling route tab colliding with All The Things' profession tab (#179) | |
+| TechnoHunter, on CurseForge | Reported the levelling route tab sliding below the Professions window with All The Things loaded (#402) | |
 | Syrberus, on CurseForge | Reported the secret-number error on recipe tooltips, with the full error (#161, 0.16.0) | |
 | deathmvp1 and berserkerlxl, on CurseForge | Found Questie's quest list covering the Forever tracker sections, which now move clear of it (cjber/shortest-path-forever#214) | |
 | [Mouchoir](https://github.com/Mouchoir) | Found and fixed the profession window's stutters and freezes on tab switches, combat skill-ups and re-plans (#176, #183, #185) and the route reagent error on a missing tool priced through Auctionator (#174) | Code contributor (#173, #175, #182, #184) |

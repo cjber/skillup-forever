@@ -320,13 +320,11 @@ function ns.RegisterSettings()
 
 	-- The Forever addons page is the same in all five addons (UI/ForeverFamily.lua), with the hint setting on it.
 	-- Its rows are plain frames on our own canvas, so nothing of ours goes into Blizzard's layouts or search.
-	local family = Settings.RegisterCanvasLayoutSubcategory(
-		category,
-		ns.Family.CreatePanel(nil, function()
-			return ns.db
-		end, addonName),
-		L["Forever addons"]
-	)
+	-- With the gamepad interface on the page is the client's own rows so the Options navigation can enter it
+	-- (cjber/tweaks-forever#382).
+	local family = ns.Family.Register(category, function()
+		return ns.db
+	end, addonName)
 	Settings.RegisterInitializer(
 		category,
 		CreateSettingsButtonInitializer(L["Forever addons"], L["Open"], function()

@@ -29,7 +29,7 @@ local function Initializer(kind, setting, tooltip)
 	return { kind = kind, setting = setting, tooltip = tooltip }
 end
 
-local opened, addOnCategory, canvas
+local opened, addOnCategory, canvas, family
 
 local env = setmetatable({
 	Settings = {
@@ -42,11 +42,8 @@ local env = setmetatable({
 			assert(parent == category, "a subpage belongs to the addon's category")
 			return Category(name, parent), { AddInitializer = Tainted }
 		end,
-		RegisterCanvasLayoutSubcategory = function(parent, frame, name)
-			assert(parent == category, "the Forever addons page belongs to the addon's category")
-			canvas = Category(name, parent)
-			canvas.frame = frame
-			return canvas
+		RegisterCanvasLayoutSubcategory = function()
+			error("the Forever addons page is registered through ns.Family.Register")
 		end,
 		RegisterAddOnSetting = function(_target, variable, key, db, varType, _name, default)
 			if db[key] == nil then
@@ -153,8 +150,10 @@ local ns = {
 	TITLE = "SkillUp Forever",
 	-- UI/ForeverFamily.lua builds the page; forever_family_spec.lua covers what is on it.
 	Family = {
-		CreatePanel = function(parent, db, current)
-			return { parent = parent, db = db, current = current }
+		Register = function(parent, db, current, locale)
+			family = { parent = parent, db = db, current = current, locale = locale }
+			canvas = Category("Forever addons", parent)
+			return canvas
 		end,
 	},
 	db = {},
@@ -244,11 +243,13 @@ for _, group in ipairs(groups) do
 	button.initializer.onClick()
 	assert(opened == Subpage(name):GetID(), name .. "'s button opens its subpage")
 end
--- Then the Forever addons page: a canvas with the shared panel, its index button last.
+-- Then the Forever addons page: the shared module registers it with this addon's saved variables, its button last.
 expected[#expected + 1] = "button@" .. addOnCategory.name
 assert(canvas and canvas.name == "Forever addons", "the Forever addons page is registered")
-assert(canvas.frame.parent == nil and canvas.frame.current == "SkillUpForever", "the panel marks this addon's row")
-assert(canvas.frame.db() == ns.db, "the panel reads and writes SkillUp's saved variables")
+assert(family.parent == category, "the page belongs to the addon's category")
+assert(family.db() == ns.db, "the page reads and writes SkillUp's saved variables")
+assert(family.current == "SkillUpForever", "the page marks this addon's row")
+assert(family.locale == nil, "the page reads in the addon's L")
 Button("Forever addons").initializer.onClick()
 assert(opened == canvas:GetID(), "the Forever addons button opens its page")
 for _, entry in ipairs(registered) do

@@ -1093,6 +1093,13 @@ function Client.load(options)
 		return { x = x, y = y }
 	end
 
+	-- The client's input interface switch: the harness has the mouse UI on, so the Forever addons page is a canvas.
+	G.InputUtil = {
+		IsGamepadUIEnabled = function()
+			return false
+		end,
+	}
+
 	--[[ Settings: the stock panel as a table of settings; a change runs the addon's own callback ]]
 
 	local settings = {}
@@ -1137,6 +1144,7 @@ function Client.load(options)
 			return Setting(variable, get, set)
 		end,
 		RegisterInitializer = noop,
+		CreateCheckbox = noop,
 		CreateCheckboxInitializer = noop,
 		CreateSliderInitializer = noop,
 		CreateSliderOptions = function()

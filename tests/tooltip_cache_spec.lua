@@ -125,11 +125,12 @@ for itemID = 1000, 1049 do
 	itemPost(tooltip, { id = itemID })
 end
 equal(calls.TrackedNeeds, 1, "a move across 50 items works out the tracked routes once")
-equal(calls.RouteReagents, 1, "and builds their material list once")
+equal(calls.RouteReagents, 0, "and their material lists are unchanged, so they are reused")
 ns.Changed("bags")
 Reset()
 itemPost(tooltip, { id = 2000 })
 equal(calls.TrackedNeeds, 1, "a bag change drops the route index")
+equal(calls.RouteReagents, 0, "and a bag that changed no tool reuses the material lists")
 Reset()
 itemPost(tooltip, { id = 2001 })
 equal(calls.TrackedNeeds, 0, "and the next item reads it")

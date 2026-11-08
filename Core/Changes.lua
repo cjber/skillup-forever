@@ -12,6 +12,7 @@ local ORDER = {
 	"schematics",
 	"prices",
 	"plans",
+	"trackedNeeds",
 	"api",
 	"route",
 	"recipeList",
@@ -37,6 +38,7 @@ local STALE = {
 		tooltipCache = true,
 		schematics = true,
 		plans = true,
+		trackedNeeds = true,
 		api = true,
 		route = true,
 		tracker = true,
@@ -45,8 +47,9 @@ local STALE = {
 		detailsBar = true,
 		shoppingList = true,
 	},
-	-- The profession window opened, moved to another profession or redrew its list: what shows it follows,
-	-- from plans kept as they are. What the window holds that the plans lack, its scan reports as recipes.
+	-- The profession window opened or moved to another profession: what shows it follows, from plans kept as
+	-- they are. A list update while it is open is qualified by Core/Live.lua's scan, which marks this only
+	-- when the open profession, its skill or the known recipes actually moved.
 	window = {
 		tooltipCache = true,
 		api = true,
@@ -59,11 +62,13 @@ local STALE = {
 	},
 	-- A skill line moved: often a weapon or defense skill-up in combat, nothing a plan reads. A plan is keyed by
 	-- its profession's skill, bonus and cap, so a profession's own skill-up rebuilds that one plan on its next ask.
+	-- `trackedNeeds` is left to that plan key too: a weapon skill-up must not rebuild every tracked route.
 	skill = { tooltipCache = true, api = true, route = true, tracker = true, detailsBar = true, shoppingList = true },
 	-- A Legacy talent changed what a skill-up is worth: every chance shown, planned or priced moves.
 	talents = {
 		tooltipCache = true,
 		plans = true,
+		trackedNeeds = true,
 		api = true,
 		route = true,
 		recipeList = true,
@@ -78,6 +83,7 @@ local STALE = {
 		tooltipCache = true,
 		prices = true,
 		plans = true,
+		trackedNeeds = true,
 		api = true,
 		route = true,
 		recipeList = true,
@@ -89,27 +95,46 @@ local STALE = {
 		tooltipCache = true,
 		prices = true,
 		plans = true,
+		trackedNeeds = true,
 		api = true,
 		route = true,
 		recipeList = true,
 		tracker = true,
 		shoppingList = true,
 	},
+	-- A bag change does not drop `trackedNeeds`: UI/Shopping.lua's plan and missing-tool key tells a tool
+	-- that came or went from a bag of unrelated loot.
 	bags = { tooltipCache = true, api = true, route = true, tracker = true, shoppingList = true },
 	-- Item data arrived; `names` when the public list was waiting on it.
-	items = { tooltipCache = true, route = true, tracker = true, gear = true, shoppingList = true },
+	items = {
+		tooltipCache = true,
+		trackedNeeds = true,
+		route = true,
+		tracker = true,
+		gear = true,
+		shoppingList = true,
+	},
 	names = { tooltipCache = true, api = true },
 	level = { tooltipCache = true, api = true, route = true, tracker = true, gear = true, shoppingList = true },
-	zone = { tooltipCache = true, api = true },
-	-- A merchant opened, restocked or closed: the tracker's buy button.
-	merchant = { tooltipCache = true, tracker = true, shoppingList = true },
+	zone = { tooltipCache = true, trackedNeeds = true, api = true },
+	-- A merchant opened, restocked or closed: the tracker's buy button and a reagent's stock.
+	merchant = { tooltipCache = true, trackedNeeds = true, tracker = true, shoppingList = true },
 	-- Fees and requirements recorded at a trainer.
-	fees = { tooltipCache = true, plans = true, api = true, route = true, tracker = true, shoppingList = true },
+	fees = {
+		tooltipCache = true,
+		plans = true,
+		trackedNeeds = true,
+		api = true,
+		route = true,
+		tracker = true,
+		shoppingList = true,
+	},
 	-- Where scrolls, vendors and trainers are, read from Questie and AtlasLoot or seen at a merchant's window.
 	-- A vendor-sold recipe's scroll price is a plan input too (#358).
 	sources = {
 		tooltipCache = true,
 		plans = true,
+		trackedNeeds = true,
 		api = true,
 		route = true,
 		tracker = true,
@@ -117,12 +142,28 @@ local STALE = {
 		gear = true,
 		shoppingList = true,
 	},
-	target = { tooltipCache = true, plans = true, api = true, route = true, tracker = true, shoppingList = true },
-	tracking = { tooltipCache = true, api = true, route = true, tracker = true, shoppingList = true },
+	target = {
+		tooltipCache = true,
+		plans = true,
+		trackedNeeds = true,
+		api = true,
+		route = true,
+		tracker = true,
+		shoppingList = true,
+	},
+	tracking = {
+		tooltipCache = true,
+		trackedNeeds = true,
+		api = true,
+		route = true,
+		tracker = true,
+		shoppingList = true,
+	},
 	settings = {
 		tooltipCache = true,
 		prices = true,
 		plans = true,
+		trackedNeeds = true,
 		api = true,
 		route = true,
 		recipeList = true,
@@ -141,7 +182,6 @@ local EVENTS = {
 	TRADE_SKILL_DATA_SOURCE_CHANGED = "window",
 	NEW_RECIPE_LEARNED = "recipes",
 	TRADE_SKILL_SHOW = "window",
-	TRADE_SKILL_LIST_UPDATE = "window",
 	SKILL_LINES_CHANGED = "skill",
 	BAG_UPDATE_DELAYED = "bags",
 	ITEM_DATA_LOAD_RESULT = "items",

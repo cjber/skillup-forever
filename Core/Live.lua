@@ -119,26 +119,55 @@ end
 -- covers the burst.
 local scanning = false
 
+-- What the window shows that SkillUp reads outside its recipes: the open profession and its skill. The
+-- client fires TRADE_SKILL_LIST_UPDATE for changes that move neither, so this is compared before the list
+-- is allowed to mark the window stale.
+---@type string?
+local lastWindow
+
+-- The open profession, its skill and its cap, or nil when the client has no answer. Reads the base
+-- profession: Forever has no expansion profession to descend into.
+---@return string?
+local function WindowKey()
+	local base = C_TradeSkillUI.GetBaseProfessionInfo and C_TradeSkillUI.GetBaseProfessionInfo()
+	if not base then
+		return nil
+	end
+	return table.concat({
+		tostring(base.professionID),
+		tostring(base.skillLevel),
+		tostring(base.maxSkillLevel),
+		tostring(base.skillModifier),
+	}, ":")
+end
+
 -- The open profession's recipes, read once: what the client says about each recipe that the bundle
--- cannot, and which recipes the character knows. Returns true when something changed.
----@return boolean
+-- cannot, and which recipes the character knows. Returns whether the recipes changed and whether what the
+-- window shows that SkillUp reads -- the profession, its skill, the known recipes -- did.
+---@return boolean changed
+---@return boolean windowChanged
 local function Scan()
 	scanning = false
 	-- A linked or guild window shows someone else's recipes; its learned flags are not this
 	-- character's and never overwrite what is known.
 	if C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
-		return false
+		return false, false
 	end
 	if not C_TradeSkillUI.GetAllRecipeIDs then
-		return false
+		return false, false
 	end
+	local key = WindowKey()
+	local windowChanged = lastWindow ~= nil and key ~= nil and lastWindow ~= key
+	lastWindow = key
 	local recipeIDs = C_TradeSkillUI.GetAllRecipeIDs()
 	-- A schematic the window's events came too early for: the client had it only a frame later.
 	local changed = ns.LiveSchematicsArrived(recipeIDs)
 	for _, recipeID in ipairs(recipeIDs) do
 		local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
 		if info then
-			changed = ns.NoteLearnedRecipe(recipeID, info.learned) or changed
+			local learnedChanged = ns.NoteLearnedRecipe(recipeID, info.learned)
+			changed = learnedChanged or changed
+			windowChanged = learnedChanged or windowChanged
 			local bundled = ns.Thresholds and ns.Thresholds[recipeID]
 			local grey = info.maxTrivialLevel
 			local skillUps = math.max(info.numSkillUps or 1, 1)
@@ -160,7 +189,7 @@ local function Scan()
 			ns.LiveRecipes[recipeID] = live
 		end
 	end
-	return changed
+	return changed, windowChanged
 end
 
 local function ScheduleScan()
@@ -169,9 +198,13 @@ local function ScheduleScan()
 	end
 	scanning = true
 	C_Timer.After(0, function()
-		if Scan() then
-			-- The live grey can change a plan; drop the caches that were built without it.
+		local changed, windowChanged = Scan()
+		if changed then
+			-- The live grey can change a plan; drop the caches that were built without it. A recipe change
+			-- also redraws everything the window does, so it covers a window change in the same scan.
 			ns.Changed("recipes")
+		elseif windowChanged then
+			ns.Changed("window")
 		end
 	end)
 end

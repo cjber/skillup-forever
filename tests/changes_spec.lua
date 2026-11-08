@@ -101,7 +101,6 @@ for _, case in ipairs({
 	{ "TRADE_SKILL_DATA_SOURCE_CHANGED", "api | route tracker" },
 	{ "NEW_RECIPE_LEARNED", "schematics plans api | route tracker" },
 	{ "TRADE_SKILL_SHOW", "api | route tracker" },
-	{ "TRADE_SKILL_LIST_UPDATE", "api | route tracker" },
 	-- A weapon or defense skill-up: nothing the plans read.
 	{ "SKILL_LINES_CHANGED", "api | route tracker" },
 	{ "BAG_UPDATE_DELAYED", "api | route tracker" },
@@ -115,6 +114,18 @@ for _, case in ipairs({
 	equal(c.Listeners(case[1]), 1, case[1] .. " arrives on one frame")
 	equal(Stale(Event(case[1])), case[2], case[1])
 end
+
+-- The recipe list update is the window's event that can fire while nothing SkillUp reads has moved; its
+-- scan decides, so an unchanged window marks nothing at all.
+equal(c.Listeners("TRADE_SKILL_LIST_UPDATE"), 1, "TRADE_SKILL_LIST_UPDATE arrives on one frame")
+equal(
+	Stale(function()
+		c.Fire("TRADE_SKILL_LIST_UPDATE")
+		c.Advance(0)
+	end),
+	" | ",
+	"a list update with nothing new"
+)
 
 -- A profession's own skill-up rebuilds its plan through the plan's key, from the new skill.
 equal(

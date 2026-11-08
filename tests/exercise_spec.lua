@@ -427,6 +427,7 @@ local function Surfaces(c)
 		ns.db.trackedProfessions[129] = true
 		c.bags[3] = 0
 		ns.Changed("merchant")
+		c.Advance(0)
 		local tab = rawget(G, "SkillUpForeverMerchantTab")
 		assert(tab and tab:IsShown(), "the merchant's Reagents tab exists")
 		tab.scripts.OnClick(tab)

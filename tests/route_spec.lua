@@ -1266,4 +1266,14 @@ page.ShowRecipe(3275, true)
 equal(selected, nil, "opening a recipe does not select it in Blizzard's list from addon code")
 equal(openedRecipe, 3275, "the client opens its own recipe")
 
+-- A burst of window events, as a profession opening or a craft session sends, schedules one deferred pass
+-- rather than one per event.
+for index = #timers, 1, -1 do
+	timers[index] = nil
+end
+for _ = 1, 10 do
+	eventFrame:Event("SKILL_LINES_CHANGED")
+end
+equal(#timers, 2, "a burst of skill updates schedules one route pass and one tracker refresh, not one per event")
+
 Client.report("route_spec")

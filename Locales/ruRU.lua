@@ -526,6 +526,10 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."
 L["crafted"] = "создано" -- mt
 L["List unlearned recipes"] = "Показывать неизученные рецепты"
+L["Only buffs for your level"] =
+	"Только положительные эффекты для вашего уровня"
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"Показывает только рецепты, чей предмет дает положительный эффект, доступный вам на вашем уровне: эликсиры, флаконы, еда «Сытость», защитные зелья, точильные камни, масла и наборы для доспехов. Сначала с самым высоким требуемым уровнем. Сначала изученные рецепты, затем неизученные, если они показаны."
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
 	"Добавляет неизученные рецепты открытой профессии под разделителем «Не изучено», серым и с пометкой учителя или рецепта и требуемого навыка. Их нельзя выбрать или изготовить."
 L["Not learned · %s"] = "Не изучено · %s"

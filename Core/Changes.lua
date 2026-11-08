@@ -99,7 +99,15 @@ local STALE = {
 	-- Item data arrived; `names` when the public list was waiting on it.
 	items = { tooltipCache = true, route = true, tracker = true, gear = true, shoppingList = true },
 	names = { tooltipCache = true, api = true },
-	level = { tooltipCache = true, api = true, route = true, tracker = true, gear = true, shoppingList = true },
+	level = {
+		tooltipCache = true,
+		api = true,
+		route = true,
+		recipeList = true,
+		tracker = true,
+		gear = true,
+		shoppingList = true,
+	},
 	zone = { tooltipCache = true, api = true },
 	-- A merchant opened, restocked or closed: the tracker's buy button.
 	merchant = { tooltipCache = true, tracker = true, shoppingList = true },

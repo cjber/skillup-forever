@@ -65,6 +65,7 @@
 ---@field FitFrameArt fun(extra: number) redraw the frame's art for that much widening, or the stock art at 0
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
+---@field BuffLevel fun(recipeID: integer): integer? The product's required level when it is a buff, else nil.
 ---@field Gear SkillUpGear
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
@@ -117,6 +118,7 @@
 ---@field PlaceSideTabs fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
+---@field SetBuffsOnly fun(on: boolean)
 ---@field OpenSettings fun()
 ---@field HasAuctionator fun(): boolean
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())
@@ -202,6 +204,7 @@
 ---@field RankBooks table<integer, number[][]> per skill line: { cap, book item, list price, required skill, level }.
 ---@field RankQuests table<integer, (number|string)[][]> per skill line: { cap, quest, required skill, level, side "A"/"H" }.
 ---@field ItemGear table<integer, number[]>
+---@field BuffItems table<integer, integer> Crafted item to the buff spell a use of it leaves on the player.
 ---@field ItemSellPrices table<integer, number>
 ---@field RecipeNames table<integer, table<string, integer|false>>
 ---@field ProfessionSkillLines table<string, integer>
@@ -229,6 +232,7 @@
 ---@field showRowText boolean
 ---@field wideRecipeList boolean
 ---@field showUnlearned boolean
+---@field buffsOnly boolean
 ---@field showSkill boolean
 ---@field showTooltip boolean
 ---@field recipeTooltip 'window'|'cursor'|'row'

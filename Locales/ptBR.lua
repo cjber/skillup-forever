@@ -497,6 +497,9 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"Ativado por padrão. Desative para parar de enviar e receber totais e ocultar outros jogadores. As observações locais são mantidas."
 L["crafted"] = "fabricado" -- mt
 L["List unlearned recipes"] = "Listar receitas não aprendidas"
+L["Only buffs for your level"] = "Apenas melhorias para o seu nível"
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"Lista apenas as receitas cujo produto é uma melhoria que você pode usar no seu nível: elixires, frascos, comida de Bem Alimentado, poções de proteção, pedras, óleos e kits de armadura. Maior nível exigido primeiro. Receitas aprendidas primeiro, depois as não aprendidas quando elas são listadas."
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
 	"Adiciona as receitas da profissão aberta que você não aprendeu sob um divisor Não aprendida, em cinza e marcadas com um instrutor ou uma receita e a perícia exigida. Elas não podem ser selecionadas nem fabricadas."
 L["Not learned · %s"] = "Não aprendida · %s"

@@ -489,6 +489,9 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 L["crafted"] = "製作" -- mt
 L["List unlearned recipes"] = "列出未學習的配方"
+L["Only buffs for your level"] = "僅顯示適合你等級的增益"
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"僅列出產物是你在目前等級可使用的增益的配方：藥劑、精煉藥劑、飽食食物、防護藥水、磨刀石、油和護甲套裝。所需等級最高的排在最前。已學習的配方排在前，未學習的配方在列出時排在後面。"
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
 	"在「未學習」分隔線下列出目前專業中你尚未學習的配方，以灰色顯示，並標明訓練師或配方以及所需技能。它們無法被選取或製作。"
 L["Not learned · %s"] = "未學習 · %s"

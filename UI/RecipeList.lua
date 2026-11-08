@@ -383,6 +383,68 @@ local function BuildSorted(source, key, ctx)
 	return sorted
 end
 
+-- Whether the buff filter keeps a recipe: its product is a buff this character's level can use.
+---@param recipeInfo TradeSkillRecipeInfo
+---@param level number
+---@return boolean
+local function UsableBuff(recipeInfo, level)
+	local required = ns.BuffLevel(recipeInfo.recipeID)
+	return required ~= nil and required <= level
+end
+
+-- The buff filter's default order: highest required level first, then the name SortRecipes breaks ties on.
+---@param recipeInfo TradeSkillRecipeInfo
+---@return number
+local function BuffLevelKey(recipeInfo)
+	return -(ns.BuffLevel(recipeInfo.recipeID) or 0)
+end
+
+-- The buff filter's flat list: learned recipes whose product is a buff this character can use now, then
+-- the unlearned ones under Blizzard's divider when those are listed. A chosen sort mode still orders
+-- it; Default puts the highest required level first. An empty match is an empty list, not the client's.
+---@param source SkillUpTreeProvider
+---@param key SkillUpSortKey?
+---@param ctx SkillUpContext?
+---@return SkillUpTreeProvider
+local function BuildBuffs(source, key, ctx)
+	local level = UnitLevel("player") or 0
+	local learned, unlearned, seen = {}, {}, {}
+	local clientLearned, clientUnlearned = {}, {}
+	CollectRecipes(source:GetRootNode(), clientLearned, clientUnlearned, seen)
+	for _, data in ipairs(clientLearned) do
+		if UsableBuff(data.recipeInfo, level) then
+			learned[#learned + 1] = data
+		end
+	end
+	-- As in the sorted list, what the client lists unlearned stays, and the bundle's only with the setting on.
+	if ns.db.showUnlearned and ctx then
+		for _, data in ipairs(UnlearnedMissing(seen, ctx)) do
+			clientUnlearned[#clientUnlearned + 1] = data
+		end
+	end
+	for _, data in ipairs(clientUnlearned) do
+		if UsableBuff(data.recipeInfo, level) then
+			unlearned[#unlearned + 1] = data
+		end
+	end
+	key = key or BuffLevelKey
+	SortRecipes(learned, key, ctx)
+	SortRecipes(unlearned, key, ctx)
+
+	local filtered = CreateTreeDataProvider()
+	for _, data in ipairs(learned) do
+		filtered:Insert(data)
+	end
+	-- Blizzard's divider template draws the "Unlearned" label itself.
+	if #unlearned > 0 then
+		filtered:Insert({ isDivider = true, dividerHeight = #learned > 0 and 70 or 30 })
+		for _, data in ipairs(unlearned) do
+			filtered:Insert(data)
+		end
+	end
+	return filtered
+end
+
 -- Whether this part of the client's tree holds a recipe the list should keep. A favourites entry is a
 -- recipe too, so its category stays even when every entry in it is one.
 ---@param node SkillUpTreeNode
@@ -448,6 +510,9 @@ end
 ---@param ctx SkillUpContext?
 ---@return SkillUpTreeProvider?
 local function BuildProvider(source, key, ctx)
+	if ns.db.buffsOnly then
+		return BuildBuffs(source, key, ctx)
+	end
 	if key then
 		return BuildSorted(source, key, ctx)
 	end
@@ -533,6 +598,12 @@ local function AddFilterMenu(owner, rootDescription)
 		return
 	end
 	rootDescription:CreateDivider()
+	rootDescription:CreateCheckbox(L["Only buffs for your level"], function()
+		return ns.db.buffsOnly
+	end, function()
+		ns.SetBuffsOnly(not ns.db.buffsOnly)
+		return MenuResponse.Refresh
+	end)
 	rootDescription:CreateTitle(L["Sort by"])
 	for _, option in ipairs(ns.SORT_OPTIONS) do -- menu-scroll-ok: SORT_OPTIONS is four fixed sort modes
 		rootDescription:CreateRadio(option[2], function(mode)

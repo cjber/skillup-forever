@@ -8,6 +8,7 @@ local DEFAULTS = {
 	showRowText = true,
 	wideRecipeList = true, -- widen the recipe list and the window to the longest recipe name in the open profession
 	showUnlearned = false, -- also list recipes this character has not learned, greyed, with where they are learned
+	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
 	showSkill = false,
 	showTooltip = true,
 	recipeTooltip = "window", -- where the recipe tooltip goes: beside the Professions window, at the cursor, by the row

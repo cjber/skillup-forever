@@ -504,6 +504,9 @@ L["On by default. Turn off to stop sending and receiving totals and hide other p
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
 L["crafted"] = "제작됨" -- mt
 L["List unlearned recipes"] = "배우지 않은 제조법 표시"
+L["Only buffs for your level"] = "내 레벨에 맞는 버프만"
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"내 레벨에 사용할 수 있는 버프를 만드는 제조법만 표시합니다: 비약, 영약, 잘 먹음 음식, 보호 물약, 연마석, 기름, 방어구 키트. 요구 레벨이 높은 순서입니다. 배운 제조법이 먼저, 배우지 않은 제조법은 해당 목록을 표시할 때 그 뒤에 나옵니다."
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
 	"열린 전문 기술에서 배우지 않은 제조법을 '배우지 않음' 구분선 아래에 추가하고, 회색으로 표시하며 교관 또는 제조법과 필요한 숙련도를 함께 보여 줍니다. 선택하거나 제작할 수는 없습니다."
 L["Not learned · %s"] = "배우지 않음 · %s"

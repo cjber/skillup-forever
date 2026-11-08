@@ -138,6 +138,21 @@ local MAX_PER_SLOT = 3
 ---@type table<string, integer>
 local STATE_RANK = { known = 1, trainable = 2, needs = 3, other = 4 }
 
+-- The level a recipe's product asks of the player, when that product is a buff a use leaves on them: nil
+-- for anything else, 0 when the item has no required level or no ItemGear row. A pure read of the data.
+---@param recipeID integer
+---@return integer?
+function ns.BuffLevel(recipeID)
+	local recipe = ns.RecipeData[recipeID]
+	local output = recipe and recipe.output
+	local itemID = output and output.itemID
+	if not (itemID and ns.BuffItems[itemID]) then
+		return nil
+	end
+	local facts = ns.ItemGear[itemID]
+	return facts and facts[LEVEL] or 0
+end
+
 ---@class SkillUpGear
 local Gear = {}
 ns.Gear = Gear

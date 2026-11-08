@@ -368,6 +368,17 @@ function ns.LearnSource(profession, recipeID)
 	end
 end
 
+-- "Trainer 60" or "Recipe item 80": where a recipe is learned, as its row and tooltip say it.
+---@param source SkillUpLearnSource|SkillUpUnlearnedRecipe
+---@return string
+function ns.LearnSourceText(source)
+	local text = source.kind == "trainer" and L["Trainer"] or L["Recipe item"]
+	if source.skill > 0 then
+		text = string.format(L["%s %d"], text, source.skill)
+	end
+	return text
+end
+
 -- The skill where a recipe can first be learned: what a trainer asks, else the requirement of the
 -- pattern or recipe item that teaches it, else the catalogue's scroll skill, else nothing the data
 -- knows. The client's own orange is not a requirement: for many recipes it is left at 1.

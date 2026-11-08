@@ -135,6 +135,13 @@ local ns = {
 			return { 1, 25, 50, 75 }
 		end,
 	},
+	LearnSourceText = function(source)
+		local text = source.kind == "trainer" and "Trainer" or "Recipe item"
+		if source.skill > 0 then
+			text = string.format("%s %d", text, source.skill)
+		end
+		return text
+	end,
 	Describe = function()
 		return { thresholds = { 1, 25, 50, 75 }, chance = 0.5, perSkillUp = 3 }
 	end,
@@ -287,6 +294,7 @@ local function Row()
 			end,
 		},
 		mouse = true,
+		motion = true,
 		width = 276,
 		texts = {},
 	}
@@ -299,7 +307,10 @@ local function Row()
 		return text
 	end
 	function row:EnableMouse(value)
-		self.mouse = value
+		self.mouse, self.motion = value, value
+	end
+	function row:SetMouseMotionEnabled(value)
+		self.motion = value
 	end
 	function row:GetText()
 		return self.texts[#self.texts]
@@ -328,6 +339,7 @@ decorate(ns, row, {
 assert(row:GetText().text == "Not learned · Trainer 60", "the row says where and at what skill")
 assert(row.Count.shown == false, "an unlearned row has no craftable count")
 assert(row.mouse == false, "and takes no click")
+assert(row.motion == true, "but still takes mouse motion, so it can show its tooltip")
 
 -- Recycled for a learned recipe, the same row takes clicks again and shows the ordinary row text.
 decorate(ns, row, {
@@ -336,6 +348,7 @@ decorate(ns, row, {
 	end,
 })
 assert(row.mouse == true, "a learned row takes clicks")
+assert(row.motion == true, "and keeps mouse motion")
 assert(row:GetText().text == "50%", "and shows the skill-up text")
 
 -- With the row text off, an unlearned row still says it is not learned.

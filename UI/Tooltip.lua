@@ -319,6 +319,14 @@ function ns.ShowRecipeTooltip(_, row, data)
 	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
 	local ctx = ns.SkillContext()
 	local d = ns.Describe(recipeInfo, ctx)
+	-- Where an unlearned recipe is learned: the added row already carries the bundle's source, and one the
+	-- client itself lists unlearned reads the same trainer and scroll tables, so a hover never walks the
+	-- profession's recipes or rebuilds the route.
+	---@type SkillUpLearnSource|SkillUpUnlearnedRecipe|nil
+	local learn = recipeInfo.skillUpUnlearned
+	if not learn and recipeInfo.learned == false and ctx then
+		learn = ns.LearnSource(ctx, recipeInfo.recipeID)
+	end
 
 	local tooltip = GameTooltip
 	local where = ns.db.recipeTooltip
@@ -348,6 +356,9 @@ function ns.ShowRecipeTooltip(_, row, data)
 		end
 	else
 		GameTooltip_AddDisabledLine(tooltip, L["No skill data for this recipe yet."])
+	end
+	if learn then
+		GameTooltip_AddDisabledLine(tooltip, string.format(L["Not learned · %s"], ns.LearnSourceText(learn)))
 	end
 	if ns.db.showCost then
 		AddCost(tooltip, recipeInfo.recipeID, d)

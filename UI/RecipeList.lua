@@ -40,11 +40,7 @@ end
 ---@param entry SkillUpUnlearnedRecipe
 ---@return string
 local function UnlearnedText(entry)
-	local source = entry.kind == "trainer" and L["Trainer"] or L["Recipe item"]
-	if entry.skill > 0 then
-		source = string.format(L["%s %d"], source, entry.skill)
-	end
-	return string.format(L["Not learned · %s"], source)
+	return string.format(L["Not learned · %s"], ns.LearnSourceText(entry))
 end
 
 ---@param recipeID integer
@@ -219,10 +215,13 @@ local function DecorateRow(row, elementData)
 		text:SetTextColor(GRAY_FONT_COLOR:GetRGB())
 		text:Show()
 		FitLabel(row, text)
-		-- A recipe this character has not learned cannot be selected or crafted: no click reaches the row,
-		-- so Blizzard's selection never runs for it.
+		-- A recipe this character has not learned cannot be selected or crafted: clicks stay off, while
+		-- mouse motion stays on so the row still raises the recipe tooltip.
 		if row.EnableMouse then
 			row:EnableMouse(false)
+		end
+		if row.SetMouseMotionEnabled then
+			row:SetMouseMotionEnabled(true)
 		end
 		return
 	end

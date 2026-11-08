@@ -87,7 +87,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Working Overtime now gives 4% per point, up to 20% at five."]
+ns.WHATS_NEW = L["With the gamepad interface on, a trainer no longer shows a blocked-action error that names SkillUp."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

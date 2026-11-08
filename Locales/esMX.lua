@@ -274,8 +274,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Resta del costo lo que vale vender el objeto creado. Los precios de subasta necesitan Auctionator, son tras la comisión del 5 % y puede que no se vendan."
 L["Suggest my other Forever addons"] = "Sugerir mis otros addons Forever"
 L["Taught by %s trainers."] = "Lo enseñan los instructores de %s."
-L["Working Overtime now gives 4% per point, up to 20% at five."] =
-	"Working Overtime ahora da un 4 % por punto, hasta un 20 % con cinco." -- mt
+L["With the gamepad interface on, a trainer no longer shows a blocked-action error that names SkillUp."] =
+	"Con la interfaz de control activada, un instructor ya no muestra un error de acción bloqueada que nombra a SkillUp." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Los addons Forever son gratuitos y no hay nada bloqueado tras un pago. Si te ayudan, puedes invitarme un café." -- mt
 L["The place this recipe is taught isn't known yet."] = "Aún no se sabe dónde se enseña esta receta."

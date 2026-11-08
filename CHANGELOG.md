@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.0.36] - 2026-11-08
+
+- **A route that leans on one cheap reagent now says so.** A recipe the addon has no reagent price for is left out of the plan, so a route can end up sitting on one low-tier pattern and printing totals nobody could farm, which is what a Leatherworking route from 35 to 100 did with Light Leather (cjber/skillup-forever#394). The route page now warns when a route is mostly one reagent while recipes were left out, naming the reagent and how many recipes are waiting on a price. Saving and scanning the auction house with Auctionator is still what fills those prices in.
+
 ## [1.0.35] - 2026-11-08
 
 - **Opening the Professions window no longer raises a blocked action.** The route and gear pages used to hide their frames from inside the client's own panel show path, which the client refuses with ADDON_ACTION_BLOCKED. The page work now runs on the next frame, so the window opens and closes cleanly whichever way it is opened (cjber/skillup-forever#393).

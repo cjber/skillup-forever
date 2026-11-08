@@ -522,5 +522,3 @@ L["The game's Craft button is not ready for this recipe."] =
 	"게임의 제작 버튼이 이 제조법에 준비되지 않았습니다." -- mt
 L["vendor, limited stock"] = "상인, 한정 재고" -- mt
 L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt
-L["The route's Craft button can make the whole step."] =
-	"경로의 제작 버튼으로 이제 단계 전체를 만들 수 있습니다." -- mt

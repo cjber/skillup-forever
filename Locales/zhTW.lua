@@ -505,4 +505,3 @@ L["Shift-click crafts all %d."] = "按住Shift點擊製造全部%d個。" -- mt
 L["The game's Craft button is not ready for this recipe."] = "遊戲內建的製造按鈕尚未對這份配方就緒。" -- mt
 L["vendor, limited stock"] = "商人，庫存有限" -- mt
 L["Sells %d at a time"] = "每次出售 %d 個" -- mt
-L["The route's Craft button can make the whole step."] = "路線的製作按鈕現在可以完成整個步驟。" -- mt

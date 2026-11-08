@@ -545,5 +545,3 @@ L["The game's Craft button is not ready for this recipe."] =
 	"Кнопка «Создать» в игре не готова для этого рецепта." -- mt
 L["vendor, limited stock"] = "торговец, ограниченный запас" -- mt
 L["Sells %d at a time"] = "Продаёт по %d за раз" -- mt
-L["The route's Craft button can make the whole step."] =
-	"Кнопка «Создать» в маршруте теперь может выполнить весь шаг." -- mt

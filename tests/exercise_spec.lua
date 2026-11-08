@@ -189,6 +189,11 @@ local EVENT_ARGS = {
 	end,
 	CHAT_MSG_ADDON = { "WFAStats", "", "GUILD", "Tester" },
 	PLAYER_GUILD_UPDATE = {},
+	-- Core/SafeCall.lua's frame: another addon's blocked action is not ours to record, and a plain Lua warning names
+	-- no folder of ours either, so both pass through the exercise without joining the journal.
+	ADDON_ACTION_BLOCKED = { "SomeOtherAddon", "SomeFunction" },
+	ADDON_ACTION_FORBIDDEN = { "SomeOtherAddon", "SomeFunction" },
+	LUA_WARNING = { "a harmless warning" },
 }
 
 local function EventList(c)

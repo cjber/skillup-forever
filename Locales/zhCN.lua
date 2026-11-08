@@ -510,3 +510,17 @@ L["Price self-supplied reagents at auction values"] = "Price self-supplied reage
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
 L["Tooltips stay cheap while the pointer rests on an item."] = "鼠标指针停在物品上时，提示依然轻量。" -- mt
+
+-- Shared debug log (Forever Core's Core/Log.lua).
+L["Debug log is off."] = "调试日志已关闭。"
+L["Debug log is on for this session."] = "本次会话已开启调试日志。"
+L["Debug log is on and pinned for this character."] = "该角色的调试日志已开启并固定。"
+L["Debug log is already on and pinned for this character."] = "该角色的调试日志已经开启并固定。"
+L["Debug log is off for this session; it is still pinned."] =
+	"本次会话已关闭调试日志，但仍保持固定。"
+L["Debug log is off and unpinned."] = "调试日志已关闭并取消固定。"
+L["No addon has attached its log yet."] = "还没有插件附加日志。"
+L["%s (last %d):"] = "%s（最近 %d 条）："
+L["%s: no lines yet."] = "%s：还没有日志行。"
+L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
+	"用法：/forever debug、/forever debug pin、/forever debug off、/forever debug show"

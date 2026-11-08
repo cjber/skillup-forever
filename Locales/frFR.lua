@@ -528,3 +528,19 @@ L["A reagent you gather, loot or already own costs what selling it would bring -
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
 L["Tooltips stay cheap while the pointer rests on an item."] =
 	"Les infobulles restent légères tant que le curseur repose sur un objet." -- mt
+
+-- Shared debug log (Forever Core's Core/Log.lua).
+L["Debug log is off."] = "Le journal de débogage est désactivé."
+L["Debug log is on for this session."] = "Le journal de débogage est activé pour cette session."
+L["Debug log is on and pinned for this character."] =
+	"Le journal de débogage est activé et épinglé pour ce personnage."
+L["Debug log is already on and pinned for this character."] =
+	"Le journal de débogage est déjà activé et épinglé pour ce personnage."
+L["Debug log is off for this session; it is still pinned."] =
+	"Le journal de débogage est désactivé pour cette session ; il reste épinglé."
+L["Debug log is off and unpinned."] = "Le journal de débogage est désactivé et désépinglé."
+L["No addon has attached its log yet."] = "Aucun addon n'a encore joint son journal."
+L["%s (last %d):"] = "%s (dernières %d) :"
+L["%s: no lines yet."] = "%s : aucune ligne pour l'instant."
+L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
+	"Utilisation : /forever debug, /forever debug pin, /forever debug off, /forever debug show"

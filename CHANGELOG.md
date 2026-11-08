@@ -15,6 +15,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 ## [1.0.39] - 2026-11-08
 
 - **Tooltips stay cheap while the pointer rests on an item.** The client sets the same tooltip again and again while it is shown, and the addon worked out the item's uses, the tracked routes that need it and its gathering lines every time. Each answer is now kept by item, node and corpse until a recipe, skill, bag, plan or setting change drops it, so a repeated set only draws the lines it already worked out. Thanks to Setuaro for the report (cjber/skillup-forever#412, CurseForge 8665828).
+- **The report keeps errors from earlier sessions.** An error SkillUp caught before the last `/reload`, a blocked action or a Lua warning was forgotten when the client reloaded, so it could not be copied into a report once it was gone. The report now lists them under their own heading, with when each was first and last seen and the version, build and locale it happened on, and keeps the 50 most recent. It also carries SkillUp's recent log lines, the steps that led up to a bug, and `/forever debug` turns on detailed lines for the session (cjber/forever-core#204, cjber/forever-core#206).
 
 ## [1.0.38] - 2026-11-08
 

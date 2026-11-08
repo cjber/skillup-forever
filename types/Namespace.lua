@@ -77,6 +77,11 @@
 ---@field SafeCall fun(label: string, fn: function, ...: any): boolean, ... run fn as pcall does, keeping a failure for /su report and passing it to the error handler (Core/SafeCall.lua)
 ---@field RecordError fun(label: string, message: any, stack?: string) keep an error caught some other way for the report
 ---@field CaughtErrors fun(): ForeverCaughtError[] this session's caught errors, oldest first, as copies
+---@field AttachErrorJournal fun(store: table) keep the journal in the saved table, so a /reload keeps it (Core/Core.lua)
+---@field Log fun(level: string, topic: string, message: any, ...: any) one line in the shared ring (Core/Log.lua)
+---@field LogLines fun(count?: integer): string[] the newest log lines, oldest first, as copies (Core/Log.lua)
+---@field AttachLog fun(store: table) keep the log ring in the saved table, so a /reload keeps it (Core/Core.lua)
+---@field DebugCommand fun(argument?: string): boolean `/forever debug`: toggle, pin, off or show (Core/Log.lua)
 ---@field CutText fun(text: string, limit: integer): string `text` at most `limit` bytes, cut on a character boundary with "..."
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
@@ -218,6 +223,8 @@
 ---@field statsShare boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field peerStats table<string, table>
+---@field errors ForeverCaughtError[] the shared error journal (Core/SafeCall.lua): earlier sessions' errors, for the report
+---@field log ForeverDebugLogStore the shared log ring (Core/Log.lua): recent lines, for the report
 ---@field showRowText boolean
 ---@field wideRecipeList boolean
 ---@field showUnlearned boolean

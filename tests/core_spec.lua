@@ -59,6 +59,7 @@ for _, complete in ipairs({ false, true }) do
 		ns.PlanRoute, ns.Changed, ns.WhenEvent = Init, Init, function() end
 		ns.CraftedGear = Init
 		ns.SafeCall, ns.Report, ns.ReportLines = pcall, {}, Init
+		ns.AttachErrorJournal, ns.AttachLog = function() end, function() end
 		ns.Family = {}
 	end
 	local env = Env(messages, callbacks)
@@ -148,6 +149,8 @@ do
 		SafeCall = pcall,
 		Report = {},
 		ReportLines = function() end,
+		AttachErrorJournal = function() end,
+		AttachLog = function() end,
 		Family = {},
 		Stats = {},
 	}

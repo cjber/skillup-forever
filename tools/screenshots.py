@@ -587,6 +587,14 @@ env = setmetatable({
 	GetLocale = function()
 		return "enUS"
 	end,
+	-- The client's error handler and string trim, which the shared journal (Core/SafeCall.lua) reads at load.
+	geterrorhandler = function()
+		return function() end
+	end,
+	seterrorhandler = function() end,
+	strtrim = function(text)
+		return (text:gsub("^%s+", ""):gsub("%s+$", ""))
+	end,
 	UnitName = function()
 		return "Player"
 	end,
@@ -791,6 +799,10 @@ env = setmetatable({
 	ForeverFamily = false,
 	ForeverLeaderboards = false,
 	ForeverPeerStats = false,
+	-- The error journal installs its own handler and event frame; BugSack is not installed here.
+	ForeverErrorJournal = false,
+	ForeverDebugLog = false,
+	BugGrabber = false,
 }, {
 	__index = function(_, key)
 		local value = _G[key]

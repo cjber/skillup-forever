@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.1.4] - 2026-11-08
+
 - **The Professions window no longer stutters while it is open.** The client sends recipe-list updates with nothing new in them, and the addon used to redraw the route, tracker, tooltips and shopping list for each one; it now redraws only when the open profession, its skill or the recipes you know actually change. A tracked route also follows a reagent to its new shopping source when item data or a merchant's stock arrives. Reported on CurseForge by Setuaro, 0xTrk and 3kinex (#412).
 
 ## [1.1.3] - 2026-11-08

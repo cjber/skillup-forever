@@ -83,8 +83,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW =
-	L["A profitable recipe no longer gets cheaper the longer a route runs on it, and a craft's time now counts."]
+ns.WHATS_NEW = L["Tooltips stay cheap while the pointer rests on an item."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

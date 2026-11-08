@@ -229,22 +229,37 @@ local function LoadDB()
 	ns.db = loaded
 end
 
--- Legacy talent 1225451, Working Overtime: +10 percentage points to every tradeskill skill-up chance.
-local WORKING_OVERTIME = 1225451
-local WORKING_OVERTIME_BONUS = 0.10
+-- Working Overtime, the Legacy professions tree's node 110290 (talent 1225451): each point spent gives 4
+-- percentage points to every tradeskill skill-up chance, up to 20 at its 5.
+local WORKING_OVERTIME_NODE = 110290
+local WORKING_OVERTIME_TREE = 1187
+local WORKING_OVERTIME_MAX_RANKS = 5
+local WORKING_OVERTIME_PER_POINT = 0.04
 
--- Whether the player has it, by spell ID: the spellbook or the aura the Legacy panel may apply.
----@return boolean
-local function HasWorkingOvertime()
-	-- The pinned retail annotations mark IsPlayerSpell deprecated; Forever still exposes it for this read.
-	---@diagnostic disable-next-line: deprecated
-	if type(IsPlayerSpell) == "function" and IsPlayerSpell(WORKING_OVERTIME) == true then
-		return true
+-- The points this character has spent in Working Overtime, 0 when the client cannot read the tree. The rank
+-- lives in the Legacy talent config, which is where this client keeps it; there is no spell or aura to read.
+---@return integer
+local function WorkingOvertimePoints()
+	if type(C_Traits) ~= "table" then
+		return 0
 	end
-	if type(C_UnitAuras) == "table" and type(C_UnitAuras.GetPlayerAuraBySpellID) == "function" then
-		return C_UnitAuras.GetPlayerAuraBySpellID(WORKING_OVERTIME) ~= nil
+	local constants = rawget(_G, "Constants")
+	local legacy = type(constants) == "table" and constants.LegacyConsts
+	local tree = type(legacy) == "table" and legacy.LEGACY_TREE_PROFESSIONS_ID or WORKING_OVERTIME_TREE
+	local configID = C_Traits.GetConfigIDByTreeID(tree)
+	if not configID then
+		return 0
 	end
-	return false
+	local info = C_Traits.GetNodeInfo(configID, WORKING_OVERTIME_NODE)
+	if type(info) ~= "table" then
+		return 0
+	end
+	local rank = tonumber(info.activeRank) or tonumber(info.currentRank) or 0
+	local maxRanks = tonumber(info.maxRanks) or 0
+	if maxRanks <= 0 then
+		maxRanks = WORKING_OVERTIME_MAX_RANKS
+	end
+	return math.min(math.max(rank, 0), maxRanks)
 end
 
 -- Puts the talent's bonus in the Model; true when it moved, so its events only refresh on a real change.
@@ -253,7 +268,7 @@ local function ReadChanceBonus()
 	if not (ns.Model and ns.Model.SetChanceBonus) then
 		return false
 	end
-	return ns.Model.SetChanceBonus(HasWorkingOvertime() and WORKING_OVERTIME_BONUS or 0)
+	return ns.Model.SetChanceBonus(WorkingOvertimePoints() * WORKING_OVERTIME_PER_POINT)
 end
 
 ---@return ForeverTrackerSettings
@@ -984,6 +999,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	end
 	ns.WhenEvent("SPELLS_CHANGED", TalentChanged)
 	ns.WhenEvent("TRAIT_CONFIG_UPDATED", TalentChanged)
+	ns.WhenEvent("TRAIT_NODE_CHANGED", TalentChanged)
 	ns.InitLive()
 	ns.InitPrices()
 	ns.RegisterSettings()

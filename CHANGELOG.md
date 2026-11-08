@@ -12,6 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Working Overtime now gives 4% per point, up to 20% at five.** Each point spent in the Legacy talent raises every yellow and green recipe's skill-up chance by 4 percentage points, where the addon used to look for a spell or aura the client does not have and missed the talent entirely. The route and its costs follow. Reported on CurseForge by Kirdan (#419).
+- **The merchant's Reagents tab is back on the merchant window.** The tab was built from a Vanilla-only tab template the Forever client does not load, so opening a merchant that sold something a tracked route needed raised a Lua error and never drew the tab. It now uses the same tab template as Merchant and Buyback. Reported on CurseForge by TechnoHunter (#437).
+
 ## [1.1.1] - 2026-11-08
 
 - **A Leatherworking pattern now plans from the skill its trainer teaches it at.** Gray Leather Boots plan from Leatherworking 35, as a Leatherworking trainer lists them, where the bundled guess said 75 (Classic's 100 moved as far as Forever moved its skill range). The same visit confirmed the bundled requirement of the eight other moved Leatherworking recipes that trainer teaches, so only this one changes (#124).

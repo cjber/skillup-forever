@@ -352,7 +352,9 @@ end
 ---@field Items SkillUpMerchantCell[]
 
 -- Two columns of five merchant cells, at the stock item frame's own size and gaps.
-local TAB_TEMPLATE = "CharacterFrameTabButtonTemplate"
+-- The template the merchant window's own tabs inherit in the client's Mainline MerchantFrame.xml. The Vanilla
+-- CharacterFrameTabButtonTemplate is not loaded by the Forever client, so CreateFrame would fail on every open.
+local TAB_TEMPLATE = "PanelTabButtonTemplate"
 local CELLS_PER_PAGE = 10
 local CELL_WIDTH, CELL_HEIGHT = 153, 44
 local COLUMN_GAP, ROW_GAP = 12, 8

@@ -149,6 +149,8 @@ end
 -- reads nil. Each entry says who defines it. Anything else the addon reads must be stubbed in this file first, so a
 -- client API it calls is either here or in the pinned annotations.
 local OPTIONAL_GLOBALS = {
+	-- Core/Core.lua: the Legacy talent API, which only a client with the Legacy system has.
+	C_Traits = true,
 	-- UI/ForeverFamily.lua: the shared family table, published by whichever Forever addon loads it first.
 	ForeverFamily = true,
 	-- UI/Leaderboards.lua: the shared leaders window, published by whichever Forever addon loads it first.
@@ -218,7 +220,8 @@ function Client.load(options)
 		spells = {}, -- [spellID] = name
 		known = {}, -- [spellID] = true: in the spellbook
 		skillLines = {}, -- { skillID, name, isHeader, rank, ... } in the client's skill-line order
-		auras = {}, -- [spellID] = true: an aura the player has
+		traitConfigs = {}, -- [treeID] = configID: the Legacy talent tree's saved config
+		traitNodes = {}, -- [configID] = { [nodeID] = { activeRank, currentRank, maxRanks } }
 		items = {}, -- [itemID] = { name, sell }; a missing field is item data the client has not loaded
 		bags = {}, -- [itemID] = count
 		schematics = {}, -- [recipeID] = { reagents = { { itemID, quantity } }, output = itemID }: the open window's
@@ -546,14 +549,36 @@ function Client.load(options)
 		return true
 	end
 
+	-- Templates the Forever client never loads, so CreateFrame fails on them as the game does. The list holds the
+	-- templates an addon has reached for, not the client's whole Vanilla-only set; add one when a Mainline file no
+	-- longer defines what an older file did.
+	local MISSING_TEMPLATES = {
+		-- Vanilla only: the Mainline MerchantFrame's MerchantFrameTab1/2 inherit PanelTabButtonTemplate (#437).
+		CharacterFrameTabButtonTemplate = true,
+	}
 	G.CreateFrame = function(_, name, parent, template)
+		if type(template) == "string" then
+			for inherited in template:gmatch("[^,]+") do
+				inherited = inherited:match("^%s*(.-)%s*$")
+				if MISSING_TEMPLATES[inherited] then
+					error(string.format("CreateFrame(): Couldn't find inherited node '%s'", inherited), 2)
+				end
+			end
+		end
 		local frame = NewFrame(name, parent)
+		frame.template = template
 		if template == "ObjectiveTrackerModuleTemplate" then
 			for key, method in pairs(TrackerModule) do
 				frame[key] = method
 			end
 		elseif template == "LargeSideTabButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
+		elseif template == "PanelTabButtonTemplate" then
+			-- The regions PanelTemplates_SelectTab and PanelTemplates_DeselectTab toggle, and the text they anchor.
+			frame.Text = NewFrame(nil, frame)
+			for _, key in ipairs({ "Left", "Middle", "Right", "LeftActive", "MiddleActive", "RightActive" }) do
+				frame[key] = NewFrame(nil, frame)
+			end
 		elseif template == "ItemButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
 			frame.Count = NewFrame(nil, frame)
@@ -589,11 +614,27 @@ function Client.load(options)
 	NewFrame("MerchantPageText", G.MerchantFrame)
 	NewFrame("MerchantPrevPageButton", G.MerchantFrame)
 	NewFrame("MerchantNextPageButton", G.MerchantFrame)
+	-- The client's tab state: the art and text a PanelTabButtonTemplate carries are what these functions toggle,
+	-- so a tab built from another template fails here as it would in game.
 	G.PanelTemplates_SelectTab = function(tab)
 		tab.selected = true
+		tab.Left:Hide()
+		tab.Middle:Hide()
+		tab.Right:Hide()
+		tab.Text:SetPoint("CENTER", tab, "CENTER", 0, tab.selectedTextY or -3)
+		tab.LeftActive:Show()
+		tab.MiddleActive:Show()
+		tab.RightActive:Show()
 	end
 	G.PanelTemplates_DeselectTab = function(tab)
 		tab.selected = false
+		tab.Left:Show()
+		tab.Middle:Show()
+		tab.Right:Show()
+		tab.Text:SetPoint("CENTER", tab, "CENTER", 0, tab.deselectedTextY or 2)
+		tab.LeftActive:Hide()
+		tab.MiddleActive:Hide()
+		tab.RightActive:Hide()
 	end
 	G.DEFAULT_CHAT_FRAME = {
 		AddMessage = function(_, message)
@@ -807,12 +848,13 @@ function Client.load(options)
 			return c.known[id] == true
 		end,
 	}
-	G.IsPlayerSpell = function(id)
-		return c.known[id] == true
-	end
-	G.C_UnitAuras = {
-		GetPlayerAuraBySpellID = function(id)
-			return c.auras[id] and { spellId = id } or nil
+	-- The Legacy talent tree: [treeID] = configID, and [configID] = { [nodeID] = node info }.
+	G.C_Traits = {
+		GetConfigIDByTreeID = function(treeID)
+			return c.traitConfigs[treeID]
+		end,
+		GetNodeInfo = function(configID, nodeID)
+			return c.traitNodes[configID] and c.traitNodes[configID][nodeID]
 		end,
 	}
 	G.C_TradeSkillUI = {

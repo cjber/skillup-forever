@@ -42,6 +42,8 @@ L["A side tab on the Professions window listing the newest crafted item this cha
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
 	"Ein Seitenreiter am Berufsfenster mit einer Route zu Eurer Zielfertigkeit und ihren Reagenzien. Verfolgte Berufe bleiben so oder so in der Questzielverfolgung."
 L["Show thresholds bar on the recipe"] = "Fertigkeitsbalken beim Rezept anzeigen" -- mt
+L["The Forever Leaderboards window and `/forever` come from the newest addon installed."] =
+	"Das Forever-Leaderboards-Fenster und `/forever` stammen aus dem zuletzt installierten Addon." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Die Forever-Addons sind kostenlos, und nichts ist hinter einer Bezahlung versteckt. Wenn sie Euch helfen, könnt Ihr mir einen Kaffee spendieren." -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
@@ -516,8 +518,6 @@ L["This route is mostly %s: %d recipes are left out until their reagents are pri
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
-L["Tooltips stay cheap while the pointer rests on an item."] =
-	"Tooltips bleiben günstig, solange der Zeiger auf einem Gegenstand ruht." -- mt
 
 -- Shared debug log (Forever Core's Core/Log.lua).
 L["Debug log is off."] = "Das Debug-Protokoll ist aus."

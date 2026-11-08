@@ -19,6 +19,7 @@ local ORDER = {
 	"trainer",
 	"routeTab",
 	"gear",
+	"tooltipCache",
 	"tooltip",
 	"auctionSearch",
 	"detailsBar",
@@ -26,11 +27,14 @@ local ORDER = {
 }
 
 ---@type table<SkillUpChange, table<SkillUpStale, true>>
+-- The tooltip cache reads recipes, plans, bags and settings through several paths, so every change kind
+-- below also drops it.
 local STALE = {
 	-- What a profession's recipes are or need: a recipe learned, or the open window's scan finding a learned
 	-- flag, a live grey, skill points or a schematic the plans were built without. The plan is built from all
 	-- of it.
 	recipes = {
+		tooltipCache = true,
 		schematics = true,
 		plans = true,
 		api = true,
@@ -44,6 +48,7 @@ local STALE = {
 	-- The profession window opened, moved to another profession or redrew its list: what shows it follows,
 	-- from plans kept as they are. What the window holds that the plans lack, its scan reports as recipes.
 	window = {
+		tooltipCache = true,
 		api = true,
 		route = true,
 		tracker = true,
@@ -54,9 +59,10 @@ local STALE = {
 	},
 	-- A skill line moved: often a weapon or defense skill-up in combat, nothing a plan reads. A plan is keyed by
 	-- its profession's skill, bonus and cap, so a profession's own skill-up rebuilds that one plan on its next ask.
-	skill = { api = true, route = true, tracker = true, detailsBar = true, shoppingList = true },
+	skill = { tooltipCache = true, api = true, route = true, tracker = true, detailsBar = true, shoppingList = true },
 	-- A Legacy talent changed what a skill-up is worth: every chance shown, planned or priced moves.
 	talents = {
+		tooltipCache = true,
 		plans = true,
 		api = true,
 		route = true,
@@ -69,6 +75,7 @@ local STALE = {
 	},
 	-- A profession learned or dropped changes what counts as gathered, so what things cost.
 	professions = {
+		tooltipCache = true,
 		prices = true,
 		plans = true,
 		api = true,
@@ -79,6 +86,7 @@ local STALE = {
 		shoppingList = true,
 	},
 	prices = {
+		tooltipCache = true,
 		prices = true,
 		plans = true,
 		api = true,
@@ -87,19 +95,20 @@ local STALE = {
 		tracker = true,
 		shoppingList = true,
 	},
-	bags = { api = true, route = true, tracker = true, shoppingList = true },
+	bags = { tooltipCache = true, api = true, route = true, tracker = true, shoppingList = true },
 	-- Item data arrived; `names` when the public list was waiting on it.
-	items = { route = true, tracker = true, gear = true, shoppingList = true },
-	names = { api = true },
-	level = { api = true, route = true, tracker = true, gear = true, shoppingList = true },
-	zone = { api = true },
+	items = { tooltipCache = true, route = true, tracker = true, gear = true, shoppingList = true },
+	names = { tooltipCache = true, api = true },
+	level = { tooltipCache = true, api = true, route = true, tracker = true, gear = true, shoppingList = true },
+	zone = { tooltipCache = true, api = true },
 	-- A merchant opened, restocked or closed: the tracker's buy button.
-	merchant = { tracker = true, shoppingList = true },
+	merchant = { tooltipCache = true, tracker = true, shoppingList = true },
 	-- Fees and requirements recorded at a trainer.
-	fees = { plans = true, api = true, route = true, tracker = true, shoppingList = true },
+	fees = { tooltipCache = true, plans = true, api = true, route = true, tracker = true, shoppingList = true },
 	-- Where scrolls, vendors and trainers are, read from Questie and AtlasLoot or seen at a merchant's window.
 	-- A vendor-sold recipe's scroll price is a plan input too (#358).
 	sources = {
+		tooltipCache = true,
 		plans = true,
 		api = true,
 		route = true,
@@ -108,9 +117,10 @@ local STALE = {
 		gear = true,
 		shoppingList = true,
 	},
-	target = { plans = true, api = true, route = true, tracker = true, shoppingList = true },
-	tracking = { api = true, route = true, tracker = true, shoppingList = true },
+	target = { tooltipCache = true, plans = true, api = true, route = true, tracker = true, shoppingList = true },
+	tracking = { tooltipCache = true, api = true, route = true, tracker = true, shoppingList = true },
 	settings = {
+		tooltipCache = true,
 		prices = true,
 		plans = true,
 		api = true,

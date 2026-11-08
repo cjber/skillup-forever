@@ -360,6 +360,69 @@ local BAND_LABELS = { orange = L["orange"], yellow = L["yellow"], green = L["gre
 -- The threshold each band ends at.
 local BAND_END = { orange = 2, yellow = 3, green = 4 }
 
+-- One line to draw later: what it is and everything it needs, so a cached answer costs only the drawing.
+---@class SkillUpTooltipLine
+---@field kind "blank"|"double"|"colored"|"disabled"|"normal"
+---@field text? string
+---@field right? string
+---@field color? ColorMixin
+---@field r? number
+---@field g? number
+---@field b? number
+
+---@return SkillUpTooltipLine
+local function BlankLine()
+	return { kind = "blank" }
+end
+
+---@param text string
+---@return SkillUpTooltipLine
+local function NormalLine(text)
+	return { kind = "normal", text = text }
+end
+
+---@param text string
+---@return SkillUpTooltipLine
+local function DisabledLine(text)
+	return { kind = "disabled", text = text }
+end
+
+---@param text string
+---@param color ColorMixin
+---@return SkillUpTooltipLine
+local function ColoredLine(text, color)
+	return { kind = "colored", text = text, color = color }
+end
+
+---@param left string
+---@param right string
+---@param color ColorMixin
+---@return SkillUpTooltipLine
+local function DoubleLine(left, right, color)
+	local r, g, b = color:GetRGB()
+	return { kind = "double", text = left, right = right, r = r, g = g, b = b }
+end
+
+---@param tooltip GameTooltip
+---@param lines SkillUpTooltipLine[]
+local function Draw(tooltip, lines)
+	for _, line in ipairs(lines) do
+		if line.kind == "blank" then
+			GameTooltip_AddBlankLineToTooltip(tooltip)
+		elseif line.kind == "double" then
+			tooltip:AddDoubleLine(line.text, line.right, 1, 1, 1, line.r, line.g, line.b)
+		elseif line.kind == "colored" then
+			GameTooltip_AddColoredLine(tooltip, line.text, line.color)
+		elseif line.kind == "disabled" then
+			GameTooltip_AddDisabledLine(tooltip, line.text)
+		elseif line.kind == "normal" then
+			GameTooltip_AddNormalLine(tooltip, line.text)
+		else
+			error("unknown tooltip line: " .. tostring(line.kind))
+		end
+	end
+end
+
 -- "yellow until 115": the band the recipe is in now and where it ends.
 ---@param t number[]
 ---@param skill number
@@ -402,17 +465,15 @@ local function Uses(itemID)
 end
 
 -- "Route: 28/567 · Leatherworking to 150" for each tracked route that needs the item.
----@param tooltip GameTooltip
 ---@param itemID integer
----@return boolean
-local function AddRouteNeeds(tooltip, itemID)
-	local added = false
+---@return SkillUpTooltipLine[]
+local function RouteNeedsLines(itemID)
+	local lines = {}
 	for _, entry in ipairs(ns.TrackedNeeds()) do
 		for _, item in ipairs(entry.items) do
 			if item.itemID == itemID then
-				if not added then
-					GameTooltip_AddBlankLineToTooltip(tooltip)
-					added = true
+				if #lines == 0 then
+					lines[#lines + 1] = BlankLine()
 				end
 				local have = ns.Have(itemID)
 				local text = string.format(
@@ -422,28 +483,77 @@ local function AddRouteNeeds(tooltip, itemID)
 					entry.plan.profession.name,
 					entry.plan.target
 				)
-				GameTooltip_AddColoredLine(tooltip, text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
+				lines[#lines + 1] = ColoredLine(text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
 			end
 		end
 	end
-	return added
+	return lines
 end
 
----@param tooltip GameTooltip
 ---@param uses SkillUpUse[]
-local function AddUsedIn(tooltip, uses)
-	GameTooltip_AddBlankLineToTooltip(tooltip)
-	GameTooltip_AddNormalLine(tooltip, L["Used in"])
+---@return SkillUpTooltipLine[]
+local function UsedInLines(uses)
+	local lines = { BlankLine(), NormalLine(L["Used in"]) }
 	for i, use in ipairs(uses) do
 		if i > MAX_USES then
-			GameTooltip_AddDisabledLine(tooltip, string.format(L["+%d more"], #uses - MAX_USES))
+			lines[#lines + 1] = DisabledLine(string.format(L["+%d more"], #uses - MAX_USES))
 			break
 		end
 		local band, color = Band(use.t, use.skill)
 		local name = C_Spell.GetSpellName(use.recipeID) or string.format(L["recipe %d"], use.recipeID)
-		local r, g, b = color:GetRGB()
-		tooltip:AddDoubleLine(use.learned and name or string.format(L["%s (unlearned)"], name), band, 1, 1, 1, r, g, b)
+		lines[#lines + 1] = DoubleLine(use.learned and name or string.format(L["%s (unlearned)"], name), band, color)
 	end
+	return lines
+end
+
+-- What an item's tooltip says, by item and by what changes it (the mode and Shift), so the client setting the
+-- same tooltip again only draws it. Anything that can move a line drops the lot (Core/Changes.lua).
+---@type table<integer, table<string, SkillUpTooltipLine[]>>
+local itemLines = {}
+-- A gathering line, by the skill line it is for and the skill it asks; nil is an unknown requirement.
+---@type table<string, SkillUpTooltipLine[]>
+local gatherLines = {}
+
+local function ClearTooltipLines()
+	itemLines, gatherLines = {}, {}
+end
+ns.WhenStale("tooltipCache", ClearTooltipLines)
+
+---@param itemID integer
+---@param mode string
+---@param shifted boolean
+---@return SkillUpTooltipLine[]
+local function ItemLines(itemID, mode, shifted)
+	local variants = itemLines[itemID]
+	if not variants then
+		variants = {}
+		itemLines[itemID] = variants
+	end
+	local key = mode .. (shifted and ":shift" or "")
+	local lines = variants[key]
+	if lines then
+		return lines
+	end
+	local uses = Uses(itemID)
+	lines = {}
+	for _, line in ipairs(RouteNeedsLines(itemID)) do
+		lines[#lines + 1] = line
+	end
+	if mode == "route" then
+		if shifted and #uses > 0 then
+			for _, line in ipairs(UsedInLines(uses)) do
+				lines[#lines + 1] = line
+			end
+		elseif #lines > 0 and #uses > 0 then
+			lines[#lines + 1] = DisabledLine(string.format(L["Shift: used in %d of your recipes"], #uses))
+		end
+	elseif #uses > 0 then
+		for _, line in ipairs(UsedInLines(uses)) do
+			lines[#lines + 1] = line
+		end
+	end
+	variants[key] = lines
+	return lines
 end
 
 ---@param tooltip GameTooltip
@@ -461,22 +571,10 @@ local function AddUses(tooltip, data)
 	if mode == "off" or not itemID then
 		return
 	end
-	local uses = Uses(itemID)
-	if mode == "route" then
-		local needed = AddRouteNeeds(tooltip, itemID)
-		if IsShiftKeyDown() and #uses > 0 then
-			AddUsedIn(tooltip, uses)
-		elseif needed and #uses > 0 then
-			GameTooltip_AddDisabledLine(tooltip, string.format(L["Shift: used in %d of your recipes"], #uses))
-		end
-	elseif mode == "full" then
-		AddRouteNeeds(tooltip, itemID)
-		if #uses > 0 then
-			AddUsedIn(tooltip, uses)
-		end
-	else
+	if mode ~= "route" and mode ~= "full" then
 		error("unknown reagent tooltip mode: " .. tostring(mode))
 	end
+	Draw(tooltip, ItemLines(itemID, mode, mode == "route" and IsShiftKeyDown()))
 end
 
 -- Shift changes what an item tooltip shows, so redraw the one on screen.
@@ -495,23 +593,35 @@ end
 -- corpse's. Both are coloured from your live skill with Classic's gathering bands (Model.GatherThresholds).
 
 -- "Mining 175" and how it colours at your skill, for a gathering profession you have; "?" for an unknown
--- requirement. Nothing for a profession you don't have.
+-- requirement. Nothing for a profession you don't have. The line is kept by the skill it asks, so a repeated
+-- tooltip set does not read your professions again.
+---@param skillLine integer
+---@param required number?
+---@return SkillUpTooltipLine[]
+local function GatherLines(skillLine, required)
+	local key = string.format("%d:%s", skillLine, required and tostring(required) or "?")
+	local lines = gatherLines[key]
+	if lines then
+		return lines
+	end
+	local profession = ns.PlayerProfessions()[skillLine]
+	if not profession then
+		lines = {}
+	elseif not required then
+		lines = { DoubleLine(profession.name, "?", ns.COLORS.unknown) }
+	else
+		local band, color = Band(ns.Model.GatherThresholds(required), profession.skill)
+		lines = { DoubleLine(string.format(L["%s %d"], profession.name, required), band, color) }
+	end
+	gatherLines[key] = lines
+	return lines
+end
+
 ---@param tooltip GameTooltip
 ---@param skillLine integer
 ---@param required number?
 local function AddGatherLine(tooltip, skillLine, required)
-	local profession = ns.PlayerProfessions()[skillLine]
-	if not profession then
-		return
-	end
-	if not required then
-		local r, g, b = ns.COLORS.unknown:GetRGB()
-		tooltip:AddDoubleLine(profession.name, "?", 1, 1, 1, r, g, b)
-		return
-	end
-	local band, color = Band(ns.Model.GatherThresholds(required), profession.skill)
-	local r, g, b = color:GetRGB()
-	tooltip:AddDoubleLine(string.format(L["%s %d"], profession.name, required), band, 1, 1, 1, r, g, b)
+	Draw(tooltip, GatherLines(skillLine, required))
 end
 
 -- The first line of a tooltip's data, when it can be read.

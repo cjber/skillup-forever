@@ -96,8 +96,10 @@ equal(partDominant and partDominant.itemID, LIGHT_LEATHER, "the reagent the rout
 equal(partDominant and partDominant.share >= 0.5, true, "and it is at least half the route's reagent units")
 
 -- A spread-out route, every reagent priced: no single reagent carries it, so there is no notice (#394).
+-- Both leathers cost the same, so the route has no cheap leather to lean on: with Coarse Leather nearly free,
+-- Gray Leather Boots (trainer, 35; #124) would carry it on Coarse Leather alone.
 local spread = Loaded(
-	{ [LIGHT_LEATHER] = 100, [COARSE_LEATHER] = 1, [COARSE_THREAD] = 1, [FINE_THREAD] = 1, [CURED_LIGHT_HIDE] = 1 },
+	{ [LIGHT_LEATHER] = 100, [COARSE_LEATHER] = 100, [COARSE_THREAD] = 1, [FINE_THREAD] = 1, [CURED_LIGHT_HIDE] = 1 },
 	150,
 	{ HANDSTITCHED_BOOTS }
 )

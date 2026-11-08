@@ -81,6 +81,12 @@ class RequirementTests(unittest.TestCase):
             self.assertIsNotNone(row, recipe)
             self.assertTrue(1 <= int(row.group(1)) <= most, recipe)
 
+    # Issue #124: a Leatherworking trainer showed Gray Leather Boots at 35, where the rule gave 75 (classic-db 100).
+    # The trainer visit confirmed the rule for the eight other moved recipes it listed.
+    def test_gray_leather_boots_asks_what_the_trainer_showed(self):
+        text = (ROOT / "Data" / "Trainer.lua").read_text(encoding="utf-8")
+        self.assertRegex(text, r"\n\t\[2167\] = \{ \d+, 35 \},")
+
     def test_unmoved_zero_requirement_is_not_inferred(self):
         effects = [
             {"SpellID": str(teach), "DifficultyID": "0", "Effect": "36", "EffectTriggerSpell": str(taught)}

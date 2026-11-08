@@ -36,6 +36,7 @@ PROFESSION_SKILLS = {129, 164, 165, 171, 182, 185, 186, 197, 202, 333, 356, 393}
 # it; a trainer's own number still wins.
 SEEN_REQUIREMENTS = {
     9985: 110,  # Bronze Warhammer: made at 110 (kopuliak, CurseForge 2026-10-08; #123)
+    2167: 35,  # Gray Leather Boots: a Leatherworking trainer showed 35 (saved by the trainer window; #124)
 }
 # Forever's client leaves out the trainers' teaching spells; Classic Era (TEACH_BUILD, pinned in
 # gen_thresholds.py) keeps them, with the same recipe spell IDs.

@@ -5,7 +5,7 @@
 -- Specialisation-gated rows are left out. Fees seen at a trainer win.
 -- A required skill moves as far as Forever 1.60.1.70862 moved the recipe's yellow and grey from
 -- Classic Era 1.15.9.70576's (SkillLineAbility).
--- No higher than the skill players made it at for [9985] (SEEN_REQUIREMENTS).
+-- No higher than the skill players made it at for [2167, 9985] (SEEN_REQUIREMENTS).
 -- recipes=413; conflicts resolved to the most common: [10621, 10647, 13622].
 ---@type string, SkillUpNamespace
 local _, ns = ...
@@ -19,7 +19,7 @@ ns.TrainerFees = {
 	[2162] = { 100, 40 },
 	[2165] = { 650, 75 },
 	[2166] = { 1400, 95 },
-	[2167] = { 650, 75 },
+	[2167] = { 650, 35 },
 	[2168] = { 1000, 85 },
 	[2331] = { 100, 25 },
 	[2332] = { 135, 40 },

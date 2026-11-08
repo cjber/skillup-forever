@@ -382,7 +382,7 @@ L["While the auction house is open, the Professions window offers a search for t
 L["Widen the recipe list to fit recipe names"] = "Widen the recipe list to fit recipe names"
 L["With Shortest Path Forever, a click leads you there."] = "With Shortest Path Forever, a click leads you there."
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] = "With Shortest Path Forever, this picks the nearest by travel time and leads you there."
-L["Working Overtime now gives 4% per point, up to 20% at five."] = "Working Overtime now gives 4% per point, up to 20% at five."
+L["With the gamepad interface on, a trainer no longer shows a blocked-action error that names SkillUp."] = "With the gamepad interface on, a trainer no longer shows a blocked-action error that names SkillUp."
 L["World drop"] = "World drop"
 L["Wrist"] = "Wrist"
 L["You have it, requires %s (%d)"] = "You have it, requires %s (%d)"

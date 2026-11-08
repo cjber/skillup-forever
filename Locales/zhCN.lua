@@ -268,8 +268,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"从成本中减去制造物品的售价。拍卖价需要Auctionator，已扣除5%手续费，且不一定能卖出。"
 L["Suggest my other Forever addons"] = "推荐我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s训练师教授。"
-L["Working Overtime now gives 4% per point, up to 20% at five."] =
-	"Working Overtime 现在每点提供 4%，五点时最多 20%。" -- mt
+L["With the gamepad interface on, a trainer no longer shows a blocked-action error that names SkillUp."] =
+	"开启手柄界面时，训练师处不再出现指向 SkillUp 的动作被阻止错误。" -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 插件全部免费，没有任何付费才能使用的内容。如果它们对你有帮助，可以请我喝杯咖啡。" -- mt
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"

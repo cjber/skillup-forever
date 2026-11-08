@@ -779,6 +779,8 @@ env = setmetatable({
 	end,
 	MinimalSliderWithSteppersMixin = { Label = { Right = "right" } },
 	MenuUtil = Stub(),
+	-- The screenshots show the mouse and keyboard interface (Core/Core.lua ns.GamepadUI).
+	InputUtil = { IsGamepadUIEnabled = function() return false end },
 	SkillUpForeverDB = {
 		trackedProfessions = { [STATE.open.skillLine] = true },
 		collectModes = {},

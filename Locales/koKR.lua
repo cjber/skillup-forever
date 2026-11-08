@@ -548,3 +548,4 @@ L["%s (last %d):"] = "%s (최근 %d개):"
 L["%s: no lines yet."] = "%s: 아직 줄이 없습니다."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"사용법: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
+L["This menu needs mouse and keyboard."] = "이 메뉴는 마우스와 키보드가 필요합니다."

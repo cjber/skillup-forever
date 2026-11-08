@@ -741,7 +741,7 @@ local ModuleMixin = { headerText = L["Profession reagents"] }
 
 ---@param block SkillUpTrackerBlock
 function ModuleMixin:OnBlockHeaderClick(block)
-	MenuUtil.CreateContextMenu(self:GetContextMenuParent(), function(_, root)
+	ns.ContextMenu(self:GetContextMenuParent(), function(_, root)
 		root:SetScrollMode(MENU_EXTENT)
 		root:CreateTitle(block.profession)
 		-- Only while this profession is open: the client crafts from the open one.

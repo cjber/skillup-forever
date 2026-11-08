@@ -529,3 +529,4 @@ L["%s (last %d):"] = "%s（最近 %d 筆）："
 L["%s: no lines yet."] = "%s：還沒有記錄行。"
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"用法：/forever debug、/forever debug pin、/forever debug off、/forever debug show"
+L["This menu needs mouse and keyboard."] = "此選單需要滑鼠和鍵盤。"

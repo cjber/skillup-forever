@@ -572,3 +572,4 @@ L["%s (last %d):"] = "%s (последние %d):"
 L["%s: no lines yet."] = "%s: строк пока нет."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"Использование: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
+L["This menu needs mouse and keyboard."] = "Для этого меню нужны мышь и клавиатура."

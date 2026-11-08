@@ -541,3 +541,4 @@ L["%s (last %d):"] = "%s (últimas %d):"
 L["%s: no lines yet."] = "%s: ainda não há linhas."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"Uso: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
+L["This menu needs mouse and keyboard."] = "Este menu precisa de mouse e teclado."

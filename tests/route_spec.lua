@@ -218,6 +218,8 @@ page = {
 	end,
 	-- The route page hides the gear page when it takes over; this spec loads the route file alone.
 	HideGear = function() end,
+	-- The profession picker's gamepad wrapper comes from Core/Core.lua, which this spec leaves out.
+	StepDropdownUnderGamepad = function() end,
 	-- Recipes this character said Not this recipe to: none until a spec skips one.
 	PinPreference = function(id)
 		return page.pins and page.pins[id] or 0

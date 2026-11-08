@@ -201,6 +201,31 @@ function C_SkillInfo.GetSkillLineInfoByID(ID) end
 ---@class DropdownButton : Button
 ---@field SetupMenu fun(self: DropdownButton, generator: fun(owner: DropdownButton, root: RootMenuDescriptionProxy))
 ---@field GenerateMenu fun(self: DropdownButton)
+---@field GetMenuDescription fun(self: DropdownButton): RootMenuDescriptionProxy?
+---@field CollectSelectionData fun(self: DropdownButton): ElementMenuDescriptionProxy?, ElementMenuDescriptionProxy?, ElementMenuDescriptionProxy[]
+---@field Pick fun(self: DropdownButton, description: ElementMenuDescriptionProxy|RootMenuDescriptionProxy, context: any): boolean
+---@field OpenMenu fun(self: DropdownButton)
+
+-- The client's gamepad-interface check, the screen errors line and the menu pieces around a dropdown.
+---@class InputUtilAPI
+---@field IsGamepadUIEnabled fun(): boolean
+---@type InputUtilAPI
+InputUtil = nil
+
+---@class UIErrorsFrameAPI : Frame
+---@field AddMessage fun(self: UIErrorsFrameAPI, text: string, r: number, g: number, b: number)
+---@type UIErrorsFrameAPI
+UIErrorsFrame = nil
+
+---@class DropdownButtonMixinAPI
+---@field OpenMenu fun(self: DropdownButton)
+---@type DropdownButtonMixinAPI
+DropdownButtonMixin = nil
+
+---@class MenuInputContextEnum
+---@field MouseWheel integer
+---@type MenuInputContextEnum
+MenuInputContext = nil
 
 -- Ketho declares the native tooltip widget; Forever also mixes in GameTooltipDataMixin.
 ---@class GameTooltip

@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **With the gamepad interface on, a trainer no longer trips the client's protected `SetPreferredGamepadInteractTarget()`.** SkillUp's right-click menus were opened from its own code, so the gamepad frame manager took them into its focus under SkillUp's taint, and the next window to show or hide read that taint and had its protected call refused. Under the gamepad interface those menus now show "This menu needs mouse and keyboard." instead of opening, and a press on the route's profession picker steps to the next profession. Reported on CurseForge by Viper2042 (#398).
+
 ## [1.1.2] - 2026-11-08
 
 - **Working Overtime now gives 4% per point, up to 20% at five.** Each point spent in the Legacy talent raises every yellow and green recipe's skill-up chance by 4 percentage points, where the addon used to look for a spell or aura the client does not have and missed the talent entirely. The route and its costs follow. Reported on CurseForge by Kirdan (#419).

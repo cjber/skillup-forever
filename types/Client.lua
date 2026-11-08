@@ -324,6 +324,11 @@ OBJECTIVE_DASH_STYLE_HIDE = nil
 ---@class SkillUpSettingOptions
 ---@field Add fun(self: SkillUpSettingOptions, value: SkillUpSettingValue, text: string)
 ---@field GetData fun(self: SkillUpSettingOptions): {value: SkillUpSettingValue, text: string}[]
+-- The client's gamepad switch: the Forever addons page is a canvas page without it.
+---@class SkillUpInputUtil
+---@field IsGamepadUIEnabled fun(): boolean
+---@type SkillUpInputUtil?
+InputUtil = nil
 Settings = {}
 Settings.VarType = { Boolean = "boolean", String = "string", Number = "number" }
 ---@param name string
@@ -331,11 +336,11 @@ Settings.VarType = { Boolean = "boolean", String = "string", Number = "number" }
 function Settings.RegisterVerticalLayoutCategory(name) end
 ---@return any
 function Settings.RegisterCanvasLayoutCategory(frame, name) end
----@param parent SkillUpCategory
+---@param parent SkillUpCategory|table
 ---@param name string
 ---@return SkillUpCategory
 function Settings.RegisterVerticalLayoutSubcategory(parent, name) end
----@param parent SkillUpCategory
+---@param parent SkillUpCategory|table
 ---@param frame Frame
 ---@param name string
 ---@return SkillUpCategory
@@ -384,6 +389,10 @@ function Settings.CreateCheckboxInitializer(setting, options, tooltip) end
 ---@param tooltip string
 ---@return SkillUpSettingInitializer
 function Settings.CreateDropdownInitializer(setting, options, tooltip) end
+---@param category SkillUpCategory
+---@param setting SkillUpSetting
+---@param tooltip string
+function Settings.CreateCheckbox(category, setting, tooltip) end
 ---@param category SkillUpCategory
 ---@param initializer SkillUpSettingInitializer
 function Settings.RegisterInitializer(category, initializer) end

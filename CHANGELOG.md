@@ -13,6 +13,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 ## [Unreleased]
 
 - **The Professions window no longer stutters while it is open.** The client sends recipe-list updates with nothing new in them, and the addon used to redraw the route, tracker, tooltips and shopping list for each one; it now redraws only when the open profession, its skill or the recipes you know actually change. A tracked route also follows a reagent to its new shopping source when item data or a merchant's stock arrives. Reported on CurseForge by Setuaro, 0xTrk and 3kinex (#412).
+- **The Forever addons page opens with a gamepad.** With the gamepad interface on, the Forever addons settings page can be entered from the Options list (cjber/tweaks-forever#382).
 
 ## [1.1.2] - 2026-11-08
 

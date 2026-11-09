@@ -39,10 +39,6 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 L["Lock the tracker"] = "Travar o rastreador"
 L["Tracker background"] = "Fundo do rastreamento"
 
-L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
-	"Uma aba lateral na janela de profissões, abaixo da aba da rota, com o item criado mais recente que este personagem pode equipar em cada espaço."
-L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
-	"Uma aba lateral na janela de profissões com uma rota até a perícia desejada e seus reagentes. Profissões rastreadas continuam no rastreador de objetivos de qualquer forma."
 L["AH"] = "CL"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Mostra o início da faixa de dificuldade de cada receita. Isso é diferente da perícia necessária para aprendê-la."
@@ -138,7 +134,6 @@ L["Learn a crafting profession to plan a route."] = "Aprenda uma profissão de c
 L["Legs"] = "Pernas"
 L["Level %d"] = "Nível %d"
 L["Level %d %s"] = "Nível %d %s"
-L["Levelling route"] = "Rota de evolução"
 L["Made at"] = "Criado em"
 L["Main hand"] = "Mão principal"
 L["Missing reagents for this step."] = "Faltam reagentes para esta etapa."
@@ -550,3 +545,25 @@ L["Made by %s %d"] = "Feito por %s %d" -- mt
 L["Made by %s"] = "Feito por %s" -- mt
 L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
 	"O produto de uma receita agora reduz o custo de cada criação da sua etapa, não só da primeira." -- mt
+L["%s at %d"] = "%s em %d" -- mt
+L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
+	"Uma aba na parte inferior da janela de profissões que lista os consumíveis de bônus que esta profissão fabrica, pela perícia em que são desbloqueados e para que servem. Ela abre pela aba lateral do SkillUp, ao lado das abas de rota e equipamento fabricado." -- mt
+L["A tab at the bottom of the Professions window listing the newest crafted item this character can equip in each slot. It opens from the SkillUp side tab, beside the route and buffs tabs."] =
+	"Uma aba na parte inferior da janela de profissões com o item fabricado mais recente que este personagem pode equipar em cada espaço. Ela abre pela aba lateral do SkillUp, ao lado das abas de rota e bônus." -- mt
+L["A tab at the bottom of the Professions window with a route to your target skill and its reagents. It opens from the SkillUp side tab, beside the crafted gear and buffs tabs. Tracked professions stay in the objective tracker either way."] =
+	"Uma aba na parte inferior da janela de profissões com uma rota até sua perícia alvo e seus reagentes. Ela abre pela aba lateral do SkillUp, ao lado das abas de equipamento fabricado e bônus. Profissões rastreadas continuam no rastreador de objetivos de qualquer forma." -- mt
+L["Above your level"] = "Acima do seu nível" -- mt
+L["Buffs"] = "Bônus" -- mt
+L["Known"] = "Conhecido" -- mt
+L["Later"] = "Mais tarde" -- mt
+L["Learn now"] = "Aprender agora" -- mt
+L["No buff items for your level yet."] = "Ainda não há itens de bônus para o seu nível." -- mt
+L["Only for level %d"] = "Apenas para nível %d" -- mt
+L["Show the buffs tab"] = "Mostrar a aba de bônus" -- mt
+L["SkillUp"] = "SkillUp" -- mt
+L["This profession makes no buff items."] = "Esta profissão não fabrica itens de bônus." -- mt
+L["spell %d"] = "feitiço %d" -- mt
+L["Buffs by %s skill"] = "Bônus por %s" -- mt
+L["Skill  %d/%d"] = "Perícia  %d/%d" -- mt
+L["Other crafters"] = "Outros artesãos" -- mt
+L["No profession here makes buff items."] = "Nenhuma profissão fabrica itens de bônus." -- mt

@@ -46,6 +46,7 @@ Core\Changes.lua
 Core\Live.lua
 Core\Plan.lua
 Core\Gear.lua
+Core\Buffs.lua
 Core\Core.lua
 Core\PeerStats.lua
 Core\LeaderboardsData.lua
@@ -65,8 +66,11 @@ UI\DetailsBar.lua
 UI\RecipeList.lua
 Integrations\Sources.lua
 UI\List.lua
+UI\PageParts.lua
+UI\Pages.lua
 UI\Route.lua
 UI\Gear.lua
+UI\Buffs.lua
 UI\Shopping.xml
 UI\TrackerQuestie.lua
 UI\TrackerEqot.lua

@@ -117,10 +117,29 @@
 ---@field ShowRecipe fun(recipeID: integer, anyProfession?: boolean)
 ---@field AttachRoute fun()
 ---@field AttachGear fun()
----@field RouteTab? SkillUpSideTab
----@field GearTab? SkillUpSideTab
+---@field AttachBuffs fun()
+---@field LastSkillUpPage fun(): SkillUpPageID?
+---@field SetLastSkillUpPage fun(pageID: SkillUpPageID)
+---@field OnlyBuffsForLevel fun(): boolean
+---@field SetOnlyBuffsForLevel fun(only: boolean)
+---@field BuffRows fun(profession: SkillUpContext, level: number, hideLocked: boolean): SkillUpBuffRow[]
+---@field BuffAxis fun(rows: SkillUpBuffRow[]): number
+---@field BuffColumns fun(rows: SkillUpBuffRow[], hi: number, width: number, node: number, gap: number, columnGap: number): SkillUpBuffColumn[], number
+---@field BuffRowX fun(items: SkillUpBuffItem[], columns: SkillUpBuffColumn[], node: number, gap: number): number[]
+---@field BuffDivider fun(columns: SkillUpBuffColumn[], max: number, node: number, gap: number, columnGap: number): number?
+---@field BuffOpenOffset fun(columns: SkillUpBuffColumn[], skill: number, contentWidth: number, width: number): number
+---@field BuffNextRank fun(profession: SkillUpContext): string?, integer?
+---@field BuffNodeState fun(item: SkillUpBuffItem): 'known'|'trainable'|'later'|'locked'
+---@field BuffProfessionLines fun(): table<integer, true>
+---@field BuffProfessions fun(professions: table<integer, SkillUpProfession>): SkillUpContext[], SkillUpContext[]
+---@field BuffProfessionDefault fun(own: SkillUpContext[], others: SkillUpContext[], saved: integer?, open: integer?): SkillUpContext?
+---@field LastBuffProfession fun(): integer?
+---@field SetLastBuffProfession fun(skillLine: integer)
+---@field PageParts SkillUpPageParts
+---@field Pages SkillUpPages
 ---@field HideRoute fun()
 ---@field HideGear fun()
+---@field HideBuffs fun()
 ---@field PlaceSideTabs fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
@@ -213,6 +232,7 @@
 ---@field RankQuests table<integer, (number|string)[][]> per skill line: { cap, quest, required skill, level, side "A"/"H" }.
 ---@field ItemGear table<integer, number[]>
 ---@field BuffItems table<integer, integer> Crafted item to the buff spell a use of it leaves on the player.
+---@field BuffEffects table<integer, number[]> { aura, misc } per buff spell: the effect that names its row.
 ---@field ItemSellPrices table<integer, number>
 ---@field RecipeNames table<integer, table<string, integer|false>>
 ---@field ProfessionSkillLines table<string, integer>
@@ -254,6 +274,10 @@
 ---@field showRouteTab boolean
 ---@field showTracker boolean
 ---@field showGearTab boolean
+---@field showBuffsTab boolean
+---@field lastSkillUpPage table<string, SkillUpPageID>
+---@field buffProfession table<string, integer>
+---@field onlyBuffsForLevel table<string, boolean>
 ---@field merchantButton boolean
 ---@field auctionSearch boolean
 ---@field detailsBar boolean
@@ -317,6 +341,7 @@ SkillUpForeverDB = nil
 ---@field modifier number
 ---@field max number
 ---@field name? string
+---@field other? boolean A crafter the character does not have: its buff nodes are grey and its action refused.
 ---@field capped boolean
 
 ---@class SkillUpProfession : SkillUpContext
@@ -438,7 +463,7 @@ SkillUpForeverDB = nil
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'
----@alias SkillUpStale 'schematics'|'prices'|'plans'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'gear'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
+---@alias SkillUpStale 'schematics'|'prices'|'plans'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'gather'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
@@ -662,6 +687,136 @@ SkillUpForeverDB = nil
 ---@field Detail FontString
 ---@field tooltip (fun(tooltip: GameTooltip))?
 ---@field click (fun())?
+
+-- The page IDs the SkillUp side tab reopens.
+---@alias SkillUpPageID 'route'|'gear'|'buffs'
+
+-- One of SkillUp's pages in the Professions window, as UI/Pages.lua keeps it.
+---@class SkillUpPageSpec
+---@field id SkillUpPageID
+---@field title string
+---@field setting fun(): boolean
+---@field page Frame
+---@field prepare? fun()
+
+-- The one side tab and the bottom tabs of the pages that are on (UI/Pages.lua).
+---@class SkillUpPages
+---@field Register fun(spec: SkillUpPageSpec)
+---@field Open fun()
+---@field Close fun(id: SkillUpPageID)
+---@field Select fun(id: SkillUpPageID)
+---@field Sync fun()
+---@field SideTab fun(): SkillUpSideTab?
+---@field BottomTab fun(id: SkillUpPageID): Button?
+---@field Count fun(): integer
+
+-- The words and the one action the crafted gear and buffs pages share (UI/PageParts.lua).
+---@class SkillUpPageParts
+---@field QualityColor fun(itemID: integer): ColorMixin?
+---@field Status fun(item: SkillUpGearItem|SkillUpBuffItem): string
+---@field LearnedAt fun(item: SkillUpGearItem|SkillUpBuffItem): string
+---@field RecipeNPC fun(item: SkillUpGearItem|SkillUpBuffItem, professions: table<integer, SkillUpProfession>): integer?
+---@field ItemTooltip fun(item: SkillUpGearItem|SkillUpBuffItem, professions: table<integer, SkillUpProfession>): fun(tooltip: GameTooltip)
+---@field Action fun(item: SkillUpGearItem|SkillUpBuffItem, professions: table<integer, SkillUpProfession>): string, boolean, (fun())?, string?
+---@field BuffAction fun(item: SkillUpBuffItem, professions: table<integer, SkillUpProfession>): string, boolean, (fun())?, string?
+---@field ItemName fun(item: SkillUpGearItem|SkillUpBuffItem): string
+---@field CreateHeader fun(parent: Frame, setupMenu: fun(root: RootMenuDescriptionProxy)): DropdownButton, FontString
+
+-- A buff recipe on the buffs page's timeline.
+---@class SkillUpBuffItem
+---@field recipeID integer
+---@field itemID integer
+---@field spell integer The buff spell the item's use leaves.
+---@field skill number The skill at which the recipe can be learned.
+---@field level number The item's required level.
+---@field profession string
+---@field locked boolean The item asks a higher level than the character's.
+---@field learned boolean
+---@field state 'known'|'trainable'|'needs' What the character can do with the recipe.
+---@field skillLine? integer
+
+-- One row of the buffs page: a buff effect, and the items that leave it.
+---@class SkillUpBuffRow
+---@field key string
+---@field label string
+---@field order integer
+---@field items SkillUpBuffItem[]
+
+-- One column of the buffs page's timeline: a learn skill, the most slots any one row uses there, and the
+-- column's place in content units.
+---@class SkillUpBuffColumn
+---@field skill number
+---@field slots number
+---@field x number
+---@field width number
+
+-- What one row's frame draws in the scroll box.
+---@class SkillUpBuffRowData
+---@field row SkillUpBuffRow
+---@field columns SkillUpBuffColumn[]
+
+-- A row frame in the buffs page's scroll box, and the pools it keeps.
+---@class SkillUpBuffRowFrame : Frame
+---@field Label FontString
+---@field Track Frame
+---@field Content Frame
+---@field Nodes SkillUpBuffNode[]
+---@field Edges Texture[]
+
+-- A talent-tree node holding one buff item's icon.
+---@class SkillUpBuffNode : Button
+---@field item? SkillUpBuffItem
+---@field Shadow Texture
+---@field Icon Texture
+---@field Frame Texture
+---@field Lock Texture
+---@field Select Texture
+
+-- The action button in the buffs page's detail strip.
+---@class SkillUpPageAction : Button
+---@field click (fun())?
+---@field reason string?
+
+-- The buffs page's selected item strip.
+---@class SkillUpBuffDetail : Frame
+---@field Header Frame
+---@field Name FontString
+---@field Action SkillUpPageAction
+---@field Body Frame
+---@field Icon Texture
+---@field Border Texture
+---@field Buff FontString
+---@field Learn FontString
+
+-- The buffs page (UI/Buffs.lua).
+---@class SkillUpBuffsPage : Frame
+---@field Inset Frame
+---@field Title FontString
+---@field Profession DropdownButton
+---@field Skill FontString
+---@field Backdrop Texture
+---@field Empty FontString
+---@field Rows SkillUpScrollBox
+---@field RowFrames SkillUpBuffRowFrame[]
+---@field Axis Frame
+---@field AxisContent Frame
+---@field Legend Frame
+---@field Detail SkillUpBuffDetail
+---@field Level CheckButton
+---@field LevelLabel FontString
+---@field ColumnLabels FontString[]
+---@field Divider Texture
+---@field DividerLabel FontString
+---@field DividerNative number
+---@field DividerX number?
+---@field HScroll SkillUpHorizontalScrollBar
+---@field RowsData SkillUpBuffRow[]
+---@field Columns SkillUpBuffColumn[]
+---@field SelectedItemID integer?
+---@field ContentWidth number
+---@field ViewWidth number
+---@field ScrollOffset number
+---@field Hi number
 
 ---@class SkillUpPage : Frame
 ---@field Craft SkillUpCraftButton

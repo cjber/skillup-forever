@@ -1,6 +1,7 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 local L = ns.L
+local PageParts = ns.PageParts
 
 -- How far right of centre the route/reagents split sits.
 local ROUTE_SHARE = 50
@@ -8,13 +9,9 @@ local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
 local SKIPPED_ICON = "Interface\\Icons\\INV_Misc_Note_01"
 -- An Auctionator price older than a day is flagged: auction prices move that fast.
 local STALE_AFTER = 24 * 3600
--- A menu built from a list scrolls past 20 rows of 20 px; a submenu never clamps to the screen (WFA-36).
-local MENU_EXTENT = 20 * 20
 
 ---@type SkillUpPage
 local page
----@type SkillUpSideTab
-local tab
 local selected -- skill line shown on the page
 local pending = false
 
@@ -315,7 +312,7 @@ end
 ---@param description RootMenuDescriptionProxy|ElementMenuDescriptionProxy
 ---@param skillLine integer
 function ns.AddSkippedMenu(description, skillLine)
-	description:SetScrollMode(MENU_EXTENT)
+	description:SetScrollMode(PageParts.MENU_EXTENT)
 	for _, recipe in ipairs(ns.SkippedRecipes(skillLine)) do
 		description:CreateButton(string.format(L["Show again: %s"], recipe.name), function()
 			ns.SetSkipped(recipe.recipeID, false)
@@ -326,7 +323,7 @@ end
 ---@param description RootMenuDescriptionProxy|ElementMenuDescriptionProxy
 ---@param skillLine integer
 function ns.AddPinnedMenu(description, skillLine)
-	description:SetScrollMode(MENU_EXTENT)
+	description:SetScrollMode(PageParts.MENU_EXTENT)
 	for _, recipe in ipairs(ns.PinnedRecipes(skillLine)) do
 		description:CreateButton(string.format(L["Unpin: %s"], recipe.name), function()
 			ns.SetPinned(recipe.recipeID, false)
@@ -1101,12 +1098,8 @@ local function CreateInset(name)
 end
 
 local function CreateHeader()
-	local dropdown = CreateFrame("DropdownButton", nil, page, "WowStyle1DropdownTemplate") --[[@as DropdownButton]]
-	dropdown:SetWidth(180)
-	-- Clear of the portrait, which overhangs the top-left corner.
-	dropdown:SetPoint("TOPLEFT", 76, -32)
-	dropdown:SetupMenu(function(_, root)
-		root:SetScrollMode(MENU_EXTENT)
+	local dropdown, skill = PageParts.CreateHeader(page, function(root)
+		root:SetScrollMode(PageParts.MENU_EXTENT)
 		local professions = {}
 		for _, profession in pairs(ns.RouteProfessions()) do
 			professions[#professions + 1] = profession
@@ -1126,11 +1119,7 @@ local function CreateHeader()
 			end)
 		end
 	end)
-	ns.StepDropdownUnderGamepad(dropdown)
 	page.Profession = dropdown
-
-	local skill = page:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	skill:SetPoint("LEFT", dropdown, "RIGHT", 16, 0)
 	page.Skill = skill
 
 	local target = CreateFrame("EditBox", nil, page, "InputBoxTemplate") --[[@as EditBox]]
@@ -1330,79 +1319,11 @@ function ns.OpenSkillLine()
 	return skillLine and ns.PlayerProfessions()[skillLine] and skillLine
 end
 
-local SyncChecks
-
--- The client runs the window's OnShow inside a secure panel call, where an addon's Hide is blocked (#393).
--- Record what the player asked for now and do the frame work on the next frame.
-local pageWanted = false
-local pageToken = 0
-local opening = false
-
-local function HidePageLater()
-	local token = pageToken
-	C_Timer.After(0, function()
-		if token ~= pageToken or pageWanted or not ProfessionsFrame:IsShown() then
-			return
-		end
-		page:Hide()
-	end)
-end
-
-local function HideNativePagesLater()
-	local token = pageToken
-	C_Timer.After(0, function()
-		if token ~= pageToken or not pageWanted or not ProfessionsFrame:IsShown() then
-			return
-		end
-		ProfessionsFrame.CraftingPage:Hide()
-		ProfessionsFrame.BookPage:Hide()
-	end)
-end
-
--- The client runs the window's OnHide inside a secure panel call as well, where showing a native page is the
--- same mistake as hiding one there (#398). Return the window to its crafting page once the call has ended.
-local function ShowCraftingPageLater()
-	local token = pageToken
-	C_Timer.After(0, function()
-		if token ~= pageToken or pageWanted or ProfessionsFrame:IsShown() then
-			return
-		end
-		ProfessionsFrame.CraftingPage:Show()
-	end)
-end
-
-local function SelectPage()
-	ns.HideGear()
+-- Open the window's own profession, or the route's last one, when the page shows.
+local function Prepare()
 	local professions = ns.RouteProfessions()
 	local open = ns.OpenSkillLine()
 	selected = professions[open] and open or professions[selected] and selected or next(professions)
-	-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly. Its own
-	-- OnShow may run our Deselect, so the route is marked wanted after that.
-	ProfessionsFrame.CraftingPage:Show()
-	pageWanted = true
-	pageToken = pageToken + 1
-	page:Show()
-	SyncChecks()
-	HideNativePagesLater()
-end
-
--- Blizzard's own tabs show their page explicitly, which hands the window back.
-local function Deselect()
-	pageWanted = false
-	pageToken = pageToken + 1
-	tab:SetChecked(false)
-	HidePageLater()
-end
-ns.HideRoute = Deselect
-
--- The native pages hand the window back when the player picks one, but the client also shows them while
--- opening the window; a route already on show stays.
-local function NativePageShown()
-	if opening and pageWanted then
-		HideNativePagesLater()
-		return
-	end
-	Deselect()
 end
 
 -- Back to the crafting page, as its tab would, with the recipe selected.
@@ -1422,211 +1343,21 @@ function ns.ShowRecipe(recipeID, anyProfession)
 	C_TradeSkillUI.OpenRecipe(recipeID)
 end
 
--- Whether a frame hangs off one of our tabs, directly or through the frames it is anchored to.
----@param frame Region
----@param ours table<Region, boolean>
----@param seen table<Region, boolean>
----@return boolean
-local function HangsOff(frame, ours, seen)
-	if ours[frame] then
-		return true
-	end
-	-- A frame anchored through a protected one refuses GetPoint; it is not one of ours either way.
-	if seen[frame] or frame:IsAnchoringRestricted() then
-		return false
-	end
-	seen[frame] = true
-	for index = 1, frame:GetNumPoints() do
-		-- Anything a frame anchors to is itself anchorable.
-		local _, relative = frame:GetPoint(index)
-		if
-			relative and HangsOff(relative --[[@as Region]], ours, seen)
-		then
-			return true
-		end
-	end
-	return false
-end
-
--- A side tab is no taller than the tab the column starts with. A frame that spans the column is the frame the
--- tabs hang in, not a tab: All The Things on Forever reparents Blizzard's tabs into one such frame on the
--- window's right edge and anchors its own tab in the next free slot inside it, so the tab in the slot is
--- inside that frame, and the frame itself is never mistaken for a tab (#402).
----@class SkillUpTabSlot
----@field frame Frame
----@field top number
----@field bottom number
-
--- Every tab already in the column, apart from ours: a shown frame flush with the column's left edge and no
--- taller than one slot. A frame tall enough to hold two tabs is a holder another addon put its tabs in, so its
--- children are read instead. A frame that hangs off our tabs is below them by definition, not a tab we must
--- clear.
----@param frame Frame
----@param left number
----@param slotHeight number
----@param ours table<Region, boolean>
----@param seen table<Region, boolean>
----@param found SkillUpTabSlot[]
-local function ColumnTabs(frame, left, slotHeight, ours, seen, found)
-	if seen[frame] or not frame:IsShown() then
-		return
-	end
-	seen[frame] = true
-	local frameLeft, frameBottom, height = frame:GetLeft(), frame:GetBottom(), frame:GetHeight()
-	if
-		type(frameLeft) ~= "number"
-		or type(frameBottom) ~= "number"
-		or type(height) ~= "number"
-		or math.abs(frameLeft - left) >= 1
-	then
-		return
-	end
-	if height >= slotHeight * 2 then
-		for _, child in ipairs({ frame:GetChildren() }) do
-			ColumnTabs(child --[[@as Frame]], left, slotHeight, ours, seen, found)
-		end
-		return
-	end
-	if HangsOff(frame, ours, {}) then
-		return
-	end
-	found[#found + 1] = { frame = frame, top = frameBottom + height, bottom = frameBottom }
-end
-
--- The lowest tab overlapping a slot we want: our tab goes under it rather than on top of it. Touching edges
--- leave the slot free, as the column's two-pixel gap does.
----@param slotTop number
----@param slotBottom number
----@param found SkillUpTabSlot[]
----@return Frame?
-local function BlockingTab(slotTop, slotBottom, found)
-	local lowest, lowestBottom
-	for _, occupied in ipairs(found) do
-		if occupied.top > slotBottom and occupied.bottom < slotTop then
-			if not lowestBottom or occupied.bottom < lowestBottom then
-				lowest, lowestBottom = occupied.frame, occupied.bottom
-			end
-		end
-	end
-	return lowest
-end
-
--- Our side tabs in one order, top to bottom: the route, then crafted gear, in the next free slots under the
--- last tab the column already holds, in the same tab art. Only this places them, so neither ever anchors above
--- the other. A tab another addon pins lower down, such as What's Training?'s bottom-right corner, leaves the
--- slots directly under the native column free: ours take those and stay beside the window instead of being
--- pushed below that tab and past the window's bottom (#446). Each pass reads the column as it is now, so the
--- order the addons loaded or re-placed their tabs in does not matter.
-local function PlaceTabs()
-	local column = { tab, ns.GearTab }
-	local ours = {}
-	for _, sideTab in ipairs(column) do
-		ours[sideTab] = true
-	end
-	---@type Frame
-	local above = ProfessionsFrame.ProfessionsOverviewTab
-	for _, professionTab in ipairs(ProfessionsFrame.rightProfessionTabs or {}) do
-		if professionTab:IsShown() then
-			above = professionTab
-		end
-	end
-	local left, slotHeight = above:GetLeft(), above:GetHeight()
-	local found = {}
-	if type(left) == "number" and type(slotHeight) == "number" then
-		for _, sibling in ipairs({ ProfessionsFrame:GetChildren() }) do
-			ColumnTabs(sibling --[[@as Frame]], left, slotHeight, ours, {}, found)
-		end
-	end
-	for _, sideTab in ipairs(column) do
-		if type(slotHeight) == "number" then
-			local bottom = above:GetBottom()
-			while type(bottom) == "number" do
-				local slotTop = bottom - 2
-				local blocker = BlockingTab(slotTop, slotTop - slotHeight, found)
-				if not blocker then
-					break
-				end
-				above = blocker
-				bottom = above:GetBottom()
-			end
-		end
-		sideTab:ClearAllPoints()
-		sideTab:SetPoint("TOPLEFT", above, "BOTTOMLEFT", 0, -2)
-		if sideTab:IsShown() then
-			above = sideTab
-		end
-	end
-end
-ns.PlaceSideTabs = PlaceTabs
-
--- Blizzard reselects its profession tab on skill updates; keep ours checked while our page shows.
-function SyncChecks()
-	local shown = page:IsShown()
-	tab:SetChecked(shown)
-	if shown then
-		ProfessionsFrame.ProfessionsOverviewTab:SetChecked(false)
-		for _, professionTab in ipairs(ProfessionsFrame.rightProfessionTabs or {}) do
-			professionTab:SetChecked(false)
-		end
-		if ns.GearTab then
-			ns.GearTab:SetChecked(false)
-		end
-	end
-end
-
--- The tab can be turned off in settings; an open page goes back to crafting.
-local function RefreshRouteTab()
-	tab:SetShown(ns.db.showRouteTab)
-	if not ns.db.showRouteTab and page:IsShown() then
-		Deselect()
-		ProfessionsFrame.CraftingPage:Show()
-	end
-	PlaceTabs()
-end
-
-local function CreateTab()
-	-- A real Button, not a Frame with the same art: under the gamepad interface SmartNavigation's panel scan
-	-- calls GetScript("OnMouseUp") and GetScript("OnMouseDown") on every frame that is not a Button or an
-	-- EditBox, and that read of our frame's template scripts runs in the gamepad's own call. The protected
-	-- SetPreferredGamepadInteractTarget it later calls is then refused and blamed on us (#398). The client
-	-- itself inherits this art into Buttons (Blizzard_CollectionsTabs.xml), so the tab looks and clicks the same.
-	tab = CreateFrame("Button", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
-	-- art-ok: a square icon in the square LargeSideTabButtonTemplate sizes for it
-	tab.Icon:SetTexture("Interface\\Icons\\INV_Scroll_03")
-	tab:SetFillToInterior(true)
-	tab.tooltipText = L["Levelling route"]
-	tab:EnableMouse(true)
-	tab:SetCustomOnMouseUpHandler(function(_, button, upInside)
-		if button == "LeftButton" and upInside then
-			SelectPage()
-		end
-	end)
-	RefreshRouteTab()
-	ns.RouteTab = tab
-	ProfessionsFrame:HookScript("OnShow", function()
-		opening = true
-		PlaceTabs()
-		C_Timer.After(0, function()
-			opening = false
-		end)
-	end)
-	page:HookScript("OnShow", SyncChecks)
-end
-
 function ns.AttachRoute()
 	CreatePage()
-	CreateTab()
-	ProfessionsFrame.CraftingPage:HookScript("OnShow", NativePageShown)
-	ProfessionsFrame.BookPage:HookScript("OnShow", NativePageShown)
-	-- A reopened window starts on the crafting page, as Blizzard expects.
-	ProfessionsFrame:HookScript("OnHide", function()
-		if page:IsShown() then
-			Deselect()
-			ShowCraftingPageLater()
-		end
-	end)
+	ns.Pages.Register({
+		id = "route",
+		title = L["Route"],
+		setting = function()
+			return ns.db.showRouteTab
+		end,
+		page = page,
+		prepare = Prepare,
+	})
+	ns.HideRoute = function()
+		ns.Pages.Close("route")
+	end
 	ns.WhenStale("route", RefreshRoute)
-	ns.WhenStale("routeTab", RefreshRouteTab)
 	ns.WhenEvent("PLAYER_REGEN_ENABLED", ApplyPendingCraft)
 	-- The crafting page's own selection and Create button decide whether this button is armed. These are the
 	-- client's own callbacks after it has written them, never a write of ours into its frames (#350).
@@ -1643,8 +1374,8 @@ function ns.AttachRoute()
 		afterBlizzardPending = true
 		C_Timer.After(0, function()
 			afterBlizzardPending = false
-			PlaceTabs()
-			SyncChecks()
+			ns.PlaceSideTabs()
+			ns.Pages.Sync()
 			-- The window's own profession starts tracking on its own when its route has steps.
 			if ProfessionsFrame:IsShown() then
 				ns.AutoTrack(ns.OpenSkillLine())

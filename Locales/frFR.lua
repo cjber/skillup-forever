@@ -41,10 +41,6 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 L["Lock the tracker"] = "Verrouiller le suivi" -- mt
 L["Tracker background"] = "Fond du suivi"
 
-L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
-	"Un onglet latéral de la fenêtre des métiers, sous l'onglet du parcours, qui liste pour chaque emplacement le plus récent objet fabriqué que ce personnage peut équiper." -- mt
-L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
-	"Un onglet latéral de la fenêtre des métiers avec un parcours jusqu'à votre compétence cible et ses composants. Les métiers suivis restent dans le suivi des objectifs dans tous les cas." -- mt
 L["AH"] = "HV" -- mt
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Ajoute le début de la plage de difficulté de chaque recette. Ce n'est pas la compétence requise pour l'apprendre." -- mt
@@ -141,7 +137,6 @@ L["Learn a crafting profession to plan a route."] = "Apprenez un métier d'artis
 L["Legs"] = "Jambes" -- mt
 L["Level %d"] = "Niveau %d" -- mt
 L["Level %d %s"] = "Niveau %d %s" -- mt
-L["Levelling route"] = "Parcours de progression" -- mt
 L["Made at"] = "Fabriqué à" -- mt
 L["Main hand"] = "Main droite" -- mt
 L["Missing reagents for this step."] = "Composants manquants pour cette étape." -- mt
@@ -556,3 +551,25 @@ L["Made by %s %d"] = "Fabriqué par %s %d" -- mt
 L["Made by %s"] = "Fabriqué par %s" -- mt
 L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
 	"Le produit d'une recette réduit désormais le coût de chaque fabrication de son étape, pas seulement de la première." -- mt
+L["%s at %d"] = "%s à %d" -- mt
+L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
+	"Un onglet en bas de la fenêtre des métiers, qui liste les consommables d'amélioration de ce métier selon la compétence à laquelle ils se débloquent et leur utilité. Il s'ouvre depuis l'onglet latéral de SkillUp, à côté des onglets du parcours et de l'équipement fabriqué." -- mt
+L["A tab at the bottom of the Professions window listing the newest crafted item this character can equip in each slot. It opens from the SkillUp side tab, beside the route and buffs tabs."] =
+	"Un onglet en bas de la fenêtre des métiers, qui liste pour chaque emplacement le plus récent objet fabriqué que ce personnage peut équiper. Il s'ouvre depuis l'onglet latéral de SkillUp, à côté des onglets du parcours et des améliorations." -- mt
+L["A tab at the bottom of the Professions window with a route to your target skill and its reagents. It opens from the SkillUp side tab, beside the crafted gear and buffs tabs. Tracked professions stay in the objective tracker either way."] =
+	"Un onglet en bas de la fenêtre des métiers avec un parcours vers votre compétence cible et ses composants. Il s'ouvre depuis l'onglet latéral de SkillUp, à côté des onglets de l'équipement fabriqué et des améliorations. Les métiers suivis restent dans le suivi des objectifs dans tous les cas." -- mt
+L["Above your level"] = "Au-dessus de votre niveau" -- mt
+L["Buffs"] = "Améliorations" -- mt
+L["Known"] = "Connu" -- mt
+L["Later"] = "Plus tard" -- mt
+L["Learn now"] = "Apprendre maintenant" -- mt
+L["No buff items for your level yet."] = "Aucun objet d'amélioration pour votre niveau pour l'instant." -- mt
+L["Only for level %d"] = "Seulement pour le niveau %d" -- mt
+L["Show the buffs tab"] = "Afficher l'onglet des améliorations" -- mt
+L["SkillUp"] = "SkillUp" -- mt
+L["This profession makes no buff items."] = "Ce métier ne fabrique aucun objet d'amélioration." -- mt
+L["spell %d"] = "sort %d" -- mt
+L["Buffs by %s skill"] = "Améliorations par %s" -- mt
+L["Skill  %d/%d"] = "Compétence  %d/%d" -- mt
+L["Other crafters"] = "Autres artisans" -- mt
+L["No profession here makes buff items."] = "Aucun métier ne fabrique d'objet d'amélioration." -- mt

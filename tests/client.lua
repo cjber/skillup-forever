@@ -308,6 +308,18 @@ function Client.load(options)
 	function Methods:SetScript(name, fn)
 		self.scripts[name] = fn
 	end
+	-- A scroll bar's percentage, and the callbacks ScrollBarMixin triggers when it moves.
+	function Methods:SetScrollPercentage(percentage)
+		self.scrollPercentage = percentage
+	end
+	function Methods:GetScrollPercentage()
+		return self.scrollPercentage or 0
+	end
+	function Methods:RegisterCallback(event, callback, owner)
+		self.callbacks = self.callbacks or {}
+		self.callbacks[event] = self.callbacks[event] or {}
+		table.insert(self.callbacks[event], { callback = callback, owner = owner })
+	end
 	function Methods:HookScript(name, fn)
 		self.hooks[name] = self.hooks[name] or {}
 		table.insert(self.hooks[name], fn)
@@ -506,6 +518,7 @@ function Client.load(options)
 			self.menuSetup(self, {
 				SetScrollMode = noop,
 				CreateRadio = noop,
+				CreateDivider = noop,
 				CreateButton = noop,
 				CreateTitle = noop,
 			})
@@ -587,6 +600,10 @@ function Client.load(options)
 			for _, key in ipairs({ "Left", "Middle", "Right", "LeftActive", "MiddleActive", "RightActive" }) do
 				frame[key] = NewFrame(nil, frame)
 			end
+		elseif template == "WowScrollBoxList" then
+			function frame:SetDataProvider(provider)
+				self.provider = provider
+			end
 		elseif template == "ItemButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
 			frame.Count = NewFrame(nil, frame)
@@ -651,6 +668,15 @@ function Client.load(options)
 		tab.LeftActive:Hide()
 		tab.MiddleActive:Hide()
 		tab.RightActive:Hide()
+	end
+	-- The client's own tab sizer: the text's width plus the side art, then the tab is that wide.
+	G.PanelTemplates_TabResize = function(tab, padding)
+		local width = tab.Text:GetStringWidth() + 20 + (padding or 0)
+		tab.Text:SetWidth(math.max(0, width - 40))
+		tab:SetWidth(width)
+	end
+	G.PanelTemplates_SetNumTabs = function(frame, count)
+		frame.numTabs = count
 	end
 	G.DEFAULT_CHAT_FRAME = {
 		AddMessage = function(_, message)
@@ -1285,6 +1311,7 @@ function Client.load(options)
 		return { rows = rows }
 	end
 	G.ScrollBoxConstants = { RetainScrollPosition = true }
+	G.BaseScrollBoxEvents = { OnScroll = "OnScroll", OnLayout = "OnLayout" }
 	G.ScrollUtil.InitScrollBoxListWithScrollBar = noop
 	G.GREEN_FONT_COLOR = G.CreateColor(0.1, 1, 0.1)
 	G.tContains = function(list, value)
@@ -1320,6 +1347,16 @@ function Client.load(options)
 	end
 	G.UNIT_SKINNABLE_LEATHER = "Skinnable"
 	G.UNIT_SKINNABLE_HERB, G.UNIT_SKINNABLE_ROCK = "Requires Herbalism", "Requires Mining"
+	-- The client's own words for the stat and resistance effects a buff row can name.
+	G.SPELL_STAT1_NAME, G.SPELL_STAT2_NAME = "Strength", "Agility"
+	G.SPELL_STAT3_NAME, G.SPELL_STAT4_NAME, G.SPELL_STAT5_NAME = "Stamina", "Intellect", "Spirit"
+	G.STAT_ATTACK_POWER, G.STAT_ARMOR, G.RESISTANCE_LABEL = "Attack Power", "Armor", "Resistance"
+	G.STAT_SPELLDAMAGE, G.STAT_SPELLHEALING = "Spell Damage", "Spell Healing"
+	G.STAT_CRITICAL_STRIKE, G.STAT_MOVEMENT_SPEED = "Critical Strike", "Movement Speed"
+	G.RESISTANCE1_NAME, G.RESISTANCE2_NAME, G.RESISTANCE3_NAME =
+		"Holy Resistance", "Fire Resistance", "Nature Resistance"
+	G.RESISTANCE4_NAME, G.RESISTANCE5_NAME, G.RESISTANCE6_NAME =
+		"Frost Resistance", "Shadow Resistance", "Arcane Resistance"
 	G.SlashCmdList = {}
 	-- The game's error handler: one current function, which seterrorhandler replaces and geterrorhandler returns.
 	-- Before an addon installs one, the default records the error where the specs look, and an error SafeCall caught

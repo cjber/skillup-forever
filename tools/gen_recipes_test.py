@@ -2,7 +2,7 @@
 
 import unittest
 
-from gen_recipes import buff_items, rank_books
+from gen_recipes import XP_BONUS, buff_effects, buff_items, rank_books
 
 
 def effect(spell, kind, trigger=0, points=0, misc=0):
@@ -62,12 +62,14 @@ class RankBookTests(unittest.TestCase):
         self.assertEqual(books, {129: [(225, 16084, 10000, 0, 0)]})
 
 
-def spell_effect(spell, kind, aura=0, target=1, trigger=0):
+def spell_effect(spell, kind, aura=0, target=1, trigger=0, index=0, misc=0):
     return {
         "SpellID": str(spell),
         "DifficultyID": "0",
+        "EffectIndex": str(index),
         "Effect": str(kind),
         "EffectAura": str(aura),
+        "EffectMiscValue_0": str(misc),
         "ImplicitTarget_0": str(target),
         "EffectTriggerSpell": str(trigger),
     }
@@ -119,6 +121,35 @@ class BuffItemTests(unittest.TestCase):
     def test_only_a_use_counts_and_only_crafted_items(self):
         self.assertEqual(self.buffs([(2454, 2367)], trigger_type=1), {})
         self.assertEqual(self.buffs([(2454, 2367)], outputs=set()), {})
+
+
+class BuffEffectTests(unittest.TestCase):
+    # Issue #461: the first aura a buff spell applies names its row; the XP bonus a meal also triggers does not.
+    effects = [
+        spell_effect(1248420, 6, aura=29, misc=1),  # Well Fed: Agility
+        spell_effect(1248420, 6, aura=99, misc=0, index=1),
+        spell_effect(1249521, 6, aura=30, misc=356),  # Well Fed: Fishing Skill
+        spell_effect(1249907, 6, aura=30, misc=2944),  # Well Fed: a child Herbalism line
+        spell_effect(2829, 54, target=0),  # Sharpen Blade II: an enchant, no aura
+        spell_effect(XP_BONUS, 6, aura=200),
+        spell_effect(200, 6, aura=29, misc=2, trigger=XP_BONUS),
+    ]
+
+    def test_the_first_aura_names_the_row(self):
+        effects = buff_effects({1248420, 1249521}, self.effects)
+        self.assertEqual(effects, {1248420: (29, 1), 1249521: (30, 356)})
+
+    def test_a_child_skill_line_names_its_profession(self):
+        # 2944 is Herbalism's child line in the same build; a parent line (356, Fishing) stays as it is.
+        effects = buff_effects({1249521, 1249907}, self.effects, {2944: 182, 356: 0})
+        self.assertEqual(effects, {1249521: (30, 356), 1249907: (30, 182)})
+
+    def test_a_spell_without_an_aura_has_no_effect(self):
+        self.assertEqual(buff_effects({2829}, self.effects), {})
+
+    def test_the_xp_bonus_is_never_the_row(self):
+        self.assertEqual(buff_effects({XP_BONUS}, self.effects), {})
+        self.assertEqual(buff_effects({200}, self.effects), {})
 
 
 if __name__ == "__main__":

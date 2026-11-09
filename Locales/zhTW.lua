@@ -39,10 +39,6 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 L["Lock the tracker"] = "鎖定追蹤器"
 L["Tracker background"] = "追蹤器背景"
 
-L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
-	"專業技能視窗側邊的標籤頁（在路線標籤頁下方），列出此角色每個部位可裝備的最新製造物品。"
-L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
-	"專業技能視窗側邊的標籤頁，顯示到目標技能的路線及所需材料。無論如何，追蹤的專業技能都會保留在目標追蹤器中。"
 L["AH"] = "拍賣場"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"顯示每個配方難度區間的起點。這與學習它所需的技能不同。"
@@ -137,7 +133,6 @@ L["Learn a crafting profession to plan a route."] = "學習一個製造專業技
 L["Legs"] = "腿部"
 L["Level %d"] = "等級%d"
 L["Level %d %s"] = "等級%d %s"
-L["Levelling route"] = "升級路線"
 L["Made at"] = "製造地點"
 L["Main hand"] = "主手"
 L["Missing reagents for this step."] = "此步驟缺少材料。"
@@ -538,3 +533,25 @@ L["Made by %s %d"] = "%s %d 製作" -- mt
 L["Made by %s"] = "%s 製作" -- mt
 L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
 	"配方產物現在會降低該步驟中每次製作的成本，而不僅是第一次。" -- mt
+L["%s at %d"] = "%s（%d）" -- mt
+L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
+	"專業技能視窗底部的一個標籤頁，依解鎖所需的技能與用途列出該專業製造的增益消耗品。從 SkillUp 側邊標籤頁開啟，位於路線與製造裝備標籤頁旁。" -- mt
+L["A tab at the bottom of the Professions window listing the newest crafted item this character can equip in each slot. It opens from the SkillUp side tab, beside the route and buffs tabs."] =
+	"專業技能視窗底部的一個標籤頁，列出此角色每個部位可裝備的最新製造物品。從 SkillUp 側邊標籤頁開啟，位於路線與增益標籤頁旁。" -- mt
+L["A tab at the bottom of the Professions window with a route to your target skill and its reagents. It opens from the SkillUp side tab, beside the crafted gear and buffs tabs. Tracked professions stay in the objective tracker either way."] =
+	"專業技能視窗底部的一個標籤頁，顯示通往目標技能及其材料的路線。從 SkillUp 側邊標籤頁開啟，位於製造裝備與增益標籤頁旁。追蹤的專業無論如何都會留在目標追蹤器中。" -- mt
+L["Above your level"] = "高於你的等級" -- mt
+L["Buffs"] = "增益" -- mt
+L["Known"] = "已知" -- mt
+L["Later"] = "稍後" -- mt
+L["Learn now"] = "現在可學" -- mt
+L["No buff items for your level yet."] = "還沒有適合你等級的增益物品。" -- mt
+L["Only for level %d"] = "僅限等級 %d" -- mt
+L["Show the buffs tab"] = "顯示增益標籤頁" -- mt
+L["SkillUp"] = "SkillUp" -- mt
+L["This profession makes no buff items."] = "該專業不製造增益物品。" -- mt
+L["spell %d"] = "法術 %d" -- mt
+L["Buffs by %s skill"] = "%s 增益" -- mt
+L["Skill  %d/%d"] = "技能  %d/%d" -- mt
+L["Other crafters"] = "其他工匠" -- mt
+L["No profession here makes buff items."] = "沒有專業製造增益物品。" -- mt

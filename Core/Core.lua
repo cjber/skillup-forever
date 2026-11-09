@@ -23,6 +23,10 @@ local DEFAULTS = {
 	showRouteTab = true,
 	showTracker = true,
 	showGearTab = false,
+	showBuffsTab = true,
+	lastSkillUpPage = {}, -- ["Name-Realm"] = "route" | "gear" | "buffs": the SkillUp page the side tab reopens
+	buffProfession = {}, -- ["Name-Realm"] = skill line: the profession the Buffs page shows
+	onlyBuffsForLevel = {}, -- ["Name-Realm"] = true: the buffs page hides buffs this character's level cannot use
 	merchantButton = true, -- the merchant window's "Reagents still needed" button
 	auctionSearch = true, -- the Professions window's reagent search while the auction house is open
 	reagentTooltip = "route",
@@ -546,6 +550,57 @@ function ns.SetShowAllGear(show)
 		return
 	end
 	ns.db.showAllGear[key] = show and true or nil
+	ns.Changed("settings")
+end
+
+-- The SkillUp page the side tab reopens, kept per character; nil before the player has picked one, when
+-- the first page that is on opens instead.
+---@return string?
+function ns.LastSkillUpPage()
+	local key = ns.CharacterKey()
+	return key and ns.db.lastSkillUpPage[key] or nil
+end
+
+---@param pageID string
+function ns.SetLastSkillUpPage(pageID)
+	local key = ns.CharacterKey()
+	if not key then
+		return
+	end
+	ns.db.lastSkillUpPage[key] = pageID
+end
+
+-- The profession the buffs page shows, kept per character; nil before the player has picked one.
+---@return integer?
+function ns.LastBuffProfession()
+	local key = ns.CharacterKey()
+	return key and ns.db.buffProfession[key] or nil
+end
+
+---@param skillLine integer
+function ns.SetLastBuffProfession(skillLine)
+	local key = ns.CharacterKey()
+	if not key then
+		return
+	end
+	ns.db.buffProfession[key] = skillLine
+end
+
+-- Whether the buffs page hides the buffs this character's level cannot use yet. Off by default and kept
+-- per character, like the gear page's show-all switch.
+---@return boolean
+function ns.OnlyBuffsForLevel()
+	local key = ns.CharacterKey()
+	return key ~= nil and ns.db.onlyBuffsForLevel[key] == true
+end
+
+---@param only boolean
+function ns.SetOnlyBuffsForLevel(only)
+	local key = ns.CharacterKey()
+	if not key then
+		return
+	end
+	ns.db.onlyBuffsForLevel[key] = only and true or nil
 	ns.Changed("settings")
 end
 

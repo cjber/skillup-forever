@@ -39,10 +39,6 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 L["Lock the tracker"] = "Verfolgung sperren"
 L["Tracker background"] = "Hintergrund der Verfolgung"
 
-L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
-	"Ein Seitenreiter am Berufsfenster unter dem Routenreiter, der für jeden Platz den neuesten hergestellten Gegenstand zeigt, den dieser Charakter anlegen kann."
-L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
-	"Ein Seitenreiter am Berufsfenster mit einer Route zu Eurer Zielfertigkeit und ihren Reagenzien. Verfolgte Berufe bleiben so oder so in der Questzielverfolgung."
 L["Show thresholds bar on the recipe"] = "Fertigkeitsbalken beim Rezept anzeigen" -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Die Forever-Addons sind kostenlos, und nichts ist hinter einer Bezahlung versteckt. Wenn sie Euch helfen, könnt Ihr mir einen Kaffee spendieren." -- mt
@@ -143,7 +139,6 @@ L["Learn a crafting profession to plan a route."] = "Erlernt einen Herstellungsb
 L["Legs"] = "Beine"
 L["Level %d"] = "Stufe %d"
 L["Level %d %s"] = "Stufe %d %s"
-L["Levelling route"] = "Leveling-Route"
 L["Made at"] = "Hergestellt an"
 L["Main hand"] = "Waffenhand"
 L["Missing reagents for this step."] = "Für diesen Schritt fehlen Reagenzien."
@@ -546,3 +541,25 @@ L["Made by %s %d"] = "Hergestellt von %s %d" -- mt
 L["Made by %s"] = "Hergestellt von %s" -- mt
 L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
 	"Das Produkt eines Rezepts senkt jetzt die Kosten jeder Herstellung in seinem Schritt, nicht nur der ersten." -- mt
+L["%s at %d"] = "%s bei %d" -- mt
+L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
+	"Ein Reiter unten im Berufefenster, der die Stärkungsmittel dieses Berufs nach der Fertigkeit auflistet, ab der sie verfügbar sind, und wofür jedes gut ist. Er öffnet sich über den SkillUp-Seitenreiter, neben dem Routen- und dem Ausrüstungsreiter." -- mt
+L["A tab at the bottom of the Professions window listing the newest crafted item this character can equip in each slot. It opens from the SkillUp side tab, beside the route and buffs tabs."] =
+	"Ein Reiter unten im Berufefenster, der für jeden Platz den neuesten hergestellten Gegenstand zeigt, den dieser Charakter anlegen kann. Er öffnet sich über den SkillUp-Seitenreiter, neben dem Routen- und dem Stärkungsreiter." -- mt
+L["A tab at the bottom of the Professions window with a route to your target skill and its reagents. It opens from the SkillUp side tab, beside the crafted gear and buffs tabs. Tracked professions stay in the objective tracker either way."] =
+	"Ein Reiter unten im Berufefenster mit einer Route zu Eurer Zielfertigkeit und ihren Reagenzien. Er öffnet sich über den SkillUp-Seitenreiter, neben dem Ausrüstungs- und dem Stärkungsreiter. Verfolgte Berufe bleiben so oder so in der Questzielverfolgung." -- mt
+L["Above your level"] = "Über Eurer Stufe" -- mt
+L["Buffs"] = "Stärkungen" -- mt
+L["Known"] = "Bekannt" -- mt
+L["Later"] = "Später" -- mt
+L["Learn now"] = "Jetzt lernen" -- mt
+L["No buff items for your level yet."] = "Noch keine Stärkungsgegenstände für Eure Stufe." -- mt
+L["Only for level %d"] = "Nur für Stufe %d" -- mt
+L["Show the buffs tab"] = "Stärkungsreiter anzeigen" -- mt
+L["SkillUp"] = "SkillUp" -- mt
+L["This profession makes no buff items."] = "Dieser Beruf stellt keine Stärkungsgegenstände her." -- mt
+L["spell %d"] = "Zauber %d" -- mt
+L["Buffs by %s skill"] = "Stärkungen durch %s" -- mt
+L["Skill  %d/%d"] = "Fertigkeit  %d/%d" -- mt
+L["Other crafters"] = "Andere Handwerker" -- mt
+L["No profession here makes buff items."] = "Kein Beruf stellt hier Stärkungsgegenstände her." -- mt

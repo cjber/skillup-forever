@@ -670,6 +670,9 @@ function ns.AttachRecipeList()
 	ns.FitRecipeListWidth()
 	ns.AttachRoute()
 	ns.AttachGear()
+	if ns.AttachBuffs then
+		ns.AttachBuffs()
+	end
 	ns.AttachAuctionSearch()
 	ns.AttachDetailsBar()
 end

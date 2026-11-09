@@ -9,7 +9,7 @@ Classic profession-levelling numbers inside WoW: Forever's Professions window.<b
 <a href="https://ko-fi.com/cjber"><img src="https://img.shields.io/badge/Ko--fi-tip-ff5e5b?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
 </p>
 
-SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in the Professions window. Its side panel has levelling routes, shopping lists and crafted gear.
+SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in the Professions window. Its side panel has levelling routes, shopping lists, crafted gear and the buffs each profession makes.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif" width="640" alt="Leatherworking levelling from 48 to 60 in the Professions window"></p>
 
@@ -36,6 +36,7 @@ The recipe tooltip draws the thresholds on the game's own bar with your skill ma
 - **Reagent tooltips** show what tracked routes need. Hold Shift for every recipe that uses the item and still skills up.
 - **Gathering nodes** show the Herbalism or Mining skill they need, coloured at yours, on English clients.
 - **Crafted gear** shows the newest item you could craft for each slot, with its recipe, reagents and learning location. Enable its tab in settings. [Gear details](docs/gear.md).
+- **Buffs** show what each profession can make for your level, on a skill timeline: known buffs, the ones you can learn now, and the ones still ahead. Pick the profession from the page's own dropdown, including crafters you do not have. [Buffs details](docs/buffs.md).
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
 
@@ -48,6 +49,10 @@ The shopping list groups what is missing by source, shows bag and alt holdings a
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/gear.png" width="640" alt="The Crafted gear tab: item slots down both sides and along the bottom, each showing the newest crafted item, with one slot's recipe, reagents and status in the middle"></p>
 
 The gear tab, turned on in settings: each slot shows the newest thing this character could craft for it.
+
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/buffs.png" width="640" alt="The Buffs tab: the Cooking buff timeline scrolled to the next rank, with column skill numbers, the rank divider, the legend, and the selected buff's words, source and reagents"></p>
+
+The buffs tab: each effect's items in the column of the skill it is learned at, scrolled to the rank divider, with the selected buff's words, source and reagents.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png" width="320" alt="The objective tracker with Leatherworking to 73, the next training step and the reagents still missing"></p>
 
@@ -84,7 +89,7 @@ Open a profession and the numbers are already there.
 | `/su shopping`, `/su shop` | Open the shopping list for tracked professions, copy it, or plan a buy trip with Shortest Path Forever |
 | `/su trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer has confirmed or shown differently |
 
-Settings cover rows and tooltips, the recipe list's width, what crafts count for, sort order, the route and crafted gear tabs, trainer annotations, reagent and gathering tooltips and Forever addon hints. Turn off **Show tracked professions** to hide the tracker, or **Attach to quest tracker** to drag the Forever column.
+Settings cover rows and tooltips, the recipe list's width, what crafts count for, sort order, the route, crafted gear and buffs tabs, trainer annotations, reagent and gathering tooltips and Forever addon hints. Turn off **Show tracked professions** to hide the tracker, or **Attach to quest tracker** to drag the Forever column.
 
 ## Prices
 

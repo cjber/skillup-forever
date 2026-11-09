@@ -40,10 +40,6 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 L["Lock the tracker"] = "Закрепить трекер"
 L["Tracker background"] = "Фон отслеживания"
 
-L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
-	"Боковая вкладка окна профессий под вкладкой маршрута: самый новый созданный предмет, который этот персонаж может надеть, для каждой ячейки."
-L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
-	"Боковая вкладка окна профессий с маршрутом до целевого навыка и реагентами. Отслеживаемые профессии остаются в списке задач в любом случае."
 L["AH"] = "Аук."
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Показывает начало диапазона сложности каждого рецепта. Это не навык, нужный для изучения."
@@ -145,7 +141,6 @@ L["Learn a crafting profession to plan a route."] =
 L["Legs"] = "Ноги"
 L["Level %d"] = "Уровень %d"
 L["Level %d %s"] = "Уровень %d, %s"
-L["Levelling route"] = "Маршрут прокачки"
 L["Made at"] = "Создается у"
 L["Main hand"] = "Правая рука"
 L["Missing reagents for this step."] = "Для этого шага не хватает реагентов."
@@ -582,3 +577,28 @@ L["Made by %s %d"] = "Изготовлено: %s %d" -- mt
 L["Made by %s"] = "Изготовлено: %s" -- mt
 L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
 	"Продукт рецепта теперь снижает стоимость каждого изготовления на шаге, а не только первого." -- mt
+L["%s at %d"] = "%s на %d" -- mt
+L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
+	"Вкладка внизу окна профессий со списком усиливающих расходников этой профессии, по навыку, на котором они открываются, и их назначению. Открывается с боковой вкладки SkillUp, рядом с вкладками маршрута и изготовленной экипировки." -- mt
+L["A tab at the bottom of the Professions window listing the newest crafted item this character can equip in each slot. It opens from the SkillUp side tab, beside the route and buffs tabs."] =
+	"Вкладка внизу окна профессий: самый новый изготовленный предмет, который этот персонаж может надеть в каждую ячейку. Открывается с боковой вкладки SkillUp, рядом с вкладками маршрута и усилений." -- mt
+L["A tab at the bottom of the Professions window with a route to your target skill and its reagents. It opens from the SkillUp side tab, beside the crafted gear and buffs tabs. Tracked professions stay in the objective tracker either way."] =
+	"Вкладка внизу окна профессий с маршрутом до целевого навыка и его реагентов. Открывается с боковой вкладки SkillUp, рядом с вкладками изготовленной экипировки и усилений. Отслеживаемые профессии в любом случае остаются в отслеживании целей." -- mt
+L["Above your level"] = "Выше вашего уровня" -- mt
+L["Buffs"] = "Усиления" -- mt
+L["Known"] = "Известно" -- mt
+L["Later"] = "Позже" -- mt
+L["Learn now"] = "Изучить сейчас" -- mt
+L["No buff items for your level yet."] =
+	"Пока нет предметов усиления для вашего уровня." -- mt
+L["Only for level %d"] = "Только для уровня %d" -- mt
+L["Show the buffs tab"] = "Показывать вкладку усилений" -- mt
+L["SkillUp"] = "SkillUp" -- mt
+L["This profession makes no buff items."] =
+	"Эта профессия не создаёт предметы усиления." -- mt
+L["spell %d"] = "заклинание %d" -- mt
+L["Buffs by %s skill"] = "Усиления: %s" -- mt
+L["Skill  %d/%d"] = "Навык  %d/%d" -- mt
+L["Other crafters"] = "Другие ремесленники" -- mt
+L["No profession here makes buff items."] =
+	"Ни одна профессия не создаёт предметы усиления." -- mt

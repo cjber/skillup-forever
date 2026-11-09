@@ -22,6 +22,30 @@ function PanelTemplates_SelectTab(tab) end
 ---@param tab Frame
 function PanelTemplates_DeselectTab(tab) end
 
+---@param tab Frame
+---@param padding integer?
+---@param absoluteSize number?
+---@param minWidth number?
+---@param maxWidth number?
+---@param absoluteTextSize number?
+function PanelTemplates_TabResize(tab, padding, absoluteSize, minWidth, maxWidth, absoluteTextSize) end
+
+-- The client's words for a buff effect's stat, armour, spell and resistance rows (GlobalStrings).
+---@type string
+STAT_ATTACK_POWER = ""
+---@type string
+STAT_ARMOR = ""
+---@type string
+STAT_SPELLDAMAGE = ""
+---@type string
+STAT_SPELLHEALING = ""
+---@type string
+STAT_CRITICAL_STRIKE = ""
+---@type string
+STAT_MOVEMENT_SPEED = ""
+---@type string
+RESISTANCE_LABEL = ""
+
 -- Blizzard_ItemButton/Shared/ItemButtonTemplate.lua: the icon region an item button carries, under Icon, icon or
 -- the $parentIconTexture name.
 ---@param button Frame
@@ -125,6 +149,8 @@ function CreateTreeDataProvider() end
 ---@class SkillUpScrollBox : Frame
 ---@field ScrollToBegin fun(self: SkillUpScrollBox)
 ---@field SetDataProvider fun(self: SkillUpScrollBox, provider: SkillUpDataProvider, retain?: boolean)
+---@field GetScrollPercentage fun(self: SkillUpScrollBox): number
+---@field SetScrollPercentage fun(self: SkillUpScrollBox, percentage: number, noInterpolation?: boolean)
 
 ---@class SkillUpRecipeScrollBox : SkillUpScrollBox, CallbackRegistryMixin
 ---@field GetDataProvider fun(self: SkillUpRecipeScrollBox): SkillUpTreeProvider?
@@ -133,6 +159,13 @@ function CreateTreeDataProvider() end
 
 ---@class SkillUpScrollBar : Frame
 ---@field SetHideIfUnscrollable fun(self: SkillUpScrollBar, hide: boolean)
+
+---@class SkillUpHorizontalScrollBar : Frame, CallbackRegistryMixin
+---@field SetScrollPercentage fun(self: SkillUpHorizontalScrollBar, percentage: number, forceImmediate?: boolean)
+---@field GetScrollPercentage fun(self: SkillUpHorizontalScrollBar): number
+---@field SetVisibleExtentPercentage fun(self: SkillUpHorizontalScrollBar, percentage: number)
+---@field SetPanExtentPercentage fun(self: SkillUpHorizontalScrollBar, percentage: number)
+---@field SetHideIfUnscrollable fun(self: SkillUpHorizontalScrollBar, hide: boolean)
 
 ---@class SkillUpDataProvider
 ---@field GetSize fun(self: SkillUpDataProvider): integer
@@ -158,8 +191,10 @@ function CreateScrollBoxListLinearView() end
 ---@type table<string, ForeverClassColor>?
 RAID_CLASS_COLORS = nil
 
----@type {UpdateImmediately: boolean, RetainScrollPosition: boolean}
+---@type {UpdateImmediately: boolean, RetainScrollPosition: boolean, NoScrollInterpolation: boolean}
 ScrollBoxConstants = {}
+---@type {OnScroll: string, OnLayout: string}
+BaseScrollBoxEvents = {}
 ScrollUtil = {}
 ---@param box Frame
 ---@param bar any

@@ -1,6 +1,7 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 local L = ns.L
+local Parts = ns.PageParts
 
 -- The crafted gear page: a character sheet of its own. One item slot per equipment slot the sheet
 -- has, down both sides and along the bottom, each showing the newest item this character could craft
@@ -38,52 +39,12 @@ local BOTTOM = { 13, 14, 15 }
 
 ---@type SkillUpGearPage
 local page
----@type SkillUpSideTab
-local tab
 local selectedSlot -- the group index the pane shows
 local selectedItemID -- the item in the pane, nil for the slot's pick
 local slots = {} -- the last render, by slot group
 local professions = {} -- the character's own, by skill line
 local RenderDetail
 local Render
-
----@param itemID integer
----@return ColorMixin?
-local function QualityColor(itemID)
-	local quality = C_Item.GetItemQualityByID(itemID)
-	if not quality then
-		return nil
-	end
-	local red, green, blue = C_Item.GetItemQualityColor(quality)
-	return CreateColor(red, green, blue)
-end
-
--- What the character can do with the recipe in plain words. A recipe whose requirement the data does
--- not know is not called learnable, and says its source is unknown instead.
----@param item SkillUpGearItem
----@return string
-local function Status(item)
-	if item.state == "known" then
-		return L["You know it"]
-	elseif item.state == "trainable" then
-		return L["Can learn it"]
-	elseif item.state == "needs" then
-		return string.format(L["Needs %s %d"], item.profession, item.skill)
-	elseif item.skill == nil then
-		return L["Source unknown"]
-	end
-	return L["Another crafter"]
-end
-
--- The profession and the skill its recipe is learned at, or that the data does not know the skill.
----@param item SkillUpGearItem
----@return string
-local function LearnedAt(item)
-	if item.skill then
-		return string.format(L["%s, %d"], item.profession, item.skill)
-	end
-	return string.format(L["%s, source unknown"], item.profession)
-end
 
 -- The item's required level and type, as the client's own item data names them.
 ---@param item SkillUpGearItem
@@ -99,78 +60,6 @@ local function Requirement(item)
 		return string.format(L["Level %d %s"], item.level, kind)
 	end
 	return string.format(L["Level %d"], item.level)
-end
-
--- Where a trainable recipe is learned, else nil: the trainer or the scroll's source, read the way
--- the route page reads them.
----@param item SkillUpGearItem
----@return integer?
-local function RecipeNPC(item)
-	local profession = professions[item.skillLine]
-	return profession and ns.RecipeNPC(profession, item.recipeID) or nil
-end
-
--- The game's item tooltip for the pick, under it what the addon knows of its recipe and what a click
--- does or why it cannot.
----@param item SkillUpGearItem
----@return fun(tooltip: GameTooltip)
-local function ItemTooltip(item)
-	return function(tooltip)
-		tooltip:SetItemByID(item.itemID)
-		GameTooltip_AddBlankLineToTooltip(tooltip)
-		if item.state ~= "needs" then
-			GameTooltip_AddNormalLine(tooltip, LearnedAt(item))
-		end
-		GameTooltip_AddNormalLine(tooltip, Status(item))
-		local profession = professions[item.skillLine]
-		if item.state == "known" then
-			GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
-		elseif item.state == "trainable" and profession then
-			if ns.TrainingFor(profession, item.recipeID) then
-				ns.AddNearest(tooltip, L["Nearest trainer"], RecipeNPC(item))
-			else
-				local source = ns.Catalogue.Recipe(item.recipeID)
-				if source then
-					ns.AddSourceLines(tooltip, source)
-				end
-				local npcID = RecipeNPC(item)
-				if npcID then
-					ns.AddNearest(tooltip, L["Source"], npcID, true)
-				end
-			end
-		end
-	end
-end
-
--- The pane's one button: open a known recipe, set a waypoint to where a trainable one is taught, or
--- nothing with the reason why.
----@param item SkillUpGearItem
----@return string text
----@return boolean enabled
----@return fun()? click
----@return string? reason
-local function Action(item)
-	if item.state == "known" then
-		return L["Open recipe"], true, function()
-			C_TradeSkillUI.OpenRecipe(item.recipeID)
-		end
-	end
-	if item.state == "trainable" then
-		local npcID = RecipeNPC(item)
-		if npcID then
-			return L["Set waypoint"], true, function()
-				ns.SetWaypoint(npcID)
-			end
-		end
-		return L["Set waypoint"], false, nil, L["The place this recipe is taught isn't known yet."]
-	end
-	if item.skill == nil then
-		return L["Set waypoint"], false, nil, L["The source of this recipe isn't known."]
-	end
-	if item.state == "needs" then
-		return L["Set waypoint"], false, nil, string.format(L["Needs %s %d"], item.profession, item.skill)
-	end
-	return L["Set waypoint"], false, nil, L["Another craft makes this recipe, not yours."]
 end
 
 ---@param row SkillUpGearRow
@@ -282,17 +171,6 @@ local function SelectedItem(slot)
 	return slot.items[1]
 end
 
----@param item SkillUpGearItem
----@return string
-local function ItemName(item)
-	if item.name then
-		return item.name
-	end
-	-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
-	C_Item.RequestLoadItemDataByID(item.itemID)
-	return string.format(L["item %d"], item.itemID)
-end
-
 ---@param detail Frame
 ---@param item SkillUpGearItem
 local function RenderReagents(detail, item)
@@ -324,7 +202,7 @@ local function RenderReagents(detail, item)
 		FillRow(
 			row,
 			C_Item.GetItemIconByID(reagent.itemID),
-			QualityColor(reagent.itemID),
+			Parts.QualityColor(reagent.itemID),
 			name,
 			HIGHLIGHT_FONT_COLOR,
 			string.format("%d/%d", math.min(have, need), need),
@@ -366,12 +244,12 @@ local function RenderOthers(detail, item, above)
 		FillRow(
 			row,
 			C_Item.GetItemIconByID(other.itemID),
-			QualityColor(other.itemID),
-			ItemName(other),
-			QualityColor(other.itemID) or HIGHLIGHT_FONT_COLOR,
-			Status(other),
+			Parts.QualityColor(other.itemID),
+			Parts.ItemName(other),
+			Parts.QualityColor(other.itemID) or HIGHLIGHT_FONT_COLOR,
+			Parts.Status(other),
 			other.state == "known" and ns.COLORS.green or GRAY_FONT_COLOR,
-			ItemTooltip(other),
+			Parts.ItemTooltip(other, professions),
 			function()
 				selectedItemID = other.itemID
 				RenderDetail()
@@ -397,7 +275,7 @@ function RenderDetail()
 		)
 		return
 	end
-	local color = QualityColor(item.itemID)
+	local color = Parts.QualityColor(item.itemID)
 	-- art-ok: a square item icon in its 47 square; the texture never draws an atlas
 	detail.Icon:SetTexture(C_Item.GetItemIconByID(item.itemID))
 	if color then
@@ -405,17 +283,17 @@ function RenderDetail()
 	else
 		detail.Border:SetVertexColor(1, 1, 1)
 	end
-	detail.Name:SetText(ItemName(item))
+	detail.Name:SetText(Parts.ItemName(item))
 	detail.Name:SetTextColor((color or HIGHLIGHT_FONT_COLOR):GetRGB())
 	detail.Requirement:SetText(Requirement(item))
-	detail.Learn:SetText(LearnedAt(item))
-	detail.State:SetText(Status(item))
+	detail.Learn:SetText(Parts.LearnedAt(item))
+	detail.State:SetText(Parts.Status(item))
 	local stateColor = (item.state == "known" or item.state == "trainable") and ns.COLORS.green or GRAY_FONT_COLOR
 	detail.State:SetTextColor(stateColor:GetRGB())
 	local above = RenderReagents(detail.Body, item)
 	detail.Action:ClearAllPoints()
 	detail.Action:SetPoint("TOPLEFT", above, "BOTTOMLEFT", 0, -10)
-	local text, enabled, click, reason = Action(item)
+	local text, enabled, click, reason = Parts.Action(item, professions)
 	detail.Action:SetText(text)
 	-- As wide as its label, so a translated one fits.
 	detail.Action:SetWidth(math.max(130, detail.Action:GetTextWidth() + 32))
@@ -443,7 +321,7 @@ local function SetSlot(button, item, checked)
 	-- art-ok: a square item icon in the ICON square; the texture never draws an atlas
 	button.icon:SetTexture(C_Item.GetItemIconByID(item.itemID))
 	button.icon:SetDesaturated(item.state ~= "known" and item.state ~= "trainable")
-	local color = QualityColor(item.itemID)
+	local color = Parts.QualityColor(item.itemID)
 	button.border:Show()
 	if color then
 		button.border:SetVertexColor(color:GetRGB())
@@ -504,105 +382,7 @@ function Render()
 	RenderDetail()
 end
 
-local SyncChecks
-
--- The client runs the window's OnShow inside a secure panel call, where an addon's Hide is blocked (#393).
--- Record what the player asked for now and do the frame work on the next frame.
-local pageWanted = false
-local pageToken = 0
-local opening = false
-
-local function HidePageLater()
-	local token = pageToken
-	C_Timer.After(0, function()
-		if token ~= pageToken or pageWanted or not ProfessionsFrame:IsShown() then
-			return
-		end
-		page:Hide()
-	end)
-end
-
-local function HideNativePagesLater()
-	local token = pageToken
-	C_Timer.After(0, function()
-		if token ~= pageToken or not pageWanted or not ProfessionsFrame:IsShown() then
-			return
-		end
-		ProfessionsFrame.CraftingPage:Hide()
-		ProfessionsFrame.BookPage:Hide()
-	end)
-end
-
--- The client runs the window's OnHide inside a secure panel call as well, where showing a native page is the
--- same mistake as hiding one there (#398). Return the window to its crafting page once the call has ended.
-local function ShowCraftingPageLater()
-	local token = pageToken
-	C_Timer.After(0, function()
-		if token ~= pageToken or pageWanted or ProfessionsFrame:IsShown() then
-			return
-		end
-		ProfessionsFrame.CraftingPage:Show()
-	end)
-end
-
-local function SelectPage()
-	ns.HideRoute()
-	-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly. Its own
-	-- OnShow may run our Deselect, so the gear page is marked wanted after that.
-	ProfessionsFrame.CraftingPage:Show()
-	pageWanted = true
-	pageToken = pageToken + 1
-	page:Show()
-	SyncChecks()
-	HideNativePagesLater()
-end
-
--- Blizzard's own tabs show their page explicitly, which hands the window back.
-local function Deselect()
-	pageWanted = false
-	pageToken = pageToken + 1
-	tab:SetChecked(false)
-	HidePageLater()
-end
-ns.HideGear = Deselect
-
--- The native pages hand the window back when the player picks one, but the client also shows them while
--- opening the window; a page already on show stays.
-local function NativePageShown()
-	if opening and pageWanted then
-		HideNativePagesLater()
-		return
-	end
-	Deselect()
-end
-
--- Blizzard reselects its profession tab on skill updates; keep ours checked while our page shows.
-function SyncChecks()
-	local shown = page:IsShown()
-	tab:SetChecked(shown)
-	if shown then
-		ProfessionsFrame.ProfessionsOverviewTab:SetChecked(false)
-		for _, professionTab in ipairs(ProfessionsFrame.rightProfessionTabs or {}) do
-			professionTab:SetChecked(false)
-		end
-		if ns.RouteTab then
-			ns.RouteTab:SetChecked(false)
-		end
-	end
-end
-
--- The tab can be turned off in settings; an open page goes back to crafting.
-local function RefreshTab()
-	tab:SetShown(ns.db.showGearTab)
-	ns.PlaceSideTabs()
-	if not ns.db.showGearTab and page:IsShown() then
-		Deselect()
-		ProfessionsFrame.CraftingPage:Show()
-	end
-end
-
 local function Refresh()
-	RefreshTab()
 	if page:IsShown() then
 		Render()
 	end
@@ -653,7 +433,7 @@ local function CreateSlotButton(inset, index)
 	button:SetScript("OnEnter", function(self)
 		if self.item then
 			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-			ItemTooltip(self.item)(GameTooltip)
+			Parts.ItemTooltip(self.item, professions)(GameTooltip)
 			GameTooltip:Show()
 		end
 	end)
@@ -788,46 +568,18 @@ local function CreatePage()
 	page:SetScript("OnShow", Render)
 end
 
-local function CreateTab()
-	-- A real Button, not a Frame with the same art: under the gamepad interface SmartNavigation's panel scan
-	-- calls GetScript("OnMouseUp") and GetScript("OnMouseDown") on every frame that is not a Button or an
-	-- EditBox, and that read of our frame's template scripts runs in the gamepad's own call. The protected
-	-- SetPreferredGamepadInteractTarget it later calls is then refused and blamed on us (#398). The client
-	-- itself inherits this art into Buttons (Blizzard_CollectionsTabs.xml), so the tab looks and clicks the same.
-	tab = CreateFrame("Button", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
-	-- art-ok: a square icon in the square LargeSideTabButtonTemplate sizes for it
-	tab.Icon:SetTexture("Interface\\Icons\\INV_Chest_Chain_05")
-	tab:SetFillToInterior(true)
-	tab.tooltipText = L["Crafted gear"]
-	tab:EnableMouse(true)
-	tab:SetCustomOnMouseUpHandler(function(_, button, upInside)
-		if button == "LeftButton" and upInside then
-			SelectPage()
-		end
-	end)
-	ns.GearTab = tab
-	RefreshTab()
-	ProfessionsFrame:HookScript("OnShow", function()
-		opening = true
-		ns.PlaceSideTabs()
-		C_Timer.After(0, function()
-			opening = false
-		end)
-	end)
-	page:HookScript("OnShow", SyncChecks)
-end
-
 function ns.AttachGear()
 	CreatePage()
-	CreateTab()
-	ProfessionsFrame.CraftingPage:HookScript("OnShow", NativePageShown)
-	ProfessionsFrame.BookPage:HookScript("OnShow", NativePageShown)
-	-- A reopened window starts on the crafting page, as Blizzard expects.
-	ProfessionsFrame:HookScript("OnHide", function()
-		if page:IsShown() then
-			Deselect()
-			ShowCraftingPageLater()
-		end
-	end)
+	ns.Pages.Register({
+		id = "gear",
+		title = L["Crafted gear"],
+		setting = function()
+			return ns.db.showGearTab
+		end,
+		page = page,
+	})
+	ns.HideGear = function()
+		ns.Pages.Close("gear")
+	end
 	ns.WhenStale("gear", Refresh)
 end

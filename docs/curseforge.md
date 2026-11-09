@@ -1,4 +1,4 @@
-SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in the Professions window. Its side panel has levelling routes, shopping lists and crafted gear.
+SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in the Professions window. Its side panel has levelling routes, shopping lists, crafted gear and the buffs each profession makes.
 
 Free, with nothing locked behind it. If it saves you time, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber).
 
@@ -21,6 +21,10 @@ The route tab from 48 to 73: what to train, what to craft and where reagents com
 ![The Crafted gear tab with item slots down both sides and along the bottom, each showing the newest crafted item, and one slot's recipe, reagents and status in the middle](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/gear.png)
 
 The gear tab, turned on in settings: each slot shows the newest thing this character could craft for it.
+
+![The Buffs tab with the Cooking buff timeline scrolled to the next rank, column skill numbers, the rank divider, the legend, and the selected buff's words, source and reagents](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/buffs.png)
+
+The buffs tab: what each profession can make for your level, in columns on a skill timeline.
 
 ![The objective tracker with the route's next training step and missing reagents](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png)
 
@@ -45,6 +49,7 @@ Hover a reagent to see how much your routes need.
 - **Trainer annotations** mark the best recipe to train next. Reagent tooltips show what tracked routes need.
 - **Gathering nodes** show the Herbalism or Mining skill they need, coloured at yours, on English clients.
 - **Crafted gear** shows the newest craft for each slot, with its recipe, reagents and learning location. Enable its tab in settings.
+- **Buffs** show what each profession can make for your level, on a skill timeline: known buffs, the ones you can learn now, and the ones still ahead. Pick the profession from the page's own dropdown, including crafters you do not have.
 - **Forever Leaderboards** rank the distinct recipes SkillUp has observed as learned on your character against guild and group totals, for this week or all time, in the shared window every Forever addon uses. The window also shows the overall standing across installed Forever addons and puts a player's place in the unit tooltip.
 
 ## Prices
@@ -68,7 +73,7 @@ Open a profession and the numbers are already there.
 - `/su issue` opens a ready-made GitHub issue link to report a bug or request a feature.
 - `/su trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
-Missing data shows `?`. Settings cover rows and tooltips, the recipe list's width, prices, the route and gear tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints.
+Missing data shows `?`. Settings cover rows and tooltips, the recipe list's width, prices, the route, gear and buffs tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints.
 
 <!-- forever-family:start -->
 

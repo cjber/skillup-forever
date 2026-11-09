@@ -259,14 +259,21 @@ function ns.RegisterSettings()
 			rows,
 			"showRouteTab",
 			L["Show the levelling route tab"],
-			L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."]
+			L["A tab at the bottom of the Professions window with a route to your target skill and its reagents. It opens from the SkillUp side tab, beside the crafted gear and buffs tabs. Tracked professions stay in the objective tracker either way."]
 		)
 
 		Checkbox(
 			rows,
 			"showGearTab",
 			L["Show the crafted gear tab"],
-			L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."]
+			L["A tab at the bottom of the Professions window listing the newest crafted item this character can equip in each slot. It opens from the SkillUp side tab, beside the route and buffs tabs."]
+		)
+
+		Checkbox(
+			rows,
+			"showBuffsTab",
+			L["Show the buffs tab"],
+			L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."]
 		)
 
 		Checkbox(

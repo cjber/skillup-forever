@@ -56,15 +56,15 @@ scenario("the route's profession picker leaves the gamepad focus to the game", f
 	end
 
 	sim:openProfessions(185)
-	local tab = ns.RouteTab
-	assert(tab, "the route side tab exists")
+	local tab = ns.Pages.SideTab()
+	assert(tab, "the SkillUp side tab exists")
 	sim:input(function()
 		tab:GetScript("OnMouseUp")(tab, "LeftButton", true)
 	end)
 	sim:advance(0.2)
 	local page
 	for _, child in ipairs({ G.ProfessionsFrame:GetChildren() }) do
-		if child.Profession and child.Profession.OpenMenu then
+		if child.Profession and child.Profession.OpenMenu and child:IsShown() then
 			page = child
 		end
 	end

@@ -8,4 +8,7 @@
 	<Button name="SkillUpForeverListRowTemplate" virtual="true"/>
 	<Frame name="SkillUpForeverListHeadingTemplate" virtual="true"/>
 	<Frame name="SkillUpForeverListMessageTemplate" virtual="true"/>
+
+	<!-- A buffs page row in its own scroll box: Buffs.lua draws the label and the nodes it holds. -->
+	<Frame name="SkillUpForeverBuffRowTemplate" virtual="true"/>
 </Ui>

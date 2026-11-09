@@ -4,7 +4,7 @@ The detail behind the README's *Levelling route* and *Shopping list* features.
 
 ## Levelling route
 
-A map tab under the Professions window's side tabs opens a SkillUp page. Pick any of your professions that craft (it starts on the open one) and type a target skill. The page lists the cheapest crafts to get there, each drawn as the game draws an item: a full icon, the recipe's name and, under it, how many crafts, the skill it reaches and the cost, then the total.
+The SkillUp side tab on the Professions window opens the SkillUp page you used last; its bottom tabs switch between Route, Crafted gear and Buffs. Pick any of your professions that craft (it starts on the open one) and type a target skill. The page lists the cheapest crafts to get there, each drawn as the game draws an item: a full icon, the recipe's name and, under it, how many crafts, the skill it reaches and the cost, then the total.
 
 ### How it picks
 

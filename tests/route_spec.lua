@@ -145,9 +145,38 @@ local function Stub()
 end
 local requested, lists = {}, {}
 local page
+local routeTab
 page = {
 	auctionAutoscan = nil,
 	db = { trainer = {}, trainerRanks = {}, routeTargets = { [129] = 100 }, showRouteTab = true, vendor = {} },
+	-- The tab bar is UI/Pages.lua's own subject (tests/pages_spec.lua and route_layout_spec.lua); this spec
+	-- shows the route page directly and needs only the registration handshake.
+	Pages = {
+		Register = function(spec)
+			page.routeSpec = spec
+		end,
+		Close = function() end,
+		Sync = function()
+			if routeTab then
+				routeTab.checked = page.routeSpec ~= nil and page.routeSpec.page:IsShown()
+			end
+		end,
+		Select = function()
+			local spec = page.routeSpec
+			if spec then
+				spec.prepare()
+				spec.page:Show()
+			end
+			if routeTab then
+				routeTab.checked = true
+			end
+		end,
+	},
+	LastSkillUpPage = function()
+		return "route"
+	end,
+	SetLastSkillUpPage = function() end,
+	PlaceSideTabs = function() end,
 	COLORS = {},
 	IsLearned = function(id)
 		return id == 3275
@@ -349,6 +378,7 @@ for _, file in ipairs({
 	"Core/Changes.lua",
 	"Core/Plan.lua",
 	"Core/Gear.lua",
+	"UI/PageParts.lua",
 	"UI/Route.lua",
 }) do
 	setfenv(assert(loadfile(file)), pageEnv)("SkillUpForever", page)
@@ -470,8 +500,14 @@ nativePage.SchematicForm = nativeForm
 nativePage.CreateButton = nativeCreate
 nativePage.CreateAllButton = nativeCreateAll
 page.AttachRoute()
-local routeTab = tabs[#tabs] -- the side tab, the last frame the page creates
-equal(routeTab.point[2], occupiedTab, "the route tab moves below a third-party tab already using its slot")
+routeTab = {
+	Click = function()
+		page.Pages.Select("route")
+	end,
+	SetChecked = function(self, checked)
+		self.checked = checked
+	end,
+}
 routeTab:Click()
 local reagentList = lists[2]
 equal(reagentList.rows[1] and reagentList.rows[1].text, "item 2589", "an unpriced reagent is listed")

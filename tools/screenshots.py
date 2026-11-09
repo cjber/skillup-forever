@@ -433,8 +433,20 @@ local RECORDED = {
 	GetTextWidth = function()
 		return 0
 	end,
+	GetStringWidth = function()
+		return 0
+	end,
+	GetFrameLevel = function()
+		return 1
+	end,
 	GetWidth = function()
 		return 0
+	end,
+	GetHeight = function()
+		return 0
+	end,
+	GetSize = function()
+		return 0, 0
 	end,
 	HasFocus = function()
 		return false
@@ -598,8 +610,30 @@ env = setmetatable({
 	UnitName = function()
 		return "Player"
 	end,
+	UnitFactionGroup = function()
+		return "Alliance"
+	end,
+	SPELL_STAT1_NAME = "Strength",
+	SPELL_STAT2_NAME = "Agility",
+	SPELL_STAT3_NAME = "Stamina",
+	SPELL_STAT4_NAME = "Intellect",
+	SPELL_STAT5_NAME = "Spirit",
+	STAT_ATTACK_POWER = "Attack Power",
+	STAT_ARMOR = "Armor",
+	STAT_SPELLDAMAGE = "Spell Damage",
+	STAT_SPELLHEALING = "Spell Healing",
+	STAT_CRITICAL_STRIKE = "Critical Strike",
+	STAT_MOVEMENT_SPEED = "Movement Speed",
+	RESISTANCE_LABEL = "Resistance",
+	RESISTANCE1_NAME = "Holy Resistance",
+	RESISTANCE2_NAME = "Fire Resistance",
+	RESISTANCE3_NAME = "Nature Resistance",
+	RESISTANCE4_NAME = "Frost Resistance",
+	RESISTANCE5_NAME = "Shadow Resistance",
+	RESISTANCE6_NAME = "Arcane Resistance",
 	UnitClass = function()
-		return "Rogue", "ROGUE", 4
+		local name, file, id = unpack(STATE.class)
+		return name, file, id
 	end,
 	C_SkillInfo = {
 		GetNumSkillLines = function()
@@ -676,7 +710,20 @@ env = setmetatable({
 		GetSpellName = function(spellID)
 			return spellNames[spellID]
 		end,
+		GetSpellDescription = function(spellID)
+			return STATE.buffDescriptions[spellID]
+		end,
 		GetSpellTexture = function() end,
+	},
+	-- A spell whose data the client holds: the buffs page reads a description without waiting on the load.
+	Spell = {
+		CreateFromSpellID = function()
+			return {
+				IsSpellDataCached = function()
+					return true
+				end,
+			}
+		end,
 	},
 	C_SpellBook = {
 		IsSpellKnown = function(spellID)
@@ -731,6 +778,21 @@ env = setmetatable({
 			return STATE.atlases[atlas]
 		end,
 	},
+	-- The page's bottom tabs and its scroll box, as the client provides them.
+	PanelTemplates_SelectTab = function() end,
+	PanelTemplates_DeselectTab = function() end,
+	PanelTemplates_TabResize = function(tab)
+		rawset(tab, "width", 100)
+	end,
+	CreateScrollBoxListLinearView = function()
+		return Stub()
+	end,
+	CreateDataProvider = function(rows)
+		return { rows = rows }
+	end,
+	ScrollUtil = { InitScrollBoxListWithScrollBar = function() end },
+	ScrollBoxConstants = { RetainScrollPosition = true, NoScrollInterpolation = true },
+	BaseScrollBoxEvents = { OnScroll = "OnScroll", OnLayout = "OnLayout" },
 	C_Trainer = {
 		GetTrainerType = function()
 			return 1
@@ -824,6 +886,9 @@ for _, names in pairs(ns.RecipeNames) do
 			spellNames[recipeID] = name
 		end
 	end
+end
+for spellID, name in pairs(STATE.buffNames) do
+	spellNames[spellID] = name
 end
 env.C_TradeSkillUI.GetCraftableCount = function(recipeID)
 	local count
@@ -926,11 +991,14 @@ end
 ns.AttachRoute()
 assert(not hooks.RefreshRightTabs and not hooks.RightTabSelected, "native profession methods stay untouched")
 local page = created[first]
-local routeTab = created[#created] -- the route page's side tab, before the gear page creates its own
+local routeTab = ns.Pages.SideTab()
 local gearFirst = #created + 1
 ns.AttachGear()
 local gearPage = created[gearFirst]
-routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
+local buffsFirst = #created + 1
+ns.AttachBuffs()
+local buffsPage = created[buffsFirst]
+ns.Pages.Select("route")
 local function Widget(frame)
 	return {
 		text = rawget(frame, "text"),
@@ -1055,7 +1123,7 @@ end
 
 -- The crafted gear page: its doll and detail pane, after its tab is selected. The slot's pick and every
 -- row is the addon's own listing rule, read back from the frames it filled.
-ns.GearTab.scripts.OnMouseUp(nil, "LeftButton", true)
+ns.Pages.Select("gear")
 gearPage.Slots[STATE.gearSelected].scripts.OnClick()
 
 local function GearItem(item)
@@ -1120,6 +1188,66 @@ for _, row in ipairs(detail.OtherRows) do
 	gear.others[#gear.others + 1] = GearRow(row)
 end
 
+-- The buffs page: its timeline rows and the selected node's strip, after its tab is selected. The inset
+-- answers with the scene's own size so the page lays its columns and opening scroll out for real.
+buffsPage.Inset.GetWidth = function()
+	return STATE.insetWidth
+end
+buffsPage.Inset.GetHeight = function()
+	return STATE.insetHeight
+end
+ns.Pages.Select("buffs")
+local function BuffItem(item)
+	return {
+		recipeID = item.recipeID,
+		itemID = item.itemID,
+		spell = item.spell,
+		skill = item.skill,
+		level = item.level,
+		profession = item.profession,
+		state = item.state,
+		locked = item.locked,
+		learned = item.learned,
+	}
+end
+local buffs = {
+	rows = {},
+	hi = buffsPage.Hi,
+	columns = buffsPage.Columns,
+	contentWidth = buffsPage.ContentWidth,
+	viewWidth = buffsPage.ViewWidth,
+	scrollOffset = buffsPage.ScrollOffset,
+	selected = buffsPage.SelectedItemID,
+	max = STATE.open.max,
+	only = rawget(buffsPage.Level, "checked") == true,
+	onlyLabel = rawget(buffsPage.LevelLabel, "text"),
+	dividerShown = rawget(buffsPage.Divider, "shown") == true,
+	dividerX = buffsPage.DividerX,
+	dividerLabel = rawget(buffsPage.DividerLabel, "text"),
+	title = rawget(buffsPage.Title, "text"),
+	profession = rawget(buffsPage.Profession, "text"),
+	skill = rawget(buffsPage.Skill, "text"),
+	skillShown = rawget(buffsPage.Skill, "shown") == true,
+}
+for _, row in ipairs(buffsPage.RowsData or {}) do
+	local out = { key = row.key, label = row.label, items = {} }
+	for _, item in ipairs(row.items) do
+		out.items[#out.items + 1] = BuffItem(item)
+	end
+	buffs.rows[#buffs.rows + 1] = out
+end
+local buffDetail = buffsPage.Detail
+buffs.detail = {
+	name = rawget(buffDetail.Name, "text"),
+	buff = rawget(buffDetail.Buff, "text"),
+	learn = rawget(buffDetail.Learn, "text"),
+	icon = rawget(buffDetail.Icon, "texture"),
+	action = {
+		text = rawget(buffDetail.Action, "text"),
+		enabled = rawget(buffDetail.Action, "enabled") == true,
+	},
+}
+
 local shopping = {}
 for _, profession in ipairs(ns.ShoppingList()) do
 	local out = {
@@ -1141,7 +1269,7 @@ for _, id in ipairs(STATE.learned) do
 end
 io.write(Json({
 	route = route, tracker = tracker, trainer = trainer, reagent = reagent,
-	gear = gear, shopping = shopping,
+	gear = gear, buffs = buffs, shopping = shopping,
 }))
 """
 
@@ -1152,7 +1280,14 @@ def to_lua(value):
     if isinstance(value, (int, float)):
         return repr(value)
     if isinstance(value, str):
-        return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+        escaped = (
+            value.replace("\\", "\\\\")
+            .replace('"', '\\"')
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
+        )
+        return '"' + escaped + '"'
     if isinstance(value, dict):
         return "{" + ", ".join(f"[{to_lua(k)}] = {to_lua(v)}" for k, v in value.items()) + "}"
     return "{" + ", ".join(to_lua(v) for v in value) + "}"
@@ -1174,25 +1309,47 @@ def addon_atlases(ui):
     return {name: {"width": ui.atlas(name).width, "height": ui.atlas(name).height} for name in sorted(literals & names)}
 
 
-def lua_scene(ui, *, buy_reagents=False):
-    """What the route page, tracker, trainer and reagent tooltip draw for the scene's character."""
+COOKING_ICON = 133971
+# Cooking recipes a level 12 cook already knows at skill 1: the trainer's first foods.
+COOKING_LEARNED = [2795, 15935]
+
+
+def buff_spell_text(ui):
+    """The client's own name and description for each buff spell the data names."""
+    spells = set(NS["BuffItems"].values())
+    names = {int(row["ID"]): row["Name_lang"] for row in ui.wago.db2("SpellName") if int(row["ID"]) in spells}
+    descriptions = {int(row["ID"]): row["Description_lang"] for row in ui.wago.db2("Spell") if int(row["ID"]) in spells}
+    return names, descriptions
+
+
+def lua_scene(ui, *, buy_reagents=False, buffs=False):
+    """What the route, gear and buffs pages, the tracker, trainer and reagent tooltip draw for the scene."""
     canvas = ui.canvas(1, 1)
     professions = [
         {"name": name, "icon": icon, "rank": rank, "max": top, "skillLine": line}
         for name, icon, rank, top, line in PROFESSIONS
     ]
+    buff_names, buff_descriptions = buff_spell_text(ui) if buffs else ({}, {})
     state = {
         "buyReagents": buy_reagents,
-        "level": LEVEL,
+        "level": 12 if buffs else LEVEL,
         "money": MONEY,
-        "learned": LEARNED,
+        "learned": list(set(LEARNED) | set(COOKING_LEARNED)) if buffs else LEARNED,
         "bags": BAGS,
         "auction": AUCTION,
         "professions": professions,
         "professionIndices": list(range(1, len(professions) + 1)),
-        "open": {"name": "Leatherworking", "skillLine": 165, "rank": SKILL, "max": MAX_SKILL},
+        "open": {"name": "Cooking", "skillLine": 185, "rank": 1, "max": 75}
+        if buffs
+        else {"name": "Leatherworking", "skillLine": 165, "rank": SKILL, "max": MAX_SKILL},
+        # The page's inset, so the Lua lays out its own timeline at the size the scene draws.
+        "insetWidth": FRAME_W - 32,
+        "insetHeight": FRAME_H - 112,
+        "class": ["Hunter", "HUNTER", 3] if buffs else ["Rogue", "ROGUE", 4],
         "gearSelected": GEAR_SELECTED,
         "tooltipItem": TOOLTIP_ITEM,
+        "buffNames": buff_names,
+        "buffDescriptions": buff_descriptions,
         "atlases": addon_atlases(ui),
         "colors": COLORS,
         "disabledColor": DISABLED_FONT_COLOR,
@@ -1227,11 +1384,13 @@ from wowmock import (
     crop_coords,
     dialog_border,
     draw_money,
+    dropdown,
     filter_dropdown,
     minimal_checkbox,
     minimal_scrollbar,
     money_width,
     objective_tracker,
+    panel_tabs,
     portrait_frame_art,
     scene,
     search_box,
@@ -1623,16 +1782,20 @@ def create_controls(canvas, fx, fy, count, frame_w=FRAME_W):
     canvas.draw(ui.atlas("Profession-button-arrow-left"), ix - 29.5, iy - 1, 22, 22)
 
 
-def profession_tabs(canvas, fx, fy, selected, gear_tab=False, frame_w=FRAME_W):
-    """The side tabs on the frame's right: overview, one per profession, then SkillUp's route tab ("route")
-    and, when that setting is on, its crafted gear tab ("gear") below it."""
+PAGE_TABS = ("Route", "Crafted gear", "Buffs")
+PAGE_IDS = ("route", "gear", "buffs")
+
+
+def profession_tabs(canvas, fx, fy, selected, frame_w=FRAME_W):
+    """The side tabs on the frame's right: overview, one per profession, then SkillUp's one side tab. With a
+    SkillUp page showing, its bottom tabs hang under the window's bottom-left, as on the character window."""
     x, y = fx + frame_w, fy + 60
     y += side_tab(canvas, x, y, OVERVIEW_TAB_ICON) + 2
     for name, icon, *_ in PROFESSIONS:
         y += side_tab(canvas, x, y, icon, selected=name == selected) + 2
-    y += side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp", selected=selected == "route") + 2
-    if gear_tab:
-        side_tab(canvas, x, y, "interface/icons/inv_chest_chain_05.blp", selected=selected == "gear")
+    side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp", selected=selected in PAGE_IDS)
+    if selected in PAGE_IDS:
+        panel_tabs(canvas, fx + 11, fy + FRAME_H - 4, list(PAGE_TABS), selected=PAGE_IDS.index(selected))
 
 
 # The overview tab's Interface/ICONS/INV_SideTab_Professions_c60 is in neither the community listfile nor
@@ -1832,18 +1995,6 @@ def draw_list(canvas, x, y, w, h, rows):
         minimal_scrollbar(canvas, box_x + box_w + 4, box_y, box_h, box_h / (top - box_y))
 
 
-def dropdown(canvas, x, y, w, text):
-    """WowStyle1DropdownTemplate (w x 25): common-dropdown-c-button 7 units outside it, the a-button arrow
-    at its RIGHT, and the selection in GameFontHighlight from LEFT 9."""
-    ui = canvas.ui
-    h = 25
-    canvas.draw(ui.atlas("common-dropdown-c-button"), x - 7, y - 7, w + 14, h + 14)
-    arrow = ui.atlas("common-dropdown-a-button")
-    canvas.draw(arrow, x + w - arrow.width + 3, y + (h - arrow.height) / 2)
-    canvas.text(x + 9, y - 1, text, F_HIGHLIGHT, box_height=h)
-    return h
-
-
 def input_border(canvas, x, y, w, h):
     """InputBoxVisualTemplate (Blizzard_SharedXML/Shared/InputBox/InputBoxTemplates.xml): common-search-border
     Left 8x20 at LEFT (-5, 0), Right 8x20 at RIGHT, Middle between them."""
@@ -1867,12 +2018,12 @@ def route_frame(ui, scene_data):
     """The Professions window on SkillUp's route tab: Route.lua's page where the crafting page was."""
     route = scene_data["route"]
     m = FRAME_MARGIN
-    canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m)
+    canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m + 30)
     fx, fy = m, m
     extend_art(canvas, "Profession-Background-Overview", fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23, BACKGROUND_ART)
     # Header: the profession dropdown, "Skill  48/75     Target" and the target box.
     dx, dy, dw = fx + 76, fy + 32, 180
-    dh = dropdown(canvas, dx, dy, dw, "Leatherworking")
+    dh = dropdown(canvas, dx, dy, dw, "Leatherworking")[3]
     skill_x = dx + dw + 16
     skill_w = canvas.text(skill_x, dy, route["skill"]["text"], F_NORMAL, box_height=dh)
     input_box(canvas, skill_x + skill_w + 10, dy + (dh - 20) / 2, 40, 20, route["target"]["text"])
@@ -2131,7 +2282,7 @@ def gear_scene(ui, scene_data):
         for row in ui.wago.db2("ItemSubClass")
     }
     m = FRAME_MARGIN
-    canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m)
+    canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m + 30)
     fx, fy = m, m
     extend_art(canvas, "Profession-Background-Overview", fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23, BACKGROUND_ART)
     inset_x, inset_y, inset_w, inset_h = fx + 16, fy + 88, FRAME_W - 32, FRAME_H - 132
@@ -2162,8 +2313,304 @@ def gear_scene(ui, scene_data):
     )
     detail = dict(gear["detail"], reagents=gear.get("reagents", []), others=gear.get("others", []))
     gear_detail(canvas, inset_x + 56, inset_y + 10, inset_w - 112, detail, subclass_names)
-    profession_tabs(canvas, fx, fy, "gear", gear_tab=True)
+    profession_tabs(canvas, fx, fy, "gear")
     portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, 136247, "Leatherworking")
+    return scene(ui, [(canvas, 0, 0)])
+
+
+BUFF_NODE = 40
+BUFF_NODE_GAP = 4
+BUFF_COLUMN_GAP = 16
+BUFF_LABEL_W = 128
+BUFF_AXIS_X = 18 + BUFF_LABEL_W
+BUFF_VIEW_RIGHT = 26
+BUFF_INSET_TOP = 44
+BUFF_INSET_BOTTOM = 149
+BUFF_HSCROLL_BOTTOM = 120
+BUFF_LEGEND_BOTTOM = 100
+BUFF_DETAIL_BOTTOM = 24
+BUFF_DETAIL_H = 74
+# UI/Buffs.lua: the inset is the 594-high frame less 88 above it and 24 below it, and the rows viewport is the
+# inset less the axis above the rows and the sideways bar, legend and detail below. Five whole rows fill it
+# exactly, 289 / 5 = 57.8 each.
+BUFF_ROWS = 5
+BUFF_VIEW_H = FRAME_H - 112 - BUFF_INSET_TOP - BUFF_INSET_BOTTOM
+BUFF_ROW_H = BUFF_VIEW_H / BUFF_ROWS
+BUFF_NODE_STATE = {
+    "known": "talents-node-square-green",
+    "trainable": "talents-node-square-yellow",
+    "later": "talents-node-square-gray",
+    "locked": "talents-node-square-locked",
+}
+BUFF_LEGEND = (
+    ("known", "Known"),
+    ("trainable", "Learn now"),
+    ("later", "Later"),
+    ("locked", "Above your level"),
+)
+
+
+def buff_node_state(item):
+    """Core/Buffs.lua ns.BuffNodeState: the four states the timeline draws."""
+    if item.get("locked"):
+        return "locked"
+    if item.get("state") == "known":
+        return "known"
+    if item.get("state") == "trainable":
+        return "trainable"
+    return "later"
+
+
+def buff_positions(items, columns):
+    """Core/Buffs.lua ns.BuffRowX: each item in its column, in unlock order, a slot apart."""
+    by_skill = {column["skill"]: column for column in columns}
+    slots = {}
+    xs = []
+    for item in items:
+        column = by_skill.get(item["skill"])
+        used = slots.get(item["skill"], 0)
+        slots[item["skill"]] = used + 1
+        xs.append(column["x"] + used * (BUFF_NODE + BUFF_NODE_GAP) if column else 0)
+    return xs
+
+
+def trim_hscroll(canvas, x, y, w, visible, offset):
+    """WowTrimHorizontalScrollBar (Blizzard_SharedXML/Shared/Scroll/TrimScrollBar.xml): the end caps and
+    tiled centre, the 18 high thumb, and the left and right steppers, at w by 25."""
+    ui = canvas.ui
+    left, right = ui.atlas("UI-ScrollBar-EndCap-Left"), ui.atlas("UI-ScrollBar-EndCap-Right")
+    canvas.draw(left, x, y)
+    canvas.draw(right, x + w - right.width, y)
+    centre = ui.atlas("_UI-ScrollBar-Center")
+    tiled(canvas, centre.image, x + left.width, y, w - left.width - right.width, 25, centre.width, 25)
+    track_x, track_w = 22, max(1, w - 22 - 23)
+    thumb_w = max(23, track_w * min(visible, 1))
+    tx = x + track_x + (track_w - thumb_w) * offset
+    begin = ui.atlas("UI-ScrollBar-Knob-EndCap-Left")
+    end = ui.atlas("UI-ScrollBar-Knob-EndCap-Right")
+    canvas.draw(begin, tx, y + 3.5)
+    middle = ui.atlas("UI-ScrollBar-Knob-Center-Horizontal")
+    middle_w = max(0, thumb_w - begin.width - end.width)
+    if middle_w > 0:
+        piece = middle.image.crop((0, 0, round(middle_w / middle.width * middle.image.width), middle.image.height))
+        canvas.draw(piece, tx + begin.width, y + 3.5, middle_w, middle.height)
+    canvas.draw(end, tx + thumb_w - end.width, y + 3.5)
+    back = ui.atlas("UI-ScrollBar-ScrollLeftButton-Up")
+    forward = ui.atlas("UI-ScrollBar-ScrollRightButton-Up")
+    canvas.draw(back, x + 4, y + 4)
+    canvas.draw(forward, x + w - 4 - forward.width, y + 4)
+
+
+def buff_edge(canvas, x0, x1, y, lit):
+    """The talent tree's line tile, repeated from x0 to x1 at its native height."""
+    tile = canvas.ui.atlas("talents-arrow-line-yellow" if lit else "talents-arrow-line-gray")
+    x = x0
+    while x < x1:
+        w = min(tile.width, x1 - x)
+        crop = tile.image.crop((0, 0, round(w / tile.width * tile.image.width), tile.image.height))
+        canvas.draw(crop, x, y - tile.height / 2, w, tile.height)
+        x += tile.width
+
+
+def buff_node(canvas, x, y, item, selected):
+    """A talent-tree square node holding the item's icon, zoomed past its own border."""
+    ui = canvas.ui
+    state = buff_node_state(item)
+    shadow = ui.atlas("talents-node-square-shadow")
+    canvas.draw(shadow, x + BUFF_NODE / 2 - shadow.width / 2, y + BUFF_NODE / 2 - shadow.height / 2)
+    icon = ui.texture(ui.item(item["itemID"]).icon)
+    cut_x, cut_y = round(icon.width * 0.08), round(icon.height * 0.08)
+    icon = icon.crop((cut_x, cut_y, icon.width - cut_x, icon.height - cut_y))
+    if state in ("later", "locked"):
+        icon = ImageOps.grayscale(icon.convert("RGB")).convert("RGBA")
+    canvas.draw(icon, x + 3, y + 3, BUFF_NODE - 6, BUFF_NODE - 6)
+    canvas.draw(ui.atlas(BUFF_NODE_STATE[state]), x, y, BUFF_NODE, BUFF_NODE)
+    if state == "locked":
+        lock = ui.atlas("Talents-lock-c60")
+        canvas.draw(lock, x + BUFF_NODE - lock.width - 3, y + BUFF_NODE - lock.height - 3)
+    if selected:
+        canvas.draw(ui.atlas("Profession-square-frame-glow"), x, y, BUFF_NODE, BUFF_NODE, blend="ADD")
+
+
+def buff_header(canvas, x, y, w, text, action):
+    """Professions-recipe-header as a three-slice bar, the item name and the action button in it."""
+    ui = canvas.ui
+    left, middle, right = (ui.atlas("Professions-recipe-header-" + part) for part in ("left", "middle", "right"))
+    canvas.draw(left, x, y)
+    canvas.draw(middle, x + left.width, y, w - left.width - right.width, middle.height)
+    canvas.draw(right, x + w - right.width, y)
+    canvas.text(x + 12, y, text, F_NORMAL, box_height=middle.height)
+    panel_button(
+        canvas,
+        x + w - 8 - 130,
+        y + (middle.height - 22) / 2,
+        130,
+        22,
+        action.get("text") or "",
+        action.get("enabled", True),
+    )
+
+
+def buffs_scene(ui, scene_data):
+    """The Professions window on SkillUp's buffs page: the skill timeline and the selected buff's strip."""
+    buffs = scene_data["buffs"]
+    m = FRAME_MARGIN
+    canvas = ui.canvas(FRAME_W + m + TABS_MARGIN, FRAME_H + 2 * m + 30)
+    fx, fy = m, m
+    extend_art(canvas, "Profession-Background-Overview", fx + 2, fy + 21, FRAME_W - 4, FRAME_H - 23, BACKGROUND_ART)
+    inset_x, inset_y, inset_w, inset_h = fx + 16, fy + 88, FRAME_W - 32, FRAME_H - 112
+    # The Cooking specialization page's own art, at its native aspect, cropped to cover under the border.
+    art = ui.atlas("Professions-Specializations-Background-Cooking")
+    scale = art.image.width / art.width
+    cover = ImageOps.fit(art.image, (round((inset_w - 4) * scale), round((inset_h - 4) * scale)), Image.LANCZOS)
+    canvas.draw(cover, inset_x + 2, inset_y + 2, inset_w - 4, inset_h - 4)
+    inset_frame(canvas, inset_x, inset_y, inset_w, inset_h, expand(ui, buffs.get("title") or "Buffs"))
+    # The switch above the inset's top-right, its label on the right.
+    label = expand(ui, buffs.get("onlyLabel") or "")
+    minimal_checkbox(
+        canvas,
+        inset_x + inset_w - canvas.text_width(label, F_NORMAL_SMALL) - 30 - 3,
+        inset_y - 28,
+        label,
+        checked=buffs.get("only"),
+    )
+
+    # The node area: after the fixed label column, to 26 in from the inset's right, scrolled sideways by
+    # the offset the page opened at.
+    ax = inset_x + BUFF_AXIS_X
+    aw = inset_w - BUFF_AXIS_X - BUFF_VIEW_RIGHT
+    content_w = buffs.get("contentWidth") or 0
+    columns = buffs.get("columns") or []
+    # The page's own opening offset, with no extra scroll: what the divider does off the edge stays off it.
+    offset = buffs.get("scrollOffset") or 0
+
+    def x_of(column_x):
+        return ax + column_x - offset
+
+    rows_top = inset_y + BUFF_INSET_TOP
+    viewport_h = inset_h - BUFF_INSET_TOP - BUFF_INSET_BOTTOM
+    # Every row the ScrollBox's viewport fits; the rest scroll vertically (the legend and detail stay put).
+    row_capacity = max(1, int(viewport_h // BUFF_ROW_H))
+    rows = buffs["rows"][:row_capacity]
+
+    selected = buffs.get("selected")
+    # Row labels stay at the left while their nodes scroll: draw the labels on the window, then the
+    # nodes on a layer the scroll box clips to the node area.
+    rows_height = len(rows) * BUFF_ROW_H
+    for index, row in enumerate(rows):
+        ry = rows_top + index * BUFF_ROW_H
+        canvas.text(inset_x + 18, ry, expand(ui, row["label"]), F_NORMAL, box_height=40)
+    rows_layer = ui.canvas(canvas.width, canvas.height)
+    for index, row in enumerate(rows):
+        ry = rows_top + index * BUFF_ROW_H
+        centers = [x_of(x) for x in buff_positions(row["items"], columns)]
+        for position in range(1, len(row["items"])):
+            lit = buff_node_state(row["items"][position]) in ("known", "trainable")
+            buff_edge(rows_layer, centers[position - 1] + BUFF_NODE, centers[position], ry + BUFF_NODE / 2, lit)
+        for item, x in zip(row["items"], centers, strict=True):
+            buff_node(rows_layer, x, ry, item, item["itemID"] == selected)
+    clip = (
+        canvas.px(ax),
+        canvas.px(rows_top),
+        canvas.px(ax + aw),
+        canvas.px(rows_top + rows_height),
+    )
+    piece = rows_layer.image.crop(clip)
+    canvas.image.paste(piece, (clip[0], clip[1]), piece)
+
+    # The vertical MinimalScrollBar beside the viewport, when the rows overflow it, as the page creates it.
+    if len(buffs["rows"]) > row_capacity:
+        minimal_scrollbar(
+            canvas,
+            ax + aw + 4,
+            rows_top,
+            viewport_h,
+            visible=row_capacity / len(buffs["rows"]),
+            offset=0,
+        )
+
+    # The axis: one grey number per column over its first slot, and the rank divider, both cut to the
+    # node area as the page's clipped axis frame does.
+    axis_layer = ui.canvas(canvas.width, canvas.height)
+    for column in columns:
+        text = str(column["skill"])
+        tx = x_of(column["x"] + BUFF_NODE / 2)
+        axis_layer.text(
+            tx - axis_layer.text_width(text, F_NORMAL_SMALL) / 2,
+            inset_y + 14,
+            text,
+            F_NORMAL_SMALL,
+            COLORS["unknown"],
+        )
+    if buffs.get("dividerShown") and buffs.get("dividerX") is not None:
+        divider = ui.atlas("Professions-Specializations-Divider")
+        height = min(divider.height, inset_h - BUFF_INSET_TOP - BUFF_INSET_BOTTOM)
+        cut = round(height / divider.height * divider.image.height)
+        dx = x_of(buffs["dividerX"])
+        axis_layer.draw(
+            divider.image.crop((0, 0, divider.image.width, cut)),
+            dx - divider.width / 2,
+            rows_top,
+            divider.width,
+            height,
+        )
+        axis_layer.text(
+            dx + 6,
+            rows_top - 16,
+            expand(ui, buffs.get("dividerLabel") or ""),
+            F_NORMAL_SMALL,
+            COLORS["unknown"],
+        )
+    axis_clip = (
+        canvas.px(ax),
+        canvas.px(inset_y + 2),
+        canvas.px(ax + aw),
+        canvas.px(rows_top + inset_h - BUFF_INSET_TOP - BUFF_INSET_BOTTOM),
+    )
+    axis_piece = axis_layer.image.crop(axis_clip)
+    canvas.image.paste(axis_piece, (axis_clip[0], axis_clip[1]), axis_piece)
+
+    # The sideways scroll bar under the rows, at its real art, only when the content is wider than the view.
+    if content_w > aw:
+        bar_y = inset_y + inset_h - BUFF_HSCROLL_BOTTOM - 25
+        max_offset = content_w - aw
+        trim_hscroll(canvas, ax, bar_y, aw, aw / content_w, (offset / max_offset) if max_offset else 0)
+
+    # The legend, then the selected node's strip under it.
+    legend_y = inset_y + inset_h - BUFF_LEGEND_BOTTOM - 16
+    lx = inset_x + 18
+    for state, text in BUFF_LEGEND:
+        canvas.draw(ui.atlas(BUFF_NODE_STATE[state]), lx, legend_y, 16, 16)
+        canvas.text(lx + 20, legend_y + 2, text, F_NORMAL_SMALL, COLORS["unknown"])
+        lx += 20 + canvas.text_width(text, F_NORMAL_SMALL) + 12
+
+    detail = buffs["detail"]
+    header_y = inset_y + inset_h - BUFF_DETAIL_BOTTOM - BUFF_DETAIL_H
+    buff_header(
+        canvas, inset_x + 10, header_y, inset_w - 20, expand(ui, detail.get("name") or ""), detail.get("action") or {}
+    )
+    icon = detail.get("icon") or ""
+    item_id = int(icon[5:]) if icon.startswith("item:") else None
+    if item_id:
+        canvas.draw(ui.texture(ui.item(item_id).icon), inset_x + 14, header_y + 34, 37, 37)
+        canvas.draw(
+            ui.texture("interface/common/whiteiconframe.blp"),
+            inset_x + 14,
+            header_y + 34,
+            37,
+            37,
+            gear_quality(ui, item_id),
+        )
+    canvas.text(inset_x + 60, header_y + 36, expand(ui, detail.get("buff") or ""), F_HIGHLIGHT, COLORS["green"])
+    canvas.text(inset_x + 60, header_y + 54, expand(ui, detail.get("learn") or ""), F_NORMAL)
+
+    profession_tabs(canvas, fx, fy, "buffs")
+    portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, COOKING_ICON, "Cooking")
+    # The route page's header: the profession dropdown and the skill beside it.
+    dx, dy, dw = fx + 76, fy + 32, 180
+    dropdown(canvas, dx, dy, dw, expand(ui, buffs.get("profession") or ""))
+    if buffs.get("skillShown"):
+        canvas.text(dx + dw + 16, dy, expand(ui, buffs.get("skill") or ""), F_NORMAL, box_height=25)
     return scene(ui, [(canvas, 0, 0)])
 
 
@@ -2346,6 +2793,7 @@ def main():
     scene(ui, [(route_frame(ui, lua_scene(ui, buy_reagents=True)), 0, 0)]).save(OUT / "route-auctionator.png")
     scene(ui, [(shopping_list_scene(ui, data), 0, 0)]).save(OUT / "shopping-list.png")
     gear_scene(ui, data).save(OUT / "gear.png")
+    buffs_scene(ui, lua_scene(ui, buffs=True)).save(OUT / "buffs.png")
     tracker_scene(ui, data).save(OUT / "tracker.png")
     trainer_scene(ui, data).save(OUT / "trainer.png")
     reagent_tooltip(ui, data).save(OUT / "reagent.png")

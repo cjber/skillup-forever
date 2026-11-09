@@ -39,10 +39,6 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 L["Lock the tracker"] = "추적기 잠금"
 L["Tracker background"] = "추적기 배경"
 
-L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
-	"전문 기술 창의 경로 탭 아래에 있는 측면 탭으로, 이 캐릭터가 각 슬롯에 착용할 수 있는 가장 최신 제작 아이템을 보여줍니다."
-L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
-	"전문 기술 창의 측면 탭으로, 목표 숙련도까지의 경로와 재료를 보여줍니다. 추적 중인 전문 기술은 어느 쪽이든 목표 추적기에 남습니다."
 L["AH"] = "경매장"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"각 제조법의 난이도 구간 시작점을 표시합니다. 배우는 데 필요한 숙련도와는 별개입니다."
@@ -141,7 +137,6 @@ L["Learn a crafting profession to plan a route."] = "경로를 계획하려면 �
 L["Legs"] = "다리"
 L["Level %d"] = "레벨 %d"
 L["Level %d %s"] = "레벨 %d %s"
-L["Levelling route"] = "숙련도 경로"
 L["Made at"] = "제작 장소"
 L["Main hand"] = "주장비"
 L["Missing reagents for this step."] = "이 단계에 필요한 재료가 부족합니다."
@@ -557,3 +552,26 @@ L["Made by %s %d"] = "%s %d 제작" -- mt
 L["Made by %s"] = "%s 제작" -- mt
 L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
 	"이제 제작품의 판매 가치가 첫 번째 제작뿐 아니라 해당 단계의 모든 제작 비용을 낮춥니다." -- mt
+L["%s at %d"] = "%s, %d" -- mt
+L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
+	"전문 기술 창 하단의 탭으로, 이 전문 기술이 만드는 강화 효과 소모품을 해금 숙련도와 용도별로 보여줍니다. SkillUp 측면 탭에서 경로 및 제작 장비 탭 옆에 열립니다." -- mt
+L["A tab at the bottom of the Professions window listing the newest crafted item this character can equip in each slot. It opens from the SkillUp side tab, beside the route and buffs tabs."] =
+	"전문 기술 창 하단의 탭으로, 이 캐릭터가 각 슬롯에 착용할 수 있는 가장 최신 제작 아이템을 보여줍니다. SkillUp 측면 탭에서 경로 및 강화 효과 탭 옆에 열립니다." -- mt
+L["A tab at the bottom of the Professions window with a route to your target skill and its reagents. It opens from the SkillUp side tab, beside the crafted gear and buffs tabs. Tracked professions stay in the objective tracker either way."] =
+	"전문 기술 창 하단의 탭으로, 목표 숙련도와 재료까지의 경로를 보여줍니다. SkillUp 측면 탭에서 제작 장비 및 강화 효과 탭 옆에 열립니다. 추적 중인 전문 기술은 어느 쪽이든 목표 추적기에 남습니다." -- mt
+L["Above your level"] = "내 레벨보다 높음" -- mt
+L["Buffs"] = "강화 효과" -- mt
+L["Known"] = "알려짐" -- mt
+L["Later"] = "나중에" -- mt
+L["Learn now"] = "지금 배우기" -- mt
+L["No buff items for your level yet."] = "아직 내 레벨에 맞는 강화 효과 아이템이 없습니다." -- mt
+L["Only for level %d"] = "레벨 %d 전용" -- mt
+L["Show the buffs tab"] = "강화 효과 탭 표시" -- mt
+L["SkillUp"] = "SkillUp" -- mt
+L["This profession makes no buff items."] = "이 전문 기술은 강화 효과 아이템을 만들지 않습니다." -- mt
+L["spell %d"] = "주문 %d" -- mt
+L["Buffs by %s skill"] = "%s 강화 효과" -- mt
+L["Skill  %d/%d"] = "숙련도  %d/%d" -- mt
+L["Other crafters"] = "다른 제작자" -- mt
+L["No profession here makes buff items."] =
+	"여기서 강화 효과 아이템을 만드는 전문 기술이 없습니다." -- mt

@@ -444,6 +444,11 @@ local function FirstAid(skill)
 	return { skillLine = 129, name = "First Aid", icon = 135966, skill = skill, base = skill, max = 75, modifier = 0 }
 end
 
+local stale = setmetatable({}, {
+	__index = function()
+		return noop
+	end,
+})
 local ns = {
 	L = setmetatable({}, {
 		__index = function(_, key)
@@ -589,10 +594,26 @@ local ns = {
 	NPCLocation = function()
 		return { name = "Somewhere" }
 	end,
-	Changed = noop,
-	WhenStale = noop,
+	-- The tab settings ask the pages for a refresh; the route's own views are not this spec's subject.
+	stale = stale,
+	Changed = function(kind)
+		if kind == "settings" then
+			stale.pages()
+		end
+	end,
+	WhenStale = function(name, handler)
+		stale[name] = handler
+	end,
 	WhenEvent = noop,
 	Print = noop,
+	LastSkillUpPage = function()
+		return nil
+	end,
+	SetLastSkillUpPage = noop,
+	OnlyBuffsForLevel = function()
+		return false
+	end,
+	SetOnlyBuffsForLevel = noop,
 }
 function ns.CanGather(itemID)
 	if ns.LootedFrom[itemID] then
@@ -703,6 +724,8 @@ for _, file in ipairs({
 	"Core/Changes.lua",
 	"Core/Plan.lua",
 	"UI/List.lua",
+	"UI/PageParts.lua",
+	"UI/Pages.lua",
 	"UI/Route.lua",
 	"UI/Gear.lua",
 }) do
@@ -779,10 +802,8 @@ local page = pageFrame
 ns.db.showGearTab = true
 ns.AttachGear()
 
--- The side tabs keep one order however the window opens: Blizzard's column, any other addon's tab already
--- in it, the route, then crafted gear. A tab another addon hangs under ours is never the slot ours go under,
--- or the client refuses the anchor and the route tab loses its place.
-local gearTabFrame = tabs[2]
+-- One SkillUp side tab, whatever its pages: a tab another addon hangs under ours is never the slot ours go
+-- under, or the client refuses the anchor and the tab loses its place.
 local function Below(lower, upper)
 	local anchor = lower.points[1]
 	return #lower.points == 1 and anchor.relative == upper and anchor.relativePoint == "BOTTOMLEFT"
@@ -792,52 +813,45 @@ local function OpenWindow()
 	equal(ok, true, "the window opens without an anchor error: " .. tostring(err))
 end
 OpenWindow()
-equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "the route tab sits under Blizzard's column")
-equal(Below(gearTabFrame, tab), true, "and the gear tab under the route tab")
+equal(#tabs, 1, "the pages share one side tab")
+equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "the SkillUp tab sits under Blizzard's column")
 -- What's Training? pins its own tab to the window's bottom-right corner: a BOTTOMLEFT of the window's
 -- BOTTOMRIGHT at 0,10, which is flush with the column's left edge but sits down by the window's bottom
--- (Crafting/Crafting.lua). It can appear or re-place itself after our tabs are already laid out, so a tab
--- switch (the same placement pass our events run) must leave ours in the free slots above it, inside the
+-- (Crafting/Crafting.lua). It can appear or re-place itself after our tab is already laid out, so a tab
+-- switch (the same placement pass our events run) must leave ours in the free slot above it, inside the
 -- window (#446).
 do
 	local cornerTab = NewRegion(ProfessionsFrame)
 	cornerTab:SetPoint("BOTTOMLEFT", ProfessionsFrame, "BOTTOMRIGHT", 0, 10)
 	cornerTab:SetSize(43, 55)
 	local hangingTab = NewRegion(ProfessionsFrame)
-	hangingTab:SetPoint("TOPLEFT", gearTabFrame, "BOTTOMLEFT", 0, -2)
+	hangingTab:SetPoint("TOPLEFT", tab, "BOTTOMLEFT", 0, -2)
 	hangingTab:SetSize(43, 55)
 	ns.PlaceSideTabs()
-	equal(
-		Below(tab, ProfessionsFrame.ProfessionsOverviewTab),
-		true,
-		"the route tab keeps the first free slot under Blizzard's column"
-	)
-	equal(Below(gearTabFrame, tab), true, "the gear tab still follows the route tab")
-	equal(Below(tab, cornerTab), false, "and neither is pushed under What's Training?'s corner tab")
-	local _, routeBottom, _, routeTop = Rect(tab)
-	local _, gearBottom, _, gearTop = Rect(gearTabFrame)
+	equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "the SkillUp tab keeps the first free slot")
+	equal(Below(tab, cornerTab), false, "and is not pushed under What's Training?'s corner tab")
+	local _, bottom, _, top = Rect(tab)
 	local _, windowBottom, _, windowTop = Rect(ProfessionsFrame)
-	equal(routeBottom > windowBottom and routeTop < windowTop, true, "the route tab stays beside the window")
-	equal(gearBottom > windowBottom and gearTop < windowTop, true, "and so does the gear tab")
-	-- With the route tab off, the gear tab takes its slot.
+	equal(bottom > windowBottom and top < windowTop, true, "the SkillUp tab stays beside the window")
+	-- The tab stays while any page is on, and goes with the last one; with one back on it returns to the
+	-- first free slot.
 	ns.db.showRouteTab = false
 	ns.Changed("settings")
-	equal(
-		Below(gearTabFrame, ProfessionsFrame.ProfessionsOverviewTab),
-		true,
-		"the gear tab takes the route tab's slot when that is off"
-	)
-	equal(Below(gearTabFrame, cornerTab), false, "not What's Training?'s corner slot")
+	equal(tab.shown, true, "the tab stays while the gear page is on")
+	equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "in the first free slot")
+	ns.db.showGearTab = false
+	ns.Changed("settings")
+	equal(tab.shown, false, "the tab is hidden when every page is off")
 	ns.db.showRouteTab = true
 	ns.Changed("settings")
-	equal(Below(gearTabFrame, tab), true, "and goes back under it when it is on")
+	equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "and comes back in the first free slot")
 	cornerTab:Hide()
 	hangingTab:Hide()
 end
 OpenWindow()
 -- All The Things on Forever keeps the column's tabs in one full-height frame on the window's right edge and
 -- anchors its own tab in the next free slot inside it (#402). That frame is the column, not the lowest tab:
--- the route tab goes under the tab in it, beside the window, not under the window's bottom.
+-- the SkillUp tab goes under the tab in it, beside the window, not under the window's bottom.
 local sidebar = NewRegion(ProfessionsFrame)
 sidebar:SetPoint("TOPLEFT", ProfessionsFrame, "TOPRIGHT", 0, 0)
 sidebar:SetPoint("BOTTOMLEFT", ProfessionsFrame, "BOTTOMRIGHT", 0, 0)
@@ -846,12 +860,11 @@ local thirdPartyTab = NewRegion(sidebar)
 thirdPartyTab:SetPoint("TOPLEFT", ProfessionsFrame.ProfessionsOverviewTab, "BOTTOMLEFT", 0, -2)
 thirdPartyTab:SetSize(43, 55)
 OpenWindow()
-equal(Below(tab, thirdPartyTab), true, "the route tab goes under a third-party tab inside the column frame")
-equal(Below(gearTabFrame, tab), true, "the gear tab still follows the route tab")
-equal(Below(tab, sidebar), false, "the column frame itself is never the slot the route tab hangs under")
+equal(Below(tab, thirdPartyTab), true, "the SkillUp tab goes under a third-party tab inside the column frame")
+equal(Below(tab, sidebar), false, "the column frame itself is never the slot the tab hangs under")
 local _, tabBottom, _, tabTop = Rect(tab)
 local _, windowBottom, _, windowTop = Rect(ProfessionsFrame)
-equal(tabBottom > windowBottom and tabTop < windowTop, true, "and the route tab stays beside the window")
+equal(tabBottom > windowBottom and tabTop < windowTop, true, "and the SkillUp tab stays beside the window")
 thirdPartyTab:Hide()
 sidebar:Hide()
 OpenWindow()
@@ -925,10 +938,10 @@ equal(Width(page.Craft), 240, "the craft button is drawn at its widest label")
 
 -- The list's scroll box is what the addon places; the game lays the rows out inside it, so the scroll
 -- box must sit inside the inset and every row the game draws inside the scroll box.
-local routeLeft, routeBottom, routeRight, routeTop = Rect(insets[1])
+local routeLeft, routeBoxBottom, routeRight, routeTop = Rect(insets[1])
 local boxLeft, boxBottom, boxRight, boxTop = Rect(page.RouteList.scrollBox)
 equal(boxLeft >= routeLeft and boxRight <= routeRight, true, "the route list's scroll box is inside its inset")
-equal(boxTop <= routeTop and boxBottom >= routeBottom, true, "and inside its height")
+equal(boxTop <= routeTop and boxBottom >= routeBoxBottom, true, "and inside its height")
 local routeRows = 0
 for _, row in ipairs(page.RouteList.scrollBox.frames) do
 	if row.kind == "row" then
@@ -936,7 +949,7 @@ for _, row in ipairs(page.RouteList.scrollBox.frames) do
 		local left, bottom, right, top = Rect(row)
 		equal(Width(row.Icon) >= 36, true, "a route row's icon is a full item icon")
 		equal(left >= routeLeft and right <= routeRight, true, "the route row is inside its inset's width")
-		equal(top <= routeTop and bottom >= routeBottom, true, "and inside its height")
+		equal(top <= routeTop and bottom >= routeBoxBottom, true, "and inside its height")
 		local textLeft, textBottom, textRight = Rect(row.Text)
 		equal(textLeft > left and textRight < right, true, "the name is inside the row")
 		local detailLeft, _, detailRight, detailTop = Rect(row.Detail)
@@ -973,9 +986,12 @@ equal(reagentRows, 3, "the reagent list draws a row a reagent")
 
 -- The gear page is the window's other page. Its title, switch and rows all sit inside the visible
 -- page, under the window's title bar and clear of its portrait, as the route page's own controls do.
+ns.db.showGearTab = true
+ns.Changed("settings")
 local routePage, gearPage = page, pageFrame
 local routeTab = tab
-local gearTab = tabs[2]
+local routeBottom = ns.Pages.BottomTab("route")
+local gearTab = ns.Pages.BottomTab("gear")
 local gearInset = insets[3]
 local _, pageBottom, _, pageTop = Rect(page)
 local insetLeft, insetBottom, insetRight, gearTop = Rect(gearInset)
@@ -999,13 +1015,12 @@ equal(overlaps(switch, ProfessionsFrame.portrait), false, "and the portrait")
 equal(overlaps(switch, title), false, "and the title")
 equal(switch.points[1].relative, gearInset, "the switch hangs off the gear inset")
 
--- The gear tab shows the page and hides the route's; the first render fills the doll.
-gearTab.scripts.OnMouseUp(nil, "LeftButton", true)
+-- The gear bottom tab shows the page and hides the route's; the first render fills the doll.
+gearTab.scripts.OnClick()
 Flush()
 equal(gearPage:IsShown(), true, "the gear tab shows the gear page")
 equal(routePage:IsShown(), false, "and hides the route page")
-equal(gearTab.checked, true, "with the gear tab checked")
-equal(routeTab.checked, false, "and the route tab unchecked")
+equal(routeTab.checked, true, "with the side tab checked while a page shows")
 
 -- The paper doll: one stock-size slot button a character-sheet slot, inside the inset, clear of the
 -- title bar and portrait, and clear of each other.
@@ -1077,21 +1092,19 @@ switch:SetChecked(true)
 switch.scripts.OnClick(switch)
 equal(showAll, true, "the switch saves the choice")
 
-routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
+routeBottom.scripts.OnClick()
 Flush()
 equal(routePage:IsShown(), true, "the route tab shows the route page")
 equal(gearPage:IsShown(), false, "and hides the gear page")
-equal(routeTab.checked, true, "with the route tab checked")
-equal(gearTab.checked, false, "and the gear tab unchecked")
+equal(routeTab.checked, true, "with the side tab checked")
 
-gearTab.scripts.OnMouseUp(nil, "LeftButton", true)
+gearTab.scripts.OnClick()
 Flush()
-routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
+routeBottom.scripts.OnClick()
 Flush()
 equal(routePage:IsShown(), true, "a second route click shows the route page again")
 equal(gearPage:IsShown(), false, "and still hides the gear page")
-equal(routeTab.checked, true, "with the route tab checked")
-equal(gearTab.checked, false, "and the gear tab unchecked")
+equal(routeTab.checked, true, "with the side tab checked")
 
 -- Other addons dismiss their custom pages when the native crafting page shows.
 local foreignPage = NewRegion(ProfessionsFrame)
@@ -1099,17 +1112,17 @@ ProfessionsFrame.CraftingPage:HookScript("OnShow", function()
 	foreignPage:Hide()
 end)
 for _, target in ipairs({
-	{ tab = routeTab, page = routePage, other = gearPage, name = "route" },
-	{ tab = gearTab, page = gearPage, other = routePage, name = "gear" },
+	{ button = routeBottom, page = routePage, other = gearPage, name = "route" },
+	{ button = gearTab, page = gearPage, other = routePage, name = "gear" },
 }) do
 	ProfessionsFrame.CraftingPage:Hide()
 	foreignPage:Show()
-	target.tab.scripts.OnMouseUp(nil, "LeftButton", true)
+	target.button.scripts.OnClick()
 	Flush()
 	equal(foreignPage:IsShown(), false, target.name .. " dismisses another addon's page")
 	equal(target.page:IsShown(), true, target.name .. " stays visible after the native handoff")
 	equal(target.other:IsShown(), false, target.name .. " hides the other SkillUp page")
-	equal(target.tab.checked, true, target.name .. " stays checked after the native handoff")
+	equal(routeTab.checked, true, target.name .. " keeps the side tab checked after the native handoff")
 	equal(ProfessionsFrame.CraftingPage:IsShown(), false, target.name .. " leaves the native page hidden")
 end
 
@@ -1118,8 +1131,7 @@ ProfessionsFrame.BookPage:Show()
 Flush()
 equal(routePage:IsShown(), false, "the overview hides the route page")
 equal(gearPage:IsShown(), false, "and the gear page")
-equal(routeTab.checked, false, "the route tab unchecks")
-equal(gearTab.checked, false, "and the gear tab too")
+equal(routeTab.checked, false, "the side tab unchecks")
 ProfessionsFrame.CraftingPage:Show()
 Flush()
 equal(routePage:IsShown(), false, "a profession page hides the route page")
@@ -1128,7 +1140,7 @@ equal(gearPage:IsShown(), false, "and the gear page")
 -- #393: the client shows the Professions window through its secure panel path (SetAttribute, ShowUIPanel,
 -- SetUIPanel, Show), where a Hide from addon code is blocked. The route tab is selected, and the window then
 -- shows its native pages: no Hide may run until the deferred pass, and that pass keeps the route page shown.
-routeTab.scripts.OnMouseUp(nil, "LeftButton", true)
+routeBottom.scripts.OnClick()
 Flush()
 equal(routePage:IsShown(), true, "the route page is showing before the window opens")
 -- The foreign page's hook above is another addon's work, not this one's.
@@ -1147,7 +1159,7 @@ Flush()
 equal(routePage:IsShown(), true, "the deferred pass leaves the route page shown")
 equal(ProfessionsFrame.CraftingPage:IsShown(), false, "and hides the native crafting page")
 equal(ProfessionsFrame.BookPage:IsShown(), false, "and the book page")
-equal(routeTab.checked, true, "and keeps the route tab checked")
+equal(routeTab.checked, true, "and keeps the side tab checked")
 
 -- #398: the client hides the window through the same secure panel path, where showing a Blizzard page from
 -- addon code is blocked. The route page is showing, and the window closes: no Show may run until the deferred
@@ -1164,15 +1176,15 @@ equal(showsInHidePath, 0, "closing the window shows no frame from inside the hid
 Flush()
 equal(ProfessionsFrame.CraftingPage:IsShown(), true, "the deferred pass returns the window to the crafting page")
 equal(ProfessionsFrame:IsShown(), false, "while the window stays closed")
-equal(routeTab.checked, false, "and unchecks the route tab")
+equal(routeTab.checked, false, "and unchecks the side tab")
 
 -- #398: under the gamepad interface, opening the Professions window runs SmartNavigation's panel scan
 -- (Blizzard_GamepadSmartNavigation, FindButtons and SmartNavigation_CanFocusFrame at Forever 1.60.1). For a
 -- frame that is not a Button or an EditBox it calls GetScript("OnMouseUp") and GetScript("OnMouseDown") to
 -- tell a button-like frame from a plain one. That read is inside the gamepad's own call, so a script on a
 -- frame this addon made taints the call: the action bar's protected SetPreferredGamepadInteractTarget is
--- then refused and blamed on us. Our side tabs are the only button-like frames here, and both must be real
--- Buttons so the scan never reads their scripts.
+-- then refused and blamed on us. Our side tab and page tabs are the only button-like frames here, and all
+-- must be real Buttons so the scan never reads their scripts.
 local scriptReads = {}
 local function ScanForScriptReads(frame)
 	local isButton = frame:IsObjectType("Button") or frame:IsObjectType("EditBox")
@@ -1187,7 +1199,8 @@ local function ScanForScriptReads(frame)
 end
 ScanForScriptReads(ProfessionsFrame)
 equal(#scriptReads, 0, "the gamepad scan reads no script from a frame SkillUp made")
-equal(routeTab:IsObjectType("Button"), true, "the route side tab is a Button, so the scan skips its scripts")
-equal(gearTab:IsObjectType("Button"), true, "and the gear side tab is one too")
+equal(routeTab:IsObjectType("Button"), true, "the SkillUp side tab is a Button, so the scan skips its scripts")
+equal(routeBottom:IsObjectType("Button"), true, "and the route page tab is one too")
+equal(gearTab:IsObjectType("Button"), true, "and the gear page tab")
 
 Client.report("route_layout_spec")

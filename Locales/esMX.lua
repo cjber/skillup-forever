@@ -40,10 +40,6 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 L["Lock the tracker"] = "Bloquear el rastreador"
 L["Tracker background"] = "Fondo del seguimiento"
 
-L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
-	"Una pestaña lateral en la ventana de profesiones, bajo la de la ruta, con el objeto creado más reciente que este personaje puede equipar en cada ranura."
-L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
-	"Una pestaña lateral en la ventana de profesiones con una ruta hasta tu habilidad objetivo y sus componentes. Las profesiones seguidas siguen en el rastreador de objetivos en cualquier caso."
 L["AH"] = "CS"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Añade el inicio del rango de dificultad de cada receta. No es la habilidad necesaria para aprenderla."
@@ -141,7 +137,6 @@ L["Learn a crafting profession to plan a route."] = "Aprende una profesión de f
 L["Legs"] = "Piernas"
 L["Level %d"] = "Nivel %d"
 L["Level %d %s"] = "Nivel %d %s"
-L["Levelling route"] = "Ruta de progreso"
 L["Made at"] = "Se crea en"
 L["Main hand"] = "Mano derecha"
 L["Missing reagents for this step."] = "Faltan componentes para este paso."
@@ -552,3 +547,25 @@ L["Made by %s %d"] = "Fabricado por %s %d" -- mt
 L["Made by %s"] = "Fabricado por %s" -- mt
 L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
 	"El producto de una receta ahora reduce el costo de cada fabricación de su paso, no solo de la primera." -- mt
+L["%s at %d"] = "%s en %d" -- mt
+L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
+	"Una pestaña en la parte inferior de la ventana de profesiones que lista los consumibles de beneficio que hace esta profesión, por la habilidad a la que se desbloquean y para qué sirve cada uno. Se abre desde la pestaña lateral de SkillUp, junto a las pestañas de ruta y equipo fabricado." -- mt
+L["A tab at the bottom of the Professions window listing the newest crafted item this character can equip in each slot. It opens from the SkillUp side tab, beside the route and buffs tabs."] =
+	"Una pestaña en la parte inferior de la ventana de profesiones con el objeto fabricado más reciente que este personaje puede equipar en cada ranura. Se abre desde la pestaña lateral de SkillUp, junto a las pestañas de ruta y beneficios." -- mt
+L["A tab at the bottom of the Professions window with a route to your target skill and its reagents. It opens from the SkillUp side tab, beside the crafted gear and buffs tabs. Tracked professions stay in the objective tracker either way."] =
+	"Una pestaña en la parte inferior de la ventana de profesiones con una ruta hasta tu habilidad objetivo y sus componentes. Se abre desde la pestaña lateral de SkillUp, junto a las pestañas de equipo fabricado y beneficios. Las profesiones seguidas permanecen en el seguimiento de objetivos de todos modos." -- mt
+L["Above your level"] = "Por encima de tu nivel" -- mt
+L["Buffs"] = "Beneficios" -- mt
+L["Known"] = "Conocido" -- mt
+L["Later"] = "Más tarde" -- mt
+L["Learn now"] = "Aprender ahora" -- mt
+L["No buff items for your level yet."] = "Aún no hay objetos de beneficio para tu nivel." -- mt
+L["Only for level %d"] = "Solo para nivel %d" -- mt
+L["Show the buffs tab"] = "Mostrar la pestaña de beneficios" -- mt
+L["SkillUp"] = "SkillUp" -- mt
+L["This profession makes no buff items."] = "Esta profesión no crea objetos de beneficio." -- mt
+L["spell %d"] = "hechizo %d" -- mt
+L["Buffs by %s skill"] = "Beneficios por %s" -- mt
+L["Skill  %d/%d"] = "Habilidad  %d/%d" -- mt
+L["Other crafters"] = "Otros artesanos" -- mt
+L["No profession here makes buff items."] = "Ninguna profesión crea objetos de beneficio." -- mt

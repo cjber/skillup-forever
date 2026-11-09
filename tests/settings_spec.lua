@@ -169,6 +169,7 @@ local ns = {
 		buffsOnly = false,
 		valueGathered = false,
 		auctionOnly = false,
+		showBuffsTab = true,
 	},
 	RECIPE_TOOLTIP_OPTIONS = { { "window", "Beside" }, { "cursor", "Cursor" }, { "row", "Row" } },
 	ROW_COST_OPTIONS = { { "skillup", "Per skill-up" }, { "craft", "Per craft" } },
@@ -227,7 +228,7 @@ local groups = {
 	{
 		"Route and trainer",
 		"checkbox:showTracker checkbox:trackerAttached checkbox:trackerLocked checkbox:showRouteTab"
-			.. " checkbox:showGearTab"
+			.. " checkbox:showGearTab checkbox:showBuffsTab"
 			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:showTrainer",
 	},
 	{ "Tooltips and sorting", "slider:reagentTooltip checkbox:gatherTooltip slider:sortMode" },

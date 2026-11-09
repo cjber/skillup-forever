@@ -550,8 +550,8 @@ L["%s: %s"] = "%s: %s" -- mt
 L["%s drops in %s"] = "%s: %s에서 드롭됩니다" -- mt
 L["Made by %s %d"] = "%s %d 제작" -- mt
 L["Made by %s"] = "%s 제작" -- mt
-L["Less work while you hover gear with item comparison on."] =
-	"아이템 비교를 켠 채 장비에 마우스를 올릴 때 작업량이 줄었습니다." -- mt
+L["Tailoring and First Aid have a route without Auctionator."] =
+	"재봉술과 응급치료도 Auctionator 없이 경로가 표시됩니다." -- mt
 L["%s at %d"] = "%s, %d" -- mt
 L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
 	"전문 기술 창 하단의 탭으로, 이 전문 기술이 만드는 강화 효과 소모품을 해금 숙련도와 용도별로 보여줍니다. SkillUp 측면 탭에서 경로 및 제작 장비 탭 옆에 열립니다." -- mt

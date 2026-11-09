@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-11-09
+
 - **Tailoring and First Aid have a route without Auctionator.** Cloth drops from creatures, so with *Buy reagents at the auction house* off it counts as something you get yourself, like other loot, instead of leaving every cloth recipe out of the route. Tick the switch to price cloth at the auction house. Reported on CurseForge by user_sgjdcemk8ha090ft (#487).
 
 ## [1.2.1] - 2026-11-09

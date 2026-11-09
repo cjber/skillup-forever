@@ -148,6 +148,7 @@ L["Need %d more %s"] = "%d개 더 필요: %s"
 L["Need a %s in your bags."] = "가방에 %s이(가) 필요합니다."
 L["Needs %s %d"] = "%s %d 필요"
 L["Net per craft"] = "제작당 순비용"
+L["Newest recipes first"] = "최신 제조법 먼저"
 L["Next to the recipe"] = "제조법 옆"
 L["No crafted gear for your level and class yet."] = "아직 레벨과 직업에 맞는 제작 장비가 없습니다."
 L["No crafted gear you can make yet. Tick the box above to see gear you cannot make."] =

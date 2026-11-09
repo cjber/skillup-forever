@@ -266,7 +266,7 @@
 ---@field craftValue 'none'|'vendor'|'auction'
 ---@field valueGathered boolean
 ---@field auctionOnly boolean
----@field sortMode 'blizzard'|'skill'|'chance'|'cost'
+---@field sortMode 'blizzard'|'skill'|'newest'|'chance'|'cost'
 ---@field showTrainer boolean
 ---@field showRouteTab boolean
 ---@field showTracker boolean

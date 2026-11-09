@@ -145,6 +145,7 @@ L["Need %d more %s"] = "Faltam %d %s"
 L["Need a %s in your bags."] = "Você precisa de %s nas bolsas."
 L["Needs %s %d"] = "Requer %s %d"
 L["Net per craft"] = "Líquido por criação"
+L["Newest recipes first"] = "Receitas mais recentes primeiro"
 L["Next to the recipe"] = "Ao lado da receita"
 L["No crafted gear for your level and class yet."] = "Ainda não há equipamento criado para seu nível e classe."
 L["No crafted gear you can make yet. Tick the box above to see gear you cannot make."] =

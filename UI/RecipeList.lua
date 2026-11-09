@@ -252,6 +252,12 @@ local SORT_KEYS = {
 		local t = ns.Model.Get(recipeInfo.recipeID)
 		return t and t[1] or math.huge
 	end,
+	-- Trainers teach recipes in the order of the skill they need, so the highest range start is the one
+	-- learned most recently (#486).
+	newest = function(recipeInfo)
+		local t = ns.Model.Get(recipeInfo.recipeID)
+		return t and -t[1] or math.huge
+	end,
 	chance = function(recipeInfo, ctx)
 		local chance = ns.Describe(recipeInfo, ctx).chance
 		return chance and -chance or math.huge
@@ -596,7 +602,7 @@ local function AddFilterMenu(owner, rootDescription)
 		return MenuResponse.Refresh
 	end)
 	rootDescription:CreateTitle(L["Sort by"])
-	for _, option in ipairs(ns.SORT_OPTIONS) do -- menu-scroll-ok: SORT_OPTIONS is four fixed sort modes
+	for _, option in ipairs(ns.SORT_OPTIONS) do -- menu-scroll-ok: SORT_OPTIONS is five fixed sort modes
 		rootDescription:CreateRadio(option[2], function(mode)
 			return ns.db.sortMode == mode
 		end, function(mode)

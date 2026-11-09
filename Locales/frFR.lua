@@ -550,8 +550,8 @@ L["%s: %s"] = "%s : %s" -- mt
 L["%s drops in %s"] = "%s tombe à %s" -- mt
 L["Made by %s %d"] = "Fabriqué par %s %d" -- mt
 L["Made by %s"] = "Fabriqué par %s" -- mt
-L["Less work while you hover gear with item comparison on."] =
-	"Moins de calculs quand vous survolez de l'équipement avec la comparaison d'objets activée." -- mt
+L["Tailoring and First Aid have a route without Auctionator."] =
+	"La Couture et les Premiers soins ont un parcours sans Auctionator." -- mt
 L["%s at %d"] = "%s à %d" -- mt
 L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
 	"Un onglet en bas de la fenêtre des métiers, qui liste les consommables d'amélioration de ce métier selon la compétence à laquelle ils se débloquent et leur utilité. Il s'ouvre depuis l'onglet latéral de SkillUp, à côté des onglets du parcours et de l'équipement fabriqué." -- mt

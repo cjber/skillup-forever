@@ -14,6 +14,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **The recipe list can put the recipes you learned most recently first.** *Newest recipes first* sorts by the start of each recipe's skill range, highest first, since trainers teach recipes in that order, and keeps unlearned recipes under their divider. It is in the Filter menu's *Sort by* section and in the addon's settings. Thanks to cotijelucie on Discord for the idea (#486).
 
+## [1.2.2] - 2026-11-09
+
+- **Tailoring and First Aid have a route without Auctionator.** Cloth drops from creatures, so with *Buy reagents at the auction house* off it counts as something you get yourself, like other loot, instead of leaving every cloth recipe out of the route. Tick the switch to price cloth at the auction house. Reported on CurseForge by user_sgjdcemk8ha090ft (#487).
+
 ## [1.2.1] - 2026-11-09
 
 - **Less work while you hover gear with item comparison on.** The game refreshes an item's tooltip and its comparison tooltips while you move, and SkillUp now adds its lines from what it already worked out instead of counting your bags and rebuilding them each time. Reported on CurseForge by iPulse (#477).

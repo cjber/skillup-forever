@@ -38,8 +38,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
 L["Lock the tracker"] = "Закрепить трекер"
-L["The merchant's Reagents tab no longer raises a Lua error when it lists a reagent."] =
-	"Вкладка «Реагенты» у торговца больше не вызывает ошибку Lua при показе реагента."
+L["Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action."] =
+	"Открытие меню «Фильтр» в окне профессий с геймпада больше не приводит к тому, что SkillUp обвиняют в заблокированном действии."
 L["Tracker background"] = "Фон отслеживания"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

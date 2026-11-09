@@ -37,8 +37,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"将共享的 Forever 追踪器保持在您放置的位置。顶部的拖拽手柄不再移动它。"
 L["Lock the tracker"] = "锁定追踪器"
-L["The merchant's Reagents tab no longer raises a Lua error when it lists a reagent."] =
-	"商人的材料标签页在列出材料时不再引发 Lua 错误。"
+L["Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action."] =
+	"用手柄打开专业技能窗口的筛选菜单时，不再把被阻止的操作归咎于 SkillUp。"
 L["Tracker background"] = "追踪器背景"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

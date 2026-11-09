@@ -37,8 +37,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Hält die gemeinsame Forever-Verfolgung dort, wo Ihr sie hingelegt habt. Der Griff oben zieht sie nicht mehr."
 L["Lock the tracker"] = "Verfolgung sperren"
-L["The merchant's Reagents tab no longer raises a Lua error when it lists a reagent."] =
-	"Der Reiter „Reagenzien“ am Händler löst keinen Lua-Fehler mehr aus, wenn er ein Reagenz auflistet."
+L["Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action."] =
+	"Das Filtermenü des Berufefensters mit einem Gamepad zu öffnen, lässt SkillUp nicht mehr für eine blockierte Aktion verantwortlich machen."
 L["Tracker background"] = "Hintergrund der Verfolgung"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

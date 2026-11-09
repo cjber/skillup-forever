@@ -37,8 +37,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
 L["Lock the tracker"] = "추적기 잠금"
-L["The merchant's Reagents tab no longer raises a Lua error when it lists a reagent."] =
-	"상인의 재료 탭이 재료를 표시할 때 더 이상 Lua 오류를 일으키지 않습니다."
+L["Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action."] =
+	"게임패드로 전문 기술 창의 필터 메뉴를 열어도 더 이상 SkillUp이 차단된 동작의 원인으로 지목되지 않습니다."
 L["Tracker background"] = "추적기 배경"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

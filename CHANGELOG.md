@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.1.7] - 2026-11-09
+
 - **Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action.** SkillUp adds its sort and buff options to the Professions window's own Filter menu, and the client opens that menu from the gamepad footer. Those options read the addon's saved settings, so the client built the menu under SkillUp's taint, the gamepad frame manager took it into its focus as SkillUp's, and the next secure reader's protected call was refused. With the gamepad interface on the menu keeps the client's own filters, and both settings stay in the addon's settings page; with mouse and keyboard the options are there as before. Reported on CurseForge by Viper2042 (#454, #398).
 
 ## [1.1.6] - 2026-11-09

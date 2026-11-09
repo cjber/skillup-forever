@@ -88,7 +88,8 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The merchant's Reagents tab no longer raises a Lua error when it lists a reagent."]
+ns.WHATS_NEW =
+	L["Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

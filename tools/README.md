@@ -220,8 +220,7 @@ revision (default `HEAD`), by record key; `tools/check_generated.py` prints the 
 
 Install LuaLS 3.19.1, then run `tools/typecheck.sh` from any directory. The script
 fetches Ketho's WoW annotations at `d0b5b51fac4c52c493371b9b18e66ce604ea4326`,
-verifies that checkout is clean, runs the Python checker tests, the taint lint
-(`python3 -m tools.lint_taint`), the TOC/XML coverage check
+verifies that checkout is clean, runs the Python checker tests, the TOC/XML coverage check
 (`tools/typecheck_coverage.py`), the TOC-wide multi-value lint and the art lint
 (`tools/lint_art.py`), and fails on any
 LuaLS diagnostic. CI downloads LuaLS with a

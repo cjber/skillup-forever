@@ -18,9 +18,13 @@ local LOCKED_CHROME = 17
 local TREE_INDENT = 10
 local SCREEN_MARGIN = 32
 
--- The widest row the last list refresh held, in list width: its indent, name, count, lock, SkillUp's row
--- text and the list's own chrome.
+-- The widest row the open profession needs, in list width: its indent, name, count, lock, SkillUp's row
+-- text and the list's own chrome. Measured when the profession opens, not on a list refresh.
 local neededListWidth = 0
+-- What that measurement was for: the open profession and the two settings that change a row's text. A
+-- refresh from search, filters, a collapsed category, crafting, bags or prices finds the same key and
+-- leaves the window's width alone.
+local measuredProfession
 -- The widths we set, and the client widths they replaced, so a later client resize is not mistaken for ours.
 local widenedList, widenedListBase
 local widenedFrame, widenedFrameBase
@@ -80,31 +84,51 @@ local function RecipeWidth(info, depth)
 	return width
 end
 
--- One pass over the refreshed list remembers the widest row, so no row initializer measures a name.
----@param provider SkillUpTreeProvider?
-local function MeasureProvider(provider)
-	neededListWidth = 0
-	if not provider or not provider.GetRootNode then
-		return
+-- How many category nodes a recipe sits under in the client's tree, which is the indent the row gets. A
+-- category whose parent data is missing still needs its own indent.
+---@param categoryID integer?
+---@param depths table<integer, integer>
+---@return integer
+local function CategoryDepth(categoryID, depths)
+	if not categoryID or categoryID == 0 then
+		return 0
 	end
-	---@param node SkillUpTreeNode
-	---@param depth integer
-	local function Walk(node, depth)
-		for _, child in ipairs(node:GetNodes()) do
-			local data = child:GetData()
-			local info = data and data.recipeInfo
-			if info then
-				local width = RecipeWidth(info, depth)
-				if width > neededListWidth then
-					neededListWidth = width
-				end
-			else
-				Walk(child, depth + 1)
-			end
-		end
+	local depth = depths[categoryID]
+	if depth then
+		return depth
 	end
-	Walk(provider:GetRootNode(), 0)
+	depth = 1
+	local seen = { [categoryID] = true }
+	local info = C_TradeSkillUI.GetCategoryInfo and C_TradeSkillUI.GetCategoryInfo(categoryID)
+	local parent = info and info.parentCategoryID
+	while parent and parent ~= 0 and not seen[parent] do
+		seen[parent] = true
+		depth = depth + 1
+		local parentInfo = C_TradeSkillUI.GetCategoryInfo(parent)
+		parent = parentInfo and parentInfo.parentCategoryID
+	end
+	depths[categoryID] = depth
+	return depth
 end
+
+-- Which profession the list is showing, and what a row shows besides its name.
+---@return string
+local function ProfessionKey()
+	local info = ProfessionsFrame and ProfessionsFrame.professionInfo
+	local professionID = info and info.professionID
+	if not professionID then
+		local base = C_TradeSkillUI.GetBaseProfessionInfo and C_TradeSkillUI.GetBaseProfessionInfo()
+		professionID = base and base.professionID
+	end
+	return table.concat({
+		tostring(professionID or ""),
+		tostring(ns.db.wideRecipeList),
+		tostring(ns.db.showRowText),
+	}, ":")
+end
+
+-- Defined with the bundled unlearned recipe it also measures; Fit calls it once the file is loaded.
+local MeasureProfession
 
 -- The list and the window with it grow by the room the widest name needs beyond the client's own widths.
 -- Combat defers the change: a resize waits for PLAYER_REGEN_ENABLED, never an OnUpdate. With the setting off,
@@ -113,6 +137,7 @@ function ns.FitRecipeListWidth()
 	if not (recipeList and ProfessionsFrame) then
 		return
 	end
+	MeasureProfession()
 	if InCombatLockdown and InCombatLockdown() then
 		resizePending = true
 		return
@@ -326,6 +351,59 @@ local function UnlearnedInfo(entry)
 		canSkillUp = false,
 		skillUpUnlearned = entry,
 	} --[[@as TradeSkillRecipeInfo]]
+end
+
+-- The width the open profession needs, over every recipe the client lists for it and the bundled unlearned
+-- ones, whatever the search, filters and collapsed categories show. Only a different profession or a row
+-- setting changes the key, so a list refresh never moves the window. The bundled unlearned recipes are
+-- measured whether or not they are listed, so turning that setting on cannot change the width either.
+function MeasureProfession()
+	local key = ProfessionKey()
+	if key == measuredProfession then
+		return
+	end
+	local recipeIDs = C_TradeSkillUI.GetAllRecipeIDs and C_TradeSkillUI.GetAllRecipeIDs()
+	-- A profession event can arrive before the client has its recipes; leave the key unmeasured and let the
+	-- list being built measure it.
+	if not recipeIDs or #recipeIDs == 0 then
+		return
+	end
+	neededListWidth = 0
+	local ctx = ns.SkillContext and ns.SkillContext()
+	local seen, depths = {}, {}
+
+	---@param info TradeSkillRecipeInfo
+	---@param depth integer
+	local function Note(info, depth)
+		local width = RecipeWidth(info, depth)
+		if width > neededListWidth then
+			neededListWidth = width
+		end
+	end
+
+	for _, recipeID in ipairs(recipeIDs) do
+		if not seen[recipeID] then
+			seen[recipeID] = true
+			local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
+			if info then
+				Note(info, CategoryDepth(info.categoryID, depths))
+			end
+		end
+	end
+	-- Without the open profession's skill there is no unlearned set to measure: leave the key unmeasured so
+	-- the list built with it measures the bundle's recipes too.
+	if not ctx then
+		return
+	end
+	if ns.UnlearnedRecipes then
+		for _, entry in ipairs(ns.UnlearnedRecipes(ctx)) do
+			if not seen[entry.recipeID] then
+				seen[entry.recipeID] = true
+				Note(UnlearnedInfo(entry), 0)
+			end
+		end
+	end
+	measuredProfession = key
 end
 
 -- The bundled recipes missing from the client's list, in the order ns.UnlearnedRecipes sorted them. A
@@ -646,14 +724,16 @@ function ns.AttachRecipeList()
 		if replacing then
 			return
 		end
-		MeasureProvider(scrollBox:GetDataProvider())
 		ns.FitRecipeListWidth()
 	end, recipeList.ScrollBox)
 	EventRegistry:RegisterCallback("Professions.RecipeListOnEnter", ns.ShowRecipeTooltip, ns)
-	-- The client resets the window's width on a tab change, a page refresh and a show.
+	-- The client resets the window's width on a tab change, a page refresh and a show. Fit keeps that width
+	-- where the profession's measurement put it; only a different skill line measures again.
 	EventRegistry:RegisterCallback("ProfessionsFrame.TabSet", ns.FitRecipeListWidth, ns)
 	EventRegistry:RegisterCallback("ProfessionsFrame.Show", ns.FitRecipeListWidth, ns)
 	EventRegistry:RegisterCallback("Professions.CraftingDisplayRefresh", ns.FitRecipeListWidth, ns)
+	ns.WhenEvent("TRADE_SKILL_SHOW", ns.FitRecipeListWidth)
+	ns.WhenEvent("TRADE_SKILL_DATA_SOURCE_CHANGED", ns.FitRecipeListWidth)
 	ns.WhenEvent("PLAYER_REGEN_ENABLED", function()
 		if resizePending then
 			ns.FitRecipeListWidth()
@@ -663,16 +743,15 @@ function ns.AttachRecipeList()
 	SyncFilterMenu()
 	-- A row setting, a price or a profession changed: redraw the rows and re-sort in place. Never rebuild
 	-- the page through Blizzard's Init, which would write its recipe selection and schematic as ours (#350).
+	-- Fit measures again only for the two row settings or a new profession, never for a price or a filter.
 	ns.WhenStale("recipeList", function()
 		if recipeList:IsVisible() and ProfessionsFrame.professionInfo then
 			ApplyList(recipeList.ScrollBox)
 			Redecorate()
-			MeasureProvider(recipeList.ScrollBox:GetDataProvider())
 		end
 		ns.FitRecipeListWidth()
 	end)
 	-- The window may already be open when another addon loaded Blizzard_Professions first.
-	MeasureProvider(recipeList.ScrollBox:GetDataProvider())
 	ns.FitRecipeListWidth()
 	ns.AttachRoute()
 	ns.AttachGear()

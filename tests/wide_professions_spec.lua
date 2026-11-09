@@ -1,7 +1,9 @@
 -- Run from the repository root: luajit tests/wide_professions_spec.lua
--- The recipe list widens to its longest name and the window with it, once per list refresh, out of combat;
--- the count the bags can make follows the name in parentheses. The client's own widths come back when the
--- setting is off, and FitLabel still keeps the name clear of SkillUp's row text.
+-- The recipe list is measured once when a profession opens, over every recipe that profession lists, and
+-- widens the window to its longest row. A filtered or collapsed list, a craftable count or a price does
+-- not resize it; another profession or a row setting measures again. The count the bags can make follows
+-- the name in parentheses. The client's own widths come back when the setting is off, and FitLabel still
+-- keeps the name clear of SkillUp's row text.
 local function noop() end
 
 local function Font()
@@ -110,6 +112,9 @@ end
 
 local combat = false
 local counts = {}
+-- The profession's full recipe set, as the client reports it: the measurement reads this, never the
+-- filtered provider the list happens to be showing.
+local recipes = {}
 local events, stale, decorate = {}, {}, nil
 local ns = {
 	L = {},
@@ -137,7 +142,9 @@ local ns = {
 	SetSortMode = function()
 		error("unexpected sort failure")
 	end,
-	SkillContext = noop,
+	SkillContext = function()
+		return {}
+	end,
 	Describe = function()
 		return { thresholds = { 1, 2, 3, 4 }, chance = 0.5, perSkillUp = 3 }
 	end,
@@ -158,6 +165,17 @@ local env = setmetatable({
 	C_TradeSkillUI = {
 		GetCraftableCount = function(recipeID)
 			return counts[recipeID] or 0
+		end,
+		GetAllRecipeIDs = function()
+			local ids = {}
+			for recipeID in pairs(recipes) do
+				ids[#ids + 1] = recipeID
+			end
+			table.sort(ids)
+			return ids
+		end,
+		GetRecipeInfo = function(recipeID)
+			return recipes[recipeID]
 		end,
 	},
 	UIParent = {
@@ -187,22 +205,50 @@ local function Widths()
 	return recipeList:GetWidth(), frame:GetWidth()
 end
 
+---@param recipeID integer
+---@param name string
+---@return table
+local function Recipe(recipeID, name)
+	return { recipeID = recipeID, name = name, learned = true }
+end
+
 -- A 40-character name needs 240 for itself and a count; the client's 304 list leaves 304 - 69 of chrome
 -- and the count short, so the list and the window grow by exactly what is missing.
+recipes = { [1] = Recipe(1, string.rep("A", 40)) }
 counts[1] = 1
 box:SetDataProvider(Tree({ Leaf(string.rep("A", 40), 1) }))
 local list, window = Widths()
 assert(list == 339 and window == 708, string.format("widened to %s/%s", list, window))
 
--- With SkillUp's own row text on, the list also makes room for it and FitLabel's gap: the same name, count,
--- 59 of list chrome, then "50% · -3" (54) and the 14 FitLabel keeps clear of it. Without that room the name
--- would truncate against our text.
-ns.db.showRowText = true
-counts[4] = 1
-box:SetDataProvider(Tree({ Leaf(string.rep("E", 40), 4) }))
+-- A filtered list holding only a short name does not shrink the window: the profession was measured over
+-- all of its recipes when it opened. Neither does a craftable count that grew while the window is open.
+recipes[2] = Recipe(2, "Short")
+box:SetDataProvider(Tree({ Leaf("Short", 2) }))
 list, window = Widths()
-assert(list == 397 and window == 766, string.format("widened to %s/%s with row text", list, window))
+assert(list == 339 and window == 708, string.format("a filtered refresh kept %s/%s", list, window))
+counts[1] = 12
+box:SetDataProvider(Tree({ Leaf(string.rep("A", 40), 1) }))
+list, window = Widths()
+assert(list == 339 and window == 708, string.format("a crafting refresh kept %s/%s", list, window))
+
+-- Opening another profession measures again, over its own full recipe set, not the short filtered rows.
+frame.professionInfo = { professionID = 2 }
+recipes = { [3] = Recipe(3, string.rep("B", 40)) }
+counts[3] = 0
+box:SetDataProvider(Tree({ Leaf("Short", 2) }))
+list, window = Widths()
+assert(list == 309 and window == 678, string.format("another profession measured %s/%s", list, window))
+
+-- SkillUp's own row text on measures again, with its room and FitLabel's gap: 40 B, 59 of chrome, then
+-- "50% · -3" and the 14 FitLabel keeps clear of it.
+ns.db.showRowText = true
+stale.recipeList()
+list, window = Widths()
+assert(list == 367 and window == 736, string.format("row text measured %s/%s", list, window))
 ns.db.showRowText = false
+stale.recipeList()
+list, window = Widths()
+assert(list == 309 and window == 678, string.format("row text off measured %s/%s", list, window))
 
 -- The setting off puts back the client's own widths, which the list refresh did not change.
 ns.db.wideRecipeList = false
@@ -210,11 +256,14 @@ stale.recipeList()
 list, window = Widths()
 assert(list == 304 and window == 673, string.format("restored to %s/%s", list, window))
 
--- A fight defers the resize until combat ends; the list refresh still measures, it just does not resize.
+-- A fight defers the resize until combat ends; the next profession still measures, it just does not resize.
 ns.db.wideRecipeList = true
+frame.professionInfo = { professionID = 3 }
+recipes = { [5] = Recipe(5, string.rep("D", 40)) }
+counts[5] = 1
+recipeList.width, frame.width = 304, 673
 combat = true
-counts[1] = 1
-box:SetDataProvider(Tree({ Leaf(string.rep("B", 40), 1) }))
+box:SetDataProvider(Tree({ Leaf(string.rep("D", 40), 5) }))
 list, window = Widths()
 assert(list == 304 and window == 673, "no resize in combat")
 combat = false
@@ -226,8 +275,11 @@ assert(list == 339 and window == 708, "resized when combat ends")
 env.UIParent.GetWidth = function()
 	return 673 + 2 * 32 + 12
 end
+frame.professionInfo = { professionID = 4 }
+recipes = { [6] = Recipe(6, string.rep("E", 200)) }
+counts[6] = 0
 recipeList.width, frame.width = 304, 673
-box:SetDataProvider(Tree({ Leaf(string.rep("C", 200), 1) }))
+box:SetDataProvider(Tree({ Leaf(string.rep("E", 200), 6) }))
 list, window = Widths()
 assert(list == 316 and window == 685, string.format("capped to %s/%s", list, window))
 
@@ -278,10 +330,12 @@ row.Label.width = 260
 counts[3] = 12
 decorate(ns, row, {
 	GetData = function()
-		return { recipeInfo = { recipeID = 3, name = string.rep("D", 60) } }
+		return { recipeInfo = { recipeID = 3, name = string.rep("F", 60) } }
 	end,
 })
 assert(row.Label.width < 260, "FitLabel keeps the name clear of the row text")
 assert(rowTexts[#rowTexts]:IsShown(), "the row text is drawn")
 assert(row.SkillUpText == nil, "the row text lives off the client's row, not on it (#350)")
-print("wide_professions_spec: measurement, widening, cap, combat deferral, restore, count and FitLabel: ok")
+print(
+	"wide_professions_spec: measurement, stability, another profession, settings, cap, combat, count and FitLabel: ok"
+)

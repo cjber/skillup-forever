@@ -183,6 +183,12 @@ local env = setmetatable({
 		GetCraftableCount = function()
 			return 0
 		end,
+		GetAllRecipeIDs = function()
+			return { 10 }
+		end,
+		GetRecipeInfo = function(recipeID)
+			return recipeID == 10 and { recipeID = 10, name = "Learned", learned = true } or nil
+		end,
 	},
 	UIParent = {
 		GetWidth = function()

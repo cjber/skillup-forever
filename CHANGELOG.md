@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **A recipe's product now lowers the cost of every craft in its step, not only the first.** The route page priced a step's first craft with what its product sells for and every later craft at its full reagent cost, so a bandage that vendors above its cloth showed only the cloth's cost, and a profitable recipe never showed the gain its gold made. Every craft now counts the sale under *Count what crafts sell for*, while a free or profitable recipe's extra crafts still pay their reagents so a run to grey does not look free. Reported on CurseForge by st3nlee (#466).
+
 ## [1.1.7] - 2026-11-09
 
 - **Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action.** SkillUp adds its sort and buff options to the Professions window's own Filter menu, and the client opens that menu from the gamepad footer. Those options read the addon's saved settings, so the client built the menu under SkillUp's taint, the gamepad frame manager took it into its focus as SkillUp's, and the next secure reader's protected call was refused. With the gamepad interface on the menu keeps the client's own filters, and both settings stay in the addon's settings page; with mouse and keyboard the options are there as before. Reported on CurseForge by Viper2042 (#454, #398).

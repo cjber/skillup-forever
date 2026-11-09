@@ -154,11 +154,14 @@ equal(Model.CostPerPoint(10, cloak, 20), 10, "a certain point costs one craft")
 equal(Model.CostPerPoint(10, cloak, 55), 40, "a half chance point carries its risk")
 equal(Model.CostPerPoint(10, cloak, 70), nil, "a grey point cannot be bought")
 equal(Model.StepCost(10, nil, 5), 50, "a known net prices every craft without a reagent cost")
-equal(Model.StepCost(-10, nil, 5), 0, "a profit never lowers a step's cost")
-equal(Model.StepCost(10, 4, 5), 26, "the first craft costs its net, the rest their reagents")
-equal(Model.StepCost(10, 4, 5, 1), 31, "and every craft may add its time")
+equal(Model.StepCost(-10, nil, 5), -50, "a profit lowers every craft's cost (#466)")
+equal(Model.StepCost(10, 4, 5), 50, "a sale value lowers every craft, not just the first (#466)")
+equal(Model.StepCost(10, 4, 5, 1), 55, "and every craft may add its time")
 equal(Model.StepCost(nil, 4, 5), nil, "an unpriced recipe has no step cost")
 equal(Model.StepCost(10, 4, 0), 0, "no crafts cost nothing")
+equal(Model.RouteStepCost(10, 4, 5, 1), 55, "a route prices a non-profitable craft at its net and time")
+equal(Model.RouteStepCost(-10, 4, 5, 1), 21, "but a profitable recipe's extra crafts still pay their reagents")
+equal(Model.RouteStepCost(nil, 4, 5), nil, "an unpriced recipe has no route cost")
 equal(Model.RoundMoney(80.4), 80, "copper stays copper")
 equal(Model.RoundMoney(0), 0, "free recipes stay free")
 equal(Model.RoundMoney(0.2), 1, "never rounds to nothing")
@@ -284,8 +287,8 @@ local freeTime = Model.PlanRoute({
 	recipes = { { recipeID = 1, thresholds = { 1, 1, 3, 5 }, netCost = 0, reagentCost = 0 } },
 })
 equal(freeTime.expectedCost > 0, true, "a free recipe's falling chance costs its time")
--- A free recipe is free for the craft that earns each point, but the extra crafts a falling chance needs
--- are priced at its reagents, so it cannot hold the route into grey.
+-- A free recipe is still paid for as it fishes for a point: every extra craft costs its time, so a
+-- recipe with fewer crafts at full chance can win and it cannot hold the route into grey.
 local freeNearGrey = Model.PlanRoute({
 	skill = 2,
 	target = 4,
@@ -294,9 +297,9 @@ local freeNearGrey = Model.PlanRoute({
 		candidate(10, flat, 10),
 	},
 })
-equal(freeNearGrey.segments[1].recipeID, 10, "a free recipe's extra crafts are priced at its reagents")
--- The rule is the same at 1c: a near-grey recipe pays for the extra crafts its falling chance needs, so a
--- dearer recipe at full chance can win. A branch that prices only netCost <= 0 would keep the 1c one.
+equal(freeNearGrey.segments[1].recipeID, 10, "a free recipe's extra crafts still cost their time")
+-- The rule is the same at 1c: a near-grey recipe pays its time for every craft it needs, so a recipe with
+-- fewer crafts at full chance can win.
 local cheapNearGrey = Model.PlanRoute({
 	skill = 2,
 	target = 3,
@@ -305,7 +308,7 @@ local cheapNearGrey = Model.PlanRoute({
 		candidate(10, flat, 20),
 	},
 })
-equal(cheapNearGrey.segments[1].recipeID, 10, "a 1c near-grey recipe pays for its extra crafts too")
+equal(cheapNearGrey.segments[1].recipeID, 10, "a 1c near-grey recipe still pays for every craft")
 local partial = Model.PlanRoute({
 	skill = 1,
 	target = 6,

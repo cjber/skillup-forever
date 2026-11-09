@@ -1,9 +1,10 @@
 -- Run from the repository root: luajit tests/planner_spec.lua
 -- A training search keeps what one re-plan works out for the next (the planner in Core/Model.lua). It must plan
 -- exactly what re-planning every candidate from scratch planned. That full replan is kept below as the
--- reference, with the same cost rule (net first, then reagents and time), and both run on seeded random
--- snapshots and on a character half-way through five professions with every reagent priced. Equal means equal:
--- the same segments, crafts, costs and training, every number to the last bit.
+-- reference, with the same route cost rule (net and time, and a free or profitable recipe's extra crafts at
+-- its reagents and time), and both run on seeded random snapshots and on a character half-way through five
+-- professions with every reagent priced. Equal means equal: the same segments, crafts, costs and training,
+-- every number to the last bit.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
@@ -82,7 +83,8 @@ function Reference.PlanRoute(snapshot)
 			local key
 			if chance and chance > 0 then
 				local covered = Reference.CoveredCrafts(recipe.thresholds, skill, skill + ups, ups)
-				key = (Model.StepCost(recipe.netCost, recipe.reagentCost, covered, Model.CRAFT_TIME_COST) or 0) / ups
+				key = (Model.RouteStepCost(recipe.netCost, recipe.reagentCost, covered, Model.CRAFT_TIME_COST) or 0)
+					/ ups
 			end
 			local buffs = snapshot.buffs or {}
 			local buff = buffs[recipe.recipeID] == true
@@ -125,7 +127,7 @@ function Reference.PlanRoute(snapshot)
 			Reference.CoveredCrafts(thresholds[segment.recipeID], segment.fromSkill, segment.toSkill, segment.skillUps)
 		route.expectedCost = route.expectedCost
 			+ (
-				Model.StepCost(
+				Model.RouteStepCost(
 					costOf[segment.recipeID],
 					reagentOf[segment.recipeID],
 					segment.crafts,

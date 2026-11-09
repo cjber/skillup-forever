@@ -240,15 +240,15 @@ local function RecipeCosts(recipeID)
 	return net, nil, net
 end
 
--- What a step's crafts cost, by the same rule the planner uses: its first craft at the recipe's net, the
--- rest at its reagents, so a long run to grey never lowers the total (#400). Time stays in the planner's
--- own cost: the route page's money is what the player pays.
+-- What a step's crafts cost, by the same money the route page shows: every craft at the recipe's net,
+-- so a sale value lowers every craft, not only the first (#466). Time stays in the planner's own cost:
+-- the route page's money is what the player pays.
 ---@param recipeID integer
 ---@param crafts number
 ---@return number
 function ns.StepCost(recipeID, crafts)
-	local reagentCost, _, netCost = RecipeCosts(recipeID)
-	return ns.Model.StepCost(netCost, reagentCost, crafts) or 0
+	local _, _, netCost = RecipeCosts(recipeID)
+	return ns.Model.StepCost(netCost, nil, crafts) or 0
 end
 
 -- What the planner works from: the recipes this character knows, for any of its professions, from

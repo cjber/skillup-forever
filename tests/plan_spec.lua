@@ -8,8 +8,8 @@ local LINEN, HEAVY, WOOL, CLOTH = 3275, 3276, 3277, 2589
 local HEAVY_WOOL, UNDER_WRAPS = 3278, 16084
 local MAGEWEAVE, TRIAGE_A, TRIAGE_H = 10840, 6624, 6622
 local WOOL_CLOTH, MAGEWEAVE_CLOTH = 2592, 4338
--- A cloth costs 2c at a merchant, and the client sells each bandage for 1c less than its cloth: the first
--- craft of a step nets 1c while its cloth is priced, and each later craft costs its cloth (#400). Only linen
+-- A cloth costs 2c at a merchant, and the client sells each bandage for 1c less than its cloth: every craft
+-- nets 1c while its cloth is priced, so a step's money counts the sale on every craft (#466). Only linen
 -- cloth is priced until a case prices another.
 local SELLS = { [1251] = 1, [2581] = 3, [3530] = 1, [3531] = 3, [8544] = 1, [8545] = 3 }
 
@@ -167,14 +167,23 @@ equal(ranked.steps[2].rank.reqSkill, 50, "at 50")
 equal(ranked.steps[3].craft.from, 50, "then crafts on past the cap")
 equal(ranked.steps[3].craft.to, 90, "to the target")
 equal(ranked.reached, 90, "which it reaches")
-equal(ranked.cost, 500 + 402, "the rank's fee and the covered crafts, net first then reagents, are in the cost")
+equal(ranked.cost, 500 + 102, "the rank's fee and every craft's net sale are in the cost")
 equal(ns.RankText(ranked.ranks[1]), "Train Journeyman at 50", "the rank as a line")
 -- What a trainer was seen to charge for the rank replaces the bundled fee, in the step and the total.
 ns.db.trainerRanks[129] = { [150] = 450 }
 local charged = Plan(FirstAid(40), 90)
 equal(charged.steps[2].rank.fee, 450, "a fee seen at a trainer wins")
-equal(charged.cost, 450 + 402, "and is the one in the cost")
+equal(charged.cost, 450 + 102, "and is the one in the cost")
 ns.db.trainerRanks[129] = nil
+-- #466: a bandage that vendors above its cloth shows a gain for every craft in the step, not just the first.
+c.items[1251].sell = 3
+ns.Changed("prices")
+local profitable = Plan(FirstAid(1), 10)
+equal(profitable.crafts[1].recipeID, LINEN, "the route uses the profitable bandage")
+equal(ns.StepCost(LINEN, profitable.crafts[1].crafts) < 0, true, "the step's money is a gain")
+equal(profitable.cost < 0, true, "and the route total shows the gain")
+c.items[1251].sell = 1
+ns.Changed("prices")
 ranked.ranks[1].level, c.level = 10, 5
 equal(ns.RankText(ranked.ranks[1]), "Train Journeyman at 50 (level 10)", "with the level while below it")
 c.level = 20
@@ -274,7 +283,7 @@ equal(training.fee, 100, "its fee")
 equal(training.reqSkill, 40, "the skill the trainer wants, with no walk needed first")
 equal(training.cap, 41, "from a trainer who teaches past it")
 equal(training.usedAt, 40, "first crafted at 40")
-equal(trained.cost, 100 + 193, "the fee and the covered crafts, net first then reagents, are in the cost")
+equal(trained.cost, 100 + 49, "the fee and every craft's net sale are in the cost")
 ns.db.trainer[129] = { [HEAVY] = { 80, 50 } }
 local quoted = Plan(FirstAid(40), 75)
 equal(quoted.training[1].fee, 80, "a trainer seen to charge less wins")

@@ -149,15 +149,33 @@ function Model.CostPerSkillUp(cost, chance)
 	return cost / chance
 end
 
--- What a step of `crafts` costs: the craft that earns its first point at the recipe's net, never a
--- profit, and every craft after it at its reagents, because it is made only to fish for a skill-up.
--- Each craft also costs its time, so a free recipe's long run to grey is not free (#400).
+-- What a step of `crafts` costs: every craft at the recipe's net plus its time, so a sale value lowers
+-- every craft in the step, not only the first, and a profitable step shows as a gain (#466).
+---@param netCost number?
+---@param _ number? Kept for callers that price a route; the net already includes the sale value.
+---@param crafts number
+---@param timeCost number?
+---@return number?
+function Model.StepCost(netCost, _, crafts, timeCost)
+	if not netCost then
+		return nil
+	end
+	if crafts <= 0 then
+		return 0
+	end
+	return (netCost + (timeCost or 0)) * crafts
+end
+
+-- What a step adds to a planned route. Every craft is priced at its net and time, except that a free or
+-- profitable recipe's extra crafts, which are made only to fish for a skill-up, still pay their reagents
+-- and time, so a run to grey cannot be free (#400). The route's step money uses Model.StepCost: a recipe
+-- that sells above its reagents shows the gain its crafts make, even when the planner will not chase it.
 ---@param netCost number?
 ---@param reagentCost number?
 ---@param crafts number
 ---@param timeCost number?
 ---@return number?
-function Model.StepCost(netCost, reagentCost, crafts, timeCost)
+function Model.RouteStepCost(netCost, reagentCost, crafts, timeCost)
 	if not netCost then
 		return nil
 	end
@@ -165,8 +183,11 @@ function Model.StepCost(netCost, reagentCost, crafts, timeCost)
 		return 0
 	end
 	local time = timeCost or 0
-	local first = math.max(netCost, 0) + time
-	local extra = (reagentCost or math.max(netCost, 0)) + time
+	if netCost >= 0 then
+		return (netCost + time) * crafts
+	end
+	local first = time
+	local extra = (reagentCost or 0) + time
 	return first + extra * (crafts - 1)
 end
 
@@ -278,8 +299,9 @@ function Model.CostPerPoint(cost, thresholds, skill, skillUps)
 end
 
 -- A recipe's place in a route's order at a skill: what a point there costs, nil when a craft there gains none,
--- and the chance that breaks a tie. The craft that earns the point costs its net, and each extra craft a
--- falling chance needs costs its reagents and its time, so a near-grey recipe cannot rank as free into grey.
+-- and the chance that breaks a tie. A non-profitable craft costs its net and time, so a sale value lowers
+-- every craft; a free or profitable recipe's extra crafts a falling chance needs cost their reagents and time,
+-- so a near-grey recipe cannot rank as free into grey (#400, #466).
 ---@param recipe SkillUpCandidate
 ---@param skill number
 ---@return number?
@@ -291,7 +313,7 @@ local function Rank(recipe, skill)
 		return nil, chance
 	end
 	local covered = Model.CoveredCrafts(thresholds, skill, skill + ups, ups)
-	local cost = Model.StepCost(recipe.netCost, recipe.reagentCost, covered, Model.CRAFT_TIME_COST)
+	local cost = Model.RouteStepCost(recipe.netCost, recipe.reagentCost, covered, Model.CRAFT_TIME_COST)
 	return (cost or 0) / ups, chance
 end
 
@@ -477,7 +499,7 @@ local function Planner(snapshot)
 			end
 			segment.crafts = Covered(t, segment.fromSkill, segment.toSkill, segment.skillUps)
 			route.expectedCost = route.expectedCost
-				+ (Model.StepCost(cost, reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
+				+ (Model.RouteStepCost(cost, reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
 		end
 		return route, picked
 	end

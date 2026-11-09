@@ -1,8 +1,8 @@
 SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in the Professions window. Its side panel has levelling routes, shopping lists, crafted gear and the buffs each profession makes.
 
-Free, with nothing locked behind it. If it saves you time, you can [buy me a coffee on Ko-fi](https://ko-fi.com/cjber).
+Free, with nothing locked behind it. If it saves you time, you can [sponsor me on GitHub](https://github.com/sponsors/cjber), which takes no fees, or [buy me a coffee on Ko-fi](https://ko-fi.com/cjber).
 
-[![Support me on Ko-fi](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/kofi-button.png)](https://ko-fi.com/cjber)
+[![Sponsor me on GitHub](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/github-sponsors-button.png)](https://github.com/sponsors/cjber) [![Support me on Ko-fi](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/kofi-button.png)](https://ko-fi.com/cjber)
 
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)
 

@@ -137,9 +137,6 @@
 ---@field SetLastBuffProfession fun(skillLine: integer)
 ---@field PageParts SkillUpPageParts
 ---@field Pages SkillUpPages
----@field HideRoute fun()
----@field HideGear fun()
----@field HideBuffs fun()
 ---@field PlaceSideTabs fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)

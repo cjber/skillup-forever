@@ -578,8 +578,5 @@ function ns.AttachGear()
 		end,
 		page = page,
 	})
-	ns.HideGear = function()
-		ns.Pages.Close("gear")
-	end
 	ns.WhenStale("gear", Refresh)
 end

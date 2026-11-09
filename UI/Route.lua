@@ -1354,9 +1354,6 @@ function ns.AttachRoute()
 		page = page,
 		prepare = Prepare,
 	})
-	ns.HideRoute = function()
-		ns.Pages.Close("route")
-	end
 	ns.WhenStale("route", RefreshRoute)
 	ns.WhenEvent("PLAYER_REGEN_ENABLED", ApplyPendingCraft)
 	-- The crafting page's own selection and Create button decide whether this button is armed. These are the

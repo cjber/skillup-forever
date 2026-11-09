@@ -790,9 +790,6 @@ function ns.AttachBuffs()
 		end,
 		page = page,
 	})
-	ns.HideBuffs = function()
-		ns.Pages.Close("buffs")
-	end
 	ns.WhenStale("buffs", function()
 		if page:IsShown() then
 			Render()

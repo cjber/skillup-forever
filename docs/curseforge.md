@@ -45,7 +45,7 @@ Hover a reagent to see how much your routes need.
 - **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds.
 - **A wide recipe list** grows to the longest recipe name in the open profession, with how many your bags can make in parentheses after each name. The window grows with it, up to the room your screen has. Turn it off in settings to keep the game's own width.
 - **Unlearned recipes** can sit under the learned ones in the same list. A setting, off by default, greys them and marks each with its trainer or recipe item and the skill it asks, and hovering one shows its reagents, cost and skill-up colours like a learned recipe's. They cannot be selected or crafted.
-- **Sorting** orders recipes by difficulty range start, chance or cheapest skill-ups.
+- **Sorting** orders recipes by difficulty range start, chance, cheapest skill-ups or newest learned first.
 - **Levelling routes** list crafts, trainer visits, skill books and rank quests to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps; routes that stop short name recipes that could extend them. Right-click a recipe and choose *Not this recipe* to plan without it.
 - **Shopping lists** count reagents against bags and bank. Choose whether gathered materials are free or bought, track them beside quests, buy vendor stock and keep an Auctionator list up to date. At the auction house, search a recipe's reagents for as many crafts as you choose.
 - **Trainer annotations** mark the best recipe to train next. Reagent tooltips show what tracked routes need.

@@ -576,8 +576,6 @@ L["%s: %s"] = "%s: %s" -- mt
 L["%s drops in %s"] = "%s выпадает в %s" -- mt
 L["Made by %s %d"] = "Изготовлено: %s %d" -- mt
 L["Made by %s"] = "Изготовлено: %s" -- mt
-L["Tailoring and First Aid have a route without Auctionator."] =
-	"У портняжного дела и первой помощи есть маршрут без Auctionator." -- mt
 L["%s at %d"] = "%s на %d" -- mt
 L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
 	"Вкладка внизу окна профессий со списком усиливающих расходников этой профессии, по навыку, на котором они открываются, и их назначению. Открывается с боковой вкладки SkillUp, рядом с вкладками маршрута и изготовленной экипировки." -- mt
@@ -603,3 +601,5 @@ L["Skill  %d/%d"] = "Навык  %d/%d" -- mt
 L["Other crafters"] = "Другие ремесленники" -- mt
 L["No profession here makes buff items."] =
 	"Ни одна профессия не создаёт предметы усиления." -- mt
+L["The recipe list can put the recipes you learned most recently first."] =
+	"Список рецептов может показывать первыми недавно изученные рецепты." -- mt

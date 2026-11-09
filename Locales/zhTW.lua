@@ -532,8 +532,6 @@ L["%s: %s"] = "%s：%s" -- mt
 L["%s drops in %s"] = "%s 在 %s 掉落" -- mt
 L["Made by %s %d"] = "%s %d 製作" -- mt
 L["Made by %s"] = "%s 製作" -- mt
-L["Tailoring and First Aid have a route without Auctionator."] =
-	"裁縫和急救在沒有 Auctionator 時也有路線。" -- mt
 L["%s at %d"] = "%s（%d）" -- mt
 L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
 	"專業技能視窗底部的一個標籤頁，依解鎖所需的技能與用途列出該專業製造的增益消耗品。從 SkillUp 側邊標籤頁開啟，位於路線與製造裝備標籤頁旁。" -- mt
@@ -556,3 +554,5 @@ L["Buffs by %s skill"] = "%s 增益" -- mt
 L["Skill  %d/%d"] = "技能  %d/%d" -- mt
 L["Other crafters"] = "其他工匠" -- mt
 L["No profession here makes buff items."] = "沒有專業製造增益物品。" -- mt
+L["The recipe list can put the recipes you learned most recently first."] =
+	"配方清單可以將最近學會的配方排在最前面。" -- mt

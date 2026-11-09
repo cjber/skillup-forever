@@ -12,9 +12,13 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
-- **The Professions window keeps one width while it is open.** Searching, filtering, collapsing a category or crafting used to let the window grow and shrink as the recipe list changed. It now takes its width when a profession opens and keeps it, so the window stops moving under your pointer. Reported on CurseForge by CodexFD (#505).
+## [1.3.0] - 2026-11-09
+
 - **The recipe list can put the recipes you learned most recently first.** *Newest recipes first* sorts by the start of each recipe's skill range, highest first, since trainers teach recipes in that order, and keeps unlearned recipes under their divider. It is in the Filter menu's *Sort by* section and in the addon's settings. Thanks to cotijelucie on Discord for the idea (#486).
+- **The Professions window keeps one width while it is open.** Searching, filtering, collapsing a category or crafting used to let the window grow and shrink as the recipe list changed. It now takes its width when a profession opens and keeps it, so the window stops moving under your pointer. Reported on CurseForge by CodexFD (#505).
 - **Hovering items no longer stutters with Auctionator loaded.** Each item the game looked up for a tooltip made SkillUp work out the shopping list of every route you track again. Those lists now stay as they are until a price, a plan or your bags change them. Reported on GitHub by Weythx (#503).
+
+<!-- discord-image: docs/screenshots/window.png -->
 
 ## [1.2.2] - 2026-11-09
 

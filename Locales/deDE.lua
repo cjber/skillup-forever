@@ -37,8 +37,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Hält die gemeinsame Forever-Verfolgung dort, wo Ihr sie hingelegt habt. Der Griff oben zieht sie nicht mehr."
 L["Lock the tracker"] = "Verfolgung sperren"
-L["The Professions window's Filter menu can show only the buffs you can use."] =
-	"Das Filtermenü des Berufefensters kann nur die Buffs zeigen, die Ihr nutzen könnt."
+L["The merchant's Reagents tab no longer raises a Lua error when it lists a reagent."] =
+	"Der Reiter „Reagenzien“ am Händler löst keinen Lua-Fehler mehr aus, wenn er ein Reagenz auflistet."
 L["Tracker background"] = "Hintergrund der Verfolgung"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

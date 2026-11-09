@@ -39,7 +39,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Garde le suivi Forever partagé là où vous l'avez placé. La poignée en haut ne le déplace plus." -- mt
 L["Lock the tracker"] = "Verrouiller le suivi" -- mt
-L["The Professions window's Filter menu can show only the buffs you can use."] = "Le menu Filtre de la fenêtre des métiers peut n'afficher que les buffs que vous pouvez utiliser."
+L["The Professions window's Filter menu can show only the buffs you can use."] =
+	"Le menu Filtre de la fenêtre des métiers peut n'afficher que les buffs que vous pouvez utiliser."
 L["Tracker background"] = "Fond du suivi"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

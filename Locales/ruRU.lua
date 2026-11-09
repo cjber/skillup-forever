@@ -38,7 +38,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
 L["Lock the tracker"] = "Закрепить трекер"
-L["The Professions window's Filter menu can show only the buffs you can use."] = "Меню фильтра в окне профессий может показывать только эффекты, которые вы можете использовать."
+L["The Professions window's Filter menu can show only the buffs you can use."] =
+	"Меню фильтра в окне профессий может показывать только эффекты, которые вы можете использовать."
 L["Tracker background"] = "Фон отслеживания"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

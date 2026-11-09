@@ -37,7 +37,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"将共享的 Forever 追踪器保持在您放置的位置。顶部的拖拽手柄不再移动它。"
 L["Lock the tracker"] = "锁定追踪器"
-L["The Professions window's Filter menu can show only the buffs you can use."] = "专业窗口的筛选菜单可以只显示你可以使用的增益效果。"
+L["The Professions window's Filter menu can show only the buffs you can use."] =
+	"专业窗口的筛选菜单可以只显示你可以使用的增益效果。"
 L["Tracker background"] = "追踪器背景"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =

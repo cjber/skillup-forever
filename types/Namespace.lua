@@ -806,7 +806,6 @@ SkillUpForeverDB = nil
 ---@field DividerLabel FontString
 ---@field DividerNative number
 ---@field DividerX number?
----@field HScroll SkillUpHorizontalScrollBar
 ---@field RowsData SkillUpBuffRow[]
 ---@field Columns SkillUpBuffColumn[]
 ---@field SelectedItemID integer?

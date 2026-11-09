@@ -604,6 +604,21 @@ function Client.load(options)
 			function frame:SetDataProvider(provider)
 				self.provider = provider
 			end
+			-- The rows the client would create for a provider: a spec calls this when it needs the row frames.
+			function frame:RenderRows()
+				if not (frame.elementFactory and frame.provider and frame.provider.rows) then
+					return
+				end
+				for _, elementData in ipairs(frame.provider.rows) do
+					frame.elementFactory(function(rowTemplate, initialize)
+						local row = NewFrame(nil, self)
+						row.template = rowTemplate
+						if initialize then
+							initialize(row, elementData)
+						end
+					end, elementData)
+				end
+			end
 		elseif template == "ItemButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
 			frame.Count = NewFrame(nil, frame)
@@ -762,6 +777,10 @@ function Client.load(options)
 	local timers = {}
 	G.GetTime = function()
 		return c.now
+	end
+	-- The mouse cursor in physical pixels; a drag divides it by the dragged area's effective scale.
+	G.GetCursorPosition = function()
+		return 0, 0
 	end
 	-- The client's own date for the shared log's lines (Core/Log.lua), fixed so its specs are deterministic.
 	G.date = function()
@@ -1300,19 +1319,23 @@ function Client.load(options)
 	G.Menu = { ModifyMenu = noop }
 	-- The client's scroll-box list: a view the addon fills with row initialisers, and its data provider.
 	G.CreateScrollBoxListLinearView = function()
-		return {
+		local view = {
 			SetElementExtent = noop,
 			SetElementExtentCalculator = noop,
 			SetElementInitializer = noop,
-			SetElementFactory = noop,
+			SetElementFactory = function(self, factory)
+				self.elementFactory = factory
+			end,
 		}
+		return view
 	end
 	G.CreateDataProvider = function(rows)
 		return { rows = rows }
 	end
 	G.ScrollBoxConstants = { RetainScrollPosition = true }
-	G.BaseScrollBoxEvents = { OnScroll = "OnScroll", OnLayout = "OnLayout" }
-	G.ScrollUtil.InitScrollBoxListWithScrollBar = noop
+	G.ScrollUtil.InitScrollBoxListWithScrollBar = function(box, _, view)
+		box.elementFactory = view and view.elementFactory
+	end
 	G.GREEN_FONT_COLOR = G.CreateColor(0.1, 1, 0.1)
 	G.tContains = function(list, value)
 		for _, entry in ipairs(list) do

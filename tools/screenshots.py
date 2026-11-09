@@ -792,7 +792,6 @@ env = setmetatable({
 	end,
 	ScrollUtil = { InitScrollBoxListWithScrollBar = function() end },
 	ScrollBoxConstants = { RetainScrollPosition = true, NoScrollInterpolation = true },
-	BaseScrollBoxEvents = { OnScroll = "OnScroll", OnLayout = "OnLayout" },
 	C_Trainer = {
 		GetTrainerType = function()
 			return 1
@@ -2325,14 +2324,13 @@ BUFF_LABEL_W = 128
 BUFF_AXIS_X = 18 + BUFF_LABEL_W
 BUFF_VIEW_RIGHT = 26
 BUFF_INSET_TOP = 44
-BUFF_INSET_BOTTOM = 149
-BUFF_HSCROLL_BOTTOM = 120
+BUFF_INSET_BOTTOM = 120
 BUFF_LEGEND_BOTTOM = 100
 BUFF_DETAIL_BOTTOM = 24
 BUFF_DETAIL_H = 74
 # UI/Buffs.lua: the inset is the 594-high frame less 88 above it and 24 below it, and the rows viewport is the
-# inset less the axis above the rows and the sideways bar, legend and detail below. Five whole rows fill it
-# exactly, 289 / 5 = 57.8 each.
+# inset less the axis above the rows and the legend and detail below. Five whole rows fill it exactly,
+# 318 / 5 = 63.6 each.
 BUFF_ROWS = 5
 BUFF_VIEW_H = FRAME_H - 112 - BUFF_INSET_TOP - BUFF_INSET_BOTTOM
 BUFF_ROW_H = BUFF_VIEW_H / BUFF_ROWS
@@ -2372,33 +2370,6 @@ def buff_positions(items, columns):
         slots[item["skill"]] = used + 1
         xs.append(column["x"] + used * (BUFF_NODE + BUFF_NODE_GAP) if column else 0)
     return xs
-
-
-def trim_hscroll(canvas, x, y, w, visible, offset):
-    """WowTrimHorizontalScrollBar (Blizzard_SharedXML/Shared/Scroll/TrimScrollBar.xml): the end caps and
-    tiled centre, the 18 high thumb, and the left and right steppers, at w by 25."""
-    ui = canvas.ui
-    left, right = ui.atlas("UI-ScrollBar-EndCap-Left"), ui.atlas("UI-ScrollBar-EndCap-Right")
-    canvas.draw(left, x, y)
-    canvas.draw(right, x + w - right.width, y)
-    centre = ui.atlas("_UI-ScrollBar-Center")
-    tiled(canvas, centre.image, x + left.width, y, w - left.width - right.width, 25, centre.width, 25)
-    track_x, track_w = 22, max(1, w - 22 - 23)
-    thumb_w = max(23, track_w * min(visible, 1))
-    tx = x + track_x + (track_w - thumb_w) * offset
-    begin = ui.atlas("UI-ScrollBar-Knob-EndCap-Left")
-    end = ui.atlas("UI-ScrollBar-Knob-EndCap-Right")
-    canvas.draw(begin, tx, y + 3.5)
-    middle = ui.atlas("UI-ScrollBar-Knob-Center-Horizontal")
-    middle_w = max(0, thumb_w - begin.width - end.width)
-    if middle_w > 0:
-        piece = middle.image.crop((0, 0, round(middle_w / middle.width * middle.image.width), middle.image.height))
-        canvas.draw(piece, tx + begin.width, y + 3.5, middle_w, middle.height)
-    canvas.draw(end, tx + thumb_w - end.width, y + 3.5)
-    back = ui.atlas("UI-ScrollBar-ScrollLeftButton-Up")
-    forward = ui.atlas("UI-ScrollBar-ScrollRightButton-Up")
-    canvas.draw(back, x + 4, y + 4)
-    canvas.draw(forward, x + w - 4 - forward.width, y + 4)
 
 
 def buff_edge(canvas, x0, x1, y, lit):
@@ -2479,7 +2450,6 @@ def buffs_scene(ui, scene_data):
     # the offset the page opened at.
     ax = inset_x + BUFF_AXIS_X
     aw = inset_w - BUFF_AXIS_X - BUFF_VIEW_RIGHT
-    content_w = buffs.get("contentWidth") or 0
     columns = buffs.get("columns") or []
     # The page's own opening offset, with no extra scroll: what the divider does off the edge stays off it.
     offset = buffs.get("scrollOffset") or 0
@@ -2490,8 +2460,7 @@ def buffs_scene(ui, scene_data):
     rows_top = inset_y + BUFF_INSET_TOP
     viewport_h = inset_h - BUFF_INSET_TOP - BUFF_INSET_BOTTOM
     # Every row the ScrollBox's viewport fits; the rest scroll vertically (the legend and detail stay put).
-    row_capacity = max(1, int(viewport_h // BUFF_ROW_H))
-    rows = buffs["rows"][:row_capacity]
+    rows = buffs["rows"][:BUFF_ROWS]
 
     selected = buffs.get("selected")
     # Row labels stay at the left while their nodes scroll: draw the labels on the window, then the
@@ -2519,13 +2488,13 @@ def buffs_scene(ui, scene_data):
     canvas.image.paste(piece, (clip[0], clip[1]), piece)
 
     # The vertical MinimalScrollBar beside the viewport, when the rows overflow it, as the page creates it.
-    if len(buffs["rows"]) > row_capacity:
+    if len(buffs["rows"]) > BUFF_ROWS:
         minimal_scrollbar(
             canvas,
             ax + aw + 4,
             rows_top,
             viewport_h,
-            visible=row_capacity / len(buffs["rows"]),
+            visible=BUFF_ROWS / len(buffs["rows"]),
             offset=0,
         )
 
@@ -2569,12 +2538,6 @@ def buffs_scene(ui, scene_data):
     )
     axis_piece = axis_layer.image.crop(axis_clip)
     canvas.image.paste(axis_piece, (axis_clip[0], axis_clip[1]), axis_piece)
-
-    # The sideways scroll bar under the rows, at its real art, only when the content is wider than the view.
-    if content_w > aw:
-        bar_y = inset_y + inset_h - BUFF_HSCROLL_BOTTOM - 25
-        max_offset = content_w - aw
-        trim_hscroll(canvas, ax, bar_y, aw, aw / content_w, (offset / max_offset) if max_offset else 0)
 
     # The legend, then the selected node's strip under it.
     legend_y = inset_y + inset_h - BUFF_LEGEND_BOTTOM - 16

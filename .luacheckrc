@@ -15,8 +15,8 @@ globals = { "ForeverFamily", "ForeverLeaderboards", "ForeverTrackerHost",
 }
 
 read_globals = { "CreateFramePoolCollection", "C_XMLUtil", "C_DateAndTime",
-	"C_ChatInfo", "GetServerTime", "GetTime", "IsInGuild", "IsInGroup", "IsInRaid",
-	"C_TradeSkillUI", "CreateColor", "CreateFrame", "CreateTreeDataProvider", "ScrollBoxConstants", "BaseScrollBoxEvents", "strcmputf8i", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
+	"C_ChatInfo", "GetServerTime", "GetTime", "IsInGuild", "IsInGroup", "IsInRaid", "GetCursorPosition",
+	"C_TradeSkillUI", "CreateColor", "CreateFrame", "CreateTreeDataProvider", "ScrollBoxConstants", "strcmputf8i", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
 	"GameTooltip", "GameTooltip_AddColoredLine", "GameTooltip_AddDisabledLine", "GameTooltip_InsertFrame",
 	"GameTooltip_SetTitle", "hooksecurefunc", "Professions", "ProfessionsFrame", "ScrollUtil",
 	"Settings", "strtrim", "UIParent",

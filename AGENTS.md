@@ -128,7 +128,7 @@ client's own DB2 tables through wago.tools, not a classic-db dump: they stay as 
 
 ## Secure UI regression checks
 
-`tools/typecheck.sh` checks the TOC/XML load graph, LuaLS coverage, `tools/lint_taint.py`, `tools/lint_secret.py` (secret values through `ns.Readable`, tooltip hooks behind `ns.Usable`), `tools/check_editorconfig.py` and `tools/check_family.py` (the shared family block between the `forever-family` markers in README.md and docs/curseforge.md).
+`tools/typecheck.sh` checks the TOC/XML load graph, LuaLS coverage, `tools/lint_secret.py` (secret values through `ns.Readable`, tooltip hooks behind `ns.Usable`), `tools/check_editorconfig.py` and `tools/check_family.py` (the shared family block between the `forever-family` markers in README.md and docs/curseforge.md).
 `tools/forever_tools/` is the shared tooling (cjber/forever-core, https://github.com/cjber/forever-core/tree/main/.agents/skills/wow-forever-addon/tooling), vendored byte for byte: never edit it here.
 `python3 tools/forever_tools/sync.py check` verifies it offline; `sync.py update --source <checkout>` is the only way to refresh it.
 `tools/forever_sim/` is the shared client simulator from the same place, vendored the same way (`python3 tools/forever_sim/sync.py check`, `update --source <checkout>`). `luajit tools/forever_sim/run.lua` runs the scenarios in `tests/sim` under the client's real Blizzard UI source, fetched once with `python3 tools/forever_sim/fetch.py`; `tests/sim/exercise_scenario.lua` opens every slash command, the world map, combat and a `/reload` through `sim:exercise()`.

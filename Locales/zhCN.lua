@@ -530,8 +530,8 @@ L["%s: %s"] = "%s：%s" -- mt
 L["%s drops in %s"] = "%s 在 %s 掉落" -- mt
 L["Made by %s %d"] = "%s %d 制作" -- mt
 L["Made by %s"] = "%s 制作" -- mt
-L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
-	"配方产物现在会降低该步骤中每次制作的成本，而不仅是第一次。" -- mt
+L["A new Buffs tab shows what each profession can make for you, and when."] =
+	"新的增益标签页显示每个专业能为你制作什么，以及何时可以制作。" -- mt
 L["%s at %d"] = "%s（%d）" -- mt
 L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
 	"专业窗口底部的一个标签页，按解锁所需的技能和用途列出该专业制造的增益消耗品。从 SkillUp 侧边标签页打开，位于路線和制造装备标签页旁。" -- mt

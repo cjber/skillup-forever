@@ -549,8 +549,8 @@ L["%s: %s"] = "%s : %s" -- mt
 L["%s drops in %s"] = "%s tombe à %s" -- mt
 L["Made by %s %d"] = "Fabriqué par %s %d" -- mt
 L["Made by %s"] = "Fabriqué par %s" -- mt
-L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
-	"Le produit d'une recette réduit désormais le coût de chaque fabrication de son étape, pas seulement de la première." -- mt
+L["A new Buffs tab shows what each profession can make for you, and when."] =
+	"Un nouvel onglet Améliorations montre ce que chaque métier peut fabriquer pour vous, et quand." -- mt
 L["%s at %d"] = "%s à %d" -- mt
 L["A tab at the bottom of the Professions window listing the buff consumables this profession makes, by the skill they unlock at and what each one is for. It opens from the SkillUp side tab, beside the route and crafted gear tabs."] =
 	"Un onglet en bas de la fenêtre des métiers, qui liste les consommables d'amélioration de ce métier selon la compétence à laquelle ils se débloquent et leur utilité. Il s'ouvre depuis l'onglet latéral de SkillUp, à côté des onglets du parcours et de l'équipement fabriqué." -- mt

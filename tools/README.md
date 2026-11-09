@@ -142,10 +142,11 @@ the lowest skill line (Herbalism, Mining, Fishing, Skinning); the pinned data ha
 
 `ns.LootedFrom` marks reagents at least three creatures drop directly at 10% or more, and whose
 `item_template` class is Reagent, Trade Goods or Miscellaneous. A shared reference pool is skipped:
-it holds cloth, potions and world drops, not a beast's own parts. A reagent `ns.GatheredBy` already
-maps stays behind that profession, and cloth (Linen, Wool, Silk, Mageweave, Runecloth, Felcloth) is
-left out because every Tailoring and First Aid route buys it. Anyone can kill a creature, so these
-count as gatherable for every character with no profession needed.
+it holds potions and world drops, not a beast's own parts. A reagent Herbalism or Mining gathers from
+a node stays behind that profession; a reagent creatures carry is loot anyone can get, even when
+skinning or fishing also yields it, so cloth is free on a Tailoring or First Aid route in gather
+mode. Anyone can kill a creature, so these count as gatherable for every character with no profession
+needed.
 
 `ns.LimitedStock` keeps, per item, the vendors whose `npc_vendor` row has a `maxcount` above zero, so
 the route can say the nearest seller's stock is limited rather than imply the whole reagent list can be

@@ -180,9 +180,9 @@ class GatheredTests(unittest.TestCase):
 
 
 class LootedTests(unittest.TestCase):
-    def looted(self, rows, classes, items, gathered_items=frozenset()):
+    def looted(self, rows, classes, items, node_gathered=frozenset()):
         tables = {"creature_loot_template": rows, "item_template": classes}
-        return looted_from(tables, set(items), gathered_items)
+        return looted_from(tables, set(items), node_gathered)
 
     def test_only_direct_rows_count(self):
         tables = {
@@ -207,13 +207,17 @@ class LootedTests(unittest.TestCase):
         ]
         self.assertEqual(self.looted(rows, [item(1, 7), item(2, 7)], (1, 2)), {2})
 
-    def test_a_gathered_reagent_stays_behind_its_profession(self):
+    def test_a_node_gathered_reagent_stays_behind_its_profession(self):
         rows = [loot(str(900 + n), 1, 100) for n in range(3)]
         self.assertEqual(self.looted(rows, [item(1, 7)], (1,), {1}), set())
 
-    def test_cloth_is_never_free(self):
+    def test_cloth_is_loot_for_everyone(self):
         rows = [loot(str(900 + n), 2589, 100) for n in range(3)]
-        self.assertEqual(self.looted(rows, [item(2589, 7)], (2589,)), set())
+        self.assertEqual(self.looted(rows, [item(2589, 7)], (2589,)), {2589})
+
+    def test_a_skinning_byproduct_creatures_carry_is_still_loot(self):
+        rows = [loot(str(900 + n), 2592, 100) for n in range(3)]
+        self.assertEqual(self.looted(rows, [item(2592, 7)], (2592,), {2589}), {2592})
 
     def test_chance_below_the_gather_chance_is_left_out(self):
         rows = [loot(str(900 + n), 1, 9) for n in range(3)]

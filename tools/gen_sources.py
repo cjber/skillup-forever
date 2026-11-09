@@ -38,8 +38,9 @@ GATHER_CHANCE = 10
 LOOT_CLASSES = {"5", "7", "15"}
 # Something this many creatures drop is farmable; one boss's or quest NPC's drop is a one-off.
 LOOT_CREATURES = 3
-# Random humanoid drops every Tailoring and First Aid route buys; counting them free would zero those routes.
-CLOTH = {2589, 2592, 4306, 4338, 14047, 14256}
+# Skills that gather from a node: their reagents stay behind the profession. Skinning and fishing yield
+# materials a creature also carries, which anyone can loot.
+NODE_SKILLS = set(LOCK_SKILLS.values())
 # A group's explicit chances may not sum past 100; the server allows this much rounding before it objects.
 GROUP_CHANCE = 101
 RECIPE_CLASS = "9"
@@ -112,12 +113,13 @@ def gathered(tables, locks, items):
     return {item: min(skills) for item, skills in found.items()}
 
 
-def looted_from(tables, items, gathered_items):
+def looted_from(tables, items, node_gathered):
     """[reagent] = true when at least LOOT_CREATURES creatures drop it directly at GATHER_CHANCE% or more.
 
-    Only a creature's own rows count: a reference pool is shared by many creatures and holds cloth, potions
-    and world drops, not the parts a beast carries. A material a profession gathers stays behind that
-    profession, and cloth is left out because every Tailoring and First Aid route buys it.
+    Only a creature's own rows count: a reference pool is shared by many creatures and holds potions and
+    world drops, not the parts a beast carries. A reagent Herbalism or Mining gathers from a node stays
+    behind that profession; a reagent creatures carry is loot anyone can get, even when skinning or
+    fishing also yields it.
     """
     classes = {int(row["entry"]): row["class"] for row in tables["item_template"]}
     creatures = defaultdict(list)
@@ -131,7 +133,7 @@ def looted_from(tables, items, gathered_items):
             item = int(row["item"])
             if chance < GATHER_CHANCE or item not in items:
                 continue
-            if item in gathered_items or item in CLOTH or classes.get(item) not in LOOT_CLASSES:
+            if item in node_gathered or classes.get(item) not in LOOT_CLASSES:
                 continue
             found[item].add(entry)
     return {item for item, by in found.items() if len(by) >= LOOT_CREATURES}
@@ -266,6 +268,7 @@ def generate(ids, tables, effect_rows, locks):
     drops, world = scroll_drops(tables, scroll_items(ids, tables["item_template"], teaches))
     items = reagent_items()
     gathered_items = gathered(tables, locks, items)
+    node_gathered = {item for item, skill in gathered_items.items() if skill in NODE_SKILLS}
     return {
         "drops": {item: sorted(by.items(), key=lambda kv: (-kv[1], kv[0]))[:DROPS_KEPT] for item, by in drops.items()},
         "world": sorted(world),
@@ -273,7 +276,7 @@ def generate(ids, tables, effect_rows, locks):
             skill: sorted(caps.items()) for skill, caps in trainer_caps(tables["npc_trainer"], teaches, rank_of).items()
         },
         "gathered": gathered_items,
-        "looted": sorted(looted_from(tables, items, gathered_items)),
+        "looted": sorted(looted_from(tables, items, node_gathered)),
         "limited": limited_stock(tables["npc_vendor"]),
         **dict(zip(("nodes", "shared_nodes"), node_skills(tables, locks), strict=True)),
     }

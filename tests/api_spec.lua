@@ -40,6 +40,7 @@ local c = Client.load({
 		RankBooks = { [197] = { { 150, BOOK, 500, 70, 0 } } },
 		ItemSellPrices = {},
 		GatheredBy = {},
+		LootedFrom = {},
 		VendorPrices = { [THREAD] = 100, [BAR] = 10 },
 		ProfessionTrainers = { [165] = { { TELONIS, 300 } } },
 		ScrollDrops = {},

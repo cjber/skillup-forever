@@ -97,8 +97,9 @@ local function SaleValue(itemID)
 end
 
 -- Whether this character can get `itemID` without buying it: a creature anyone can kill drops it ("loot"), or
--- one of their professions gathers it (that profession's name). Nil when neither. One predicate for Prices and
--- the route's Buy reagents switch, so they cannot disagree.
+-- one of their professions gathers it (that profession's name). An item both a profession and a creature carry
+-- is loot for a character without that profession. Nil when neither. One predicate for Prices and the route's
+-- Buy reagents switch, so they cannot disagree.
 ---@param itemID integer
 ---@return string?
 function ns.CanGather(itemID)
@@ -106,7 +107,9 @@ function ns.CanGather(itemID)
 	if skillLine then
 		professions = professions or ns.PlayerProfessions()
 		local profession = professions[skillLine]
-		return profession and profession.name or nil
+		if profession then
+			return profession.name
+		end
 	end
 	if ns.LootedFrom and ns.LootedFrom[itemID] then
 		return "loot"

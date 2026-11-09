@@ -38,6 +38,7 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Mantiene el rastreador compartido Forever donde lo pones. El tirador de arriba ya no lo arrastra."
 L["Lock the tracker"] = "Bloquear el rastreador"
+L["The Professions window's Filter menu can show only the buffs you can use."] = "El menú Filtro de la ventana de profesiones puede mostrar solo los beneficios que puedes usar."
 L["Tracker background"] = "Fondo del seguimiento"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -274,8 +275,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Resta del coste lo que vale vender el objeto creado. Los precios de subasta necesitan Auctionator, son tras la comisión del 5 % y puede que no se vendan."
 L["Suggest my other Forever addons"] = "Sugerir mis otros addons Forever"
 L["Taught by %s trainers."] = "Lo enseñan los instructores de %s."
-L["The Professions window no longer stutters while it is open."] =
-	"La ventana de profesiones ya no da tirones mientras está abierta." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Los addons Forever son gratuitos y no hay nada bloqueado tras un pago. Si te ayudan, puedes invitarme a un café." -- mt
 L["The place this recipe is taught isn't known yet."] = "Aún no se sabe dónde se enseña esta receta."

@@ -37,6 +37,7 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Hält die gemeinsame Forever-Verfolgung dort, wo Ihr sie hingelegt habt. Der Griff oben zieht sie nicht mehr."
 L["Lock the tracker"] = "Verfolgung sperren"
+L["The Professions window's Filter menu can show only the buffs you can use."] = "Das Filtermenü des Berufefensters kann nur die Buffs zeigen, die Ihr nutzen könnt."
 L["Tracker background"] = "Hintergrund der Verfolgung"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -44,8 +45,6 @@ L["A side tab on the Professions window listing the newest crafted item this cha
 L["A side tab on the Professions window with a route to your target skill and its reagents. Tracked professions stay in the objective tracker either way."] =
 	"Ein Seitenreiter am Berufsfenster mit einer Route zu Eurer Zielfertigkeit und ihren Reagenzien. Verfolgte Berufe bleiben so oder so in der Questzielverfolgung."
 L["Show thresholds bar on the recipe"] = "Fertigkeitsbalken beim Rezept anzeigen" -- mt
-L["The Professions window no longer stutters while it is open."] =
-	"Das Berufefenster ruckelt nicht mehr, solange es geöffnet ist." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Die Forever-Addons sind kostenlos, und nichts ist hinter einer Bezahlung versteckt. Wenn sie Euch helfen, könnt Ihr mir einen Kaffee spendieren." -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =

@@ -37,6 +37,7 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"將共用的 Forever 追蹤器保持在您放置的位置。頂部的拖曳握把不再移動它。"
 L["Lock the tracker"] = "鎖定追蹤器"
+L["The Professions window's Filter menu can show only the buffs you can use."] = "專業視窗的篩選選單可以只顯示你可以使用的增益效果。"
 L["Tracker background"] = "追蹤器背景"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -268,7 +269,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"從成本中減去製造物品的售價。拍賣價需要Auctionator，已扣除5%手續費，且不一定能賣出。"
 L["Suggest my other Forever addons"] = "推薦我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s訓練師教授。"
-L["The Professions window no longer stutters while it is open."] = "專業技能視窗開啟時不再卡頓。" -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 插件全部免費，沒有任何付費才能使用的內容。如果它們對你有幫助，可以請我喝杯咖啡。" -- mt
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪裡學習此配方。"

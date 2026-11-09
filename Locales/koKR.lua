@@ -37,6 +37,7 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
 L["Lock the tracker"] = "추적기 잠금"
+L["The Professions window's Filter menu can show only the buffs you can use."] = "전문 기술 창의 필터 메뉴에서 사용할 수 있는 강화 효과만 표시할 수 있습니다."
 L["Tracker background"] = "추적기 배경"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -276,8 +277,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"제작 아이템의 판매 가격을 비용에서 뺍니다. 경매 가격은 Auctionator가 필요하고, 5% 수수료를 뺀 값이며, 팔리지 않을 수도 있습니다."
 L["Suggest my other Forever addons"] = "제 다른 Forever 애드온 추천"
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
-L["The Professions window no longer stutters while it is open."] =
-	"전문 기술 창이 열려 있는 동안 더 이상 끊기지 않습니다." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
 	"Forever 애드온은 무료이며 잠긴 기능이 없습니다. 도움이 되셨다면 커피 한 잔 사 주세요." -- mt
 L["The place this recipe is taught isn't known yet."] =

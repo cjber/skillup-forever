@@ -12,6 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The route and crafted gear tabs stay in the Professions window beside What's Training?'s own tab.** What's Training? pins its tab to the window's bottom-right corner, in the same strip as ours; a tab switch re-ran the placement, took that corner tab for the last slot and moved the SkillUp tabs underneath it, below the window's edge. The placement now gives our tabs the next free slots under Blizzard's profession tabs, so all three share the column while there is room, whatever order the addons load or re-place their tabs. Reported on CurseForge by user_gxp60l4cnnhigc69 (#446).
 - **The Forever Leaderboards period menu works with a gamepad.** With the gamepad interface on, a press on it steps through this week or all time, for your guild and group or for players you've met, instead of opening a game menu that later had the client block `SetPreferredGamepadInteractTarget()` (cjber/forever-core#267).
 
 ## [1.1.4] - 2026-11-08

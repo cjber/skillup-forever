@@ -338,8 +338,9 @@ ProfessionsFrame.CraftingPage.CreateAllButton = {
 ProfessionsFrame.BookPage = NewRegion(ProfessionsFrame)
 ProfessionsFrame.ProfessionsOverviewTab = NewRegion(ProfessionsFrame)
 ProfessionsFrame.rightProfessionTabs = {}
--- Blizzard's tab column hangs off the window's right edge.
-ProfessionsFrame.ProfessionsOverviewTab:SetPoint("TOPLEFT", ProfessionsFrame, "TOPLEFT", 676, -40)
+-- Blizzard's tab column hangs off the window's top-right corner: the overview tab is a TOPLEFT of the
+-- window's TOPRIGHT at -60 (Blizzard_ProfessionsFrame.xml), and each right tab is -2 under the one above.
+ProfessionsFrame.ProfessionsOverviewTab:SetPoint("TOPLEFT", ProfessionsFrame, "TOPRIGHT", 0, -60)
 ProfessionsFrame.ProfessionsOverviewTab:SetSize(43, 55)
 ProfessionsFrame.portrait = NewRegion(ProfessionsFrame)
 ProfessionsFrame.portrait:SetPoint("TOPLEFT", 0, 0)
@@ -793,32 +794,53 @@ end
 OpenWindow()
 equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "the route tab sits under Blizzard's column")
 equal(Below(gearTabFrame, tab), true, "and the gear tab under the route tab")
--- What's Training? pins its tab into the column from the window corner; another addon stacks under ours.
-local cornerTab = NewRegion(ProfessionsFrame)
-cornerTab:SetPoint("TOPLEFT", ProfessionsFrame, "TOPLEFT", 676, -100)
-cornerTab:SetSize(43, 55)
-local hangingTab = NewRegion(ProfessionsFrame)
-hangingTab:SetPoint("TOPLEFT", gearTabFrame, "BOTTOMLEFT", 0, -2)
-hangingTab:SetSize(43, 55)
-OpenWindow()
-equal(Below(tab, cornerTab), true, "the route tab goes under a corner-pinned tab")
-equal(Below(gearTabFrame, tab), true, "the gear tab still follows the route tab")
--- With the route tab off, the gear tab takes its slot.
-ns.db.showRouteTab = false
-ns.Changed("settings")
-equal(Below(gearTabFrame, cornerTab), true, "the gear tab takes the route tab's slot when that is off")
-ns.db.showRouteTab = true
-ns.Changed("settings")
-equal(Below(gearTabFrame, tab), true, "and goes back under it when it is on")
-cornerTab:Hide()
-hangingTab:Hide()
+-- What's Training? pins its own tab to the window's bottom-right corner: a BOTTOMLEFT of the window's
+-- BOTTOMRIGHT at 0,10, which is flush with the column's left edge but sits down by the window's bottom
+-- (Crafting/Crafting.lua). It can appear or re-place itself after our tabs are already laid out, so a tab
+-- switch (the same placement pass our events run) must leave ours in the free slots above it, inside the
+-- window (#446).
+do
+	local cornerTab = NewRegion(ProfessionsFrame)
+	cornerTab:SetPoint("BOTTOMLEFT", ProfessionsFrame, "BOTTOMRIGHT", 0, 10)
+	cornerTab:SetSize(43, 55)
+	local hangingTab = NewRegion(ProfessionsFrame)
+	hangingTab:SetPoint("TOPLEFT", gearTabFrame, "BOTTOMLEFT", 0, -2)
+	hangingTab:SetSize(43, 55)
+	ns.PlaceSideTabs()
+	equal(
+		Below(tab, ProfessionsFrame.ProfessionsOverviewTab),
+		true,
+		"the route tab keeps the first free slot under Blizzard's column"
+	)
+	equal(Below(gearTabFrame, tab), true, "the gear tab still follows the route tab")
+	equal(Below(tab, cornerTab), false, "and neither is pushed under What's Training?'s corner tab")
+	local _, routeBottom, _, routeTop = Rect(tab)
+	local _, gearBottom, _, gearTop = Rect(gearTabFrame)
+	local _, windowBottom, _, windowTop = Rect(ProfessionsFrame)
+	equal(routeBottom > windowBottom and routeTop < windowTop, true, "the route tab stays beside the window")
+	equal(gearBottom > windowBottom and gearTop < windowTop, true, "and so does the gear tab")
+	-- With the route tab off, the gear tab takes its slot.
+	ns.db.showRouteTab = false
+	ns.Changed("settings")
+	equal(
+		Below(gearTabFrame, ProfessionsFrame.ProfessionsOverviewTab),
+		true,
+		"the gear tab takes the route tab's slot when that is off"
+	)
+	equal(Below(gearTabFrame, cornerTab), false, "not What's Training?'s corner slot")
+	ns.db.showRouteTab = true
+	ns.Changed("settings")
+	equal(Below(gearTabFrame, tab), true, "and goes back under it when it is on")
+	cornerTab:Hide()
+	hangingTab:Hide()
+end
 OpenWindow()
 -- All The Things on Forever keeps the column's tabs in one full-height frame on the window's right edge and
 -- anchors its own tab in the next free slot inside it (#402). That frame is the column, not the lowest tab:
 -- the route tab goes under the tab in it, beside the window, not under the window's bottom.
 local sidebar = NewRegion(ProfessionsFrame)
-sidebar:SetPoint("TOPLEFT", ProfessionsFrame, "TOPLEFT", 676, 0)
-sidebar:SetPoint("BOTTOMLEFT", ProfessionsFrame, "TOPLEFT", 676, -594)
+sidebar:SetPoint("TOPLEFT", ProfessionsFrame, "TOPRIGHT", 0, 0)
+sidebar:SetPoint("BOTTOMLEFT", ProfessionsFrame, "BOTTOMRIGHT", 0, 0)
 sidebar:SetWidth(1)
 local thirdPartyTab = NewRegion(sidebar)
 thirdPartyTab:SetPoint("TOPLEFT", ProfessionsFrame.ProfessionsOverviewTab, "BOTTOMLEFT", 0, -2)

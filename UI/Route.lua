@@ -1451,17 +1451,25 @@ end
 -- A side tab is no taller than the tab the column starts with. A frame that spans the column is the frame the
 -- tabs hang in, not a tab: All The Things on Forever reparents Blizzard's tabs into one such frame on the
 -- window's right edge and anchors its own tab in the next free slot inside it, so the tab in the slot is
--- inside that frame, and the frame itself is never mistaken for the lowest tab (#402).
+-- inside that frame, and the frame itself is never mistaken for a tab (#402).
+---@class SkillUpTabSlot
+---@field frame Frame
+---@field top number
+---@field bottom number
+
+-- Every tab already in the column, apart from ours: a shown frame flush with the column's left edge and no
+-- taller than one slot. A frame tall enough to hold two tabs is a holder another addon put its tabs in, so its
+-- children are read instead. A frame that hangs off our tabs is below them by definition, not a tab we must
+-- clear.
 ---@param frame Frame
 ---@param left number
 ---@param slotHeight number
 ---@param ours table<Region, boolean>
 ---@param seen table<Region, boolean>
----@return Frame?
----@return number?
-local function LowestTab(frame, left, slotHeight, ours, seen)
+---@param found SkillUpTabSlot[]
+local function ColumnTabs(frame, left, slotHeight, ours, seen, found)
 	if seen[frame] or not frame:IsShown() then
-		return nil
+		return
 	end
 	seen[frame] = true
 	local frameLeft, frameBottom, height = frame:GetLeft(), frame:GetBottom(), frame:GetHeight()
@@ -1471,48 +1479,44 @@ local function LowestTab(frame, left, slotHeight, ours, seen)
 		or type(height) ~= "number"
 		or math.abs(frameLeft - left) >= 1
 	then
-		return nil
+		return
 	end
-	-- A frame tall enough to hold two tabs is the column holding them, not a tab.
 	if height >= slotHeight * 2 then
-		local lowest, lowestBottom
 		for _, child in ipairs({ frame:GetChildren() }) do
-			local candidate, bottom = LowestTab(child --[[@as Frame]], left, slotHeight, ours, seen)
-			if candidate and (not lowestBottom or bottom < lowestBottom) then
-				lowest, lowestBottom = candidate, bottom
-			end
+			ColumnTabs(child --[[@as Frame]], left, slotHeight, ours, seen, found)
 		end
-		return lowest, lowestBottom
+		return
 	end
 	if HangsOff(frame, ours, {}) then
-		return nil
+		return
 	end
-	return frame, frameBottom
+	found[#found + 1] = { frame = frame, top = frameBottom + height, bottom = frameBottom }
 end
 
--- The lowest tab already anchored flush with the tab column, not just Blizzard's next slot: All The Things
--- takes the next slot without joining Blizzard's tab array, and What's Training? pins its tab to the window's
--- bottom-right corner, which lands in the same strip. A frame that hangs off our tabs is below them, not above.
----@param anchor Frame
----@param ours table<Region, boolean>
+-- The lowest tab overlapping a slot we want: our tab goes under it rather than on top of it. Touching edges
+-- leave the slot free, as the column's two-pixel gap does.
+---@param slotTop number
+---@param slotBottom number
+---@param found SkillUpTabSlot[]
 ---@return Frame?
-local function OccupiedSlot(anchor, ours)
-	local left, slotHeight = anchor:GetLeft(), anchor:GetHeight()
-	if type(left) ~= "number" or type(slotHeight) ~= "number" then
-		return nil
-	end
+local function BlockingTab(slotTop, slotBottom, found)
 	local lowest, lowestBottom
-	for _, sibling in ipairs({ ProfessionsFrame:GetChildren() }) do
-		local candidate, bottom = LowestTab(sibling --[[@as Frame]], left, slotHeight, ours, {})
-		if candidate and (not lowestBottom or bottom < lowestBottom) then
-			lowest, lowestBottom = candidate, bottom
+	for _, occupied in ipairs(found) do
+		if occupied.top > slotBottom and occupied.bottom < slotTop then
+			if not lowestBottom or occupied.bottom < lowestBottom then
+				lowest, lowestBottom = occupied.frame, occupied.bottom
+			end
 		end
 	end
 	return lowest
 end
 
--- Our side tabs in one order, top to bottom: the route, then crafted gear, under the last tab the column
--- already holds, in the same tab art. Only this places them, so neither ever anchors above the other.
+-- Our side tabs in one order, top to bottom: the route, then crafted gear, in the next free slots under the
+-- last tab the column already holds, in the same tab art. Only this places them, so neither ever anchors above
+-- the other. A tab another addon pins lower down, such as What's Training?'s bottom-right corner, leaves the
+-- slots directly under the native column free: ours take those and stay beside the window instead of being
+-- pushed below that tab and past the window's bottom (#446). Each pass reads the column as it is now, so the
+-- order the addons loaded or re-placed their tabs in does not matter.
 local function PlaceTabs()
 	local column = { tab, ns.GearTab }
 	local ours = {}
@@ -1526,8 +1530,26 @@ local function PlaceTabs()
 			above = professionTab
 		end
 	end
-	above = OccupiedSlot(above, ours) or above
+	local left, slotHeight = above:GetLeft(), above:GetHeight()
+	local found = {}
+	if type(left) == "number" and type(slotHeight) == "number" then
+		for _, sibling in ipairs({ ProfessionsFrame:GetChildren() }) do
+			ColumnTabs(sibling --[[@as Frame]], left, slotHeight, ours, {}, found)
+		end
+	end
 	for _, sideTab in ipairs(column) do
+		if type(slotHeight) == "number" then
+			local bottom = above:GetBottom()
+			while type(bottom) == "number" do
+				local slotTop = bottom - 2
+				local blocker = BlockingTab(slotTop, slotTop - slotHeight, found)
+				if not blocker then
+					break
+				end
+				above = blocker
+				bottom = above:GetBottom()
+			end
+		end
 		sideTab:ClearAllPoints()
 		sideTab:SetPoint("TOPLEFT", above, "BOTTOMLEFT", 0, -2)
 		if sideTab:IsShown() then

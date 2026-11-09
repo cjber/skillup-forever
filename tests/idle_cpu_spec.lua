@@ -126,8 +126,9 @@ Reset()
 ns.TrackedNeeds()
 equal(reagents, tracked, "picking the tool up rebuilds the routes again")
 
--- Item data can move a reagent between shopping sources without moving a plan or a tool. A tracked list
--- that kept its old build would show the wrong bucket until something else changed.
+-- Item data reaches a tracked list only through a vendor sell price, and that reports `prices` when it
+-- arrives (#503). The item data event alone leaves the list as it is; the price change that follows moves a
+-- reagent between shopping sources, without the list keeping a wrong bucket until something else changed.
 local realSource = ns.PriceSource
 local sourceOverride
 ns.PriceSource = function(itemID)
@@ -143,18 +144,23 @@ local function SilkSource()
 	end
 end
 sourceOverride = { [SILK] = "vendor" }
-ns.Changed("items")
+ns.Changed("prices")
 Reset()
 equal(SilkSource(), "vendor", "the reagent starts in the vendor bucket")
 sourceOverride = { [SILK] = "auctionator" }
 Reset()
 c.Fire("ITEM_DATA_LOAD_RESULT", SILK, true)
 c.Advance(0)
-equal(SilkSource(), "auction", "item data that moves it to the auction bucket updates the tracked list")
-equal(cold, 0, "without rebuilding a plan")
+equal(reagents, 0, "item data alone rebuilds no route's material list")
+equal(SilkSource(), "vendor", "and leaves the reagent where it was")
+Reset()
+ns.Changed("prices")
+equal(SilkSource(), "auction", "the price change that arrives with it moves the reagent to the auction bucket")
+equal(reagents, tracked, "rebuilding each tracked route")
+equal(cold, tracked, "and its plan")
 ns.PriceSource = realSource
 sourceOverride = nil
-ns.Changed("items")
+ns.Changed("prices")
 
 -- A real change to a plan still reaches every reader.
 Reset()

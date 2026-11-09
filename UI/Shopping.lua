@@ -187,11 +187,13 @@ function ns.AutoTrack(skillLine)
 	return true
 end
 
--- The tracked routes' material lists. A plan change, a price, item data or a merchant's stock drops them:
--- RouteReagents reads those without asking for a new plan, so the plan alone is not the whole key. A bag
--- change is the one input whose effect the key can tell apart: it reads each plan and the tools the bags
--- still lack, so a tool picked up rebuilds the list while a bag of unrelated loot leaves it alone. The
--- tracker, the merchant tab, the public API and the tooltip index share one build.
+-- The tracked routes' material lists. A plan change, a price or a merchant's stock drops them: RouteReagents
+-- reads those without asking for a new plan, so the plan alone is not the whole key. Item data drops nothing
+-- here: it arrives for any item, from any addon, and the one item-data input this list reads is a vendor sell
+-- price (Integrations/Prices.lua's SellPrice), which reports `prices` when it arrives. A bag change is the
+-- one input whose effect the key can tell apart: it reads each plan and the tools the bags still lack, so a
+-- tool picked up rebuilds the list while a bag of unrelated loot leaves it alone. The tracker, the merchant
+-- tab, the public API and the tooltip index share one build.
 ---@type { key: string, tracked: SkillUpTracked[] }?
 local trackedNeeds
 

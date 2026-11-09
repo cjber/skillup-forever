@@ -180,6 +180,26 @@ end
 equal(Stale(HalfASecond), "prices plans api | route recipeList tracker", "it waits out the burst, then prices changed")
 equal(Stale(HalfASecond), " | ", "once")
 
+-- #503: item data arrives for any item, from any addon, so it must not drop the tracked routes' material
+-- lists. The one item-data input those lists read, a vendor sell price, reports `prices` when it arrives.
+ns.SetTracked(197, true)
+local realReagents = ns.RouteReagents
+local reagentBuilds = 0
+ns.RouteReagents = function(plan, ...)
+	reagentBuilds = reagentBuilds + 1
+	return realReagents(plan, ...)
+end
+local tracked = ns.TrackedNeeds()
+equal(reagentBuilds > 0, true, "the tracked route starts built")
+reagentBuilds = 0
+c.Fire("ITEM_DATA_LOAD_RESULT", 9999, true)
+equal(ns.TrackedNeeds(), tracked, "item data for an unrelated item leaves the tracked routes as they are")
+equal(reagentBuilds, 0, "and rebuilds no route's material list")
+ns.Changed("prices")
+equal(ns.TrackedNeeds() ~= tracked, true, "a price change still rebuilds the tracked routes")
+equal(reagentBuilds > 0, true, "from their material lists")
+ns.RouteReagents = realReagents
+
 -- What the writers report.
 equal(Stale(c.AuctionatorScan), "prices plans api | route recipeList tracker", "an Auctionator scan")
 equal(Stale(Changed("fees")), "plans api | route tracker", "fees recorded at a trainer")

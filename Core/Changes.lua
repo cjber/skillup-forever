@@ -130,8 +130,10 @@ local STALE = {
 	bags = { tooltipRouteTools = true, api = true, route = true, tracker = true, shoppingList = true },
 	-- Item data arrived; `names` when the public list was waiting on it. An item tooltip's lines hold no item
 	-- name, and a route's tooltip lines hold no shopping source, so `tooltipCache` and `tooltipRoute` stay.
+	-- `trackedNeeds` stays too: the one item-data input its list reads, a vendor sell price
+	-- (Integrations/Prices.lua's SellPrice), reports `prices` when it arrives. Item data arrives for any item,
+	-- from any addon, so dropping the list here rebuilt every tracked route on every hover.
 	items = {
-		trackedNeeds = true,
 		route = true,
 		tracker = true,
 		gear = true,

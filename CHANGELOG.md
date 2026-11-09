@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-11-09
+
 - **Less work while you hover gear with item comparison on.** The game refreshes an item's tooltip and its comparison tooltips while you move, and SkillUp now adds its lines from what it already worked out instead of counting your bags and rebuilding them each time. Reported on CurseForge by iPulse (#477).
 
 ## [1.2.0] - 2026-11-09

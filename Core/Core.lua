@@ -92,7 +92,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["A new Buffs tab shows what each profession can make for you, and when."]
+ns.WHATS_NEW = L["Less work while you hover gear with item comparison on."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

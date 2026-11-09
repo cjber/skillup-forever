@@ -217,6 +217,9 @@ do
 	equal(ns.db.sortMode, "cost", "a valid sort stays")
 	equal(ns.db.reagentTooltip, "full", "a valid reagent tooltip mode stays")
 	equal(ns.db.recipeTooltip, "row", "a valid recipe tooltip position stays")
+	env.SkillUpForeverDB = { sortMode = "newest" }
+	callbacks.SkillUpForever()
+	equal(ns.db.sortMode, "newest", "the newest-recipe sort stays")
 	-- A trainer requirement saved as 0 (an unknown one, before) is dropped; a recorded one stays.
 	env.SkillUpForeverDB = { trainer = { [185] = { [1] = { 40, 0 }, [2] = { 50, 30 }, [3] = { 60 } } } }
 	callbacks.SkillUpForever()

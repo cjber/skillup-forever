@@ -195,6 +195,7 @@ L["Need %d, have %d, missing %d  %s  %s each  %s"] = "Need %d, have %d, missing 
 L["Need a %s in your bags."] = "Need a %s in your bags."
 L["Needs %s %d"] = "Needs %s %d"
 L["Net per craft"] = "Net per craft"
+L["Newest recipes first"] = "Newest recipes first"
 L["Next to the recipe"] = "Next to the recipe"
 L["No addon has attached its log yet."] = "No addon has attached its log yet."
 L["No buff items for your level yet."] = "No buff items for your level yet."

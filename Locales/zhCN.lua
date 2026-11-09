@@ -144,6 +144,7 @@ L["Need %d more %s"] = "还需要%d个%s"
 L["Need a %s in your bags."] = "背包中需要%s。"
 L["Needs %s %d"] = "需要%s %d"
 L["Net per craft"] = "每次制造净成本"
+L["Newest recipes first"] = "最新配方优先"
 L["Next to the recipe"] = "配方旁边"
 L["No crafted gear for your level and class yet."] = "暂无适合你等级和职业的制造装备。"
 L["No crafted gear you can make yet. Tick the box above to see gear you cannot make."] =

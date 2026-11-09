@@ -134,4 +134,31 @@ assert(box.SetDataProvider == original, "native method remains untouched")
 ns.db.sortMode = "blizzard"
 box:SetDataProvider(input)
 assert(provider == input, "default sort leaves the native provider alone")
-print("recipelist_spec: provider replacement, sort, recursion and native method identity passed")
+
+-- Newest recipes first: the skill range start descending, learned recipes only, with the unlearned ones
+-- still under Blizzard's divider.
+local skills = { [10] = 50, [20] = 75, [30] = 25, [40] = 100 }
+ns.Model.Get = function(id)
+	return { skills[id] or 0 }
+end
+ns.SkillContext = function()
+	return {}
+end
+ns.UnlearnedRecipes = function()
+	return {}
+end
+ns.db.showUnlearned = true
+local newest = tree()
+newest:Insert({ recipeInfo = { recipeID = 10, name = "Ten", learned = true } })
+newest:Insert({ recipeInfo = { recipeID = 20, name = "Twenty", learned = true } })
+newest:Insert({ recipeInfo = { recipeID = 30, name = "Thirty", learned = true } })
+newest:Insert({ recipeInfo = { recipeID = 40, name = "Forty", learned = false } })
+ns.db.sortMode = "newest"
+box:SetDataProvider(newest)
+local nodes = provider:GetRootNode():GetNodes()
+assert(nodes[1]:GetData().recipeInfo.recipeID == 20, "the highest skill range start comes first")
+assert(nodes[2]:GetData().recipeInfo.recipeID == 10, "then the next highest")
+assert(nodes[3]:GetData().recipeInfo.recipeID == 30, "then the lowest")
+assert(nodes[4]:GetData().isDivider, "unlearned recipes stay below the divider")
+assert(nodes[5]:GetData().recipeInfo.recipeID == 40, "the unlearned recipe follows the divider")
+print("recipelist_spec: provider replacement, sort, newest first, recursion and native method identity passed")

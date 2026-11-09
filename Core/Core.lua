@@ -65,6 +65,7 @@ ns.DEFAULTS = DEFAULTS
 ns.SORT_OPTIONS = {
 	{ "blizzard", DEFAULT },
 	{ "skill", L["Skill range start"] },
+	{ "newest", L["Newest recipes first"] },
 	{ "chance", L["Skill-up chance"] },
 	{ "cost", L["Cheapest skill-up"] },
 }

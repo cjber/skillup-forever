@@ -352,6 +352,69 @@ if hoverPost then
 	)
 end
 
+print("== item tooltip refresh with two comparison tooltips ==")
+-- The report on #477: with item comparison on, the game shows the hovered item's tooltip and up to two
+-- shopping comparison tooltips, and refreshes all three while the character moves. This times one frame of
+-- that refresh and counts the addon's lookups and the lines it adds. An unchanged item must cost only its
+-- lookup: no uses worked out, no routes read, no bag counts read and no lines added again.
+if hoverPost then
+	local reagent = h.ns.TrackedNeeds()[1].items[1].itemID
+	local gear = 99999
+	h.ns.db.reagentTooltip = "full"
+	local work = { UsedIn = 0, TrackedNeeds = 0, PlayerProfessions = 0, Have = 0 }
+	local real = {}
+	for name in pairs(work) do
+		real[name] = h.ns[name]
+		h.ns[name] = function(...)
+			work[name] = work[name] + 1
+			return real[name](...)
+		end
+	end
+	local draws = 0
+	local function CountingTooltip()
+		local tooltip = {
+			IsForbidden = function()
+				return false
+			end,
+		}
+		function tooltip.AddDoubleLine()
+			draws = draws + 1
+		end
+		return tooltip
+	end
+	local function CountingLine()
+		draws = draws + 1
+	end
+	h.G.GameTooltip_AddBlankLineToTooltip = CountingLine
+	h.G.GameTooltip_AddNormalLine = CountingLine
+	h.G.GameTooltip_AddDisabledLine = CountingLine
+	h.G.GameTooltip_AddColoredLine = CountingLine
+	local main, comparisonOne, comparisonTwo = CountingTooltip(), CountingTooltip(), CountingTooltip()
+	hoverPost(main, { id = reagent })
+	hoverPost(comparisonOne, { id = gear })
+	hoverPost(comparisonTwo, { id = gear })
+	for name in pairs(work) do
+		work[name] = 0
+	end
+	draws = 0
+	report("item tooltip + 2 comparisons, one refresh", 5000, function()
+		hoverPost(main, { id = reagent })
+		hoverPost(comparisonOne, { id = gear })
+		hoverPost(comparisonTwo, { id = gear })
+	end)
+	print(
+		string.format(
+			"%-52s used-in %d  routes %d  professions %d  bag counts %d  lines %d (x5000 frames)",
+			"an unchanged frame",
+			work.UsedIn,
+			work.TrackedNeeds,
+			work.PlayerProfessions,
+			work.Have,
+			draws
+		)
+	)
+end
+
 print("== idle event bursts with five tracked routes ==")
 -- No tooltip is shown. A burst is what a frame holds while looting, fighting or learning recipes; the
 -- host lays the tracker out once for it. A replan is a plan the cache had to build, and a reagent list

@@ -110,18 +110,47 @@ end
 ---@type SkillUpBar?
 local bar
 
--- The tooltips the bar has been put into, whose clearing hides it again.
+-- The tooltips whose clearing has been hooked, so the bar hides and the lines kept for a tooltip are dropped.
 ---@type table<GameTooltip, true>
 local hooked = {}
 
--- Cleared for anything else, the tooltip no longer has the bar's blank lines.
+-- What each tooltip last drew, so the client asking for the same item on the same tooltip again is only a
+-- lookup. The client clears a tooltip before it sets it again, and that clear drops this.
+---@class SkillUpTooltipDrawn
+---@field itemID integer
+---@field mode string
+---@field shifted boolean
+---@field lines SkillUpTooltipLine[]
+---@field index table<integer, { entry: SkillUpTracked, item: SkillUpNeededItem }[]>
+---@field bags integer
+
+---@type table<GameTooltip, SkillUpTooltipDrawn>
+local drawn = {}
+
+-- Moved on every bag change: a route line reads the bags' count when it is drawn, so a count can only move
+-- with one of these.
+local bags = 0
+
+-- Cleared for anything else, the tooltip no longer has the bar's blank lines or the lines kept for it.
 ---@param tooltip GameTooltip
-local function HideBar(tooltip)
+local function Cleared(tooltip)
 	if not ns.Usable(tooltip) then
 		return
 	end
+	drawn[tooltip] = nil
 	if bar then
 		bar:Hide()
+	end
+end
+
+---@param tooltip GameTooltip
+local function HookCleared(tooltip)
+	if hooked[tooltip] then
+		return
+	end
+	hooked[tooltip] = true
+	if type(tooltip.HookScript) == "function" then
+		tooltip:HookScript("OnTooltipCleared", Cleared)
 	end
 end
 
@@ -144,10 +173,7 @@ local function AddBar(tooltip, after, t, skill)
 	frame:SetPoint("TOPLEFT", _G[tooltip:GetName() .. "TextLeft" .. (after + 1)], "TOPLEFT", 0, -BAR_PADDING)
 	tooltip:SetMinimumWidth(BAR_WIDTH)
 	frame:Show()
-	if not hooked[tooltip] then
-		hooked[tooltip] = true
-		tooltip:HookScript("OnTooltipCleared", HideBar)
-	end
+	HookCleared(tooltip)
 end
 
 ---@param copper number
@@ -455,30 +481,30 @@ local DrawRouteNeeds
 ---@param tooltip GameTooltip
 ---@param lines SkillUpTooltipLine[]
 local function Draw(tooltip, lines)
-	local drawn = false
+	local anyDrawn = false
 	for _, line in ipairs(lines) do
 		if line.kind == "route" then
 			local itemID = line.itemID
 			if itemID then
-				drawn = DrawRouteNeeds(tooltip, itemID) or drawn
+				anyDrawn = DrawRouteNeeds(tooltip, itemID) or anyDrawn
 			end
 		elseif line.kind == "shiftHint" then
 			local count = line.count
-			if drawn and count then
+			if anyDrawn and count then
 				GameTooltip_AddDisabledLine(tooltip, string.format(L["Shift: used in %d of your recipes"], count))
 			end
 		elseif line.kind == "blank" then
 			GameTooltip_AddBlankLineToTooltip(tooltip)
-			drawn = true
+			anyDrawn = true
 		elseif line.kind == "double" then
 			tooltip:AddDoubleLine(line.text, line.right, 1, 1, 1, line.r, line.g, line.b)
-			drawn = true
+			anyDrawn = true
 		elseif line.kind == "disabled" then
 			GameTooltip_AddDisabledLine(tooltip, line.text)
-			drawn = true
+			anyDrawn = true
 		elseif line.kind == "normal" then
 			GameTooltip_AddNormalLine(tooltip, line.text)
-			drawn = true
+			anyDrawn = true
 		else
 			error("unknown tooltip line: " .. tostring(line.kind))
 		end
@@ -554,28 +580,58 @@ local function RouteNeedsIndex()
 	return index
 end
 
+-- The route lines an item draws, by the route index and bag count they were worked out from, so a tooltip
+-- the client cleared re-adds them without reading the bags or formatting them again.
+---@class SkillUpRouteText
+---@field index table<integer, { entry: SkillUpTracked, item: SkillUpNeededItem }[]>
+---@field bags integer
+---@field lines { text: string, good: boolean }[]
+---@type table<integer, SkillUpRouteText>
+local routeTexts = {}
+
+---@param itemID integer
+---@return { text: string, good: boolean }[]
+local function RouteTexts(itemID)
+	local index = RouteNeedsIndex()
+	local cached = routeTexts[itemID]
+	if cached and cached.index == index and cached.bags == bags then
+		return cached.lines
+	end
+	local lines = {}
+	local rows = index[itemID]
+	if rows then
+		local have = ns.Have(itemID)
+		for _, row in ipairs(rows) do
+			local item = row.item
+			lines[#lines + 1] = {
+				text = string.format(
+					L["Route: %d/%d · %s to %d"],
+					math.min(have, item.need),
+					item.need,
+					row.entry.plan.profession.name,
+					row.entry.plan.target
+				),
+				good = have >= item.need,
+			}
+		end
+	end
+	routeTexts[itemID] = { index = index, bags = bags, lines = lines }
+	return lines
+end
+
 -- "Route: 28/567 · Leatherworking to 150" for each tracked route that needs the item, with the count the
 -- bags hold now. The item's cached lines hold only the marker for these, so looting does not rebuild them.
 ---@param tooltip GameTooltip
 ---@param itemID integer
 ---@return boolean drawn
 DrawRouteNeeds = function(tooltip, itemID)
-	local rows = RouteNeedsIndex()[itemID]
-	if not rows then
+	local lines = RouteTexts(itemID)
+	if #lines == 0 then
 		return false
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)
-	local have = ns.Have(itemID)
-	for _, row in ipairs(rows) do
-		local item = row.item
-		local text = string.format(
-			L["Route: %d/%d · %s to %d"],
-			math.min(have, item.need),
-			item.need,
-			row.entry.plan.profession.name,
-			row.entry.plan.target
-		)
-		GameTooltip_AddColoredLine(tooltip, text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
+	for _, line in ipairs(lines) do
+		GameTooltip_AddColoredLine(tooltip, line.text, line.good and ns.COLORS.green or NORMAL_FONT_COLOR)
 	end
 	return true
 end
@@ -639,6 +695,7 @@ local gatherLines = {}
 
 local function ClearTooltipLines()
 	itemLines, gatherLines = {}, {}
+	drawn = {}
 end
 ns.WhenStale("tooltipCache", ClearTooltipLines)
 
@@ -646,10 +703,13 @@ ns.WhenStale("tooltipCache", ClearTooltipLines)
 -- tools the routes lack actually moved, so looting unrelated loot does not rebuild it.
 local function DropRouteNeeds()
 	routeNeeds, routeNeedsSource = nil, nil
+	routeTexts = {}
 end
 ns.WhenStale("tooltipRoute", DropRouteNeeds)
 
 local function ValidateRouteNeeds()
+	bags = bags + 1
+	routeTexts = {}
 	if routeNeeds and ns.TrackedNeeds() ~= routeNeedsSource then
 		DropRouteNeeds()
 	end
@@ -713,7 +773,31 @@ local function AddUses(tooltip, data)
 	if mode ~= "route" and mode ~= "full" then
 		error("unknown reagent tooltip mode: " .. tostring(mode))
 	end
-	Draw(tooltip, ItemLines(itemID, mode, mode == "route" and IsShiftKeyDown()))
+	local shifted = mode == "route" and IsShiftKeyDown()
+	local lines = ItemLines(itemID, mode, shifted)
+	local index = RouteNeedsIndex()
+	local last = drawn[tooltip]
+	if
+		last
+		and last.itemID == itemID
+		and last.mode == mode
+		and last.shifted == shifted
+		and last.lines == lines
+		and last.index == index
+		and last.bags == bags
+	then
+		return
+	end
+	HookCleared(tooltip)
+	Draw(tooltip, lines)
+	drawn[tooltip] = {
+		itemID = itemID,
+		mode = mode,
+		shifted = shifted,
+		lines = lines,
+		index = index,
+		bags = bags,
+	}
 end
 
 -- Shift changes what an item tooltip shows, so redraw the one on screen.

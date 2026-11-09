@@ -318,4 +318,109 @@ equal(reason, "Another crafter", "with the reason")
 ns.SetLastBuffProfession(333)
 equal(ns.LastBuffProfession(), 333, "the chosen buff profession is saved")
 
+-- The page's own drag-to-pan: the node area follows the cursor with the left button, a click on a node still
+-- selects it, and Shift with the wheel keeps panning. The page draws no horizontal scroll bar.
+ns.SetLastBuffProfession(185)
+ns.SetOnlyBuffsForLevel(false)
+local ProfessionsFrame = c.G.CreateFrame("Frame", "ProfessionsFrame")
+ProfessionsFrame:SetSize(673, 594)
+ProfessionsFrame.CraftingPage = c.G.CreateFrame("Frame", nil, ProfessionsFrame)
+ProfessionsFrame.BookPage = c.G.CreateFrame("Frame", nil, ProfessionsFrame)
+ProfessionsFrame.ProfessionsOverviewTab = c.G.CreateFrame("Frame", nil, ProfessionsFrame)
+ProfessionsFrame.ProfessionsOverviewTab:SetPoint("TOPLEFT", ProfessionsFrame, "TOPRIGHT", 0, -60)
+ProfessionsFrame.ProfessionsOverviewTab:SetSize(43, 55)
+ProfessionsFrame.rightProfessionTabs = {}
+-- The window's own profession read: no parent profession here, so the saved choice picks Cooking.
+c.G.Professions = {
+	GetProfessionInfo = function()
+		return nil
+	end,
+}
+ns.AttachBuffs()
+local page
+for _, frame in ipairs(c.frames) do
+	if frame.Inset and frame.Rows then
+		page = frame
+	end
+end
+equal(page ~= nil, true, "the buffs page is built")
+page.Inset:SetWidth(260)
+page.Inset:SetHeight(482)
+page:Show()
+page.Rows:RenderRows()
+equal(page.HScroll, nil, "the page keeps no horizontal scroll bar")
+local trimBars = 0
+for _, frame in ipairs(c.frames) do
+	if frame.template == "WowTrimHorizontalScrollBar" then
+		trimBars = trimBars + 1
+	end
+end
+equal(trimBars, 0, "no trim horizontal scroll bar is created")
+local maxOffset = page.ContentWidth - page.ViewWidth
+equal(maxOffset > 0, true, "the fixture's timeline is wider than the view")
+
+local cursor = 0
+c.G.GetCursorPosition = function()
+	return cursor, 0
+end
+local dragStarted = page.ScrollOffset
+cursor = 1000
+page.Rows.scripts.OnDragStart(page.Rows)
+equal(page.Rows.scripts.OnUpdate ~= nil, true, "a left drag starts following the cursor")
+cursor = 1040
+page.Rows.scripts.OnUpdate(page.Rows)
+equal(page.ScrollOffset, math.max(0, dragStarted - 40), "dragging right moves the timeline with the cursor")
+page.Rows.scripts.OnDragStop(page.Rows)
+equal(page.Rows.scripts.OnUpdate, nil, "letting go stops the follow")
+
+-- A drag past either end clamps to it.
+cursor = 100000
+page.Rows.scripts.OnDragStart(page.Rows)
+cursor = 0
+page.Rows.scripts.OnUpdate(page.Rows)
+equal(page.ScrollOffset, maxOffset, "a drag past the right end stops at the content's end")
+page.Rows.scripts.OnDragStop(page.Rows)
+cursor = 0
+page.Rows.scripts.OnDragStart(page.Rows)
+cursor = 100000
+page.Rows.scripts.OnUpdate(page.Rows)
+equal(page.ScrollOffset, 0, "a drag past the left end stops at the first column")
+page.Rows.scripts.OnDragStop(page.Rows)
+
+-- A plain click on a node selects it; a drag that starts on one pans the area instead.
+local node = page.RowFrames[1].Nodes[1]
+equal(node ~= nil, true, "the first row has a node")
+node.scripts.OnClick(node)
+equal(page.SelectedItemID, node.item.itemID, "a click on a node selects its item")
+local nodeDragStarted = page.ScrollOffset
+cursor = 0
+node.scripts.OnDragStart(node)
+equal(page.Rows.scripts.OnUpdate ~= nil, true, "a drag that starts on a node pans the area")
+cursor = -50
+page.Rows.scripts.OnUpdate(page.Rows)
+equal(page.ScrollOffset, math.min(maxOffset, nodeDragStarted + 50), "and follows the cursor like the area")
+node.scripts.OnDragStop(node)
+equal(page.Rows.scripts.OnUpdate, nil, "and stops when the node's drag ends")
+
+-- Shift and the wheel still pan the timeline; the plain wheel still scrolls the rows.
+c.G.IsShiftKeyDown = function()
+	return true
+end
+local wheelStarted = page.ScrollOffset
+local delta = wheelStarted > 0 and 1 or -1
+page.Rows.scripts.OnMouseWheel(page.Rows, delta)
+equal(
+	page.ScrollOffset,
+	math.max(0, math.min(wheelStarted - delta * 60, maxOffset)),
+	"Shift and the wheel pan the timeline"
+)
+c.G.IsShiftKeyDown = function()
+	return false
+end
+page.Rows:SetScrollPercentage(0.5)
+local beforePlainWheel = page.ScrollOffset
+page.Rows.scripts.OnMouseWheel(page.Rows, -1)
+equal(page.Rows:GetScrollPercentage() > 0.6, true, "the plain wheel scrolls the rows")
+equal(page.ScrollOffset, beforePlainWheel, "and leaves the timeline where it was")
+
 Client.report("buffs_spec")

@@ -35,10 +35,9 @@ The "Only for level N" checkbox hides buffs the character's level cannot use. It
 and off by default, so the page starts with every buff the profession can make.
 
 The page opens with the first column at or above your current skill at the left of the view, and another
-crafter's opens on its first column. Rows scroll when the profession makes more buffs than fit; a bar
-under them scrolls the timeline sideways, and Shift with the mouse wheel does the same. The row labels,
-legend and detail strip stay where they are, while the skill numbers, divider, nodes and edges move
-together.
+crafter's opens on its first column. Rows scroll when the profession makes more buffs than fit; drag the
+timeline sideways to pan it, and Shift with the mouse wheel does the same. The row labels, legend and detail
+strip stay where they are, while the skill numbers, divider, nodes and edges move together.
 
 A profession you do not have can still be picked, under *Other crafters*. Its items are all drawn in the grey
 node, its locked nodes stay locked, and it has no rank divider or skill beside the dropdown; the action button

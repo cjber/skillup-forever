@@ -160,13 +160,6 @@ function CreateTreeDataProvider() end
 ---@class SkillUpScrollBar : Frame
 ---@field SetHideIfUnscrollable fun(self: SkillUpScrollBar, hide: boolean)
 
----@class SkillUpHorizontalScrollBar : Frame, CallbackRegistryMixin
----@field SetScrollPercentage fun(self: SkillUpHorizontalScrollBar, percentage: number, forceImmediate?: boolean)
----@field GetScrollPercentage fun(self: SkillUpHorizontalScrollBar): number
----@field SetVisibleExtentPercentage fun(self: SkillUpHorizontalScrollBar, percentage: number)
----@field SetPanExtentPercentage fun(self: SkillUpHorizontalScrollBar, percentage: number)
----@field SetHideIfUnscrollable fun(self: SkillUpHorizontalScrollBar, hide: boolean)
-
 ---@class SkillUpDataProvider
 ---@field GetSize fun(self: SkillUpDataProvider): integer
 
@@ -193,8 +186,6 @@ RAID_CLASS_COLORS = nil
 
 ---@type {UpdateImmediately: boolean, RetainScrollPosition: boolean, NoScrollInterpolation: boolean}
 ScrollBoxConstants = {}
----@type {OnScroll: string, OnLayout: string}
-BaseScrollBoxEvents = {}
 ScrollUtil = {}
 ---@param box Frame
 ---@param bar any

@@ -13,18 +13,17 @@ local COLUMN_GAP = 16
 local LABEL_WIDTH = 128
 local ICON = 37
 -- The Camelot ProfessionsFrame is 594 high and the inset hangs 88 below its top and 24 above its bottom, so
--- the inset is 482. The rows viewport is that less the axis above the rows (44) and the sideways bar, legend
--- and detail below (149): 289. Five whole rows fill it exactly, 57.8 each, and each row's 40-high label sits
--- on its node line; a sixth row is cut rather than a sliver of it showing.
+-- the inset is 482. The rows viewport is that less the axis above the rows (44) and the legend and detail
+-- below (120): 318. Five whole rows fill it exactly, 63.6 each, and each row's 40-high label sits on its node
+-- line; a sixth row is cut rather than a sliver of it showing.
 local FRAME_HEIGHT = 594
 local INSET_TOP = 88
 local INSET_BOTTOM = 24
 local ROWS_TOP = 44
-local ROWS_BOTTOM = 149
+local ROWS_BOTTOM = 120
 local VISIBLE_ROWS = 5
 local VIEW_HEIGHT = FRAME_HEIGHT - INSET_TOP - INSET_BOTTOM - ROWS_TOP - ROWS_BOTTOM
 local ROW_HEIGHT = VIEW_HEIGHT / VISIBLE_ROWS
-local HSCROLL_BOTTOM = 120
 local LEGEND_BOTTOM = 100
 local DETAIL_BOTTOM = 24
 local DETAIL_HEIGHT = 74
@@ -136,15 +135,62 @@ local function SetOffset(value)
 	PlaceContent()
 end
 
+-- The cursor's x in the area's own units, the way the client reports it while a frame is dragged.
+---@param area Frame
+---@return number
+local function CursorX(area)
+	local scale = area:GetEffectiveScale()
+	return GetCursorPosition() / (scale and scale > 0 and scale or 1)
+end
+
+-- Drag to pan, the talent tree's own gesture: the timeline follows the cursor, clamped to its ends.
+local dragging, dragX, dragOffset
+
+---@param area Frame
+local function PanUpdate(area)
+	if not dragging then
+		return
+	end
+	SetOffset(dragOffset - (CursorX(area) - dragX))
+end
+
+---@param area Frame
+local function PanStart(area)
+	if contentWidth - viewWidth <= 0 then
+		return
+	end
+	dragging = true
+	dragX = CursorX(area)
+	dragOffset = offset
+	area:SetScript("OnUpdate", PanUpdate)
+end
+
+---@param area Frame
+local function PanStop(area)
+	if not dragging then
+		return
+	end
+	PanUpdate(area)
+	dragging = false
+	area:SetScript("OnUpdate", nil)
+end
+
+-- An area the player drags sideways: the rows and the axis above them, and every node on the rows.
+---@param area Frame
+local function EnablePan(area)
+	area:EnableMouse(true)
+	area:RegisterForDrag("LeftButton")
+	area:SetScript("OnDragStart", PanStart)
+	area:SetScript("OnDragStop", PanStop)
+end
+
 -- One wheel notch sideways, the same direction as the row's vertical wheel.
 ---@param delta number
 local function ScrollSideways(delta)
-	local maxOffset = math.max(contentWidth - viewWidth, 0)
-	if maxOffset == 0 then
+	if contentWidth - viewWidth <= 0 then
 		return
 	end
-	local wanted = math.max(0, math.min(offset - delta * SIDEWAYS_STEP, maxOffset))
-	page.HScroll:SetScrollPercentage(wanted / maxOffset, ScrollBoxConstants.NoScrollInterpolation)
+	SetOffset(offset - delta * SIDEWAYS_STEP)
 end
 
 ---@param _ Frame
@@ -365,6 +411,14 @@ local function Node(row, index)
 			Render()
 		end
 	end)
+	-- A drag that starts on a node pans the timeline; a click without one still selects the node.
+	node:RegisterForDrag("LeftButton")
+	node:SetScript("OnDragStart", function()
+		PanStart(page.Rows)
+	end)
+	node:SetScript("OnDragStop", function()
+		PanStop(page.Rows)
+	end)
 	row.Nodes[index] = node
 	return node
 end
@@ -464,6 +518,7 @@ local function CreateRows(inset)
 	ScrollUtil.InitScrollBoxListWithScrollBar(scrollBox, scrollBar, view)
 	scrollBox:EnableMouseWheel(true)
 	scrollBox:SetScript("OnMouseWheel", OnWheel)
+	EnablePan(scrollBox)
 	page.Rows = scrollBox
 end
 
@@ -475,6 +530,7 @@ local function CreateFurniture(inset)
 	axis:SetPoint("TOPLEFT", inset, "TOPLEFT", AXIS_X, -2)
 	axis:SetPoint("BOTTOMRIGHT", inset, "BOTTOMRIGHT", -VIEW_RIGHT, ROWS_BOTTOM)
 	axis:SetClipsChildren(true)
+	EnablePan(axis)
 	page.Axis = axis
 	page.AxisContent = CreateFrame("Frame", nil, axis)
 	page.AxisContent:SetPoint("TOPLEFT", axis, "TOPLEFT")
@@ -489,17 +545,6 @@ local function CreateFurniture(inset)
 	page.DividerLabel = page.AxisContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	page.DividerLabel:SetTextColor(GRAY_FONT_COLOR:GetRGB())
 	page.DividerLabel:Hide()
-
-	local hscroll = CreateFrame("EventFrame", nil, inset, "WowTrimHorizontalScrollBar")
-	---@cast hscroll SkillUpHorizontalScrollBar
-	hscroll:SetPoint("BOTTOMLEFT", inset, "BOTTOMLEFT", AXIS_X, HSCROLL_BOTTOM)
-	hscroll:SetPoint("BOTTOMRIGHT", inset, "BOTTOMRIGHT", -VIEW_RIGHT, HSCROLL_BOTTOM)
-	hscroll:SetHeight(25)
-	hscroll:SetHideIfUnscrollable(true)
-	hscroll:RegisterCallback(BaseScrollBoxEvents.OnScroll, function(_, percentage)
-		SetOffset((percentage or 0) * math.max(contentWidth - viewWidth, 0))
-	end, hscroll)
-	page.HScroll = hscroll
 
 	local legend = CreateFrame("Frame", nil, inset)
 	legend:SetPoint("BOTTOMLEFT", inset, "BOTTOMLEFT", 18, LEGEND_BOTTOM)
@@ -682,7 +727,6 @@ function Render()
 		page.Detail:Hide()
 		page.Divider:Hide()
 		page.DividerLabel:Hide()
-		page.HScroll:Hide()
 		page.Empty:SetText(
 			profession == nil and L["No profession here makes buff items."]
 				or only and L["No buff items for your level yet."]
@@ -711,12 +755,6 @@ function Render()
 	page.ScrollOffset = offset
 	page.AxisContent:ClearAllPoints()
 	page.AxisContent:SetPoint("TOPLEFT", page.Axis, "TOPLEFT", -offset, 0)
-	local maxOffset = math.max(contentWidth - viewWidth, 0)
-	page.HScroll:SetVisibleExtentPercentage(contentWidth > 0 and math.min(viewWidth / contentWidth, 1) or 1)
-	page.HScroll:SetScrollPercentage(
-		maxOffset > 0 and offset / maxOffset or 0,
-		ScrollBoxConstants.NoScrollInterpolation
-	)
 	local elements = {}
 	for _, row in ipairs(rows) do
 		elements[#elements + 1] = { row = row, columns = columns }

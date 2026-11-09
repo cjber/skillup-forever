@@ -68,6 +68,10 @@
 ---@field FitFrameArt fun(extra: number) redraw the frame's art for that much widening, or the stock art at 0
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
+---@field BuffLevel fun(recipeID: integer): integer? The product's required level when it is a buff, else nil.
+---@field UsableBuff fun(recipeID: integer, level: number): boolean Whether the product is a buff this level can use.
+---@field UsableBuffs fun(level: number): table<integer, true> The recipes whose product is a buff this level can use.
+---@field BuffText fun(itemID: integer): string? The buff a crafted item leaves, in the game's own words; nil for an item that leaves none.
 ---@field Gear SkillUpGear
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
@@ -120,6 +124,7 @@
 ---@field PlaceSideTabs fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
+---@field SetBuffsOnly fun(on: boolean)
 ---@field OpenSettings fun()
 ---@field HasAuctionator fun(): boolean
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())
@@ -149,6 +154,7 @@
 ---@field ToolItemID fun(name: string): integer?
 ---@field MissingToolItems fun(plan: SkillUpPlan): integer[]
 ---@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
+---@field MakersOf fun(itemID: integer): integer[] The recipes that make the item, lowest recipe ID first.
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[]
@@ -160,6 +166,7 @@
 ---@field AutoTrack fun(skillLine?: integer): boolean
 ---@field InitShopping fun()
 ---@field NPCLocation fun(npcID: integer): SkillUpLocation
+---@field DropZone fun(itemID: integer): string? The nearest zone a creature drops the item in, nil until the drops are read or when there is none.
 ---@field LocationText fun(where: SkillUpLocation): string
 ---@field SeeVendor fun(itemIDs: integer[]): boolean
 ---@field NearestNPC fun(npcIDs: integer[], byTravel?: boolean): integer?
@@ -205,6 +212,7 @@
 ---@field RankBooks table<integer, number[][]> per skill line: { cap, book item, list price, required skill, level }.
 ---@field RankQuests table<integer, (number|string)[][]> per skill line: { cap, quest, required skill, level, side "A"/"H" }.
 ---@field ItemGear table<integer, number[]>
+---@field BuffItems table<integer, integer> Crafted item to the buff spell a use of it leaves on the player.
 ---@field ItemSellPrices table<integer, number>
 ---@field RecipeNames table<integer, table<string, integer|false>>
 ---@field ProfessionSkillLines table<string, integer>
@@ -232,6 +240,7 @@
 ---@field showRowText boolean
 ---@field wideRecipeList boolean
 ---@field showUnlearned boolean
+---@field buffsOnly boolean
 ---@field showSkill boolean
 ---@field showTooltip boolean
 ---@field recipeTooltip 'window'|'cursor'|'row'
@@ -338,6 +347,7 @@ SkillUpForeverDB = nil
 ---@field skill number
 ---@field target number
 ---@field recipes SkillUpCandidate[]
+---@field buffs? table<integer, true> Recipes whose product is a buff this character's level can use: they win a tie.
 
 ---@class SkillUpSegment
 ---@field recipeID integer

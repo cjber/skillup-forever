@@ -26,6 +26,9 @@ local ns = {
 	},
 	RecipeScrolls = {},
 	Catalogue = { Recipe = function() end },
+	UsableBuffs = function()
+		return {}
+	end,
 	TrainerRanks = { [COOKING] = { { 150, 500, 50, 10 } } },
 	RankBooks = {},
 	WhenStale = function(name, handler)

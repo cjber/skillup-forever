@@ -330,6 +330,9 @@ end
 pageEnv.InCombatLockdown = function()
 	return inCombat
 end
+pageEnv.UnitLevel = function()
+	return 60
+end
 -- Core/Changes.lua's frame is the only one made while the files load: the game's events arrive on it.
 local eventFrame
 pageEnv.CreateFrame = function()
@@ -345,6 +348,7 @@ for _, file in ipairs({
 	"Core/SafeCall.lua",
 	"Core/Changes.lua",
 	"Core/Plan.lua",
+	"Core/Gear.lua",
 	"UI/Route.lua",
 }) do
 	setfenv(assert(loadfile(file)), pageEnv)("SkillUpForever", page)
@@ -1245,8 +1249,7 @@ questRow.tooltip(Stub())
 equal(chainHints, 1, "a quest step's tooltip offers the quest chain hint once")
 page.AddQuestChainHint, page.Catalogue.Quest = nil, savedQuest
 page.PlanRoute, page.Have, page.NearestForRank, page.AddNearest = realPlan, savedHave, nil, nil
-pageEnv.UnitLevel, pageEnv.GameTooltip_AddNormalLine, pageEnv.C_Item.GetItemNameByID =
-	nil, savedNormalLine, savedItemName
+pageEnv.GameTooltip_AddNormalLine, pageEnv.C_Item.GetItemNameByID = savedNormalLine, savedItemName
 
 -- Opening a recipe hands it to the client. Selecting it in Blizzard's list from addon code wrote the list's
 -- selection and the schematic as ours, and the craft path reads them (#350).

@@ -296,15 +296,16 @@ local function Rank(recipe, skill)
 end
 
 -- Among recipes that can gain skill, the most recent pin wins; otherwise a cheaper point, then a better
--- chance, then the lower recipe ID. A tie keeps the best so far.
+-- chance, then a buff the player can use, then the lower recipe ID. A tie keeps the best so far.
 ---@param recipe SkillUpCandidate
 ---@param key number?
 ---@param chance number?
 ---@param best SkillUpCandidate|false|nil
 ---@param bestKey number?
 ---@param bestChance number?
+---@param buffs table<integer, true> The snapshot's recipes whose product is a buff the player can use.
 ---@return boolean
-local function Beats(recipe, key, chance, best, bestKey, bestChance)
+local function Beats(recipe, key, chance, best, bestKey, bestChance, buffs)
 	if key == nil then
 		return false
 	end
@@ -312,15 +313,20 @@ local function Beats(recipe, key, chance, best, bestKey, bestChance)
 		return true
 	end
 	local preference, bestPreference = recipe.preference or 0, best.preference or 0
-	return preference > bestPreference
-		or (
-			preference == bestPreference
-			and (
-				key < bestKey
-				or (key == bestKey and chance > bestChance)
-				or (key == bestKey and chance == bestChance and recipe.recipeID < best.recipeID)
-			)
-		)
+	if preference ~= bestPreference then
+		return preference > bestPreference
+	end
+	if key ~= bestKey then
+		return key < bestKey
+	end
+	if chance ~= bestChance then
+		return chance > bestChance
+	end
+	local buff = buffs[recipe.recipeID] or false
+	if buff ~= (buffs[best.recipeID] or false) then
+		return buff
+	end
+	return recipe.recipeID < best.recipeID
 end
 
 -- What a route is planned from: a snapshot's recipes, and the ones a training search adds to the end of
@@ -333,6 +339,7 @@ end
 ---@return SkillUpPlanner
 local function Planner(snapshot)
 	local from, target = snapshot.skill, snapshot.target
+	local buffs = snapshot.buffs or {}
 	local priced, thresholds, costOf, reagentOf = {}, {}, {}, {}
 	local excluded = { unpriced = 0, recipes = {} }
 	-- [recipe][skill]: its rank there, the key false where it gains nothing.
@@ -373,7 +380,7 @@ local function Planner(snapshot)
 			best = false
 			for _, recipe in ipairs(priced) do
 				local key, chance = RankAt(recipe, skill)
-				if Beats(recipe, key, chance, best, bestKey, bestChance) then
+				if Beats(recipe, key, chance, best, bestKey, bestChance, buffs) then
 					best, bestKey, bestChance = recipe, key, chance
 				end
 			end
@@ -416,7 +423,7 @@ local function Planner(snapshot)
 		reagentOf[recipe.recipeID] = recipe.reagentCost
 		for skill, best in pairs(bests) do
 			local key, chance = RankAt(recipe, skill)
-			if Beats(recipe, key, chance, best, bestKeys[skill], bestChances[skill]) then
+			if Beats(recipe, key, chance, best, bestKeys[skill], bestChances[skill], buffs) then
 				bests[skill], bestKeys[skill], bestChances[skill] = recipe, key, chance
 			end
 		end
@@ -439,7 +446,7 @@ local function Planner(snapshot)
 			local best, bestKey, bestChance = BestAt(skill)
 			if extra then
 				local key, chance = RankAt(extra, skill)
-				if Beats(extra, key, chance, best, bestKey, bestChance) then
+				if Beats(extra, key, chance, best, bestKey, bestChance, buffs) then
 					best = extra
 				end
 			end
@@ -490,7 +497,7 @@ local function Planner(snapshot)
 		for _, skill in ipairs(picked) do
 			local best, bestKey, bestChance = BestAt(skill)
 			local key, chance = RankAt(extra, skill)
-			if Beats(extra, key, chance, best, bestKey, bestChance) then
+			if Beats(extra, key, chance, best, bestKey, bestChance, buffs) then
 				return true
 			end
 		end

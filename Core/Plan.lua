@@ -275,7 +275,14 @@ local function Snapshot(profession, target, known)
 			}
 		end
 	end
-	return { skill = profession.skill, target = target + profession.modifier, recipes = recipes }
+	-- Between two recipes that tie on cost and chance, the planner takes one whose product is a buff this level
+	-- can use (#357).
+	return {
+		skill = profession.skill,
+		target = target + profession.modifier,
+		recipes = recipes,
+		buffs = ns.UsableBuffs(UnitLevel("player") or 0),
+	}
 end
 
 -- { fee, required base skill }: what a trainer was seen to charge, else the base fee;
@@ -693,8 +700,11 @@ end)
 function ns.PlanRoute(profession)
 	local target = RouteTarget(profession)
 	-- The collect mode is part of the key: a switch that is on prices the reagents this character could gather,
-	-- so a plan made under the other mode is a different route (#190).
-	local key = table.concat({ profession.skill, profession.modifier, profession.max, target, ns.CollectMode() }, ":")
+	-- so a plan made under the other mode is a different route (#190). The level is too: a plan made at another
+	-- level may prefer a buff that level could not use (#357).
+	local level = UnitLevel("player") or 0
+	local key =
+		table.concat({ profession.skill, profession.modifier, profession.max, target, ns.CollectMode(), level }, ":")
 	local cache = plans[profession.skillLine]
 	if not cache then
 		cache = { plans = {}, order = {} }

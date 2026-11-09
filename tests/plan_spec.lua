@@ -463,4 +463,41 @@ equal(
 	"a recipe the trainer shows as known does"
 )
 
+-- #357: two recipes that cost and skill up the same, the route takes the one whose product is a buff this
+-- character can use. Below the buff's required level it loses the tie again, and the level in the plan cache
+-- key makes that a fresh plan rather than the one already made.
+local buffClient = Client.load({
+	saved = { craftValue = "none" },
+	data = {
+		Thresholds = {
+			[101] = { 1, 25, 50, 75 },
+			[102] = { 1, 25, 50, 75 },
+		},
+		RecipeData = {
+			[101] = { skillLine = 171, reagents = {}, output = { itemID = 1000, quantity = 1 } },
+			[102] = { skillLine = 171, reagents = {}, output = { itemID = 1001, quantity = 1 } },
+		},
+		BuffItems = { [1001] = 500 },
+		ItemGear = { [1001] = { 10 } },
+		TrainerFees = {},
+		TrainerRanks = {},
+		ItemSellPrices = {},
+		VendorPrices = {},
+		GatheredBy = {},
+		LootedFrom = {},
+		ProfessionTrainers = {},
+		ScrollDrops = {},
+		WorldDrops = {},
+	},
+})
+buffClient.level = 20
+buffClient.professions = { { name = "Alchemy", id = 171, rank = 1, max = 75 } }
+buffClient.known[101], buffClient.known[102] = true, true
+buffClient.ns.db.routeTargets[171] = 10
+local buffPlan = buffClient.ns.PlanRoute(buffClient.ns.RouteProfessions()[171])
+equal(buffPlan.crafts[1].recipeID, 102, "the usable buff recipe wins the tie")
+buffClient.level = 5
+local lowPlan = buffClient.ns.PlanRoute(buffClient.ns.RouteProfessions()[171])
+equal(lowPlan.crafts[1].recipeID, 101, "below its required level the buff recipe loses the tie")
+
 Client.report("plan_spec")

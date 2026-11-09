@@ -548,3 +548,10 @@ L["%s: no lines yet."] = "%s : aucune ligne pour l'instant."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"Utilisation : /forever debug, /forever debug pin, /forever debug off, /forever debug show"
 L["This menu needs mouse and keyboard."] = "Ce menu nécessite une souris et un clavier." -- mt
+L["Only buffs for your level"] = "Uniquement les améliorations pour votre niveau" -- mt
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"Affiche uniquement les recettes dont le produit est une amélioration que vous pouvez utiliser à votre niveau : élixirs, flacons, nourriture Bien nourri, potions de protection, pierres, huiles et kits d'armure. Le niveau requis le plus élevé d'abord. Les recettes apprises d'abord, puis les non apprises quand elles sont listées." -- mt
+L["%s: %s"] = "%s : %s" -- mt
+L["%s drops in %s"] = "%s tombe à %s" -- mt
+L["Made by %s %d"] = "Fabriqué par %s %d" -- mt
+L["Made by %s"] = "Fabriqué par %s" -- mt

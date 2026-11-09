@@ -2,7 +2,7 @@
 
 import unittest
 
-from gen_recipes import rank_books
+from gen_recipes import buff_items, rank_books
 
 
 def effect(spell, kind, trigger=0, points=0, misc=0):
@@ -60,6 +60,65 @@ class RankBookTests(unittest.TestCase):
     def test_a_book_asking_no_skill_is_kept(self):
         books = rank_books(self.effects, [item(16084, required=0)], self.item_effects, self.links, {129})
         self.assertEqual(books, {129: [(225, 16084, 10000, 0, 0)]})
+
+
+def spell_effect(spell, kind, aura=0, target=1, trigger=0):
+    return {
+        "SpellID": str(spell),
+        "DifficultyID": "0",
+        "Effect": str(kind),
+        "EffectAura": str(aura),
+        "ImplicitTarget_0": str(target),
+        "EffectTriggerSpell": str(trigger),
+    }
+
+
+class BuffItemTests(unittest.TestCase):
+    # Issue #357, shapes from Forever 1.60.1.70862: Crocolisk Steak (3662) casts Nutritious Food (1248382), which
+    # triggers the seated Food (434) and, through a periodic trigger, Well Fed (1248420).
+    effects = [
+        spell_effect(1248382, 64, trigger=434),
+        spell_effect(1248382, 6, aura=227, trigger=1248420),
+        spell_effect(434, 6, aura=84),
+        spell_effect(1248420, 6, aura=29),
+        spell_effect(2367, 6, aura=29),  # Lesser Strength, Elixir of Minor Strength (2454)
+        spell_effect(4042, 10),  # Healing Potion (929): a heal, no aura
+        spell_effect(2829, 54, target=0),  # Sharpen Blade II, Coarse Sharpening Stone (2863)
+        spell_effect(4064, 2, target=16, trigger=4065),  # a bomb's damage on its target
+        spell_effect(4065, 6, aura=12),
+    ]
+    interrupts = [
+        {"SpellID": "434", "DifficultyID": "0", "AuraInterruptFlags_0": str(0x40080)},
+        {"SpellID": "1248382", "DifficultyID": "0", "AuraInterruptFlags_0": str(0x40080)},
+    ]
+
+    def buffs(self, uses, outputs=None, trigger_type=0, charges=-1):
+        item_effects = [
+            {"ID": str(100 + i), "TriggerType": str(trigger_type), "Charges": str(charges), "SpellID": str(spell)}
+            for i, (_, spell) in enumerate(uses)
+        ]
+        links = [{"ItemID": str(item), "ItemEffectID": str(100 + i)} for i, (item, _) in enumerate(uses)]
+        outputs = {item for item, _ in uses} if outputs is None else outputs
+        return buff_items(outputs, item_effects, links, self.effects, self.interrupts)
+
+    def test_a_meal_names_its_well_fed_not_the_eating(self):
+        self.assertEqual(self.buffs([(3662, 1248382)]), {3662: 1248420})
+
+    def test_eating_alone_is_no_buff(self):
+        self.assertEqual(self.buffs([(2287, 434)]), {})
+
+    def test_an_elixir_and_a_stone_are_buffs(self):
+        self.assertEqual(self.buffs([(2454, 2367), (2863, 2829)]), {2454: 2367, 2863: 2829})
+
+    def test_a_heal_and_a_bomb_are_not(self):
+        self.assertEqual(self.buffs([(929, 4042), (4358, 4064)]), {})
+
+    def test_gear_a_use_does_not_consume_is_left_out(self):
+        self.assertEqual(self.buffs([(2454, 2367)], charges=0), {})
+
+    def test_only_a_use_counts_and_only_crafted_items(self):
+        self.assertEqual(self.buffs([(2454, 2367)], trigger_type=1), {})
+        self.assertEqual(self.buffs([(2454, 2367)], outputs=set()), {})
 
 
 if __name__ == "__main__":

@@ -529,3 +529,10 @@ L["%s: no lines yet."] = "%s：還沒有記錄行。"
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"用法：/forever debug、/forever debug pin、/forever debug off、/forever debug show"
 L["This menu needs mouse and keyboard."] = "此選單需要滑鼠和鍵盤。"
+L["Only buffs for your level"] = "僅顯示適合你等級的增益"
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"僅列出產物是你在目前等級可使用的增益的配方：藥劑、精煉藥劑、飽食食物、防護藥水、磨刀石、油和護甲套裝。所需等級最高的排在最前。已學習的配方排在前，未學習的配方在列出時排在後面。"
+L["%s: %s"] = "%s：%s" -- mt
+L["%s drops in %s"] = "%s 在 %s 掉落" -- mt
+L["Made by %s %d"] = "%s %d 製作" -- mt
+L["Made by %s"] = "%s 製作" -- mt

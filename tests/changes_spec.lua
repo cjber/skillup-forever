@@ -104,7 +104,7 @@ for _, case in ipairs({
 	-- A weapon or defense skill-up: nothing the plans read.
 	{ "SKILL_LINES_CHANGED", "api | route tracker" },
 	{ "BAG_UPDATE_DELAYED", "api | route tracker" },
-	{ "PLAYER_LEVEL_UP", "api | route tracker" },
+	{ "PLAYER_LEVEL_UP", "api | route recipeList tracker" },
 	{ "ZONE_CHANGED_NEW_AREA", "api | " },
 	{ "MERCHANT_SHOW", " | tracker" },
 	{ "MERCHANT_UPDATE", " | tracker" },

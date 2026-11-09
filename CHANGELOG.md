@@ -12,6 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The merchant's Reagents tab no longer raises a Lua error when it lists a reagent.** It drew each item through the item button's `Icon` field, but the merchant window's Mainline item button keeps its icon in `icon`, so opening the tab or moving the pointer over a cell raised "attempt to index field 'Icon' (a nil value)". The tab now reads the icon region through the client's own `GetItemButtonIconTexture` and keeps it on the cell. Reported on CurseForge by user_gnq1vt5zaofnctlx, tgkGate and user_oj6nehterf0ydf1p (#447).
 
 ## [1.1.5] - 2026-11-09
 

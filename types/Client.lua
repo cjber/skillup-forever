@@ -21,6 +21,12 @@ function PanelTemplates_SelectTab(tab) end
 
 ---@param tab Frame
 function PanelTemplates_DeselectTab(tab) end
+
+-- Blizzard_ItemButton/Shared/ItemButtonTemplate.lua: the icon region an item button carries, under Icon, icon or
+-- the $parentIconTexture name.
+---@param button Frame
+---@return Texture?
+function GetItemButtonIconTexture(button) end
 ---@type table<string, number>
 SOUNDKIT = {}
 ---@type {Refresh: number}

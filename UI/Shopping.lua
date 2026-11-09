@@ -359,7 +359,7 @@ end
 -- Blizzard still decides what is shown, so leaving the tab puts the window back exactly as it was.
 
 ---@class SkillUpMerchantItemButton : Button
----@field Icon Texture
+---@field icon Texture # The intrinsic ItemButton's icon; the older ItemButtonTemplate calls it Icon.
 ---@field Count FontString
 ---@field SplitStack fun()?
 ---@field merchantIndex integer?
@@ -371,6 +371,7 @@ end
 ---@class SkillUpMerchantCell
 ---@field frame SkillUpMerchantItemFrame
 ---@field button SkillUpMerchantItemButton
+---@field icon Texture
 ---@field name FontString
 ---@field price FontString
 
@@ -527,9 +528,13 @@ local function CreateMerchantCell(index)
 		GameTooltip:Show()
 	end)
 	button:SetScript("OnLeave", GameTooltip_Hide)
+	-- The template's ItemButton is the client's intrinsic ItemButton, whose icon region is `icon` (lowercase, named
+	-- $parentIconTexture), where the older ItemButtonTemplate called it `Icon`. The client's own reader finds either,
+	-- so the cell keeps the region itself instead of a key the template may not have (#447).
+	local icon = GetItemButtonIconTexture(button) --[[@as Texture]]
 	local price = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	price:SetPoint("TOPLEFT", frame.Name, "BOTTOMLEFT", 0, 0)
-	return { frame = frame, button = button, name = frame.Name, price = price }
+	return { frame = frame, button = button, icon = icon, name = frame.Name, price = price }
 end
 
 local RenderMerchantPage
@@ -613,9 +618,9 @@ RenderMerchantPage = function()
 			cell.button.merchantIndex = purchase.index
 			local icon = (info and info.texture) or C_Item.GetItemIconByID(itemID)
 			if icon then
-				cell.button.Icon:SetTexture(icon) -- art-ok: an item icon keeps its own square shape
+				cell.icon:SetTexture(icon) -- art-ok: an item icon keeps its own square shape
 			else
-				cell.button.Icon:SetTexture(nil) -- art-ok: clears another item's icon, so no shape is drawn
+				cell.icon:SetTexture(nil) -- art-ok: clears another item's icon, so no shape is drawn
 			end
 			cell.button.Count:SetText(purchase.count > 1 and tostring(purchase.count) or "")
 			cell.frame:Show()

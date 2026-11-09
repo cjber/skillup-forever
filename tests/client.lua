@@ -268,6 +268,7 @@ function Client.load(options)
 	}
 	local function NewFrame(name, parent)
 		local frame = setmetatable({
+			name = name,
 			parent = parent,
 			scripts = {},
 			hooks = {},
@@ -434,6 +435,9 @@ function Client.load(options)
 	function Methods:GetParent()
 		return self.parent
 	end
+	function Methods:GetName()
+		return self.name
+	end
 	function Methods:GetChildren()
 		return unpack(self.children or {})
 	end
@@ -589,7 +593,9 @@ function Client.load(options)
 		elseif template == "MerchantItemTemplate" then
 			frame.Name = NewFrame(nil, frame)
 			local button = NewFrame(nil, frame)
-			button.Icon = NewFrame(nil, button)
+			-- The Mainline template's <ItemButton> is the client's intrinsic ItemButton: its icon is `icon`
+			-- (lowercase), named $parentIconTexture, not the older ItemButtonTemplate's `Icon` (#447).
+			button.icon = NewFrame(nil, button)
 			button.Count = NewFrame(nil, button)
 			frame.ItemButton = button
 		end
@@ -597,6 +603,12 @@ function Client.load(options)
 			frame.protected = true
 		end
 		return frame
+	end
+	-- Blizzard_ItemButton/Shared/ItemButtonTemplate.lua: the icon region an item button carries, whether the
+	-- template gave it the Icon key, the intrinsic ItemButton's icon key or only its $parentIconTexture name.
+	G.GetItemButtonIconTexture = function(button)
+		local name = button:GetName()
+		return button.Icon or button.icon or (name and G[name .. "IconTexture"])
 	end
 	G.UIParent = NewFrame("UIParent")
 	G.UIParent:SetPoint("CENTER")

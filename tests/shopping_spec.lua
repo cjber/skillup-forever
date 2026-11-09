@@ -172,7 +172,8 @@ local cell = page.Items[1]
 equal(cell.frame.shown, true, "the first reagent fills a merchant item cell")
 equal(cell.name:GetText(), "Linen Cloth", "with its name")
 equal(cell.price:GetText(), "200c", "and the cost of whole stacks")
-equal(cell.button.Icon.texture, 1234, "and its icon")
+equal(cell.icon, cell.button.icon, "and its icon, from the template's own icon region")
+equal(cell.icon.texture, 1234, "with the item's texture")
 local buy = rawget(c.G, "SkillUpForeverMerchantBuyAll")
 equal(buy.text, "Buy all  200c", "Buy all has the total")
 -- Buy all lists the need on a dialog of the addon's own on the merchant's window.

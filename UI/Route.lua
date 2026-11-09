@@ -1611,9 +1611,16 @@ function ns.AttachRoute()
 	EventRegistry:RegisterCallback("Professions.RecipeSelected", RefreshCraft, ns)
 	EventRegistry:RegisterCallback("Professions.CraftingDisplayRefresh", RefreshCraft, ns)
 	EventRegistry:RegisterCallback("Professions.TransactionUpdated", RefreshCraft, ns)
-	-- Run after Blizzard handles the same event; never replace or hook its frame methods.
+	-- Run after Blizzard handles the same event; never replace or hook its frame methods. The window's
+	-- events arrive in bursts (a profession opening, a recipe learned), and one deferred pass covers them.
+	local afterBlizzardPending = false
 	local function AfterBlizzard()
+		if afterBlizzardPending then
+			return
+		end
+		afterBlizzardPending = true
 		C_Timer.After(0, function()
+			afterBlizzardPending = false
 			PlaceTabs()
 			SyncChecks()
 			-- The window's own profession starts tracking on its own when its route has steps.

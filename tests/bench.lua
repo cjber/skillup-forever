@@ -350,3 +350,125 @@ if hoverPost then
 		)
 	)
 end
+
+print("== idle event bursts with five tracked routes ==")
+-- No tooltip is shown. A burst is what a frame holds while looting, fighting or learning recipes; the
+-- host lays the tracker out once for it. A replan is a plan the cache had to build, and a reagent list
+-- is one RouteReagents build.
+for _, profession in pairs(h.ns.RouteProfessions()) do
+	h.ns.SetTracked(profession.skillLine, true)
+end
+local burstSeen, replans, listBuilds = {}, 0, 0
+for _, entry in ipairs(h.ns.TrackedNeeds()) do
+	burstSeen[entry.plan.profession.skillLine] = entry.plan
+end
+local realBurstPlan, realBurstReagents = h.ns.PlanRoute, h.ns.RouteReagents
+h.ns.PlanRoute = function(profession, ...)
+	local plan = realBurstPlan(profession, ...)
+	if burstSeen[profession.skillLine] ~= plan then
+		burstSeen[profession.skillLine] = plan
+		replans = replans + 1
+	end
+	return plan
+end
+h.ns.RouteReagents = function(plan, ...)
+	listBuilds = listBuilds + 1
+	return realBurstReagents(plan, ...)
+end
+local function Burst(label, event, times)
+	replans, listBuilds = 0, 0
+	local started = os.clock()
+	for _ = 1, times do
+		h.Fire(event)
+	end
+	h.Advance(0.001)
+	h.Tracker()
+	print(
+		string.format(
+			"%-44s %8.3f ms  replans %d  reagent lists %d",
+			label,
+			(os.clock() - started) * 1000,
+			replans,
+			listBuilds
+		)
+	)
+end
+
+Burst("40x BAG_UPDATE_DELAYED", "BAG_UPDATE_DELAYED", 40)
+Burst("200x UNIT_AURA", "UNIT_AURA", 200)
+Burst("40x SKILL_LINES_CHANGED", "SKILL_LINES_CHANGED", 40)
+Burst("40x TRADE_SKILL_LIST_UPDATE", "TRADE_SKILL_LIST_UPDATE", 40)
+Burst("40x QUEST_LOG_UPDATE", "QUEST_LOG_UPDATE", 40)
+Burst("20x NEW_RECIPE_LEARNED", "NEW_RECIPE_LEARNED", 20)
+
+local merchantItem = h.ns.TrackedNeeds()[1].items[1].itemID
+h.merchant = { { itemID = merchantItem, price = 200, stackCount = 5 } }
+h.npc = { id = 1234, name = "Trader" }
+h.Fire("MERCHANT_SHOW")
+h.Advance(0.001)
+Burst("40x BAG_UPDATE_DELAYED (merchant open)", "BAG_UPDATE_DELAYED", 40)
+Burst("40x MERCHANT_UPDATE (merchant open)", "MERCHANT_UPDATE", 40)
+Burst("20x NEW_RECIPE_LEARNED (merchant open)", "NEW_RECIPE_LEARNED", 20)
+h.merchant = nil
+h.Fire("MERCHANT_CLOSED")
+
+-- The client can fire TRADE_SKILL_LIST_UPDATE while the Profession window stays open and nothing SkillUp
+-- reads has moved. One event a frame, with the open profession's recipe list and skill; the row counts how
+-- often a view was told to redraw for what the window shows.
+local open = h.ns.PlayerProfessions()[129]
+local windowRecipes = {}
+for recipeID, recipe in pairs(h.ns.RecipeData) do
+	if recipe.skillLine == 129 then
+		windowRecipes[#windowRecipes + 1] = recipeID
+	end
+end
+table.sort(windowRecipes)
+h.G.C_TradeSkillUI.GetAllRecipeIDs = function()
+	return windowRecipes
+end
+h.G.C_TradeSkillUI.GetRecipeInfo = function(recipeID)
+	return { learned = h.known[recipeID] == true, maxTrivialLevel = 0, numSkillUps = 1 }
+end
+h.G.C_TradeSkillUI.GetBaseProfessionInfo = function()
+	return { professionID = 129, skillLevel = open.base, maxSkillLevel = open.max }
+end
+h.Fire("TRADE_SKILL_LIST_UPDATE")
+h.Advance(0)
+
+local windowRedraws = 0
+for _, name in ipairs({
+	"tooltipCache",
+	"api",
+	"route",
+	"tracker",
+	"gear",
+	"auctionSearch",
+	"detailsBar",
+	"shoppingList",
+}) do
+	h.ns.WhenStale(name, function()
+		windowRedraws = windowRedraws + 1
+	end)
+end
+
+local function WindowTicks(label, frames)
+	replans, listBuilds, windowRedraws = 0, 0, 0
+	local started = os.clock()
+	for _ = 1, frames do
+		h.Fire("TRADE_SKILL_LIST_UPDATE")
+		h.Advance(0)
+	end
+	print(
+		string.format(
+			"%-44s %8.3f ms  replans %d  reagent lists %d  redraws %d",
+			label,
+			(os.clock() - started) * 1000,
+			replans,
+			listBuilds,
+			windowRedraws
+		)
+	)
+end
+
+print("== repeated window event with the Professions window shown ==")
+WindowTicks("40x TRADE_SKILL_LIST_UPDATE, unchanged", 40)

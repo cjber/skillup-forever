@@ -14,6 +14,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **The Forever Leaderboards period menu works with a gamepad.** With the gamepad interface on, a press on it steps through this week or all time, for your guild and group or for players you've met, instead of opening a game menu that later had the client block `SetPreferredGamepadInteractTarget()` (cjber/forever-core#267).
 
+## [1.1.4] - 2026-11-08
+
+- **The Professions window no longer stutters while it is open.** The client sends recipe-list updates with nothing new in them, and the addon used to redraw the route, tracker, tooltips and shopping list for each one; it now redraws only when the open profession, its skill or the recipes you know actually change. A tracked route also follows a reagent to its new shopping source when item data or a merchant's stock arrives. Reported on CurseForge by Setuaro, 0xTrk and 3kinex (#412).
+
 ## [1.1.3] - 2026-11-08
 
 - **With the gamepad interface on, a trainer no longer shows a blocked-action error that names SkillUp.** The error was the client refusing its protected `SetPreferredGamepadInteractTarget()`. SkillUp's right-click menus were opened from its own code, so the gamepad frame manager took them into its focus under SkillUp's taint, and the next window to show or hide read that taint and had its protected call refused. Under the gamepad interface those menus now show "This menu needs mouse and keyboard." instead of opening, and a press on the route's profession picker steps to the next profession. Reported on CurseForge by Viper2042 (#398).

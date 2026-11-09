@@ -137,6 +137,7 @@ c.money = 10000
 c.items[SILK].icon = 1234
 c.merchant = { { itemID = SILK, name = "Linen Cloth", price = 100, stackCount = 5 } }
 c.Fire("MERCHANT_SHOW")
+c.Advance(0)
 local tab = rawget(c.G, "SkillUpForeverMerchantTab")
 local page = rawget(c.G, "SkillUpForeverMerchantPage")
 equal(tab ~= nil, true, "the merchant window has a Reagents tab")
@@ -194,9 +195,11 @@ equal(dialog.shown, false, "Close hides the list")
 buy.scripts.OnClick()
 c.bags[SILK] = c.bags[SILK] + 5
 c.Fire("BAG_UPDATE_DELAYED")
+c.Advance(0)
 equal(dialog.shown, false, "a changed cost closes the list")
 c.bags[SILK] = c.bags[SILK] - 5
 c.Fire("BAG_UPDATE_DELAYED")
+c.Advance(0)
 equal(buy.text, "Buy all  200c", "the full need is back")
 -- Merchant and Buyback work as before: selecting either one hides the page and puts the window back.
 c.ClickTab(2)
@@ -226,6 +229,7 @@ equal(tab.shown, false, "the setting hides the tab")
 equal(page.shown, false, "and closes its page")
 equal(c.G.MerchantItem1.alpha, 1, "putting the merchant's cells back")
 c.SetSetting("merchantButton", true)
+c.Advance(0)
 equal(tab.shown, true, "and brings it back")
 equal(page.shown, false, "with the page still closed")
 tab.scripts.OnClick(tab)
@@ -236,6 +240,7 @@ for _, invalid in ipairs({ false, 0, -1 }) do
 	c.merchant[1].stackCount = invalid or nil
 	c.purchased = {}
 	c.Fire("MERCHANT_UPDATE")
+	c.Advance(0)
 	equal(tab.shown, false, "unknown or invalid stack hides the tab")
 	tab.scripts.OnClick(tab)
 	equal(page.shown, false, "and cannot open its page")

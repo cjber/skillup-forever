@@ -187,20 +187,46 @@ function ns.AutoTrack(skillLine)
 	return true
 end
 
+-- The tracked routes' material lists. A plan change, a price, item data or a merchant's stock drops them:
+-- RouteReagents reads those without asking for a new plan, so the plan alone is not the whole key. A bag
+-- change is the one input whose effect the key can tell apart: it reads each plan and the tools the bags
+-- still lack, so a tool picked up rebuilds the list while a bag of unrelated loot leaves it alone. The
+-- tracker, the merchant tab, the public API and the tooltip index share one build.
+---@type { key: string, tracked: SkillUpTracked[] }?
+local trackedNeeds
+
+ns.WhenStale("trackedNeeds", function()
+	trackedNeeds = nil
+end)
+
 -- The plan of every tracked profession of this character with the reagents it
 -- still needs, so it follows skill, target and prices.
 ---@return SkillUpTracked[]
 function ns.TrackedNeeds()
-	local tracked = {}
-	for skillLine, profession in pairs(ns.RouteProfessions()) do
+	local professions = ns.RouteProfessions()
+	local tracked, key = {}, {}
+	for skillLine, profession in pairs(professions) do
 		if ns.IsTracked(skillLine) then
-			local plan = ns.PlanRoute(profession)
-			tracked[#tracked + 1] = { plan = plan, items = ns.RouteReagents(plan) }
+			tracked[#tracked + 1] = profession
 		end
 	end
 	table.sort(tracked, function(a, b)
-		return a.plan.profession.name < b.plan.profession.name
+		return a.name < b.name
 	end)
+	for index, profession in ipairs(tracked) do
+		local plan = ns.PlanRoute(profession)
+		tracked[index] = { plan = plan }
+		key[#key + 1] = tostring(plan)
+		key[#key + 1] = table.concat(ns.MissingToolItems(plan), ",")
+	end
+	local signature = table.concat(key, ";")
+	if trackedNeeds and trackedNeeds.key == signature then
+		return trackedNeeds.tracked
+	end
+	for _, entry in ipairs(tracked) do
+		entry.items = ns.RouteReagents(entry.plan)
+	end
+	trackedNeeds = { key = signature, tracked = tracked }
 	return tracked
 end
 
@@ -648,12 +674,27 @@ function ns.TrackerAttached()
 	return module ~= nil and not detached and ForeverTrackerHost ~= nil and ForeverTrackerHost.IsAttached(module)
 end
 
+-- A burst of bag, skill or recipe events marks the tracker dirty many times in one frame; the host already
+-- lays it out once, and the merchant tab is rebuilt once too, after the burst, so each event is not a
+-- replan of every tracked route. A closed merchant takes the immediate path, since there is nothing to draw.
+local merchantPending = false
 local function RefreshTracker()
 	SyncAuctionator()
-	if module then
+	if module and ns.db.showTracker and not detached then
 		module:MarkDirty()
 	end
-	RefreshMerchant()
+	if not (ns.db.merchantButton and MerchantFrame ~= nil and MerchantFrame:IsShown()) then
+		RefreshMerchant()
+		return
+	end
+	if merchantPending then
+		return
+	end
+	merchantPending = true
+	C_Timer.After(0, function()
+		merchantPending = false
+		RefreshMerchant()
+	end)
 end
 
 ---@param skillLine integer

@@ -606,6 +606,26 @@ local function AddFilterMenu(owner, rootDescription)
 	end
 end
 
+-- Blizzard's Filter menu is opened by the client's own gamepad footer, not by this addon. The section above
+-- is addon code reading the saved sort and buff settings, so the client builds that menu under our taint. The
+-- gamepad frame manager then takes the menu into its focus in the same call and writes its state as ours; the
+-- next secure reader has its protected SetPreferredGamepadInteractTarget refused and blamed on this addon
+-- (#454). With the gamepad interface on the client's own filters still show, and both settings stay in the
+-- addon's settings page. The modification is withdrawn while the gamepad interface is on, and put back for
+-- mouse and keyboard.
+---@type { Unregister: fun() }?
+local filterMenu
+local function SyncFilterMenu()
+	if ns.GamepadUI() then
+		if filterMenu then
+			filterMenu:Unregister()
+			filterMenu = nil
+		end
+	elseif not filterMenu then
+		filterMenu = Menu.ModifyMenu("MENU_PROFESSIONS_FILTER", AddFilterMenu)
+	end
+end
+
 function ns.AttachRecipeList()
 	recipeList = ProfessionsFrame.CraftingPage.RecipeList
 	measure = recipeList:CreateFontString(nil, "OVERLAY", "GameFontHighlight_NoShadow")
@@ -633,7 +653,8 @@ function ns.AttachRecipeList()
 			ns.FitRecipeListWidth()
 		end
 	end)
-	Menu.ModifyMenu("MENU_PROFESSIONS_FILTER", AddFilterMenu)
+	ns.WhenEvent("INPUT_DEVICE_INTERFACE_TRANSITION" --[[@as WowEvent]], SyncFilterMenu)
+	SyncFilterMenu()
 	-- A row setting, a price or a profession changed: redraw the rows and re-sort in place. Never rebuild
 	-- the page through Blizzard's Init, which would write its recipe selection and schematic as ours (#350).
 	ns.WhenStale("recipeList", function()

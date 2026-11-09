@@ -194,6 +194,8 @@ local EVENT_ARGS = {
 	-- no folder of ours either, so both pass through the exercise without joining the journal.
 	ADDON_ACTION_BLOCKED = { "SomeOtherAddon", "SomeFunction" },
 	ADDON_ACTION_FORBIDDEN = { "SomeOtherAddon", "SomeFunction" },
+	-- The client's interface style did not change: both sides are the mouse and keyboard style.
+	INPUT_DEVICE_INTERFACE_TRANSITION = { 0, 0 },
 	LUA_WARNING = { "a harmless warning" },
 }
 

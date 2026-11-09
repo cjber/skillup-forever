@@ -140,6 +140,9 @@ local ns = {
 		return value
 	end,
 	WhenEvent = noop,
+	GamepadUI = function()
+		return false
+	end,
 	WhenStale = function(name, callback)
 		stale[name] = callback
 	end,

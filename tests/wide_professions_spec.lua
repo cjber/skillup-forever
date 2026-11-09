@@ -117,6 +117,9 @@ local ns = {
 	Readable = function(value)
 		return value
 	end,
+	GamepadUI = function()
+		return false
+	end,
 	WhenEvent = function(event, callback)
 		events[event] = callback
 	end,

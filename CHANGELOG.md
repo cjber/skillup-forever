@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action.** SkillUp adds its sort and buff options to the Professions window's own Filter menu, and the client opens that menu from the gamepad footer. Those options read the addon's saved settings, so the client built the menu under SkillUp's taint, the gamepad frame manager took it into its focus as SkillUp's, and the next secure reader's protected call was refused. With the gamepad interface on the menu keeps the client's own filters, and both settings stay in the addon's settings page; with mouse and keyboard the options are there as before. Reported on CurseForge by Viper2042 (#454, #398).
+
 ## [1.1.6] - 2026-11-09
 
 - **The merchant's Reagents tab no longer raises a Lua error when it lists a reagent.** It drew each item through the item button's `Icon` field, but the merchant window's Mainline item button keeps its icon in `icon`, so opening the tab or moving the pointer over a cell raised "attempt to index field 'Icon' (a nil value)". The tab now reads the icon region through the client's own `GetItemButtonIconTexture` and keeps it on the cell. Reported on CurseForge by user_gnq1vt5zaofnctlx, tgkGate and user_oj6nehterf0ydf1p (#447).

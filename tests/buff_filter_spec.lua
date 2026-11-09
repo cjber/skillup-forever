@@ -154,6 +154,9 @@ local ns = {
 	end,
 	WhenStale = noop,
 	WhenEvent = noop,
+	GamepadUI = function()
+		return false
+	end,
 	AttachRoute = noop,
 	AttachGear = noop,
 	AttachAuctionSearch = noop,

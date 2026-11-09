@@ -52,6 +52,9 @@ local ns = {
 	AttachDetailsBar = noop,
 	WhenStale = noop,
 	WhenEvent = noop,
+	GamepadUI = function()
+		return false
+	end,
 	Readable = function(value)
 		return value
 	end,

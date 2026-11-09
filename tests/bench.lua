@@ -295,7 +295,8 @@ print("== first hover of each reagent item, over a bag of them ==")
 -- The frame-rate report on #412: a bag holds many different reagent items, so every item is an uncached
 -- first hover while the pointer moves across it. An action bar holds a handful, so only their first hovers
 -- pay this. Four crafters are tracked with real plans, and the item tooltip's post-call is timed over 50
--- distinct reagent items, dropping the tooltip cache before each pass as a bag change would.
+-- distinct reagent items, with a bag change before each pass as a bag addon fires them while the pointer moves.
+-- The item lines stay cached across those bag changes; only the route index is checked for moved tools.
 local hoverPost = h.postCalls[h.G.Enum.TooltipDataType.Item]
 hoverPost = hoverPost and hoverPost[1]
 h.G.IsShiftKeyDown = function()

@@ -12,6 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Hovering gear in your bags or on the character panel no longer rebuilds its tooltip's lines.** A bag, item, name, zone or merchant change used to drop every item, node and corpse tooltip's cached lines, and bag addons fire those constantly while the pointer moves across gear. Each hover then worked the item out again and rebuilt the index of routes that need a reagent. Those changes now leave the cached lines alone: the routes are indexed separately and re-read only when a route or the tools it still needs actually move, and a route line reads its count from the bags as it is drawn. A repeated hover of the same item is a table lookup. Thanks to user_gxp60l4cnnhigc69, icouldonlygetthisname, 3kinex, 0xTrk and Setuaro for the reports and the measurement (cjber/skillup-forever#412, CurseForge 8671057).
 
 ## [1.1.5] - 2026-11-09
 

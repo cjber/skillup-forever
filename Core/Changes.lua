@@ -13,6 +13,8 @@ local ORDER = {
 	"prices",
 	"plans",
 	"trackedNeeds",
+	"tooltipRoute",
+	"tooltipRouteTools",
 	"api",
 	"route",
 	"recipeList",
@@ -28,14 +30,16 @@ local ORDER = {
 }
 
 ---@type table<SkillUpChange, table<SkillUpStale, true>>
--- The tooltip cache reads recipes, plans, bags and settings through several paths, so every change kind
--- below also drops it.
+-- The item, node and corpse tooltip lines read recipes, skill and settings; the route index reads the tracked
+-- routes and the tools the bags lack. The two are dropped separately, so a bag or item change that moves no
+-- answer does not rebuild the lines a hover redraws.
 local STALE = {
 	-- What a profession's recipes are or need: a recipe learned, or the open window's scan finding a learned
 	-- flag, a live grey, skill points or a schematic the plans were built without. The plan is built from all
 	-- of it.
 	recipes = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		schematics = true,
 		plans = true,
 		trackedNeeds = true,
@@ -52,6 +56,7 @@ local STALE = {
 	-- when the open profession, its skill or the known recipes actually moved.
 	window = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		api = true,
 		route = true,
 		tracker = true,
@@ -63,10 +68,19 @@ local STALE = {
 	-- A skill line moved: often a weapon or defense skill-up in combat, nothing a plan reads. A plan is keyed by
 	-- its profession's skill, bonus and cap, so a profession's own skill-up rebuilds that one plan on its next ask.
 	-- `trackedNeeds` is left to that plan key too: a weapon skill-up must not rebuild every tracked route.
-	skill = { tooltipCache = true, api = true, route = true, tracker = true, detailsBar = true, shoppingList = true },
+	skill = {
+		tooltipCache = true,
+		tooltipRoute = true,
+		api = true,
+		route = true,
+		tracker = true,
+		detailsBar = true,
+		shoppingList = true,
+	},
 	-- A Legacy talent changed what a skill-up is worth: every chance shown, planned or priced moves.
 	talents = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		plans = true,
 		trackedNeeds = true,
 		api = true,
@@ -81,6 +95,7 @@ local STALE = {
 	-- A profession learned or dropped changes what counts as gathered, so what things cost.
 	professions = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		prices = true,
 		plans = true,
 		trackedNeeds = true,
@@ -93,6 +108,7 @@ local STALE = {
 	},
 	prices = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		prices = true,
 		plans = true,
 		trackedNeeds = true,
@@ -103,20 +119,22 @@ local STALE = {
 		shoppingList = true,
 	},
 	-- A bag change does not drop `trackedNeeds`: UI/Shopping.lua's plan and missing-tool key tells a tool
-	-- that came or went from a bag of unrelated loot.
-	bags = { tooltipCache = true, api = true, route = true, tracker = true, shoppingList = true },
-	-- Item data arrived; `names` when the public list was waiting on it.
+	-- that came or went from a bag of unrelated loot. The tooltip's item lines do not read the bags at all;
+	-- only the route index does, and only when the tools a route lacks actually moved.
+	bags = { tooltipRouteTools = true, api = true, route = true, tracker = true, shoppingList = true },
+	-- Item data arrived; `names` when the public list was waiting on it. An item tooltip's lines hold no item
+	-- name, and a route's tooltip lines hold no shopping source, so `tooltipCache` and `tooltipRoute` stay.
 	items = {
-		tooltipCache = true,
 		trackedNeeds = true,
 		route = true,
 		tracker = true,
 		gear = true,
 		shoppingList = true,
 	},
-	names = { tooltipCache = true, api = true },
+	names = { api = true },
 	level = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		api = true,
 		route = true,
 		recipeList = true,
@@ -124,12 +142,13 @@ local STALE = {
 		gear = true,
 		shoppingList = true,
 	},
-	zone = { tooltipCache = true, api = true },
-	-- A merchant opened, restocked or closed: the tracker's buy button.
-	merchant = { tooltipCache = true, tracker = true, shoppingList = true },
+	zone = { api = true },
+	-- A merchant opened, restocked or closed: the tracker's buy button. A price it records reports `prices`.
+	merchant = { tracker = true, shoppingList = true },
 	-- Fees and requirements recorded at a trainer.
 	fees = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		plans = true,
 		trackedNeeds = true,
 		api = true,
@@ -141,6 +160,7 @@ local STALE = {
 	-- A vendor-sold recipe's scroll price is a plan input too (#358).
 	sources = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		plans = true,
 		trackedNeeds = true,
 		api = true,
@@ -152,6 +172,7 @@ local STALE = {
 	},
 	target = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		plans = true,
 		trackedNeeds = true,
 		api = true,
@@ -161,6 +182,7 @@ local STALE = {
 	},
 	tracking = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		trackedNeeds = true,
 		api = true,
 		route = true,
@@ -169,6 +191,7 @@ local STALE = {
 	},
 	settings = {
 		tooltipCache = true,
+		tooltipRoute = true,
 		prices = true,
 		plans = true,
 		trackedNeeds = true,

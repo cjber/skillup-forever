@@ -401,13 +401,14 @@ local BAND_END = { orange = 2, yellow = 3, green = 4 }
 
 -- One line to draw later: what it is and everything it needs, so a cached answer costs only the drawing.
 ---@class SkillUpTooltipLine
----@field kind "blank"|"double"|"colored"|"disabled"|"normal"
+---@field kind "blank"|"double"|"disabled"|"normal"|"route"|"shiftHint"
 ---@field text? string
 ---@field right? string
----@field color? ColorMixin
 ---@field r? number
 ---@field g? number
 ---@field b? number
+---@field itemID? integer
+---@field count? integer
 
 ---@return SkillUpTooltipLine
 local function BlankLine()
@@ -426,13 +427,6 @@ local function DisabledLine(text)
 	return { kind = "disabled", text = text }
 end
 
----@param text string
----@param color ColorMixin
----@return SkillUpTooltipLine
-local function ColoredLine(text, color)
-	return { kind = "colored", text = text, color = color }
-end
-
 ---@param left string
 ---@param right string
 ---@param color ColorMixin
@@ -442,20 +436,49 @@ local function DoubleLine(left, right, color)
 	return { kind = "double", text = left, right = right, r = r, g = g, b = b }
 end
 
+---@param itemID integer
+---@return SkillUpTooltipLine
+local function RouteLine(itemID)
+	return { kind = "route", itemID = itemID }
+end
+
+---@param count integer
+---@return SkillUpTooltipLine
+local function ShiftHintLine(count)
+	return { kind = "shiftHint", count = count }
+end
+
+-- Route lines are drawn from the tracked routes and the bags as they are now: declared before Draw, built
+-- below from the route index.
+local DrawRouteNeeds
+
 ---@param tooltip GameTooltip
 ---@param lines SkillUpTooltipLine[]
 local function Draw(tooltip, lines)
+	local drawn = false
 	for _, line in ipairs(lines) do
-		if line.kind == "blank" then
+		if line.kind == "route" then
+			local itemID = line.itemID
+			if itemID then
+				drawn = DrawRouteNeeds(tooltip, itemID) or drawn
+			end
+		elseif line.kind == "shiftHint" then
+			local count = line.count
+			if drawn and count then
+				GameTooltip_AddDisabledLine(tooltip, string.format(L["Shift: used in %d of your recipes"], count))
+			end
+		elseif line.kind == "blank" then
 			GameTooltip_AddBlankLineToTooltip(tooltip)
+			drawn = true
 		elseif line.kind == "double" then
 			tooltip:AddDoubleLine(line.text, line.right, 1, 1, 1, line.r, line.g, line.b)
-		elseif line.kind == "colored" then
-			GameTooltip_AddColoredLine(tooltip, line.text, line.color)
+			drawn = true
 		elseif line.kind == "disabled" then
 			GameTooltip_AddDisabledLine(tooltip, line.text)
+			drawn = true
 		elseif line.kind == "normal" then
 			GameTooltip_AddNormalLine(tooltip, line.text)
+			drawn = true
 		else
 			error("unknown tooltip line: " .. tostring(line.kind))
 		end
@@ -507,14 +530,17 @@ end
 -- own instead of rebuilding every tracked route's material list each time.
 ---@type table<integer, { entry: SkillUpTracked, item: SkillUpNeededItem }[]>?
 local routeNeeds
+---@type SkillUpTracked[]?
+local routeNeedsSource
 ---@return table<integer, { entry: SkillUpTracked, item: SkillUpNeededItem }[]>
 local function RouteNeedsIndex()
 	local index = routeNeeds
 	if index then
 		return index
 	end
+	routeNeedsSource = ns.TrackedNeeds()
 	index = {}
-	for _, entry in ipairs(ns.TrackedNeeds()) do
+	for _, entry in ipairs(routeNeedsSource) do
 		for _, item in ipairs(entry.items) do
 			local rows = index[item.itemID]
 			if not rows then
@@ -528,16 +554,17 @@ local function RouteNeedsIndex()
 	return index
 end
 
--- "Route: 28/567 · Leatherworking to 150" for each tracked route that needs the item.
+-- "Route: 28/567 · Leatherworking to 150" for each tracked route that needs the item, with the count the
+-- bags hold now. The item's cached lines hold only the marker for these, so looting does not rebuild them.
+---@param tooltip GameTooltip
 ---@param itemID integer
----@return SkillUpTooltipLine[]
-local function RouteNeedsLines(itemID)
-	local lines = {}
+---@return boolean drawn
+DrawRouteNeeds = function(tooltip, itemID)
 	local rows = RouteNeedsIndex()[itemID]
 	if not rows then
-		return lines
+		return false
 	end
-	lines[1] = BlankLine()
+	GameTooltip_AddBlankLineToTooltip(tooltip)
 	local have = ns.Have(itemID)
 	for _, row in ipairs(rows) do
 		local item = row.item
@@ -548,9 +575,9 @@ local function RouteNeedsLines(itemID)
 			row.entry.plan.profession.name,
 			row.entry.plan.target
 		)
-		lines[#lines + 1] = ColoredLine(text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
+		GameTooltip_AddColoredLine(tooltip, text, have >= item.need and ns.COLORS.green or NORMAL_FONT_COLOR)
 	end
-	return lines
+	return true
 end
 
 -- Which profession and skill make a buff consumable, from the maker with the lowest skill range start, ties to the
@@ -611,9 +638,23 @@ local itemLines = {}
 local gatherLines = {}
 
 local function ClearTooltipLines()
-	itemLines, gatherLines, routeNeeds = {}, {}, nil
+	itemLines, gatherLines = {}, {}
 end
 ns.WhenStale("tooltipCache", ClearTooltipLines)
+
+-- The routes that need an item are indexed once per route change. A bag change only drops the index when the
+-- tools the routes lack actually moved, so looting unrelated loot does not rebuild it.
+local function DropRouteNeeds()
+	routeNeeds, routeNeedsSource = nil, nil
+end
+ns.WhenStale("tooltipRoute", DropRouteNeeds)
+
+local function ValidateRouteNeeds()
+	if routeNeeds and ns.TrackedNeeds() ~= routeNeedsSource then
+		DropRouteNeeds()
+	end
+end
+ns.WhenStale("tooltipRouteTools", ValidateRouteNeeds)
 
 ---@param itemID integer
 ---@param mode string
@@ -635,16 +676,15 @@ local function ItemLines(itemID, mode, shifted)
 	for _, line in ipairs(MadeByLines(itemID)) do
 		lines[#lines + 1] = line
 	end
-	for _, line in ipairs(RouteNeedsLines(itemID)) do
-		lines[#lines + 1] = line
-	end
+	-- Drawn from the route index and the bags when the tooltip is set, never baked into this item's cache.
+	lines[#lines + 1] = RouteLine(itemID)
 	if mode == "route" then
 		if shifted and #uses > 0 then
 			for _, line in ipairs(UsedInLines(uses)) do
 				lines[#lines + 1] = line
 			end
-		elseif #lines > 0 and #uses > 0 then
-			lines[#lines + 1] = DisabledLine(string.format(L["Shift: used in %d of your recipes"], #uses))
+		elseif not shifted and #uses > 0 then
+			lines[#lines + 1] = ShiftHintLine(#uses)
 		end
 	elseif #uses > 0 then
 		for _, line in ipairs(UsedInLines(uses)) do

@@ -166,6 +166,7 @@ local ns = {
 		showRowText = true,
 		wideRecipeList = true,
 		showUnlearned = false,
+		buffsOnly = false,
 		valueGathered = false,
 		auctionOnly = false,
 	},
@@ -218,7 +219,8 @@ end
 local groups = {
 	{
 		"Recipe rows",
-		"checkbox:wideRecipeList checkbox:showUnlearned checkbox:showRowText checkbox:showSkill checkbox:showTooltip"
+		"checkbox:wideRecipeList checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
+			.. " checkbox:showSkill checkbox:showTooltip"
 			.. " checkbox:detailsBar slider:recipeTooltip checkbox:showCost slider:rowCost",
 	},
 	{ "Prices", "slider:craftValue checkbox:valueGathered checkbox:auctionOnly" },
@@ -271,6 +273,8 @@ assert(Row("sortMode").initializer.options.formatter(1) == "Default")
 assert(Row("wideRecipeList").initializer.tooltip:find("longest recipe name"), "the wide list explains its fit")
 assert(Row("showUnlearned").initializer.setting.default == false, "unlearned recipes start off")
 assert(Row("showUnlearned").initializer.tooltip:find("greyed"), "the unlearned list explains how it draws")
+assert(Row("buffsOnly").initializer.setting.default == false, "the buff filter starts off")
+assert(Row("buffsOnly").initializer.tooltip:find("Highest required level first"), "the buff filter explains its order")
 assert(Row("valueGathered").initializer.tooltip:find("vendor sell price if that is more"), "gathered value floor")
 assert(
 	Row("auctionOnly").initializer.tooltip:find("stays unpriced rather than free"),

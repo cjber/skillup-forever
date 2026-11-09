@@ -480,6 +480,7 @@ L["Share my progress"] = "Compartilhar meu progresso"
 L["This week"] = "Esta semana"
 L["Uses Forever addons"] = "Usa addons Forever"
 L["Your guild and group"] = "Sua guilda e grupo"
+L["Players you've met"] = "Jogadores que você conheceu" -- mt
 L["boards"] = "tabelas"
 L["1st"] = "1º"
 L["2nd"] = "2º"
@@ -542,3 +543,10 @@ L["%s: no lines yet."] = "%s: ainda não há linhas."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"Uso: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
 L["This menu needs mouse and keyboard."] = "Este menu precisa de mouse e teclado."
+L["Only buffs for your level"] = "Apenas melhorias para o seu nível"
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"Lista apenas as receitas cujo produto é uma melhoria que você pode usar no seu nível: elixires, frascos, comida de Bem Alimentado, poções de proteção, pedras, óleos e kits de armadura. Maior nível exigido primeiro. Receitas aprendidas primeiro, depois as não aprendidas quando elas são listadas."
+L["%s: %s"] = "%s: %s" -- mt
+L["%s drops in %s"] = "%s cai em %s" -- mt
+L["Made by %s %d"] = "Feito por %s %d" -- mt
+L["Made by %s"] = "Feito por %s" -- mt

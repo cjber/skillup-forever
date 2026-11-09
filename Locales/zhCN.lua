@@ -470,6 +470,7 @@ L["Share my progress"] = "共享我的进度"
 L["This week"] = "本周"
 L["Uses Forever addons"] = "使用 Forever 插件"
 L["Your guild and group"] = "你的公会和队伍"
+L["Players you've met"] = "遇到过的玩家" -- mt
 L["boards"] = "排行榜"
 L["1st"] = "第1名"
 L["2nd"] = "第2名"
@@ -528,3 +529,10 @@ L["%s: no lines yet."] = "%s：还没有日志行。"
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"用法：/forever debug、/forever debug pin、/forever debug off、/forever debug show"
 L["This menu needs mouse and keyboard."] = "此菜单需要鼠标和键盘。"
+L["Only buffs for your level"] = "仅显示适合你等级的增益"
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"仅列出产物是你在当前等级可使用的增益的配方：药剂、合剂、饱食食物、防护药水、磨刀石、油和护甲套装。所需等级最高的排在最前。已学习的配方排在前，未学习的配方在列出时排在后面。"
+L["%s: %s"] = "%s：%s" -- mt
+L["%s drops in %s"] = "%s 在 %s 掉落" -- mt
+L["Made by %s %d"] = "%s %d 制作" -- mt
+L["Made by %s"] = "%s 制作" -- mt

@@ -308,6 +308,31 @@ local function AddCost(tooltip, recipeID, d)
 	end
 end
 
+-- What a buff recipe's tooltip says about the buff and its reagents: the buff in the game's own words, then the
+-- nearest zone each reagent drops in, with Questie (#357).
+---@param recipeID integer
+---@return { text: string, color: ColorMixin }[]
+local function BuffLines(recipeID)
+	local lines = {}
+	if ns.BuffLevel(recipeID) == nil then
+		return lines
+	end
+	local recipe = ns.RecipeData[recipeID]
+	local output = recipe and recipe.output
+	local buff = output and output.itemID and ns.BuffText(output.itemID)
+	if buff then
+		lines[#lines + 1] = { text = buff, color = GREEN_FONT_COLOR }
+	end
+	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
+		local zone = ns.DropZone(reagent.itemID)
+		if zone then
+			local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
+			lines[#lines + 1] = { text = string.format(L["%s drops in %s"], name, zone), color = GRAY_FONT_COLOR }
+		end
+	end
+	return lines
+end
+
 ---@param _ SkillUpNamespace
 ---@param row SkillUpRecipeRow
 ---@param data SkillUpRecipeNodeData
@@ -359,6 +384,9 @@ function ns.ShowRecipeTooltip(_, row, data)
 	end
 	if learn then
 		GameTooltip_AddDisabledLine(tooltip, string.format(L["Not learned · %s"], ns.LearnSourceText(learn)))
+	end
+	for _, buff in ipairs(BuffLines(recipeInfo.recipeID)) do
+		GameTooltip_AddColoredLine(tooltip, buff.text, buff.color)
 	end
 	if ns.db.showCost then
 		AddCost(tooltip, recipeInfo.recipeID, d)
@@ -525,6 +553,39 @@ local function RouteNeedsLines(itemID)
 	return lines
 end
 
+-- Which profession and skill make a buff consumable, from the maker with the lowest skill range start, ties to the
+-- lower recipe ID (#357).
+---@param itemID integer
+---@return SkillUpTooltipLine[]
+local function MadeByLines(itemID)
+	local lines = {}
+	if not ns.BuffItems[itemID] then
+		return lines
+	end
+	local best, bestSkill, first
+	for _, recipeID in ipairs(ns.MakersOf(itemID)) do
+		local recipe = ns.RecipeData[recipeID]
+		local name = recipe and C_TradeSkillUI.GetTradeSkillDisplayName(recipe.skillLine)
+		if name then
+			first = first or { name = name }
+			local t = ns.Model.Get(recipeID)
+			local skill = t and t[1]
+			if skill and (not best or skill < bestSkill) then
+				best, bestSkill = { name = name }, skill
+			end
+		end
+	end
+	local maker = best or first
+	if not maker then
+		return lines
+	end
+	lines[1] = BlankLine()
+	lines[2] = NormalLine(
+		best and string.format(L["Made by %s %d"], maker.name, bestSkill) or string.format(L["Made by %s"], maker.name)
+	)
+	return lines
+end
+
 ---@param uses SkillUpUse[]
 ---@return SkillUpTooltipLine[]
 local function UsedInLines(uses)
@@ -571,6 +632,9 @@ local function ItemLines(itemID, mode, shifted)
 	end
 	local uses = Uses(itemID)
 	lines = {}
+	for _, line in ipairs(MadeByLines(itemID)) do
+		lines[#lines + 1] = line
+	end
 	for _, line in ipairs(RouteNeedsLines(itemID)) do
 		lines[#lines + 1] = line
 	end

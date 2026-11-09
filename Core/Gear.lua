@@ -138,6 +138,93 @@ local MAX_PER_SLOT = 3
 ---@type table<string, integer>
 local STATE_RANK = { known = 1, trainable = 2, needs = 3, other = 4 }
 
+-- The level a recipe's product asks of the player, when that product is a buff a use leaves on them: nil
+-- for anything else, 0 when the item has no required level or no ItemGear row. A pure read of the data.
+---@param recipeID integer
+---@return integer?
+function ns.BuffLevel(recipeID)
+	local recipe = ns.RecipeData[recipeID]
+	local output = recipe and recipe.output
+	local itemID = output and output.itemID
+	if not (itemID and ns.BuffItems[itemID]) then
+		return nil
+	end
+	local facts = ns.ItemGear[itemID]
+	return facts and facts[LEVEL] or 0
+end
+
+-- The recipes whose product is a buff this level can use, as a set: kept for the last level asked, as the planner
+-- asks for every recipe of a profession on each re-plan. Rebuilt when the bundled data is replaced.
+---@type table<integer, true>?
+local usableBuffs
+---@type number?
+local usableLevel
+---@type table?
+local usableData
+---@param level number
+---@return table<integer, true>
+function ns.UsableBuffs(level)
+	if usableBuffs and usableLevel == level and usableData == ns.RecipeData then
+		return usableBuffs
+	end
+	usableBuffs, usableLevel, usableData = {}, level, ns.RecipeData
+	for recipeID in pairs(ns.RecipeData) do
+		local required = ns.BuffLevel(recipeID)
+		if required and required <= level then
+			usableBuffs[recipeID] = true
+		end
+	end
+	return usableBuffs
+end
+
+-- Whether the product is a buff this character's level can use.
+---@param recipeID integer
+---@param level number
+---@return boolean
+function ns.UsableBuff(recipeID, level)
+	return ns.UsableBuffs(level)[recipeID] == true
+end
+
+-- [spellID] = true while its description is on the way, so one redraw covers every tooltip that showed its name.
+---@type table<integer, true>
+local pendingText = {}
+
+-- The tooltips that showed a spell's name alone are rebuilt when its description arrives.
+---@param spellID integer
+---@param spell SpellMixin
+local function WhenSpellTextArrives(spellID, spell)
+	if pendingText[spellID] then
+		return
+	end
+	pendingText[spellID] = true
+	spell:ContinueOnSpellLoad(function()
+		pendingText[spellID] = nil
+		ns.Changed("names")
+	end)
+end
+
+-- The buff an item leaves in the game's own words, nil for an item that leaves none. A spell whose data the client
+-- has not loaded yet gives its name alone, and the tooltips are redrawn once its description arrives (#357).
+---@param itemID integer
+---@return string?
+function ns.BuffText(itemID)
+	local spellID = ns.BuffItems[itemID]
+	if not spellID then
+		return nil
+	end
+	local name = C_Spell.GetSpellName(spellID)
+	if not name then
+		return nil
+	end
+	local spell = Spell:CreateFromSpellID(spellID)
+	if not spell:IsSpellDataCached() then
+		WhenSpellTextArrives(spellID, spell)
+		return name
+	end
+	local description = C_Spell.GetSpellDescription(spellID)
+	return description and string.format(L["%s: %s"], name, description) or name
+end
+
 ---@class SkillUpGear
 local Gear = {}
 ns.Gear = Gear

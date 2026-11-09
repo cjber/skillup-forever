@@ -487,6 +487,7 @@ L["Share my progress"] = "내 진행 상황 공유"
 L["This week"] = "이번 주"
 L["Uses Forever addons"] = "Forever 애드온 사용 중"
 L["Your guild and group"] = "내 길드와 파티"
+L["Players you've met"] = "만난 플레이어" -- mt
 L["boards"] = "순위표"
 L["1st"] = "1위"
 L["2nd"] = "2위"
@@ -549,3 +550,10 @@ L["%s: no lines yet."] = "%s: 아직 줄이 없습니다."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"사용법: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
 L["This menu needs mouse and keyboard."] = "이 메뉴는 마우스와 키보드가 필요합니다."
+L["Only buffs for your level"] = "내 레벨에 맞는 버프만"
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"내 레벨에 사용할 수 있는 버프를 만드는 제조법만 표시합니다: 비약, 영약, 잘 먹음 음식, 보호 물약, 연마석, 기름, 방어구 키트. 요구 레벨이 높은 순서입니다. 배운 제조법이 먼저, 배우지 않은 제조법은 해당 목록을 표시할 때 그 뒤에 나옵니다."
+L["%s: %s"] = "%s: %s" -- mt
+L["%s drops in %s"] = "%s: %s에서 드롭됩니다" -- mt
+L["Made by %s %d"] = "%s %d 제작" -- mt
+L["Made by %s"] = "%s 제작" -- mt

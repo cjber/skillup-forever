@@ -115,10 +115,18 @@ local STALE = {
 		shoppingList = true,
 	},
 	names = { tooltipCache = true, api = true },
-	level = { tooltipCache = true, api = true, route = true, tracker = true, gear = true, shoppingList = true },
-	zone = { tooltipCache = true, trackedNeeds = true, api = true },
-	-- A merchant opened, restocked or closed: the tracker's buy button and a reagent's stock.
-	merchant = { tooltipCache = true, trackedNeeds = true, tracker = true, shoppingList = true },
+	level = {
+		tooltipCache = true,
+		api = true,
+		route = true,
+		recipeList = true,
+		tracker = true,
+		gear = true,
+		shoppingList = true,
+	},
+	zone = { tooltipCache = true, api = true },
+	-- A merchant opened, restocked or closed: the tracker's buy button.
+	merchant = { tooltipCache = true, tracker = true, shoppingList = true },
 	-- Fees and requirements recorded at a trainer.
 	fees = {
 		tooltipCache = true,

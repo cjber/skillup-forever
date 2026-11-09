@@ -113,6 +113,13 @@ function ns.RegisterSettings()
 
 		Checkbox(
 			rows,
+			"buffsOnly",
+			L["Only buffs for your level"],
+			L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."]
+		)
+
+		Checkbox(
+			rows,
 			"showRowText",
 			L["Show skill on recipe rows"],
 			L["Skill-up chance and cost per skill-up at the right of each recipe."]
@@ -340,6 +347,12 @@ end
 ---@param mode string
 function ns.SetSortMode(mode)
 	Settings.SetValue("SkillUpForever_sortMode", mode)
+end
+
+-- Through the setting, so the settings panel and its change callback stay in step.
+---@param on boolean
+function ns.SetBuffsOnly(on)
+	Settings.SetValue("SkillUpForever_buffsOnly", on)
 end
 
 function ns.OpenSettings()

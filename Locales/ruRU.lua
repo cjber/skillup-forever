@@ -509,6 +509,7 @@ L["Share my progress"] = "Делиться прогрессом"
 L["This week"] = "Эта неделя"
 L["Uses Forever addons"] = "Использует аддоны Forever"
 L["Your guild and group"] = "Ваша гильдия и группа"
+L["Players you've met"] = "Встреченные игроки" -- mt
 L["boards"] = "таблиц"
 L["1st"] = "1-й"
 L["2nd"] = "2-й"
@@ -573,3 +574,11 @@ L["%s: no lines yet."] = "%s: строк пока нет."
 L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
 	"Использование: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
 L["This menu needs mouse and keyboard."] = "Для этого меню нужны мышь и клавиатура."
+L["Only buffs for your level"] =
+	"Только положительные эффекты для вашего уровня"
+L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
+	"Показывает только рецепты, чей предмет дает положительный эффект, доступный вам на вашем уровне: эликсиры, флаконы, еда «Сытость», защитные зелья, точильные камни, масла и наборы для доспехов. Сначала с самым высоким требуемым уровнем. Сначала изученные рецепты, затем неизученные, если они показаны."
+L["%s: %s"] = "%s: %s" -- mt
+L["%s drops in %s"] = "%s выпадает в %s" -- mt
+L["Made by %s %d"] = "Изготовлено: %s %d" -- mt
+L["Made by %s"] = "Изготовлено: %s" -- mt

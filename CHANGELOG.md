@@ -12,7 +12,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The Professions window's Filter menu can show only the buffs you can use.** *Only buffs for your level* lists the recipes whose product is an elixir, flask, Well Fed food, protection potion, sharpening stone, oil, armour kit or scope you can use at your level, highest required level first. Unlearned ones follow when *List unlearned recipes* is on, with where they are learned. Healing potions, bandages and plain food restore rather than buff, so they are left out. The filter is also in the addon's settings (#357).
+- **The levelling route prefers a buff you can use when two recipes are otherwise equal.** When two recipes cost the same per skill point and have the same chance, the route now takes the one whose product is a buff your level can use, so the crafts leave you with something useful, before falling back to the lower recipe ID. A recipe that costs more per point still loses (#357).
+- **A buff recipe's tooltip now says what the buff does and where its reagents drop.** The recipe tooltip shows the buff in the game's own words, and with Questie each reagent gets the nearest zone it drops in. A buff consumable's own tooltip names the profession and skill that make it (#357).
+
 - **The route and crafted gear tabs stay in the Professions window beside What's Training?'s own tab.** What's Training? pins its tab to the window's bottom-right corner, in the same strip as ours; a tab switch re-ran the placement, took that corner tab for the last slot and moved the SkillUp tabs underneath it, below the window's edge. The placement now gives our tabs the next free slots under Blizzard's profession tabs, so all three share the column while there is room, whatever order the addons load or re-place their tabs. Reported on CurseForge by user_gxp60l4cnnhigc69 (#446).
+- **The Forever Leaderboards period menu works with a gamepad.** With the gamepad interface on, a press on it steps through this week or all time, for your guild and group or for players you've met, instead of opening a game menu that later had the client block `SetPreferredGamepadInteractTarget()` (cjber/forever-core#267).
 
 ## [1.1.4] - 2026-11-08
 

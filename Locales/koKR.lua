@@ -487,6 +487,7 @@ L["Share my progress"] = "내 진행 상황 공유"
 L["This week"] = "이번 주"
 L["Uses Forever addons"] = "Forever 애드온 사용 중"
 L["Your guild and group"] = "내 길드와 파티"
+L["Players you've met"] = "만난 플레이어" -- mt
 L["boards"] = "순위표"
 L["1st"] = "1위"
 L["2nd"] = "2위"

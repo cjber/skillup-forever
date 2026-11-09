@@ -509,6 +509,7 @@ L["Share my progress"] = "Делиться прогрессом"
 L["This week"] = "Эта неделя"
 L["Uses Forever addons"] = "Использует аддоны Forever"
 L["Your guild and group"] = "Ваша гильдия и группа"
+L["Players you've met"] = "Встреченные игроки" -- mt
 L["boards"] = "таблиц"
 L["1st"] = "1-й"
 L["2nd"] = "2-й"

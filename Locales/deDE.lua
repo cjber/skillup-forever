@@ -477,6 +477,7 @@ L["Share my progress"] = "Meinen Fortschritt teilen"
 L["This week"] = "Diese Woche"
 L["Uses Forever addons"] = "Nutzt Forever-Addons"
 L["Your guild and group"] = "Deine Gilde und Gruppe"
+L["Players you've met"] = "Spieler, denen du begegnet bist" -- mt
 L["boards"] = "Ranglisten"
 L["1st"] = "1."
 L["2nd"] = "2."

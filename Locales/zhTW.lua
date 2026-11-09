@@ -471,6 +471,7 @@ L["Share my progress"] = "共享我的進度"
 L["This week"] = "本週"
 L["Uses Forever addons"] = "使用 Forever 插件"
 L["Your guild and group"] = "你的公會和隊伍"
+L["Players you've met"] = "遇過的玩家" -- mt
 L["boards"] = "排行榜"
 L["1st"] = "第1名"
 L["2nd"] = "第2名"

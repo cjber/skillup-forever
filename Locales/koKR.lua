@@ -37,8 +37,6 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
 L["Lock the tracker"] = "추적기 잠금"
-L["Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action."] =
-	"게임패드로 전문 기술 창의 필터 메뉴를 열어도 더 이상 SkillUp이 차단된 동작의 원인으로 지목되지 않습니다."
 L["Tracker background"] = "추적기 배경"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -557,3 +555,5 @@ L["%s: %s"] = "%s: %s" -- mt
 L["%s drops in %s"] = "%s: %s에서 드롭됩니다" -- mt
 L["Made by %s %d"] = "%s %d 제작" -- mt
 L["Made by %s"] = "%s 제작" -- mt
+L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
+	"이제 제작품의 판매 가치가 첫 번째 제작뿐 아니라 해당 단계의 모든 제작 비용을 낮춥니다." -- mt

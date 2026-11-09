@@ -37,8 +37,6 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Mantém o rastreador Forever compartilhado onde você o colocou. A alça no topo não o arrasta mais."
 L["Lock the tracker"] = "Travar o rastreador"
-L["Opening the Professions window's Filter menu with a gamepad no longer gets SkillUp blamed for a blocked action."] =
-	"Abrir o menu Filtro da janela de profissões com um controle não faz mais o SkillUp ser culpado por uma ação bloqueada."
 L["Tracker background"] = "Fundo do rastreamento"
 
 L["A side tab on the Professions window listing the newest crafted item this character can equip in each slot, under the route tab."] =
@@ -550,3 +548,5 @@ L["%s: %s"] = "%s: %s" -- mt
 L["%s drops in %s"] = "%s cai em %s" -- mt
 L["Made by %s %d"] = "Feito por %s %d" -- mt
 L["Made by %s"] = "Feito por %s" -- mt
+L["A recipe's product now lowers the cost of every craft in its step, not only the first."] =
+	"O produto de uma receita agora reduz o custo de cada criação da sua etapa, não só da primeira." -- mt

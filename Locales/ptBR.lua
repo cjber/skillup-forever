@@ -121,10 +121,10 @@ L["Herb and ore node tooltips show the skill they need and its colour at yours (
 L["Hide this section"] = "Ocultar esta seção"
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Instale o AtlasLoot para ver as receitas que comerciantes, missões e saques adicionariam."
-L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =
-	"Instale o Questie e o AtlasLoot para ver onde estão receitas, comerciantes e instrutores."
-L["Install Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"Instale o Questie para ver comerciantes, missões e instrutores, com pontos de referência."
+L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
+	"Instale o QuestieDB e o AtlasLoot para ver onde estão receitas, comerciantes e instrutores."
+L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"Instale o QuestieDB para ver comerciantes, missões e instrutores, com pontos de referência."
 L["Installed, turned off"] = "Instalado, desativado"
 L["Its trainer should teach these at your skill now:"] = "O instrutor deve ensinar isto na sua perícia atual:"
 L["Kept in the Auctionator list '%s'."] = 'Guardado na lista do Auctionator "%s".'
@@ -298,8 +298,8 @@ L["Train %s first: you're at your cap."] = "Treine %s primeiro: você está no l
 L["Trinket"] = "Berloque"
 L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
 	"Desligue isto para arrastar o rastreador Forever compartilhado para qualquer lugar da tela."
-L["Update Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"Atualize o Questie para ver comerciantes, missões e instrutores, com pontos de referência."
+L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"Atualize o QuestieDB para ver comerciantes, missões e instrutores, com pontos de referência."
 L["Used in"] = "Usado em"
 L["Value gathered materials at what they'd sell for"] = "Avaliar materiais coletados pelo valor de venda"
 L["Vendor"] = "Comerciante"
@@ -575,3 +575,4 @@ L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vend
 	"Atualize o AuctionDB do TradeSkillMaster com o aplicativo de desktop do TSM, ou visite um vendedor, para precificar os reagentes." -- mt
 L["The tracker no longer flashes while you hover equippable items."] =
 	"O rastreador não pisca mais ao passar o mouse sobre itens equipáveis." -- mt
+L["Waiting for Questie to finish loading."] = "Aguardando o Questie terminar de carregar."

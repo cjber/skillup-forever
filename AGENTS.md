@@ -109,6 +109,7 @@ publishes it as the notes.
 - `wow-forever-addon`: https://github.com/cjber/forever-core/tree/main/.agents/skills/wow-forever-addon (UI look,
   icon, README and store page, CI and release requirements shared by every WoW: Forever addon)
 - `wow-retail-ui-style`: https://github.com/cjber/forever-core/tree/main/.agents/skills/wow-retail-ui-style (native host integration, compact layout rhythm, and asset blacklist)
+- `repo-standards`: the RS-* requirements every cjber repo meets (repo, Actions and security settings, rulesets, CI hardening, community files), a skill in cjber/skills whose `audit.py` checks this repo
 
 ## Waivers
 

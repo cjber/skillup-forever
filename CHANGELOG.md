@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-11-10
+
+- **Forever Core now comes in the same download.** This addon needs Forever Core, and until Forever Core has its own CurseForge page every Forever addon's download carries a copy of it, so the addon loads with nothing else to install.
+
 ### For addon authors
 
 - **`SkillUpForever.API` is minor 5.** Other addons can call `Subscribe(callback)` to hear, on the frame after a change lands and once per burst, that the levelling answers or the shopping list may have changed. A read with nothing to answer adds a `"loading"` or `"none"` reason as its second value, and `Professions()` returns a fresh table on every call, so the addon's own cache is never handed out. This needs ForeverCore 1.1.0 for its shared hub, and `docs/api.md` lists every function, the change names and the minor history.

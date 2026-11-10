@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Every spec but those that read the checkout rather than the addon: locale_spec runs tools/phrases.py.
 REPO_ONLY = {"tests/locale_spec.lua"}
 POLICY = package.Policy(
-    addons=("SkillUpForever",),
+    addons=("SkillUpForever", "ForeverCore"),
     specs=tuple(
         spec
         for spec in sorted(p.relative_to(ROOT).as_posix() for p in ROOT.glob("tests/*_spec.lua"))

@@ -581,5 +581,5 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster에 이 재료의 가격이 없습니다: TSM 데스크톱 앱으로 AuctionDB를 업데이트하세요." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"TSM 데스크톱 앱으로 TradeSkillMaster의 AuctionDB를 업데이트하거나 상인을 방문하여 재료 가격을 매기세요." -- mt
-L["Recipe skill ranges start where you learn the recipe."] =
-	"제조법의 숙련도 범위가 배우는 시점부터 시작합니다." -- mt
+L["Opening SkillUp's options no longer shows a blocked action error."] =
+	"SkillUp 옵션을 열 때 더 이상 동작 차단 오류가 표시되지 않습니다." -- mt

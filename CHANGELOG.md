@@ -12,7 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
-- **Opening SkillUp Forever's options no longer shows a blocked action error naming this addon.** The Open buttons on the options index, `/skillup` and the addon compartment entry now ask the game to open its options instead of opening them themselves, so the client does not refuse the request and blame SkillUp Forever (cjber/forever-core#333).
+## [1.3.4] - 2026-11-10
+
+- **Opening SkillUp's options no longer shows a blocked action error.** The Open buttons on the options index, `/skillup` and the addon compartment entry now ask the game to open its options instead of opening them themselves, so the client does not refuse the request and blame SkillUp Forever (cjber/forever-core#333).
 
 ## [1.3.3] - 2026-11-10
 

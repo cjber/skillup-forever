@@ -561,4 +561,5 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster 沒有這些材料的價格：使用 TSM 桌面應用程式更新其 AuctionDB。" -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"使用 TSM 桌面應用程式更新 TradeSkillMaster 的 AuctionDB，或拜訪商人，為材料定價。" -- mt
-L["Recipe skill ranges start where you learn the recipe."] = "配方的技能範圍從你學會它的技能開始。" -- mt
+L["Opening SkillUp's options no longer shows a blocked action error."] =
+	"開啟 SkillUp 的選項時不再顯示操作被封鎖的錯誤。" -- mt

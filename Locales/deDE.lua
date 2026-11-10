@@ -568,4 +568,5 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster hat keinen Preis für diese Reagenzien: Aktualisiert seine AuctionDB mit der TSM-Desktop-App." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"Aktualisiert TradeSkillMasters AuctionDB mit der TSM-Desktop-App oder besucht einen Händler, um Reagenzien zu bepreisen." -- mt
-L["No more blocked actions in combat."] = "Keine blockierten Aktionen mehr im Kampf." -- mt
+L["Recipe skill ranges start where you learn the recipe."] =
+	"Rezeptbereiche beginnen bei der Fertigkeit, mit der Ihr das Rezept erlernt." -- mt

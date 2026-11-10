@@ -4,15 +4,9 @@ It needs Forever Core, which CurseForge and Wago install with it.
 
 Free, with nothing locked behind it. If it saves you time, you can [sponsor me on GitHub](https://github.com/sponsors/cjber), which takes no fees, or [buy me a coffee on Ko-fi](https://ko-fi.com/cjber). For help and each day's release notes, [join me on Discord](https://discord.gg/FpHugGxRJY).
 
-[![Join me on Discord](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/discord-button.png)](https://discord.gg/FpHugGxRJY) [![Sponsor me on GitHub](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/github-sponsors-button.png)](https://github.com/sponsors/cjber) [![Support me on Ko-fi](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/kofi-button.png)](https://ko-fi.com/cjber)
-
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)
 
 From 48 to 60 the rows re-sort by cost per skill-up, and the bracers turn green at 55.
-
-![The Leatherworking window with skill-up chance and cost per skill-up on each row](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png)
-
-Chance and cost, right in the window's own rows.
 
 ![Recipe tooltip with thresholds, reagent prices and cost per skill-up](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tooltip.png)
 
@@ -22,6 +16,10 @@ Colour thresholds and reagent prices for the recipe you hover.
 
 The route tab from 48 to 73: what to train, what to craft and where reagents come from.
 
+![A Leatherworking trainer's recipes with skill-up chance, cost and a green arrow on the one that best helps the route](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/trainer.png)
+
+At the trainer, a green arrow marks the recipe that best extends or cheapens your route.
+
 ![The Crafted gear tab with item slots down both sides and along the bottom, each showing the newest crafted item, and one slot's recipe, reagents and status in the middle](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/gear.png)
 
 The gear tab, turned on in settings: each slot shows the newest thing this character could craft for it.
@@ -30,31 +28,18 @@ The gear tab, turned on in settings: each slot shows the newest thing this chara
 
 The buffs tab: what each profession can make for your level, in columns on a skill timeline.
 
-![The objective tracker with the route's next training step and missing reagents](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tracker.png)
-
-Track it and the route sits beside your quests.
-
-![A Leatherworking trainer's recipes with skill-up chance, cost and a green arrow on the one that best helps the route](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/trainer.png)
-
-At the trainer, a green arrow marks the recipe that best extends or cheapens your route.
-
-![Light Leather's tooltip with how much the tracked route needs](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/reagent.png)
-
-Hover a reagent to see how much your routes need.
+These images are generated previews of the SkillUp UI.
 
 ## Features
 
-- **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds.
-- **A wide recipe list** grows to the longest recipe name in the open profession, with how many your bags can make in parentheses after each name. The window grows with it, up to the room your screen has. Turn it off in settings to keep the game's own width.
-- **Unlearned recipes** can sit under the learned ones in the same list. A setting, off by default, greys them and marks each with its trainer or recipe item and the skill it asks, and hovering one shows its reagents, cost and skill-up colours like a learned recipe's. They cannot be selected or crafted.
-- **Sorting** orders recipes by difficulty range start, chance, cheapest skill-ups or newest learned first.
-- **Levelling routes** list crafts, trainer visits, skill books and rank quests to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps; routes that stop short name recipes that could extend them. Right-click a recipe and choose *Not this recipe* to plan without it.
-- **Shopping lists** count reagents against bags and bank. Choose whether gathered materials are free or bought, track them beside quests, buy vendor stock and keep an Auctionator list up to date. At the auction house, search a recipe's reagents for as many crafts as you choose.
-- **Trainer annotations** mark the best recipe to train next. Reagent tooltips show what tracked routes need.
-- **Gathering nodes** show the Herbalism or Mining skill they need, coloured at yours, on English clients.
-- **Crafted gear** shows the newest craft for each slot, with its recipe, reagents and learning location. Enable its tab in settings.
-- **Buffs** show what each profession can make for your level, on a skill timeline: known buffs, the ones you can learn now, and the ones still ahead. Pick the profession from the page's own dropdown, including crafters you do not have.
-- **Forever Leaderboards** rank the distinct recipes SkillUp has observed as learned on your character against guild and group totals, for this week or all time, in the shared window every Forever addon uses. The window also shows the overall standing across installed Forever addons and puts a player's place in the unit tooltip.
+- **Recipe rows and tooltips.** Each recipe shows its skill-up chance, cost and colour thresholds, in the row and in its tooltip. Missing data shows `?`.
+- **A wider, sortable recipe list.** The list grows to the longest recipe name in the open profession, with how many your bags can make in parentheses after each name, and the window grows with it up to the room your screen has; turn it off in settings to keep the game's own width. Sort by difficulty range start, chance, cheapest skill-ups or newest learned first.
+- **Unlearned recipes.** A setting, off by default, lists them greyed under the learned ones, each marked with its trainer or recipe item and the skill it asks. Hovering one shows its reagents, cost and skill-up colours like a learned recipe's; they cannot be selected or crafted.
+- **Levelling routes.** Crafts, trainer visits, skill books and rank quests to your target skill, including fees, tools and stations, with steps that allow for unlucky skill-ups. Cheaper crafted reagents become their own steps, routes that stop short name recipes that could extend them, and right-clicking a recipe and choosing *Not this recipe* plans without it.
+- **Shopping lists.** Reagents are counted against bags and bank. Choose whether gathered materials are free or bought, track them beside quests, buy vendor stock and keep an Auctionator list up to date; at the auction house, search a recipe's reagents for as many crafts as you choose.
+- **Trainers, reagents and gathering.** Trainers mark the best recipe to train next, and reagent tooltips show what tracked routes need. On English clients, gathering nodes show the Herbalism or Mining skill they need, coloured at yours.
+- **Crafted gear and buffs.** The gear tab, enabled in settings, shows the newest craft for each slot with its recipe, reagents and learning location. The buffs tab shows what each profession can make for your level on a skill timeline: known buffs, the ones you can learn now and the ones still ahead, for any profession picked from its dropdown, including crafters you do not have.
+- **Forever Leaderboards.** The distinct recipes SkillUp has observed as learned on your character are ranked against guild and group totals, for this week or all time, in the shared window every Forever addon uses. The window also shows the overall standing across installed Forever addons and puts a player's place in the unit tooltip.
 
 ## Prices
 
@@ -73,11 +58,14 @@ Open a profession and the numbers are already there.
 - `/su leaderboard` opens the Forever Leaderboards window on SkillUp's tab (also `/su stats`).
 - `/su share on|off` controls sharing with your guild and group. Sharing is on by default, and the window's Share my progress switch and the settings checkbox turn it off.
 - `/su audit`, with a profession open, prints where the bundled thresholds differ from the colours the game shows.
-- `/su report` shows a report to copy into a bug report.
 - `/su issue` opens a ready-made GitHub issue link to report a bug or request a feature.
 - `/su trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
-Missing data shows `?`. Settings cover rows and tooltips, the recipe list's width, prices, the route, gear and buffs tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints.
+Settings cover rows and tooltips, the recipe list's width, prices, the route, gear and buffs tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints.
+
+For a bug report, paste `/su report`. It shows a report to copy.
+
+Translated into German, French, Spanish, Brazilian Portuguese, Russian, Korean and Chinese (machine translated; corrections welcome through the [translation form](https://github.com/cjber/skillup-forever/issues/new?template=translation.yml)).
 
 <!-- forever-family:start -->
 
@@ -104,8 +92,8 @@ For help, ideas and each day's release notes, join [cjber's Workshop on Discord]
 
 With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever), clicking a trainer or vendor in the route plans the trip there, and SkillUp picks the nearest one by travel time. [Adventure Guide Forever](https://www.curseforge.com/wow/addons/adventure-guide-forever) shows each profession's next steps in its Professions tab. A tracked route shares one tracker column with the Shortest Path, Adventure Guide and Legacy Forever sections, above your quests.
 
-Translated into German, French, Spanish, Brazilian Portuguese, Russian, Korean and Chinese (machine translated; corrections welcome through the [translation form](https://github.com/cjber/skillup-forever/issues/new?template=translation.yml)).
-
-Source: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever), GPL-3.0-or-later.
+Source code and issues: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever). Licence: GPL-3.0-or-later.
 
 Built with AI assistance.
+
+[![Join me on Discord](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/discord-button.png)](https://discord.gg/FpHugGxRJY) [![Sponsor me on GitHub](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/github-sponsors-button.png)](https://github.com/sponsors/cjber) [![Support me on Ko-fi](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/kofi-button.png)](https://ko-fi.com/cjber)

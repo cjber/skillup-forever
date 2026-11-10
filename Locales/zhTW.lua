@@ -120,10 +120,10 @@ L["Herb and ore node tooltips show the skill they need and its colour at yours (
 L["Hide this section"] = "隱藏此部分"
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"安裝AtlasLoot以查看商人、任務和掉落可提供的配方。"
-L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =
-	"安裝Questie和AtlasLoot以查看配方、商人和訓練師的位置。"
-L["Install Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"安裝Questie以查看商人、任務和訓練師，並可設定導航點。"
+L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
+	"安裝QuestieDB和AtlasLoot以查看配方、商人和訓練師的位置。"
+L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"安裝QuestieDB以查看商人、任務和訓練師，並可設定導航點。"
 L["Installed, turned off"] = "已安裝，已停用"
 L["Its trainer should teach these at your skill now:"] = "以你現在的技能，訓練師應該能教你這些："
 L["Kept in the Auctionator list '%s'."] = "已儲存在Auctionator列表「%s」中。"
@@ -295,8 +295,8 @@ L["Train %s first: you're at your cap."] = "請先學習%s：你已達上限。"
 L["Trinket"] = "飾品"
 L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
 	"關閉此項後可將共用的Forever追蹤器拖曳到螢幕任意位置。"
-L["Update Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"更新Questie以查看商人、任務和訓練師，並可設定導航點。"
+L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"更新QuestieDB以查看商人、任務和訓練師，並可設定導航點。"
 L["Used in"] = "用於"
 L["Value gathered materials at what they'd sell for"] = "按售價計算採集的材料"
 L["Vendor"] = "商人"
@@ -563,3 +563,4 @@ L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vend
 	"使用 TSM 桌面應用程式更新 TradeSkillMaster 的 AuctionDB，或拜訪商人，為材料定價。" -- mt
 L["The tracker no longer flashes while you hover equippable items."] =
 	"將滑鼠懸停在可裝備物品上時，追蹤器不再閃爍。" -- mt
+L["Waiting for Questie to finish loading."] = "正在等待Questie載入完畢。"

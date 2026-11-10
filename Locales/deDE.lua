@@ -125,10 +125,10 @@ L["Herb and ore node tooltips show the skill they need and its colour at yours (
 L["Hide this section"] = "Diesen Abschnitt ausblenden"
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Installiert AtlasLoot, um die Rezepte von Händlern, Quests und Beute zu sehen."
-L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =
-	"Installiert Questie und AtlasLoot, um zu sehen, wo Rezepte, Händler und Lehrer sind."
-L["Install Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"Installiert Questie, um Händler, Quests und Lehrer mit Wegpunkten zu sehen."
+L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
+	"Installiert QuestieDB und AtlasLoot, um zu sehen, wo Rezepte, Händler und Lehrer sind."
+L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"Installiert QuestieDB, um Händler, Quests und Lehrer mit Wegpunkten zu sehen."
 L["Installed, turned off"] = "Installiert, deaktiviert"
 L["Its trainer should teach these at your skill now:"] =
 	"Der Lehrer sollte Euch bei Eurer Fertigkeit jetzt Folgendes lehren:"
@@ -302,8 +302,8 @@ L["Train %s first: you're at your cap."] = "Lernt zuerst %s: Ihr seid am Maximum
 L["Trinket"] = "Schmuck"
 L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
 	"Schaltet dies aus, um die gemeinsame Forever-Verfolgung frei zu verschieben."
-L["Update Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"Aktualisiert Questie, um Händler, Quests und Lehrer mit Wegpunkten zu sehen."
+L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"Aktualisiert QuestieDB, um Händler, Quests und Lehrer mit Wegpunkten zu sehen."
 L["Used in"] = "Verwendet in"
 L["Value gathered materials at what they'd sell for"] = "Gesammelte Materialien zum Verkaufswert rechnen"
 L["Vendor"] = "Händler"
@@ -571,3 +571,4 @@ L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vend
 	"Aktualisiert TradeSkillMasters AuctionDB mit der TSM-Desktop-App oder besucht einen Händler, um Reagenzien zu bepreisen." -- mt
 L["The tracker no longer flashes while you hover equippable items."] =
 	"Der Tracker flackert nicht mehr, wenn ihr ausrüstbare Gegenstände überfährt." -- mt
+L["Waiting for Questie to finish loading."] = "Warte, bis Questie fertig geladen ist."

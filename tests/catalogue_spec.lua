@@ -258,8 +258,8 @@ C = c.ns.Catalogue
 equal(C.Status().questie, "missing", "no QuestieDB")
 equal(
 	C.Hint(),
-	"Install Questie to see vendors, quests and trainers, with waypoints to them.",
-	"without Questie one line says what to install"
+	"Install QuestieDB to see vendors, quests and trainers, with waypoints to them.",
+	"without QuestieDB one line says what to install"
 )
 C.EnsureProfession(TAILORING)
 c.Settle()
@@ -274,7 +274,7 @@ c = Load(nil, nil)
 C = c.ns.Catalogue
 equal(
 	C.Hint(),
-	"Install Questie and AtlasLoot to see where recipes, vendors and trainers are.",
+	"Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are.",
 	"with neither, one line names both"
 )
 equal(C.EnsureProfession(TAILORING), true, "there is nothing to read")
@@ -288,6 +288,11 @@ db.contract = 3
 c = Load(db, Recipes())
 equal(c.ns.Catalogue.Status().questie, "unfit", "another contract is not read")
 equal(c.ns.Catalogue.NPC(SELLER), nil, "so no NPC")
+equal(
+	c.ns.Catalogue.Hint(),
+	"Update QuestieDB to see vendors, quests and trainers, with waypoints to them.",
+	"and one line says what to update"
+)
 db = Database()
 db.without = "vendors"
 equal(Load(db, nil).ns.Catalogue.Status().questie, "unfit", "a schema without a field read is not read")
@@ -314,7 +319,7 @@ c = Load(Database(), Recipes(), {
 })
 C = c.ns.Catalogue
 equal(C.Status().questie, "waiting", "with Questie installed its start is waited for")
-equal(C.Hint(), nil, "which is nothing to install")
+equal(C.Hint(), "Waiting for Questie to finish loading.", "and one line says it is still starting")
 C.EnsureProfession(TAILORING)
 c.Settle()
 equal(#C.Recipe(SHIRT).vendors, 0, "until then a scroll has no seller")

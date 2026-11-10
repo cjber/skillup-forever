@@ -291,7 +291,7 @@ equal(
 	c.Lines(function(tooltip)
 		ns.AddNearest(tooltip, "Nearest trainer", nil)
 	end),
-	"Install Questie to see vendors, quests and trainers, with waypoints to them.",
+	"Install QuestieDB to see vendors, quests and trainers, with waypoints to them.",
 	"a step's tooltip says what to install"
 )
 
@@ -302,7 +302,7 @@ ns = c.ns
 equal(#ns.RecipeSuggestions(tailoring, 50), 0, "with neither addon nothing is suggested")
 equal(
 	ns.Catalogue.Hint(),
-	"Install Questie and AtlasLoot to see where recipes, vendors and trainers are.",
+	"Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are.",
 	"and one line names both"
 )
 c.Advance(0)

@@ -126,10 +126,10 @@ L["Herb and ore node tooltips show the skill they need and its colour at yours (
 L["Hide this section"] = "Скрыть этот раздел"
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Установите AtlasLoot, чтобы видеть рецепты от торговцев, заданий и добычи."
-L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =
-	"Установите Questie и AtlasLoot, чтобы видеть, где рецепты, торговцы и учителя."
-L["Install Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"Установите Questie, чтобы видеть торговцев, задания и учителей с точками маршрута."
+L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
+	"Установите QuestieDB и AtlasLoot, чтобы видеть, где рецепты, торговцы и учителя."
+L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"Установите QuestieDB, чтобы видеть торговцев, задания и учителей с точками маршрута."
 L["Installed, turned off"] = "Установлено, отключено"
 L["Its trainer should teach these at your skill now:"] =
 	"Учитель уже должен обучить вас этому при вашем навыке:"
@@ -316,8 +316,8 @@ L["Train %s first: you're at your cap."] = "Сначала изучите %s: в
 L["Trinket"] = "Аксессуар"
 L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
 	"Выключите, чтобы перетаскивать общее окно отслеживания Forever в любое место экрана."
-L["Update Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"Обновите Questie, чтобы видеть торговцев, задания и учителей с точками маршрута."
+L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"Обновите QuestieDB, чтобы видеть торговцев, задания и учителей с точками маршрута."
 L["Used in"] = "Используется в"
 L["Value gathered materials at what they'd sell for"] =
 	"Оценивать добытые материалы по цене продажи"
@@ -610,3 +610,4 @@ L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vend
 	"Обновите AuctionDB TradeSkillMaster через приложение TSM для компьютера или посетите торговца, чтобы оценить реагенты." -- mt
 L["The tracker no longer flashes while you hover equippable items."] =
 	"Список задач больше не мерцает при наведении на надеваемые предметы." -- mt
+L["Waiting for Questie to finish loading."] = "Ожидание окончания загрузки Questie."

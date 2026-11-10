@@ -91,10 +91,10 @@ equal(#ns.PlanRoute(Tailoring()).crafts > 0, true, "the plan under test has craf
 equal(Stale(function() end), " | ", "nothing changes on its own")
 
 -- The public list was built without the reagent's name, so item data arriving rebuilds it once.
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), "api | route tracker", "item data the public list waited on")
+equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), "api | route", "item data the public list waited on")
 c.items[CLOTH] = { name = "Linen Cloth" }
 c.Fire("BAG_UPDATE_DELAYED")
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), " | route tracker", "item data nothing waited on")
+equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), " | route", "item data nothing waited on")
 
 for _, case in ipairs({
 	-- The window's own events redraw what shows it and keep the plans: its scan reports what changed in them.

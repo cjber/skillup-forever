@@ -863,6 +863,34 @@ local function Waypointed(line, title, label, nearest, quest)
 	line:SetScript("OnLeave", GameTooltip_Hide)
 end
 
+-- The item names the tracker draws. One that has not loaded is asked for and remembered, so item data that names
+-- it redraws the section once; item data for anything else, which every tooltip hover raises, leaves it alone (#526).
+---@type table<integer, true>
+local waitingNames = {}
+---@param itemID integer
+---@return string?
+local function TrackerName(itemID)
+	local name = C_Item.GetItemNameByID(itemID)
+	if not name then
+		waitingNames[itemID] = true
+		C_Item.RequestLoadItemDataByID(itemID)
+	end
+	return name
+end
+
+-- Only a name the section is waiting for changes what it shows; the rest of a hover's item data is no reason to
+-- lay the tracker out again.
+ns.WhenEvent("ITEM_DATA_LOAD_RESULT", function()
+	local arrived = false
+	for itemID in pairs(waitingNames) do
+		if C_Item.GetItemNameByID(itemID) then
+			waitingNames[itemID] = nil
+			arrived = true
+		end
+	end
+	return arrived and "trackerNames" or nil
+end)
+
 -- The ranks and recipes to train, in the order the route page lists them, each with where to go for it:
 -- a trainer, or the vendor of a rank's book.
 ---@param plan SkillUpPlan
@@ -873,6 +901,9 @@ local function TrainingSteps(plan)
 	for _, step in ipairs(plan.steps) do
 		local rank, training = step.rank, step.training
 		if rank then
+			if rank.book then
+				TrackerName(rank.book)
+			end
 			steps[#steps + 1] = {
 				text = ns.RankText(rank),
 				book = rank.book and ns.RankBookName(rank),
@@ -886,9 +917,8 @@ local function TrainingSteps(plan)
 			if training.scroll then
 				local scroll = training.scroll
 				---@cast scroll integer
-				local scrollName = C_Item.GetItemNameByID(scroll)
+				local scrollName = TrackerName(scroll)
 				if not scrollName then
-					C_Item.RequestLoadItemDataByID(scroll)
 					scrollName = string.format(L["item %d"], scroll)
 				end
 				steps[#steps + 1] = {
@@ -944,9 +974,8 @@ local function LayoutEntry(self, entry)
 				break
 			end
 			shown = shown + 1
-			local name = C_Item.GetItemNameByID(item.itemID)
+			local name = TrackerName(item.itemID)
 			if not name then
-				C_Item.RequestLoadItemDataByID(item.itemID)
 				name = string.format(L["item %d"], item.itemID)
 			end
 			local gather = item.source == "gather" and string.format(" |cff808080(%s)|r", L["gather"]) or ""
@@ -972,6 +1001,10 @@ local function LayoutEntry(self, entry)
 end
 
 function ModuleMixin:LayoutContents()
+	-- What this layout draws is what the section can now be waiting for; names from an earlier layout are gone.
+	for itemID in pairs(waitingNames) do
+		waitingNames[itemID] = nil
+	end
 	if not ns.db.showTracker or detached then
 		return
 	end

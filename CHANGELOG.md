@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The tracker no longer flashes while you hover equippable items.** An item's tooltip and its comparison tooltips were making the tracked reagents section redraw for item details it does not show. It now draws again only when a reagent or book it lists arrives. Thanks to hardliquor on Discord for the report (#526).
+
 ## [1.3.4] - 2026-11-10
 
 - **Opening SkillUp's options no longer shows a blocked action error.** The Open buttons on the options index, `/skillup` and the addon compartment entry now ask the game to open its options instead of opening them themselves, so the client does not refuse the request and blame SkillUp Forever (cjber/forever-core#333).

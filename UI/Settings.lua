@@ -367,5 +367,12 @@ function ns.OpenSettings()
 	if not category then
 		return
 	end
-	Settings.OpenToCategory(category:GetID())
+	local function Open()
+		Settings.OpenToCategory(category:GetID())
+	end
+	-- Opening the panel reaches a protected call, so it waits for combat to end like the pages do (#489).
+	if not ns.Pages.Unlocked(Open) then
+		return
+	end
+	Open()
 end

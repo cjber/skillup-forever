@@ -701,6 +701,7 @@ SkillUpForeverDB = nil
 -- The one side tab and the bottom tabs of the pages that are on (UI/Pages.lua).
 ---@class SkillUpPages
 ---@field Register fun(spec: SkillUpPageSpec)
+---@field Unlocked fun(fn: fun()): boolean
 ---@field Open fun()
 ---@field Close fun(id: SkillUpPageID)
 ---@field Select fun(id: SkillUpPageID)

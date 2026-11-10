@@ -572,4 +572,4 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"O TradeSkillMaster não tem preço para estes reagentes: atualize o AuctionDB com o aplicativo de desktop do TSM." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"Atualize o AuctionDB do TradeSkillMaster com o aplicativo de desktop do TSM, ou visite um vendedor, para precificar os reagentes." -- mt
-L["Auction prices can come from TradeSkillMaster."] = "Os preços de leilão podem vir do TradeSkillMaster." -- mt
+L["No more blocked actions in combat."] = "Não há mais ações bloqueadas em combate." -- mt

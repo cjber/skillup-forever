@@ -14,6 +14,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **A recipe's skill range now starts where you learn it, so *Newest recipes first* sorts correctly.** The client leaves most recipes' first threshold at 1, so the tooltip, its bar, the recipe rows and the sort all took 1 as the range start: Dark Leather Belt said "Skill range starts at 1" although its trainer asks 100, and recipes learned later sorted as if they were learned first. The start now comes from the trainer or recipe item that teaches the recipe, so 406 recipes show the skill you learn them at; a recipe learned at 1, or one the bundle has no source for, keeps the client's number. Thanks to cotijelucie on Discord for the report (#519).
 
+## [1.3.2] - 2026-11-10
+
+- **No more blocked actions in combat.** Hiding or showing one of SkillUp's pages while you were in combat was refused by the client, which showed up as an "action blocked" message while casting or learning a plan. The page switch now waits for combat to end, and your own tabs still update the moment you click. `/skillup` typed in combat opens the settings panel once combat ends rather than being refused.
+
 ## [1.3.1] - 2026-11-10
 
 - **Auction prices can come from TradeSkillMaster.** With TradeSkillMaster installed and no Auctionator price for an item, reagents and crafted items use TSM's AuctionDB: its latest snapshot's market value, then the lowest buyout, then the 14-day market value. The desktop app refreshes that data, so TSM does not report how old a price is and no age is shown. Auctionator stays first when both are installed, and its shopping lists still need Auctionator.

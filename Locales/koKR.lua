@@ -116,10 +116,11 @@ L["Herb and ore node tooltips show the skill they need and its colour at yours (
 	"약초와 광맥 툴팁에 필요한 숙련도와 내 숙련도 기준 색상을 표시합니다 (영어 클라이언트 전용). 무두질 가능한 시체는 Forever에서 무두질 규칙이 확인될 때까지 ?로 표시됩니다."
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"상인, 퀘스트, 전리품으로 얻을 제조법을 보려면 AtlasLoot를 설치하세요."
-L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =
-	"제조법, 상인, 전문가의 위치를 보려면 Questie와 AtlasLoot를 설치하세요."
-L["Install Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"상인, 퀘스트, 전문가와 그 웨이포인트를 보려면 Questie를 설치하세요."
+L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
+	"제조법, 상인, 전문가의 위치를 보려면 QuestieDB와 AtlasLoot를 설치하세요."
+L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"상인, 퀘스트, 전문가와 그 웨이포인트를 보려면 QuestieDB를 설치하세요."
+L["Installed, turned off"] = "설치됨, 사용 안 함"
 L["Its trainer should teach these at your skill now:"] =
 	"지금 숙련도로 전문가에게 다음을 배울 수 있어야 합니다:"
 L["Kept in the Auctionator list '%s'."] = "Auctionator 목록 '%s'에 저장되었습니다."
@@ -274,8 +275,8 @@ L["Train %s first: you're at your cap."] = "먼저 %s을(를) 배우세요: 숙�
 L["Trinket"] = "장신구"
 L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
 	"끄면 공유 Forever 추적기를 화면 어디로든 끌 수 있습니다."
-L["Update Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"상인, 퀘스트, 전문가와 그 웨이포인트를 보려면 Questie를 업데이트하세요."
+L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"상인, 퀘스트, 전문가와 그 웨이포인트를 보려면 QuestieDB를 업데이트하세요."
 L["Used in"] = "사용처"
 L["Value gathered materials at what they'd sell for"] = "채집한 재료를 판매 가격으로 계산"
 L["Vendor"] = "상인"
@@ -500,3 +501,4 @@ L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vend
 	"TSM 데스크톱 앱으로 TradeSkillMaster의 AuctionDB를 업데이트하거나 상인을 방문하여 재료 가격을 매기세요." -- mt
 L["The tracker no longer flashes while you hover equippable items."] =
 	"장비 가능한 물품 위에 마우스를 올려도 추적기가 더 이상 깜빡이지 않습니다." -- mt
+L["Waiting for Questie to finish loading."] = "Questie 불러오기가 끝나기를 기다리는 중입니다."

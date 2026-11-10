@@ -116,10 +116,11 @@ L["Herb and ore node tooltips show the skill they need and its colour at yours (
 	"Les infobulles des herbes et gisements affichent la compétence requise et sa couleur à votre niveau (client anglais uniquement). Les cadavres dépeçables affichent ? tant que la règle du dépeçage n'est pas confirmée sur Forever." -- mt
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Installez AtlasLoot pour voir les recettes qu'ajouteraient marchands, quêtes et butins." -- mt
-L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =
-	"Installez Questie et AtlasLoot pour voir où se trouvent recettes, marchands et maîtres." -- mt
-L["Install Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"Installez Questie pour voir marchands, quêtes et maîtres, avec des points de passage." -- mt
+L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
+	"Installez QuestieDB et AtlasLoot pour voir où se trouvent recettes, marchands et maîtres." -- mt
+L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"Installez QuestieDB pour voir marchands, quêtes et maîtres, avec des points de passage." -- mt
+L["Installed, turned off"] = "Installé, désactivé" -- mt
 L["Its trainer should teach these at your skill now:"] =
 	"Son maître devrait vous enseigner ceci à votre compétence actuelle :" -- mt
 L["Kept in the Auctionator list '%s'."] = "Conservé dans la liste Auctionator « %s »." -- mt
@@ -274,8 +275,8 @@ L["Train %s first: you're at your cap."] = "Apprenez d'abord %s : vous êtes au 
 L["Trinket"] = "Bijou" -- mt
 L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
 	"Désactivez cette option pour déplacer le suivi Forever partagé n'importe où à l'écran."
-L["Update Questie to see vendors, quests and trainers, with waypoints to them."] =
-	"Mettez Questie à jour pour voir marchands, quêtes et maîtres, avec des points de passage." -- mt
+L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
+	"Mettez QuestieDB à jour pour voir marchands, quêtes et maîtres, avec des points de passage." -- mt
 L["Used in"] = "Utilisé dans" -- mt
 L["Value gathered materials at what they'd sell for"] = "Valoriser les matériaux récoltés à leur prix de vente" -- mt
 L["Vendor"] = "Marchand" -- mt
@@ -498,3 +499,4 @@ L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vend
 	"Mettez à jour l'AuctionDB de TradeSkillMaster avec l'application de bureau TSM, ou rendez-vous chez un vendeur, pour estimer les composants." -- mt
 L["The tracker no longer flashes while you hover equippable items."] =
 	"Le suivi ne clignote plus lorsque vous survolez des objets d'équipement." -- mt
+L["Waiting for Questie to finish loading."] = "En attente du chargement complet de Questie."

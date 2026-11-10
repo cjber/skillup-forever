@@ -155,6 +155,9 @@ local OPTIONAL_GLOBALS = {
 	C_Traits = true,
 	-- ForeverCore's saved table, made by its own ADDON_LOADED handler.
 	ForeverCoreDB = true,
+	-- ForeverCore's one tracker column: present only when an addon that still vendors an older copy loaded first,
+	-- which its own UI/TrackerHost.lua then adopts instead of drawing a second column.
+	ForeverTrackerHost = true,
 	-- ForeverCore's tracker host: the client's Edit Mode frame, present only once Edit Mode has loaded.
 	EditModeManagerFrame = true,
 	-- ForeverCore's context menu and minimap button: frames present only once their Blizzard addon has loaded.

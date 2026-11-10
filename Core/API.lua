@@ -12,6 +12,25 @@ local L = ns.L
 -- API.ShoppingList's records carry `target`: the base skill that profession's plan buys to,
 -- the same number the route tab's Target box shows.
 
+-- Core/Require.lua stopped every file if the kit is missing, so it is here.
+local APIKit = ForeverCore.APIKit
+---@cast APIKit ForeverCoreAPIKit
+
+-- A change that drops the API's cache reaches callers through ForeverCore's hub, on the frame after it lands and
+-- once per burst, never in the call that made it (docs/api.md). Both names move together: one change signal drops
+-- every answer, so the list and the shopping list are read again together.
+local revision = 0
+local hub = APIKit.Hub("SkillUpForever", {
+	professions = function()
+		return revision
+	end,
+	shopping = function()
+		return revision
+	end,
+}, function()
+	return ns.db ~= nil
+end)
+
 local MAX_STEPS = 3
 local MAX_RECIPES = 5
 -- Earlier first: what can be done with what's in the bags beats a trip.
@@ -27,6 +46,8 @@ local namesPending = false
 ns.WhenStale("api", function()
 	namesPending = false
 	cache = nil
+	revision = revision + 1
+	hub.Queue()
 end)
 
 ---@param copper number
@@ -388,22 +409,91 @@ local function Build()
 	return entries
 end
 
+-- The built answers, or nil while the saved variables are still loading. They are built once and kept until
+-- Core/Changes.lua drops them, so only the copy handed to a caller is fresh.
+---@return SkillUpAPIProfession[]?
+local function Ensure()
+	if not ns.db then
+		return nil
+	end
+	if not cache then
+		cache = Build()
+	end
+	return cache
+end
+
+---@generic T
+---@param row T
+---@return T
+local function CopyRow(row)
+	local copy = {}
+	for key, value in pairs(row) do
+		copy[key] = value
+	end
+	return copy
+end
+
+-- A read returns a fresh table on every call: a caller may keep it or change it (docs/api-conventions.md).
+---@param list SkillUpAPIProfession[]
+---@return SkillUpAPIProfession[]
+local function CopyProfessions(list)
+	local copy = {}
+	for index, entry in ipairs(list) do
+		local steps, recipes, reagents = {}, {}, {}
+		for stepIndex, step in ipairs(entry.steps) do
+			steps[stepIndex] = CopyRow(step)
+		end
+		for recipeIndex, recipe in ipairs(entry.recipes) do
+			recipes[recipeIndex] = CopyRow(recipe)
+		end
+		for reagentIndex, reagent in ipairs(entry.reagents) do
+			reagents[reagentIndex] = CopyRow(reagent)
+		end
+		copy[index] = {
+			name = entry.name,
+			skillLineID = entry.skillLineID,
+			icon = entry.icon,
+			rank = entry.rank,
+			maxRank = entry.maxRank,
+			title = entry.title,
+			steps = steps,
+			recipes = recipes,
+			reagents = reagents,
+		}
+	end
+	return copy
+end
+
 ---@class SkillUpPublicAPI
-local API = { version = 1, minor = 4 }
+-- `minor` rises with each addition within version 1 (1: Professions, Navigate and OpenRecipes; 2: ShoppingList;
+-- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason);
+-- a caller checks a member before using it (docs/api.md).
+local API = { version = 1, minor = 5 }
+
+-- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
+API.Subscribe = hub.Subscribe
 
 ---@param recipeID integer
 ---@param crafts number?
 ---@return {itemID: integer, count: number}[]?
+---@return SkillUpAPIReason?
 function API.RequiredMaterials(recipeID, crafts)
 	local _, raw = ns.RecipeMaterials(recipeID, crafts or 1)
+	if not raw then
+		return APIKit.NotReady("none")
+	end
 	return raw
 end
 
 ---@param recipeID integer
 ---@param crafts number?
 ---@return SkillUpSubCraft[]?
+---@return SkillUpAPIReason?
 function API.SubComponents(recipeID, crafts)
 	local subcrafts = ns.RecipeMaterials(recipeID, crafts or 1)
+	if not subcrafts then
+		return APIKit.NotReady("none")
+	end
 	return subcrafts
 end
 
@@ -644,22 +734,23 @@ function ns.ShoppingTrip(skillLineID)
 	return false
 end
 
----@return SkillUpAPIProfession[]
+---@return SkillUpAPIProfession[]?
+---@return SkillUpAPIReason?
 function API.Professions()
-	if not ns.db then
-		return {}
+	local list = Ensure()
+	if not list then
+		return APIKit.NotReady("loading")
 	end
-	if not cache then
-		cache = Build()
-	end
-	return cache
+	return CopyProfessions(list)
 end
 
 ---@param skillLineID integer
 ---@param stepIndex integer
 ---@return boolean
 function API.Navigate(skillLineID, stepIndex)
-	API.Professions()
+	if not Ensure() then
+		return false
+	end
 	local pick = pickers[skillLineID] and pickers[skillLineID][stepIndex]
 	local npcID = pick and pick()
 	return npcID ~= nil and ns.SetWaypoint(npcID)

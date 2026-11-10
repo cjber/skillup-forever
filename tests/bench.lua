@@ -216,7 +216,9 @@ end)
 report("ns.PlanRoute (cached)", 200000, function()
 	ns.PlanRoute(lw)
 end)
-report("API.Professions (cached)", 200000, function()
+-- Every call copies the cached answer into fresh tables, as each Forever API read does (forever-core
+-- docs/api-conventions.md), so it costs microseconds rather than a table lookup; a caller reads it once per refresh.
+report("API.Professions (cached, fresh copy)", 5000, function()
 	c.G.SkillUpForever.API.Professions()
 end)
 

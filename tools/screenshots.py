@@ -895,6 +895,21 @@ local host = {
 }
 env.ForeverCore = {
 	API = 1,
+	-- The shared API kit (ForeverCore's Core/APIKit.lua): a render subscribes to nothing and a read is answered from
+	-- the scene's own data, so the hub only has to exist.
+	APIKit = {
+		Hub = function()
+			return {
+				Queue = function() end,
+				Subscribe = function()
+					return function() end
+				end,
+			}
+		end,
+		NotReady = function(reason)
+			return nil, reason
+		end,
+	},
 	TrackerHost = host,
 	Register = function(_, spec)
 		return {

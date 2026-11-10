@@ -60,8 +60,17 @@ local c = Client.load({
 })
 local ns, API = c.ns, c.G.SkillUpForever.API
 equal(API.version, 1, "version 1")
-equal(API.minor, 4, "minor version includes recipe materials helpers")
-equal(#API.Professions(), 0, "nothing before the saved variables load")
+equal(API.minor, 5, "minor 5 is Subscribe and the not-ready reason")
+-- Nothing to answer says why, so a caller can tell "ask again later" from "there is nothing to ask about".
+local beforeLoad, beforeLoadReason = API.Professions()
+equal(beforeLoad, nil, "nothing before the saved variables load")
+equal(beforeLoadReason, "loading", "and the read says to ask again")
+local noMaterials, noMaterialsReason = API.RequiredMaterials(999999)
+equal(noMaterials, nil, "an unknown recipe has no materials")
+equal(noMaterialsReason, "none", "and says there is nothing to answer")
+local noParts, noPartsReason = API.SubComponents(999999)
+equal(noParts, nil, "nor sub-components")
+equal(noPartsReason, "none", "with the same reason")
 
 c.spells = {
 	[GLOVES] = "Toughened Leather Gloves",
@@ -89,6 +98,33 @@ c.professions = {
 }
 c.Boot()
 equal(#c.chat, 0, "the addon starts without a word")
+
+-- Subscribe is ForeverCore's hub (docs/api.md): the frame after a change, once per burst, naming what moved.
+local heard = {}
+local unsubscribe = API.Subscribe(function(changes)
+	heard[#heard + 1] = changes
+end)
+equal(#heard, 0, "subscribing sends nothing by itself")
+c.Advance(0)
+equal(#heard, 0, "nor on the next frame")
+ns.Changed("target")
+equal(#heard, 0, "a change waits for the frame after it")
+c.Advance(0)
+equal(#heard, 1, "then the callback runs")
+equal(heard[1].professions, true, "naming the levelling answers")
+equal(heard[1].shopping, true, "and the shopping list")
+equal(heard[1].stop, nil, "and nothing it does not publish")
+ns.Changed("target")
+ns.Changed("prices")
+ns.Changed("bags")
+equal(#heard, 1, "a burst of changes is still one call")
+c.Advance(0)
+equal(#heard, 2, "sent on the frame after it")
+unsubscribe()
+unsubscribe()
+ns.Changed("target")
+c.Advance(0)
+equal(#heard, 2, "an unsubscribed callback hears nothing, and unsubscribing twice is safe")
 
 local list = API.Professions()
 -- Until the vendors and trainers are read from QuestieDB, a step says what to find and routes nowhere.
@@ -186,16 +222,19 @@ equal(#alchemy.steps, 0, "no steps")
 equal(#alchemy.recipes, 0, "no recipes")
 equal(#alchemy.reagents, 0, "no reagents")
 
--- Kept until an event says otherwise.
-equal(API.Professions(), list, "a second call is the cache")
+-- Built once and kept until an event says otherwise, but every read is the caller's own table.
+local second = API.Professions()
+equal(second ~= list, true, "a second call is a fresh table")
+equal(second[1].steps[1].text, list[1].steps[1].text, "with the same answers")
+second[1].name, second[1].steps[1].text = "changed by the caller", "changed by the caller"
+equal(API.Professions()[1].name, "Tailoring", "a caller's change never reaches the addon's cache")
+equal(API.Professions()[1].steps[1].text ~= "changed by the caller", true, "nor its steps")
 c.Fire("ITEM_DATA_LOAD_RESULT")
-equal(API.Professions(), list, "item data with no name waiting keeps the cache")
+equal(#API.Professions(), 4, "item data with no name waiting keeps the answers")
 c.Fire("BAG_UPDATE_DELAYED")
-local rebuilt = API.Professions()
-equal(rebuilt ~= list, true, "a bag update rebuilds")
-equal(API.Professions(), rebuilt, "once")
+equal(API.Professions()[1].name, "Tailoring", "a bag update answers the same list")
 ns.Changed("fees")
-equal(API.Professions() ~= rebuilt, true, "dropped plans rebuild it")
+equal(API.Professions()[1].name, "Tailoring", "dropped plans answer again")
 
 -- Steps route by travel time to the NPC they name.
 local estimates, routed = 0, nil
@@ -240,10 +279,8 @@ c.professions[1].id = 8165
 c.G.C_TradeSkillUI.OpenTradeSkill = OpenTradeSkill
 
 -- Tracking changes the order, so the next call rebuilds.
-local tracked = API.Professions()
 ns.SetTracked(165, true)
-equal(API.Professions() ~= tracked, true, "tracking a profession rebuilds the list")
-equal(API.Professions()[2].name, "Leatherworking", "and it moves ahead of the untracked ones")
+equal(API.Professions()[2].name, "Leatherworking", "tracking a profession rebuilds the list and moves it ahead")
 
 -- What the client reports reaches the list through every file between: a merchant seen to sell thread for
 -- less re-prices the purchase.

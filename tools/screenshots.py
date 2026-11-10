@@ -851,6 +851,7 @@ env = setmetatable({
 	AtlasLoot = false,
 	LibQuestieDB = false,
 	Syndicator = false,
+	TSM_API = false,
 	-- No other Forever addon has loaded UI/ForeverFamily.lua: this copy sets the global.
 	ForeverFamily = false,
 	ForeverLeaderboards = false,

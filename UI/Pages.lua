@@ -24,6 +24,68 @@ local wanted
 local token = 0
 local opening = false
 
+---@return boolean
+local function Locked()
+	return type(InCombatLockdown) == "function" and InCombatLockdown()
+end
+
+-- Page frames are protected while a secure button hangs off the window (Route's Craft button), so hiding or
+-- showing one during combat lockdown is refused and taints our frame work (#489). The wanted page and our own
+-- tabs still change at once; only the frame calls wait for combat to end, the way UI/Route.lua already waits for
+-- its Craft button. The frame work is remembered in one slot, in the order the calls asked for it.
+---@type (fun())?
+local pending
+local watched = CreateFrame("Frame")
+
+local function StopWatching()
+	if watched.UnregisterEvent then
+		watched:UnregisterEvent("PLAYER_REGEN_ENABLED")
+	end
+end
+
+watched:SetScript("OnEvent", function()
+	if Locked() then
+		return
+	end
+	local work = pending
+	pending = nil
+	StopWatching()
+	if work then
+		work()
+	end
+end)
+
+---@param work fun()
+---@return boolean
+local function Frames(work)
+	if not Locked() then
+		work()
+		return true
+	end
+	if pending then
+		local earlier = pending
+		pending = function()
+			earlier()
+			work()
+		end
+	else
+		pending = work
+	end
+	watched:RegisterEvent("PLAYER_REGEN_ENABLED")
+	return false
+end
+
+---@param fn fun()
+---@return boolean
+local function Unlocked(fn)
+	if not Locked() then
+		return true
+	end
+	Frames(fn)
+	return false
+end
+ns.Pages.Unlocked = Unlocked
+
 ---@param spec SkillUpPageSpec
 ---@return boolean
 local function Enabled(spec)
@@ -92,9 +154,14 @@ local function HidePageLater()
 		if myToken ~= token or wanted or not ProfessionsFrame:IsShown() then
 			return
 		end
-		for _, spec in ipairs(pages) do
-			spec.page:Hide()
-		end
+		Frames(function()
+			if myToken ~= token or wanted or not ProfessionsFrame:IsShown() then
+				return
+			end
+			for _, spec in ipairs(pages) do
+				spec.page:Hide()
+			end
+		end)
 		Sync()
 	end)
 end
@@ -105,8 +172,13 @@ local function HideNativePagesLater()
 		if myToken ~= token or not wanted or not ProfessionsFrame:IsShown() then
 			return
 		end
-		ProfessionsFrame.CraftingPage:Hide()
-		ProfessionsFrame.BookPage:Hide()
+		Frames(function()
+			if myToken ~= token or not wanted or not ProfessionsFrame:IsShown() then
+				return
+			end
+			ProfessionsFrame.CraftingPage:Hide()
+			ProfessionsFrame.BookPage:Hide()
+		end)
 	end)
 end
 
@@ -118,7 +190,12 @@ local function ShowCraftingPageLater()
 		if myToken ~= token or wanted or ProfessionsFrame:IsShown() then
 			return
 		end
-		ProfessionsFrame.CraftingPage:Show()
+		Frames(function()
+			if myToken ~= token or wanted or ProfessionsFrame:IsShown() then
+				return
+			end
+			ProfessionsFrame.CraftingPage:Show()
+		end)
 	end)
 end
 
@@ -142,24 +219,36 @@ end
 
 ---@param spec SkillUpPageSpec
 local function Show(spec)
-	-- One page at a time: the other one's own OnHide only clears its drawing.
-	for _, other in ipairs(pages) do
-		if other ~= spec and other.page:IsShown() then
-			other.page:Hide()
-		end
-	end
-	if spec.prepare then
-		spec.prepare()
-	end
-	-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly. Its own
-	-- OnShow may run our Deselect, so the page is marked wanted after that.
-	ProfessionsFrame.CraftingPage:Show()
 	wanted = spec.id
 	token = token + 1
-	spec.page:Show()
+	local myToken = token
 	ns.SetLastSkillUpPage(spec.id)
 	Sync()
-	HideNativePagesLater()
+	Frames(function()
+		if myToken ~= token or wanted ~= spec.id then
+			return
+		end
+		-- One page at a time: the other one's own OnHide only clears its drawing.
+		for _, other in ipairs(pages) do
+			if other ~= spec and other.page:IsShown() then
+				other.page:Hide()
+			end
+		end
+		if spec.prepare then
+			spec.prepare()
+		end
+		-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly. Its own
+		-- OnShow may run our Deselect, so the page is marked wanted after that.
+		ProfessionsFrame.CraftingPage:Show()
+		if wanted ~= spec.id then
+			wanted = spec.id
+			ns.SetLastSkillUpPage(spec.id)
+			Sync()
+		end
+		spec.page:Show()
+		Sync()
+		HideNativePagesLater()
+	end)
 end
 
 ---@param id string
@@ -194,7 +283,13 @@ function ns.Pages.Close(id)
 	if wanted == id then
 		Deselect()
 	elseif spec.page:IsShown() then
-		spec.page:Hide()
+		local myToken = token
+		Frames(function()
+			if myToken ~= token then
+				return
+			end
+			spec.page:Hide()
+		end)
 		Sync()
 	end
 end
@@ -202,12 +297,14 @@ end
 -- A page can be turned off in settings; an open page goes back to crafting. The side tab shows while at
 -- least one page is on.
 local function RefreshSettings()
+	---@type Frame[]?
+	local hiding
 	for _, spec in ipairs(pages) do
 		if not Enabled(spec) and spec.page:IsShown() then
 			wanted = nil
 			token = token + 1
-			spec.page:Hide()
-			ProfessionsFrame.CraftingPage:Show()
+			hiding = hiding or {}
+			hiding[#hiding + 1] = spec.page
 		end
 	end
 	if tab then
@@ -215,6 +312,18 @@ local function RefreshSettings()
 	end
 	Sync()
 	ns.PlaceSideTabs()
+	if hiding then
+		local myToken = token
+		Frames(function()
+			if myToken ~= token then
+				return
+			end
+			for _, page in ipairs(hiding) do
+				page:Hide()
+			end
+			ProfessionsFrame.CraftingPage:Show()
+		end)
+	end
 end
 
 -- Whether a frame hangs off one of our tabs, directly or through the frames it is anchored to.

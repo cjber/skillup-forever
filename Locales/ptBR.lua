@@ -570,5 +570,7 @@ L["The recipe list can put the recipes you learned most recently first."] =
 	"A lista de receitas pode mostrar primeiro as que você aprendeu mais recentemente." -- mt
 L["Latest TradeSkillMaster prices."] = "Preços mais recentes do TradeSkillMaster." -- mt
 L["TradeSkillMaster"] = "TradeSkillMaster" -- mt
-L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."] = "O TradeSkillMaster não tem preço para estes reagentes: atualize o AuctionDB com o aplicativo de desktop do TSM." -- mt
-L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] = "Atualize o AuctionDB do TradeSkillMaster com o aplicativo de desktop do TSM, ou visite um vendedor, para precificar os reagentes." -- mt
+L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."] =
+	"O TradeSkillMaster não tem preço para estes reagentes: atualize o AuctionDB com o aplicativo de desktop do TSM." -- mt
+L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
+	"Atualize o AuctionDB do TradeSkillMaster com o aplicativo de desktop do TSM, ou visite um vendedor, para precificar os reagentes." -- mt

@@ -121,7 +121,7 @@ local function SaleValue(itemID)
 	local ah = AuctionPrice(itemID)
 	local resale = ah and ah.copper * (1 - AUCTION_CUT)
 	local sell = SellPrice(itemID)
-	if resale and (not sell or resale > sell) then
+	if ah and resale and (not sell or resale > sell) then
 		return resale, "auction", ah.source
 	end
 	return sell, sell and "vendor" or nil

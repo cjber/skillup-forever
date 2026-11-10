@@ -43,7 +43,7 @@ local function Refresh()
 		return
 	end
 	local ctx = ns.SkillContext()
-	local t, skill = ns.DetailsBar(recipeID and ns.Model.Get(recipeID), ctx and ctx.skill)
+	local t, skill = ns.DetailsBar(recipeID and ns.RangeThresholds(ctx, recipeID), ctx and ctx.skill)
 	if t and skill and ns.db.detailsBar then
 		ns.LayoutSkillBar(frame.bar, t, skill)
 	end

@@ -66,6 +66,17 @@ local ns = {
 		error("unexpected sort failure")
 	end,
 }
+-- The range start the list sorts by: the recipe's learn skill, as Core/Plan.lua's RangeThresholds gives it
+-- (#519). A recipe with no known source keeps the data's first threshold.
+local learnedAt = {}
+ns.RangeThresholds = function(_, id)
+	local t = ns.Model.Get(id)
+	local learnAt = learnedAt[id] or 0
+	if not t or learnAt <= t[1] then
+		return t
+	end
+	return { learnAt, t[2], t[3], t[4] }
+end
 local recipeList = { ScrollBox = box, width = 304, visible = true }
 function recipeList:GetWidth()
 	return self.width
@@ -139,7 +150,8 @@ assert(provider == input, "default sort leaves the native provider alone")
 -- still under Blizzard's divider.
 local skills = { [10] = 50, [20] = 75, [30] = 25, [40] = 100 }
 ns.Model.Get = function(id)
-	return { skills[id] or 0 }
+	local skill = skills[id] or 0
+	return { skill, skill + 70, skill + 85, skill + 100 }
 end
 ns.SkillContext = function()
 	return {}
@@ -161,4 +173,20 @@ assert(nodes[2]:GetData().recipeInfo.recipeID == 10, "then the next highest")
 assert(nodes[3]:GetData().recipeInfo.recipeID == 30, "then the lowest")
 assert(nodes[4]:GetData().isDivider, "unlearned recipes stay below the divider")
 assert(nodes[5]:GetData().recipeInfo.recipeID == 40, "the unlearned recipe follows the divider")
+
+-- #519: the start is where the recipe is learned, so one the client starts at 1 but a trainer teaches at 60
+-- comes before one that starts at 40.
+ns.Model.Get = function(id)
+	local skill = skills[id] or 0
+	return { skill, skill + 100, skill + 120, skill + 150 }
+end
+skills[50], skills[60] = 1, 40
+learnedAt[50], learnedAt[60] = 60, 40
+local late = tree()
+late:Insert({ recipeInfo = { recipeID = 60, name = "Sixty", learned = true } })
+late:Insert({ recipeInfo = { recipeID = 50, name = "Fifty", learned = true } })
+box:SetDataProvider(late)
+nodes = provider:GetRootNode():GetNodes()
+assert(nodes[1]:GetData().recipeInfo.recipeID == 50, "the recipe learned at 60 comes before the one learned at 40")
+assert(nodes[2]:GetData().recipeInfo.recipeID == 60, "even though the client starts it at 1")
 print("recipelist_spec: provider replacement, sort, newest first, recursion and native method identity passed")

@@ -776,7 +776,9 @@ end
 ---@param ctx SkillUpContext?
 ---@return SkillUpDescription
 function ns.Describe(recipeInfo, ctx)
-	local thresholds = ns.Model.Get(recipeInfo.recipeID)
+	-- Where a recipe can first be learned is the start of its range, not the client's placeholder first
+	-- threshold (#519): rows, the tooltip line and its bar all draw this.
+	local thresholds = ns.RangeThresholds(ctx, recipeInfo.recipeID)
 	local liveColor = LIVE_COLOR[recipeInfo.relativeDifficulty]
 	local cost, value, net = ns.CraftCost(recipeInfo.recipeID)
 	if not thresholds or not ctx then

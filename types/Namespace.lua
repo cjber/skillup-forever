@@ -95,6 +95,7 @@
 ---@field LearnSource fun(profession: SkillUpContext, recipeID: integer): SkillUpLearnSource?
 ---@field LearnSourceText fun(source: SkillUpLearnSource|SkillUpUnlearnedRecipe): string
 ---@field LearnSkill fun(profession: SkillUpContext, recipeID: integer): number
+---@field RangeThresholds fun(profession: SkillUpContext?, recipeID: integer, thresholds?: number[]): number[]? The thresholds with the range start at the skill the recipe can be learned at
 ---@field UnlearnedRecipes fun(profession: SkillUpContext): SkillUpUnlearnedRecipe[]
 ---@field RecipeNPC fun(profession: SkillUpContext, recipeID: integer): integer?
 ---@field BestTraining fun(profession: SkillUpContext, known: table<integer, boolean>, offers: {recipeID: integer, fee: number}[]): integer?

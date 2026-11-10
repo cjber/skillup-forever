@@ -215,6 +215,19 @@ def unlearned_source(recipe_id):
     return None
 
 
+def range_thresholds(recipe_id, t=None):
+    """Core/Plan.lua ns.RangeThresholds: the range starts where the recipe can first be learned, not at the
+    client's placeholder first threshold (#519)."""
+    t = NS["Thresholds"].get(recipe_id) if t is None else t
+    if not t:
+        return None
+    source = unlearned_source(recipe_id)
+    learn_at = source[1] if source else 0
+    if learn_at <= t[0]:
+        return t
+    return [learn_at, t[1], t[2], t[3]]
+
+
 def unlearned_text(recipe_id):
     """UI/RecipeList.lua UnlearnedText: the grey marker on a recipe the addon added."""
     source = unlearned_source(recipe_id)
@@ -283,10 +296,12 @@ def craft_cost(recipe_id):
 
 def describe(recipe_id):
     """Core/Core.lua ns.Describe at SKILL, where the live difficulty agrees with the thresholds, so the chance is
-    the thresholds' own."""
+    the thresholds' own. The range starts where the recipe is learned (#519)."""
     t = NS["Thresholds"].get(recipe_id)
     if t and not (t[0] <= t[1] <= t[2] < t[3]):
         t = None
+    if t:
+        t = range_thresholds(recipe_id, t)
     cost, value, net = craft_cost(recipe_id)
     chance = model_chance(t, SKILL)
     return {
@@ -851,6 +866,8 @@ env = setmetatable({
 	AtlasLoot = false,
 	LibQuestieDB = false,
 	Syndicator = false,
+	-- TradeSkillMaster is not installed here: no TSM_API, so only Auctionator prices the scene.
+	TSM_API = false,
 	-- No other Forever addon has loaded UI/ForeverFamily.lua: this copy sets the global.
 	ForeverFamily = false,
 	ForeverLeaderboards = false,

@@ -168,6 +168,10 @@ local ns = {
 		return { GetRGB = noop }
 	end,
 }
+-- The sort's range start: this harness holds no learn source, so the bundle's first threshold is the start (#519).
+function ns.RangeThresholds(_, recipeID)
+	return ns.Model.Get(recipeID)
+end
 local env = setmetatable({
 	ProfessionsFrame = frame,
 	Professions = {

@@ -14,7 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [1.3.3] - 2026-11-10
 
-- **A recipe's skill range now starts where you learn it, so *Newest recipes first* sorts correctly.** The client leaves most recipes' first threshold at 1, so the tooltip, its bar, the recipe rows and the sort all took 1 as the range start: Dark Leather Belt said "Skill range starts at 1" although its trainer asks 100, and recipes learned later sorted as if they were learned first. The start now comes from the trainer or recipe item that teaches the recipe, so 406 recipes show the skill you learn them at; a recipe learned at 1, or one the bundle has no source for, keeps the client's number. Thanks to cotijelucie on Discord for the report (#519).
+- **Recipe skill ranges start where you learn the recipe.** *Newest recipes first* now sorts correctly too. The client leaves most recipes' first threshold at 1, so the tooltip, its bar, the recipe rows and the sort all took 1 as the range start: Dark Leather Belt said "Skill range starts at 1" although its trainer asks 100, and recipes learned later sorted as if they were learned first. The start now comes from the trainer or recipe item that teaches the recipe, so 406 recipes show the skill you learn them at; a recipe learned at 1, or one the bundle has no source for, keeps the client's number. Thanks to cotijelucie on Discord for the report (#519).
 
 ## [1.3.2] - 2026-11-10
 

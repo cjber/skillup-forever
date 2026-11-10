@@ -60,7 +60,7 @@ local c = Client.load({
 })
 local ns, API = c.ns, c.G.SkillUpForever.API
 equal(API.version, 1, "version 1")
-equal(API.minor, 5, "minor 5 is Subscribe and the not-ready reason")
+equal(API.minor, 6, "minor 6 adds tracking, the shopping trip, limits, stats and the leaderboard")
 -- Nothing to answer says why, so a caller can tell "ask again later" from "there is nothing to ask about".
 local beforeLoad, beforeLoadReason = API.Professions()
 equal(beforeLoad, nil, "nothing before the saved variables load")
@@ -71,6 +71,12 @@ equal(noMaterialsReason, "none", "and says there is nothing to answer")
 local noParts, noPartsReason = API.SubComponents(999999)
 equal(noParts, nil, "nor sub-components")
 equal(noPartsReason, "none", "with the same reason")
+local trackedBefore, trackedBeforeReason = API.IsTracked(165)
+equal(trackedBefore, nil, "nothing is tracked before the saved variables load")
+equal(trackedBeforeReason, "loading", "and tracking says to ask again")
+local setBefore, setBeforeReason = API.SetTracked(165, true)
+equal(setBefore, nil, "tracking cannot be set before the saved variables load")
+equal(setBeforeReason, "loading", "with the same reason")
 
 c.spells = {
 	[GLOVES] = "Toughened Leather Gloves",
@@ -125,6 +131,46 @@ unsubscribe()
 ns.Changed("target")
 c.Advance(0)
 equal(#heard, 2, "an unsubscribed callback hears nothing, and unsubscribing twice is safe")
+
+-- Tracking reads and sets the same saved choice the route page and tracker use, quietly from the API.
+equal(API.IsTracked(197), true, "the saved tracked profession reads back")
+equal(API.IsTracked(165), false, "and an untracked one is false")
+local sounds = 0
+local PlaySound = c.G.PlaySound
+c.G.PlaySound = function()
+	sounds = sounds + 1
+end
+equal(API.SetTracked(165, true), true, "tracking a learned profession changes the setting")
+equal(API.IsTracked(165), true, "and reads back tracked")
+equal(API.SetTracked(165, true), false, "setting the same value changes nothing")
+equal(API.SetTracked(165, "yes"), false, "a non-boolean choice is refused")
+equal(API.SetTracked(333, true), false, "an unlearned skill line is refused")
+equal(API.SetTracked(999, true), false, "an unknown skill line is refused")
+equal(API.SetTracked(165, false), true, "and it can be stopped again")
+equal(sounds, 0, "no API call plays the checkbox sound")
+ns.SetTrackedByPlayer(165, true)
+equal(sounds, 1, "the player's own click keeps the checkbox sound")
+ns.SetTracked(165, false)
+c.G.PlaySound = PlaySound
+
+-- A tracking change reaches subscribers like any other answer, once, on the next frame.
+local trackingHeard = {}
+local stopTracking = API.Subscribe(function(changes)
+	trackingHeard[#trackingHeard + 1] = changes
+end)
+API.SetTracked(165, true)
+equal(#trackingHeard, 0, "a tracking change waits for the frame after it")
+c.Advance(0)
+equal(#trackingHeard, 1, "then the subscriber hears it once")
+equal(trackingHeard[1].professions, true, "naming the levelling answers")
+equal(trackingHeard[1].shopping, true, "and the shopping list")
+API.SetTracked(165, true)
+c.Advance(0)
+equal(#trackingHeard, 1, "a refused no-change sends nothing")
+API.SetTracked(165, false)
+c.Advance(0)
+equal(#trackingHeard, 2, "stopping it is another single change")
+stopTracking()
 
 local list = API.Professions()
 -- Until the vendors and trainers are read from QuestieDB, a step says what to find and routes nowhere.
@@ -210,6 +256,33 @@ equal(byItem[LEATHER].need, 64, "leather for the whole route")
 equal(byItem[LEATHER].have, 40, "leather in the bags")
 equal(byItem[LEATHER].source, "craft", "a learned recipe makes the leather")
 
+-- Limits trim each call's fresh copy; the cached answer is built at the largest size, so no limit rebuilds it.
+local limited = API.Professions({ steps = 1, recipes = 1 })
+equal(#limited[3].steps, 1, "a step limit trims the route")
+equal(#limited[3].recipes, 1, "a recipe limit trims the crafts")
+local stepsOnly = API.Professions({ steps = 1 })
+equal(#stepsOnly[3].steps, 1, "a step limit alone trims the steps")
+equal(#stepsOnly[3].recipes, 2, "and keeps the default recipe count")
+local recipesOnly = API.Professions({ recipes = 1 })
+equal(#recipesOnly[3].steps, 3, "a recipe limit alone keeps the default steps")
+equal(#recipesOnly[3].recipes, 1, "and trims the recipes")
+local defaults = API.Professions({})
+equal(#defaults[3].steps, 3, "an empty table keeps the step default")
+equal(#defaults[3].recipes, 2, "and the recipe one")
+local full = API.Professions({ steps = 25, recipes = 25 })
+equal(#full[3].steps > #defaults[3].steps, true, "25 is the largest limit allowed, with every step it has")
+for _, bad in ipairs({ 0, 26, 1.5, "3", false }) do
+	local value, reason = API.Professions({ steps = bad })
+	equal(value, nil, "a bad step limit is refused: " .. tostring(bad))
+	equal(reason, "invalid", "with an invalid reason")
+end
+local badRecipes, badRecipesReason = API.Professions({ recipes = 1.5 })
+equal(badRecipes, nil, "a bad recipe limit is refused")
+equal(badRecipesReason, "invalid", "with the same reason")
+local badLimits, badLimitsReason = API.Professions("many")
+equal(badLimits, nil, "a non-table limits argument is refused")
+equal(badLimitsReason, "invalid", "with the same reason")
+
 -- Nil where SkillUp can't tell: no name, no rank title, no price, nothing planned.
 local tailoring = list[1]
 equal(tailoring.steps[1].text, "Craft 10 recipe 3", "an unnamed recipe still reads")
@@ -277,6 +350,64 @@ API.OpenRecipes(165)
 equal(table.concat(c.opened, " "), "165", "and once when the client reports the skill line itself")
 c.professions[1].id = 8165
 c.G.C_TradeSkillUI.OpenTradeSkill = OpenTradeSkill
+
+-- The shopping list's trip button, started through its own function.
+local shoppingTrip = ns.ShoppingTrip
+local tripArgument
+ns.ShoppingTrip = function(skillLineID)
+	tripArgument = skillLineID
+	return true
+end
+equal(API.ShoppingTrip(165), true, "the API starts the shopping trip")
+equal(tripArgument, 165, "for the profession it was given")
+ns.ShoppingTrip = shoppingTrip
+
+-- Stats and Leaderboard are the suite shape over the recipes-observed record.
+local stats = API.Stats()
+local startValue = stats[1].value
+equal(#stats, 1, "one local activity row")
+equal(stats[1].addon, "SkillUpForever", "this addon")
+equal(stats[1].metric, "recipes_observed_learned", "the observed-recipes metric")
+equal(stats[1].subject, "all", "for the whole record")
+if startValue == 0 then
+	equal(stats[1].eventUnix, nil, "no event time before the first observation")
+end
+ns.Stats.Observe(987654)
+local observed = API.Stats()
+equal(observed[1].value, startValue + 1, "a new observation raises this character's total")
+equal(type(observed[1].eventUnix), "number", "with the observation's time")
+observed[1].value = -1
+equal(API.Stats()[1].value, startValue + 1, "a caller's change never reaches the record")
+
+local function Receive(sender, value)
+	local payload = ("1|skillup|recipes_observed_learned|all|%d|%d"):format(value, c.G.GetServerTime())
+	c.Fire("CHAT_MSG_ADDON", "WFAStats", payload, "GUILD", sender)
+end
+for index = 1, 27 do
+	Receive("Peer" .. index .. "-Realm", 100 + index)
+end
+local board = API.Leaderboard()
+equal(board.metric, "recipes_observed_learned", "the board's metric")
+equal(board.scope, "guild_group", "with the guild and group")
+equal(board.ruleset, nil, "and no invented ruleset")
+equal(board.sharing, true, "sharing follows the stats switch")
+equal(board.total, 28, "every ranked row counts before the limit")
+equal(#board.rows, 11, "ten rows plus this character's own")
+equal(board.rows[1].rank, 1, "the first row's rank")
+equal(board.rows[#board.rows].self, true, "the personal row is kept below the limit")
+equal(#API.Leaderboard(100).rows, 26, "a limit above 25 is capped, plus the personal row")
+equal(#API.Leaderboard(25).rows, 26, "25 is the cap")
+local personal = API.Leaderboard(0)
+equal(#personal.rows, 1, "zero asks for only the personal row")
+equal(personal.rows[1].self, true, "which is this character's")
+ns.db.statsShare = false
+equal(API.Leaderboard().sharing, false, "turning the stats switch off reads back")
+ns.db.statsShare = true
+for _, bad in ipairs({ -1, 1.5, "10", false, math.huge }) do
+	local value, reason = API.Leaderboard(bad)
+	equal(value, nil, "a bad leaderboard limit is refused: " .. tostring(bad))
+	equal(reason, "invalid", "with an invalid reason")
+end
 
 -- Tracking changes the order, so the next call rebuilds.
 ns.SetTracked(165, true)

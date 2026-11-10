@@ -5,7 +5,7 @@ table on every call, so a caller may keep it or change it: it is never the addon
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 5; the history:
+`minor` is 6; the history:
 
 | minor | added |
 |---|---|
@@ -14,6 +14,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 3 | each shopping row's `target`, the base skill its plan buys to |
 | 4 | `RequiredMaterials` and `SubComponents`, a recipe's inputs after known sub-crafts |
 | 5 | `Subscribe`, the not-ready answers below, and a fresh `Professions` table on every call |
+| 6 | `IsTracked`, `SetTracked`, `ShoppingTrip`, `Professions` limits, `Stats`, `Leaderboard` |
 
 ## Not ready
 
@@ -24,11 +25,17 @@ A read with nothing to answer returns `nil, reason`, where `reason` says whether
 | `"loading"` | the saved variables are still loading, so ask again later |
 | `"none"` | there is nothing to answer, for example a recipe SkillUp does not know |
 
+An `"invalid"` answer means the argument itself is wrong, not that the data is unready: asking again will not help.
+`Professions` answers it for a malformed `limits` table, and `Leaderboard` for a limit that is not a whole number of
+zero or more.
+
 ## Reads
 
-`Professions()` returns one entry per profession this character can level, most actionable first: one whose next step
-can be done from the bags, then a tracked one, then the nearest to doing. It returns `nil, "loading"` before the saved
-variables load. Each entry is:
+`Professions(limits?)` returns one entry per profession this character can level, most actionable first: one whose
+next step can be done from the bags, then a tracked one, then the nearest to doing. It returns `nil, "loading"`
+before the saved variables load. `limits` may hold `steps` and `recipes`, each a whole number from 1 to 25, to
+replace the defaults of three and five for that call only. A missing field keeps its default, and a bad one returns
+`nil, "invalid"`. Each entry is:
 
 | field | |
 |---|---|
@@ -38,8 +45,8 @@ variables load. Each entry is:
 | `rank` | base skill, the number the Professions window shows |
 | `maxRank` | the current cap |
 | `title` | the rank name at the cap, for example `"Journeyman"`, when SkillUp has one |
-| `steps` | at most three steps, in the order the route takes them |
-| `recipes` | the route's crafts, at most five |
+| `steps` | the route's steps, in order: at most three by default, or the call's `limits.steps` |
+| `recipes` | the route's crafts: at most five by default, or the call's `limits.recipes` |
 | `reagents` | the route's reagents for the whole route |
 
 A step is:
@@ -78,6 +85,16 @@ route.
 `OpenRecipes(skillLineID)` opens the Professions window on that profession, where SkillUp's recipe colours and route
 tab are, and returns whether the client opened it. It is a request too, for a player's click.
 
+## Tracking
+
+`IsTracked(skillLineID)` returns whether that profession is tracked in the objective tracker, the same saved choice
+the route page's Track button writes. It returns `nil, "loading"` before the saved variables load.
+
+`SetTracked(skillLineID, tracked)` sets that choice and returns `true` when it changed the setting, or `false` for an
+unknown or unlearned skill line, a non-boolean `tracked`, or a value it already had. It returns `nil, "loading"`
+before the saved variables load. It is a request, not a read. Unlike the player's own click, it plays no checkbox
+sound.
+
 ## Shopping list
 
 `ShoppingList(skillLineID)` returns a fresh list for each tracked route, for one profession when `skillLineID` is
@@ -98,12 +115,48 @@ bags and bank, and `missing` the difference; `price` is copper each when one is 
 missing units; `priceAge` is the whole days since Auctionator saw the price, when it came from there; `alt` is a
 fresh list of `{ name, count }`, this character's other characters that hold it, most first.
 
+## Shopping trip
+
+`ShoppingTrip(skillLineID?)` starts the same route the shopping list's own button does, for one profession when
+`skillLineID` is given, and returns whether the route was started. It is a request, for a player's click.
+
 ## Materials
 
 `RequiredMaterials(recipeID, crafts)` returns the recipe's raw inputs after known, cheaper sub-crafts are expanded,
 as fresh `{ itemID, count }` rows, for `crafts` crafts (one unless given). `SubComponents(recipeID, crafts)` returns
 the known cheaper recipes it expands, as fresh rows with `recipeID`, `itemID`, `crafts` and `made`. Both return
 `nil, "none"` when SkillUp has no such recipe, or when `crafts` is not a positive whole number.
+
+`RequiredMaterials` is the source of truth for a recipe's materials: Commissions Forever's same-named function
+forwards to it.
+
+## Stats and Leaderboard
+
+`Stats()` returns one fresh local row, not a wire payload:
+
+| field | |
+|---|---|
+| `addon` | always `"SkillUpForever"` |
+| `metric` | always `"recipes_observed_learned"` |
+| `subject` | always `"all"` |
+| `value` | this character's distinct recipes observed as learned |
+| `eventUnix` | optional, the last observation's time, absent before the first one |
+
+`Leaderboard(limit)` returns `{ metric, scope, sharing, total, rows }`:
+
+| field | |
+|---|---|
+| `metric` | always `"recipes_observed_learned"` |
+| `scope` | always `"guild_group"` |
+| `sharing` | whether this character sends and receives totals, the same switch the stats settings page sets |
+| `total` | every eligible row, before the limit |
+| `rows` | fresh ranked rows, `rank`, `name`, `value`, optional `eventUnix`, and `self` on this character's row |
+
+There is no `ruleset`: SkillUp records no game-mode ruleset, so the field is left out rather than invented. The
+default limit is 10, capped at 25. Zero asks for only the personal row, which is kept even below the limit. A
+negative, fractional or non-number limit returns `nil, "invalid"`. Peer values are player reports and are not proof
+of learning; the transport is ForeverCore's bounded `WFAStats` protocol, never recipe names or inventory. Equal
+totals use the shared deterministic ordering.
 
 ## Subscribe
 
@@ -115,8 +168,9 @@ changes and never in the call that made the change. `changes` is a fresh table e
 | `professions` | `Professions` may answer differently: a step, recipe, reagent, rank or the order changed |
 | `shopping` | `ShoppingList` may answer differently: a tracked route, its target, a price or a bag count changed |
 
-Both keys are set together, because SkillUp drops all its answers through one change signal. Read the answer you use
-again rather than replaying the change.
+Both keys are set together, because SkillUp drops all its answers through one change signal. A tracking change also
+sets both, since the list's order and the shopping list follow it. Read the answer you use again rather than
+replaying the change.
 
 Only the subscribers there when the dispatch began are called: one added by a callback waits for the next burst. Each
 callback runs under SkillUp's own error handling, so an error in one reaches the error report and the others still

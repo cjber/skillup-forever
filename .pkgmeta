@@ -20,8 +20,8 @@ ignore:
   - .claude
   - forever-core
 
-required-dependencies:
-  - forevercore
+# ForeverCore has no CurseForge project (it ships from GitHub and Wago), so it cannot be a
+# CurseForge relation; the TOC's `## Dependencies: ForeverCore` is what the client reads.
 
 # CurseForge relations: the CurseForge slug of every OptionalDeps folder in the root .toc (WFA-28).
 optional-dependencies:

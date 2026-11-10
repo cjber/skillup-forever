@@ -553,8 +553,6 @@ L["Buffs by %s skill"] = "%s 增益" -- mt
 L["Skill  %d/%d"] = "技能  %d/%d" -- mt
 L["Other crafters"] = "其他工匠" -- mt
 L["No profession here makes buff items."] = "没有专业制造增益物品。" -- mt
-L["The recipe list can put the recipes you learned most recently first."] =
-	"配方列表可以将最近学会的配方排在最前面。" -- mt
 L["Latest TradeSkillMaster prices."] = "最新的 TradeSkillMaster 价格。" -- mt
 L["TradeSkillMaster"] = "TradeSkillMaster" -- mt
 L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."] =

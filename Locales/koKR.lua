@@ -574,8 +574,6 @@ L["Skill  %d/%d"] = "숙련도  %d/%d" -- mt
 L["Other crafters"] = "다른 제작자" -- mt
 L["No profession here makes buff items."] =
 	"여기서 강화 효과 아이템을 만드는 전문 기술이 없습니다." -- mt
-L["The recipe list can put the recipes you learned most recently first."] =
-	"제조법 목록에서 가장 최근에 배운 제조법을 먼저 표시할 수 있습니다." -- mt
 L["Latest TradeSkillMaster prices."] = "최신 TradeSkillMaster 가격." -- mt
 L["TradeSkillMaster"] = "TradeSkillMaster" -- mt
 L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."] =

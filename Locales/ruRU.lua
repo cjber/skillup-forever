@@ -601,8 +601,6 @@ L["Skill  %d/%d"] = "Навык  %d/%d" -- mt
 L["Other crafters"] = "Другие ремесленники" -- mt
 L["No profession here makes buff items."] =
 	"Ни одна профессия не создаёт предметы усиления." -- mt
-L["The recipe list can put the recipes you learned most recently first."] =
-	"Список рецептов может показывать первыми недавно изученные рецепты." -- mt
 L["Latest TradeSkillMaster prices."] = "Последние цены TradeSkillMaster." -- mt
 L["TradeSkillMaster"] = "TradeSkillMaster" -- mt
 L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."] =

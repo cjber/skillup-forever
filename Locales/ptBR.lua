@@ -566,8 +566,6 @@ L["Buffs by %s skill"] = "Bônus por %s" -- mt
 L["Skill  %d/%d"] = "Perícia  %d/%d" -- mt
 L["Other crafters"] = "Outros artesãos" -- mt
 L["No profession here makes buff items."] = "Nenhuma profissão fabrica itens de bônus." -- mt
-L["The recipe list can put the recipes you learned most recently first."] =
-	"A lista de receitas pode mostrar primeiro as que você aprendeu mais recentemente." -- mt
 L["Latest TradeSkillMaster prices."] = "Preços mais recentes do TradeSkillMaster." -- mt
 L["TradeSkillMaster"] = "TradeSkillMaster" -- mt
 L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."] =

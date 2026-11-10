@@ -1,10 +1,13 @@
 ---@meta
 
--- SkillUp Forever's public API (version 1), read by other addons. Every table is
--- shared and read-only; a field SkillUp can't establish is nil.
+-- SkillUp Forever's public API (version 1), read by other addons. A read returns a fresh table on every call; a
+-- field SkillUp can't establish is nil, and a read with nothing to answer adds a reason as its second value.
 
 ---@alias SkillUpAPIStepKind 'buy'|'craft'|'train'|'gather'
 ---@alias SkillUpAPIReagentSource 'vendor'|'craft'|'gather'|'auction'
+---@alias SkillUpAPIReason 'loading'|'disabled'|'none'
+---@alias SkillUpAPIChangeName 'professions'|'shopping'
+---@alias SkillUpAPIChanges table<SkillUpAPIChangeName, true>
 
 ---@class SkillUpAPIStep
 ---@field kind SkillUpAPIStepKind
@@ -48,13 +51,14 @@
 
 ---@class SkillUpPublicAPI
 ---@field version integer
----@field minor integer
----@field Professions fun(): SkillUpAPIProfession[] Most actionable first.
+---@field minor integer Raised with each addition; docs/api.md keeps the history.
+---@field Professions fun(): SkillUpAPIProfession[]?, SkillUpAPIReason? Most actionable first; nil, "loading" before the saved variables load.
 ---@field Navigate fun(skillLineID: integer, stepIndex: integer): boolean
 ---@field OpenRecipes fun(skillLineID: integer): boolean
 ---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[] Fresh copy for tracked routes; empty when no matching tracked route exists.
----@field RequiredMaterials fun(recipeID: integer, crafts?: number): {itemID: integer, count: number}[]? Raw inputs after known, cheaper sub-crafts are expanded.
----@field SubComponents fun(recipeID: integer, crafts?: number): SkillUpSubCraft[]? Known cheaper recipes needed to make the recipe's inputs.
+---@field RequiredMaterials fun(recipeID: integer, crafts?: number): {itemID: integer, count: number}[]?, SkillUpAPIReason? Raw inputs after known, cheaper sub-crafts are expanded; nil, "none" when SkillUp has no such recipe.
+---@field SubComponents fun(recipeID: integer, crafts?: number): SkillUpSubCraft[]?, SkillUpAPIReason? Known cheaper recipes needed to make the recipe's inputs; nil, "none" when SkillUp has no such recipe.
+---@field Subscribe fun(callback: fun(changes: SkillUpAPIChanges)): fun() Calls back the frame after the answers change, once per burst; returns an unsubscribe.
 
 ---@class SkillUpAPIShoppingItem
 ---@field itemID integer

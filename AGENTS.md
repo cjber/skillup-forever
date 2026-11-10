@@ -18,6 +18,7 @@ tools/typecheck.sh
 for s in tests/*_spec.lua; do luajit "$s" || exit 1; done
 luajit tests/bench.lua   # CPU timings in the harness; asserts nothing, but must run to the end
 python3 tools/changelog.py --check
+python3 tools/check_api_docs.py   # every name Core/API.lua publishes is in docs/api.md, with its minor history
 python3 tools/check_generated.py   # regenerate in a disposable tree; require fresh, byte-stable Data/*.lua
 python3 tools/check_screenshots.py   # an image older than its sources; --record after tools/screenshots.py
 python3 tools/check_menu_scroll.py # menus built from a list scroll (WFA-36); CI runs it in core-shared

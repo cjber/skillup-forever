@@ -30,6 +30,8 @@ local function Initializer(kind, setting, tooltip)
 end
 
 local opened, addOnCategory, canvas, family
+-- Calls to the client's own restricted settings opener, and the secure delegates the shared opener built around it.
+local opens, delegates = 0, 0
 
 local env = setmetatable({
 	Settings = {
@@ -117,10 +119,26 @@ local env = setmetatable({
 			assert(target == category and target.parent == nil, "the addon registers its own category")
 			addOnCategory = target
 		end,
-		OpenToCategory = function(id)
-			opened = id
+		-- The restricted route: the client refuses this call from addon code and blames the addon, so reaching it
+		-- fails the spec (cjber/forever-core#333).
+		OpenToCategory = function()
+			error("Settings.OpenToCategory called straight from addon code")
 		end,
 	},
+	-- The shared opener wraps the client's own function in a secure delegate and calls that (Core/OpenSettings.lua).
+	C_SettingsUtil = {
+		OpenSettingsPanel = function(categoryID)
+			opens = opens + 1
+			opened = categoryID
+		end,
+	},
+	CreateSecureDelegate = function(fn)
+		delegates = delegates + 1
+		return fn
+	end,
+	InCombatLockdown = function()
+		return false
+	end,
 	MinimalSliderWithSteppersMixin = { Label = { Right = 2 } },
 	CreateSettingsButtonInitializer = function(name, _buttonText, onClick, _tooltip, addSearchTags)
 		assert(addSearchTags == false, "index buttons stay out of search")
@@ -182,8 +200,12 @@ local ns = {
 	end,
 }
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
+-- The shared opener is loaded first, as the TOC does: the settings page asks it, not Settings.OpenToCategory.
+setfenv(assert(loadfile("Core/OpenSettings.lua")), env)("SkillUpForever", ns)
+assert(ns.OpenSettingsPanel, "the shared settings opener is loaded")
 setfenv(assert(loadfile("UI/Settings.lua")), env)("SkillUpForever", ns)
 ns.OpenSettings() -- before registration, as when an update's files are missing: no error
+assert(opens == 0, "no settings open before the category is registered")
 ns.RegisterSettings()
 
 ---@param key string
@@ -243,7 +265,9 @@ for _, group in ipairs(groups) do
 	expected[#expected + 1] = "button@" .. addOnCategory.name
 	local button = Button(name)
 	assert(button.category == addOnCategory, name .. "'s index row is on the category itself")
+	local before = opens
 	button.initializer.onClick()
+	assert(opens == before + 1, name .. "'s button opens through the client's own opener")
 	assert(opened == Subpage(name):GetID(), name .. "'s button opens its subpage")
 end
 -- Then the Forever addons page: the shared module registers it with this addon's saved variables, its button last.
@@ -253,8 +277,11 @@ assert(family.parent == category, "the page belongs to the addon's category")
 assert(family.db() == ns.db, "the page reads and writes SkillUp's saved variables")
 assert(family.current == "SkillUpForever", "the page marks this addon's row")
 assert(family.locale == nil, "the page reads in the addon's L")
+local familyOpens = opens
 Button("Forever addons").initializer.onClick()
+assert(opens == familyOpens + 1, "the Forever addons button opens through the client's own opener")
 assert(opened == canvas:GetID(), "the Forever addons button opens its page")
+assert(delegates == 1, "every page opens through one secure delegate")
 for _, entry in ipairs(registered) do
 	local kind = entry.initializer.kind
 	if entry.initializer.setting then
@@ -329,3 +356,14 @@ lock:SetValue(true)
 assert(trackerState.locked == true and lock:GetValue(), "locking writes the shared host settings")
 lock:SetValue(false)
 assert(trackerState.locked == false and not lock:GetValue(), "unlocking writes them back")
+
+-- /skillup and the compartment button use the same route, not Blizzard's restricted wrapper.
+ns.Pages = {
+	Unlocked = function()
+		return true
+	end,
+}
+local before = opens
+ns.OpenSettings()
+assert(opens == before + 1, "OpenSettings opens through the client's own opener")
+assert(opened == category:GetID(), "OpenSettings opens the addon's own category")

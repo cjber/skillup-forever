@@ -122,6 +122,7 @@ L["Have (bags and bank)"] = "Vorhanden (Taschen und Bank)"
 L["Head"] = "Kopf"
 L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
 	"Tooltips von Kräutern und Erzvorkommen zeigen die nötige Fertigkeit und ihre Farbe bei Eurer (nur im englischen Client). Kürschnerbare Leichen zeigen ?, bis die Kürschnerregel auf Forever bestätigt ist."
+L["Hide this section"] = "Diesen Abschnitt ausblenden"
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Installiert AtlasLoot, um die Rezepte von Händlern, Quests und Beute zu sehen."
 L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =

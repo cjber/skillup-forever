@@ -460,8 +460,6 @@ function Settings.RegisterAddOnCategory(category) end
 ---@param variable string
 ---@param value SkillUpSettingValue
 function Settings.SetValue(variable, value) end
----@param categoryID number
-function Settings.OpenToCategory(categoryID) end
 ---@param name string
 ---@param buttonText string
 ---@param onClick fun()

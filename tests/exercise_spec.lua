@@ -59,10 +59,6 @@ local function Prepare(c)
 	G.hooksecurefunc = function()
 		return true
 	end
-	-- Record the settings category the addon asks the client to open.
-	G.Settings.OpenToCategory = function(id)
-		c.settingsOpened = id
-	end
 
 	local function Frame(name, parent, template)
 		return G.CreateFrame("Frame", name, parent, template)
@@ -391,8 +387,14 @@ local function Surfaces(c)
 
 	-- The settings page, and the shared Forever addons page it carries.
 	Run(c, "settings page", function()
+		local before = c.settingsOpens or 0
 		ns.OpenSettings()
-		assert(c.settingsOpened, "the settings category is opened")
+		if c.combat then
+			assert((c.settingsOpens or 0) == before, "the settings category waits for combat to end")
+		else
+			assert((c.settingsOpens or 0) == before + 1, "the settings category is opened through the shared opener")
+			assert(c.secureSettingsCalls and c.secureSettingsCalls > 0, "the client's own opener ran securely")
+		end
 	end)
 	Run(c, "family page", function()
 		local panel = rawget(G, "ForeverFamilyPanel" .. ADDON)

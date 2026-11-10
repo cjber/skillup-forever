@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Opening SkillUp Forever's options no longer shows a blocked action error naming this addon.** The Open buttons on the options index, `/skillup` and the addon compartment entry now ask the game to open its options instead of opening them themselves, so the client does not refuse the request and blame SkillUp Forever (cjber/forever-core#333).
+
 ## [1.3.3] - 2026-11-10
 
 - **Recipe skill ranges start where you learn the recipe.** *Newest recipes first* now sorts correctly too. The client leaves most recipes' first threshold at 1, so the tooltip, its bar, the recipe rows and the sort all took 1 as the range start: Dark Leather Belt said "Skill range starts at 1" although its trainer asks 100, and recipes learned later sorted as if they were learned first. The start now comes from the trainer or recipe item that teaches the recipe, so 406 recipes show the skill you learn them at; a recipe learned at 1, or one the bundle has no source for, keeps the client's number. Thanks to cotijelucie on Discord for the report (#519).

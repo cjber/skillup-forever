@@ -1260,8 +1260,28 @@ function Client.load(options)
 			settings[variable]:SetValue(value)
 		end,
 		NotifyUpdate = noop,
-		OpenToCategory = noop,
+		-- Blizzard's own wrapper runs the restricted client opener in the addon's taint, which the client refuses
+		-- and blames on the addon (cjber/forever-core#333); the addon asks the shared secure opener instead.
+		OpenToCategory = function()
+			error("Settings.OpenToCategory called straight from addon code")
+		end,
 	}
+	-- The client's own restricted settings opener, reached through Core/OpenSettings.lua's secure delegate.
+	G.C_SettingsUtil = {
+		OpenSettingsPanel = function(categoryID, element)
+			c.settingsOpened = categoryID
+			c.settingsElement = element
+			c.settingsOpens = (c.settingsOpens or 0) + 1
+		end,
+	}
+	-- CreateSecureDelegate wraps a Lua function so a call from addon code runs as the client: count the calls so a
+	-- spec can tell the shared opener from the restricted function run directly.
+	G.CreateSecureDelegate = function(fn)
+		return function(...)
+			c.secureSettingsCalls = (c.secureSettingsCalls or 0) + 1
+			return fn(...) -- multi-value: the wrapped client function's results pass through
+		end
+	end
 	G.CreateSettingsButtonInitializer = noop
 	G.MinimalSliderWithSteppersMixin = { Label = { Right = 1 } }
 	-- The player changing one of the addon's settings in the options panel.

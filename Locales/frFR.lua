@@ -120,6 +120,7 @@ L["Have (bags and bank)"] = "Possédé (sacs et banque)" -- mt
 L["Head"] = "Tête" -- mt
 L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
 	"Les infobulles des herbes et gisements affichent la compétence requise et sa couleur à votre niveau (client anglais uniquement). Les cadavres dépeçables affichent ? tant que la règle du dépeçage n'est pas confirmée sur Forever." -- mt
+L["Hide this section"] = "Masquer cette section" -- mt
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Installez AtlasLoot pour voir les recettes qu'ajouteraient marchands, quêtes et butins." -- mt
 L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =

@@ -143,6 +143,7 @@
 ---@field SetSortMode fun(mode: string)
 ---@field SetBuffsOnly fun(on: boolean)
 ---@field OpenSettings fun()
+---@field OpenSettingsPanel fun(categoryID?: integer, element?: string): boolean Blizzard's settings panel, opened through the client's secure opener (Core/OpenSettings.lua)
 ---@field HasAuctionator fun(): boolean
 ---@field HasTradeSkillMaster fun(): boolean
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())

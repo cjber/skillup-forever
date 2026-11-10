@@ -84,14 +84,16 @@ function ns.RegisterSettings()
 
 	-- Rows are grouped onto a stock subpage each; the category itself is the index, one button per group. A
 	-- button goes in through Settings.RegisterInitializer too, and stays out of search (addSearchTags false),
-	-- which finds the settings themselves.
+	-- which finds the settings themselves. The page opens through the shared secure opener: Settings.OpenToCategory
+	-- is Blizzard's own Lua around a restricted client call, which the client refuses from addon code
+	-- (cjber/forever-core#333).
 	local function Section(name, rows)
 		local subcategory = Settings.RegisterVerticalLayoutSubcategory(category, name)
 		rows(subcategory)
 		Settings.RegisterInitializer(
 			category,
 			CreateSettingsButtonInitializer(name, L["Open"], function()
-				Settings.OpenToCategory(subcategory:GetID())
+				ns.OpenSettingsPanel(subcategory:GetID())
 			end, nil, false)
 		)
 	end
@@ -342,7 +344,7 @@ function ns.RegisterSettings()
 	Settings.RegisterInitializer(
 		category,
 		CreateSettingsButtonInitializer(L["Forever addons"], L["Open"], function()
-			Settings.OpenToCategory(family:GetID())
+			ns.OpenSettingsPanel(family:GetID())
 		end, nil, false)
 	)
 
@@ -368,7 +370,7 @@ function ns.OpenSettings()
 		return
 	end
 	local function Open()
-		Settings.OpenToCategory(category:GetID())
+		ns.OpenSettingsPanel(category:GetID())
 	end
 	-- Opening the panel reaches a protected call, so it waits for combat to end like the pages do (#489).
 	if not ns.Pages.Unlocked(Open) then

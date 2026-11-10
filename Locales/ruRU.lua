@@ -123,6 +123,7 @@ L["Have (bags and bank)"] = "Есть (сумки и банк)"
 L["Head"] = "Голова"
 L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
 	"Подсказки трав и рудных жил показывают нужный навык и его цвет для вашего (только английский клиент). Для свежуемых трупов показывается ?, пока правило снятия шкур не подтверждено на Forever."
+L["Hide this section"] = "Скрыть этот раздел"
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Установите AtlasLoot, чтобы видеть рецепты от торговцев, заданий и добычи."
 L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =

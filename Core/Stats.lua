@@ -12,7 +12,6 @@ local Stats = {}
 ns.Stats = Stats
 
 local METRIC = "recipes_observed_learned"
-local TAB_ICON = "Interface\\Icons\\Trade_BlackSmithing"
 local cached, count, pending = nil, 0, false
 
 local function Character()
@@ -166,7 +165,7 @@ ns.WhenEvent("PLAYER_LOGIN", Schedule)
 
 ForeverCore.Leaderboards:Register("skillup", {
 	title = ns.TITLE,
-	icon = TAB_ICON,
+	icon = ns.ICON,
 	metric = ns.L["Recipes observed"],
 	board = Board,
 	revision = Stats.Revision,

@@ -8,6 +8,27 @@ local ForeverCore = dofile("tests/forever_core.lua")
 
 local ADDON = "SkillUpForever"
 
+-- The addon's TOC fields, as C_AddOns.GetAddOnMetadata reports them: a spec reads the same declared values the
+-- client gives the addon at load.
+---@return table<string, string>
+function Client.TocMetadata()
+	local metadata = {}
+	local file = io.open(ADDON .. ".toc", "r")
+	if not file then
+		return metadata
+	end
+	for line in file:lines() do
+		local key, value = line:match("^##%s*([^:]+):%s*(.-)%s*$")
+		if key then
+			metadata[key] = value
+		end
+	end
+	file:close()
+	return metadata
+end
+
+local TOC = Client.TocMetadata()
+
 local checks = 0
 function Client.equal(actual, expected, label)
 	checks = checks + 1
@@ -1490,13 +1511,14 @@ function Client.load(options)
 	c.addons = {}
 	G.C_AddOns = {
 		GetAddOnMetadata = function(addon, field)
-			if field == "X-Website" and addon == ADDON then
-				return c.website
-			end
-			if field == "Version" then
-				if addon == ADDON then
+			if addon == ADDON then
+				-- The packager fills Version into a release; the checkout keeps its keyword.
+				if field == "Version" then
 					return "1.2.3"
 				end
+				return TOC[field]
+			end
+			if field == "Version" then
 				for _, other in ipairs(c.addons) do
 					if other[1] == addon then
 						return other[2]

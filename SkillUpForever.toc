@@ -22,6 +22,7 @@
 ## SavedVariables: SkillUpForeverDB
 ## OptionalDeps: Auctionator, TradeSkillMaster, TomTom, Syndicator, ShortestPathForever, QuestieDB, Questie, AtlasLootClassic
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
+## X-Forever-Icon: Interface\Icons\INV_Scroll_03
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
 
 Core\Require.lua

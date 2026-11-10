@@ -31,6 +31,19 @@ sys.path.insert(0, str(WOWMOCK))
 
 REPO = Path(__file__).resolve().parent.parent
 OUT = REPO / "docs" / "screenshots"
+TOC_TEXT = (REPO / "SkillUpForever.toc").read_text(encoding="utf-8-sig")
+
+
+def toc_field(name):
+    """A TOC metadata value, such as the addon's one identity icon."""
+    return re.search(rf"^##\s*{re.escape(name)}:\s*(.*?)\s*$", TOC_TEXT, re.MULTILINE)[1]
+
+
+TOC_METADATA = dict(re.findall(r"^##\s*([^:]+):\s*(.*?)\s*$", TOC_TEXT, re.MULTILINE))
+# Every identity surface draws the icon the TOC declares, the same value the addon reads at load.
+IDENTITY_ICON = toc_field("X-Forever-Icon").replace("\\", "/").lower()
+if not IDENTITY_ICON.endswith(".blp"):
+    IDENTITY_ICON += ".blp"
 
 # ------------------------------------------------------------------------------------------ Data/*.lua
 
@@ -686,8 +699,8 @@ env = setmetatable({
 		end,
 	},
 	C_AddOns = {
-		GetAddOnMetadata = function()
-			return "@project-version@"
+		GetAddOnMetadata = function(_, key)
+			return STATE.metadata[key]
 		end,
 	},
 	C_CurrencyInfo = {
@@ -1397,6 +1410,7 @@ def lua_scene(ui, *, buy_reagents=False, buffs=False):
     ]
     buff_names, buff_descriptions = buff_spell_text(ui) if buffs else ({}, {})
     state = {
+        "metadata": TOC_METADATA,
         "buyReagents": buy_reagents,
         "level": 12 if buffs else LEVEL,
         "money": MONEY,
@@ -1859,7 +1873,7 @@ def profession_tabs(canvas, fx, fy, selected, frame_w=FRAME_W):
     y += side_tab(canvas, x, y, OVERVIEW_TAB_ICON) + 2
     for name, icon, *_ in PROFESSIONS:
         y += side_tab(canvas, x, y, icon, selected=name == selected) + 2
-    side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp", selected=selected in PAGE_IDS)
+    side_tab(canvas, x, y, IDENTITY_ICON, selected=selected in PAGE_IDS)
     if selected in PAGE_IDS:
         panel_tabs(canvas, fx + 11, fy + FRAME_H - 4, list(PAGE_TABS), selected=PAGE_IDS.index(selected))
 
@@ -2137,7 +2151,7 @@ def shopping_list_scene(ui, scene_data):
     w, h, margin = 620, 510, 24
     canvas = ui.canvas(w + margin * 2, h + margin * 2)
     x, y = margin, margin
-    portrait_frame_art(canvas, x, y, w, h, 136247, "Shopping list")
+    portrait_frame_art(canvas, x, y, w, h, IDENTITY_ICON, "Shopping list")
     shopping = scene_data["shopping"]
     # GameFontHighlightSmall under the title, right of the portrait: every plan the window buys for.
     plans = ", ".join(f"{profession['profession']} to {profession['target']}" for profession in shopping)

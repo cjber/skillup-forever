@@ -5,7 +5,6 @@ if ns.broken then
 	return
 end
 local L = ns.L
-local ICON = "Interface\\AddOns\\" .. addonName .. "\\media\\Icon"
 local frame, body, scroll, copyWindow, copyEdit, shown, footer, summary
 
 local function Name(itemID)
@@ -32,7 +31,7 @@ local function Copy(text)
 		copyWindow:SetScript("OnDragStart", copyWindow.StartMoving)
 		copyWindow:SetScript("OnDragStop", copyWindow.StopMovingOrSizing)
 		copyWindow:SetTitle(L["Shopping list"])
-		ns.Art.Icon(copyWindow:GetPortrait(), ICON, 62)
+		ns.Art.Icon(copyWindow:GetPortrait(), ns.ICON, 62)
 		local hint = copyWindow:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 		hint:SetPoint("TOPLEFT", 70, -32)
 		hint:SetPoint("RIGHT", -16, 0)
@@ -179,7 +178,7 @@ local function Create()
 	frame:SetScript("OnDragStart", frame.StartMoving)
 	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 	frame:SetTitle(L["Shopping list"])
-	ns.Art.Icon(frame:GetPortrait(), ICON, 62)
+	ns.Art.Icon(frame:GetPortrait(), ns.ICON, 62)
 	-- Clear of the portrait, which overhangs the top-left corner, and above the list.
 	summary = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	summary:SetPoint("TOPLEFT", 82, -36)

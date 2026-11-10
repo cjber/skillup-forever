@@ -7,6 +7,9 @@ if ns.broken then
 end
 
 ns.ReportTitle = L["SkillUp report"]
+-- The one client icon every in-game identity surface draws: the side tab, the shopping windows and the leaderboard
+-- tab. The TOC declares it once and the drawn media/Icon stays the addon's store and TOC identity.
+ns.ICON = C_AddOns.GetAddOnMetadata(addonName, "X-Forever-Icon") --[[@as string]]
 -- The shared services, registered once: the report window's title and SkillUp's own report lines.
 ns.core = ForeverCore.Register(addonName, {
 	title = ns.ReportTitle,

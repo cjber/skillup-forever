@@ -481,7 +481,7 @@ local function CreateFrames()
 	-- itself inherits this art into Buttons (Blizzard_CollectionsTabs.xml), so the tab looks and clicks the same.
 	tab = CreateFrame("Button", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
 	-- art-ok: a square icon in the square LargeSideTabButtonTemplate sizes for it
-	tab.Icon:SetTexture("Interface\\Icons\\INV_Scroll_03")
+	tab.Icon:SetTexture(ns.ICON)
 	tab:SetFillToInterior(true)
 	tab.tooltipText = L["SkillUp"]
 	tab:EnableMouse(true)

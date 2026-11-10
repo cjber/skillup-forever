@@ -1,10 +1,16 @@
 -- Run from the repository root: luajit tests/core_spec.lua
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
+local TOC = Client.TocMetadata()
 
 -- The host globals Core/Core.lua loads against: chat lines go to `messages`, load callbacks to `callbacks`.
 local function Env(messages, callbacks)
 	return setmetatable({
+		C_AddOns = {
+			GetAddOnMetadata = function(_, field)
+				return TOC[field]
+			end,
+		},
 		CreateColor = function() end,
 		Enum = { TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 } },
 		CreateFrame = function()
@@ -162,8 +168,11 @@ do
 	local env = Env(messages, callbacks)
 	env.C_AddOns = {
 		GetAddOnMetadata = function(name, field)
-			assert(name == "SkillUpForever" and field == "Version")
-			return version
+			assert(name == "SkillUpForever")
+			if field == "Version" then
+				return version
+			end
+			return TOC[field]
 		end,
 	}
 	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)

@@ -203,6 +203,7 @@
 ---@field RECIPE_TOOLTIP_OPTIONS string[][]
 ---@field ROW_COST_OPTIONS string[][]
 ---@field TITLE string
+---@field ICON string the client icon every in-game identity surface draws, read from ## X-Forever-Icon
 ---@field L table<string, string> English phrase to the client locale's translation, else the phrase
 ---@field COLORS table<string, ColorMixin>
 ---@field Model SkillUpModel

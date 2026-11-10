@@ -43,10 +43,11 @@ function ns.ReportLines()
 			db.reagentTooltip,
 			db.sortMode
 		),
-		("Providers: QuestieDB %s, AtlasLoot %s, Auctionator %s"):format(
+		("Providers: QuestieDB %s, AtlasLoot %s, Auctionator %s, TradeSkillMaster %s"):format(
 			ns.Questie.State(),
 			Provider(ns.AtlasLoot.Ready() or (ns.AtlasLoot.Idle() and "off") or false),
-			Provider(ns.HasAuctionator())
+			Provider(ns.HasAuctionator()),
+			Provider(ns.HasTradeSkillMaster())
 		),
 	}
 	local professions = ns.PlayerProfessions()

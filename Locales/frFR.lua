@@ -34,8 +34,8 @@ L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID> en réaffiche une, /su unskip all les réaffiche toutes." -- mt
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"Un onglet Composants dans la fenêtre du marchand qui liste les composants dont vos routes suivies ont encore besoin chez ce marchand et leur coût total. Achetez-les dans la fenêtre du marchand."
-L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
-	"Un matériau que vos métiers récoltent coûte ce que sa vente rapporterait au lieu de rien : son prix aux enchères après la commission de 5 %, ou son prix de vente au marchand s'il est plus élevé. Utilisé pour le parcours et les coûts sur les lignes de recettes. Les prix aux enchères nécessitent Auctionator." -- mt
+L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
+	"Un matériau que vos métiers récoltent coûte ce que sa vente rapporterait au lieu de rien : son prix aux enchères après la commission de 5 %, ou son prix de vente au marchand s'il est plus élevé. Utilisé pour le parcours et les coûts sur les lignes de recettes. Les prix aux enchères nécessitent Auctionator/TradeSkillMaster." -- mt
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Garde le suivi Forever partagé là où vous l'avez placé. La poignée en haut ne le déplace plus." -- mt
 L["Lock the tracker"] = "Verrouiller le suivi" -- mt
@@ -202,8 +202,8 @@ L["Ranged"] = "À distance" -- mt
 L["Read %s at %d"] = "Lire %s à %d" -- mt
 L["Read %s at %d (level %d)"] = "Lire %s à %d (niveau %d)" -- mt
 L["Read %s first: you're at your cap."] = "Lisez d'abord %s : vous êtes au maximum." -- mt
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather are free unless you value them under Prices, and auction prices need Auctionator."] =
-	"Coût des composants divisé par la chance de gain de compétence, sur les lignes de recettes et dans l'infobulle. Les composants courants des marchands ont un prix dès le départ, mis à jour chez les marchands que vous visitez ; les composants que vous récoltez sont gratuits sauf si vous les valorisez sous Prix ; les prix aux enchères nécessitent Auctionator." -- mt
+L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather are free unless you value them under Prices, and auction prices need Auctionator or TradeSkillMaster."] =
+	"Coût des composants divisé par la chance de gain de compétence, sur les lignes de recettes et dans l'infobulle. Les composants courants des marchands ont un prix dès le départ, mis à jour chez les marchands que vous visitez ; les composants que vous récoltez sont gratuits sauf si vous les valorisez sous Prix ; les prix aux enchères nécessitent Auctionator/TradeSkillMaster." -- mt
 L["Reagent tooltips"] = "Infobulles des composants" -- mt
 L["Reagents"] = "Composants" -- mt
 L["Reagents  (have / need)"] = "Composants  (possédés / requis)" -- mt
@@ -269,8 +269,8 @@ L["Sort recipes in one list, learned first, then unlearned. Default restores cat
 L["Source"] = "Source" -- mt
 L["Source unknown"] = "Source inconnue" -- mt
 L["Stop tracking"] = "Ne plus suivre"
-L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, are after the 5% cut, and may not sell."] =
-	"Soustrait de son coût ce que l'objet fabriqué rapporte à la vente. Les prix aux enchères nécessitent Auctionator, s'entendent après la commission de 5 % et ne garantissent pas la vente." -- mt
+L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator or TradeSkillMaster, are after the 5% cut, and may not sell."] =
+	"Soustrait de son coût ce que l'objet fabriqué rapporte à la vente. Les prix aux enchères nécessitent Auctionator/TradeSkillMaster, s'entendent après la commission de 5 % et ne garantissent pas la vente." -- mt
 L["Suggest my other Forever addons"] = "Suggérer mes autres addons Forever" -- mt
 L["Taught by %s trainers."] = "Enseignée par les maîtres de métier (%s)." -- mt
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
@@ -286,8 +286,8 @@ L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it
 	"Le texte est sélectionné : Ctrl+C (Cmd+C sur Mac) pour le copier, puis collez-le dans votre rapport de bug." -- mt
 L["The tracker is locked. Turn off Lock the tracker to move it."] =
 	"Le suivi est verrouillé. Désactivez Verrouiller le suivi pour le déplacer." -- mt
-L["These reagents have no vendor price. Auction prices need Auctionator."] =
-	"Ces composants n'ont pas de prix chez les marchands. Les prix aux enchères nécessitent Auctionator." -- mt
+L["These reagents have no vendor price. Auction prices need Auctionator or TradeSkillMaster."] =
+	"Ces composants n'ont pas de prix chez les marchands. Les prix aux enchères nécessitent Auctionator/TradeSkillMaster." -- mt
 L["This addon"] = "Cet addon" -- mt
 L["To buy"] = "À acheter" -- mt
 L["Tool"] = "Outil" -- mt
@@ -310,8 +310,8 @@ L["Value gathered materials at what they'd sell for"] = "Valoriser les matériau
 L["Vendor"] = "Marchand" -- mt
 L["Vendor reagents"] = "Composants de marchand" -- mt
 L["Vendor sell price"] = "Prix de vente au marchand" -- mt
-L["Visit a vendor to price reagents. Auction prices need Auctionator."] =
-	"Rendez visite à un marchand pour estimer les composants. Les prix aux enchères nécessitent Auctionator." -- mt
+L["Visit a vendor to price reagents. Auction prices need Auctionator or TradeSkillMaster."] =
+	"Rendez visite à un marchand pour estimer les composants. Les prix aux enchères nécessitent Auctionator/TradeSkillMaster." -- mt
 L["Waist"] = "Taille" -- mt
 L["Waypoint to a trainer"] = "Point de passage vers un maître" -- mt
 L["Waypoint to a vendor: %s"] = "Point de passage vers un marchand : %s" -- mt
@@ -524,8 +524,8 @@ L["Sells %d at a time"] = "Vend %d à la fois" -- mt
 L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
 	"Ce parcours est surtout %s : %d recettes sont écartées tant que leurs composants n'ont pas de prix." -- mt
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
-L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
-	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
+L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
+	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
 
 -- Shared debug log (Forever Core's Core/Log.lua).
 L["Debug log is off."] = "Le journal de débogage est désactivé."

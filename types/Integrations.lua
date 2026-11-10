@@ -13,6 +13,12 @@
 ---@type {API: {v1: SkillUpAuctionatorAPI}, Config?: {Options: {AUTO_LIST_SEARCH: string}, Get: fun(name: string): any}}?
 Auctionator = nil
 
+-- TradeSkillMaster's public API: the price is in copper, nil with a message when it has none.
+---@class SkillUpTSMAPI
+---@field GetCustomPriceValue fun(customPrice: string, itemString: string): number?, string?
+---@type SkillUpTSMAPI?
+TSM_API = nil
+
 ---@class SkillUpInventoryCharacter
 ---@field character string
 ---@field realmNormalized string

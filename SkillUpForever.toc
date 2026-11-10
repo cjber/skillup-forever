@@ -19,7 +19,7 @@
 ## X-Curse-Project-ID: 1705762
 ## X-Wago-ID: aNerqn62
 ## SavedVariables: SkillUpForeverDB
-## OptionalDeps: Auctionator, TomTom, Syndicator, ShortestPathForever, QuestieDB, Questie, AtlasLootClassic
+## OptionalDeps: Auctionator, TradeSkillMaster, TomTom, Syndicator, ShortestPathForever, QuestieDB, Questie, AtlasLootClassic
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
 

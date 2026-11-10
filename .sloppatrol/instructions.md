@@ -41,7 +41,7 @@ dismissed for the same reason.
 - Money and name one-liners (`parallel-implementations`): signed-money text and "name or placeholder"
   lookups composed from `Model.RoundMoney`/`ns.FormatNet`/`L[...]` are a small idiom; Tooltip keeps copper
   precision and API formats positive fees on purpose, e.g. `UI/Route.lua` `Money`, `Core/Core.lua` `Describe`
-- Price provenance vs shopping bucket (`stringly-typed`): `SkillUpPriceSource` (`vendor`/`auctionator`/`gather`)
+- Price provenance vs shopping bucket (`stringly-typed`): `SkillUpPriceSource` (`vendor`/`auctionator`/`tsm`/`gather`)
   and the shopping bucket (`auction`, ...) are distinct literal-union contracts; `PriceAge` reads
   Auctionator-only age data, so its `"auctionator"` test is not the bucket, e.g. `UI/Route.lua` `PriceAge`
 

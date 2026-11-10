@@ -174,6 +174,8 @@ local OPTIONAL_GLOBALS = {
 	AtlasLoot = true,
 	-- Auctionator: its addon table, present only when Auctionator is installed and enabled.
 	Auctionator = true,
+	-- TradeSkillMaster: its public API table, present only when TSM is installed and enabled.
+	TSM_API = true,
 	-- TomTom: its addon table, present only when TomTom is installed and enabled.
 	TomTom = true,
 	-- Shortest Path Forever: its addon table, present only when that Forever addon is installed.
@@ -1133,6 +1135,19 @@ function Client.load(options)
 					return c.auctionAutoscan
 				end,
 			},
+		}
+	end
+	-- options.tsm = { [itemID] = copper }, what TSM's AuctionDB holds; a spec may change it through c.tsm.
+	c.tsm = options.tsm
+	if options.tsm then
+		G.TSM_API = {
+			GetCustomPriceValue = function(_, itemString)
+				local copper = c.tsm[tonumber(itemString:match("^i:(%d+)$"))]
+				if copper then
+					return copper
+				end
+				return nil, "no value"
+			end,
 		}
 	end
 	-- Auctionator finished a scan: its prices are now what c.auction holds.

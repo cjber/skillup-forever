@@ -227,13 +227,15 @@ function ns.PriceAgeText(price)
 	return string.format(L["%dd ago"], price.days)
 end
 
--- What to do about a reagent with no price: auction prices come only from Auctionator.
+-- What to do about a reagent with no price: auction prices come only from Auctionator or TradeSkillMaster.
 ---@return string
 function ns.UnpricedHint()
 	if ns.HasAuctionator() then
 		return L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."]
+	elseif ns.HasTradeSkillMaster() then
+		return L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."]
 	end
-	return L["Visit a vendor to price reagents. Auction prices need Auctionator."]
+	return L["Visit a vendor to price reagents. Auction prices need Auctionator or TradeSkillMaster."]
 end
 
 ---@param price SkillUpPrice
@@ -255,6 +257,8 @@ function ns.PriceSourceText(price)
 		return L["vendor"]
 	elseif price.source == "auctionator" then
 		return string.format(L["Auctionator, %s"], ns.PriceAgeText(price))
+	elseif price.source == "tsm" then
+		return L["TradeSkillMaster"]
 	end
 	error("unknown price source: " .. tostring(price.source))
 end

@@ -46,7 +46,7 @@ Where Forever moved a recipe's colours, the bundled skill its trainer asks for m
 
 ### Prices
 
-Reagents show where each price comes from. Auction prices use [Auctionator](https://www.curseforge.com/wow/addons/auctionator)'s latest recorded price, with the age of its observation. Scan with Auctionator to update prices. Without Auctionator, a reagent sold only at the auction house has no price.
+Reagents show where each price comes from. Auction prices use [Auctionator](https://www.curseforge.com/wow/addons/auctionator)'s latest recorded price, with the age of its observation. Scan with Auctionator to update prices. With [TradeSkillMaster](https://www.curseforge.com/wow/addons/tradeskill-master), an item Auctionator has no price for uses TSM's AuctionDB, updated by the TSM desktop app and shown without an age. With neither, a reagent sold only at the auction house has no price.
 
 A missing price is unknown, never free. A reagent nobody has priced leaves every recipe that needs it out of the route, the page marks the route incomplete and names those reagents in the reagent list, and buying pays the cheaper of the vendor and auction prices.
 

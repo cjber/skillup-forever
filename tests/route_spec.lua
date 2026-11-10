@@ -224,6 +224,9 @@ page = {
 	HasAuctionator = function()
 		return false
 	end,
+	HasTradeSkillMaster = function()
+		return false
+	end,
 	AuctionatorAutoscan = function()
 		return page.auctionAutoscan
 	end,

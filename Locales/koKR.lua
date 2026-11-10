@@ -32,8 +32,8 @@ L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID>는 하나를, /su unskip all은 모두 다시 보여줍니다."
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"상인 창에 재료 탭을 추가해 추적 중인 경로가 이 상인에게서 아직 필요한 재료와 총 비용을 보여 줍니다. 구매는 상인 창에서 직접 하세요."
-L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
-	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator가 필요합니다."
+L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
+	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator/TradeSkillMaster가 필요합니다."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
 L["Lock the tracker"] = "추적기 잠금"
@@ -201,8 +201,8 @@ L["Ranged"] = "원거리 장비"
 L["Read %s at %d"] = "%s 읽기 (%d)"
 L["Read %s at %d (level %d)"] = "%s 읽기 (%d, 레벨 %d)"
 L["Read %s first: you're at your cap."] = "먼저 %s을(를) 읽으세요: 숙련도가 최대입니다."
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather are free unless you value them under Prices, and auction prices need Auctionator."] =
-	"재료 비용을 숙련도 상승 확률로 나눈 값을 제조법 행과 툴팁에 표시합니다. 흔한 상점 재료는 처음부터 가격이 있고 방문한 상인에서 갱신됩니다. 채집하는 재료는 가격 설정에서 값을 매기지 않으면 무료이며, 경매 가격은 Auctionator가 필요합니다."
+L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather are free unless you value them under Prices, and auction prices need Auctionator or TradeSkillMaster."] =
+	"재료 비용을 숙련도 상승 확률로 나눈 값을 제조법 행과 툴팁에 표시합니다. 흔한 상점 재료는 처음부터 가격이 있고 방문한 상인에서 갱신됩니다. 채집하는 재료는 가격 설정에서 값을 매기지 않으면 무료이며, 경매 가격은 Auctionator/TradeSkillMaster가 필요합니다."
 L["Reagent tooltips"] = "재료 툴팁"
 L["Reagents"] = "재료"
 L["Reagents  (have / need)"] = "재료  (보유 / 필요)"
@@ -268,8 +268,8 @@ L["Sort recipes in one list, learned first, then unlearned. Default restores cat
 L["Source"] = "출처"
 L["Source unknown"] = "출처 알 수 없음"
 L["Stop tracking"] = "추적 해제"
-L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, are after the 5% cut, and may not sell."] =
-	"제작 아이템의 판매 가격을 비용에서 뺍니다. 경매 가격은 Auctionator가 필요하고, 5% 수수료를 뺀 값이며, 팔리지 않을 수도 있습니다."
+L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator or TradeSkillMaster, are after the 5% cut, and may not sell."] =
+	"제작 아이템의 판매 가격을 비용에서 뺍니다. 경매 가격은 Auctionator/TradeSkillMaster가 필요하고, 5% 수수료를 뺀 값이며, 팔리지 않을 수도 있습니다."
 L["Suggest my other Forever addons"] = "제 다른 Forever 애드온 추천"
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
@@ -286,8 +286,8 @@ L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it
 	"텍스트가 선택되었습니다. Ctrl+C(Mac은 Cmd+C)로 복사한 뒤 버그 보고서에 붙여 넣으세요."
 L["The tracker is locked. Turn off Lock the tracker to move it."] =
 	"추적기가 잠겨 있습니다. 추적기 잠금을 끄면 이동할 수 있습니다."
-L["These reagents have no vendor price. Auction prices need Auctionator."] =
-	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator가 필요합니다."
+L["These reagents have no vendor price. Auction prices need Auctionator or TradeSkillMaster."] =
+	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator/TradeSkillMaster가 필요합니다."
 L["This addon"] = "이 애드온"
 L["To buy"] = "구매할 금액"
 L["Tool"] = "도구"
@@ -310,8 +310,8 @@ L["Value gathered materials at what they'd sell for"] = "채집한 재료를 판
 L["Vendor"] = "상인"
 L["Vendor reagents"] = "상점 재료"
 L["Vendor sell price"] = "상점 판매 가격"
-L["Visit a vendor to price reagents. Auction prices need Auctionator."] =
-	"재료 가격을 알려면 상인을 방문하세요. 경매 가격은 Auctionator가 필요합니다."
+L["Visit a vendor to price reagents. Auction prices need Auctionator or TradeSkillMaster."] =
+	"재료 가격을 알려면 상인을 방문하세요. 경매 가격은 Auctionator/TradeSkillMaster가 필요합니다."
 L["Waist"] = "허리"
 L["Waypoint to a trainer"] = "전문가로 웨이포인트"
 L["Waypoint to a vendor: %s"] = "상인으로 웨이포인트: %s"
@@ -525,8 +525,8 @@ L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt
 L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
 	"이 경로는 대부분 %s입니다: 재료 가격이 책정될 때까지 제조법 %d개가 제외됩니다." -- mt
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
-L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
-	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
+L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
+	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
 
 -- Shared debug log (Forever Core's Core/Log.lua).
 L["Debug log is off."] = "디버그 기록이 꺼져 있습니다."

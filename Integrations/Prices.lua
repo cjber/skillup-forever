@@ -45,7 +45,7 @@ end
 -- Auctionator supplies its latest recorded buyout and the age of that observation.
 ---@param itemID integer
 ---@return SkillUpPrice?
-local function AuctionPrice(itemID)
+local function AuctionatorPrice(itemID)
 	local api = AuctionatorAPI()
 	if not api then
 		return nil
@@ -61,6 +61,36 @@ local function AuctionPrice(itemID)
 		days = okAge and type(age) == "number" and age or nil,
 		ageUnavailable = not okAge,
 	}
+end
+
+-- AuctionDB's market value of the latest snapshot, which one underpriced listing does not move; the snapshot's
+-- lowest buyout, then the 14-day value, for an item the first has nothing for.
+local TSM_PRICE = "first(DBRecent, DBMinBuyout, DBMarket)"
+
+---@return boolean
+function ns.HasTradeSkillMaster()
+	return TSM_API and TSM_API.GetCustomPriceValue and true or false
+end
+
+-- TradeSkillMaster's AuctionDB, which its desktop app refreshes. TSM_API does not say how old the data is.
+---@param itemID integer
+---@return SkillUpPrice?
+local function TradeSkillMasterPrice(itemID)
+	if not ns.HasTradeSkillMaster() then
+		return nil
+	end
+	local ok, value = pcall(TSM_API.GetCustomPriceValue, TSM_PRICE, "i:" .. itemID)
+	if not (ok and type(value) == "number") then
+		return nil
+	end
+	return { copper = value, source = "tsm" }
+end
+
+-- Auctionator's own observation when it has one, so a player with both keeps the prices they had.
+---@param itemID integer
+---@return SkillUpPrice?
+local function AuctionPrice(itemID)
+	return AuctionatorPrice(itemID) or TradeSkillMasterPrice(itemID)
 end
 
 local itemInfoPending = false
@@ -86,12 +116,13 @@ local AUCTION_CUT = 0.05
 ---@param itemID integer
 ---@return number?
 ---@return 'auction'|'vendor'|nil
+---@return SkillUpPriceSource?
 local function SaleValue(itemID)
 	local ah = AuctionPrice(itemID)
 	local resale = ah and ah.copper * (1 - AUCTION_CUT)
 	local sell = SellPrice(itemID)
 	if resale and (not sell or resale > sell) then
-		return resale, "auction"
+		return resale, "auction", ah.source
 	end
 	return sell, sell and "vendor" or nil
 end
@@ -129,9 +160,9 @@ local function Gathered(itemID)
 		return nil
 	end
 	local marketOnly = ns.db.auctionOnly
-	local worth, from = nil, nil
+	local worth, from, market = nil, nil, nil
 	if ns.db.valueGathered or marketOnly then
-		worth, from = SaleValue(itemID)
+		worth, from, market = SaleValue(itemID)
 	end
 	if marketOnly and not (worth and worth > 0) then
 		-- No market price: leave it unknown, never a free material (issue #399).
@@ -141,7 +172,7 @@ local function Gathered(itemID)
 	local price = {
 		copper = worth or 0,
 		-- Priced from the market, a self-supplied reagent is bought there in the shopping list too.
-		source = marketOnly and (from == "auction" and "auctionator" or "vendor") or "gather",
+		source = marketOnly and (from == "auction" and market or "vendor") or "gather",
 		worth = from,
 	}
 	if source == "loot" then
@@ -152,8 +183,8 @@ local function Gathered(itemID)
 	return price
 end
 
--- Cheapest known unit price and where it came from: "gather", "vendor" or
--- "auctionator". A price seen at a vendor beats the bundled list, since it includes
+-- Cheapest known unit price and where it came from: "gather", "vendor", "auctionator"
+-- or "tsm". A price seen at a vendor beats the bundled list, since it includes
 -- any reputation discount.
 ---@param itemID integer
 ---@return SkillUpPrice?
@@ -635,5 +666,16 @@ function ns.InitPrices()
 	local api = AuctionatorAPI()
 	if api and api.RegisterForDBUpdate then
 		api.RegisterForDBUpdate(addonName, PricesChanged)
+	end
+	-- TradeSkillMaster reads its AuctionDB at login, so a price asked for before then came back empty.
+	if ns.HasTradeSkillMaster() then
+		local entered = false
+		ns.WhenEvent("PLAYER_ENTERING_WORLD", function()
+			if entered then
+				return nil
+			end
+			entered = true
+			return "prices"
+		end)
 	end
 end

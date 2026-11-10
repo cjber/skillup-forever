@@ -722,9 +722,10 @@ end
 ---@return string
 ---@return ColorMixin
 local function AuctionPriceStatus(reagents)
-	local found, stale
+	local found, stale, tsm
 	for _, item in ipairs(reagents) do
 		local price = ns.Price(item.itemID)
+		tsm = tsm or (price and price.source == "tsm")
 		if price and price.source == "auctionator" then
 			found = true
 			local age = ns.PriceAge(price)
@@ -734,7 +735,7 @@ local function AuctionPriceStatus(reagents)
 		end
 	end
 	if not found then
-		return "", GRAY_FONT_COLOR
+		return tsm and L["Latest TradeSkillMaster prices."] or "", GRAY_FONT_COLOR
 	end
 	local text = stale and L["Latest Auctionator prices: rescan to update old prices."]
 		or L["Latest Auctionator prices."]

@@ -32,8 +32,8 @@ L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
 	"/su unskip <recipe ID> 恢復顯示一個，/su unskip all 恢復全部。"
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"在商人視窗顯示材料分頁，列出你追蹤的路線仍需要向該商人購買的材料及其總費用。請在商人視窗中購買。"
-L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator."] =
-	"你的專業技能採集的材料按出售所得計價，而不是免費：扣除5%手續費後的拍賣價，或較高時按商人收購價。用於路線和配方列的成本。拍賣價需要Auctionator。"
+L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
+	"你的專業技能採集的材料按出售所得計價，而不是免費：扣除5%手續費後的拍賣價，或較高時按商人收購價。用於路線和配方列的成本。拍賣價需要Auctionator/TradeSkillMaster。"
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"將共用的 Forever 追蹤器保持在您放置的位置。頂部的拖曳握把不再移動它。"
 L["Lock the tracker"] = "鎖定追蹤器"
@@ -193,8 +193,8 @@ L["Ranged"] = "遠程"
 L["Read %s at %d"] = "閱讀%s（技能%d）"
 L["Read %s at %d (level %d)"] = "閱讀%s（技能%d，等級%d）"
 L["Read %s first: you're at your cap."] = "請先閱讀%s：你已達上限。"
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather are free unless you value them under Prices, and auction prices need Auctionator."] =
-	"材料成本除以技能提升機率，顯示在配方列和滑鼠提示中。常見商人材料一開始就有價格，並在你造訪商人時更新；你採集的材料免費，除非你在「價格」中為其定價；拍賣價需要Auctionator。"
+L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather are free unless you value them under Prices, and auction prices need Auctionator or TradeSkillMaster."] =
+	"材料成本除以技能提升機率，顯示在配方列和滑鼠提示中。常見商人材料一開始就有價格，並在你造訪商人時更新；你採集的材料免費，除非你在「價格」中為其定價；拍賣價需要Auctionator/TradeSkillMaster。"
 L["Reagent tooltips"] = "材料滑鼠提示"
 L["Reagents"] = "材料"
 L["Reagents  (have / need)"] = "材料  （已有 / 需要）"
@@ -260,8 +260,8 @@ L["Sort recipes in one list, learned first, then unlearned. Default restores cat
 L["Source"] = "來源"
 L["Source unknown"] = "來源不明"
 L["Stop tracking"] = "停止追蹤"
-L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, are after the 5% cut, and may not sell."] =
-	"從成本中減去製造物品的售價。拍賣價需要Auctionator，已扣除5%手續費，且不一定能賣出。"
+L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator or TradeSkillMaster, are after the 5% cut, and may not sell."] =
+	"從成本中減去製造物品的售價。拍賣價需要Auctionator/TradeSkillMaster，已扣除5%手續費，且不一定能賣出。"
 L["Suggest my other Forever addons"] = "推薦我的其他Forever插件"
 L["Taught by %s trainers."] = "由%s訓練師教授。"
 L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
@@ -277,8 +277,8 @@ L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it
 	"文字已選取。按Ctrl+C（Mac上為Cmd+C）複製，然後貼到你的錯誤回報中。"
 L["The tracker is locked. Turn off Lock the tracker to move it."] =
 	"追蹤器已鎖定。關閉「鎖定追蹤器」即可移動它。"
-L["These reagents have no vendor price. Auction prices need Auctionator."] =
-	"這些材料沒有商人價格。拍賣價需要Auctionator。"
+L["These reagents have no vendor price. Auction prices need Auctionator or TradeSkillMaster."] =
+	"這些材料沒有商人價格。拍賣價需要Auctionator/TradeSkillMaster。"
 L["This addon"] = "本插件"
 L["To buy"] = "待購買"
 L["Tool"] = "工具"
@@ -301,8 +301,8 @@ L["Value gathered materials at what they'd sell for"] = "按售價計算採集�
 L["Vendor"] = "商人"
 L["Vendor reagents"] = "商人材料"
 L["Vendor sell price"] = "商人收購價"
-L["Visit a vendor to price reagents. Auction prices need Auctionator."] =
-	"造訪商人以取得材料價格。拍賣價需要Auctionator。"
+L["Visit a vendor to price reagents. Auction prices need Auctionator or TradeSkillMaster."] =
+	"造訪商人以取得材料價格。拍賣價需要Auctionator/TradeSkillMaster。"
 L["Waist"] = "腰部"
 L["Waypoint to a trainer"] = "前往訓練師的導航點"
 L["Waypoint to a vendor: %s"] = "前往商人的導航點：%s"
@@ -508,8 +508,8 @@ L["Sells %d at a time"] = "每次出售 %d 個" -- mt
 L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
 	"這條路線主要需要%s：在材料定價前有%d個配方被排除。" -- mt
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
-L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator."] =
-	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator." -- mt
+L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
+	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
 
 -- Shared debug log (Forever Core's Core/Log.lua).
 L["Debug log is off."] = "偵錯記錄已關閉。"

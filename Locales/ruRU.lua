@@ -38,6 +38,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Оставляет общий трекер Forever там, где вы его поставили. Ручка сверху больше его не перетаскивает."
 L["Lock the tracker"] = "Закрепить трекер"
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"Меняет размер общей панели отслеживания Forever. 100% – как панель отслеживания игры."
 L["Tracker background"] = "Фон отслеживания"
 
 L["AH"] = "Аук."
@@ -307,6 +309,7 @@ L["Tooltips and sorting"] = "Подсказки и сортировка"
 L["Total %s"] = "Всего %s"
 L["Track"] = "Отслеживать"
 L["Tracked routes (Shift for all)"] = "Отслеживаемые маршруты (SHIFT — все)"
+L["Tracker scale"] = "Размер панели отслеживания"
 L["Train %s"] = "Изучить %s"
 L["Train %s at %d"] = "Изучить %s на %d"
 L["Train %s at %d (level %d)"] = "Изучить %s на %d (уровень %d)"

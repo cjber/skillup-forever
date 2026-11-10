@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The tracker's rows can be made larger from SkillUp's settings.** A new *Tracker scale* slider in *Route and trainer* scales the shared Forever tracker from 50% to 200%, so its rows can match the size you find readable; 100% is the game's own tracker. Reported on CurseForge by Chuujitsuna (#517).
+
 ## [1.3.1] - 2026-11-10
 
 - **Auction prices can come from TradeSkillMaster.** With TradeSkillMaster installed and no Auctionator price for an item, reagents and crafted items use TSM's AuctionDB: its latest snapshot's market value, then the lowest buyout, then the 14-day market value. The desktop app refreshes that data, so TSM does not report how old a price is and no age is shown. Auctionator stays first when both are installed, and its shopping lists still need Auctionator.

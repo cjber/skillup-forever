@@ -37,6 +37,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
 L["Lock the tracker"] = "추적기 잠금"
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"공유 Forever 추적기의 크기를 조절합니다. 100%는 게임 추적기와 같습니다."
 L["Tracker background"] = "추적기 배경"
 
 L["AH"] = "경매장"
@@ -295,6 +297,7 @@ L["Tooltips and sorting"] = "툴팁과 정렬"
 L["Total %s"] = "합계 %s"
 L["Track"] = "추적"
 L["Tracked routes (Shift for all)"] = "추적 중인 경로 (Shift: 전체)"
+L["Tracker scale"] = "추적기 크기"
 L["Train %s"] = "%s 배우기"
 L["Train %s at %d"] = "%s 배우기 (%d)"
 L["Train %s at %d (level %d)"] = "%s 배우기 (%d, 레벨 %d)"

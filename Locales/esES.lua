@@ -38,6 +38,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Mantiene el rastreador compartido Forever donde lo pones. El tirador de arriba ya no lo arrastra."
 L["Lock the tracker"] = "Bloquear el rastreador"
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"Cambia el tamaño del rastreador Forever compartido. 100 % coincide con el rastreador del juego."
 L["Tracker background"] = "Fondo del seguimiento"
 
 L["AH"] = "CS"
@@ -292,6 +294,7 @@ L["Tooltips and sorting"] = "Descripciones y orden"
 L["Total %s"] = "Total %s"
 L["Track"] = "Seguir"
 L["Tracked routes (Shift for all)"] = "Rutas seguidas (Mayús para todas)"
+L["Tracker scale"] = "Tamaño del rastreador"
 L["Train %s"] = "Aprender %s"
 L["Train %s at %d"] = "Aprender %s a %d"
 L["Train %s at %d (level %d)"] = "Aprender %s a %d (nivel %d)"

@@ -37,6 +37,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"将共享的 Forever 追踪器保持在您放置的位置。顶部的拖拽手柄不再移动它。"
 L["Lock the tracker"] = "锁定追踪器"
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"调整共享Forever追踪栏的大小。100%与游戏自身的追踪栏一致。"
 L["Tracker background"] = "追踪器背景"
 
 L["AH"] = "拍卖行"
@@ -286,6 +288,7 @@ L["Tooltips and sorting"] = "鼠标提示和排序"
 L["Total %s"] = "总计%s"
 L["Track"] = "追踪"
 L["Tracked routes (Shift for all)"] = "追踪的路线（Shift显示全部）"
+L["Tracker scale"] = "追踪栏大小"
 L["Train %s"] = "学习%s"
 L["Train %s at %d"] = "学习%s（技能%d）"
 L["Train %s at %d (level %d)"] = "学习%s（技能%d，等级%d）"

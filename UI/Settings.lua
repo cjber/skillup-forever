@@ -229,6 +229,34 @@ function ns.RegisterSettings()
 				Settings.NotifyUpdate(variable)
 			end)
 		end
+		-- The shared host owns the scale, so the slider only mirrors it and writes back a percentage of it.
+		if host and host.GetScale and host.SetScale then
+			local scale = Settings.RegisterProxySetting(
+				rows,
+				"SkillUpForever_trackerScale",
+				Settings.VarType.Number,
+				L["Tracker scale"],
+				100,
+				function()
+					return math.floor(host.GetScale() * 100 + 0.5)
+				end,
+				function(value)
+					host.SetScale(value / 100)
+				end
+			)
+			local scaleOptions = Settings.CreateSliderOptions(50, 200, 10)
+			scaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return value .. "%"
+			end)
+			Settings.RegisterInitializer(
+				rows,
+				Settings.CreateSliderInitializer(
+					scale,
+					scaleOptions,
+					L["Scales the shared Forever tracker. 100% matches the game's own tracker."]
+				)
+			)
+		end
 		-- Lock keeps the detached column where it is: the grip ignores drag while it is on. It only writes the saved
 		-- switch, so it is safe to toggle in combat.
 		if host and host.GetSettings and host.SetLocked then

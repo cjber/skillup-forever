@@ -39,6 +39,8 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Garde le suivi Forever partagé là où vous l'avez placé. La poignée en haut ne le déplace plus." -- mt
 L["Lock the tracker"] = "Verrouiller le suivi" -- mt
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"Ajuste la taille du suivi Forever partagé. 100 % correspond au suivi du jeu." -- mt
 L["Tracker background"] = "Fond du suivi"
 
 L["AH"] = "HV" -- mt
@@ -295,6 +297,7 @@ L["Tooltips and sorting"] = "Infobulles et tri" -- mt
 L["Total %s"] = "Total %s" -- mt
 L["Track"] = "Suivre" -- mt
 L["Tracked routes (Shift for all)"] = "Parcours suivis (Maj pour tous)" -- mt
+L["Tracker scale"] = "Taille du suivi" -- mt
 L["Train %s"] = "Apprendre %s" -- mt
 L["Train %s at %d"] = "Apprendre %s à %d" -- mt
 L["Train %s at %d (level %d)"] = "Apprendre %s à %d (niveau %d)" -- mt

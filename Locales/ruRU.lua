@@ -608,5 +608,5 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"У TradeSkillMaster нет цены на эти реагенты: обновите его AuctionDB через приложение TSM для компьютера." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"Обновите AuctionDB TradeSkillMaster через приложение TSM для компьютера или посетите торговца, чтобы оценить реагенты." -- mt
-L["The tracker no longer flashes while you hover equippable items."] = 
+L["The tracker no longer flashes while you hover equippable items."] =
 	"Список задач больше не мерцает при наведении на надеваемые предметы." -- mt

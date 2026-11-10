@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+### For addon authors
+
+- **`SkillUpForever.API` is minor 5.** Other addons can call `Subscribe(callback)` to hear, on the frame after a change lands and once per burst, that the levelling answers or the shopping list may have changed. A read with nothing to answer adds a `"loading"` or `"none"` reason as its second value, and `Professions()` returns a fresh table on every call, so the addon's own cache is never handed out. This needs ForeverCore 1.1.0 for its shared hub, and `docs/api.md` lists every function, the change names and the minor history.
+
 ## [1.4.0] - 2026-11-10
 
 - **Needs Forever Core.** The shared tracker column, bug report and leaderboards now come from one Forever Core addon that installs with it, so every Forever addon's tracker scale, lock and position stay in step. Your tracker settings carry over.

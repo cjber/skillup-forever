@@ -64,6 +64,8 @@ jobs:
       - run: luajit tools/forever_sim/run.lua
       # A screenshot older than the code it is drawn from (docs/screenshots/scenes.sha256).
       - run: python3 tools/check_screenshots.py
+      # Every function Core/API.lua publishes is named in docs/api.md, with its minor history.
+      - run: python3 tools/check_api_docs.py
       # The bench Speedpatrol times: it asserts nothing, so this proves it still runs to the end.
       - run: luajit tests/bench.lua
       - run: pipx run ruff==0.16.8 check tools

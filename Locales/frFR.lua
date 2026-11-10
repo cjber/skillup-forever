@@ -574,3 +574,7 @@ L["Other crafters"] = "Autres artisans" -- mt
 L["No profession here makes buff items."] = "Aucun métier ne fabrique d'objet d'amélioration." -- mt
 L["The recipe list can put the recipes you learned most recently first."] =
 	"La liste des recettes peut afficher en premier celles apprises le plus récemment." -- mt
+L["Latest TradeSkillMaster prices."] = "Derniers prix TradeSkillMaster." -- mt
+L["TradeSkillMaster"] = "TradeSkillMaster" -- mt
+L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."] = "TradeSkillMaster n'a pas de prix pour ces composants : mettez à jour son AuctionDB avec l'application de bureau TSM." -- mt
+L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] = "Mettez à jour l'AuctionDB de TradeSkillMaster avec l'application de bureau TSM, ou rendez-vous chez un vendeur, pour estimer les composants." -- mt

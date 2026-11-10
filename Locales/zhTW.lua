@@ -556,3 +556,7 @@ L["Other crafters"] = "其他工匠" -- mt
 L["No profession here makes buff items."] = "沒有專業製造增益物品。" -- mt
 L["The recipe list can put the recipes you learned most recently first."] =
 	"配方清單可以將最近學會的配方排在最前面。" -- mt
+L["Latest TradeSkillMaster prices."] = "最新的 TradeSkillMaster 價格。" -- mt
+L["TradeSkillMaster"] = "TradeSkillMaster" -- mt
+L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."] = "TradeSkillMaster 沒有這些材料的價格：使用 TSM 桌面應用程式更新其 AuctionDB。" -- mt
+L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] = "使用 TSM 桌面應用程式更新 TradeSkillMaster 的 AuctionDB，或拜訪商人，為材料定價。" -- mt

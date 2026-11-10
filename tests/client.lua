@@ -1,8 +1,10 @@
 -- The stub game client the specs share: `local Client = dofile("tests/client.lua")`, from the repository root.
--- Client.load loads the files SkillUpForever.toc lists, in its order, against stubs of the client API the addon
--- calls, and returns a handle. A spec sets what the client holds (professions, bags, a merchant, Auctionator's
--- prices, the clock), fires the game's events, and asserts on what the addon produces. Nothing on `ns` is faked.
+-- Client.load loads ForeverCore first, as the client does, then the files SkillUpForever.toc lists, in its order,
+-- against stubs of the client API the addons call, and returns a handle. A spec sets what the client holds
+-- (professions, bags, a merchant, Auctionator's prices, the clock), fires the game's events, and asserts on what the
+-- addon produces. Nothing on `ns` is faked.
 local Client = {}
+local ForeverCore = dofile("tests/forever_core.lua")
 
 local ADDON = "SkillUpForever"
 
@@ -151,18 +153,14 @@ end
 local OPTIONAL_GLOBALS = {
 	-- Core/Core.lua: the Legacy talent API, which only a client with the Legacy system has.
 	C_Traits = true,
-	-- UI/ForeverFamily.lua: the shared family table, published by whichever Forever addon loads it first.
-	ForeverFamily = true,
-	-- UI/Leaderboards.lua: the shared leaders window, published by whichever Forever addon loads it first.
-	ForeverLeaderboards = true,
-	-- Core/PeerStats.lua: the shared peer stats manager, published by whichever Forever addon loads it first.
-	ForeverPeerStats = true,
-	-- UI/TrackerHost.lua: the shared tracker host another Forever addon may publish before this one loads.
-	ForeverTrackerHost = true,
-	-- Core/SafeCall.lua: the shared error journal registry, published by whichever Forever addon loads it first.
-	ForeverErrorJournal = true,
-	-- Core/Log.lua: the shared debug log switch, published by whichever Forever addon loads it first.
-	ForeverDebugLog = true,
+	-- ForeverCore's saved table, made by its own ADDON_LOADED handler.
+	ForeverCoreDB = true,
+	-- ForeverCore's tracker host: the client's Edit Mode frame, present only once Edit Mode has loaded.
+	EditModeManagerFrame = true,
+	-- ForeverCore's context menu and minimap button: frames present only once their Blizzard addon has loaded.
+	WorldMapFrame = true,
+	Minimap = true,
+	MinimapCluster = true,
 	-- Core/SafeCall.lua: BugGrabber, when that error display is installed, so its captures join the journal.
 	BugGrabber = true,
 	-- SavedVariables: the addon's own table, nil before the client loads it or when its file is missing.
@@ -307,8 +305,23 @@ function Client.load(options)
 	function Methods:RegisterEvent(event)
 		self.events[event] = true
 	end
+	function Methods:UnregisterEvent(event)
+		self.events[event] = nil
+	end
+	function Methods:UnregisterAllEvents()
+		self.events = {}
+	end
 	function Methods:SetScript(name, fn)
 		self.scripts[name] = fn
+	end
+	function Methods:GetScript(name)
+		return self.scripts[name]
+	end
+	function Methods:IsVisible()
+		return self.shown ~= false
+	end
+	function Methods:IsMouseOver()
+		return self.mouseOver == true
 	end
 	-- A scroll bar's percentage, and the callbacks ScrollBarMixin triggers when it moves.
 	function Methods:SetScrollPercentage(percentage)
@@ -621,6 +634,9 @@ function Client.load(options)
 					end, elementData)
 				end
 			end
+		elseif template == "ScrollFrameTemplate" then
+			-- The template's own scroll bar child, which the shared context menu shows when it overflows.
+			frame.ScrollBar = NewFrame(nil, frame)
 		elseif template == "ItemButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
 			frame.Count = NewFrame(nil, frame)
@@ -718,25 +734,28 @@ function Client.load(options)
 		error("native methods must stay unhooked")
 	end
 	G.OBJECTIVE_TRACKER_COLOR = { Complete = "complete" }
-
-	-- The tracker host another Forever addon already published; UI/TrackerHost.lua adopts it instead of
-	-- building its own, whose frames tracker_host_spec covers.
-	c.host = {
-		Attach = function(module)
-			if not c.host.IsAttached(module) then
-				c.tracker[#c.tracker + 1] = module
-			end
-		end,
-		IsAttached = function(module)
-			for _, attached in ipairs(c.tracker) do
-				if attached == module then
-					return true
-				end
-			end
-			return false
+	-- Blizzard's quest-tracker mixin and header, which ForeverCore's own optional quest section extends.
+	G.QuestObjectiveTrackerMixin = {}
+	G.TRACKER_HEADER_QUESTS = "Quests"
+	-- The addon-owned frame pools the tracker host builds, and the template reader it asks for a name.
+	G.CreateFramePoolCollection = function()
+		return {
+			GetOrCreatePool = function()
+				return {
+					Acquire = function()
+						return NewFrame(), true
+					end,
+					Release = noop,
+				}
+			end,
+			Release = noop,
+		}
+	end
+	G.C_XMLUtil = {
+		GetTemplateInfo = function()
+			return { type = "Frame" }
 		end,
 	}
-	G.ForeverTrackerHost = c.host
 
 	-- The attached sections laid out now: { { id, lines = { { key, text } } } }, top to bottom.
 	function c.Tracker()
@@ -767,10 +786,11 @@ function Client.load(options)
 		Scripts(tab, "OnClick")
 	end
 
-	---@return integer frames how many frames registered for the event
+	---@return integer frames how many frames the addon made registered for the event
 	function c.Listeners(event)
 		local count = 0
-		for _, frame in ipairs(c.frames) do
+		for index = c.coreFrames + 1, #c.frames do
+			local frame = c.frames[index]
 			count = count + (frame.events[event] and 1 or 0)
 		end
 		return count
@@ -1352,6 +1372,7 @@ function Client.load(options)
 		AddInitializedFrameCallback = noop,
 	}
 	G.Menu = { ModifyMenu = noop }
+	G.MenuUtil = { ModifyMenu = noop }
 	-- The client's scroll-box list: a view the addon fills with row initialisers, and its data provider.
 	G.CreateScrollBoxListLinearView = function()
 		local view = {
@@ -1505,15 +1526,33 @@ function Client.load(options)
 		return target
 	end
 
-	--[[ The addon ]]
+	--[[ ForeverCore, then the addon ]]
+
+	-- ForeverCore loads first: its TOC's files into this client, then its own ADDON_LOADED, as the client does for a
+	-- dependency. The tests never fake its host or its shared tables, so a spec exercises the real ones.
+	ForeverCore.load(G)
+	c.Fire("ADDON_LOADED", "ForeverCore")
+	-- Frames made so far belong to ForeverCore; the addon's own start at the next index.
+	c.coreFrames = #c.frames
+	c.host = G.ForeverCore.TrackerHost
+	if c.host then
+		local attach = c.host.Attach
+		function c.host.Attach(module, show)
+			attach(module, show)
+			if not G.tContains(c.tracker, module) and c.host.IsAttached(module) then
+				c.tracker[#c.tracker + 1] = module
+			end
+		end
+	end
 
 	G.SkillUpForeverDB = options.saved
 	local data = options.data
 	for line in io.lines(ADDON .. ".toc") do
 		local file = line:match("^([%w_\\]+%.lua)%s*$")
 		if file then
-			-- The fixtures stand in for the bundled tables before any file reads them.
-			if data and not file:find("^Locales\\") and not file:find("^Data\\") then
+			-- The fixtures stand in for the bundled tables before any addon file reads them; the broken check and
+			-- the locale files read no data.
+			if data and not file:find("^Locales\\") and not file:find("^Data\\") and file ~= "Core\\Require.lua" then
 				for name, value in pairs(data) do
 					c.ns[name] = value
 				end

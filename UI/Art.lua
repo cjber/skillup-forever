@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- Art at its native aspect (AGENTS.md: never stretch art): an atlas is sized from C_Texture.GetAtlasInfo, never
 -- pulled to a box of another shape. Only nine-slice pieces, bars and fills stretch, by design.
 

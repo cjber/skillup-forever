@@ -11,19 +11,14 @@
 
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
----@field PeerStats ForeverPeerStatsNamespace
----@field Leaderboards? ForeverLeaderboardsAPI
----@field LeaderboardsData? ForeverLeaderboardsData
 ---@field Stats SkillUpStats
 ---@field RecipeMaterials fun(recipeID: integer, crafts: number): SkillUpSubCraft[]?, {itemID: integer, count: number}[]?
 ---@field ReportTitle string the localized title shown by the shared report window
 ---@field Art SkillUpArt
----@field TrackerHost? ForeverTrackerHostAPI
----@field TrackerHostSettings fun(): ForeverTrackerSettings
----@field Family ForeverFamilyAPI
+---@field core ForeverCoreAddon the shared services registered for SkillUp (Core/Core.lua)
+---@field broken? boolean set when an installed ForeverCore is too old, so the addon's files stop
 ---@field Print fun(msg: string)
 ---@field GamepadUI fun(): boolean Whether the client is in its gamepad interface.
----@field ContextMenu fun(owner: Frame, generator: fun(owner: Frame, root: RootMenuDescriptionProxy)): any Opens a Blizzard context menu, or under the gamepad interface shows a line instead and returns nil.
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
 ---@field Changed fun(kind: SkillUpChange)
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
@@ -44,8 +39,8 @@
 ---@field IsSkipped fun(recipeID: integer): boolean
 ---@field SetSkipped fun(recipeID: integer, skip: boolean)
 ---@field SkippedRecipes fun(skillLine: integer?): {recipeID: integer, name: string}[]
----@field AddPinnedMenu fun(description: RootMenuDescriptionProxy|ElementMenuDescriptionProxy, skillLine: integer)
----@field AddSkippedMenu fun(description: RootMenuDescriptionProxy|ElementMenuDescriptionProxy, skillLine: integer)
+---@field AddPinnedMenu fun(description: ForeverMenuDescription, skillLine: integer)
+---@field AddSkippedMenu fun(description: ForeverMenuDescription, skillLine: integer)
 ---@field SkillContext fun(): SkillUpContext?
 ---@field PlayerProfessions fun(): table<integer, SkillUpProfession>
 ---@field IsLearned fun(recipeID: integer): boolean
@@ -79,17 +74,7 @@
 ---@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/su export)
 ---@field AuditLines fun(): string[]? /su audit's lines with a profession open, nil with none
 ---@field ReportLines fun(): string[] SkillUp's own lines in /su report (Core/Report.lua)
----@field Report ForeverReportModule the report window (UI/Report.lua)
 ---@field SlashCommands SkillUpSlashCommand[] the /skillup commands, in dispatch and help order
----@field SafeCall fun(label: string, fn: function, ...: any): boolean, ... run fn as pcall does, keeping a failure for /su report and passing it to the error handler (Core/SafeCall.lua)
----@field RecordError fun(label: string, message: any, stack?: string) keep an error caught some other way for the report
----@field CaughtErrors fun(): ForeverCaughtError[] this session's caught errors, oldest first, as copies
----@field AttachErrorJournal fun(store: table) keep the journal in the saved table, so a /reload keeps it (Core/Core.lua)
----@field Log fun(level: string, topic: string, message: any, ...: any) one line in the shared ring (Core/Log.lua)
----@field LogLines fun(count?: integer): string[] the newest log lines, oldest first, as copies (Core/Log.lua)
----@field AttachLog fun(store: table) keep the log ring in the saved table, so a /reload keeps it (Core/Core.lua)
----@field DebugCommand fun(argument?: string): boolean `/forever debug`: toggle, pin, off or show (Core/Log.lua)
----@field CutText fun(text: string, limit: integer): string `text` at most `limit` bytes, cut on a character boundary with "..."
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
 ---@field LearnSource fun(profession: SkillUpContext, recipeID: integer): SkillUpLearnSource?
@@ -143,7 +128,6 @@
 ---@field SetSortMode fun(mode: string)
 ---@field SetBuffsOnly fun(on: boolean)
 ---@field OpenSettings fun()
----@field OpenSettingsPanel fun(categoryID?: integer, element?: string): boolean Blizzard's settings panel, opened through the client's secure opener (Core/OpenSettings.lua)
 ---@field HasAuctionator fun(): boolean
 ---@field HasTradeSkillMaster fun(): boolean
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())
@@ -255,8 +239,6 @@
 ---@field statsShare boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field peerStats table<string, table>
----@field errors ForeverCaughtError[] the shared error journal (Core/SafeCall.lua): earlier sessions' errors, for the report
----@field log ForeverDebugLogStore the shared log ring (Core/Log.lua): recent lines, for the report
 ---@field showRowText boolean
 ---@field wideRecipeList boolean
 ---@field showUnlearned boolean
@@ -312,7 +294,7 @@
 ---@field items table<integer, true>
 
 ---@class SkillUpDB : SkillUpDefaults, ForeverFamilyDB
----@field trackerHost? ForeverTrackerSettings
+---@field trackerHost? ForeverTrackerLegacySettings the addon's old tracker table, offered to Forever Core once
 ---@field showReagentTooltip? boolean Legacy migration only.
 ---@field scanAuctions? boolean Legacy migration only.
 ---@field tracked? table<integer, boolean> Legacy migration only.
@@ -567,7 +549,7 @@ SkillUpForeverDB = nil
 ---@field detailColor? ColorMixin
 ---@field tooltip? fun(tooltip: GameTooltip)
 ---@field click? fun(row: SkillUpListRow) A left click.
----@field menu? fun(owner: Region, root: RootMenuDescriptionProxy) A right-click's context menu, filled as MenuUtil fills one.
+---@field menu? fun(owner: Region, root: ForeverMenuDescription) A right-click's context menu in the suite's shared menu.
 
 ---@class SkillUpListRow : Button
 ---@field kind "row"
@@ -578,7 +560,7 @@ SkillUpForeverDB = nil
 ---@field Detail FontString
 ---@field tooltip? fun(tooltip: GameTooltip)
 ---@field click? fun(row: SkillUpListRow)
----@field menu? fun(owner: Region, root: RootMenuDescriptionProxy)
+---@field menu? fun(owner: Region, root: ForeverMenuDescription)
 ---@field UpdateTooltip fun(self: SkillUpListRow) called by the tooltip this row owns, a few times a second
 
 ---@class SkillUpListHeading : Frame

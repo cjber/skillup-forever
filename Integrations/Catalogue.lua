@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- Where recipes, vendors and trainers are, from the QuestieDB and AtlasLoot the player has installed. A

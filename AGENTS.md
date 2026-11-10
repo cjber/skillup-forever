@@ -1,12 +1,16 @@
 # AGENTS.md
 
 SkillUp Forever is a WoW: Forever addon (Interface 16001) that adds skill-up chances, costs and a
-levelling route to the Professions window. Players install the zip the BigWigs packager builds on a `v*` tag.
+levelling route to the Professions window. It requires ForeverCore (`## Dependencies: ForeverCore`,
+`required-dependencies` in `.pkgmeta`), the standalone addon every Forever addon needs: the tracker column, the
+report window, leaderboards, the error journal and debug log, the settings chrome and the family page are core's
+alone. Players install the zip the BigWigs packager builds on a `v*` tag, and the stores install ForeverCore with it.
 
 ## Commands
 
 ```sh
 python3 tools/doctor.py   # first on a new machine: every tool pin below, with a fix for each problem
+export FOREVER_CORE=~/forever-core   # or the checkout of tools/forever-core.txt's ref, beside this one
 stylua --check .
 ruff format --check tools && ruff check tools
 luacheck .
@@ -45,6 +49,10 @@ publishes it as the notes.
   and treats nil as "not read yet or not installed". A vendor seen selling a reagent or scroll at its own window
   is saved (`ns.db.sellers`) and joins the catalogue with where the player stood. Nothing from either addon is copied into the repo, the
   zip or a test: fixtures are the synthetic `Client.QuestieDB` and `Client.AtlasLoot` in `tests/client.lua`.
+- `Core/Core.lua` registers the addon's shared services once at load (`ns.core`), and the tracker section it
+  attaches lives in `UI/Shopping.lua` with the shopping routes. Everything shared (tracker, report, leaderboards,
+  journal, log, settings page, family page, minimap button, context menu) is ForeverCore's, read from the
+  `ForeverCore` global: never copy one of its files here.
 - `Core/Model.lua`, `Integrations/Prices.lua` — the headless-testable maths; the UI files call them.
   `Integrations/Prices.lua` also holds the sub-craft cost: a reagent a known recipe makes is priced at the
   cheaper of buying and crafting it, three levels deep, memoised and cycle-safe.
@@ -67,7 +75,9 @@ publishes it as the notes.
 - Lua 5.1 in the game's sandbox: no `require`. The client loads the files `SkillUpForever.toc` lists, in
   that order, each receiving `local addonName, ns = ...`; a new file goes in the TOC or never runs.
 - The specs are a headless harness with stubbed client APIs. `tests/client.lua` is the shared stub client: it
-  loads the TOC in order, and a spec over it sets what the client holds, not an `ns` function. Anything the specs
+  loads ForeverCore from `FOREVER_CORE` first, then the TOC in order, and a spec over it sets what the client
+  holds, not an `ns` function. `tests/forever_core.lua` is the one place that finds the checkout (`FOREVER_CORE`,
+  else `../forever-core`); `tools/forever-core.txt` names the ref CI checks out. Anything the specs
   cannot reach (frames, menus, tooltips, the tracker) is checked in game: check them in the headless client (forever-core's `wow-forever-addon/in-game.md`) and list in the PR what was checked; what waits on the player's own session goes in the PR as `/reload` tests for the user.
 - Host globals go in `.luacheckrc`; LuaLS gets WoW APIs from the pinned Ketho annotations.
   Add missing Forever/integration APIs with real types in `types/`, never `diagnostics.globals`.
@@ -134,8 +144,10 @@ client's own DB2 tables through wago.tools, not a classic-db dump: they stay as 
 `tools/forever_sim/` is the shared client simulator from the same place, vendored the same way (`python3 tools/forever_sim/sync.py check`, `update --source <checkout>`). `luajit tools/forever_sim/run.lua` runs the scenarios in `tests/sim` under the client's real Blizzard UI source, fetched once with `python3 tools/forever_sim/fetch.py`; `tests/sim/exercise_scenario.lua` opens every slash command, the world map, combat and a `/reload` through `sim:exercise()`.
 Never touch Blizzard's Lua state: WFA-38 in `wow-forever-addon` lists what addon code may do to Blizzard's
 frames, how to restyle one by drawing on top, and when a `taint-ok` exception holds.
-Keep addon tracker sections and pools in `UI/TrackerHost.lua`, outside Blizzard's registry.
+Keep addon tracker sections in the shared column: create the module, set its `legacySettings`, `safeCall` and
+`AddHeaderMenuEntries`, and attach it with `ForeverCore.TrackerHost.Attach`. Never register with Blizzard's
+tracker manager.
 Render only after `PLAYER_ENTERING_WORLD` and `VARIABLES_LOADED`, deferred one frame.
-This supersedes WFA-5's native registration guidance. CI exercises the host against checksum-pinned
-Forever tracker source; native manager access is forbidden in the integration harness.
+This supersedes WFA-5's native registration guidance. ForeverCore owns the host; native manager access is
+forbidden in the integration harness.
 Test event ordering and reuse, not just method existence.

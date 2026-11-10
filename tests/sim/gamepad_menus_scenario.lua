@@ -4,7 +4,11 @@
 -- protected SetPreferredGamepadInteractTarget refused. SkillUp's route profession picker is a Blizzard dropdown,
 -- whose menu SkillUp's own SetupMenu configured, so under the gamepad interface a press on it steps to the next
 -- profession instead of opening a menu. This walks that press both ways and checks that no menu is shown.
-scenario("the route's profession picker leaves the gamepad focus to the game", function(sim)
+local ForeverCore = dofile("tests/forever_core.lua")
+
+scenario("the route's profession picker leaves the gamepad focus to the game", {
+	addons = ForeverCore.addons(),
+}, function(sim)
 	local G = sim.G
 	sim.world.professions = {
 		{

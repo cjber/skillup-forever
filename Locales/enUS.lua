@@ -18,7 +18,6 @@ L["Price self-supplied reagents at auction values"] = "Price self-supplied reage
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."
 L["Tooltips stay cheap while the pointer rests on an item."] = "Tooltips stay cheap while the pointer rests on an item."
-L["This menu needs mouse and keyboard."] = "This menu needs mouse and keyboard."
 L["%s: %s"] = "%s: %s"
 L["%s drops in %s"] = "%s drops in %s"
 L["Made by %s %d"] = "Made by %s %d"

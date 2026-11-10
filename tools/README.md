@@ -25,9 +25,9 @@ later by `retry-refresh.yml`, and one that fails again opens the issue "Data ref
 | `PT_COMMIT` | `gen_vendor.py` | last LibPeriodicTable commit that changed the Tradeskill file's bytes |
 | `CLASSICDB_COMMIT` | `gen_trainer.py` | moved by hand only: a waiver in `AGENTS.md` |
 
-`SOURCE_DATE` is set to the day a pin moved. `REVISION` in `fetch_tracker_ui.py` (the tracker UI
-shared with the other Forever addons) and the annotation revision in `typecheck.sh` are test
-inputs, moved by hand with the addons that share them.
+`SOURCE_DATE` is set to the day a pin moved. The Blizzard UI source pin in `forever_sim/fetch.py`,
+moved with forever-core, and the annotation revision in `typecheck.sh` are test inputs, moved by hand
+with the addons that share them.
 
 ## Generators
 

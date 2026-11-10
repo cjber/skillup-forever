@@ -33,6 +33,17 @@ local function Env(messages, callbacks)
 				callbacks[name] = callback
 			end,
 		},
+		ForeverCore = {
+			API = 1,
+			Register = function(_, spec)
+				return {
+					SafeCall = pcall,
+					Attach = function() end,
+					Report = {},
+					title = spec.title,
+				}
+			end,
+		},
 	}, { __index = _G })
 end
 
@@ -58,9 +69,7 @@ for _, complete in ipairs({ false, true }) do
 		ns.InitCatalogue = function() end
 		ns.PlanRoute, ns.Changed, ns.WhenEvent = Init, Init, function() end
 		ns.CraftedGear = Init
-		ns.SafeCall, ns.Report, ns.ReportLines = pcall, {}, Init
-		ns.AttachErrorJournal, ns.AttachLog = function() end, function() end
-		ns.Family = {}
+		ns.ReportLines = Init
 	end
 	local env = Env(messages, callbacks)
 	-- A save from before auction prices moved to Auctionator, and one with vendors and a price store from
@@ -146,12 +155,7 @@ do
 		Catalogue = {},
 		InitCatalogue = function() end,
 		CraftedGear = function() end,
-		SafeCall = pcall,
-		Report = {},
 		ReportLines = function() end,
-		AttachErrorJournal = function() end,
-		AttachLog = function() end,
-		Family = {},
 		Stats = {},
 	}
 	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)

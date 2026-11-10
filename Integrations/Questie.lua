@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- QuestieDB, read at runtime through its public tables: who sells or drops an item and which quests reward
 -- it, where an NPC stands and whose side it is on, and what a quest is called and who gives it. Nothing of it is
 -- bundled.

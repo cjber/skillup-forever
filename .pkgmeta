@@ -18,3 +18,7 @@ ignore:
   - Locales/README.md
   - .agents
   - .claude
+  - forever-core
+
+required-dependencies:
+  - forevercore

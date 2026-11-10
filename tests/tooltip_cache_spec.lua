@@ -98,7 +98,7 @@ end
 local ITEM, OBJECT, UNIT = G.Enum.TooltipDataType.Item, G.Enum.TooltipDataType.Object, G.Enum.TooltipDataType.Unit
 local itemPost = Post(ITEM, 1)
 local objectPost = Post(OBJECT, 1)
--- UI/Leaderboards.lua registers the unit hook as it loads; the addon's own comes when ADDON_LOADED boots it.
+-- ForeverCore's leaderboards register the unit hook as they load; the addon's own comes when ADDON_LOADED boots it.
 local unitPost = Post(UNIT, #c.postCalls[UNIT])
 
 -- An item's uses, route needs and names are worked out once, then read from the cache. The old code repeated

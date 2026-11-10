@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 local PageParts = ns.PageParts
 
@@ -149,7 +153,7 @@ end
 -- "Not this recipe", the way Adventure Guide Forever's "Not this quest" leaves a quest out: a right-click on any
 -- step or suggestion that names a recipe leaves it out of every route on this character.
 ---@param recipeID integer
----@return fun(owner: Region, root: RootMenuDescriptionProxy)
+---@return fun(owner: Region, root: ForeverMenuDescription)
 local function RecipeMenu(recipeID)
 	return function(_, root)
 		root:CreateTitle(RecipeName(recipeID))
@@ -309,7 +313,7 @@ end
 
 -- "Show again: <recipe>" for each recipe of this profession the character skipped, on the route page's
 -- Skipped row and the tracker's header menu.
----@param description RootMenuDescriptionProxy|ElementMenuDescriptionProxy
+---@param description ForeverMenuDescription
 ---@param skillLine integer
 function ns.AddSkippedMenu(description, skillLine)
 	description:SetScrollMode(PageParts.MENU_EXTENT)
@@ -320,7 +324,7 @@ function ns.AddSkippedMenu(description, skillLine)
 	end
 end
 
----@param description RootMenuDescriptionProxy|ElementMenuDescriptionProxy
+---@param description ForeverMenuDescription
 ---@param skillLine integer
 function ns.AddPinnedMenu(description, skillLine)
 	description:SetScrollMode(PageParts.MENU_EXTENT)
@@ -409,7 +413,7 @@ local function RenderSkipped(list, profession)
 		end,
 		click = function(row)
 			GameTooltip_Hide()
-			ns.ContextMenu(row, Menu)
+			ForeverCore.ContextMenu(row, Menu)
 		end,
 		menu = Menu,
 	})

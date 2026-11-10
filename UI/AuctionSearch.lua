@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- At the auction house, the Professions window's selected recipe gets a bar: how many to craft, and a search for
@@ -82,7 +86,7 @@ function ns.SearchReagents(recipeID, count)
 			if not (AuctionHouseFrame and AuctionHouseFrame:IsShown()) then
 				return
 			end
-			ns.SafeCall("auction house reagent search", function()
+			ns.core.SafeCall("auction house reagent search", function()
 				local searches, names = {}, {}
 				for _, item in ipairs(short) do
 					local name = assert(C_Item.GetItemNameByID(item.itemID))

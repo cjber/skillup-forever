@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- The one SkillUp side tab and the bottom tabs of its pages. Each page module owns its own frame and

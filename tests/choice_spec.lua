@@ -142,11 +142,9 @@ local function MenuDescription()
 	return description
 end
 local root = MenuDescription()
-c.G.MenuUtil = {
-	CreateContextMenu = function(owner, generator)
-		generator(owner, root)
-	end,
-}
+c.G.ForeverCore.ContextMenu = function(owner, generator)
+	generator(owner, root)
+end
 ns.SetTracked(164, true)
 local block = c.Tracker()[1]
 local module = c.G.SkillUpForeverObjectiveTracker

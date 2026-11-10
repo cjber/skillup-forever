@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- Options > AddOns > SkillUp Forever: a short index page, then a stock subpage per group so no page grows
@@ -60,6 +64,7 @@ local function Choice(target, key, name, options, tooltip)
 			end
 		end
 	)
+	---@cast proxy SkillUpSetting
 	setting:SetValueChangedCallback(function()
 		Settings.NotifyUpdate(variable)
 		ns.Changed("settings")
@@ -89,11 +94,12 @@ function ns.RegisterSettings()
 	-- (cjber/forever-core#333).
 	local function Section(name, rows)
 		local subcategory = Settings.RegisterVerticalLayoutSubcategory(category, name)
+		---@cast subcategory SkillUpCategory
 		rows(subcategory)
 		Settings.RegisterInitializer(
 			category,
 			CreateSettingsButtonInitializer(name, L["Open"], function()
-				ns.OpenSettingsPanel(subcategory:GetID())
+				ForeverCore.OpenSettingsPanel(subcategory:GetID())
 			end, nil, false)
 		)
 	end
@@ -203,7 +209,7 @@ function ns.RegisterSettings()
 			L["Show tracked professions"],
 			L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."]
 		)
-		local host = ns.TrackerHost
+		local host = ForeverCore.TrackerHost
 		if host and host.GetSettings and host.SetAttached and host.OnAttachmentChanged then
 			local variable = "SkillUpForever_trackerAttached"
 			local setting = Settings.RegisterProxySetting(
@@ -219,6 +225,7 @@ function ns.RegisterSettings()
 					host.SetAttached(value == true)
 				end
 			)
+			---@cast setting SkillUpSetting
 			Settings.RegisterInitializer(
 				rows,
 				Settings.CreateCheckboxInitializer(
@@ -247,6 +254,7 @@ function ns.RegisterSettings()
 					host.SetLocked(value == true)
 				end
 			)
+			---@cast lock SkillUpSetting
 			Settings.RegisterInitializer(
 				rows,
 				Settings.CreateCheckboxInitializer(
@@ -334,17 +342,18 @@ function ns.RegisterSettings()
 		)
 	end)
 
-	-- The Forever addons page is the same in all five addons (UI/ForeverFamily.lua), with the hint setting on it.
+	-- The Forever addons page is core's (ForeverCore.Family), with the hint setting on it.
 	-- Its rows are plain frames on our own canvas, so nothing of ours goes into Blizzard's layouts or search.
 	-- With the gamepad interface on the page is the client's own rows so the Options navigation can enter it
 	-- (cjber/tweaks-forever#382).
-	local family = ns.Family.Register(category, function()
+	local Family = ForeverCore.Family --[[@as ForeverFamilyAPI]]
+	local family = Family.Register(category, function()
 		return ns.db
-	end, addonName)
+	end, addonName, ns.core.SafeCall)
 	Settings.RegisterInitializer(
 		category,
 		CreateSettingsButtonInitializer(L["Forever addons"], L["Open"], function()
-			ns.OpenSettingsPanel(family:GetID())
+			ForeverCore.OpenSettingsPanel(family:GetID())
 		end, nil, false)
 	)
 
@@ -370,7 +379,7 @@ function ns.OpenSettings()
 		return
 	end
 	local function Open()
-		ns.OpenSettingsPanel(category:GetID())
+		ForeverCore.OpenSettingsPanel(category:GetID())
 	end
 	-- Opening the panel reaches a protected call, so it waits for combat to end like the pages do (#489).
 	if not ns.Pages.Unlocked(Open) then

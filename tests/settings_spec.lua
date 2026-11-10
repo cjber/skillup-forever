@@ -30,8 +30,8 @@ local function Initializer(kind, setting, tooltip)
 end
 
 local opened, addOnCategory, canvas, family
--- Calls to the client's own restricted settings opener, and the secure delegates the shared opener built around it.
-local opens, delegates = 0, 0
+-- Calls to ForeverCore's shared settings opener.
+local opens = 0
 
 local env = setmetatable({
 	Settings = {
@@ -45,7 +45,7 @@ local env = setmetatable({
 			return Category(name, parent), { AddInitializer = Tainted }
 		end,
 		RegisterCanvasLayoutSubcategory = function()
-			error("the Forever addons page is registered through ns.Family.Register")
+			error("the Forever addons page is registered through ForeverCore.Family.Register")
 		end,
 		RegisterAddOnSetting = function(_target, variable, key, db, varType, _name, default)
 			if db[key] == nil then
@@ -125,17 +125,14 @@ local env = setmetatable({
 			error("Settings.OpenToCategory called straight from addon code")
 		end,
 	},
-	-- The shared opener wraps the client's own function in a secure delegate and calls that (Core/OpenSettings.lua).
-	C_SettingsUtil = {
+	-- ForeverCore's shared opener, which SkillUp asks instead of the client's restricted function.
+	ForeverCore = {
 		OpenSettingsPanel = function(categoryID)
 			opens = opens + 1
 			opened = categoryID
+			return true
 		end,
 	},
-	CreateSecureDelegate = function(fn)
-		delegates = delegates + 1
-		return fn
-	end,
 	InCombatLockdown = function()
 		return false
 	end,
@@ -149,31 +146,36 @@ local env = setmetatable({
 local refreshed = 0
 local trackerState = { attached = true, locked = false }
 local attachmentChanged
+env.ForeverCore.TrackerHost = {
+	GetSettings = function()
+		return trackerState
+	end,
+	SetAttached = function(value)
+		trackerState.attached = value
+		attachmentChanged()
+	end,
+	SetLocked = function(value)
+		trackerState.locked = value
+	end,
+	OnAttachmentChanged = function(callback)
+		attachmentChanged = callback
+	end,
+}
+-- ForeverCore.Family builds the page; Core's own specs cover what is on it.
+env.ForeverCore.Family = {
+	Register = function(parent, db, current, safeCall)
+		family = { parent = parent, db = db, current = current, safeCall = safeCall }
+		canvas = Category("Forever addons", parent)
+		return canvas
+	end,
+}
 local ns = {
-	TrackerHost = {
-		GetSettings = function()
-			return trackerState
-		end,
-		SetAttached = function(value)
-			trackerState.attached = value
-			attachmentChanged()
-		end,
-		SetLocked = function(value)
-			trackerState.locked = value
-		end,
-		OnAttachmentChanged = function(callback)
-			attachmentChanged = callback
+	core = {
+		SafeCall = function(_, fn, ...)
+			return pcall(fn, ...)
 		end,
 	},
 	TITLE = "SkillUp Forever",
-	-- UI/ForeverFamily.lua builds the page; forever_family_spec.lua covers what is on it.
-	Family = {
-		Register = function(parent, db, current, locale)
-			family = { parent = parent, db = db, current = current, locale = locale }
-			canvas = Category("Forever addons", parent)
-			return canvas
-		end,
-	},
 	db = {},
 	DEFAULTS = {
 		craftValue = "vendor",
@@ -200,9 +202,7 @@ local ns = {
 	end,
 }
 assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
--- The shared opener is loaded first, as the TOC does: the settings page asks it, not Settings.OpenToCategory.
-setfenv(assert(loadfile("Core/OpenSettings.lua")), env)("SkillUpForever", ns)
-assert(ns.OpenSettingsPanel, "the shared settings opener is loaded")
+-- The shared opener is ForeverCore's: the settings page asks it, not Settings.OpenToCategory.
 setfenv(assert(loadfile("UI/Settings.lua")), env)("SkillUpForever", ns)
 ns.OpenSettings() -- before registration, as when an update's files are missing: no error
 assert(opens == 0, "no settings open before the category is registered")
@@ -276,12 +276,11 @@ assert(canvas and canvas.name == "Forever addons", "the Forever addons page is r
 assert(family.parent == category, "the page belongs to the addon's category")
 assert(family.db() == ns.db, "the page reads and writes SkillUp's saved variables")
 assert(family.current == "SkillUpForever", "the page marks this addon's row")
-assert(family.locale == nil, "the page reads in the addon's L")
+assert(family.safeCall == ns.core.SafeCall, "the page reports its failures in SkillUp's journal")
 local familyOpens = opens
 Button("Forever addons").initializer.onClick()
 assert(opens == familyOpens + 1, "the Forever addons button opens through the client's own opener")
 assert(opened == canvas:GetID(), "the Forever addons button opens its page")
-assert(delegates == 1, "every page opens through one secure delegate")
 for _, entry in ipairs(registered) do
 	local kind = entry.initializer.kind
 	if entry.initializer.setting then

@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 local ICON = "Interface\\AddOns\\" .. addonName .. "\\media\\Icon"
 local frame, body, scroll, copyWindow, copyEdit, shown, footer, summary

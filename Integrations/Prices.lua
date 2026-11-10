@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- [recipeID] = live schematic, else bundled data, else false.
 ---@type table<integer, SkillUpSchematic|false>
 local recipes = {}

@@ -3,7 +3,11 @@
 -- Menu.ModifyMenu is addon code that reads the saved sort and buff settings, so the client builds the menu
 -- under SkillUp's taint and the gamepad frame manager's next protected call is refused. With the gamepad
 -- interface on, SkillUp leaves that menu alone; turning the interface off puts the section back.
-scenario("the gamepad interface leaves Blizzard's Filter menu to the game", function(sim)
+local ForeverCore = dofile("tests/forever_core.lua")
+
+scenario("the gamepad interface leaves Blizzard's Filter menu to the game", {
+	addons = ForeverCore.addons(),
+}, function(sim)
 	local G = sim.G
 	sim.world.professions = {
 		{

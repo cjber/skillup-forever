@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 local CALLER = "SkillUp Forever"
@@ -678,7 +682,7 @@ end
 
 ---@return boolean
 function ns.TrackerAttached()
-	return module ~= nil and not detached and ForeverTrackerHost ~= nil and ForeverTrackerHost.IsAttached(module)
+	return module ~= nil and not detached and ForeverCore.TrackerHost.IsAttached(module)
 end
 
 -- A burst of bag, skill or recipe events marks the tracker dirty many times in one frame; the host already
@@ -731,7 +735,7 @@ local function Anchor()
 		return nil
 	end
 	local parent = module:GetParent()
-	local host = ForeverTrackerHost
+	local host = ForeverCore.TrackerHost
 	if host and host.Attach then
 		if not parent or (host.IsAttached and not host.IsAttached(module)) then
 			host.Attach(module)
@@ -772,7 +776,7 @@ Attach = function()
 	if not module or detached then
 		return
 	end
-	local host = ForeverTrackerHost
+	local host = ForeverCore.TrackerHost
 	if host and host.Attach then
 		host.Attach(module)
 		return
@@ -789,7 +793,7 @@ local ModuleMixin = { headerText = L["Profession reagents"] }
 
 ---@param block SkillUpTrackerBlock
 function ModuleMixin:OnBlockHeaderClick(block)
-	ns.ContextMenu(self:GetContextMenuParent(), function(_, root)
+	ForeverCore.ContextMenu(self:GetContextMenuParent(), function(_, root)
 		root:SetScrollMode(MENU_EXTENT)
 		root:CreateTitle(block.profession)
 		-- Only while this profession is open: the client crafts from the open one.
@@ -1031,13 +1035,16 @@ local function CreateModule()
 		ns.Print(L["the objective tracker isn't available, so tracked reagents can't be shown."])
 		return
 	end
-	local hostFrame = ForeverTrackerHost --[[@as Frame?]]
-	local parent = hostFrame and type(hostFrame.GetParent) == "function" and hostFrame or UIParent
-	local created = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", parent, "ObjectiveTrackerModuleTemplate")
+	-- The host reparents the section into its column when it attaches.
+	local created = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", UIParent, "ObjectiveTrackerModuleTemplate")
 	---@cast created SkillUpTrackerModule
 	module = created
 	Mixin(module, ModuleMixin)
 	module:SetHeader(ModuleMixin.headerText)
+	module.safeCall = ns.core.SafeCall
+	-- The column's scale, Lock and position were SkillUp's before Forever Core kept them; the host copies this table
+	-- once, so the player keeps the layout they chose.
+	module.legacySettings = ns.db.trackerHost
 	-- No uiOrder: the shared host owns the section's place and the template lays
 	-- it out when the host is missing.
 	EventUtil.ContinueAfterAllEvents(function()
@@ -1048,6 +1055,7 @@ local function CreateModule()
 		end)
 	end, "PLAYER_ENTERING_WORLD", "VARIABLES_LOADED")
 	Attach()
+	ns.db.trackerHost = nil
 	C_Timer.After(5, function()
 		if not ns.TrackerAttached() then
 			ns.Print(L["couldn't add tracked reagents to the objective tracker; please report it."])

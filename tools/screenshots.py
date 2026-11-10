@@ -350,7 +350,7 @@ LEVEL = 20
 MONEY = 25000  # 2g 50s: every Apprentice fee is within reach, so the trainer's next pick can be any of them
 TOOLTIP_ITEM = 2318  # Light Leather
 
-# Loads the TOC's Lua files, except UI/TrackerHost.lua which the scene stubs, under luajit into recording stubs
+# Loads the TOC's Lua files under luajit into recording stubs
 # of the client (as tests/route_spec.lua does), runs the addon's start-up, opens its route page, lays out its
 # tracker section, decorates an Apprentice trainer's services and shows the reagent's item tooltip, and prints
 # what each would draw as JSON. Money is left as {coin:N} and item names as {item:N} for the renderer to fill in.
@@ -360,7 +360,7 @@ local ADDON = "SkillUpForever"
 local FILES = {}
 for line in io.lines(ADDON .. ".toc") do
 	local file = line:match("^([%w_\\]+%.lua)%s*$")
-	if file and file ~= "UI\\TrackerHost.lua" then
+	if file then
 		FILES[#FILES + 1] = (file:gsub("\\", "/"))
 	end
 end
@@ -614,7 +614,7 @@ env = setmetatable({
 	GetLocale = function()
 		return "enUS"
 	end,
-	-- The client's error handler and string trim, which the shared journal (Core/SafeCall.lua) reads at load.
+	-- The client's error handler and string trim, which the addon's own code reads at load.
 	geterrorhandler = function()
 		return function() end
 	end,
@@ -867,13 +867,8 @@ env = setmetatable({
 	LibQuestieDB = false,
 	Syndicator = false,
 	TSM_API = false,
-	-- No other Forever addon has loaded UI/ForeverFamily.lua: this copy sets the global.
-	ForeverFamily = false,
-	ForeverLeaderboards = false,
-	ForeverPeerStats = false,
-	-- The error journal installs its own handler and event frame; BugSack is not installed here.
-	ForeverErrorJournal = false,
-	ForeverDebugLog = false,
+	-- ForeverCore's shared services; the scene below fills them in.
+	ForeverCore = false,
 	BugGrabber = false,
 }, {
 	__index = function(_, key)
@@ -885,13 +880,54 @@ env = setmetatable({
 	end,
 })
 
--- This renderer exercises Shopping.LayoutContents; native ownership is covered by tracker_host_spec.
+-- This renderer exercises Shopping.LayoutContents; native ownership is covered by ForeverCore's own specs.
 env._G = env
-local ns = { TrackerHost = {
+local function SafeCall(_, fn, ...)
+	return pcall(fn, ...)
+end
+local host = {
 	Attach = function(module) module.parentContainer = {} end,
 	IsAttached = function(module) return module.parentContainer ~= nil end,
-} }
-env.ForeverTrackerHost = ns.TrackerHost
+	GetSettings = function() return { attached = true, locked = false } end,
+	SetAttached = function() end,
+	SetLocked = function() end,
+	OnAttachmentChanged = function() end,
+}
+env.ForeverCore = {
+	API = 1,
+	TrackerHost = host,
+	Register = function(_, spec)
+		return {
+			SafeCall = SafeCall,
+			Attach = function() end,
+			Report = { Show = function() end, Command = function() end },
+			MapCanvas = {},
+			title = spec and spec.title,
+		}
+	end,
+	PeerStats = {
+		New = function()
+			return {
+				Sync = function() end,
+				SetEnabled = function() end,
+				Board = function() return {} end,
+				WeekBoard = function() return {} end,
+				Revision = function() return 0 end,
+			}
+		end,
+	},
+	Leaderboards = { Register = function() end, Open = function() end },
+	Family = {
+		Register = function()
+			return Stub()
+		end,
+	},
+	OpenSettingsPanel = function() return true end,
+	OpenMap = function() return true end,
+	ContextMenu = function() end,
+	Text = {},
+}
+local ns = {}
 for _, file in ipairs(FILES) do
 	setfenv(assert(loadfile(file)), env)(ADDON, ns)
 end

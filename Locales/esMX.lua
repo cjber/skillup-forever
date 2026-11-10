@@ -38,7 +38,6 @@ L["A material your professions gather costs what selling it would bring instead 
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Mantiene el rastreador compartido Forever donde lo pones. El tirador de arriba ya no lo arrastra."
 L["Lock the tracker"] = "Bloquear el rastreador"
-L["Tracker background"] = "Fondo del seguimiento"
 
 L["AH"] = "CS"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
@@ -85,8 +84,6 @@ L["Close"] = "Cerrar"
 L["Complete %s at %d"] = "Completar %s a %d"
 L["Complete %s at %d (level %d)"] = "Completar %s a %d (nivel %d)"
 L["Complete %s first: you're at your cap."] = "Completa primero %s: estás en tu máximo."
-L["Copy link"] = "Copiar enlace"
-L["Copy the address, then open it in your browser."] = "Copia la dirección y ábrela en tu navegador."
 L["Cost"] = "Costo"
 L["Count what crafts sell for"] = "Contar el valor de venta de lo creado"
 L["Craft %d %s"] = "Crear %d %s"
@@ -97,8 +94,6 @@ L["Craft next"] = "Crear la siguiente"
 L["Crafted gear"] = "Equipo creado"
 L["Crafts"] = "Creaciones"
 L["Don't count it"] = "No contarlo"
-L["Don't suggest this again"] = "No volver a sugerir"
-L["Drag to move"] = "Arrastra para mover"
 L["Dropped by"] = "Lo suelta"
 L["Each"] = "Cada uno"
 L["Each click puts the next one in the search box; press Search."] =
@@ -112,7 +107,6 @@ L["Feet"] = "Pies"
 L["Finger"] = "Dedo"
 L["First used at"] = "Se usa desde"
 L["Forever addons"] = "Addons Forever"
-L["Forever tracker"] = "Rastreador Forever"
 L["Gather %d %s"] = "Recoger %d %s"
 L["Gathering skill on nodes"] = "Habilidad de recolección en vetas y hierbas"
 L["Hands"] = "Manos"
@@ -120,14 +114,12 @@ L["Have (bags and bank)"] = "Tienes (bolsas y banco)"
 L["Head"] = "Cabeza"
 L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
 	"Las descripciones de hierbas y vetas muestran la habilidad que requieren y su color según la tuya (solo cliente en inglés). Los cadáveres desollables muestran ? hasta que se confirme la regla de desuello en Forever."
-L["Hide this section"] = "Ocultar esta sección"
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Instala AtlasLoot para ver las recetas que añadirían vendedores, misiones y botines."
 L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."] =
 	"Instala Questie y AtlasLoot para ver dónde están recetas, vendedores e instructores."
 L["Install Questie to see vendors, quests and trainers, with waypoints to them."] =
 	"Instala Questie para ver vendedores, misiones e instructores, con puntos de ruta."
-L["Installed, turned off"] = "Instalado, desactivado"
 L["Its trainer should teach these at your skill now:"] =
 	"Su instructor debería enseñarte esto con tu habilidad actual:"
 L["Kept in the Auctionator list '%s'."] = 'Guardado en la lista de Auctionator "%s".'
@@ -158,14 +150,12 @@ L["No skill data for this recipe yet."] = "Aún no hay datos de habilidad para e
 L["No trainer teaches this rank: a book does."] = "Ningún instructor enseña este rango: lo enseña un libro."
 L["No trainer teaches this rank: a quest does."] = "Ningún instructor enseña este rango: lo enseña una misión."
 L["Not in this route: you chose Not this recipe."] = 'No está en esta ruta: elegiste "Esta receta no".'
-L["Not installed"] = "No instalado"
 L["Not this recipe"] = "Esta receta no"
 L["Nothing priced you know skills up past %d."] = "Nada con precio que conozcas sube la habilidad más allá de %d."
 L["Nothing to buy for this route."] = "Nada que comprar para esta ruta."
 L["Nothing to craft on this route."] = "Nada que crear en esta ruta."
 L["Nothing you know skills up past %d."] = "Nada que conozcas sube la habilidad más allá de %d."
 L["Off hand"] = "Mano izquierda"
-L["On"] = "Activado"
 L["On %s"] = "En %s"
 L["One line in chat the first time a new version loads."] =
 	"Una línea en el chat la primera vez que se carga una versión nueva."
@@ -178,12 +168,6 @@ L["Per craft"] = "Por fabricación"
 L["Per skill-up"] = "Por subida de habilidad"
 L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."] =
 	"Por subida de habilidad es el costo de un punto de habilidad. Por fabricación es lo que cuesta o gana una fabricación, también en recetas que ya no dan habilidad."
-L["Picks quests for your level and plans them into one journey."] =
-	"Elige misiones para tu nivel y las planea en un solo viaje."
-L["Plans the cheapest route to your next profession rank."] =
-	"Planea la ruta más barata hasta tu siguiente rango de profesión."
-L["Plans the quickest way anywhere and guides you there, with live boat and zeppelin times."] =
-	"Planea la ruta más rápida a cualquier lugar y te guía hasta allí, con horarios en vivo de barcos y zepelines."
 L["Price"] = "Precio"
 L["Price %s, requires %s (%d)"] = "Precio %s, requiere %s (%d)"
 L["Prices"] = "Precios"
@@ -191,8 +175,6 @@ L["Profession reagents"] = "Componentes de profesión"
 L["Profit per craft"] = "Beneficio por creación"
 L["Profit per skill-up"] = "Beneficio por subida de habilidad"
 L["Quest"] = "Misión"
-L["Quest automation, rare alerts and merchant handling for the default UI."] =
-	"Automatización de misiones, avisos de raros y gestión de mercaderes para la interfaz predeterminada."
 L["Quest giver"] = "Asignador de misiones"
 L["Quest, requires %s (%d)"] = "Misión, requiere %s (%d)"
 L["Raises your skill cap to %d."] = "Sube tu máximo de habilidad a %d."
@@ -232,8 +214,6 @@ L["Set waypoint"] = "Fijar punto de ruta"
 L["Shift-click to link the scroll."] = "Mayús-clic para enlazar la receta."
 L["Shift: used in %d of your recipes"] = "Mayús: se usa en %d de tus recetas"
 L["Shoulder"] = "Hombro"
-L["Show a quiet line where one of my other Forever addons would help. Only for addons you don't have."] =
-	"Muestra una línea discreta donde otro de mis addons Forever te ayudaría. Solo para addons que no tienes."
 L["Show again: %s"] = "Se vuelve a mostrar: %s"
 L["Show cost per skill-up"] = "Mostrar costo por subida de habilidad"
 L["Show gear I cannot make yet"] = "Mostrar equipo que aún no puedo crear"
@@ -246,8 +226,6 @@ L["Show the crafted gear tab"] = "Mostrar la pestaña de equipo creado"
 L["Show the levelling route tab"] = "Mostrar la pestaña de ruta de progreso"
 L["Show thresholds tooltip"] = "Mostrar descripción de umbrales"
 L["Show tracked professions"] = "Mostrar profesiones seguidas"
-L["Shows the Legacy challenges you can advance in each zone."] =
-	"Muestra los desafíos de legado que puedes avanzar en cada zona."
 L["Skill  %d/%d     Target"] = "Habilidad  %d/%d     Objetivo"
 L["Skill points a craft"] = "Puntos de habilidad por creación"
 L["Skill range start"] = "Inicio del rango"
@@ -269,10 +247,7 @@ L["Source unknown"] = "Origen desconocido"
 L["Stop tracking"] = "Cancelar seguimiento"
 L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator or TradeSkillMaster, are after the 5% cut, and may not sell."] =
 	"Resta del costo lo que vale vender el objeto creado. Los precios de subasta necesitan Auctionator/TradeSkillMaster, son tras la comisión del 5 % y puede que no se vendan."
-L["Suggest my other Forever addons"] = "Sugerir mis otros addons Forever"
 L["Taught by %s trainers."] = "Lo enseñan los instructores de %s."
-L["The Forever addons are free, with nothing locked behind them. If they help, you can buy me a coffee."] =
-	"Los addons Forever son gratuitos y no hay nada bloqueado tras un pago. Si te ayudan, puedes invitarme un café." -- mt
 L["The place this recipe is taught isn't known yet."] = "Aún no se sabe dónde se enseña esta receta."
 L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
 	"La lista de recetas se ensancha hasta el nombre de receta más largo del oficio abierto, y la ventana con ella, hasta el espacio que tenga tu pantalla. Desactívalo para mantener el ancho propio de la ventana."
@@ -280,13 +255,8 @@ L["The rest comes from a vendor or your gathering."] = "El resto viene de un ven
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"La ruta cuenta con %d para llegar a %d 9 de cada 10 veces; con peor suerte harán falta más."
 L["The source of this recipe isn't known."] = "Se desconoce el origen de esta receta."
-L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it, then paste it into your bug report."] =
-	"El texto está seleccionado. Presiona Ctrl+C (Cmd+C en Mac) para copiarlo y pégalo en tu informe de error."
-L["The tracker is locked. Turn off Lock the tracker to move it."] =
-	"El rastreador está bloqueado. Desactiva Bloquear el rastreador para moverlo."
 L["These reagents have no vendor price. Auction prices need Auctionator or TradeSkillMaster."] =
 	"Estos componentes no tienen precio de vendedor. Los precios de subasta necesitan Auctionator/TradeSkillMaster."
-L["This addon"] = "Este addon"
 L["To buy"] = "Por comprar"
 L["Tool"] = "Herramienta"
 L["Tooltips and sorting"] = "Descripciones y orden"
@@ -410,34 +380,23 @@ L["/su report - show a report to copy into a bug report"] =
 	"/su report - muestra un informe para copiar en un informe de error"
 L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] = "Un viaje de compra necesita Shortest Path Forever."
-L["Bug"] = "Error"
-L["Bug: "] = "Error: "
-L["Copy issue link"] = "Copiar enlace del issue"
 L["Copy list"] = "Copiar lista"
-L["Copy report"] = "Copiar informe"
-L["Feature request"] = "Sugerir función"
-L["Feature request: "] = "Sugerencia: "
 L["Gather"] = "Recolección"
 L["Need %d, have %d, missing %d  %s  %s each  %s"] = "Necesitas %d, tienes %d, faltan %d  %s  %s cada uno  %s"
 L["No tracked profession"] = "Ninguna profesión seguida"
 L["Nothing is missing from the shopping list."] = "No falta nada en la lista de compras."
 L["Nothing to buy"] = "No hay nada que comprar"
 L["Plan buy trip"] = "Planificar la compra"
-L["Report a bug or request a feature"] = "Reportar un error o pedir una función"
 L["Shopping list"] = "Lista de compras"
 L["Shortest Path Forever cannot plan the full trip; setting a waypoint to the first vendor."] =
 	"Shortest Path Forever no puede planificar todo el viaje; se fija un punto de ruta al primer vendedor."
 L["Shortest Path Forever is needed to plan this trip."] =
 	"Se necesita Shortest Path Forever para planificar este viaje."
 L["SkillUp Forever shopping list"] = "Lista de compras de SkillUp Forever"
-L["The link is selected. Press Ctrl+C (Cmd+C on a Mac), then paste into a browser; GitHub opens a filled-in issue."] =
-	"El enlace está seleccionado. Presiona Ctrl+C (Cmd+C en Mac) y pégalo en un navegador; GitHub abre un issue ya llenado."
 L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."] =
 	"El texto está seleccionado. Presiona Ctrl+C (Cmd+C en Mac) para copiarlo."
-L["Title"] = "Título"
 L["Total for priced items: "] = "Total de los objetos con costo: "
 L["Unknown"] = "Desconocido"
-L["What happened, or what you would like"] = "Qué pasó, o qué te gustaría"
 L["no trainer requirement seen yet: open a profession trainer, then try again."] =
 	"aún no se ha visto ningún requisito de instructor: abre un instructor de profesión y vuelve a intentarlo."
 L["on %s"] = "en %s"
@@ -461,34 +420,7 @@ L["Pinned (%d)"] = "Fijadas (%d)" -- mt
 L["/su share on|off - control sharing with guild and group"] =
 	"/su share on|off - controla lo que compartes con hermandad y grupo"
 L["Share observed recipe totals with guild and group"] = "Compartir totales de recetas observadas con hermandad y grupo"
-L["(you)"] = "(tú)"
-L["All time"] = "Todo el tiempo"
-L["Forever Leaderboards"] = "Forever Leaderboards"
-L["Forever standing"] = "Clasificación Forever"
-L["Forever: %s overall"] = "Forever: %s en total"
-L["Forever: %s overall this week"] = "Forever: %s en total esta semana"
-L["No one has reported yet."] = "Nadie ha informado todavía."
-L["Others' values are player-reported."] = "Los valores de los demás los informan los jugadores."
-L["Overall"] = "General"
-L["Player"] = "Jugador"
-L["Points for placing on each addon's board."] = "Puntos por colocarte en la tabla de cada addon."
-L["Rank"] = "Puesto"
 L["Recipes observed"] = "Recetas observadas"
-L["Share my progress"] = "Compartir mi progreso"
-L["This week"] = "Esta semana"
-L["Uses Forever addons"] = "Usa addons Forever"
-L["Your guild and group"] = "Tu clan y grupo"
-L["Players you've met"] = "Jugadores que has conocido" -- mt
-L["boards"] = "tablas"
-L["1st"] = "1.º"
-L["2nd"] = "2.º"
-L["3rd"] = "3.º"
-L["4th"] = "4.º"
-L["5th"] = "5.º"
-L["6th"] = "6.º"
-L["7th"] = "7.º"
-L["8th"] = "8.º"
-L["board"] = "tabla"
 L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
 	"/su leaderboard - abre Forever Leaderboards en la pestaña de este addon (también /su stats)"
 L["total"] = "total"
@@ -525,21 +457,6 @@ L["A reagent you gather, loot or already own costs what selling it would bring -
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
 
 -- Shared debug log (Forever Core's Core/Log.lua).
-L["Debug log is off."] = "El registro de depuración está desactivado."
-L["Debug log is on for this session."] = "El registro de depuración está activado para esta sesión."
-L["Debug log is on and pinned for this character."] =
-	"El registro de depuración está activado y fijado para este personaje."
-L["Debug log is already on and pinned for this character."] =
-	"El registro de depuración ya está activado y fijado para este personaje."
-L["Debug log is off for this session; it is still pinned."] =
-	"El registro de depuración está desactivado para esta sesión; sigue fijado."
-L["Debug log is off and unpinned."] = "El registro de depuración está desactivado y sin fijar."
-L["No addon has attached its log yet."] = "Ningún addon ha adjuntado su registro todavía."
-L["%s (last %d):"] = "%s (últimas %d):"
-L["%s: no lines yet."] = "%s: aún no hay líneas."
-L["Usage: /forever debug, /forever debug pin, /forever debug off, /forever debug show"] =
-	"Uso: /forever debug, /forever debug pin, /forever debug off, /forever debug show"
-L["This menu needs mouse and keyboard."] = "Este menú necesita ratón y teclado."
 L["Only buffs for your level"] = "Solo mejoras para tu nivel"
 L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
 	"Muestra solo las recetas cuyo producto sea una mejora que puedas usar a tu nivel: elixires, frascos, comida de Bien alimentado, pociones de protección, piedras, aceites y kits de armadura. Primero el nivel requerido más alto. Primero las recetas aprendidas y después las no aprendidas cuando se muestran."

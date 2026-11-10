@@ -27,7 +27,7 @@ refresh that moves the pin never leaves this file behind. The addon itself is GP
 
 | Input | Used for | Pin | Licence |
 |---|---|---|---|
-| [Blizzard UI source](https://github.com/Gethe/wow-ui-source) | The native tracker integration spec, fetched into `tools/.cache/` | `REVISION` in `tools/fetch_tracker_ui.py` | Blizzard Entertainment's; fetched, never committed |
+| [Blizzard UI source](https://github.com/Gethe/wow-ui-source) | The shared client simulator's UI source, fetched into `tools/.cache/` | the pin in `tools/forever_sim/fetch.py` | Blizzard Entertainment's; fetched, never committed |
 | [Ketho's WoW API annotations](https://github.com/Ketho/vscode-wow-api) | lua-language-server types in `tools/typecheck.sh` | `revision` in `tools/typecheck.sh` | MIT |
 | [forever_tools](https://github.com/cjber/forever-core/tree/main/.agents/skills/wow-forever-addon/tooling/forever_tools) | Shared lints, release checks and the generated-data gate, vendored in `tools/forever_tools/` | `revision` in `tools/forever_tools/MANIFEST.json` | MIT |
 | [forever-core/tools/wowmock](https://github.com/cjber/forever-core/tree/main/tools/wowmock) and the client art it fetches | `tools/screenshots.py` | `FOREVER_CORE` (a local forever-core checkout); the art at `UI_ART_BUILD` in `tools/screenshots.py` | MIT; the art is Blizzard Entertainment's, fetched at build time and committed only as it appears in `docs/screenshots/` |

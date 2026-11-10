@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- The addon's lists draw what they hold the way the game draws its own items: a full-size icon in its
 -- stock border, the item's name beside it in the item-name font and the supporting facts on the line
 -- under it. A heading is a stock font line and a message is the list's own hint or empty state. The list
@@ -76,7 +80,7 @@ local function BuildRow(row)
 		if button == "RightButton" then
 			if row.menu then
 				GameTooltip_Hide()
-				ns.ContextMenu(row, row.menu)
+				ForeverCore.ContextMenu(row, row.menu)
 			end
 		elseif row.click then
 			row.click(row)
@@ -176,7 +180,7 @@ function ns.CreateList(parent)
 	measure:SetWordWrap(true)
 	measure:Hide()
 
-	local view = CreateScrollBoxListLinearView()
+	local view = CreateScrollBoxListLinearView() --[[@as SkillUpScrollView]]
 	view:SetElementExtentCalculator(function(_, elementData)
 		if elementData.kind == "row" then
 			return ROW_HEIGHT

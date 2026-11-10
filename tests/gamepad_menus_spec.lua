@@ -1,8 +1,9 @@
 -- Run from the repository root: luajit tests/gamepad_menus_spec.lua
 -- Under the gamepad interface a Blizzard menu opened from SkillUp's own code takes the gamepad focus under
 -- SkillUp's taint, and the next secure window call then has its protected SetPreferredGamepadInteractTarget
--- refused (#398). These are the menus SkillUp opens, a row's right-click, the route's Skipped row and the
--- tracker's header, and the source guard that keeps a new one from going round this wrapper.
+-- refused (#398). ForeverCore.ContextMenu draws the suite's own menu instead, so these are the call sites that
+-- reach it: a row's right-click, the route's Skipped row and the tracker's header. The dropdown below is the
+-- route's profession picker, which steps to the next choice under the gamepad interface instead of opening a menu.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
@@ -18,32 +19,21 @@ end
 local c = Client.load()
 local ns, G = c.ns, c.G
 
--- The client's menu call, the screen errors and the gamepad check, all read at call time by Core/Core.lua.
-local menus, errors = {}, {}
-G.MenuUtil = {
-	CreateContextMenu = function(owner, generator)
-		local menu = { owner = owner, generator = generator }
-		menus[#menus + 1] = menu
-		return menu
-	end,
-}
-G.UIErrorsFrame = {
-	AddMessage = function(_, text, r, g, b)
-		errors[#errors + 1] = { text = text, r = r, g = g, b = b }
-	end,
-}
-local gamepad = false
-G.InputUtil.IsGamepadUIEnabled = function()
-	return gamepad
+-- The shared menu, read at call time by every addon call site.
+local menus = {}
+G.ForeverCore.ContextMenu = function(owner, generator)
+	local menu = { owner = owner, generator = generator }
+	menus[#menus + 1] = menu
+	return menu
 end
 
 local function Reset()
-	menus, errors = {}, {}
+	menus = {}
 end
 
 local function Menu() end
 
--- A row's right-click goes through the namespace, so the gamepad interface opens no menu and says why.
+-- A row's right-click opens ForeverCore's menu, on the row, with the entry's own generator.
 local rowViewFactory
 G.CreateScrollBoxListLinearView = function()
 	return {
@@ -67,36 +57,11 @@ rowViewFactory(function(_, init)
 end, list.rows[1])
 initializer(row, list.rows[1])
 
-gamepad = true
 Reset()
 row.scripts.OnClick(row, "RightButton")
-equal(#menus, 0, "a row's right-click opens no menu under the gamepad interface")
-equal(#errors, 1, "and shows one line instead")
-equal(errors[1].text, ns.L["This menu needs mouse and keyboard."], "the line says what the menu needs")
-equal(errors[1].r, 1, "in the client's error colour")
-equal(errors[1].g, 1, "in the client's error colour")
-equal(errors[1].b, 0, "in the client's error colour")
-
-gamepad = false
-Reset()
-row.scripts.OnClick(row, "RightButton")
-equal(#menus, 1, "a row's right-click opens the menu with the gamepad interface off")
+equal(#menus, 1, "a row's right-click opens the shared menu")
 equal(menus[1].owner, row, "on the row")
 equal(menus[1].generator, Menu, "with the row's own generator")
-equal(#errors, 0, "and says nothing")
-
--- The route's Skipped row reaches the same wrapper, through its own click.
-gamepad = true
-Reset()
-ns.ContextMenu(row, Menu)
-equal(#menus, 0, "a direct context menu opens nothing under the gamepad interface")
-equal(#errors, 1, "and shows the same line")
-gamepad = false
-Reset()
-ns.ContextMenu(row, Menu)
-equal(#menus, 1, "and opens with the gamepad interface off")
-equal(menus[1].owner, row, "on its owner")
-equal(menus[1].generator, Menu, "with its generator")
 
 -- The tracker's header click, the section's own path into the menu. The stub client leaves out the stock
 -- module's context menu parent, so the spec gives it one.
@@ -109,15 +74,9 @@ local block = {
 	plan = { profession = { name = "First Aid", skillLine = 129 }, crafts = {}, ranks = {}, steps = {} },
 	steps = {},
 }
-gamepad = true
 Reset()
 module:OnBlockHeaderClick(block)
-equal(#menus, 0, "the tracker's header opens no menu under the gamepad interface")
-equal(#errors, 1, "and shows the line")
-gamepad = false
-Reset()
-module:OnBlockHeaderClick(block)
-equal(#menus, 1, "the tracker's header opens its menu with the gamepad interface off")
+equal(#menus, 1, "the tracker's header opens the shared menu")
 equal(menus[1].owner, module, "on the tracker's menu parent")
 equal(type(menus[1].generator), "function", "filled by the section's generator")
 
@@ -169,6 +128,10 @@ G.MenuUtil.TraverseMenu = function(_, op)
 	return op(second)
 end
 G.MenuInputContext = { MouseWheel = 7 }
+local gamepad = false
+G.InputUtil.IsGamepadUIEnabled = function()
+	return gamepad
+end
 ns.StepDropdownUnderGamepad(dropdown)
 gamepad = true
 current = nil
@@ -203,8 +166,8 @@ dropdown.picked = nil
 dropdown:OpenMenu()
 equal(opened, 1, "with the gamepad interface off the client's OpenMenu runs")
 
--- A source guard: the wrapper is the only door to a context menu, and every dropdown SkillUp builds is
--- wrapped. UI/TrackerHost.lua is vendored and its fallback branch only runs when ns.ContextMenu is missing.
+-- A source guard: every context menu SkillUp opens goes through ForeverCore's, and every dropdown SkillUp builds
+-- is wrapped for the gamepad interface.
 local function AddonFiles()
 	local files = {}
 	for line in Read("SkillUpForever.toc"):gmatch("[^\r\n]+") do
@@ -224,22 +187,17 @@ end
 local menusOutsideCore, dropdowns, unchecked = {}, {}, {}
 for _, path in ipairs(AddonFiles()) do
 	local code = Code(Read(path))
-	if
-		path ~= "Core/Core.lua"
-		and path ~= "UI/TrackerHost.lua"
-		and code:find("MenuUtil.CreateContextMenu", 1, true)
-	then
+	if code:find("MenuUtil.CreateContextMenu", 1, true) then
 		menusOutsideCore[#menusOutsideCore + 1] = path
 	end
-	-- UI/Leaderboards.lua is vendored and owns its dropdown, which is not the route's profession picker.
-	if path ~= "UI/Leaderboards.lua" and code:find('CreateFrame("DropdownButton"', 1, true) then
+	if code:find('CreateFrame("DropdownButton"', 1, true) then
 		dropdowns[#dropdowns + 1] = path
 		if not code:find("ns.StepDropdownUnderGamepad(", 1, true) then
 			unchecked[#unchecked + 1] = path
 		end
 	end
 end
-equal(table.concat(menusOutsideCore, "\n"), "", "only Core/Core.lua opens a context menu directly")
+equal(table.concat(menusOutsideCore, "\n"), "", "no addon file opens a Blizzard context menu directly")
 equal(#dropdowns > 0, true, "the guard sees the route's profession dropdown")
 equal(table.concat(unchecked, "\n"), "", "every dropdown SkillUp builds is wrapped for the gamepad interface")
 

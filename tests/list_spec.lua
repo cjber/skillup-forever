@@ -212,10 +212,12 @@ env.MenuUtil = {
 		menus[#menus + 1] = { owner = owner, generator = generator }
 	end,
 }
--- Core/Core.lua is not loaded here: the row asks the namespace, which asks the client's MenuUtil.
-ns.ContextMenu = function(owner, generator)
-	return env.MenuUtil.CreateContextMenu(owner, generator)
-end
+-- ForeverCore is not loaded here: the row asks its shared menu, which asks the client's MenuUtil.
+env.ForeverCore = {
+	ContextMenu = function(owner, generator)
+		return env.MenuUtil.CreateContextMenu(owner, generator)
+	end,
+}
 local function Menu() end
 list:Begin()
 list:Add({

@@ -122,7 +122,6 @@ L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers ar
 	"Установите QuestieDB и AtlasLoot, чтобы видеть, где рецепты, торговцы и учителя."
 L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"Установите QuestieDB, чтобы видеть торговцев, задания и учителей с точками маршрута."
-L["Installed, turned off"] = "Установлено, отключено"
 L["Its trainer should teach these at your skill now:"] =
 	"Учитель уже должен обучить вас этому при вашем навыке:"
 L["Kept in the Auctionator list '%s'."] = "Сохранено в списке Auctionator «%s»."

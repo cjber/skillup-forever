@@ -120,7 +120,6 @@ L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers ar
 	"제조법, 상인, 전문가의 위치를 보려면 QuestieDB와 AtlasLoot를 설치하세요."
 L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"상인, 퀘스트, 전문가와 그 웨이포인트를 보려면 QuestieDB를 설치하세요."
-L["Installed, turned off"] = "설치됨, 사용 안 함"
 L["Its trainer should teach these at your skill now:"] =
 	"지금 숙련도로 전문가에게 다음을 배울 수 있어야 합니다:"
 L["Kept in the Auctionator list '%s'."] = "Auctionator 목록 '%s'에 저장되었습니다."

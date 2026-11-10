@@ -120,7 +120,6 @@ L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers ar
 	"Instala QuestieDB y AtlasLoot para ver dónde están recetas, vendedores e instructores."
 L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"Instala QuestieDB para ver vendedores, misiones e instructores, con puntos de ruta."
-L["Installed, turned off"] = "Instalado, desactivado"
 L["Its trainer should teach these at your skill now:"] =
 	"Su instructor debería enseñarte esto con tu habilidad actual:"
 L["Kept in the Auctionator list '%s'."] = 'Guardado en la lista de Auctionator "%s".'

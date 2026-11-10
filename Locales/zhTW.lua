@@ -117,7 +117,6 @@ L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers ar
 	"安裝QuestieDB和AtlasLoot以查看配方、商人和訓練師的位置。"
 L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"安裝QuestieDB以查看商人、任務和訓練師，並可設定導航點。"
-L["Installed, turned off"] = "已安裝，已停用"
 L["Its trainer should teach these at your skill now:"] = "以你現在的技能，訓練師應該能教你這些："
 L["Kept in the Auctionator list '%s'."] = "已儲存在Auctionator列表「%s」中。"
 L["Latest Auctionator prices."] = "最新的Auctionator價格。"

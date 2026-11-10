@@ -2,8 +2,6 @@ SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in th
 
 Free, with nothing locked behind it. If it saves you time, you can [sponsor me on GitHub](https://github.com/sponsors/cjber), which takes no fees, or [buy me a coffee on Ko-fi](https://ko-fi.com/cjber).
 
-[![Sponsor me on GitHub](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/github-sponsors-button.png)](https://github.com/sponsors/cjber) [![Support me on Ko-fi](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/kofi-button.png)](https://ko-fi.com/cjber)
-
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)
 
 From 48 to 60 the rows re-sort by cost per skill-up, and the bracers turn green at 55.
@@ -105,3 +103,5 @@ Translated into German, French, Spanish, Brazilian Portuguese, Russian, Korean a
 Source: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever), GPL-3.0-or-later.
 
 Built with AI assistance.
+
+[![Sponsor me on GitHub](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/github-sponsors-button.png)](https://github.com/sponsors/cjber) [![Support me on Ko-fi](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/kofi-button.png)](https://ko-fi.com/cjber)

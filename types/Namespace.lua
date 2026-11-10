@@ -166,6 +166,7 @@
 ---@field OpenShoppingList fun()
 ---@field TrackerAttached fun(): boolean
 ---@field SetTracked fun(skillLine: integer, tracked: boolean)
+---@field SetTrackedByPlayer fun(skillLine: integer, tracked: boolean)
 ---@field AutoTrack fun(skillLine?: integer): boolean
 ---@field InitShopping fun()
 ---@field NPCLocation fun(npcID: integer): SkillUpLocation

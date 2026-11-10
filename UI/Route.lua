@@ -1151,7 +1151,7 @@ local function CreateButtons()
 	track:SetSize(math.max(130, stop, track:GetTextWidth() + 32), 22)
 	track:SetScript("OnClick", function()
 		local tracked = not ns.IsTracked(selected)
-		ns.SetTracked(selected, tracked)
+		ns.SetTrackedByPlayer(selected, tracked)
 		Render()
 		if tracked and not ns.TrackerAttached() then
 			ns.Print(L["tracked, but the objective tracker section isn't attached; please report it."])

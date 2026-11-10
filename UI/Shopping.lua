@@ -708,13 +708,21 @@ local function RefreshTracker()
 	end)
 end
 
+-- The saved choice itself, without the client's click sound: the public API sets it quietly.
 ---@param skillLine integer
 ---@param tracked boolean
 function ns.SetTracked(skillLine, tracked)
 	-- false is kept, not dropped: it is the player saying stop, which AutoTrack honours.
 	ns.db.trackedProfessions[skillLine] = tracked
-	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 	ns.Changed("tracking")
+end
+
+-- The player's own click on a Track button: the same choice, with the checkbox sound.
+---@param skillLine integer
+---@param tracked boolean
+function ns.SetTrackedByPlayer(skillLine, tracked)
+	ns.SetTracked(skillLine, tracked)
+	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 end
 
 ---@type fun()
@@ -833,7 +841,7 @@ function ModuleMixin:OnBlockHeaderClick(block)
 			ns.AddSkippedMenu(root:CreateButton(string.format(L["Skipped (%d)"], skipped)), block.id)
 		end
 		root:CreateButton(L["Stop tracking"], function()
-			ns.SetTracked(block.id, false)
+			ns.SetTrackedByPlayer(block.id, false)
 		end)
 	end)
 end

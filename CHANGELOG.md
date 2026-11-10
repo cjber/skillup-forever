@@ -14,6 +14,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **The addon's own icon is the same everywhere it appears in game.** The Professions side tab, the shopping windows and the leaderboard tab now all show the same scroll.
 
+### For addon authors
+
+- **`SkillUpForever.API` is minor 6.** Other addons can read and set whether a profession is tracked, start the shopping trip, ask `Professions` for up to 25 steps and recipes, and read the recipes-observed stats and leaderboard. `SetTracked` reports whether it changed anything and never plays the checkbox sound, and a tracking change reaches subscribers on the next frame like any other answer. `docs/api.md` lists every function, the limits and the minor history.
+
 ## [1.4.1] - 2026-11-10
 
 - **Needs Forever Core.** Forever Core now comes in the same download, and until Forever Core has its own CurseForge page every Forever addon's download carries a copy of it, so the addon loads with nothing else to install.

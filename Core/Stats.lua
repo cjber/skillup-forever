@@ -107,6 +107,12 @@ function Stats.SetEnabled(enabled)
 	peer:SetEnabled(enabled == true)
 end
 
+-- Whether this character shares and shows peer totals, the switch the public API reports as `sharing`.
+---@return boolean
+function Stats.Sharing()
+	return Enabled()
+end
+
 -- The current character's total, which both boards measure from.
 local function Local()
 	local record = Record()

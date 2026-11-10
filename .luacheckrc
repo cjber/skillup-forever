@@ -53,3 +53,6 @@ read_globals[#read_globals + 1] = "InputUtil"
 read_globals[#read_globals + 1] = "UIErrorsFrame"
 read_globals[#read_globals + 1] = "DropdownButtonMixin"
 read_globals[#read_globals + 1] = "MenuInputContext"
+-- Core/OpenSettings.lua: the client's secure settings panel opener.
+read_globals[#read_globals + 1] = "CreateSecureDelegate"
+read_globals[#read_globals + 1] = "C_SettingsUtil"

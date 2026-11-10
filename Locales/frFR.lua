@@ -579,5 +579,5 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster n'a pas de prix pour ces composants : mettez à jour son AuctionDB avec l'application de bureau TSM." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"Mettez à jour l'AuctionDB de TradeSkillMaster avec l'application de bureau TSM, ou rendez-vous chez un vendeur, pour estimer les composants." -- mt
-L["Opening SkillUp's options no longer shows a blocked action error."] =
-	"Ouvrir les options de SkillUp n'affiche plus d'erreur d'action bloquée." -- mt
+L["The tracker no longer flashes while you hover equippable items."] =
+	"Le suivi ne clignote plus lorsque vous survolez des objets d'équipement." -- mt

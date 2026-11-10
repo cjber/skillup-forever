@@ -560,5 +560,5 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster 没有这些材料的价格：使用 TSM 桌面应用更新其 AuctionDB。" -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"使用 TSM 桌面应用更新 TradeSkillMaster 的 AuctionDB，或访问商人，为材料定价。" -- mt
-L["Opening SkillUp's options no longer shows a blocked action error."] =
-	"打开 SkillUp 的选项时不再显示操作被阻止的错误。" -- mt
+L["The tracker no longer flashes while you hover equippable items."] =
+	"将鼠标悬停在可装备物品上时，追踪器不再闪烁。" -- mt

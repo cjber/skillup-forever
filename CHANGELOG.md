@@ -12,6 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+
+## [1.3.5] - 2026-11-10
+
 - **The tracker no longer flashes while you hover equippable items.** An item's tooltip and its comparison tooltips were making the tracked reagents section redraw for item details it does not show. It now draws again only when a reagent or book it lists arrives. Thanks to hardliquor on Discord for the report (#526).
 
 ## [1.3.4] - 2026-11-10

@@ -1622,9 +1622,10 @@ function Client.load(options)
 	for line in io.lines(ADDON .. ".toc") do
 		local file = line:match("^([%w_\\]+%.lua)%s*$")
 		if file then
-			-- The fixtures stand in for the bundled tables before any addon file reads them; the broken check and
-			-- the locale files read no data.
-			if data and not file:find("^Locales\\") and not file:find("^Data\\") and file ~= "Core\\Require.lua" then
+			-- The fixtures stand in for the bundled tables before any addon file reads them; the two broken checks
+			-- (Core/ForeverRequire.lua and Core/Require.lua) and the locale files read no data.
+			local warning = file == "Core\\ForeverRequire.lua" or file == "Core\\Require.lua"
+			if data and not file:find("^Locales\\") and not file:find("^Data\\") and not warning then
 				for name, value in pairs(data) do
 					c.ns[name] = value
 				end

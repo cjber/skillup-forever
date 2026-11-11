@@ -187,20 +187,35 @@ do
 	equal(ns.db.lastVersion, "0.6.0", "a first install remembers its version")
 	ns.AnnounceUpdate()
 	equal(#messages, 0, "the same version is silent")
-	version = "0.7.0"
+	-- The next patch above a release is the version a core sync's maintenance entry carries.
+	local function Bump(release)
+		local major, minor, patch = release:match("^(%d+)%.(%d+)%.(%d+)$")
+		return ("%s.%s.%d"):format(major, minor, tonumber(patch) + 1)
+	end
+	local headline = ns.WHATS_NEW_VERSION
+	local maintenance, next = Bump(headline), Bump(Bump(headline))
+	version = headline
 	ns.AnnounceUpdate()
-	equal(#messages, 1, "a new version prints")
-	equal(messages[1]:find("updated to 0.7.0. " .. ns.WHATS_NEW, 1, true) ~= nil, true, "it names the version")
+	equal(#messages, 1, "a release with a headline prints")
+	equal(
+		messages[1]:find("updated to " .. headline .. ". " .. ns.WHATS_NEW, 1, true) ~= nil,
+		true,
+		"it names the version"
+	)
 	ns.AnnounceUpdate()
 	equal(#messages, 1, "a new version prints once")
-	ns.db.whatsNew, version = false, "0.8.0"
+	version = maintenance
+	ns.AnnounceUpdate()
+	equal(#messages, 1, "a maintenance release says nothing new")
+	equal(ns.db.lastVersion, maintenance, "a maintenance release still remembers its version")
+	ns.db.whatsNew, version = false, next
 	ns.AnnounceUpdate()
 	equal(#messages, 1, "the setting off is silent")
-	equal(ns.db.lastVersion, "0.8.0", "the setting off still remembers the version")
+	equal(ns.db.lastVersion, next, "the setting off still remembers the version")
 	ns.db.whatsNew, version = true, "@project-version@"
 	ns.AnnounceUpdate()
 	equal(#messages, 1, "a dev checkout is silent")
-	equal(ns.db.lastVersion, "0.8.0", "a dev checkout's version isn't remembered")
+	equal(ns.db.lastVersion, next, "a dev checkout's version isn't remembered")
 	-- Suggest companion addons became Suggest my other Forever addons: off stays off, once; on by default.
 	equal(ns.db.suggestFamily, true, "the family hints are on for a first install")
 	env.SkillUpForeverDB = { companionHints = false }
@@ -257,9 +272,9 @@ do
 	equal(ns.db.trainer[185]["4"], nil, "as is a recipe")
 end
 
--- The update line belongs to the release it ships in: a bold lead of the newest released CHANGELOG.md
--- entry. The Unreleased section is work in progress and does not count until the version is cut.
--- 0.9.2 and 0.9.3 went out still announcing 0.9.1's.
+-- The update line belongs to the release it ships in: the newest CHANGELOG.md entry with a bold lead. The Unreleased
+-- section is work in progress and does not count until the version is cut, and a core sync's maintenance entry has no
+-- bold lead, so it changes nothing a player sees. 0.9.2 and 0.9.3 went out still announcing 0.9.1's.
 do
 	local function Read(path)
 		local file = assert(io.open(path))
@@ -267,26 +282,56 @@ do
 		file:close()
 		return text
 	end
-	-- Stylua wraps the assignment when the phrase is long: the value may start on the next line.
-	local whatsNew = Read("Core/Core.lua"):match('\nns%.WHATS_NEW =%s*L%["([^"]+)"%]')
-	local newest
-	-- Each "## " heading to the next: a section is split off before it is searched.
-	local changelog = Read("CHANGELOG.md") .. "\n## "
-	local at = changelog:find("\n## ", 1, true)
-	while at and not newest do
-		local nextAt = changelog:find("\n## ", at + 1, true)
-		local section = nextAt and changelog:sub(at + 4, nextAt) or ""
-		if not section:find("^%[Unreleased%]") then
-			newest = section:find("\n%- %*%*") and section or nil
+	local core = Read("Core/Core.lua")
+	-- Stylua wraps a long assignment: the value may start on the next line.
+	local whatsNew = core:match('\nns%.WHATS_NEW =%s*L%["([^"]+)"%]')
+	local whatsNewVersion = core:match('\nns%.WHATS_NEW_VERSION = "([^"]+)"')
+
+	-- Each entry is its heading and its text up to the next heading; only versioned headings count, so Unreleased is
+	-- skipped.
+	local function Releases(text)
+		local found = {}
+		local nextSearch = 1
+		while true do
+			local start, finish, release = text:find("\n## %[(%d+%.%d+%.%d+)%] %- %d%d%d%d%-%d%d%-%d%d\n", nextSearch)
+			if not start then
+				return found
+			end
+			local following = text:find("\n## %[", finish + 1)
+			found[#found + 1] = { version = release, body = text:sub(finish + 1, (following or #text + 1) - 1) }
+			nextSearch = finish + 1
 		end
-		at = nextAt
 	end
-	equal(newest ~= nil, true, "CHANGELOG.md has an entry with notes")
-	equal(
-		newest:find("\n- **" .. whatsNew .. "**", 1, true) ~= nil,
-		true,
-		"the update line is a lead of " .. newest:match("^[^\n]*")
-	)
+
+	local function Headline(text)
+		for _, release in ipairs(Releases("\n" .. text)) do
+			local headline = release.body:match("%- %*%*(.-)%*%*")
+			if headline then
+				return release.version, headline
+			end
+		end
+	end
+
+	local newestVersion, newestHeadline = Headline(Read("CHANGELOG.md"))
+	equal(newestVersion ~= nil, true, "CHANGELOG.md has a release with a bold lead")
+	equal(whatsNewVersion, newestVersion, "the update line is the newest release with a bold lead")
+	equal(whatsNew, newestHeadline, "the update line is that release's headline")
+
+	-- A core sync's maintenance entry sits on top with no bold lead: the release below it still has the headline.
+	local maintenance = table.concat({
+		"## [9.9.9] - 2026-11-12",
+		"",
+		"<!-- forever-core-sync -->",
+		"",
+		"- Ships with the same shared code as your other Forever addons, so they keep working together.",
+		"",
+		"## [9.9.8] - 2026-11-11",
+		"",
+		"- **A real headline.** What it says.",
+	}, "\n")
+	local maintenanceVersion, maintenanceHeadline = Headline(maintenance)
+	equal(maintenanceVersion, "9.9.8", "a maintenance entry on top is skipped for the newest version")
+	equal(maintenanceHeadline, "A real headline.", "and for its headline")
 end
 
 Client.report("core_spec")

@@ -26,9 +26,10 @@ local c = Client.load({
 })
 local ns = c.ns
 local module = c.G.SkillUpForeverObjectiveTracker
-equal(c.host.IsAttached(module), true, "attaches to the shared host immediately")
+equal(c.host.IsAttached(module), false, "the section waits for the world to load")
 c.EnterWorld()
 c.Advance(0)
+equal(c.host.IsAttached(module), true, "then joins the shared host")
 -- ForeverCore's own quest section attaches to the shared host too; this is about the addon's module keeping one place.
 local attached = 0
 for _, tracked in ipairs(c.tracker) do
@@ -297,8 +298,10 @@ equal(
 c.player.name = "Tester"
 
 -- The section hangs on the shared host, never on Blizzard's tracker manager: a client without the manager
--- still gets it.
+-- still gets it once the world loads.
 local bare = Client.load({ trackerManager = false })
+bare.EnterWorld()
+bare.Advance(0)
 equal(bare.host.IsAttached(bare.G.SkillUpForeverObjectiveTracker), true, "the section needs no tracker manager")
 equal(#bare.chat, 0, "and says nothing about a missing tracker")
 

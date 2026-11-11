@@ -595,6 +595,17 @@ function Client.load(options)
 	function TrackerModule:MarkDirty()
 		self.dirty = (self.dirty or 0) + 1
 	end
+	-- Blizzard's ObjectiveTrackerModuleMixin:Update: no layout in combat, then the section draws its rows.
+	function TrackerModule:Update(availableHeight)
+		if not self:CanUpdate() then
+			return
+		end
+		self.availableHeight = availableHeight or 0
+		self:LayoutContents()
+	end
+	function TrackerModule:GetContentsHeight()
+		return self.contentsHeight or 0
+	end
 	function TrackerModule:GetBlock(id)
 		local block = { id = id, lines = {}, SetHeader = noop }
 		function block.AddObjective(_, key, text)
@@ -607,6 +618,18 @@ function Client.load(options)
 	end
 	function TrackerModule.LayoutBlock()
 		return true
+	end
+
+	-- The templates this harness knows: the stock ones it builds, plus the virtual templates an addon's XML defines
+	-- as ForeverCore.load registers them. A template registered from XML is built as the stock template it inherits,
+	-- which is what the client's own template loader gives a frame.
+	local TEMPLATES = {
+		-- Blizzard's objective line, the stock template ForeverCore's interactive line inherits.
+		ObjectiveTrackerLineTemplate = { type = "Frame" },
+	}
+	---@param template { name: string, type: string, inherits?: string }
+	function G.RegisterTemplate(template)
+		TEMPLATES[template.name] = { type = template.type, inherits = template.inherits }
 	end
 
 	-- Templates the Forever client never loads, so CreateFrame fails on them as the game does. The list holds the
@@ -625,21 +648,25 @@ function Client.load(options)
 				end
 			end
 		end
+		local stock = template
+		if type(template) == "string" and TEMPLATES[template] then
+			stock = TEMPLATES[template].inherits or template
+		end
 		local frame = NewFrame(name, parent)
 		frame.template = template
-		if template == "ObjectiveTrackerModuleTemplate" then
+		if stock == "ObjectiveTrackerModuleTemplate" then
 			for key, method in pairs(TrackerModule) do
 				frame[key] = method
 			end
-		elseif template == "LargeSideTabButtonTemplate" then
+		elseif stock == "LargeSideTabButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
-		elseif template == "PanelTabButtonTemplate" then
+		elseif stock == "PanelTabButtonTemplate" then
 			-- The regions PanelTemplates_SelectTab and PanelTemplates_DeselectTab toggle, and the text they anchor.
 			frame.Text = NewFrame(nil, frame)
 			for _, key in ipairs({ "Left", "Middle", "Right", "LeftActive", "MiddleActive", "RightActive" }) do
 				frame[key] = NewFrame(nil, frame)
 			end
-		elseif template == "WowScrollBoxList" then
+		elseif stock == "WowScrollBoxList" then
 			function frame:SetDataProvider(provider)
 				self.provider = provider
 			end
@@ -658,13 +685,13 @@ function Client.load(options)
 					end, elementData)
 				end
 			end
-		elseif template == "ScrollFrameTemplate" then
+		elseif stock == "ScrollFrameTemplate" then
 			-- The template's own scroll bar child, which the shared context menu shows when it overflows.
 			frame.ScrollBar = NewFrame(nil, frame)
-		elseif template == "ItemButtonTemplate" then
+		elseif stock == "ItemButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
 			frame.Count = NewFrame(nil, frame)
-		elseif template == "MerchantItemTemplate" then
+		elseif stock == "MerchantItemTemplate" then
 			frame.Name = NewFrame(nil, frame)
 			local button = NewFrame(nil, frame)
 			-- The Mainline template's <ItemButton> is the client's intrinsic ItemButton: its icon is `icon`
@@ -776,7 +803,11 @@ function Client.load(options)
 		}
 	end
 	G.C_XMLUtil = {
-		GetTemplateInfo = function()
+		GetTemplateInfo = function(name)
+			local template = TEMPLATES[name]
+			if template then
+				return { type = template.type, inherits = template.inherits }
+			end
 			return { type = "Frame" }
 		end,
 	}
@@ -1562,9 +1593,13 @@ function Client.load(options)
 	c.host = G.ForeverCore.TrackerHost
 	if c.host then
 		local attach = c.host.Attach
+		-- ForeverCore's own quest section joins the same column from v1.2.0, and it lays itself out through
+		-- Update rather than LayoutContents. c.tracker holds this addon's own sections, which the specs drive.
 		function c.host.Attach(module, show)
 			attach(module, show)
-			if not G.tContains(c.tracker, module) and c.host.IsAttached(module) then
+			local name = module:GetName()
+			local own = type(name) ~= "string" or not name:find("^ForeverCore")
+			if own and not G.tContains(c.tracker, module) and c.host.IsAttached(module) then
 				c.tracker[#c.tracker + 1] = module
 			end
 		end

@@ -14,8 +14,6 @@ local MENU_EXTENT = 20 * 20
 
 ---@type SkillUpTrackerModule?
 local module
--- Set when the anchor cannot be read: the section then stays out of the tracker instead of raising.
-local detached = false
 
 ---@return boolean
 function ns.HasAuctionator()
@@ -682,7 +680,7 @@ end
 
 ---@return boolean
 function ns.TrackerAttached()
-	return module ~= nil and not detached and ForeverCore.TrackerHost.IsAttached(module)
+	return module ~= nil and ForeverCore.TrackerHost.IsAttached(module)
 end
 
 -- A burst of bag, skill or recipe events marks the tracker dirty many times in one frame; the host already
@@ -691,7 +689,7 @@ end
 local merchantPending = false
 local function RefreshTracker()
 	SyncAuctionator()
-	if module and ns.db.showTracker and not detached then
+	if module and ns.db.showTracker then
 		module:MarkDirty()
 	end
 	if not (ns.db.merchantButton and MerchantFrame ~= nil and MerchantFrame:IsShown()) then
@@ -723,77 +721,6 @@ end
 function ns.SetTrackedByPlayer(skillLine, tracked)
 	ns.SetTracked(skillLine, tracked)
 	PlaySound(tracked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
-end
-
----@type fun()
-local Attach
-
----@param target SkillUpTrackerModule
----@param container Frame
-local function SetContainer(target, container)
-	---@diagnostic disable-next-line: undefined-field
-	target:SetContainer(container)
-end
-
--- Where the section hangs right now. The shared host and Blizzard's tracker
--- both replace frames during a layout, so this is read on every use, never cached.
----@return Frame?
-local function Anchor()
-	if not module then
-		return nil
-	end
-	local parent = module:GetParent()
-	local host = ForeverCore.TrackerHost
-	if host and host.Attach then
-		if not parent or (host.IsAttached and not host.IsAttached(module)) then
-			host.Attach(module)
-			parent = module:GetParent()
-		end
-	elseif not parent then
-		Attach()
-		parent = module and module:GetParent()
-	end
-	local native = ObjectiveTrackerFrame
-	if native and parent == native.Header then
-		-- Blizzard recreates the heading frame as it lays out All Objectives, so a
-		-- point on that copy is a dead point. Fall back to the host or the tracker.
-		if host and host.Attach then
-			host.Attach(module)
-		elseif module then
-			SetContainer(module, native)
-		end
-		parent = module and module:GetParent()
-	end
-	return parent
-end
-
----@return boolean
-local function AnchorAvailable()
-	local parent = Anchor()
-	return parent ~= nil and not (parent.GetPoint and not parent:GetPoint())
-end
-
-local function Detach()
-	detached = true
-	if module then
-		module:Hide()
-	end
-end
-
-Attach = function()
-	if not module or detached then
-		return
-	end
-	local host = ForeverCore.TrackerHost
-	if host and host.Attach then
-		host.Attach(module)
-		return
-	end
-	-- No shared host yet: the template's own container layout places the section,
-	-- rather than reserving a uiOrder above Blizzard's sections.
-	if ObjectiveTrackerFrame then
-		SetContainer(module, ObjectiveTrackerFrame)
-	end
 end
 
 ---@class SkillUpModuleMixin : SkillUpTrackerModule
@@ -846,8 +773,9 @@ function ModuleMixin:OnBlockHeaderClick(block)
 	end)
 end
 
--- The template from Shopping.xml: a line that takes the mouse.
-local LINE_TEMPLATE = "SkillUpForeverTrackerLineTemplate"
+-- ForeverCore's shared line template: an objective line that takes the mouse, in a template of its own so the
+-- tracker's pooling never mixes these lines with Blizzard's or another section's.
+local LINE_TEMPLATE = "ForeverTrackerInteractiveLineTemplate"
 
 -- A left click on the line sets a waypoint to the NPC `nearest` picks, by travel
 -- time, and hovering names it. Picked when used, never while the tracker redraws.
@@ -858,29 +786,30 @@ local LINE_TEMPLATE = "SkillUpForeverTrackerLineTemplate"
 ---@param quest? boolean an Artisan quest step
 ---@param steps? SkillUpTrackerStep[] the training steps, the rest listed on the tooltip
 local function Waypointed(line, title, label, nearest, quest, steps)
-	line:SetScript("OnMouseUp", function(_, button)
-		local npcID = button == "LeftButton" and nearest()
-		if npcID then
-			ns.SetWaypoint(npcID)
-		end
-	end)
-	line:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-		GameTooltip_SetTitle(GameTooltip, title)
-		ns.AddNearest(GameTooltip, label, nearest())
-		if quest then
-			ns.AddQuestChainHint(GameTooltip)
-		end
-		if steps and #steps > 1 then
-			GameTooltip_AddBlankLineToTooltip(GameTooltip)
-			GameTooltip_AddNormalLine(GameTooltip, L["Also train"])
-			for index = 2, #steps do
-				GameTooltip_AddNormalLine(GameTooltip, steps[index].text)
+	ForeverCore.TrackerLine.SetInteractive(line, {
+		onClick = function()
+			local npcID = nearest()
+			if npcID then
+				ns.SetWaypoint(npcID)
 			end
-		end
-		GameTooltip:Show()
-	end)
-	line:SetScript("OnLeave", GameTooltip_Hide)
+		end,
+		tooltip = function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+			GameTooltip_SetTitle(GameTooltip, title)
+			ns.AddNearest(GameTooltip, label, nearest())
+			if quest then
+				ns.AddQuestChainHint(GameTooltip)
+			end
+			if steps and #steps > 1 then
+				GameTooltip_AddBlankLineToTooltip(GameTooltip)
+				GameTooltip_AddNormalLine(GameTooltip, L["Also train"])
+				for index = 2, #steps do
+					GameTooltip_AddNormalLine(GameTooltip, steps[index].text)
+				end
+			end
+			GameTooltip:Show()
+		end,
+	})
 end
 
 -- The item names the tracker draws. One that has not loaded is asked for and remembered, so item data that names
@@ -1027,58 +956,56 @@ function ModuleMixin:LayoutContents()
 	for itemID in pairs(waitingNames) do
 		waitingNames[itemID] = nil
 	end
-	if not ns.db.showTracker or detached then
+	if not ns.db.showTracker then
 		return
 	end
+	-- A route that cannot be drawn raises through the shared host, which records the failure in SkillUp's journal
+	-- and still lays out the sections below this one.
 	for _, entry in ipairs(ns.TrackedNeeds()) do
-		if not AnchorAvailable() then
-			ns.Print(L["couldn't add tracked reagents to the objective tracker; please report it."])
-			Detach()
-			return
-		end
-		local ok, keep = pcall(LayoutEntry, self, entry)
-		if not ok then
-			ns.Print(L["couldn't add tracked reagents to the objective tracker; please report it."])
-			Detach()
-			return
-		end
-		if not keep then
+		if not LayoutEntry(self, entry) then
 			return
 		end
 	end
 end
 
 local function CreateModule()
-	if not ObjectiveTrackerFrame then
-		ns.Print(L["the objective tracker isn't available, so tracked reagents can't be shown."])
+	-- The shared host's Hide this section entry writes the same setting the Options row does, so the panel and
+	-- the tracker stay in step (UI/Settings.lua's Route and trainer page).
+	---@type ForeverTrackerShowSetting
+	local show = {
+		get = function()
+			return ns.db.showTracker
+		end,
+		set = function(shown)
+			Settings.SetValue("SkillUpForever_showTracker", shown)
+		end,
+		where = L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."],
+	}
+	-- ForeverCore builds and attaches the section after saved variables load, so no tracker frame, no shared host
+	-- and no old table is this file's problem: core records the first two and offers the third once. The column's
+	-- scale, Lock and position were SkillUp's before Forever Core kept them, so the player keeps the layout they
+	-- chose.
+	local created = ForeverCore.TrackerSection.Create("SkillUpForeverObjectiveTracker", ModuleMixin, {
+		header = ModuleMixin.headerText,
+		show = show,
+		legacy = function()
+			return ns.db
+		end,
+		legacyKey = "trackerHost",
+		safeCall = ns.core.SafeCall,
+		onUnattached = function()
+			ns.Print(L["couldn't add tracked reagents to the objective tracker; please report it."])
+		end,
+	})
+	if not created then
 		return
 	end
-	-- The host reparents the section into its column when it attaches.
-	local created = CreateFrame("Frame", "SkillUpForeverObjectiveTracker", UIParent, "ObjectiveTrackerModuleTemplate")
 	---@cast created SkillUpTrackerModule
 	module = created
-	Mixin(module, ModuleMixin)
-	module:SetHeader(ModuleMixin.headerText)
-	module.safeCall = ns.core.SafeCall
-	-- The column's scale, Lock and position were SkillUp's before Forever Core kept them; the host copies this table
-	-- once, so the player keeps the layout they chose.
-	module.legacySettings = ns.db.trackerHost
-	-- No uiOrder: the shared host owns the section's place and the template lays
-	-- it out when the host is missing.
+	-- A fresh session writes each tracked route's Auctionator list once.
 	EventUtil.ContinueAfterAllEvents(function()
-		C_Timer.After(0, function()
-			Attach()
-			-- A fresh session writes each tracked route's Auctionator list once.
-			SyncAuctionator()
-		end)
+		C_Timer.After(0, SyncAuctionator)
 	end, "PLAYER_ENTERING_WORLD", "VARIABLES_LOADED")
-	Attach()
-	ns.db.trackerHost = nil
-	C_Timer.After(5, function()
-		if not ns.TrackerAttached() then
-			ns.Print(L["couldn't add tracked reagents to the objective tracker; please report it."])
-		end
-	end)
 end
 
 function ns.InitShopping()

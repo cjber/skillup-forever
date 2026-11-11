@@ -345,8 +345,6 @@ L["searching for %s: you need %d more."] = "%s 검색 중: %d개 더 필요합�
 L["sorting failed and has been turned off: %s"] = "정렬에 실패하여 꺼졌습니다: %s"
 L["the %s book"] = "%s 책"
 L["the %s quest"] = "%s 퀘스트"
-L["the objective tracker isn't available, so tracked reagents can't be shown."] =
-	"목표 추적기를 쓸 수 없어 추적 재료를 표시할 수 없습니다."
 L["the reagent names are still loading; search again in a moment."] =
 	"재료 이름을 불러오는 중입니다. 잠시 후 다시 검색하세요."
 L["today"] = "오늘"

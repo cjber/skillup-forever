@@ -41,6 +41,9 @@ c.professions = {
 	{ name = "Mining", icon = 136248, rank = 50, max = 75, id = 8186 },
 }
 c.Boot()
+-- The tracker section joins the shared column once the world loads, as core's own sections do.
+c.EnterWorld()
+c.Advance(0)
 
 ---@return SkillUpPlan
 local function Plan()

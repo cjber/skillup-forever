@@ -396,7 +396,6 @@ L["sorting failed and has been turned off: %s"] = "sorting failed and has been t
 L["spell %d"] = "spell %d"
 L["the %s book"] = "the %s book"
 L["the %s quest"] = "the %s quest"
-L["the objective tracker isn't available, so tracked reagents can't be shown."] = "the objective tracker isn't available, so tracked reagents can't be shown."
 L["the reagent names are still loading; search again in a moment."] = "the reagent names are still loading; search again in a moment."
 L["today"] = "today"
 L["total"] = "total"

@@ -924,6 +924,32 @@ env.ForeverCore = {
 		end,
 	},
 	TrackerHost = host,
+	-- ForeverCore's TrackerSection, as far as the render needs it: core builds the section from the game's module
+	-- template, mixes the addon in and attaches it. The real Create defers the attach to the world loading; this
+	-- harness runs every deferred call at once, so the scene has the module by the time it draws.
+	TrackerSection = {
+		Create = function(name, mixin, opts)
+			opts = opts or {}
+			if not env.ObjectiveTrackerFrame then
+				return nil
+			end
+			local module = env.CreateFrame("Frame", name, env.UIParent, "ObjectiveTrackerModuleTemplate")
+			if mixin then
+				env.Mixin(module, mixin)
+			end
+			if opts.header then
+				module:SetHeader(opts.header)
+			end
+			if opts.safeCall then
+				module.safeCall = opts.safeCall
+			end
+			host.Attach(module, opts.show)
+			return module
+		end,
+	},
+	-- ForeverCore.TrackerLine: a stock line that takes the mouse. The tracker scene draws text only, and its lines
+	-- are recording stubs.
+	TrackerLine = { SetInteractive = function() end },
 	Register = function(_, spec)
 		return {
 			SafeCall = SafeCall,

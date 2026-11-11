@@ -346,9 +346,7 @@ C_Trainer = {}
 ---@field AddObjective fun(self: SkillUpTrackerBlock, id: string|number, text: string, template?: string, useFullHeight?: boolean, dashStyle?: number, colorStyle?: ForeverObjectiveTrackerColor): Frame
 
 ---@class SkillUpTrackerModule : ForeverTrackerModule
----@field uiOrder number
 ---@field safeCall? ForeverSafeCall runs the section's header menu entries in SkillUp's journal
----@field legacySettings? ForeverTrackerLegacySettings the tracker table the host copies once
 ---@field MarkDirty fun(self: SkillUpTrackerModule)
 ---@field SetHeader fun(self: SkillUpTrackerModule, text: string)
 ---@field GetContextMenuParent fun(self: SkillUpTrackerModule): Frame

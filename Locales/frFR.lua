@@ -344,8 +344,6 @@ L["searching for %s: you need %d more."] = "recherche de %s : il vous en faut en
 L["sorting failed and has been turned off: %s"] = "le tri a échoué et a été désactivé : %s" -- mt
 L["the %s book"] = "le livre %s" -- mt
 L["the %s quest"] = "la quête %s" -- mt
-L["the objective tracker isn't available, so tracked reagents can't be shown."] =
-	"le suivi des objectifs n'est pas disponible, les composants suivis ne peuvent pas être affichés." -- mt
 L["the reagent names are still loading; search again in a moment."] =
 	"les noms des composants chargent encore ; relancez la recherche dans un instant." -- mt
 L["today"] = "aujourd'hui" -- mt

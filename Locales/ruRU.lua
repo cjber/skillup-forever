@@ -361,8 +361,6 @@ L["searching for %s: you need %d more."] = "поиск: %s; нужно еще %d
 L["sorting failed and has been turned off: %s"] = "сортировка не удалась и выключена: %s"
 L["the %s book"] = "книга «%s»"
 L["the %s quest"] = "задание «%s»"
-L["the objective tracker isn't available, so tracked reagents can't be shown."] =
-	"список задач недоступен, поэтому отслеживаемые реагенты не показать."
 L["the reagent names are still loading; search again in a moment."] =
 	"названия реагентов еще загружаются; повторите поиск чуть позже."
 L["today"] = "сегодня"

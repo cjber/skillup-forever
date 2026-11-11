@@ -525,6 +525,6 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"У TradeSkillMaster нет цены на эти реагенты: обновите его AuctionDB через приложение TSM для компьютера." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"Обновите AuctionDB TradeSkillMaster через приложение TSM для компьютера или посетите торговца, чтобы оценить реагенты." -- mt
-L["The shopping list stops stacking old lines when it refreshes."] =
-	"Список покупок больше не накапливает старые строки при обновлении." -- mt
+L["The tracker's rows can be made larger from SkillUp's settings."] =
+	"Строки трекера можно увеличить в настройках SkillUp." -- mt
 L["Waiting for Questie to finish loading."] = "Ожидание окончания загрузки Questie."

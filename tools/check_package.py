@@ -21,8 +21,9 @@ ROOT = Path(__file__).resolve().parent.parent
 REPO_ONLY = {"tests/locale_spec.lua"}
 POLICY = package.Policy(
     addons=("SkillUpForever", "ForeverCore"),
-    # The specs load ForeverCore through the shared TOC reader, which is tooling and never ships.
-    support=("tests", "tools/forever_sim/toc.lua"),
+    # The specs load ForeverCore through the shared TOC reader, which is tooling and never ships, and core_spec
+    # checks the shipped headline against CHANGELOG.md, which does not ship either.
+    support=("tests", "tools/forever_sim/toc.lua", "CHANGELOG.md"),
     specs=tuple(
         spec
         for spec in sorted(p.relative_to(ROOT).as_posix() for p in ROOT.glob("tests/*_spec.lua"))

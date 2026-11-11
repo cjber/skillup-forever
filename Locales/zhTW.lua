@@ -485,9 +485,9 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster 沒有這些材料的價格：使用 TSM 桌面應用程式更新其 AuctionDB。" -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"使用 TSM 桌面應用程式更新 TradeSkillMaster 的 AuctionDB，或拜訪商人，為材料定價。" -- mt
-L["The tracker's rows can be made larger from SkillUp's settings."] =
-	"可以在 SkillUp 的設定中放大追蹤器列。" -- mt
 L["Waiting for Questie to finish loading."] = "正在等待Questie載入完畢。"
 L["Nothing is tracked for %s."] = "沒有正在追蹤的 %s。" -- mt
 L["+%d more to train"] = "還有 %d 項要學習" -- mt
 L["Also train"] = "還要學習" -- mt
+L["A profession's Shopping list shows only that profession's materials."] =
+	"SkillUp 的購物清單只顯示該專業的材料。" -- mt

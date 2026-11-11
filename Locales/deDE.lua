@@ -490,9 +490,9 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster hat keinen Preis für diese Reagenzien: Aktualisiert seine AuctionDB mit der TSM-Desktop-App." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"Aktualisiert TradeSkillMasters AuctionDB mit der TSM-Desktop-App oder besucht einen Händler, um Reagenzien zu bepreisen." -- mt
-L["The tracker's rows can be made larger from SkillUp's settings."] =
-	"Die Zeilen der Verfolgung lassen sich in SkillUps Einstellungen vergrößern." -- mt
 L["Waiting for Questie to finish loading."] = "Warte, bis Questie fertig geladen ist."
 L["Nothing is tracked for %s."] = "Für %s wird nichts verfolgt." -- mt
 L["+%d more to train"] = "+%d weitere zum Erlernen" -- mt
 L["Also train"] = "Außerdem lernen" -- mt
+L["A profession's Shopping list shows only that profession's materials."] =
+	"SkillUps Einkaufsliste zeigt nur die Materialien des jeweiligen Berufs." -- mt

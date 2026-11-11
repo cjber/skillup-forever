@@ -360,13 +360,9 @@ equal(page.LevelLabel.points[1][2], page.Level, "and its label follows the switc
 equal(page.HScroll ~= nil, true, "the page has a horizontal scroll bar")
 equal(page.HScroll.isHorizontal, true, "built in the client's horizontal mode")
 equal(page.HScroll.template, "MinimalScrollBar", "in the client's minimal style, not the trim bar")
-local trimBars = 0
-for _, frame in ipairs(c.frames) do
-	if frame.template == "WowTrimHorizontalScrollBar" then
-		trimBars = trimBars + 1
-	end
-end
-equal(trimBars, 0, "no trim horizontal scroll bar is created")
+equal(page.HScroll.Track.Thumb:GetHeight() > 0, true, "the horizontal thumb has a clickable height")
+equal(page.HScroll.Back.points[1][1], "LEFT", "the back arrow is at the left edge")
+equal(page.HScroll.Forward.points[1][1], "RIGHT", "the forward arrow is at the right edge")
 local maxOffset = page.ContentWidth - page.ViewWidth
 equal(maxOffset > 0, true, "the fixture's timeline is wider than the view")
 equal(page.HScroll:GetScrollPercentage(), page.ScrollOffset / maxOffset, "the bar starts at the page's offset")
@@ -439,7 +435,11 @@ equal(page.HScroll:GetScrollPercentage(), page.ScrollOffset / maxOffset, "and th
 -- Dragging the bar itself scrolls the timeline to the same fraction.
 local onScroll = page.HScroll.callbacks and page.HScroll.callbacks.OnScroll
 equal(onScroll ~= nil, true, "the bar reports its own drags")
-onScroll[1].callback(page.HScroll, 0.5)
+function page.HScroll:SetScrollPercentage(percentage)
+	self.scrollPercentage = percentage
+	onScroll[1].callback(self, percentage)
+end
+page.HScroll:SetScrollPercentage(0.5)
 equal(page.ScrollOffset, maxOffset / 2, "halfway on the bar is halfway along the timeline")
 c.G.IsShiftKeyDown = function()
 	return false

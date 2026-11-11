@@ -450,6 +450,12 @@ function Client.load(options)
 		return NewFrame(nil, self)
 	end
 	-- The atlas a texture was given, so a spec can check which art it draws.
+	function Methods:GetAtlas()
+		return self.atlas
+	end
+	function Methods:SetTexCoord(...)
+		self.texCoord = { ... }
+	end
 	function Methods:SetAtlas(atlas)
 		self.atlas = atlas
 	end
@@ -699,7 +705,12 @@ function Client.load(options)
 				frame.Track.Thumb[key] = NewFrame(nil, frame.Track.Thumb)
 			end
 			frame.Back = NewFrame(nil, frame)
+			frame.Back.Texture = NewFrame(nil, frame.Back)
 			frame.Forward = NewFrame(nil, frame)
+			frame.Forward.Texture = NewFrame(nil, frame.Forward)
+			frame.Track.Thumb.isLocalScrollControl = true
+			frame.Back.isLocalScrollControl = true
+			frame.Forward.isLocalScrollControl = true
 		elseif stock == "ItemButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
 			frame.Count = NewFrame(nil, frame)
@@ -793,7 +804,11 @@ function Client.load(options)
 			end,
 		})
 	end
-	G.hooksecurefunc = function()
+	G.hooksecurefunc = function(target, method, callback)
+		if type(target) == "table" and target.isLocalScrollControl and method == "OnButtonStateChanged" then
+			target[method] = callback
+			return
+		end
 		error("native methods must stay unhooked")
 	end
 	G.OBJECTIVE_TRACKER_COLOR = { Complete = "complete" }

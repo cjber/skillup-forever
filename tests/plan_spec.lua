@@ -168,6 +168,12 @@ equal(ranked.steps[3].craft.from, 50, "then crafts on past the cap")
 equal(ranked.steps[3].craft.to, 90, "to the target")
 equal(ranked.reached, 90, "which it reaches")
 equal(ranked.cost, 500 + 102, "the rank's fee and every craft's net sale are in the cost")
+equal(#ranked.bands, 2, "the route spans Apprentice and Journeyman")
+equal(ranked.steps[1].band.name, "Apprentice", "the first crafts are in Apprentice")
+equal(ranked.steps[1].band.cap, 75, "which ends at 75")
+equal(ranked.steps[2].band.name, "Journeyman", "the rank step opens Journeyman")
+equal(ranked.steps[3].band.name, "Journeyman", "and the crafts after it stay there")
+equal(ranked.bands[2].from, 75, "which starts at the Apprentice cap")
 equal(ns.RankText(ranked.ranks[1]), "Train Journeyman at 50", "the rank as a line")
 -- What a trainer was seen to charge for the rank replaces the bundled fee, in the step and the total.
 ns.db.trainerRanks[129] = { [150] = 450 }

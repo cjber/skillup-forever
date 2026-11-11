@@ -1074,6 +1074,18 @@ ns.CreateList = function()
 	function list:Message(text, color)
 		self.rows[#self.rows + 1] = { kind = "message", text = text, color = Rgb(color) }
 	end
+	function list:Band(name, from, cap, skill)
+		self.rows[#self.rows + 1] = { kind = "band", name = name, from = from, cap = cap, skill = skill }
+	end
+	function list:Line(entry)
+		self.rows[#self.rows + 1] = {
+			kind = "line",
+			icon = entry.icon,
+			text = entry.text,
+			detail = entry.detail,
+			color = Rgb(entry.color),
+		}
+	end
 	function list:Add(entry)
 		self.rows[#self.rows + 1] = {
 			kind = "row",
@@ -1083,6 +1095,10 @@ ns.CreateList = function()
 			color = Rgb(entry.color),
 			detail = entry.detail,
 			detailColor = Rgb(entry.detailColor),
+			bar = entry.bar,
+			barColor = Rgb(entry.barColor),
+			sourceIcon = entry.sourceIcon,
+			current = entry.current,
 		}
 	end
 	function list:Finish() end
@@ -1123,6 +1139,7 @@ local route = {
 	craft = Widget(page.Craft),
 	craftCount = Widget(page.CraftCount),
 	track = Widget(page.Track),
+	trackLabel = Widget(page.TrackLabel),
 	collect = Widget(page.Collect),
 	collectLabel = Widget(page.CollectLabel),
 	vendor = Widget(page.Vendor),
@@ -2065,11 +2082,13 @@ def inset_frame(canvas, x, y, w, h, title=None):
 
 
 LIST_ROW, LIST_HEADING, LIST_ICON, LIST_MESSAGE_MIN, LIST_SCROLLBAR = 46, 26, 37, 20, 18  # List.lua
+LIST_ROW_BAR, LIST_BAND, LIST_LINE, LIST_BAR, LIST_SOURCE, LIST_LINE_ICON = 62, 30, 24, 10, 16, 18  # List.lua
 
 
 def draw_list(canvas, x, y, w, h, rows):
     """List.lua's CreateList in an inset at (x, y, w, h): a full item icon in its stock border with
-    the name beside it and the facts under it, headings as stock lines and wrapped messages."""
+    the name beside it and the facts under it, a band header with its progress bar, a compact gold
+    line for a train or buy step, headings as stock lines and wrapped messages."""
     ui = canvas.ui
     box_x, box_w = x + 4, w - 4 - LIST_SCROLLBAR
     box_y, box_h = y + 4, h - 8
@@ -2087,13 +2106,76 @@ def draw_list(canvas, x, y, w, h, rows):
                 canvas.text(box_x + 6, top + 4 + index * F_NORMAL.height, line, F_NORMAL, color)
             top += max(LIST_MESSAGE_MIN, len(lines) * F_NORMAL.height + 8)
             continue
+        if kind == "band":
+            name = row["name"]
+            name_w = canvas.text(box_x + 6, top + 4, name, F_HIGHLIGHT, box_height=LIST_BAND)
+            canvas.text(
+                box_x + 6 + name_w + 6,
+                top + 4,
+                f"{row['from']} to {row['cap']}",
+                F_NORMAL_SMALL,
+                DISABLED_FONT_COLOR,
+                box_height=LIST_BAND,
+            )
+            bar_w, bar_h = 170, 12
+            bar_x, bar_y = box_x + box_w - 6 - bar_w, top + (LIST_BAND - bar_h) / 2
+            canvas.draw(ui.atlas("Professions-skillbar-bg"), bar_x, bar_y, bar_w, bar_h)
+            span = max(row["cap"] - row["from"], 0)
+            done = max(0, min(row.get("skill", 0), row["cap"]) - row["from"])
+            if span > 0 and done > 0:
+                canvas.fill(bar_x + 1, bar_y + 1, (bar_w - 2) * min(done / span, 1), bar_h - 2, (0.25, 0.75, 0.25, 1))
+            canvas.draw(ui.atlas("Professions-skillbar-frame"), bar_x, bar_y, bar_w, bar_h)
+            canvas.text(
+                bar_x,
+                bar_y - 1,
+                f"{done}/{span}",
+                F_NORMAL_SMALL,
+                box_height=bar_h + 2,
+                justify="CENTER",
+                width=bar_w,
+            )
+            top += LIST_BAND
+            continue
+        if kind == "line":
+            row_h = LIST_LINE
+            icon = row.get("icon")
+            if icon is not None:
+                icon_y = top + (row_h - LIST_LINE_ICON) / 2
+                canvas.draw(icon_texture(ui, icon), box_x + 8, icon_y, LIST_LINE_ICON, LIST_LINE_ICON)
+            text_x = box_x + 8 + LIST_LINE_ICON + 8
+            detail = row.get("detail")
+            detail = expand(ui, detail) if detail else None
+            detail_w = canvas.text_width(detail, F_NORMAL) if detail else 0
+            text_w = box_x + box_w - 8 - text_x - (detail_w + 8 if detail else 0)
+            if detail:
+                canvas.text(
+                    box_x + box_w - 8 - detail_w,
+                    top + 4,
+                    detail,
+                    F_NORMAL,
+                    DISABLED_FONT_COLOR,
+                )
+            canvas.text(
+                text_x,
+                top + 4,
+                fit_text(canvas, expand(ui, row["text"]), F_HIGHLIGHT, text_w),
+                F_HIGHLIGHT,
+                tuple(row["color"]) if row.get("color") else WHITE,
+            )
+            top += row_h
+            continue
+        row_h = LIST_ROW_BAR if row.get("bar") else LIST_ROW
         icon = row.get("icon")
         if icon is not None:
-            icon_y = top + (LIST_ROW - LIST_ICON) / 2
+            icon_y = top + (row_h - LIST_ICON) / 2
             canvas.draw(icon_texture(ui, icon), box_x + 6, icon_y, LIST_ICON, LIST_ICON)
             canvas.draw(ui.atlas("auctionhouse-itemicon-border-white"), box_x + 6, icon_y, LIST_ICON, LIST_ICON)
+        source = row.get("sourceIcon")
         text_x = box_x + 6 + LIST_ICON + 8
-        text_w = box_x + box_w - 8 - text_x
+        text_right = box_x + box_w - 8 - ((LIST_SOURCE + 12) if source else 0)
+        text_w = text_right - text_x
+        if source:
+            canvas.draw(ui.atlas(source), box_x + box_w - 6 - LIST_SOURCE, top + 2, LIST_SOURCE, LIST_SOURCE)
         canvas.text(
             text_x,
             top + 2,
@@ -2102,7 +2184,33 @@ def draw_list(canvas, x, y, w, h, rows):
             tuple(row["color"]) if row.get("color") else WHITE,
         )
         detail = row.get("detail")
-        if detail:
+        if row.get("bar"):
+            bar_x, bar_y, bar_w, bar_h = text_x, top + 2 + F_HIGHLIGHT.height + 3, text_w, LIST_BAR
+            canvas.fill(bar_x, bar_y, bar_w, bar_h, (0, 0, 0, 0.8))
+            need = max(row["bar"].get("need", 0), 0)
+            have = min(row["bar"].get("have", 0), need)
+            if need > 0 and have > 0:
+                color = tuple(row["barColor"]) if row.get("barColor") else (0.25, 0.75, 0.25)
+                canvas.fill(bar_x, bar_y, bar_w * have / need, bar_h, color)
+            canvas.text(
+                bar_x,
+                bar_y - 1,
+                f"{have}/{need}",
+                F_NORMAL_SMALL,
+                box_height=bar_h + 2,
+                justify="CENTER",
+                width=bar_w,
+            )
+            if detail:
+                detail_color = tuple(row["detailColor"]) if row.get("detailColor") else DISABLED_FONT_COLOR
+                canvas.text(
+                    text_x,
+                    bar_y + bar_h + 3,
+                    fit_text(canvas, expand(ui, detail), F_NORMAL, text_w),
+                    F_NORMAL,
+                    detail_color,
+                )
+        elif detail:
             detail_color = tuple(row["detailColor"]) if row.get("detailColor") else DISABLED_FONT_COLOR
             canvas.text(
                 text_x,
@@ -2111,7 +2219,7 @@ def draw_list(canvas, x, y, w, h, rows):
                 F_NORMAL,
                 detail_color,
             )
-        top += LIST_ROW
+        top += row_h
     if top - box_y > box_h:
         minimal_scrollbar(canvas, box_x + box_w + 4, box_y, box_h, box_h / (top - box_y))
 
@@ -2170,13 +2278,27 @@ def route_frame(ui, scene_data):
     draw_list(canvas, route_x, top, route_right - route_x, bottom - top, route_list["rows"])
     inset_frame(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, "Reagents  (have / need)")
     draw_list(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, reagent_list["rows"])
-    # Shopping list, vendor, the count box and craft share the bottom row; Track sits at the reagents' bottom right.
+    # Shopping list, vendor, the count box, craft and the Track checkbox share the bottom row.
     craft = route["craft"]
     craft_w = craft.get("width") or 100
     track = route["track"]
-    track_x = reagents_right - 130
-    panel_button(canvas, track_x, bottom + 10, 130, 22, track["text"], track.get("enabled", True))
-    craft_x = track_x - 8 - craft_w
+    track_label = route["trackLabel"]["text"]
+    track_label_w = canvas.text_width(track_label, FONTS["GameFontNormalSmall"])
+    track_x = reagents_right - 26
+    canvas.draw(ui.atlas("checkbox-minimal"), track_x, bottom + 9, 26, 26)
+    if track.get("checked"):
+        canvas.draw(ui.atlas("checkmark-minimal"), track_x, bottom + 9, 26, 26)
+    canvas.text(
+        track_x - 4 - track_label_w,
+        bottom + 9,
+        track_label,
+        FONTS["GameFontNormalSmall"],
+        None if track.get("enabled", True) else DISABLED_FONT_COLOR,
+        box_height=26,
+        justify="RIGHT",
+        width=track_label_w,
+    )
+    craft_x = track_x - 4 - track_label_w - 8 - craft_w
     panel_button(canvas, craft_x, bottom + 10, craft_w, 22, craft["text"], craft["enabled"])
     count = route["craftCount"]
     count_w = count.get("width") or 62

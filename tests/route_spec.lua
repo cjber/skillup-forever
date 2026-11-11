@@ -69,6 +69,10 @@ local function Stub()
 					TouchSecure(frame, "SetChecked")
 					rawset(frame, "checked", checked)
 				end
+			elseif key == "GetChecked" then
+				value = function(frame)
+					return rawget(frame, "checked")
+				end
 			elseif key == "SetEnabled" then
 				value = function(frame, enabled)
 					TouchSecure(frame, "SetEnabled")
@@ -242,16 +246,32 @@ page = {
 		return not page.identityMissing and ("SkillUp: Tester-Realm: " .. profession) or nil
 	end,
 	IsTracked = function()
-		return false
+		return page.tracked == true
 	end,
 	CreateList = function()
 		local list = { rows = {}, scrollBox = Stub() }
 		function list:Add(row)
+			row.kind = "row"
 			self.rows[#self.rows + 1] = row
 		end
 		list.messages, list.Begin, list.Finish = {}, function() end, function() end
 		function list:Message(text)
 			self.messages[#self.messages + 1] = text
+		end
+		function list:Band(name, from, cap, skill)
+			self.rows[#self.rows + 1] = { kind = "band", name = name, from = from, cap = cap, skill = skill }
+		end
+		function list:Line(entry)
+			self.rows[#self.rows + 1] = {
+				kind = "line",
+				text = entry.text,
+				detail = entry.detail,
+				color = entry.color,
+				icon = entry.icon,
+				tooltip = entry.tooltip,
+				click = entry.click,
+				menu = entry.menu,
+			}
 		end
 		lists[#lists + 1] = list
 		return list
@@ -282,6 +302,12 @@ page.CollectMode = function()
 end
 page.SetCollectMode = function(mode)
 	page.collectMode = mode
+end
+page.SetTrackedByPlayer = function(_, tracked)
+	page.tracked = tracked
+end
+page.TrackerAttached = function()
+	return true
 end
 page.NearestVendor = function()
 	return nil
@@ -457,14 +483,14 @@ pageEnv.CreateFrame = function(_, _, _, template)
 	tabs[#tabs + 1] = frame
 	children[#children + 1] = frame
 	if template == "UICheckButtonTemplate" then
-		collect = frame
-		rawset(frame, "secure", true)
-	elseif template == "SharedButtonSmallTemplate" then
 		if not trackButton then
 			trackButton = frame
-		elseif not vendorButton then
-			vendorButton = frame
+		else
+			collect = frame
 		end
+		rawset(frame, "secure", true)
+	elseif template == "SharedButtonSmallTemplate" then
+		vendorButton = vendorButton or frame
 		vendor = vendor or frame
 		rawset(frame, "secure", true)
 		buttons[#buttons + 1] = frame
@@ -553,6 +579,15 @@ equal(
 	true,
 	"the header shows what the route costs and returns"
 )
+equal(trackButton.checked, false, "the Track checkbox starts unchecked for an untracked route")
+trackButton:SetChecked(true)
+trackButton:Click()
+equal(page.tracked, true, "ticking it tracks the route")
+equal(trackButton.checked, true, "and the box shows it")
+trackButton:SetChecked(false)
+trackButton:Click()
+equal(page.tracked, false, "unticking it stops tracking")
+equal(trackButton.checked, false, "and the box shows that")
 
 -- #189: leaving the level box with the number it already holds changes nothing.
 local changedKinds = {}
@@ -881,12 +916,17 @@ have = 8
 eventFrame:Event("BAG_UPDATE_DELAYED")
 Drain()
 equal(LastReagentDetail(), "AH, 8/9", "a bag update redraws the have count")
+local barRow = LastListItem()
+equal(barRow.bar.have, 8, "the have/need bar carries what the bags hold")
+equal(barRow.bar.need, 9, "and what the route needs")
+equal(barRow.sourceIcon, "auctioneer", "with the client's Auctioneer icon beside it")
 page.RouteReagents = function()
 	return { { itemID = 1, need = 9, source = "auction" }, { itemID = 2, need = 4, source = "vendor" } }
 end
 eventFrame:Event("SKILL_LINES_CHANGED")
 Drain()
 equal(LastListItem().detail, "vendor, 0/4", "a skill change redraws the plan's reagents")
+equal(LastListItem().sourceIcon, "reagents", "and the vendor row names its source with the vendor icon")
 
 -- With Auctionator's scan-on-open option known to be off, the page says where to turn it on; with
 -- the option unread, it says nothing.
@@ -1061,6 +1101,7 @@ equal(craftButton.enabled, true, "and the button is ready to craft")
 -- every one of them, latest value winning, and applies them when combat ends.
 local settledHeader = {
 	track = trackButton.enabled,
+	trackChecked = trackButton.checked,
 	targetShown = targetBox.shown,
 	collectEnabled = collect.enabled,
 	collectChecked = collect.checked,
@@ -1068,6 +1109,7 @@ local settledHeader = {
 	craftShown = craftButton.shown,
 }
 local realRoutes = page.RouteProfessions
+page.tracked = true
 inCombat = true
 page.RouteProfessions = function()
 	return {}
@@ -1077,6 +1119,7 @@ eventFrame:Event("BAG_UPDATE_DELAYED")
 Drain()
 equal(#secureCalls, 0, "a redraw in combat makes no protected call on the header row")
 equal(trackButton.enabled, settledHeader.track, "the Track button waits")
+equal(trackButton.checked, settledHeader.trackChecked, "and its checked state waits")
 equal(targetBox.shown, settledHeader.targetShown, "the target box waits")
 equal(collect.checked, settledHeader.collectChecked, "the buy reagents switch waits")
 equal(collect.enabled, settledHeader.collectEnabled, "its enabled state waits")
@@ -1085,12 +1128,14 @@ equal(craftButton.shown, settledHeader.craftShown, "and the Craft button waits")
 inCombat = false
 eventFrame:Event("PLAYER_REGEN_ENABLED")
 equal(trackButton.enabled, false, "with no profession the Track button is disabled after combat")
+equal(trackButton.checked, false, "and the Track box shows no route tracked")
 equal(targetBox.shown, false, "the target box is hidden")
 equal(collect.checked, true, "the buy reagents switch shows the latest wanted state")
 equal(collect.enabled, true, "and is still clickable")
 equal(vendorButton.shown, false, "the Nearest vendor button is hidden")
 equal(craftButton.shown, false, "and the Craft button too")
 page.RouteProfessions = realRoutes
+page.tracked = nil
 page.SetCollectMode("gather")
 routeTab:Click()
 Drain()
@@ -1205,9 +1250,10 @@ page.PlanRoute = function(profession)
 	}
 end
 page.skipped = { { recipeID = 3276, name = "Heavy Linen Bandage" } }
+local skipRows = #lists[1].rows
 routeTab:Click()
 Drain()
-local craftRow = lists[1].rows[1]
+local craftRow = lists[1].rows[skipRows + 1]
 local instructions = {}
 pageEnv.GameTooltip_AddInstructionLine = function(_, text)
 	instructions[#instructions + 1] = text
@@ -1254,6 +1300,48 @@ routeTab:Click()
 Drain()
 equal(lists[1].rows[#lists[1].rows].detail, "Requires skill 40.", "a waiting pin explains its skill requirement")
 page.pinned = nil
+
+-- #574: the route is a timeline of skill bands. Each band opens with its header and progress from the
+-- current skill, the next craft is gold, and a train step is one compact gold line.
+local apprentice = { name = "Apprentice", from = 0, cap = 75 }
+local journeyman = { name = "Journeyman", from = 75, cap = 150 }
+local firstCraft = { recipeID = 3275, crafts = 2, from = 70, to = 75, color = "yellow" }
+local secondCraft = { recipeID = 3276, crafts = 2, from = 75, to = 80, color = "green" }
+local trainRank = { name = "Journeyman", cap = 150, reqSkill = 75, fee = 500, level = 0 }
+page.PlanRoute = function(profession)
+	return {
+		profession = profession,
+		target = 80,
+		crafts = { firstCraft, secondCraft },
+		steps = {
+			{ craft = firstCraft, band = apprentice },
+			{ rank = trainRank, band = journeyman },
+			{ craft = secondCraft, band = journeyman },
+		},
+		ranks = { trainRank },
+		bands = { apprentice, journeyman },
+		cost = 0,
+		unpriced = 0,
+		unpricedRecipes = {},
+	}
+end
+local bandStart = #lists[1].rows
+routeTab:Click()
+Drain()
+local bandRows = lists[1].rows
+local function BandRow(index)
+	return bandRows[bandStart + index]
+end
+equal(BandRow(1).kind, "band", "the route opens with its first skill band")
+equal(BandRow(1).name, "Apprentice", "named at its cap")
+equal(BandRow(1).cap, 75, "with the cap it ends at")
+equal(BandRow(1).skill, 1, "and the current base skill for its progress")
+equal(BandRow(2).kind, "row", "the band holds its craft rows")
+equal(BandRow(2).current, true, "with the next craft marked as the current step")
+equal(BandRow(3).kind, "band", "the next band opens before the rank that trains it")
+equal(BandRow(3).name, "Journeyman", "named for that rank")
+equal(BandRow(4).kind, "line", "which is one compact line")
+equal(BandRow(5).current, false, "and later crafts are not the current step")
 
 -- The page names the latest auction source and flags old prices.
 page.Price = function()
@@ -1330,16 +1418,17 @@ local function BookPage()
 	return lists[1].rows[rows + 1], lists[1].messages[said + 1]
 end
 local bookRow, messages = BookPage()
+equal(bookRow.kind, "line", "a train or buy step is one gold line")
 equal(bookRow.text, "Buy and read Expert First Aid - Under Wraps at 125", "a book not yet bought is bought and read")
 equal(bookRow.click ~= nil, true, "and a click goes to its vendor")
-equal(bookRow.detail:find("Price 10000", 1, true) ~= nil, true, "at its price")
+equal(bookRow.detail, "10000", "with its price on the right")
 equal(messages, nil, "and no Total line sits under the route")
 bookRow.tooltip(Stub())
 equal(nearestShown, 1, "its tooltip names the nearest vendor")
 heldBook = 1
 bookRow, messages = BookPage()
 equal(bookRow.text, "Read Expert First Aid - Under Wraps at 125", "a book in the bags is only read")
-equal(bookRow.detail, "You have it, requires First Aid (125)", "with no price on the row")
+equal(bookRow.detail, "You have it", "with no price on the line")
 equal(messages, nil, "and still no Total line sits under the route")
 bookRow.tooltip(Stub())
 equal(tooltipLines[#tooltipLines], "You have this book: read it.", "its tooltip says you have it")

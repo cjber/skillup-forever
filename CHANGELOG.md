@@ -14,6 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **The route page's Craft button says just Craft.** The step's count now sits in the game's own count box beside it, and the recipe is named on its route step and in the button's tooltip, the way the Professions window labels its own button (#564).
 - **The route page says what the whole climb costs.** A line under the skill and target shows the gold the route still needs for its reagents and fees, and what selling the crafts returns; its tooltip splits the two, and an unpriced reagent marks the total incomplete instead of quietly lowering it. The Total line at the bottom of the route is gone, so the number has one home (#567).
+- **The Route page reads as a timeline of skill bands.** Each rank's band opens with a slim header and a progress bar, the next craft is gold, and train and buy steps are one compact gold line with a small icon. Reagent rows carry a have/need bar and a source icon, and Stop tracking is a Track checkbox (#574).
 
 ## [1.6.1] - 2026-11-11
 

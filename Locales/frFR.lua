@@ -103,7 +103,6 @@ L["Enable Shortest Path Forever for walked routes and boat times."] =
 	"Activez Shortest Path Forever pour les trajets à pied et les horaires des bateaux." -- mt
 L["Every recipe that uses it"] = "Chaque recette qui l'utilise" -- mt
 L["Fee"] = "Frais" -- mt
-L["Fee %s, requires %s (%d)"] = "Frais %s, %s (%d) requis" -- mt
 L["Fees"] = "Frais"
 L["Feet"] = "Pieds" -- mt
 L["Finger"] = "Doigt" -- mt
@@ -175,14 +174,12 @@ L["Per skill-up"] = "Par point de compétence" -- mt
 L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."] =
 	"Par point de compétence : le coût d'un point. Par fabrication : ce qu'une fabrication coûte ou rapporte, affiché aussi sur les recettes qui ne font plus progresser." -- mt
 L["Price"] = "Prix" -- mt
-L["Price %s, requires %s (%d)"] = "Prix %s, %s (%d) requis" -- mt
 L["Prices"] = "Prix" -- mt
 L["Profession reagents"] = "Composants de métier" -- mt
 L["Profit per craft"] = "Bénéfice par fabrication" -- mt
 L["Profit per skill-up"] = "Bénéfice par point de compétence" -- mt
 L["Quest"] = "Quête"
 L["Quest giver"] = "Donneur de quête" -- mt
-L["Quest, requires %s (%d)"] = "Quête, %s (%d) requis" -- mt
 L["Raises your skill cap to %d."] = "Porte votre maximum de compétence à %d." -- mt
 L["Ranged"] = "À distance" -- mt
 L["Read %s at %d"] = "Lire %s à %d" -- mt
@@ -306,7 +303,7 @@ L["With Shortest Path Forever, this picks the nearest by travel time and leads y
 	"Avec Shortest Path Forever, ceci choisit le plus proche en temps de trajet et vous y mène." -- mt
 L["World drop"] = "Butin mondial" -- mt
 L["Wrist"] = "Poignets" -- mt
-L["You have it, requires %s (%d)"] = "Vous l'avez, %s (%d) requis" -- mt
+L["You have it"] = "Vous l'avez"
 L["You have this book: read it."] = "Vous avez ce livre : lisez-le." -- mt
 L["You know it"] = "Connue" -- mt
 L["You: %d"] = "Vous : %d" -- mt

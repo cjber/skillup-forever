@@ -195,6 +195,9 @@ local function NewRegion(parent, frameType)
 	function region:SetText(text)
 		self.text = text
 	end
+	function region:SetFormattedText(format, ...)
+		self.text = string.format(format, ...)
+	end
 	function region:GetTextWidth()
 		return TextWidth(self.text or "")
 	end
@@ -427,17 +430,20 @@ local reagents = {
 	{ itemID = 2, need = 20, source = "vendor" },
 	{ itemID = 3, need = 10, source = "vendor" },
 }
+local apprentice = { name = "Apprentice", from = 0, cap = 75 }
+local craftStep = { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" }
 local plan = {
 	target = 100,
-	crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
+	crafts = { craftStep },
 	steps = {
 		-- The sub-craft that makes the craft's reagent, as its own row before the craft.
-		{ subcraft = { recipeID = 3276, itemID = 2, crafts = 5, made = 5 } },
-		{ craft = { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
+		{ band = apprentice, subcraft = { recipeID = 3276, itemID = 2, crafts = 5, made = 5 } },
+		{ band = apprentice, craft = craftStep },
 	},
 	ranks = {},
 	cost = 0,
 	unpriced = 0,
+	bands = { apprentice },
 }
 
 local function FirstAid(skill)
@@ -633,6 +639,11 @@ local env = setmetatable({
 		end
 	end,
 	CreateFrame = CreateFrame,
+	C_Texture = {
+		GetAtlasInfo = function()
+			return { width = 32, height = 32 }
+		end,
+	},
 	C_Timer = {
 		After = function(_, fn)
 			timers[#timers + 1] = fn
@@ -693,6 +704,7 @@ local env = setmetatable({
 	HIGHLIGHT_FONT_COLOR = Color(),
 	GRAY_FONT_COLOR = Color(),
 	RED_FONT_COLOR = Color(),
+	CreateColor = Color,
 	CreateScrollBoxListLinearView = CreateScrollBoxListLinearView,
 	CreateDataProvider = function(elements)
 		return { elements = elements }
@@ -727,6 +739,7 @@ for _, file in ipairs({
 	"Core/Model.lua",
 	"Core/Changes.lua",
 	"Core/Plan.lua",
+	"UI/Art.lua",
 	"UI/List.lua",
 	"UI/PageParts.lua",
 	"UI/Pages.lua",
@@ -898,8 +911,8 @@ for _, heading in ipairs(headings) do
 	equal(overlaps(heading, ProfessionsFrame.portrait), false, heading.text .. " misses the portrait")
 end
 
--- The switch and its label are one control in the header; Track, Craft and the vendor button share
--- the bottom row, right to left, with the craft label at its widest so no length can overlap.
+-- The switch and its label are one control in the header; the Track checkbox, Craft, the count box and the
+-- vendor button share the bottom row, right to left, at their one fixed width each.
 local controls = {
 	page.Collect,
 	page.CollectLabel,
@@ -908,9 +921,18 @@ local controls = {
 	page.Craft,
 	page.CraftCount,
 	page.Track,
+	page.TrackLabel,
 }
-local names =
-	{ "the switch", "the switch's label", "the money line", "the vendor button", "Craft", "Craft's count", "Track" }
+local names = {
+	"the switch",
+	"the switch's label",
+	"the money line",
+	"the vendor button",
+	"Craft",
+	"Craft's count",
+	"Track",
+	"Track's label",
+}
 
 for index, control in ipairs(controls) do
 	for _, heading in ipairs(headings) do
@@ -942,10 +964,17 @@ local countAnchor = page.CraftCount.points[1]
 equal(countAnchor.relative, page.Craft, "the count hangs off the craft button")
 equal(countAnchor.relativePoint, "LEFT", "at the craft's left, in the bottom row")
 local craftAnchor = page.Craft.points[1]
-equal(craftAnchor.relative, page.Track, "the craft button hangs off the track button")
-equal(craftAnchor.relativePoint, "LEFT", "at the track's left, in the bottom row")
+equal(craftAnchor.relative, page.TrackLabel, "the craft button hangs off the track label")
+equal(craftAnchor.relativePoint, "LEFT", "at the label's left, in the bottom row")
+local trackLabelAnchor = page.TrackLabel.points[1]
+equal(trackLabelAnchor.relative, page.Track, "the label sits at the checkbox's left")
+equal(trackLabelAnchor.relativePoint, "LEFT", "so the checkbox keeps the row's right edge")
+local trackAnchor = page.Track.points[1]
+equal(trackAnchor.relative, insets[2], "and the checkbox sits at the reagents' bottom right")
+equal(trackAnchor.relativePoint, "BOTTOMRIGHT", "where the bottom row ends")
 equal(Width(page.Craft), 100, "the craft button keeps one width")
 equal(Width(page.CraftCount), 62, "and the count box keeps its own")
+equal(page.Track.checked, false, "the Track checkbox shows an untracked route")
 
 -- The list's scroll box is what the addon places; the game lays the rows out inside it, so the scroll
 -- box must sit inside the inset and every row the game draws inside the scroll box.
@@ -969,6 +998,15 @@ for _, row in ipairs(page.RouteList.scrollBox.frames) do
 	end
 end
 equal(routeRows, 2, "the route list draws the sub-craft and the craft as rows")
+local currentRow
+for _, row in ipairs(page.RouteList.scrollBox.frames) do
+	if row.current then
+		currentRow = row
+	end
+end
+equal(currentRow and currentRow.Text.text, "Spell 3275", "the next craft is marked as the current step")
+equal(Find("Apprentice") ~= nil, true, "the route opens with its skill band header")
+equal(Find("0 to 75") ~= nil, true, "with the band's range beside it")
 equal(Find("Craft 5× Spell 3276") ~= nil, true, "the sub-craft names itself as a craft")
 equal(Find("makes 5 Coarse Thread") ~= nil, true, "and says how much of the reagent it makes")
 
@@ -990,7 +1028,13 @@ for _, row in ipairs(page.ReagentList.scrollBox.frames) do
 		equal(Width(row.Icon) >= 36, true, "a reagent row's icon is a full item icon")
 		equal(left >= reagentLeft and right <= reagentRight, true, "the reagent row is inside its inset's width")
 		equal(top <= reagentTop and bottom >= reagentBottom, true, "and inside its height")
-		equal(Width(row.Text), 183.5, "a reagent row gives its name the width the row has")
+		equal(
+			Width(row.Text),
+			row.entry.sourceIcon and 163.5 or 183.5,
+			"a reagent row gives its name the room beside its source icon"
+		)
+		equal(row.barNeed, row.entry.bar.need, "a reagent row carries its have/need bar")
+		equal(row.Source.shown, row.entry.sourceIcon ~= nil, "and a source icon where the source has one")
 	end
 end
 equal(reagentRows, 3, "the reagent list draws a row a reagent")

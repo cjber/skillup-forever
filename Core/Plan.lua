@@ -735,12 +735,29 @@ local function Finish(profession, target, route)
 		training = training,
 		ranks = ranks,
 		steps = {},
+		bands = {},
 		cost = crafting + cost,
 		unpriced = route.excluded.unpriced,
 		unpricedRecipes = route.excluded.recipes,
 		stopReason = route.stopReason,
 	}
 	plan.steps = Walk(plan)
+	-- Each step's skill band, from the cap it starts under and the caps its ranks raise: the route page groups
+	-- steps by these without working the ranks out again (#574).
+	local cap = profession.max
+	if cap > 0 then
+		plan.bands[1] = { name = ns.RankName(cap) or tostring(cap), from = math.max(cap - RANK_SPAN, 0), cap = cap }
+	end
+	for _, rank in ipairs(ranks) do
+		plan.bands[#plan.bands + 1] = { name = rank.name, from = math.max(rank.cap - RANK_SPAN, 0), cap = rank.cap }
+	end
+	local bandIndex = 1
+	for _, step in ipairs(plan.steps) do
+		if step.rank then
+			bandIndex = bandIndex + 1
+		end
+		step.band = plan.bands[bandIndex] or plan.bands[#plan.bands]
+	end
 	return plan
 end
 

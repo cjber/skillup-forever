@@ -108,10 +108,10 @@ taught spell's `SKILL` effect gives the skill line and the new cap), with fee,
 required skill and level. Ranks that come from books are absent (`gen_recipes.py` writes `ns.RankBooks`); a rank a
 quest teaches is in `ns.RankQuests`, from classic-db's `quest_template`, where a quest's `RewSpell` or `RewSpellCast`
 is a rank spell or learns one (Triage, Clamlette Surprise), with the quest's required skill, level and side. `ns.TrainerInferred` keeps classic-db's
-requirement for each one the range rule moved, so `/su trainers` can show which a trainer confirmed (#124).
+requirement for each one the range rule moved, so `/skillup trainers` can show which a trainer confirmed (#124).
 `SEEN_REQUIREMENTS` in `gen_trainer.py` holds requirements players saw lower in game (Bronze Warhammer at 110,
 #123): a bundled requirement above one comes down to it, and it lists in `ns.TrainerInferred` like a moved one.
-A trainer miss confirmed with `/su trainers` goes there, with its source and a test.
+A trainer miss confirmed with `/skillup trainers` goes there, with its source and a test.
 
 `gen_sources.py` writes `Data/Sources.lua`: what neither QuestieDB nor AtlasLoot holds about
 where recipes come from, from the same classic-db dump. Who sells a scroll or a reagent, the

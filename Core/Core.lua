@@ -920,9 +920,9 @@ end
 
 -- /skillup export trainers (#124): the requirements this character's trainers actually showed, as a table for
 -- tools/gen_trainer.py's SEEN_REQUIREMENTS, so a value no bundled rule guessed right can be fixed for everyone.
--- Trainers are the only export, so /skillup export does the same as /skillup export trainers. The copy window when
--- it can open, the same lines in chat when it cannot: nothing is written, nothing prints on login, nothing waits on an
--- event, and there is no protected call in it.
+-- Trainers are the only export, so /skillup export does the same as /skillup export trainers. The copy window
+-- when it can open, the same lines in chat when it cannot: nothing is written, nothing prints on login, nothing
+-- waits on an event, and there is no protected call in it.
 local function Export()
 	local lines = ns.TrainerExport()
 	if not lines[1] then

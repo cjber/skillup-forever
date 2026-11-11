@@ -18,7 +18,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **The Professions window keeps one width and one page.** Switching between SkillUp's tab, another Forever addon's tab and the game's own tabs no longer leaves the other addon's page drawn over SkillUp's, and the window no longer changes width when you open another profession or tab. With the wide recipe list on, the window is as wide as the widest recipe row of every profession you have learned needs, so names stay clear of SkillUp's skill-up columns on every profession; turning it off gives the game's own width back (#555, cjber/forever-core#433).
 - **The shopping list's copy window opens without an error.** Opening it to copy your list raised a Lua error and left the list unselected. It now opens with the whole list selected, ready to copy (#622).
-- **SkillUp's commands start with `/skillup`.** The game itself owns `/su`, so typing it opened the game's command instead of SkillUp's; every message and help line now names `/skillup` (#630).
+- **`/skillup` is the one command.** The `/su` shortcut is gone: German and Spanish clients already bind `/su` to their own stopwatch and whisper commands, so in those languages it never reached SkillUp and ran the game's command instead. Every command works as before, typed in full: `/skillup audit`, `/skillup report`, `/skillup unskip all` and the rest.
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ### For addon authors

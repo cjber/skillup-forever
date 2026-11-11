@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.5.4] - 2026-11-11
+
+- **Forever Core now installs alongside it.** Forever Core is on CurseForge, so the CurseForge app installs and updates it with this addon instead of the addon carrying its own copy. On Wago, install Forever Core from its own page.
+
 ## [1.5.3] - 2026-11-11
 
 - **Game data now matches Forever build 1.60.1.70888.** The recipes, trainer fees, vendor prices and skill-up thresholds were regenerated from the build the client publishes today, so a profession's route reflects what the game now says rather than last week's build.

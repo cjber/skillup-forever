@@ -246,8 +246,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Subtrai do custo o valor de venda do item criado. Preços de leilão precisam do Auctionator/TradeSkillMaster, são após a taxa de 5% e podem não vender."
 L["Taught by %s trainers."] = "Ensinada por instrutores de %s."
 L["The place this recipe is taught isn't known yet."] = "Ainda não se sabe onde esta receita é ensinada."
-L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
-	"A lista de receitas se alarga até o nome de receita mais longo da profissão aberta, e a janela junto, até o espaço da sua tela. Desative para manter a largura original da janela."
+L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
+	"A janela mantém uma única largura, alargada até a linha de receita mais larga de cada profissão que você aprendeu, até onde a tela permitir. Desative para manter a largura do jogo."
 L["The rest comes from a vendor or your gathering."] = "O resto vem de um comerciante ou da sua coleta."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"A rota conta com %d para chegar a %d em 9 de 10 vezes; com menos sorte, serão necessários mais."

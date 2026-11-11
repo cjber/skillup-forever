@@ -44,7 +44,6 @@ SOURCES = (
     "UI/Buffs.lua",
     "UI/PageParts.lua",
     "UI/Pages.lua",
-    "UI/FrameArt.lua",
     "UI/List.lua",
     "UI/RecipeList.lua",
     "UI/Route.lua",

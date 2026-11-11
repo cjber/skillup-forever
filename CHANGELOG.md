@@ -12,6 +12,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The Professions window keeps one width and one page.** Switching between SkillUp's tab, another Forever addon's tab and the game's own tabs no longer leaves the other addon's page drawn over SkillUp's, and the window no longer changes width when you open another profession or tab. With the wide recipe list on, the window is as wide as the widest recipe row of every profession you have learned needs, so names stay clear of SkillUp's skill-up columns on every profession; turning it off gives the game's own width back (#555, cjber/forever-core#433).
+
+### For addon authors
+
+- **The side tab is ForeverCore's.** SkillUp registers it with `ForeverCore.ProfessionTabs.Register`, so core owns where it sits, which tab is checked and handing the window back. The wide recipe list raises the tab's one width with `ProfessionTabs.SetMinWidth`. The addon now requires the ForeverCore release with `ProfessionTabs.minor` 1.
+
 ## [1.6.1] - 2026-11-11
 
 - **Works again after updating.** Updating to the last version could leave the addon switched off in the game's AddOns list with "ForeverCore: missing", because the update did not bring Forever Core with it. Forever Core now comes inside this addon's download again, from CurseForge, Wago or GitHub alike, so updating is all it takes (cjber/shortest-path-forever#731).

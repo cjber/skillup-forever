@@ -244,8 +244,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"從成本中減去製造物品的售價。拍賣價需要Auctionator/TradeSkillMaster，已扣除5%手續費，且不一定能賣出。"
 L["Taught by %s trainers."] = "由%s訓練師教授。"
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪裡學習此配方。"
-L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
-	"配方列表和視窗會加寬，以容納目前專業最長的配方名稱，最寬到螢幕空間為止。關閉後保持視窗原有寬度。"
+L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
+	"視窗保持同一寬度，並加寬到已學所有專業中最寬的配方列，最寬到螢幕允許的範圍。關閉後保持遊戲自帶的寬度。"
 L["The rest comes from a vendor or your gathering."] = "其餘來自商人或你的採集。"
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"路線按%d個計算，十次中有九次能達到%d；運氣差時需要更多。"

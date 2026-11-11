@@ -262,8 +262,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Taught by %s trainers."] = "Обучают учителя (%s)."
 L["The place this recipe is taught isn't known yet."] =
 	"Где обучают этому рецепту, пока неизвестно."
-L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
-	"Список рецептов расширяется до самого длинного названия рецепта открытой профессии, а окно — вместе с ним, в пределах экрана. Выключите, чтобы оставить исходную ширину окна."
+L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
+	"Окно сохраняет одну ширину и расширяется до самой широкой строки рецепта среди всех изученных профессий, насколько позволяет экран. Выключите, чтобы оставить ширину игры."
 L["The rest comes from a vendor or your gathering."] =
 	"Остальное — от торговца или из вашей добычи."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =

@@ -54,7 +54,6 @@ Integrations\AtlasLoot.lua
 Integrations\Catalogue.lua
 Integrations\Prices.lua
 UI\Art.lua
-UI\FrameArt.lua
 UI\Settings.lua
 UI\Tooltip.lua
 UI\DetailsBar.lua

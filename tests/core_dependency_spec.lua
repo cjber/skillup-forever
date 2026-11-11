@@ -1,6 +1,7 @@
 -- Run from the repository root: luajit tests/core_dependency_spec.lua
 -- SkillUp Forever requires ForeverCore. This spec covers the two places the handover is the addon's: the one-line
--- stop for a ForeverCore older than API 1, and the tracker settings the addon hands to the shared column once.
+-- stop for a ForeverCore older than the shared modules the addon calls, and the tracker settings it hands to the
+-- shared column once.
 local Client = dofile("tests/client.lua")
 
 -- A fresh install, as ForeverCore would see it: saved variables are core's own.
@@ -63,8 +64,32 @@ local noKit, noKitLines = Require({ API = 1 })
 assert(noKit.broken == true and #noKitLines == 1, "one without the API kit stops it the same way")
 local noSection, noSectionLines = Require({ API = 1, APIKit = {} })
 assert(noSection.broken == true and #noSectionLines == 1, "one older than the tracker section API stops it too")
-local ready, readyLines = Require({ API = 1, APIKit = {}, TrackerSection = {}, TrackerLine = {} })
-assert(ready.broken == nil, "API 1 with the kit and the tracker section API runs the addon")
+local noTabs, noTabsLines = Require({ API = 1, APIKit = {}, TrackerSection = {}, TrackerLine = {} })
+assert(noTabs.broken == true and #noTabsLines == 1, "one older than the Professions tabs API stops it too")
+local noWidth, noWidthLines = Require({
+	API = 1,
+	APIKit = {},
+	TrackerSection = {},
+	TrackerLine = {},
+	ProfessionTabs = {},
+})
+assert(noWidth.broken == true and #noWidthLines == 1, "one older than ProfessionTabs.minor 1 stops it too")
+local oldMinor, oldMinorLines = Require({
+	API = 1,
+	APIKit = {},
+	TrackerSection = {},
+	TrackerLine = {},
+	ProfessionTabs = { minor = 0 },
+})
+assert(oldMinor.broken == true and #oldMinorLines == 1, "minor 0 has no SetMinWidth and stops it")
+local ready, readyLines = Require({
+	API = 1,
+	APIKit = {},
+	TrackerSection = {},
+	TrackerLine = {},
+	ProfessionTabs = { minor = 1 },
+})
+assert(ready.broken == nil, "API 1 with the kit and ProfessionTabs.minor 1 runs the addon")
 assert(#readyLines == 0, "and says nothing")
 
 print("core_dependency_spec: ok")

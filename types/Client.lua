@@ -78,26 +78,27 @@ UNIT_SKINNABLE_HERB = "Requires Herbalism"
 UNIT_SKINNABLE_ROCK = "Requires Mining"
 ITEM_MIN_SKILL = "Requires %s (%d)"
 
----@class SkillUpProfessionFrame : Frame
----@field CraftingPage SkillUpCraftingPage
----@field BookPage Frame
----@field Bg Texture
----@field professionInfo? ProfessionInfo
----@field ProfessionsOverviewTab SkillUpSideTab
----@field rightProfessionTabs SkillUpSideTab[]
----@field SetPortraitToAsset fun(self: SkillUpProfessionFrame, asset: fileID|string)
----@field GetPortrait fun(self: SkillUpProfessionFrame): Texture
----@field RightTabSelected fun(self: SkillUpProfessionFrame, tab: SkillUpSideTab)
----@field RefreshRightTabs fun(self: SkillUpProfessionFrame)
----@type SkillUpProfessionFrame
-ProfessionsFrame = nil
-
----@class SkillUpCraftingPage : Frame
+-- The window's crafting page, as SkillUp reads it: its recipe list and the schematic form beside it.
+---@class SkillUpCraftingPage : ForeverProfessionPage
 ---@field RecipeList SkillUpRecipeList
 ---@field SchematicForm SkillUpSchematicForm
 ---@field CreateButton? Button
 ---@field CreateAllButton? Button
 ---@field Init fun(self: SkillUpCraftingPage, info: ProfessionInfo)
+
+-- The client's Professions window is core's ForeverProfessionsWindow type (types/Client.lua there), which core no
+-- longer declares as a global (ForeverCore 1.4.1). SkillUp reads a few more of its native members, so they are added
+-- to the class here. Its CraftingPage is core's ForeverProfessionPage; a file that reads SkillUp's own recipe list
+-- and schematic form casts it to SkillUpCraftingPage where it uses them.
+---@class ForeverProfessionsWindow
+---@field Bg Texture
+---@field professionInfo? ProfessionInfo
+---@field SetPortraitToAsset fun(self: ForeverProfessionsWindow, asset: fileID|string)
+---@field GetPortrait fun(self: ForeverProfessionsWindow): Texture
+---@field RightTabSelected fun(self: ForeverProfessionsWindow, tab: SkillUpSideTab)
+---@field RefreshRightTabs fun(self: ForeverProfessionsWindow)
+---@type ForeverProfessionsWindow
+ProfessionsFrame = nil
 
 ---@class SkillUpSchematicForm : Frame
 ---@field GetRecipeInfo? fun(self: SkillUpSchematicForm): TradeSkillRecipeInfo?

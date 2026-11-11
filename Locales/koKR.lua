@@ -252,8 +252,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
 L["The place this recipe is taught isn't known yet."] =
 	"이 제조법을 배우는 곳은 아직 알려지지 않았습니다."
-L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
-	"열린 전문 기술에서 가장 긴 제조법 이름에 맞춰 제조법 목록과 창이 넓어지며, 화면 크기까지만 넓어집니다. 끄면 창의 원래 너비를 유지합니다."
+L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
+	"창은 하나의 너비를 유지하며, 배운 모든 전문 기술에서 가장 넓은 제조법 행에 맞춰 화면이 허락하는 만큼 넓어집니다. 끄면 게임의 너비를 유지합니다."
 L["The rest comes from a vendor or your gathering."] = "나머지는 상인이나 채집으로 얻습니다."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"경로는 %d개로 10번 중 9번은 %d에 도달한다고 봅니다. 운이 나쁘면 더 필요합니다."

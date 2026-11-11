@@ -252,8 +252,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Soustrait de son coût ce que l'objet fabriqué rapporte à la vente. Les prix aux enchères nécessitent Auctionator/TradeSkillMaster, s'entendent après la commission de 5 % et ne garantissent pas la vente." -- mt
 L["Taught by %s trainers."] = "Enseignée par les maîtres de métier (%s)." -- mt
 L["The place this recipe is taught isn't known yet."] = "On ne sait pas encore où cette recette est enseignée." -- mt
-L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
-	"La liste des recettes s'élargit jusqu'au nom de recette le plus long du métier ouvert, et la fenêtre avec elle, dans la limite de votre écran. Désactivez pour garder la largeur d'origine de la fenêtre." -- mt
+L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
+	"La fenêtre garde une seule largeur, élargie jusqu'à la ligne de recette la plus large de chaque métier que vous avez appris, dans la limite de votre écran. Désactivez pour garder la largeur du jeu." -- mt
 L["The rest comes from a vendor or your gathering."] = "Le reste vient d'un marchand ou de votre récolte." -- mt
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"Le parcours compte %d pour atteindre %d 9 fois sur 10 ; avec moins de chance, il en faut plus." -- mt

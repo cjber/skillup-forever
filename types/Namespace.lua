@@ -59,8 +59,8 @@
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
----@field FitRecipeListWidth fun() fit the open profession's recipe list, and the window with it, to its longest name
----@field FitFrameArt fun(extra: number) redraw the frame's art for that much widening, or the stock art at 0
+---@field RecipeListMinWidth fun(): number? the window width the widest learned profession's rows need, nil with the wide list off
+---@field FitRecipeListWidth fun() fit the recipe list into the room the window has
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
 ---@field BuffLevel fun(recipeID: integer): integer? The product's required level when it is a buff, else nil.
@@ -123,7 +123,6 @@
 ---@field SetLastBuffProfession fun(skillLine: integer)
 ---@field PageParts SkillUpPageParts
 ---@field Pages SkillUpPages
----@field PlaceSideTabs fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
 ---@field SetBuffsOnly fun(on: boolean)
@@ -689,11 +688,11 @@ SkillUpForeverDB = nil
 ---@class SkillUpPages
 ---@field Register fun(spec: SkillUpPageSpec)
 ---@field Unlocked fun(fn: fun()): boolean
----@field Open fun()
 ---@field Close fun(id: SkillUpPageID)
 ---@field Select fun(id: SkillUpPageID)
 ---@field Sync fun()
----@field SideTab fun(): SkillUpSideTab?
+---@field SideTab fun(): ForeverProfessionTab?
+---@field SetMinWidth fun(width: number?): boolean
 ---@field BottomTab fun(id: SkillUpPageID): Button?
 ---@field Count fun(): integer
 

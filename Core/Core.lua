@@ -21,7 +21,7 @@ ns.core = ForeverCore.Register(addonName, {
 ---@type SkillUpDefaults
 local DEFAULTS = {
 	showRowText = true,
-	wideRecipeList = true, -- widen the recipe list and the window to the longest recipe name in the open profession
+	wideRecipeList = true, -- the window and list grow to the widest row of every learned profession
 	showUnlearned = false, -- also list recipes this character has not learned, greyed, with where they are learned
 	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
 	showSkill = false,

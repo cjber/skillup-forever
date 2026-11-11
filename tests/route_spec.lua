@@ -184,7 +184,6 @@ page = {
 		return "route"
 	end,
 	SetLastSkillUpPage = function() end,
-	PlaceSideTabs = function() end,
 	COLORS = {},
 	IsLearned = function(id)
 		return id == 3275

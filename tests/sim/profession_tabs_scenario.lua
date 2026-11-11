@@ -1,9 +1,9 @@
 -- luacheck: read globals scenario ADDON
 -- #555: SkillUp's tab in the Professions window is ForeverCore.ProfessionTabs'. A Commissions-like second tab
 -- sits beside it, and the walk the player makes (SkillUp, a client tab, a profession change, back, the other
--- addon's tab) leaves exactly one page shown each time. The window's one width follows the widest learned
--- profession, its list fills the room it leaves, and a tab or profession switch moves neither the width nor
--- the anchor.
+-- addon's tab) leaves exactly one page shown each time. The crafting page and every addon page keep the window's
+-- one width, which follows the widest learned profession and whose room the list fills; the client's own overview
+-- page keeps the client's width. A tab or profession switch moves neither the width nor the anchor.
 local ForeverCore = dofile("tests/forever_core.lua")
 
 scenario("SkillUp's professions tab shares the window with another addon", {
@@ -116,13 +116,17 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	assert(otherPage and otherTab, "the other addon's page and tab were registered")
 
 	local width, point = pf:GetWidth(), { pf:GetPoint(1) }
-	local function stable(label)
-		assert(pf:GetWidth() == width, label .. ": the window width changed to " .. tostring(pf:GetWidth()))
+	local function stableAt(expected, label)
+		assert(pf:GetWidth() == expected, label .. ": the window width changed to " .. tostring(pf:GetWidth()))
 		local now = { pf:GetPoint(1) }
 		assert(#now == #point, label .. ": the window anchor changed")
 		for index = 1, #point do
 			assert(now[index] == point[index], label .. ": the window anchor changed at " .. index)
 		end
+	end
+	-- Every page but the client's own overview keeps the widened width.
+	local function stable(label)
+		stableAt(width, label)
 	end
 
 	local function press(tab)
@@ -157,12 +161,17 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	assert(core.Selected() == nil, "a client side tab hands the window back")
 	assert(not routePage:IsShown() and not otherPage:IsShown(), "and hides both addons' pages")
 	assert(not checked(skillupTab), "and unchecks the SkillUp tab")
-	stable("after a client side tab")
+	assert(pf.BookPage:IsShown(), "and shows the client's own overview page")
+	-- The overview page lays its panels out at the client's own width and the client never resizes the window for
+	-- it, so it keeps that width: a wider window only stretched empty art past its panels.
+	stableAt(673, "after a client side tab")
 
 	sim:openProfessions(333)
 	sim:advance(0.2)
 	assert(core.Selected() == nil, "a profession change hands the window back")
 	assert(not routePage:IsShown() and not otherPage:IsShown(), "with no addon page shown")
+	assert(pf.CraftingPage:IsShown(), "and the client's own crafting page takes the window again")
+	-- Back on the crafting page, the widened width returns.
 	stable("after a profession change")
 	assert(
 		pf:GetWidth() == widened,

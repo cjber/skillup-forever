@@ -529,4 +529,5 @@ L["Waiting for Questie to finish loading."] = "Ожидание окончани
 L["Nothing is tracked for %s."] = "Для %s ничего не отслеживается." -- mt
 L["+%d more to train"] = "ещё %d выучить" -- mt
 L["Also train"] = "Также выучить" -- mt
-L["Forever Core now installs alongside it."] = "Forever Core теперь устанавливается вместе с аддоном." -- mt
+L["Forever Core now installs alongside it."] =
+	"Forever Core теперь устанавливается вместе с аддоном." -- mt

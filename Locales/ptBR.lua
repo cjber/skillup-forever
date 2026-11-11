@@ -490,7 +490,7 @@ L["Waiting for Questie to finish loading."] = "Aguardando o Questie terminar de 
 L["Nothing is tracked for %s."] = "Nada está sendo acompanhado para %s." -- mt
 L["+%d more to train"] = "+%d mais para aprender" -- mt
 L["Also train"] = "Também aprender" -- mt
-L["Buy reagents is on for a new character."] = "Comprar reagentes vem ativado para um personagem novo." -- mt
+L["Works again after updating."] = "Volta a funcionar após atualizar." -- mt
 L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
 	"Lista do Auctionator: %s. Abra a casa de leilões, a aba Compras, escolha a lista e Buscar; compre cada linha com um clique."
 L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =

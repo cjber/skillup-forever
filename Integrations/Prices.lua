@@ -360,6 +360,9 @@ local function ResetCraftCosts()
 	obtainCost, subCraft = {}, {}
 end
 
+-- An item no recipe makes shares this one empty list: MakersOf runs for every priced item, and callers only read it.
+local NO_MAKERS = {}
+
 -- The recipes that make `itemID`, lowest recipe ID first, from the bundled recipe data. Built once, like
 -- the reagent index: the bundle does not change in a session.
 ---@param itemID integer
@@ -382,7 +385,7 @@ local function MakersOf(itemID)
 			table.sort(makers)
 		end
 	end
-	return craftMakers[itemID] or {}
+	return craftMakers[itemID] or NO_MAKERS
 end
 ns.MakersOf = MakersOf
 
@@ -398,6 +401,26 @@ end
 -- Copper for one unit of `itemID`: buying it, or the cheaper recipe that makes it. `stack` holds the
 -- items already being priced, so a cycle reads as unpriced instead of recursing; nil at the top, made on the
 -- first miss of the memo. Memoised per item.
+--
+-- A crafted intermediate is worth at least what selling it would bring: crafting a bolt from gathered cloth
+-- costs nothing under the gathered-material setting, but using the bolt instead of selling it gives that sale
+-- up, so it must not make the recipe that uses it look profitable (#598). A gathered material keeps the
+-- setting's answer, free or its sale value. `MakersOf` is read both ways: an item no recipe makes is not an
+-- intermediate, and one no recipe the character knows and can buy nowhere stays unpriced rather than guessed.
+---@param itemID integer
+---@param cost number?
+---@return number?
+local function WithSaleFloor(itemID, cost)
+	if not cost or #MakersOf(itemID) == 0 or ns.CanGather(itemID) then
+		return cost
+	end
+	local sale = SaleValue(itemID)
+	if sale and sale > cost then
+		return sale
+	end
+	return cost
+end
+
 ---@param itemID integer
 ---@param depth integer
 ---@param stack table<integer, true>?
@@ -405,7 +428,7 @@ end
 local function ObtainCost(itemID, depth, stack)
 	if depth <= 0 then
 		local price = ns.Price(itemID)
-		return price and price.copper
+		return price and WithSaleFloor(itemID, price.copper)
 	end
 	local cached = obtainCost[itemID]
 	if cached == false then
@@ -445,6 +468,7 @@ local function ObtainCost(itemID, depth, stack)
 		end
 	end
 	stack[itemID] = nil
+	best = WithSaleFloor(itemID, best)
 	if best == nil then
 		obtainCost[itemID] = false
 		return nil

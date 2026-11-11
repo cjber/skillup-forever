@@ -17,6 +17,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 <!-- forever-core-sync -->
 
 - **The Professions overview is its own width again.** Since 1.7.0 the overview page with every profession's bar took the wide recipe list's width, leaving an empty strip to the right of its panels. The overview now keeps the game's own width; the recipe list and SkillUp's pages keep the wide one. Thanks to qwertzyxc on Discord for the report (#636).
+- **The players who helped are on the Thanks page.** Settings, Forever addons, Thanks lists everyone whose report or idea shipped in SkillUp Forever, ranked by how much they gave. (#604)
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ## [1.7.1] - 2026-11-11

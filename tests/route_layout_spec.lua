@@ -1005,6 +1005,11 @@ for _, row in ipairs(page.RouteList.scrollBox.frames) do
 	end
 end
 equal(currentRow and currentRow.Text.text, "Spell 3275", "the next craft is marked as the current step")
+equal(
+	currentRow and currentRow.Current:IsShown(),
+	true,
+	"with the client's gold highlight over the row, not a recoloured name"
+)
 equal(Find("Apprentice") ~= nil, true, "the route opens with its skill band header")
 equal(Find("0 to 75") ~= nil, true, "with the band's range beside it")
 equal(Find("Craft 5× Spell 3276") ~= nil, true, "the sub-craft names itself as a craft")

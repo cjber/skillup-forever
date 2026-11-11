@@ -84,6 +84,14 @@ local function BuildRow(row)
 	row.kind = "row"
 	-- art-ok: the quest log's highlight bar, stretched over the row as a bar is
 	row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+	-- The row that is the next thing to do keeps a gold highlight of its own, so the name can stay in the
+	-- recipe's difficulty colour (#574).
+	row.Current = row:CreateTexture(nil, "BACKGROUND")
+	row.Current:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight") -- art-ok: a highlight bar over the whole row
+	row.Current:SetVertexColor(NORMAL_FONT_COLOR:GetRGB())
+	row.Current:SetAlpha(0.55)
+	row.Current:SetAllPoints(row)
+	row.Current:Hide()
 	row.UpdateTooltip = UpdateTooltip
 	row:SetScript("OnEnter", OnEnter)
 	row:SetScript("OnLeave", GameTooltip_Hide)
@@ -151,6 +159,7 @@ local function InitializeRow(row, elementData)
 	row.Text:SetPoint("RIGHT", row, "RIGHT", entry.sourceIcon and -(SOURCE_SIZE + 12) or -8, 0)
 	row.Text:SetText(entry.text)
 	row.Text:SetTextColor((entry.color or HIGHLIGHT_FONT_COLOR):GetRGB())
+	row.Current:SetShown(entry.current == true)
 	if entry.sourceIcon then
 		row.Source:Show()
 		row.Source:ClearAllPoints()

@@ -189,7 +189,8 @@ page = {
 	end,
 	SetLastSkillUpPage = function() end,
 	PlaceSideTabs = function() end,
-	COLORS = {},
+	-- Difficulty colours the route hands the list as they are: a sentinel shows which one a row got.
+	COLORS = { yellow = "yellow", green = "green", orange = "orange" },
 	IsLearned = function(id)
 		return id == 3275
 	end,
@@ -1338,6 +1339,7 @@ equal(BandRow(1).cap, 75, "with the cap it ends at")
 equal(BandRow(1).skill, 1, "and the current base skill for its progress")
 equal(BandRow(2).kind, "row", "the band holds its craft rows")
 equal(BandRow(2).current, true, "with the next craft marked as the current step")
+equal(BandRow(2).color, "yellow", "and keeps its own difficulty colour rather than a gold name")
 equal(BandRow(3).kind, "band", "the next band opens before the rank that trains it")
 equal(BandRow(3).name, "Journeyman", "named for that rank")
 equal(BandRow(4).kind, "line", "which is one compact line")

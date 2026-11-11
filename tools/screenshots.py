@@ -2165,6 +2165,16 @@ def draw_list(canvas, x, y, w, h, rows):
             top += row_h
             continue
         row_h = LIST_ROW_BAR if row.get("bar") else LIST_ROW
+        if row.get("current"):
+            # List.lua's row.Current: the quest log's highlight bar, gold and translucent, under the row.
+            canvas.draw(
+                ui.texture("interface/questframe/ui-questtitlehighlight.blp"),
+                box_x,
+                top,
+                box_w,
+                row_h,
+                (1, 0.82, 0, 0.55),
+            )
         icon = row.get("icon")
         if icon is not None:
             icon_y = top + (row_h - LIST_ICON) / 2

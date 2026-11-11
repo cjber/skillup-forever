@@ -21,6 +21,9 @@ local function Region()
 		SetTextColor = function(self, r, g, b)
 			self.color = { r, g, b }
 		end,
+		SetTexture = function(self, texture)
+			self.texture = texture
+		end,
 		SetShown = function(self, shown)
 			self.shown = shown
 		end,
@@ -202,6 +205,21 @@ equal(messageTemplate, "SkillUpForeverListMessageTemplate", "a message is built 
 equal(message.kind, "message", "and knows it is a message")
 equal(message.Text.text, list.rows[5].text, "with its text")
 equal(message.Text.wordWrap, true, "wrapped")
+
+-- The row that is the next step keeps its own gold highlight; every other row leaves it hidden (#574).
+list:Begin()
+list:Add({ text = "Next", current = true })
+list:Add({ text = "Later" })
+list:Finish()
+local current = Materialize(list.rows[1])
+equal(current.Current.shown, true, "the current row shows its highlight")
+equal(
+	current.Current.texture,
+	"Interface\\QuestFrame\\UI-QuestTitleHighlight",
+	"drawn with the quest log's own highlight bar"
+)
+local later = Materialize(list.rows[2])
+equal(later.Current.shown, false, "a row that is not the next step shows no highlight")
 
 -- A left click is the row's own and a right-click opens its menu, from the row; a row with only a menu still
 -- takes the mouse.

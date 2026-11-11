@@ -14,7 +14,8 @@ local CRAFT_WIDTH = 100
 local CRAFT_COUNT_WIDTH = 62
 local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
 local SKIPPED_ICON = "Interface\\Icons\\INV_Misc_Note_01"
--- The next step to do is gold, as the mockup shows it, not its recipe colour.
+-- Train and buy steps read gold, as the mockup shows them. A craft keeps its own difficulty colour and the next
+-- one is marked by the row's highlight instead, so a gold name never reads as a yellow recipe (#574).
 local GOLD = CreateColor(1, 0.82, 0)
 -- A source a reagent's row can name with the client's own minimap art: there is no auction gavel.
 local SOURCE_ICON = { auction = "auctioneer", vendor = "reagents" }
@@ -576,7 +577,7 @@ local function RenderRoute(list, plan)
 				detail = craft.station
 						and string.format(L["%d crafts to %d, %s, at %s"], craft.crafts, craft.to, money, craft.station)
 					or string.format(L["%d crafts to %d, %s"], craft.crafts, craft.to, money),
-				color = current and GOLD or ns.COLORS[craft.color],
+				color = ns.COLORS[craft.color],
 				current = current,
 				tooltip = function(tooltip)
 					CraftTooltip(tooltip, profession, craft)

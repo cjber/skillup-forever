@@ -62,6 +62,7 @@ ns.Credits = {
 		{ name = "Sogu", what = "Shopping list shows its target" },
 		{ name = "achubbert", what = "Wider recipe list with craftable counts" },
 		{ name = "jackthereaper_", what = "Addon loads without a separate ForeverCore install" },
+		{ name = "qwertzyxc", what = "Professions overview back to its own width" },
 	},
 	inspired = {
 		{ name = "Polestar by Fitz", what = "Ideas for many features" },

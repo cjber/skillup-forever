@@ -101,6 +101,7 @@ Credit for the reports and requests behind the addon.
 | Sogu | Shopping list shows its target | CurseForge; #232 |
 | achubbert | Wider recipe list with craftable counts | CurseForge; #343 |
 | jackthereaper\_ | Addon loads without a separate ForeverCore install | CurseForge; 1.4.0 |
+| qwertzyxc | Professions overview back to its own width | Discord; #636 |
 
 ## Inspired by
 

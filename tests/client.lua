@@ -654,6 +654,12 @@ function Client.load(options)
 		end
 		local frame = NewFrame(name, parent)
 		frame.template = template
+		-- NumericInputSpinnerTemplate's XML gives its box the two arrow buttons and their wheel catcher.
+		if template == "NumericInputSpinnerTemplate" then
+			frame.IncrementButton = NewFrame(nil, frame)
+			frame.DecrementButton = NewFrame(nil, frame)
+			frame.MouseWheelCatcher = NewFrame(nil, frame)
+		end
 		if stock == "ObjectiveTrackerModuleTemplate" then
 			for key, method in pairs(TrackerModule) do
 				frame[key] = method

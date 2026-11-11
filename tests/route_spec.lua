@@ -98,6 +98,10 @@ local function Stub()
 					TouchSecure(frame, "Disable")
 					rawset(frame, "enabled", false)
 				end
+			elseif key == "EnableMouse" then
+				value = function(frame, enabled)
+					rawset(frame, "mouseEnabled", enabled and true or false)
+				end
 			elseif key == "Enter" then
 				value = function(frame)
 					if scripts.OnEnter then
@@ -496,11 +500,14 @@ pageEnv.CreateFrame = function(_, _, _, template)
 		rawset(frame, "secure", true)
 		buttons[#buttons + 1] = frame
 	elseif template == "InputBoxTemplate" then
-		if not targetBox then
-			targetBox = frame
-		else
-			craftCount = frame
-		end
+		targetBox = frame
+		rawset(frame, "secure", true)
+	elseif template == "NumericInputSpinnerTemplate" then
+		craftCount = frame
+		rawset(frame, "template", template)
+		rawset(frame, "IncrementButton", Stub())
+		rawset(frame, "DecrementButton", Stub())
+		rawset(frame, "MouseWheelCatcher", Stub())
 		rawset(frame, "secure", true)
 	elseif template and template:find("SecureActionButtonTemplate", 1, true) then
 		craftButton = frame
@@ -997,6 +1004,10 @@ equal(craftButton.attributes["shift-clickbutton1"], nativeCreateAll, "on its Cre
 equal(craftButton.attributes.spell, nil, "and no recipe spell attribute")
 equal(craftButton.text, "Craft", "its label is the plain Craft the game uses")
 equal(craftCount.text, "3 of 5", "the step's count sits beside it, and names the bags' limit")
+equal(craftCount.template, "NumericInputSpinnerTemplate", "in the client's spinner count box (#564)")
+equal(craftCount.IncrementButton.shown, false, "whose up arrow is hidden")
+equal(craftCount.DecrementButton.shown, false, "and whose down arrow is hidden")
+equal(craftCount.MouseWheelCatcher.mouseEnabled, false, "so the wheel changes nothing")
 equal(craftButton.width, 100, "the button keeps one width whatever the step holds")
 equal(craftButton.enabled, true, "the route's recipe is shown and the game's Craft button is ready")
 equal(#openedRecipes, 0, "a recipe already shown is not reopened")

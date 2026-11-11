@@ -2252,6 +2252,13 @@ def input_box(canvas, x, y, w, h, text):
     canvas.text(x, y, text, F_CHAT, box_height=h)
 
 
+def spinner_box(canvas, x, y, w, h, text):
+    """NumericInputSpinnerTemplate's count box: the same input border the target box wears, with its number
+    centred. The route hides the template's arrow buttons, so none are drawn."""
+    input_border(canvas, x, y, w, h)
+    canvas.text(x, y, text, F_CHAT, box_height=h, justify="CENTER", width=w)
+
+
 ROUTE_SHARE = 50  # Route.lua
 
 
@@ -2308,7 +2315,7 @@ def route_frame(ui, scene_data):
     count = route["craftCount"]
     count_w = count.get("width") or 62
     count_x = craft_x - 4 - count_w
-    input_box(canvas, count_x, bottom + 11, count_w, 20, count.get("text") or "")
+    spinner_box(canvas, count_x, bottom + 11, count_w, 20, count.get("text") or "")
     vendor = route["vendor"]
     if vendor.get("shown"):
         panel_button(canvas, count_x - 8 - 120, bottom + 10, 120, 22, vendor["text"], vendor.get("enabled", True))

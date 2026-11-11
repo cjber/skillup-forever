@@ -580,6 +580,7 @@ SkillUpForeverDB = nil
 ---@field BarBg Texture
 ---@field Bar StatusBar
 ---@field BarText FontString
+---@field Current Texture The gold highlight on the row that is the next step.
 ---@field barHave? number
 ---@field barNeed? number
 ---@field current? boolean
@@ -595,6 +596,8 @@ SkillUpForeverDB = nil
 ---@field BarBg Texture
 ---@field BarFill Texture
 ---@field BarBorder Texture
+---@field BarWidth number The bar frame at its own aspect.
+---@field BarHeight number
 ---@field BarText FontString
 
 ---@class SkillUpListLine : Button
@@ -858,9 +861,15 @@ SkillUpForeverDB = nil
 ---@field money? { buy: number, fees: number, sells: number, unknown: integer }
 ---@field unpriced? integer
 
+-- The route's read-only count: the client's count box, with the spinner's arrows present but hidden.
+---@class SkillUpCraftCount : EditBox
+---@field IncrementButton Button
+---@field DecrementButton Button
+---@field MouseWheelCatcher Frame
+
 ---@class SkillUpPage : Frame
 ---@field Craft SkillUpCraftButton
----@field CraftCount EditBox
+---@field CraftCount SkillUpCraftCount
 ---@field Profession DropdownButton
 ---@field Skill FontString
 ---@field Target EditBox

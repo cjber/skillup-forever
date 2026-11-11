@@ -252,6 +252,9 @@ local function NewRegion(parent, frameType)
 	function region:SetEnabled(enabled)
 		self.enabled = enabled and true or false
 	end
+	function region:EnableMouse(enabled)
+		self.mouseEnabled = enabled and true or false
+	end
 	function region:IsEnabled()
 		return self.enabled
 	end
@@ -383,6 +386,10 @@ local function CreateFrame(frameType, _, parent, template)
 		insets[#insets + 1] = region
 	elseif template == "UICheckButtonTemplate" then
 		region.width, region.height = 26, 26
+	elseif template == "NumericInputSpinnerTemplate" then
+		region.IncrementButton = NewRegion(region, "Button")
+		region.DecrementButton = NewRegion(region, "Button")
+		region.MouseWheelCatcher = NewRegion(region, "Frame")
 	elseif parent == ProfessionsFrame and template == nil then
 		pageFrame = region
 	end
@@ -993,6 +1000,10 @@ equal(trackAnchor.relative, insets[1], "and the checkbox sits at the route's bot
 equal(trackAnchor.relativePoint, "BOTTOMLEFT", "where the row starts")
 equal(Width(page.Craft), 100, "the craft button keeps one width")
 equal(Width(page.CraftCount), 62, "and the count box keeps its own")
+equal(page.CraftCount.template, "NumericInputSpinnerTemplate", "the count uses the game's spinner count box")
+equal(page.CraftCount.IncrementButton.shown, false, "with its up arrow hidden")
+equal(page.CraftCount.DecrementButton.shown, false, "and its down arrow hidden")
+equal(page.CraftCount.MouseWheelCatcher.mouseEnabled, false, "and no wheel capture")
 equal(page.Track.checked, false, "the Track checkbox shows an untracked route")
 
 -- The list's scroll box is what the addon places; the game lays the rows out inside it, so the scroll

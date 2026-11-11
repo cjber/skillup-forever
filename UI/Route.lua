@@ -1324,9 +1324,9 @@ local function CreateButtons()
 	craft:SetSize(CRAFT_WIDTH, 22)
 	page.Craft = craft
 
-	-- The step's count sits in the client's own input-box art beside the button, read only: the route's
-	-- planned count drives the craft, so there is nothing to type here.
-	local count = CreateFrame("EditBox", nil, page, "InputBoxTemplate") --[[@as EditBox]]
+	-- The step's count sits in the client's own spinner count box beside the button, read only: the route's
+	-- planned count drives the craft, so there is nothing to type and the arrows have nothing to do (#564).
+	local count = CreateFrame("EditBox", nil, page, "NumericInputSpinnerTemplate") --[[@as SkillUpCraftCount]]
 	count:SetSize(CRAFT_COUNT_WIDTH, 20)
 	count:SetNumeric(true)
 	count:SetMaxLetters(9)
@@ -1334,6 +1334,9 @@ local function CreateButtons()
 	count:SetEnabled(false)
 	count:SetJustifyH("CENTER")
 	count:SetTextColor(1, 1, 1)
+	count.IncrementButton:Hide()
+	count.DecrementButton:Hide()
+	count.MouseWheelCatcher:EnableMouse(false)
 	page.CraftCount = count
 
 	-- Where a reagent this character could gather or buy comes from: its own professions' gathering, or a

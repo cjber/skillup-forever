@@ -96,8 +96,6 @@ L["Crafts"] = "제작 횟수"
 L["Don't count it"] = "반영 안 함"
 L["Dropped by"] = "획득처"
 L["Each"] = "개당"
-L["Each click puts the next one in the search box; press Search."] =
-	"클릭할 때마다 다음 재료가 검색창에 들어갑니다. 검색을 누르세요."
 L["Enable Shortest Path Forever for walked routes and boat times."] =
 	"도보 경로와 배 시간을 보려면 Shortest Path Forever를 켜세요."
 L["Every recipe that uses it"] = "이 재료를 쓰는 모든 제조법"
@@ -444,10 +442,6 @@ L["Recipe item"] = "제조법"
 L["listing unlearned recipes failed: %s"] = "배우지 않은 제조법을 표시하지 못했습니다: %s"
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"이 경로에서는 채집하거나 낚시하거나 몬스터에게서 약탈할 수 있는 것이 없어, 이 스위치는 아무것도 바꾸지 않습니다." -- mt
-L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
-	"켜면 채집하거나 낚시하거나 몬스터에게서 약탈할 수 있는 재료를 상인이나 경매장 가격으로 계산합니다. 끄면 직접 구하는 데 비용이 들지 않습니다." -- mt
-L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
-	"켜면 채집하거나 낚시하거나 몬스터에게서 약탈할 수 있는 재료를 상인이나 경매장 가격으로 계산합니다. 끄면 직접 구하는 데 판매 가격만큼 듭니다." -- mt
 L["Loot %d %s from creatures"] = "몬스터에게서 %d개 %s 약탈" -- mt
 L["you loot it from creatures"] = "몬스터에게서 약탈합니다" -- mt
 L["you loot it from creatures, valued at its AH price"] =
@@ -507,3 +501,17 @@ L["Nothing is tracked for %s."] = "%s에 대해 추적 중인 항목이 없습�
 L["+%d more to train"] = "+%d개 더 배우기" -- mt
 L["Also train"] = "추가 학습" -- mt
 L["Forever Core now installs alongside it."] = "이제 Forever Core가 함께 설치됩니다." -- mt
+L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
+	"Auctionator 목록: %s. 경매장에서 구매 탭을 열고 목록을 선택한 뒤 검색하세요. 각 줄을 클릭하여 구매하세요."
+L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"켜짐(기본값): 채집, 낚시 또는 생물에게서 얻을 수 있는 재료를 상인이나 경매장에서 삽니다. 꺼짐: 직접 얻는 데 비용이 들지 않습니다."
+L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"켜짐(기본값): 채집, 낚시 또는 생물에게서 얻을 수 있는 재료를 상인이나 경매장에서 삽니다. 꺼짐: 직접 얻는 비용은 판매 가격만큼 듭니다."
+L["Shift + wheel, or drag, scrolls the timeline sideways."] =
+	"Shift + 마우스 휠 또는 드래그로 시간선을 옆으로 스크롤합니다."
+L["SkillUp's list"] = "SkillUp 목록"
+L["Timeline"] = "시간선"
+L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
+	"재료 구매를 켜면 아직 부족한 모든 경매장 재료가 Auctionator 목록에 기록됩니다."
+L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
+	"Auctionator가 없으면 레시피의 검색 버튼이 게임 자체 경매 검색 상자에 한 번에 하나의 재료를 채웁니다."

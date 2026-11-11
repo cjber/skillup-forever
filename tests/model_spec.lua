@@ -604,9 +604,10 @@ do
 	runtime.Changed("prices")
 	equal(
 		runtime.PriceSource(5),
-		"gather",
-		"auction mode with nothing to buy a gathered reagent at still prices it as gathered"
+		"auction",
+		"auction mode with nothing to buy a gathered reagent at keeps it at the auction house, price unknown"
 	)
+	equal(runtime.Price(5).unknown, true, "and says its price is unknown")
 	runtime.db.vendor[5] = 7
 	runtime.Changed("prices")
 	equal(runtime.PriceSource(5), "vendor", "auction mode buys a gathered reagent where it can be bought")

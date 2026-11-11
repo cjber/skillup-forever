@@ -119,6 +119,7 @@ local loot = Client.load({
 	data = { GatheredBy = {}, LootedFrom = { [LOOTED] = true }, VendorPrices = {}, RecipeData = {} },
 })
 local lootNs = loot.ns
+lootNs.SetCollectMode("gather")
 equal(lootNs.CanGather(LOOTED), "loot", "a reagent creatures drop needs no profession")
 local looted = lootNs.Price(LOOTED)
 equal(looted.source, "gather", "a looted reagent is priced as gathered")
@@ -146,6 +147,7 @@ local self = Client.load({
 	},
 })
 local selfNs = self.ns
+selfNs.SetCollectMode("gather")
 self.auction = { [MARKETED] = 200 }
 equal(selfNs.db.auctionOnly, false, "self-supplied reagents count as gathered by default")
 equal(selfNs.Price(MARKETED).copper, 0, "off, a looted reagent is free")
@@ -171,11 +173,52 @@ equal(selfNs.Price(MARKETED).copper, 0, "off again, it is free as before")
 local fish = Client.load({
 	data = { GatheredBy = { [FISH] = 356 }, VendorPrices = {}, RecipeData = {} },
 })
+fish.ns.SetCollectMode("gather")
 equal(fish.ns.CanGather(FISH), nil, "a fish needs Fishing")
 equal(fish.ns.Price(FISH), nil, "so a character without it has no gathered price")
 fish.professions = { { name = "Fishing", icon = 1, rank = 1, max = 75, id = 356 } }
 fish.ns.Changed("prices")
 equal(fish.ns.CanGather(FISH), "Fishing", "with Fishing it is gathered")
 equal(fish.ns.Price(FISH).profession, "Fishing", "and priced under that profession")
+
+-- #598: a bolt crafted from gathered cloth is not free. With Buy reagents off the cloth costs nothing, but
+-- the bolt can be sold, so using it in a recipe gives that sale up and the recipe must pay for it. An auction
+-- price for the bolt wins over the vendor's when there is one.
+local SILK, BOLT, ROBE = 4306, 4305, 4324
+local bolt = Client.load({
+	data = {
+		GatheredBy = {},
+		LootedFrom = { [SILK] = true },
+		VendorPrices = {},
+		ItemSellPrices = {},
+		RecipeData = {
+			[3839] = {
+				skillLine = 197,
+				reagents = { { itemID = SILK, quantity = 4 } },
+				output = { itemID = BOLT, quantity = 1 },
+			},
+			[3858] = {
+				skillLine = 197,
+				reagents = { { itemID = BOLT, quantity = 1 } },
+				output = { itemID = ROBE, quantity = 1 },
+			},
+		},
+	},
+})
+local boltNs = bolt.ns
+boltNs.SetCollectMode("gather")
+bolt.professions = { { name = "Tailoring", rank = 1, max = 300, id = 197 } }
+bolt.known[3839], bolt.known[3858] = true, true
+bolt.items[SILK] = { name = "Silk Cloth" }
+bolt.items[BOLT] = { name = "Bolt of Silk Cloth", sell = 600 }
+bolt.items[ROBE] = { name = "Silk Robe", sell = 2000 }
+equal(boltNs.Price(SILK).copper, 0, "gathered silk is free with Buy reagents off")
+equal(boltNs.ObtainCost(BOLT), 600, "a crafted bolt is worth what it sells for, not its free cloth")
+local boltCost = boltNs.CraftCost(3858)
+equal(boltCost, 600, "a recipe using the bolt pays for it")
+equal(boltNs.NetCost(3858), -1400, "so the recipe's profit is its result less a sellable bolt")
+bolt.auction[BOLT] = 1000
+boltNs.Changed("prices")
+equal(boltNs.ObtainCost(BOLT), 950, "an auction price for the bolt wins, net of the auction house's cut")
 
 Client.report("prices_spec")

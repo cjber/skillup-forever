@@ -4,8 +4,8 @@ local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local GATHER_TOOLTIP = table.concat({
-	"On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. ",
-	"Off, getting it yourself costs nothing.",
+	"On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor ",
+	"or the auction house. Off, getting it yourself costs nothing.",
 })
 local NOTHING_TOOLTIP = "Nothing on this route can be gathered, fished or looted by you, "
 	.. "so the switch changes nothing for it."
@@ -66,6 +66,7 @@ local function Stub()
 				end
 			elseif key == "SetChecked" then
 				value = function(frame, checked)
+					TouchSecure(frame, "SetChecked")
 					rawset(frame, "checked", checked)
 				end
 			elseif key == "SetEnabled" then
@@ -85,10 +86,12 @@ local function Stub()
 				end
 			elseif key == "Enable" then
 				value = function(frame)
+					TouchSecure(frame, "Enable")
 					rawset(frame, "enabled", true)
 				end
 			elseif key == "Disable" then
 				value = function(frame)
+					TouchSecure(frame, "Disable")
 					rawset(frame, "enabled", false)
 				end
 			elseif key == "Enter" then
@@ -111,6 +114,11 @@ local function Stub()
 					if scripts.OnShow then
 						scripts.OnShow(frame)
 					end
+				end
+			elseif key == "Hide" then
+				value = function(frame)
+					TouchSecure(frame, "Hide")
+					rawset(frame, "shown", false)
 				end
 			elseif key == "SetShown" then
 				value = function(frame, shown)
@@ -433,6 +441,7 @@ pageEnv.ProfessionsFrame.GetChildren = function()
 	return unpack(children)
 end
 local collect, vendor, targetBox, craftButton = nil, nil, nil, nil
+local trackButton, vendorButton
 local buttons = {}
 pageEnv.CreateFrame = function(_, _, _, template)
 	local frame = template == "LargeSideTabButtonTemplate" and SideTab(0, 0) or Stub()
@@ -440,11 +449,19 @@ pageEnv.CreateFrame = function(_, _, _, template)
 	children[#children + 1] = frame
 	if template == "UICheckButtonTemplate" then
 		collect = frame
+		rawset(frame, "secure", true)
 	elseif template == "SharedButtonSmallTemplate" then
+		if not trackButton then
+			trackButton = frame
+		elseif not vendorButton then
+			vendorButton = frame
+		end
 		vendor = vendor or frame
+		rawset(frame, "secure", true)
 		buttons[#buttons + 1] = frame
 	elseif template == "InputBoxTemplate" then
 		targetBox = frame
+		rawset(frame, "secure", true)
 	elseif template and template:find("SecureActionButtonTemplate", 1, true) then
 		craftButton = frame
 		rawset(frame, "secure", true)
@@ -1016,6 +1033,45 @@ equal(craftButton.attributes.type, "click", "the latest craft of the combat redr
 equal(craftButton.attributes.clickbutton, nativeCreate, "on the game's Create button")
 equal(craftButton.text, "Craft 1 of 2× Spell 3277", "and says one click makes one")
 equal(craftButton.enabled, true, "and the button is ready to craft")
+
+-- #597: the header row's switch, profession target, Track and Nearest vendor are children of the Professions
+-- window, so the client protects their enabled, checked and visible state too. A redraw in combat defers
+-- every one of them, latest value winning, and applies them when combat ends.
+local settledHeader = {
+	track = trackButton.enabled,
+	targetShown = targetBox.shown,
+	collectEnabled = collect.enabled,
+	collectChecked = collect.checked,
+	vendorShown = vendorButton.shown,
+	craftShown = craftButton.shown,
+}
+local realRoutes = page.RouteProfessions
+inCombat = true
+page.RouteProfessions = function()
+	return {}
+end
+page.SetCollectMode("auction")
+eventFrame:Event("BAG_UPDATE_DELAYED")
+Drain()
+equal(#secureCalls, 0, "a redraw in combat makes no protected call on the header row")
+equal(trackButton.enabled, settledHeader.track, "the Track button waits")
+equal(targetBox.shown, settledHeader.targetShown, "the target box waits")
+equal(collect.checked, settledHeader.collectChecked, "the buy reagents switch waits")
+equal(collect.enabled, settledHeader.collectEnabled, "its enabled state waits")
+equal(vendorButton.shown, settledHeader.vendorShown, "the Nearest vendor button waits")
+equal(craftButton.shown, settledHeader.craftShown, "and the Craft button waits")
+inCombat = false
+eventFrame:Event("PLAYER_REGEN_ENABLED")
+equal(trackButton.enabled, false, "with no profession the Track button is disabled after combat")
+equal(targetBox.shown, false, "the target box is hidden")
+equal(collect.checked, true, "the buy reagents switch shows the latest wanted state")
+equal(collect.enabled, true, "and is still clickable")
+equal(vendorButton.shown, false, "the Nearest vendor button is hidden")
+equal(craftButton.shown, false, "and the Craft button too")
+page.RouteProfessions = realRoutes
+page.SetCollectMode("gather")
+routeTab:Click()
+Drain()
 
 -- A step with nothing to craft disables the button and clears every secure attribute, so a later click cannot
 -- repeat the recipe that was armed before it.

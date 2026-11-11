@@ -153,8 +153,29 @@ function CreateTreeDataProvider() end
 ---@field SetDataProvider fun(self: SkillUpRecipeScrollBox, provider: ForeverDataProvider, retain?: boolean|integer)
 ---@field ForEachFrame fun(self: SkillUpRecipeScrollBox, callback: fun(frame: SkillUpRecipeRow, elementData: SkillUpTreeNode))
 
----@class SkillUpScrollBar : Frame
+---@class SkillUpScrollBarThumb : Button
+---@field Begin Texture
+---@field End Texture
+---@field Middle Texture
+---@field isHorizontal boolean
+
+---@class SkillUpScrollBarTrack : Frame
+---@field Begin Texture
+---@field End Texture
+---@field Middle Texture
+---@field Thumb SkillUpScrollBarThumb
+
+---@class SkillUpScrollBar : Frame, CallbackRegistryMixin
+---@field Track SkillUpScrollBarTrack
+---@field Back Frame
+---@field Forward Frame
+---@field isHorizontal boolean
+---@field thumbAnchor string
 ---@field SetHideIfUnscrollable fun(self: SkillUpScrollBar, hide: boolean)
+---@field SetVisibleExtentPercentage fun(self: SkillUpScrollBar, percentage: number)
+---@field GetVisibleExtentPercentage fun(self: SkillUpScrollBar): number
+---@field SetScrollPercentage fun(self: SkillUpScrollBar, percentage: number, forceImmediate?: boolean)
+---@field GetScrollPercentage fun(self: SkillUpScrollBar): number
 
 ---@class SkillUpDataProvider : ForeverDataProvider
 ---@field GetSize fun(self: SkillUpDataProvider): integer

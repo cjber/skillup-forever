@@ -153,7 +153,7 @@ local function Acquire(itemID, count)
 			nav = false,
 		}
 	end
-	local cost = price and price.copper * count
+	local cost = price and not price.unknown and price.copper * count or nil
 	local step = {
 		kind = "buy",
 		text = string.format(L["Buy %d %s"], count, name),
@@ -578,9 +578,9 @@ function API.ShoppingList(skillLineID)
 					have = have,
 					missing = missing,
 					source = item.source,
-					price = price and price.copper or nil,
+					price = price and not price.unknown and price.copper or nil,
 					priceAge = price and price.source == "auctionator" and price.days or nil,
-					cost = price and missing * price.copper or nil,
+					cost = price and not price.unknown and missing * price.copper or nil,
 					alt = ns.AltCounts(item.itemID),
 				}
 				bySource[row.source][#bySource[row.source] + 1] = row

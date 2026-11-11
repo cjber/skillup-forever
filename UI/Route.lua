@@ -635,7 +635,7 @@ local function ReagentTooltip(tooltip, item)
 		AddLine(tooltip, string.format(L["On %s"], alt.name), tostring(alt.count), GRAY_FONT_COLOR)
 	end
 	local price = ns.Price(item.itemID)
-	if not price then
+	if not price or price.unknown then
 		GameTooltip_AddDisabledLine(tooltip, ns.UnpricedHint())
 		return
 	end
@@ -816,12 +816,48 @@ local function CollectChanges(reagents)
 	return false
 end
 
+-- Every widget the redraw touches is a child of the Professions window, so the client protects its enabled,
+-- checked and visible state in combat (#597). Each waits beside the Craft button, latest value winning, and
+-- one PLAYER_REGEN_ENABLED applies what the last redraw asked for.
+---@class SkillUpPendingRoute
+---@field craft? SkillUpCraft
+---@field craftShown? boolean
+---@field targetShown? boolean
+---@field trackEnabled? boolean
+---@field collectEnabled? boolean
+---@field collectChecked? boolean
+---@field vendorShown? boolean
+
+---@type SkillUpPendingRoute?
+local pendingRoute
+
+---@param key "targetShown"|"trackEnabled"|"collectEnabled"|"collectChecked"|"vendorShown"
+---@param value boolean
+local function SetProtected(key, value)
+	if InCombatLockdown() then
+		pendingRoute = pendingRoute or {}
+		pendingRoute[key] = value
+		return
+	end
+	if key == "targetShown" then
+		page.Target:SetShown(value)
+	elseif key == "trackEnabled" then
+		page.Track:SetEnabled(value)
+	elseif key == "collectEnabled" then
+		page.Collect:Enable()
+	elseif key == "collectChecked" then
+		page.Collect:SetChecked(value)
+	else
+		page.Vendor:SetShown(value)
+	end
+end
+
 -- The switch always stays clickable: a box drawn checked while it is disabled is a switch you cannot turn
 -- off (#162, #190). When it changes nothing for this route the label is greyed and the tooltip says so.
 ---@param changes boolean
 local function SetCollectEnabled(changes)
 	page.collectChanges = changes
-	page.Collect:Enable()
+	SetProtected("collectEnabled", true)
 	page.CollectLabel:SetTextColor((changes and NORMAL_FONT_COLOR or GRAY_FONT_COLOR):GetRGB())
 end
 
@@ -836,12 +872,6 @@ local function CraftReason(craft)
 	return string.format(L["Need %d more %s"], craft.missing.count, name)
 end
 
----@class SkillUpPendingCraft
----@field craft? SkillUpCraft
----@field shown? boolean
-
----@type SkillUpPendingCraft?
-local pendingCraft
 -- The step last drawn, so the client's own recipe-selection events can redraw the same step.
 ---@type SkillUpCraft?
 local currentCraft
@@ -963,11 +993,14 @@ local function SetCraft(craft)
 	if InCombatLockdown() then
 		-- The button is secure: its attributes, enabled state, size and visibility are protected in combat.
 		-- Keep only the latest wanted craft; PLAYER_REGEN_ENABLED applies it once combat ends.
-		pendingCraft = pendingCraft or {}
-		pendingCraft.craft = craft
+		pendingRoute = pendingRoute or {}
+		pendingRoute.craft = craft
 		return
 	end
-	pendingCraft = nil
+	-- Only the craft's own queued state is superseded: the other buttons' deferred values still apply.
+	if pendingRoute then
+		pendingRoute.craft, pendingRoute.craftShown = nil, nil
+	end
 	ApplyCraft(craft)
 end
 
@@ -982,22 +1015,37 @@ end
 ---@param shown boolean
 local function ShowCraft(shown)
 	if InCombatLockdown() then
-		pendingCraft = pendingCraft or {}
-		pendingCraft.shown = shown
+		pendingRoute = pendingRoute or {}
+		pendingRoute.craftShown = shown
 		return
 	end
 	page.Craft:SetShown(shown)
 end
 
 -- One queued update, latest redraw winning, applied as soon as combat lockdown ends.
-local function ApplyPendingCraft()
-	local queued = pendingCraft
+local function ApplyPendingRoute()
+	local queued = pendingRoute
 	if not queued or InCombatLockdown() then
 		return
 	end
-	pendingCraft = nil
-	if queued.shown ~= nil then
-		page.Craft:SetShown(queued.shown)
+	pendingRoute = nil
+	if queued.targetShown ~= nil then
+		page.Target:SetShown(queued.targetShown)
+	end
+	if queued.trackEnabled ~= nil then
+		page.Track:SetEnabled(queued.trackEnabled)
+	end
+	if queued.collectEnabled ~= nil then
+		page.Collect:Enable()
+	end
+	if queued.collectChecked ~= nil then
+		page.Collect:SetChecked(queued.collectChecked)
+	end
+	if queued.vendorShown ~= nil then
+		page.Vendor:SetShown(queued.vendorShown)
+	end
+	if queued.craftShown ~= nil then
+		page.Craft:SetShown(queued.craftShown)
 	end
 	if queued.craft then
 		ApplyCraft(queued.craft)
@@ -1008,16 +1056,16 @@ local function Render()
 	local profession = selected and ns.RouteProfessions()[selected]
 	page.Profession:GenerateMenu()
 	page.Skill:SetShown(profession ~= nil)
-	page.Target:SetShown(profession ~= nil)
-	page.Track:SetEnabled(profession ~= nil)
+	SetProtected("targetShown", profession ~= nil)
+	SetProtected("trackEnabled", profession ~= nil)
 	ShowCraft(profession ~= nil)
-	page.Collect:SetChecked(ns.CollectMode() == "auction")
+	SetProtected("collectChecked", ns.CollectMode() == "auction")
 	page.RouteList:Begin()
 	page.ReagentList:Begin()
 	if not profession then
 		currentCraft = nil
 		SetCollectEnabled(false)
-		page.Vendor:Hide()
+		SetProtected("vendorShown", false)
 		page.vendorItems = {}
 		page.RouteList:Message(L["Learn a crafting profession to plan a route."])
 		page.RouteList:Finish()
@@ -1052,7 +1100,7 @@ local function Render()
 	end
 	local vendorItems = VendorItems(reagents)
 	page.vendorItems = vendorItems
-	page.Vendor:SetShown(#vendorItems > 0)
+	SetProtected("vendorShown", #vendorItems > 0)
 	local craft = ns.NextCraft(plan)
 	local missingReason = craft.missing and CraftReason(craft)
 	if missingReason then
@@ -1221,8 +1269,8 @@ local function CreateButtons()
 			GameTooltip_AddNormalLine(
 				GameTooltip,
 				(ns.db.valueGathered or ns.db.auctionOnly)
-						and L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."]
-					or L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."]
+						and L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs what it would sell for."]
+					or L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."]
 			)
 			-- luacheck: pop
 		else
@@ -1362,7 +1410,7 @@ function ns.AttachRoute()
 		prepare = Prepare,
 	})
 	ns.WhenStale("route", RefreshRoute)
-	ns.WhenEvent("PLAYER_REGEN_ENABLED", ApplyPendingCraft)
+	ns.WhenEvent("PLAYER_REGEN_ENABLED", ApplyPendingRoute)
 	-- The crafting page's own selection and Create button decide whether this button is armed. These are the
 	-- client's own callbacks after it has written them, never a write of ours into its frames (#350).
 	EventRegistry:RegisterCallback("Professions.RecipeSelected", RefreshCraft, ns)

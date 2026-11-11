@@ -55,6 +55,7 @@ c.auction[4306], c.auctionAge = 50, 3
 c.bags = { [4306] = 2, [2321] = 1 }
 equal(#c.G.SkillUpForever.API.ShoppingList(), 0, "no saved variables returns an empty list")
 c.Boot()
+c.ns.SetCollectMode("gather")
 c.maps = { [0] = { mapID = 10, name = "Darkshire" } }
 c.ns.NearestVendor(2321)
 c.ns.NearestVendor(2322)
@@ -314,4 +315,24 @@ equal(
 equal(untrackedText:find("Raw Meat", 1, true), nil, "and no Cooking rows show")
 equal(untrackedText:find(scoped.ns.L["No tracked profession"], 1, true) ~= nil, true, "the empty message shows")
 
+-- The Shopping list's Auction house section says how the Auctionator list works (#554): its name, where it
+-- lives, and that each row is a click. With Buy reagents off it says turning it on writes the list, and
+-- without Auctionator it says the bar searches the game's own box.
+local offNote = c.ns.AuctionListNote({ "SkillUp: Tester-Realm: Tailoring" })
+equal(
+	offNote:find("Turning Buy reagents on writes an Auctionator list", 1, true) ~= nil,
+	true,
+	"with Buy reagents off the section says how to get the list"
+)
+c.ns.SetCollectMode("auction")
+local onNote = c.ns.AuctionListNote({ "SkillUp: Tester-Realm: Tailoring", "SkillUp: Tester-Realm: Blacksmithing" })
+equal(onNote:find("Auctionator list: SkillUp: Tester-Realm: Tailoring", 1, true) ~= nil, true, "it names the list")
+equal(onNote:find("Open the auction house, Shopping tab, pick it and Search", 1, true) ~= nil, true, "where it is")
+equal(onNote:find("buy each row with a click", 1, true) ~= nil, true, "and that buying stays one click a row")
+local noAuctionator = Client.load({ auctionator = false, boot = false })
+equal(
+	noAuctionator.ns.AuctionListNote(nil):find("game's own auction box one reagent at a time", 1, true) ~= nil,
+	true,
+	"without Auctionator it says the bar searches the game's own box one at a time"
+)
 Client.report("shopping list")

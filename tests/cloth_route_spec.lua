@@ -20,15 +20,16 @@ local function Load(name, skillLine, rank, max, known, target)
 		c.spells[recipeID] = "Recipe " .. recipeID
 	end
 	local ns = c.ns
+	ns.SetCollectMode("gather")
 	ns.db.routeTargets[skillLine] = target
 	ns.Changed("target")
 	return c, ns.PlanRoute(ns.RouteProfessions()[skillLine])
 end
 
--- Cloth is carried by creatures, so anyone can loot it and the default gather mode prices it at nothing.
+-- Cloth is carried by creatures, so anyone can loot it and the gather mode prices it at nothing.
 local c, plan = Load("Tailoring", TAILORING, 1, 75, { BOLT }, 26)
 local ns = c.ns
-equal(ns.CollectMode(), "gather", "the default collect mode is gather")
+equal(ns.CollectMode(), "gather", "the gather choice is kept")
 equal(ns.CanGather(LINEN), "loot", "Linen Cloth is loot anyone can get")
 equal(ns.Price(LINEN).source, "gather", "so it is priced as gathered")
 equal(ns.Price(LINEN).copper, 0, "at no cost with Buy reagents off")

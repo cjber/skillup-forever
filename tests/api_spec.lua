@@ -113,6 +113,7 @@ c.professions = {
 	{ name = "Alchemy", icon = 136247, rank = 0, max = 0, id = 8171 },
 }
 c.Boot()
+ns.SetCollectMode("gather")
 equal(#c.chat, 0, "the addon starts without a word")
 
 -- Subscribe is ForeverCore's hub (docs/api.md): the frame after a change, once per burst, naming what moved.

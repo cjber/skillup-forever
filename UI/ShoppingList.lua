@@ -15,6 +15,8 @@ local body, scroll, copyWindow, copyEdit, shown, footer, summary
 -- rest, so nothing from an earlier draw is left on the window (#553).
 ---@type table<string, FontString>
 local headingPool = {}
+---@type table<string, FontString>
+local notePool = {}
 ---@type { frame: Frame, icon: Texture, name: FontString, detail: FontString }[]
 local rowPool = {}
 ---@type FontString?
@@ -95,6 +97,21 @@ local function Heading(source)
 	return heading
 end
 
+-- The note under a source's heading, made on its first draw and reused after, like a heading (#554).
+---@param source string
+---@return FontString
+local function Note(source)
+	local note = notePool[source]
+	if not note then
+		note = body:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+		note:SetWidth(520)
+		note:SetJustifyH("LEFT")
+		note:SetWordWrap(true)
+		notePool[source] = note
+	end
+	return note
+end
+
 -- A row's parts, drawn once when the pool needs another row.
 ---@return { frame: Frame, icon: Texture, name: FontString, detail: FontString }
 local function NewRow()
@@ -120,6 +137,9 @@ local function Refresh()
 	end
 	for _, heading in pairs(headingPool) do
 		heading:Hide()
+	end
+	for _, note in pairs(notePool) do
+		note:Hide()
 	end
 	local lists = ns.ShoppingList(scope)
 	-- The window groups by source, not profession, so the header names every plan it is buying for: the
@@ -161,6 +181,22 @@ local function Refresh()
 			heading:SetText(headings[source])
 			heading:Show()
 			top = top - 28
+			if source == "auction" then
+				local names, seen = {}, {}
+				for _, entry in ipairs(entries) do
+					local name = ns.AuctionListName(entry.list.profession)
+					if name and not seen[name] then
+						seen[name] = true
+						names[#names + 1] = name
+					end
+				end
+				local note = Note(source)
+				note:ClearAllPoints()
+				note:SetPoint("TOPLEFT", 8, top)
+				note:SetText(ns.AuctionListNote(names))
+				note:Show()
+				top = top - 46
+			end
 			for _, entry in ipairs(entries) do
 				drawn = drawn + 1
 				local pooled = rowPool[drawn]

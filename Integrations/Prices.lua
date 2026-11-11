@@ -189,28 +189,32 @@ end
 
 -- Cheapest known unit price and where it came from: "gather", "vendor", "auctionator"
 -- or "tsm". A price seen at a vendor beats the bundled list, since it includes
--- any reputation discount.
+-- any reputation discount. With Buy reagents on, a reagent you could gather that nothing prices is still
+-- bought at the auction house: its price is unknown, so it stays on the route and in the Auctionator list
+-- without guessing a number (#559).
 ---@param itemID integer
 ---@return SkillUpPrice?
 function ns.Price(itemID)
 	---@type SkillUpPrice|false|nil
 	local cached = priceCache[itemID]
 	if cached == nil then
+		-- The professions are the baseline a later skill-line change is compared with, even when this item
+		-- turns out not to be gatherable.
+		if not professions and ns.PlayerProfessions then
+			professions = ns.PlayerProfessions()
+		end
 		local vendor = ns.db.vendor[itemID] or ns.VendorPrices[itemID]
 		local ah = AuctionPrice(itemID)
 		if ns.CollectMode() == "gather" then
 			cached = Gathered(itemID)
 		end
-		if cached then
-			priceCache[itemID] = cached
-			return cached
-		elseif vendor and (not ah or vendor <= ah.copper) then
+		if not cached and vendor and (not ah or vendor <= ah.copper) then
 			cached = { copper = vendor, source = "vendor" }
-		elseif ah then
+		elseif not cached and ah then
 			cached = ah
-		else
-			-- With *Buy reagents* on, a material you gather that no vendor or auction prices is still yours to
-			-- gather: priced as gathered rather than left out, which could empty the route (#162).
+		elseif not cached and ns.CollectMode() == "auction" and ns.CanGather(itemID) then
+			cached = { copper = 0, source = "auction", unknown = true }
+		elseif not cached then
 			cached = Gathered(itemID) or false
 		end
 		priceCache[itemID] = cached
@@ -394,6 +398,26 @@ end
 -- Copper for one unit of `itemID`: buying it, or the cheaper recipe that makes it. `stack` holds the
 -- items already being priced, so a cycle reads as unpriced instead of recursing; nil at the top, made on the
 -- first miss of the memo. Memoised per item.
+--
+-- A crafted intermediate is worth at least what selling it would bring: crafting a bolt from gathered cloth
+-- costs nothing under the gathered-material setting, but using the bolt instead of selling it gives that sale
+-- up, so it must not make the recipe that uses it look profitable (#598). A gathered material keeps the
+-- setting's answer, free or its sale value. `MakersOf` is read both ways: an item no recipe makes is not an
+-- intermediate, and one no recipe the character knows and can buy nowhere stays unpriced rather than guessed.
+---@param itemID integer
+---@param cost number?
+---@return number?
+local function WithSaleFloor(itemID, cost)
+	if not cost or ns.CanGather(itemID) or #MakersOf(itemID) == 0 then
+		return cost
+	end
+	local sale = SaleValue(itemID)
+	if sale and sale > cost then
+		return sale
+	end
+	return cost
+end
+
 ---@param itemID integer
 ---@param depth integer
 ---@param stack table<integer, true>?
@@ -401,7 +425,7 @@ end
 local function ObtainCost(itemID, depth, stack)
 	if depth <= 0 then
 		local price = ns.Price(itemID)
-		return price and price.copper
+		return price and WithSaleFloor(itemID, price.copper)
 	end
 	local cached = obtainCost[itemID]
 	if cached == false then
@@ -441,6 +465,7 @@ local function ObtainCost(itemID, depth, stack)
 		end
 	end
 	stack[itemID] = nil
+	best = WithSaleFloor(itemID, best)
 	if best == nil then
 		obtainCost[itemID] = false
 		return nil

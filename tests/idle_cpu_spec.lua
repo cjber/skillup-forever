@@ -33,6 +33,7 @@ local c = Client.load({
 	},
 })
 local ns = c.ns
+ns.SetCollectMode("gather")
 c.professions = {
 	{ name = "First Aid", rank = 40, max = 75, id = FIRST_AID },
 	{ name = "Tailoring", rank = 40, max = 75, id = TAILORING },

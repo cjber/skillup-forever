@@ -83,6 +83,24 @@ function ns.AuctionListName(profession)
 	return character and ("SkillUp: " .. character .. ": " .. profession) or nil
 end
 
+-- What the Shopping list says under Auction house, and the auction bar's Search tooltip says in one line (#554).
+-- `names` are the Auctionator lists this character's tracked routes write, in the window's order.
+---@param names string[]?
+---@return string
+function ns.AuctionListNote(names)
+	if not ns.HasAuctionator() then
+		return L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."]
+	end
+	if ns.CollectMode() ~= "auction" then
+		return L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."]
+	end
+	local listed = names and #names > 0 and table.concat(names, ", ") or L["SkillUp's list"]
+	return string.format(
+		L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."],
+		listed
+	)
+end
+
 -- Auctionator's own "scan when the auction house opens" option, read through its config table. nil
 -- when it cannot be read: it is not part of Auctionator's public API.
 ---@return boolean?
@@ -850,7 +868,8 @@ end
 local LINE_TEMPLATE = "SkillUpForeverTrackerLineTemplate"
 
 -- A left click on the line sets a waypoint to the NPC `nearest` picks, by travel
--- time, and hovering names it. Picked when used, never while the tracker redraws.
+-- time, and hovering names it. `steps` lists the training steps, so the tooltip can name the rest under
+-- *Also train* (#557). Picked when used, never while the tracker redraws.
 ---@param line Frame
 ---@param title string
 ---@param label string

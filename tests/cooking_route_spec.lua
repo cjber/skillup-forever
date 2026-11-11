@@ -15,6 +15,7 @@ local c = Client.load({
 	saved = { vendor = { [RAW_MACKEREL] = 5 } },
 })
 local ns = c.ns
+ns.SetCollectMode("gather")
 c.level = 60
 c.player.faction = "Alliance"
 c.professions = { { name = "Cooking", id = COOKING, rank = 1, max = 75 } }

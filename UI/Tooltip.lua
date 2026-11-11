@@ -263,6 +263,8 @@ function ns.PriceSourceText(price)
 		return string.format(L["Auctionator, %s"], ns.PriceAgeText(price))
 	elseif price.source == "tsm" then
 		return L["TradeSkillMaster"]
+	elseif price.source == "auction" then
+		return L["price unknown"]
 	end
 	error("unknown price source: " .. tostring(price.source))
 end
@@ -283,7 +285,9 @@ local function AddCost(tooltip, recipeID, d)
 		local price = ns.Price(reagent.itemID)
 		-- The line and the Reagents total below must price a reagent the same way: the total counts what it
 		-- costs to obtain, cheaper to craft where a known recipe beats buying it, so the line does too (#360).
-		local each = ns.ObtainCost and ns.ObtainCost(reagent.itemID) or (price and price.copper)
+		-- An unknown auction price costs nothing in the plan but is still no number to show.
+		local each = price and not price.unknown and (ns.ObtainCost and ns.ObtainCost(reagent.itemID) or price.copper)
+			or nil
 		local maker = each and price and each < price.copper and ns.SubCraft and ns.SubCraft(reagent.itemID)
 		if each then
 			local source = maker and L["crafted"] or (price and ns.PriceSourceText(price) or L["crafted"])

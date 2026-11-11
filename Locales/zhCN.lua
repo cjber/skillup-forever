@@ -93,8 +93,6 @@ L["Crafts"] = "制造次数"
 L["Don't count it"] = "不计入"
 L["Dropped by"] = "掉落自"
 L["Each"] = "单价"
-L["Each click puts the next one in the search box; press Search."] =
-	"每次点击会把下一个填入搜索框；然后点击搜索。"
 L["Enable Shortest Path Forever for walked routes and boat times."] =
 	"启用Shortest Path Forever以获得步行路线和船只时刻。"
 L["Every recipe that uses it"] = "所有使用它的配方"
@@ -429,10 +427,6 @@ L["Recipe item"] = "配方"
 L["listing unlearned recipes failed: %s"] = "列出未学习的配方失败：%s"
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"这条路线没有你可以采集、钓鱼或从生物身上拾取的东西，所以此开关不会改变什么。" -- mt
-L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
-	"开启时，你可以采集、钓鱼或从生物身上拾取的素材按商人或拍卖行价格计算。关闭时，自己获取不花费任何费用。" -- mt
-L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
-	"开启时，你可以采集、钓鱼或从生物身上拾取的素材按商人或拍卖行价格计算。关闭时，自己获取需要按出售价值计算。" -- mt
 L["Loot %d %s from creatures"] = "从生物身上拾取 %d 个%s" -- mt
 L["you loot it from creatures"] = "你从生物身上拾取" -- mt
 L["you loot it from creatures, valued at its AH price"] = "你从生物身上拾取，按拍卖行价格计算" -- mt
@@ -489,3 +483,17 @@ L["Nothing is tracked for %s."] = "没有正在追踪的 %s。" -- mt
 L["+%d more to train"] = "还有 %d 项要学习" -- mt
 L["Also train"] = "还要学习" -- mt
 L["Forever Core now installs alongside it."] = "Forever Core 现在会随插件一起安装。" -- mt
+L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
+	"Auctionator 列表：%s。打开拍卖行，进入“购买”标签，选择该列表并搜索；每次点击购买一行。"
+L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"开启（默认）：你可以采集、钓鱼或从生物身上剥取的试剂会从商人或拍卖行购买。关闭：自己获取不花费任何东西。"
+L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"开启（默认）：你可以采集、钓鱼或从生物身上剥取的试剂会从商人或拍卖行购买。关闭：自己获取花费其出售价值。"
+L["Shift + wheel, or drag, scrolls the timeline sideways."] =
+	"按住 Shift 滚动滚轮，或拖动，可横向滚动时间线。"
+L["SkillUp's list"] = "SkillUp 的列表"
+L["Timeline"] = "时间线"
+L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
+	"开启“购买试剂”会写入一个 Auctionator 列表，包含所有仍缺少的拍卖行试剂。"
+L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
+	"没有 Auctionator 时，配方的“搜索”按钮会一次一个试剂地填入游戏自带的拍卖搜索框。"

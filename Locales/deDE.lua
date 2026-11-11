@@ -98,8 +98,6 @@ L["Crafts"] = "Herstellungen"
 L["Don't count it"] = "Nicht anrechnen"
 L["Dropped by"] = "Erbeutet von"
 L["Each"] = "Je"
-L["Each click puts the next one in the search box; press Search."] =
-	"Jeder Klick setzt das nächste ins Suchfeld; dann auf „Suchen“ klicken."
 L["Enable Shortest Path Forever for walked routes and boat times."] =
 	"Aktiviert Shortest Path Forever für Laufwege und Schiffszeiten."
 L["Every recipe that uses it"] = "Jedes Rezept, das es nutzt"
@@ -434,10 +432,6 @@ L["Recipe item"] = "Rezept"
 L["listing unlearned recipes failed: %s"] = "Auflisten nicht erlernter Rezepte fehlgeschlagen: %s"
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"Auf dieser Route könnt Ihr nichts sammeln, fischen oder von Kreaturen erbeuten, der Schalter ändert hier also nichts." -- mt
-L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
-	"An: Ein Reagenz, das Ihr sammeln, fischen oder von Kreaturen erbeuten könntet, wird zum Händler- oder Auktionspreis gerechnet. Aus: Es selbst zu besorgen kostet nichts." -- mt
-L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
-	"An: Ein Reagenz, das Ihr sammeln, fischen oder von Kreaturen erbeuten könntet, wird zum Händler- oder Auktionspreis gerechnet. Aus: Es selbst zu besorgen kostet seinen Verkaufswert." -- mt
 L["Loot %d %s from creatures"] = "%d %s von Kreaturen erbeuten" -- mt
 L["you loot it from creatures"] = "Ihr erbeutet es von Kreaturen" -- mt
 L["you loot it from creatures, valued at its AH price"] = "Ihr erbeutet es von Kreaturen, zum Auktionspreis bewertet" -- mt
@@ -495,3 +489,17 @@ L["Nothing is tracked for %s."] = "Für %s wird nichts verfolgt." -- mt
 L["+%d more to train"] = "+%d weitere zum Erlernen" -- mt
 L["Also train"] = "Außerdem lernen" -- mt
 L["Forever Core now installs alongside it."] = "Forever Core wird jetzt mitinstalliert." -- mt
+L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
+	"Auctionator-Liste: %s. Öffnet das Auktionshaus, den Reiter „Einkaufen“, wählt die Liste und „Suchen“; kauft jede Zeile mit einem Klick."
+L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"An (Standard): Ein Reagenz, das Ihr sammeln, fischen oder von Kreaturen erbeuten könntet, wird beim Händler oder im Auktionshaus gekauft. Aus: Es selbst zu besorgen kostet nichts."
+L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"An (Standard): Ein Reagenz, das Ihr sammeln, fischen oder von Kreaturen erbeuten könntet, wird beim Händler oder im Auktionshaus gekauft. Aus: Es selbst zu besorgen kostet seinen Verkaufswert."
+L["Shift + wheel, or drag, scrolls the timeline sideways."] =
+	"Umschalt + Mausrad oder Ziehen scrollt die Zeitleiste seitwärts."
+L["SkillUp's list"] = "SkillUps Liste"
+L["Timeline"] = "Zeitleiste"
+L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
+	"Wenn Ihr „Reagenzien kaufen“ einschaltet, wird eine Auctionator-Liste mit allen noch fehlenden Auktionsreagenzien geschrieben."
+L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
+	"Ohne Auctionator füllt die Schaltfläche „Suchen“ eines Rezepts das eigene Suchfeld des Spiels, ein Reagenz nach dem anderen."

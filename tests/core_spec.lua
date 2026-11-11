@@ -130,7 +130,7 @@ for _, complete in ipairs({ false, true }) do
 		equal(ns.db.sellers[7].build, "70205", "a vendor saved without a build is stamped with this one")
 		equal(ns.db.sellers[8].build, "70204", "a vendor that already has a build keeps it")
 		equal(ns.db.builds[#ns.db.builds], "70205", "this build is remembered")
-		equal(ns.CollectMode(), "gather", "a character with no saved choice gathers")
+		equal(ns.CollectMode(), "auction", "a character with no saved choice buys reagents")
 		ns.SetCollectMode("auction")
 		equal(ns.db.collectModes["Tester-Realm"], "auction", "the choice is saved under this character's key")
 		equal(ns.CollectMode(), "auction", "and reads back for this character")

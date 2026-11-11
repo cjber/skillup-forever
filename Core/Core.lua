@@ -46,7 +46,7 @@ local DEFAULTS = {
 	auctionSearch = true, -- the Professions window's reagent search while the auction house is open
 	reagentTooltip = "route",
 	gatherTooltip = true, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
-	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a reagent you could gather comes from
+	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a gatherable comes from; auction by default
 	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet
 	pinnedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = priority }: most recently pinned wins
 	skippedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = true }: "Not this recipe", left out of every route
@@ -281,7 +281,7 @@ local function LoadDB()
 			end
 		end
 	end
-	-- A mode no longer saved, or a typo, reads as the default gather.
+	-- A mode no longer saved, or a typo, reads as the default auction: buying is the faster way to skill up.
 	for key, mode in pairs(loaded.collectModes) do
 		if mode ~= "gather" and mode ~= "auction" then
 			loaded.collectModes[key] = nil
@@ -503,13 +503,13 @@ function ns.SellerFresh(seller)
 	return false
 end
 
--- Where the routes take a reagent this character could gather or buy: "gather" prices it free,
--- "auction" buys it at a vendor or the auction house like any other.
+-- Where the routes take a reagent this character could gather or buy: "auction" (the default) buys it at a
+-- vendor or the auction house like any other, and "gather" prices it free. A saved choice is kept (#559).
 ---@return SkillUpCollectMode
 function ns.CollectMode()
 	local key = ns.CharacterKey()
 	local mode = key and ns.db.collectModes[key]
-	return mode == "auction" and "auction" or "gather"
+	return mode == "gather" and "gather" or "auction"
 end
 
 ---@param mode SkillUpCollectMode

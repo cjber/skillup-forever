@@ -107,6 +107,7 @@ end
 print("== file load (execution of each TOC file, before SavedVariables) ==")
 local bootStarted = os.clock()
 c.Boot()
+ns.SetCollectMode("gather")
 local bootTime = os.clock() - bootStarted
 local compileTotal, runTotal = 0, 0
 for _, path in ipairs(fileOrder) do
@@ -234,7 +235,7 @@ print(string.format("COLD API rebuild avg: %.4f ms", apiCold * 1000 / 5))
 print("== a full replan: five professions half-way to 300, every reagent priced ==")
 -- What a dropped plan cache costs in game: every trainer recipe up to each rank known, an auction and a sell
 -- price for every reagent and product, and each route run to 300 through the ranks and the training on the way.
--- Mining makes its ores free to the others (collect mode "gather", the default). Time and the Lua memory one
+-- Mining makes its ores free to the others (collect mode "gather", the benchmark's choice). Time and the Lua memory one
 -- replan of the five allocates, with the collector held for the measure.
 local HALFWAY = {
 	{ name = "Blacksmithing", id = 164, rank = 150, max = 225 },
@@ -277,6 +278,7 @@ for index, itemID in ipairs(pricedIDs) do
 	h.items[itemID] = { name = "Item " .. itemID, sell = h.ns.ItemSellPrices[itemID] or index * 104729 % 500 }
 end
 h.Boot()
+h.ns.SetCollectMode("gather")
 local halfwayProfessions = h.ns.RouteProfessions()
 local replanTime, replanMemory = 0, 0
 for _ = 1, 5 do

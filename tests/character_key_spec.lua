@@ -41,9 +41,9 @@ local before = {}
 for _, field in ipairs(FIELDS) do
 	before[field] = Keys(field)
 end
-equal(ns.CollectMode(), "gather", "the collect mode reads its default")
-ns.SetCollectMode("auction")
-equal(ns.CollectMode(), "gather", "and saves nothing")
+equal(ns.CollectMode(), "auction", "the collect mode reads its default")
+ns.SetCollectMode("gather")
+equal(ns.CollectMode(), "auction", "and saves nothing")
 equal(ns.ShowAllGear(), false, "show all gear reads its default")
 ns.SetShowAllGear(true)
 equal(ns.ShowAllGear(), false, "and saves nothing")

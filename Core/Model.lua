@@ -653,7 +653,7 @@ end
 ---@type SkillUpShoppingSource[]
 Model.SHOPPING_SOURCES = { "gather", "vendor", "auction", "unknown" }
 ---@type table<SkillUpPriceSource, SkillUpShoppingSource>
-local BUCKET = { gather = "gather", vendor = "vendor", auctionator = "auction", tsm = "auction" }
+local BUCKET = { gather = "gather", vendor = "vendor", auctionator = "auction", tsm = "auction", auction = "auction" }
 
 -- The shopping list's bucket for a price source: what every item in the list carries as its source.
 ---@param source SkillUpPriceSource?

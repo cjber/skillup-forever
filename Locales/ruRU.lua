@@ -98,8 +98,6 @@ L["Crafts"] = "Созданий"
 L["Don't count it"] = "Не учитывать"
 L["Dropped by"] = "Добыча с"
 L["Each"] = "За шт."
-L["Each click puts the next one in the search box; press Search."] =
-	"Каждый щелчок вставляет следующий в поле поиска; нажмите «Поиск»."
 L["Enable Shortest Path Forever for walked routes and boat times."] =
 	"Включите Shortest Path Forever для пеших маршрутов и расписания кораблей."
 L["Every recipe that uses it"] = "Все рецепты, где он нужен"
@@ -464,10 +462,6 @@ L["listing unlearned recipes failed: %s"] =
 	"не удалось показать неизученные рецепты: %s"
 L["Nothing on this route can be gathered, fished or looted by you, so the switch changes nothing for it."] =
 	"На этом маршруте вам нечего собрать, выловить или выбить из существ, поэтому переключатель здесь ничего не меняет." -- mt
-L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs nothing."] =
-	"Включено: реагент, который вы могли бы собрать, выловить или выбить из существ, считается по цене торговца или аукциона. Выключено: добыть его самому ничего не стоит." -- mt
-L["On, a reagent you could gather, fish or loot from creatures is priced at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
-	"Включено: реагент, который вы могли бы собрать, выловить или выбить из существ, считается по цене торговца или аукциона. Выключено: добыть его самому стоит столько, сколько дала бы его продажа." -- mt
 L["Loot %d %s from creatures"] = "Выбить %d %s из существ" -- mt
 L["you loot it from creatures"] = "вы выбиваете его из существ" -- mt
 L["you loot it from creatures, valued at its AH price"] =
@@ -531,3 +525,17 @@ L["+%d more to train"] = "ещё %d выучить" -- mt
 L["Also train"] = "Также выучить" -- mt
 L["Forever Core now installs alongside it."] =
 	"Forever Core теперь устанавливается вместе с аддоном." -- mt
+L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
+	"Список Auctionator: %s. Откройте аукцион, вкладку «Покупки», выберите список и нажмите «Поиск»; покупайте каждую строку одним щелчком."
+L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
+	"Вкл. (по умолчанию): реагент, который можно собрать, выловить или добыть с существ, покупается у торговца или на аукционе. Выкл.: добыть его самостоятельно ничего не стоит."
+L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs what it would sell for."] =
+	"Вкл. (по умолчанию): реагент, который можно собрать, выловить или добыть с существ, покупается у торговца или на аукционе. Выкл.: добыть его самостоятельно стоит столько, за сколько его можно продать."
+L["Shift + wheel, or drag, scrolls the timeline sideways."] =
+	"Shift + колесо мыши или перетаскивание прокручивает временную шкалу вбок."
+L["SkillUp's list"] = "Список SkillUp"
+L["Timeline"] = "Временная шкала"
+L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
+	"Если включить «Покупать реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
+L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
+	"Без Auctionator кнопка «Поиск» рецепта заполняет собственную строку поиска аукциона игры по одному реагенту за раз."

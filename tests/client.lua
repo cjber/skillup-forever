@@ -661,6 +661,18 @@ function Client.load(options)
 		elseif template == "ScrollFrameTemplate" then
 			-- The template's own scroll bar child, which the shared context menu shows when it overflows.
 			frame.ScrollBar = NewFrame(nil, frame)
+		elseif template == "MinimalScrollBar" then
+			-- The minimal bar's own parts, which a horizontal bar re-anchors and the client's mixin drives.
+			frame.Track = NewFrame(nil, frame)
+			for _, key in ipairs({ "Begin", "End", "Middle" }) do
+				frame.Track[key] = NewFrame(nil, frame.Track)
+			end
+			frame.Track.Thumb = NewFrame(nil, frame.Track)
+			for _, key in ipairs({ "Begin", "End", "Middle" }) do
+				frame.Track.Thumb[key] = NewFrame(nil, frame.Track.Thumb)
+			end
+			frame.Back = NewFrame(nil, frame)
+			frame.Forward = NewFrame(nil, frame)
 		elseif template == "ItemButtonTemplate" then
 			frame.Icon = NewFrame(nil, frame)
 			frame.Count = NewFrame(nil, frame)

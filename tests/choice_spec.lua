@@ -41,6 +41,7 @@ c.professions = {
 	{ name = "Mining", icon = 136248, rank = 50, max = 75, id = 8186 },
 }
 c.Boot()
+ns.SetCollectMode("gather")
 
 ---@return SkillUpPlan
 local function Plan()
@@ -99,17 +100,18 @@ ns.SetCollectMode("auction")
 equal(ns.Price(ORE).source, "auctionator", "Buy reagents buys gathered materials at the auction house")
 equal(ns.Price(ORE).copper, 100, "at the full auction price")
 
--- With nothing to buy it at, ore this character mines is still priced as gathered, so turning Buy reagents on
--- never leaves the recipes that use it out of the route (#162).
+-- With nothing to buy it at, ore this character mines stays on the route as an auction price unknown, so
+-- turning Buy reagents on never leaves the recipes that use it out (#162, #559).
 c.auction[ORE] = nil
 c.AuctionatorScan()
-equal(ns.Price(ORE).source, "gather", "Buy reagents with no price for the ore: it is gathered")
-equal(ns.Price(ORE).copper, 5, "valued at what it sells for, with Value gathered materials on")
+equal(ns.Price(ORE).source, "auction", "Buy reagents with no price for the ore: it is bought there")
+equal(ns.Price(ORE).unknown, true, "as a price unknown")
+equal(ns.Price(ORE).copper, 0, "that costs nothing in the plan")
 c.SetSetting("valueGathered", false)
-equal(ns.Price(ORE).copper, 0, "and free with it off")
 equal(Plan().crafts[1].recipeID, FROM_ORE, "so the route still crafts from it")
 ns.SetCollectMode("gather")
-equal(ns.Price(ORE).copper, 0, "off again, gathering is free")
+equal(ns.Price(ORE).source, "gather", "off again, gathering is where it comes from")
+equal(ns.Price(ORE).copper, 0, "and it is free")
 c.auction[ORE] = 100
 c.AuctionatorScan()
 

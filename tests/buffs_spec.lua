@@ -319,7 +319,8 @@ ns.SetLastBuffProfession(333)
 equal(ns.LastBuffProfession(), 333, "the chosen buff profession is saved")
 
 -- The page's own drag-to-pan: the node area follows the cursor with the left button, a click on a node still
--- selects it, and Shift with the wheel keeps panning. The page draws no horizontal scroll bar.
+-- selects it, and Shift with the wheel keeps panning. A horizontal MinimalScrollBar under the timeline follows
+-- both, and a fade shows at an edge while more lies beyond it (#565).
 ns.SetLastBuffProfession(185)
 ns.SetOnlyBuffsForLevel(false)
 local ProfessionsFrame = c.G.CreateFrame("Frame", "ProfessionsFrame")
@@ -348,7 +349,17 @@ page.Inset:SetWidth(260)
 page.Inset:SetHeight(482)
 page:Show()
 page.Rows:RenderRows()
-equal(page.HScroll, nil, "the page keeps no horizontal scroll bar")
+-- #599: the level switch sits beside the inset's title, its bottom clear of the inset's top edge, so the
+-- skill axis and its tick labels below can never run under it at any window width.
+local levelPoint = page.Level.points[1]
+equal(levelPoint[1], "BOTTOMRIGHT", "the level switch is anchored by its bottom right")
+equal(levelPoint[2], page.Inset, "to the inset")
+equal(levelPoint[3], "TOPRIGHT", "at its top right")
+equal(levelPoint[5] >= 0, true, "with its bottom above the inset, clear of the axis")
+equal(page.LevelLabel.points[1][2], page.Level, "and its label follows the switch")
+equal(page.HScroll ~= nil, true, "the page has a horizontal scroll bar")
+equal(page.HScroll.isHorizontal, true, "built in the client's horizontal mode")
+equal(page.HScroll.template, "MinimalScrollBar", "in the client's minimal style, not the trim bar")
 local trimBars = 0
 for _, frame in ipairs(c.frames) do
 	if frame.template == "WowTrimHorizontalScrollBar" then
@@ -358,6 +369,9 @@ end
 equal(trimBars, 0, "no trim horizontal scroll bar is created")
 local maxOffset = page.ContentWidth - page.ViewWidth
 equal(maxOffset > 0, true, "the fixture's timeline is wider than the view")
+equal(page.HScroll:GetScrollPercentage(), page.ScrollOffset / maxOffset, "the bar starts at the page's offset")
+equal(page.FadeLeft:IsShown(), page.ScrollOffset > 0, "the left fade shows only when the view is scrolled in")
+equal(page.FadeRight:IsShown(), page.ScrollOffset < maxOffset, "and the right one only while more lies beyond it")
 
 local cursor = 0
 c.G.GetCursorPosition = function()
@@ -370,6 +384,7 @@ equal(page.Rows.scripts.OnUpdate ~= nil, true, "a left drag starts following the
 cursor = 1040
 page.Rows.scripts.OnUpdate(page.Rows)
 equal(page.ScrollOffset, math.max(0, dragStarted - 40), "dragging right moves the timeline with the cursor")
+equal(page.HScroll:GetScrollPercentage(), page.ScrollOffset / maxOffset, "the horizontal bar follows the drag")
 page.Rows.scripts.OnDragStop(page.Rows)
 equal(page.Rows.scripts.OnUpdate, nil, "letting go stops the follow")
 
@@ -379,12 +394,18 @@ page.Rows.scripts.OnDragStart(page.Rows)
 cursor = 0
 page.Rows.scripts.OnUpdate(page.Rows)
 equal(page.ScrollOffset, maxOffset, "a drag past the right end stops at the content's end")
+equal(page.FadeLeft:IsShown(), true, "with a left fade while the view is scrolled in")
+equal(page.FadeRight:IsShown(), false, "and none on the right at the end")
+equal(page.HScroll:GetScrollPercentage(), 1, "the bar sits at its end too")
 page.Rows.scripts.OnDragStop(page.Rows)
 cursor = 0
 page.Rows.scripts.OnDragStart(page.Rows)
 cursor = 100000
 page.Rows.scripts.OnUpdate(page.Rows)
 equal(page.ScrollOffset, 0, "a drag past the left end stops at the first column")
+equal(page.FadeLeft:IsShown(), false, "so the left fade goes")
+equal(page.FadeRight:IsShown(), true, "and the right one returns")
+equal(page.HScroll:GetScrollPercentage(), 0, "the bar is back at its start")
 page.Rows.scripts.OnDragStop(page.Rows)
 
 -- A plain click on a node selects it; a drag that starts on one pans the area instead.
@@ -414,6 +435,12 @@ equal(
 	math.max(0, math.min(wheelStarted - delta * 60, maxOffset)),
 	"Shift and the wheel pan the timeline"
 )
+equal(page.HScroll:GetScrollPercentage(), page.ScrollOffset / maxOffset, "and the bar keeps the same place")
+-- Dragging the bar itself scrolls the timeline to the same fraction.
+local onScroll = page.HScroll.callbacks and page.HScroll.callbacks.OnScroll
+equal(onScroll ~= nil, true, "the bar reports its own drags")
+onScroll[1].callback(page.HScroll, 0.5)
+equal(page.ScrollOffset, maxOffset / 2, "halfway on the bar is halfway along the timeline")
 c.G.IsShiftKeyDown = function()
 	return false
 end

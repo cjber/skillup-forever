@@ -1064,9 +1064,10 @@ ns.CreateList = function()
 	return list
 end
 local first = #created + 1
-if STATE.buyReagents then
-	ns.db.collectModes[ns.CharacterKey()] = "auction"
-end
+-- The scenes choose the collect mode they show: gathering for the plain route and tracker, buying for the
+-- auction house route and the shopping list.
+ns.db.collectModes[ns.CharacterKey()] = STATE.buyReagents and "auction" or "gather"
+ns.Changed("settings")
 ns.AttachRoute()
 assert(not hooks.RefreshRightTabs and not hooks.RightTabSelected, "native profession methods stay untouched")
 local page = created[first]
@@ -1343,12 +1344,24 @@ for _, profession in ipairs(ns.ShoppingList()) do
 	end
 	shopping[#shopping + 1] = out
 end
+local shoppingNote
+do
+	local names, seen = {}, {}
+	for _, list in ipairs(shopping) do
+		local name = ns.AuctionListName(list.profession)
+		if name and not seen[name] then
+			seen[name] = true
+			names[#names + 1] = name
+		end
+	end
+	shoppingNote = ns.AuctionListNote(names)
+end
 for _, id in ipairs(STATE.learned) do
 	ns.NoteLearnedRecipe(id, true)
 end
 io.write(Json({
 	route = route, tracker = tracker, trainer = trainer, reagent = reagent,
-	gear = gear, buffs = buffs, shopping = shopping,
+	gear = gear, buffs = buffs, shopping = shopping, shoppingNote = shoppingNote,
 }))
 """
 
@@ -2167,6 +2180,11 @@ def shopping_list_scene(ui, scene_data):
             continue
         canvas.text(left + 8, top, title, F_NORMAL, box_height=24)
         top += 27
+        if source == "auction" and scene_data.get("shoppingNote"):
+            for line in wrap_text(canvas, scene_data["shoppingNote"], F_SMALL, w - 60):
+                canvas.text(left + 8, top, line, F_SMALL, box_height=16)
+                top += 14
+            top += 9
         for profession, row in rows[:2]:
             item = ui.item(row["itemID"])
             canvas.draw(ui.texture(item.icon), left + 8, top, 30, 30)
@@ -2405,7 +2423,10 @@ BUFF_LABEL_W = 128
 BUFF_AXIS_X = 18 + BUFF_LABEL_W
 BUFF_VIEW_RIGHT = 26
 BUFF_INSET_TOP = 44
-BUFF_INSET_BOTTOM = 120
+BUFF_INSET_BOTTOM = 146
+BUFF_HSCROLL_BOTTOM = 132
+BUFF_HSCROLL_H = 8
+BUFF_FADE = 18
 BUFF_LEGEND_BOTTOM = 100
 BUFF_DETAIL_BOTTOM = 24
 BUFF_DETAIL_H = 74
@@ -2503,6 +2524,30 @@ def buff_header(canvas, x, y, w, text, action):
     )
 
 
+def minimal_hscrollbar(canvas, x, y, w, visible=1.0, offset=0.0):
+    """The buffs page's horizontal MinimalScrollBar: the minimal track and thumb, without the up/down steppers
+    or the vertical caps, as UI/Buffs.lua builds it."""
+    ui = canvas.ui
+    canvas.draw(ui.atlas("!minimal-scrollbar-track-middle"), x, y, w, BUFF_HSCROLL_H)
+    if visible < 1:
+        extent = max(23, w * visible)
+        thumb_x = x + (w - extent) * offset
+        canvas.draw(ui.atlas("minimal-scrollbar-small-thumb-middle"), thumb_x, y, extent, BUFF_HSCROLL_H)
+
+
+def horizontal_fade(canvas, x, y, w, h, left):
+    """A soft dark edge over the clipped timeline, as UI/Buffs.lua's two fade frames draw it."""
+    fade = Image.new("RGBA", (max(1, round(w)), max(1, round(h))), (0, 0, 0, 0))
+    pixels = fade.load()
+    for px in range(fade.width):
+        alpha = round(178 * (1 - px / max(1, fade.width - 1)))
+        if not left:
+            alpha = round(178 * (px / max(1, fade.width - 1)))
+        for py in range(fade.height):
+            pixels[px, py] = (0, 0, 0, alpha)
+    canvas.image.paste(fade, (round(x), round(y)), fade)
+
+
 def buffs_scene(ui, scene_data):
     """The Professions window on SkillUp's buffs page: the skill timeline and the selected buff's strip."""
     buffs = scene_data["buffs"]
@@ -2517,12 +2562,12 @@ def buffs_scene(ui, scene_data):
     cover = ImageOps.fit(art.image, (round((inset_w - 4) * scale), round((inset_h - 4) * scale)), Image.LANCZOS)
     canvas.draw(cover, inset_x + 2, inset_y + 2, inset_w - 4, inset_h - 4)
     inset_frame(canvas, inset_x, inset_y, inset_w, inset_h, expand(ui, buffs.get("title") or "Buffs"))
-    # The switch above the inset's top-right, its label on the right.
+    # The switch beside the inset's title, its bottom above the inset's top edge so it never meets the axis (#599).
     label = expand(ui, buffs.get("onlyLabel") or "")
     minimal_checkbox(
         canvas,
         inset_x + inset_w - canvas.text_width(label, F_NORMAL_SMALL) - 30 - 3,
-        inset_y - 28,
+        inset_y - 33,
         label,
         checked=buffs.get("only"),
     )
@@ -2577,6 +2622,32 @@ def buffs_scene(ui, scene_data):
             viewport_h,
             visible=BUFF_ROWS / len(buffs["rows"]),
             offset=0,
+        )
+
+    # The sideways MinimalScrollBar under the timeline, and a fade while more lies beyond that edge.
+    content_w = buffs.get("contentWidth") or 0
+    view_w = buffs.get("viewWidth") or aw
+    max_offset = max(content_w - view_w, 0)
+    if max_offset > 0:
+        scroll_offset = buffs.get("scrollOffset") or 0
+        if scroll_offset > 0:
+            horizontal_fade(canvas, ax, inset_y + 2, BUFF_FADE, inset_h - BUFF_INSET_BOTTOM - 2, True)
+        if scroll_offset < max_offset:
+            horizontal_fade(
+                canvas,
+                ax + aw - BUFF_FADE,
+                inset_y + 2,
+                BUFF_FADE,
+                inset_h - BUFF_INSET_BOTTOM - 2,
+                False,
+            )
+        minimal_hscrollbar(
+            canvas,
+            ax,
+            inset_y + inset_h - BUFF_HSCROLL_BOTTOM - BUFF_HSCROLL_H,
+            aw,
+            visible=view_w / content_w if content_w > 0 else 1,
+            offset=scroll_offset / max_offset,
         )
 
     # The axis: one grey number per column over its first slot, and the rank divider, both cut to the
@@ -2835,7 +2906,7 @@ def main():
     data = lua_scene(ui)
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")
     scene(ui, [(route_frame(ui, lua_scene(ui, buy_reagents=True)), 0, 0)]).save(OUT / "route-auctionator.png")
-    scene(ui, [(shopping_list_scene(ui, data), 0, 0)]).save(OUT / "shopping-list.png")
+    scene(ui, [(shopping_list_scene(ui, lua_scene(ui, buy_reagents=True)), 0, 0)]).save(OUT / "shopping-list.png")
     gear_scene(ui, data).save(OUT / "gear.png")
     buffs_scene(ui, lua_scene(ui, buffs=True)).save(OUT / "buffs.png")
     tracker_scene(ui, data).save(OUT / "tracker.png")

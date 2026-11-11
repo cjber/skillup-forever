@@ -63,6 +63,7 @@ local market = Client.load({
 	auctionator = false,
 	tsm = { [ORE] = 1000 },
 })
+market.ns.SetCollectMode("gather")
 market.ns.db.auctionOnly = true
 market.ns.Changed("prices")
 equal(market.ns.Price(ORE).source, "tsm", "market-priced self-supply reads as TSM")

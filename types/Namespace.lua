@@ -142,6 +142,7 @@
 ---@field DetailsBarRecipe fun(info: TradeSkillRecipeInfo?): integer? the recipe the details bar draws
 ---@field AuctionatorAutoscan fun(): boolean?
 ---@field AuctionListName fun(profession: string): string?
+---@field AuctionListNote fun(names: string[]?): string what the Shopping list and the Search tooltip say about the list
 ---@field Have fun(itemID: integer): number
 ---@field Readable fun(value: any): any
 ---@field Usable fun(frame?: Frame): boolean
@@ -448,7 +449,7 @@ SkillUpForeverDB = nil
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'
 ---@alias SkillUpStale 'schematics'|'prices'|'plans'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
----@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'gather'
+---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
 ---@class SkillUpPrice
@@ -459,6 +460,7 @@ SkillUpForeverDB = nil
 ---@field profession? string Gathered reagents only: the profession that yields it.
 ---@field loot? boolean A reagent creatures drop, which any character can loot: no profession needed.
 ---@field worth? 'auction'|'vendor' Gathered reagents valued at what they sell for: which price that is.
+---@field unknown? boolean A gatherable with Buy reagents on that nothing has priced: it stays on the route.
 
 ---@class SkillUpValue
 ---@field copper number
@@ -785,6 +787,9 @@ SkillUpForeverDB = nil
 ---@field RowFrames SkillUpBuffRowFrame[]
 ---@field Axis Frame
 ---@field AxisContent Frame
+---@field HScroll SkillUpScrollBar
+---@field FadeLeft Frame
+---@field FadeRight Frame
 ---@field Legend Frame
 ---@field Detail SkillUpBuffDetail
 ---@field Level CheckButton

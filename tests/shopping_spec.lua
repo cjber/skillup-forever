@@ -25,6 +25,7 @@ local c = Client.load({
 	},
 })
 local ns = c.ns
+ns.SetCollectMode("gather")
 local module = c.G.SkillUpForeverObjectiveTracker
 equal(c.host.IsAttached(module), true, "attaches to the shared host immediately")
 c.EnterWorld()

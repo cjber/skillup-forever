@@ -17,17 +17,21 @@ local COLUMN_GAP = 16
 local LABEL_WIDTH = 128
 local ICON = 37
 -- The Camelot ProfessionsFrame is 594 high and the inset hangs 88 below its top and 24 above its bottom, so
--- the inset is 482. The rows viewport is that less the axis above the rows (44) and the legend and detail
--- below (120): 318. Five whole rows fill it exactly, 63.6 each, and each row's 40-high label sits on its node
--- line; a sixth row is cut rather than a sliver of it showing.
+-- the inset is 482. The rows viewport is that less the axis above the rows (44), the horizontal MinimalScrollBar
+-- under them (8, 6 above the bar) and the legend and detail below (120): 292. Five whole rows fill it exactly,
+-- 58.4 each, and each row's 40-high label sits on its node line; a sixth row is cut rather than a sliver of it
+-- showing.
 local FRAME_HEIGHT = 594
 local INSET_TOP = 88
 local INSET_BOTTOM = 24
 local ROWS_TOP = 44
-local ROWS_BOTTOM = 120
+local HSCROLL_HEIGHT = 8
+local HSCROLL_BOTTOM = 132
+local ROWS_BOTTOM = HSCROLL_BOTTOM + HSCROLL_HEIGHT + 6
 local VISIBLE_ROWS = 5
 local VIEW_HEIGHT = FRAME_HEIGHT - INSET_TOP - INSET_BOTTOM - ROWS_TOP - ROWS_BOTTOM
 local ROW_HEIGHT = VIEW_HEIGHT / VISIBLE_ROWS
+local FADE_WIDTH = 18
 local LEGEND_BOTTOM = 100
 local DETAIL_BOTTOM = 24
 local DETAIL_HEIGHT = 74
@@ -131,12 +135,30 @@ local function PlaceContent()
 	end
 end
 
+-- Keep the sideways bar and the edge fades on the timeline's current offset: the bar follows Shift+wheel and
+-- a drag, and a fade shows only while more lies beyond that edge (#565).
+local function SyncHorizontal()
+	local maxOffset = math.max(contentWidth - viewWidth, 0)
+	if page.HScroll then
+		page.HScroll:SetVisibleExtentPercentage(contentWidth > 0 and math.min(viewWidth / contentWidth, 1) or 1)
+		page.HScroll:SetScrollPercentage(
+			maxOffset > 0 and offset / maxOffset or 0,
+			ScrollBoxConstants.NoScrollInterpolation
+		)
+	end
+	if page.FadeLeft and page.FadeRight then
+		page.FadeLeft:SetShown(offset > 0)
+		page.FadeRight:SetShown(offset < maxOffset)
+	end
+end
+
 -- Show the timeline at `value` content units in, as far as the content and the view allow.
 ---@param value number
 local function SetOffset(value)
 	offset = math.max(0, math.min(value, math.max(contentWidth - viewWidth, 0)))
 	page.ScrollOffset = offset
 	PlaceContent()
+	SyncHorizontal()
 end
 
 -- The cursor's x in the area's own units, the way the client reports it while a frame is dragged.
@@ -526,6 +548,76 @@ local function CreateRows(inset)
 	page.Rows = scrollBox
 end
 
+-- The timeline's own sideways bar: a MinimalScrollBar with the client's ScrollBarMixin in horizontal mode. The
+-- client has no horizontal minimal art, so the bar keeps the minimal track and thumb and sheds the up/down
+-- steppers and the top/bottom caps, which only made sense on a vertical bar. It follows Shift+wheel and drags.
+---@param inset Frame
+local function CreateHorizontalBar(inset)
+	local bar = CreateFrame("EventFrame", nil, inset, "MinimalScrollBar") --[[@as SkillUpScrollBar]]
+	bar.isHorizontal = true
+	bar.thumbAnchor = "LEFT"
+	bar:SetHeight(HSCROLL_HEIGHT)
+	bar:SetPoint("BOTTOMLEFT", inset, "BOTTOMLEFT", AXIS_X, HSCROLL_BOTTOM)
+	bar:SetPoint("BOTTOMRIGHT", inset, "BOTTOMRIGHT", -VIEW_RIGHT, HSCROLL_BOTTOM)
+	bar:SetHideIfUnscrollable(true)
+	bar.Back:Hide()
+	bar.Forward:Hide()
+	local track = bar.Track
+	track:ClearAllPoints()
+	track:SetPoint("TOPLEFT", bar, "TOPLEFT")
+	track:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT")
+	track.Begin:Hide()
+	track.End:Hide()
+	track.Middle:ClearAllPoints()
+	track.Middle:SetPoint("TOPLEFT", track, "TOPLEFT")
+	track.Middle:SetPoint("BOTTOMRIGHT", track, "BOTTOMRIGHT")
+	local thumb = track.Thumb
+	thumb.isHorizontal = true
+	thumb.Begin:Hide()
+	thumb.End:Hide()
+	thumb.Middle:ClearAllPoints()
+	thumb.Middle:SetPoint("TOPLEFT", thumb, "TOPLEFT")
+	thumb.Middle:SetPoint("BOTTOMRIGHT", thumb, "BOTTOMRIGHT")
+	bar:RegisterCallback("OnScroll", function(_, percentage)
+		SetOffset((percentage or 0) * math.max(contentWidth - viewWidth, 0))
+	end, bar)
+	bar:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP")
+		GameTooltip_SetTitle(GameTooltip, L["Timeline"])
+		GameTooltip_AddNormalLine(GameTooltip, L["Shift + wheel, or drag, scrolls the timeline sideways."])
+		GameTooltip:Show()
+	end)
+	bar:SetScript("OnLeave", GameTooltip_Hide)
+	page.HScroll = bar
+end
+
+-- A soft dark edge over the timeline where it is clipped: the left one while the view is scrolled in, the right
+-- one while more lies beyond it. A fade is a gradient fill, so stretching it is its job.
+---@param inset Frame
+---@param left boolean
+---@return Frame
+local function CreateFade(inset, left)
+	local fade = CreateFrame("Frame", nil, inset)
+	fade:SetFrameLevel(inset:GetFrameLevel() + 10)
+	if left then
+		fade:SetPoint("TOPLEFT", inset, "TOPLEFT", AXIS_X, -2)
+		fade:SetPoint("BOTTOMRIGHT", inset, "BOTTOMLEFT", AXIS_X + FADE_WIDTH, ROWS_BOTTOM)
+	else
+		fade:SetPoint("TOPLEFT", inset, "TOPRIGHT", -(VIEW_RIGHT + FADE_WIDTH), -2)
+		fade:SetPoint("BOTTOMRIGHT", inset, "BOTTOMRIGHT", -VIEW_RIGHT, ROWS_BOTTOM)
+	end
+	local gradient = fade:CreateTexture(nil, "OVERLAY")
+	gradient:SetAllPoints()
+	gradient:SetColorTexture(0, 0, 0, 1)
+	local from, to = CreateColor(0, 0, 0, 0.7), CreateColor(0, 0, 0, 0)
+	if not left then
+		from, to = to, from
+	end
+	gradient:SetGradient("HORIZONTAL", from, to)
+	fade:Hide()
+	return fade
+end
+
 -- The fixed axis above the rows, the clipped content it and the divider scroll in, the legend and the
 -- detail strip.
 ---@param inset Frame
@@ -540,6 +632,9 @@ local function CreateFurniture(inset)
 	page.AxisContent:SetPoint("TOPLEFT", axis, "TOPLEFT")
 	page.AxisContent:SetSize(1, 1)
 	page.ColumnLabels = {}
+	page.FadeLeft = CreateFade(inset, true)
+	page.FadeRight = CreateFade(inset, false)
+	CreateHorizontalBar(inset)
 
 	page.Divider = page.AxisContent:CreateTexture(nil, "ARTWORK")
 	page.Divider:SetAtlas("Professions-Specializations-Divider", true)
@@ -731,6 +826,9 @@ function Render()
 		page.Detail:Hide()
 		page.Divider:Hide()
 		page.DividerLabel:Hide()
+		page.HScroll:Hide()
+		page.FadeLeft:Hide()
+		page.FadeRight:Hide()
 		page.Empty:SetText(
 			profession == nil and L["No profession here makes buff items."]
 				or only and L["No buff items for your level yet."]
@@ -765,10 +863,12 @@ function Render()
 	end
 	page.Rows:SetDataProvider(CreateDataProvider(elements), ScrollBoxConstants.RetainScrollPosition)
 	PlaceContent()
+	SyncHorizontal()
 	RenderDetail(page.Detail, item, profession)
 end
 
--- The "Only for level N" switch: the minimal checkbox, its label to the right, above the inset's top-right.
+-- The "Only for level N" switch: the minimal checkbox and its label beside the inset's title, above the inset
+-- and so clear of the skill axis and its tick labels at every window width (#599).
 ---@return CheckButton
 local function CreateLevelCheck()
 	local check = CreateFrame("CheckButton", nil, page, "MinimalCheckboxTemplate") --[[@as CheckButton]]
@@ -779,7 +879,9 @@ local function CreateLevelCheck()
 	local label = check:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	label:SetPoint("LEFT", check, "RIGHT", 3, 0)
 	label:SetText(string.format(L["Only for level %d"], UnitLevel("player")))
-	check:SetPoint("TOPRIGHT", page.Inset, "TOPRIGHT", -(label:GetStringWidth() + 40), 8)
+	-- Its bottom sits above the inset's top edge, level with the title's row; only its width depends on the
+	-- label, so the axis below can never move under it.
+	check:SetPoint("BOTTOMRIGHT", page.Inset, "TOPRIGHT", -(label:GetStringWidth() + 40), 7)
 	page.LevelLabel = label
 	return check
 end

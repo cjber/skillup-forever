@@ -10,9 +10,10 @@ local L = ns.L
 -- what its reagents still lack for that many (#142). It only searches; buying stays the player's.
 
 local CALLER = "SkillUp Forever"
--- Where a reagent's price comes from, as the route's shopping list groups it: only the auction house's and the
--- unpriced are searched there, as with the route's own Auctionator list.
-local AUCTION_SOURCES = { auctionator = true }
+-- Where a reagent's price comes from, as the route's shopping list groups it: only the auction house's, the
+-- unpriced ones a gatherable stays with Buy reagents on, and the unpriced are searched there, as with the
+-- route's own Auctionator list.
+local AUCTION_SOURCES = { auctionator = true, auction = true }
 
 -- How many of a recipe to search reagents for: the crafts the route plans for it, else one.
 ---@param recipeID integer
@@ -177,8 +178,11 @@ local function ShowSearchTooltip(button)
 	end
 	if #short == 0 and elsewhere == 0 then
 		GameTooltip_AddNormalLine(GameTooltip, L["Your bags and bank have enough."])
-	elseif #short > 0 and not ns.HasAuctionator() then
-		GameTooltip_AddDisabledLine(GameTooltip, L["Each click puts the next one in the search box; press Search."])
+	elseif #short > 0 then
+		local recipe = ns.RecipeData[recipeID]
+		local profession = recipe and ns.RouteProfessions()[recipe.skillLine]
+		local listName = profession and ns.AuctionListName(profession.name)
+		GameTooltip_AddNormalLine(GameTooltip, ns.AuctionListNote(listName and { listName } or nil))
 	end
 	GameTooltip:Show()
 end

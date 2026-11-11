@@ -43,6 +43,7 @@ Data\Vendor.lua
 Data\Recipes.lua
 Data\Trainer.lua
 Data\Sources.lua
+Data\Credits.lua
 Core\Model.lua
 Core\Changes.lua
 Core\Live.lua

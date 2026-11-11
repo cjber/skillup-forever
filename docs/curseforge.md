@@ -96,4 +96,10 @@ With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path
 
 Source code and issues: [github.com/cjber/skillup-forever](https://github.com/cjber/skillup-forever). Licence: GPL-3.0-or-later.
 
+<!-- forever-credits:start -->
+
+Thanks to kopuliak, Mouchoir, Chuujitsuna, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, sundered1985, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_ and everyone who reported a bug or asked for a feature.
+
+<!-- forever-credits:end -->
+
 Built with AI assistance.

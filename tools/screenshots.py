@@ -484,6 +484,19 @@ local RECORDED = {
 	end,
 }
 
+local MINIMAL_SCROLLBAR_ATLASES = {
+	Track = {
+		Begin = "minimal-scrollbar-track-top",
+		End = "minimal-scrollbar-track-bottom",
+		Middle = "!minimal-scrollbar-track-middle",
+	},
+	Thumb = {
+		Begin = "minimal-scrollbar-small-thumb-top",
+		End = "minimal-scrollbar-small-thumb-bottom",
+		Middle = "minimal-scrollbar-small-thumb-middle",
+	},
+}
+
 local function Stub()
 	return setmetatable({ scripts = {} }, {
 		__index = function(self, key)
@@ -561,11 +574,22 @@ env = setmetatable({
 	SlashCmdList = {},
 	issecretvalue = false,
 	GameTooltip_Hide = function() end,
-	CreateFrame = function(_, name)
+	CreateFrame = function(_, name, _, template)
 		local frame = Stub()
 		created[#created + 1] = frame
 		if name then
 			named[name] = frame
+		end
+		-- Blizzard_SharedXML/Shared/Scroll/MinimalScrollBar.xml: the track's and thumb's caps and middle carry
+		-- their atlases from the template, which a horizontal bar reads back with GetAtlas.
+		local parts = template == "MinimalScrollBar" and MINIMAL_SCROLLBAR_ATLASES
+		for owner, atlases in pairs(parts or {}) do
+			local region = owner == "Track" and frame.Track or frame.Track.Thumb
+			for key, atlas in pairs(atlases) do
+				rawset(region[key], "GetAtlas", function()
+					return atlas
+				end)
+			end
 		end
 		return frame
 	end,
@@ -1472,13 +1496,14 @@ def requirement_text(req):
 
 
 def addon_atlases(ui):
-    """{name: {width, height}} for every atlas the addon's Lua names, as C_Texture.GetAtlasInfo gives them."""
-    names = set(ui.table("UiTextureAtlasElement", key="Name"))
-    literals = set()
-    for folder in ("Core", "Integrations", "UI"):
-        for path in (REPO / folder).glob("*.lua"):
-            literals.update(re.findall(r'"([A-Za-z][\w-]*)"', path.read_text(encoding="utf-8")))
-    return {name: {"width": ui.atlas(name).width, "height": ui.atlas(name).height} for name in sorted(literals & names)}
+    """{name: {width, height}} for every client atlas, as C_Texture.GetAtlasInfo gives them: Blizzard's templates
+    set atlases the addon never names (MinimalScrollBar's track and thumb)."""
+    sizes = {}
+    for name in ui.table("UiTextureAtlasElement", key="Name"):
+        size = ui.atlas_size(name)
+        if size:
+            sizes[name] = {"width": size[0], "height": size[1]}
+    return sizes
 
 
 COOKING_ICON = 133971

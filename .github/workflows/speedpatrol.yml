@@ -54,3 +54,6 @@ jobs:
           fail-on-regression: true
           rounds: 3
           package: speedpatrol@0.2.0
+          # A pull request from a fork gets a read-only token, so its comment step fails and the check goes red
+          # whatever the timings. A contributor's PR still gets the A/B table in its log.
+          comment: ${{ github.event.pull_request.head.repo.full_name == github.repository }}

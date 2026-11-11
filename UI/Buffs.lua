@@ -16,16 +16,13 @@ local NODE_GAP = 4
 local COLUMN_GAP = 16
 local LABEL_WIDTH = 128
 local ICON = 37
--- The Camelot ProfessionsFrame is 594 high and the inset hangs 88 below its top and 24 above its bottom, so
--- the inset is 482. The rows viewport is that less the axis above the rows (44), the horizontal MinimalScrollBar
--- under them (8, 6 above the bar) and the legend and detail below (120): 292. Five whole rows fill it exactly,
--- 58.4 each, and each row's 40-high label sits on its node line; a sixth row is cut rather than a sliver of it
--- showing.
+-- The row viewport reserves space for the skill axis, the horizontal scrollbar, and the legend and detail.
+-- Five whole rows fill the remaining height.
 local FRAME_HEIGHT = 594
 local INSET_TOP = 88
 local INSET_BOTTOM = 24
 local ROWS_TOP = 44
-local HSCROLL_HEIGHT = 8
+local HSCROLL_HEIGHT = 17
 local HSCROLL_BOTTOM = 132
 local ROWS_BOTTOM = HSCROLL_BOTTOM + HSCROLL_HEIGHT + 6
 local VISIBLE_ROWS = 5
@@ -40,6 +37,7 @@ local DETAIL_HEIGHT = 74
 local LABEL_X = 10
 local AXIS_X = 18 + LABEL_WIDTH
 local TRACK_X = AXIS_X - 8
+-- Leave room for the vertical scrollbar and its arrow buttons.
 local VIEW_RIGHT = 26
 
 -- The four node states, in the client's talent-tree art.
@@ -137,9 +135,11 @@ end
 
 -- Keep the sideways bar and the edge fades on the timeline's current offset: the bar follows Shift+wheel and
 -- a drag, and a fade shows only while more lies beyond that edge (#565).
-local function SyncHorizontal()
+---@param fromScrollbar? boolean
+local function SyncHorizontal(fromScrollbar)
 	local maxOffset = math.max(contentWidth - viewWidth, 0)
-	if page.HScroll then
+	-- Setting the thumb fires OnScroll immediately. Do not write its position back from that callback.
+	if page.HScroll and not fromScrollbar then
 		page.HScroll:SetVisibleExtentPercentage(contentWidth > 0 and math.min(viewWidth / contentWidth, 1) or 1)
 		page.HScroll:SetScrollPercentage(
 			maxOffset > 0 and offset / maxOffset or 0,
@@ -154,11 +154,12 @@ end
 
 -- Show the timeline at `value` content units in, as far as the content and the view allow.
 ---@param value number
-local function SetOffset(value)
+---@param fromScrollbar? boolean
+local function SetOffset(value, fromScrollbar)
 	offset = math.max(0, math.min(value, math.max(contentWidth - viewWidth, 0)))
 	page.ScrollOffset = offset
 	PlaceContent()
-	SyncHorizontal()
+	SyncHorizontal(fromScrollbar)
 end
 
 -- The cursor's x in the area's own units, the way the client reports it while a frame is dragged.
@@ -548,38 +549,77 @@ local function CreateRows(inset)
 	page.Rows = scrollBox
 end
 
--- The timeline's own sideways bar: a MinimalScrollBar with the client's ScrollBarMixin in horizontal mode. The
--- client has no horizontal minimal art, so the bar keeps the minimal track and thumb and sheds the up/down
--- steppers and the top/bottom caps, which only made sense on a vertical bar. It follows Shift+wheel and drags.
+-- Rotate the MinimalScrollBar art inside horizontal texture bounds.
+local function RotateScrollTexture(texture)
+	texture:SetTexCoord(1, 0, 0, 0, 1, 1, 0, 1)
+end
+
+local function LayoutHorizontalScrollArt(owner)
+	local begin, middle, finish = owner.Begin, owner.Middle, owner.End
+	RotateScrollTexture(begin)
+	RotateScrollTexture(middle)
+	RotateScrollTexture(finish)
+	local beginAtlas = C_Texture.GetAtlasInfo(begin:GetAtlas())
+	local endAtlas = C_Texture.GetAtlasInfo(finish:GetAtlas())
+	begin:SetSize(beginAtlas.height, beginAtlas.width)
+	finish:SetSize(endAtlas.height, endAtlas.width)
+
+	middle:SetHeight(8)
+end
+
+local function OrientHorizontalScrollArt(owner)
+	owner.Begin:ClearAllPoints()
+	owner.Begin:SetPoint("LEFT")
+	owner.End:ClearAllPoints()
+	owner.End:SetPoint("RIGHT")
+	owner.Middle:ClearAllPoints()
+	owner.Middle:SetPoint("LEFT", owner.Begin, "RIGHT")
+	owner.Middle:SetPoint("RIGHT", owner.End, "LEFT")
+	LayoutHorizontalScrollArt(owner)
+end
+
+-- Keep the Blizzard track, thumb, and steppers, with their art laid out left to right.
+local function OrientHorizontalScrollbar(bar)
+	bar.isHorizontal = true
+	bar.thumbAnchor = "LEFT"
+
+	local track = bar.Track
+	track:ClearAllPoints()
+	track:SetPoint("LEFT", bar, "LEFT", 19, 0)
+	track:SetPoint("RIGHT", bar, "RIGHT", -19, 0)
+	track:SetHeight(8)
+	OrientHorizontalScrollArt(track)
+
+	local thumb = track.Thumb
+	thumb.isHorizontal = true
+	thumb:SetScript("OnSizeChanged", nil)
+	thumb:SetHeight(8)
+	OrientHorizontalScrollArt(thumb)
+	hooksecurefunc(thumb, "OnButtonStateChanged", LayoutHorizontalScrollArt)
+
+	for _, stepper in ipairs({ bar.Back, bar.Forward }) do
+		stepper:ClearAllPoints()
+		stepper:SetPoint(stepper == bar.Back and "LEFT" or "RIGHT")
+		stepper:SetSize(11, 17)
+		local function UpdateArt(button)
+			RotateScrollTexture(button.Texture)
+			button.Texture:SetSize(11, 17)
+		end
+		hooksecurefunc(stepper, "OnButtonStateChanged", UpdateArt)
+		UpdateArt(stepper)
+	end
+end
+
 ---@param inset Frame
 local function CreateHorizontalBar(inset)
 	local bar = CreateFrame("EventFrame", nil, inset, "MinimalScrollBar") --[[@as SkillUpScrollBar]]
-	bar.isHorizontal = true
-	bar.thumbAnchor = "LEFT"
 	bar:SetHeight(HSCROLL_HEIGHT)
+	OrientHorizontalScrollbar(bar)
 	bar:SetPoint("BOTTOMLEFT", inset, "BOTTOMLEFT", AXIS_X, HSCROLL_BOTTOM)
 	bar:SetPoint("BOTTOMRIGHT", inset, "BOTTOMRIGHT", -VIEW_RIGHT, HSCROLL_BOTTOM)
 	bar:SetHideIfUnscrollable(true)
-	bar.Back:Hide()
-	bar.Forward:Hide()
-	local track = bar.Track
-	track:ClearAllPoints()
-	track:SetPoint("TOPLEFT", bar, "TOPLEFT")
-	track:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT")
-	track.Begin:Hide()
-	track.End:Hide()
-	track.Middle:ClearAllPoints()
-	track.Middle:SetPoint("TOPLEFT", track, "TOPLEFT")
-	track.Middle:SetPoint("BOTTOMRIGHT", track, "BOTTOMRIGHT")
-	local thumb = track.Thumb
-	thumb.isHorizontal = true
-	thumb.Begin:Hide()
-	thumb.End:Hide()
-	thumb.Middle:ClearAllPoints()
-	thumb.Middle:SetPoint("TOPLEFT", thumb, "TOPLEFT")
-	thumb.Middle:SetPoint("BOTTOMRIGHT", thumb, "BOTTOMRIGHT")
 	bar:RegisterCallback("OnScroll", function(_, percentage)
-		SetOffset((percentage or 0) * math.max(contentWidth - viewWidth, 0))
+		SetOffset((percentage or 0) * math.max(contentWidth - viewWidth, 0), true)
 	end, bar)
 	bar:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_TOP")

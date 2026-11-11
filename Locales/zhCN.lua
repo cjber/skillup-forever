@@ -480,7 +480,6 @@ L["Waiting for Questie to finish loading."] = "正在等待Questie加载完毕�
 L["Nothing is tracked for %s."] = "没有正在追踪的 %s。" -- mt
 L["+%d more to train"] = "还有 %d 项要学习" -- mt
 L["Also train"] = "还要学习" -- mt
-L["Works again after updating."] = "更新后可以正常使用了。" -- mt
 L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
 	"Auctionator 列表：%s。打开拍卖行，进入“购买”标签，选择该列表并搜索；每次点击购买一行。"
 L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -495,3 +494,7 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"开启“购买试剂”会写入一个 Auctionator 列表，包含所有仍缺少的拍卖行试剂。"
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"没有 Auctionator 时，配方的“搜索”按钮会一次一个试剂地填入游戏自带的拍卖搜索框。"
+L["Tells you which addon to update."] = "告诉你该更新哪个插件。" -- mt
+L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已过期。请更新它来解决此问题。" -- mt
+L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已过期。请更新它们来解决此问题。" -- mt
+L["%s could not start. Reinstall %s to fix this."] = "%s 无法启动。请重新安装 %s 来解决此问题。" -- mt

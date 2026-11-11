@@ -486,7 +486,6 @@ L["Waiting for Questie to finish loading."] = "Warte, bis Questie fertig geladen
 L["Nothing is tracked for %s."] = "Für %s wird nichts verfolgt." -- mt
 L["+%d more to train"] = "+%d weitere zum Erlernen" -- mt
 L["Also train"] = "Außerdem lernen" -- mt
-L["Works again after updating."] = "Funktioniert nach dem Update wieder." -- mt
 L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
 	"Auctionator-Liste: %s. Öffnet das Auktionshaus, den Reiter „Einkaufen“, wählt die Liste und „Suchen“; kauft jede Zeile mit einem Klick."
 L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -501,3 +500,8 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Wenn Ihr „Reagenzien kaufen“ einschaltet, wird eine Auctionator-Liste mit allen noch fehlenden Auktionsreagenzien geschrieben."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Ohne Auctionator füllt die Schaltfläche „Suchen“ eines Rezepts das eigene Suchfeld des Spiels, ein Reagenz nach dem anderen."
+L["Tells you which addon to update."] = "Sagt Euch, welches Addon Ihr aktualisieren müsst." -- mt
+L["%s: %s is out of date. Update it to fix this."] = "%s: %s ist nicht aktuell. Aktualisiert es, um das zu beheben." -- mt
+L["%s: %s are out of date. Update them to fix this."] =
+	"%s: %s sind nicht aktuell. Aktualisiert sie, um das zu beheben." -- mt
+L["%s could not start. Reinstall %s to fix this."] = "%s konnte nicht starten. Installiert %s neu, um das zu beheben." -- mt

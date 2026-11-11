@@ -97,7 +97,7 @@
 ---@field RankQuestName fun(rank: SkillUpRank): string
 ---@field PlayerSide fun(): 'A'|'H'|nil
 ---@field RankHeld fun(rank: SkillUpRank): boolean
----@field PlanCost fun(plan: SkillUpPlan): number
+---@field PlanMoney fun(plan: SkillUpPlan): { buy: number, fees: number, sells: number, unknown: integer }
 ---@field StepCost fun(recipeID: integer, crafts: number): number What a step's crafts cost, every craft at its net
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
@@ -301,6 +301,8 @@
 ---@class SkillUpDB : SkillUpDefaults, ForeverFamilyDB
 ---@field trackerHost? ForeverTrackerLegacySettings the addon's old tracker table, offered to Forever Core once
 ---@field showReagentTooltip? boolean Legacy migration only.
+---@field priceDays? table Legacy migration only.
+---@field latestPrice? number Legacy migration only.
 ---@field scanAuctions? boolean Legacy migration only.
 ---@field tracked? table<integer, boolean> Legacy migration only.
 ---@field auctions? table Legacy migration only.
@@ -399,6 +401,12 @@ SkillUpForeverDB = nil
 ---@field training? SkillUpPlanTraining
 ---@field subcraft? SkillUpSubCraft
 ---@field craft? SkillUpPlanCraft
+---@field band? SkillUpPlanBand The skill band the step is walked in.
+
+---@class SkillUpPlanBand
+---@field name string The rank whose cap the band ends at.
+---@field from number The skill it starts at.
+---@field cap number The skill cap it ends at.
 
 ---@class SkillUpBand
 ---@field color 'orange'|'yellow'|'green'|'grey'
@@ -436,6 +444,7 @@ SkillUpForeverDB = nil
 ---@field target number
 ---@field reached number Where the crafts get to: short of the target when the known recipes run out.
 ---@field steps SkillUpRouteStep[]
+---@field bands SkillUpPlanBand[]
 ---@field crafts SkillUpPlanCraft[]
 ---@field training SkillUpPlanTraining[]
 ---@field ranks SkillUpRank[]
@@ -553,6 +562,10 @@ SkillUpForeverDB = nil
 ---@field icon? fileID|string
 ---@field iconColor? ColorMixin The stock icon border's tint, the item's quality where it has one.
 ---@field detailColor? ColorMixin
+---@field bar? { have: number, need: number } A have/need bar under the name.
+---@field barColor? ColorMixin
+---@field sourceIcon? string The client atlas naming where the reagent comes from.
+---@field current? boolean The route's next step, drawn in gold.
 ---@field tooltip? fun(tooltip: GameTooltip)
 ---@field click? fun(row: SkillUpListRow) A left click.
 ---@field menu? fun(owner: Region, root: ForeverMenuDescription) A right-click's context menu in the suite's shared menu.
@@ -562,12 +575,42 @@ SkillUpForeverDB = nil
 ---@field entry SkillUpListEntry
 ---@field Icon Texture
 ---@field IconBorder Texture
+---@field Source Texture
 ---@field Text FontString
 ---@field Detail FontString
+---@field BarBg Texture
+---@field Bar StatusBar
+---@field BarText FontString
+---@field Current Texture The gold highlight on the row that is the next step.
+---@field barHave? number
+---@field barNeed? number
+---@field current? boolean
 ---@field tooltip? fun(tooltip: GameTooltip)
 ---@field click? fun(row: SkillUpListRow)
 ---@field menu? fun(owner: Region, root: ForeverMenuDescription)
 ---@field UpdateTooltip fun(self: SkillUpListRow) called by the tooltip this row owns, a few times a second
+
+---@class SkillUpListBand : Frame
+---@field kind "band"
+---@field Name FontString
+---@field Range FontString
+---@field BarBg Texture
+---@field BarFill Texture
+---@field BarBorder Texture
+---@field BarWidth number The bar frame at its own aspect.
+---@field BarHeight number
+---@field BarText FontString
+
+---@class SkillUpListLine : Button
+---@field kind "line"
+---@field entry SkillUpListEntry
+---@field Icon Texture
+---@field Text FontString
+---@field Detail FontString
+---@field tooltip? fun(tooltip: GameTooltip)
+---@field click? fun(row: SkillUpListLine)
+---@field menu? fun(owner: Region, root: ForeverMenuDescription)
+---@field UpdateTooltip fun(self: SkillUpListLine) called by the tooltip this row owns, a few times a second
 
 ---@class SkillUpListHeading : Frame
 ---@field kind "heading"
@@ -578,10 +621,14 @@ SkillUpForeverDB = nil
 ---@field Text FontString
 
 ---@class SkillUpListElement
----@field kind "row"|"heading"|"message"
+---@field kind "row"|"band"|"line"|"heading"|"message"
 ---@field text? string The heading's or message's line.
 ---@field color? ColorMixin The message's colour; the list's own grey when nil.
----@field entry? SkillUpListEntry The row's item.
+---@field entry? SkillUpListEntry The row's or line's item.
+---@field name? string The band's rank name.
+---@field from? number The band's first skill.
+---@field cap? number The band's last skill.
+---@field skill? number The character's base skill, for the band's progress.
 
 ---@class SkillUpList
 ---@field rows SkillUpListElement[] The elements of the last render, in order.
@@ -589,6 +636,8 @@ SkillUpForeverDB = nil
 ---@field Begin fun(self: SkillUpList)
 ---@field Heading fun(self: SkillUpList, text: string)
 ---@field Message fun(self: SkillUpList, text: string, color?: ColorMixin)
+---@field Band fun(self: SkillUpList, name: string, from: number, cap: number, skill: number)
+---@field Line fun(self: SkillUpList, entry: SkillUpListEntry)
 ---@field Add fun(self: SkillUpList, entry: SkillUpListEntry)
 ---@field Finish fun(self: SkillUpList)
 
@@ -809,12 +858,26 @@ SkillUpForeverDB = nil
 ---@field ScrollOffset number
 ---@field Hi number
 
+---@class SkillUpRouteMoney : Frame
+---@field money? { buy: number, fees: number, sells: number, unknown: integer }
+---@field unpriced? integer
+
+-- The route's read-only count: the client's count box, with the spinner's arrows present but hidden.
+---@class SkillUpCraftCount : EditBox
+---@field IncrementButton Button
+---@field DecrementButton Button
+---@field MouseWheelCatcher Frame
+
 ---@class SkillUpPage : Frame
 ---@field Craft SkillUpCraftButton
+---@field CraftCount SkillUpCraftCount
 ---@field Profession DropdownButton
 ---@field Skill FontString
 ---@field Target EditBox
----@field Track Button
+---@field Money SkillUpRouteMoney
+---@field MoneyText FontString
+---@field Track CheckButton
+---@field TrackLabel FontString
 ---@field Collect CheckButton
 ---@field CollectLabel FontString
 ---@field collectChanges boolean? whether the Buy reagents switch changes the route last drawn

@@ -21,6 +21,9 @@ local function Region()
 		SetTextColor = function(self, r, g, b)
 			self.color = { r, g, b }
 		end,
+		SetTexture = function(self, texture)
+			self.texture = texture
+		end,
 		SetShown = function(self, shown)
 			self.shown = shown
 		end,
@@ -203,6 +206,21 @@ equal(message.kind, "message", "and knows it is a message")
 equal(message.Text.text, list.rows[5].text, "with its text")
 equal(message.Text.wordWrap, true, "wrapped")
 
+-- The row that is the next step keeps its own gold highlight; every other row leaves it hidden (#574).
+list:Begin()
+list:Add({ text = "Next", current = true })
+list:Add({ text = "Later" })
+list:Finish()
+local current = Materialize(list.rows[1])
+equal(current.Current.shown, true, "the current row shows its highlight")
+equal(
+	current.Current.texture,
+	"Interface\\QuestFrame\\UI-QuestTitleHighlight",
+	"drawn with the quest log's own highlight bar"
+)
+local later = Materialize(list.rows[2])
+equal(later.Current.shown, false, "a row that is not the next step shows no highlight")
+
 -- A left click is the row's own and a right-click opens its menu, from the row; a row with only a menu still
 -- takes the mouse.
 local menus, clicks = {}, {}
@@ -247,5 +265,26 @@ Materialize(list.rows[2], clickable)
 equal(mouse, true, "a row with only a menu takes the mouse")
 Materialize(list.rows[3], clickable)
 equal(mouse, false, "a row with nothing to do does not")
+
+-- A train or buy line is wired through the same helper as a row: its own click and its menu.
+local lineClicks = {}
+local function LineMenu() end
+list:Begin()
+list:Line({
+	text = "Train Journeyman",
+	click = function(clicked)
+		lineClicks[#lineClicks + 1] = clicked
+	end,
+	menu = LineMenu,
+})
+list:Finish()
+local line = Materialize(list.rows[1])
+equal(line.kind, "line", "a train step is a line")
+line.scripts.OnClick(line, "LeftButton")
+equal(lineClicks[1], line, "a line's left click is its own")
+line.scripts.OnClick(line, "RightButton")
+equal(#lineClicks, 1, "a line's right-click is not a left click")
+equal(menus[#menus].owner, line, "a line opens its menu on itself")
+equal(menus[#menus].generator, LineMenu, "filled by the line's menu")
 
 Client.report("list_spec")

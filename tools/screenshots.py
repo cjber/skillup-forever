@@ -2288,27 +2288,20 @@ def route_frame(ui, scene_data):
     draw_list(canvas, route_x, top, route_right - route_x, bottom - top, route_list["rows"])
     inset_frame(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, "Reagents  (have / need)")
     draw_list(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, reagent_list["rows"])
-    # Shopping list, vendor, the count box, craft and the Track checkbox share the bottom row.
-    craft = route["craft"]
-    craft_w = craft.get("width") or 100
+    # Track reads at the route's bottom left, checkbox then label; the actions end at the reagents' edge.
     track = route["track"]
     track_label = route["trackLabel"]["text"]
-    track_label_w = canvas.text_width(track_label, FONTS["GameFontNormalSmall"])
-    track_x = reagents_right - 26
-    canvas.draw(ui.atlas("checkbox-minimal"), track_x, bottom + 9, 26, 26)
-    if track.get("checked"):
-        canvas.draw(ui.atlas("checkmark-minimal"), track_x, bottom + 9, 26, 26)
-    canvas.text(
-        track_x - 4 - track_label_w,
-        bottom + 9,
+    minimal_checkbox(
+        canvas,
+        route_x,
+        bottom + 5,
         track_label,
-        FONTS["GameFontNormalSmall"],
-        None if track.get("enabled", True) else DISABLED_FONT_COLOR,
-        box_height=26,
-        justify="RIGHT",
-        width=track_label_w,
+        checked=track.get("checked", False),
+        color=None if track.get("enabled", True) else DISABLED_FONT_COLOR,
     )
-    craft_x = track_x - 4 - track_label_w - 8 - craft_w
+    craft = route["craft"]
+    craft_w = craft.get("width") or 100
+    craft_x = reagents_right - craft_w
     panel_button(canvas, craft_x, bottom + 10, craft_w, 22, craft["text"], craft["enabled"])
     count = route["craftCount"]
     count_w = count.get("width") or 62

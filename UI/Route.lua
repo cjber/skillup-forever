@@ -1422,11 +1422,11 @@ local function CreatePage()
 
 	-- The switch sits in the header row, right of the target it changes, clear of the Route heading.
 	page.Collect:SetPoint("LEFT", page.Target, "RIGHT", 16, 0)
-	-- One bottom row, right to left: the Track checkbox at the reagents' bottom right with its label beside
-	-- it, then Craft with the step's count beside it, then Nearest vendor, each clear of the next.
-	page.Track:SetPoint("RIGHT", reagents, "BOTTOMRIGHT", 0, -21)
-	page.TrackLabel:SetPoint("RIGHT", page.Track, "LEFT", -4, 0)
-	page.Craft:SetPoint("RIGHT", page.TrackLabel, "LEFT", -8, 0)
+	-- One bottom row: Track at the route's bottom left with its label on the right, as the game's own
+	-- checkboxes and the Buy reagents switch read, and the actions right-aligned from the reagents' edge.
+	page.Track:SetPoint("BOTTOMLEFT", route, "BOTTOMLEFT", 0, -21)
+	page.TrackLabel:SetPoint("LEFT", page.Track, "RIGHT", 4, 0)
+	page.Craft:SetPoint("RIGHT", reagents, "BOTTOMRIGHT", 0, -21)
 	page.CraftCount:SetPoint("RIGHT", page.Craft, "LEFT", -4, 0)
 	page.Vendor:SetPoint("RIGHT", page.CraftCount, "LEFT", -8, 0)
 	page.ShoppingList:SetPoint("RIGHT", page.Vendor, "LEFT", -8, 0)

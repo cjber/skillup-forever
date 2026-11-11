@@ -964,14 +964,14 @@ local countAnchor = page.CraftCount.points[1]
 equal(countAnchor.relative, page.Craft, "the count hangs off the craft button")
 equal(countAnchor.relativePoint, "LEFT", "at the craft's left, in the bottom row")
 local craftAnchor = page.Craft.points[1]
-equal(craftAnchor.relative, page.TrackLabel, "the craft button hangs off the track label")
-equal(craftAnchor.relativePoint, "LEFT", "at the label's left, in the bottom row")
+equal(craftAnchor.relative, insets[2], "the craft button ends the bottom row at the reagents' edge")
+equal(craftAnchor.relativePoint, "BOTTOMRIGHT", "where the actions start from")
 local trackLabelAnchor = page.TrackLabel.points[1]
-equal(trackLabelAnchor.relative, page.Track, "the label sits at the checkbox's left")
-equal(trackLabelAnchor.relativePoint, "LEFT", "so the checkbox keeps the row's right edge")
+equal(trackLabelAnchor.relative, page.Track, "the track label sits at the checkbox's right")
+equal(trackLabelAnchor.relativePoint, "RIGHT", "so the checkbox keeps the row's left edge")
 local trackAnchor = page.Track.points[1]
-equal(trackAnchor.relative, insets[2], "and the checkbox sits at the reagents' bottom right")
-equal(trackAnchor.relativePoint, "BOTTOMRIGHT", "where the bottom row ends")
+equal(trackAnchor.relative, insets[1], "and the checkbox sits at the route's bottom left")
+equal(trackAnchor.relativePoint, "BOTTOMLEFT", "where the row starts")
 equal(Width(page.Craft), 100, "the craft button keeps one width")
 equal(Width(page.CraftCount), 62, "and the count box keeps its own")
 equal(page.Track.checked, false, "the Track checkbox shows an untracked route")

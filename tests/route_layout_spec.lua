@@ -6,6 +6,10 @@
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
+local function near(actual, expected, label)
+	equal(math.abs(actual - expected) < 1e-6, true, ("%s (%s ~ %s)"):format(label, actual, expected))
+end
+
 -- Friz Quadrata at 12px, the widths the client draws for GameFontNormal and GameFontHighlight; anything not
 -- listed is measured at a flat rate. The reagent names are the ones the rows in this spec carry.
 local WIDTH = {
@@ -108,6 +112,11 @@ local function Width(region)
 	return right - left
 end
 
+local function Height(region)
+	local _, bottom, _, top = Rect(region)
+	return top - bottom
+end
+
 -- Two rects intersect when they overlap on both axes; touching edges do not count.
 local function overlaps(a, b)
 	local al, ab, ar, at = Rect(a)
@@ -194,6 +203,12 @@ local function NewRegion(parent, frameType)
 	end
 	function region:SetText(text)
 		self.text = text
+	end
+	function region:SetAtlas(atlas)
+		self.atlas = atlas
+	end
+	function region:SetTexture(texture)
+		self.texture = texture
 	end
 	function region:SetFormattedText(format, ...)
 		self.text = string.format(format, ...)
@@ -640,7 +655,11 @@ local env = setmetatable({
 	end,
 	CreateFrame = CreateFrame,
 	C_Texture = {
-		GetAtlasInfo = function()
+		GetAtlasInfo = function(atlas)
+			-- The band's bar frame is its own wide art; every other atlas in this spec is square.
+			if atlas == "Professions-skillbar-frame" then
+				return { width = 451, height = 29 }
+			end
 			return { width = 32, height = 32 }
 		end,
 	},
@@ -998,6 +1017,18 @@ for _, row in ipairs(page.RouteList.scrollBox.frames) do
 	end
 end
 equal(routeRows, 2, "the route list draws the sub-craft and the craft as rows")
+
+-- #574: the band's progress bar keeps the client's 451 by 29 frame at its own aspect, never stretched.
+local bands = 0
+for _, row in ipairs(page.RouteList.scrollBox.frames) do
+	if row.kind == "band" then
+		bands = bands + 1
+		equal(row.BarBorder.atlas, "Professions-skillbar-frame", "a band draws the client's bar frame")
+		near(Width(row.BarBorder) / Height(row.BarBorder), 451 / 29, "at the frame's own aspect")
+		equal(Width(row.BarBorder) <= 170, true, "inside the band's bar width")
+	end
+end
+equal(bands, 1, "the route draws its skill band's header")
 local currentRow
 for _, row in ipairs(page.RouteList.scrollBox.frames) do
 	if row.current then

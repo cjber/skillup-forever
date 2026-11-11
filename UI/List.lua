@@ -249,8 +249,9 @@ local function BuildBand(band)
 	band.BarFill = band:CreateTexture(nil, "ARTWORK")
 	band.BarFill:SetColorTexture(0.25, 0.75, 0.25, 1)
 	band.BarBorder = band:CreateTexture(nil, "OVERLAY")
-	-- art-ok: the client's progress bar frame stretches over the bar it draws
-	band.BarBorder:SetAtlas("Professions-skillbar-frame")
+	-- The client's bar frame at its own 451 by 29 aspect, inside the band's bar width.
+	band.BarWidth, band.BarHeight =
+		ns.Art.Fit(band.BarBorder, "Professions-skillbar-frame", BAND_BAR_WIDTH, BAND_BAR_HEIGHT)
 	band.BarText = band:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	band.BarText:SetPoint("CENTER", band.BarBg, "CENTER", 0, 0)
 end
@@ -266,15 +267,15 @@ local function InitializeBand(band, elementData)
 	band.Range:SetFormattedText(L["%d to %d"], elementData.from, elementData.cap)
 	band.BarBg:ClearAllPoints()
 	band.BarBg:SetPoint("RIGHT", band, "RIGHT", -6, 0)
-	band.BarBg:SetSize(BAND_BAR_WIDTH, BAND_BAR_HEIGHT)
+	band.BarBg:SetSize(band.BarWidth, band.BarHeight)
 	band.BarBorder:ClearAllPoints()
 	band.BarBorder:SetAllPoints(band.BarBg)
 	local span = math.max(elementData.cap - elementData.from, 0)
 	local done = math.max(0, math.min(elementData.skill or 0, elementData.cap) - elementData.from)
-	local filled = span > 0 and (BAND_BAR_WIDTH - 2) * math.min(done / span, 1) or 0
+	local filled = span > 0 and (band.BarWidth - 2) * math.min(done / span, 1) or 0
 	band.BarFill:ClearAllPoints()
 	band.BarFill:SetPoint("LEFT", band.BarBg, "LEFT", 1, 0)
-	band.BarFill:SetSize(filled, BAND_BAR_HEIGHT - 2)
+	band.BarFill:SetSize(filled, band.BarHeight - 2)
 	band.BarText:SetFormattedText("%d/%d", done, span)
 end
 

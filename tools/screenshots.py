@@ -2117,7 +2117,9 @@ def draw_list(canvas, x, y, w, h, rows):
                 DISABLED_FONT_COLOR,
                 box_height=LIST_BAND,
             )
-            bar_w, bar_h = 170, 12
+            # List.lua fits the client's 451 by 29 bar frame to the band's 170 width at its own aspect.
+            bar_w = 170
+            bar_h = bar_w * 29 / 451
             bar_x, bar_y = box_x + box_w - 6 - bar_w, top + (LIST_BAND - bar_h) / 2
             canvas.draw(ui.atlas("Professions-skillbar-bg"), bar_x, bar_y, bar_w, bar_h)
             span = max(row["cap"] - row["from"], 0)

@@ -1,6 +1,6 @@
 ## Interface: 16001
 ## Dependencies: ForeverCore
-## X-Forever-Core: v1.7.1
+## X-Forever-Core: v1.7.2
 ## Title: SkillUp Forever
 ## Notes: Required skill, colour thresholds and skill-up chance for every recipe in the Professions window.
 ## Notes-deDE: Benötigte Fertigkeit, Farbschwellen und Chance auf Fertigkeitspunkt für jedes Rezept im Berufsfenster.

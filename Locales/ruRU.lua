@@ -540,8 +540,8 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Если включить «Покупать реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Без Auctionator кнопка «Поиск» рецепта заполняет собственную строку поиска аукциона игры по одному реагенту за раз."
-L["The Route page reads as a timeline of skill bands."] =
-	"Страница маршрута показывает этапы навыка в виде шкалы." -- mt
+L["The Buffs tab no longer overflows the stack."] =
+	"Вкладка «Улучшения» больше не вызывает переполнение стека." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s устарел. Обновите его, чтобы это исправить." -- mt
 L["%s: %s are out of date. Update them to fix this."] =

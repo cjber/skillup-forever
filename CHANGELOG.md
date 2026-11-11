@@ -12,6 +12,11 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-11-11
+
+<!-- forever-core-sync -->
+
+- **The Buffs tab no longer overflows the stack.** Opening it could throw a Lua stack overflow, because the scrollbar's own scroll callback wrote the new position back to the bar while it was scrolling. The bar now updates the timeline without moving itself, and its horizontal bar wears the game's own horizontal scrollbar art, so its ends and thumb are clickable. Thanks to zazomazzo (#619).
 - **A route you are shopping for stays put.** Buying its reagents, or the auction scan that comes with the purchase, no longer swaps the recipes you set out to craft: the page keeps the route you are following, with today's prices and fees against it, until you ask for a new one with the Replan button, a new target or the Buy reagents switch, or until a step of it can no longer be done (a recipe you no longer know, or a reagent that is neither in your bags nor buyable). Before, every purchase and price scan replanned the climb and could send you back to the auction house for different reagents (#621).
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 

@@ -701,7 +701,9 @@ local function RenderReagents(list, reagents)
 			icon = C_Item.GetItemIconByID(item.itemID) or 134400,
 			iconColor = QualityColor(item.itemID),
 			text = name,
-			detail = string.format(L["%s, %d/%d"], sourceText, math.min(have, item.need), item.need),
+			-- The bar under the name already shows the bags against the route's need, so the line names only
+			-- where the reagent comes from.
+			detail = sourceText,
 			detailColor = have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
 			bar = { have = math.min(have, item.need), need = item.need },
 			barColor = have >= item.need and ns.COLORS.green or ns.COLORS.yellow,

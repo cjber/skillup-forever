@@ -901,22 +901,15 @@ page.RouteReagents = function()
 end
 routeTab:Click()
 Drain()
-local function LastReagentDetail()
-	for index = #lists[2].rows, 1, -1 do
-		local detail = lists[2].rows[index].detail
-		if detail and detail:find("/9", 1, true) then
-			return detail
-		end
-	end
-end
 local function LastListItem()
 	return lists[2].rows[#lists[2].rows]
 end
-equal(LastReagentDetail(), "AH, 0/9", "the reagent list shows what the bags hold")
+equal(LastListItem().detail, "AH", "the reagent row names its source, with no have/need text under the bar")
+equal(LastListItem().bar.have, 0, "and its bar starts at what the bags hold")
 have = 8
 eventFrame:Event("BAG_UPDATE_DELAYED")
 Drain()
-equal(LastReagentDetail(), "AH, 8/9", "a bag update redraws the have count")
+equal(LastListItem().detail, "AH", "the source line stays as it is when the bags change")
 local barRow = LastListItem()
 equal(barRow.bar.have, 8, "the have/need bar carries what the bags hold")
 equal(barRow.bar.need, 9, "and what the route needs")
@@ -926,7 +919,7 @@ page.RouteReagents = function()
 end
 eventFrame:Event("SKILL_LINES_CHANGED")
 Drain()
-equal(LastListItem().detail, "vendor, 0/4", "a skill change redraws the plan's reagents")
+equal(LastListItem().detail, "vendor", "a skill change redraws the plan's reagents")
 equal(LastListItem().sourceIcon, "reagents", "and the vendor row names its source with the vendor icon")
 
 -- With Auctionator's scan-on-open option known to be off, the page says where to turn it on; with

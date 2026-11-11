@@ -23,7 +23,6 @@ L["%s is in %s."] = "%s находится в зоне %s."
 L["%s trainer"] = "Учитель (%s)"
 L["%s until %d"] = "%s до %d"
 L["%s, %d"] = "%s, %d"
-L["%s, %d/%d"] = "%s, %d/%d"
 L["%s, %s, to %d"] = "%s, %s, до %d"
 L["%s, source unknown"] = "%s, источник неизвестен"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] =

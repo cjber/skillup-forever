@@ -24,7 +24,6 @@ L["%s is in %s."] = "%s se trouve en %s." -- mt
 L["%s trainer"] = "Maître de métier (%s)" -- mt
 L["%s until %d"] = "%s jusqu'à %d" -- mt
 L["%s, %d"] = "%s, %d" -- mt
-L["%s, %d/%d"] = "%s, %d/%d" -- mt
 L["%s, %s, to %d"] = "%s, %s, jusqu'à %d" -- mt
 L["%s, source unknown"] = "%s, source inconnue" -- mt
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] =

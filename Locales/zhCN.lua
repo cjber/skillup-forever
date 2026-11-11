@@ -23,7 +23,6 @@ L["%s is in %s."] = "%s在%s。"
 L["%s trainer"] = "%s训练师"
 L["%s until %d"] = "%s直到%d"
 L["%s, %d"] = "%s，%d"
-L["%s, %d/%d"] = "%s，%d/%d"
 L["%s, %s, to %d"] = "%s，%s，至%d"
 L["%s, source unknown"] = "%s，来源未知"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] =

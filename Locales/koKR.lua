@@ -498,7 +498,6 @@ L["Waiting for Questie to finish loading."] = "Questie 불러오기가 끝나기
 L["Nothing is tracked for %s."] = "%s에 대해 추적 중인 항목이 없습니다." -- mt
 L["+%d more to train"] = "+%d개 더 배우기" -- mt
 L["Also train"] = "추가 학습" -- mt
-L["Works again after updating."] = "업데이트 후 다시 작동합니다." -- mt
 L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
 	"Auctionator 목록: %s. 경매장에서 구매 탭을 열고 목록을 선택한 뒤 검색하세요. 각 줄을 클릭하여 구매하세요."
 L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -513,3 +512,10 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"재료 구매를 켜면 아직 부족한 모든 경매장 재료가 Auctionator 목록에 기록됩니다."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Auctionator가 없으면 레시피의 검색 버튼이 게임 자체 경매 검색 상자에 한 번에 하나의 재료를 채웁니다."
+L["Tells you which addon to update."] = "어떤 애드온을 업데이트해야 하는지 알려 줍니다." -- mt
+L["%s: %s is out of date. Update it to fix this."] =
+	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
+L["%s: %s are out of date. Update them to fix this."] =
+	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
+L["%s could not start. Reinstall %s to fix this."] =
+	"%s을(를) 시작할 수 없습니다. 문제를 해결하려면 %s을(를) 다시 설치하세요." -- mt

@@ -102,9 +102,12 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 	{ "full", L["Every recipe that uses it"] },
 }
 ns.TITLE = "SkillUp Forever"
--- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
--- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Works again after updating."]
+-- The newest release in CHANGELOG.md with a bold headline, and that headline: said once in chat after an update. A
+-- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
+-- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
+-- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
+ns.WHATS_NEW_VERSION = "1.6.2"
+ns.WHATS_NEW = L["Tells you which addon to update."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -334,7 +337,8 @@ local function ReadChanceBonus()
 end
 
 -- One chat line after an update, never on a first install. A dev checkout's version is
--- the packager's unfilled keyword, so it is left alone.
+-- the packager's unfilled keyword, so it is left alone. A maintenance release, the core sync's entry with no
+-- headline, has no WHATS_NEW_VERSION of its own, so it stays quiet like the same version.
 function ns.AnnounceUpdate()
 	local version = C_AddOns.GetAddOnMetadata(addonName, "Version")
 	if not (ns.db and version) or version:match("^@.+@$") then
@@ -342,7 +346,7 @@ function ns.AnnounceUpdate()
 	end
 	local last = ns.db.lastVersion
 	ns.db.lastVersion = version
-	if ns.db.whatsNew and last ~= "" and last ~= version then
+	if ns.db.whatsNew and last ~= "" and last ~= version and version == ns.WHATS_NEW_VERSION then
 		ns.Print(string.format(L["updated to %s. %s"], version, ns.WHATS_NEW))
 	end
 end

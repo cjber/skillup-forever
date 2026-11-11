@@ -70,7 +70,7 @@ class RequirementTests(unittest.TestCase):
         self.assertEqual(fees[9985], (900, 110))
         # A lower requirement the rule already gives is never raised to what players saw.
         self.assertEqual(fees[2674], (900, 100))
-        # It is still a guess: /su trainers lists it with classic-db's number for a trainer to confirm.
+        # It is still a guess: /skillup trainers lists it with classic-db's number for a trainer to confirm.
         self.assertEqual(inferred, {9985: 125, 2674: 125})
 
     # The bundled data keeps what players saw: every SEEN_REQUIREMENTS recipe at or below its value, never below 1.

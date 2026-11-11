@@ -40,7 +40,7 @@ local SINKS = {
 -- A settings option, { value, label }, closes after its label.
 local OPTION = '{%s*"%l+",%s*"([^"\n]*)"%s*}'
 
--- Literals that may stay English. /su audit and /su report build their lines as data, so none pass a sink.
+-- Literals that may stay English. /skillup audit and /skillup report build their lines as data, so none pass a sink.
 local ALLOWED = {}
 
 -- Hardcoded text passed straight to a sink, as "file: literal" lines.

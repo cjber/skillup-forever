@@ -1,7 +1,7 @@
 ---@meta
 
 -- One /skillup command: its word and aliases, the arguments it accepts (nil accepts any), its handler and the line
--- /su help prints (nil for a command the help leaves out).
+-- /skillup help prints (nil for a command the help leaves out).
 ---@class SkillUpSlashCommand
 ---@field word string
 ---@field aliases? string[]
@@ -11,12 +11,14 @@
 
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
+---@field Credits ForeverCreditsData the player credits Data/Credits.lua generates for the shared Thanks page
 ---@field Stats SkillUpStats
 ---@field RecipeMaterials fun(recipeID: integer, crafts: number): SkillUpSubCraft[]?, {itemID: integer, count: number}[]?
 ---@field ReportTitle string the localized title shown by the shared report window
 ---@field Art SkillUpArt
 ---@field core ForeverCoreAddon the shared services registered for SkillUp (Core/Core.lua)
 ---@field broken? boolean set when an installed ForeverCore is too old, so the addon's files stop
+---@field ForeverRequire fun(ready: boolean): boolean? the shared out-of-date warning (Core/ForeverRequire.lua)
 ---@field Print fun(msg: string)
 ---@field GamepadUI fun(): boolean Whether the client is in its gamepad interface.
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
@@ -59,8 +61,8 @@
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
----@field FitRecipeListWidth fun() fit the open profession's recipe list, and the window with it, to its longest name
----@field FitFrameArt fun(extra: number) redraw the frame's art for that much widening, or the stock art at 0
+---@field RecipeListMinWidth fun(): number? the window width the widest learned profession's rows need, nil with the wide list off
+---@field FitRecipeListWidth fun() fit the recipe list into the room the window has
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
 ---@field BuffLevel fun(recipeID: integer): integer? The product's required level when it is a buff, else nil.
@@ -71,9 +73,9 @@
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
 ---@field TrainerReport fun(): string[]
----@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/su export)
----@field AuditLines fun(): string[]? /su audit's lines with a profession open, nil with none
----@field ReportLines fun(): string[] SkillUp's own lines in /su report (Core/Report.lua)
+---@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/skillup export)
+---@field AuditLines fun(): string[]? /skillup audit's lines with a profession open, nil with none
+---@field ReportLines fun(): string[] SkillUp's own lines in /skillup report (Core/Report.lua)
 ---@field SlashCommands SkillUpSlashCommand[] the /skillup commands, in dispatch and help order
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
@@ -123,7 +125,6 @@
 ---@field SetLastBuffProfession fun(skillLine: integer)
 ---@field PageParts SkillUpPageParts
 ---@field Pages SkillUpPages
----@field PlaceSideTabs fun()
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
 ---@field SetBuffsOnly fun(on: boolean)
@@ -190,6 +191,7 @@
 ---@field AddQuestChainHint fun(tooltip: GameTooltip)
 ---@field AnnounceUpdate fun()
 ---@field WHATS_NEW string
+---@field WHATS_NEW_VERSION string the release whose headline WHATS_NEW is
 ---@field FormatNet fun(copper: number, profit: boolean): string
 ---@field FormatSigned fun(copper: number, profit: boolean): string
 ---@field PriceAge fun(price: SkillUpPrice): number?
@@ -689,11 +691,11 @@ SkillUpForeverDB = nil
 ---@class SkillUpPages
 ---@field Register fun(spec: SkillUpPageSpec)
 ---@field Unlocked fun(fn: fun()): boolean
----@field Open fun()
 ---@field Close fun(id: SkillUpPageID)
 ---@field Select fun(id: SkillUpPageID)
 ---@field Sync fun()
----@field SideTab fun(): SkillUpSideTab?
+---@field SideTab fun(): ForeverProfessionTab?
+---@field SetMinWidth fun(width: number?): boolean
 ---@field BottomTab fun(id: SkillUpPageID): Button?
 ---@field Count fun(): integer
 
@@ -841,7 +843,7 @@ SkillUpForeverDB = nil
 ---@field recipeID? integer
 ---@field ambiguous? boolean
 
--- A bundled trainer requirement a visit could prove wrong (/su trainers).
+-- A bundled trainer requirement a visit could prove wrong (/skillup trainers).
 ---@class SkillUpTrainerCheck
 ---@field skillLine integer
 ---@field recipeID integer

@@ -317,13 +317,24 @@ function Client.load(options)
 			c.protectedCalls[#c.protectedCalls + 1] = frame
 		end
 	end
+	-- The client calls an edit box's focus-gained handler with the player-input flag as a second argument, so a
+	-- bare widget method handed to SetScript receives it in its own first parameter (#269, #622).
+	local SCRIPT_ARGS = { OnEditFocusGained = { true } }
 	local function Scripts(frame, name)
+		local args = SCRIPT_ARGS[name]
+		local function Call(handler)
+			if args then
+				handler(frame, unpack(args))
+			else
+				handler(frame)
+			end
+		end
 		local script = frame.scripts[name]
 		if script then
-			script(frame)
+			Call(script)
 		end
 		for _, hooked in ipairs((frame.hooks or {})[name] or {}) do
-			hooked(frame)
+			Call(hooked)
 		end
 	end
 	function Methods:RegisterEvent(event)
@@ -578,9 +589,15 @@ function Client.load(options)
 		self.portrait = self.portrait or NewFrame(nil, self)
 		return self.portrait
 	end
+	-- Focusing fires the client's own focus-gained script, as the game does, so a spec exercises the handler
+	-- rather than only setting the method's reference (#622).
 	function Methods:SetFocus()
+		local was = self.focused == true
 		c.focus = self
 		self.focused = true
+		if not was then
+			Scripts(self, "OnEditFocusGained")
+		end
 	end
 	function Methods:HasFocus()
 		return self.focused == true
@@ -588,7 +605,15 @@ function Client.load(options)
 	function Methods:ClearFocus()
 		self.focused = false
 	end
-	function Methods:HighlightText()
+	-- HighlightText takes an optional start and stop character index; the client validates both, so a handler's
+	-- own second argument passed here as `start` raises instead of passing silently (#622).
+	function Methods:HighlightText(start, stop)
+		if start ~= nil and type(start) ~= "number" then
+			error("bad argument #2 to 'HighlightText' (outside of expected range -2147483648 to 2147483647)", 2)
+		end
+		if stop ~= nil and type(stop) ~= "number" then
+			error("bad argument #3 to 'HighlightText' (outside of expected range -2147483648 to 2147483647)", 2)
+		end
 		self.highlighted = self.text
 	end
 	Methods.RegisterForDrag, Methods.StartMoving, Methods.StopMovingOrSizing = noop, noop, noop
@@ -1637,9 +1662,10 @@ function Client.load(options)
 	for line in io.lines(ADDON .. ".toc") do
 		local file = line:match("^([%w_\\]+%.lua)%s*$")
 		if file then
-			-- The fixtures stand in for the bundled tables before any addon file reads them; the broken check and
-			-- the locale files read no data.
-			if data and not file:find("^Locales\\") and not file:find("^Data\\") and file ~= "Core\\Require.lua" then
+			-- The fixtures stand in for the bundled tables before any addon file reads them; the two broken checks
+			-- (Core/ForeverRequire.lua and Core/Require.lua) and the locale files read no data.
+			local warning = file == "Core\\ForeverRequire.lua" or file == "Core\\Require.lua"
+			if data and not file:find("^Locales\\") and not file:find("^Data\\") and not warning then
 				for name, value in pairs(data) do
 					c.ns[name] = value
 				end

@@ -887,6 +887,7 @@ local appliedRecipe
 ---@return TradeSkillRecipeInfo?
 local function ShownRecipe()
 	local craftingPage = ProfessionsFrame and ProfessionsFrame.CraftingPage
+	---@cast craftingPage SkillUpCraftingPage
 	local form = craftingPage and craftingPage.SchematicForm
 	if form and form.GetRecipeInfo then
 		return form:GetRecipeInfo()
@@ -939,6 +940,7 @@ local function ApplyCraft(craft)
 	end
 
 	local craftingPage = ProfessionsFrame and ProfessionsFrame.CraftingPage
+	---@cast craftingPage SkillUpCraftingPage
 	local create = craftingPage and craftingPage.CreateButton
 	local createAll = craftingPage and craftingPage.CreateAllButton
 	local craftable = recipeID and ns.Readable(C_TradeSkillUI.GetCraftableCount(recipeID)) or 0
@@ -1426,7 +1428,6 @@ function ns.AttachRoute()
 		afterBlizzardPending = true
 		C_Timer.After(0, function()
 			afterBlizzardPending = false
-			ns.PlaceSideTabs()
 			ns.Pages.Sync()
 			-- The window's own profession starts tracking on its own when its route has steps.
 			if ProfessionsFrame:IsShown() then

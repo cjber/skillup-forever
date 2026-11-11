@@ -66,6 +66,7 @@ end
 -- pane's own points, scripts or callbacks is touched, so it stays safe in combat and through Create All.
 function ns.AttachDetailsBar()
 	local page = ProfessionsFrame and ProfessionsFrame.CraftingPage
+	---@cast page SkillUpCraftingPage
 	local form = page and page.SchematicForm
 	if frame or not form then
 		return

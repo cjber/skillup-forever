@@ -22,6 +22,9 @@ local L = ns.L
 """
 # The phrase as written in the source, escapes included, so it pastes back into Lua unchanged.
 PHRASE = re.compile(r'\bL\["((?:\\.|[^"\\\n])*)"\]')
+# ForeverCore's shared out-of-date warning (Core/ForeverRequire.lua, copied byte for byte) hands its English text to
+# a `phrase(key, ...)` helper and reads ns.L by that same key, so those strings are phrases too.
+SHARED = re.compile(r'\bphrase\("((?:\\.|[^"\\\n])*)"')
 # A shared window may choose a phrase in a bracket expression: `L[count == 1 and "board" or "boards"]` uses both,
 # so each string alternative is a phrase too.
 ALTERNATIVE = re.compile(r"\bL\[([^\]]*)\]")
@@ -39,6 +42,7 @@ def phrases() -> list[str]:
             continue
         text = path.read_text()
         found.update(PHRASE.findall(text))
+        found.update(SHARED.findall(text))
         for expression in ALTERNATIVE.findall(text):
             found.update(STRING.findall(expression))
         tables = {name: STRING.findall(body) for name, body in TABLE.findall(text)}

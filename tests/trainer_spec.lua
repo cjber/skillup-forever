@@ -174,7 +174,7 @@ Open({ { "Spice Bread", "available", 40, nil, BREAD } })
 equal(table.concat(ns.db.trainer[COOKING][BREAD], "/"), "40/25", "the fee is kept with the bundled requirement")
 ns.TrainerFees[BREAD] = nil
 
--- Issue #124: the requirement the trainer showed is saved apart from the one the plan uses, and /su trainers
+-- Issue #124: the requirement the trainer showed is saved apart from the one the plan uses, and /skillup trainers
 -- compares it with the bundled one, which the generator moved from classic-db's.
 equal(ns.db.trainer[COOKING][BREAD][3], nil, "a row showing no requirement saves none as shown")
 local STEW, ROAST = 9001, 9002

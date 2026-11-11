@@ -26,10 +26,10 @@ L["%s, %s, to %d"] = "%s, %s, %d까지"
 L["%s, source unknown"] = "%s, 출처 알 수 없음"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] = "%s: 이동 %d, 전문가에서 확인 %d, 틀림 %d."
 L["+%d more"] = "+%d개 더"
-L["/su skipped lists the recipes you skipped, with their IDs."] =
-	"/su skipped: 건너뛴 제조법을 ID와 함께 보여줍니다."
-L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
-	"/su unskip <recipe ID>는 하나를, /su unskip all은 모두 다시 보여줍니다."
+L["/skillup skipped lists the recipes you skipped, with their IDs."] =
+	"/skillup skipped: 건너뛴 제조법을 ID와 함께 보여줍니다."
+L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."] =
+	"/skillup unskip <recipe ID>는 하나를, /skillup unskip all은 모두 다시 보여줍니다."
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"상인 창에 재료 탭을 추가해 추적 중인 경로가 이 상인에게서 아직 필요한 재료와 총 비용을 보여 줍니다. 구매는 상인 창에서 직접 하세요."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
@@ -252,8 +252,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
 L["The place this recipe is taught isn't known yet."] =
 	"이 제조법을 배우는 곳은 아직 알려지지 않았습니다."
-L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
-	"열린 전문 기술에서 가장 긴 제조법 이름에 맞춰 제조법 목록과 창이 넓어지며, 화면 크기까지만 넓어집니다. 끄면 창의 원래 너비를 유지합니다."
+L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
+	"창은 하나의 너비를 유지하며, 배운 모든 전문 기술에서 가장 넓은 제조법 행에 맞춰 화면이 허락하는 만큼 넓어집니다. 끄면 게임의 너비를 유지합니다."
 L["The rest comes from a vendor or your gathering."] = "나머지는 상인이나 채집으로 얻습니다."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"경로는 %d개로 10번 중 9번은 %d에 도달한다고 봅니다. 운이 나쁘면 더 필요합니다."
@@ -373,12 +373,12 @@ L["%d x %s - price unknown"] = "%d x %s - 가격 없음"
 L["%s to %d"] = "%s, %d까지"
 L[", "] = ", "
 L[", price seen %d days ago"] = ", %d일 전 확인한 가격"
-L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
-	"/su export - 이 캐릭터가 확인한 전문가 요구 조건을 표시합니다. 보고서에 붙여 넣을 수 있습니다."
-L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
-	"/su issue - GitHub 이슈 링크가 준비된 상태로 버그를 신고하거나 기능을 요청합니다."
-L["/su report - show a report to copy into a bug report"] =
-	"/su report - 버그 보고서에 복사할 보고서를 표시합니다."
+L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/skillup export - 이 캐릭터가 확인한 전문가 요구 조건을 표시합니다. 보고서에 붙여 넣을 수 있습니다."
+L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/skillup issue - GitHub 이슈 링크가 준비된 상태로 버그를 신고하거나 기능을 요청합니다."
+L["/skillup report - show a report to copy into a bug report"] =
+	"/skillup report - 버그 보고서에 복사할 보고서를 표시합니다."
 L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] =
 	"구매 경로를 계획하려면 Shortest Path Forever가 필요합니다."
@@ -421,12 +421,12 @@ L["Pinned: %s"] = "고정: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"숙련도 범위가 겹치면 최근 고정한 제조법이 우선합니다." -- mt
 L["Pinned (%d)"] = "고정됨 (%d)" -- mt
-L["/su share on|off - control sharing with guild and group"] =
-	"/su share on|off - 길드 및 파티와의 공유 설정"
+L["/skillup share on|off - control sharing with guild and group"] =
+	"/skillup share on|off - 길드 및 파티와의 공유 설정"
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
 L["Recipes observed"] = "관찰한 제작법"
-L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
-	"/su leaderboard - 이 애드온 탭에서 Forever Leaderboards를 엽니다 (/su stats도 가능)"
+L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
+	"/skillup leaderboard - 이 애드온 탭에서 Forever Leaderboards를 엽니다 (/skillup stats도 가능)"
 L["total"] = "합계"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."
@@ -498,7 +498,6 @@ L["Waiting for Questie to finish loading."] = "Questie 불러오기가 끝나기
 L["Nothing is tracked for %s."] = "%s에 대해 추적 중인 항목이 없습니다." -- mt
 L["+%d more to train"] = "+%d개 더 배우기" -- mt
 L["Also train"] = "추가 학습" -- mt
-L["Works again after updating."] = "업데이트 후 다시 작동합니다." -- mt
 L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
 	"Auctionator 목록: %s. 경매장에서 구매 탭을 열고 목록을 선택한 뒤 검색하세요. 각 줄을 클릭하여 구매하세요."
 L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -513,3 +512,11 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"재료 구매를 켜면 아직 부족한 모든 경매장 재료가 Auctionator 목록에 기록됩니다."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Auctionator가 없으면 레시피의 검색 버튼이 게임 자체 경매 검색 상자에 한 번에 하나의 재료를 채웁니다."
+L["The Professions window keeps one width and one page."] =
+	"전문 기술 창이 한 가지 너비와 한 페이지를 유지합니다." -- mt
+L["%s: %s is out of date. Update it to fix this."] =
+	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
+L["%s: %s are out of date. Update them to fix this."] =
+	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
+L["%s could not start. Reinstall %s to fix this."] =
+	"%s을(를) 시작할 수 없습니다. 문제를 해결하려면 %s을(를) 다시 설치하세요." -- mt

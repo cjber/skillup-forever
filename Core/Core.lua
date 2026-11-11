@@ -18,10 +18,16 @@ ns.core = ForeverCore.Register(addonName, {
 	end,
 })
 
+-- Hands the generated player credits to the shared Thanks page (WFA-31). An older core has no Credits module, and the
+-- addon loads as before.
+if type(ForeverCore.Credits) == "table" then
+	ns.core.SafeCall("credits", ForeverCore.Credits.Register, "SkillUp Forever", ns.Credits)
+end
+
 ---@type SkillUpDefaults
 local DEFAULTS = {
 	showRowText = true,
-	wideRecipeList = true, -- widen the recipe list and the window to the longest recipe name in the open profession
+	wideRecipeList = true, -- the window and list grow to the widest row of every learned profession
 	showUnlearned = false, -- also list recipes this character has not learned, greyed, with where they are learned
 	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
 	showSkill = false,
@@ -102,9 +108,12 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 	{ "full", L["Every recipe that uses it"] },
 }
 ns.TITLE = "SkillUp Forever"
--- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
--- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Works again after updating."]
+-- The newest release in CHANGELOG.md with a bold headline, and that headline: said once in chat after an update. A
+-- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
+-- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
+-- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
+ns.WHATS_NEW_VERSION = "1.7.0"
+ns.WHATS_NEW = L["The Professions window keeps one width and one page."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -236,7 +245,7 @@ local function LoadDB()
 	end
 	-- Earlier versions saved a trainer row that showed no skill requirement as needing 0, which planned
 	-- learning it at once; the bundled requirement stands in for those. A shown requirement that is no
-	-- skill is forgotten, so /su trainers never reports it.
+	-- skill is forgotten, so /skillup trainers never reports it.
 	for skillLine, recipes in pairs(loaded.trainer) do
 		if type(skillLine) ~= "number" or type(recipes) ~= "table" then
 			loaded.trainer[skillLine] = nil
@@ -334,7 +343,8 @@ local function ReadChanceBonus()
 end
 
 -- One chat line after an update, never on a first install. A dev checkout's version is
--- the packager's unfilled keyword, so it is left alone.
+-- the packager's unfilled keyword, so it is left alone. A maintenance release, the core sync's entry with no
+-- headline, has no WHATS_NEW_VERSION of its own, so it stays quiet like the same version.
 function ns.AnnounceUpdate()
 	local version = C_AddOns.GetAddOnMetadata(addonName, "Version")
 	if not (ns.db and version) or version:match("^@.+@$") then
@@ -342,7 +352,7 @@ function ns.AnnounceUpdate()
 	end
 	local last = ns.db.lastVersion
 	ns.db.lastVersion = version
-	if ns.db.whatsNew and last ~= "" and last ~= version then
+	if ns.db.whatsNew and last ~= "" and last ~= version and version == ns.WHATS_NEW_VERSION then
 		ns.Print(string.format(L["updated to %s. %s"], version, ns.WHATS_NEW))
 	end
 end
@@ -815,7 +825,7 @@ function ns.RowColor(d)
 	return ns.COLORS[d.chance and d.color or (d.thresholds and "red" or "unknown")]
 end
 
--- /su audit's lines: with a profession open, the bundled thresholds against the colours the game shows, as a
+-- /skillup audit's lines: with a profession open, the bundled thresholds against the colours the game shows, as a
 -- summary line then each mismatch; nil with none open. English throughout: it is a data check for bug reports.
 ---@return string[]?
 function ns.AuditLines()
@@ -880,7 +890,7 @@ local function Audit()
 	end
 end
 
--- /su skipped: this character's skipped recipes, each with its ID for /su unskip.
+-- /skillup skipped: this character's skipped recipes, each with its ID for /skillup unskip.
 local function ListSkipped()
 	local skipped = ns.SkippedRecipes()
 	if #skipped == 0 then
@@ -891,10 +901,10 @@ local function ListSkipped()
 	for _, recipe in ipairs(skipped) do
 		ns.Print(string.format("%s (%d)", recipe.name, recipe.recipeID))
 	end
-	ns.Print(L["/su unskip <recipe ID> shows one again, /su unskip all every one."])
+	ns.Print(L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."])
 end
 
--- /su unskip <recipe ID> or /su unskip all: Show again, from chat.
+-- /skillup unskip <recipe ID> or /skillup unskip all: Show again, from chat.
 ---@param argument string
 local function Unskip(argument)
 	if argument == "all" then
@@ -906,7 +916,7 @@ local function Unskip(argument)
 	end
 	local recipeID = tonumber(argument)
 	if not (recipeID and ns.IsSkipped(recipeID)) then
-		ns.Print(L["/su skipped lists the recipes you skipped, with their IDs."])
+		ns.Print(L["/skillup skipped lists the recipes you skipped, with their IDs."])
 		return
 	end
 	ns.SetSkipped(recipeID, false)
@@ -914,11 +924,11 @@ local function Unskip(argument)
 	ns.Print(string.format(L["Show again: %s"], name))
 end
 
--- /su export trainers (#124): the requirements this character's trainers actually showed, as a table for
+-- /skillup export trainers (#124): the requirements this character's trainers actually showed, as a table for
 -- tools/gen_trainer.py's SEEN_REQUIREMENTS, so a value no bundled rule guessed right can be fixed for everyone.
--- Trainers are the only export, so /su export does the same as /su export trainers. The copy window when it can
--- open, the same lines in chat when it cannot: nothing is written, nothing prints on login, nothing waits on an
--- event, and there is no protected call in it.
+-- Trainers are the only export, so /skillup export does the same as /skillup export trainers. The copy window
+-- when it can open, the same lines in chat when it cannot: nothing is written, nothing prints on login, nothing
+-- waits on an event, and there is no protected call in it.
 local function Export()
 	local lines = ns.TrainerExport()
 	if not lines[1] then
@@ -935,11 +945,10 @@ local function Export()
 end
 
 SLASH_SKILLUPFOREVER1 = "/skillup"
-SLASH_SKILLUPFOREVER2 = "/su"
 
 -- The /skillup commands, in dispatch order. The shared report commands come first, as they did before the table,
--- so the table order is also the order /su help prints. `arguments`, when set, lists the only values the command
--- accepts; nil accepts any argument. `help` is the line /su help prints, or nil for a command the help leaves out.
+-- so the table order is also the order /skillup help prints. `arguments`, when set, lists the only values the command
+-- accepts; nil accepts any argument. `help` is the line /skillup help prints, or nil for a command the help leaves out.
 ---@return nil
 local function Help()
 	for _, entry in ipairs(ns.SlashCommands) do
@@ -963,19 +972,19 @@ ns.SlashCommands = {
 	{
 		word = "report",
 		handler = ReportCommand,
-		help = L["/su report - show a report to copy into a bug report"],
+		help = L["/skillup report - show a report to copy into a bug report"],
 	},
 	{
 		word = "issue",
 		aliases = { BUG, FEATURE },
 		handler = ReportCommand,
-		help = L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"],
+		help = L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"],
 	},
 	{ word = "help", handler = Help },
 	{
 		word = "export",
 		handler = Export,
-		help = L["/su export - show the trainer requirements this character has seen, to paste into a report"],
+		help = L["/skillup export - show the trainer requirements this character has seen, to paste into a report"],
 	},
 	{
 		word = "leaderboard",
@@ -985,7 +994,7 @@ ns.SlashCommands = {
 				ns.Stats.Open()
 			end
 		end,
-		help = L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"],
+		help = L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"],
 	},
 	{
 		word = "share",
@@ -995,7 +1004,7 @@ ns.SlashCommands = {
 				Settings.SetValue("SkillUpForever_statsShare", argument == SHARE_ON)
 			end
 		end,
-		help = L["/su share on|off - control sharing with guild and group"],
+		help = L["/skillup share on|off - control sharing with guild and group"],
 	},
 	{
 		word = "shopping",

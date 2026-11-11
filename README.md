@@ -26,7 +26,7 @@ The recipe tooltip draws the thresholds on the game's own bar with your skill ma
 ## Features
 
 - **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds.
-- **A wide recipe list** grows to the longest recipe name in the open profession, with how many your bags can make in parentheses after each name. The window grows with it, up to the room your screen has. Turn it off in settings to keep the game's own width.
+- **A wide recipe list** keeps one window width, widened to the widest recipe row of every profession you have learned so names never run under the skill-up columns, with how many your bags can make in parentheses after each name. Turn it off in settings to keep the game's own width.
 - **Unlearned recipes** can sit under the learned ones in the same list. A setting, off by default, greys them and marks each with its trainer or recipe item and the skill it asks, and hovering one shows its reagents, cost and skill-up colours like a learned recipe's. They cannot be selected or crafted.
 - **Sorting** orders recipes by difficulty range start, chance, cheapest skill-ups or newest learned first. *Default* restores the game's categories and filters.
 - **Buffs only** filters the list to the elixirs, flasks, Well Fed food, protection potions, stones, oils, armour kits and scopes you can use at your level, highest required level first, with unlearned ones following when *List unlearned recipes* is on.
@@ -66,13 +66,13 @@ At the trainer, every recipe shows its chance and cost; a green arrow marks the 
 
 Hover a reagent to see how much your tracked routes need.
 
-`/su leaderboard` (or `/su stats`) opens the shared Forever Leaderboards window on SkillUp's tab, ranking distinct recipes SkillUp has observed as learned on your character against totals reported by guild and group members, for this week or all time. The window also shows the overall standing across every installed Forever addon and puts a player's place in the unit tooltip. Repeated scans and relearning the same recipe do not increase the total. Recipes in linked or guild profession views do not count.
+`/skillup leaderboard` (or `/skillup stats`) opens the shared Forever Leaderboards window on SkillUp's tab, ranking distinct recipes SkillUp has observed as learned on your character against totals reported by guild and group members, for this week or all time. The window also shows the overall standing across every installed Forever addon and puts a player's place in the unit tooltip. Repeated scans and relearning the same recipe do not increase the total. Recipes in linked or guild profession views do not count.
 
-Sharing is on by default: everyone running a Forever addon appears on the boards unless they turn it off. Turn it off with `/su share off`, the Share my progress switch in the window, or the checkbox in Settings > AddOns > SkillUp Forever. This stops sending and receiving totals and hides other players while keeping your local observations. `/su share on` resumes sharing. Reported totals are not verified.
+Sharing is on by default: everyone running a Forever addon appears on the boards unless they turn it off. Turn it off with `/skillup share off`, the Share my progress switch in the window, or the checkbox in Settings > AddOns > SkillUp Forever. This stops sending and receiving totals and hides other players while keeping your local observations. `/skillup share on` resumes sharing. Reported totals are not verified.
 
 ## Install
 
-Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forever) or [Wago Addons](https://addons.wago.io/addons/skillup-forever), or download the zip from [Releases](https://github.com/cjber/skillup-forever/releases). It needs Forever Core, which CurseForge and Wago install with it. To install the zip by hand, extract it into the WoW: Forever client's `Interface/AddOns/` folder (`_forever_` on the live client, `_classic_beta_` on the beta).
+Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forever) or [Wago Addons](https://addons.wago.io/addons/skillup-forever), or download the zip from [Releases](https://github.com/cjber/skillup-forever/releases). Nothing else needs installing. To install the zip by hand, extract it into the WoW: Forever client's `Interface/AddOns/` folder (`_forever_` on the live client, `_classic_beta_` on the beta).
 
 ## Usage
 
@@ -80,14 +80,14 @@ Open a profession and the numbers are already there.
 
 | Command | What it does |
 |---|---|
-| `/su`, `/skillup` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
-| `/su skipped` | List the recipes you said *Not this recipe* to on this character, with their IDs |
-| `/su unskip <ID>`, `/su unskip all` | Show a skipped recipe, or every one, in the route again |
-| `/su audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
-| `/su report` | Show a report to copy into a bug report: versions, professions, routes, the audit and recent errors |
-| `/su issue` | Open a ready-made GitHub issue link to report a bug or request a feature |
-| `/su shopping`, `/su shop` | Open the shopping list for tracked professions, copy it, or plan a buy trip with Shortest Path Forever |
-| `/su trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer has confirmed or shown differently |
+| `/skillup` | Open the settings (also in Settings → AddOns, or from the addon compartment on the minimap) |
+| `/skillup skipped` | List the recipes you said *Not this recipe* to on this character, with their IDs |
+| `/skillup unskip <ID>`, `/skillup unskip all` | Show a skipped recipe, or every one, in the route again |
+| `/skillup audit` | With a profession open, compare the bundled thresholds with the colours the game shows and print any mismatch |
+| `/skillup report` | Show a report to copy into a bug report: versions, professions, routes, the audit and recent errors |
+| `/skillup issue` | Open a ready-made GitHub issue link to report a bug or request a feature |
+| `/skillup shopping`, `/skillup shop` | Open the shopping list for tracked professions, copy it, or plan a buy trip with Shortest Path Forever |
+| `/skillup trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer has confirmed or shown differently |
 
 Settings cover rows and tooltips, the recipe list's width, what crafts count for, sort order, the route, crafted gear and buffs tabs, trainer annotations, reagent and gathering tooltips and Forever addon hints. Turn off **Show tracked professions** to hide the tracker, or **Attach to quest tracker** to drag the Forever column. **Tracker scale** sizes the shared tracker from 50% to 200%, where 100% matches the game's own tracker.
 
@@ -111,7 +111,7 @@ Each recipe has four thresholds: orange (start of its skill range), yellow, gree
 
 The colour always comes from the game, so the addon never disagrees. Thresholds and recipe data come from the Forever client's `SkillLineAbility` (via [wago.tools](https://wago.tools)). The grey threshold is the game's own live value where it reports one. Missing or contradictory ranges show `?`. Training requirements are separate from these difficulty bands.
 
-**Found a wrong number?** Open that profession, run `/su report` and paste its text into a [Wrong number issue](https://github.com/cjber/skillup-forever/issues/new?template=wrong_number.yml).
+**Found a wrong number?** Open that profession, run `/skillup report` and paste its text into a [Wrong number issue](https://github.com/cjber/skillup-forever/issues/new?template=wrong_number.yml).
 
 ## Works alongside
 
@@ -134,7 +134,7 @@ Each one works on its own, and they work together when you install more than one
 | [Commissions Forever](https://www.curseforge.com/wow/addons/commissions-forever) | Lists your commission turn-ins, the materials in your bags and the next NPC to visit. | [Issues](https://github.com/cjber/commissions-forever/issues) |
 | [Macro Assist Forever](https://www.curseforge.com/wow/addons/macro-assist-forever) | Adds a macro window with every macro in one list, a mono editor with live checks, and history. | [Issues](https://github.com/cjber/macro-assist-forever/issues) |
 
-Bug reports, feature requests and pull requests are welcome on each addon's GitHub. Everyone whose report or idea ships is thanked by name in the addon's credits and changelog.
+Bug reports, feature requests and pull requests are welcome on each addon's GitHub. Everyone whose report or idea ships is thanked by name on the Thanks page in game, in the store page and in the changelog, unless they ask not to be.
 
 For help, ideas and each day's release notes, join [cjber's Workshop on Discord](https://discord.gg/FpHugGxRJY).
 
@@ -160,7 +160,13 @@ The addon is free and stays GPL-3.0. If it saves you time, you can [sponsor me o
 
 ## Credits
 
-Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees, drop chances and gathered reagents from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0), and vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1). Some features were inspired by [Polestar](https://github.com/fitzforge/polestar) by Fitz, such as the skill colour on gathering nodes; no code was copied. Fitz is welcome to use our code. Thanks to Brainc3ll for French lines, kopuliak, chuujitsuna, berserkerlxl, syrberus, kurila11478, ballara, trias6657, deathmvp1 and everyone listed in [THIRD_PARTY.md](THIRD_PARTY.md).
+Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees, drop chances and gathered reagents from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0), and vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1). Some features were inspired by [Polestar](https://github.com/fitzforge/polestar) by Fitz, such as the skill colour on gathering nodes; no code was copied. Fitz is welcome to use our code.
+
+<!-- forever-credits:start -->
+
+Thanks to kopuliak, Mouchoir, Chuujitsuna, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, sundered1985, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc and everyone who reported a bug or asked for a feature.
+
+<!-- forever-credits:end -->
 
 ## Licence
 

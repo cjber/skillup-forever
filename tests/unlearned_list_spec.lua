@@ -281,11 +281,15 @@ assert(nodes[1]:GetData().categoryInfo.name == "Unlearned", "the client's own un
 assert(#nodes[1]:GetNodes() == 1 and nodes[1]:GetNodes()[1]:GetData().recipeInfo.recipeID == 20)
 assert(#nodes == 3 and nodes[3]:GetData().recipeInfo.recipeID == 30, "only the missing recipe is added")
 
--- The list widens for the marker and its source when the setting allows it.
+-- The list takes the room a window wider than the client's gives the marker and its source, and never moves
+-- the window itself; at the client's own width the marker is laid out in the list's width.
 ns.db.wideRecipeList = true
+recipeList.width, frame.width = 304, 900
+box:SetDataProvider(input)
+assert(recipeList.width > 304 and frame.width == 900, "the unlearned row text fills the window's room")
 recipeList.width, frame.width = 304, 673
 box:SetDataProvider(input)
-assert(recipeList.width > 304 and frame.width > 673, "the unlearned row text widens the list")
+assert(recipeList.width == 304 and frame.width == 673, "at the client's width the list keeps its width")
 
 -- A row decorated with an added recipe: grey text with where and at what skill, no count, no mouse.
 local function Row()

@@ -1,7 +1,7 @@
 -- Run from the repository root: luajit tests/pages_spec.lua
--- The one SkillUp side tab and its pages' bottom tabs (UI/Pages.lua): one side tab whatever the pages, the
--- bottom tabs follow each page's setting, the last page reopens, and a Blizzard tab or the closed window hands
--- the window back.
+-- The bottom tabs of SkillUp's pages (UI/Pages.lua): the side tab and the page on show belong to
+-- ForeverCore.ProfessionTabs, while the bottom tabs follow each page's setting, the last page reopens, and a
+-- client tab or the closed window hands the window back.
 local checks = 0
 local function equal(actual, expected, label)
 	checks = checks + 1
@@ -91,6 +91,9 @@ local function NewRegion(parent, frameType)
 		local was = self.shown
 		self.shown = true
 		if not was then
+			if self.scripts.OnShow then
+				self.scripts.OnShow(self)
+			end
 			for _, fn in ipairs(self.hooks.OnShow or {}) do
 				fn(self)
 			end
@@ -100,6 +103,9 @@ local function NewRegion(parent, frameType)
 		local was = self.shown
 		self.shown = false
 		if was then
+			if self.scripts.OnHide then
+				self.scripts.OnHide(self)
+			end
 			for _, fn in ipairs(self.hooks.OnHide or {}) do
 				fn(self)
 			end
@@ -216,6 +222,46 @@ ProfessionsFrame.ProfessionsOverviewTab:SetPoint("TOPLEFT", ProfessionsFrame, "T
 ProfessionsFrame.ProfessionsOverviewTab:SetSize(43, 55)
 ProfessionsFrame.rightProfessionTabs = {}
 
+-- ForeverCore.ProfessionTabs, as the client's own side tab works: one register, its page shown and hidden, and a
+-- selection callback after the page shows.
+local coreTab
+local coreEntry
+local coreSelected
+local Core = {}
+function Core.Register(key, spec)
+	coreEntry = { key = key, spec = spec }
+	coreTab = CreateFrame("Button", nil, ProfessionsFrame, "LargeSideTabButtonTemplate")
+	coreTab.Icon:SetTexture(spec.icon)
+	coreTab.tooltipText = spec.tooltip
+	coreTab:SetCustomOnMouseUpHandler(function(_, button, upInside)
+		if button == "LeftButton" and upInside then
+			Core.Select(key)
+		end
+	end)
+	coreTab:SetChecked(false)
+	return coreTab
+end
+function Core.Select()
+	coreSelected = coreEntry.key
+	coreTab:SetChecked(true)
+	coreEntry.spec.page:Show()
+	if coreEntry.spec.onSelect then
+		coreEntry.spec.onSelect(coreEntry.key)
+	end
+end
+function Core.ShowNative()
+	coreSelected = nil
+	coreTab:SetChecked(false)
+	coreEntry.spec.page:Hide()
+end
+function Core.Selected()
+	return coreSelected
+end
+function Core.SetMinWidth(key, width)
+	coreEntry.spec.minWidth = width
+	return key == coreEntry.key
+end
+
 local handlers = {}
 local lastPage
 local ns = {
@@ -224,7 +270,13 @@ local ns = {
 			return key
 		end,
 	}),
+	ICON = "Interface\\Icons\\INV_Scroll_03",
 	db = { showRouteTab = true, showGearTab = false, showBuffsTab = true },
+	core = {
+		SafeCall = function(_, fn, ...)
+			return pcall(fn, ...)
+		end,
+	},
 	LastSkillUpPage = function()
 		return lastPage
 	end,
@@ -238,6 +290,7 @@ local ns = {
 ns.Pages = {}
 
 local env = setmetatable({
+	ForeverCore = { ProfessionTabs = Core },
 	CreateFrame = CreateFrame,
 	ProfessionsFrame = ProfessionsFrame,
 	C_Timer = {
@@ -295,19 +348,29 @@ local route = Page("route")
 local gear = Page("gear")
 local buffs = Page("buffs")
 
--- One side tab, however many pages, and a bottom tab for each page that is on.
-equal(#tabs, 1, "the pages share one side tab")
+-- Core builds the one side tab for every page, and the bottom tabs are ours.
+equal(#tabs, 1, "the pages share core's one side tab")
+equal(ns.Pages.SideTab(), coreTab, "the side tab is the one core registered")
+equal(coreEntry.spec.icon, ns.ICON, "it wears the addon's icon")
+equal(coreEntry.spec.tooltip, "SkillUp", "and says its name")
+equal(coreEntry.spec.minWidth, nil, "no wide list means no width of its own")
+equal(coreEntry.spec.safeCall, ns.core.SafeCall, "its failures go to SkillUp's journal")
+equal(ns.Pages.SetMinWidth(800), true, "the recipe list can raise the window's one width")
+equal(coreEntry.spec.minWidth, 800, "and core records it")
+equal(ns.Pages.SetMinWidth(nil), true, "and clear it again")
+equal(coreEntry.spec.minWidth, nil, "so the client's own width returns")
 equal(ns.Pages.Count(), 3, "three pages are registered")
 equal(#bottomTabs, 3, "and each has a bottom tab")
 equal(ns.Pages.BottomTab("route") ~= nil, true, "the route tab is kept by id")
 equal(ns.Pages.BottomTab("gear").shown, false, "no page tabs show before a page does")
 
 -- The side tab opens the page the player used last, or Route before there is one.
-tabs[1].scripts.OnMouseUp(nil, "LeftButton", true)
+coreTab.scripts.OnMouseUp(nil, "LeftButton", true)
 Flush()
-equal(route:IsShown(), true, "the side tab opens Route by default")
+equal(coreSelected, "skillup", "the side tab selects core's SkillUp tab")
+equal(route:IsShown(), true, "and opens Route by default")
 equal(prepared.route, 1, "and prepares it")
-equal(tabs[1]:IsChecked(), true, "with the side tab checked")
+equal(coreTab:IsChecked(), true, "with the side tab checked")
 equal(ns.Pages.BottomTab("route").selected, true, "and Route's bottom tab selected")
 equal(ns.Pages.BottomTab("route").shown, true, "Route's bottom tab shows with the page")
 equal(ns.Pages.BottomTab("gear").shown, false, "a page that is off has no bottom tab")
@@ -321,42 +384,39 @@ Flush()
 equal(gear:IsShown(), true, "the gear tab shows the gear page")
 equal(route:IsShown(), false, "and hides the route page")
 equal(lastPage, "gear", "the last page is saved")
-tabs[1].scripts.OnMouseUp(nil, "LeftButton", true)
+coreTab.scripts.OnMouseUp(nil, "LeftButton", true)
 Flush()
 equal(gear:IsShown(), true, "the side tab reopens the last page used")
 equal(prepared.gear, 2, "preparing it again")
 
--- A page turned off loses its bottom tab; when it is the open one, the window goes back to crafting.
+-- A page turned off loses its bottom tab; when it is the open one, the window goes back to the client's page.
 ns.db.showGearTab = false
 handlers.pages()
 equal(ns.Pages.BottomTab("gear").shown, false, "the gear tab hides with its setting")
 equal(gear:IsShown(), false, "and the open gear page closes")
-equal(tabs[1]:IsChecked(), false, "the side tab unchecks with no page showing")
-Flush()
-equal(ProfessionsFrame.CraftingPage:IsShown(), true, "the window returns to its crafting page")
+equal(coreTab:IsChecked(), false, "the side tab unchecks with no page showing")
+equal(coreSelected, nil, "and core hands the window back")
+equal(ProfessionsFrame.CraftingPage:IsShown(), true, "the client's own page stays shown")
 
 -- The side tab shows while at least one page is on, and goes when every page is off.
 ns.db.showRouteTab = false
 ns.db.showBuffsTab = false
 handlers.pages()
-equal(tabs[1].shown, false, "the side tab hides when every page is off")
+equal(coreTab.shown, false, "the side tab hides when every page is off")
 ns.db.showBuffsTab = true
 handlers.pages()
-equal(tabs[1].shown, true, "and comes back with one page on")
+equal(coreTab.shown, true, "and comes back with one page on")
 equal(ns.Pages.BottomTab("route").shown, false, "the route tab stays off")
 
--- A Blizzard page hands the window back: our page hides and the tabs uncheck.
+-- A client tab or page hands the window back: our page hides and the side tab unchecks.
 ns.Pages.BottomTab("buffs").scripts.OnClick()
 Flush()
 equal(ns.Pages.BottomTab("buffs").shown, true, "the buffs tab shows while its page does")
 equal(buffs:IsShown(), true, "the buffs tab shows the buffs page")
-ProfessionsFrame.CraftingPage:Show()
-for _, fn in ipairs(ProfessionsFrame.CraftingPage.hooks.OnShow or {}) do
-	fn(ProfessionsFrame.CraftingPage)
-end
+Core.ShowNative()
 Flush()
-equal(buffs:IsShown(), false, "a Blizzard page hides ours")
-equal(tabs[1]:IsChecked(), false, "and unchecks the side tab")
+equal(buffs:IsShown(), false, "a client page hides ours")
+equal(coreTab:IsChecked(), false, "and unchecks the side tab")
 equal(ns.Pages.BottomTab("buffs").shown, false, "with the page tabs hidden")
 
 -- The window closing hands it back too.
@@ -365,7 +425,7 @@ Flush()
 equal(buffs:IsShown(), true, "the buffs page shows before the window closes")
 ProfessionsFrame:Hide()
 Flush()
-equal(tabs[1]:IsChecked(), false, "closing the window unchecks the side tab")
+equal(coreTab:IsChecked(), false, "closing the window unchecks the side tab")
 equal(ns.Pages.BottomTab("buffs").shown, false, "and hides the page tabs")
 
 print("pages_spec: " .. checks .. " checks passed")

@@ -12,6 +12,30 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The players who helped are on the Thanks page.** Settings, Forever addons, Thanks lists everyone whose report or idea shipped in SkillUp Forever, ranked by how much they gave. (#604)
+## [1.7.1] - 2026-11-11
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [1.7.0] - 2026-11-11
+
+<!-- discord-image: docs/screenshots/window-wide.png -->
+
+- **The Professions window keeps one width and one page.** Switching between SkillUp's tab, another Forever addon's tab and the game's own tabs no longer leaves the other addon's page drawn over SkillUp's, and the window no longer changes width when you open another profession or tab. With the wide recipe list on, the window is as wide as the widest recipe row of every profession you have learned needs, so names stay clear of SkillUp's skill-up columns on every profession; turning it off gives the game's own width back (#555, cjber/forever-core#433).
+- **The shopping list's copy window opens without an error.** Opening it to copy your list raised a Lua error and left the list unselected. It now opens with the whole list selected, ready to copy (#622).
+- **`/skillup` is the one command.** The `/su` shortcut is gone: German and Spanish clients already bind `/su` to their own stopwatch and whisper commands, so in those languages it never reached SkillUp and ran the game's command instead. Every command works as before, typed in full: `/skillup audit`, `/skillup report`, `/skillup unskip all` and the rest.
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+### For addon authors
+
+- **The side tab is ForeverCore's.** SkillUp registers it with `ForeverCore.ProfessionTabs.Register`, so core owns where it sits, which tab is checked and handing the window back. The wide recipe list raises the tab's one width with `ProfessionTabs.SetMinWidth`. The addon now requires the ForeverCore release with `ProfessionTabs.minor` 1.
+
+## [1.6.2] - 2026-11-11
+
+- **Tells you which addon to update.** If another Forever addon you have installed is older than this one and stops it starting, the message now names that addon, so you know exactly what to update.
+
 ## [1.6.1] - 2026-11-11
 
 - **Works again after updating.** Updating to the last version could leave the addon switched off in the game's AddOns list with "ForeverCore: missing", because the update did not bring Forever Core with it. Forever Core now comes inside this addon's download again, from CurseForge, Wago or GitHub alike, so updating is all it takes (cjber/shortest-path-forever#731).

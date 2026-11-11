@@ -14,6 +14,48 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **The tracker's rows can be made larger from SkillUp's settings.** A new *Tracker scale* slider in *Route and trainer* scales the shared Forever tracker from 50% to 200%, so its rows can match the size you find readable; 100% is the game's own tracker. Reported on CurseForge by Chuujitsuna (#517).
 
+## [1.5.0] - 2026-11-11
+
+<!-- discord-image: docs/screenshots/shopping-list.png -->
+
+- **The addon's own icon is the same everywhere it appears in game.** The Professions side tab, the shopping windows and the leaderboard tab now all show the same scroll.
+- **The shopping list stops stacking old lines when it refreshes.** Headings, item rows and the empty message are drawn again in place instead of being added on top of the last draw, so a list that changes no longer shows two Vendor headings or text over a row. The Copy list window has its own title and opens beside the list it copies (#553).
+- **A sold out vendor item now counts as limited stock.** The vendor window showed none left and SkillUp ignored it, so an item whose stock is limited looked unlimited to the route. It now saves the sold out item as limited, keeping the highest count seen, at least one (#560).
+
+### For addon authors
+
+- **`SkillUpForever.API` is minor 6.** Other addons can read and set whether a profession is tracked, start the shopping trip, ask `Professions` for up to 25 steps and recipes, and read the recipes-observed stats and leaderboard. `SetTracked` reports whether it changed anything and never plays the checkbox sound, and a tracking change reaches subscribers on the next frame like any other answer. `docs/api.md` lists every function, the limits and the minor history.
+
+## [1.4.1] - 2026-11-10
+
+- **Needs Forever Core.** Forever Core now comes in the same download, and until Forever Core has its own CurseForge page every Forever addon's download carries a copy of it, so the addon loads with nothing else to install.
+
+### For addon authors
+
+- **`SkillUpForever.API` is minor 5.** Other addons can call `Subscribe(callback)` to hear, on the frame after a change lands and once per burst, that the levelling answers or the shopping list may have changed. A read with nothing to answer adds a `"loading"` or `"none"` reason as its second value, and `Professions()` returns a fresh table on every call, so the addon's own cache is never handed out. This needs ForeverCore 1.1.0 for its shared hub, and `docs/api.md` lists every function, the change names and the minor history.
+
+## [1.4.0] - 2026-11-10
+
+- **Needs Forever Core.** The shared tracker column, bug report and leaderboards now come from one Forever Core addon that installs with it, so every Forever addon's tracker scale, lock and position stay in step. Your tracker settings carry over.
+
+<!-- discord-image: docs/screenshots/route.png -->
+
+## [1.3.5] - 2026-11-10
+
+- **The tracker no longer flashes while you hover equippable items.** An item's tooltip and its comparison tooltips were making the tracked reagents section redraw for item details it does not show. It now draws again only when a reagent or book it lists arrives. Thanks to hardliquor on Discord for the report (#526).
+
+## [1.3.4] - 2026-11-10
+
+- **Opening SkillUp's options no longer shows a blocked action error.** The Open buttons on the options index, `/skillup` and the addon compartment entry now ask the game to open its options instead of opening them themselves, so the client does not refuse the request and blame SkillUp Forever (cjber/forever-core#333).
+
+## [1.3.3] - 2026-11-10
+
+- **Recipe skill ranges start where you learn the recipe.** *Newest recipes first* now sorts correctly too. The client leaves most recipes' first threshold at 1, so the tooltip, its bar, the recipe rows and the sort all took 1 as the range start: Dark Leather Belt said "Skill range starts at 1" although its trainer asks 100, and recipes learned later sorted as if they were learned first. The start now comes from the trainer or recipe item that teaches the recipe, so 406 recipes show the skill you learn them at; a recipe learned at 1, or one the bundle has no source for, keeps the client's number. Thanks to cotijelucie on Discord for the report (#519).
+
+## [1.3.2] - 2026-11-10
+
+- **No more blocked actions in combat.** Hiding or showing one of SkillUp's pages while you were in combat was refused by the client, which showed up as an "action blocked" message while casting or learning a plan. The page switch now waits for combat to end, and your own tabs still update the moment you click. `/skillup` typed in combat opens the settings panel once combat ends rather than being refused.
+
 ## [1.3.1] - 2026-11-10
 
 - **Auction prices can come from TradeSkillMaster.** With TradeSkillMaster installed and no Auctionator price for an item, reagents and crafted items use TSM's AuctionDB: its latest snapshot's market value, then the lowest buyout, then the 14-day market value. The desktop app refreshes that data, so TSM does not report how old a price is and no age is shown. Auctionator stays first when both are installed, and its shopping lists still need Auctionator.

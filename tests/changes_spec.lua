@@ -50,24 +50,48 @@ local function CloakReads()
 	return cloakReads
 end
 
+-- The public list hands out a fresh copy on every call now, so the cache it kept is not the answer's identity. A
+-- dropped cache shows as a rebuild instead: count the one RouteProfessions call each build makes.
+local apiBuilds, apiCounting = 0, false
+local realRouteProfessions = ns.RouteProfessions
+ns.RouteProfessions = function(...)
+	if apiCounting then
+		apiBuilds = apiBuilds + 1
+	end
+	return realRouteProfessions(...)
+end
+-- `prime` makes sure the list is there before the change, uncounted; otherwise 1 means this read had to build it.
+local function APIAnswer(prime)
+	apiCounting = false
+	if prime then
+		c.G.SkillUpForever.API.Professions()
+		return 0
+	end
+	local before = apiBuilds
+	apiCounting = true
+	c.G.SkillUpForever.API.Professions()
+	apiCounting = false
+	return apiBuilds > before and 1 or 0
+end
+
 -- Each cache hands back the table it kept until it is dropped; the schematic cache, how often it asked.
 local CACHES = { "schematics", "prices", "plans", "api" }
-local function Kept()
+local function Kept(prime)
 	return {
 		schematics = CloakReads(),
 		prices = ns.Price(CLOTH),
 		plans = ns.PlanRoute(Tailoring()),
-		api = c.G.SkillUpForever.API.Professions(),
+		api = APIAnswer(prime),
 	}
 end
 
 -- What `change` dropped and redrew, as "caches | views" in the order they went.
 local function Stale(change)
-	local before = Kept()
+	local before = Kept(true)
 	redrawn = {}
 	change()
 	local views = table.concat(redrawn, " ")
-	local after, dropped = Kept(), {}
+	local after, dropped = Kept(false), {}
 	for _, cache in ipairs(CACHES) do
 		if after[cache] ~= before[cache] then
 			dropped[#dropped + 1] = cache
@@ -91,10 +115,10 @@ equal(#ns.PlanRoute(Tailoring()).crafts > 0, true, "the plan under test has craf
 equal(Stale(function() end), " | ", "nothing changes on its own")
 
 -- The public list was built without the reagent's name, so item data arriving rebuilds it once.
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), "api | route tracker", "item data the public list waited on")
+equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), "api | route", "item data the public list waited on")
 c.items[CLOTH] = { name = "Linen Cloth" }
 c.Fire("BAG_UPDATE_DELAYED")
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), " | route tracker", "item data nothing waited on")
+equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), " | route", "item data nothing waited on")
 
 for _, case in ipairs({
 	-- The window's own events redraw what shows it and keep the plans: its scan reports what changed in them.
@@ -219,5 +243,6 @@ equal(
 	"a setting changed in the options panel: every view, once each, in the order they were always refreshed"
 )
 equal(pcall(ns.Changed, "typo"), false, "an unknown change is an error, not a silent no-op")
+ns.RouteProfessions = realRouteProfessions
 
 Client.report("changes_spec")

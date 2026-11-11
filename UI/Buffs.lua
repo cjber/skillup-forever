@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 local Parts = ns.PageParts
 
@@ -508,7 +512,7 @@ local function CreateRows(inset)
 	scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 4, 0)
 	scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT", 4, 0)
 	scrollBar:SetHideIfUnscrollable(true)
-	local view = CreateScrollBoxListLinearView()
+	local view = CreateScrollBoxListLinearView() --[[@as SkillUpScrollView]]
 	view:SetElementExtentCalculator(function()
 		return ROW_HEIGHT
 	end)

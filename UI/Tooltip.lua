@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 local BAR_WIDTH = 250
@@ -539,7 +543,7 @@ local function Uses(itemID)
 	local uses = {}
 	for _, recipeID in ipairs(ns.UsedIn(itemID)) do
 		local profession = professions[ns.RecipeData[recipeID].skillLine]
-		local t = profession and ns.Model.Get(recipeID)
+		local t = profession and ns.RangeThresholds(profession, recipeID)
 		if t and profession.skill < t[4] then
 			uses[#uses + 1] = { recipeID = recipeID, t = t, skill = profession.skill, learned = ns.IsLearned(recipeID) }
 		end
@@ -650,12 +654,14 @@ local function MadeByLines(itemID)
 		return lines
 	end
 	local best, bestSkill, first
+	local professions = ns.PlayerProfessions()
 	for _, recipeID in ipairs(ns.MakersOf(itemID)) do
 		local recipe = ns.RecipeData[recipeID]
 		local name = recipe and C_TradeSkillUI.GetTradeSkillDisplayName(recipe.skillLine)
 		if name then
 			first = first or { name = name }
-			local t = ns.Model.Get(recipeID)
+			local profession = professions[recipe.skillLine] or { skillLine = recipe.skillLine, modifier = 0 }
+			local t = ns.RangeThresholds(profession, recipeID)
 			local skill = t and t[1]
 			if skill and (not best or skill < bestSkill) then
 				best, bestSkill = { name = name }, skill

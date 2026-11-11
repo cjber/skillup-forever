@@ -31,6 +31,7 @@ python3 tools/check_editorconfig.py
 # A locale gap fails the PR that adds the English string, not the release that ships it.
 python3 tools/check_locales.py --release
 python3 tools/check_family.py
+python3 tools/check_store_page.py
 # A fresh output path prevents a crashed server from reusing an earlier clean report.
 report_dir=$(mktemp -d)
 trap 'rm -rf "$report_dir"' EXIT

@@ -18,3 +18,23 @@ ignore:
   - Locales/README.md
   - .agents
   - .claude
+  - forever-core
+
+# CurseForge relations: the CurseForge slug of every OptionalDeps folder in the root .toc (WFA-28).
+optional-dependencies:
+  - auctionator
+  - tradeskill-master
+  - tomtom
+  - syndicator
+  - shortest-path-forever
+  - questiedb
+  - questie
+  - atlasloot-forever
+
+# ForeverCore ships inside this zip as its own folder, from the release tools/forever-core.txt pins, because
+# its CurseForge project is not yet approved and so cannot be a required-dependencies relation.
+externals:
+  ForeverCore: https://github.com/cjber/forever-core/releases/download/v1.1.0/ForeverCore-v1.1.0-forever.zip
+
+move-folders:
+  SkillUpForever/ForeverCore: ForeverCore

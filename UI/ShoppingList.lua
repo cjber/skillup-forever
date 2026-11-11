@@ -1,8 +1,19 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
-local ICON = "Interface\\AddOns\\" .. addonName .. "\\media\\Icon"
 local frame, body, scroll, copyWindow, copyEdit, shown, footer, summary
+-- The body's headings, rows and empty state, made once and reused: a refresh shows what it needs and hides the
+-- rest, so nothing from an earlier draw is left on the window (#553).
+---@type table<string, FontString>
+local headingPool = {}
+---@type { frame: Frame, icon: Texture, name: FontString, detail: FontString }[]
+local rowPool = {}
+---@type FontString?
+local emptyText
 
 local function Name(itemID)
 	local name = C_Item.GetItemNameByID(itemID)
@@ -18,7 +29,6 @@ local function Copy(text)
 		copyWindow = CreateFrame("Frame", addonName .. "ShoppingCopy", UIParent, "PortraitFrameTemplate")
 		table.insert(UISpecialFrames, addonName .. "ShoppingCopy")
 		copyWindow:SetSize(460, 380)
-		copyWindow:SetPoint("CENTER")
 		copyWindow:SetFrameStrata("DIALOG")
 		copyWindow:SetToplevel(true)
 		copyWindow:SetClampedToScreen(true)
@@ -27,8 +37,10 @@ local function Copy(text)
 		copyWindow:RegisterForDrag("LeftButton")
 		copyWindow:SetScript("OnDragStart", copyWindow.StartMoving)
 		copyWindow:SetScript("OnDragStop", copyWindow.StopMovingOrSizing)
-		copyWindow:SetTitle(L["Shopping list"])
-		ns.Art.Icon(copyWindow:GetPortrait(), ICON, 62)
+		copyWindow:SetTitle(L["Copy shopping list"])
+		ns.Art.Icon(copyWindow:GetPortrait(), ns.ICON, 62)
+		-- Beside the list it copies, not over the Professions window it may cover.
+		copyWindow:SetPoint("TOPLEFT", frame, "TOPRIGHT", 8, 0)
 		local hint = copyWindow:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 		hint:SetPoint("TOPLEFT", 70, -32)
 		hint:SetPoint("RIGHT", -16, 0)
@@ -66,13 +78,43 @@ local function Copy(text)
 	copyEdit:HighlightText()
 end
 
+-- The one heading this source draws, made on its first row and reused after.
+---@param source string
+---@return FontString
+local function Heading(source)
+	local heading = headingPool[source]
+	if not heading then
+		heading = body:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+		headingPool[source] = heading
+	end
+	return heading
+end
+
+-- A row's parts, drawn once when the pool needs another row.
+---@return { frame: Frame, icon: Texture, name: FontString, detail: FontString }
+local function NewRow()
+	local item = CreateFrame("Frame", nil, body)
+	item:SetSize(520, 48)
+	local icon = item:CreateTexture(nil, "ARTWORK")
+	icon:SetSize(32, 32)
+	icon:SetPoint("LEFT", 0, 0)
+	local name = item:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	name:SetPoint("TOPLEFT", icon, "TOPRIGHT", 8, 0)
+	name:SetWidth(460)
+	local detail = item:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	detail:SetPoint("BOTTOMLEFT", icon, "BOTTOMRIGHT", 8, 0)
+	detail:SetWidth(460)
+	detail:SetHeight(28)
+	detail:SetWordWrap(true)
+	return { frame = item, icon = icon, name = name, detail = detail }
+end
+
 local function Refresh()
 	if not frame or not frame:IsShown() then
 		return
 	end
-	for _, child in ipairs({ body:GetChildren() }) do
-		child:Hide()
-		child:SetParent(nil)
+	for _, heading in pairs(headingPool) do
+		heading:Hide()
 	end
 	local lists = ns.ShoppingList()
 	-- The window groups by source, not profession, so the header names every plan it is buying for.
@@ -81,51 +123,46 @@ local function Refresh()
 		plans[#plans + 1] = string.format(L["%s to %d"], list.profession, list.target)
 	end
 	summary:SetText(#plans > 0 and string.format(L["Buying for %s"], table.concat(plans, ", ")) or "")
-	local top, any, total, unpriced = -10, false, 0, 0
+	local top, any, total, unpriced, drawn = -10, false, 0, 0, 0
 	local headings =
 		{ gather = L["Gather"], vendor = L["Vendor"], auction = L["Auction house"], unknown = L["Unknown"] }
 	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
-		local rows = {}
+		local entries = {}
 		for _, list in ipairs(lists) do
 			for _, row in ipairs(list.items) do
 				if row.source == source and row.missing > 0 then
-					rows[#rows + 1] = { list = list, row = row }
+					entries[#entries + 1] = { list = list, row = row }
 				end
 			end
 		end
-		if #rows > 0 then
+		if #entries > 0 then
 			any = true
-			local heading = body:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+			local heading = Heading(source)
+			heading:ClearAllPoints()
 			heading:SetPoint("TOPLEFT", 8, top)
 			heading:SetText(headings[source])
+			heading:Show()
 			top = top - 28
-			for _, entry in ipairs(rows) do
-				local row = entry.row
-				local item = CreateFrame("Frame", nil, body)
-				item:SetPoint("TOPLEFT", 8, top)
-				item:SetSize(520, 48)
-				local icon = item:CreateTexture(nil, "ARTWORK")
-				icon:SetSize(32, 32)
-				icon:SetPoint("LEFT", 0, 0)
-				local texture = C_Item.GetItemIconByID(row.itemID)
-				if texture then
-					icon:SetTexture(texture) -- art-ok: square item icons keep their native aspect.
+			for _, entry in ipairs(entries) do
+				drawn = drawn + 1
+				local pooled = rowPool[drawn]
+				if not pooled then
+					pooled = NewRow()
+					rowPool[drawn] = pooled
 				end
-				local name = item:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-				name:SetPoint("TOPLEFT", icon, "TOPRIGHT", 8, 0)
-				name:SetWidth(460)
-				name:SetText(
+				local row = entry.row
+				local item = pooled.frame
+				item:ClearAllPoints()
+				item:SetPoint("TOPLEFT", 8, top)
+				item:Show()
+				pooled.icon:SetTexture(C_Item.GetItemIconByID(row.itemID)) -- art-ok: square item icons keep their native aspect.
+				pooled.name:SetText(
 					string.format(L["%s (%s to %d)"], Name(row.itemID), entry.list.profession, entry.list.target)
 				)
 				local alt = row.alt[1] and string.format(L["on %s"], row.alt[1].name) or ""
 				local unit = row.price and ns.FormatNet(ns.Model.RoundMoney(row.price), false) or L["price unknown"]
 				local cost = row.cost and ns.FormatNet(ns.Model.RoundMoney(row.cost), false) or "-"
-				local detail = item:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-				detail:SetPoint("BOTTOMLEFT", icon, "BOTTOMRIGHT", 8, 0)
-				detail:SetWidth(460)
-				detail:SetHeight(28)
-				detail:SetWordWrap(true)
-				detail:SetText(
+				pooled.detail:SetText(
 					string.format(
 						L["Need %d, have %d, missing %d  %s  %s each  %s"],
 						row.need,
@@ -145,10 +182,18 @@ local function Refresh()
 			end
 		end
 	end
+	for index = drawn + 1, #rowPool do
+		rowPool[index].frame:Hide()
+	end
 	if not any then
-		local empty = body:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-		empty:SetPoint("CENTER")
-		empty:SetText(#lists == 0 and L["No tracked profession"] or L["Nothing to buy"])
+		if not emptyText then
+			emptyText = body:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+			emptyText:SetPoint("CENTER")
+		end
+		emptyText:SetText(#lists == 0 and L["No tracked profession"] or L["Nothing to buy"])
+		emptyText:Show()
+	elseif emptyText then
+		emptyText:Hide()
 	end
 	body:SetHeight(math.max(1, -top + 20))
 	footer:SetText(
@@ -175,7 +220,7 @@ local function Create()
 	frame:SetScript("OnDragStart", frame.StartMoving)
 	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 	frame:SetTitle(L["Shopping list"])
-	ns.Art.Icon(frame:GetPortrait(), ICON, 62)
+	ns.Art.Icon(frame:GetPortrait(), ns.ICON, 62)
 	-- Clear of the portrait, which overhangs the top-left corner, and above the list.
 	summary = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	summary:SetPoint("TOPLEFT", 82, -36)

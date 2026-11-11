@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- Where recipes, vendors and trainers are, from the QuestieDB and AtlasLoot the player has installed. A
@@ -98,22 +102,24 @@ function C.Status()
 end
 
 -- One plain line naming what to install for where recipes, vendors and trainers are; nil with both. An
--- AtlasLoot that is installed but not running is told apart from a missing one. With `places`, only what
--- names a vendor or trainer matters, which is Questie.
+-- AtlasLoot that is installed but not running is told apart from a missing one, and a Questie still
+-- starting says so. With `places`, only what names a vendor or trainer matters, which is QuestieDB.
 ---@param places boolean?
 ---@return string?
 function C.Hint(places)
 	local state, atlasLoot = Q.State(), A.Ready() or places
 	if state == "unfit" then
-		return L["Update Questie to see vendors, quests and trainers, with waypoints to them."]
+		return L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."]
 	elseif state == "missing" and not atlasLoot then
-		return L["Install Questie and AtlasLoot to see where recipes, vendors and trainers are."]
+		return L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."]
 	elseif state == "missing" then
-		return L["Install Questie to see vendors, quests and trainers, with waypoints to them."]
+		return L["Install QuestieDB to see vendors, quests and trainers, with waypoints to them."]
 	elseif not atlasLoot and A.Idle() then
 		return L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."]
 	elseif not atlasLoot then
 		return L["Install AtlasLoot to see the recipes vendors, quests and drops would add."]
+	elseif state == "waiting" then
+		return L["Waiting for Questie to finish loading."]
 	end
 end
 

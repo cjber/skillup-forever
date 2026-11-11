@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- The recipe tooltip's skill bar on the crafting page itself (#172): the selected recipe's orange, yellow, green
 -- and grey thresholds with the pip at your skill, just under the recipe, instead of only on the hover. It draws
 -- the tooltip's own bar (ns.CreateSkillBar and ns.LayoutSkillBar) from the same numbers.
@@ -43,7 +47,7 @@ local function Refresh()
 		return
 	end
 	local ctx = ns.SkillContext()
-	local t, skill = ns.DetailsBar(recipeID and ns.Model.Get(recipeID), ctx and ctx.skill)
+	local t, skill = ns.DetailsBar(recipeID and ns.RangeThresholds(ctx, recipeID), ctx and ctx.skill)
 	if t and skill and ns.db.detailsBar then
 		ns.LayoutSkillBar(frame.bar, t, skill)
 	end

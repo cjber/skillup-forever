@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- What the client knows about a recipe that the bundle cannot: the live grey threshold, the skill
 -- points one craft grants and the tool and station the recipe requires. A live read replaces only
 -- the field it carries; the bundled yellow and green stay under the live grey, and a recipe the

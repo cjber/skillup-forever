@@ -1,7 +1,22 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
 local L = ns.L
+
+if ns.broken then
+	return
+end
+
 ns.ReportTitle = L["SkillUp report"]
+-- The one client icon every in-game identity surface draws: the side tab, the shopping windows and the leaderboard
+-- tab. The TOC declares it once and the drawn media/Icon stays the addon's store and TOC identity.
+ns.ICON = C_AddOns.GetAddOnMetadata(addonName, "X-Forever-Icon") --[[@as string]]
+-- The shared services, registered once: the report window's title and SkillUp's own report lines.
+ns.core = ForeverCore.Register(addonName, {
+	title = ns.ReportTitle,
+	lines = function()
+		return ns.ReportLines()
+	end,
+})
 
 ---@type SkillUpDefaults
 local DEFAULTS = {
@@ -36,7 +51,7 @@ local DEFAULTS = {
 	pinnedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = priority }: most recently pinned wins
 	skippedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = true }: "Not this recipe", left out of every route
 	whatsNew = true,
-	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (UI/ForeverFamily.lua)
+	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (ForeverCore.Family)
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
 	-- [itemID] = { [npcID] = count or false }: the most a vendor was seen selling at a time, false for unlimited
@@ -51,10 +66,6 @@ local DEFAULTS = {
 	statsShare = true,
 	observedRecipes = {}, -- ["Name-Realm"] = { ids = { [recipeID] = true }, eventUnix = latest observation }
 	peerStats = {}, -- ["Name-Realm"] = peer rows for this character's guild and groups
-	-- The shared error journal (Core/SafeCall.lua): earlier sessions' errors, listed in the report after a /reload.
-	errors = {},
-	-- The shared log (Core/Log.lua): the recent lines that led up to a bug, cut into the report after them.
-	log = { lines = {}, pinned = false },
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
 	trackedProfessions = {}, -- [profession skill line] = true tracked, false stopped by hand, nil undecided
 	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
@@ -93,7 +104,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["Auction prices can come from TradeSkillMaster."]
+ns.WHATS_NEW = L["The shopping list stops stacking old lines when it refreshes."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -126,19 +137,6 @@ end
 ---@return boolean
 function ns.GamepadUI()
 	return InputUtil.IsGamepadUIEnabled()
-end
-
--- A Blizzard context menu from our own code: under the gamepad interface it would taint the gamepad focus, so
--- the player gets a line instead and no menu opens.
----@param owner Frame
----@param generator fun(owner: Frame, root: RootMenuDescriptionProxy)
----@return any
-function ns.ContextMenu(owner, generator)
-	if ns.GamepadUI() then
-		UIErrorsFrame:AddMessage(L["This menu needs mouse and keyboard."], 1, 1, 0)
-		return nil
-	end
-	return MenuUtil.CreateContextMenu(owner, generator)
 end
 
 -- A dropdown's own OpenMenu, under the gamepad interface, without opening a menu: a press steps to the next
@@ -333,18 +331,6 @@ local function ReadChanceBonus()
 		return false
 	end
 	return ns.Model.SetChanceBonus(WorkingOvertimePoints() * WORKING_OVERTIME_PER_POINT)
-end
-
----@return ForeverTrackerSettings
-function ns.TrackerHostSettings()
-	if type(ns.db.trackerHost) ~= "table" then
-		ns.db.trackerHost = { attached = true, locked = false }
-	end
-	-- Lock defaults off, and a trackerHost saved before it existed simply gains the key.
-	if type(ns.db.trackerHost.locked) ~= "boolean" then
-		ns.db.trackerHost.locked = false
-	end
-	return ns.db.trackerHost
 end
 
 -- One chat line after an update, never on a first install. A dev checkout's version is
@@ -776,7 +762,9 @@ end
 ---@param ctx SkillUpContext?
 ---@return SkillUpDescription
 function ns.Describe(recipeInfo, ctx)
-	local thresholds = ns.Model.Get(recipeInfo.recipeID)
+	-- Where a recipe can first be learned is the start of its range, not the client's placeholder first
+	-- threshold (#519): rows, the tooltip line and its bar all draw this.
+	local thresholds = ns.RangeThresholds(ctx, recipeInfo.recipeID)
 	local liveColor = LIVE_COLOR[recipeInfo.relativeDifficulty]
 	local cost, value, net = ns.CraftCost(recipeInfo.recipeID)
 	if not thresholds or not ctx then
@@ -938,7 +926,7 @@ local function Export()
 		return
 	end
 	local text = table.concat(lines, "\n")
-	local shown = ns.Report and ns.Report.Show and ns.SafeCall and ns.SafeCall("export window", ns.Report.Show, text)
+	local shown = ns.core.SafeCall("export window", ns.core.Report.Show, text)
 	if not shown then
 		for _, line in ipairs(lines) do
 			ns.Print(line)
@@ -965,9 +953,7 @@ end
 ---@param command string
 ---@param argument string
 local function ReportCommand(command, argument)
-	if ns.Report and ns.Report.Command then
-		ns.Report.Command(command, argument)
-	end
+	ns.core.Report.Command(command, argument)
 end
 
 local BUG, FEATURE = "bug", "feature"
@@ -1058,12 +1044,7 @@ local function Slash(msg)
 	ns.OpenSettings()
 end
 SlashCmdList.SKILLUPFOREVER = function(msg)
-	-- Without Core/SafeCall.lua (a /reload after an update that added it) the command runs as it is.
-	if ns.SafeCall then
-		ns.SafeCall("slash command", Slash, msg)
-	else
-		Slash(msg)
-	end
+	ns.core.SafeCall("slash command", Slash, msg)
 end
 
 function SkillUpForever_OnAddonCompartmentClick()
@@ -1086,11 +1067,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 			and ns.PlanRoute
 			and ns.CraftedGear
 			and ns.Changed
-			and ns.SafeCall
-			and ns.AttachLog
-			and ns.Report
 			and ns.ReportLines
-			and ns.Family
 			and ns.Stats
 		)
 	then
@@ -1098,10 +1075,9 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 		return
 	end
 	LoadDB()
-	-- The saved journal is attached once the saved variables and their defaults are in: what SafeCall recorded before
-	-- this line (the client's own early errors) arrives with it, and a /reload keeps it.
-	ns.AttachErrorJournal(SkillUpForeverDB.errors)
-	ns.AttachLog(SkillUpForeverDB.log)
+	-- The saved journal and log are core's now, under the same table: what SafeCall recorded before this line (the
+	-- client's own early errors) arrives with it, and a /reload keeps it.
+	ns.core.Attach(SkillUpForeverDB)
 	ns.NoteBuild()
 	ReadChanceBonus()
 	ns.InitCatalogue()

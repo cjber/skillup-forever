@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- SkillUp's own lines in /su report (cjber/adventure-guide-forever#156): the settings that change a number, the
 -- data providers, each profession with its route, then /su audit's lines and the trainer checks for this
 -- character's professions, each list cut so the caught errors after it still fit in one message. Field labels and

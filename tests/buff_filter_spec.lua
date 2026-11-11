@@ -172,6 +172,10 @@ local ns = {
 		error("unexpected sort failure")
 	end,
 }
+-- The range start the list sorts by, from the bundle's own first threshold: this harness has no learn sources.
+function ns.RangeThresholds(_, recipeID)
+	return ns.Model.Get(recipeID)
+end
 -- The real setter lives in UI/Settings.lua and writes through the setting; here the saved value is enough.
 function ns.SetBuffsOnly(on)
 	ns.db.buffsOnly = on

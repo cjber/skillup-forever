@@ -8,14 +8,16 @@ local equal = Client.equal
 
 local BANDAGE, LINEN, BANDAGE_ITEM = 1, 3, 50
 local TRAINED, SCROLLED, SCROLL_ITEM = 2, 4, 51
+local LATE = 5
 
 local c = Client.load({
 	boot = false,
 	data = {
 		Thresholds = {
 			[BANDAGE] = { 1, 30, 45, 60 },
-			[TRAINED] = { 1, 25, 50, 75 },
+			[TRAINED] = { 1, 45, 60, 80 },
 			[SCROLLED] = { 1, 30, 45, 60 },
+			[LATE] = { 1, 30, 45, 60 },
 		},
 		RecipeData = {
 			[BANDAGE] = {
@@ -33,8 +35,13 @@ local c = Client.load({
 				reagents = { { itemID = LINEN, quantity = 1 } },
 				output = { itemID = BANDAGE_ITEM, quantity = 1 },
 			},
+			[LATE] = {
+				skillLine = 129,
+				reagents = { { itemID = LINEN, quantity = 1 } },
+				output = { itemID = BANDAGE_ITEM, quantity = 1 },
+			},
 		},
-		TrainerFees = { [TRAINED] = { 10, 40 } },
+		TrainerFees = { [TRAINED] = { 10, 40 }, [LATE] = { 10, 20 } },
 		RecipeScrolls = { [SCROLLED] = { SCROLL_ITEM, 45 } },
 		TrainerRanks = { [129] = {} },
 		ItemSellPrices = {},
@@ -227,13 +234,13 @@ ns.ShowRecipeTooltip(ns, row, {
 			name = "Unlearned Trainer",
 			kind = "trainer",
 			skill = 40,
-			thresholds = { 1, 25, 50, 75 },
+			thresholds = { 1, 45, 60, 80 },
 		},
 	},
 })
 equal(lines[1], "Unlearned Trainer", "the added row keeps its title")
-equal(HasLine("Skill range starts at 1"), true, "and its skill range")
-equal(HasLine("Skill-up chance: 100%"), true, "the chance still colours the tooltip")
+equal(HasLine("Skill range starts at 40"), true, "and its range starts where the trainer teaches it")
+equal(HasLine("Skill-up chance: 100%"), false, "a recipe above your skill claims no chance yet")
 equal(HasLine("Not learned · Trainer 40"), true, "the tooltip says where it is learned and at what skill")
 equal(HasLine("Linen Cloth x2"), true, "each reagent's count is listed")
 local total
@@ -249,5 +256,11 @@ equal(rebuilt, nil, "hovering rebuilds neither the route, the prices nor the unl
 ns.ShowRecipeTooltip(ns, row, { recipeInfo = { recipeID = SCROLLED, name = "Unlearned Recipe Item", learned = false } })
 equal(lines[1], "Unlearned Recipe Item", "the client's own unlearned row gets the tooltip too")
 equal(HasLine("Not learned · Recipe item 45"), true, "with the recipe item and the skill it asks")
+
+-- The range starts where the recipe is learned, not at the client's placeholder first threshold (#519): the
+-- trainer asks 20 for this one, so the line and the bar start at 20.
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = { recipeID = LATE, name = "Late Trainer", learned = true } })
+equal(lines[2], "Skill range starts at 20", "the tooltip starts where its trainer teaches it")
+equal(HasLine("Skill-up chance: 100%"), true, "and the chance follows the bar")
 
 Client.report("recipe_tooltip_spec")

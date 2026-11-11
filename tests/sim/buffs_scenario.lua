@@ -2,7 +2,9 @@
 -- #460, #461: one SkillUp side tab opens the pages, and the Buffs page draws, switches and hands the window
 -- back, in and out of combat and across a reload. This scenario runs without recipe data so the page draws
 -- its empty state; the timeline and its nodes are covered by tests/buffs_spec.lua.
-scenario("the SkillUp side tab and the buffs page", function(sim)
+local ForeverCore = dofile("tests/forever_core.lua")
+
+scenario("the SkillUp side tab and the buffs page", { addons = ForeverCore.addons() }, function(sim)
 	local G = sim.G
 	local ns
 	for _, entry in ipairs(sim.loader.addons) do

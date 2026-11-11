@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 ---@class SkillUpModel
 local Model = {}
 ns.Model = Model

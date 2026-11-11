@@ -25,17 +25,10 @@ local c = Client.load({
 })
 local ns = c.ns
 local module = c.G.SkillUpForeverObjectiveTracker
-equal(c.host.IsAttached(module), true, "attaches to private host immediately")
+equal(c.host.IsAttached(module), true, "attaches to the shared host immediately")
 c.EnterWorld()
-equal(#c.tracker, 1, "native initialization cannot change private ownership")
-c.G.ForeverTrackerHost, c.tracker = nil, {}
 c.Advance(0)
-equal(#c.tracker, 0, "missing private host remains inert")
-c.G.ForeverTrackerHost = c.host
-c.EnterWorld()
-equal(#c.tracker, 0, "late host waits for the deferred callback")
-c.Advance(0)
-equal(c.tracker[1], module, "deferred callback attaches after late host publication")
+equal(#c.tracker, 1, "and keeps its place through native initialization")
 
 c.level = 20
 c.spells[HEAVY] = "Heavy Linen Bandage"

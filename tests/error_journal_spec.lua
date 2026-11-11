@@ -11,10 +11,10 @@ local db = assert(c.G.SkillUpForeverDB, "the saved table was not made")
 assert(type(db.errors) == "table", "the saved table has no error journal")
 assert(type(db.log) == "table", "the saved table has no debug log")
 
--- An error caught by ns.SafeCall is recorded in the saved journal, which is where the next session reads it. The
--- stub client fails the spec on an error reaching the game's handler, so allow the one this spec raises on purpose.
+-- An error caught by the shared SafeCall is recorded in the saved journal, which is where the next session reads
+-- it. The stub client fails the spec on an error reaching the game's handler, so allow the one this spec raises.
 c.allowErrors = true
-local ok = c.ns.SafeCall("error journal spec", function()
+local ok = c.ns.core.SafeCall("error journal spec", function()
 	error("error journal spec failure")
 end)
 assert(ok == false, "the failure was not caught")
@@ -30,7 +30,7 @@ assert(entry.kind == "error" and entry.count == 1, "the journal entry is not one
 assert(type(entry.firstSeen) == "number" and type(entry.lastSeen) == "number", "the journal entry has no times")
 
 -- The log rides in the same saved table, so the lines that led to a bug survive a /reload too.
-c.ns.Log("info", "error journal spec", "a line before the reload")
+c.ns.core.Log("info", "error journal spec", "a line before the reload")
 local logged
 for _, line in ipairs(db.log.lines or {}) do
 	if line:find("a line before the reload", 1, true) then
@@ -64,7 +64,7 @@ assert(reloaded.G.SkillUpForeverDB == saved, "the saved table was replaced")
 assert(reloaded.G.SkillUpForeverDB.errors == saved.errors, "the journal is not the saved errors table")
 assert(reloaded.G.SkillUpForeverDB.log == saved.log, "the log is not the saved log table")
 local earlier
-for _, candidate in ipairs(reloaded.ns.CaughtErrors()) do
+for _, candidate in ipairs(reloaded.ns.core.CaughtErrors()) do
 	if candidate.message == "error from an earlier session" then
 		earlier = candidate
 	end
@@ -72,7 +72,7 @@ end
 assert(earlier and earlier.fromSession == false, "an earlier session's error is missing from the report")
 assert(earlier.count == 2, "the earlier session's count was lost")
 local kept
-for _, line in ipairs(reloaded.ns.LogLines(10)) do
+for _, line in ipairs(reloaded.ns.core.LogLines(10)) do
 	if line:find("line from an earlier session", 1, true) then
 		kept = line
 	end

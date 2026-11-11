@@ -1,10 +1,16 @@
 -- Run from the repository root: luajit tests/core_spec.lua
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
+local TOC = Client.TocMetadata()
 
 -- The host globals Core/Core.lua loads against: chat lines go to `messages`, load callbacks to `callbacks`.
 local function Env(messages, callbacks)
 	return setmetatable({
+		C_AddOns = {
+			GetAddOnMetadata = function(_, field)
+				return TOC[field]
+			end,
+		},
 		CreateColor = function() end,
 		Enum = { TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 } },
 		CreateFrame = function()
@@ -33,6 +39,17 @@ local function Env(messages, callbacks)
 				callbacks[name] = callback
 			end,
 		},
+		ForeverCore = {
+			API = 1,
+			Register = function(_, spec)
+				return {
+					SafeCall = pcall,
+					Attach = function() end,
+					Report = {},
+					title = spec.title,
+				}
+			end,
+		},
 	}, { __index = _G })
 end
 
@@ -58,9 +75,7 @@ for _, complete in ipairs({ false, true }) do
 		ns.InitCatalogue = function() end
 		ns.PlanRoute, ns.Changed, ns.WhenEvent = Init, Init, function() end
 		ns.CraftedGear = Init
-		ns.SafeCall, ns.Report, ns.ReportLines = pcall, {}, Init
-		ns.AttachErrorJournal, ns.AttachLog = function() end, function() end
-		ns.Family = {}
+		ns.ReportLines = Init
 	end
 	local env = Env(messages, callbacks)
 	-- A save from before auction prices moved to Auctionator, and one with vendors and a price store from
@@ -146,20 +161,18 @@ do
 		Catalogue = {},
 		InitCatalogue = function() end,
 		CraftedGear = function() end,
-		SafeCall = pcall,
-		Report = {},
 		ReportLines = function() end,
-		AttachErrorJournal = function() end,
-		AttachLog = function() end,
-		Family = {},
 		Stats = {},
 	}
 	assert(loadfile("Data/Recipes.lua"))("SkillUpForever", ns)
 	local env = Env(messages, callbacks)
 	env.C_AddOns = {
 		GetAddOnMetadata = function(name, field)
-			assert(name == "SkillUpForever" and field == "Version")
-			return version
+			assert(name == "SkillUpForever")
+			if field == "Version" then
+				return version
+			end
+			return TOC[field]
 		end,
 	}
 	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)

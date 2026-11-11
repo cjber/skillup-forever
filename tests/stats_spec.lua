@@ -124,7 +124,7 @@ local reloaded = Client.load({ saved = saved })
 equal(Own(reloaded), 5, "reload restores the deduplicated score")
 equal(reloaded.ns.db.statsShare, false, "reload preserves a saved opt-out")
 equal(#reloaded.ns.Stats.Board(), 1, "reload with sharing off hides cached peers")
-reloaded.ns.Leaderboards = {
+reloaded.G.ForeverCore.Leaderboards = {
 	Open = function(_, key)
 		reloaded.opened = key
 	end,

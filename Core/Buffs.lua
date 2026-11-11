@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- The buffs page's listing rule: every recipe of the open profession whose product leaves a buff, grouped

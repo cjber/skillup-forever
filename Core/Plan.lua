@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- The levelling plan: from a profession, the recipes this character knows, prices and trainer
@@ -402,6 +406,25 @@ function ns.LearnSkill(profession, recipeID)
 		return source.skill + profession.modifier
 	end
 	return 0
+end
+
+-- A recipe's thresholds with the range starting where it can first be learned, which is the start a player
+-- sees: the client leaves most recipe starts at its placeholder 1 (#519). The bands above the start stay as the
+-- bundle has them, and the same table comes back when the data already starts there or nothing places the recipe.
+---@param profession SkillUpContext?
+---@param recipeID integer
+---@param thresholds number[]?
+---@return number[]?
+function ns.RangeThresholds(profession, recipeID, thresholds)
+	local t = thresholds or ns.Model.Get(recipeID)
+	if not t or not profession then
+		return t
+	end
+	local learnAt = ns.LearnSkill(profession, recipeID)
+	if learnAt <= t[1] then
+		return t
+	end
+	return { learnAt, t[2], t[3], t[4] }
 end
 
 -- The recipes of this profession the character has not learned that the bundle can place: a trainer's

@@ -63,10 +63,6 @@ EventUtil = {}
 ---@type EditModeManagerFrame?
 EditModeManagerFrame = nil
 
--- UI/Leaderboards.lua publishes the shared window every Forever addon registers into.
----@type ForeverLeaderboardsAPI?
-ForeverLeaderboards = nil
-
 -- GlobalStrings the client defines from its GlobalStrings DB2 in the player's language
 -- (enUS values from wago.tools, Forever build 1.60.1.70009).
 APPRENTICE = "Apprentice"
@@ -139,7 +135,7 @@ AuctionHouseFrame = nil
 ---@field IsCollapsed? fun(self: SkillUpTreeNode): boolean
 ---@field SetCollapsed? fun(self: SkillUpTreeNode, collapsed: boolean)
 
----@class SkillUpTreeProvider
+---@class SkillUpTreeProvider : ForeverDataProvider
 ---@field GetRootNode fun(self: SkillUpTreeProvider): SkillUpTreeNode
 ---@field Insert fun(self: SkillUpTreeProvider, data: SkillUpRecipeNodeData): SkillUpTreeNode
 
@@ -148,19 +144,19 @@ function CreateTreeDataProvider() end
 
 ---@class SkillUpScrollBox : Frame
 ---@field ScrollToBegin fun(self: SkillUpScrollBox)
----@field SetDataProvider fun(self: SkillUpScrollBox, provider: SkillUpDataProvider, retain?: boolean)
+---@field SetDataProvider fun(self: SkillUpScrollBox, provider: ForeverDataProvider, retain?: boolean|integer)
 ---@field GetScrollPercentage fun(self: SkillUpScrollBox): number
 ---@field SetScrollPercentage fun(self: SkillUpScrollBox, percentage: number, noInterpolation?: boolean)
 
 ---@class SkillUpRecipeScrollBox : SkillUpScrollBox, CallbackRegistryMixin
 ---@field GetDataProvider fun(self: SkillUpRecipeScrollBox): SkillUpTreeProvider?
----@field SetDataProvider fun(self: SkillUpRecipeScrollBox, provider: SkillUpTreeProvider, retain?: boolean)
+---@field SetDataProvider fun(self: SkillUpRecipeScrollBox, provider: ForeverDataProvider, retain?: boolean|integer)
 ---@field ForEachFrame fun(self: SkillUpRecipeScrollBox, callback: fun(frame: SkillUpRecipeRow, elementData: SkillUpTreeNode))
 
 ---@class SkillUpScrollBar : Frame
 ---@field SetHideIfUnscrollable fun(self: SkillUpScrollBar, hide: boolean)
 
----@class SkillUpDataProvider
+---@class SkillUpDataProvider : ForeverDataProvider
 ---@field GetSize fun(self: SkillUpDataProvider): integer
 
 ---@param tbl? table
@@ -170,7 +166,7 @@ function CreateDataProvider(tbl) end
 ---@alias SkillUpElementInitializer fun(frame: Frame, elementData: SkillUpListElement)
 ---@alias SkillUpElementFactory fun(factory: fun(template: string, initializer: SkillUpElementInitializer), elementData: SkillUpListElement)
 
----@class SkillUpScrollView
+---@class SkillUpScrollView : ForeverScrollBoxView
 ---@field SetElementExtent fun(self: SkillUpScrollView, extent: number)
 ---@field SetElementExtentCalculator fun(self: SkillUpScrollView, calculator: fun(dataIndex: integer, elementData: SkillUpListElement): number)
 ---@field SetElementFactory fun(self: SkillUpScrollView, elementFactory: SkillUpElementFactory)
@@ -186,15 +182,8 @@ RAID_CLASS_COLORS = nil
 
 ---@type {UpdateImmediately: boolean, RetainScrollPosition: boolean, NoScrollInterpolation: boolean}
 ScrollBoxConstants = {}
-ScrollUtil = {}
----@param box Frame
----@param bar any
----@param view SkillUpScrollView
-function ScrollUtil.InitScrollBoxListWithScrollBar(box, bar, view) end
----@param box SkillUpRecipeScrollBox
----@param callback fun(owner: SkillUpNamespace, row: SkillUpRecipeRow, node: SkillUpTreeNode)
----@param owner SkillUpNamespace
-function ScrollUtil.AddInitializedFrameCallback(box, callback, owner) end
+---@class ForeverScrollUtil
+---@field AddInitializedFrameCallback fun(box: SkillUpRecipeScrollBox, callback: fun(owner: SkillUpNamespace, row: SkillUpRecipeRow, node: SkillUpTreeNode), owner: SkillUpNamespace)
 
 Professions = {}
 ---@return SkillUpProfessionInfo?
@@ -354,10 +343,12 @@ C_Trainer = {}
 ---@field steps SkillUpTrackerStep[]
 ---@field vendorMissing {name: string, itemID: integer, vendor: integer}[]
 ---@field SetHeader fun(self: SkillUpTrackerBlock, text: string)
----@field AddObjective fun(self: SkillUpTrackerBlock, id: string|number, text: string, template?: string, useFullHeight?: boolean, dashStyle?: number, colorStyle?: SkillUpObjectiveColor): Frame
+---@field AddObjective fun(self: SkillUpTrackerBlock, id: string|number, text: string, template?: string, useFullHeight?: boolean, dashStyle?: number, colorStyle?: ForeverObjectiveTrackerColor): Frame
 
----@class SkillUpTrackerModule : Frame
+---@class SkillUpTrackerModule : ForeverTrackerModule
 ---@field uiOrder number
+---@field safeCall? ForeverSafeCall runs the section's header menu entries in SkillUp's journal
+---@field legacySettings? ForeverTrackerLegacySettings the tracker table the host copies once
 ---@field MarkDirty fun(self: SkillUpTrackerModule)
 ---@field SetHeader fun(self: SkillUpTrackerModule, text: string)
 ---@field GetContextMenuParent fun(self: SkillUpTrackerModule): Frame
@@ -366,7 +357,7 @@ C_Trainer = {}
 ---@type ForeverNativeTrackerFrame
 ObjectiveTrackerFrame = nil
 
----@class SkillUpObjectiveColor : ColorRGBData
+---@class SkillUpObjectiveColor : ForeverObjectiveTrackerColor
 ---@field reverse? SkillUpObjectiveColor
 ---@type {Complete: SkillUpObjectiveColor}
 OBJECTIVE_TRACKER_COLOR = {}
@@ -460,8 +451,6 @@ function Settings.RegisterAddOnCategory(category) end
 ---@param variable string
 ---@param value SkillUpSettingValue
 function Settings.SetValue(variable, value) end
----@param categoryID number
-function Settings.OpenToCategory(categoryID) end
 ---@param name string
 ---@param buttonText string
 ---@param onClick fun()

@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- AtlasLoot, read at runtime through its public data modules: which scroll teaches a recipe and the skill
 -- it needs, and a boss's drop chance where its dungeon data is loaded. Nothing of it is bundled.
 

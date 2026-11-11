@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 ---@type SkillUpRecipeList
@@ -273,14 +277,15 @@ end
 
 ---@type table<string, SkillUpSortKey>
 local SORT_KEYS = {
-	skill = function(recipeInfo)
-		local t = ns.Model.Get(recipeInfo.recipeID)
+	skill = function(recipeInfo, ctx)
+		local t = ns.RangeThresholds(ctx, recipeInfo.recipeID)
 		return t and t[1] or math.huge
 	end,
 	-- Trainers teach recipes in the order of the skill they need, so the highest range start is the one
-	-- learned most recently (#486).
-	newest = function(recipeInfo)
-		local t = ns.Model.Get(recipeInfo.recipeID)
+	-- learned most recently (#486). The start is where a recipe can first be learned, not the client's
+	-- placeholder first threshold (#519).
+	newest = function(recipeInfo, ctx)
+		local t = ns.RangeThresholds(ctx, recipeInfo.recipeID)
 		return t and -t[1] or math.huge
 	end,
 	chance = function(recipeInfo, ctx)

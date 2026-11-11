@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- What the crafted gear and buffs pages say about a recipe and do with it. Each page owns its own frames;

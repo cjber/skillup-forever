@@ -714,13 +714,17 @@ local env = setmetatable({
 	end,
 })
 
+ns.core = {
+	SafeCall = function(_, fn, ...)
+		return pcall(fn, ...)
+	end,
+}
 for _, file in ipairs({
 	"Locales/enUS.lua",
 	"Data/Thresholds.lua",
 	"Data/Recipes.lua",
 	"Data/Trainer.lua",
 	"Core/Model.lua",
-	"Core/SafeCall.lua",
 	"Core/Changes.lua",
 	"Core/Plan.lua",
 	"UI/List.lua",

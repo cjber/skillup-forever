@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- The Professions frame's art is authored for the client's 673-wide window: its 665-wide atlases plus their
 -- insets. Profession-Background-Overview is anchored to both sides (PortraitFrameTemplate's Bg, which Camelot's
 -- OverrideArt points at it), so it stretches as the frame grows; Profession-Background-Template2 is fixed at the

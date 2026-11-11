@@ -15,20 +15,38 @@ env:
   PIP_RETRIES: 5
   PIP_DEFAULT_TIMEOUT: 60
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   deadcode:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - run: python3 tools/deadcode.py --check
 
   check:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      FOREVER_CORE: forever-core
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
+      - name: Read the ForeverCore ref
+        id: forever-core-ref
+        run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
+      - name: Check out ForeverCore
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: cjber/forever-core
+          ref: ${{ steps.forever-core-ref.outputs.ref }}
+          path: forever-core
           persist-credentials: false
       # Ubuntu 24.04's release-pocket builds, which the archive never replaces.
       - name: Install LuaJIT and luacheck
@@ -41,7 +59,7 @@ jobs:
             "luajit=$LUAJIT" "libluajit-5.1-2=$LUAJIT" "libluajit-5.1-common=$LUAJIT" "lua-check=$LUACHECK"
       - run: luacheck .
       - run: python3 -m tools.forever_tools.assets
-      - run: for spec in tests/*_spec.lua; do luajit "$spec" || exit 1; done
+      - run: python3 -m tools.forever_tools.specs
       # forever_sim runs the addon under the client's real Blizzard UI source (tests/sim).
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -52,12 +70,10 @@ jobs:
       - run: luajit tools/forever_sim/run.lua
       # A screenshot older than the code it is drawn from (docs/screenshots/scenes.sha256).
       - run: python3 tools/check_screenshots.py
+      # Every function Core/API.lua publishes is named in docs/api.md, with its minor history.
+      - run: python3 tools/check_api_docs.py
       # The bench Speedpatrol times: it asserts nothing, so this proves it still runs to the end.
       - run: luajit tests/bench.lua
-      - name: Native tracker integration
-        run: |
-          python3 tools/fetch_tracker_ui.py
-          TRACKER_UI_ROOT=tools/.cache/tracker-ui luajit tests/tracker_host_spec.lua
       - run: pipx run ruff==0.16.8 check tools
       - run: pipx run ruff==0.16.8 format --check tools
       - uses: JohnnyMorganz/stylua-action@76fd70c03e6340ceaf673366712db9b20560b402 # v5.0.0
@@ -68,9 +84,22 @@ jobs:
 
   typecheck:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      FOREVER_CORE: forever-core
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
+      - name: Read the ForeverCore ref
+        id: forever-core-ref
+        run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
+      - name: Check out ForeverCore
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: cjber/forever-core
+          ref: ${{ steps.forever-core-ref.outputs.ref }}
+          path: forever-core
           persist-credentials: false
       # Ubuntu 24.04's release-pocket builds, which the archive never replaces.
       - name: Install LuaJIT
@@ -105,6 +134,7 @@ jobs:
 
   project-rules:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -115,6 +145,7 @@ jobs:
 
   workflows:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -124,6 +155,7 @@ jobs:
 
   secrets:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -141,10 +173,24 @@ jobs:
   package:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      FOREVER_CORE: forever-core
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          # Every commit and tag for the version, without old file contents.
+          filter: blob:none
+          persist-credentials: false
+      - name: Read the ForeverCore ref
+        id: forever-core-ref
+        run: echo "ref=$(cat tools/forever-core.txt)" >> "$GITHUB_OUTPUT"
+      - name: Check out ForeverCore
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: cjber/forever-core
+          ref: ${{ steps.forever-core-ref.outputs.ref }}
+          path: forever-core
           persist-credentials: false
       # Ubuntu 24.04's release-pocket builds, which the archive never replaces.
       - name: Install LuaJIT

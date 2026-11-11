@@ -31,6 +31,19 @@ sys.path.insert(0, str(WOWMOCK))
 
 REPO = Path(__file__).resolve().parent.parent
 OUT = REPO / "docs" / "screenshots"
+TOC_TEXT = (REPO / "SkillUpForever.toc").read_text(encoding="utf-8-sig")
+
+
+def toc_field(name):
+    """A TOC metadata value, such as the addon's one identity icon."""
+    return re.search(rf"^##\s*{re.escape(name)}:\s*(.*?)\s*$", TOC_TEXT, re.MULTILINE)[1]
+
+
+TOC_METADATA = dict(re.findall(r"^##\s*([^:]+):\s*(.*?)\s*$", TOC_TEXT, re.MULTILINE))
+# Every identity surface draws the icon the TOC declares, the same value the addon reads at load.
+IDENTITY_ICON = toc_field("X-Forever-Icon").replace("\\", "/").lower()
+if not IDENTITY_ICON.endswith(".blp"):
+    IDENTITY_ICON += ".blp"
 
 # ------------------------------------------------------------------------------------------ Data/*.lua
 
@@ -215,6 +228,19 @@ def unlearned_source(recipe_id):
     return None
 
 
+def range_thresholds(recipe_id, t=None):
+    """Core/Plan.lua ns.RangeThresholds: the range starts where the recipe can first be learned, not at the
+    client's placeholder first threshold (#519)."""
+    t = NS["Thresholds"].get(recipe_id) if t is None else t
+    if not t:
+        return None
+    source = unlearned_source(recipe_id)
+    learn_at = source[1] if source else 0
+    if learn_at <= t[0]:
+        return t
+    return [learn_at, t[1], t[2], t[3]]
+
+
 def unlearned_text(recipe_id):
     """UI/RecipeList.lua UnlearnedText: the grey marker on a recipe the addon added."""
     source = unlearned_source(recipe_id)
@@ -283,10 +309,12 @@ def craft_cost(recipe_id):
 
 def describe(recipe_id):
     """Core/Core.lua ns.Describe at SKILL, where the live difficulty agrees with the thresholds, so the chance is
-    the thresholds' own."""
+    the thresholds' own. The range starts where the recipe is learned (#519)."""
     t = NS["Thresholds"].get(recipe_id)
     if t and not (t[0] <= t[1] <= t[2] < t[3]):
         t = None
+    if t:
+        t = range_thresholds(recipe_id, t)
     cost, value, net = craft_cost(recipe_id)
     chance = model_chance(t, SKILL)
     return {
@@ -335,7 +363,7 @@ LEVEL = 20
 MONEY = 25000  # 2g 50s: every Apprentice fee is within reach, so the trainer's next pick can be any of them
 TOOLTIP_ITEM = 2318  # Light Leather
 
-# Loads the TOC's Lua files, except UI/TrackerHost.lua which the scene stubs, under luajit into recording stubs
+# Loads the TOC's Lua files under luajit into recording stubs
 # of the client (as tests/route_spec.lua does), runs the addon's start-up, opens its route page, lays out its
 # tracker section, decorates an Apprentice trainer's services and shows the reagent's item tooltip, and prints
 # what each would draw as JSON. Money is left as {coin:N} and item names as {item:N} for the renderer to fill in.
@@ -345,7 +373,7 @@ local ADDON = "SkillUpForever"
 local FILES = {}
 for line in io.lines(ADDON .. ".toc") do
 	local file = line:match("^([%w_\\]+%.lua)%s*$")
-	if file and file ~= "UI\\TrackerHost.lua" then
+	if file then
 		FILES[#FILES + 1] = (file:gsub("\\", "/"))
 	end
 end
@@ -599,7 +627,7 @@ env = setmetatable({
 	GetLocale = function()
 		return "enUS"
 	end,
-	-- The client's error handler and string trim, which the shared journal (Core/SafeCall.lua) reads at load.
+	-- The client's error handler and string trim, which the addon's own code reads at load.
 	geterrorhandler = function()
 		return function() end
 	end,
@@ -671,8 +699,8 @@ env = setmetatable({
 		end,
 	},
 	C_AddOns = {
-		GetAddOnMetadata = function()
-			return "@project-version@"
+		GetAddOnMetadata = function(_, key)
+			return STATE.metadata[key]
 		end,
 	},
 	C_CurrencyInfo = {
@@ -851,13 +879,9 @@ env = setmetatable({
 	AtlasLoot = false,
 	LibQuestieDB = false,
 	Syndicator = false,
-	-- No other Forever addon has loaded UI/ForeverFamily.lua: this copy sets the global.
-	ForeverFamily = false,
-	ForeverLeaderboards = false,
-	ForeverPeerStats = false,
-	-- The error journal installs its own handler and event frame; BugSack is not installed here.
-	ForeverErrorJournal = false,
-	ForeverDebugLog = false,
+	TSM_API = false,
+	-- ForeverCore's shared services; the scene below fills them in.
+	ForeverCore = false,
 	BugGrabber = false,
 }, {
 	__index = function(_, key)
@@ -869,13 +893,69 @@ env = setmetatable({
 	end,
 })
 
--- This renderer exercises Shopping.LayoutContents; native ownership is covered by tracker_host_spec.
+-- This renderer exercises Shopping.LayoutContents; native ownership is covered by ForeverCore's own specs.
 env._G = env
-local ns = { TrackerHost = {
+local function SafeCall(_, fn, ...)
+	return pcall(fn, ...)
+end
+local host = {
 	Attach = function(module) module.parentContainer = {} end,
 	IsAttached = function(module) return module.parentContainer ~= nil end,
-} }
-env.ForeverTrackerHost = ns.TrackerHost
+	GetSettings = function() return { attached = true, locked = false } end,
+	SetAttached = function() end,
+	SetLocked = function() end,
+	OnAttachmentChanged = function() end,
+}
+env.ForeverCore = {
+	API = 1,
+	-- The shared API kit (ForeverCore's Core/APIKit.lua): a render subscribes to nothing and a read is answered from
+	-- the scene's own data, so the hub only has to exist.
+	APIKit = {
+		Hub = function()
+			return {
+				Queue = function() end,
+				Subscribe = function()
+					return function() end
+				end,
+			}
+		end,
+		NotReady = function(reason)
+			return nil, reason
+		end,
+	},
+	TrackerHost = host,
+	Register = function(_, spec)
+		return {
+			SafeCall = SafeCall,
+			Attach = function() end,
+			Report = { Show = function() end, Command = function() end },
+			MapCanvas = {},
+			title = spec and spec.title,
+		}
+	end,
+	PeerStats = {
+		New = function()
+			return {
+				Sync = function() end,
+				SetEnabled = function() end,
+				Board = function() return {} end,
+				WeekBoard = function() return {} end,
+				Revision = function() return 0 end,
+			}
+		end,
+	},
+	Leaderboards = { Register = function() end, Open = function() end },
+	Family = {
+		Register = function()
+			return Stub()
+		end,
+	},
+	OpenSettingsPanel = function() return true end,
+	OpenMap = function() return true end,
+	ContextMenu = function() end,
+	Text = {},
+}
+local ns = {}
 for _, file in ipairs(FILES) do
 	setfenv(assert(loadfile(file)), env)(ADDON, ns)
 end
@@ -1330,6 +1410,7 @@ def lua_scene(ui, *, buy_reagents=False, buffs=False):
     ]
     buff_names, buff_descriptions = buff_spell_text(ui) if buffs else ({}, {})
     state = {
+        "metadata": TOC_METADATA,
         "buyReagents": buy_reagents,
         "level": 12 if buffs else LEVEL,
         "money": MONEY,
@@ -1792,7 +1873,7 @@ def profession_tabs(canvas, fx, fy, selected, frame_w=FRAME_W):
     y += side_tab(canvas, x, y, OVERVIEW_TAB_ICON) + 2
     for name, icon, *_ in PROFESSIONS:
         y += side_tab(canvas, x, y, icon, selected=name == selected) + 2
-    side_tab(canvas, x, y, "interface/icons/inv_scroll_03.blp", selected=selected in PAGE_IDS)
+    side_tab(canvas, x, y, IDENTITY_ICON, selected=selected in PAGE_IDS)
     if selected in PAGE_IDS:
         panel_tabs(canvas, fx + 11, fy + FRAME_H - 4, list(PAGE_TABS), selected=PAGE_IDS.index(selected))
 
@@ -2070,7 +2151,7 @@ def shopping_list_scene(ui, scene_data):
     w, h, margin = 620, 510, 24
     canvas = ui.canvas(w + margin * 2, h + margin * 2)
     x, y = margin, margin
-    portrait_frame_art(canvas, x, y, w, h, 136247, "Shopping list")
+    portrait_frame_art(canvas, x, y, w, h, IDENTITY_ICON, "Shopping list")
     shopping = scene_data["shopping"]
     # GameFontHighlightSmall under the title, right of the portrait: every plan the window buys for.
     plans = ", ".join(f"{profession['profession']} to {profession['target']}" for profession in shopping)

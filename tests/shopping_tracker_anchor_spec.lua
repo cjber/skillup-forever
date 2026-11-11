@@ -39,7 +39,7 @@ ns.RouteBlocked = function()
 	return nil
 end
 
--- A host that reparents on Attach, like UI/TrackerHost.lua's SetContainer. `current` is the anchor the
+-- A host that reparents on Attach, like ForeverCore.TrackerHost's SetContainer. `current` is the anchor the
 -- client has under the module now.
 local current, attaches = nil, 0
 local host = {
@@ -56,7 +56,7 @@ local host = {
 		return target.parent == current
 	end,
 }
-c.G.ForeverTrackerHost = host
+c.G.ForeverCore.TrackerHost = host
 
 -- The module's old parent is gone. Attaching objects reads the anchor again, finds the host, and adds the
 -- reagent block instead of raising.
@@ -79,7 +79,7 @@ equal(attaches, 2, "the next layout re-reads the anchor")
 equal(ns.TrackerAttached(), true, "the module is still attached")
 
 -- No parent and no anchor the host can give: the reagent path is skipped with one line, never an error.
-c.G.ForeverTrackerHost = {
+c.G.ForeverCore.TrackerHost = {
 	Attach = function(target)
 		target.parent = nil
 	end,

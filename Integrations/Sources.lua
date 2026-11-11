@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- Where recipe scrolls, vendors and trainers are, from the catalogue of what QuestieDB and AtlasLoot hold,
@@ -508,7 +512,7 @@ end
 
 local SHORTEST_PATH = "ShortestPathForever"
 local ADVENTURE_GUIDE = "AdventureGuideForever"
--- Hint keys are shared by every Forever addon (UI/ForeverFamily.lua), so they start with this addon's folder.
+-- Hint keys are shared by every Forever addon (ForeverCore.Family), so they start with this addon's folder.
 local HINT_TRAVEL = "SkillUpForever:travel"
 local HINT_QUEST_CHAIN = "SkillUpForever:questChain"
 
@@ -529,7 +533,7 @@ end
 ---@param tooltip GameTooltip
 ---@param single? boolean
 function ns.AddCompanionHint(tooltip, single)
-	local Family = ns.Family
+	local Family = ForeverCore.Family --[[@as ForeverFamilyAPI]]
 	local state = Family.State(SHORTEST_PATH)
 	if state == "missing" then
 		if Family.Hint(ns.db, HINT_TRAVEL, SHORTEST_PATH) then
@@ -547,7 +551,7 @@ end
 -- Under an Artisan quest step, when Adventure Guide Forever isn't installed.
 ---@param tooltip GameTooltip
 function ns.AddQuestChainHint(tooltip)
-	if ns.Family.Hint(ns.db, HINT_QUEST_CHAIN, ADVENTURE_GUIDE) then
+	if ForeverCore.Family.Hint(ns.db, HINT_QUEST_CHAIN, ADVENTURE_GUIDE) then
 		GameTooltip_AddDisabledLine(tooltip, L["Adventure Guide Forever can plan this quest chain."])
 	end
 end

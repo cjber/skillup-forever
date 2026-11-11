@@ -496,7 +496,13 @@ do
 			},
 		},
 	}, { __index = _G })
-	setfenv(assert(loadfile("Core/SafeCall.lua")), env)("SkillUpForever", runtime)
+	-- ForeverCore's SafeCall, as the shared context publishes it: the handlers still run and their failures land
+	-- in SkillUp's journal.
+	runtime.core = {
+		SafeCall = function(_, fn, ...)
+			return pcall(fn, ...)
+		end,
+	}
 	setfenv(assert(loadfile("Core/Changes.lua")), env)("SkillUpForever", runtime)
 	setfenv(assert(loadfile("Integrations/Prices.lua")), env)("SkillUpForever", runtime)
 	runtime.InitPrices()

@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- Distinct own-character recipe observations, independent of recipes currently known. A profession drop never
 -- erases these observations. No old learned flag is treated as a newly observed learning event.
 ---@class SkillUpStats
@@ -8,7 +12,6 @@ local Stats = {}
 ns.Stats = Stats
 
 local METRIC = "recipes_observed_learned"
-local TAB_ICON = "Interface\\Icons\\Trade_BlackSmithing"
 local cached, count, pending = nil, 0, false
 
 local function Character()
@@ -47,8 +50,9 @@ local function Enabled()
 	return ns.db ~= nil and ns.db.statsShare ~= false
 end
 
-local peer = ns.PeerStats.New({
+local peer = ForeverCore.PeerStats.New({
 	addon = "skillup",
+	safeCall = ns.core.SafeCall,
 	enabled = Enabled,
 	db = function()
 		local key = Character()
@@ -103,6 +107,12 @@ function Stats.SetEnabled(enabled)
 	peer:SetEnabled(enabled == true)
 end
 
+-- Whether this character shares and shows peer totals, the switch the public API reports as `sharing`.
+---@return boolean
+function Stats.Sharing()
+	return Enabled()
+end
+
 -- The current character's total, which both boards measure from.
 local function Local()
 	local record = Record()
@@ -154,23 +164,20 @@ end
 
 --- Open Forever Leaderboards on this addon's tab.
 function Stats.Open()
-	if ns.Leaderboards then
-		ns.Leaderboards:Open("skillup")
-	end
+	ForeverCore.Leaderboards:Open("skillup")
 end
 
 ns.WhenEvent("PLAYER_LOGIN", Schedule)
 
-if ns.Leaderboards then
-	ns.Leaderboards:Register("skillup", {
-		title = ns.TITLE,
-		icon = TAB_ICON,
-		metric = ns.L["Recipes observed"],
-		board = Board,
-		revision = Stats.Revision,
-		sharing = Enabled,
-		setSharing = function(shared)
-			Settings.SetValue("SkillUpForever_statsShare", shared == true)
-		end,
-	})
-end
+ForeverCore.Leaderboards:Register("skillup", {
+	title = ns.TITLE,
+	icon = ns.ICON,
+	metric = ns.L["Recipes observed"],
+	board = Board,
+	revision = Stats.Revision,
+	sharing = Enabled,
+	setSharing = function(shared)
+		Settings.SetValue("SkillUpForever_statsShare", shared == true)
+	end,
+	safeCall = ns.core.SafeCall,
+})

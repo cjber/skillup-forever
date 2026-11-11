@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local addonName, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- [recipeID] = live schematic, else bundled data, else false.
 ---@type table<integer, SkillUpSchematic|false>
 local recipes = {}
@@ -555,7 +559,7 @@ local function MerchantNPC()
 end
 
 -- What the open window shows this vendor sells at a time: the highest count seen as it restocks, or false
--- once it shows no limit. A count of zero says nothing about the stock, so it is not kept.
+-- once it shows no limit. A sold-out item shows zero, which proves a limit, so it is kept as at least one.
 ---@param itemID integer
 ---@param npcID integer
 ---@param numAvailable integer
@@ -573,8 +577,10 @@ local function RecordStock(itemID, npcID, numAvailable)
 			return true
 		end
 		return false
-	elseif numAvailable > 0 and seen ~= false and (type(seen) ~= "number" or numAvailable > seen) then
-		vendors[npcID] = numAvailable
+	end
+	local count = math.max(numAvailable, 1)
+	if seen ~= false and (type(seen) ~= "number" or count > seen) then
+		vendors[npcID] = count
 		return true
 	end
 	return false

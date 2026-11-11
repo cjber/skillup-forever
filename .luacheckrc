@@ -1,20 +1,17 @@
 std = "lua51"
 max_line_length = 120
-exclude_files = { "tools/.cache/**", ".release/**", ".types/**", "types/**", ".claude/**", ".bugpatrol/runs/**", ".speedpatrol/runs/**", ".sloppatrol/runs/**" }
+exclude_files = { "tools/.cache/**", "forever-core/**", ".release/**", ".types/**", "types/**", ".claude/**", ".bugpatrol/runs/**", ".speedpatrol/runs/**", ".sloppatrol/runs/**" }
 ignore = { "212/_.*" } -- unused args prefixed with _
 
-globals = { "ForeverFamily", "ForeverLeaderboards", "ForeverTrackerHost",
-	"SkillUpForeverDB",
+globals = { "SkillUpForeverDB",
 	"SkillUpForever",
 	"SkillUpForever_OnAddonCompartmentClick",
 	"SLASH_SKILLUPFOREVER1",
 	"SLASH_SKILLUPFOREVER2",
-	"SLASH_FOREVERLEADERBOARDS1",
-	"SLASH_FOREVERLEADERBOARDS2",
 	"SlashCmdList",
 }
 
-read_globals = { "CreateFramePoolCollection", "C_XMLUtil", "C_DateAndTime",
+read_globals = { "ForeverCore", "C_DateAndTime",
 	"C_ChatInfo", "GetServerTime", "GetTime", "IsInGuild", "IsInGroup", "IsInRaid", "GetCursorPosition",
 	"C_TradeSkillUI", "CreateColor", "CreateFrame", "CreateTreeDataProvider", "ScrollBoxConstants", "strcmputf8i", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
 	"GameTooltip", "GameTooltip_AddColoredLine", "GameTooltip_AddDisabledLine", "GameTooltip_InsertFrame",

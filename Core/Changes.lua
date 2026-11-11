@@ -1,6 +1,10 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 
+if ns.broken then
+	return
+end
+
 -- What goes stale when something changes. A writer says what changed with ns.Changed; the game's own
 -- changes arrive as the events below. Only this file knows which caches that drops and which views it
 -- redraws: each once per change, caches before views, in ORDER.
@@ -132,14 +136,18 @@ local STALE = {
 	-- name, and a route's tooltip lines hold no shopping source, so `tooltipCache` and `tooltipRoute` stay.
 	-- `trackedNeeds` stays too: the one item-data input its list reads, a vendor sell price
 	-- (Integrations/Prices.lua's SellPrice), reports `prices` when it arrives. Item data arrives for any item,
-	-- from any addon, so dropping the list here rebuilt every tracked route on every hover.
+	-- from any addon, so dropping the list here rebuilt every tracked route on every hover. `tracker` stays for
+	-- the same reason: UI/Shopping.lua keeps the names its section is waiting on and reports the tracker only
+	-- when one of them arrives, so a tooltip hover draws no section (#526).
 	items = {
 		route = true,
-		tracker = true,
 		gear = true,
 		buffs = true,
 		shoppingList = true,
 	},
+	-- The name the tracker was waiting on arrived. Only that section draws item names, so only it redraws
+	-- (UI/Shopping.lua); the item data event itself drops nothing for it (#526).
+	trackerNames = { tracker = true },
 	names = { api = true },
 	level = {
 		tooltipCache = true,
@@ -236,12 +244,6 @@ local EVENTS = {
 	MERCHANT_CLOSED = "merchant",
 }
 
--- A /reload after an update that added Core/SafeCall.lua runs without it (Core.lua says to restart the game):
--- the handlers are then called directly.
-local SafeCall = ns.SafeCall
-	or function(_, fn, ...)
-		return true, fn(...) -- multi-value: fn's results, as SafeCall gives them
-	end
 -- The name each stale handler's failure is kept under for /su report, made once.
 ---@type table<SkillUpStale, string>
 local LABELS = {}
@@ -266,7 +268,7 @@ local function Apply(kinds)
 		local handler = stale[name] and handlers[name]
 		if handler then
 			-- One failing cache or view doesn't stop the rest; the error is kept for /su report.
-			SafeCall(LABELS[name], handler)
+			ns.core.SafeCall(LABELS[name], handler)
 		end
 	end
 end
@@ -296,7 +298,7 @@ frame:SetScript("OnEvent", function(_, event)
 		kinds[EVENTS[event]] = true
 	end
 	for _, watcher in ipairs(watchers[event] or {}) do
-		local ok, kind = SafeCall(event, watcher)
+		local ok, kind = ns.core.SafeCall(event, watcher)
 		if ok and kind then
 			kinds[kind] = true
 		end

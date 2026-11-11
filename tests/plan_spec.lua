@@ -375,6 +375,23 @@ end
 local hood = ns.RecipeBands(leatherworking, 1255109)
 equal(hood[1].color .. " " .. hood[1].from, "orange 100", "the hood's first band starts at the pattern's skill")
 
+-- A recipe's range starts where it can first be learned, which is what the tooltip, its bar and the rows
+-- show: the client leaves most recipe starts at its placeholder 1 (#519).
+equal(ns.Thresholds[3766][1], 1, "Dark Leather Belt's bundled start is the client's placeholder")
+equal(ns.LearnSkill(leatherworking, 3766), 100, "its trainer asks 100")
+local beltCtx = { skillLine = 165, name = "Leatherworking", skill = 113, modifier = 0 }
+local belt = ns.RangeThresholds(beltCtx, 3766)
+equal(belt[1], 100, "so its range starts at 100")
+equal(belt[2], ns.Thresholds[3766][2], "the yellow above it is unchanged")
+local beltRow = ns.Describe({ recipeID = 3766, learned = true }, beltCtx)
+equal(beltRow.thresholds[1], 100, "the tooltip line, its bar and the row start at 100")
+equal(ns.RangeThresholds(leatherworking, 12719)[1], 1, "a recipe with no known source keeps the data's start")
+equal(
+	ns.RangeThresholds({ skillLine = 197, name = "Tailoring", skill = 1, modifier = 0 }, 2393)[1],
+	1,
+	"White Linen Shirt is learned at 1"
+)
+
 -- Why there is nothing to craft.
 ClothPrice(CLOTH, nil)
 local unpriced = Plan(FirstAid(40), 75)

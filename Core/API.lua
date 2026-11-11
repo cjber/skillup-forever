@@ -1,5 +1,9 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
+
+if ns.broken then
+	return
+end
 local L = ns.L
 
 -- SkillUpForever.API, version 1: each profession's next steps, recipes and reagents,
@@ -8,8 +12,30 @@ local L = ns.L
 -- API.ShoppingList's records carry `target`: the base skill that profession's plan buys to,
 -- the same number the route tab's Target box shows.
 
-local MAX_STEPS = 3
-local MAX_RECIPES = 5
+-- Core/Require.lua stopped every file if the kit is missing, so it is here.
+local APIKit = ForeverCore.APIKit
+---@cast APIKit ForeverCoreAPIKit
+
+-- A change that drops the API's cache reaches callers through ForeverCore's hub, on the frame after it lands and
+-- once per burst, never in the call that made it (docs/api.md). Both names move together: one change signal drops
+-- every answer, so the list and the shopping list are read again together.
+local revision = 0
+local hub = APIKit.Hub("SkillUpForever", {
+	professions = function()
+		return revision
+	end,
+	shopping = function()
+		return revision
+	end,
+}, function()
+	return ns.db ~= nil
+end)
+
+local DEFAULT_STEPS = 3
+local DEFAULT_RECIPES = 5
+-- The largest answer one call may ask for. The cache is built once at this size and each call trims its own copy:
+-- a limit never forces a rebuild, and one build is cheaper than a cache per limit.
+local MAX_LIMIT = 25
 -- Earlier first: what can be done with what's in the bags beats a trip.
 local KIND_ORDER = { craft = 1, buy = 2, gather = 3, train = 4 }
 
@@ -23,6 +49,8 @@ local namesPending = false
 ns.WhenStale("api", function()
 	namesPending = false
 	cache = nil
+	revision = revision + 1
+	hub.Queue()
 end)
 
 ---@param copper number
@@ -242,13 +270,13 @@ local function Steps(plan)
 	---@param step SkillUpAPIStep
 	---@param pick (fun(): integer?)?
 	local function Add(step, pick)
-		if #steps < MAX_STEPS then
+		if #steps < MAX_LIMIT then
 			steps[#steps + 1] = step
 			picks[#steps] = pick
 		end
 	end
 	for _, walk in ipairs(plan.steps) do
-		if #steps >= MAX_STEPS then
+		if #steps >= MAX_LIMIT then
 			break
 		end
 		local rank, training, craft, subcraft = walk.rank, walk.training, walk.craft, walk.subcraft
@@ -312,7 +340,7 @@ local function Recipes(plan)
 		training[step.recipeID] = step
 	end
 	local recipes = {}
-	for i = 1, math.min(#plan.crafts, MAX_RECIPES) do
+	for i = 1, math.min(#plan.crafts, MAX_LIMIT) do
 		local craft = plan.crafts[i]
 		local recipeID, step = craft.recipeID, training[craft.recipeID]
 		recipes[i] = {
@@ -384,22 +412,137 @@ local function Build()
 	return entries
 end
 
+-- The built answers, or nil while the saved variables are still loading. They are built once and kept until
+-- Core/Changes.lua drops them, so only the copy handed to a caller is fresh.
+---@return SkillUpAPIProfession[]?
+local function Ensure()
+	if not ns.db then
+		return nil
+	end
+	if not cache then
+		cache = Build()
+	end
+	return cache
+end
+
+---@generic T
+---@param row T
+---@return T
+local function CopyRow(row)
+	local copy = {}
+	for key, value in pairs(row) do
+		copy[key] = value
+	end
+	return copy
+end
+
+-- A read returns a fresh table on every call: a caller may keep it or change it (docs/api-conventions.md). The
+-- cache holds MAX_LIMIT of each, so trimming here is the only per-call work a limit adds.
+---@param list SkillUpAPIProfession[]
+---@param steps number
+---@param recipes number
+---@return SkillUpAPIProfession[]
+local function CopyProfessions(list, steps, recipes)
+	local copy = {}
+	for index, entry in ipairs(list) do
+		local copiedSteps, copiedRecipes, reagents = {}, {}, {}
+		for stepIndex = 1, math.min(#entry.steps, steps) do
+			copiedSteps[stepIndex] = CopyRow(entry.steps[stepIndex])
+		end
+		for recipeIndex = 1, math.min(#entry.recipes, recipes) do
+			copiedRecipes[recipeIndex] = CopyRow(entry.recipes[recipeIndex])
+		end
+		for reagentIndex, reagent in ipairs(entry.reagents) do
+			reagents[reagentIndex] = CopyRow(reagent)
+		end
+		copy[index] = {
+			name = entry.name,
+			skillLineID = entry.skillLineID,
+			icon = entry.icon,
+			rank = entry.rank,
+			maxRank = entry.maxRank,
+			title = entry.title,
+			steps = copiedSteps,
+			recipes = copiedRecipes,
+			reagents = reagents,
+		}
+	end
+	return copy
+end
+
+-- A whole number between two bounds; anything else is the caller's mistake, not missing data.
+---@param value any
+---@param low number
+---@param high number
+---@return boolean
+local function WholeBetween(value, low, high)
+	return type(value) == "number" and value == value and value >= low and value <= high and value % 1 == 0
+end
+
+local STATS_METRIC = "recipes_observed_learned"
+local MAX_BOARD = 25
+
 ---@class SkillUpPublicAPI
-local API = { version = 1, minor = 4 }
+-- `minor` rises with each addition within version 1 (1: Professions, Navigate and OpenRecipes; 2: ShoppingList;
+-- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
+-- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits, Stats and Leaderboard);
+-- a caller checks a member before using it (docs/api.md).
+local API = { version = 1, minor = 6 }
+
+-- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
+API.Subscribe = hub.Subscribe
+
+-- Whether a profession is tracked in the objective tracker, from the same saved choice the route page writes.
+---@param skillLineID integer
+---@return boolean?
+---@return SkillUpAPIReason?
+function API.IsTracked(skillLineID)
+	if not ns.db then
+		return APIKit.NotReady("loading")
+	end
+	return ns.IsTracked(skillLineID)
+end
+
+-- The same choice without the player's click sound; an unlearned skill line has no tracker choice to set.
+---@param skillLineID integer
+---@param tracked boolean
+---@return boolean?
+---@return SkillUpAPIReason?
+function API.SetTracked(skillLineID, tracked)
+	if not ns.db then
+		return APIKit.NotReady("loading")
+	end
+	if type(tracked) ~= "boolean" or not ns.PlayerProfessions()[skillLineID] then
+		return false
+	end
+	if ns.IsTracked(skillLineID) == tracked then
+		return false
+	end
+	ns.SetTracked(skillLineID, tracked)
+	return true
+end
 
 ---@param recipeID integer
 ---@param crafts number?
 ---@return {itemID: integer, count: number}[]?
+---@return SkillUpAPIReason?
 function API.RequiredMaterials(recipeID, crafts)
 	local _, raw = ns.RecipeMaterials(recipeID, crafts or 1)
+	if not raw then
+		return APIKit.NotReady("none")
+	end
 	return raw
 end
 
 ---@param recipeID integer
 ---@param crafts number?
 ---@return SkillUpSubCraft[]?
+---@return SkillUpAPIReason?
 function API.SubComponents(recipeID, crafts)
 	local subcrafts = ns.RecipeMaterials(recipeID, crafts or 1)
+	if not subcrafts then
+		return APIKit.NotReady("none")
+	end
 	return subcrafts
 end
 
@@ -640,22 +783,107 @@ function ns.ShoppingTrip(skillLineID)
 	return false
 end
 
----@return SkillUpAPIProfession[]
-function API.Professions()
-	if not ns.db then
-		return {}
+---@param limits? SkillUpAPIProfessionLimits
+---@return SkillUpAPIProfession[]?
+---@return SkillUpAPIReason?
+function API.Professions(limits)
+	local steps, recipes = DEFAULT_STEPS, DEFAULT_RECIPES
+	if limits ~= nil then
+		if type(limits) ~= "table" then
+			return nil, "invalid"
+		end
+		local stepLimit = limits.steps
+		if stepLimit ~= nil then
+			if not WholeBetween(stepLimit, 1, MAX_LIMIT) then
+				return nil, "invalid"
+			end
+			---@cast stepLimit integer
+			steps = stepLimit
+		end
+		local recipeLimit = limits.recipes
+		if recipeLimit ~= nil then
+			if not WholeBetween(recipeLimit, 1, MAX_LIMIT) then
+				return nil, "invalid"
+			end
+			---@cast recipeLimit integer
+			recipes = recipeLimit
+		end
 	end
-	if not cache then
-		cache = Build()
+	local list = Ensure()
+	if not list then
+		return APIKit.NotReady("loading")
 	end
-	return cache
+	return CopyProfessions(list, steps, recipes)
+end
+
+-- The shopping list's trip button, with the same route and fallback.
+---@param skillLineID integer?
+---@return boolean
+function API.ShoppingTrip(skillLineID)
+	return ns.ShoppingTrip(skillLineID)
+end
+
+-- This character's own recipe observations, in the suite's Stats row shape.
+---@return SkillUpAPIStat[]
+function API.Stats()
+	local value, eventUnix = 0, nil
+	for _, row in ipairs(ns.Stats.Board()) do
+		if row.self then
+			value, eventUnix = row.value, row.eventUnix
+			break
+		end
+	end
+	return {
+		{
+			addon = "SkillUpForever",
+			metric = STATS_METRIC,
+			subject = "all",
+			value = value,
+			eventUnix = eventUnix,
+		},
+	}
+end
+
+-- The same ranked rows the shared leaderboard window shows, bounded like the suite's other boards.
+---@param limit? number
+---@return SkillUpAPILeaderboard?
+---@return SkillUpAPIReason?
+function API.Leaderboard(limit)
+	limit = limit == nil and 10 or limit
+	if not WholeBetween(limit, 0, math.huge) then
+		return nil, "invalid"
+	end
+	---@cast limit number
+	limit = math.min(limit, MAX_BOARD)
+	local ranked = ns.Stats.Board()
+	local rows = {}
+	for _, row in ipairs(ranked) do
+		if row.rank <= limit or row.self then
+			rows[#rows + 1] = {
+				rank = row.rank,
+				name = row.name,
+				value = row.value,
+				eventUnix = row.eventUnix,
+				self = row.self == true or nil,
+			}
+		end
+	end
+	return {
+		metric = STATS_METRIC,
+		scope = "guild_group",
+		sharing = ns.Stats.Sharing(),
+		total = #ranked,
+		rows = rows,
+	}
 end
 
 ---@param skillLineID integer
 ---@param stepIndex integer
 ---@return boolean
 function API.Navigate(skillLineID, stepIndex)
-	API.Professions()
+	if not Ensure() then
+		return false
+	end
 	local pick = pickers[skillLineID] and pickers[skillLineID][stepIndex]
 	local npcID = pick and pick()
 	return npcID ~= nil and ns.SetWaypoint(npcID)

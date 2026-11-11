@@ -498,7 +498,7 @@ L["Waiting for Questie to finish loading."] = "Questie 불러오기가 끝나기
 L["Nothing is tracked for %s."] = "%s에 대해 추적 중인 항목이 없습니다." -- mt
 L["+%d more to train"] = "+%d개 더 배우기" -- mt
 L["Also train"] = "추가 학습" -- mt
-L["Forever Core now installs alongside it."] = "이제 Forever Core가 함께 설치됩니다." -- mt
+L["Buy reagents is on for a new character."] = "새 캐릭터는 재료 구매가 켜져 있습니다." -- mt
 L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
 	"Auctionator 목록: %s. 경매장에서 구매 탭을 열고 목록을 선택한 뒤 검색하세요. 각 줄을 클릭하여 구매하세요."
 L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =

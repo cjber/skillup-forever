@@ -13,6 +13,11 @@ optional `### For addon authors` subsection after a version's player bullets.
 ## [Unreleased]
 
 - **A bolt made from gathered cloth is no longer free.** With Buy reagents off, a Bolt of Silk Cloth cost nothing because the cloth did, so recipes using bolts looked profitable. A crafted material now counts as worth at least what selling it brings, its auction price after the cut or its vendor price, whichever is higher (#598).
+
+## [1.6.0] - 2026-11-11
+
+<!-- discord-image: docs/screenshots/route.png -->
+
 - **Buy reagents is on for a new character.** Buying is nearly always the faster way to skill up, so a character with no saved choice now buys the gatherables its route needs instead of being sent to farm them. A reagent nobody has priced yet sits under Auction house as a price unknown, still on the route and still in the Auctionator list, so a search can price it. Choose gathering on the route page to go back to farming, and the checkbox's tooltip says what each choice does (#559).
 - **The Buffs timeline says that it scrolls sideways.** A thin horizontal scroll bar now sits under the timeline, in the client's own minimal style, and a soft fade marks an edge while more lies beyond it. The bar follows Shift and the wheel and follows a drag, and hovering it says so (#565).
 - **The Shopping list and the auction bar say how the Auctionator list works.** The Auction house section names the list, says to open the auction house, its Shopping tab, pick the list and Search, and that each row is one click to buy. With Buy reagents off it says turning it on writes the list, and without Auctionator it says the bar fills the game's own search box one reagent at a time. The Search button's tooltip says the same in one line (#554).

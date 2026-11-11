@@ -42,6 +42,9 @@ c.professions = {
 }
 c.Boot()
 ns.SetCollectMode("gather")
+-- The tracker section joins the shared column once the world loads, as core's own sections do.
+c.EnterWorld()
+c.Advance(0)
 
 ---@return SkillUpPlan
 local function Plan()

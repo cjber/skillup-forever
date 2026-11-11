@@ -335,8 +335,6 @@ L["searching for %s: you need %d more."] = "正在搜尋%s：你還需要%d個�
 L["sorting failed and has been turned off: %s"] = "排序失敗，已關閉：%s"
 L["the %s book"] = "書籍%s"
 L["the %s quest"] = "任務%s"
-L["the objective tracker isn't available, so tracked reagents can't be shown."] =
-	"目標追蹤器無法使用，因此無法顯示追蹤的材料。"
 L["the reagent names are still loading; search again in a moment."] =
 	"材料名稱仍在載入；請稍後再次搜尋。"
 L["today"] = "今天"

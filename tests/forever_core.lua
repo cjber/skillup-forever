@@ -1,6 +1,8 @@
 -- ForeverCore, the addon every Forever addon requires, loaded the way the client loads it: the files its TOC lists,
 -- in order, from the checkout the FOREVER_CORE environment variable names. Local runs default to the sibling checkout
 -- ../forever-core; CI checks the ref in tools/forever-core.txt out into forever-core/.
+local Toc = dofile("tools/forever_sim/toc.lua")
+
 local ForeverCore = {}
 
 local DEFAULT_DIRECTORY = "../forever-core"
@@ -44,19 +46,12 @@ function ForeverCore.directory()
 	)
 end
 
--- The Lua files ForeverCore.toc lists, in its order, with forward slashes for loadfile. XML is the client loader's:
--- it defines templates the headless harness stubs itself, so loadfile has nothing to run there.
+-- The files ForeverCore.toc lists, as the client loads them: Lua files to run and XML files whose templates the
+-- harness registers. The shared reader expands each XML entry into its Script and Include children.
 ---@param directory string
----@return string[]
+---@return { path: string, kind: "lua"|"xml" }[]
 function ForeverCore.files(directory)
-	local files = {}
-	for line in io.lines(directory .. "/ForeverCore.toc") do
-		line = line:gsub("\r$", "")
-		if not (line:match("^%s*$") or line:match("^%s*#")) and line:match("%.lua$") then
-			files[#files + 1] = directory .. "/" .. (line:gsub("\\", "/"))
-		end
-	end
-	return files
+	return Toc.files(directory, "ForeverCore.toc")
 end
 
 -- ForeverCore as an extra addon for the client simulator: the folder and its addon name, registered next to the
@@ -74,10 +69,16 @@ end
 function ForeverCore.load(env, name)
 	local directory = ForeverCore.directory()
 	local ns = {}
-	for _, path in ipairs(ForeverCore.files(directory)) do
-		local chunk = assert(loadfile(path), path)
-		setfenv(chunk, env)
-		chunk(name or "ForeverCore", ns)
+	for _, entry in ipairs(ForeverCore.files(directory)) do
+		if entry.kind == "lua" then
+			local chunk = assert(loadfile(entry.path), entry.path)
+			setfenv(chunk, env)
+			chunk(name or "ForeverCore", ns)
+		elseif entry.kind == "xml" then
+			for _, template in ipairs(Toc.templates(entry.path)) do
+				env.RegisterTemplate(template)
+			end
+		end
 	end
 	return ns
 end

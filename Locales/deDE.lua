@@ -340,8 +340,6 @@ L["searching for %s: you need %d more."] = "Suche nach %s: Ihr braucht noch %d."
 L["sorting failed and has been turned off: %s"] = "Sortierung fehlgeschlagen und ausgeschaltet: %s"
 L["the %s book"] = "das Buch %s"
 L["the %s quest"] = "die Quest %s"
-L["the objective tracker isn't available, so tracked reagents can't be shown."] =
-	"Die Questzielverfolgung ist nicht verfügbar, verfolgte Reagenzien können nicht angezeigt werden."
 L["the reagent names are still loading; search again in a moment."] =
 	"Die Reagenznamen laden noch; sucht gleich noch einmal."
 L["today"] = "heute"

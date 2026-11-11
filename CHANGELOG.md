@@ -21,6 +21,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 ### For addon authors
 
 - **`SkillUpForever.API` is listed by `ForeverCore.APIKit.Addons()` on ForeverCore 1.3.2 or later.** At load the addon hands its API table to core's suite registry, so another addon can find every Forever addon's API from one list. Publishing is not an API change, so the API's version and minor stay the same (#594).
+- **The tracker section is built with ForeverCore's `TrackerSection`.** The section no longer creates its own frame, attaches itself or keeps an anchor: `TrackerSection.Create` builds it, offers SkillUp's old tracker table once and hands layout failures to SkillUp's journal, and `TrackerLine.SetInteractive` gives the waypoint lines their mouse. The addon now requires ForeverCore 1.2.0.
 
 ## [1.5.4] - 2026-11-11
 

@@ -11,6 +11,10 @@ local c = Client.load({
 })
 local ns, G = c.ns, c.G
 
+-- The section joins the shared column once the world loads, as core's own sections do.
+c.EnterWorld()
+c.Advance(0)
+
 -- The addon registers once, and the same name returns core's one context for it.
 assert(ns.core ~= nil, "the addon registered its ForeverCore services")
 assert(ns.core == G.ForeverCore.Register("SkillUpForever"), "Register is idempotent for the addon's name")
@@ -57,8 +61,10 @@ local old, oldLines = Require({ API = 0 })
 assert(old.broken == true and #oldLines == 1, "a ForeverCore older than API 1 stops the addon too")
 local noKit, noKitLines = Require({ API = 1 })
 assert(noKit.broken == true and #noKitLines == 1, "one without the API kit stops it the same way")
-local ready, readyLines = Require({ API = 1, APIKit = {} })
-assert(ready.broken == nil, "API 1 with the kit runs the addon")
+local noSection, noSectionLines = Require({ API = 1, APIKit = {} })
+assert(noSection.broken == true and #noSectionLines == 1, "one older than the tracker section API stops it too")
+local ready, readyLines = Require({ API = 1, APIKit = {}, TrackerSection = {}, TrackerLine = {} })
+assert(ready.broken == nil, "API 1 with the kit and the tracker section API runs the addon")
 assert(#readyLines == 0, "and says nothing")
 
 print("core_dependency_spec: ok")

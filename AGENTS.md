@@ -146,9 +146,10 @@ client's own DB2 tables through wago.tools, not a classic-db dump: they stay as 
 `tools/forever_sim/` is the shared client simulator from the same place, vendored the same way (`python3 tools/forever_sim/sync.py check`, `update --source <checkout>`). `luajit tools/forever_sim/run.lua` runs the scenarios in `tests/sim` under the client's real Blizzard UI source, fetched once with `python3 tools/forever_sim/fetch.py`; `tests/sim/exercise_scenario.lua` opens every slash command, the world map, combat and a `/reload` through `sim:exercise()`.
 Never touch Blizzard's Lua state: WFA-38 in `wow-forever-addon` lists what addon code may do to Blizzard's
 frames, how to restyle one by drawing on top, and when a `taint-ok` exception holds.
-Keep addon tracker sections in the shared column: create the module, set its `legacySettings`, `safeCall` and
-`AddHeaderMenuEntries`, and attach it with `ForeverCore.TrackerHost.Attach`. Never register with Blizzard's
-tracker manager.
+Keep addon tracker sections in the shared column: build one with `ForeverCore.TrackerSection.Create` (`header`,
+`show`, `legacy`/`legacyKey`, `safeCall`, `onUnattached`), give its lines `ForeverCore.TrackerLine.SetInteractive`
+and its menu entries `AddHeaderMenuEntries`, and never create the frame, attach it or read an anchor by hand. Never
+register with Blizzard's tracker manager.
 Render only after `PLAYER_ENTERING_WORLD` and `VARIABLES_LOADED`, deferred one frame.
 This supersedes WFA-5's native registration guidance. ForeverCore owns the host; native manager access is
 forbidden in the integration harness.

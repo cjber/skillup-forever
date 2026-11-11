@@ -13,6 +13,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 ## [Unreleased]
 
 - **The Professions window keeps one width and one page.** Switching between SkillUp's tab, another Forever addon's tab and the game's own tabs no longer leaves the other addon's page drawn over SkillUp's, and the window no longer changes width when you open another profession or tab. With the wide recipe list on, the window is as wide as the widest recipe row of every profession you have learned needs, so names stay clear of SkillUp's skill-up columns on every profession; turning it off gives the game's own width back (#555, cjber/forever-core#433).
+- **The shopping list's copy window opens without an error.** Opening it to copy your list raised a Lua error and left the list unselected. It now opens with the whole list selected, ready to copy (#622).
 
 ### For addon authors
 

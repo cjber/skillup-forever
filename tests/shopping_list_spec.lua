@@ -233,6 +233,20 @@ equal(anchor[3], "TOPRIGHT", "beside it")
 equal(anchor[4], 8, "with a small gap")
 equal(anchor[5], 0, "level with its top")
 
+-- #622: focusing the copy box selects the list. The client calls the focus handler as handler(self, isUserInput),
+-- so a bare HighlightText reference took the flag as its start index, raised, and left the list unselected.
+local copyEdit = Find(copyWindow, function(region)
+	return region.scripts.OnEditFocusGained ~= nil
+end)
+assert(copyEdit, "the copy box gains focus through a script")
+copyEdit.highlighted = nil
+copyEdit.scripts.OnEditFocusGained(copyEdit, true)
+equal(copyEdit.highlighted, copyEdit.text, "the focus handler selects the whole list")
+copyEdit:ClearFocus()
+copyEdit.highlighted = nil
+copyEdit:SetFocus()
+equal(copyEdit.highlighted, copyEdit.text, "gaining focus through the client selects the whole list")
+
 -- #566: opening from a route page shows only that profession's plan, and a profession with nothing tracked
 -- says so instead of showing another tracked profession's materials.
 local LEATHERWORKING, COOKING, BLACKSMITHING = 165, 185, 164

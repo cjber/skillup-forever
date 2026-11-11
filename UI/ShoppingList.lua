@@ -72,7 +72,11 @@ local function Copy(text)
 				self:HighlightText()
 			end
 		end)
-		copyEdit:SetScript("OnEditFocusGained", copyEdit.HighlightText)
+		-- The client calls a focus handler as handler(self, isUserInput), so passing the method bare would land the
+		-- flag in HighlightText's start index (#622, the same shape as #269).
+		copyEdit:SetScript("OnEditFocusGained", function(self)
+			self:HighlightText()
+		end)
 		copyEdit:SetScript("OnEscapePressed", function()
 			copyWindow:Hide()
 		end)

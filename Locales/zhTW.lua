@@ -482,5 +482,5 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster 沒有這些材料的價格：使用 TSM 桌面應用程式更新其 AuctionDB。" -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"使用 TSM 桌面應用程式更新 TradeSkillMaster 的 AuctionDB，或拜訪商人，為材料定價。" -- mt
-L["Needs Forever Core."] = "需要 Forever Core。" -- mt
+L["The shopping list stops stacking old lines when it refreshes."] = "購物清單重新整理時不再堆疊舊行。" -- mt
 L["Waiting for Questie to finish loading."] = "正在等待Questie載入完畢。"

@@ -499,5 +499,6 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster에 이 재료의 가격이 없습니다: TSM 데스크톱 앱으로 AuctionDB를 업데이트하세요." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"TSM 데스크톱 앱으로 TradeSkillMaster의 AuctionDB를 업데이트하거나 상인을 방문하여 재료 가격을 매기세요." -- mt
-L["Needs Forever Core."] = "Forever Core가 필요합니다." -- mt
+L["The shopping list stops stacking old lines when it refreshes."] =
+	"구매 목록을 새로 고칠 때 이전 줄이 더 이상 쌓이지 않습니다." -- mt
 L["Waiting for Questie to finish loading."] = "Questie 불러오기가 끝나기를 기다리는 중입니다."

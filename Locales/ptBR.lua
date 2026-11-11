@@ -491,5 +491,6 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"O TradeSkillMaster não tem preço para estes reagentes: atualize o AuctionDB com o aplicativo de desktop do TSM." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"Atualize o AuctionDB do TradeSkillMaster com o aplicativo de desktop do TSM, ou visite um vendedor, para precificar os reagentes." -- mt
-L["Needs Forever Core."] = "Requer Forever Core." -- mt
+L["The shopping list stops stacking old lines when it refreshes."] =
+	"A lista de compras não empilha mais linhas antigas ao atualizar." -- mt
 L["Waiting for Questie to finish loading."] = "Aguardando o Questie terminar de carregar."

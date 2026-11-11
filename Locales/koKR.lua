@@ -506,4 +506,5 @@ L["Waiting for Questie to finish loading."] = "Questie 불러오기가 끝나기
 L["Nothing is tracked for %s."] = "%s에 대해 추적 중인 항목이 없습니다." -- mt
 L["+%d more to train"] = "+%d개 더 배우기" -- mt
 L["Also train"] = "추가 학습" -- mt
-	L["Game data now matches Forever build 1.60.1.70888."] = "게임 데이터가 이제 Forever 빌드 1.60.1.70888과 일치합니다." -- mt
+L["Game data now matches Forever build 1.60.1.70888."] =
+	"게임 데이터가 이제 Forever 빌드 1.60.1.70888과 일치합니다." -- mt

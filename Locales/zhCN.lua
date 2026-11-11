@@ -488,4 +488,4 @@ L["Waiting for Questie to finish loading."] = "正在等待Questie加载完毕�
 L["Nothing is tracked for %s."] = "没有正在追踪的 %s。" -- mt
 L["+%d more to train"] = "还有 %d 项要学习" -- mt
 L["Also train"] = "还要学习" -- mt
-	L["Game data now matches Forever build 1.60.1.70888."] = "游戏数据现已与 Forever 版本 1.60.1.70888 一致。" -- mt
+L["Game data now matches Forever build 1.60.1.70888."] = "游戏数据现已与 Forever 版本 1.60.1.70888 一致。" -- mt

@@ -494,4 +494,4 @@ L["Waiting for Questie to finish loading."] = "Warte, bis Questie fertig geladen
 L["Nothing is tracked for %s."] = "Für %s wird nichts verfolgt." -- mt
 L["+%d more to train"] = "+%d weitere zum Erlernen" -- mt
 L["Also train"] = "Außerdem lernen" -- mt
-	L["Game data now matches Forever build 1.60.1.70888."] = "Spieldaten entsprechen jetzt dem Forever-Build 1.60.1.70888." -- mt
+L["Game data now matches Forever build 1.60.1.70888."] = "Spieldaten entsprechen jetzt dem Forever-Build 1.60.1.70888." -- mt

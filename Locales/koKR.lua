@@ -5,6 +5,8 @@ if GetLocale() ~= "koKR" then
 end
 local L = ns.L
 
+L["The Professions overview is its own width again."] =
+	"전문 기술 개요가 다시 원래 너비로 표시됩니다." -- mt
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d회 제작, %d까지, %s"
 L["%d crafts to %d, %s, at %s"] = "%d회 제작, %d까지, %s, 장소: %s"
@@ -512,8 +514,6 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"재료 구매를 켜면 아직 부족한 모든 경매장 재료가 Auctionator 목록에 기록됩니다."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Auctionator가 없으면 레시피의 검색 버튼이 게임 자체 경매 검색 상자에 한 번에 하나의 재료를 채웁니다."
-L["The Professions window keeps one width and one page."] =
-	"전문 기술 창이 한 가지 너비와 한 페이지를 유지합니다." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
 L["%s: %s are out of date. Update them to fix this."] =

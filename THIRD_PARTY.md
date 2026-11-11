@@ -59,6 +59,7 @@ Credit for the ideas and reports behind the addon.
 | deathmvp1 and berserkerlxl, on CurseForge | Found Questie's quest list covering the Forever tracker sections, which now move clear of it (cjber/shortest-path-forever#214) | |
 | [Mouchoir](https://github.com/Mouchoir) | Found and fixed the profession window's stutters and freezes on tab switches, combat skill-ups and re-plans (#176, #183, #185) and the route reagent error on a missing tool priced through Auctionator (#174) | Code contributor (#173, #175, #182, #184) |
 | [zazomazzo](https://github.com/zazomazzo) | Fixed the objective tracker vanishing when dragged in Edit Mode with snapping on (#221, merged as #222) | Code contributor |
+| qwertzyxc, on Discord | Reported the Professions overview stretched far too wide in 1.7.0 (#636) | |
 
 | [cjber](https://github.com/cjber) | Reported the shared Auctionator list names that let characters replace each other's supplies (#284) | |
 

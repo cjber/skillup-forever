@@ -5,6 +5,7 @@ if GetLocale() ~= "zhTW" then
 end
 local L = ns.L
 
+L["The Professions overview is its own width again."] = "專業總覽恢復為自身的寬度。" -- mt
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "製造%d次至%d，%s"
 L["%d crafts to %d, %s, at %s"] = "製造%d次至%d，%s，地點：%s"
@@ -498,7 +499,6 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"開啟「購買試劑」會寫入一個 Auctionator 清單，包含所有仍缺少的拍賣場試劑。"
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"沒有 Auctionator 時，配方的「搜尋」按鈕會一次一個試劑地填入遊戲自帶的拍賣搜尋框。"
-L["The Professions window keeps one width and one page."] = "專業視窗維持同一寬度，只顯示一個頁面。" -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已過期。請更新它來解決此問題。" -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已過期。請更新它們來解決此問題。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 無法啟動。請重新安裝 %s 來解決此問題。" -- mt

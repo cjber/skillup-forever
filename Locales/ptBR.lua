@@ -5,6 +5,8 @@ if GetLocale() ~= "ptBR" then
 end
 local L = ns.L
 
+L["The Professions overview is its own width again."] =
+	"A visão geral das profissões voltou a ter a própria largura." -- mt
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d criações até %d, %s"
 L["%d crafts to %d, %s, at %s"] = "%d criações até %d, %s, em: %s"
@@ -504,8 +506,6 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Ativar Comprar reagentes grava uma lista do Auctionator com todos os reagentes de leilão ainda faltando."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Sem o Auctionator, o botão Buscar de uma receita preenche a caixa de leilões do jogo, um reagente por vez."
-L["The Professions window keeps one width and one page."] =
-	"A janela de profissões mantém uma só largura e uma só página." -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s: %s está desatualizado. Atualize-o para corrigir isso." -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s: %s estão desatualizados. Atualize-os para corrigir isso." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s não pôde iniciar. Reinstale %s para corrigir isso." -- mt

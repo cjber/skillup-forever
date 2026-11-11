@@ -903,12 +903,14 @@ end
 local controls = {
 	page.Collect,
 	page.CollectLabel,
+	page.Money,
 	page.Vendor,
 	page.Craft,
 	page.CraftCount,
 	page.Track,
 }
-local names = { "the switch", "the switch's label", "the vendor button", "Craft", "Craft's count", "Track" }
+local names =
+	{ "the switch", "the switch's label", "the money line", "the vendor button", "Craft", "Craft's count", "Track" }
 
 for index, control in ipairs(controls) do
 	for _, heading in ipairs(headings) do

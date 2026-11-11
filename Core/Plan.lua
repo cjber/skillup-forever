@@ -592,6 +592,54 @@ function ns.RecipeMaterials(recipeID, crafts)
 	return subcrafts, merged
 end
 
+-- The route's money split: what its reagents still cost to buy after the bags, the training and rank fees
+-- still to pay, what its crafts sell for, and how many needed reagents no price covers. A held book is not
+-- bought again, and an unpriced reagent is counted rather than dropped from a lower total (#567).
+---@param plan SkillUpPlan
+---@return { buy: number, fees: number, sells: number, unknown: integer }
+function ns.PlanMoney(plan)
+	local count = {}
+	for _, craft in ipairs(plan.crafts or {}) do
+		local _, craftRaw = Expand(craft.recipeID, craft.crafts, 0, {})
+		for _, item in ipairs(craftRaw) do
+			count[item.itemID] = (count[item.itemID] or 0) + item.count
+		end
+	end
+	local buy, unknown = 0, 0
+	for itemID, need in pairs(count) do
+		local short = need - math.min(ns.Have(itemID), need)
+		if short > 0 then
+			local each = ns.ObtainCost and ns.ObtainCost(itemID)
+			if not each then
+				local price = ns.Price and ns.Price(itemID)
+				each = price and not price.unknown and price.copper or nil
+			end
+			if each then
+				buy = buy + each * short
+			else
+				unknown = unknown + 1
+			end
+		end
+	end
+	local fees = 0
+	for _, training in ipairs(plan.training or {}) do
+		fees = fees + training.fee
+	end
+	for _, rank in ipairs(plan.ranks or {}) do
+		if not ns.RankHeld(rank) then
+			fees = fees + rank.fee
+		end
+	end
+	local sells = 0
+	for _, craft in ipairs(plan.crafts or {}) do
+		local _, value = RecipeCosts(craft.recipeID)
+		if value then
+			sells = sells + value.copper * craft.crafts
+		end
+	end
+	return { buy = buy, fees = fees, sells = sells, unknown = unknown }
+end
+
 -- The order the plan is walked in: each rank once the route passes the cap below it, a recipe's
 -- training just before its first craft, the sub-crafts that make its reagents, then the craft.
 ---@param plan SkillUpPlan

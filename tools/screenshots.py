@@ -1119,7 +1119,9 @@ local route = {
 	portrait = rawget(env.ProfessionsFrame, "portrait"),
 	skill = Widget(page.Skill),
 	target = Widget(page.Target),
+	money = Widget(page.MoneyText),
 	craft = Widget(page.Craft),
+	craftCount = Widget(page.CraftCount),
 	track = Widget(page.Track),
 	collect = Widget(page.Collect),
 	collectLabel = Widget(page.CollectLabel),
@@ -2146,6 +2148,9 @@ def route_frame(ui, scene_data):
     skill_x = dx + dw + 16
     skill_w = canvas.text(skill_x, dy, route["skill"]["text"], F_NORMAL, box_height=dh)
     input_box(canvas, skill_x + skill_w + 10, dy + (dh - 20) / 2, 40, 20, route["target"]["text"])
+    # The route's money line sits under the skill and target it starts from.
+    if route["money"].get("text"):
+        canvas.text(skill_x, dy + dh + 2, expand(ui, route["money"]["text"]), F_NORMAL)
     # The switch sits right of the target it changes, in the header row.
     collect = route["collect"]
     minimal_checkbox(
@@ -2165,20 +2170,24 @@ def route_frame(ui, scene_data):
     draw_list(canvas, route_x, top, route_right - route_x, bottom - top, route_list["rows"])
     inset_frame(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, "Reagents  (have / need)")
     draw_list(canvas, reagents_x, top, reagents_right - reagents_x, bottom - top, reagent_list["rows"])
-    # Shopping list, vendor and craft share the bottom row; Track sits at the reagents' bottom right.
+    # Shopping list, vendor, the count box and craft share the bottom row; Track sits at the reagents' bottom right.
     craft = route["craft"]
-    craft_w = min(canvas.text_width(craft["text"], F_NORMAL) + 32, 240)
+    craft_w = craft.get("width") or 100
     track = route["track"]
     track_x = reagents_right - 130
     panel_button(canvas, track_x, bottom + 10, 130, 22, track["text"], track.get("enabled", True))
     craft_x = track_x - 8 - craft_w
     panel_button(canvas, craft_x, bottom + 10, craft_w, 22, craft["text"], craft["enabled"])
+    count = route["craftCount"]
+    count_w = count.get("width") or 62
+    count_x = craft_x - 4 - count_w
+    input_box(canvas, count_x, bottom + 11, count_w, 20, count.get("text") or "")
     vendor = route["vendor"]
     if vendor.get("shown"):
-        panel_button(canvas, craft_x - 8 - 120, bottom + 10, 120, 22, vendor["text"], vendor.get("enabled", True))
+        panel_button(canvas, count_x - 8 - 120, bottom + 10, 120, 22, vendor["text"], vendor.get("enabled", True))
     shopping = route["shoppingList"]
     panel_button(
-        canvas, craft_x - 8 - 120 - 8 - 110, bottom + 10, 110, 22, shopping["text"], shopping.get("enabled", True)
+        canvas, count_x - 8 - 120 - 8 - 110, bottom + 10, 110, 22, shopping["text"], shopping.get("enabled", True)
     )
     profession_tabs(canvas, fx, fy, "route")
     portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, route["portrait"], "Leatherworking")

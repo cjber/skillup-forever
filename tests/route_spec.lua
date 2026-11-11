@@ -397,6 +397,14 @@ for _, file in ipairs({
 }) do
 	setfenv(assert(loadfile(file)), pageEnv)("SkillUpForever", page)
 end
+-- The page's money line is Plan.lua's own subject in plan_spec; this spec draws it from a fixed split and
+-- checks that the header carries it and that the list no longer ends with a Total line.
+page.FormatNet = function(copper)
+	return tostring(copper)
+end
+page.PlanMoney = function()
+	return { buy = 1000, fees = 500, sells = 200, unknown = 0 }
+end
 local tabs = {}
 local children = {}
 local function SideTab(left, top)
@@ -540,6 +548,11 @@ routeTab:Click()
 local reagentList = lists[2]
 equal(reagentList.rows[1] and reagentList.rows[1].text, "item 2589", "an unpriced reagent is listed")
 equal(requested[2589], true, "and its name is asked for")
+equal(
+	page.routeSpec.page.MoneyText.text:find("Needs 1500, sells back 200", 1, true) ~= nil,
+	true,
+	"the header shows what the route costs and returns"
+)
 
 -- #189: leaving the level box with the number it already holds changes nothing.
 local changedKinds = {}
@@ -1149,6 +1162,11 @@ equal(
 	true,
 	"a route with an unpriced reagent is marked incomplete"
 )
+equal(
+	page.routeSpec.page.MoneyText.text:find("(incomplete)", 1, true) ~= nil,
+	true,
+	"and the header says its money is incomplete"
+)
 local listed = {}
 for _, row in ipairs(lists[2].rows) do
 	if row.text then
@@ -1315,14 +1333,14 @@ local bookRow, messages = BookPage()
 equal(bookRow.text, "Buy and read Expert First Aid - Under Wraps at 125", "a book not yet bought is bought and read")
 equal(bookRow.click ~= nil, true, "and a click goes to its vendor")
 equal(bookRow.detail:find("Price 10000", 1, true) ~= nil, true, "at its price")
-equal(messages, "Total 10500", "and the total pays for it")
+equal(messages, nil, "and no Total line sits under the route")
 bookRow.tooltip(Stub())
 equal(nearestShown, 1, "its tooltip names the nearest vendor")
 heldBook = 1
 bookRow, messages = BookPage()
 equal(bookRow.text, "Read Expert First Aid - Under Wraps at 125", "a book in the bags is only read")
 equal(bookRow.detail, "You have it, requires First Aid (125)", "with no price on the row")
-equal(messages, "Total 500", "and the total no longer pays for it")
+equal(messages, nil, "and still no Total line sits under the route")
 bookRow.tooltip(Stub())
 equal(tooltipLines[#tooltipLines], "You have this book: read it.", "its tooltip says you have it")
 equal(nearestShown, 1, "and names no vendor")

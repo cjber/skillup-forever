@@ -587,9 +587,6 @@ local function RenderRoute(list, plan)
 			})
 		end
 	end
-	if #plan.crafts > 0 then
-		list:Message(string.format(L["Total %s"], Money(ns.PlanCost(plan))), NORMAL_FONT_COLOR)
-	end
 	if blocked and plan.unpriced > 0 then
 		list:Message(blocked)
 	elseif plan.stopReason == "no_recipe" then
@@ -1061,6 +1058,19 @@ local function ApplyPendingRoute()
 	end
 end
 
+-- What the whole route asks for in money, in the header where the player looks before crafting: what the
+-- reagents and fees still cost, what the crafts sell back, and whether a price is still missing (#567).
+---@param plan SkillUpPlan
+local function RenderMoney(plan)
+	local money = ns.PlanMoney(plan)
+	local text = string.format(L["Needs %s, sells back %s"], Money(money.buy + money.fees), Money(money.sells))
+	if money.unknown > 0 or plan.unpriced > 0 then
+		text = string.format("%s (%s)", text, L["incomplete"])
+	end
+	page.MoneyText:SetText(text)
+	page.Money.money, page.Money.unpriced = money, plan.unpriced
+end
+
 local function Render()
 	local profession = selected and ns.RouteProfessions()[selected]
 	page.Profession:GenerateMenu()
@@ -1076,6 +1086,7 @@ local function Render()
 		SetCollectEnabled(false)
 		SetProtected("vendorShown", false)
 		page.vendorItems = {}
+		page.MoneyText:SetText("")
 		page.RouteList:Message(L["Learn a crafting profession to plan a route."])
 		page.RouteList:Finish()
 		page.ReagentList:Finish()
@@ -1084,6 +1095,7 @@ local function Render()
 	ProfessionsFrame:SetPortraitToAsset(profession.icon)
 	page.Skill:SetFormattedText(L["Skill  %d/%d     Target"], profession.base, profession.max)
 	local plan = ns.PlanRoute(profession)
+	RenderMoney(plan)
 	if not page.Target:HasFocus() then
 		page.Target:SetText(tostring(plan.target))
 	end
@@ -1197,6 +1209,44 @@ local function CreateHeader()
 		editBox:ClearFocus()
 	end)
 	page.Target = target
+
+	-- The route's whole money, under the skill and target it starts from, so it is in the header where
+	-- the player looks before crafting. A tooltip splits the reagents, the fees and the sale.
+	local money = CreateFrame("Frame", nil, page) --[[@as SkillUpRouteMoney]]
+	money:SetSize(360, 14)
+	money:SetPoint("TOPLEFT", skill, "BOTTOMLEFT", 0, -8)
+	local moneyText = money:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	moneyText:SetPoint("LEFT")
+	money:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP")
+		GameTooltip_SetTitle(GameTooltip, L["Cost"])
+		if self.money then
+			AddLine(GameTooltip, L["Reagents"], Money(self.money.buy))
+			AddLine(GameTooltip, L["Fees"], Money(self.money.fees))
+			if self.money.sells > 0 then
+				AddLine(GameTooltip, L["Sales"], Money(self.money.sells))
+			end
+			if self.money.unknown > 0 then
+				GameTooltip_AddNormalLine(
+					GameTooltip,
+					string.format(L["%d reagents have no price"], self.money.unknown)
+				)
+			end
+			if (self.unpriced or 0) > 0 then
+				GameTooltip_AddNormalLine(
+					GameTooltip,
+					string.format(
+						L["Route incomplete: %d recipes left out, their reagents not priced yet."],
+						self.unpriced
+					)
+				)
+			end
+		end
+		GameTooltip:Show()
+	end)
+	money:SetScript("OnLeave", GameTooltip_Hide)
+	page.Money = money
+	page.MoneyText = moneyText
 end
 
 local function CreateButtons()

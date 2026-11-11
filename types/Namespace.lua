@@ -96,6 +96,7 @@
 ---@field PlayerSide fun(): 'A'|'H'|nil
 ---@field RankHeld fun(rank: SkillUpRank): boolean
 ---@field PlanCost fun(plan: SkillUpPlan): number
+---@field PlanMoney fun(plan: SkillUpPlan): { buy: number, fees: number, sells: number, unknown: integer }
 ---@field StepCost fun(recipeID: integer, crafts: number): number What a step's crafts cost, every craft at its net
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
@@ -807,12 +808,18 @@ SkillUpForeverDB = nil
 ---@field ScrollOffset number
 ---@field Hi number
 
+---@class SkillUpRouteMoney : Frame
+---@field money? { buy: number, fees: number, sells: number, unknown: integer }
+---@field unpriced? integer
+
 ---@class SkillUpPage : Frame
 ---@field Craft SkillUpCraftButton
 ---@field CraftCount EditBox
 ---@field Profession DropdownButton
 ---@field Skill FontString
 ---@field Target EditBox
+---@field Money SkillUpRouteMoney
+---@field MoneyText FontString
 ---@field Track Button
 ---@field Collect CheckButton
 ---@field CollectLabel FontString

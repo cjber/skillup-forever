@@ -223,6 +223,32 @@ equal(ns.RankText(book), "Read Expert First Aid - Under Wraps at 125", "a book i
 equal(ns.RankHeld(book), true, "and is held")
 equal(ns.PlanCost(capped), capped.cost - 10000, "so the route no longer pays for it")
 c.bags[UNDER_WRAPS] = nil
+-- #567: the route's money split: the reagents still to buy after the bags, the fees still to pay, what the
+-- crafts sell for, and whether a needed reagent has no price at all.
+Know(LINEN, true)
+ClothPrice(CLOTH, 2)
+c.items[1251].sell = 1
+c.bags[CLOTH] = 1
+local moneyRank = { name = "Journeyman", cap = 150, fee = 500, reqSkill = 50, level = 0 }
+local moneyPlan = {
+	crafts = { { recipeID = LINEN, crafts = 5 } },
+	training = { { fee = 100 } },
+	ranks = { moneyRank },
+}
+local money = ns.PlanMoney(moneyPlan)
+equal(money.buy, 8, "the reagents still to buy, less the one in the bags")
+equal(money.fees, 600, "the training and rank fees")
+equal(money.sells, 5, "what the five crafts sell for")
+equal(money.unknown, 0, "every reagent has a price")
+c.bags[UNDER_WRAPS], moneyRank.book, moneyRank.fee = 1, UNDER_WRAPS, 10000
+money = ns.PlanMoney(moneyPlan)
+equal(money.fees, 100, "a book already in the bags is not bought again")
+c.bags[UNDER_WRAPS], moneyRank.book, moneyRank.fee = nil, nil, 500
+ClothPrice(CLOTH, nil)
+c.bags[CLOTH] = nil
+money = ns.PlanMoney(moneyPlan)
+equal(money.unknown, 1, "an unpriced reagent is counted, not dropped from a lower total")
+equal(money.buy, 0, "so the buy side says nothing it cannot price")
 -- Artisan First Aid comes from Triage, one quest a side (classic-db quest_template, #121).
 Know(MAGEWEAVE, true)
 ClothPrice(MAGEWEAVE_CLOTH, 2)

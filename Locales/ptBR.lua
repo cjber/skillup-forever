@@ -506,8 +506,8 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Ativar Comprar reagentes grava uma lista do Auctionator com todos os reagentes de leilão ainda faltando."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Sem o Auctionator, o botão Buscar de uma receita preenche a caixa de leilões do jogo, um reagente por vez."
-L["The Professions window keeps one width and one page."] =
-	"A janela de profissões mantém uma só largura e uma só página." -- mt
+L["The Route page reads as a timeline of skill bands."] =
+	"A página de Rota mostra uma linha do tempo das faixas de perícia." -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s: %s está desatualizado. Atualize-o para corrigir isso." -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s: %s estão desatualizados. Atualize-os para corrigir isso." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s não pôde iniciar. Reinstale %s para corrigir isso." -- mt

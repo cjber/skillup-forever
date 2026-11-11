@@ -26,10 +26,10 @@ L["%s, %s, to %d"] = "%s, %s, %d까지"
 L["%s, source unknown"] = "%s, 출처 알 수 없음"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] = "%s: 이동 %d, 전문가에서 확인 %d, 틀림 %d."
 L["+%d more"] = "+%d개 더"
-L["/su skipped lists the recipes you skipped, with their IDs."] =
-	"/su skipped: 건너뛴 제조법을 ID와 함께 보여줍니다."
-L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
-	"/su unskip <recipe ID>는 하나를, /su unskip all은 모두 다시 보여줍니다."
+L["/skillup skipped lists the recipes you skipped, with their IDs."] =
+	"/skillup skipped: 건너뛴 제조법을 ID와 함께 보여줍니다."
+L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."] =
+	"/skillup unskip <recipe ID>는 하나를, /skillup unskip all은 모두 다시 보여줍니다."
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"상인 창에 재료 탭을 추가해 추적 중인 경로가 이 상인에게서 아직 필요한 재료와 총 비용을 보여 줍니다. 구매는 상인 창에서 직접 하세요."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
@@ -373,12 +373,12 @@ L["%d x %s - price unknown"] = "%d x %s - 가격 없음"
 L["%s to %d"] = "%s, %d까지"
 L[", "] = ", "
 L[", price seen %d days ago"] = ", %d일 전 확인한 가격"
-L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
-	"/su export - 이 캐릭터가 확인한 전문가 요구 조건을 표시합니다. 보고서에 붙여 넣을 수 있습니다."
-L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
-	"/su issue - GitHub 이슈 링크가 준비된 상태로 버그를 신고하거나 기능을 요청합니다."
-L["/su report - show a report to copy into a bug report"] =
-	"/su report - 버그 보고서에 복사할 보고서를 표시합니다."
+L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/skillup export - 이 캐릭터가 확인한 전문가 요구 조건을 표시합니다. 보고서에 붙여 넣을 수 있습니다."
+L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/skillup issue - GitHub 이슈 링크가 준비된 상태로 버그를 신고하거나 기능을 요청합니다."
+L["/skillup report - show a report to copy into a bug report"] =
+	"/skillup report - 버그 보고서에 복사할 보고서를 표시합니다."
 L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] =
 	"구매 경로를 계획하려면 Shortest Path Forever가 필요합니다."
@@ -421,12 +421,12 @@ L["Pinned: %s"] = "고정: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"숙련도 범위가 겹치면 최근 고정한 제조법이 우선합니다." -- mt
 L["Pinned (%d)"] = "고정됨 (%d)" -- mt
-L["/su share on|off - control sharing with guild and group"] =
-	"/su share on|off - 길드 및 파티와의 공유 설정"
+L["/skillup share on|off - control sharing with guild and group"] =
+	"/skillup share on|off - 길드 및 파티와의 공유 설정"
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
 L["Recipes observed"] = "관찰한 제작법"
-L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
-	"/su leaderboard - 이 애드온 탭에서 Forever Leaderboards를 엽니다 (/su stats도 가능)"
+L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
+	"/skillup leaderboard - 이 애드온 탭에서 Forever Leaderboards를 엽니다 (/skillup stats도 가능)"
 L["total"] = "합계"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."

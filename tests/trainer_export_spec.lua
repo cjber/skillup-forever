@@ -1,5 +1,5 @@
 -- Run from the repository root: luajit tests/trainer_export_spec.lua
--- /su export trainers (#124): the requirements a trainer actually showed this character, as the table literal
+-- /skillup export trainers (#124): the requirements a trainer actually showed this character, as the table literal
 -- tools/gen_trainer.py's SEEN_REQUIREMENTS takes. The text a player copies is read back with loadstring: if it is
 -- not valid Lua, the export is worthless, so every case here proves the round trip.
 local Client = dofile("tests/client.lua")
@@ -50,7 +50,7 @@ local function Load(trainer)
 	return c
 end
 
--- The lines /su export shows, as one string.
+-- The lines /skillup export shows, as one string.
 local function Export(c)
 	local lines = c.ns.TrainerExport()
 	return table.concat(lines, "\n"), lines
@@ -97,7 +97,7 @@ do
 	equal(last:find("no trainer requirement seen yet", 1, true) ~= nil, true, "chat says what to do: " .. last)
 end
 
--- The command shows the table in the copy window, selected, and /su export alone is the same thing.
+-- The command shows the table in the copy window, selected, and /skillup export alone is the same thing.
 do
 	local c = Load({ [COOKING] = { [BREAD] = { 40, 25, 25 } } })
 	c.G.SlashCmdList.SKILLUPFOREVER("export trainers")
@@ -108,19 +108,19 @@ do
 	equal(edit and edit.highlighted, text, "all of it selected for copying")
 	equal(Parse(text)[BREAD], 25, "and it still loads as Lua")
 	c.G.SlashCmdList.SKILLUPFOREVER("export")
-	equal(c.focus and c.focus:GetText(), text, "/su export is the same export")
+	equal(c.focus and c.focus:GetText(), text, "/skillup export is the same export")
 	equal(#c.errors, 0, "no errors")
 end
 
--- /su help lists it.
+-- /skillup help lists it.
 do
 	local c = Load({})
 	c.G.SlashCmdList.SKILLUPFOREVER("help")
 	local listed = false
 	for _, message in ipairs(c.chat) do
-		listed = listed or message:find("/su export", 1, true) ~= nil
+		listed = listed or message:find("/skillup export", 1, true) ~= nil
 	end
-	equal(listed, true, "/su help lists /su export")
+	equal(listed, true, "/skillup help lists /skillup export")
 end
 
 Client.report("trainer_export_spec")

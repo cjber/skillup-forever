@@ -26,10 +26,10 @@ L["%s, %s, to %d"] = "%s, %s, bis %d"
 L["%s, source unknown"] = "%s, Quelle unbekannt"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] = "%s: %d verschoben, %d beim Lehrer bestätigt, %d falsch."
 L["+%d more"] = "+%d weitere"
-L["/su skipped lists the recipes you skipped, with their IDs."] =
-	"/su skipped listet die übersprungenen Rezepte mit ihren IDs auf."
-L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
-	"/su unskip <recipe ID> zeigt eines wieder an, /su unskip all alle."
+L["/skillup skipped lists the recipes you skipped, with their IDs."] =
+	"/skillup skipped listet die übersprungenen Rezepte mit ihren IDs auf."
+L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."] =
+	"/skillup unskip <recipe ID> zeigt eines wieder an, /skillup unskip all alle."
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"Ein Reiter „Reagenzien“ am Händlerfenster, der die Reagenzien auflistet, die Eure verfolgten Routen bei diesem Händler noch brauchen, samt Gesamtkosten. Kauft sie im Fenster des Händlers selbst."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
@@ -367,12 +367,12 @@ L["%d x %s - price unknown"] = "%d x %s - Preis unbekannt"
 L["%s to %d"] = "%s bis %d"
 L[", "] = ", "
 L[", price seen %d days ago"] = ", Preis vor %d Tagen gesehen"
-L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
-	"/su export - zeigt die Lehreranforderungen, die dieser Charakter gesehen hat, zum Einfügen in einen Bericht"
-L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
-	"/su issue - meldet einen Fehler oder wünscht eine Funktion, mit fertigem GitHub-Issue-Link"
-L["/su report - show a report to copy into a bug report"] =
-	"/su report - zeigt einen Bericht zum Kopieren in einen Fehlerbericht"
+L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/skillup export - zeigt die Lehreranforderungen, die dieser Charakter gesehen hat, zum Einfügen in einen Bericht"
+L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/skillup issue - meldet einen Fehler oder wünscht eine Funktion, mit fertigem GitHub-Issue-Link"
+L["/skillup report - show a report to copy into a bug report"] =
+	"/skillup report - zeigt einen Bericht zum Kopieren in einen Fehlerbericht"
 L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] = "Eine Einkaufsreise braucht Shortest Path Forever."
 L["Copy list"] = "Liste kopieren"
@@ -412,11 +412,12 @@ L["Pinned: %s"] = "Angeheftet: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"Bei überlappenden Fertigkeitsbereichen hat das zuletzt angeheftete Rezept Vorrang." -- mt
 L["Pinned (%d)"] = "Angeheftet (%d)" -- mt
-L["/su share on|off - control sharing with guild and group"] = "/su share on|off - Teilen mit Gilde und Gruppe steuern"
+L["/skillup share on|off - control sharing with guild and group"] =
+	"/skillup share on|off - Teilen mit Gilde und Gruppe steuern"
 L["Share observed recipe totals with guild and group"] = "Beobachtete Rezeptsummen mit Gilde und Gruppe teilen"
 L["Recipes observed"] = "Beobachtete Rezepte"
-L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
-	"/su leaderboard - öffnet Forever Leaderboards auf der Registerkarte dieses Addons (auch /su stats)"
+L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
+	"/skillup leaderboard - öffnet Forever Leaderboards auf der Registerkarte dieses Addons (auch /skillup stats)"
 L["total"] = "gesamt"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."

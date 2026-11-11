@@ -1,7 +1,7 @@
 ---@meta
 
 -- One /skillup command: its word and aliases, the arguments it accepts (nil accepts any), its handler and the line
--- /su help prints (nil for a command the help leaves out).
+-- /skillup help prints (nil for a command the help leaves out).
 ---@class SkillUpSlashCommand
 ---@field word string
 ---@field aliases? string[]
@@ -72,9 +72,9 @@
 ---@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
 ---@field TrainerReport fun(): string[]
----@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/su export)
----@field AuditLines fun(): string[]? /su audit's lines with a profession open, nil with none
----@field ReportLines fun(): string[] SkillUp's own lines in /su report (Core/Report.lua)
+---@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/skillup export)
+---@field AuditLines fun(): string[]? /skillup audit's lines with a profession open, nil with none
+---@field ReportLines fun(): string[] SkillUp's own lines in /skillup report (Core/Report.lua)
 ---@field SlashCommands SkillUpSlashCommand[] the /skillup commands, in dispatch and help order
 ---@field RankName fun(cap: number): string?
 ---@field RecipeBands fun(profession: SkillUpContext, recipeID: integer): SkillUpBand[]
@@ -842,7 +842,7 @@ SkillUpForeverDB = nil
 ---@field recipeID? integer
 ---@field ambiguous? boolean
 
--- A bundled trainer requirement a visit could prove wrong (/su trainers).
+-- A bundled trainer requirement a visit could prove wrong (/skillup trainers).
 ---@class SkillUpTrainerCheck
 ---@field skillLine integer
 ---@field recipeID integer

@@ -10,8 +10,8 @@ body:
   - type: textarea
     id: report
     attributes:
-      label: /su report output
-      description: Type `/su report` in game. A window opens with the text already selected. Press Ctrl+C (Cmd+C on a Mac) and paste it here. If you can, open the profession first so the report includes the audit.
+      label: /skillup report output
+      description: Type `/skillup report` in game. A window opens with the text already selected. Press Ctrl+C (Cmd+C on a Mac) and paste it here. If you can, open the profession first so the report includes the audit.
       render: text
     validations:
       required: true

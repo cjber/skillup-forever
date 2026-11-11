@@ -95,7 +95,6 @@
 ---@field RankQuestName fun(rank: SkillUpRank): string
 ---@field PlayerSide fun(): 'A'|'H'|nil
 ---@field RankHeld fun(rank: SkillUpRank): boolean
----@field PlanCost fun(plan: SkillUpPlan): number
 ---@field PlanMoney fun(plan: SkillUpPlan): { buy: number, fees: number, sells: number, unknown: integer }
 ---@field StepCost fun(recipeID: integer, crafts: number): number What a step's crafts cost, every craft at its net
 ---@field CreateList fun(parent: Frame): SkillUpList

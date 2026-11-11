@@ -222,12 +222,10 @@ equal(
 	"Read Expert First Aid - Under Wraps first: you're at your cap.",
 	"and is read before crafting"
 )
-equal(ns.PlanCost(capped), capped.cost, "the route pays for a book it still has to buy")
-equal(capped.cost >= 10000, true, "which the plan counts")
+equal(capped.cost >= 10000, true, "the route pays for a book it still has to buy")
 c.bags[UNDER_WRAPS] = 1
 equal(ns.RankText(book), "Read Expert First Aid - Under Wraps at 125", "a book in the bags only needs reading")
 equal(ns.RankHeld(book), true, "and is held")
-equal(ns.PlanCost(capped), capped.cost - 10000, "so the route no longer pays for it")
 c.bags[UNDER_WRAPS] = nil
 -- #567: the route's money split: the reagents still to buy after the bags, the fees still to pay, what the
 -- crafts sell for, and whether a needed reagent has no price at all.

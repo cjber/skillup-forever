@@ -51,20 +51,6 @@ function ns.RankHeld(rank)
 	return rank.book ~= nil and ns.Have(rank.book) > 0
 end
 
--- What a plan still costs: its cost less the books already in the bags. A plan is not rebuilt on every
--- bag change, so this is read when the route is drawn.
----@param plan SkillUpPlan
----@return number
-function ns.PlanCost(plan)
-	local cost = plan.cost
-	for _, rank in ipairs(plan.ranks) do
-		if ns.RankHeld(rank) then
-			cost = cost - rank.fee
-		end
-	end
-	return cost
-end
-
 ---@param rank SkillUpRank
 ---@return string
 function ns.RankText(rank)

@@ -500,7 +500,6 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Wenn Ihr „Reagenzien kaufen“ einschaltet, wird eine Auctionator-Liste mit allen noch fehlenden Auktionsreagenzien geschrieben."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Ohne Auctionator füllt die Schaltfläche „Suchen“ eines Rezepts das eigene Suchfeld des Spiels, ein Reagenz nach dem anderen."
-L["Tells you which addon to update."] = "Sagt Euch, welches Addon Ihr aktualisieren müsst." -- mt
 L["The Professions window keeps one width and one page."] = "Das Berufsfenster behält eine Breite und eine Seite." -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s: %s ist nicht aktuell. Aktualisiert es, um das zu beheben." -- mt
 L["%s: %s are out of date. Update them to fix this."] =

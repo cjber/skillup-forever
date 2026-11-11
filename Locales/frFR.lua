@@ -504,5 +504,4 @@ L["Waiting for Questie to finish loading."] = "En attente du chargement complet 
 L["Nothing is tracked for %s."] = "Rien n'est suivi pour %s." -- mt
 L["+%d more to train"] = "+%d autres à apprendre" -- mt
 L["Also train"] = "À apprendre aussi" -- mt
-L["Game data now matches Forever build 1.60.1.70888."] =
-	"Les données du jeu correspondent désormais à la version 1.60.1.70888 de Forever." -- mt
+L["Forever Core now installs alongside it."] = "Forever Core s'installe désormais avec l'addon." -- mt

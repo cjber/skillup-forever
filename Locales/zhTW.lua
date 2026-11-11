@@ -489,5 +489,4 @@ L["Waiting for Questie to finish loading."] = "正在等待Questie載入完畢�
 L["Nothing is tracked for %s."] = "沒有正在追蹤的 %s。" -- mt
 L["+%d more to train"] = "還有 %d 項要學習" -- mt
 L["Also train"] = "還要學習" -- mt
-L["Game data now matches Forever build 1.60.1.70888."] =
-	"遊戲資料現在已與 Forever 版本 1.60.1.70888 一致。" -- mt
+L["Forever Core now installs alongside it."] = "Forever Core 現在會隨插件一起安裝。" -- mt

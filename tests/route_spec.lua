@@ -1202,9 +1202,9 @@ equal(
 	"a route with an unpriced reagent is marked incomplete"
 )
 equal(
-	page.routeSpec.page.MoneyText.text:find("(incomplete)", 1, true) ~= nil,
-	true,
-	"and the header says its money is incomplete"
+	page.routeSpec.page.MoneyText.text,
+	"Needs 1500, sells back 200 (incomplete)",
+	"and the header says its money is incomplete in one whole phrase"
 )
 local listed = {}
 for _, row in ipairs(lists[2].rows) do

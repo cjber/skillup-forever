@@ -1074,10 +1074,10 @@ end
 ---@param plan SkillUpPlan
 local function RenderMoney(plan)
 	local money = ns.PlanMoney(plan)
-	local text = string.format(L["Needs %s, sells back %s"], Money(money.buy + money.fees), Money(money.sells))
-	if money.unknown > 0 or plan.unpriced > 0 then
-		text = string.format("%s (%s)", text, L["incomplete"])
-	end
+	-- One whole phrase either way: a translation can put its own words around the two sums.
+	local incomplete = money.unknown > 0 or plan.unpriced > 0
+	local phrase = incomplete and L["Needs %s, sells back %s (incomplete)"] or L["Needs %s, sells back %s"]
+	local text = string.format(phrase, Money(money.buy + money.fees), Money(money.sells))
 	page.MoneyText:SetText(text)
 	page.Money.money, page.Money.unpriced = money, plan.unpriced
 end

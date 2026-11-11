@@ -28,10 +28,10 @@ L["%s, source unknown"] = "%s, origen desconocido"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] =
 	"%s: %d movidas, %d confirmadas con un instructor, %d erróneas."
 L["+%d more"] = "+%d más"
-L["/su skipped lists the recipes you skipped, with their IDs."] =
-	"/su skipped muestra las recetas que omitiste, con sus ID."
-L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
-	"/su unskip <recipe ID> vuelve a mostrar una, /su unskip all todas."
+L["/skillup skipped lists the recipes you skipped, with their IDs."] =
+	"/skillup skipped muestra las recetas que omitiste, con sus ID."
+L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."] =
+	"/skillup unskip <recipe ID> vuelve a mostrar una, /skillup unskip all todas."
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"Una pestaña Componentes en la ventana del mercader que muestra los componentes que tus rutas seguidas aún necesitan de ese mercader y su coste total. Cómpralos en la propia ventana del mercader."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
@@ -252,8 +252,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Resta del coste lo que vale vender el objeto creado. Los precios de subasta necesitan Auctionator/TradeSkillMaster, son tras la comisión del 5 % y puede que no se vendan."
 L["Taught by %s trainers."] = "Lo enseñan los instructores de %s."
 L["The place this recipe is taught isn't known yet."] = "Aún no se sabe dónde se enseña esta receta."
-L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
-	"La lista de recetas se ensancha hasta el nombre de receta más largo del oficio abierto, y la ventana con ella, hasta el espacio que tenga tu pantalla. Desactívalo para mantener el ancho propio de la ventana."
+L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
+	"La ventana mantiene un solo ancho, ampliado hasta la fila de receta más ancha de cada oficio que hayas aprendido, hasta donde permita la pantalla. Desactívalo para mantener el ancho del juego."
 L["The rest comes from a vendor or your gathering."] = "El resto viene de un vendedor o de tu recolección."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"La ruta cuenta con %d para llegar a %d 9 de cada 10 veces; con peor suerte harán falta más."
@@ -373,12 +373,12 @@ L["%d x %s - price unknown"] = "%d x %s - precio desconocido"
 L["%s to %d"] = "%s a %d"
 L[", "] = ", "
 L[", price seen %d days ago"] = ", precio visto hace %d días"
-L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
-	"/su export - muestra los requisitos de instructor que ha visto este personaje, para pegar en un informe"
-L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
-	"/su issue - informa de un error o pide una función con un enlace de issue de GitHub listo para usar"
-L["/su report - show a report to copy into a bug report"] =
-	"/su report - muestra un informe para copiar en un informe de error"
+L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/skillup export - muestra los requisitos de instructor que ha visto este personaje, para pegar en un informe"
+L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/skillup issue - informa de un error o pide una función con un enlace de issue de GitHub listo para usar"
+L["/skillup report - show a report to copy into a bug report"] =
+	"/skillup report - muestra un informe para copiar en un informe de error"
 L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] = "Un viaje de compra necesita Shortest Path Forever."
 L["Copy list"] = "Copiar lista"
@@ -419,12 +419,12 @@ L["Pinned: %s"] = "Fijada: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"La receta fijada más reciente tiene prioridad cuando los rangos se solapan." -- mt
 L["Pinned (%d)"] = "Fijadas (%d)" -- mt
-L["/su share on|off - control sharing with guild and group"] =
-	"/su share on|off - controla lo que compartes con hermandad y grupo"
+L["/skillup share on|off - control sharing with guild and group"] =
+	"/skillup share on|off - controla lo que compartes con hermandad y grupo"
 L["Share observed recipe totals with guild and group"] = "Compartir totales de recetas observadas con hermandad y grupo"
 L["Recipes observed"] = "Recetas observadas"
-L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
-	"/su leaderboard - abre Forever Leaderboards en la pestaña de este complemento (también /su stats)"
+L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
+	"/skillup leaderboard - abre Forever Leaderboards en la pestaña de este complemento (también /skillup stats)"
 L["total"] = "total"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
@@ -494,7 +494,6 @@ L["Waiting for Questie to finish loading."] = "Esperando a que Questie termine d
 L["Nothing is tracked for %s."] = "No se sigue nada para %s." -- mt
 L["+%d more to train"] = "+%d más por aprender" -- mt
 L["Also train"] = "También aprender" -- mt
-L["Works again after updating."] = "Vuelve a funcionar tras actualizar." -- mt
 L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
 	"Lista de Auctionator: %s. Abre la casa de subastas, la pestaña Compras, elige la lista y Buscar; compra cada fila con un clic."
 L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -509,3 +508,9 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Activar Comprar reactivos escribe una lista de Auctionator con todos los reactivos de subasta que aún faltan."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Sin Auctionator, el botón Buscar de una receta llena la caja de subastas del juego con un reactivo a la vez."
+L["The Professions window keeps one width and one page."] =
+	"La ventana de profesiones mantiene un solo ancho y una sola página." -- mt
+L["%s: %s is out of date. Update it to fix this."] = "%s: %s está desactualizado. Actualízalo para solucionarlo." -- mt
+L["%s: %s are out of date. Update them to fix this."] =
+	"%s: %s están desactualizados. Actualízalos para solucionarlo." -- mt
+L["%s could not start. Reinstall %s to fix this."] = "%s no pudo iniciarse. Reinstala %s para solucionarlo." -- mt

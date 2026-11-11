@@ -1,9 +1,9 @@
 -- Run from the repository root: luajit tests/wide_professions_spec.lua
--- The recipe list is measured once when a profession opens, over every recipe that profession lists, and
--- widens the window to its longest row. A filtered or collapsed list, a craftable count or a price does
--- not resize it; another profession or a row setting measures again. The count the bags can make follows
--- the name in parentheses. The client's own widths come back when the setting is off, and FitLabel still
--- keeps the name clear of SkillUp's row text.
+-- The recipe list fills the room the window has, never moving the window itself: the one window width is
+-- measured over the learned professions in window_width_spec.lua. A filtered or collapsed list, a craftable
+-- count or a price does not resize it. The count the bags can make follows the name in parentheses, the
+-- client's own list width comes back when the setting is off, and FitLabel keeps the name clear of SkillUp's
+-- row text.
 local function noop() end
 
 local function Font()
@@ -102,18 +102,18 @@ end
 
 local page = { RecipeList = recipeList }
 function page.Init() end
-local frame = { CraftingPage = page, width = 673, professionInfo = { professionID = 1 } }
+local frame = { CraftingPage = page, width = 673, professionInfo = { professionID = 1 }, widthCalls = 0 }
 function frame:GetWidth()
 	return self.width
 end
 function frame:SetWidth(width)
+	self.widthCalls = self.widthCalls + 1
 	self.width = width
 end
 
 local combat = false
 local counts = {}
--- The profession's full recipe set, as the client reports it: the measurement reads this, never the
--- filtered provider the list happens to be showing.
+-- The profession's full recipe set, as the client reports it, for the scene's own client data.
 local recipes = {}
 local events, stale, decorate = {}, {}, nil
 local ns = {
@@ -212,51 +212,50 @@ local function Recipe(recipeID, name)
 	return { recipeID = recipeID, name = name, learned = true }
 end
 
--- A 40-character name needs 240 for itself and a count; the client's 304 list leaves 304 - 69 of chrome
--- and the count short, so the list and the window grow by exactly what is missing.
+-- The client's 673-wide window leaves the list its own 304 beside the 360-wide schematic, so a name longer than
+-- that is laid out in the width the list has and the window keeps its width. A 40-character name needs 339.
 recipes = { [1] = Recipe(1, string.rep("A", 40)) }
 counts[1] = 1
 box:SetDataProvider(Tree({ Leaf(string.rep("A", 40), 1) }))
 local list, window = Widths()
-assert(list == 339 and window == 708, string.format("widened to %s/%s", list, window))
+assert(list == 304 and window == 673, string.format("kept to %s/%s", list, window))
 
--- A filtered list holding only a short name does not shrink the window: the profession was measured over
--- all of its recipes when it opened. Neither does a craftable count that grew while the window is open.
+-- A filtered list holding only a short name does not move the list: it already has all the room the window
+-- leaves. Neither does a craftable count that grew while the window is open.
 recipes[2] = Recipe(2, "Short")
 box:SetDataProvider(Tree({ Leaf("Short", 2) }))
 list, window = Widths()
-assert(list == 339 and window == 708, string.format("a filtered refresh kept %s/%s", list, window))
+assert(list == 304 and window == 673, string.format("a filtered refresh kept %s/%s", list, window))
 counts[1] = 12
 box:SetDataProvider(Tree({ Leaf(string.rep("A", 40), 1) }))
 list, window = Widths()
-assert(list == 339 and window == 708, string.format("a crafting refresh kept %s/%s", list, window))
+assert(list == 304 and window == 673, string.format("a crafting refresh kept %s/%s", list, window))
 
--- Opening another profession measures again, over its own full recipe set, not the short filtered rows.
+-- Another profession still has no more room at the client's width.
 frame.professionInfo = { professionID = 2 }
 recipes = { [3] = Recipe(3, string.rep("B", 40)) }
 counts[3] = 0
 box:SetDataProvider(Tree({ Leaf("Short", 2) }))
 list, window = Widths()
-assert(list == 309 and window == 678, string.format("another profession measured %s/%s", list, window))
+assert(list == 304 and window == 673, string.format("another profession kept %s/%s", list, window))
 
--- SkillUp's own row text on measures again, with its room and FitLabel's gap: 40 B, 59 of chrome, then
--- "50% · -3" and the 14 FitLabel keeps clear of it.
+-- SkillUp's own row text on is still laid out inside the list's width.
 ns.db.showRowText = true
 stale.recipeList()
 list, window = Widths()
-assert(list == 367 and window == 736, string.format("row text measured %s/%s", list, window))
+assert(list == 304 and window == 673, string.format("row text on kept %s/%s", list, window))
 ns.db.showRowText = false
 stale.recipeList()
 list, window = Widths()
-assert(list == 309 and window == 678, string.format("row text off measured %s/%s", list, window))
+assert(list == 304 and window == 673, string.format("row text off kept %s/%s", list, window))
 
--- The setting off puts back the client's own widths, which the list refresh did not change.
+-- The setting puts back the client's own list width, which the list refresh did not change.
 ns.db.wideRecipeList = false
 stale.recipeList()
 list, window = Widths()
 assert(list == 304 and window == 673, string.format("restored to %s/%s", list, window))
 
--- A fight defers the resize until combat ends; the next profession still measures, it just does not resize.
+-- A fight defers the change until combat ends; the list does not resize meanwhile.
 ns.db.wideRecipeList = true
 frame.professionInfo = { professionID = 3 }
 recipes = { [5] = Recipe(5, string.rep("D", 40)) }
@@ -269,19 +268,17 @@ assert(list == 304 and window == 673, "no resize in combat")
 combat = false
 events.PLAYER_REGEN_ENABLED()
 list, window = Widths()
-assert(list == 339 and window == 708, "resized when combat ends")
+assert(list == 304 and window == 673, "kept when combat ends")
 
--- The cap keeps the window on screen: here the screen leaves 12 more than the client's 673.
-env.UIParent.GetWidth = function()
-	return 673 + 2 * 32 + 12
-end
+-- The list takes the room a window wider than the client's has, and still never moves the window itself.
 frame.professionInfo = { professionID = 4 }
 recipes = { [6] = Recipe(6, string.rep("E", 200)) }
 counts[6] = 0
-recipeList.width, frame.width = 304, 673
+recipeList.width, frame.width = 304, 900
 box:SetDataProvider(Tree({ Leaf(string.rep("E", 200), 6) }))
 list, window = Widths()
-assert(list == 316 and window == 685, string.format("capped to %s/%s", list, window))
+assert(list == 531 and window == 900, string.format("a wider window fitted %s/%s", list, window))
+assert(frame.widthCalls == 0, "the addon never sets the window's width")
 
 -- The count follows the name in parentheses whether or not SkillUp's own row text is on.
 local count = Font()
@@ -336,6 +333,4 @@ decorate(ns, row, {
 assert(row.Label.width < 260, "FitLabel keeps the name clear of the row text")
 assert(rowTexts[#rowTexts]:IsShown(), "the row text is drawn")
 assert(row.SkillUpText == nil, "the row text lives off the client's row, not on it (#350)")
-print(
-	"wide_professions_spec: measurement, stability, another profession, settings, cap, combat, count and FitLabel: ok"
-)
+print("wide_professions_spec: room, stability, another profession, settings, combat, count and FitLabel: ok")

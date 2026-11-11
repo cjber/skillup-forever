@@ -906,8 +906,42 @@ local host = {
 	SetLocked = function() end,
 	OnAttachmentChanged = function() end,
 }
+-- ForeverCore.ProfessionTabs, as far as the render needs it: one tab, its page shown when selected and hidden
+-- when the window goes back to the client's own page.
+local professionEntry, professionSelected
+local ProfessionTabs = {}
+function ProfessionTabs.Register(key, spec)
+	professionEntry = { key = key, spec = spec }
+	local tab = Stub()
+	tab.tooltipText = spec.tooltip
+	tab.Icon = Stub()
+	return tab
+end
+function ProfessionTabs.Select(key)
+	professionSelected = key
+	professionEntry.spec.page:Show()
+	if professionEntry.spec.onSelect then
+		professionEntry.spec.onSelect(key)
+	end
+end
+function ProfessionTabs.ShowNative()
+	professionSelected = nil
+	professionEntry.spec.page:Hide()
+end
+function ProfessionTabs.Selected()
+	return professionSelected
+end
+function ProfessionTabs.SetMinWidth(key, width)
+	if not professionEntry or professionEntry.key ~= key then
+		return
+	end
+	professionEntry.spec.minWidth = width
+end
+ProfessionTabs.minor = 1
+
 env.ForeverCore = {
 	API = 1,
+	ProfessionTabs = ProfessionTabs,
 	-- The shared API kit (ForeverCore's Core/APIKit.lua): a render subscribes to nothing and a read is answered from
 	-- the scene's own data, so the hub only has to exist.
 	APIKit = {
@@ -1554,17 +1588,21 @@ F_MED2 = Font(FRIZ, 14, WHITE, (1, -1))  # GameFontHighlightMed2
 PROFESSION_RECIPE_COLOR = (226 / 255, 220 / 255, 214 / 255)
 DISABLED_FONT_COLOR = (0.5, 0.5, 0.5)
 
-FRAME_W, FRAME_H = 673, 594  # Camelot ProfessionsFrame
+FRAME_W, FRAME_H = 673, 594  # Camelot ProfessionsFrame (the width its condensed crafting page sits in)
 LIST_X, LIST_Y, LIST_W = 5, 72, 304  # CraftingPage.RecipeList (OverrideArt width)
 LIST_H = FRAME_H - LIST_Y - 5
 # UI/RecipeList.lua: the list's own chrome (its insets, tree padding and the SkillUps button), the gap FitLabel
-# keeps before SkillUp's row text, and the screen margin widening stops at.
+# keeps before SkillUp's row text, and the room the list has beside the client's schematic inside the window.
 LIST_CHROME = 59
 TEXT_GAP = 14
-SCREEN_W, SCREEN_MARGIN = 1920, 32
+TREE_INDENT = 10  # a recipe sits under a category
 ROW_H, ROW_GAP, ROW_PAD = 20, 1, 5  # recipe rows; the tree view's spacing and top padding
 DIVIDER_H = 70  # RecipeList.lua: the "Unlearned" divider after learned recipes
 SCHEMATIC_W, SCHEMATIC_H = 360, 484
+SCHEMATIC_GAP = 2
+WINDOW_RIGHT_INSET = 2
+SCREEN_W, SCREEN_MARGIN = 1920, 32  # UI/RecipeList.lua's cap: the window stays clear of the screen's edges
+LIST_MAX = LIST_W + SCREEN_W - 2 * SCREEN_MARGIN - FRAME_W
 SKILL_UP_ICONS = {
     "orange": "Professions-Icon-Skill-High",
     "yellow": "Professions-Icon-Skill-Medium",
@@ -1730,13 +1768,16 @@ def list_rows(unlearned=None):
 
 
 def craft_list_width(ui, bags=BAGS, unlearned=None, marked=False):
-    """UI/RecipeList.lua: the list as wide as its widest name, count and SkillUp row text, capped to the screen."""
+    """UI/RecipeList.lua: the list as wide as its widest name, count and SkillUp row text, up to the screen
+    cap the one window width stops at."""
     measure = ui.canvas(1, 1)
     widest = LIST_W
     learned_ids, unlearned_ids = sorted_recipes(unlearned)
     for learned, ids in ((True, learned_ids), (False, unlearned_ids)):
         for recipe_id in ids:
             width = measure.text_width(recipe_name(recipe_id), F_ROW) + LIST_CHROME
+            if learned:
+                width += TREE_INDENT
             count = craftable_count(recipe_id, bags) if learned else 0
             if count > 0:
                 width += measure.text_width(f" ({count}) ", F_ROW)
@@ -1744,7 +1785,7 @@ def craft_list_width(ui, bags=BAGS, unlearned=None, marked=False):
             text = unlearned_text(recipe_id) if marked and not learned else format_row(describe(recipe_id))
             width += measure.text_width(text, F_ROW) + TEXT_GAP
             widest = max(widest, width)
-    return max(LIST_W, min(widest, LIST_W + SCREEN_W - 2 * SCREEN_MARGIN - FRAME_W))
+    return max(LIST_W, min(widest, LIST_MAX))
 
 
 def recipe_row(canvas, x, y, w, recipe_id, learned, selected, hovered, bags=BAGS, marked=False):
@@ -1943,14 +1984,14 @@ OVERVIEW_TAB_ICON = 136241
 FRAME_MARGIN = 24  # room for the metal corners and portrait around the frame
 TABS_MARGIN = 60
 
-# UI/FrameArt.lua: where each atlas's native left part ends, the column repeated across the extra width, and
+# The frame art's native split: where each atlas's left part ends, the column repeated across extra width, and
 # how many extra native columns the stock background has beyond its atlas (2 of inset at each side).
 BACKGROUND_ART = (129, 32, 4)
 TEMPLATE_ART = (429, 32, 0)
 
 
 def art_piece(atlas, left, right):
-    """UI/FrameArt.lua's SetTexCoord crop: source columns [left, right) of an atlas, at native scale."""
+    """A SetTexCoord crop: source columns [left, right) of an atlas, at native scale."""
     image = atlas.image
     return image.crop(
         (
@@ -1963,8 +2004,8 @@ def art_piece(atlas, left, right):
 
 
 def extend_art(canvas, atlas_name, x, y, total_w, h, split):
-    """UI/FrameArt.lua's three pieces across `total_w`: the left art native, the column repeated at native
-    scale, and the right edge re-anchored at the right. With no extra width the client's stretched draw stays."""
+    """The three pieces across `total_w`: the left art native, the column repeated at native scale, and the
+    right edge re-anchored at the right. With no extra width the client's stretched draw stays."""
     atlas = canvas.ui.atlas(atlas_name)
     left, column, right_extra = split
     extra = total_w - atlas.width - right_extra
@@ -1981,7 +2022,7 @@ def extend_art(canvas, atlas_name, x, y, total_w, h, split):
 
 
 def frame_art(canvas, fx, fy, frame_w):
-    """The frame's Bg and the crafting page's Template2, extended when the list makes the window wider."""
+    """The frame's Bg and the crafting page's Template2 at the one width the window keeps."""
     extend_art(canvas, "Profession-Background-Overview", fx + 2, fy + 21, frame_w - 4, FRAME_H - 23, BACKGROUND_ART)
     extend_art(canvas, "Profession-Background-Template2", fx + 3, fy + 21, frame_w - 8, 570, TEMPLATE_ART)
 
@@ -1996,7 +2037,7 @@ def professions_frame(ui, bags=BAGS, unlearned=None, marked=False):
     fx, fy = m, m
     frame_art(canvas, fx, fy, frame_w)
     hovered = recipe_list(canvas, fx + LIST_X, fy + LIST_Y, list_w, bags, unlearned, marked)
-    schematic(canvas, fx + LIST_X + list_w + 2, fy + LIST_Y, SELECTED, bags)
+    schematic(canvas, fx + LIST_X + list_w + SCHEMATIC_GAP, fy + LIST_Y, SELECTED, bags)
     create_controls(canvas, fx, fy, craftable_count(SELECTED, bags), frame_w)
     profession_tabs(canvas, fx, fy, "Leatherworking", frame_w=frame_w)
     portrait_frame_art(canvas, fx, fy, frame_w, FRAME_H, 136247, "Leatherworking")
@@ -2025,7 +2066,7 @@ def wide_bags():
 
 
 def window_wide_scene(ui):
-    """A Leatherworking list with a long name and craftable counts, which makes the list and window wider."""
+    """A Leatherworking list with every count craftable: the longest rows, and the window wide enough for them."""
     return window_scene(ui, wide_bags())
 
 

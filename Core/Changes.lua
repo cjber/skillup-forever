@@ -244,7 +244,7 @@ local EVENTS = {
 	MERCHANT_CLOSED = "merchant",
 }
 
--- The name each stale handler's failure is kept under for /su report, made once.
+-- The name each stale handler's failure is kept under for /skillup report, made once.
 ---@type table<SkillUpStale, string>
 local LABELS = {}
 for _, name in ipairs(ORDER) do
@@ -267,7 +267,7 @@ local function Apply(kinds)
 	for _, name in ipairs(ORDER) do
 		local handler = stale[name] and handlers[name]
 		if handler then
-			-- One failing cache or view doesn't stop the rest; the error is kept for /su report.
+			-- One failing cache or view doesn't stop the rest; the error is kept for /skillup report.
 			ns.core.SafeCall(LABELS[name], handler)
 		end
 	end

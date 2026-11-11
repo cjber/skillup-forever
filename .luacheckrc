@@ -7,7 +7,6 @@ globals = { "SkillUpForeverDB",
 	"SkillUpForever",
 	"SkillUpForever_OnAddonCompartmentClick",
 	"SLASH_SKILLUPFOREVER1",
-	"SLASH_SKILLUPFOREVER2",
 	"SlashCmdList",
 }
 

@@ -12,13 +12,13 @@ what the game loads; `tests/*_spec.lua` load them in that order inside a stubbed
 
 Things reached indirectly: none of them is dead code, even when no file calls it by name.
 
-- `SkillUpForever.toc` file list: loads `Core/Require.lua` first (the API floor), then the Lua and XML files it lists under `Locales/`, `Data/`, `Core/`, `Integrations/` and `UI/`, in that order (`tests/client.lua` injects fixtures before the first non-Locales, non-Data code file); nothing `require`s them.
+- `SkillUpForever.toc` file list: loads `Core/ForeverRequire.lua` and `Core/Require.lua` first (the shared out-of-date warning and the API floor), then the Lua and XML files it lists under `Locales/`, `Data/`, `Core/`, `Integrations/` and `UI/`, in that order (`tests/client.lua` injects fixtures before the first non-Locales, non-Data code file); nothing `require`s them.
 - `ns.*`: the shared addon table; a function defined in one file is typically called from another. Search all files for `ns.Name`, not the local file.
 - `## SavedVariables: SkillUpForeverDB`: persisted per account; keys in `Core/Core.lua` `DEFAULTS` and anything read from `SkillUpForeverDB` may hold data written by older versions.
 - `Locales/<locale>.lua`: translators' files, loaded from the TOC after `enUS.lua`; `tools/phrases.py` runs from `tests/locale_spec.lua`.
 - `SkillUpForever.API` (Core/API.lua): the public API other addons (Adventure Guide Forever) call; `types/API.lua` is its contract.
 - `## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick`: global called by the client by name.
-- `SLASH_SKILLUPFOREVER1/2` + `SlashCmdList.SKILLUPFOREVER`: `/su` commands.
+- `SLASH_SKILLUPFOREVER1` + `SlashCmdList.SKILLUPFOREVER`: `/skillup` commands.
 - `hooksecurefunc("ClassTrainerFrame_InitServiceButton" | "ClassTrainerFrame_Update", …)`, `EventUtil.ContinueAfterAllEvents`: Blizzard trainer functions hooked by string name, plus a load-sequencing callback.
 - `EventRegistry:RegisterCallback("Professions.RecipeListOnEnter")`, `Menu.ModifyMenu("MENU_PROFESSIONS_FILTER")`, `TooltipDataProcessor.AddTooltipPostCall`: host callbacks.
 - `ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)` (UI/RecipeList.lua) and `Auctionator.API.v1.RegisterForDBUpdate(addonName, PricesChanged)` (Integrations/Prices.lua `ns.InitPrices`): callbacks the plain live-root search misses.

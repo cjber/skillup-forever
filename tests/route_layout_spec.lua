@@ -27,11 +27,6 @@ end
 
 local function noop() end
 local created, insets, tabs, pageFrame = {}, {}, {}, nil
--- While the client shows a panel through its secure path, an addon's Hide is blocked; this spec counts any
--- the page still asks for there (#393).
-local inShowPath, hidesInShowPath = false, 0
--- The client hides the window through the same secure path; a Show asked for from inside it is #398.
-local inHidePath, showsInHidePath = false, 0
 
 -- Where a point sits inside a region: its own fraction of the region's width and height.
 local function Fraction(point)
@@ -226,18 +221,12 @@ local function NewRegion(parent, frameType)
 		self.shown = shown and true or false
 	end
 	function region:Show()
-		if inHidePath and not self.ignoreHides then
-			showsInHidePath = showsInHidePath + 1
-		end
 		self.shown = true
 		if self.scripts.OnShow then
 			self.scripts.OnShow(self)
 		end
 	end
 	function region:Hide()
-		if inShowPath and not self.ignoreHides then
-			hidesInShowPath = hidesInShowPath + 1
-		end
 		self.shown = false
 		if self.scripts.OnHide then
 			self.scripts.OnHide(self)
@@ -373,7 +362,7 @@ titleBar:SetPoint("TOPLEFT", 0, 0)
 titleBar:SetPoint("TOPRIGHT", 0, 0)
 titleBar:SetHeight(21)
 
-local function CreateFrame(frameType, _, parent, template)
+local function CreateFrame(frameType, name, parent, template)
 	local region = NewRegion(parent, frameType)
 	region.template = template
 	if template == "LargeSideTabButtonTemplate" then
@@ -390,10 +379,44 @@ local function CreateFrame(frameType, _, parent, template)
 		region.IncrementButton = NewRegion(region, "Button")
 		region.DecrementButton = NewRegion(region, "Button")
 		region.MouseWheelCatcher = NewRegion(region, "Frame")
-	elseif parent == ProfessionsFrame and template == nil then
+	elseif parent == ProfessionsFrame and template == nil and name == nil then
 		pageFrame = region
 	end
 	return region
+end
+
+-- ForeverCore.ProfessionTabs, as the shared module drives it: one tab and the page core shows. This spec is
+-- about SkillUp's pages, so core's own placement and hand-back are its own tests; here selecting and handing
+-- back do what core does.
+local coreTab, coreEntry, coreSelected
+local ProfessionTabs = {}
+function ProfessionTabs.Register(key, spec)
+	coreEntry = { key = key, spec = spec }
+	coreTab = CreateFrame("Button", nil, ProfessionsFrame, "LargeSideTabButtonTemplate")
+	coreTab.Icon:SetTexture(spec.icon)
+	coreTab.tooltipText = spec.tooltip
+	coreTab:SetCustomOnMouseUpHandler(function(_, button, upInside)
+		if button == "LeftButton" and upInside then
+			ProfessionTabs.Select(key)
+		end
+	end)
+	return coreTab
+end
+function ProfessionTabs.Select()
+	coreSelected = coreEntry.key
+	coreTab:SetChecked(true)
+	coreEntry.spec.page:Show()
+	if coreEntry.spec.onSelect then
+		coreEntry.spec.onSelect(coreEntry.key)
+	end
+end
+function ProfessionTabs.ShowNative()
+	coreSelected = nil
+	coreTab:SetChecked(false)
+	coreEntry.spec.page:Hide()
+end
+function ProfessionTabs.Selected()
+	return coreSelected
 end
 
 -- The scroll box list, as this spec needs it: the view draws a frame for an element through its element
@@ -653,6 +676,7 @@ function ns.CanGather(itemID)
 end
 
 local env = setmetatable({
+	ForeverCore = { ProfessionTabs = ProfessionTabs },
 	-- SafeCall hands a caught error to the game's handler: here it fails the spec.
 	geterrorhandler = function()
 		return function(message)
@@ -845,72 +869,21 @@ local page = pageFrame
 ns.db.showGearTab = true
 ns.AttachGear()
 
--- One SkillUp side tab, whatever its pages: a tab another addon hangs under ours is never the slot ours go
--- under, or the client refuses the anchor and the tab loses its place.
-local function Below(lower, upper)
-	local anchor = lower.points[1]
-	return #lower.points == 1 and anchor.relative == upper and anchor.relativePoint == "BOTTOMLEFT"
-end
-local function OpenWindow()
-	local ok, err = pcall(ProfessionsFrame.scripts.OnShow, ProfessionsFrame)
-	equal(ok, true, "the window opens without an anchor error: " .. tostring(err))
-end
-OpenWindow()
-equal(#tabs, 1, "the pages share one side tab")
-equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "the SkillUp tab sits under Blizzard's column")
--- What's Training? pins its own tab to the window's bottom-right corner: a BOTTOMLEFT of the window's
--- BOTTOMRIGHT at 0,10, which is flush with the column's left edge but sits down by the window's bottom
--- (Crafting/Crafting.lua). It can appear or re-place itself after our tab is already laid out, so a tab
--- switch (the same placement pass our events run) must leave ours in the free slot above it, inside the
--- window (#446).
-do
-	local cornerTab = NewRegion(ProfessionsFrame)
-	cornerTab:SetPoint("BOTTOMLEFT", ProfessionsFrame, "BOTTOMRIGHT", 0, 10)
-	cornerTab:SetSize(43, 55)
-	local hangingTab = NewRegion(ProfessionsFrame)
-	hangingTab:SetPoint("TOPLEFT", tab, "BOTTOMLEFT", 0, -2)
-	hangingTab:SetSize(43, 55)
-	ns.PlaceSideTabs()
-	equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "the SkillUp tab keeps the first free slot")
-	equal(Below(tab, cornerTab), false, "and is not pushed under What's Training?'s corner tab")
-	local _, bottom, _, top = Rect(tab)
-	local _, windowBottom, _, windowTop = Rect(ProfessionsFrame)
-	equal(bottom > windowBottom and top < windowTop, true, "the SkillUp tab stays beside the window")
-	-- The tab stays while any page is on, and goes with the last one; with one back on it returns to the
-	-- first free slot.
-	ns.db.showRouteTab = false
-	ns.Changed("settings")
-	equal(tab.shown, true, "the tab stays while the gear page is on")
-	equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "in the first free slot")
-	ns.db.showGearTab = false
-	ns.Changed("settings")
-	equal(tab.shown, false, "the tab is hidden when every page is off")
-	ns.db.showRouteTab = true
-	ns.Changed("settings")
-	equal(Below(tab, ProfessionsFrame.ProfessionsOverviewTab), true, "and comes back in the first free slot")
-	cornerTab:Hide()
-	hangingTab:Hide()
-end
-OpenWindow()
--- All The Things on Forever keeps the column's tabs in one full-height frame on the window's right edge and
--- anchors its own tab in the next free slot inside it (#402). That frame is the column, not the lowest tab:
--- the SkillUp tab goes under the tab in it, beside the window, not under the window's bottom.
-local sidebar = NewRegion(ProfessionsFrame)
-sidebar:SetPoint("TOPLEFT", ProfessionsFrame, "TOPRIGHT", 0, 0)
-sidebar:SetPoint("BOTTOMLEFT", ProfessionsFrame, "BOTTOMRIGHT", 0, 0)
-sidebar:SetWidth(1)
-local thirdPartyTab = NewRegion(sidebar)
-thirdPartyTab:SetPoint("TOPLEFT", ProfessionsFrame.ProfessionsOverviewTab, "BOTTOMLEFT", 0, -2)
-thirdPartyTab:SetSize(43, 55)
-OpenWindow()
-equal(Below(tab, thirdPartyTab), true, "the SkillUp tab goes under a third-party tab inside the column frame")
-equal(Below(tab, sidebar), false, "the column frame itself is never the slot the tab hangs under")
-local _, tabBottom, _, tabTop = Rect(tab)
-local _, windowBottom, _, windowTop = Rect(ProfessionsFrame)
-equal(tabBottom > windowBottom and tabTop < windowTop, true, "and the SkillUp tab stays beside the window")
-thirdPartyTab:Hide()
-sidebar:Hide()
-OpenWindow()
+-- One SkillUp side tab, whatever its pages, and it is the one core registered.
+equal(#tabs, 1, "the pages share core's one side tab")
+equal(tab, coreTab, "the side tab is the one core registered")
+equal(tab.tooltipText, "SkillUp", "it says SkillUp")
+equal(coreEntry.spec.minWidth, nil, "no recipe list here means no width of its own")
+-- The tab stays while any page is on, and goes with the last one.
+ns.db.showRouteTab = false
+ns.Changed("settings")
+equal(tab.shown, true, "the tab stays while the gear page is on")
+ns.db.showGearTab = false
+ns.Changed("settings")
+equal(tab.shown, false, "the tab is hidden when every page is off")
+ns.db.showRouteTab = true
+ns.Changed("settings")
+equal(tab.shown, true, "and comes back with one page on")
 
 tab.scripts.OnMouseUp(nil, "LeftButton", true)
 Flush()
@@ -1208,77 +1181,24 @@ equal(routePage:IsShown(), true, "a second route click shows the route page agai
 equal(gearPage:IsShown(), false, "and still hides the gear page")
 equal(routeTab.checked, true, "with the side tab checked")
 
--- Other addons dismiss their custom pages when the native crafting page shows.
-local foreignPage = NewRegion(ProfessionsFrame)
-ProfessionsFrame.CraftingPage:HookScript("OnShow", function()
-	foreignPage:Hide()
-end)
-for _, target in ipairs({
-	{ button = routeBottom, page = routePage, other = gearPage, name = "route" },
-	{ button = gearTab, page = gearPage, other = routePage, name = "gear" },
-}) do
-	ProfessionsFrame.CraftingPage:Hide()
-	foreignPage:Show()
-	target.button.scripts.OnClick()
-	Flush()
-	equal(foreignPage:IsShown(), false, target.name .. " dismisses another addon's page")
-	equal(target.page:IsShown(), true, target.name .. " stays visible after the native handoff")
-	equal(target.other:IsShown(), false, target.name .. " hides the other SkillUp page")
-	equal(routeTab.checked, true, target.name .. " keeps the side tab checked after the native handoff")
-	equal(ProfessionsFrame.CraftingPage:IsShown(), false, target.name .. " leaves the native page hidden")
-end
-
--- Blizzard's own tabs hand the window back through their page showing.
-ProfessionsFrame.BookPage:Show()
+-- ForeverCore hands the window back when the player picks a client tab or page: core hides SkillUp's page and
+-- unchecks the side tab. The client's own page is never hidden by this addon.
+ProfessionTabs.ShowNative()
 Flush()
-equal(routePage:IsShown(), false, "the overview hides the route page")
+equal(routePage:IsShown(), false, "a client tab hides the route page")
 equal(gearPage:IsShown(), false, "and the gear page")
 equal(routeTab.checked, false, "the side tab unchecks")
-ProfessionsFrame.CraftingPage:Show()
-Flush()
-equal(routePage:IsShown(), false, "a profession page hides the route page")
-equal(gearPage:IsShown(), false, "and the gear page")
+equal(ProfessionsFrame.CraftingPage:IsShown(), true, "and the client's own page stays shown")
 
--- #393: the client shows the Professions window through its secure panel path (SetAttribute, ShowUIPanel,
--- SetUIPanel, Show), where a Hide from addon code is blocked. The route tab is selected, and the window then
--- shows its native pages: no Hide may run until the deferred pass, and that pass keeps the route page shown.
+-- Closing the window hands it back the same way.
 routeBottom.scripts.OnClick()
 Flush()
-equal(routePage:IsShown(), true, "the route page is showing before the window opens")
--- The foreign page's hook above is another addon's work, not this one's.
-foreignPage.ignoreHides = true
-hidesInShowPath = 0
-inShowPath = true
-local ok, err = pcall(function()
-	ProfessionsFrame:Show()
-	ProfessionsFrame.CraftingPage:Show()
-	ProfessionsFrame.BookPage:Show()
-end)
-inShowPath = false
-equal(ok, true, "the window opens without a blocked Hide: " .. tostring(err))
-equal(hidesInShowPath, 0, "opening the window hides no frame from inside the show path")
+equal(routePage:IsShown(), true, "the route page shows before the window closes")
+ProfessionsFrame:Hide()
 Flush()
-equal(routePage:IsShown(), true, "the deferred pass leaves the route page shown")
-equal(ProfessionsFrame.CraftingPage:IsShown(), false, "and hides the native crafting page")
-equal(ProfessionsFrame.BookPage:IsShown(), false, "and the book page")
-equal(routeTab.checked, true, "and keeps the side tab checked")
-
--- #398: the client hides the window through the same secure panel path, where showing a Blizzard page from
--- addon code is blocked. The route page is showing, and the window closes: no Show may run until the deferred
--- pass, and that pass returns the window to its crafting page.
-equal(routePage:IsShown(), true, "the route page is showing before the window closes")
-showsInHidePath = 0
-inHidePath = true
-local hideOk, hideErr = pcall(function()
-	ProfessionsFrame:Hide()
-end)
-inHidePath = false
-equal(hideOk, true, "the window closes without a blocked Show: " .. tostring(hideErr))
-equal(showsInHidePath, 0, "closing the window shows no frame from inside the hide path")
-Flush()
-equal(ProfessionsFrame.CraftingPage:IsShown(), true, "the deferred pass returns the window to the crafting page")
-equal(ProfessionsFrame:IsShown(), false, "while the window stays closed")
+equal(routePage:IsShown(), false, "closing the window hides the route page")
 equal(routeTab.checked, false, "and unchecks the side tab")
+ProfessionsFrame:Show()
 
 -- #398: under the gamepad interface, opening the Professions window runs SmartNavigation's panel scan
 -- (Blizzard_GamepadSmartNavigation, FindButtons and SmartNavigation_CanFocusFrame at Forever 1.60.1). For a

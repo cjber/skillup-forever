@@ -245,7 +245,7 @@ local function Run(c, label, fn, ...)
 end
 
 -- Every slash command the addon registers. The table is the dispatch: its words, aliases and listed arguments are
--- the messages a player can send, and its help lines are what /su help prints.
+-- the messages a player can send, and its help lines are what /skillup help prints.
 local function Commands(c)
 	local handlers = {}
 	for key in pairs(c.G.SlashCmdList) do

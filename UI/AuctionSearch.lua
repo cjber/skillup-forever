@@ -237,8 +237,9 @@ end
 
 function ns.AttachAuctionSearch()
 	local page = ProfessionsFrame and ProfessionsFrame.CraftingPage
+	---@cast page SkillUpCraftingPage
 	local form = page and page.SchematicForm
-	if bar or not form then
+	if bar or not page or not form then
 		return
 	end
 	bar = CreateFrame("Frame", nil, page) --[[@as SkillUpAuctionBar]]

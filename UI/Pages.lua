@@ -6,9 +6,12 @@ if ns.broken then
 end
 local L = ns.L
 
--- The one SkillUp side tab and the bottom tabs of its pages. Each page module owns its own frame and
--- drawing; this owns when a page shows, which tab is checked, and the side tab's place in the column.
--- A page registers itself once its frame exists, in the order the tabs should read.
+-- The one SkillUp tab and the bottom tabs of its pages. ForeverCore.ProfessionTabs owns the side tab: where it
+-- sits, which tab is checked, showing the one registered page and handing the window back. This owns when a
+-- SkillUp page shows and which bottom tab is selected. A page registers itself once its frame exists, in the
+-- order the tabs should read.
+
+local KEY = "skillup"
 
 ---@type SkillUpPages
 ---@diagnostic disable-next-line: missing-fields -- every field is defined below, one function at a time
@@ -18,15 +21,21 @@ ns.Pages = {}
 local pages = {}
 ---@type table<string, SkillUpPageSpec>
 local byID = {}
----@type SkillUpSideTab?
+---@type ForeverProfessionTab?
 local tab
+-- The frame core shows and hides. Its own Show and Hide are the one place the real pages follow it.
+---@type Frame
+local shell
+-- The bottom tabs, in registration order.
 ---@type table<string, Button>
 local bottom = {}
 -- The page the player asked for, nil while the window shows Blizzard's own page.
 ---@type string?
 local wanted
+-- The page the shell's OnShow just asked for, so the selection callback core runs next does not show it twice.
+---@type SkillUpPageSpec?
+local revealed
 local token = 0
-local opening = false
 
 ---@return boolean
 local function Locked()
@@ -79,6 +88,7 @@ local function Frames(work)
 	return false
 end
 
+-- Wait for combat to end and then run `fn`, for the callers outside this file (Settings opens a protected panel).
 ---@param fn fun()
 ---@return boolean
 local function Unlocked(fn)
@@ -110,12 +120,19 @@ local function AnyEnabled()
 	return FirstEnabled() ~= nil
 end
 
--- Our side tab and the bottom tabs are ours to draw; Blizzard's selected tab is never ours to keep.
-local function Sync()
-	if not tab then
-		return
+-- The page the side tab opens: the one the player used last, or the first one that is on.
+---@return SkillUpPageSpec?
+local function Chosen()
+	local last = ns.LastSkillUpPage()
+	local spec = last and byID[last]
+	if spec and Enabled(spec) then
+		return spec
 	end
-	tab:SetChecked(wanted ~= nil)
+	return FirstEnabled()
+end
+
+-- The bottom tabs are ours to draw; the side tab's check and the client's own tabs are not.
+local function Sync()
 	local anyShown = wanted ~= nil and ProfessionsFrame:IsShown()
 	for _, spec in ipairs(pages) do
 		local button = bottom[spec.id]
@@ -142,97 +159,22 @@ local function Sync()
 			previous = button
 		end
 	end
-	if wanted then
-		ProfessionsFrame.ProfessionsOverviewTab:SetChecked(false)
-		for _, professionTab in ipairs(ProfessionsFrame.rightProfessionTabs or {}) do
-			professionTab:SetChecked(false)
-		end
+	if tab then
+		tab:SetShown(AnyEnabled())
 	end
 end
 
--- The client runs the window's OnShow inside a secure panel call, where an addon's Hide is blocked (#393).
--- Record what the player asked for now and do the frame work on the next frame.
-local function HidePageLater()
-	local myToken = token
-	C_Timer.After(0, function()
-		if myToken ~= token or wanted or not ProfessionsFrame:IsShown() then
-			return
-		end
-		Frames(function()
-			if myToken ~= token or wanted or not ProfessionsFrame:IsShown() then
-				return
-			end
-			for _, spec in ipairs(pages) do
-				spec.page:Hide()
-			end
-		end)
-		Sync()
-	end)
-end
-
-local function HideNativePagesLater()
-	local myToken = token
-	C_Timer.After(0, function()
-		if myToken ~= token or not wanted or not ProfessionsFrame:IsShown() then
-			return
-		end
-		Frames(function()
-			if myToken ~= token or not wanted or not ProfessionsFrame:IsShown() then
-				return
-			end
-			ProfessionsFrame.CraftingPage:Hide()
-			ProfessionsFrame.BookPage:Hide()
-		end)
-	end)
-end
-
--- The client runs the window's OnHide inside a secure panel call as well, where showing a native page is the
--- same mistake as hiding one there (#398). Return the window to its crafting page once the call has ended.
-local function ShowCraftingPageLater()
-	local myToken = token
-	C_Timer.After(0, function()
-		if myToken ~= token or wanted or ProfessionsFrame:IsShown() then
-			return
-		end
-		Frames(function()
-			if myToken ~= token or wanted or ProfessionsFrame:IsShown() then
-				return
-			end
-			ProfessionsFrame.CraftingPage:Show()
-		end)
-	end)
-end
-
--- Blizzard's own tabs show their page explicitly, which hands the window back.
-local function Deselect()
-	wanted = nil
-	token = token + 1
-	Sync()
-	HidePageLater()
-end
-
--- The native pages hand the window back when the player picks one, but the client also shows them while
--- opening the window; a SkillUp page already on show stays.
-local function NativePageShown()
-	if opening and wanted then
-		HideNativePagesLater()
-		return
-	end
-	Deselect()
-end
-
+-- One page at a time. Its own OnShow draws it; the others' OnHide clears theirs.
 ---@param spec SkillUpPageSpec
 local function Show(spec)
 	wanted = spec.id
 	token = token + 1
 	local myToken = token
 	ns.SetLastSkillUpPage(spec.id)
-	Sync()
 	Frames(function()
 		if myToken ~= token or wanted ~= spec.id then
 			return
 		end
-		-- One page at a time: the other one's own OnHide only clears its drawing.
 		for _, other in ipairs(pages) do
 			if other ~= spec and other.page:IsShown() then
 				other.page:Hide()
@@ -241,40 +183,117 @@ local function Show(spec)
 		if spec.prepare then
 			spec.prepare()
 		end
-		-- Show the native page first so another custom page's CraftingPage hook can hand off cleanly. Its own
-		-- OnShow may run our Deselect, so the page is marked wanted after that.
-		ProfessionsFrame.CraftingPage:Show()
-		if wanted ~= spec.id then
-			wanted = spec.id
-			ns.SetLastSkillUpPage(spec.id)
-			Sync()
-		end
 		spec.page:Show()
 		Sync()
-		HideNativePagesLater()
+	end)
+	Sync()
+end
+
+-- Every SkillUp page goes away and the bottom tabs hide with them. ForeverCore has already shown the client's
+-- own page when it hides the frame this answers.
+local function Hide()
+	wanted = nil
+	revealed = nil
+	token = token + 1
+	local myToken = token
+	Frames(function()
+		if myToken ~= token then
+			return
+		end
+		for _, spec in ipairs(pages) do
+			if spec.page:IsShown() then
+				spec.page:Hide()
+			end
+		end
+		Sync()
+	end)
+	Sync()
+end
+
+-- Core shows the frame it registered when its tab is selected. That frame's OnShow asks for the page the player
+-- wants, and core's onSelect callback follows it.
+local function Reveal()
+	local spec = wanted and byID[wanted] or Chosen()
+	if spec and Enabled(spec) then
+		revealed = spec
+		Show(spec)
+	else
+		wanted = nil
+		Sync()
+	end
+end
+
+-- ForeverCore's onSelect callback. The shell's OnShow has already shown the page it asked for; a bottom tab
+-- selecting another one comes through here alone.
+---@param _ string
+local function Selected(_)
+	local spec = wanted and byID[wanted] or Chosen()
+	if spec and Enabled(spec) then
+		if revealed ~= spec then
+			Show(spec)
+		end
+		revealed = nil
+	else
+		wanted = nil
+		Sync()
+	end
+end
+
+---@param spec SkillUpPageSpec
+local function CreateBottomTab(spec)
+	local button = CreateFrame("Button", nil, ProfessionsFrame, "PanelTabButtonTemplate") --[[@as Button]]
+	button:SetText(spec.title)
+	PanelTemplates_TabResize(button, 0)
+	PanelTemplates_DeselectTab(button)
+	button:SetScript("OnClick", function()
+		ns.Pages.Select(spec.id)
+	end)
+	bottom[spec.id] = button
+end
+
+-- Core's one frame for SkillUp: the client's side tab column, its checked state and the one page on show all
+-- belong to ForeverCore.ProfessionTabs. The frame itself carries no art; the pages still draw in the window.
+local function CreateFrames()
+	shell = CreateFrame("Frame", "SkillUpForeverProfessionTabPage", ProfessionsFrame)
+	shell:SetAllPoints(ProfessionsFrame.CraftingPage)
+	shell:Hide()
+	shell:SetScript("OnShow", Reveal)
+	shell:SetScript("OnHide", Hide)
+	tab = ForeverCore.ProfessionTabs.Register(KEY, {
+		icon = ns.ICON,
+		tooltip = L["SkillUp"],
+		page = shell,
+		-- The wide recipe list's one width, when it has been measured; core keeps the client's own width
+		-- otherwise.
+		minWidth = ns.RecipeListMinWidth and ns.RecipeListMinWidth() or nil,
+		onSelect = Selected,
+		safeCall = ns.core and ns.core.SafeCall,
+	})
+	-- Closing the window hands it back, as the client's own tabs do, so the tab is unchecked and the bottom
+	-- tabs are gone the next time the window opens.
+	ProfessionsFrame:HookScript("OnHide", function()
+		if ForeverCore.ProfessionTabs.Selected() == KEY then
+			ForeverCore.ProfessionTabs.ShowNative()
+		end
 	end)
 end
 
----@param id string
-local function Select(id)
-	local spec = byID[id]
-	if spec and Enabled(spec) then
-		Show(spec)
-	end
-end
-
--- Open the page the player used last, or the first one that is on.
-function ns.Pages.Open()
-	local last = ns.LastSkillUpPage()
-	local spec = last and byID[last]
-	if spec and Enabled(spec) then
-		Show(spec)
+-- Register a page, in the order its bottom tab should read. The first registration creates core's one tab and
+-- the frame core shows; each one's own frame already exists.
+---@param spec SkillUpPageSpec
+function ns.Pages.Register(spec)
+	if byID[spec.id] then
 		return
 	end
-	spec = FirstEnabled()
-	if spec then
-		Show(spec)
+	if not shell then
+		CreateFrames()
 	end
+	pages[#pages + 1] = spec
+	byID[spec.id] = spec
+	spec.page:HookScript("OnShow", Sync)
+	spec.page:HookScript("OnHide", Sync)
+	CreateBottomTab(spec)
+	Sync()
 end
 
 -- Close one page, as its setting or another window's tab does.
@@ -285,7 +304,10 @@ function ns.Pages.Close(id)
 		return
 	end
 	if wanted == id then
-		Deselect()
+		Hide()
+		if ForeverCore.ProfessionTabs.Selected() == KEY then
+			ForeverCore.ProfessionTabs.ShowNative()
+		end
 	elseif spec.page:IsShown() then
 		local myToken = token
 		Frames(function()
@@ -293,249 +315,44 @@ function ns.Pages.Close(id)
 				return
 			end
 			spec.page:Hide()
+			Sync()
 		end)
 		Sync()
 	end
 end
 
--- A page can be turned off in settings; an open page goes back to crafting. The side tab shows while at
+-- A page can be turned off in settings; an open page goes back to the client's own. The side tab shows while at
 -- least one page is on.
 local function RefreshSettings()
-	---@type Frame[]?
-	local hiding
 	for _, spec in ipairs(pages) do
-		if not Enabled(spec) and spec.page:IsShown() then
-			wanted = nil
-			token = token + 1
-			hiding = hiding or {}
-			hiding[#hiding + 1] = spec.page
+		if not Enabled(spec) and (wanted == spec.id or spec.page:IsShown()) then
+			Hide()
+			if ForeverCore.ProfessionTabs.Selected() == KEY then
+				ForeverCore.ProfessionTabs.ShowNative()
+			end
+			break
 		end
-	end
-	if tab then
-		tab:SetShown(AnyEnabled())
 	end
 	Sync()
-	ns.PlaceSideTabs()
-	if hiding then
-		local myToken = token
-		Frames(function()
-			if myToken ~= token then
-				return
-			end
-			for _, page in ipairs(hiding) do
-				page:Hide()
-			end
-			ProfessionsFrame.CraftingPage:Show()
-		end)
-	end
-end
-
--- Whether a frame hangs off one of our tabs, directly or through the frames it is anchored to.
----@param frame Region
----@param ours table<Region, boolean>
----@param seen table<Region, boolean>
----@return boolean
-local function HangsOff(frame, ours, seen)
-	if ours[frame] then
-		return true
-	end
-	-- A frame anchored through a protected one refuses GetPoint; it is not one of ours either way.
-	if seen[frame] or frame:IsAnchoringRestricted() then
-		return false
-	end
-	seen[frame] = true
-	for index = 1, frame:GetNumPoints() do
-		-- Anything a frame anchors to is itself anchorable.
-		local _, relative = frame:GetPoint(index)
-		if
-			relative and HangsOff(relative --[[@as Region]], ours, seen)
-		then
-			return true
-		end
-	end
-	return false
-end
-
--- A side tab is no taller than the tab the column starts with. A frame that spans the column is the frame the
--- tabs hang in, not a tab: All The Things on Forever reparents Blizzard's tabs into one such frame on the
--- window's right edge and anchors its own tab in the next free slot inside it, so the tab in the slot is
--- inside that frame, and the frame itself is never mistaken for a tab (#402).
----@class SkillUpTabSlot
----@field frame Frame
----@field top number
----@field bottom number
-
--- Every tab already in the column, apart from ours: a shown frame flush with the column's left edge and no
--- taller than one slot. A frame tall enough to hold two tabs is a holder another addon put its tabs in, so its
--- children are read instead. A frame that hangs off our tab is below it by definition, not a tab we must
--- clear.
----@param frame Frame
----@param left number
----@param slotHeight number
----@param ours table<Region, boolean>
----@param seen table<Region, boolean>
----@param found SkillUpTabSlot[]
-local function ColumnTabs(frame, left, slotHeight, ours, seen, found)
-	if seen[frame] or not frame:IsShown() then
-		return
-	end
-	seen[frame] = true
-	local frameLeft, frameBottom, height = frame:GetLeft(), frame:GetBottom(), frame:GetHeight()
-	if
-		type(frameLeft) ~= "number"
-		or type(frameBottom) ~= "number"
-		or type(height) ~= "number"
-		or math.abs(frameLeft - left) >= 1
-	then
-		return
-	end
-	if height >= slotHeight * 2 then
-		for _, child in ipairs({ frame:GetChildren() }) do
-			ColumnTabs(child --[[@as Frame]], left, slotHeight, ours, seen, found)
-		end
-		return
-	end
-	if HangsOff(frame, ours, {}) then
-		return
-	end
-	found[#found + 1] = { frame = frame, top = frameBottom + height, bottom = frameBottom }
-end
-
--- The lowest tab overlapping a slot we want: our tab goes under it rather than on top of it. Touching edges
--- leave the slot free, as the column's two-pixel gap does.
----@param slotTop number
----@param slotBottom number
----@param found SkillUpTabSlot[]
----@return Frame?
-local function BlockingTab(slotTop, slotBottom, found)
-	local lowest, lowestBottom
-	for _, occupied in ipairs(found) do
-		if occupied.top > slotBottom and occupied.bottom < slotTop then
-			if not lowestBottom or occupied.bottom < lowestBottom then
-				lowest, lowestBottom = occupied.frame, occupied.bottom
-			end
-		end
-	end
-	return lowest
-end
-
--- Our one side tab in the next free slot under the last tab the column already holds, in the same tab art.
--- A tab another addon pins lower down, such as What's Training?'s bottom-right corner, leaves the slots
--- directly under the native column free: ours takes those and stays beside the window instead of being
--- pushed below that tab and past the window's bottom (#446). Each pass reads the column as it is now, so
--- the order the addons loaded or re-placed their tabs in does not matter.
-local function PlaceTabs()
-	if not (tab and ProfessionsFrame.ProfessionsOverviewTab) then
-		return
-	end
-	local ours = { [tab] = true }
-	---@type Frame
-	local above = ProfessionsFrame.ProfessionsOverviewTab
-	for _, professionTab in ipairs(ProfessionsFrame.rightProfessionTabs or {}) do
-		if professionTab:IsShown() then
-			above = professionTab
-		end
-	end
-	local left, slotHeight = above:GetLeft(), above:GetHeight()
-	local found = {}
-	if type(left) == "number" and type(slotHeight) == "number" then
-		for _, sibling in ipairs({ ProfessionsFrame:GetChildren() }) do
-			ColumnTabs(sibling --[[@as Frame]], left, slotHeight, ours, {}, found)
-		end
-	end
-	if type(slotHeight) == "number" then
-		local slotBottom = above:GetBottom()
-		while type(slotBottom) == "number" do
-			local slotTop = slotBottom - 2
-			local blocker = BlockingTab(slotTop, slotTop - slotHeight, found)
-			if not blocker then
-				break
-			end
-			above = blocker
-			slotBottom = above:GetBottom()
-		end
-	end
-	tab:ClearAllPoints()
-	tab:SetPoint("TOPLEFT", above, "BOTTOMLEFT", 0, -2)
-end
-ns.PlaceSideTabs = PlaceTabs
-
----@param spec SkillUpPageSpec
-local function CreateBottomTab(spec)
-	local button = CreateFrame("Button", nil, ProfessionsFrame, "PanelTabButtonTemplate") --[[@as Button]]
-	button:SetText(spec.title)
-	PanelTemplates_TabResize(button, 0)
-	PanelTemplates_DeselectTab(button)
-	button:SetScript("OnClick", function()
-		Select(spec.id)
-	end)
-	bottom[spec.id] = button
-end
-
--- The window's own show and hide, done once: opening reads the column, closing hands the crafting page back.
-local function CreateFrames()
-	-- A real Button, not a Frame with the same art: under the gamepad interface SmartNavigation's panel scan
-	-- calls GetScript("OnMouseUp") and GetScript("OnMouseDown") on every frame that is not a Button or an
-	-- EditBox, and that read of our frame's template scripts runs in the gamepad's own call. The protected
-	-- SetPreferredGamepadInteractTarget it later calls is then refused and blamed on us (#398). The client
-	-- itself inherits this art into Buttons (Blizzard_CollectionsTabs.xml), so the tab looks and clicks the same.
-	tab = CreateFrame("Button", nil, ProfessionsFrame, "LargeSideTabButtonTemplate") --[[@as SkillUpSideTab]]
-	-- art-ok: a square icon in the square LargeSideTabButtonTemplate sizes for it
-	tab.Icon:SetTexture(ns.ICON)
-	tab:SetFillToInterior(true)
-	tab.tooltipText = L["SkillUp"]
-	tab:EnableMouse(true)
-	tab:SetCustomOnMouseUpHandler(function(_, button, upInside)
-		if button == "LeftButton" and upInside then
-			ns.Pages.Open()
-		end
-	end)
-	ProfessionsFrame:HookScript("OnShow", function()
-		opening = true
-		PlaceTabs()
-		C_Timer.After(0, function()
-			opening = false
-		end)
-	end)
-	ProfessionsFrame:HookScript("OnHide", function()
-		if wanted then
-			Deselect()
-			ShowCraftingPageLater()
-		end
-		Sync()
-	end)
-	ProfessionsFrame.CraftingPage:HookScript("OnShow", NativePageShown)
-	ProfessionsFrame.BookPage:HookScript("OnShow", NativePageShown)
-	PlaceTabs()
-end
-
--- Register a page, in the order its bottom tab should read. The first registration creates the one side
--- tab and the window hooks; each one's own frame already exists.
----@param spec SkillUpPageSpec
-function ns.Pages.Register(spec)
-	if byID[spec.id] then
-		return
-	end
-	if not tab then
-		CreateFrames()
-	end
-	pages[#pages + 1] = spec
-	byID[spec.id] = spec
-	spec.page:HookScript("OnShow", Sync)
-	spec.page:HookScript("OnHide", Sync)
-	CreateBottomTab(spec)
-	if tab then
-		tab:SetShown(AnyEnabled())
-	end
-	Sync()
-	PlaceTabs()
 end
 
 ns.WhenStale("pages", RefreshSettings)
 
----@return SkillUpSideTab?
+---@return ForeverProfessionTab?
 function ns.Pages.SideTab()
 	return tab
+end
+
+-- The one width ForeverCore keeps for SkillUp's tab: the wide recipe list raises it, nil gives the client's
+-- own width back. Before the tab is registered there is nothing to change; registration carries the width.
+---@param width number?
+---@return boolean applied
+function ns.Pages.SetMinWidth(width)
+	if not tab then
+		return false
+	end
+	ForeverCore.ProfessionTabs.SetMinWidth(KEY, width)
+	return true
 end
 
 ---@param id string
@@ -549,12 +366,21 @@ function ns.Pages.Count()
 	return #pages
 end
 
--- Blizzard reselects its profession tab on skill updates; keep ours checked while our page shows.
+-- Blizzard reselects its profession tab on skill updates; core keeps our tab checked while our page shows.
 function ns.Pages.Sync()
 	Sync()
 end
 
 ---@param id string
 function ns.Pages.Select(id)
-	Select(id)
+	local spec = byID[id]
+	if spec and Enabled(spec) then
+		wanted = id
+		ns.SetLastSkillUpPage(id)
+		if ForeverCore.ProfessionTabs.Selected() == KEY then
+			Show(spec)
+		else
+			ForeverCore.ProfessionTabs.Select(KEY)
+		end
+	end
 end

@@ -101,7 +101,7 @@ authorization. A preparation-only request ends before tags or uploads.
 
 - Review thresholds, recipes, sources, trainer and vendor data together. Use the
   refresh workflow for upstream pins; the classic-db waiver remains deliberate.
-- User checks: `/su audit` for several professions, native recipe colours, costs,
+- User checks: `/skillup audit` for several professions, native recipe colours, costs,
   route and tracker updates after crafting, trainer offers, and missing companion
   data rendering as unknown rather than a fabricated value.
 

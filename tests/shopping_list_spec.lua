@@ -233,6 +233,36 @@ equal(anchor[3], "TOPRIGHT", "beside it")
 equal(anchor[4], 8, "with a small gap")
 equal(anchor[5], 0, "level with its top")
 
+-- The client calls an OnDragStart handler as handler(self, button). Handing it a bare StartMoving reference made
+-- the button string its alwaysStartFromMouse argument, so each window's handler starts the move with no argument.
+local function MovesWithoutArguments(target, label)
+	local started = {}
+	target.StartMoving = function(self, ...)
+		started[#started + 1] = { self = self, args = { ... } }
+	end
+	target.scripts.OnDragStart(target, "LeftButton")
+	target.StartMoving = nil
+	equal(#started, 1, label .. " starts a move when the client begins a drag")
+	equal(started[1].self, target, label .. " moves itself")
+	equal(#started[1].args, 0, label .. " passes StartMoving no argument")
+end
+MovesWithoutArguments(window, "the shopping list")
+MovesWithoutArguments(copyWindow, "the copy window")
+
+-- #622: focusing the copy box selects the list. The client calls the focus handler as handler(self, isUserInput),
+-- so a bare HighlightText reference took the flag as its start index, raised, and left the list unselected.
+local copyEdit = Find(copyWindow, function(region)
+	return region.scripts.OnEditFocusGained ~= nil
+end)
+assert(copyEdit, "the copy box gains focus through a script")
+copyEdit.highlighted = nil
+copyEdit.scripts.OnEditFocusGained(copyEdit, true)
+equal(copyEdit.highlighted, copyEdit.text, "the focus handler selects the whole list")
+copyEdit:ClearFocus()
+copyEdit.highlighted = nil
+copyEdit:SetFocus()
+equal(copyEdit.highlighted, copyEdit.text, "gaining focus through the client selects the whole list")
+
 -- #566: opening from a route page shows only that profession's plan, and a profession with nothing tracked
 -- says so instead of showing another tracked profession's materials.
 local LEATHERWORKING, COOKING, BLACKSMITHING = 165, 185, 164

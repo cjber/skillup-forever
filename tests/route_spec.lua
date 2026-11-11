@@ -192,7 +192,6 @@ page = {
 		return "route"
 	end,
 	SetLastSkillUpPage = function() end,
-	PlaceSideTabs = function() end,
 	-- Difficulty colours the route hands the list as they are: a sentinel shows which one a row got.
 	COLORS = { yellow = "yellow", green = "green", orange = "orange" },
 	IsLearned = function(id)

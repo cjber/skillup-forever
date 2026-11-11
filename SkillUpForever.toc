@@ -1,5 +1,6 @@
 ## Interface: 16001
 ## Dependencies: ForeverCore
+## X-Forever-Core: v1.6.1
 ## Title: SkillUp Forever
 ## Notes: Required skill, colour thresholds and skill-up chance for every recipe in the Professions window.
 ## Notes-deDE: Benötigte Fertigkeit, Farbschwellen und Chance auf Fertigkeitspunkt für jedes Rezept im Berufsfenster.
@@ -25,6 +26,7 @@
 ## X-Forever-Icon: Interface\Icons\INV_Scroll_03
 ## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick
 
+Core\ForeverRequire.lua
 Core\Require.lua
 Locales\enUS.lua
 Locales\deDE.lua
@@ -54,7 +56,6 @@ Integrations\AtlasLoot.lua
 Integrations\Catalogue.lua
 Integrations\Prices.lua
 UI\Art.lua
-UI\FrameArt.lua
 UI\Settings.lua
 UI\Tooltip.lua
 UI\DetailsBar.lua

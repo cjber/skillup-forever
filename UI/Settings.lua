@@ -109,7 +109,7 @@ function ns.RegisterSettings()
 			rows,
 			"wideRecipeList",
 			L["Widen the recipe list to fit recipe names"],
-			L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."]
+			L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."]
 		)
 
 		Checkbox(

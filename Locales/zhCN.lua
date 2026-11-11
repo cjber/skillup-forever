@@ -28,9 +28,10 @@ L["%s, source unknown"] = "%s，来源未知"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] =
 	"%s：移动%d个，在训练师处确认%d个，错误%d个。"
 L["+%d more"] = "另有%d个"
-L["/su skipped lists the recipes you skipped, with their IDs."] = "/su skipped 列出你跳过的配方及其ID。"
-L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
-	"/su unskip <recipe ID> 恢复显示一个，/su unskip all 恢复全部。"
+L["/skillup skipped lists the recipes you skipped, with their IDs."] =
+	"/skillup skipped 列出你跳过的配方及其ID。"
+L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."] =
+	"/skillup unskip <recipe ID> 恢复显示一个，/skillup unskip all 恢复全部。"
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"在商人窗口显示材料标签页，列出你追踪的路线仍需要从该商人处购买的材料及其总费用。请在商人窗口中购买。"
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
@@ -247,8 +248,8 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"从成本中减去制造物品的售价。拍卖价需要Auctionator/TradeSkillMaster，已扣除5%手续费，且不一定能卖出。"
 L["Taught by %s trainers."] = "由%s训练师教授。"
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"
-L["The recipe list grows to the longest recipe name in the open profession, and the window with it, up to the room your screen has. Turn it off to keep the window's own width."] =
-	"配方列表和窗口会加宽，以容纳当前专业最长的配方名称，最宽到屏幕空间为止。关闭后保持窗口原有宽度。"
+L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
+	"窗口保持同一宽度，并加宽到已学所有专业中最宽的配方行，最宽到屏幕允许的范围。关闭后保持游戏自带的宽度。"
 L["The rest comes from a vendor or your gathering."] = "其余来自商人或你的采集。"
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"路线按%d个计算，十次中有九次能达到%d；运气差时需要更多。"
@@ -366,11 +367,12 @@ L["%d x %s - price unknown"] = "%d x %s - 价格未知"
 L["%s to %d"] = "%s至%d"
 L[", "] = "，"
 L[", price seen %d days ago"] = "，%d 天前的价格"
-L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
-	"/su export - 显示此角色见过的训练师要求，以便粘贴到报告中"
-L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
-	"/su issue - 报告错误或请求功能，并附上现成的 GitHub issue 链接"
-L["/su report - show a report to copy into a bug report"] = "/su report - 显示报告，以便复制到错误报告中"
+L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/skillup export - 显示此角色见过的训练师要求，以便粘贴到报告中"
+L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/skillup issue - 报告错误或请求功能，并附上现成的 GitHub issue 链接"
+L["/skillup report - show a report to copy into a bug report"] =
+	"/skillup report - 显示报告，以便复制到错误报告中"
 L[": "] = "："
 L["A buy trip needs Shortest Path Forever."] = "购买行程需要 Shortest Path Forever。"
 L["Copy list"] = "复制列表"
@@ -409,11 +411,12 @@ L["Pinned: %s"] = "已固定：%s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"技能范围重叠时，最近固定的配方优先。" -- mt
 L["Pinned (%d)"] = "已固定（%d）" -- mt
-L["/su share on|off - control sharing with guild and group"] = "/su share on|off - 控制与公会和队伍共享"
+L["/skillup share on|off - control sharing with guild and group"] =
+	"/skillup share on|off - 控制与公会和队伍共享"
 L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
 L["Recipes observed"] = "已观察配方"
-L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
-	"/su leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /su stats）"
+L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
+	"/skillup leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /skillup stats）"
 L["total"] = "总计"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
@@ -482,7 +485,6 @@ L["Waiting for Questie to finish loading."] = "正在等待Questie加载完毕�
 L["Nothing is tracked for %s."] = "没有正在追踪的 %s。" -- mt
 L["+%d more to train"] = "还有 %d 项要学习" -- mt
 L["Also train"] = "还要学习" -- mt
-L["Works again after updating."] = "更新后可以正常使用了。" -- mt
 L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
 	"Auctionator 列表：%s。打开拍卖行，进入“购买”标签，选择该列表并搜索；每次点击购买一行。"
 L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =
@@ -497,3 +499,7 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"开启“购买试剂”会写入一个 Auctionator 列表，包含所有仍缺少的拍卖行试剂。"
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"没有 Auctionator 时，配方的“搜索”按钮会一次一个试剂地填入游戏自带的拍卖搜索框。"
+L["The Professions window keeps one width and one page."] = "专业窗口保持同一宽度，只显示一个页面。" -- mt
+L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已过期。请更新它来解决此问题。" -- mt
+L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已过期。请更新它们来解决此问题。" -- mt
+L["%s could not start. Reinstall %s to fix this."] = "%s 无法启动。请重新安装 %s 来解决此问题。" -- mt

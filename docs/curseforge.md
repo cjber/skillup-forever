@@ -22,11 +22,11 @@ The route tab from 48 to 73: what to train, what to craft and where reagents com
 
 At the trainer, a green arrow marks the recipe that best extends or cheapens your route.
 
-![The Crafted gear tab with item slots down both sides and along the bottom, each showing the newest crafted item, and one slot's recipe, reagents and status in the middle](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/gear.png)
+![The Crafted gear tab: item slots around the edge with the newest crafted item, and one slot's recipe, reagents and status](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/gear.png)
 
 The gear tab, turned on in settings: each slot shows the newest thing this character could craft for it.
 
-![The Buffs tab with the Cooking buff timeline scrolled to the next rank, column skill numbers, the rank divider, the legend, and the selected buff's words, source and reagents](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/buffs.png)
+![The Buffs tab: the Cooking buff timeline by skill, its rank divider and legend, and the selected buff's words and reagents](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/buffs.png)
 
 The buffs tab: what each profession can make for your level, in columns on a skill timeline.
 

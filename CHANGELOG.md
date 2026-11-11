@@ -12,6 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **A profession's Shopping list shows only that profession's materials.** The button on the route page now tells the window which profession it is for, so Leatherworking's list no longer opens with a tracked Cooking plan's rows. A profession with nothing tracked says so rather than showing another profession's list (#566).
+- **The tracker says what its training count means.** `(+3 more)` is now `(+3 more to train)`, and hovering the line lists the other training stops and their skill levels under *Also train* (#557).
+
 ## [1.5.1] - 2026-11-11
 
 - **The tracker's rows can be made larger from SkillUp's settings.** A new *Tracker scale* slider in *Route and trainer* scales the shared Forever tracker from 50% to 200%, so its rows can match the size you find readable; 100% is the game's own tracker. Reported on CurseForge by Chuujitsuna (#517).

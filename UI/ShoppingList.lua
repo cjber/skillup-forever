@@ -5,7 +5,12 @@ if ns.broken then
 	return
 end
 local L = ns.L
-local frame, body, scroll, copyWindow, copyEdit, shown, footer, summary
+---@class SkillUpShoppingListFrame : Frame
+---@field scope integer?
+
+---@type SkillUpShoppingListFrame?
+local frame
+local body, scroll, copyWindow, copyEdit, shown, footer, summary
 -- The body's headings, rows and empty state, made once and reused: a refresh shows what it needs and hides the
 -- rest, so nothing from an earlier draw is left on the window (#553).
 ---@type table<string, FontString>
@@ -116,13 +121,26 @@ local function Refresh()
 	for _, heading in pairs(headingPool) do
 		heading:Hide()
 	end
-	local lists = ns.ShoppingList()
-	-- The window groups by source, not profession, so the header names every plan it is buying for.
+	local lists = ns.ShoppingList(frame.scope)
+	-- The window groups by source, not profession, so the header names every plan it is buying for: the
+	-- profession the page asked for, or every tracked plan when none did.
 	local plans = {}
+	local summaryText
 	for _, list in ipairs(lists) do
 		plans[#plans + 1] = string.format(L["%s to %d"], list.profession, list.target)
 	end
-	summary:SetText(#plans > 0 and string.format(L["Buying for %s"], table.concat(plans, ", ")) or "")
+	if #plans > 0 then
+		summaryText = string.format(L["Buying for %s"], table.concat(plans, ", "))
+	elseif frame.scope then
+		local profession = ns.RouteProfessions()[frame.scope] or ns.PlayerProfessions()[frame.scope]
+		summaryText = string.format(
+			L["Nothing is tracked for %s."],
+			profession and profession.name or string.format(L["profession %d"], frame.scope)
+		)
+	else
+		summaryText = ""
+	end
+	summary:SetText(summaryText)
 	local top, any, total, unpriced, drawn = -10, false, 0, 0, 0
 	local headings =
 		{ gather = L["Gather"], vendor = L["Vendor"], auction = L["Auction house"], unknown = L["Unknown"] }
@@ -208,6 +226,7 @@ local function Create()
 		return frame
 	end
 	frame = CreateFrame("Frame", addonName .. "ShoppingList", UIParent, "PortraitFrameTemplate")
+	---@cast frame SkillUpShoppingListFrame
 	table.insert(UISpecialFrames, addonName .. "ShoppingList")
 	frame:SetSize(620, 500)
 	frame:SetPoint("CENTER")
@@ -271,7 +290,7 @@ local function Create()
 	return frame
 end
 
-local ready, enteredWorld, variablesLoaded, pendingOpen = false, false, false, false
+local ready, enteredWorld, variablesLoaded, pendingOpen, pendingScope = false, false, false, false, nil
 local events = CreateFrame("Frame")
 events:RegisterEvent("PLAYER_ENTERING_WORLD")
 events:RegisterEvent("VARIABLES_LOADED")
@@ -288,19 +307,23 @@ events:SetScript("OnEvent", function(_, event)
 	C_Timer.After(0, function()
 		Create()
 		if pendingOpen then
+			frame.scope = pendingScope
 			frame:Show()
 			Refresh()
-			pendingOpen = false
+			pendingOpen, pendingScope = false, nil
 		end
 	end)
 end)
 
-function ns.OpenShoppingList()
+---@param skillLine integer? show only this profession's plan; nil shows every tracked plan
+function ns.OpenShoppingList(skillLine)
 	if not ready then
-		pendingOpen = true
+		pendingOpen, pendingScope = true, skillLine
 		return
 	end
-	Create():Show()
+	frame = Create()
+	frame.scope = skillLine
+	frame:Show()
 	Refresh()
 end
 ns.WhenStale("shoppingList", Refresh)

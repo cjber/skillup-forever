@@ -3,6 +3,7 @@
 -- follows the client's prices, bags and merchant through the plan.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
+local function noop() end
 
 local BANDAGE, HEAVY, SILK = 1, 2, 3
 local BOOK = 5000
@@ -44,7 +45,7 @@ local walked = ns.PlanRoute(ns.RouteProfessions()[129]).steps
 equal(walked[1].training and walked[1].training.recipeID, HEAVY, "the route page trains the recipe first")
 equal(walked[3].rank and walked[3].rank.name, "Journeyman", "and the rank after")
 equal(lines[1].key, "Train", "the tracker leads with training")
-equal(lines[1].text, "Train Heavy Linen Bandage at 40 |cff808080(+1 more)|r", "the same training")
+equal(lines[1].text, "Train Heavy Linen Bandage at 40 |cff808080(+1 more to train)|r", "the same training")
 equal(lines[2].key, SILK, "then the reagent still missing")
 
 ns.db.showTracker = false
@@ -293,5 +294,61 @@ c.player.name = "Tester"
 local bare = Client.load({ trackerManager = false })
 equal(bare.host.IsAttached(bare.G.SkillUpForeverObjectiveTracker), true, "the section needs no tracker manager")
 equal(#bare.chat, 0, "and says nothing about a missing tracker")
+
+-- #557: three training stops. The count says they are stops to train, and hovering the line lists the two
+-- that follow the first, each with the skill level TrainingSteps gave it.
+c.spells[BANDAGE] = "Linen Bandage"
+local trainingPlan = {
+	profession = { name = "First Aid", skillLine = 129, capped = false },
+	target = 150,
+	steps = {
+		{ training = { recipeID = BANDAGE, fee = 0, usedAt = 20, reqSkill = 20, cap = 21 } },
+		{ training = { recipeID = HEAVY, fee = 0, usedAt = 60, reqSkill = 60, cap = 61 } },
+		{ rank = { name = "Journeyman", cap = 150, reqSkill = 50, level = 0, fee = 500 } },
+	},
+	crafts = {},
+	ranks = {},
+	unpriced = 0,
+}
+local realTrackedNeeds, realNearestTrainer, realNearestForRank, realAddNearest =
+	ns.TrackedNeeds, ns.NearestTrainer, ns.NearestForRank, ns.AddNearest
+ns.TrackedNeeds = function()
+	return { { plan = trainingPlan, items = {} } }
+end
+ns.NearestTrainer = function()
+	return 77
+end
+ns.NearestForRank = function()
+	return 77, "Nearest trainer"
+end
+ns.AddNearest = noop
+local trainingLines = c.Tracker()[1].lines
+local firstText = "Train Linen Bandage at 20"
+local secondText = "Train Heavy Linen Bandage at 60"
+local thirdText = "Train Journeyman at 50"
+equal(trainingLines[1].key, "Train", "the training line leads")
+equal(
+	trainingLines[1].text,
+	firstText .. string.format(" |cff808080(%s)|r", string.format(ns.L["+%d more to train"], 2)),
+	"the suffix counts the other training stops"
+)
+local tooltipLines = {}
+c.G.GameTooltip = { SetOwner = noop, Show = noop }
+c.G.GameTooltip_SetTitle = function(_, text)
+	tooltipLines[#tooltipLines + 1] = text
+end
+c.G.GameTooltip_AddBlankLineToTooltip = noop
+c.G.GameTooltip_AddNormalLine = function(_, text)
+	tooltipLines[#tooltipLines + 1] = text
+end
+c.G.GameTooltip_Hide = noop
+trainingLines[1].frame.scripts.OnEnter(trainingLines[1].frame)
+local joined = table.concat(tooltipLines, "\n")
+equal(joined:find(firstText, 1, true) ~= nil, true, "the tooltip titles the first stop")
+equal(joined:find(ns.L["Also train"], 1, true) ~= nil, true, "under the training heading")
+equal(joined:find(secondText, 1, true) ~= nil, true, "and lists the second training stop")
+equal(joined:find(thirdText, 1, true) ~= nil, true, "and the third")
+ns.TrackedNeeds, ns.NearestTrainer, ns.NearestForRank, ns.AddNearest =
+	realTrackedNeeds, realNearestTrainer, realNearestForRank, realAddNearest
 
 Client.report("shopping_spec")

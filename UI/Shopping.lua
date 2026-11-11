@@ -856,7 +856,8 @@ local LINE_TEMPLATE = "SkillUpForeverTrackerLineTemplate"
 ---@param label string
 ---@param nearest fun(): integer?
 ---@param quest? boolean an Artisan quest step
-local function Waypointed(line, title, label, nearest, quest)
+---@param also? string[] other training stops, listed on the tooltip
+local function Waypointed(line, title, label, nearest, quest, also)
 	line:SetScript("OnMouseUp", function(_, button)
 		local npcID = button == "LeftButton" and nearest()
 		if npcID then
@@ -869,6 +870,13 @@ local function Waypointed(line, title, label, nearest, quest)
 		ns.AddNearest(GameTooltip, label, nearest())
 		if quest then
 			ns.AddQuestChainHint(GameTooltip)
+		end
+		if also and #also > 0 then
+			GameTooltip_AddBlankLineToTooltip(GameTooltip)
+			GameTooltip_AddNormalLine(GameTooltip, L["Also train"])
+			for _, text in ipairs(also) do
+				GameTooltip_AddNormalLine(GameTooltip, text)
+			end
 		end
 		GameTooltip:Show()
 	end)
@@ -967,14 +975,20 @@ local function LayoutEntry(self, entry)
 	local steps = TrainingSteps(plan)
 	block.steps = steps
 	if #steps > 0 then
-		local more = #steps > 1 and string.format(" |cff808080(%s)|r", string.format(L["+%d more"], #steps - 1)) or ""
+		local more = #steps > 1
+				and string.format(" |cff808080(%s)|r", string.format(L["+%d more to train"], #steps - 1))
+			or ""
 		local first = steps[1]
 		local npc, label = first.nearest()
+		local also = {}
+		for index = 2, #steps do
+			also[#also + 1] = steps[index].text
+		end
 		local line = block:AddObjective("Train", first.text .. more, npc and LINE_TEMPLATE or nil)
 		if npc then
 			Waypointed(line, first.text, label, function()
 				return (first.nearest(true))
-			end, first.quest and true)
+			end, first.quest and true, also)
 		end
 	end
 	local shown = 0

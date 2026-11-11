@@ -232,4 +232,86 @@ equal(anchor[3], "TOPRIGHT", "beside it")
 equal(anchor[4], 8, "with a small gap")
 equal(anchor[5], 0, "level with its top")
 
+-- #566: opening from a route page shows only that profession's plan, and a profession with nothing tracked
+-- says so instead of showing another tracked profession's materials.
+local LEATHERWORKING, COOKING, BLACKSMITHING = 165, 185, 164
+local LW_RECIPE, COOK_RECIPE = 11, 12
+local LW_ITEM, COOK_ITEM = 1101, 1201
+local scoped = Client.load({
+	boot = false,
+	saved = {
+		routeTargets = { [LEATHERWORKING] = 60, [COOKING] = 70 },
+		trackedProfessions = { [LEATHERWORKING] = true, [COOKING] = true },
+	},
+	data = {
+		Thresholds = { [LW_RECIPE] = { 1, 30, 45, 60 }, [COOK_RECIPE] = { 1, 30, 45, 60 } },
+		RecipeData = {
+			[LW_RECIPE] = { skillLine = LEATHERWORKING, reagents = { { itemID = LW_ITEM, quantity = 1 } } },
+			[COOK_RECIPE] = { skillLine = COOKING, reagents = { { itemID = COOK_ITEM, quantity = 1 } } },
+		},
+		TrainerFees = {},
+		TrainerRanks = {},
+		RankBooks = {},
+		ItemSellPrices = {},
+		GatheredBy = {},
+		LootedFrom = {},
+		VendorPrices = {},
+		ProfessionTrainers = {},
+		ScrollDrops = {},
+		WorldDrops = {},
+	},
+})
+scoped.professions = {
+	{ name = "Leatherworking", rank = 50, max = 75, id = 8165 },
+	{ name = "Cooking", rank = 50, max = 75, id = 8185 },
+	{ name = "Blacksmithing", rank = 50, max = 75, id = 8164 },
+}
+scoped.spells[LW_RECIPE], scoped.spells[COOK_RECIPE] = "Cured Leather", "Cooked Meat"
+scoped.known[LW_RECIPE], scoped.known[COOK_RECIPE] = true, true
+scoped.items[LW_ITEM], scoped.items[COOK_ITEM] = { name = "Light Leather" }, { name = "Raw Meat" }
+scoped.auction[LW_ITEM], scoped.auction[COOK_ITEM] = 10, 20
+scoped.Boot()
+scoped.Fire("PLAYER_ENTERING_WORLD")
+scoped.Fire("VARIABLES_LOADED")
+scoped.Advance(0)
+local function VisibleTexts(root)
+	local texts = {}
+	local function Walk(frame, visible)
+		visible = visible and frame:IsShown()
+		if visible and frame.text then
+			texts[#texts + 1] = frame.text
+		end
+		for _, child in ipairs({ frame:GetChildren() }) do
+			Walk(child, visible)
+		end
+	end
+	Walk(root, root:IsShown())
+	return table.concat(texts, "\n")
+end
+scoped.ns.OpenShoppingList(LEATHERWORKING)
+local scopedWindow = scoped.G.SkillUpForeverShoppingList
+local scopedBody = Find(scopedWindow, function(region)
+	return region.width == 550
+end)
+assert(scopedBody, "the scoped shopping list body was built")
+local scopedText = VisibleTexts(scopedBody)
+equal(scopedText:find("Light Leather", 1, true) ~= nil, true, "the asked-for profession's row shows")
+equal(scopedText:find("Raw Meat", 1, true), nil, "another tracked profession's row stays out")
+local summaryText = VisibleTexts(scopedWindow)
+equal(
+	summaryText:find(string.format(scoped.ns.L["%s to %d"], "Leatherworking", 60), 1, true) ~= nil,
+	true,
+	"the summary names the asked-for profession"
+)
+equal(summaryText:find("Cooking", 1, true), nil, "and not another tracked profession")
+scoped.ns.OpenShoppingList(BLACKSMITHING)
+local untrackedText = VisibleTexts(scopedWindow)
+equal(
+	untrackedText:find(string.format(scoped.ns.L["Nothing is tracked for %s."], "Blacksmithing"), 1, true) ~= nil,
+	true,
+	"an untracked profession says nothing is tracked for it"
+)
+equal(untrackedText:find("Raw Meat", 1, true), nil, "and no Cooking rows show")
+equal(untrackedText:find(scoped.ns.L["No tracked profession"], 1, true) ~= nil, true, "the empty message shows")
+
 Client.report("shopping list")

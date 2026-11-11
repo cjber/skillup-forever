@@ -1262,7 +1262,9 @@ local function CreateButtons()
 	local shoppingList = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate") --[[@as Button]]
 	shoppingList:SetSize(110, 22)
 	shoppingList:SetText(L["Shopping list"])
-	shoppingList:SetScript("OnClick", ns.OpenShoppingList)
+	shoppingList:SetScript("OnClick", function()
+		ns.OpenShoppingList(selected)
+	end)
 	page.ShoppingList = shoppingList
 end
 

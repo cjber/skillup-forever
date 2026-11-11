@@ -1,6 +1,6 @@
 -- Run from the repository root: luajit tests/shopping_tracker_anchor_spec.lua
 -- The reagent section's place in the column is ForeverCore's now: core builds the section, attaches it after the world
--- loads and owns wherever it hangs. This holds SkillUp to the parts that stay its own: the show switch, its rows, the
+-- loads and owns wherever it hangs. This holds SkillUp to the parts that stay its own: its rows, the
 -- old tracker table offered once and the failures core records for the section.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
@@ -72,16 +72,9 @@ equal(ns.TrackerAttached(), false, "and the attachment answer is core's")
 c.G.ForeverCore.TrackerHost = host
 equal(ns.TrackerAttached(), true, "the section is still in the column")
 
--- The show switch is SkillUp's setting, offered by core as Hide this section: turning it off hides the rows and
--- keeps the profession tracked, and turning it back on restores them.
-equal(type(module.show), "table", "core holds the section's show switch")
-equal(module.show.get(), true, "reading the setting SkillUp's own checkbox writes")
-module.show.set(false)
-equal(ns.db.showTracker, false, "hide this section turns the setting off")
-equal(#c.Tracker(), 0, "which hides every profession block")
-equal(ns.db.trackedProfessions[129], true, "and keeps the profession tracked")
-module.show.set(true)
-equal(#c.Tracker(), 1, "turning it back on restores the tracked profession")
+-- The section's visibility stays SkillUp's own Options setting: the column offers no Hide this section entry for it,
+-- as before the move to core.
+equal(module.show, nil, "the section passes no show switch to the column")
 
 -- Core's default CanUpdate holds the layout in combat, where moving a protected frame is refused.
 equal(module.CanUpdate(), true, "the section lays itself out out of combat")

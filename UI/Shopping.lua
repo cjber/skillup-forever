@@ -969,25 +969,12 @@ function ModuleMixin:LayoutContents()
 end
 
 local function CreateModule()
-	-- The shared host's Hide this section entry writes the same setting the Options row does, so the panel and
-	-- the tracker stay in step (UI/Settings.lua's Route and trainer page).
-	---@type ForeverTrackerShowSetting
-	local show = {
-		get = function()
-			return ns.db.showTracker
-		end,
-		set = function(shown)
-			Settings.SetValue("SkillUpForever_showTracker", shown)
-		end,
-		where = L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."],
-	}
 	-- ForeverCore builds and attaches the section after saved variables load, so no tracker frame, no shared host
 	-- and no old table is this file's problem: core records the first two and offers the third once. The column's
 	-- scale, Lock and position were SkillUp's before Forever Core kept them, so the player keeps the layout they
 	-- chose.
 	local created = ForeverCore.TrackerSection.Create("SkillUpForeverObjectiveTracker", ModuleMixin, {
 		header = ModuleMixin.headerText,
-		show = show,
 		legacy = function()
 			return ns.db
 		end,

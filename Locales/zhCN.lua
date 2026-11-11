@@ -373,6 +373,7 @@ L["/su report - show a report to copy into a bug report"] = "/su report - 显示
 L[": "] = "："
 L["A buy trip needs Shortest Path Forever."] = "购买行程需要 Shortest Path Forever。"
 L["Copy list"] = "复制列表"
+L["Copy shopping list"] = "复制购物清单"
 L["Gather"] = "采集"
 L["Need %d, have %d, missing %d  %s  %s each  %s"] = "需要 %d，已有 %d，缺少 %d  %s  每个 %s  %s"
 L["No tracked profession"] = "没有追踪的专业"

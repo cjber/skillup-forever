@@ -384,6 +384,7 @@ L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] =
 	"구매 경로를 계획하려면 Shortest Path Forever가 필요합니다."
 L["Copy list"] = "목록 복사"
+L["Copy shopping list"] = "구매 목록 복사"
 L["Gather"] = "채집"
 L["Need %d, have %d, missing %d  %s  %s each  %s"] = "필요 %d, 보유 %d, 부족 %d  %s  개당 %s  %s"
 L["No tracked profession"] = "추적 중인 전문 기술 없음"

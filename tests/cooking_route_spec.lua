@@ -223,4 +223,47 @@ equal(lns.IsLimitedStock(RAW_MACKEREL), nil, "a seen unlimited vendor clears the
 equal(lns.db.stock[RAW_MACKEREL][VENDOR_NPC], false, "and is saved as unlimited")
 equal(Reagent(lns.RouteReagents(limitedPlan), RAW_MACKEREL).limited, nil, "the route's reagent is no longer flagged")
 
+-- A limited item sold out when the window opens proves the limit: zero is saved as limited, at least one,
+-- and the highest count seen stays (#560).
+local soldOut = Client.load({
+	auctionator = false,
+	saved = {
+		sellers = {
+			[VENDOR_NPC] = {
+				name = "Fish Vendor",
+				side = "A",
+				map = 10,
+				x = 0.5,
+				y = 0.5,
+				items = { [RAW_MACKEREL] = true },
+			},
+		},
+	},
+	data = { LimitedStock = {} },
+})
+soldOut.level = 60
+soldOut.player.faction = "Alliance"
+soldOut.professions = { { name = "Cooking", id = COOKING, rank = 1, max = 75 } }
+soldOut.known[MACKEREL] = true
+soldOut.npc = { id = VENDOR_NPC, name = "Fish Vendor" }
+soldOut.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = 0 } }
+local ons = soldOut.ns
+ons.db.routeTargets[COOKING] = 45
+soldOut.Fire("MERCHANT_SHOW")
+equal(
+	ons.db.stock[RAW_MACKEREL] and ons.db.stock[RAW_MACKEREL][VENDOR_NPC],
+	1,
+	"a sold-out item is saved as limited, at least one"
+)
+equal(ons.IsLimitedStock(RAW_MACKEREL), 1, "and the route flags it limited")
+local soldPlan = ons.PlanRoute(Cooking())
+local soldFish = Reagent(ons.RouteReagents(soldPlan), RAW_MACKEREL)
+equal(soldFish and soldFish.limited, 1, "the route's reagent carries the limit")
+soldOut.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = 4 } }
+soldOut.Fire("MERCHANT_UPDATE")
+equal(ons.IsLimitedStock(RAW_MACKEREL), 4, "a later count raises the limit")
+soldOut.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = 0 } }
+soldOut.Fire("MERCHANT_UPDATE")
+equal(ons.IsLimitedStock(RAW_MACKEREL), 4, "a sold-out reading keeps the highest count seen")
+
 Client.report("cooking_route_spec")

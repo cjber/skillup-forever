@@ -374,6 +374,7 @@ L["/su report - show a report to copy into a bug report"] = "/su report - 顯示
 L[": "] = "："
 L["A buy trip needs Shortest Path Forever."] = "購買行程需要 Shortest Path Forever。"
 L["Copy list"] = "複製清單"
+L["Copy shopping list"] = "複製購物清單"
 L["Gather"] = "採集"
 L["Need %d, have %d, missing %d  %s  %s each  %s"] = "需要 %d，現有 %d，缺少 %d  %s  每個 %s  %s"
 L["No tracked profession"] = "沒有追蹤的專業"

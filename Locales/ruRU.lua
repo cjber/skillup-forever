@@ -401,6 +401,7 @@ L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] =
 	"Для поездки за покупками нужен Shortest Path Forever."
 L["Copy list"] = "Копировать список"
+L["Copy shopping list"] = "Копировать список покупок"
 L["Gather"] = "Добыча"
 L["Need %d, have %d, missing %d  %s  %s each  %s"] =
 	"Нужно %d, есть %d, не хватает %d  %s  %s за штуку  %s"

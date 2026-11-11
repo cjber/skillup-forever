@@ -378,6 +378,7 @@ L["/su report - show a report to copy into a bug report"] =
 L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] = "Uma viagem de compra precisa do Shortest Path Forever."
 L["Copy list"] = "Copiar lista"
+L["Copy shopping list"] = "Copiar lista de compras"
 L["Gather"] = "Coleta"
 L["Need %d, have %d, missing %d  %s  %s each  %s"] = "Precisa %d, tem %d, faltam %d  %s  %s cada  %s"
 L["No tracked profession"] = "Nenhuma profissão rastreada"

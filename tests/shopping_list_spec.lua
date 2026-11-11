@@ -149,4 +149,87 @@ equal(
 	"fallback explains the single waypoint"
 )
 equal(c.ns.ShoppingTrip(111), false, "a route with nothing missing is refused")
+
+-- #553: a refresh redraws the same headings, row frames and empty state. Nothing from an earlier draw stays
+-- on the body, so text cannot pile up and each refresh leaks no frame.
+c.Fire("PLAYER_ENTERING_WORLD")
+c.Fire("VARIABLES_LOADED")
+c.Advance(0)
+c.ns.OpenShoppingList()
+local window = c.G.SkillUpForeverShoppingList
+local function Find(root, match)
+	for _, child in ipairs({ root:GetChildren() }) do
+		if match(child) then
+			return child
+		end
+		local found = Find(child, match)
+		if found then
+			return found
+		end
+	end
+end
+local body = Find(window, function(region)
+	return region.width == 550
+end)
+assert(body, "the shopping list body was built")
+local function WithText(key)
+	local found = {}
+	for _, child in ipairs({ body:GetChildren() }) do
+		if child.text == key then
+			found[#found + 1] = child
+		end
+	end
+	return found
+end
+local headingTexts = {
+	c.ns.L["Gather"],
+	c.ns.L["Vendor"],
+	c.ns.L["Auction house"],
+	c.ns.L["Unknown"],
+}
+for _, key in ipairs(headingTexts) do
+	equal(#WithText(key), 1, "one " .. key .. " heading after the first refresh")
+end
+equal(#WithText(c.ns.L["No tracked profession"]), 0, "no empty text while rows show")
+
+local tracked = c.ns.db.trackedProfessions
+c.ns.db.trackedProfessions = {}
+c.ns.Changed("tracking")
+equal(#WithText(c.ns.L["No tracked profession"]), 1, "one empty text region, not one per refresh")
+equal(WithText(c.ns.L["No tracked profession"])[1]:IsShown(), true, "the empty text shows with no rows")
+for _, key in ipairs(headingTexts) do
+	equal(#WithText(key), 1, "the " .. key .. " heading is reused by an empty refresh")
+	equal(WithText(key)[1]:IsShown(), false, "and hidden when it has no rows")
+end
+local pooled = #body.children
+
+c.ns.db.trackedProfessions = tracked
+c.ns.Changed("tracking")
+equal(#body.children, pooled, "a refresh with rows again leaks no frame")
+for _, key in ipairs(headingTexts) do
+	equal(#WithText(key), 1, "one " .. key .. " heading after the second refresh with rows")
+	equal(WithText(key)[1]:IsShown(), true, "and the heading shows again")
+end
+equal(#WithText(c.ns.L["No tracked profession"]), 1, "one empty text region after both states")
+equal(WithText(c.ns.L["No tracked profession"])[1]:IsShown(), false, "empty text hidden when rows show again")
+
+-- The copy window has its own title and opens beside the list it copies.
+local copyButton
+for _, child in ipairs({ window:GetChildren() }) do
+	if child.text == c.ns.L["Copy list"] then
+		copyButton = child
+	end
+end
+assert(copyButton, "the Copy list button was built")
+copyButton.scripts.OnClick(copyButton)
+local copyWindow = c.G.SkillUpForeverShoppingCopy
+assert(copyWindow, "the copy window was built")
+equal(copyWindow.title, c.ns.L["Copy shopping list"], "the copy window has its own title")
+local anchor = copyWindow.points[1]
+equal(anchor[1], "TOPLEFT", "the copy window anchors from its top left")
+equal(anchor[2], window, "to the shopping list window")
+equal(anchor[3], "TOPRIGHT", "beside it")
+equal(anchor[4], 8, "with a small gap")
+equal(anchor[5], 0, "level with its top")
+
 Client.report("shopping list")

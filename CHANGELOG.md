@@ -19,6 +19,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **The side tab is ForeverCore's.** SkillUp registers it with `ForeverCore.ProfessionTabs.Register`, so core owns where it sits, which tab is checked and handing the window back. The wide recipe list raises the tab's one width with `ProfessionTabs.SetMinWidth`. The addon now requires the ForeverCore release with `ProfessionTabs.minor` 1.
 
+## [1.6.3] - 2026-11-11
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
 ## [1.6.2] - 2026-11-11
 
 - **Tells you which addon to update.** If another Forever addon you have installed is older than this one and stops it starting, the message now names that addon, so you know exactly what to update.

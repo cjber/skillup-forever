@@ -78,12 +78,33 @@ end
 -- element it is given. A weak key lets a released frame be collected.
 local built = setmetatable({}, { __mode = "k" })
 
+-- The hover, menu and click every list frame shares: its tooltip on hover, a right-click's menu when it has
+-- one, and the frame's own click on any other button.
+---@param frame SkillUpListRow|SkillUpListLine
+local function Wire(frame)
+	-- art-ok: the quest log's highlight bar, stretched over the row as a bar is
+	frame:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+	frame.UpdateTooltip = UpdateTooltip
+	frame:SetScript("OnEnter", OnEnter)
+	frame:SetScript("OnLeave", GameTooltip_Hide)
+	frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	frame:SetScript("OnClick", function(_, button)
+		if button == "RightButton" then
+			if frame.menu then
+				GameTooltip_Hide()
+				ForeverCore.ContextMenu(frame, frame.menu)
+			end
+		elseif frame.click then
+			frame.click(frame)
+		end
+	end)
+end
+
 -- The parts a row draws once, whatever entry it later holds.
 ---@param row SkillUpListRow
 local function BuildRow(row)
 	row.kind = "row"
-	-- art-ok: the quest log's highlight bar, stretched over the row as a bar is
-	row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+	Wire(row)
 	-- The row that is the next thing to do keeps a gold highlight of its own, so the name can stay in the
 	-- recipe's difficulty colour (#574).
 	row.Current = row:CreateTexture(nil, "BACKGROUND")
@@ -92,21 +113,6 @@ local function BuildRow(row)
 	row.Current:SetAlpha(0.55)
 	row.Current:SetAllPoints(row)
 	row.Current:Hide()
-	row.UpdateTooltip = UpdateTooltip
-	row:SetScript("OnEnter", OnEnter)
-	row:SetScript("OnLeave", GameTooltip_Hide)
-	-- A right-click opens the row's menu when it has one; any other click is the row's own.
-	row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	row:SetScript("OnClick", function(_, button)
-		if button == "RightButton" then
-			if row.menu then
-				GameTooltip_Hide()
-				ForeverCore.ContextMenu(row, row.menu)
-			end
-		elseif row.click then
-			row.click(row)
-		end
-	end)
 	row.Icon = row:CreateTexture(nil, "ARTWORK")
 	row.Icon:SetSize(ICON_SIZE, ICON_SIZE)
 	row.Icon:SetPoint("LEFT", 6, 0)
@@ -283,22 +289,7 @@ end
 ---@param line SkillUpListLine
 local function BuildLine(line)
 	line.kind = "line"
-	-- art-ok: the quest log's highlight bar, stretched over the line as a bar is
-	line:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	line.UpdateTooltip = UpdateTooltip
-	line:SetScript("OnEnter", OnEnter)
-	line:SetScript("OnLeave", GameTooltip_Hide)
-	line:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	line:SetScript("OnClick", function(_, button)
-		if button == "RightButton" then
-			if line.menu then
-				GameTooltip_Hide()
-				ForeverCore.ContextMenu(line, line.menu)
-			end
-		elseif line.click then
-			line.click(line)
-		end
-	end)
+	Wire(line)
 	line.Icon = line:CreateTexture(nil, "ARTWORK")
 	line.Icon:SetPoint("LEFT", 8, 0)
 	line.Text = line:CreateFontString(nil, "OVERLAY", "GameFontHighlight")

@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.5.2] - 2026-11-11
+
 - **A profession's Shopping list shows only that profession's materials.** The button on the route page now tells the window which profession it is for, so Leatherworking's list no longer opens with a tracked Cooking plan's rows. A profession with nothing tracked says so rather than showing another profession's list (#566).
 - **The tracker says what its training count means.** `(+3 more)` is now `(+3 more to train)`, and hovering the line lists the other training stops and their skill levels under *Also train* (#557).
 

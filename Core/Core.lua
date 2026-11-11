@@ -104,7 +104,7 @@ ns.REAGENT_TOOLTIP_OPTIONS = {
 ns.TITLE = "SkillUp Forever"
 -- The chat line after an update: one sentence for the release being tagged, the bold lead of one of its
 -- CHANGELOG.md bullets (tests/core_spec.lua holds it to the newest entry).
-ns.WHATS_NEW = L["The tracker's rows can be made larger from SkillUp's settings."]
+ns.WHATS_NEW = L["A profession's Shopping list shows only that profession's materials."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

@@ -910,8 +910,8 @@ for _, heading in ipairs(headings) do
 	equal(overlaps(heading, ProfessionsFrame.portrait), false, heading.text .. " misses the portrait")
 end
 
--- The switch and its label are one control in the header; the Track checkbox, Craft, the count box and the
--- vendor button share the bottom row, right to left, at their one fixed width each.
+-- The switch and its label are one control in the header; the Track checkbox, the Replan button, Craft, the count
+-- box and the vendor button share the bottom row, right to left, at their one fixed width each.
 local controls = {
 	page.Collect,
 	page.CollectLabel,
@@ -921,6 +921,7 @@ local controls = {
 	page.CraftCount,
 	page.Track,
 	page.TrackLabel,
+	page.Replan,
 }
 local names = {
 	"the switch",
@@ -931,6 +932,7 @@ local names = {
 	"Craft's count",
 	"Track",
 	"Track's label",
+	"Replan",
 }
 
 for index, control in ipairs(controls) do
@@ -971,6 +973,10 @@ equal(trackLabelAnchor.relativePoint, "RIGHT", "so the checkbox keeps the row's 
 local trackAnchor = page.Track.points[1]
 equal(trackAnchor.relative, insets[1], "and the checkbox sits at the route's bottom left")
 equal(trackAnchor.relativePoint, "BOTTOMLEFT", "where the row starts")
+local replanAnchor = page.Replan.points[1]
+equal(replanAnchor.relative, page.TrackLabel, "Replan sits after the Track label")
+equal(replanAnchor.relativePoint, "RIGHT", "in the bottom row's free space")
+equal(Width(page.Replan), 80, "at its one fixed width")
 equal(Width(page.Craft), 100, "the craft button keeps one width")
 equal(Width(page.CraftCount), 62, "and the count box keeps its own")
 equal(page.CraftCount.template, "NumericInputSpinnerTemplate", "the count uses the game's spinner count box")

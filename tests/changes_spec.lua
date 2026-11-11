@@ -174,7 +174,9 @@ end
 equal(Plans(BOLT), false, "an unlearned recipe is not planned")
 c.known[BOLT] = true
 c.Fire("NEW_RECIPE_LEARNED")
-equal(Plans(BOLT), true, "a newly learned recipe is planned at once")
+equal(Plans(BOLT), false, "a newly learned recipe does not swap the route the player is following")
+ns.Changed("replan")
+equal(Plans(BOLT), true, "a route asked for afresh plans it at once")
 
 -- One event that means two things is still one pass: every cache and view once.
 c.professions[2] = { name = "Herbalism", rank = 1, max = 75, id = 182 }
@@ -228,6 +230,11 @@ ns.RouteReagents = realReagents
 equal(Stale(c.AuctionatorScan), "prices plans api | route recipeList tracker", "an Auctionator scan")
 equal(Stale(Changed("fees")), "plans api | route tracker", "fees recorded at a trainer")
 equal(Stale(Changed("target")), "plans api | route tracker", "a new target")
+equal(
+	Stale(Changed("replan")),
+	"plans api | route recipeList tracker trainer",
+	"the page's Replan button: every view that draws a plan"
+)
 equal(
 	Stale(function()
 		ns.SetTracked(197, true)

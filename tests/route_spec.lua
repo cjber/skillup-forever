@@ -897,6 +897,21 @@ local function Drain()
 	end
 end
 
+-- The page's Replan button is the player asking for the route afresh: a route they are following is planned
+-- again only from here, from a page control, or when a step of it can no longer be walked (#621).
+local replanned = 0
+local changedBefore = page.Changed
+page.Changed = function(kind)
+	if kind == "replan" then
+		replanned = replanned + 1
+	end
+	return changedBefore(kind)
+end
+equal(page.routeSpec.page.Replan.text, "Replan", "the page has a Replan button")
+page.routeSpec.page.Replan.scripts.OnClick(page.routeSpec.page.Replan)
+equal(replanned, 1, "clicking it asks for the route afresh")
+page.Changed = changedBefore
+
 -- A bag update and a skill change both redraw the reagent have/need while the page is open.
 local have = 0
 page.Have = function(itemID)

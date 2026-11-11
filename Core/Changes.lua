@@ -16,6 +16,8 @@ local ORDER = {
 	"schematics",
 	"prices",
 	"plans",
+	"replan",
+	"bags",
 	"trackedNeeds",
 	"tooltipRoute",
 	"tooltipRouteTools",
@@ -130,8 +132,10 @@ local STALE = {
 	},
 	-- A bag change does not drop `trackedNeeds`: UI/Shopping.lua's plan and missing-tool key tells a tool
 	-- that came or went from a bag of unrelated loot. The tooltip's item lines do not read the bags at all;
-	-- only the route index does, and only when the tools a route lacks actually moved.
-	bags = { tooltipRouteTools = true, api = true, route = true, tracker = true, shoppingList = true },
+	-- only the route index does, and only when the tools a route lacks actually moved. `bags` is Plan.lua's own
+	-- check, made when something next asks for the plan: a route a step can no longer afford to craft is planned
+	-- afresh there, and any other bag change keeps it (#621).
+	bags = { bags = true, tooltipRouteTools = true, api = true, route = true, tracker = true, shoppingList = true },
 	-- Item data arrived; `names` when the public list was waiting on it. An item tooltip's lines hold no item
 	-- name, and a route's tooltip lines hold no shopping source, so `tooltipCache` and `tooltipRoute` stay.
 	-- `trackedNeeds` stays too: the one item-data input its list reads, a vendor sell price
@@ -213,6 +217,8 @@ local STALE = {
 		tooltipRoute = true,
 		prices = true,
 		plans = true,
+		-- A setting is the player's own choice: the route they were following is planned again from it.
+		replan = true,
 		trackedNeeds = true,
 		api = true,
 		route = true,
@@ -225,6 +231,22 @@ local STALE = {
 		buffs = true,
 		auctionSearch = true,
 		detailsBar = true,
+		shoppingList = true,
+	},
+	-- The page's Replan button: the player asked for this route afresh, so the one they were following is
+	-- forgotten (`replan`) and every view that draws a plan goes with the plans. Nothing else moved.
+	replan = {
+		tooltipCache = true,
+		tooltipRoute = true,
+		plans = true,
+		replan = true,
+		trackedNeeds = true,
+		api = true,
+		route = true,
+		recipeList = true,
+		tracker = true,
+		trainer = true,
+		auctionSearch = true,
 		shoppingList = true,
 	},
 }

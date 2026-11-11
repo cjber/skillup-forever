@@ -1401,6 +1401,24 @@ local function CreateButtons()
 		ns.OpenShoppingList(selected)
 	end)
 	page.ShoppingList = shoppingList
+
+	-- Today's prices, recipes and bags are no reason to swap the recipes the player has shopped for: the route
+	-- is planned again only when they ask here, by another target or the buy switch, or when it can no longer
+	-- be walked (#621).
+	local replan = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate") --[[@as Button]]
+	replan:SetSize(80, 22)
+	replan:SetText(L["Replan"])
+	replan:SetScript("OnClick", function()
+		ns.Changed("replan")
+	end)
+	replan:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP")
+		GameTooltip_SetTitle(GameTooltip, L["Replan"])
+		GameTooltip_AddNormalLine(GameTooltip, L["Plan this route again from today's prices and recipes."])
+		GameTooltip:Show()
+	end)
+	replan:SetScript("OnLeave", GameTooltip_Hide)
+	page.Replan = replan
 end
 
 -- Occupies the crafting page's place, as the overview page does.
@@ -1437,6 +1455,8 @@ local function CreatePage()
 	page.CraftCount:SetPoint("RIGHT", page.Craft, "LEFT", -4, 0)
 	page.Vendor:SetPoint("RIGHT", page.CraftCount, "LEFT", -8, 0)
 	page.ShoppingList:SetPoint("RIGHT", page.Vendor, "LEFT", -8, 0)
+	-- Replan sits after Track, where the row starts: the actions end at the reagents' edge.
+	page.Replan:SetPoint("LEFT", page.TrackLabel, "RIGHT", 20, 0)
 	-- The portrait follows the profession shown here, and is given back on the way out.
 	local portrait
 	page:SetScript("OnShow", function()

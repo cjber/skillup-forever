@@ -193,6 +193,7 @@ L["Recipes from vendors, quests and drops that would carry it on:"] =
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
 	"在專業技能訓練師的配方上顯示所需技能、技能提升機率和成本，並指出你的路線下一步最適合學習哪個。"
 L["Requires"] = "需要"
+L["Replan"] = "重新規劃"
 L["Route"] = "路線"
 L["Route and trainer"] = "路線和訓練師"
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
@@ -384,6 +385,7 @@ L["No tracked profession"] = "沒有追蹤的專業"
 L["Nothing is missing from the shopping list."] = "購物清單裡沒有缺少的東西。"
 L["Nothing to buy"] = "沒有要買的東西"
 L["Plan buy trip"] = "規劃購買"
+L["Plan this route again from today's prices and recipes."] = "依照今天的價格和配方重新規劃此路線。"
 L["Shopping list"] = "購物清單"
 L["Shortest Path Forever cannot plan the full trip; setting a waypoint to the first vendor."] =
 	"Shortest Path Forever 無法規劃整個行程；已設定前往第一個商人的導航點。"

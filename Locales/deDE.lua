@@ -201,6 +201,7 @@ L["Recipes from vendors, quests and drops that would carry it on:"] =
 L["Required skill, skill-up chance and cost on profession trainer recipes, and which one is best to train next for your route."] =
 	"Benötigte Fertigkeit, Chance auf Fertigkeitspunkt und Kosten bei Rezepten von Berufslehrern, und welches Ihr für Eure Route als Nächstes lernen solltet."
 L["Requires"] = "Benötigt"
+L["Replan"] = "Neu planen"
 L["Route"] = "Route"
 L["Route and trainer"] = "Route und Lehrer"
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
@@ -385,6 +386,8 @@ L["No tracked profession"] = "Kein Beruf verfolgt"
 L["Nothing is missing from the shopping list."] = "Auf der Einkaufsliste fehlt nichts."
 L["Nothing to buy"] = "Nichts zu kaufen"
 L["Plan buy trip"] = "Einkaufsreise planen"
+L["Plan this route again from today's prices and recipes."] =
+	"Diese Route mit den heutigen Preisen und Rezepten neu planen."
 L["Shopping list"] = "Einkaufsliste"
 L["Shortest Path Forever cannot plan the full trip; setting a waypoint to the first vendor."] =
 	"Shortest Path Forever kann die ganze Reise nicht planen; Wegpunkt zum ersten Händler wird gesetzt."

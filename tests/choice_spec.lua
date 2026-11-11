@@ -80,7 +80,9 @@ c.AuctionatorScan()
 equal(ns.Price(ORE).copper, 5, "the vendor sell price is the floor")
 equal(ns.Price(ORE).worth, "vendor", "and is where the value came from")
 equal(ns.PriceSourceText(ns.Price(ORE)), "you gather it (Mining), valued at its vendor sell price", "said so")
-equal(Plan().crafts[1].recipeID, FROM_ORE, "worth little, the ore recipe is back")
+equal(Plan().crafts[1].recipeID, FROM_FLUX, "a cheaper price alone does not swap the route being followed")
+ns.Changed("replan")
+equal(Plan().crafts[1].recipeID, FROM_ORE, "asking for a route afresh, worth little, the ore recipe is back")
 
 -- With no auction price at all, the vendor sell price alone; a secret sell price is never computed with.
 c.auction[ORE] = nil

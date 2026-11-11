@@ -1178,6 +1178,7 @@ local route = {
 	collectLabel = Widget(page.CollectLabel),
 	vendor = Widget(page.Vendor),
 	shoppingList = Widget(page.ShoppingList),
+	replan = Widget(page.Replan),
 	lists = {},
 }
 for _, list in ipairs(lists) do
@@ -2364,6 +2365,11 @@ def route_frame(ui, scene_data):
     panel_button(
         canvas, count_x - 8 - 120 - 8 - 110, bottom + 10, 110, 22, shopping["text"], shopping.get("enabled", True)
     )
+    # Replan starts the bottom row's free space after Track: it hangs off the Track label's right edge, as the
+    # label hangs off the 26 px checkbox, its text drawn 3 units right.
+    replan = route["replan"]
+    replan_x = route_x + 26 + 3 + canvas.text_width(track_label, F_NORMAL_SMALL) + 20
+    panel_button(canvas, replan_x, bottom + 10, replan.get("width") or 80, 22, replan["text"], True)
     profession_tabs(canvas, fx, fy, "route")
     portrait_frame_art(canvas, fx, fy, FRAME_W, FRAME_H, route["portrait"], "Leatherworking")
     return canvas

@@ -14,6 +14,12 @@ The SkillUp side tab on the Professions window opens the SkillUp page you used l
 - Recipes with an unpriced reagent are left out and counted.
 - Recipes you said *Not this recipe* to are left out (see below).
 
+### It stays put
+
+A route is planned once and then followed. Buying its reagents, looting, or the auction scan that comes with a purchase does not swap its recipes: the page keeps the route you set out to craft, with today's prices, fees and counts against it. Left alone, the route changes on its own only when it can no longer be followed: a recipe in it is not known and not learnable, a reagent it needs is not in your bags and has no price, or a live colour says a step would no longer gain skill. A recipe you learn, or a price that moves, waits for you to ask.
+
+Ask with *Replan*, beside Track, to plan the same target again from today's prices and recipes. A new target, the *Buy reagents* switch, *Not this recipe*, a pin or a change in the options panel plan it again too, since each is your own instruction about what the route should be.
+
 ### Pin a recipe
 
 Right-click a step or suggestion and choose *Pin for skill-ups* to prefer it throughout its usable skill range, even when another recipe is cheaper. The newest pin wins where ranges overlap. Pins belong to this character and remain until you choose *Unpin recipe*. Pinning restores a skipped recipe; skipping a pinned recipe removes its pin.

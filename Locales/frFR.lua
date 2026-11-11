@@ -504,5 +504,4 @@ L["Waiting for Questie to finish loading."] = "En attente du chargement complet 
 L["Nothing is tracked for %s."] = "Rien n'est suivi pour %s." -- mt
 L["+%d more to train"] = "+%d autres à apprendre" -- mt
 L["Also train"] = "À apprendre aussi" -- mt
-L["A profession's Shopping list shows only that profession's materials."] =
-	"La liste d'achats de SkillUp n'affiche que les matériaux de cette profession." -- mt
+	L["Game data now matches Forever build 1.60.1.70888."] = "Les données du jeu correspondent désormais à la version 1.60.1.70888 de Forever." -- mt

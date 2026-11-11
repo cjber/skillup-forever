@@ -489,5 +489,4 @@ L["Waiting for Questie to finish loading."] = "正在等待Questie載入完畢�
 L["Nothing is tracked for %s."] = "沒有正在追蹤的 %s。" -- mt
 L["+%d more to train"] = "還有 %d 項要學習" -- mt
 L["Also train"] = "還要學習" -- mt
-L["A profession's Shopping list shows only that profession's materials."] =
-	"SkillUp 的購物清單只顯示該專業的材料。" -- mt
+	L["Game data now matches Forever build 1.60.1.70888."] = "遊戲資料現在已與 Forever 版本 1.60.1.70888 一致。" -- mt

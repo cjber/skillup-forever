@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.5.3] - 2026-11-11
+
+- **Game data now matches Forever build 1.60.1.70888.** The recipes, trainer fees, vendor prices and skill-up thresholds were regenerated from the build the client publishes today, so a profession's route reflects what the game now says rather than last week's build.
+
 ## [1.5.2] - 2026-11-11
 
 - **A profession's Shopping list shows only that profession's materials.** The button on the route page now tells the window which profession it is for, so Leatherworking's list no longer opens with a tracked Cooking plan's rows. A profession with nothing tracked says so rather than showing another profession's list (#566).

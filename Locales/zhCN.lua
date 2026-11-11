@@ -487,3 +487,6 @@ L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vend
 L["The tracker's rows can be made larger from SkillUp's settings."] =
 	"可以在 SkillUp 的设置中放大追踪器行。" -- mt
 L["Waiting for Questie to finish loading."] = "正在等待Questie加载完毕。"
+L["Nothing is tracked for %s."] = "没有正在追踪的 %s。" -- mt
+L["+%d more to train"] = "还有 %d 项要学习" -- mt
+L["Also train"] = "还要学习" -- mt

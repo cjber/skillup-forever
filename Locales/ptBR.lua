@@ -497,3 +497,6 @@ L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vend
 L["The tracker's rows can be made larger from SkillUp's settings."] =
 	"As linhas do rastreador podem ser aumentadas nas configurações do SkillUp." -- mt
 L["Waiting for Questie to finish loading."] = "Aguardando o Questie terminar de carregar."
+L["Nothing is tracked for %s."] = "Nada está sendo acompanhado para %s." -- mt
+L["+%d more to train"] = "+%d mais para aprender" -- mt
+L["Also train"] = "Também aprender" -- mt

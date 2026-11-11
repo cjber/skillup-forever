@@ -505,3 +505,6 @@ L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vend
 L["The tracker's rows can be made larger from SkillUp's settings."] =
 	"SkillUp 설정에서 추적기 줄을 더 크게 만들 수 있습니다." -- mt
 L["Waiting for Questie to finish loading."] = "Questie 불러오기가 끝나기를 기다리는 중입니다."
+L["Nothing is tracked for %s."] = "%s에 대해 추적 중인 항목이 없습니다." -- mt
+L["+%d more to train"] = "+%d개 더 배우기" -- mt
+L["Also train"] = "추가 학습" -- mt

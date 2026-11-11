@@ -44,3 +44,5 @@ L["Buffs by %s skill"] = "Buffs by %s skill"
 L["Skill  %d/%d"] = "Skill  %d/%d"
 L["Other crafters"] = "Other crafters"
 L["No profession here makes buff items."] = "No profession here makes buff items."
+L["The addon's own icon is the same everywhere it appears in game."] =
+	"The addon's own icon is the same everywhere it appears in game."

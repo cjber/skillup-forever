@@ -487,5 +487,5 @@ L["TradeSkillMaster has no price for these reagents: update its AuctionDB with t
 	"TradeSkillMaster hat keinen Preis für diese Reagenzien: Aktualisiert seine AuctionDB mit der TSM-Desktop-App." -- mt
 L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."] =
 	"Aktualisiert TradeSkillMasters AuctionDB mit der TSM-Desktop-App oder besucht einen Händler, um Reagenzien zu bepreisen." -- mt
-L["Needs Forever Core."] = "Benötigt Forever Core." -- mt
+L["The addon's own icon is the same everywhere it appears in game."] = "Überall dasselbe Symbol." -- mt
 L["Waiting for Questie to finish loading."] = "Warte, bis Questie fertig geladen ist."

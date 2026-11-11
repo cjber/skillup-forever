@@ -12,9 +12,11 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-11
+
+<!-- discord-image: docs/screenshots/route.png -->
+
 - **The addon's own icon is the same everywhere it appears in game.** The Professions side tab, the shopping windows and the leaderboard tab now all show the same scroll.
-- **The shopping list stops stacking old lines when it refreshes.** Headings, item rows and the empty message are drawn again in place instead of being added on top of the last draw, so a list that changes no longer shows two Vendor headings or text over a row. The Copy list window has its own title and opens beside the list it copies (#553).
-- **A sold out vendor item now counts as limited stock.** The vendor window showed none left and SkillUp ignored it, so an item whose stock is limited looked unlimited to the route. It now saves the sold out item as limited, keeping the highest count seen, at least one (#560).
 
 ### For addon authors
 

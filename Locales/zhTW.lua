@@ -481,7 +481,7 @@ L["Waiting for Questie to finish loading."] = "正在等待Questie載入完畢�
 L["Nothing is tracked for %s."] = "沒有正在追蹤的 %s。" -- mt
 L["+%d more to train"] = "還有 %d 項要學習" -- mt
 L["Also train"] = "還要學習" -- mt
-L["Forever Core now installs alongside it."] = "Forever Core 現在會隨插件一起安裝。" -- mt
+L["Buy reagents is on for a new character."] = "新角色預設開啟購買材料。" -- mt
 L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."] =
 	"Auctionator 清單：%s。開啟拍賣場，進入「購買」分頁，選擇該清單並搜尋；每次點擊購買一列。"
 L["On (the default), a reagent you could gather, fish or loot from creatures is bought at a vendor or the auction house. Off, getting it yourself costs nothing."] =

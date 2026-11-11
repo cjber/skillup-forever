@@ -253,6 +253,7 @@ function ns.RegisterSettings()
 					host.SetScale(value / 100)
 				end
 			)
+			---@cast scale SkillUpSetting
 			local scaleOptions = Settings.CreateSliderOptions(50, 200, 10)
 			scaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return value .. "%"

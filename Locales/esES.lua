@@ -203,6 +203,8 @@ L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
 	"Ruta incompleta: %d recetas excluidas, sus componentes aún no tienen precio."
 L["Route needs"] = "La ruta necesita"
 L["Route: %d/%d · %s to %d"] = "Ruta: %d/%d · %s hasta %d"
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"Cambia el tamaño del rastreador Forever compartido. 100 % coincide con el rastreador del juego."
 L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."] =
 	"Escanea la casa de subastas con Auctionator o visita a un vendedor para poner precio a los componentes."
 L["Scroll"] = "Receta"
@@ -263,6 +265,7 @@ L["Tooltips and sorting"] = "Descripciones y orden"
 L["Total %s"] = "Total %s"
 L["Track"] = "Seguir"
 L["Tracked routes (Shift for all)"] = "Rutas seguidas (Mayús para todas)"
+L["Tracker scale"] = "Tamaño del rastreador"
 L["Train %s"] = "Aprender %s"
 L["Train %s at %d"] = "Aprender %s a %d"
 L["Train %s at %d (level %d)"] = "Aprender %s a %d (nivel %d)"

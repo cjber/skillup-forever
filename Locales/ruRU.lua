@@ -214,6 +214,8 @@ L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
 	"Маршрут неполный: пропущено рецептов: %d, у их реагентов еще нет цен."
 L["Route needs"] = "Нужно маршруту"
 L["Route: %d/%d · %s to %d"] = "Маршрут: %d/%d · %s до %d"
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"Меняет размер общей панели отслеживания Forever. 100% – как панель отслеживания игры."
 L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."] =
 	"Просканируйте аукцион с Auctionator или посетите торговца, чтобы узнать цены реагентов."
 L["Scroll"] = "Рецепт"
@@ -277,6 +279,7 @@ L["Tooltips and sorting"] = "Подсказки и сортировка"
 L["Total %s"] = "Всего %s"
 L["Track"] = "Отслеживать"
 L["Tracked routes (Shift for all)"] = "Отслеживаемые маршруты (SHIFT — все)"
+L["Tracker scale"] = "Размер панели отслеживания"
 L["Train %s"] = "Изучить %s"
 L["Train %s at %d"] = "Изучить %s на %d"
 L["Train %s at %d (level %d)"] = "Изучить %s на %d (уровень %d)"

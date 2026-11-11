@@ -38,6 +38,8 @@ L["Keeps the shared Forever tracker where you put it. The grip at its top no lon
 	"Hält die gemeinsame Forever-Verfolgung dort, wo Ihr sie hingelegt habt. Der Griff oben zieht sie nicht mehr."
 L["Lock the tracker"] = "Verfolgung sperren"
 
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"Skaliert die gemeinsame Forever-Verfolgung. 100 % entspricht der Verfolgung des Spiels."
 L["Show thresholds bar on the recipe"] = "Fertigkeitsbalken beim Rezept anzeigen" -- mt
 L["The orange, yellow, green and grey thresholds and where your skill sits, under the recipe in the Professions window. Turn it off if it covers the reagents."] =
 	"Die orangen, gelben, grünen und grauen Schwellen und wo Eure Fertigkeit liegt, unter dem Rezept im Berufsfenster. Ausschalten, wenn er die Reagenzien verdeckt." -- mt
@@ -264,6 +266,7 @@ L["Tooltips and sorting"] = "Tooltips und Sortierung"
 L["Total %s"] = "Gesamt %s"
 L["Track"] = "Verfolgen"
 L["Tracked routes (Shift for all)"] = "Verfolgte Routen (Umschalt für alle)"
+L["Tracker scale"] = "Größe der Verfolgung"
 L["Train %s"] = "%s lernen"
 L["Train %s at %d"] = "%s bei %d lernen"
 L["Train %s at %d (level %d)"] = "%s bei %d lernen (Stufe %d)"

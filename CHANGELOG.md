@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The tracker's rows can be made larger from SkillUp's settings.** A new *Tracker scale* slider in *Route and trainer* scales the shared Forever tracker from 50% to 200%, so its rows can match the size you find readable; 100% is the game's own tracker. Reported on CurseForge by Chuujitsuna (#517).
+
 ## [1.5.0] - 2026-11-11
 
 <!-- discord-image: docs/screenshots/shopping-list.png -->

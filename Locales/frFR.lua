@@ -206,6 +206,8 @@ L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
 	"Parcours incomplet : %d recettes écartées, leurs composants n'ont pas encore de prix." -- mt
 L["Route needs"] = "Requis par le parcours" -- mt
 L["Route: %d/%d · %s to %d"] = "Parcours : %d/%d · %s jusqu'à %d" -- mt
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"Ajuste la taille du suivi Forever partagé. 100 % correspond au suivi du jeu." -- mt
 L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."] =
 	"Analysez l'hôtel des ventes avec Auctionator, ou rendez visite à un marchand, pour estimer les composants." -- mt
 L["Scroll"] = "Recette" -- mt
@@ -266,6 +268,7 @@ L["Tooltips and sorting"] = "Infobulles et tri" -- mt
 L["Total %s"] = "Total %s" -- mt
 L["Track"] = "Suivre" -- mt
 L["Tracked routes (Shift for all)"] = "Parcours suivis (Maj pour tous)" -- mt
+L["Tracker scale"] = "Taille du suivi" -- mt
 L["Train %s"] = "Apprendre %s" -- mt
 L["Train %s at %d"] = "Apprendre %s à %d" -- mt
 L["Train %s at %d (level %d)"] = "Apprendre %s à %d (niveau %d)" -- mt

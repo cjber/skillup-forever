@@ -198,6 +198,8 @@ L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
 	"路線不完整：遺漏了%d個配方，其材料尚無價格。"
 L["Route needs"] = "路線需要"
 L["Route: %d/%d · %s to %d"] = "路線：%d/%d · %s至%d"
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"調整共用Forever追蹤器的大小。100%與遊戲本身的追蹤器一致。"
 L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."] =
 	"用Auctionator掃描拍賣場或造訪商人來取得材料價格。"
 L["Scroll"] = "配方"
@@ -258,6 +260,7 @@ L["Tooltips and sorting"] = "滑鼠提示和排序"
 L["Total %s"] = "總計%s"
 L["Track"] = "追蹤"
 L["Tracked routes (Shift for all)"] = "追蹤的路線（Shift顯示全部）"
+L["Tracker scale"] = "追蹤器大小"
 L["Train %s"] = "學習%s"
 L["Train %s at %d"] = "學習%s（技能%d）"
 L["Train %s at %d (level %d)"] = "學習%s（技能%d，等級%d）"

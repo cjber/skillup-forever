@@ -205,6 +205,8 @@ L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
 	"경로 미완성: 제조법 %d개 제외됨, 재료 가격이 아직 없습니다."
 L["Route needs"] = "경로 필요량"
 L["Route: %d/%d · %s to %d"] = "경로: %d/%d · %s → %d"
+L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
+	"공유 Forever 추적기의 크기를 조절합니다. 100%는 게임 추적기와 같습니다."
 L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."] =
 	"재료 가격을 알려면 Auctionator로 경매장을 검색하거나 상인을 방문하세요."
 L["Scroll"] = "제조법"
@@ -266,6 +268,7 @@ L["Tooltips and sorting"] = "툴팁과 정렬"
 L["Total %s"] = "합계 %s"
 L["Track"] = "추적"
 L["Tracked routes (Shift for all)"] = "추적 중인 경로 (Shift: 전체)"
+L["Tracker scale"] = "추적기 크기"
 L["Train %s"] = "%s 배우기"
 L["Train %s at %d"] = "%s 배우기 (%d)"
 L["Train %s at %d (level %d)"] = "%s 배우기 (%d, 레벨 %d)"

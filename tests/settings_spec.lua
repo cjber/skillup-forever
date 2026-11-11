@@ -98,8 +98,10 @@ local env = setmetatable({
 		CreateDropdownInitializer = function()
 			error("native settings menus crash in AcquireMenu")
 		end,
-		CreateSliderOptions = function(_minimum, _maximum, step)
+		CreateSliderOptions = function(minimum, maximum, step)
 			return {
+				minimum = minimum,
+				maximum = maximum,
 				step = step,
 				SetLabelFormatter = function(self, _label, formatter)
 					self.formatter = formatter
@@ -107,7 +109,7 @@ local env = setmetatable({
 			}
 		end,
 		CreateSliderInitializer = function(setting, options, tooltip)
-			assert(setting.varType == "number" and options.step == 1)
+			assert(setting.varType == "number" and options.step and options.step > 0)
 			local initializer = Initializer("slider", setting, tooltip)
 			initializer.options = options
 			return initializer
@@ -144,7 +146,7 @@ local env = setmetatable({
 }, { __index = _G })
 
 local refreshed = 0
-local trackerState = { attached = true, locked = false }
+local trackerState = { attached = true, locked = false, scale = 1 }
 local attachmentChanged
 env.ForeverCore.TrackerHost = {
 	GetSettings = function()
@@ -156,6 +158,12 @@ env.ForeverCore.TrackerHost = {
 	end,
 	SetLocked = function(value)
 		trackerState.locked = value
+	end,
+	GetScale = function()
+		return trackerState.scale
+	end,
+	SetScale = function(value)
+		trackerState.scale = value
 	end,
 	OnAttachmentChanged = function(callback)
 		attachmentChanged = callback
@@ -249,7 +257,8 @@ local groups = {
 	{ "Prices", "slider:craftValue checkbox:valueGathered checkbox:auctionOnly" },
 	{
 		"Route and trainer",
-		"checkbox:showTracker checkbox:trackerAttached checkbox:trackerLocked checkbox:showRouteTab"
+		"checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
+			.. " checkbox:showRouteTab"
 			.. " checkbox:showGearTab checkbox:showBuffsTab"
 			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:showTrainer",
 	},
@@ -347,6 +356,25 @@ assert(notified[#notified] == "SkillUpForever_trackerAttached", "attachment chan
 trackerState.attached = true
 attachmentChanged()
 assert(attachment:GetValue() == true, "another addon reattaches the same host")
+
+-- The shared host owns its scale: the slider mirrors it as a percentage and writes it back, so the rows can
+-- be made as large as the game's own tracker.
+local trackerScale = Row("trackerScale")
+assert(trackerScale.initializer.kind == "slider", "the settings page has a Tracker scale slider")
+assert(trackerScale.initializer.setting.default == 100, "tracker scale defaults to 100%")
+assert(
+	trackerScale.initializer.options.minimum == 50
+		and trackerScale.initializer.options.maximum == 200
+		and trackerScale.initializer.options.step == 10,
+	"tracker scale runs from 50% to 200% in 10% steps"
+)
+assert(trackerScale.initializer.options.formatter(150) == "150%", "the tracker slider shows a percent")
+assert(trackerScale.initializer.tooltip:find("shared Forever tracker"), "the slider says it scales the shared tracker")
+assert(settings.SkillUpForever_trackerScale:GetValue() == 100, "the slider reads the shared host scale")
+trackerState.scale = 1.26
+assert(settings.SkillUpForever_trackerScale:GetValue() == 126, "a host scale reads back rounded to a percent")
+settings.SkillUpForever_trackerScale:SetValue(150)
+assert(trackerState.scale == 1.5, "the tracker slider drives the shared host scale")
 
 -- Lock starts off, sits under the attach row, and drives the shared host rather than a copy of its own.
 local lock = settings.SkillUpForever_trackerLocked

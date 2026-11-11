@@ -163,7 +163,7 @@
 ---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[]
 ---@field ShoppingText fun(skillLineID?: integer): string
 ---@field ShoppingTrip fun(skillLineID?: integer): boolean
----@field OpenShoppingList fun()
+---@field OpenShoppingList fun(skillLine?: integer)
 ---@field TrackerAttached fun(): boolean
 ---@field SetTracked fun(skillLine: integer, tracked: boolean)
 ---@field SetTrackedByPlayer fun(skillLine: integer, tracked: boolean)

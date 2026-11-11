@@ -5,11 +5,11 @@ if ns.broken then
 	return
 end
 local L = ns.L
----@class SkillUpShoppingListFrame : Frame
----@field scope integer?
-
----@type SkillUpShoppingListFrame?
 local frame
+-- The profession the window was opened for, or nil for every tracked plan. Refresh reads it, so a redraw
+-- keeps the scope the page asked for.
+---@type integer?
+local scope
 local body, scroll, copyWindow, copyEdit, shown, footer, summary
 -- The body's headings, rows and empty state, made once and reused: a refresh shows what it needs and hides the
 -- rest, so nothing from an earlier draw is left on the window (#553).
@@ -121,7 +121,7 @@ local function Refresh()
 	for _, heading in pairs(headingPool) do
 		heading:Hide()
 	end
-	local lists = ns.ShoppingList(frame.scope)
+	local lists = ns.ShoppingList(scope)
 	-- The window groups by source, not profession, so the header names every plan it is buying for: the
 	-- profession the page asked for, or every tracked plan when none did.
 	local plans = {}
@@ -131,11 +131,11 @@ local function Refresh()
 	end
 	if #plans > 0 then
 		summaryText = string.format(L["Buying for %s"], table.concat(plans, ", "))
-	elseif frame.scope then
-		local profession = ns.RouteProfessions()[frame.scope] or ns.PlayerProfessions()[frame.scope]
+	elseif scope then
+		local profession = ns.RouteProfessions()[scope] or ns.PlayerProfessions()[scope]
 		summaryText = string.format(
 			L["Nothing is tracked for %s."],
-			profession and profession.name or string.format(L["profession %d"], frame.scope)
+			profession and profession.name or string.format(L["profession %d"], scope)
 		)
 	else
 		summaryText = ""
@@ -226,7 +226,6 @@ local function Create()
 		return frame
 	end
 	frame = CreateFrame("Frame", addonName .. "ShoppingList", UIParent, "PortraitFrameTemplate")
-	---@cast frame SkillUpShoppingListFrame
 	table.insert(UISpecialFrames, addonName .. "ShoppingList")
 	frame:SetSize(620, 500)
 	frame:SetPoint("CENTER")
@@ -307,7 +306,7 @@ events:SetScript("OnEvent", function(_, event)
 	C_Timer.After(0, function()
 		Create()
 		if pendingOpen then
-			frame.scope = pendingScope
+			scope = pendingScope
 			frame:Show()
 			Refresh()
 			pendingOpen, pendingScope = false, nil
@@ -321,9 +320,9 @@ function ns.OpenShoppingList(skillLine)
 		pendingOpen, pendingScope = true, skillLine
 		return
 	end
-	frame = Create()
-	frame.scope = skillLine
-	frame:Show()
+	local window = Create()
+	scope = skillLine
+	window:Show()
 	Refresh()
 end
 ns.WhenStale("shoppingList", Refresh)

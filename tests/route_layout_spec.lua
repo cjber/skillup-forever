@@ -905,9 +905,10 @@ local controls = {
 	page.CollectLabel,
 	page.Vendor,
 	page.Craft,
+	page.CraftCount,
 	page.Track,
 }
-local names = { "the switch", "the switch's label", "the vendor button", "Craft", "Track" }
+local names = { "the switch", "the switch's label", "the vendor button", "Craft", "Craft's count", "Track" }
 
 for index, control in ipairs(controls) do
 	for _, heading in ipairs(headings) do
@@ -933,12 +934,16 @@ local switchAnchor = page.Collect.points[1]
 equal(switchAnchor.relative, page.Target, "the switch hangs off the target it changes")
 equal(switchAnchor.relativePoint, "RIGHT", "at the target's right, in the header")
 local vendorAnchor = page.Vendor.points[1]
-equal(vendorAnchor.relative, page.Craft, "the vendor button hangs off the craft it sits beside")
-equal(vendorAnchor.relativePoint, "LEFT", "at the craft's left, in the bottom row")
+equal(vendorAnchor.relative, page.CraftCount, "the vendor button hangs off the count it sits beside")
+equal(vendorAnchor.relativePoint, "LEFT", "at the count's left, in the bottom row")
+local countAnchor = page.CraftCount.points[1]
+equal(countAnchor.relative, page.Craft, "the count hangs off the craft button")
+equal(countAnchor.relativePoint, "LEFT", "at the craft's left, in the bottom row")
 local craftAnchor = page.Craft.points[1]
 equal(craftAnchor.relative, page.Track, "the craft button hangs off the track button")
 equal(craftAnchor.relativePoint, "LEFT", "at the track's left, in the bottom row")
-equal(Width(page.Craft), 240, "the craft button is drawn at its widest label")
+equal(Width(page.Craft), 100, "the craft button keeps one width")
+equal(Width(page.CraftCount), 62, "and the count box keeps its own")
 
 -- The list's scroll box is what the addon places; the game lays the rows out inside it, so the scroll
 -- box must sit inside the inset and every row the game draws inside the scroll box.

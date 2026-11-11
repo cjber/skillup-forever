@@ -441,6 +441,7 @@ pageEnv.ProfessionsFrame.GetChildren = function()
 	return unpack(children)
 end
 local collect, vendor, targetBox, craftButton = nil, nil, nil, nil
+local craftCount
 local trackButton, vendorButton
 local buttons = {}
 pageEnv.CreateFrame = function(_, _, _, template)
@@ -460,7 +461,11 @@ pageEnv.CreateFrame = function(_, _, _, template)
 		rawset(frame, "secure", true)
 		buttons[#buttons + 1] = frame
 	elseif template == "InputBoxTemplate" then
-		targetBox = frame
+		if not targetBox then
+			targetBox = frame
+		else
+			craftCount = frame
+		end
 		rawset(frame, "secure", true)
 	elseif template and template:find("SecureActionButtonTemplate", 1, true) then
 		craftButton = frame
@@ -943,7 +948,9 @@ equal(craftButton.attributes.clickbutton, nativeCreate, "pressing the Profession
 equal(craftButton.attributes["shift-type1"], "click", "with Shift also a click")
 equal(craftButton.attributes["shift-clickbutton1"], nativeCreateAll, "on its Create All button")
 equal(craftButton.attributes.spell, nil, "and no recipe spell attribute")
-equal(craftButton.text, "Craft 1 of 3× Spell 3275", "its label says a click makes one")
+equal(craftButton.text, "Craft", "its label is the plain Craft the game uses")
+equal(craftCount.text, "3 of 5", "the step's count sits beside it, and names the bags' limit")
+equal(craftButton.width, 100, "the button keeps one width whatever the step holds")
 equal(craftButton.enabled, true, "the route's recipe is shown and the game's Craft button is ready")
 equal(#openedRecipes, 0, "a recipe already shown is not reopened")
 craftButton:Click()
@@ -960,7 +967,8 @@ craftableCount = 3
 routeTab:Click()
 Drain()
 equal(craftButton.attributes.clickbutton, nativeCreateAll, "a step that fits in the bags clicks Create All")
-equal(craftButton.text, "Craft 3× Spell 3275", "and its label keeps the route's own wording")
+equal(craftButton.text, "Craft", "and its label is still the plain Craft")
+equal(craftCount.text, "3", "with the step's own count beside it")
 equal(craftButton.enabled, true, "and the button is ready")
 
 -- The recipe list shows a rank chain's first recipe and its schematic the highest learned rank, so a higher
@@ -1031,7 +1039,8 @@ eventFrame:Event("PLAYER_REGEN_ENABLED")
 equal(#secureCalls, 0, "the queued update is applied once combat ends")
 equal(craftButton.attributes.type, "click", "the latest craft of the combat redraws wins")
 equal(craftButton.attributes.clickbutton, nativeCreate, "on the game's Create button")
-equal(craftButton.text, "Craft 1 of 2× Spell 3277", "and says one click makes one")
+equal(craftButton.text, "Craft", "and the label stays the plain Craft")
+equal(craftCount.text, "2 of 4", "with the latest step's count beside it")
 equal(craftButton.enabled, true, "and the button is ready to craft")
 
 -- #597: the header row's switch, profession target, Track and Nearest vendor are children of the Professions
@@ -1085,6 +1094,7 @@ equal(craftButton.attributes.clickbutton, nil, "and no button to press")
 equal(craftButton.attributes["shift-type1"], nil, "and no Shift click")
 equal(craftButton.attributes["shift-clickbutton1"], nil, "and no Shift button")
 equal(craftButton.enabled, false, "and is disabled")
+equal(craftCount.text, "", "with no count beside it")
 
 -- The crafting page showing another recipe disables the button and clears its attributes. The button asks
 -- the client to open the route's recipe, and the client's own RecipeSelected event arms it once the page

@@ -809,6 +809,7 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpPage : Frame
 ---@field Craft SkillUpCraftButton
+---@field CraftCount EditBox
 ---@field Profession DropdownButton
 ---@field Skill FontString
 ---@field Target EditBox

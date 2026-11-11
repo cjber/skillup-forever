@@ -9,6 +9,9 @@ local PageParts = ns.PageParts
 
 -- How far right of centre the route/reagents split sits.
 local ROUTE_SHARE = 50
+-- The Craft button keeps one label and one width, so a step's recipe and count never resize it.
+local CRAFT_WIDTH = 100
+local CRAFT_COUNT_WIDTH = 62
 local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
 local SKIPPED_ICON = "Interface\\Icons\\INV_Misc_Note_01"
 -- An Auctionator price older than a day is flagged: auction prices move that fast.
@@ -972,19 +975,23 @@ local function ApplyCraft(craft)
 		button.clickCount, button.shiftCount = nil, nil
 	end
 
-	local text = craft.text
-	if ready and not all and recipeID and count then
-		text = count > 1 and string.format(L["Craft %d of %d× %s"], 1, count, RecipeName(recipeID))
-			or string.format(L["Craft %d× %s"], 1, RecipeName(recipeID))
-	end
 	local reason = CraftReason(craft)
 	if not reason and recipeID and count and count > 0 and not ready then
 		reason = L["The game's Craft button is not ready for this recipe."]
 	end
-	button.title, button.planned, button.to = text, craft.planned, craft.to
+	-- The button keeps one plain label and one width; the recipe and its count are named beside it and in
+	-- the tooltip, never in the button text.
+	button.title = recipeID and string.format(L["Craft %d× %s"], craft.planned or count or 0, RecipeName(recipeID))
+		or craft.text
+	button.planned, button.to = craft.planned, craft.to
 	button.reason = reason
-	button:SetText(text)
-	button:SetSize(math.min(button:GetTextWidth() + 32, 240), 22)
+	button:SetText(L["Craft"])
+	local planned = craft.planned
+	local countText = planned and tostring(planned) or ""
+	if ready and count and planned and count < planned then
+		countText = string.format(L["%d of %d"], count, planned)
+	end
+	page.CraftCount:SetText(countText)
 end
 
 ---@param craft SkillUpCraft
@@ -1020,6 +1027,7 @@ local function ShowCraft(shown)
 		return
 	end
 	page.Craft:SetShown(shown)
+	page.CraftCount:SetShown(shown)
 end
 
 -- One queued update, latest redraw winning, applied as soon as combat lockdown ends.
@@ -1046,6 +1054,7 @@ local function ApplyPendingRoute()
 	end
 	if queued.craftShown ~= nil then
 		page.Craft:SetShown(queued.craftShown)
+		page.CraftCount:SetShown(queued.craftShown)
 	end
 	if queued.craft then
 		ApplyCraft(queued.craft)
@@ -1252,7 +1261,20 @@ local function CreateButtons()
 		GameTooltip:Show()
 	end)
 	craft:SetScript("OnLeave", GameTooltip_Hide)
+	craft:SetSize(CRAFT_WIDTH, 22)
 	page.Craft = craft
+
+	-- The step's count sits in the client's own input-box art beside the button, read only: the route's
+	-- planned count drives the craft, so there is nothing to type here.
+	local count = CreateFrame("EditBox", nil, page, "InputBoxTemplate") --[[@as EditBox]]
+	count:SetSize(CRAFT_COUNT_WIDTH, 20)
+	count:SetNumeric(true)
+	count:SetMaxLetters(9)
+	count:SetAutoFocus(false)
+	count:SetEnabled(false)
+	count:SetJustifyH("CENTER")
+	count:SetTextColor(1, 1, 1)
+	page.CraftCount = count
 
 	-- Where a reagent this character could gather or buy comes from: its own professions' gathering, or a
 	-- vendor and the auction house. Sits with the route it changes, not in the settings panel.
@@ -1342,11 +1364,12 @@ local function CreatePage()
 
 	-- The switch sits in the header row, right of the target it changes, clear of the Route heading.
 	page.Collect:SetPoint("LEFT", page.Target, "RIGHT", 16, 0)
-	-- One bottom row, right to left: Track under the reagents, then Craft, then Nearest vendor,
-	-- each clear of the next whatever the craft label says.
+	-- One bottom row, right to left: Track under the reagents, then Craft with the step's count beside it,
+	-- then Nearest vendor, each clear of the next.
 	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
 	page.Craft:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
-	page.Vendor:SetPoint("RIGHT", page.Craft, "LEFT", -8, 0)
+	page.CraftCount:SetPoint("RIGHT", page.Craft, "LEFT", -4, 0)
+	page.Vendor:SetPoint("RIGHT", page.CraftCount, "LEFT", -8, 0)
 	page.ShoppingList:SetPoint("RIGHT", page.Vendor, "LEFT", -8, 0)
 	-- The portrait follows the profession shown here, and is given back on the way out.
 	local portrait

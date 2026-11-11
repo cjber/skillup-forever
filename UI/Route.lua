@@ -9,8 +9,16 @@ local PageParts = ns.PageParts
 
 -- How far right of centre the route/reagents split sits.
 local ROUTE_SHARE = 50
+-- The Craft button keeps one label and one width, so a step's recipe and count never resize it.
+local CRAFT_WIDTH = 100
+local CRAFT_COUNT_WIDTH = 62
 local TRAIN_ICON = "Interface\\Icons\\INV_Misc_Book_11"
 local SKIPPED_ICON = "Interface\\Icons\\INV_Misc_Note_01"
+-- Train and buy steps read gold, as the mockup shows them. A craft keeps its own difficulty colour and the next
+-- one is marked by the row's highlight instead, so a gold name never reads as a yellow recipe (#574).
+local GOLD = CreateColor(1, 0.82, 0)
+-- A source a reagent's row can name with the client's own minimap art: there is no auction gavel.
+local SOURCE_ICON = { auction = "auctioneer", vendor = "reagents" }
 -- An Auctionator price older than a day is flagged: auction prices move that fast.
 local STALE_AFTER = 24 * 3600
 
@@ -511,8 +519,15 @@ local function RenderRoute(list, plan)
 		RenderPinned(list, plan)
 		return
 	end
+	local currentCraft = plan.crafts[1]
+	local band
 	for _, step in ipairs(plan.steps) do
 		local rank, training, craft, subcraft = step.rank, step.training, step.craft, step.subcraft
+		local stepBand = step.band
+		if stepBand and stepBand ~= band then
+			band = stepBand
+			list:Band(stepBand.name, stepBand.from, stepBand.cap, profession.base)
+		end
 		if subcraft then
 			local itemName = C_Item.GetItemNameByID(subcraft.itemID) or string.format(L["item %d"], subcraft.itemID)
 			list:Add({
@@ -527,21 +542,12 @@ local function RenderRoute(list, plan)
 				menu = RecipeMenu(subcraft.recipeID),
 			})
 		elseif rank then
-			local detail
 			local held = ns.RankHeld(rank)
-			if held then
-				detail = string.format(L["You have it, requires %s (%d)"], profession.name, rank.reqSkill)
-			elseif rank.quest then
-				detail = string.format(L["Quest, requires %s (%d)"], profession.name, rank.reqSkill)
-			else
-				local text = rank.book and L["Price %s, requires %s (%d)"] or L["Fee %s, requires %s (%d)"]
-				detail = string.format(text, Money(rank.fee), profession.name, rank.reqSkill)
-			end
-			list:Add({
-				icon = profession.icon,
+			list:Line({
+				icon = TRAIN_ICON,
 				text = ns.RankText(rank),
-				detail = detail,
-				color = NORMAL_FONT_COLOR,
+				detail = held and L["You have it"] or rank.quest and L["Quest"] or Money(rank.fee),
+				color = GOLD,
 				tooltip = function(tooltip)
 					RankTooltip(tooltip, profession, rank)
 				end,
@@ -550,17 +556,12 @@ local function RenderRoute(list, plan)
 			})
 		elseif training then
 			local scroll = training.scroll
-			list:Add({
+			list:Line({
 				icon = scroll and C_Item.GetItemIconByID(scroll) or TRAIN_ICON,
 				text = scroll and string.format(L["Buy %s"], ItemName(scroll))
 					or string.format(L["Train %s"], RecipeName(training.recipeID)),
-				detail = string.format(
-					scroll and L["Price %s, requires %s (%d)"] or L["Fee %s, requires %s (%d)"],
-					Money(training.fee),
-					profession.name,
-					training.reqSkill
-				),
-				color = NORMAL_FONT_COLOR,
+				detail = Money(training.fee),
+				color = GOLD,
 				tooltip = function(tooltip)
 					TrainTooltip(tooltip, profession, training)
 				end,
@@ -569,6 +570,7 @@ local function RenderRoute(list, plan)
 			})
 		elseif craft then
 			local money = Money(ns.StepCost(craft.recipeID, craft.crafts))
+			local current = craft == currentCraft
 			list:Add({
 				icon = RecipeIcon(craft.recipeID),
 				text = RecipeName(craft.recipeID),
@@ -576,6 +578,7 @@ local function RenderRoute(list, plan)
 						and string.format(L["%d crafts to %d, %s, at %s"], craft.crafts, craft.to, money, craft.station)
 					or string.format(L["%d crafts to %d, %s"], craft.crafts, craft.to, money),
 				color = ns.COLORS[craft.color],
+				current = current,
 				tooltip = function(tooltip)
 					CraftTooltip(tooltip, profession, craft)
 				end,
@@ -583,9 +586,6 @@ local function RenderRoute(list, plan)
 				menu = RecipeMenu(craft.recipeID),
 			})
 		end
-	end
-	if #plan.crafts > 0 then
-		list:Message(string.format(L["Total %s"], Money(ns.PlanCost(plan))), NORMAL_FONT_COLOR)
 	end
 	if blocked and plan.unpriced > 0 then
 		list:Message(blocked)
@@ -701,8 +701,13 @@ local function RenderReagents(list, reagents)
 			icon = C_Item.GetItemIconByID(item.itemID) or 134400,
 			iconColor = QualityColor(item.itemID),
 			text = name,
-			detail = string.format(L["%s, %d/%d"], sourceText, math.min(have, item.need), item.need),
+			-- The bar under the name already shows the bags against the route's need, so the line names only
+			-- where the reagent comes from.
+			detail = sourceText,
 			detailColor = have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
+			bar = { have = math.min(have, item.need), need = item.need },
+			barColor = have >= item.need and ns.COLORS.green or ns.COLORS.yellow,
+			sourceIcon = SOURCE_ICON[item.source],
 			tooltip = function(tooltip)
 				ReagentTooltip(tooltip, item)
 			end,
@@ -824,6 +829,7 @@ end
 ---@field craftShown? boolean
 ---@field targetShown? boolean
 ---@field trackEnabled? boolean
+---@field trackChecked? boolean
 ---@field collectEnabled? boolean
 ---@field collectChecked? boolean
 ---@field vendorShown? boolean
@@ -831,7 +837,7 @@ end
 ---@type SkillUpPendingRoute?
 local pendingRoute
 
----@param key "targetShown"|"trackEnabled"|"collectEnabled"|"collectChecked"|"vendorShown"
+---@param key "targetShown"|"trackEnabled"|"trackChecked"|"collectEnabled"|"collectChecked"|"vendorShown"
 ---@param value boolean
 local function SetProtected(key, value)
 	if InCombatLockdown() then
@@ -843,6 +849,8 @@ local function SetProtected(key, value)
 		page.Target:SetShown(value)
 	elseif key == "trackEnabled" then
 		page.Track:SetEnabled(value)
+	elseif key == "trackChecked" then
+		page.Track:SetChecked(value)
 	elseif key == "collectEnabled" then
 		page.Collect:Enable()
 	elseif key == "collectChecked" then
@@ -974,19 +982,23 @@ local function ApplyCraft(craft)
 		button.clickCount, button.shiftCount = nil, nil
 	end
 
-	local text = craft.text
-	if ready and not all and recipeID and count then
-		text = count > 1 and string.format(L["Craft %d of %d× %s"], 1, count, RecipeName(recipeID))
-			or string.format(L["Craft %d× %s"], 1, RecipeName(recipeID))
-	end
 	local reason = CraftReason(craft)
 	if not reason and recipeID and count and count > 0 and not ready then
 		reason = L["The game's Craft button is not ready for this recipe."]
 	end
-	button.title, button.planned, button.to = text, craft.planned, craft.to
+	-- The button keeps one plain label and one width; the recipe and its count are named beside it and in
+	-- the tooltip, never in the button text.
+	button.title = recipeID and string.format(L["Craft %d× %s"], craft.planned or count or 0, RecipeName(recipeID))
+		or craft.text
+	button.planned, button.to = craft.planned, craft.to
 	button.reason = reason
-	button:SetText(text)
-	button:SetSize(math.min(button:GetTextWidth() + 32, 240), 22)
+	button:SetText(L["Craft"])
+	local planned = craft.planned
+	local countText = planned and tostring(planned) or ""
+	if ready and count and planned and count < planned then
+		countText = string.format(L["%d of %d"], count, planned)
+	end
+	page.CraftCount:SetText(countText)
 end
 
 ---@param craft SkillUpCraft
@@ -1022,6 +1034,7 @@ local function ShowCraft(shown)
 		return
 	end
 	page.Craft:SetShown(shown)
+	page.CraftCount:SetShown(shown)
 end
 
 -- One queued update, latest redraw winning, applied as soon as combat lockdown ends.
@@ -1037,6 +1050,9 @@ local function ApplyPendingRoute()
 	if queued.trackEnabled ~= nil then
 		page.Track:SetEnabled(queued.trackEnabled)
 	end
+	if queued.trackChecked ~= nil then
+		page.Track:SetChecked(queued.trackChecked)
+	end
 	if queued.collectEnabled ~= nil then
 		page.Collect:Enable()
 	end
@@ -1048,10 +1064,24 @@ local function ApplyPendingRoute()
 	end
 	if queued.craftShown ~= nil then
 		page.Craft:SetShown(queued.craftShown)
+		page.CraftCount:SetShown(queued.craftShown)
 	end
 	if queued.craft then
 		ApplyCraft(queued.craft)
 	end
+end
+
+-- What the whole route asks for in money, in the header where the player looks before crafting: what the
+-- reagents and fees still cost, what the crafts sell back, and whether a price is still missing (#567).
+---@param plan SkillUpPlan
+local function RenderMoney(plan)
+	local money = ns.PlanMoney(plan)
+	-- One whole phrase either way: a translation can put its own words around the two sums.
+	local incomplete = money.unknown > 0 or plan.unpriced > 0
+	local phrase = incomplete and L["Needs %s, sells back %s (incomplete)"] or L["Needs %s, sells back %s"]
+	local text = string.format(phrase, Money(money.buy + money.fees), Money(money.sells))
+	page.MoneyText:SetText(text)
+	page.Money.money, page.Money.unpriced = money, plan.unpriced
 end
 
 local function Render()
@@ -1069,6 +1099,7 @@ local function Render()
 		SetCollectEnabled(false)
 		SetProtected("vendorShown", false)
 		page.vendorItems = {}
+		page.MoneyText:SetText("")
 		page.RouteList:Message(L["Learn a crafting profession to plan a route."])
 		page.RouteList:Finish()
 		page.ReagentList:Finish()
@@ -1077,6 +1108,7 @@ local function Render()
 	ProfessionsFrame:SetPortraitToAsset(profession.icon)
 	page.Skill:SetFormattedText(L["Skill  %d/%d     Target"], profession.base, profession.max)
 	local plan = ns.PlanRoute(profession)
+	RenderMoney(plan)
 	if not page.Target:HasFocus() then
 		page.Target:SetText(tostring(plan.target))
 	end
@@ -1110,7 +1142,7 @@ local function Render()
 	end
 	page.RouteList:Finish()
 	page.ReagentList:Finish()
-	page.Track:SetText(ns.IsTracked(selected) and L["Stop tracking"] or L["Track"])
+	SetProtected("trackChecked", ns.IsTracked(selected))
 	SetCraft(craft)
 end
 
@@ -1190,17 +1222,51 @@ local function CreateHeader()
 		editBox:ClearFocus()
 	end)
 	page.Target = target
+
+	-- The route's whole money, under the skill and target it starts from, so it is in the header where
+	-- the player looks before crafting. A tooltip splits the reagents, the fees and the sale.
+	local money = CreateFrame("Frame", nil, page) --[[@as SkillUpRouteMoney]]
+	money:SetSize(360, 14)
+	money:SetPoint("TOPLEFT", skill, "BOTTOMLEFT", 0, -8)
+	local moneyText = money:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	moneyText:SetPoint("LEFT")
+	money:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP")
+		GameTooltip_SetTitle(GameTooltip, L["Cost"])
+		if self.money then
+			AddLine(GameTooltip, L["Reagents"], Money(self.money.buy))
+			AddLine(GameTooltip, L["Fees"], Money(self.money.fees))
+			if self.money.sells > 0 then
+				AddLine(GameTooltip, L["Sales"], Money(self.money.sells))
+			end
+			if self.money.unknown > 0 then
+				GameTooltip_AddNormalLine(
+					GameTooltip,
+					string.format(L["%d reagents have no price"], self.money.unknown)
+				)
+			end
+			if (self.unpriced or 0) > 0 then
+				GameTooltip_AddNormalLine(
+					GameTooltip,
+					string.format(
+						L["Route incomplete: %d recipes left out, their reagents not priced yet."],
+						self.unpriced
+					)
+				)
+			end
+		end
+		GameTooltip:Show()
+	end)
+	money:SetScript("OnLeave", GameTooltip_Hide)
+	page.Money = money
+	page.MoneyText = moneyText
 end
 
 local function CreateButtons()
-	local track = CreateFrame("Button", nil, page, "SharedButtonSmallTemplate") --[[@as Button]]
-	-- Wide enough for both labels, so the Craft button beside it stays put when tracking toggles.
-	track:SetText(L["Stop tracking"])
-	local stop = track:GetTextWidth() + 32
-	track:SetText(L["Track"])
-	track:SetSize(math.max(130, stop, track:GetTextWidth() + 32), 22)
-	track:SetScript("OnClick", function()
-		local tracked = not ns.IsTracked(selected)
+	local track = CreateFrame("CheckButton", nil, page, "UICheckButtonTemplate") --[[@as CheckButton]]
+	track:SetSize(26, 26)
+	track:SetScript("OnClick", function(self)
+		local tracked = self:GetChecked()
 		ns.SetTrackedByPlayer(selected, tracked)
 		Render()
 		if tracked and not ns.TrackerAttached() then
@@ -1208,6 +1274,9 @@ local function CreateButtons()
 		end
 	end)
 	page.Track = track
+	local trackLabel = page:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	trackLabel:SetText(L["Track"])
+	page.TrackLabel = trackLabel
 
 	-- CraftRecipe is protected: called from this addon, it taints the client's craft path and a controller's
 	-- own craft afterwards is blocked (#313). The button is secure and presses the Professions window's own
@@ -1254,7 +1323,23 @@ local function CreateButtons()
 		GameTooltip:Show()
 	end)
 	craft:SetScript("OnLeave", GameTooltip_Hide)
+	craft:SetSize(CRAFT_WIDTH, 22)
 	page.Craft = craft
+
+	-- The step's count sits in the client's own spinner count box beside the button, read only: the route's
+	-- planned count drives the craft, so there is nothing to type and the arrows have nothing to do (#564).
+	local count = CreateFrame("EditBox", nil, page, "NumericInputSpinnerTemplate") --[[@as SkillUpCraftCount]]
+	count:SetSize(CRAFT_COUNT_WIDTH, 20)
+	count:SetNumeric(true)
+	count:SetMaxLetters(9)
+	count:SetAutoFocus(false)
+	count:SetEnabled(false)
+	count:SetJustifyH("CENTER")
+	count:SetTextColor(1, 1, 1)
+	count.IncrementButton:Hide()
+	count.DecrementButton:Hide()
+	count.MouseWheelCatcher:EnableMouse(false)
+	page.CraftCount = count
 
 	-- Where a reagent this character could gather or buy comes from: its own professions' gathering, or a
 	-- vendor and the auction house. Sits with the route it changes, not in the settings panel.
@@ -1344,11 +1429,13 @@ local function CreatePage()
 
 	-- The switch sits in the header row, right of the target it changes, clear of the Route heading.
 	page.Collect:SetPoint("LEFT", page.Target, "RIGHT", 16, 0)
-	-- One bottom row, right to left: Track under the reagents, then Craft, then Nearest vendor,
-	-- each clear of the next whatever the craft label says.
-	page.Track:SetPoint("TOPRIGHT", reagents, "BOTTOMRIGHT", 0, -10)
-	page.Craft:SetPoint("RIGHT", page.Track, "LEFT", -8, 0)
-	page.Vendor:SetPoint("RIGHT", page.Craft, "LEFT", -8, 0)
+	-- One bottom row: Track at the route's bottom left with its label on the right, as the game's own
+	-- checkboxes and the Buy reagents switch read, and the actions right-aligned from the reagents' edge.
+	page.Track:SetPoint("BOTTOMLEFT", route, "BOTTOMLEFT", 0, -21)
+	page.TrackLabel:SetPoint("LEFT", page.Track, "RIGHT", 4, 0)
+	page.Craft:SetPoint("RIGHT", reagents, "BOTTOMRIGHT", 0, -21)
+	page.CraftCount:SetPoint("RIGHT", page.Craft, "LEFT", -4, 0)
+	page.Vendor:SetPoint("RIGHT", page.CraftCount, "LEFT", -8, 0)
 	page.ShoppingList:SetPoint("RIGHT", page.Vendor, "LEFT", -8, 0)
 	-- The portrait follows the profession shown here, and is given back on the way out.
 	local portrait

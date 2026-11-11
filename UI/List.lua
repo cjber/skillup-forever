@@ -13,6 +13,15 @@ end
 
 local ICON_SIZE = 37
 local ROW_HEIGHT = 46
+-- A row with a have/need bar gives the bar its own line under the name.
+local ROW_BAR_HEIGHT = 62
+local BAR_HEIGHT = 10
+local SOURCE_SIZE = 16
+local LINE_HEIGHT = 24
+local LINE_ICON = 18
+local BAND_HEIGHT = 30
+local BAND_BAR_WIDTH = 170
+local BAND_BAR_HEIGHT = 12
 local HEADING_HEIGHT = 26
 local MESSAGE_MIN_HEIGHT = 20
 -- Room kept on the right for the scroll bar, so the rows line up with or without it.
@@ -23,6 +32,10 @@ local MESSAGE_PADDING = 12
 local ROW_TEMPLATE = "SkillUpForeverListRowTemplate"
 local HEADING_TEMPLATE = "SkillUpForeverListHeadingTemplate"
 local MESSAGE_TEMPLATE = "SkillUpForeverListMessageTemplate"
+local BAND_TEMPLATE = "SkillUpForeverListBandTemplate"
+local LINE_TEMPLATE = "SkillUpForeverListLineTemplate"
+
+local L = ns.L
 
 -- Item data that arrives after a hover makes the game rebuild the item's tooltip, which drops the lines a row
 -- added under it. The tooltip asks its owner for a fresh one first (`owner:UpdateTooltip()`), so a hovered
@@ -65,27 +78,41 @@ end
 -- element it is given. A weak key lets a released frame be collected.
 local built = setmetatable({}, { __mode = "k" })
 
+-- The hover, menu and click every list frame shares: its tooltip on hover, a right-click's menu when it has
+-- one, and the frame's own click on any other button.
+---@param frame SkillUpListRow|SkillUpListLine
+local function Wire(frame)
+	-- art-ok: the quest log's highlight bar, stretched over the row as a bar is
+	frame:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+	frame.UpdateTooltip = UpdateTooltip
+	frame:SetScript("OnEnter", OnEnter)
+	frame:SetScript("OnLeave", GameTooltip_Hide)
+	frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	frame:SetScript("OnClick", function(_, button)
+		if button == "RightButton" then
+			if frame.menu then
+				GameTooltip_Hide()
+				ForeverCore.ContextMenu(frame, frame.menu)
+			end
+		elseif frame.click then
+			frame.click(frame)
+		end
+	end)
+end
+
 -- The parts a row draws once, whatever entry it later holds.
 ---@param row SkillUpListRow
 local function BuildRow(row)
 	row.kind = "row"
-	-- art-ok: the quest log's highlight bar, stretched over the row as a bar is
-	row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-	row.UpdateTooltip = UpdateTooltip
-	row:SetScript("OnEnter", OnEnter)
-	row:SetScript("OnLeave", GameTooltip_Hide)
-	-- A right-click opens the row's menu when it has one; any other click is the row's own.
-	row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	row:SetScript("OnClick", function(_, button)
-		if button == "RightButton" then
-			if row.menu then
-				GameTooltip_Hide()
-				ForeverCore.ContextMenu(row, row.menu)
-			end
-		elseif row.click then
-			row.click(row)
-		end
-	end)
+	Wire(row)
+	-- The row that is the next thing to do keeps a gold highlight of its own, so the name can stay in the
+	-- recipe's difficulty colour (#574).
+	row.Current = row:CreateTexture(nil, "BACKGROUND")
+	row.Current:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight") -- art-ok: a highlight bar over the whole row
+	row.Current:SetVertexColor(NORMAL_FONT_COLOR:GetRGB())
+	row.Current:SetAlpha(0.55)
+	row.Current:SetAllPoints(row)
+	row.Current:Hide()
 	row.Icon = row:CreateTexture(nil, "ARTWORK")
 	row.Icon:SetSize(ICON_SIZE, ICON_SIZE)
 	row.Icon:SetPoint("LEFT", 6, 0)
@@ -93,6 +120,8 @@ local function BuildRow(row)
 	row.IconBorder:SetTexture("Interface\\Common\\WhiteIconFrame") -- art-ok: a square border in the ICON_SIZE square
 	row.IconBorder:SetSize(ICON_SIZE, ICON_SIZE)
 	row.IconBorder:SetPoint("LEFT", row.Icon, "LEFT", 0, 0)
+	row.Source = row:CreateTexture(nil, "OVERLAY")
+	row.Source:SetSize(SOURCE_SIZE, SOURCE_SIZE)
 	row.Text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	row.Text:SetJustifyH("LEFT")
 	row.Text:SetPoint("TOPLEFT", row.Icon, "TOPRIGHT", 8, -2)
@@ -101,6 +130,16 @@ local function BuildRow(row)
 	row.Detail:SetJustifyH("LEFT")
 	row.Detail:SetPoint("TOPLEFT", row.Text, "BOTTOMLEFT", 0, -2)
 	row.Detail:SetPoint("RIGHT", row, "RIGHT", -8, 0)
+	row.BarBg = row:CreateTexture(nil, "BACKGROUND")
+	row.BarBg:SetColorTexture(0, 0, 0, 0.8)
+	row.Bar = CreateFrame("StatusBar", nil, row) --[[@as StatusBar]]
+	row.Bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
+	row.BarText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	row.BarText:SetPoint("CENTER", row.Bar, "CENTER", 0, 0)
+	row.BarBg:Hide()
+	row.Bar:Hide()
+	row.BarText:Hide()
+	row.Source:Hide()
 end
 
 ---@param row SkillUpListRow
@@ -121,14 +160,55 @@ local function InitializeRow(row, elementData)
 	else
 		row.IconBorder:SetVertexColor(1, 1, 1)
 	end
+	row.Text:ClearAllPoints()
+	row.Text:SetPoint("TOPLEFT", row.Icon, "TOPRIGHT", 8, -2)
+	row.Text:SetPoint("RIGHT", row, "RIGHT", entry.sourceIcon and -(SOURCE_SIZE + 12) or -8, 0)
 	row.Text:SetText(entry.text)
 	row.Text:SetTextColor((entry.color or HIGHLIGHT_FONT_COLOR):GetRGB())
+	row.Current:SetShown(entry.current == true)
+	if entry.sourceIcon then
+		row.Source:Show()
+		row.Source:ClearAllPoints()
+		row.Source:SetPoint("TOPRIGHT", row, "TOPRIGHT", -6, -2)
+		ns.Art.Fit(row.Source, entry.sourceIcon, SOURCE_SIZE, SOURCE_SIZE)
+	else
+		row.Source:Hide()
+	end
+	row.Detail:ClearAllPoints()
+	if entry.bar then
+		row.BarBg:Show()
+		row.Bar:Show()
+		row.BarText:Show()
+		row.BarBg:ClearAllPoints()
+		row.BarBg:SetPoint("TOPLEFT", row.Text, "BOTTOMLEFT", 0, -3)
+		row.BarBg:SetPoint("RIGHT", row, "RIGHT", -8, 0)
+		row.BarBg:SetHeight(BAR_HEIGHT)
+		row.Bar:ClearAllPoints()
+		row.Bar:SetAllPoints(row.BarBg)
+		local need = math.max(entry.bar.need or 0, 0)
+		local have = math.min(entry.bar.have or 0, need)
+		row.Bar:SetMinMaxValues(0, math.max(need, 1))
+		row.Bar:SetValue(have)
+		row.Bar:SetStatusBarColor((entry.barColor or HIGHLIGHT_FONT_COLOR):GetRGB())
+		row.BarText:SetFormattedText("%d/%d", have, need)
+		row.barHave, row.barNeed = have, need
+		row.Detail:SetPoint("TOPLEFT", row.BarBg, "BOTTOMLEFT", 0, -3)
+		row.Detail:SetPoint("RIGHT", row, "RIGHT", -8, 0)
+	else
+		row.BarBg:Hide()
+		row.Bar:Hide()
+		row.BarText:Hide()
+		row.barHave, row.barNeed = nil, nil
+		row.Detail:SetPoint("TOPLEFT", row.Text, "BOTTOMLEFT", 0, -2)
+		row.Detail:SetPoint("RIGHT", row, "RIGHT", -8, 0)
+	end
 	row.Detail:SetText(entry.detail or "")
 	row.Detail:SetShown(entry.detail ~= nil)
 	row.Detail:SetTextColor((entry.detailColor or GRAY_FONT_COLOR):GetRGB())
 	row.tooltip = entry.tooltip
 	row.click = entry.click
 	row.menu = entry.menu
+	row.current = entry.current
 	row:EnableMouse(entry.tooltip ~= nil or entry.click ~= nil or entry.menu ~= nil)
 end
 
@@ -161,6 +241,92 @@ local function InitializeMessage(message, elementData)
 	message.Text:SetTextColor((elementData.color or GRAY_FONT_COLOR):GetRGB())
 end
 
+-- A skill band's slim header: its rank and range, with the route's progress through it in the client's own
+-- bar art, so the page reads as the bands it is walked in.
+---@param band SkillUpListBand
+local function BuildBand(band)
+	band.kind = "band"
+	band.Name = band:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	band.Name:SetPoint("LEFT", 6, 0)
+	band.Range = band:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	band.Range:SetPoint("LEFT", band.Name, "RIGHT", 6, 0)
+	band.BarBg = band:CreateTexture(nil, "BACKGROUND")
+	band.BarBg:SetColorTexture(0, 0, 0, 0.75)
+	band.BarFill = band:CreateTexture(nil, "ARTWORK")
+	band.BarFill:SetColorTexture(0.25, 0.75, 0.25, 1)
+	band.BarBorder = band:CreateTexture(nil, "OVERLAY")
+	-- The client's bar frame at its own 451 by 29 aspect, inside the band's bar width.
+	band.BarWidth, band.BarHeight =
+		ns.Art.Fit(band.BarBorder, "Professions-skillbar-frame", BAND_BAR_WIDTH, BAND_BAR_HEIGHT)
+	band.BarText = band:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	band.BarText:SetPoint("CENTER", band.BarBg, "CENTER", 0, 0)
+end
+
+---@param band SkillUpListBand
+---@param elementData SkillUpListElement
+local function InitializeBand(band, elementData)
+	if not built[band] then
+		built[band] = true
+		BuildBand(band)
+	end
+	band.Name:SetText(elementData.name)
+	band.Range:SetFormattedText(L["%d to %d"], elementData.from, elementData.cap)
+	band.BarBg:ClearAllPoints()
+	band.BarBg:SetPoint("RIGHT", band, "RIGHT", -6, 0)
+	band.BarBg:SetSize(band.BarWidth, band.BarHeight)
+	band.BarBorder:ClearAllPoints()
+	band.BarBorder:SetAllPoints(band.BarBg)
+	local span = math.max(elementData.cap - elementData.from, 0)
+	local done = math.max(0, math.min(elementData.skill or 0, elementData.cap) - elementData.from)
+	local filled = span > 0 and (band.BarWidth - 2) * math.min(done / span, 1) or 0
+	band.BarFill:ClearAllPoints()
+	band.BarFill:SetPoint("LEFT", band.BarBg, "LEFT", 1, 0)
+	band.BarFill:SetSize(filled, band.BarHeight - 2)
+	band.BarText:SetFormattedText("%d/%d", done, span)
+end
+
+-- A train or buy step: one gold line with its small icon, the price on the right and its tooltip below.
+---@param line SkillUpListLine
+local function BuildLine(line)
+	line.kind = "line"
+	Wire(line)
+	line.Icon = line:CreateTexture(nil, "ARTWORK")
+	line.Icon:SetPoint("LEFT", 8, 0)
+	line.Text = line:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	line.Text:SetJustifyH("LEFT")
+	line.Text:SetPoint("LEFT", line.Icon, "RIGHT", 8, 0)
+	line.Text:SetPoint("RIGHT", line, "RIGHT", -8, 0)
+	line.Detail = line:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	line.Detail:SetJustifyH("RIGHT")
+	line.Detail:SetPoint("RIGHT", line, "RIGHT", -8, 0)
+end
+
+---@param line SkillUpListLine
+---@param elementData SkillUpListElement
+local function InitializeLine(line, elementData)
+	if not built[line] then
+		built[line] = true
+		BuildLine(line)
+	end
+	local entry = elementData.entry --[[@as SkillUpListEntry]]
+	line.entry = entry
+	if entry.icon then
+		ns.Art.Icon(line.Icon, entry.icon, LINE_ICON)
+		line.Icon:Show()
+	else
+		line.Icon:Hide()
+	end
+	line.Text:SetText(entry.text)
+	line.Text:SetTextColor((entry.color or NORMAL_FONT_COLOR):GetRGB())
+	line.Detail:SetText(entry.detail or "")
+	line.Detail:SetShown(entry.detail ~= nil)
+	line.Detail:SetTextColor((entry.detailColor or GRAY_FONT_COLOR):GetRGB())
+	line.tooltip = entry.tooltip
+	line.click = entry.click
+	line.menu = entry.menu
+	line:EnableMouse(entry.tooltip ~= nil or entry.click ~= nil or entry.menu ~= nil)
+end
+
 -- A list in the game's own scroll box list: rows the game draws its items with, headings and messages. A
 -- caller fills it between Begin and Finish; the game pools the frames and shows only the ones on screen.
 ---@param parent Frame
@@ -183,7 +349,11 @@ function ns.CreateList(parent)
 	local view = CreateScrollBoxListLinearView() --[[@as SkillUpScrollView]]
 	view:SetElementExtentCalculator(function(_, elementData)
 		if elementData.kind == "row" then
-			return ROW_HEIGHT
+			return elementData.entry.bar and ROW_BAR_HEIGHT or ROW_HEIGHT
+		elseif elementData.kind == "band" then
+			return BAND_HEIGHT
+		elseif elementData.kind == "line" then
+			return LINE_HEIGHT
 		elseif elementData.kind == "heading" then
 			return HEADING_HEIGHT
 		end
@@ -197,6 +367,10 @@ function ns.CreateList(parent)
 	view:SetElementFactory(function(factory, elementData)
 		if elementData.kind == "row" then
 			factory(ROW_TEMPLATE, InitializeRow)
+		elseif elementData.kind == "band" then
+			factory(BAND_TEMPLATE, InitializeBand)
+		elseif elementData.kind == "line" then
+			factory(LINE_TEMPLATE, InitializeLine)
 		elseif elementData.kind == "heading" then
 			factory(HEADING_TEMPLATE, InitializeHeading)
 		else
@@ -221,6 +395,19 @@ function ns.CreateList(parent)
 	---@param color ColorMixin?
 	function list:Message(text, color)
 		self.rows[#self.rows + 1] = { kind = "message", text = text, color = color }
+	end
+
+	---@param name string
+	---@param from number
+	---@param cap number
+	---@param skill number
+	function list:Band(name, from, cap, skill)
+		self.rows[#self.rows + 1] = { kind = "band", name = name, from = from, cap = cap, skill = skill }
+	end
+
+	---@param entry SkillUpListEntry
+	function list:Line(entry)
+		self.rows[#self.rows + 1] = { kind = "line", entry = entry }
 	end
 
 	---@param entry SkillUpListEntry

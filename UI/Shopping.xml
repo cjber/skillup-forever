@@ -4,6 +4,9 @@
 	<Button name="SkillUpForeverListRowTemplate" virtual="true"/>
 	<Frame name="SkillUpForeverListHeadingTemplate" virtual="true"/>
 	<Frame name="SkillUpForeverListMessageTemplate" virtual="true"/>
+	<!-- A skill band's slim header and a train or buy step's one gold line, drawn by List.lua. -->
+	<Frame name="SkillUpForeverListBandTemplate" virtual="true"/>
+	<Button name="SkillUpForeverListLineTemplate" virtual="true"/>
 
 	<!-- A buffs page row in its own scroll box: Buffs.lua draws the label and the nodes it holds. -->
 	<Frame name="SkillUpForeverBuffRowTemplate" virtual="true"/>

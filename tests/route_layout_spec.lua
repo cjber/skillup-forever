@@ -6,6 +6,10 @@
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
+local function near(actual, expected, label)
+	equal(math.abs(actual - expected) < 1e-6, true, ("%s (%s ~ %s)"):format(label, actual, expected))
+end
+
 -- Friz Quadrata at 12px, the widths the client draws for GameFontNormal and GameFontHighlight; anything not
 -- listed is measured at a flat rate. The reagent names are the ones the rows in this spec carry.
 local WIDTH = {
@@ -103,6 +107,11 @@ local function Width(region)
 	return right - left
 end
 
+local function Height(region)
+	local _, bottom, _, top = Rect(region)
+	return top - bottom
+end
+
 -- Two rects intersect when they overlap on both axes; touching edges do not count.
 local function overlaps(a, b)
 	local al, ab, ar, at = Rect(a)
@@ -190,6 +199,15 @@ local function NewRegion(parent, frameType)
 	function region:SetText(text)
 		self.text = text
 	end
+	function region:SetAtlas(atlas)
+		self.atlas = atlas
+	end
+	function region:SetTexture(texture)
+		self.texture = texture
+	end
+	function region:SetFormattedText(format, ...)
+		self.text = string.format(format, ...)
+	end
 	function region:GetTextWidth()
 		return TextWidth(self.text or "")
 	end
@@ -222,6 +240,9 @@ local function NewRegion(parent, frameType)
 	end
 	function region:SetEnabled(enabled)
 		self.enabled = enabled and true or false
+	end
+	function region:EnableMouse(enabled)
+		self.mouseEnabled = enabled and true or false
 	end
 	function region:IsEnabled()
 		return self.enabled
@@ -354,6 +375,10 @@ local function CreateFrame(frameType, name, parent, template)
 		insets[#insets + 1] = region
 	elseif template == "UICheckButtonTemplate" then
 		region.width, region.height = 26, 26
+	elseif template == "NumericInputSpinnerTemplate" then
+		region.IncrementButton = NewRegion(region, "Button")
+		region.DecrementButton = NewRegion(region, "Button")
+		region.MouseWheelCatcher = NewRegion(region, "Frame")
 	elseif parent == ProfessionsFrame and template == nil and name == nil then
 		pageFrame = region
 	end
@@ -450,17 +475,20 @@ local reagents = {
 	{ itemID = 2, need = 20, source = "vendor" },
 	{ itemID = 3, need = 10, source = "vendor" },
 }
+local apprentice = { name = "Apprentice", from = 0, cap = 75 }
+local craftStep = { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" }
 local plan = {
 	target = 100,
-	crafts = { { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
+	crafts = { craftStep },
 	steps = {
 		-- The sub-craft that makes the craft's reagent, as its own row before the craft.
-		{ subcraft = { recipeID = 3276, itemID = 2, crafts = 5, made = 5 } },
-		{ craft = { recipeID = 3275, crafts = 5, from = 1, to = 5, color = "green" } },
+		{ band = apprentice, subcraft = { recipeID = 3276, itemID = 2, crafts = 5, made = 5 } },
+		{ band = apprentice, craft = craftStep },
 	},
 	ranks = {},
 	cost = 0,
 	unpriced = 0,
+	bands = { apprentice },
 }
 
 local function FirstAid(skill)
@@ -657,6 +685,15 @@ local env = setmetatable({
 		end
 	end,
 	CreateFrame = CreateFrame,
+	C_Texture = {
+		GetAtlasInfo = function(atlas)
+			-- The band's bar frame is its own wide art; every other atlas in this spec is square.
+			if atlas == "Professions-skillbar-frame" then
+				return { width = 451, height = 29 }
+			end
+			return { width = 32, height = 32 }
+		end,
+	},
 	C_Timer = {
 		After = function(_, fn)
 			timers[#timers + 1] = fn
@@ -717,6 +754,7 @@ local env = setmetatable({
 	HIGHLIGHT_FONT_COLOR = Color(),
 	GRAY_FONT_COLOR = Color(),
 	RED_FONT_COLOR = Color(),
+	CreateColor = Color,
 	CreateScrollBoxListLinearView = CreateScrollBoxListLinearView,
 	CreateDataProvider = function(elements)
 		return { elements = elements }
@@ -751,6 +789,7 @@ for _, file in ipairs({
 	"Core/Model.lua",
 	"Core/Changes.lua",
 	"Core/Plan.lua",
+	"UI/Art.lua",
 	"UI/List.lua",
 	"UI/PageParts.lua",
 	"UI/Pages.lua",
@@ -871,16 +910,28 @@ for _, heading in ipairs(headings) do
 	equal(overlaps(heading, ProfessionsFrame.portrait), false, heading.text .. " misses the portrait")
 end
 
--- The switch and its label are one control in the header; Track, Craft and the vendor button share
--- the bottom row, right to left, with the craft label at its widest so no length can overlap.
+-- The switch and its label are one control in the header; the Track checkbox, Craft, the count box and the
+-- vendor button share the bottom row, right to left, at their one fixed width each.
 local controls = {
 	page.Collect,
 	page.CollectLabel,
+	page.Money,
 	page.Vendor,
 	page.Craft,
+	page.CraftCount,
 	page.Track,
+	page.TrackLabel,
 }
-local names = { "the switch", "the switch's label", "the vendor button", "Craft", "Track" }
+local names = {
+	"the switch",
+	"the switch's label",
+	"the money line",
+	"the vendor button",
+	"Craft",
+	"Craft's count",
+	"Track",
+	"Track's label",
+}
 
 for index, control in ipairs(controls) do
 	for _, heading in ipairs(headings) do
@@ -906,12 +957,27 @@ local switchAnchor = page.Collect.points[1]
 equal(switchAnchor.relative, page.Target, "the switch hangs off the target it changes")
 equal(switchAnchor.relativePoint, "RIGHT", "at the target's right, in the header")
 local vendorAnchor = page.Vendor.points[1]
-equal(vendorAnchor.relative, page.Craft, "the vendor button hangs off the craft it sits beside")
-equal(vendorAnchor.relativePoint, "LEFT", "at the craft's left, in the bottom row")
+equal(vendorAnchor.relative, page.CraftCount, "the vendor button hangs off the count it sits beside")
+equal(vendorAnchor.relativePoint, "LEFT", "at the count's left, in the bottom row")
+local countAnchor = page.CraftCount.points[1]
+equal(countAnchor.relative, page.Craft, "the count hangs off the craft button")
+equal(countAnchor.relativePoint, "LEFT", "at the craft's left, in the bottom row")
 local craftAnchor = page.Craft.points[1]
-equal(craftAnchor.relative, page.Track, "the craft button hangs off the track button")
-equal(craftAnchor.relativePoint, "LEFT", "at the track's left, in the bottom row")
-equal(Width(page.Craft), 240, "the craft button is drawn at its widest label")
+equal(craftAnchor.relative, insets[2], "the craft button ends the bottom row at the reagents' edge")
+equal(craftAnchor.relativePoint, "BOTTOMRIGHT", "where the actions start from")
+local trackLabelAnchor = page.TrackLabel.points[1]
+equal(trackLabelAnchor.relative, page.Track, "the track label sits at the checkbox's right")
+equal(trackLabelAnchor.relativePoint, "RIGHT", "so the checkbox keeps the row's left edge")
+local trackAnchor = page.Track.points[1]
+equal(trackAnchor.relative, insets[1], "and the checkbox sits at the route's bottom left")
+equal(trackAnchor.relativePoint, "BOTTOMLEFT", "where the row starts")
+equal(Width(page.Craft), 100, "the craft button keeps one width")
+equal(Width(page.CraftCount), 62, "and the count box keeps its own")
+equal(page.CraftCount.template, "NumericInputSpinnerTemplate", "the count uses the game's spinner count box")
+equal(page.CraftCount.IncrementButton.shown, false, "with its up arrow hidden")
+equal(page.CraftCount.DecrementButton.shown, false, "and its down arrow hidden")
+equal(page.CraftCount.MouseWheelCatcher.mouseEnabled, false, "and no wheel capture")
+equal(page.Track.checked, false, "the Track checkbox shows an untracked route")
 
 -- The list's scroll box is what the addon places; the game lays the rows out inside it, so the scroll
 -- box must sit inside the inset and every row the game draws inside the scroll box.
@@ -935,6 +1001,32 @@ for _, row in ipairs(page.RouteList.scrollBox.frames) do
 	end
 end
 equal(routeRows, 2, "the route list draws the sub-craft and the craft as rows")
+
+-- #574: the band's progress bar keeps the client's 451 by 29 frame at its own aspect, never stretched.
+local bands = 0
+for _, row in ipairs(page.RouteList.scrollBox.frames) do
+	if row.kind == "band" then
+		bands = bands + 1
+		equal(row.BarBorder.atlas, "Professions-skillbar-frame", "a band draws the client's bar frame")
+		near(Width(row.BarBorder) / Height(row.BarBorder), 451 / 29, "at the frame's own aspect")
+		equal(Width(row.BarBorder) <= 170, true, "inside the band's bar width")
+	end
+end
+equal(bands, 1, "the route draws its skill band's header")
+local currentRow
+for _, row in ipairs(page.RouteList.scrollBox.frames) do
+	if row.current then
+		currentRow = row
+	end
+end
+equal(currentRow and currentRow.Text.text, "Spell 3275", "the next craft is marked as the current step")
+equal(
+	currentRow and currentRow.Current:IsShown(),
+	true,
+	"with the client's gold highlight over the row, not a recoloured name"
+)
+equal(Find("Apprentice") ~= nil, true, "the route opens with its skill band header")
+equal(Find("0 to 75") ~= nil, true, "with the band's range beside it")
 equal(Find("Craft 5× Spell 3276") ~= nil, true, "the sub-craft names itself as a craft")
 equal(Find("makes 5 Coarse Thread") ~= nil, true, "and says how much of the reagent it makes")
 
@@ -956,7 +1048,13 @@ for _, row in ipairs(page.ReagentList.scrollBox.frames) do
 		equal(Width(row.Icon) >= 36, true, "a reagent row's icon is a full item icon")
 		equal(left >= reagentLeft and right <= reagentRight, true, "the reagent row is inside its inset's width")
 		equal(top <= reagentTop and bottom >= reagentBottom, true, "and inside its height")
-		equal(Width(row.Text), 183.5, "a reagent row gives its name the width the row has")
+		equal(
+			Width(row.Text),
+			row.entry.sourceIcon and 163.5 or 183.5,
+			"a reagent row gives its name the room beside its source icon"
+		)
+		equal(row.barNeed, row.entry.bar.need, "a reagent row carries its have/need bar")
+		equal(row.Source.shown, row.entry.sourceIcon ~= nil, "and a source icon where the source has one")
 	end
 end
 equal(reagentRows, 3, "the reagent list draws a row a reagent")

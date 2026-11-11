@@ -101,6 +101,7 @@ local env = setmetatable({
 	ScrollUtil = { InitScrollBoxListWithScrollBar = function() end },
 	ScrollBoxConstants = { RetainScrollPosition = true },
 	HIGHLIGHT_FONT_COLOR = color,
+	NORMAL_FONT_COLOR = color,
 	GRAY_FONT_COLOR = color,
 }, { __index = _G })
 ns.core = {

@@ -908,6 +908,9 @@ end
 
 ---@type SkillUpPublicAddon
 SkillUpForever = { API = API }
+if (ForeverCore.APIKit.minor or 1) >= 2 then
+	ForeverCore.APIKit.Publish("SkillUpForever", API)
+end
 
 ns.WhenEvent("ITEM_DATA_LOAD_RESULT", function()
 	return namesPending and "names" or nil

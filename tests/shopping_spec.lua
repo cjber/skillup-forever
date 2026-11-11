@@ -29,7 +29,14 @@ local module = c.G.SkillUpForeverObjectiveTracker
 equal(c.host.IsAttached(module), true, "attaches to the shared host immediately")
 c.EnterWorld()
 c.Advance(0)
-equal(#c.tracker, 1, "and keeps its place through native initialization")
+-- ForeverCore's own quest section attaches to the shared host too; this is about the addon's module keeping one place.
+local attached = 0
+for _, tracked in ipairs(c.tracker) do
+	if tracked == module then
+		attached = attached + 1
+	end
+end
+equal(attached, 1, "and keeps its place through native initialization")
 
 c.level = 20
 c.spells[HEAVY] = "Heavy Linen Bandage"

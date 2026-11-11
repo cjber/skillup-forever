@@ -1,7 +1,8 @@
 # Addon API
 
 Other addons read SkillUp Forever's answers through `SkillUpForever.API` (`version = 1`). Every read returns a fresh
-table on every call, so a caller may keep it or change it: it is never the addon's own table.
+table on every call, so a caller may keep it or change it: it is never the addon's own table. On ForeverCore 1.3.2 or
+later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current

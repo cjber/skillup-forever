@@ -61,6 +61,16 @@ local c = Client.load({
 local ns, API = c.ns, c.G.SkillUpForever.API
 equal(API.version, 1, "version 1")
 equal(API.minor, 6, "minor 6 adds tracking, the shopping trip, limits, stats and the leaderboard")
+-- Publishing is discovery, not an API change (#594): the suite lists the addon with the API's own version and minor.
+local published
+for _, entry in ipairs(c.G.ForeverCore.APIKit.Addons()) do
+	if entry.name == "SkillUpForever" then
+		published = entry
+	end
+end
+equal(published and published.version, 1, "the suite list carries the API's version")
+equal(published and published.minor, 6, "and its minor")
+equal(published and published.api, API, "and the addon's own API table")
 -- Nothing to answer says why, so a caller can tell "ask again later" from "there is nothing to ask about".
 local beforeLoad, beforeLoadReason = API.Professions()
 equal(beforeLoad, nil, "nothing before the saved variables load")
@@ -606,5 +616,18 @@ scrollClient.G.ShortestPathForever = {
 equal(scrollAPI.Navigate(COOKING, 1), true, "the scroll step routes")
 equal(scrollClient.routed, "Fish Vendor", "to its vendor, not a trainer")
 equal(trainerAsked, false, "even when it routes")
+
+-- A core older than the kit's Publish still loads the addon: with the kit at minor 1 the guard hands it nothing.
+local kit = c.G.ForeverCore.APIKit
+local kitMinor, publishCalls = kit.minor, 0
+kit.minor = 1
+kit.Publish = function()
+	publishCalls = publishCalls + 1
+end
+local chunk = assert(loadfile("Core/API.lua"))
+setfenv(chunk, c.G)
+equal(pcall(chunk, "SkillUpForever", c.ns), true, "the addon loads on a kit from before Publish")
+equal(publishCalls, 0, "and a minor 1 kit is handed nothing")
+kit.minor = kitMinor
 
 Client.report("api_spec")

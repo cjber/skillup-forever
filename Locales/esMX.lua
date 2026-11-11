@@ -27,10 +27,10 @@ L["%s, source unknown"] = "%s, origen desconocido"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] =
 	"%s: %d movidas, %d confirmadas con un instructor, %d erróneas."
 L["+%d more"] = "+%d más"
-L["/su skipped lists the recipes you skipped, with their IDs."] =
-	"/su skipped muestra las recetas que omitiste, con sus ID."
-L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
-	"/su unskip <recipe ID> vuelve a mostrar una, /su unskip all todas."
+L["/skillup skipped lists the recipes you skipped, with their IDs."] =
+	"/skillup skipped muestra las recetas que omitiste, con sus ID."
+L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."] =
+	"/skillup unskip <recipe ID> vuelve a mostrar una, /skillup unskip all todas."
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"Una pestaña Componentes en la ventana del mercader que muestra los componentes que tus rutas seguidas aún necesitan de ese mercader y su coste total. Cómpralos en la propia ventana del mercader."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
@@ -371,12 +371,12 @@ L["%d x %s - price unknown"] = "%d x %s - precio desconocido"
 L["%s to %d"] = "%s a %d"
 L[", "] = ", "
 L[", price seen %d days ago"] = ", precio visto hace %d días"
-L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
-	"/su export - muestra los requisitos de instructor que ha visto este personaje, para pegar en un informe"
-L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
-	"/su issue - reporta un error o pide una función con un enlace de issue de GitHub listo para usar"
-L["/su report - show a report to copy into a bug report"] =
-	"/su report - muestra un informe para copiar en un informe de error"
+L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/skillup export - muestra los requisitos de instructor que ha visto este personaje, para pegar en un informe"
+L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/skillup issue - reporta un error o pide una función con un enlace de issue de GitHub listo para usar"
+L["/skillup report - show a report to copy into a bug report"] =
+	"/skillup report - muestra un informe para copiar en un informe de error"
 L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] = "Un viaje de compra necesita Shortest Path Forever."
 L["Copy list"] = "Copiar lista"
@@ -417,12 +417,12 @@ L["Pinned: %s"] = "Fijada: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"La receta fijada más reciente tiene prioridad cuando los rangos se superponen." -- mt
 L["Pinned (%d)"] = "Fijadas (%d)" -- mt
-L["/su share on|off - control sharing with guild and group"] =
-	"/su share on|off - controla lo que compartes con hermandad y grupo"
+L["/skillup share on|off - control sharing with guild and group"] =
+	"/skillup share on|off - controla lo que compartes con hermandad y grupo"
 L["Share observed recipe totals with guild and group"] = "Compartir totales de recetas observadas con hermandad y grupo"
 L["Recipes observed"] = "Recetas observadas"
-L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
-	"/su leaderboard - abre Forever Leaderboards en la pestaña de este addon (también /su stats)"
+L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
+	"/skillup leaderboard - abre Forever Leaderboards en la pestaña de este addon (también /skillup stats)"
 L["total"] = "total"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."

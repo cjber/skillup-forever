@@ -239,7 +239,7 @@ local function LoadDB()
 	end
 	-- Earlier versions saved a trainer row that showed no skill requirement as needing 0, which planned
 	-- learning it at once; the bundled requirement stands in for those. A shown requirement that is no
-	-- skill is forgotten, so /su trainers never reports it.
+	-- skill is forgotten, so /skillup trainers never reports it.
 	for skillLine, recipes in pairs(loaded.trainer) do
 		if type(skillLine) ~= "number" or type(recipes) ~= "table" then
 			loaded.trainer[skillLine] = nil
@@ -819,7 +819,7 @@ function ns.RowColor(d)
 	return ns.COLORS[d.chance and d.color or (d.thresholds and "red" or "unknown")]
 end
 
--- /su audit's lines: with a profession open, the bundled thresholds against the colours the game shows, as a
+-- /skillup audit's lines: with a profession open, the bundled thresholds against the colours the game shows, as a
 -- summary line then each mismatch; nil with none open. English throughout: it is a data check for bug reports.
 ---@return string[]?
 function ns.AuditLines()
@@ -884,7 +884,7 @@ local function Audit()
 	end
 end
 
--- /su skipped: this character's skipped recipes, each with its ID for /su unskip.
+-- /skillup skipped: this character's skipped recipes, each with its ID for /skillup unskip.
 local function ListSkipped()
 	local skipped = ns.SkippedRecipes()
 	if #skipped == 0 then
@@ -895,10 +895,10 @@ local function ListSkipped()
 	for _, recipe in ipairs(skipped) do
 		ns.Print(string.format("%s (%d)", recipe.name, recipe.recipeID))
 	end
-	ns.Print(L["/su unskip <recipe ID> shows one again, /su unskip all every one."])
+	ns.Print(L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."])
 end
 
--- /su unskip <recipe ID> or /su unskip all: Show again, from chat.
+-- /skillup unskip <recipe ID> or /skillup unskip all: Show again, from chat.
 ---@param argument string
 local function Unskip(argument)
 	if argument == "all" then
@@ -910,7 +910,7 @@ local function Unskip(argument)
 	end
 	local recipeID = tonumber(argument)
 	if not (recipeID and ns.IsSkipped(recipeID)) then
-		ns.Print(L["/su skipped lists the recipes you skipped, with their IDs."])
+		ns.Print(L["/skillup skipped lists the recipes you skipped, with their IDs."])
 		return
 	end
 	ns.SetSkipped(recipeID, false)
@@ -918,10 +918,10 @@ local function Unskip(argument)
 	ns.Print(string.format(L["Show again: %s"], name))
 end
 
--- /su export trainers (#124): the requirements this character's trainers actually showed, as a table for
+-- /skillup export trainers (#124): the requirements this character's trainers actually showed, as a table for
 -- tools/gen_trainer.py's SEEN_REQUIREMENTS, so a value no bundled rule guessed right can be fixed for everyone.
--- Trainers are the only export, so /su export does the same as /su export trainers. The copy window when it can
--- open, the same lines in chat when it cannot: nothing is written, nothing prints on login, nothing waits on an
+-- Trainers are the only export, so /skillup export does the same as /skillup export trainers. The copy window when
+-- it can open, the same lines in chat when it cannot: nothing is written, nothing prints on login, nothing waits on an
 -- event, and there is no protected call in it.
 local function Export()
 	local lines = ns.TrainerExport()
@@ -939,11 +939,10 @@ local function Export()
 end
 
 SLASH_SKILLUPFOREVER1 = "/skillup"
-SLASH_SKILLUPFOREVER2 = "/su"
 
 -- The /skillup commands, in dispatch order. The shared report commands come first, as they did before the table,
--- so the table order is also the order /su help prints. `arguments`, when set, lists the only values the command
--- accepts; nil accepts any argument. `help` is the line /su help prints, or nil for a command the help leaves out.
+-- so the table order is also the order /skillup help prints. `arguments`, when set, lists the only values the command
+-- accepts; nil accepts any argument. `help` is the line /skillup help prints, or nil for a command the help leaves out.
 ---@return nil
 local function Help()
 	for _, entry in ipairs(ns.SlashCommands) do
@@ -967,19 +966,19 @@ ns.SlashCommands = {
 	{
 		word = "report",
 		handler = ReportCommand,
-		help = L["/su report - show a report to copy into a bug report"],
+		help = L["/skillup report - show a report to copy into a bug report"],
 	},
 	{
 		word = "issue",
 		aliases = { BUG, FEATURE },
 		handler = ReportCommand,
-		help = L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"],
+		help = L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"],
 	},
 	{ word = "help", handler = Help },
 	{
 		word = "export",
 		handler = Export,
-		help = L["/su export - show the trainer requirements this character has seen, to paste into a report"],
+		help = L["/skillup export - show the trainer requirements this character has seen, to paste into a report"],
 	},
 	{
 		word = "leaderboard",
@@ -989,7 +988,7 @@ ns.SlashCommands = {
 				ns.Stats.Open()
 			end
 		end,
-		help = L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"],
+		help = L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"],
 	},
 	{
 		word = "share",
@@ -999,7 +998,7 @@ ns.SlashCommands = {
 				Settings.SetValue("SkillUpForever_statsShare", argument == SHARE_ON)
 			end
 		end,
-		help = L["/su share on|off - control sharing with guild and group"],
+		help = L["/skillup share on|off - control sharing with guild and group"],
 	},
 	{
 		word = "shopping",

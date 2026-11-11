@@ -27,10 +27,10 @@ L["%s, source unknown"] = "%s, источник неизвестен"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] =
 	"%s: перемещено %d, подтверждено у учителя %d, неверно %d."
 L["+%d more"] = "и еще %d"
-L["/su skipped lists the recipes you skipped, with their IDs."] =
-	"/su skipped показывает пропущенные рецепты с их ID."
-L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
-	"/su unskip <recipe ID> возвращает один рецепт, /su unskip all — все."
+L["/skillup skipped lists the recipes you skipped, with their IDs."] =
+	"/skillup skipped показывает пропущенные рецепты с их ID."
+L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."] =
+	"/skillup unskip <recipe ID> возвращает один рецепт, /skillup unskip all — все."
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"Вкладка «Реагенты» в окне торговца со списком реагентов, которые ещё нужны вашим отслеживаемым маршрутам у этого торговца, и их общей стоимостью. Покупайте их в окне торговца."
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
@@ -390,12 +390,12 @@ L["%d x %s - price unknown"] = "%d x %s - цена неизвестна"
 L["%s to %d"] = "%s до %d"
 L[", "] = ", "
 L[", price seen %d days ago"] = ", цена замечена %d дн. назад"
-L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
-	"/su export - показать требования учителя, которые видел этот персонаж, чтобы вставить их в отчет"
-L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
-	"/su issue - сообщить об ошибке или попросить новую возможность с готовой ссылкой на issue GitHub"
-L["/su report - show a report to copy into a bug report"] =
-	"/su report - показать отчет, чтобы скопировать его в сообщение об ошибке"
+L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/skillup export - показать требования учителя, которые видел этот персонаж, чтобы вставить их в отчет"
+L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/skillup issue - сообщить об ошибке или попросить новую возможность с готовой ссылкой на issue GitHub"
+L["/skillup report - show a report to copy into a bug report"] =
+	"/skillup report - показать отчет, чтобы скопировать его в сообщение об ошибке"
 L[": "] = ": "
 L["A buy trip needs Shortest Path Forever."] =
 	"Для поездки за покупками нужен Shortest Path Forever."
@@ -439,13 +439,13 @@ L["Pinned: %s"] = "Закреплён: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"При пересечении диапазонов приоритет у рецепта, закреплённого последним." -- mt
 L["Pinned (%d)"] = "Закреплено (%d)" -- mt
-L["/su share on|off - control sharing with guild and group"] =
-	"/su share on|off - управление обменом с гильдией и группой"
+L["/skillup share on|off - control sharing with guild and group"] =
+	"/skillup share on|off - управление обменом с гильдией и группой"
 L["Share observed recipe totals with guild and group"] =
 	"Делиться итогами наблюдений рецептов с гильдией и группой"
 L["Recipes observed"] = "Наблюдаемые рецепты"
-L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
-	"/su leaderboard - открывает Forever Leaderboards на вкладке этого аддона (также /su stats)"
+L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
+	"/skillup leaderboard - открывает Forever Leaderboards на вкладке этого аддона (также /skillup stats)"
 L["total"] = "всего"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."

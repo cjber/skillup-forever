@@ -205,20 +205,20 @@ plan = Plan()
 equal(#plan.crafts, 0, "nothing left to craft")
 equal(ns.RouteBlocked(plan), "Nothing you know skills up past 1.", "says so the usual way")
 
--- /su skipped lists them with their IDs, and /su unskip shows one, or all, again.
+-- /skillup skipped lists them with their IDs, and /skillup unskip shows one, or all, again.
 local SlashCommand = c.G.SlashCmdList.SKILLUPFOREVER
 c.chat = {}
 SlashCommand("skipped")
-equal(c.chat[1]:find("Skipped (2):", 1, true) ~= nil, true, "/su skipped counts them")
+equal(c.chat[1]:find("Skipped (2):", 1, true) ~= nil, true, "/skillup skipped counts them")
 equal(c.chat[2]:find("Copper Chain Belt (101)", 1, true) ~= nil, true, "and names each with its ID")
 SlashCommand("unskip 101")
-equal(ns.IsSkipped(FROM_ORE), false, "/su unskip shows one again")
+equal(ns.IsSkipped(FROM_ORE), false, "/skillup unskip shows one again")
 equal(Plan().crafts[1].recipeID, FROM_ORE, "and the route uses it again")
 c.chat = {}
 SlashCommand("unskip 999")
-equal(c.chat[1]:find("/su skipped lists", 1, true) ~= nil, true, "an ID that isn't skipped says how to find one")
+equal(c.chat[1]:find("/skillup skipped lists", 1, true) ~= nil, true, "an ID that isn't skipped says how to find one")
 SlashCommand("unskip all")
-equal(ns.IsSkipped(FROM_FLUX), false, "/su unskip all shows every one again")
+equal(ns.IsSkipped(FROM_FLUX), false, "/skillup unskip all shows every one again")
 equal(ns.db.skippedRecipes["Tester-Realm"], nil, "leaving nothing saved")
 c.chat = {}
 SlashCommand("skipped")

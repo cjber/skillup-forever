@@ -18,7 +18,7 @@ Things reached indirectly: none of them is dead code, even when no file calls it
 - `Locales/<locale>.lua`: translators' files, loaded from the TOC after `enUS.lua`; `tools/phrases.py` runs from `tests/locale_spec.lua`.
 - `SkillUpForever.API` (Core/API.lua): the public API other addons (Adventure Guide Forever) call; `types/API.lua` is its contract.
 - `## AddonCompartmentFunc: SkillUpForever_OnAddonCompartmentClick`: global called by the client by name.
-- `SLASH_SKILLUPFOREVER1/2` + `SlashCmdList.SKILLUPFOREVER`: `/su` commands.
+- `SLASH_SKILLUPFOREVER1` + `SlashCmdList.SKILLUPFOREVER`: `/skillup` commands.
 - `hooksecurefunc("ClassTrainerFrame_InitServiceButton" | "ClassTrainerFrame_Update", …)`, `EventUtil.ContinueAfterAllEvents`: Blizzard trainer functions hooked by string name, plus a load-sequencing callback.
 - `EventRegistry:RegisterCallback("Professions.RecipeListOnEnter")`, `Menu.ModifyMenu("MENU_PROFESSIONS_FILTER")`, `TooltipDataProcessor.AddTooltipPostCall`: host callbacks.
 - `ScrollUtil.AddInitializedFrameCallback(recipeList.ScrollBox, DecorateRow, ns)` (UI/RecipeList.lua) and `Auctionator.API.v1.RegisterForDBUpdate(addonName, PricesChanged)` (Integrations/Prices.lua `ns.InitPrices`): callbacks the plain live-root search misses.

@@ -26,7 +26,7 @@ Right-click a pinned row to remove its pin, or use the *Pinned* list in the trac
 
 Right-click a step, a *Train* step, a sub-craft or a suggested scroll and choose *Not this recipe*, the way Adventure Guide Forever's *Not this quest* leaves a quest out. The route is planned again without it: it is never crafted, trained, made as a sub-craft or suggested, and the next cheapest recipe takes its place. When nothing else reaches the target, the route stops short as it would anyway.
 
-A *Skipped (N)* row under the route counts what you left out of this profession; click or right-click it and choose *Show again* to bring one back. The tracker's header menu has the same list. `/su skipped` prints every skipped recipe with its ID, and `/su unskip <ID>` or `/su unskip all` brings them back. Skips are saved for each character.
+A *Skipped (N)* row under the route counts what you left out of this profession; click or right-click it and choose *Show again* to bring one back. The tracker's header menu has the same list. `/skillup skipped` prints every skipped recipe with its ID, and `/skillup unskip <ID>` or `/skillup unskip all` brings them back. Skips are saved for each character.
 
 ### The steps
 
@@ -42,7 +42,7 @@ No trainer teaches Expert First Aid or Expert Cooking: you buy a book and read i
 
 Fees come from the classic trainer data (CMaNGOS), which also says who trains what. A trainer you have visited quotes its own fees, for recipes and for the ranks it still offers, and those then win.
 
-Where Forever moved a recipe's colours, the bundled skill its trainer asks for moves by the same amount. That is right for most recipes but is a guess. `/su trainers` lists the guesses for each profession, which ones a trainer you visited agreed with or showed differently, and which ones your trainer should teach at your skill now. A requirement a trainer shows replaces the guess.
+Where Forever moved a recipe's colours, the bundled skill its trainer asks for moves by the same amount. That is right for most recipes but is a guess. `/skillup trainers` lists the guesses for each profession, which ones a trainer you visited agreed with or showed differently, and which ones your trainer should teach at your skill now. A requirement a trainer shows replaces the guess.
 
 ### Prices
 

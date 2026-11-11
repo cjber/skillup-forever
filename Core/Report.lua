@@ -5,8 +5,8 @@ if ns.broken then
 	return
 end
 
--- SkillUp's own lines in /su report (cjber/adventure-guide-forever#156): the settings that change a number, the
--- data providers, each profession with its route, then /su audit's lines and the trainer checks for this
+-- SkillUp's own lines in /skillup report (cjber/adventure-guide-forever#156): the settings that change a number, the
+-- data providers, each profession with its route, then /skillup audit's lines and the trainer checks for this
 -- character's professions, each list cut so the caught errors after it still fit in one message. Field labels and
 -- reasons are English; profession and recipe names are the client's.
 
@@ -84,7 +84,7 @@ function ns.ReportLines()
 	else
 		lines[#lines + 1] = "Audit: no profession open"
 	end
-	-- The bundled trainer requirements a trainer could prove wrong (/su trainers), for this character's
+	-- The bundled trainer requirements a trainer could prove wrong (/skillup trainers), for this character's
 	-- professions: how many were moved from classic-db's, confirmed at a trainer, and each one shown differently.
 	local counts, wrong = {}, {}
 	for _, check in ipairs(ns.TrainerChecks()) do

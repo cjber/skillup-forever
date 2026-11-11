@@ -55,17 +55,17 @@ A craft's vendor sell value comes off its cost, or its auction value after the 5
 
 Open a profession and the numbers are already there.
 
-- `/su` opens the settings (also in Settings > AddOns and the minimap's addon compartment).
-- `/su skipped` lists the recipes you said *Not this recipe* to, and `/su unskip <ID>` (or `all`) brings them back.
-- `/su leaderboard` opens the Forever Leaderboards window on SkillUp's tab (also `/su stats`).
-- `/su share on|off` controls sharing with your guild and group. Sharing is on by default, and the window's Share my progress switch and the settings checkbox turn it off.
-- `/su audit`, with a profession open, prints where the bundled thresholds differ from the colours the game shows.
-- `/su issue` opens a ready-made GitHub issue link to report a bug or request a feature.
-- `/su trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
+- `/skillup` opens the settings (also in Settings > AddOns and the minimap's addon compartment).
+- `/skillup skipped` lists the recipes you said *Not this recipe* to, and `/skillup unskip <ID>` (or `all`) brings them back.
+- `/skillup leaderboard` opens the Forever Leaderboards window on SkillUp's tab (also `/skillup stats`).
+- `/skillup share on|off` controls sharing with your guild and group. Sharing is on by default, and the window's Share my progress switch and the settings checkbox turn it off.
+- `/skillup audit`, with a profession open, prints where the bundled thresholds differ from the colours the game shows.
+- `/skillup issue` opens a ready-made GitHub issue link to report a bug or request a feature.
+- `/skillup trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
 Settings cover rows and tooltips, the recipe list's width, prices, the route, gear and buffs tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints.
 
-For a bug report, paste `/su report`. It shows a report to copy.
+For a bug report, paste `/skillup report`. It shows a report to copy.
 
 Translated into German, French, Spanish, Brazilian Portuguese, Russian, Korean and Chinese (machine translated; corrections welcome through the [translation form](https://github.com/cjber/skillup-forever/issues/new?template=translation.yml)).
 

@@ -111,7 +111,7 @@ jobs:
 
             ${{ steps.report.outputs.markdown }}
 
-            Before merging, read the diff for recipes that dropped out, and run `/su audit` in-game on a couple of professions to confirm the new values match the colours the client shows.
+            Before merging, read the diff for recipes that dropped out, and run `/skillup audit` in-game on a couple of professions to confirm the new values match the colours the client shows.
 
             The workflow that opened this PR also approved its CI, so the required checks run without a maintainer's approval.
 

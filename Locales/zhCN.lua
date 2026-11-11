@@ -27,9 +27,10 @@ L["%s, source unknown"] = "%s，来源未知"
 L["%s: %d moved, %d confirmed at a trainer, %d wrong."] =
 	"%s：移动%d个，在训练师处确认%d个，错误%d个。"
 L["+%d more"] = "另有%d个"
-L["/su skipped lists the recipes you skipped, with their IDs."] = "/su skipped 列出你跳过的配方及其ID。"
-L["/su unskip <recipe ID> shows one again, /su unskip all every one."] =
-	"/su unskip <recipe ID> 恢复显示一个，/su unskip all 恢复全部。"
+L["/skillup skipped lists the recipes you skipped, with their IDs."] =
+	"/skillup skipped 列出你跳过的配方及其ID。"
+L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."] =
+	"/skillup unskip <recipe ID> 恢复显示一个，/skillup unskip all 恢复全部。"
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"在商人窗口显示材料标签页，列出你追踪的路线仍需要从该商人处购买的材料及其总费用。请在商人窗口中购买。"
 L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
@@ -364,11 +365,12 @@ L["%d x %s - price unknown"] = "%d x %s - 价格未知"
 L["%s to %d"] = "%s至%d"
 L[", "] = "，"
 L[", price seen %d days ago"] = "，%d 天前的价格"
-L["/su export - show the trainer requirements this character has seen, to paste into a report"] =
-	"/su export - 显示此角色见过的训练师要求，以便粘贴到报告中"
-L["/su issue - report a bug or request a feature with a ready-made GitHub issue link"] =
-	"/su issue - 报告错误或请求功能，并附上现成的 GitHub issue 链接"
-L["/su report - show a report to copy into a bug report"] = "/su report - 显示报告，以便复制到错误报告中"
+L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
+	"/skillup export - 显示此角色见过的训练师要求，以便粘贴到报告中"
+L["/skillup issue - report a bug or request a feature with a ready-made GitHub issue link"] =
+	"/skillup issue - 报告错误或请求功能，并附上现成的 GitHub issue 链接"
+L["/skillup report - show a report to copy into a bug report"] =
+	"/skillup report - 显示报告，以便复制到错误报告中"
 L[": "] = "："
 L["A buy trip needs Shortest Path Forever."] = "购买行程需要 Shortest Path Forever。"
 L["Copy list"] = "复制列表"
@@ -407,11 +409,12 @@ L["Pinned: %s"] = "已固定：%s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"技能范围重叠时，最近固定的配方优先。" -- mt
 L["Pinned (%d)"] = "已固定（%d）" -- mt
-L["/su share on|off - control sharing with guild and group"] = "/su share on|off - 控制与公会和队伍共享"
+L["/skillup share on|off - control sharing with guild and group"] =
+	"/skillup share on|off - 控制与公会和队伍共享"
 L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
 L["Recipes observed"] = "已观察配方"
-L["/su leaderboard - open Forever Leaderboards on this addon's tab (also /su stats)"] =
-	"/su leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /su stats）"
+L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
+	"/skillup leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /skillup stats）"
 L["total"] = "总计"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"

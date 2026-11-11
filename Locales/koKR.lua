@@ -513,6 +513,7 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Auctionator가 없으면 레시피의 검색 버튼이 게임 자체 경매 검색 상자에 한 번에 하나의 재료를 채웁니다."
 L["Tells you which addon to update."] = "어떤 애드온을 업데이트해야 하는지 알려 줍니다." -- mt
+L["The Professions window keeps one width and one page."] = "전문 기술 창이 한 가지 너비와 한 페이지를 유지합니다." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
 L["%s: %s are out of date. Update them to fix this."] =

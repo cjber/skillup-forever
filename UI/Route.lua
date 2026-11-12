@@ -598,14 +598,17 @@ local function RenderRoute(list, plan)
 	end
 	if #plan.crafts > 0 and plan.unpriced > 0 then
 		list:Message(
-			string.format(L["Route incomplete: %d recipes left out, their reagents not priced yet."], plan.unpriced)
+			string.format(
+				L["Route incomplete: %d recipes left out because their costs or sale values are unknown."],
+				plan.unpriced
+			)
 		)
 	end
 	local notice = ns.RouteNotice(plan)
 	if notice then
 		list:Message(
 			string.format(
-				L["This route is mostly %s: %d recipes are left out until their reagents are priced."],
+				L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."],
 				ItemName(notice.itemID),
 				notice.recipes
 			),
@@ -1251,7 +1254,7 @@ local function CreateHeader()
 				GameTooltip_AddNormalLine(
 					GameTooltip,
 					string.format(
-						L["Route incomplete: %d recipes left out, their reagents not priced yet."],
+						L["Route incomplete: %d recipes left out because their costs or sale values are unknown."],
 						self.unpriced
 					)
 				)

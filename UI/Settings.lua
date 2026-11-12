@@ -168,6 +168,8 @@ function ns.RegisterSettings()
 			L["Count what crafts sell for"],
 			ns.CRAFT_VALUE_OPTIONS,
 			L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator or TradeSkillMaster, are after the 5% cut, and may not sell."]
+				.. " "
+				.. L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."]
 		)
 
 		Checkbox(

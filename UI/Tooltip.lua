@@ -318,7 +318,9 @@ local function AddCost(tooltip, recipeID, d)
 			string.format(
 				"%s |cff808080(%s)|r",
 				Money(d.value.copper),
-				d.value.source == "auction" and L["AH"] or L["vendor"]
+				d.value.source == "auction" and L["AH"]
+					or d.value.source == "sale" and L["Region sale average"]
+					or L["vendor"]
 			),
 			1,
 			0.82,

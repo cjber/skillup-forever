@@ -211,8 +211,8 @@ L["Requires"] = "Требуется"
 L["Replan"] = "Перепланировать"
 L["Route"] = "Маршрут"
 L["Route and trainer"] = "Маршрут и учитель"
-L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
-	"Маршрут неполный: пропущено рецептов: %d, у их реагентов еще нет цен."
+L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
+	"Маршрут неполный: исключено рецептов: %d. Их затраты или стоимость продажи неизвестны."
 L["Route needs"] = "Нужно маршруту"
 L["Route: %d/%d · %s to %d"] = "Маршрут: %d/%d · %s до %d"
 L["Sales"] = "Продажа"
@@ -462,8 +462,8 @@ L["The game's Craft button is not ready for this recipe."] =
 	"Кнопка «Создать» в игре не готова для этого рецепта." -- mt
 L["vendor, limited stock"] = "торговец, ограниченный запас" -- mt
 L["Sells %d at a time"] = "Продаёт по %d за раз" -- mt
-L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
-	"Этот маршрут в основном %s: рецептов %d остаются исключенными, пока у их реагентов нет цены." -- mt
+L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
+	"В этом маршруте в основном используется %s: рецептов исключено: %d, пока не станут известны их затраты или стоимость продажи."
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
@@ -533,3 +533,7 @@ L["%s: %s are out of date. Update them to fix this."] =
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s не удалось запустить. Переустановите %s, чтобы это исправить." -- mt
 L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["Region sale average"] = "Средняя цена продажи в регионе"
+L["Region sale average if higher"] = "Средняя цена продажи в регионе, если выше"
+L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
+	"Для средних цен продажи в регионе нужны TradeSkillMaster и его приложение для компьютера. Они оценивают стоимость по зарегистрированным региональным продажам и покупкам, но не ниже цены продажи торговцу. Продажа не гарантируется."

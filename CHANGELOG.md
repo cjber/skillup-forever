@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Craft values can use regional sales.** Choose Region sale average if higher to value crafted items with TradeSkillMaster and its desktop app. Buying reagents still uses listing prices. Missing sales fall back to the vendor price, and a value with neither source stays unknown. Thanks to _spada (#478).
+
 - **Search also filters unlearned recipes.** Typing in the Professions search box narrows the unlearned list, and clearing it brings the recipes back. Thanks to kopuliak (#662).
 
 ## [1.9.0] - 2026-11-12

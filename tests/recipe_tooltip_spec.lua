@@ -158,6 +158,21 @@ equal(blanks, 4, "the bar has four blank lines of its own")
 equal(lines[2 + blanks + 1]:match("^Skill%-up chance") ~= nil, true, "and the chance follows them")
 equal(minimumWidth, 250, "the tooltip is at least as wide as the bar")
 
+-- Regional trade values must not be presented as a guaranteed vendor payout.
+local originalCraftCost = ns.CraftCost
+ns.CraftCost = function()
+	return 10, { copper = 95, source = "sale", quantity = 1 }, -85
+end
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+local saleLine
+for _, pair in ipairs(doubleLines) do
+	if pair[1] == "Sells for" then
+		saleLine = pair[2]
+	end
+end
+equal(saleLine and saleLine:find("Region sale average", 1, true) ~= nil, true, "the output value names regional sales")
+ns.CraftCost = originalCraftCost
+
 -- The bar is the first frame the tooltip made.
 local bar
 for _, frame in ipairs(c.frames) do

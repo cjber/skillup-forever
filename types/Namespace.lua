@@ -249,7 +249,7 @@
 ---@field recipeTooltip 'window'|'cursor'|'row'
 ---@field rowCost 'skillup'|'craft'
 ---@field showCost boolean
----@field craftValue 'none'|'vendor'|'auction'
+---@field craftValue 'none'|'vendor'|'auction'|'sale'
 ---@field valueGathered boolean
 ---@field auctionOnly boolean
 ---@field sortMode 'blizzard'|'skill'|'newest'|'chance'|'cost'
@@ -469,9 +469,13 @@ SkillUpForeverDB = nil
 ---@field worth? 'auction'|'vendor' Gathered reagents valued at what they sell for: which price that is.
 ---@field unknown? boolean A gatherable with Buy reagents on that nothing has priced: it stays on the route.
 
+--- Where a craft's value came from: the vendor's sell price, an auction listing, or TradeSkillMaster's regional
+--- sale average. "sale" is the region's average sale and purchase price, never this character's own sales.
+---@alias SkillUpValueSource 'vendor'|'auction'|'sale'
+
 ---@class SkillUpValue
 ---@field copper number
----@field source 'vendor'|'auction'
+---@field source SkillUpValueSource
 ---@field quantity number
 
 ---@class SkillUpDescription

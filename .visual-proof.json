@@ -1,40 +1,31 @@
 {
-  "input_digest": "4a124a5fff898f2f8dab7422b504bd48fef6fdbf161e2d1ffffc6d1dad0cf7f1",
-  "runtime_sha256": "4a124a5fff898f2f8dab7422b504bd48fef6fdbf161e2d1ffffc6d1dad0cf7f1",
-  "candidate": "292bbc5143fe27dccb10f654d3d2897cabbb02ae9283a3cd2e5b8573234293ac",
-  "tested_artifact": "release-package",
+  "input_digest": "798cff5c1fe3bf3cc536e6acd6ba2079f94566f781cf5833e1a2ba554ff2f627",
+  "runtime_sha256": "798cff5c1fe3bf3cc536e6acd6ba2079f94566f781cf5833e1a2ba554ff2f627",
+  "candidate": "830c653e7dc74e85c53c794eed1852bcde6082c252e0d3039a78f6584f7d0471",
+  "tested_artifact": "source-tree",
   "client_build": "1.60.1.70888 (Interface 16001)",
+  "source_commit": "ac78edbab7a6362dda6c0a65e35d464591a291cb",
+  "notes": "Recorded on Hel Io in the player's live client from an installed source-tree build of this commit (git archive); visual_proof --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon media/icon-400.png. Every other Forever addon's ForeverCore 1.8.2 sync build was loaded in the same session. BugGrabber recorded no addon errors (the session's two errors were the recorder's own /run lines calling a missing client API).",
   "flows": [
     {
-      "name": "SkillUp's page hides the client's profession page on ForeverCore 1.8.1",
+      "name": "SkillUp's Route page on ForeverCore 1.8.2",
       "steps": [
-        "Install the packaged candidate with its bundled ForeverCore v1.8.1 and /reload",
-        "Print the loaded versions: ForeverCore v1.8.1 and SkillUpForever v1.9.1-2-g89a4d38, both loaded, ProfessionTabs.minor 2",
-        "Open Cooking: the client's own page shows at its own width",
-        "Click the SkillUp side tab",
-        "Confirm the Route page shows widened with no client recipe list or details beneath it",
-        "Click the Cooking side tab",
-        "Confirm the client's own Cooking page shows again at its own width"
+        "Install the candidate with ForeverCore v1.8.2 and /reload",
+        "Print every Forever addon's loaded version into a chat tab with no channels: ForeverCore v1.8.2 plus this candidate, all loaded",
+        "/cast Cooking, then select the SkillUp side tab (ForeverCore.ProfessionTabs.Select)",
+        "The Route page shows widened with its route and reagents and no client recipe list beneath it"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-versions.png",
-      "sha256": "68bb8f958f2dab34bbf7a541f311f8141db7ebeaca4a51e39fbe9bf4c725e7c6"
+      "url": "https://gist.githubusercontent.com/cjber/5cd61b138c1e01654d7aadd509568514/raw/82bfd62fbba753c8cc0a35be3f8e1c07fb2ac713/sync182-skillup-page.png",
+      "sha256": "dad0f8e4440a93123bba8f6cbe56002ab7d9780227f2bfdc3813a5c3079cb58e"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-cooking-native.png",
-      "sha256": "64301f9c7f8d5f5b98600b5c274612c8973fca1b5457d9d632e3ecc71e28b88e"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-skillup-page-292bbc5.png",
-      "sha256": "fd4c24cbdb926e9d28df736c57ae5ff88ed3cafb01a189f945f43864a0a442a3"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-cooking-handback.png",
-      "sha256": "3a4fdd1d17d3065002ce6935da7a3e38530321c0f66e20fe97a229dfda23f71c"
+      "url": "https://gist.githubusercontent.com/cjber/5cd61b138c1e01654d7aadd509568514/raw/82bfd62fbba753c8cc0a35be3f8e1c07fb2ac713/sync182-versions.png",
+      "sha256": "0a95af5dcd4392712f85093832d05c14411d76b4099d3b60185209cbdf0e1e1b"
     }
   ]
 }

@@ -14,6 +14,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Held reagents are used before a sub-craft is planned.** A route no longer asks you to craft an intermediate the bags already hold, or to buy the raw reagents for it; when the bags hold only some, the sub-craft covers just the shortfall. Thanks to vladdoubrov (#667).
 
+## [1.9.1] - 2026-11-12
+
+- **SkillUp's pages no longer draw over the Professions window's own page.** 1.9.0 brought an older ForeverCore with it, which left the client's recipe list showing underneath SkillUp's route. This version carries ForeverCore 1.8.0, which hides the client's page while a SkillUp page is open and brings it back when you leave. (#658)
+
 ## [1.9.0] - 2026-11-12
 
 <!-- discord-image: docs/screenshots/route-auctionator.png -->

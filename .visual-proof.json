@@ -1,60 +1,31 @@
 {
-  "input_digest": "8ae823de5852559a655ed1b9d74f4721af0369b9134b29a1f7eacd26a072a8df",
-  "runtime_sha256": "8ae823de5852559a655ed1b9d74f4721af0369b9134b29a1f7eacd26a072a8df",
-  "candidate": "a0fc24cbf7a5810c5a1d576ec056441511663b6e26ce3a8b9f3d933d93bfec8f",
+  "input_digest": "c24ef3530839a02a8798bcb04eca386b6ccd6de2039745f28f892d9b665ff7e4",
+  "runtime_sha256": "c24ef3530839a02a8798bcb04eca386b6ccd6de2039745f28f892d9b665ff7e4",
+  "candidate": "57301cc635fe168e06048128a6cbdbad4a61bdc80a7b1e595ef67b2fef49ced7",
+  "tested_artifact": "release-package",
   "client_build": "1.60.1.70888 (Interface 16001)",
   "flows": [
     {
-      "name": "Native recipe descriptions and normal threshold bars",
+      "name": "SkillUp page hides the client's profession page",
       "steps": [
-        "Reload final installed candidate",
-        "Open Cooking and Basic Campfire",
-        "Confirm native description is readable and custom bar hidden",
-        "Select Boiled Clams and confirm threshold bar returns"
-      ],
-      "result": "pass"
-    },
-    {
-      "name": "Recipe Search uses real Auctionator records",
-      "steps": [
-        "Open auction house with Cooking recipe selected",
-        "Click SkillUp Search",
-        "Confirm exact Clam Meat quantity 1 temporary search and live listings",
-        "Confirm updated recipe cost"
-      ],
-      "result": "pass"
-    },
-    {
-      "name": "Cooking and First Aid route bars",
-      "steps": [
-        "Open Cooking custom Route",
-        "Inspect partial 20/75 bar and empty reagent bars, Track/Replan clearances",
-        "Switch First Aid",
-        "Inspect full 64/64 reagent fill remains inside its frame"
+        "Install the packaged 1.9.1 candidate bundling ForeverCore v1.8.0 and reload",
+        "Open Cooking",
+        "Click the SkillUp side tab",
+        "Confirm the Route page shows with no client recipe list or recipe details beneath it",
+        "Click the Cooking side tab",
+        "Confirm the client's own Cooking page shows again at its own width"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/856ef43a98889138988302575bd2bd60feff83d2/skill660-campfire-after-a0fc24c.png",
-      "sha256": "a24aa5ca478d92be6ce33745076215e5fedca9ea5ed033c7064aaf063aabc8b8"
+      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/c7a053a57644fb5ed589457676d2a2e8d9ba8618/skill658-skillup-page-57301cc.png",
+      "sha256": "de7a80d4470929ea9409d9ee7300afeb04ccbfb59ee4aef76658a02719dbd27e"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/856ef43a98889138988302575bd2bd60feff83d2/skill660-normal-recipe-a0fc24c.png",
-      "sha256": "a57611431de4b47b03b711531d5239297de558e0c889b9746bd0d4bd70f53d5b"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/856ef43a98889138988302575bd2bd60feff83d2/skill654-search-a0fc24c.png",
-      "sha256": "70461613c05cadc88e7d2ae1a6f698c935230e294d26ff5277f3bda358e458ad"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/856ef43a98889138988302575bd2bd60feff83d2/skill656-route-a0fc24c.png",
-      "sha256": "dc5c285d8d16c2dcd0e1fe48d736f56c92200bc05709df02d30569dd0aaa50a2"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/856ef43a98889138988302575bd2bd60feff83d2/skill656-firstaid-a0fc24c.png",
-      "sha256": "d2c1e096eb3b296f014707ce5a49e9ae0e33aa3c7ccf44d1b8d96313622669f8"
+      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/c7a053a57644fb5ed589457676d2a2e8d9ba8618/skill658-native-page-57301cc.png",
+      "sha256": "10a6e14141179c61dfac18e9b54ce0ba5fc59f3f61267559677618622bc68000"
     }
   ]
 }

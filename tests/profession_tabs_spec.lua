@@ -129,9 +129,13 @@ local function RoutePage()
 end
 local route = assert(RoutePage(), "the route page was built")
 
+-- Core widens the window to its shared custom-page width while an addon page is selected, and gives the client's
+-- own width back with the window.
+local CUSTOM_WIDTH = 850
 local width, point = frame:GetWidth(), { frame:GetPoint(1) }
 local function Stable(label)
-	equal(frame:GetWidth(), width, label .. ": the window width changed")
+	local expected = core.Selected() and CUSTOM_WIDTH or width
+	equal(frame:GetWidth(), expected, label .. ": the window width changed")
 	local now = { frame:GetPoint(1) }
 	equal(#now, #point, label .. ": the window anchor changed")
 	for index = 1, #point do
@@ -145,7 +149,7 @@ c.Advance(0)
 equal(core.Selected(), "skillup", "the side tab selects SkillUp's registered tab")
 equal(tab.checked, true, "core checks the side tab")
 equal(route:IsShown(), true, "the route page is shown")
-equal(frame.CraftingPage:IsShown(), true, "the client's own page is left alone underneath")
+equal(frame.CraftingPage:GetAlpha(), 0, "the client's own page is hidden beneath SkillUp's")
 Stable("after selecting SkillUp")
 
 -- A client page hands the window back: core hides its page, and SkillUp's pages follow it.
@@ -155,6 +159,7 @@ c.Advance(0)
 equal(core.Selected(), nil, "a client page hands the window back")
 equal(tab.checked, false, "and unchecks the side tab")
 equal(route:IsShown(), false, "no SkillUp page stays shown")
+equal(frame.CraftingPage:GetAlpha(), 1, "and the client's own page shows again")
 Stable("after a client page")
 
 -- Back to SkillUp, then its own bottom tab switches pages without moving the window.

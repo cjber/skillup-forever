@@ -511,4 +511,5 @@ L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s을(를) 시작할 수 없습니다. 문제를 해결하려면 %s을(를) 다시 설치하세요." -- mt
-L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["SkillUp's pages no longer draw over the Professions window's own page."] =
+	"SkillUp's pages no longer draw over the Professions window's own page." -- mt

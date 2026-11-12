@@ -1437,6 +1437,11 @@ function Client.load(options)
 			return fn(...) -- multi-value: the wrapped client function's results pass through
 		end
 	end
+	-- ForeverCore 1.8.0 dispatches the restricted openers through securecallfunction; count those calls the same way.
+	G.securecallfunction = function(fn, ...)
+		c.secureSettingsCalls = (c.secureSettingsCalls or 0) + 1
+		return fn(...) -- multi-value: the client function's results pass through
+	end
 	G.CreateSettingsButtonInitializer = noop
 	G.MinimalSliderWithSteppersMixin = { Label = { Right = 1 } }
 	-- The player changing one of the addon's settings in the options panel.

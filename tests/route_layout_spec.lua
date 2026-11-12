@@ -398,9 +398,9 @@ end
 
 -- ForeverCore.ProfessionTabs, as the shared module drives it: one tab and the page core shows. This spec is
 -- about SkillUp's pages, so core's own placement and hand-back are its own tests; here selecting and handing
--- back do what core does.
+-- back do what core does. Its minor is 2, the version Core/Require.lua asks for.
 local coreTab, coreEntry, coreSelected
-local ProfessionTabs = {}
+local ProfessionTabs = { minor = 2 }
 function ProfessionTabs.Register(key, spec)
 	coreEntry = { key = key, spec = spec }
 	coreTab = CreateFrame("Button", nil, ProfessionsFrame, "LargeSideTabButtonTemplate")

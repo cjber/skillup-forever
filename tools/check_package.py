@@ -22,12 +22,12 @@ REPO_ONLY = {"tests/locale_spec.lua"}
 POLICY = package.Policy(
     addons=("SkillUpForever", "ForeverCore"),
     # The specs load ForeverCore through the shared TOC reader, which is tooling and never ships.
-    support=("tests", "tools/forever_sim/toc.lua"),
+    support=("tests", "tools/forever_sim"),
     specs=tuple(
         spec
         for spec in sorted(p.relative_to(ROOT).as_posix() for p in ROOT.glob("tests/*_spec.lua"))
         if spec not in REPO_ONLY
-    ),
+    ) + ("tests/sim/exercise_scenario.lua",),
 )
 
 if __name__ == "__main__":

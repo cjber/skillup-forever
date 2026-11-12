@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **"Used in" says which profession each recipe belongs to.** A reagent's tooltip now reads "Cooking: Blood Sausage" instead of just "Blood Sausage", so an unlearned recipe from a profession you don't have no longer looks like one of yours. The profession is the game's own name in your client's language.
+
 ## [1.9.1] - 2026-11-12
 
 - **SkillUp's pages no longer draw over the Professions window's own page.** 1.9.0 brought an older ForeverCore with it, which left the client's recipe list showing underneath SkillUp's route. This version carries ForeverCore 1.8.0, which hides the client's page while a SkillUp page is open and brings it back when you leave. (#658)

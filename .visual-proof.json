@@ -1,7 +1,7 @@
 {
-  "input_digest": "1e742830039560ca144d361d6c221be2d13cc67ebc77d83f9a58ac5de162a5d1",
-  "runtime_sha256": "1e742830039560ca144d361d6c221be2d13cc67ebc77d83f9a58ac5de162a5d1",
-  "candidate": "5669dad54b13700a5dc1d6bcdb04121aa827da28b34b2af14bb6e8f01848e2d4",
+  "input_digest": "c24ef3530839a02a8798bcb04eca386b6ccd6de2039745f28f892d9b665ff7e4",
+  "runtime_sha256": "c24ef3530839a02a8798bcb04eca386b6ccd6de2039745f28f892d9b665ff7e4",
+  "candidate": "57301cc635fe168e06048128a6cbdbad4a61bdc80a7b1e595ef67b2fef49ced7",
   "tested_artifact": "release-package",
   "client_build": "1.60.1.70888 (Interface 16001)",
   "flows": [
@@ -19,7 +19,13 @@
     }
   ],
   "images": [
-    {"url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/b56136fc426903e9f75663e2125d9bdb630b08a6/skill658-skillup-page-5669dad.png", "sha256": "5e87678ac1eb8e591992212af7b4f74320e168645d9aded3b95f134b081ffbc8"},
-    {"url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/b56136fc426903e9f75663e2125d9bdb630b08a6/skill658-native-page-5669dad.png", "sha256": "059461be3dbc8c1266f3788c6dd2c82f8c74e6073a20f79b2a1516c791356088"}
+    {
+      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/c7a053a57644fb5ed589457676d2a2e8d9ba8618/skill658-skillup-page-57301cc.png",
+      "sha256": "de7a80d4470929ea9409d9ee7300afeb04ccbfb59ee4aef76658a02719dbd27e"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/c7a053a57644fb5ed589457676d2a2e8d9ba8618/skill658-native-page-57301cc.png",
+      "sha256": "10a6e14141179c61dfac18e9b54ce0ba5fc59f3f61267559677618622bc68000"
+    }
   ]
 }

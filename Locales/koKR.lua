@@ -228,6 +228,8 @@ L["Show profession routes in the objective tracker. Hiding them keeps your track
 L["Show skill on recipe rows"] = "제조법 행에 숙련도 표시"
 L["Show skill range start on rows"] = "행에 구간 시작점 표시"
 L["Show the merchant Reagents tab"] = "상인 재료 탭 표시"
+L["Some prices are unknown: this route may change after an auction house scan."] =
+	"일부 가격을 알 수 없습니다: 경매장 검색 후 이 경로가 바뀔 수 있습니다."
 L["Show the crafted gear tab"] = "제작 장비 탭 표시"
 L["Show the levelling route tab"] = "숙련도 경로 탭 표시"
 L["Show thresholds tooltip"] = "구간 툴팁 표시"

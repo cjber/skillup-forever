@@ -222,6 +222,8 @@ L["Show profession routes in the objective tracker. Hiding them keeps your track
 L["Show skill on recipe rows"] = "在配方列顯示技能"
 L["Show skill range start on rows"] = "在列上顯示區間起點"
 L["Show the merchant Reagents tab"] = "顯示商人材料分頁"
+L["Some prices are unknown: this route may change after an auction house scan."] =
+	"部分價格未知：掃描拍賣場後此路線可能會改變。"
 L["Show the crafted gear tab"] = "顯示製造裝備標籤頁"
 L["Show the levelling route tab"] = "顯示升級路線標籤頁"
 L["Show thresholds tooltip"] = "顯示分界點提示"

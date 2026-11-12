@@ -232,13 +232,24 @@ end
 
 -- What a step's crafts cost, by the same money the route page shows: every craft at the recipe's net,
 -- so a sale value lowers every craft, not only the first (#466). Time stays in the planner's own cost:
--- the route page's money is what the player pays.
+-- the route page's money is what the player pays. Nil when a reagent has no price yet, so a step never
+-- shows a total with an unknown part (#561).
 ---@param recipeID integer
 ---@param crafts number
----@return number
+---@return number?
 function ns.StepCost(recipeID, crafts)
 	local _, _, netCost = RecipeCosts(recipeID)
-	return ns.Model.StepCost(netCost, nil, crafts) or 0
+	if not netCost then
+		return nil
+	end
+	if ns.HasUnknownPrice and ns.Reagents then
+		for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
+			if ns.HasUnknownPrice(reagent.itemID) then
+				return nil
+			end
+		end
+	end
+	return ns.Model.StepCost(netCost, nil, crafts)
 end
 
 -- What the planner works from: the recipes this character knows, for any of its professions, from
@@ -627,9 +638,18 @@ function ns.PlanMoney(plan)
 	local buy, unknown = 0, 0
 	for itemID, short in pairs(count) do
 		if short > 0 then
-			local each = ns.ObtainCost and ns.ObtainCost(itemID)
+			local price = ns.Price and ns.Price(itemID)
+			local unknownPrice = price and price.unknown
+			if ns.HasUnknownPrice then
+				unknownPrice = ns.HasUnknownPrice(itemID)
+			end
+			local each
+			if unknownPrice then
+				each = nil
+			else
+				each = ns.ObtainCost and ns.ObtainCost(itemID)
+			end
 			if not each then
-				local price = ns.Price and ns.Price(itemID)
 				each = price and not price.unknown and price.copper or nil
 			end
 			if each then
@@ -742,7 +762,7 @@ local function Finish(profession, target, route)
 	-- What the steps ask for, after any rank split them: the crafts and their cost.
 	local crafting = 0
 	for _, craft in ipairs(crafts) do
-		crafting = crafting + ns.StepCost(craft.recipeID, craft.crafts)
+		crafting = crafting + (ns.StepCost(craft.recipeID, craft.crafts) or 0)
 	end
 	---@type SkillUpPlan
 	local plan = {

@@ -238,6 +238,8 @@ L["Show profession routes in the objective tracker. Hiding them keeps your track
 L["Show skill on recipe rows"] = "Навык в строках рецептов"
 L["Show skill range start on rows"] = "Начало диапазона в строках"
 L["Show the merchant Reagents tab"] = "Показывать вкладку «Реагенты» у торговца"
+L["Some prices are unknown: this route may change after an auction house scan."] =
+	"Некоторые цены неизвестны: этот маршрут может измениться после сканирования аукциона."
 L["Show the crafted gear tab"] = "Вкладка созданного снаряжения"
 L["Show the levelling route tab"] = "Вкладка маршрута прокачки"
 L["Show thresholds tooltip"] = "Подсказка с порогами"

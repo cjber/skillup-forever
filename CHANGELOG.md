@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **A vendor fallback is a price unknown until the auction house has seen it.** With Buy reagents on, a reagent you could gather, loot or craft that has no auction price yet is no longer quietly priced at a vendor: its route line says `price unknown`, the step and the route total say they are incomplete, and the route says it may change after a scan. A reagent only a vendor sells keeps its vendor price. (#561)
+
+- **The first auction house visit prices only what is still unpriced.** One Auctionator search covers the tracked route's reagents with no price at all, then the route updates with the results. A price already seen is left alone, so a visit never repeats a search for it. (#561)
+
 - **Held reagents are used before a sub-craft is planned.** A route no longer asks you to craft an intermediate the bags already hold, or to buy the raw reagents for it; when the bags hold only some, the sub-craft covers just the shortfall. Thanks to vladdoubrov (#667).
 
 ## [1.9.1] - 2026-11-12

@@ -610,7 +610,13 @@ do
 	equal(runtime.Price(5).unknown, true, "and says its price is unknown")
 	runtime.db.vendor[5] = 7
 	runtime.Changed("prices")
-	equal(runtime.PriceSource(5), "vendor", "auction mode buys a gathered reagent where it can be bought")
+	equal(
+		runtime.PriceSource(5),
+		"auction",
+		"auction mode keeps a gathered reagent at the auction house when nothing has priced it there"
+	)
+	equal(runtime.Price(5).unknown, true, "with its vendor price only a fallback")
+	equal(runtime.Price(5).copper, 7, "which the plan still uses until the auction house is searched")
 	runtime.db.vendor[5] = nil
 end
 

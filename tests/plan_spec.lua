@@ -253,6 +253,18 @@ c.bags[CLOTH] = nil
 money = ns.PlanMoney(moneyPlan)
 equal(money.unknown, 1, "an unpriced reagent is counted, not dropped from a lower total")
 equal(money.buy, 0, "so the buy side says nothing it cannot price")
+-- #561: a vendor price on a market good is not a total while no auction price has priced it. It stays the
+-- fallback the plan uses, but the route's money counts the reagent as unknown and a step shows no number.
+ns.SetCollectMode("auction")
+ns.LootedFrom[CLOTH] = true
+ClothPrice(CLOTH, 2, nil)
+money = ns.PlanMoney(moneyPlan)
+equal(money.unknown, 1, "a vendor fallback with no auction price is counted unknown")
+equal(money.buy, 0, "and never added at the vendor price")
+equal(ns.StepCost(LINEN, 5), nil, "a step using it has no money to show")
+ns.LootedFrom[CLOTH] = nil
+ClothPrice(CLOTH, 2, nil)
+ns.SetCollectMode("gather")
 -- Artisan First Aid comes from Triage, one quest a side (classic-db quest_template, #121).
 Know(MAGEWEAVE, true)
 ClothPrice(MAGEWEAVE_CLOTH, 2)

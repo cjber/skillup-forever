@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Searching a recipe's reagents works with Auctionator's advanced search.** The search keeps exact item names and the missing quantities. (#654)
+
 - **Local recipe observations no longer use the shared player leaderboard.** SkillUp keeps its own count and stats API while removing the unused peer-sharing setting, commands and tab integration.
 
 ## [1.8.2] - 2026-11-12

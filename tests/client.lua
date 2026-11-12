@@ -1257,7 +1257,14 @@ function Client.load(options)
 						return string.format("%sx%d", request.searchString, request.quantity)
 					end,
 					MultiSearchAdvanced = function(_, searches)
-						c.auctionSearches[#c.auctionSearches + 1] = searches
+						local formatted = {}
+						for index, request in ipairs(searches) do
+							assert(type(request) == "table", "Auctionator advanced search requires records")
+							assert(type(request.searchString) == "string", "Auctionator requires searchString")
+							assert(request.isExact == true, "reagent searches must be exact")
+							formatted[index] = string.format("%sx%d", request.searchString, request.quantity)
+						end
+						c.auctionSearches[#c.auctionSearches + 1] = formatted
 					end,
 				},
 			},

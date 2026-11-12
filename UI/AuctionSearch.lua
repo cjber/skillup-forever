@@ -88,14 +88,13 @@ function ns.SearchReagents(recipeID, count)
 				return
 			end
 			ns.core.SafeCall("auction house reagent search", function()
-				local searches, names = {}, {}
+				local searches, names, advanced = {}, {}, {}
 				for _, item in ipairs(short) do
 					local name = assert(C_Item.GetItemNameByID(item.itemID))
 					names[#names + 1] = name
-					searches[#searches + 1] = api.ConvertToSearchString(
-						CALLER,
-						{ searchString = name, isExact = true, quantity = item.count }
-					)
+					local request = { searchString = name, isExact = true, quantity = item.count }
+					advanced[#advanced + 1] = request
+					searches[#searches + 1] = api.ConvertToSearchString(CALLER, request)
 				end
 				local listName = ns.AuctionListName("crafting")
 				if listName then
@@ -103,7 +102,7 @@ function ns.SearchReagents(recipeID, count)
 				end
 				-- MultiSearchAdvanced keeps the quantities; an older Auctionator searches the exact names.
 				if api.MultiSearchAdvanced then
-					api.MultiSearchAdvanced(CALLER, searches)
+					api.MultiSearchAdvanced(CALLER, advanced)
 				elseif api.MultiSearchExact then
 					api.MultiSearchExact(CALLER, names)
 				end

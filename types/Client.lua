@@ -146,7 +146,11 @@ AuctionHouseFrame = nil
 ---@field IsCollapsed? fun(self: SkillUpTreeNode): boolean
 ---@field SetCollapsed? fun(self: SkillUpTreeNode, collapsed: boolean)
 
----@class SkillUpTreeProvider : ForeverDataProvider
+-- The shape the client's tree and list data providers share.
+---@class SkillUpBaseDataProvider
+---@field entries any[]
+
+---@class SkillUpTreeProvider : SkillUpBaseDataProvider
 ---@field GetRootNode fun(self: SkillUpTreeProvider): SkillUpTreeNode
 ---@field Insert fun(self: SkillUpTreeProvider, data: SkillUpRecipeNodeData): SkillUpTreeNode
 
@@ -155,13 +159,13 @@ function CreateTreeDataProvider() end
 
 ---@class SkillUpScrollBox : Frame
 ---@field ScrollToBegin fun(self: SkillUpScrollBox)
----@field SetDataProvider fun(self: SkillUpScrollBox, provider: ForeverDataProvider, retain?: boolean|integer)
+---@field SetDataProvider fun(self: SkillUpScrollBox, provider: SkillUpBaseDataProvider, retain?: boolean|integer)
 ---@field GetScrollPercentage fun(self: SkillUpScrollBox): number
 ---@field SetScrollPercentage fun(self: SkillUpScrollBox, percentage: number, noInterpolation?: boolean)
 
 ---@class SkillUpRecipeScrollBox : SkillUpScrollBox, CallbackRegistryMixin
 ---@field GetDataProvider fun(self: SkillUpRecipeScrollBox): SkillUpTreeProvider?
----@field SetDataProvider fun(self: SkillUpRecipeScrollBox, provider: ForeverDataProvider, retain?: boolean|integer)
+---@field SetDataProvider fun(self: SkillUpRecipeScrollBox, provider: SkillUpBaseDataProvider, retain?: boolean|integer)
 ---@field ForEachFrame fun(self: SkillUpRecipeScrollBox, callback: fun(frame: SkillUpRecipeRow, elementData: SkillUpTreeNode))
 
 ---@class SkillUpScrollBarThumb : Button
@@ -188,7 +192,7 @@ function CreateTreeDataProvider() end
 ---@field SetScrollPercentage fun(self: SkillUpScrollBar, percentage: number, forceImmediate?: boolean)
 ---@field GetScrollPercentage fun(self: SkillUpScrollBar): number
 
----@class SkillUpDataProvider : ForeverDataProvider
+---@class SkillUpDataProvider : SkillUpBaseDataProvider
 ---@field GetSize fun(self: SkillUpDataProvider): integer
 
 ---@param tbl? table

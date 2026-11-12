@@ -201,6 +201,41 @@ equal(#hooks.OnTooltipCleared, 1, "the tooltip's clearing is hooked once, howeve
 tooltip:SetOwner({}, "ANCHOR_RIGHT")
 equal(bar:IsShown(), false, "a cleared tooltip hides the bar")
 
+-- An item tooltip hooks its clearing too. One cleared while the recipe tooltip is up, as a bag item refreshed or
+-- scanned after a craft is, leaves the recipe tooltip's bar: it hid it and left four blank lines behind.
+local itemTooltip = { hooks = {} }
+function itemTooltip.IsForbidden()
+	return false
+end
+function itemTooltip:HookScript(script, fn)
+	self.hooks[script] = self.hooks[script] or {}
+	table.insert(self.hooks[script], fn)
+end
+function itemTooltip.AddLine() end
+function itemTooltip.AddDoubleLine() end
+function itemTooltip:Clear()
+	for _, hook in ipairs(self.hooks.OnTooltipCleared or {}) do
+		hook(self)
+	end
+end
+local itemPosts = c.postCalls[G.Enum.TooltipDataType.Item]
+local reagentMode = ns.db.reagentTooltip
+c.SetSetting("reagentTooltip", "full")
+itemPosts[#itemPosts](itemTooltip, { id = LINEN })
+equal(#(itemTooltip.hooks.OnTooltipCleared or {}), 1, "an item tooltip hooks its clearing")
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(bar:IsShown(), true, "the recipe tooltip shows its bar")
+itemTooltip:Clear()
+equal(bar:IsShown(), true, "another tooltip's clear leaves the recipe tooltip's bar")
+tooltip:SetOwner({}, "ANCHOR_RIGHT")
+equal(bar:IsShown(), false, "its own tooltip's clear still hides it")
+itemTooltip:Clear()
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+itemTooltip:Clear()
+equal(bar:IsShown(), true, "and the bar shown again after that is still only its own tooltip's to hide")
+tooltip:SetOwner({}, "ANCHOR_RIGHT")
+c.SetSetting("reagentTooltip", reagentMode)
+
 -- Where the tooltip goes (#163): beside the window by default, past its side tabs, so it never covers the
 -- reagents; at the cursor; or next to the recipe row, as before.
 equal(ns.db.recipeTooltip, "window", "the tooltip goes beside the window by default")

@@ -6,6 +6,7 @@ ns.Credits = {
 	players = {
 		{ name = "_spada", what = "Asked for completed-sale values when planning profession levels" },
 		{ name = "kopuliak", what = "Reported that search left bundled unlearned recipes unfiltered" },
+		{ name = "SanyaBane", what = "Recipe tooltip keeps its skill bar when another tooltip clears (code)" },
 		{ name = "Rambomst", what = "Fixed progress-bar fill masking and Auctionator prices after reload" },
 		{ name = "bromidious", what = "Reported the progress-bar overlap fixed in #656" },
 		{ name = "ItachiGrave", what = "Selected recipes show their skill band" },

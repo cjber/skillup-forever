@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The Thanks page includes two more reporters.** Thanks to FreakinNerd for reporting that SkillUp's pages drew over the Professions window's own page, and to nookie909 for reporting that a route changed after buying its reagents. Both fixes shipped previously; this update adds their missing credits (#679).
+
 ## [1.9.3] - 2026-11-12
 
 <!-- forever-core-sync -->

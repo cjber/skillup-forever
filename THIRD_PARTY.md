@@ -43,6 +43,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| [vladdoubrov](https://github.com/vladdoubrov) | Held sub-craft reagents are used from the bags before crafting more (#667) | GitHub; #667 |
 | [Rambomst](https://github.com/Rambomst) | Fixed progress-bar fill masking and Auctionator prices after reload (#655, #656) | |
 | bromidious | Reported the progress-bar overlap fixed in #656 | Discord; #656 |
 | ItachiGrave | Selected recipes show their skill band | CurseForge; #613; thread 8688792 |

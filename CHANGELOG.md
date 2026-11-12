@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Held reagents are used before a sub-craft is planned.** A route no longer asks you to craft an intermediate the bags already hold, or to buy the raw reagents for it; when the bags hold only some, the sub-craft covers just the shortfall. Thanks to vladdoubrov (#667).
+
 ## [1.9.0] - 2026-11-12
 
 <!-- discord-image: docs/screenshots/route-auctionator.png -->

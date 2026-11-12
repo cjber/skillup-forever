@@ -509,15 +509,20 @@ local MAX_SUB_DEPTH = 3
 
 -- The sub-crafts a recipe's reagents need, deepest first, and the raw reagents left once every
 -- reagent a learned recipe makes for less than it costs to buy is replaced by what it is made from.
--- A reagent already being made higher up is left raw, so a cycle cannot recurse.
+-- A reagent already being made higher up is left raw, so a cycle cannot recurse. `bags` is the held
+-- copies the plan has left: a step takes from it, so the steps after it never claim the same copy,
+-- and only the shortfall is planned. `used` is the held copies that stood in for raw reagents, which
+-- a caller reporting the whole route adds back to the shortfall (#667).
 ---@param recipeID integer
 ---@param crafts number
 ---@param depth integer
 ---@param making table<integer, true>
+---@param bags table<integer, number>?
 ---@return SkillUpSubCraft[]
 ---@return {itemID: integer, count: number}[]
-local function Expand(recipeID, crafts, depth, making)
-	local subcrafts, raw = {}, {}
+---@return table<integer, number>
+local function Expand(recipeID, crafts, depth, making, bags)
+	local subcrafts, raw, used = {}, {}, {}
 	for _, reagent in ipairs((ns.Reagents and ns.Reagents(recipeID)) or {}) do
 		local need = reagent.quantity * crafts
 		local maker = depth < MAX_SUB_DEPTH
@@ -525,27 +530,51 @@ local function Expand(recipeID, crafts, depth, making)
 			and ns.SubCraft
 			and ns.SubCraft(reagent.itemID)
 		if maker and maker.quantity and maker.quantity > 0 then
-			local batches = math.ceil(need / maker.quantity)
-			making[reagent.itemID] = true
-			local childSubcrafts, childRaw = Expand(maker.recipeID, batches, depth + 1, making)
-			making[reagent.itemID] = nil
-			for _, sub in ipairs(childSubcrafts) do
-				subcrafts[#subcrafts + 1] = sub
+			-- Held copies of the intermediate are used before any are made; the steps after this see what is left.
+			if bags then
+				bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
+				local held = math.min(bags[reagent.itemID], need)
+				bags[reagent.itemID] = bags[reagent.itemID] - held
+				need = need - held
 			end
-			subcrafts[#subcrafts + 1] = {
-				recipeID = maker.recipeID,
-				itemID = reagent.itemID,
-				crafts = batches,
-				made = batches * maker.quantity,
-			}
-			for _, item in ipairs(childRaw) do
-				raw[#raw + 1] = item
+			if need > 0 then
+				local batches = math.ceil(need / maker.quantity)
+				making[reagent.itemID] = true
+				local childSubcrafts, childRaw, childUsed = Expand(maker.recipeID, batches, depth + 1, making, bags)
+				making[reagent.itemID] = nil
+				for _, sub in ipairs(childSubcrafts) do
+					subcrafts[#subcrafts + 1] = sub
+				end
+				subcrafts[#subcrafts + 1] = {
+					recipeID = maker.recipeID,
+					itemID = reagent.itemID,
+					crafts = batches,
+					made = batches * maker.quantity,
+				}
+				for _, item in ipairs(childRaw) do
+					raw[#raw + 1] = item
+				end
+				for itemID, count in pairs(childUsed) do
+					used[itemID] = (used[itemID] or 0) + count
+				end
 			end
 		else
-			raw[#raw + 1] = { itemID = reagent.itemID, count = need }
+			-- A raw reagent the bags hold is not bought or gathered; the rest is what the route still needs.
+			if bags then
+				bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
+				local held = math.min(bags[reagent.itemID], need)
+				bags[reagent.itemID] = bags[reagent.itemID] - held
+				need = need - held
+				if held > 0 then
+					used[reagent.itemID] = (used[reagent.itemID] or 0) + held
+				end
+			end
+			if need > 0 then
+				raw[#raw + 1] = { itemID = reagent.itemID, count = need }
+			end
 		end
 	end
-	return subcrafts, raw
+	return subcrafts, raw, used
 end
 
 -- Public, price-aware bill of materials for other addons: one raw entry per item, in first-seen order.
@@ -563,6 +592,7 @@ function ns.RecipeMaterials(recipeID, crafts)
 	then
 		return nil, nil
 	end
+	-- The bill is for the recipe alone: another addon asking what it takes is not told about these bags.
 	local subcrafts, raw = Expand(recipeID, crafts, 0, {})
 	local merged, byItem = {}, {}
 	for _, item in ipairs(raw) do
@@ -585,15 +615,16 @@ end
 ---@return { buy: number, fees: number, sells: number, unknown: integer }
 function ns.PlanMoney(plan)
 	local count = {}
+	-- Expand has already taken the bags' raw copies off, so what it leaves is what a route still buys.
+	local bags = {}
 	for _, craft in ipairs(plan.crafts or {}) do
-		local _, craftRaw = Expand(craft.recipeID, craft.crafts, 0, {})
+		local _, craftRaw = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
 		for _, item in ipairs(craftRaw) do
 			count[item.itemID] = (count[item.itemID] or 0) + item.count
 		end
 	end
 	local buy, unknown = 0, 0
-	for itemID, need in pairs(count) do
-		local short = need - math.min(ns.Have(itemID), need)
+	for itemID, short in pairs(count) do
 		if short > 0 then
 			local each = ns.ObtainCost and ns.ObtainCost(itemID)
 			if not each then
@@ -674,9 +705,9 @@ local function Finish(profession, target, route)
 			SplitAtRank(route.segments, rank, m)
 		end
 	end
-	local crafts = {}
+	local crafts, bags = {}, {}
 	for index, segment in ipairs(route.segments) do
-		local subcrafts = Expand(segment.recipeID, segment.crafts, 0, {})
+		local subcrafts = Expand(segment.recipeID, segment.crafts, 0, {}, bags)
 		crafts[index] = {
 			recipeID = segment.recipeID,
 			from = segment.fromSkill - m,
@@ -792,11 +823,12 @@ end)
 ---@param plan SkillUpPlan
 ---@return boolean
 local function Affordable(plan)
+	local bags = {}
 	for _, craft in ipairs(plan.crafts) do
-		local _, raw = Expand(craft.recipeID, craft.crafts, 0, {})
+		local _, raw = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
 		for _, item in ipairs(raw) do
-			local short = item.count - math.min(ns.Have(item.itemID), item.count)
-			if short > 0 and not ns.Price(item.itemID) then
+			-- The bags' copies are already off; anything left must be buyable.
+			if item.count > 0 and not ns.Price(item.itemID) then
 				return false
 			end
 		end
@@ -1025,11 +1057,15 @@ end
 function ns.RouteReagents(plan)
 	-- The raw reagents are worked out from the recipes as they stand now, so a bought or gathered
 	-- source in the settings shows without rebuilding the plan.
-	local raw = {}
+	local raw, bags = {}, {}
 	for _, craft in ipairs(plan.crafts) do
-		local _, craftRaw = Expand(craft.recipeID, craft.crafts, 0, {})
+		local _, craftRaw, craftUsed = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
 		for _, item in ipairs(craftRaw) do
 			raw[#raw + 1] = item
+		end
+		-- What the bags held is still part of what the whole route needs; it is just not bought.
+		for itemID, count in pairs(craftUsed) do
+			raw[#raw + 1] = { itemID = itemID, count = count }
 		end
 	end
 	local list = ns.Model.BucketItems(raw, ns.PriceSource)

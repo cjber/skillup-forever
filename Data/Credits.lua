@@ -4,6 +4,7 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "vladdoubrov", what = "Held sub-craft reagents are used from the bags before crafting more" },
 		{ name = "Rambomst", what = "Fixed progress-bar fill masking and Auctionator prices after reload" },
 		{ name = "bromidious", what = "Reported the progress-bar overlap fixed in #656" },
 		{ name = "ItachiGrave", what = "Selected recipes show their skill band" },

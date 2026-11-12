@@ -192,6 +192,39 @@ equal(subReagents[1].itemID, HIDE, "the hide the reagent is made from")
 equal(subReagents[1].need, sub.crafts[1].crafts * 2, "two a craft of the reagent")
 equal(subReagents[1].source, "vendor", "priced where it is sold")
 
+-- #667: the bags' copies of an intermediate reagent are used before any sub-craft is planned, and the
+-- remaining copies are shared by the route's crafts in order, so two crafts never claim the same one.
+local needed = sub.crafts[1].crafts
+c3.bags[LEATHER] = needed
+ns3.Changed("replan")
+local held = ns3.PlanRoute(ns3.PlayerProfessions()[129])
+equal(#held.crafts[1].subcrafts, 0, "a reagent the bags hold needs no sub-craft")
+equal(#ns3.RouteReagents(held), 0, "so the shopping list asks for no raw reagent")
+equal(ns3.PlanMoney(held).buy, 0, "and the route buys none")
+equal(#held.steps, 1, "which leaves the craft alone on the route")
+
+c3.bags[LEATHER] = needed - 1
+c3.bags[HIDE] = 1
+ns3.Changed("replan")
+local short = ns3.PlanRoute(ns3.PlayerProfessions()[129])
+equal(#short.crafts[1].subcrafts, 1, "part of the reagent in the bags still leaves a sub-craft")
+equal(short.crafts[1].subcrafts[1].crafts, 1, "for the one missing copy alone")
+local shortReagents = ns3.RouteReagents(short)
+equal(#shortReagents, 1, "whose raw reagent is the shopping list")
+equal(shortReagents[1].itemID, HIDE, "the hide")
+equal(shortReagents[1].need, 2, "two for the one missing copy, holding one does not hide it")
+equal(ns3.PlanMoney(short).buy, 100, "but only the hide the bags lack is bought")
+c3.bags[HIDE] = nil
+
+local shared = { crafts = { { recipeID = 201, crafts = 1 }, { recipeID = 201, crafts = 1 } } }
+c3.bags[LEATHER] = 1
+local sharedReagents = ns3.RouteReagents(shared)
+equal(#sharedReagents, 1, "two crafts sharing the reagent list its raw reagent once")
+equal(sharedReagents[1].need, 2, "only for the copy the bags no longer hold")
+equal(ns3.PlanMoney(shared).buy, 200, "and only that copy's raw reagent is bought")
+c3.bags[LEATHER] = nil
+ns3.Changed("replan")
+
 -- Other addons get one entry an item: the hide the reagent is made from adds to the hide used directly.
 ns3.RecipeData[202] = {
 	skillLine = 129,

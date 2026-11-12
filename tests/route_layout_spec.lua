@@ -289,6 +289,21 @@ local function NewRegion(parent, frameType)
 		created[#created + 1] = texture
 		return texture
 	end
+	function region:CreateMaskTexture()
+		local mask = NewRegion(self, "MaskTexture")
+		created[#created + 1] = mask
+		return mask
+	end
+	function region:AddMaskTexture(mask)
+		self.masks = self.masks or {}
+		self.masks[#self.masks + 1] = mask
+	end
+	function region:SetStatusBarTexture(texture)
+		self.statusBarTexture = texture
+	end
+	function region:GetStatusBarTexture()
+		return self.statusBarTexture
+	end
 	function region:SetCustomOnMouseUpHandler(fn)
 		self.scripts.OnMouseUp = fn
 	end
@@ -1053,6 +1068,25 @@ for _, row in ipairs(page.RouteList.scrollBox.frames) do
 		equal(Height(row.BarBg), 29, "at the native background height")
 		equal(Height(row.BarFill), 15, "at the native fill height")
 		equal(Width(row.BarBg), 170, "inside the band's bar width")
+		-- The client's ColoredProgressBarTemplate keeps its fill 6 inside the frame's rim and masks it to the
+		-- track; a fill flush with the frame draws over the rim.
+		local frameLeft, frameBottom, frameRight, frameTop = Rect(row.BarBg)
+		equal(Rect(row.BarFill) - frameLeft, 6, "a band's fill starts inside the frame's rim")
+		local done, span = row.BarText.text:match("^(%d+)/(%d+)$")
+		local fraction = math.min(tonumber(done) / tonumber(span), 1)
+		equal(
+			math.abs(Width(row.BarFill) - (Width(row.BarBg) - 12) * fraction) < 1e-9,
+			true,
+			"and fills only the track inside the rim"
+		)
+		local maskLeft, maskBottom, maskRight, maskTop = Rect(row.BarMask)
+		equal(
+			maskLeft == frameLeft and maskRight == frameRight and maskBottom == frameBottom and maskTop == frameTop,
+			true,
+			"a mask covers the band's frame"
+		)
+		equal(row.BarMask.atlas, "common-stat-bar-Mask", "the client's own bar mask")
+		equal(row.BarFill.masks and row.BarFill.masks[1], row.BarMask, "shapes the band's fill to the track")
 	end
 end
 equal(bands, 1, "the route draws its skill band's header")
@@ -1102,6 +1136,12 @@ for _, row in ipairs(page.ReagentList.scrollBox.frames) do
 		local _, detailBottom, _, detailTop = Rect(row.Detail)
 		equal(Height(row.BarBg), 29, "reagent background keeps native height")
 		equal(Height(row.Bar), 15, "reagent fill keeps native height")
+		local frameLeft, _, frameRight = Rect(row.BarBg)
+		local fillLeft, _, fillRight = Rect(row.Bar)
+		equal(fillLeft - frameLeft, 6, "a reagent fill starts inside the frame's rim")
+		equal(frameRight - fillRight, 6, "and a full one ends inside it")
+		equal(row.Bar:GetStatusBarTexture().masks[1], row.BarMask, "the frame's mask shapes the reagent fill")
+		equal(row.BarMask.atlas, "common-stat-bar-Mask", "with the client's own bar mask")
 		equal(fillBottom >= barBottom and fillTop <= barTop, true, "fill stays inside its background")
 		equal(nameBottom - barTop >= 3, true, "bar clears the item name")
 		equal(barBottom - detailTop >= 3, true, "bar clears the source label")

@@ -578,6 +578,7 @@ SkillUpForeverDB = nil
 ---@field Detail FontString
 ---@field BarBg Texture
 ---@field Bar StatusBar
+---@field BarMask MaskTexture
 ---@field BarText FontString
 ---@field Current Texture The gold highlight on the row that is the next step.
 ---@field barHave? number
@@ -594,6 +595,7 @@ SkillUpForeverDB = nil
 ---@field Range FontString
 ---@field BarBg Texture
 ---@field BarFill Texture
+---@field BarMask MaskTexture
 ---@field BarWidth number
 ---@field BarHeight number
 ---@field BarText FontString

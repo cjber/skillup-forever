@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Navigation:** Keep routes working with Shortest Path Forever when its shared leaderboard features are removed.
+
 - **A selected recipe shows its skill band.** The details pane now shows the bar itself as well as its container. Thanks to ItachiGrave for reporting disappearing skill information (#613).
 
 - **The Thanks page includes the Profession overlap reporters.** Thanks to bromidious for reporting the Buffs checkbox and native-control overlaps, and to .phear for independently reproducing the native-control overlap. These fixes shipped previously; this update adds their missing credits (#657).

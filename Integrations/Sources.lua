@@ -90,12 +90,12 @@ local function Distance(npcID)
 	return (px - world[2]) ^ 2 + (py - world[3]) ^ 2
 end
 
--- Shortest Path Forever's public API, version 1, when it is loaded; callers still
+-- Shortest Path Forever's public navigation API, versions 1 and 2, when it is loaded; callers still
 -- check each function they use.
 ---@return SkillUpShortestPathAPI?
 local function ShortestPath()
 	local api = ShortestPathForever and ShortestPathForever.API
-	return api and api.version == 1 and api or nil
+	return api and (api.version == 1 or api.version == 2) and api or nil
 end
 
 -- How many of the straight-line nearest get a travel estimate: a cold one costs

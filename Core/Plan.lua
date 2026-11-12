@@ -520,9 +520,11 @@ local MAX_SUB_DEPTH = 3
 ---@param bags table<integer, number>?
 ---@return SkillUpSubCraft[]
 ---@return {itemID: integer, count: number}[]
----@return table<integer, number>
+---@return table<integer, number>?
 local function Expand(recipeID, crafts, depth, making, bags)
-	local subcrafts, raw, used = {}, {}, {}
+	local subcrafts, raw = {}, {}
+	-- Only a caller that passes the bags reads what they stood in for.
+	local used = bags and {}
 	for _, reagent in ipairs((ns.Reagents and ns.Reagents(recipeID)) or {}) do
 		local need = reagent.quantity * crafts
 		local maker = depth < MAX_SUB_DEPTH
@@ -554,8 +556,10 @@ local function Expand(recipeID, crafts, depth, making, bags)
 				for _, item in ipairs(childRaw) do
 					raw[#raw + 1] = item
 				end
-				for itemID, count in pairs(childUsed) do
-					used[itemID] = (used[itemID] or 0) + count
+				if used then
+					for itemID, count in pairs(childUsed) do
+						used[itemID] = (used[itemID] or 0) + count
+					end
 				end
 			end
 		else

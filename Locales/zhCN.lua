@@ -414,8 +414,6 @@ L["/skillup share on|off - control sharing with guild and group"] =
 	"/skillup share on|off - 控制与公会和队伍共享"
 L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
 L["Recipes observed"] = "已观察配方"
-L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
-	"/skillup leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /skillup stats）"
 L["total"] = "总计"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"

@@ -427,8 +427,6 @@ L["/skillup share on|off - control sharing with guild and group"] =
 	"/skillup share on|off - 길드 및 파티와의 공유 설정"
 L["Share observed recipe totals with guild and group"] = "관찰한 제조법 합계를 길드 및 파티와 공유"
 L["Recipes observed"] = "관찰한 제작법"
-L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
-	"/skillup leaderboard - 이 애드온 탭에서 Forever Leaderboards를 엽니다 (/skillup stats도 가능)"
 L["total"] = "합계"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"기본적으로 켜져 있습니다. 끄면 합계 송수신이 중단되고 다른 플레이어가 숨겨집니다. 로컬 관찰 기록은 유지됩니다."

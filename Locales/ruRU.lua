@@ -445,8 +445,6 @@ L["/skillup share on|off - control sharing with guild and group"] =
 L["Share observed recipe totals with guild and group"] =
 	"Делиться итогами наблюдений рецептов с гильдией и группой"
 L["Recipes observed"] = "Наблюдаемые рецепты"
-L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
-	"/skillup leaderboard - открывает Forever Leaderboards на вкладке этого аддона (также /skillup stats)"
 L["total"] = "всего"
 L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
 	"По умолчанию включено. Отключите, чтобы прекратить отправку и приём итогов и скрыть других игроков. Локальные наблюдения сохраняются."

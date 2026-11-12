@@ -17,6 +17,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 - **Search also filters unlearned recipes.** Typing in the Professions search box narrows the unlearned list, and clearing it brings the recipes back. Thanks to kopuliak (#662).
 - **The recipe tooltip keeps its skill bar when you skill up.** Crafting with the cursor on a recipe could leave its tooltip with an empty gap where the skill bar was: another tooltip cleared after the craft, such as an item tooltip refreshed when the crafted item reached your bags, hid the bar too. Now only the recipe tooltip's own redraw hides it. Thanks to SanyaBane (#649).
 
+- **A route with no progress draws an empty bar, and reagent counts stay readable.** A skill band at the start of its range no longer fills its track, and a reagent's have/need count is no longer hidden under its fill. Thanks to bromidious for reporting route progress bars overflowing their track (#665).
+
 ## [1.9.0] - 2026-11-12
 
 <!-- discord-image: docs/screenshots/route-auctionator.png -->

@@ -47,6 +47,7 @@ Credit for the reports and requests behind the addon.
 | kopuliak | Reported that search left bundled unlearned recipes unfiltered (#662) | CurseForge; thread 8697280 |
 | [SanyaBane](https://github.com/SanyaBane) | Recipe tooltip keeps its skill bar when another tooltip clears (code) | GitHub; #649, PR #649 |
 | [Rambomst](https://github.com/Rambomst) | Fixed progress-bar fill masking and Auctionator prices after reload (#655, #656) | |
+| bromidious | Reported route progress bars overflowing their track (#665) | Discord; #665 |
 | bromidious | Reported the progress-bar overlap fixed in #656 | Discord; #656 |
 | ItachiGrave | Selected recipes show their skill band | CurseForge; #613; thread 8688792 |
 | bromidious | Buffs controls no longer overlap | Discord; #599 |

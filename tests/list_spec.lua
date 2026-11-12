@@ -27,6 +27,12 @@ local function Region()
 		SetStatusBarTexture = function(self, texture)
 			self.statusBarTexture = texture
 		end,
+		CreateMaskTexture = function()
+			return Region()
+		end,
+		AddMaskTexture = function(self, mask)
+			self.mask = mask
+		end,
 		SetTexture = function(self, texture)
 			self.texture = texture
 		end,
@@ -193,6 +199,8 @@ equal(Anchor(row.Detail, "TOPLEFT")[3], "BOTTOMLEFT", "at its bottom left")
 
 equal(row.BarBg.atlas, "common-stat-bar-BG", "item progress uses the native bar background")
 equal(row.Bar.statusBarTexture.atlas, "common-stat-bar-white", "item progress uses the native bar fill")
+equal(row.BarMask.atlas, "common-stat-bar-Mask", "the client's bar mask")
+equal(row.Bar.statusBarTexture.mask, row.BarMask, "shapes the fill to the frame's track")
 
 -- The same pooled frame redrawn for a later element drops what the new element does not have.
 local pooled = Region()

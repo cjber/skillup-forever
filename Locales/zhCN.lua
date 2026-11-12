@@ -410,15 +410,6 @@ L["Pinned: %s"] = "已固定：%s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"技能范围重叠时，最近固定的配方优先。" -- mt
 L["Pinned (%d)"] = "已固定（%d）" -- mt
-L["/skillup share on|off - control sharing with guild and group"] =
-	"/skillup share on|off - 控制与公会和队伍共享"
-L["Share observed recipe totals with guild and group"] = "与公会和队伍共享观察到的配方总数"
-L["Recipes observed"] = "已观察配方"
-L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"] =
-	"/skillup leaderboard - 在本插件标签页打开 Forever Leaderboards（也可用 /skillup stats）"
-L["total"] = "总计"
-L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
-	"默认开启。关闭后停止收发总数并隐藏其他玩家。本地观察记录会保留。"
 L["crafted"] = "制作" -- mt
 L["List unlearned recipes"] = "列出未学习的配方"
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
@@ -498,7 +489,7 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"开启“购买试剂”会写入一个 Auctionator 列表，包含所有仍缺少的拍卖行试剂。"
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"没有 Auctionator 时，配方的“搜索”按钮会一次一个试剂地填入游戏自带的拍卖搜索框。"
-L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已过期。请更新它来解决此问题。" -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已过期。请更新它们来解决此问题。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 无法启动。请重新安装 %s 来解决此问题。" -- mt
+L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt

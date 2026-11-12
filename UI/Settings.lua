@@ -18,9 +18,6 @@ local function Register(target, key, varType, name)
 	local setting =
 		Settings.RegisterAddOnSetting(target, "SkillUpForever_" .. key, key, ns.db, varType, name, ns.DEFAULTS[key])
 	setting:SetValueChangedCallback(function()
-		if key == "statsShare" then
-			ns.Stats.SetEnabled(ns.db.statsShare)
-		end
 		ns.Changed("settings")
 	end)
 	return setting
@@ -80,13 +77,6 @@ end
 -- luacheck: push no max line length
 function ns.RegisterSettings()
 	category = Settings.RegisterVerticalLayoutCategory(ns.TITLE)
-	Checkbox(
-		category,
-		"statsShare",
-		L["Share observed recipe totals with guild and group"],
-		L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."]
-	)
-
 	-- Rows are grouped onto a stock subpage each; the category itself is the index, one button per group. A
 	-- button goes in through Settings.RegisterInitializer too, and stays out of search (addSearchTags false),
 	-- which finds the settings themselves. The page opens through the shared secure opener: Settings.OpenToCategory

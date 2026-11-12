@@ -15,11 +15,22 @@ local DETAILS_BAR_TOP = -76
 
 ---@class SkillUpDetailsBar : Frame
 ---@field bar SkillUpBar
+---@field nativeDescription FontString?
 
 ---@type SkillUpDetailsBar?
 local frame
 ---@type integer?
 local recipeID
+
+---@param description FontString?
+---@return boolean
+local function DescriptionVisible(description)
+	return description ~= nil
+		and description.IsShown ~= nil
+		and description:IsShown()
+		and description.GetText ~= nil
+		and (description:GetText() or "") ~= ""
+end
 
 -- What the bar draws for a recipe at a skill: its four thresholds and where the player's skill sits on them.
 -- Nothing without thresholds, a skill to place, or all four numbers.
@@ -48,10 +59,12 @@ local function Refresh()
 	end
 	local ctx = ns.SkillContext()
 	local t, skill = ns.DetailsBar(recipeID and ns.RangeThresholds(ctx, recipeID), ctx and ctx.skill)
-	if t and skill and ns.db.detailsBar then
+	local descriptionVisible = DescriptionVisible(frame.nativeDescription)
+	if t and skill and ns.db.detailsBar and not descriptionVisible then
 		ns.LayoutSkillBar(frame.bar, t, skill)
+		frame.bar:Show()
 	end
-	frame:SetShown(t ~= nil and ns.db.detailsBar)
+	frame:SetShown(t ~= nil and ns.db.detailsBar and not descriptionVisible)
 end
 
 -- The window's selection is kept even while the bar is hidden, so turning the setting back on draws it again.
@@ -74,6 +87,7 @@ function ns.AttachDetailsBar()
 	local details = CreateFrame("Frame", nil, page) --[[@as SkillUpDetailsBar]]
 	details:SetSize(250, 60)
 	details:SetPoint("TOPLEFT", form, "TOPLEFT", 28, DETAILS_BAR_TOP)
+	details.nativeDescription = form.Description
 	details.bar = ns.LayoutSkillBar(ns.CreateSkillBar(), { 1, 26, 41, 56 }, 1)
 	details.bar:SetParent(details)
 	details.bar:ClearAllPoints()

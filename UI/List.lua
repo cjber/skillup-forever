@@ -17,6 +17,9 @@ local ROW_HEIGHT = 46
 local ROW_BAR_HEIGHT = 70
 local BAR_HEIGHT = 29
 local BAR_FILL_HEIGHT = 15
+-- The client's own ColoredProgressBarTemplate draws these bar atlases: the frame has a rim, so the fill runs this
+-- far inside it at each end, and a frame-sized mask gives the fill's ends the track's shape.
+local BAR_INSET = 6
 local SOURCE_SIZE = 16
 local LINE_HEIGHT = 24
 local LINE_ICON = 18
@@ -101,6 +104,19 @@ local function Wire(frame)
 	end)
 end
 
+---@param owner Frame
+---@param fill Texture
+---@param frame Texture the bar's common-stat-bar-BG frame
+---@return MaskTexture
+local function MaskBarFill(owner, fill, frame)
+	local mask = owner:CreateMaskTexture()
+	-- art-ok: the native bar mask stretches with the bar's frame, as the client's template draws it.
+	mask:SetAtlas("common-stat-bar-Mask")
+	mask:SetAllPoints(frame)
+	fill:AddMaskTexture(mask)
+	return mask
+end
+
 -- The parts a row draws once, whatever entry it later holds.
 ---@param row SkillUpListRow
 local function BuildRow(row)
@@ -139,6 +155,7 @@ local function BuildRow(row)
 	-- art-ok: native progress fill stretches to represent a quantity.
 	fill:SetAtlas("common-stat-bar-white")
 	row.Bar:SetStatusBarTexture(fill)
+	row.BarMask = MaskBarFill(row.Bar, fill, row.BarBg)
 	row.BarText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	row.BarText:SetPoint("CENTER", row.Bar, "CENTER", 0, 0)
 	row.BarBg:Hide()
@@ -195,8 +212,8 @@ local function InitializeRow(row, elementData)
 		row.BarBg:SetPoint("RIGHT", row, "RIGHT", -8, 0)
 		row.BarBg:SetHeight(BAR_HEIGHT)
 		row.Bar:ClearAllPoints()
-		row.Bar:SetPoint("LEFT", row.BarBg, "LEFT", 0, 0)
-		row.Bar:SetPoint("RIGHT", row.BarBg, "RIGHT", 0, 0)
+		row.Bar:SetPoint("LEFT", row.BarBg, "LEFT", BAR_INSET, 0)
+		row.Bar:SetPoint("RIGHT", row.BarBg, "RIGHT", -BAR_INSET, 0)
 		row.Bar:SetHeight(BAR_FILL_HEIGHT)
 		local need = math.max(entry.bar.need or 0, 0)
 		local have = math.min(entry.bar.have or 0, need)
@@ -270,6 +287,7 @@ local function BuildBand(band)
 	-- art-ok: native progress fill stretches to represent skill completion.
 	band.BarFill:SetAtlas("common-stat-bar-white")
 	band.BarFill:SetVertexColor(ns.COLORS.green:GetRGB())
+	band.BarMask = MaskBarFill(band, band.BarFill, band.BarBg)
 	band.BarWidth, band.BarHeight = BAND_BAR_WIDTH, BAND_BAR_HEIGHT
 	band.BarText = band:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	band.BarText:SetPoint("CENTER", band.BarBg, "CENTER", 0, 0)
@@ -289,9 +307,9 @@ local function InitializeBand(band, elementData)
 	band.BarBg:SetSize(band.BarWidth, band.BarHeight)
 	local span = math.max(elementData.cap - elementData.from, 0)
 	local done = math.max(0, math.min(elementData.skill or 0, elementData.cap) - elementData.from)
-	local filled = span > 0 and band.BarWidth * math.min(done / span, 1) or 0
+	local filled = span > 0 and (band.BarWidth - 2 * BAR_INSET) * math.min(done / span, 1) or 0
 	band.BarFill:ClearAllPoints()
-	band.BarFill:SetPoint("LEFT", band.BarBg, "LEFT", 0, 0)
+	band.BarFill:SetPoint("LEFT", band.BarBg, "LEFT", BAR_INSET, 0)
 	band.BarFill:SetSize(filled, BAR_FILL_HEIGHT)
 	band.BarText:SetFormattedText("%d/%d", done, span)
 end

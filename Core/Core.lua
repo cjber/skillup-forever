@@ -7,7 +7,7 @@ if ns.broken then
 end
 
 ns.ReportTitle = L["SkillUp report"]
--- The one client icon every in-game identity surface draws: the side tab, the shopping windows and the leaderboard
+-- The one client icon every in-game identity surface draws: the side tab and the shopping windows.
 -- tab. The TOC declares it once and the drawn media/Icon stays the addon's store and TOC identity.
 ns.ICON = C_AddOns.GetAddOnMetadata(addonName, "X-Forever-Icon") --[[@as string]]
 -- The shared services, registered once: the report window's title and SkillUp's own report lines.
@@ -68,9 +68,7 @@ local DEFAULTS = {
 	builds = {},
 	routeTargets = {}, -- [profession skill line] = target base skill
 	learned = {}, -- ["Name-Realm"] = { [recipeID] = true }
-	statsShare = true,
 	observedRecipes = {}, -- ["Name-Realm"] = { ids = { [recipeID] = true }, eventUnix = latest observation }
-	peerStats = {}, -- ["Name-Realm"] = peer rows for this character's guild and groups
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
 	trackedProfessions = {}, -- [profession skill line] = true tracked, false stopped by hand, nil undecided
 	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
@@ -111,8 +109,8 @@ ns.TITLE = "SkillUp Forever"
 -- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
 -- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
 -- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
-ns.WHATS_NEW_VERSION = "1.8.2"
-ns.WHATS_NEW = L["Disabled auction list maintenance stays disabled."]
+ns.WHATS_NEW_VERSION = "1.9.0"
+ns.WHATS_NEW = L["Opening the auction house prices your tracked routes."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -296,6 +294,8 @@ local function LoadDB()
 		end
 	end
 	SkillUpForeverDB = loaded
+	loaded.peerStats = nil
+	loaded.statsShare = nil
 	ns.db = loaded
 end
 
@@ -965,7 +965,6 @@ local function ReportCommand(command, argument)
 end
 
 local BUG, FEATURE = "bug", "feature"
-local SHARE_ON, SHARE_OFF = "on", "off"
 ---@type SkillUpSlashCommand[]
 ns.SlashCommands = {
 	{
@@ -984,26 +983,6 @@ ns.SlashCommands = {
 		word = "export",
 		handler = Export,
 		help = L["/skillup export - show the trainer requirements this character has seen, to paste into a report"],
-	},
-	{
-		word = "leaderboard",
-		aliases = { "stats" },
-		handler = function()
-			if ns.Stats then
-				ns.Stats.Open()
-			end
-		end,
-		help = L["/skillup leaderboard - open Forever Leaderboards on this addon's tab (also /skillup stats)"],
-	},
-	{
-		word = "share",
-		arguments = { SHARE_ON, SHARE_OFF },
-		handler = function(_, argument)
-			if ns.Stats and ns.db then
-				Settings.SetValue("SkillUpForever_statsShare", argument == SHARE_ON)
-			end
-		end,
-		help = L["/skillup share on|off - control sharing with guild and group"],
 	},
 	{
 		word = "shopping",

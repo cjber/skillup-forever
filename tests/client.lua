@@ -460,6 +460,21 @@ function Client.load(options)
 	function Methods:CreateTexture()
 		return NewFrame(nil, self)
 	end
+	-- A mask is a region too; a texture keeps the masks drawn over it, and a status bar its fill texture, so a spec
+	-- can check what shapes a fill.
+	function Methods:CreateMaskTexture()
+		return NewFrame(nil, self)
+	end
+	function Methods:AddMaskTexture(mask)
+		self.masks = self.masks or {}
+		self.masks[#self.masks + 1] = mask
+	end
+	function Methods:SetStatusBarTexture(texture)
+		self.statusBarTexture = texture
+	end
+	function Methods:GetStatusBarTexture()
+		return self.statusBarTexture
+	end
 	-- The atlas a texture was given, so a spec can check which art it draws.
 	function Methods:GetAtlas()
 		return self.atlas
@@ -1257,7 +1272,14 @@ function Client.load(options)
 						return string.format("%sx%d", request.searchString, request.quantity)
 					end,
 					MultiSearchAdvanced = function(_, searches)
-						c.auctionSearches[#c.auctionSearches + 1] = searches
+						local formatted = {}
+						for index, request in ipairs(searches) do
+							assert(type(request) == "table", "Auctionator advanced search requires records")
+							assert(type(request.searchString) == "string", "Auctionator requires searchString")
+							assert(request.isExact == true, "reagent searches must be exact")
+							formatted[index] = string.format("%sx%d", request.searchString, request.quantity)
+						end
+						c.auctionSearches[#c.auctionSearches + 1] = formatted
 					end,
 				},
 			},

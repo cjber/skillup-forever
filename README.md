@@ -66,9 +66,7 @@ At the trainer, every recipe shows its chance and cost; a green arrow marks the 
 
 Hover a reagent to see how much your tracked routes need.
 
-`/skillup leaderboard` (or `/skillup stats`) opens the shared Forever Leaderboards window on SkillUp's tab, ranking distinct recipes SkillUp has observed as learned on your character against totals reported by guild and group members, for this week or all time. The window also shows the overall standing across every installed Forever addon and puts a player's place in the unit tooltip. Repeated scans and relearning the same recipe do not increase the total. Recipes in linked or guild profession views do not count.
-
-Sharing is on by default: everyone running a Forever addon appears on the boards unless they turn it off. Turn it off with `/skillup share off`, the Share my progress switch in the window, or the checkbox in Settings > AddOns > SkillUp Forever. This stops sending and receiving totals and hides other players while keeping your local observations. `/skillup share on` resumes sharing. Reported totals are not verified.
+SkillUp keeps a local count of distinct recipes observed as learned. Repeated scans and relearning the same recipe do not increase the total. Recipes in linked or guild profession views do not count.
 
 ## Install
 
@@ -164,7 +162,7 @@ Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees
 
 <!-- forever-credits:start -->
 
-Thanks to kopuliak, Mouchoir, Chuujitsuna, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, sundered1985, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc and everyone who reported a bug or asked for a feature.
+Thanks to kopuliak, Mouchoir, bromidious, Chuujitsuna, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, Rambomst, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, sundered1985, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc and everyone who reported a bug or asked for a feature.
 
 <!-- forever-credits:end -->
 

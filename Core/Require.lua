@@ -5,7 +5,7 @@ local _, ns = ...
 -- missing, never because of a version comparison.
 --
 -- API 1 has the report window, the tracker host, the family suggestions, the map, settings and context menu openers,
--- the leaderboards, peer stats and the text helper, all of which this addon calls. The API kit arrived after it
+-- all of which this addon calls. The API kit arrived after it
 -- (ForeverCore 1.1.0) and Core/API.lua builds this addon's own API on its Hub and NotReady. Publishing to the suite's
 -- list (APIKit.Publish) is guarded by the kit's minor, so an older kit is not a reason to stop. The tracker section
 -- and line arrived after it too (ForeverCore 1.2.0): UI/Shopping.lua builds its section with Section.Create and makes

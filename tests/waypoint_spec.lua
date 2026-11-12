@@ -62,14 +62,14 @@ assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 setfenv(assert(loadfile("Integrations/Sources.lua")), env)("SkillUpForever", ns)
 
 ---@param accepts boolean?
-local function Run(accepts)
+local function Run(accepts, version)
 	calls = {}
 	if accepts == nil then
 		env.ShortestPathForever = nil
 	else
 		env.ShortestPathForever = {
 			API = {
-				version = 1,
+				version = version or 1,
 				Navigate = function(owner, map, x, y, title)
 					calls.navigate = { owner = owner, map = map, x = x, y = y, title = title }
 					return accepts
@@ -90,6 +90,10 @@ equal(calls.navigate.title, "Drake Lindgren", "Shortest Path Forever names the s
 equal(calls.native, nil, "an accepted route sets no map waypoint")
 equal(calls.printed, "route set to Drake Lindgren, Elwynn Forest  42, 66.", "an accepted route says where")
 
+Run(true, 2)
+equal(calls.navigate and calls.navigate.owner, "SkillUpForever", "API v2 keeps the navigation contract")
+equal(calls.native, nil, "API v2 navigation needs no native fallback")
+
 Run(false)
 equal(calls.navigate ~= nil, true, "Shortest Path Forever is asked first")
 equal(calls.native and calls.native.map, 1429, "a declined route falls back to the map waypoint")
@@ -105,7 +109,7 @@ equal(calls.superTracked, true, "without Shortest Path Forever the waypoint is s
 calls = {}
 env.ShortestPathForever = {
 	API = {
-		version = 2,
+		version = 3,
 		Navigate = function()
 			calls.navigate = true
 			return true

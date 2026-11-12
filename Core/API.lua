@@ -480,12 +480,11 @@ local function WholeBetween(value, low, high)
 end
 
 local STATS_METRIC = "recipes_observed_learned"
-local MAX_BOARD = 25
 
 ---@class SkillUpPublicAPI
 -- `minor` rises with each addition within version 1 (1: Professions, Navigate and OpenRecipes; 2: ShoppingList;
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
--- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits, Stats and Leaderboard);
+-- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
 local API = { version = 1, minor = 6 }
 
@@ -823,16 +822,10 @@ function API.ShoppingTrip(skillLineID)
 	return ns.ShoppingTrip(skillLineID)
 end
 
--- This character's own recipe observations, in the suite's Stats row shape.
+-- This character's own recipe observations.
 ---@return SkillUpAPIStat[]
 function API.Stats()
-	local value, eventUnix = 0, nil
-	for _, row in ipairs(ns.Stats.Board()) do
-		if row.self then
-			value, eventUnix = row.value, row.eventUnix
-			break
-		end
-	end
+	local value, eventUnix = ns.Stats.Local()
 	return {
 		{
 			addon = "SkillUpForever",
@@ -841,39 +834,6 @@ function API.Stats()
 			value = value,
 			eventUnix = eventUnix,
 		},
-	}
-end
-
--- The same ranked rows the shared leaderboard window shows, bounded like the suite's other boards.
----@param limit? number
----@return SkillUpAPILeaderboard?
----@return SkillUpAPIReason?
-function API.Leaderboard(limit)
-	limit = limit == nil and 10 or limit
-	if not WholeBetween(limit, 0, math.huge) then
-		return nil, "invalid"
-	end
-	---@cast limit number
-	limit = math.min(limit, MAX_BOARD)
-	local ranked = ns.Stats.Board()
-	local rows = {}
-	for _, row in ipairs(ranked) do
-		if row.rank <= limit or row.self then
-			rows[#rows + 1] = {
-				rank = row.rank,
-				name = row.name,
-				value = row.value,
-				eventUnix = row.eventUnix,
-				self = row.self == true or nil,
-			}
-		end
-	end
-	return {
-		metric = STATS_METRIC,
-		scope = "guild_group",
-		sharing = ns.Stats.Sharing(),
-		total = #ranked,
-		rows = rows,
 	}
 end
 

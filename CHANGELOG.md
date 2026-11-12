@@ -12,6 +12,28 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-11-12
+
+<!-- discord-image: docs/screenshots/route-auctionator.png -->
+
+- **Opening the auction house prices your tracked routes.** With Buy reagents and reagent searching enabled, Auctionator searches missing and older reagent prices once per visit, including vendor alternatives. The route updates when those prices arrive. (#561)
+
+- **Routes keep their prices after a reload.** SkillUp asks Auctionator again after login so prices requested during the loading screen do not stay missing. Thanks to Rambomst (#655).
+
+- **Progress bars stay inside their frames.** Reagent and skill-band fills now follow the track inside the rim. Thanks to Rambomst (#656).
+
+- **Navigation:** Keep routes working with Shortest Path Forever when its shared leaderboard features are removed.
+
+- **A selected recipe shows its skill band.** The details pane now shows the bar itself as well as its container. Thanks to ItachiGrave for reporting disappearing skill information (#613).
+
+- **The Thanks page includes the Profession overlap reporters.** Thanks to bromidious for reporting the Buffs checkbox and native-control overlaps, and to .phear for independently reproducing the native-control overlap. These fixes shipped previously; this update adds their missing credits (#657).
+
+- **Searching a recipe's reagents works with Auctionator's advanced search.** The search keeps exact item names and the missing quantities. (#654)
+
+- **Native recipe descriptions stay clear.** The skill band now makes room for Blizzard's own recipe text instead of covering it. (#660)
+
+- **Local recipe observations no longer use the shared player leaderboard.** SkillUp keeps its own count and stats API while removing the unused peer-sharing setting, commands and tab integration.
+
 ## [1.8.2] - 2026-11-12
 
 - **Disabled auction list maintenance stays disabled.** Turning off Auctionator's automatic search option no longer rewrites tracked shopping lists when bags or prices change. The explicit Search button still searches for the selected recipe. Thanks to kopuliak (#647).

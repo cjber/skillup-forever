@@ -43,6 +43,12 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| [Rambomst](https://github.com/Rambomst) | Fixed progress-bar fill masking and Auctionator prices after reload (#655, #656) | |
+| bromidious | Reported the progress-bar overlap fixed in #656 | Discord; #656 |
+| ItachiGrave | Selected recipes show their skill band | CurseForge; #613; thread 8688792 |
+| bromidious | Buffs controls no longer overlap | Discord; #599 |
+| bromidious | Native controls stay behind SkillUp pages | Discord; forever-core#477; Core 1.7.4 |
+| .phear | Native controls stay behind SkillUp pages | Discord; forever-core#477; Core 1.7.4 |
 | Brainc3ll | French translation | GitHub; cjber/legacy-forever#99 |
 | kopuliak | Recipe minimum skills and automatic auction list settings corrected | CurseForge; #107, #123, #647 |
 | kopuliak | No more secret-number tooltip errors | CurseForge; #161, 0.10.0, 0.16.0 |

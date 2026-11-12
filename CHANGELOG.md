@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The recipe tooltip keeps its skill bar when you skill up.** Crafting with the cursor on a recipe could leave its tooltip with an empty gap where the skill bar was: another tooltip cleared after the craft, such as an item tooltip refreshed when the crafted item reached your bags, hid the bar too. Now only the recipe tooltip's own redraw hides it.
+
 ## [1.8.2] - 2026-11-12
 
 - **Disabled auction list maintenance stays disabled.** Turning off Auctionator's automatic search option no longer rewrites tracked shopping lists when bags or prices change. The explicit Search button still searches for the selected recipe. Thanks to kopuliak (#647).

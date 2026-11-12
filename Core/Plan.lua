@@ -506,6 +506,8 @@ end
 
 -- How deep a reagent is followed into the recipes that make it before it is left to buy.
 local MAX_SUB_DEPTH = 3
+-- What Expand returns as `used` when no bags are passed: never written, since only the bags branch adds to it.
+local NONE_USED = {}
 
 -- The sub-crafts a recipe's reagents need, deepest first, and the raw reagents left once every
 -- reagent a learned recipe makes for less than it costs to buy is replaced by what it is made from.
@@ -520,11 +522,11 @@ local MAX_SUB_DEPTH = 3
 ---@param bags table<integer, number>?
 ---@return SkillUpSubCraft[]
 ---@return {itemID: integer, count: number}[]
----@return table<integer, number>?
+---@return table<integer, number>
 local function Expand(recipeID, crafts, depth, making, bags)
 	local subcrafts, raw = {}, {}
-	-- Only a caller that passes the bags reads what they stood in for.
-	local used = bags and {}
+	-- Only a caller that passes the bags writes or reads what they stood in for; the rest share one empty table.
+	local used = bags and {} or NONE_USED
 	for _, reagent in ipairs((ns.Reagents and ns.Reagents(recipeID)) or {}) do
 		local need = reagent.quantity * crafts
 		local maker = depth < MAX_SUB_DEPTH
@@ -556,10 +558,8 @@ local function Expand(recipeID, crafts, depth, making, bags)
 				for _, item in ipairs(childRaw) do
 					raw[#raw + 1] = item
 				end
-				if used then
-					for itemID, count in pairs(childUsed) do
-						used[itemID] = (used[itemID] or 0) + count
-					end
+				for itemID, count in pairs(childUsed) do
+					used[itemID] = (used[itemID] or 0) + count
 				end
 			end
 		else

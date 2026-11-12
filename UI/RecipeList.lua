@@ -197,6 +197,19 @@ local function CollectIDs(node, seen)
 	end
 end
 
+-- The client's recipe search is a case-insensitive name filter, which it applies to its own rows before
+-- handing us a provider. A bundled recipe the client does not list never reaches that filter, so it has to
+-- pass the same test here or every search would leave it in the list.
+---@param name string
+---@param search string?
+---@return boolean
+local function MatchesSearch(name, search)
+	if not search or search == "" then
+		return true
+	end
+	return strfind(strlower(name), strlower(search), 1, true) ~= nil
+end
+
 -- The bundled recipes missing from the client's list, in the order ns.UnlearnedRecipes sorted them. A
 -- recipe the client does not list has no node data of its own, so its row gets our wrapper around it.
 ---@param seen table<integer, boolean>
@@ -204,8 +217,9 @@ end
 ---@return SkillUpRecipeNodeData[]
 local function UnlearnedMissing(seen, ctx)
 	local missing = {}
+	local search = C_TradeSkillUI.GetRecipeItemNameFilter()
 	for _, entry in ipairs(ns.UnlearnedRecipes(ctx)) do
-		if not seen[entry.recipeID] then
+		if not seen[entry.recipeID] and MatchesSearch(entry.name, search) then
 			seen[entry.recipeID] = true
 			missing[#missing + 1] = { recipeInfo = UnlearnedInfo(entry) }
 		end

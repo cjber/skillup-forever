@@ -43,6 +43,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| kopuliak | Reported that search left bundled unlearned recipes unfiltered (#662) | CurseForge; thread 8697280 |
 | [Rambomst](https://github.com/Rambomst) | Fixed progress-bar fill masking and Auctionator prices after reload (#655, #656) | |
 | bromidious | Reported the progress-bar overlap fixed in #656 | Discord; #656 |
 | ItachiGrave | Selected recipes show their skill band | CurseForge; #613; thread 8688792 |

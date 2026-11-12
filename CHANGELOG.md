@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Search also filters unlearned recipes.** Typing in the Professions search box narrows the unlearned list, and clearing it brings the recipes back. Thanks to kopuliak (#662).
+
 ## [1.9.0] - 2026-11-12
 
 <!-- discord-image: docs/screenshots/route-auctionator.png -->

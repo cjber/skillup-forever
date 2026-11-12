@@ -16,6 +16,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 <!-- forever-core-sync -->
 
+- **The Thanks page includes two more reporters.** Thanks to FreakinNerd for reporting that SkillUp's pages drew over the Professions window's own page, and to nookie909 for reporting that a route changed after buying its reagents. Both fixes shipped previously; this update adds their missing credits (#679).
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ## [1.9.3] - 2026-11-12

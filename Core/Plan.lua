@@ -506,8 +506,6 @@ end
 
 -- How deep a reagent is followed into the recipes that make it before it is left to buy.
 local MAX_SUB_DEPTH = 3
--- What Expand returns as `used` when no bags are passed: never written, since only the bags branch adds to it.
-local NONE_USED = {}
 
 -- The sub-crafts a recipe's reagents need, deepest first, and the raw reagents left once every
 -- reagent a learned recipe makes for less than it costs to buy is replaced by what it is made from.
@@ -522,11 +520,10 @@ local NONE_USED = {}
 ---@param bags table<integer, number>?
 ---@return SkillUpSubCraft[]
 ---@return {itemID: integer, count: number}[]
----@return table<integer, number>
+---@return {itemID: integer, count: number}[]
 local function Expand(recipeID, crafts, depth, making, bags)
 	local subcrafts, raw = {}, {}
-	-- Only a caller that passes the bags writes or reads what they stood in for; the rest share one empty table.
-	local used = bags and {} or NONE_USED
+	local used = {}
 	for _, reagent in ipairs((ns.Reagents and ns.Reagents(recipeID)) or {}) do
 		local need = reagent.quantity * crafts
 		local maker = depth < MAX_SUB_DEPTH
@@ -558,8 +555,8 @@ local function Expand(recipeID, crafts, depth, making, bags)
 				for _, item in ipairs(childRaw) do
 					raw[#raw + 1] = item
 				end
-				for itemID, count in pairs(childUsed) do
-					used[itemID] = (used[itemID] or 0) + count
+				for _, item in ipairs(childUsed) do
+					used[#used + 1] = item
 				end
 			end
 		else
@@ -570,7 +567,7 @@ local function Expand(recipeID, crafts, depth, making, bags)
 				bags[reagent.itemID] = bags[reagent.itemID] - held
 				need = need - held
 				if held > 0 then
-					used[reagent.itemID] = (used[reagent.itemID] or 0) + held
+					used[#used + 1] = { itemID = reagent.itemID, count = held }
 				end
 			end
 			if need > 0 then
@@ -1068,8 +1065,8 @@ function ns.RouteReagents(plan)
 			raw[#raw + 1] = item
 		end
 		-- What the bags held is still part of what the whole route needs; it is just not bought.
-		for itemID, count in pairs(craftUsed) do
-			raw[#raw + 1] = { itemID = itemID, count = count }
+		for _, item in ipairs(craftUsed) do
+			raw[#raw + 1] = item
 		end
 	end
 	local list = ns.Model.BucketItems(raw, ns.PriceSource)

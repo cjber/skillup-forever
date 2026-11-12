@@ -2150,6 +2150,26 @@ def inset_frame(canvas, x, y, w, h, title=None):
 
 LIST_ROW, LIST_HEADING, LIST_ICON, LIST_MESSAGE_MIN, LIST_SCROLLBAR = 46, 26, 37, 20, 18  # List.lua
 LIST_ROW_BAR, LIST_BAND, LIST_LINE, LIST_BAR, LIST_SOURCE, LIST_LINE_ICON = 70, 30, 24, 29, 16, 18  # List.lua
+LIST_BAR_FILL, LIST_BAR_INSET = 15, 6  # List.lua
+
+
+def stat_bar(canvas, x, y, w, h, fraction, color):
+    """List.lua's have/need and band bars: the frame, the fill inside its rim and the frame-sized mask over the
+    fill, as the client's ColoredProgressBarTemplate draws these atlases."""
+    ui = canvas.ui
+    canvas.draw(ui.atlas("common-stat-bar-BG"), x, y, w, h)
+    if fraction <= 0:
+        return
+    layer = ui.canvas(canvas.width, canvas.height)
+    track = w - 2 * LIST_BAR_INSET
+    fill_y = y + (h - LIST_BAR_FILL) / 2
+    fill = ui.atlas("common-stat-bar-white")
+    layer.draw(fill, x + LIST_BAR_INSET, fill_y, track * min(fraction, 1), LIST_BAR_FILL, color=color)
+    # SetAtlas slices the mask by its own margins, as it does the frame, so its ends keep their native size.
+    mask = ui.atlas("common-stat-bar-Mask")
+    width, height = layer.px(x + w) - layer.px(x), layer.px(y + h) - layer.px(y)
+    layer.mask(layer.sliced(mask, width, height) if mask.slice else mask.image, x, y, w, h)
+    canvas.paste(layer, 0, 0)
 
 
 def draw_list(canvas, x, y, w, h, rows):
@@ -2188,18 +2208,9 @@ def draw_list(canvas, x, y, w, h, rows):
             bar_w = 170
             bar_h = 29
             bar_x, bar_y = box_x + box_w - 6 - bar_w, top + (LIST_BAND - bar_h) / 2
-            canvas.draw(ui.atlas("common-stat-bar-BG"), bar_x, bar_y, bar_w, bar_h)
             span = max(row["cap"] - row["from"], 0)
             done = max(0, min(row.get("skill", 0), row["cap"]) - row["from"])
-            if span > 0 and done > 0:
-                canvas.draw(
-                    ui.atlas("common-stat-bar-white"),
-                    bar_x,
-                    bar_y + (bar_h - 15) / 2,
-                    bar_w * min(done / span, 1),
-                    15,
-                    color=(0.25, 0.75, 0.25, 1),
-                )
+            stat_bar(canvas, bar_x, bar_y, bar_w, bar_h, done / span if span > 0 else 0, (0.25, 0.75, 0.25, 1))
             canvas.text(
                 bar_x,
                 bar_y - 1,
@@ -2271,19 +2282,10 @@ def draw_list(canvas, x, y, w, h, rows):
         detail = row.get("detail")
         if row.get("bar"):
             bar_x, bar_y, bar_w, bar_h = text_x, top + 2 + F_HIGHLIGHT.height + 3, box_x + box_w - 8 - text_x, LIST_BAR
-            canvas.draw(ui.atlas("common-stat-bar-BG"), bar_x, bar_y, bar_w, bar_h)
             need = max(row["bar"].get("need", 0), 0)
             have = min(row["bar"].get("have", 0), need)
-            if need > 0 and have > 0:
-                color = tuple(row["barColor"]) if row.get("barColor") else (0.25, 0.75, 0.25)
-                canvas.draw(
-                    ui.atlas("common-stat-bar-white"),
-                    bar_x,
-                    bar_y + (bar_h - 15) / 2,
-                    bar_w * have / need,
-                    15,
-                    color=color,
-                )
+            color = tuple(row["barColor"]) if row.get("barColor") else (0.25, 0.75, 0.25)
+            stat_bar(canvas, bar_x, bar_y, bar_w, bar_h, have / need if need > 0 else 0, color)
             canvas.text(
                 bar_x,
                 bar_y - 1,

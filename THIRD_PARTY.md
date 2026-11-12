@@ -43,6 +43,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| [Rambomst](https://github.com/Rambomst) | Fixed progress-bar fill masking and Auctionator prices after reload (#655, #656) | |
 | ItachiGrave | Selected recipes show their skill band | CurseForge; #613; thread 8688792 |
 | bromidious | Buffs controls no longer overlap | Discord; #599 |
 | bromidious | Native controls stay behind SkillUp pages | Discord; forever-core#477; Core 1.7.4 |

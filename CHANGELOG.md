@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Routes keep their prices after a reload.** SkillUp asks Auctionator again after login so prices requested during the loading screen do not stay missing. Thanks to Rambomst (#655).
+
+- **Progress bars stay inside their frames.** Reagent and skill-band fills now follow the track inside the rim. Thanks to Rambomst (#656).
+
 - **Navigation:** Keep routes working with Shortest Path Forever when its shared leaderboard features are removed.
 
 - **A selected recipe shows its skill band.** The details pane now shows the bar itself as well as its container. Thanks to ItachiGrave for reporting disappearing skill information (#613).

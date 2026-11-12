@@ -701,8 +701,9 @@ function ns.InitPrices()
 	if api and api.RegisterForDBUpdate then
 		api.RegisterForDBUpdate(addonName, PricesChanged)
 	end
-	-- TradeSkillMaster reads its AuctionDB at login, so a price asked for before then came back empty.
-	if ns.HasTradeSkillMaster() then
+	-- Auctionator loads its database at PLAYER_LOGIN and TradeSkillMaster reads its AuctionDB at login: a price asked
+	-- for before then came back empty, and the cache keeps that until a scan.
+	if api or ns.HasTradeSkillMaster() then
 		local entered = false
 		ns.WhenEvent("PLAYER_ENTERING_WORLD", function()
 			if entered then

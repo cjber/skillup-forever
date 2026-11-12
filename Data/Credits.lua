@@ -4,6 +4,7 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "Rambomst", what = "Fixed progress-bar fill masking and Auctionator prices after reload" },
 		{ name = "ItachiGrave", what = "Selected recipes show their skill band" },
 		{ name = "bromidious", what = "Buffs controls no longer overlap" },
 		{ name = "bromidious", what = "Native controls stay behind SkillUp pages" },

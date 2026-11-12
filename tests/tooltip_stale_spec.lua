@@ -36,6 +36,9 @@ local function Region()
 		CreateTexture = function()
 			return Region()
 		end,
+		CreateMaskTexture = function()
+			return Region()
+		end,
 	}
 	return setmetatable({ points = {}, scripts = {} }, {
 		__index = function(_, key)

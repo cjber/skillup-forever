@@ -60,21 +60,6 @@
 ---@field value number This character's distinct observed recipes.
 ---@field eventUnix? number The last observation's time, absent before the first.
 
----@class SkillUpAPILeaderboardRow
----@field rank integer
----@field name string
----@field value number
----@field eventUnix? number
----@field self? true This character's own row.
-
----@class SkillUpAPILeaderboard
----@field metric 'recipes_observed_learned'
----@field scope 'guild_group'
----@field ruleset? string Absent because SkillUp records no game-mode ruleset.
----@field sharing boolean Whether this character shares and shows peer totals.
----@field total integer Every ranked row, before the limit.
----@field rows SkillUpAPILeaderboardRow[]
-
 ---@class SkillUpPublicAPI
 ---@field version integer
 ---@field minor integer Raised with each addition; docs/api.md keeps the history.
@@ -88,7 +73,6 @@
 ---@field RequiredMaterials fun(recipeID: integer, crafts?: number): {itemID: integer, count: number}[]?, SkillUpAPIReason? Raw inputs after known, cheaper sub-crafts are expanded; nil, "none" when SkillUp has no such recipe.
 ---@field SubComponents fun(recipeID: integer, crafts?: number): SkillUpSubCraft[]?, SkillUpAPIReason? Known cheaper recipes needed to make the recipe's inputs; nil, "none" when SkillUp has no such recipe.
 ---@field Stats fun(): SkillUpAPIStat[] This character's own recipe observations.
----@field Leaderboard fun(limit?: number): SkillUpAPILeaderboard?, SkillUpAPIReason? Ranked with the guild and group; nil, "invalid" for a bad limit.
 ---@field Subscribe fun(callback: fun(changes: SkillUpAPIChanges)): fun() Calls back the frame after the answers change, once per burst; returns an unsubscribe.
 
 ---@class SkillUpAPIShoppingItem

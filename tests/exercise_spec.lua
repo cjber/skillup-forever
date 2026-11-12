@@ -295,31 +295,6 @@ local function Commands(c)
 	for index, entry in ipairs(documented) do
 		equal(printed[index] and printed[index]:find(entry.help, 1, true) ~= nil, true, "help lists " .. entry.word)
 	end
-
-	-- Forever Leaderboards' own message is a board key, or empty to toggle; every board it has is a tab.
-	local boards = { overall = true }
-	local api = c.G.ForeverCore.Leaderboards
-	if api and api.Boards then
-		for _, board in ipairs(api:Boards()) do
-			boards[board.key] = true
-		end
-	end
-	local keys = {}
-	for key in pairs(boards) do
-		keys[#keys + 1] = key
-	end
-	table.sort(keys)
-	for _, key in ipairs(keys) do
-		Run(c, "slash /flb " .. key, function()
-			c.G.SlashCmdList.FOREVERLEADERBOARDS(key)
-		end)
-	end
-	Run(c, "slash /flb unknown", function()
-		c.G.SlashCmdList.FOREVERLEADERBOARDS("not-a-board")
-	end)
-	Run(c, "slash /flb toggle", function()
-		c.G.SlashCmdList.FOREVERLEADERBOARDS("")
-	end)
 end
 
 -- The addon's own surfaces, opened and closed the way a click does it.
@@ -418,22 +393,6 @@ local function Surfaces(c)
 		local window = rawget(G, ADDON .. "Issue")
 		assert(window and window:IsShown(), "the issue composer is shown")
 		window:Hide()
-	end)
-
-	-- Forever Leaderboards, one tab at a time.
-	Run(c, "leaderboards", function()
-		ns.Stats.Open()
-		local api = c.G.ForeverCore.Leaderboards
-		assert(api and api:IsShown(), "the leaderboards window is shown")
-		if api.window and api.window.tabs then
-			for _, tab in ipairs(api.window.tabs) do
-				if tab.mouseUp then
-					tab.mouseUp(tab, "LeftButton", true)
-				end
-			end
-		end
-		api:Toggle()
-		assert(not api:IsShown(), "the leaderboards window is hidden")
 	end)
 
 	-- The shopping list, its copy window, and the merchant's buy confirm.

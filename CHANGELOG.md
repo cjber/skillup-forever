@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Local recipe observations no longer use the shared player leaderboard.** SkillUp keeps its own count and stats API while removing the unused peer-sharing setting, commands and tab integration.
+
 ## [1.8.2] - 2026-11-12
 
 - **Disabled auction list maintenance stays disabled.** Turning off Auctionator's automatic search option no longer rewrites tracked shopping lists when bags or prices change. The explicit Search button still searches for the selected recipe. Thanks to kopuliak (#647).

@@ -131,7 +131,7 @@ the known cheaper recipes it expands, as fresh rows with `recipeID`, `itemID`, `
 `RequiredMaterials` is the source of truth for a recipe's materials: Commissions Forever's same-named function
 forwards to it.
 
-## Stats and Leaderboard
+## Stats
 
 `Stats()` returns one fresh local row, not a wire payload:
 
@@ -142,22 +142,6 @@ forwards to it.
 | `subject` | always `"all"` |
 | `value` | this character's distinct recipes observed as learned |
 | `eventUnix` | optional, the last observation's time, absent before the first one |
-
-`Leaderboard(limit)` returns `{ metric, scope, sharing, total, rows }`:
-
-| field | |
-|---|---|
-| `metric` | always `"recipes_observed_learned"` |
-| `scope` | always `"guild_group"` |
-| `sharing` | whether this character sends and receives totals, the same switch the stats settings page sets |
-| `total` | every eligible row, before the limit |
-| `rows` | fresh ranked rows, `rank`, `name`, `value`, optional `eventUnix`, and `self` on this character's row |
-
-There is no `ruleset`: SkillUp records no game-mode ruleset, so the field is left out rather than invented. The
-default limit is 10, capped at 25. Zero asks for only the personal row, which is kept even below the limit. A
-negative, fractional or non-number limit returns `nil, "invalid"`. Peer values are player reports and are not proof
-of learning; the transport is ForeverCore's bounded `WFAStats` protocol, never recipe names or inventory. Equal
-totals use the shared deterministic ordering.
 
 ## Subscribe
 

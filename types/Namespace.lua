@@ -240,7 +240,6 @@
 ---@field InitCatalogue fun()
 
 ---@class SkillUpDefaults
----@field statsShare boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field peerStats table<string, table>
 ---@field showRowText boolean

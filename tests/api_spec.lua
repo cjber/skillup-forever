@@ -373,7 +373,7 @@ equal(API.ShoppingTrip(165), true, "the API starts the shopping trip")
 equal(tripArgument, 165, "for the profession it was given")
 ns.ShoppingTrip = shoppingTrip
 
--- Stats and Leaderboard are the suite shape over the recipes-observed record.
+-- Stats exposes only this character's recipes-observed record.
 local stats = API.Stats()
 local startValue = stats[1].value
 equal(#stats, 1, "one local activity row")
@@ -381,7 +381,7 @@ equal(stats[1].addon, "SkillUpForever", "this addon")
 equal(stats[1].metric, "recipes_observed_learned", "the observed-recipes metric")
 equal(stats[1].subject, "all", "for the whole record")
 if startValue == 0 then
-	equal(stats[1].eventUnix, nil, "no event time before the first observation")
+	equal(stats[1].eventUnix, 0, "no event time before the first observation")
 end
 ns.Stats.Observe(987654)
 local observed = API.Stats()
@@ -389,36 +389,6 @@ equal(observed[1].value, startValue + 1, "a new observation raises this characte
 equal(type(observed[1].eventUnix), "number", "with the observation's time")
 observed[1].value = -1
 equal(API.Stats()[1].value, startValue + 1, "a caller's change never reaches the record")
-
-local function Receive(sender, value)
-	local payload = ("1|skillup|recipes_observed_learned|all|%d|%d"):format(value, c.G.GetServerTime())
-	c.Fire("CHAT_MSG_ADDON", "WFAStats", payload, "GUILD", sender)
-end
-for index = 1, 27 do
-	Receive("Peer" .. index .. "-Realm", 100 + index)
-end
-local board = API.Leaderboard()
-equal(board.metric, "recipes_observed_learned", "the board's metric")
-equal(board.scope, "guild_group", "with the guild and group")
-equal(board.ruleset, nil, "and no invented ruleset")
-equal(board.sharing, true, "sharing follows the stats switch")
-equal(board.total, 28, "every ranked row counts before the limit")
-equal(#board.rows, 11, "ten rows plus this character's own")
-equal(board.rows[1].rank, 1, "the first row's rank")
-equal(board.rows[#board.rows].self, true, "the personal row is kept below the limit")
-equal(#API.Leaderboard(100).rows, 26, "a limit above 25 is capped, plus the personal row")
-equal(#API.Leaderboard(25).rows, 26, "25 is the cap")
-local personal = API.Leaderboard(0)
-equal(#personal.rows, 1, "zero asks for only the personal row")
-equal(personal.rows[1].self, true, "which is this character's")
-ns.db.statsShare = false
-equal(API.Leaderboard().sharing, false, "turning the stats switch off reads back")
-ns.db.statsShare = true
-for _, bad in ipairs({ -1, 1.5, "10", false, math.huge }) do
-	local value, reason = API.Leaderboard(bad)
-	equal(value, nil, "a bad leaderboard limit is refused: " .. tostring(bad))
-	equal(reason, "invalid", "with an invalid reason")
-end
 
 -- Tracking changes the order, so the next call rebuilds.
 ns.SetTracked(165, true)

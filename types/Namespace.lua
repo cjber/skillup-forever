@@ -241,7 +241,6 @@
 
 ---@class SkillUpDefaults
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
----@field peerStats table<string, table>
 ---@field showRowText boolean
 ---@field showUnlearned boolean
 ---@field buffsOnly boolean

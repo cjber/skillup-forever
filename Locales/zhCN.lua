@@ -493,3 +493,5 @@ L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已过期。请更
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已过期。请更新它们来解决此问题。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 无法启动。请重新安装 %s 来解决此问题。" -- mt
 L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["SkillUp's pages no longer draw over the Professions window's own page."] =
+	"SkillUp's pages no longer draw over the Professions window's own page." -- mt

@@ -266,8 +266,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Taught by %s trainers."] = "Обучают учителя (%s)."
 L["The place this recipe is taught isn't known yet."] =
 	"Где обучают этому рецепту, пока неизвестно."
-L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
-	"Окно сохраняет одну ширину и расширяется до самой широкой строки рецепта среди всех изученных профессий, насколько позволяет экран. Выключите, чтобы оставить ширину игры."
 L["The rest comes from a vendor or your gathering."] =
 	"Остальное — от торговца или из вашей добычи."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
@@ -310,8 +308,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Пока открыт аукцион, окно профессий предлагает поиск реагентов выбранного рецепта: столько, сколько еще нужно для выбранного числа созданий с учетом сумок и банка. Список покупок Auctionator передает количество; без него каждый щелчок вставляет следующий реагент в поле поиска."
-L["Widen the recipe list to fit recipe names"] =
-	"Расширить список рецептов под названия"
 L["With Shortest Path Forever, a click leads you there."] =
 	"С Shortest Path Forever щелчок приведет вас туда."
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
@@ -540,8 +536,6 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Если включить «Покупать реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Без Auctionator кнопка «Поиск» рецепта заполняет собственную строку поиска аукциона игры по одному реагенту за раз."
-L["The Buffs tab no longer overflows the stack."] =
-	"Вкладка «Улучшения» больше не вызывает переполнение стека." -- mt
 L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s устарел. Обновите его, чтобы это исправить." -- mt

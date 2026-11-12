@@ -9,9 +9,6 @@ local L = setmetatable({}, {
 	end,
 })
 ns.L = L
-L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
-	"The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."
-L["Widen the recipe list to fit recipe names"] = "Widen the recipe list to fit recipe names"
 L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
 	"This route is mostly %s: %d recipes are left out until their reagents are priced."
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values"

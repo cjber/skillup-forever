@@ -250,8 +250,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"Subtrai do custo o valor de venda do item criado. Preços de leilão precisam do Auctionator/TradeSkillMaster, são após a taxa de 5% e podem não vender."
 L["Taught by %s trainers."] = "Ensinada por instrutores de %s."
 L["The place this recipe is taught isn't known yet."] = "Ainda não se sabe onde esta receita é ensinada."
-L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
-	"A janela mantém uma única largura, alargada até a linha de receita mais larga de cada profissão que você aprendeu, até onde a tela permitir. Desative para manter a largura do jogo."
 L["The rest comes from a vendor or your gathering."] = "O resto vem de um comerciante ou da sua coleta."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"A rota conta com %d para chegar a %d em 9 de 10 vezes; com menos sorte, serão necessários mais."
@@ -292,7 +290,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Onde a dica aparece ao passar o cursor sobre uma receita. Ao lado da janela, ela não cobre os reagentes."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Com a casa de leilões aberta, a janela de profissões oferece uma busca pelos reagentes da receita selecionada: tantos quanto as criações escolhidas ainda precisam depois das bolsas e do banco. A lista de compras do Auctionator leva as quantidades; sem ela, cada clique coloca o próximo reagente na caixa de busca."
-L["Widen the recipe list to fit recipe names"] = "Alargar a lista de receitas para caber os nomes"
 L["With Shortest Path Forever, a click leads you there."] =
 	"Com o Shortest Path Forever, um clique leva você até lá."
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
@@ -509,7 +506,6 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Ativar Comprar reagentes grava uma lista do Auctionator com todos os reagentes de leilão ainda faltando."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Sem o Auctionator, o botão Buscar de uma receita preenche a caixa de leilões do jogo, um reagente por vez."
-L["The Buffs tab no longer overflows the stack."] = "A aba Melhorias não estoura mais a pilha." -- mt
 L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s: %s está desatualizado. Atualize-o para corrigir isso." -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s: %s estão desatualizados. Atualize-os para corrigir isso." -- mt

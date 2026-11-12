@@ -249,8 +249,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 	"从成本中减去制造物品的售价。拍卖价需要Auctionator/TradeSkillMaster，已扣除5%手续费，且不一定能卖出。"
 L["Taught by %s trainers."] = "由%s训练师教授。"
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"
-L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
-	"窗口保持同一宽度，并加宽到已学所有专业中最宽的配方行，最宽到屏幕允许的范围。关闭后保持游戏自带的宽度。"
 L["The rest comes from a vendor or your gathering."] = "其余来自商人或你的采集。"
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"路线按%d个计算，十次中有九次能达到%d；运气差时需要更多。"
@@ -291,7 +289,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"拍卖行打开时，专业窗口可以搜索所选配方的材料：数量为扣除背包和银行后，你选择的制造次数仍需要的数量。Auctionator的购物清单会带上数量；没有它时，每次点击会把下一个材料填入搜索框。"
-L["Widen the recipe list to fit recipe names"] = "加宽配方列表以容纳配方名称"
 L["With Shortest Path Forever, a click leads you there."] = "有Shortest Path Forever时，点击即可带你前往。"
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
 	"有Shortest Path Forever时，会按路程时间选择最近的并带你前往。"
@@ -501,7 +498,6 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"开启“购买试剂”会写入一个 Auctionator 列表，包含所有仍缺少的拍卖行试剂。"
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"没有 Auctionator 时，配方的“搜索”按钮会一次一个试剂地填入游戏自带的拍卖搜索框。"
-L["The Buffs tab no longer overflows the stack."] = "增益标签页不再导致堆栈溢出。" -- mt
 L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已过期。请更新它来解决此问题。" -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已过期。请更新它们来解决此问题。" -- mt

@@ -256,8 +256,6 @@ L["Subtract what the crafted item sells for from its cost. Auction prices need A
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
 L["The place this recipe is taught isn't known yet."] =
 	"이 제조법을 배우는 곳은 아직 알려지지 않았습니다."
-L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."] =
-	"창은 하나의 너비를 유지하며, 배운 모든 전문 기술에서 가장 넓은 제조법 행에 맞춰 화면이 허락하는 만큼 넓어집니다. 끄면 게임의 너비를 유지합니다."
 L["The rest comes from a vendor or your gathering."] = "나머지는 상인이나 채집으로 얻습니다."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"경로는 %d개로 10번 중 9번은 %d에 도달한다고 봅니다. 운이 나쁘면 더 필요합니다."
@@ -298,7 +296,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"경매장이 열려 있으면 전문 기술 창에서 선택한 제조법의 재료를 검색할 수 있습니다: 가방과 은행을 뺀 뒤 선택한 제작 횟수에 아직 필요한 만큼입니다. Auctionator 구매 목록이 수량을 담고, 없으면 클릭할 때마다 다음 재료가 검색창에 들어갑니다."
-L["Widen the recipe list to fit recipe names"] = "제조법 이름에 맞게 제조법 목록 넓히기"
 L["With Shortest Path Forever, a click leads you there."] =
 	"Shortest Path Forever가 있으면 클릭 한 번으로 그곳까지 안내합니다."
 L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
@@ -517,8 +514,6 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"재료 구매를 켜면 아직 부족한 모든 경매장 재료가 Auctionator 목록에 기록됩니다."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Auctionator가 없으면 레시피의 검색 버튼이 게임 자체 경매 검색 상자에 한 번에 하나의 재료를 채웁니다."
-L["The Buffs tab no longer overflows the stack."] =
-	"버프 탭이 더 이상 스택 오버플로를 일으키지 않습니다." -- mt
 L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt

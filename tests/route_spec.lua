@@ -84,6 +84,15 @@ local function Stub()
 					rawset(frame, "width", width)
 					rawset(frame, "height", height)
 				end
+			elseif key == "GetWidth" then
+				value = function(frame)
+					return rawget(frame, "width") or 0
+				end
+			elseif key == "GetStringWidth" then
+				value = function(frame)
+					local text = rawget(frame, "text") or ""
+					return #text * 6
+				end
 			elseif key == "IsEnabled" then
 				value = function(frame)
 					return rawget(frame, "enabled") ~= false

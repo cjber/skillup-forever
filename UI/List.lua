@@ -132,9 +132,11 @@ local function BuildRow(row)
 	row.Detail:SetPoint("TOPLEFT", row.Text, "BOTTOMLEFT", 0, -2)
 	row.Detail:SetPoint("RIGHT", row, "RIGHT", -8, 0)
 	row.BarBg = row:CreateTexture(nil, "BACKGROUND")
+	-- art-ok: native progress-bar background stretches across the reagent row.
 	row.BarBg:SetAtlas("common-stat-bar-BG")
 	row.Bar = CreateFrame("StatusBar", nil, row) --[[@as StatusBar]]
 	local fill = row.Bar:CreateTexture(nil, "ARTWORK")
+	-- art-ok: native progress fill stretches to represent a quantity.
 	fill:SetAtlas("common-stat-bar-white")
 	row.Bar:SetStatusBarTexture(fill)
 	row.BarText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -262,8 +264,10 @@ local function BuildBand(band)
 	band.Range = band:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	band.Range:SetPoint("LEFT", band.Name, "RIGHT", 6, 0)
 	band.BarBg = band:CreateTexture(nil, "BACKGROUND")
+	-- art-ok: native progress-bar background stretches across the skill band.
 	band.BarBg:SetAtlas("common-stat-bar-BG")
 	band.BarFill = band:CreateTexture(nil, "ARTWORK")
+	-- art-ok: native progress fill stretches to represent skill completion.
 	band.BarFill:SetAtlas("common-stat-bar-white")
 	band.BarFill:SetVertexColor(ns.COLORS.green:GetRGB())
 	band.BarWidth, band.BarHeight = BAND_BAR_WIDTH, BAND_BAR_HEIGHT

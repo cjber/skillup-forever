@@ -266,7 +266,9 @@ box:SetDataProvider(Tree({ Leaf(string.rep("D", 40), 5) }))
 list, window = Widths()
 assert(list == 304 and window == 673, "no resize in combat")
 combat = false
-events.PLAYER_REGEN_ENABLED()
+if events.PLAYER_REGEN_ENABLED then
+	events.PLAYER_REGEN_ENABLED()
+end
 list, window = Widths()
 assert(list == 304 and window == 673, "kept when combat ends")
 
@@ -277,7 +279,7 @@ counts[6] = 0
 recipeList.width, frame.width = 304, 900
 box:SetDataProvider(Tree({ Leaf(string.rep("E", 200), 6) }))
 list, window = Widths()
-assert(list == 531 and window == 900, string.format("a wider window fitted %s/%s", list, window))
+assert(list == 304 and window == 900, string.format("a wider window changed native list geometry %s/%s", list, window))
 assert(frame.widthCalls == 0, "the addon never sets the window's width")
 
 -- The count follows the name in parentheses whether or not SkillUp's own row text is on.

@@ -186,7 +186,7 @@ stopTracking()
 local list = API.Professions()
 -- Until the vendors and trainers are read from QuestieDB, a step says what to find and routes nowhere.
 local early = list[3].steps
-equal(early[1].detail, "Vendor · 800c", "before the vendors are read a buy names none")
+equal(early[1].detail, "Vendor · 1000c", "before the vendors are read a buy names none")
 equal(early[1].nav, false, "and routes nowhere")
 equal(early[3].detail, "Leatherworking trainer · 1800c", "nor does training name a trainer")
 c.Advance(0)
@@ -217,19 +217,19 @@ equal(#lw.steps, 3, "at most three steps")
 
 local buy, craft, train = lw.steps[1], lw.steps[2], lw.steps[3]
 equal(buy.kind, "buy", "the thread the bags lack is bought first")
-equal(buy.text, "Buy 8 Fine Thread", "buy text")
-equal(buy.detail, "Gina, Darkshire · 800c", "buy detail names the nearest vendor and cost")
+equal(buy.text, "Buy 10 Fine Thread", "buy text")
+equal(buy.detail, "Gina, Darkshire · 1000c", "buy detail names the nearest vendor and cost")
 equal(buy.itemID, THREAD, "buy item")
-equal(buy.count, 8, "buy count")
-equal(buy.cost, 800, "buy cost")
+equal(buy.count, 10, "buy count")
+equal(buy.cost, 1000, "buy cost")
 equal(buy.nav, true, "a vendor can be routed to")
 equal(craft.kind, "craft", "then the craft")
--- Three points at 23/25, 22/25 and 21/25 a craft: 3.4 crafts expected, so four.
-equal(craft.text, "Craft 4 Toughened Leather Gloves", "craft text")
+-- Three points at 23/25, 22/25 and 21/25 a craft: 3.4 crafts expected, so five for the route's chance.
+equal(craft.text, "Craft 5 Toughened Leather Gloves", "craft text")
 equal(craft.detail, "142 to 145", "craft detail is its skill range")
 equal(craft.spellID, GLOVES, "craft spell")
 equal(craft.itemID, 4253, "craft product")
-equal(craft.count, 4, "craft count")
+equal(craft.count, 5, "craft count")
 equal(craft.cost, nil, "the craft's cost is in its purchases")
 equal(craft.nav, false, "a craft has nowhere to go")
 equal(train.kind, "train", "then the recipe the route trains next")
@@ -244,7 +244,7 @@ local gloves, hillmans = lw.recipes[1], lw.recipes[2]
 equal(gloves.name, "Toughened Leather Gloves", "recipe name")
 equal(gloves.spellID, GLOVES, "recipe spell")
 equal(gloves.itemID, 4253, "recipe product")
-equal(gloves.count, 4, "recipe crafts")
+equal(gloves.count, 5, "recipe crafts")
 equal(gloves.fromRank, 142, "recipe from")
 equal(gloves.toRank, 145, "recipe to")
 equal(gloves.learned, true, "known recipe")
@@ -260,10 +260,10 @@ local byItem = {}
 for _, reagent in ipairs(lw.reagents) do
 	byItem[reagent.itemID] = reagent
 end
-equal(byItem[THREAD].need, 13, "thread for the whole route")
+equal(byItem[THREAD].need, 15, "thread for the whole route")
 equal(byItem[THREAD].have, 0, "thread in the bags")
 equal(byItem[THREAD].source, "vendor", "thread from a vendor")
-equal(byItem[LEATHER].need, 64, "leather for the whole route")
+equal(byItem[LEATHER].need, 70, "leather for the whole route")
 equal(byItem[LEATHER].have, 40, "leather in the bags")
 equal(byItem[LEATHER].source, "craft", "a learned recipe makes the leather")
 
@@ -405,12 +405,12 @@ local function Leatherworking()
 end
 c.merchant = { { itemID = THREAD, price = 250, stackCount = 5 } }
 c.Fire("MERCHANT_SHOW")
-equal(Leatherworking().steps[1].cost, 400, "a cheaper vendor price reaches the buy step")
-equal(Leatherworking().steps[1].detail, "Gina, Darkshire · 400c", "and its text")
+equal(Leatherworking().steps[1].cost, 500, "a cheaper vendor price reaches the buy step")
+equal(Leatherworking().steps[1].detail, "Gina, Darkshire · 500c", "and its text")
 c.merchant = nil
 c.Fire("MERCHANT_CLOSED")
 -- Thread in the bags: nothing to buy, so the craft leads.
-c.bags[THREAD] = 8
+c.bags[THREAD] = 10
 c.Fire("BAG_UPDATE_DELAYED")
 equal(Leatherworking().steps[1].kind, "craft", "reagents arriving in the bags drop the purchase")
 -- Hillman's stays on the route even with its sale counted for nothing: the gloves' 0.8 chance needs two

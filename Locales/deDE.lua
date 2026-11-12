@@ -499,3 +499,9 @@ L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s sind nicht aktuell. Aktualisiert sie, um das zu beheben." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s konnte nicht starten. Installiert %s neu, um das zu beheben." -- mt
 L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
+	"Die Mengen enthalten Reserven für eine geschätzte %d%% Chance, die gesamte Route abzuschließen." -- mt
+L["Restock visit cost"] = "Kosten eines Nachschubbesuchs" -- mt
+L["Not counted"] = "Nicht gezählt" -- mt
+L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."] =
+	"Was ein Besuch zum Nachkaufen von Reagenzien in Kupfer wert ist, wenn ein Lauf mehr Handwerke braucht als geplant. Er wird nur dann zum Kaufpreis des Reagenzes addiert. Bei null wird kein Besuch gezählt." -- mt

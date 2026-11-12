@@ -512,3 +512,9 @@ L["%s: %s are out of date. Update them to fix this."] =
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s을(를) 시작할 수 없습니다. 문제를 해결하려면 %s을(를) 다시 설치하세요." -- mt
 L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
+	"수량에는 전체 경로를 완료할 약 %d%% 확률을 위한 여유분이 포함되어 있습니다." -- mt
+L["Restock visit cost"] = "재보급 방문 비용" -- mt
+L["Not counted"] = "계산하지 않음" -- mt
+L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."] =
+	"예정보다 많은 제작이 필요할 때 재료를 더 사러 가는 한 번의 방문이 구리로 얼마의 가치가 있는지입니다. 실제로 그럴 때만 해당 재료의 구매 가격에 더해집니다. 0으로 두면 방문 비용을 계산하지 않습니다." -- mt

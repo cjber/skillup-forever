@@ -14,6 +14,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Held reagents are used before a sub-craft is planned.** A route no longer asks you to craft an intermediate the bags already hold, or to buy the raw reagents for it; when the bags hold only some, the sub-craft covers just the shortfall. Thanks to vladdoubrov (#667).
 
+- **Reagent counts cover the whole route, not each step alone.** Every step's craft budget is chosen together so the route finishes 95 times in 100 from what you already hold, at the least reagent purchase cost. The route and shopping list say the counts include spares for that estimate, and a held reagent is counted once across the steps that use it. An optional restock visit cost, off by default, lets a trip to buy more after a shortfall change where the spare crafts go (#563).
+
 ## [1.9.0] - 2026-11-12
 
 <!-- discord-image: docs/screenshots/route-auctionator.png -->

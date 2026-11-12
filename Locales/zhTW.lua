@@ -494,3 +494,9 @@ L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已過期。請更
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已過期。請更新它們來解決此問題。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 無法啟動。請重新安裝 %s 來解決此問題。" -- mt
 L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
+	"數量包含預留，以估計 %d%% 的機率完成整條路線。" -- mt
+L["Restock visit cost"] = "補貨往返費用" -- mt
+L["Not counted"] = "不計入" -- mt
+L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."] =
+	"當一次製作需要比計畫更多的次數時，一趟去購買更多材料的費用值多少銅幣。它只在實際發生時加到該材料的購買價格上。保持為零則不計算往返費用。" -- mt

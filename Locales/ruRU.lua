@@ -533,3 +533,9 @@ L["%s: %s are out of date. Update them to fix this."] =
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s не удалось запустить. Переустановите %s, чтобы это исправить." -- mt
 L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
+	"Количество включает запас для примерно %d%% вероятности пройти весь маршрут." -- mt
+L["Restock visit cost"] = "Стоимость похода за пополнением" -- mt
+L["Not counted"] = "Не учитывается" -- mt
+L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."] =
+	"Сколько в меди стоит один поход за дополнительными реагентами, когда на серию уходит больше изготовлений, чем планировалось. Он добавляется к цене покупки этого реагента только когда происходит. Оставьте ноль, чтобы не учитывать походы." -- mt

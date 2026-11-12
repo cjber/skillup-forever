@@ -143,15 +143,15 @@ equal(Model.CostPerSkillUp(45, 0.5), 90, "half chance doubles cost")
 equal(Model.CostPerSkillUp(45, 0), nil, "no skill-up has no cost")
 equal(Model.CostPerSkillUp(nil, 1), nil, "unpriced has no cost")
 equal(Model.CostPerSkillUp(-20, 0.5), -40, "a profitable craft is profit per skill-up")
--- A route covers an unlucky run: nine runs in ten reach the target.
-equal(Model.CONFIDENCE, 0.9, "the covered run is nine in ten")
+-- A route is planned as a whole: every leg's budgets together finish 95 times in 100.
+equal(Model.ROUTE_CONFIDENCE, 0.95, "the whole route is covered nineteen times in twenty")
 equal(Model.CoveredCrafts(cloak, 1, 10), 9, "a certain run is one craft a point")
 equal(Model.CoveredCrafts(cloak, 40, 41), 1, "an orange point is one craft")
-equal(Model.CoveredCrafts(cloak, 55, 56), 4, "a half chance point covers in four crafts")
-equal(Model.CoveredCrafts({ 1, 1, 3, 5 }, 2, 4), 5, "a falling chance compounds across points")
+equal(Model.CoveredCrafts(cloak, 55, 56), 5, "a half chance point covers in five crafts")
+equal(Model.CoveredCrafts({ 1, 1, 3, 5 }, 2, 4), 6, "a falling chance compounds across points")
 equal(Model.CoveredCrafts(cloak, 5, 5), 0, "no points need no crafts")
 equal(Model.CostPerPoint(10, cloak, 20), 10, "a certain point costs one craft")
-equal(Model.CostPerPoint(10, cloak, 55), 40, "a half chance point carries its risk")
+equal(Model.CostPerPoint(10, cloak, 55), 50, "a half chance point carries its risk")
 equal(Model.CostPerPoint(10, cloak, 70), nil, "a grey point cannot be bought")
 equal(Model.StepCost(10, nil, 5), 50, "a known net prices every craft without a reagent cost")
 equal(Model.StepCost(-10, nil, 5), -50, "a profit lowers every craft's cost (#466)")
@@ -245,8 +245,8 @@ local fractional = Model.PlanRoute({
 	target = 4,
 	recipes = { candidate(10, { 1, 1, 3, 5 }, 3) },
 })
-equal(fractional.segments[1].crafts, 5, "a two point step with a falling chance covers in five crafts")
-near(fractional.expectedCost, 515, "cost uses the covered crafts and their time")
+equal(fractional.segments[1].crafts, 6, "a two point step with a falling chance covers in six crafts")
+near(fractional.expectedCost, 618, "cost uses the covered crafts and their time")
 local profitable = Model.PlanRoute({
 	skill = 3,
 	target = 4,
@@ -322,7 +322,7 @@ local partial = Model.PlanRoute({
 equal(partial.reachedSkill, 3, "unreachable gap stops at first missing point")
 equal(partial.stopReason, "no_recipe", "partial route reports no recipe")
 equal(partial.segments[1].toSkill, 3, "partial route retains completed segment")
-near(partial.expectedCost, 550, "partial route retains covered cost and time")
+near(partial.expectedCost, 660, "partial route retains covered cost and time")
 equal(partial.excluded.unpriced, 1, "partial route retains exclusions")
 for _, target in ipairs({ 1, 0 }) do
 	local complete = Model.PlanRoute({ skill = 1, target = target, recipes = {} })

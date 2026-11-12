@@ -167,7 +167,7 @@ equal(ranked.steps[2].rank.reqSkill, 50, "at 50")
 equal(ranked.steps[3].craft.from, 50, "then crafts on past the cap")
 equal(ranked.steps[3].craft.to, 90, "to the target")
 equal(ranked.reached, 90, "which it reaches")
-equal(ranked.cost, 500 + 102, "the rank's fee and every craft's net sale are in the cost")
+equal(ranked.cost, 500 + 107, "the rank's fee and every craft's net sale are in the cost")
 equal(#ranked.bands, 2, "the route spans Apprentice and Journeyman")
 equal(ranked.steps[1].band.name, "Apprentice", "the first crafts are in Apprentice")
 equal(ranked.steps[1].band.cap, 75, "which ends at 75")
@@ -179,7 +179,7 @@ equal(ns.RankText(ranked.ranks[1]), "Train Journeyman at 50", "the rank as a lin
 ns.db.trainerRanks[129] = { [150] = 450 }
 local charged = Plan(FirstAid(40), 90)
 equal(charged.steps[2].rank.fee, 450, "a fee seen at a trainer wins")
-equal(charged.cost, 450 + 102, "and is the one in the cost")
+equal(charged.cost, 450 + 107, "and is the one in the cost")
 ns.db.trainerRanks[129] = nil
 -- #466: a bandage that vendors above its cloth shows a gain for every craft in the step, not just the first.
 c.items[1251].sell = 3
@@ -313,7 +313,7 @@ equal(training.fee, 100, "its fee")
 equal(training.reqSkill, 40, "the skill the trainer wants, with no walk needed first")
 equal(training.cap, 41, "from a trainer who teaches past it")
 equal(training.usedAt, 40, "first crafted at 40")
-equal(trained.cost, 100 + 49, "the fee and every craft's net sale are in the cost")
+equal(trained.cost, 100 + 51, "the fee and every craft's net sale are in the cost")
 ns.db.trainer[129] = { [HEAVY] = { 80, 50 } }
 local quoted = Plan(FirstAid(40), 75)
 equal(quoted.training[1].fee, 80, "a trainer seen to charge less wins")
@@ -482,9 +482,9 @@ open = { professionName = "Alchemy", professionID = 171 }
 equal(ns.NextCraft(five).reason, "Open First Aid to craft from here.", "another profession is open")
 open = { professionName = "First Aid", professionID = 129 }
 -- Heavy Linen Bandage from 70 to the 75 cap: five points whose chance falls from 0.6 to 0.52.
-equal(ns.NextCraft(Plan(FirstAid(70), 90)).count, 13, "crafts only to the cap until the rank is trained")
+equal(ns.NextCraft(Plan(FirstAid(70), 90)).count, 14, "crafts only to the cap until the rank is trained")
 -- With a +15 bonus the same thresholds are met from 55 base, and the cap of 75 base is 90 with it.
-equal(ns.NextCraft(Plan(FirstAid(55, 15), 90)).count, 67, "the cap is on base skill")
+equal(ns.NextCraft(Plan(FirstAid(55, 15), 90)).count, 71, "the cap is on base skill")
 equal(
 	ns.NextCraft(Plan(FirstAid(75), 90)).reason,
 	"Train Journeyman first: you're at your cap.",

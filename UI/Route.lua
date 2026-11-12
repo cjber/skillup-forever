@@ -617,6 +617,9 @@ local function RenderRoute(list, plan)
 		-- the list, rather than drawing an empty route (#190).
 		list:Message(string.format(L["No step yet: learn or train a %s recipe that skills up."], profession.name))
 	end
+	if #plan.crafts > 0 then
+		list:Message(ns.RouteSparesNote(), ns.COLORS.unknown)
+	end
 	RenderPinned(list, plan)
 	RenderSkipped(list, profession)
 end

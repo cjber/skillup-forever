@@ -43,6 +43,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| ItachiGrave | Selected recipes show their skill band | CurseForge; #613; thread 8688792 |
 | bromidious | Buffs controls no longer overlap | Discord; #599 |
 | bromidious | Native controls stay behind SkillUp pages | Discord; forever-core#477; Core 1.7.4 |
 | .phear | Native controls stay behind SkillUp pages | Discord; forever-core#477; Core 1.7.4 |

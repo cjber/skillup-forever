@@ -4,6 +4,7 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "ItachiGrave", what = "Selected recipes show their skill band" },
 		{ name = "bromidious", what = "Buffs controls no longer overlap" },
 		{ name = "bromidious", what = "Native controls stay behind SkillUp pages" },
 		{ name = ".phear", what = "Native controls stay behind SkillUp pages" },

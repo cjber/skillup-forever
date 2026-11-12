@@ -50,6 +50,7 @@ local function Refresh()
 	local t, skill = ns.DetailsBar(recipeID and ns.RangeThresholds(ctx, recipeID), ctx and ctx.skill)
 	if t and skill and ns.db.detailsBar then
 		ns.LayoutSkillBar(frame.bar, t, skill)
+		frame.bar:Show()
 	end
 	frame:SetShown(t ~= nil and ns.db.detailsBar)
 end

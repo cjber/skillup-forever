@@ -119,4 +119,28 @@ equal(math.abs(made.marker.points[1][4] - expected) < 0.001, true, "the pip sits
 ns.LayoutSkillBar(made, t, 300)
 equal(math.abs(made.marker.points[1][4] - BAR_FILL_WIDTH) < 0.001, true, "past grey, the pip waits at the fill's end")
 
+-- Exercise the attached frame, not only the threshold arithmetic. New bars begin
+-- hidden, so showing their parent alone must not count as showing the content.
+local create = G.CreateFrame
+local details
+G.CreateFrame = function(...)
+	local result = create(...)
+	if not details then
+		details = result
+	end
+	return result
+end
+G.ProfessionsFrame = {
+	CraftingPage = {
+		SchematicForm = {
+			GetRecipeInfo = function()
+				return higher
+			end,
+		},
+	},
+}
+ns.AttachDetailsBar()
+equal(details:IsShown(), true, "a selected recipe shows its details container")
+equal(details.bar:IsShown(), true, "the selected recipe's skill bar itself is shown")
+
 Client.report("details_bar_spec")

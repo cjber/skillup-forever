@@ -110,6 +110,7 @@ ITEM_MIN_SKILL = "Requires %s (%d)"
 ProfessionsFrame = nil
 
 ---@class SkillUpSchematicForm : Frame
+---@field Description FontString
 ---@field GetRecipeInfo? fun(self: SkillUpSchematicForm): TradeSkillRecipeInfo?
 
 -- Blizzard_AuctionHouseUI's frame; its public SetSearchText fills the search box and queries nothing.

@@ -1,17 +1,18 @@
 {
-  "input_digest": "c24ef3530839a02a8798bcb04eca386b6ccd6de2039745f28f892d9b665ff7e4",
-  "runtime_sha256": "c24ef3530839a02a8798bcb04eca386b6ccd6de2039745f28f892d9b665ff7e4",
-  "candidate": "57301cc635fe168e06048128a6cbdbad4a61bdc80a7b1e595ef67b2fef49ced7",
+  "input_digest": "4a124a5fff898f2f8dab7422b504bd48fef6fdbf161e2d1ffffc6d1dad0cf7f1",
+  "runtime_sha256": "4a124a5fff898f2f8dab7422b504bd48fef6fdbf161e2d1ffffc6d1dad0cf7f1",
+  "candidate": "292bbc5143fe27dccb10f654d3d2897cabbb02ae9283a3cd2e5b8573234293ac",
   "tested_artifact": "release-package",
   "client_build": "1.60.1.70888 (Interface 16001)",
   "flows": [
     {
-      "name": "SkillUp page hides the client's profession page",
+      "name": "SkillUp's page hides the client's profession page on ForeverCore 1.8.1",
       "steps": [
-        "Install the packaged 1.9.1 candidate bundling ForeverCore v1.8.0 and reload",
-        "Open Cooking",
+        "Install the packaged candidate with its bundled ForeverCore v1.8.1 and /reload",
+        "Print the loaded versions: ForeverCore v1.8.1 and SkillUpForever v1.9.1-2-g89a4d38, both loaded, ProfessionTabs.minor 2",
+        "Open Cooking: the client's own page shows at its own width",
         "Click the SkillUp side tab",
-        "Confirm the Route page shows with no client recipe list or recipe details beneath it",
+        "Confirm the Route page shows widened with no client recipe list or details beneath it",
         "Click the Cooking side tab",
         "Confirm the client's own Cooking page shows again at its own width"
       ],
@@ -20,12 +21,20 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/c7a053a57644fb5ed589457676d2a2e8d9ba8618/skill658-skillup-page-57301cc.png",
-      "sha256": "de7a80d4470929ea9409d9ee7300afeb04ccbfb59ee4aef76658a02719dbd27e"
+      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-versions.png",
+      "sha256": "68bb8f958f2dab34bbf7a541f311f8141db7ebeaca4a51e39fbe9bf4c725e7c6"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/c7a053a57644fb5ed589457676d2a2e8d9ba8618/skill658-native-page-57301cc.png",
-      "sha256": "10a6e14141179c61dfac18e9b54ce0ba5fc59f3f61267559677618622bc68000"
+      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-cooking-native.png",
+      "sha256": "64301f9c7f8d5f5b98600b5c274612c8973fca1b5457d9d632e3ecc71e28b88e"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-skillup-page-292bbc5.png",
+      "sha256": "fd4c24cbdb926e9d28df736c57ae5ff88ed3cafb01a189f945f43864a0a442a3"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/55de9fd8b9c4d5fdf425aa1a72db5386128d3749/sync181-cooking-handback.png",
+      "sha256": "3a4fdd1d17d3065002ce6935da7a3e38530321c0f66e20fe97a229dfda23f71c"
     }
   ]
 }

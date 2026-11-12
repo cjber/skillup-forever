@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Opening the auction house prices your tracked routes.** With Buy reagents and reagent searching enabled, Auctionator searches missing and older reagent prices once per visit, including vendor alternatives. The route updates when those prices arrive. (#561)
+
 - **Searching a recipe's reagents works with Auctionator's advanced search.** The search keeps exact item names and the missing quantities. (#654)
 
 - **Local recipe observations no longer use the shared player leaderboard.** SkillUp keeps its own count and stats API while removing the unused peer-sharing setting, commands and tab integration.

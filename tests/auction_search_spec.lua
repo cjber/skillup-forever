@@ -152,4 +152,49 @@ c.CloseAuctionHouse()
 equal((ns.SearchReagents(HEAVY, 3)), "unfilled", "nothing is written while the auction house is closed")
 equal(#searched, 7, "so the box is left alone")
 
+-- The first auction-house visit prices the tracked route, including vendor fallbacks.
+c = Load({})
+ns = c.ns
+ns.SetCollectMode("auction")
+c.auction[LINEN] = nil
+ns.VendorPrices[LINEN] = 5
+ns.Changed("prices")
+equal(ns.PriceSource(LINEN), "vendor", "the route has a vendor fallback before its first auction price")
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#c.auctionSearches, 1, "opening the auction house searches the unpriced tracked route")
+equal(c.auctionSearches[1][1]:match("^Linen Clothx") ~= nil, true, "the route search uses exact reagent names")
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#c.auctionSearches, 1, "duplicate show events do not repeat the visit search")
+c.Fire("AUCTION_HOUSE_CLOSED")
+c.auction[LINEN], c.auctionAge = 10, 0
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#c.auctionSearches, 1, "today's recorded prices need no search")
+c.Fire("AUCTION_HOUSE_CLOSED")
+c.auctionAge = 1
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#c.auctionSearches, 2, "a later visit refreshes older recorded prices")
+c.Fire("AUCTION_HOUSE_CLOSED")
+ns.db.auctionSearch = false
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#c.auctionSearches, 2, "disabled reagent searching never starts an automatic query")
+c.Fire("AUCTION_HOUSE_CLOSED")
+ns.db.auctionSearch = true
+c.Fire("AUCTION_HOUSE_SHOW")
+c.CloseAuctionHouse()
+c.Advance(0)
+equal(#c.auctionSearches, 2, "closing before the deferred visit leaves Auctionator alone")
+
+c = Load({})
+ns = c.ns
+ns.SetCollectMode("gather")
+c.auction[LINEN] = nil
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#c.auctionSearches, 0, "gather mode starts no auction search")
+
 Client.report("auction_search_spec")

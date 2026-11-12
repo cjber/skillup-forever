@@ -1,0 +1,36 @@
+{
+  "input_digest": "71a326a6eb744b8c742122cb1854fa23227e0215b4917104b51f3f1270495b1e",
+  "runtime_sha256": "71a326a6eb744b8c742122cb1854fa23227e0215b4917104b51f3f1270495b1e",
+  "candidate": "b8b364884bdd0aaeb54c6971694edc65c336844d14e642d05e8627fe6d1fea56",
+  "client_build": "1.60.1.70888 (Interface 16001)",
+  "source_commit": "f4f38052cd18bbe394d78dc9f05bc0a13ff97628",
+  "flows": [
+    {
+      "name": "Cooking route partial and empty bars",
+      "steps": [
+        "Reload installed candidate with /rl",
+        "Open Cooking Route at skill 95/150",
+        "Inspect 20/75 partial route bar, empty reagent bars, track and replan spacing"
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "First Aid full route bar",
+      "steps": [
+        "Select First Aid in the Route profession dropdown",
+        "Inspect full route fill and rim without crafting"
+      ],
+      "result": "pass"
+    }
+  ],
+  "images": [
+    {
+      "url": "https://gist.githubusercontent.com/cjber/b72318bca8da82e0affb2f8a0558d944/raw/0a9cb598c93800ea2533203e0bd958a558abf14a/skill656-cooking-f4f3805-in-game.png",
+      "sha256": "0710a2e9ea6ec8cdf4c429db2737b066dcdf2c40880cbad78fd03f6f2f6824ad"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/b72318bca8da82e0affb2f8a0558d944/raw/0a9cb598c93800ea2533203e0bd958a558abf14a/skill656-firstaid-f4f3805-in-game.png",
+      "sha256": "075f5f1510ee885bf1fb51d8f061e0de373d3789d450af8ca33b9850c6809afd"
+    }
+  ]
+}

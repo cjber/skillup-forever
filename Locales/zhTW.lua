@@ -411,13 +411,6 @@ L["Pinned: %s"] = "已釘選：%s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"技能範圍重疊時，最近釘選的配方優先。" -- mt
 L["Pinned (%d)"] = "已釘選（%d）" -- mt
-L["/skillup share on|off - control sharing with guild and group"] =
-	"/skillup share on|off - 控制與公會和隊伍共享"
-L["Share observed recipe totals with guild and group"] = "與公會和隊伍共享觀察到的配方總數"
-L["Recipes observed"] = "已觀察配方"
-L["total"] = "總計"
-L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
-	"預設開啟。關閉後停止收發總數並隱藏其他玩家。本機觀察紀錄會保留。"
 L["crafted"] = "製作" -- mt
 L["List unlearned recipes"] = "列出未學習的配方"
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =

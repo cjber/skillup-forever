@@ -414,13 +414,6 @@ L["Pinned: %s"] = "Angeheftet: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"Bei überlappenden Fertigkeitsbereichen hat das zuletzt angeheftete Rezept Vorrang." -- mt
 L["Pinned (%d)"] = "Angeheftet (%d)" -- mt
-L["/skillup share on|off - control sharing with guild and group"] =
-	"/skillup share on|off - Teilen mit Gilde und Gruppe steuern"
-L["Share observed recipe totals with guild and group"] = "Beobachtete Rezeptsummen mit Gilde und Gruppe teilen"
-L["Recipes observed"] = "Beobachtete Rezepte"
-L["total"] = "gesamt"
-L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
-	"Standardmäßig aktiv. Ausschalten beendet Senden und Empfangen und blendet andere Spieler aus. Lokale Beobachtungen bleiben erhalten."
 L["crafted"] = "hergestellt" -- mt
 L["List unlearned recipes"] = "Nicht erlernte Rezepte auflisten"
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =

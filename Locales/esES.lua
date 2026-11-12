@@ -419,13 +419,6 @@ L["Pinned: %s"] = "Fijada: %s" -- mt
 L["The newest pin takes priority where skill ranges overlap."] =
 	"La receta fijada más reciente tiene prioridad cuando los rangos se solapan." -- mt
 L["Pinned (%d)"] = "Fijadas (%d)" -- mt
-L["/skillup share on|off - control sharing with guild and group"] =
-	"/skillup share on|off - controla lo que compartes con hermandad y grupo"
-L["Share observed recipe totals with guild and group"] = "Compartir totales de recetas observadas con hermandad y grupo"
-L["Recipes observed"] = "Recetas observadas"
-L["total"] = "total"
-L["On by default. Turn off to stop sending and receiving totals and hide other players. Local observations stay."] =
-	"Activado por defecto. Desactívalo para dejar de enviar y recibir totales y ocultar a otros jugadores. Se conservan las observaciones locales."
 L["crafted"] = "fabricado" -- mt
 L["List unlearned recipes"] = "Listar recetas sin aprender"
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =

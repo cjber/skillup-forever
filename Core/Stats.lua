@@ -11,7 +11,6 @@ end
 local Stats = {}
 ns.Stats = Stats
 
-local METRIC = "recipes_observed_learned"
 local cached, count = nil, 0
 
 local function Character()
@@ -62,7 +61,7 @@ function Stats.Observe(recipeID)
 	return true
 end
 
--- The current character's total, which both boards measure from.
+-- This character's locally observed recipe total.
 function Stats.Local()
 	local record = Record()
 	return record and count or 0, record and record.eventUnix

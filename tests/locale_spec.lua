@@ -98,10 +98,23 @@ equal(Read("Locales/phrases.txt"), phrases, "Locales/phrases.txt is python3 tool
 assert(loadfile("Locales/phrases.txt"), "the translation template is valid Lua")
 
 -- CurseForge's localization export is gone: the packager fails a release on any keyword asking for it.
-local keyword = "@local" .. "ization"
-pipe = assert(io.popen("git grep -n -F -e '" .. keyword .. "' -- ."))
-equal(pipe:read("*a"), "", "no " .. keyword .. " keyword in the tree")
-pipe:close()
+local scan = assert(io.popen([[python3 - <<'PYSCAN'
+from pathlib import Path
+from tools.forever_tools.pkgmeta import localization_toc_files
+from tools.forever_tools.visual_proof import packaged_runtime_files
+root = Path.cwd()
+files = {p for p in packaged_runtime_files(root).values() if p.suffix == ".lua"}
+files.update(localization_toc_files(root))
+for path in sorted(files):
+    if "@" + "localization" in path.read_text(encoding="utf-8-sig"):
+        print(path.relative_to(root))
+print("scan-ok")
+PYSCAN
+]]))
+local hits = scan:read("*a")
+scan:close()
+-- LuaJIT 5.1 does not expose a failed pipe status; require Python to finish the scan.
+assert(hits == "scan-ok\n", "packaged localization scan failed or found a forbidden keyword:\n" .. hits)
 
 -- Untranslated phrases fall back to the English key.
 local ns = {}

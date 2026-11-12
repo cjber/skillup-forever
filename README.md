@@ -26,7 +26,7 @@ The recipe tooltip draws the thresholds on the game's own bar with your skill ma
 ## Features
 
 - **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds.
-- **A wide recipe list** keeps one window width, widened to the widest recipe row of every profession you have learned so names never run under the skill-up columns, with how many your bags can make in parentheses after each name. Turn it off in settings to keep the game's own width.
+- **Recipe rows** show skill-up chances, costs and how many your bags can make, while keeping the game's own list width.
 - **Unlearned recipes** can sit under the learned ones in the same list. A setting, off by default, greys them and marks each with its trainer or recipe item and the skill it asks, and hovering one shows its reagents, cost and skill-up colours like a learned recipe's. They cannot be selected or crafted.
 - **Sorting** orders recipes by difficulty range start, chance, cheapest skill-ups or newest learned first. *Default* restores the game's categories and filters.
 - **Buffs only** filters the list to the elixirs, flasks, Well Fed food, protection potions, stones, oils, armour kits and scopes you can use at your level, highest required level first, with unlearned ones following when *List unlearned recipes* is on.

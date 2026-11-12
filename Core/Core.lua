@@ -27,7 +27,6 @@ end
 ---@type SkillUpDefaults
 local DEFAULTS = {
 	showRowText = true,
-	wideRecipeList = true, -- the window and list grow to the widest row of every learned profession
 	showUnlearned = false, -- also list recipes this character has not learned, greyed, with where they are learned
 	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
 	showSkill = false,
@@ -112,8 +111,8 @@ ns.TITLE = "SkillUp Forever"
 -- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
 -- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
 -- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
-ns.WHATS_NEW_VERSION = "1.8.1"
-ns.WHATS_NEW = L["The Buffs tab no longer overflows the stack."]
+ns.WHATS_NEW_VERSION = "1.8.2"
+ns.WHATS_NEW = L["Disabled auction list maintenance stays disabled."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

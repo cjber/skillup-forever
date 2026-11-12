@@ -2149,7 +2149,7 @@ def inset_frame(canvas, x, y, w, h, title=None):
 
 
 LIST_ROW, LIST_HEADING, LIST_ICON, LIST_MESSAGE_MIN, LIST_SCROLLBAR = 46, 26, 37, 20, 18  # List.lua
-LIST_ROW_BAR, LIST_BAND, LIST_LINE, LIST_BAR, LIST_SOURCE, LIST_LINE_ICON = 62, 30, 24, 10, 16, 18  # List.lua
+LIST_ROW_BAR, LIST_BAND, LIST_LINE, LIST_BAR, LIST_SOURCE, LIST_LINE_ICON = 70, 30, 24, 29, 16, 18  # List.lua
 
 
 def draw_list(canvas, x, y, w, h, rows):
@@ -2184,16 +2184,22 @@ def draw_list(canvas, x, y, w, h, rows):
                 DISABLED_FONT_COLOR,
                 box_height=LIST_BAND,
             )
-            # List.lua fits the client's 451 by 29 bar frame to the band's 170 width at its own aspect.
+            # List.lua uses the approved clean progress atlases at the native 15-unit fill height.
             bar_w = 170
-            bar_h = bar_w * 29 / 451
+            bar_h = 29
             bar_x, bar_y = box_x + box_w - 6 - bar_w, top + (LIST_BAND - bar_h) / 2
-            canvas.draw(ui.atlas("Professions-skillbar-bg"), bar_x, bar_y, bar_w, bar_h)
+            canvas.draw(ui.atlas("common-stat-bar-BG"), bar_x, bar_y, bar_w, bar_h)
             span = max(row["cap"] - row["from"], 0)
             done = max(0, min(row.get("skill", 0), row["cap"]) - row["from"])
             if span > 0 and done > 0:
-                canvas.fill(bar_x + 1, bar_y + 1, (bar_w - 2) * min(done / span, 1), bar_h - 2, (0.25, 0.75, 0.25, 1))
-            canvas.draw(ui.atlas("Professions-skillbar-frame"), bar_x, bar_y, bar_w, bar_h)
+                canvas.draw(
+                    ui.atlas("common-stat-bar-white"),
+                    bar_x,
+                    bar_y + (bar_h - 15) / 2,
+                    bar_w * min(done / span, 1),
+                    15,
+                    color=(0.25, 0.75, 0.25, 1),
+                )
             canvas.text(
                 bar_x,
                 bar_y - 1,
@@ -2246,7 +2252,7 @@ def draw_list(canvas, x, y, w, h, rows):
             )
         icon = row.get("icon")
         if icon is not None:
-            icon_y = top + (row_h - LIST_ICON) / 2
+            icon_y = top if row.get("bar") else top + (row_h - LIST_ICON) / 2
             canvas.draw(icon_texture(ui, icon), box_x + 6, icon_y, LIST_ICON, LIST_ICON)
             canvas.draw(ui.atlas("auctionhouse-itemicon-border-white"), box_x + 6, icon_y, LIST_ICON, LIST_ICON)
         source = row.get("sourceIcon")
@@ -2264,13 +2270,20 @@ def draw_list(canvas, x, y, w, h, rows):
         )
         detail = row.get("detail")
         if row.get("bar"):
-            bar_x, bar_y, bar_w, bar_h = text_x, top + 2 + F_HIGHLIGHT.height + 3, text_w, LIST_BAR
-            canvas.fill(bar_x, bar_y, bar_w, bar_h, (0, 0, 0, 0.8))
+            bar_x, bar_y, bar_w, bar_h = text_x, top + 2 + F_HIGHLIGHT.height + 3, box_x + box_w - 8 - text_x, LIST_BAR
+            canvas.draw(ui.atlas("common-stat-bar-BG"), bar_x, bar_y, bar_w, bar_h)
             need = max(row["bar"].get("need", 0), 0)
             have = min(row["bar"].get("have", 0), need)
             if need > 0 and have > 0:
                 color = tuple(row["barColor"]) if row.get("barColor") else (0.25, 0.75, 0.25)
-                canvas.fill(bar_x, bar_y, bar_w * have / need, bar_h, color)
+                canvas.draw(
+                    ui.atlas("common-stat-bar-white"),
+                    bar_x,
+                    bar_y + (bar_h - 15) / 2,
+                    bar_w * have / need,
+                    15,
+                    color=color,
+                )
             canvas.text(
                 bar_x,
                 bar_y - 1,

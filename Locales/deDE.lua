@@ -507,6 +507,7 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Ohne Auctionator füllt die Schaltfläche „Suchen“ eines Rezepts das eigene Suchfeld des Spiels, ein Reagenz nach dem anderen."
 L["The Buffs tab no longer overflows the stack."] = "Der Buffs-Tab läuft nicht mehr in einen Stapelüberlauf." -- mt
+L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s: %s ist nicht aktuell. Aktualisiert es, um das zu beheben." -- mt
 L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s sind nicht aktuell. Aktualisiert sie, um das zu beheben." -- mt

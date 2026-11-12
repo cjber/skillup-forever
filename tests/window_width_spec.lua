@@ -1,8 +1,5 @@
 -- Run from the repository root: luajit tests/window_width_spec.lua
--- The wide recipe list keeps one window width, measured over every profession this character has learned.
--- The width is the client's crafting page plus the room the widest row needs beyond the client's own list
--- width; it does not depend on the open profession or the list on screen, and a screen cap keeps the window
--- clear of the screen's edges. Turning the setting off clears it.
+-- SkillUp's deferred wide-list feature must not resize either the shared host or Blizzard's recipe list.
 local function noop() end
 
 local function Font()
@@ -48,7 +45,7 @@ function frame:SetWidth(width)
 	self.width = width
 end
 
--- The client's own names for the recipes; the bundle only holds their skill lines.
+-- Legacy recipe data remains present to prove that old saved settings and data cannot trigger host resizing.
 local names = {
 	[1] = string.rep("A", 60),
 	[2] = string.rep("B", 20),
@@ -66,7 +63,6 @@ local professions = {
 	[100] = { skillLine = 100, skill = 50, base = 50, modifier = 0, max = 75, name = "One", capped = false },
 	[200] = { skillLine = 200, skill = 50, base = 50, modifier = 0, max = 75, name = "Two", capped = false },
 }
-local screenWidth = 1920
 local applied
 local stale, events = {}, {}
 
@@ -144,11 +140,6 @@ local env = setmetatable({
 			return names[recipeID]
 		end,
 	},
-	UIParent = {
-		GetWidth = function()
-			return screenWidth
-		end,
-	},
 	InCombatLockdown = function()
 		return false
 	end,
@@ -163,75 +154,65 @@ local env = setmetatable({
 setfenv(assert(loadfile("UI/RecipeList.lua")), env)("SkillUpForever", ns)
 ns.AttachRecipeList()
 
--- The client's own list width is 304 and its window 673. The window's width is 673 plus the room the widest
--- learned profession's rows need beyond 304. A 60-character name at one category indent needs
--- 10 + 60 * 6 + 59 + 10 = 439, so the window takes 673 + 135.
-local function fitted(label, expectedWidth, expectedList)
-	assert(
-		applied == expectedWidth,
-		label .. ": expected the window at " .. tostring(expectedWidth) .. ", got " .. tostring(applied)
-	)
+local function fitted(label)
+	assert(applied == nil, label .. ": SkillUp must not resize the shared Professions host")
 	assert(frame:GetWidth() == 673, label .. ": the spec's own window moved")
-	assert(
-		recipeList.width == expectedList,
-		label .. ": expected the list at " .. tostring(expectedList) .. ", got " .. tostring(recipeList.width)
-	)
+	assert(recipeList.width == 304, label .. ": expected the client list width, got " .. tostring(recipeList.width))
 end
 
-assert(ns.RecipeListMinWidth() == 808, "the widest learned profession sets the window width")
-fitted("after measuring", 808, 304)
+assert(ns.RecipeListMinWidth() == nil, "recipe content no longer changes the shared host width")
+fitted("after attach")
 
--- The list fills the room the one width leaves: 808 - 5 - 2 - 360 - 2 = 439. Its widest row needs 439.
 ns.FitRecipeListWidth()
-fitted("with the list filled", 808, 439)
+fitted("after fit")
 
 -- Opening another learned profession does not move the window, even though its own names are shorter.
 frame.professionInfo = { professionID = 200 }
 stale.recipeList()
-fitted("after another profession", 808, 439)
+fitted("after another profession")
 
--- The setting off clears the width, so the client's own list and window widths return.
 ns.db.wideRecipeList = false
 stale.recipeList()
-fitted("with the wide list off", nil, 304)
+fitted("with the legacy setting off")
 
 -- And on again raises the same width, from the client's own list width.
 ns.db.wideRecipeList = true
 stale.recipeList()
-fitted("with the wide list on again", 808, 439)
+fitted("with the legacy setting on again")
 
 -- Learning a profession measures the new set: a 100-character name needs 10 + 600 + 59 + 10 = 679, so the
 -- window is 673 + (679 - 304) = 1048.
 professions[300] = { skillLine = 300, skill = 50, base = 50, modifier = 0, max = 75, name = "Three", capped = false }
-events.SKILL_LINES_CHANGED()
-fitted("after learning a profession", 1048, 679)
+if events.SKILL_LINES_CHANGED then
+	events.SKILL_LINES_CHANGED()
+end
+fitted("after learning a profession")
 
 -- It stays one width whichever learned profession is open.
 frame.professionInfo = { professionID = 300 }
 stale.recipeList()
-fitted("with the widest profession open", 1048, 679)
+fitted("with the widest profession open")
 
 -- A skill-up inside a profession changes no learned set: the same width, no remeasurement.
 names[1] = string.rep("E", 10)
-events.SKILL_LINES_CHANGED()
-fitted("after a skill-up", 1048, 679)
+if events.SKILL_LINES_CHANGED then
+	events.SKILL_LINES_CHANGED()
+end
+fitted("after a skill-up")
 names[1] = string.rep("A", 60)
 
--- The screen cap: with a 1024-wide screen and 32 clear at each edge the window stops at 960, so the list takes
--- 960 - 369 = 591 even though the 200-character row needs far more. The name truncates; it never overlaps.
-screenWidth = 1024
 professions[400] = { skillLine = 400, skill = 50, base = 50, modifier = 0, max = 75, name = "Four", capped = false }
-events.SKILL_LINES_CHANGED()
-fitted("at the screen cap", 960, 591)
+if events.SKILL_LINES_CHANGED then
+	events.SKILL_LINES_CHANGED()
+end
+fitted("after another learned profession")
 
--- With every learned row already inside the client's own list width, the wide list asks for the client's
--- crafting width, not for nothing: only the setting off clears it.
 names[1], names[3], names[4] = "Short", "Short", "Short"
 professions[300], professions[400] = nil, nil
 ns.db.wideRecipeList = false
 stale.recipeList()
 ns.db.wideRecipeList = true
 stale.recipeList()
-fitted("with every row inside the client list", 673, 304)
+fitted("after legacy data shrinks")
 
-print("window_width_spec: one width, widest profession, setting, learned profession, switch, screen cap: ok")
+print("window_width_spec: host and native list geometry stay unchanged: ok")

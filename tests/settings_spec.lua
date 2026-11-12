@@ -192,7 +192,6 @@ local ns = {
 		rowCost = "skillup",
 		sortMode = "default",
 		showRowText = true,
-		wideRecipeList = true,
 		showUnlearned = false,
 		buffsOnly = false,
 		valueGathered = false,
@@ -250,7 +249,7 @@ end
 local groups = {
 	{
 		"Recipe rows",
-		"checkbox:wideRecipeList checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
+		"checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
 			.. " checkbox:showSkill checkbox:showTooltip"
 			.. " checkbox:detailsBar slider:recipeTooltip checkbox:showCost slider:rowCost",
 	},
@@ -306,7 +305,6 @@ assert(
 )
 assert(craftValue.initializer.options.formatter(3) == "Auction" and craftValue.initializer.tooltip:find("5%% cut"))
 assert(Row("sortMode").initializer.options.formatter(1) == "Default")
-assert(Row("wideRecipeList").initializer.tooltip:find("widest recipe row"), "the wide list explains its fit")
 assert(Row("showUnlearned").initializer.setting.default == false, "unlearned recipes start off")
 assert(Row("showUnlearned").initializer.tooltip:find("greyed"), "the unlearned list explains how it draws")
 assert(Row("buffsOnly").initializer.setting.default == false, "the buff filter starts off")

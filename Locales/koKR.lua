@@ -519,6 +519,7 @@ L["Without Auctionator, a recipe's Search button fills the game's own auction bo
 	"Auctionator가 없으면 레시피의 검색 버튼이 게임 자체 경매 검색 상자에 한 번에 하나의 재료를 채웁니다."
 L["The Buffs tab no longer overflows the stack."] =
 	"버프 탭이 더 이상 스택 오버플로를 일으키지 않습니다." -- mt
+L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
 L["%s: %s are out of date. Update them to fix this."] =

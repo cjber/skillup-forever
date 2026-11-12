@@ -21,6 +21,12 @@ local function Region()
 		SetTextColor = function(self, r, g, b)
 			self.color = { r, g, b }
 		end,
+		SetAtlas = function(self, atlas)
+			self.atlas = atlas
+		end,
+		SetStatusBarTexture = function(self, texture)
+			self.statusBarTexture = texture
+		end,
 		SetTexture = function(self, texture)
 			self.texture = texture
 		end,
@@ -184,6 +190,9 @@ equal(Anchor(row.Text, "RIGHT")[2], row, "and stops at the row's right")
 equal(row.Detail.text, "18 crafts to 90, 54s", "the facts are on the line under the name")
 equal(Anchor(row.Detail, "TOPLEFT")[2], row.Text, "under the name")
 equal(Anchor(row.Detail, "TOPLEFT")[3], "BOTTOMLEFT", "at its bottom left")
+
+equal(row.BarBg.atlas, "common-stat-bar-BG", "item progress uses the native bar background")
+equal(row.Bar.statusBarTexture.atlas, "common-stat-bar-white", "item progress uses the native bar fill")
 
 -- The same pooled frame redrawn for a later element drops what the new element does not have.
 local pooled = Region()

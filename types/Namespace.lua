@@ -597,8 +597,7 @@ SkillUpForeverDB = nil
 ---@field Range FontString
 ---@field BarBg Texture
 ---@field BarFill Texture
----@field BarBorder Texture
----@field BarWidth number The bar frame at its own aspect.
+---@field BarWidth number
 ---@field BarHeight number
 ---@field BarText FontString
 

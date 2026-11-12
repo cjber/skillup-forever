@@ -283,6 +283,11 @@ equal(#list, 1, "with the route's one auction reagent")
 equal(list[1], "Linen Clothx" .. (Needed() - ns.Have(SILK)), "and what the route still needs")
 c.Fire("BAG_UPDATE_DELAYED")
 equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], list, "an unchanged need does not rewrite the list")
+c.ns.db.auctionSearch = false
+c.bags[SILK] = 1
+c.Fire("BAG_UPDATE_DELAYED")
+equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], list, "disabled automatic search does not rewrite the list")
+c.ns.db.auctionSearch = true
 c.bags[SILK] = Needed()
 c.Fire("BAG_UPDATE_DELAYED")
 equal(#c.shoppingLists["SkillUp: Tester-Realm: First Aid"], 0, "a covered need empties the list")
@@ -297,6 +302,11 @@ equal(
 	"another character cannot rewrite the first list"
 )
 c.player.name = "Tester"
+
+-- Disabling automatic list maintenance does not disable an explicit Search button query.
+c.ns.db.auctionSearch = false
+c.bags[SILK] = 0
+equal(ns.SearchReagents(HEAVY, 1), "auctionator", "manual search still works when automatic search is disabled")
 
 -- The section hangs on the shared host, never on Blizzard's tracker manager: a client without the manager
 -- still gets it once the world loads.

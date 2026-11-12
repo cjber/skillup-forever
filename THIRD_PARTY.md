@@ -44,7 +44,7 @@ Credit for the reports and requests behind the addon.
 | Who | What | Notes |
 |---|---|---|
 | Brainc3ll | French translation | GitHub; cjber/legacy-forever#99 |
-| kopuliak | Recipe minimum skills corrected | CurseForge; #107, #123 |
+| kopuliak | Recipe minimum skills and automatic auction list settings corrected | CurseForge; #107, #123, #647 |
 | kopuliak | No more secret-number tooltip errors | CurseForge; #161, 0.10.0, 0.16.0 |
 | kopuliak | Option to hide the tracked professions | CurseForge; 0.9.0 |
 | kopuliak | Auctionator's latest price used | CurseForge; 0.9.1 |

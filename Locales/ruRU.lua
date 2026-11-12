@@ -542,6 +542,7 @@ L["Without Auctionator, a recipe's Search button fills the game's own auction bo
 	"Без Auctionator кнопка «Поиск» рецепта заполняет собственную строку поиска аукциона игры по одному реагенту за раз."
 L["The Buffs tab no longer overflows the stack."] =
 	"Вкладка «Улучшения» больше не вызывает переполнение стека." -- mt
+L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s устарел. Обновите его, чтобы это исправить." -- mt
 L["%s: %s are out of date. Update them to fix this."] =

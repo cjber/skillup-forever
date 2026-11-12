@@ -107,13 +107,6 @@ function ns.RegisterSettings()
 	Section(L["Recipe rows"], function(rows)
 		Checkbox(
 			rows,
-			"wideRecipeList",
-			L["Widen the recipe list to fit recipe names"],
-			L["The window keeps one width, widened to the widest recipe row of every profession you have learned, up to the room your screen has. Turn it off to keep the game's own width."]
-		)
-
-		Checkbox(
-			rows,
 			"showUnlearned",
 			L["List unlearned recipes"],
 			L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."]

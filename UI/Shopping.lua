@@ -169,7 +169,7 @@ end
 -- Keep every tracked route's Auctionator list up to date with what it still buys, empties one it no
 -- longer needs, and leaves an unchanged list alone. Gather mode buys nothing, so it is left as it is.
 local function SyncAuctionator()
-	if not ns.HasAuctionator() or ns.CollectMode() ~= "auction" then
+	if not ns.HasAuctionator() or ns.CollectMode() ~= "auction" or ns.db.auctionSearch == false then
 		return
 	end
 	for _, entry in ipairs(ns.TrackedNeeds()) do

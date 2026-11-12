@@ -14,14 +14,15 @@ end
 local ICON_SIZE = 37
 local ROW_HEIGHT = 46
 -- A row with a have/need bar gives the bar its own line under the name.
-local ROW_BAR_HEIGHT = 62
-local BAR_HEIGHT = 10
+local ROW_BAR_HEIGHT = 70
+local BAR_HEIGHT = 29
+local BAR_FILL_HEIGHT = 15
 local SOURCE_SIZE = 16
 local LINE_HEIGHT = 24
 local LINE_ICON = 18
 local BAND_HEIGHT = 30
 local BAND_BAR_WIDTH = 170
-local BAND_BAR_HEIGHT = 12
+local BAND_BAR_HEIGHT = 29
 local HEADING_HEIGHT = 26
 local MESSAGE_MIN_HEIGHT = 20
 -- Room kept on the right for the scroll bar, so the rows line up with or without it.
@@ -131,9 +132,11 @@ local function BuildRow(row)
 	row.Detail:SetPoint("TOPLEFT", row.Text, "BOTTOMLEFT", 0, -2)
 	row.Detail:SetPoint("RIGHT", row, "RIGHT", -8, 0)
 	row.BarBg = row:CreateTexture(nil, "BACKGROUND")
-	row.BarBg:SetColorTexture(0, 0, 0, 0.8)
+	row.BarBg:SetAtlas("common-stat-bar-BG")
 	row.Bar = CreateFrame("StatusBar", nil, row) --[[@as StatusBar]]
-	row.Bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
+	local fill = row.Bar:CreateTexture(nil, "ARTWORK")
+	fill:SetAtlas("common-stat-bar-white")
+	row.Bar:SetStatusBarTexture(fill)
 	row.BarText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	row.BarText:SetPoint("CENTER", row.Bar, "CENTER", 0, 0)
 	row.BarBg:Hide()
@@ -151,6 +154,12 @@ local function InitializeRow(row, elementData)
 	end
 	local entry = elementData.entry --[[@as SkillUpListEntry]]
 	row.entry = entry
+	row.Icon:ClearAllPoints()
+	if entry.bar then
+		row.Icon:SetPoint("TOPLEFT", row, "TOPLEFT", 6, 0)
+	else
+		row.Icon:SetPoint("LEFT", 6, 0)
+	end
 	-- art-ok: a square file icon in the ICON_SIZE square; the texture never draws an atlas
 	row.Icon:SetTexture(entry.icon)
 	row.Icon:SetShown(entry.icon ~= nil)
@@ -184,7 +193,9 @@ local function InitializeRow(row, elementData)
 		row.BarBg:SetPoint("RIGHT", row, "RIGHT", -8, 0)
 		row.BarBg:SetHeight(BAR_HEIGHT)
 		row.Bar:ClearAllPoints()
-		row.Bar:SetAllPoints(row.BarBg)
+		row.Bar:SetPoint("LEFT", row.BarBg, "LEFT", 0, 0)
+		row.Bar:SetPoint("RIGHT", row.BarBg, "RIGHT", 0, 0)
+		row.Bar:SetHeight(BAR_FILL_HEIGHT)
 		local need = math.max(entry.bar.need or 0, 0)
 		local have = math.min(entry.bar.have or 0, need)
 		row.Bar:SetMinMaxValues(0, math.max(need, 1))
@@ -251,13 +262,11 @@ local function BuildBand(band)
 	band.Range = band:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	band.Range:SetPoint("LEFT", band.Name, "RIGHT", 6, 0)
 	band.BarBg = band:CreateTexture(nil, "BACKGROUND")
-	band.BarBg:SetColorTexture(0, 0, 0, 0.75)
+	band.BarBg:SetAtlas("common-stat-bar-BG")
 	band.BarFill = band:CreateTexture(nil, "ARTWORK")
-	band.BarFill:SetColorTexture(0.25, 0.75, 0.25, 1)
-	band.BarBorder = band:CreateTexture(nil, "OVERLAY")
-	-- The client's bar frame at its own 451 by 29 aspect, inside the band's bar width.
-	band.BarWidth, band.BarHeight =
-		ns.Art.Fit(band.BarBorder, "Professions-skillbar-frame", BAND_BAR_WIDTH, BAND_BAR_HEIGHT)
+	band.BarFill:SetAtlas("common-stat-bar-white")
+	band.BarFill:SetVertexColor(ns.COLORS.green:GetRGB())
+	band.BarWidth, band.BarHeight = BAND_BAR_WIDTH, BAND_BAR_HEIGHT
 	band.BarText = band:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	band.BarText:SetPoint("CENTER", band.BarBg, "CENTER", 0, 0)
 end
@@ -274,14 +283,12 @@ local function InitializeBand(band, elementData)
 	band.BarBg:ClearAllPoints()
 	band.BarBg:SetPoint("RIGHT", band, "RIGHT", -6, 0)
 	band.BarBg:SetSize(band.BarWidth, band.BarHeight)
-	band.BarBorder:ClearAllPoints()
-	band.BarBorder:SetAllPoints(band.BarBg)
 	local span = math.max(elementData.cap - elementData.from, 0)
 	local done = math.max(0, math.min(elementData.skill or 0, elementData.cap) - elementData.from)
-	local filled = span > 0 and (band.BarWidth - 2) * math.min(done / span, 1) or 0
+	local filled = span > 0 and band.BarWidth * math.min(done / span, 1) or 0
 	band.BarFill:ClearAllPoints()
-	band.BarFill:SetPoint("LEFT", band.BarBg, "LEFT", 1, 0)
-	band.BarFill:SetSize(filled, band.BarHeight - 2)
+	band.BarFill:SetPoint("LEFT", band.BarBg, "LEFT", 0, 0)
+	band.BarFill:SetSize(filled, BAR_FILL_HEIGHT)
 	band.BarText:SetFormattedText("%d/%d", done, span)
 end
 

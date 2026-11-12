@@ -9,69 +9,8 @@ local L = ns.L
 ---@type SkillUpRecipeList
 local recipeList
 
--- The recipe list's own numbers at Interface 16001: Camelot's CraftingPage.OverrideArt sets the list 304
--- wide, its ScrollBox is inset 8 from the left and 20 from the right, the tree view leaves 5 at the right,
--- a row's Label starts after the 26-wide SkillUps button, and a locked recipe adds its 17-wide icon before
--- the text (Blizzard_ProfessionsCrafting.xml and Blizzard_ProfessionsRecipeList.xml/.lua). A category indents
--- its recipes by 10 more. These are the room a name has once the list is as wide as the client made it.
-local LIST_CHROME = 59
-local LABEL_GAP = 10 -- a row's Label keeps this clear at its right edge
--- FitLabel: SkillUp's row text sits 4 from the row's right edge and keeps 10 clear of the name.
-local TEXT_GAP = 14
-local LOCKED_CHROME = 17
-local TREE_INDENT = 10
--- The client's own crafting page: the recipe list starts 5 from the frame's left edge, the schematic form 2 to
--- its right, and that form is 360 wide with 2 left at the frame's right edge (Blizzard_ProfessionsCrafting.xml,
--- Camelot's GetSchematicWidth). The window keeps one width for every profession and tab, so the list only takes
--- the room this leaves inside it.
-local LIST_LEFT = 5
-local SCHEMATIC_GAP = 2
-local SCHEMATIC_WIDTH = 360
-local WINDOW_RIGHT_INSET = 2
--- The client's own crafting-page and list widths, and the clearance the window keeps from either screen edge.
-local WINDOW_WIDTH = 673
-local LIST_WIDTH = 304
-local SCREEN_MARGIN = 32
-
--- The one width ForeverCore keeps for SkillUp's tab, nil while the wide list is off. It is measured over every
--- profession this character has learned, so switching profession and filtering the list never moves the window.
-local windowWidth
-local windowKey
--- What core was last told, so an unchanged width is not set again. `applied` distinguishes "nothing told yet"
--- from telling core nil, which clears the width.
-local appliedWidth
-local applied = false
--- The list width we set, and the client's own width it grew from, so a later client resize is not mistaken
--- for ours.
-local widenedList
-local baseListWidth
-local resizePending = false
 ---@type FontString
 local measure
-
----@param a number?
----@param b number?
----@return boolean
-local function SameWidth(a, b)
-	return a ~= nil and b ~= nil and math.abs(a - b) < 0.5
-end
-
--- The room the window has for the list, beside the client's own schematic form. Our minWidth may not have
--- reached the frame yet (core defers its write in combat), so the width we asked for counts as room too.
----@return number
-local function MaxListWidth()
-	local frameWidth = ProfessionsFrame and ProfessionsFrame:GetWidth()
-	if type(frameWidth) ~= "number" or frameWidth <= 0 then
-		frameWidth = 0
-	end
-	if windowWidth and windowWidth > frameWidth then
-		frameWidth = windowWidth
-	end
-	if frameWidth <= 0 then
-		return recipeList:GetWidth()
-	end
-	return math.max(0, frameWidth - LIST_LEFT - SCHEMATIC_GAP - SCHEMATIC_WIDTH - WINDOW_RIGHT_INSET)
-end
 
 -- An added recipe's row text: that it is not learned, and where and at what skill it is learned. Grey,
 -- like the name Blizzard greys for a recipe it knows is unlearned.
@@ -85,38 +24,6 @@ end
 ---@return integer
 local function CraftableCount(recipeID)
 	return ns.Readable(C_TradeSkillUI.GetCraftableCount(recipeID)) or 0
-end
-
--- The width one recipe needs: its indent, name, count, lock and, when it is on, SkillUp's own row text with
--- the gap FitLabel keeps. Measured with one hidden font string for the whole refresh, not from a row's frame,
--- which only exists while it is on screen. `ctx` is the profession the row belongs to, which need not be open.
----@param info TradeSkillRecipeInfo
----@param depth integer
----@param ctx SkillUpContext
----@return number
-local function RecipeWidth(info, depth, ctx)
-	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
-	measure:SetText(recipeInfo.name or "")
-	local width = depth * TREE_INDENT + measure:GetStringWidth() + LIST_CHROME
-	if recipeInfo.skillUpUnlearned then
-		measure:SetText(UnlearnedText(recipeInfo.skillUpUnlearned))
-		return width + measure:GetStringWidth() + TEXT_GAP
-	end
-	local count = CraftableCount(recipeInfo.recipeID)
-	if count > 0 then
-		measure:SetFormattedText(" (%d) ", count)
-		width = width + measure:GetStringWidth()
-	end
-	if recipeInfo.disabled then
-		width = width + LOCKED_CHROME
-	end
-	if ns.db.showRowText then
-		measure:SetText(ns.FormatRow(ns.Describe(recipeInfo, ctx)))
-		width = width + measure:GetStringWidth() + TEXT_GAP
-	else
-		width = width + LABEL_GAP
-	end
-	return width
 end
 
 -- The row data for one recipe the bundle knows this character has not learned.
@@ -134,227 +41,13 @@ local function UnlearnedInfo(entry)
 	} --[[@as TradeSkillRecipeInfo]]
 end
 
--- The row data for one bundled recipe this character knows, measured without the profession being open.
----@param recipeID integer
----@param name string
----@return TradeSkillRecipeInfo
-local function LearnedInfo(recipeID, name)
-	---@diagnostic disable-next-line: missing-fields
-	return {
-		recipeID = recipeID,
-		name = name,
-		learned = true,
-	} --[[@as TradeSkillRecipeInfo]]
-end
-
--- The bundled recipes of each skill line, built once: the bundle never changes after load.
----@type table<integer, integer[]>?
-local recipesBySkillLine
----@type table?
-local recipesIndexed
-
----@param skillLine integer
----@return integer[]
-local function RecipesOf(skillLine)
-	if recipesIndexed ~= ns.RecipeData or not recipesBySkillLine then
-		recipesBySkillLine, recipesIndexed = {}, ns.RecipeData
-		for recipeID, recipe in pairs(ns.RecipeData) do
-			local list = recipesBySkillLine[recipe.skillLine]
-			if not list then
-				list = {}
-				recipesBySkillLine[recipe.skillLine] = list
-			end
-			list[#list + 1] = recipeID
-		end
-	end
-	return recipesBySkillLine[skillLine] or {}
-end
-
--- The bundled name of each recipe, by recipe ID, for a client that has not cached the spell itself.
----@type table<integer, string>?
-local bundledNames
----@type table?
-local bundledNamesSource
-local function BundledNames()
-	if bundledNamesSource ~= ns.RecipeNames then
-		bundledNames, bundledNamesSource = {}, ns.RecipeNames
-		for _, names in pairs(ns.RecipeNames or {}) do
-			for name, recipeID in pairs(names) do
-				if type(recipeID) == "number" then
-					bundledNames[recipeID] = name
-				end
-			end
-		end
-	end
-	return bundledNames
-end
-
----@param recipeID integer
----@return string?
-local function RecipeName(recipeID)
-	local name = C_Spell and C_Spell.GetSpellName and C_Spell.GetSpellName(recipeID)
-	if type(name) == "string" and name ~= "" then
-		return name
-	end
-	return BundledNames()[recipeID]
-end
-
--- The width one learned profession's rows need, in list width: every recipe of it this character knows,
--- measured from the bundle with that profession's own skill, plus the bundled unlearned ones it can place.
--- Reading the bundle rather than the open client list is what makes the one window width independent of the
--- profession on show.
----@param profession SkillUpProfession
----@return number
-local function ProfessionListWidth(profession)
-	local width = 0
-	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
-		if ns.IsLearned(recipeID) then
-			local name = RecipeName(recipeID)
-			if name then
-				-- A recipe sits under a category, which indents its row.
-				local needed = RecipeWidth(LearnedInfo(recipeID, name), 1, profession)
-				if needed > width then
-					width = needed
-				end
-			end
-		end
-	end
-	for _, entry in ipairs(ns.UnlearnedRecipes(profession)) do
-		local needed = RecipeWidth(UnlearnedInfo(entry), 0, profession)
-		if needed > width then
-			width = needed
-		end
-	end
-	return width
-end
-
--- What a row's own text adds to its width. A change to one of these changes every profession's widest row.
----@return string
-local function RowSettingsKey()
-	return table.concat({
-		tostring(ns.db.showRowText == true),
-		tostring(ns.db.showSkill == true),
-		tostring(ns.db.showCost == true),
-		tostring(ns.db.rowCost or ""),
-	}, ":")
-end
-
----@param width number?
----@return boolean
-local function ApplyMinWidth(width)
-	if applied and width == appliedWidth then
-		return false
-	end
-	if ns.Pages and ns.Pages.SetMinWidth and ns.Pages.SetMinWidth(width) then
-		appliedWidth, applied = width, true
-		return true
-	end
-	return false
-end
-
--- The one width the window keeps: the client's crafting width plus the room the widest row of every learned
--- profession needs beyond the list's own width. A screen cap keeps the window clear of the screen's edges.
--- Only the wide-list setting, a row setting, or a profession learned or dropped recomputes it; a profession
--- switch and a list refresh do not. With the setting off the width is cleared, so the client's own returns.
----@return boolean changed
-local function RecomputeWindowWidth()
-	if not (recipeList and measure) then
-		return false
-	end
-	if not (ns.PlayerProfessions and ns.IsLearned and ns.RecipeData and ns.UnlearnedRecipes) then
-		return false
-	end
-	if not ns.db.wideRecipeList then
-		local changed = windowKey ~= "off"
-		windowKey = "off"
-		windowWidth = nil
-		if changed and InCombatLockdown and InCombatLockdown() then
-			resizePending = true
-		end
-		return ApplyMinWidth(nil) or changed
-	end
-
-	local professions = ns.PlayerProfessions()
-	local lines = {}
-	for skillLine in pairs(professions) do
-		if type(skillLine) == "number" then
-			lines[#lines + 1] = skillLine
-		end
-	end
-	table.sort(lines)
-	local key = table.concat(lines, ",") .. ":" .. RowSettingsKey()
-	local changed = key ~= windowKey
-	if changed then
-		local needed = 0
-		for _, skillLine in ipairs(lines) do
-			local profession = professions[skillLine]
-			if profession.skillLine then
-				local width = ProfessionListWidth(profession)
-				if width > needed then
-					needed = width
-				end
-			end
-		end
-		local extra = math.max(0, needed - LIST_WIDTH)
-		local screen = UIParent and UIParent:GetWidth() or 0
-		if screen > 0 then
-			extra = math.min(extra, math.max(0, screen - 2 * SCREEN_MARGIN - WINDOW_WIDTH))
-		end
-		if extra < 1 then
-			extra = 0
-		end
-		windowWidth = WINDOW_WIDTH + extra
-		windowKey = key
-		if InCombatLockdown and InCombatLockdown() then
-			resizePending = true
-		end
-	end
-	return ApplyMinWidth(windowWidth) or changed
-end
-
--- The width ForeverCore keeps for SkillUp's tab, nil when the wide list is off. UI/Pages.lua registers its
--- minWidth with this answer, and the recompute above updates it when a setting or a learned profession moves.
----@return number?
+-- Compatibility entry points for callers from older integrations. Width belongs to the client and ForeverCore.
+---@return nil
 function ns.RecipeListMinWidth()
-	RecomputeWindowWidth()
-	return windowWidth
+	return nil
 end
 
--- The list takes the room the window has, never the window itself: one width for every profession and tab.
--- Combat defers the change: a resize waits for PLAYER_REGEN_ENABLED, never an OnUpdate. With the setting off,
--- the client's own list width goes back.
-function ns.FitRecipeListWidth()
-	if not (recipeList and ProfessionsFrame) then
-		return
-	end
-	if InCombatLockdown and InCombatLockdown() then
-		resizePending = true
-		return
-	end
-	resizePending = false
-
-	local listWidth = recipeList:GetWidth()
-	-- The client laid the page out again, or another addon resized the list: grow from this width. While the
-	-- width is the one we set, the client's own width below it has not changed.
-	if not SameWidth(listWidth, widenedList) and not SameWidth(listWidth, baseListWidth) then
-		baseListWidth = listWidth
-		widenedList = nil
-	end
-	baseListWidth = baseListWidth or listWidth
-
-	local targetList = baseListWidth
-	if ns.db.wideRecipeList and recipeList:IsVisible() then
-		targetList = math.max(baseListWidth, MaxListWidth())
-	end
-	if not SameWidth(listWidth, targetList) then
-		recipeList:SetWidth(targetList)
-	end
-	if SameWidth(targetList, baseListWidth) then
-		widenedList = nil
-	else
-		widenedList = targetList
-	end
-end
+function ns.FitRecipeListWidth() end
 
 -- The row's own Init sized the label for Blizzard's right-hand widgets only;
 -- shrink it again so a long recipe name truncates instead of running under our text.
@@ -828,46 +521,18 @@ function ns.AttachRecipeList()
 	end, ns)
 	recipeList.ScrollBox:RegisterCallback("OnDataProviderReassigned", function(scrollBox)
 		ApplyList(scrollBox)
-		if replacing then
-			return
-		end
-		ns.FitRecipeListWidth()
 	end, recipeList.ScrollBox)
 	EventRegistry:RegisterCallback("Professions.RecipeListOnEnter", ns.ShowRecipeTooltip, ns)
-	-- The client lays the page out again on a tab change, a page refresh and a show. Fit gives the list the
-	-- room the one window width leaves; none of these remeasures the width.
-	EventRegistry:RegisterCallback("ProfessionsFrame.TabSet", ns.FitRecipeListWidth, ns)
-	EventRegistry:RegisterCallback("ProfessionsFrame.Show", ns.FitRecipeListWidth, ns)
-	EventRegistry:RegisterCallback("Professions.CraftingDisplayRefresh", ns.FitRecipeListWidth, ns)
-	ns.WhenEvent("TRADE_SKILL_SHOW", ns.FitRecipeListWidth)
-	ns.WhenEvent("TRADE_SKILL_DATA_SOURCE_CHANGED", ns.FitRecipeListWidth)
-	ns.WhenEvent("PLAYER_REGEN_ENABLED", function()
-		if resizePending then
-			ns.FitRecipeListWidth()
-		end
-	end)
-	-- A profession learned or dropped changes the widest row the window must hold; the addon already reads
-	-- this event for that. A skill-up inside a profession leaves the key unchanged and measures nothing.
-	ns.WhenEvent("SKILL_LINES_CHANGED", function()
-		if RecomputeWindowWidth() then
-			ns.FitRecipeListWidth()
-		end
-	end)
 	ns.WhenEvent("INPUT_DEVICE_INTERFACE_TRANSITION" --[[@as WowEvent]], SyncFilterMenu)
 	SyncFilterMenu()
 	-- A row setting, a price or a profession changed: redraw the rows and re-sort in place. Never rebuild
 	-- the page through Blizzard's Init, which would write its recipe selection and schematic as ours (#350).
-	-- The window's width changes only for the wide setting and a row setting; a price or a filter does not.
 	ns.WhenStale("recipeList", function()
 		if recipeList:IsVisible() and ProfessionsFrame.professionInfo then
 			ApplyList(recipeList.ScrollBox)
 			Redecorate()
 		end
-		RecomputeWindowWidth()
-		ns.FitRecipeListWidth()
 	end)
-	-- The window may already be open when another addon loaded Blizzard_Professions first.
-	ns.FitRecipeListWidth()
 	ns.AttachRoute()
 	ns.AttachGear()
 	if ns.AttachBuffs then

@@ -503,6 +503,7 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"沒有 Auctionator 時，配方的「搜尋」按鈕會一次一個試劑地填入遊戲自帶的拍賣搜尋框。"
 L["The Buffs tab no longer overflows the stack."] = "增益分頁不再導致堆疊溢位。" -- mt
+L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已過期。請更新它來解決此問題。" -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已過期。請更新它們來解決此問題。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 無法啟動。請重新安裝 %s 來解決此問題。" -- mt

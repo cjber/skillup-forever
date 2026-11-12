@@ -33,7 +33,7 @@ These images are generated previews of the SkillUp UI.
 ## Features
 
 - **Recipe rows and tooltips.** Each recipe shows its skill-up chance, cost and colour thresholds, in the row and in its tooltip. Missing data shows `?`.
-- **A wider, sortable recipe list.** Widened so names never run under the skill-up columns, with how many your bags can make after each name; turn it off in settings to keep the game's width. Sort by difficulty range start, chance, cheapest skill-ups or newest learned first.
+- **A sortable recipe list.** See how many your bags can make after each name. Sort by difficulty range start, chance, cheapest skill-ups or newest learned first.
 - **Unlearned recipes.** A setting, off by default, lists them greyed under the learned ones, each marked with its trainer or recipe item and the skill it asks. Hovering one shows its reagents, cost and skill-up colours; it cannot be crafted.
 - **Levelling routes.** Crafts, trainer visits, skill books and rank quests to your target skill, including fees, tools and stations, with steps that allow for unlucky skill-ups. Cheaper crafted reagents become their own steps, routes that stop short name recipes that could extend them, and right-clicking a recipe and choosing *Not this recipe* plans without it.
 - **Shopping lists.** Reagents are counted against bags and bank. Buying is the default, so materials your professions gather are bought unless you choose to gather them; track the list beside quests, buy vendor stock and keep an Auctionator list up to date. The Shopping list says how that list works, and at the auction house you can search a recipe's reagents for as many crafts as you choose.

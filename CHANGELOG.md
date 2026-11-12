@@ -12,6 +12,13 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.8.2] - 2026-11-12
+
+- **Disabled auction list maintenance stays disabled.** Turning off Auctionator's automatic search option no longer rewrites tracked shopping lists when bags or prices change. The explicit Search button still searches for the selected recipe. Thanks to kopuliak (#647).
+- **Profession tabs keep one stable custom layout.** SkillUp no longer expands the shared Professions window from recipe names, so switching between custom tabs does not move the host or leave native pages with stale width. Adaptive recipe-list sizing is deferred until it can preserve Blizzard's native page geometry.
+- **Route progress uses clean native bars.** Reagent quantities and skill bands use the approved game artwork, with labels clear of each bar (#648).
+- **Route controls keep their footer clearance.** Tracking and action controls share one baseline with space from the route panel edge (#648).
+
 ## [1.8.1] - 2026-11-11
 
 <!-- forever-core-sync -->

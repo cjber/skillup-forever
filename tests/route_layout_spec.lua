@@ -6,10 +6,6 @@
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
-local function near(actual, expected, label)
-	equal(math.abs(actual - expected) < 1e-6, true, ("%s (%s ~ %s)"):format(label, actual, expected))
-end
-
 -- Friz Quadrata at 12px, the widths the client draws for GameFontNormal and GameFontHighlight; anything not
 -- listed is measured at a flat rate. The reagent names are the ones the rows in this spec carry.
 local WIDTH = {
@@ -913,6 +909,8 @@ end
 -- The switch and its label are one control in the header; the Track checkbox, the Replan button, Craft, the count
 -- box and the vendor button share the bottom row, right to left, at their one fixed width each.
 local controls = {
+	page.Skill,
+	page.Target,
 	page.Collect,
 	page.CollectLabel,
 	page.Money,
@@ -924,6 +922,8 @@ local controls = {
 	page.Replan,
 }
 local names = {
+	"the skill line",
+	"the target box",
 	"the switch",
 	"the switch's label",
 	"the money line",
@@ -944,6 +944,19 @@ for index, control in ipairs(controls) do
 	equal(top < pageT and bottom > pageB, true, names[index] .. " sits inside the page's height")
 	equal(overlaps(control, titleBar), false, names[index] .. " misses the title bar")
 	equal(overlaps(control, ProfessionsFrame.portrait), false, names[index] .. " misses the portrait")
+end
+
+-- Long translated header labels still get a bounded rank column. This is the cooking 95/150 to target 150 shape
+-- from the reported overlap: the rank line may be clipped by its own column, but never paints through its controls.
+page.Skill:SetText("Kompetenz 95/150 Ziel")
+page.CollectLabel:SetText("Materialien im Auktionshaus kaufen")
+ns.Changed("settings")
+for _, control in ipairs({ page.Skill, page.Target, page.Collect, page.CollectLabel }) do
+	for _, other in ipairs({ page.Skill, page.Target, page.Collect, page.CollectLabel }) do
+		if control ~= other then
+			equal(overlaps(control, other), false, "translated header controls do not overlap")
+		end
+	end
 end
 for index, control in ipairs(controls) do
 	equal(Width(control) > 0, true, names[index] .. " has a width to overlap with")
@@ -976,6 +989,28 @@ equal(trackAnchor.relativePoint, "BOTTOMLEFT", "where the row starts")
 local replanAnchor = page.Replan.points[1]
 equal(replanAnchor.relative, page.TrackLabel, "Replan sits after the Track label")
 equal(replanAnchor.relativePoint, "RIGHT", "in the bottom row's free space")
+
+-- The footer is below the insets, not pressed against their lower art seam. Keep a real gap after the Track
+-- checkbox and between its translated label and Replan, even when the host is at its fixed 673 px width.
+local _, _, trackRight, trackTop = Rect(page.Track)
+local labelLeft, _, labelRight, _ = Rect(page.TrackLabel)
+local replanLeft, _, replanRight, replanTop = Rect(page.Replan)
+local _, routeBoxBottom = Rect(insets[1])
+equal(labelLeft - trackRight >= 4, true, "Track label has clearance from its checkbox")
+equal(replanLeft - labelRight >= 20, true, "Replan has clearance from the Track label")
+equal(trackTop < routeBoxBottom - 4, true, "Track clears the route inset seam")
+equal(replanTop < routeBoxBottom - 4, true, "Replan clears the route inset seam")
+equal(replanRight <= pageR, true, "Replan stays inside the host footer")
+local _, trackFooterBottom, _, trackFooterTop = Rect(page.Track)
+local _, craftFooterBottom, _, craftFooterTop = Rect(page.Craft)
+equal(
+	math.abs((trackFooterBottom + trackFooterTop) / 2 - (craftFooterBottom + craftFooterTop) / 2) < 1e-6,
+	true,
+	"footer controls share one baseline"
+)
+equal(routeBoxBottom - trackFooterTop >= 8, true, "Track clears the inset seam by 8 px")
+local _, footerPageBottom = Rect(page)
+equal(trackFooterBottom - footerPageBottom >= 8, true, "footer keeps host bottom clearance")
 equal(Width(page.Replan), 80, "at its one fixed width")
 equal(Width(page.Craft), 100, "the craft button keeps one width")
 equal(Width(page.CraftCount), 62, "and the count box keeps its own")
@@ -987,7 +1022,7 @@ equal(page.Track.checked, false, "the Track checkbox shows an untracked route")
 
 -- The list's scroll box is what the addon places; the game lays the rows out inside it, so the scroll
 -- box must sit inside the inset and every row the game draws inside the scroll box.
-local routeLeft, routeBoxBottom, routeRight, routeTop = Rect(insets[1])
+local routeLeft, _, routeRight, routeTop = Rect(insets[1])
 local boxLeft, boxBottom, boxRight, boxTop = Rect(page.RouteList.scrollBox)
 equal(boxLeft >= routeLeft and boxRight <= routeRight, true, "the route list's scroll box is inside its inset")
 equal(boxTop <= routeTop and boxBottom >= routeBoxBottom, true, "and inside its height")
@@ -1008,14 +1043,16 @@ for _, row in ipairs(page.RouteList.scrollBox.frames) do
 end
 equal(routeRows, 2, "the route list draws the sub-craft and the craft as rows")
 
--- #574: the band's progress bar keeps the client's 451 by 29 frame at its own aspect, never stretched.
+-- Skill bands use the same approved clean progress assets as reagent counts.
 local bands = 0
 for _, row in ipairs(page.RouteList.scrollBox.frames) do
 	if row.kind == "band" then
 		bands = bands + 1
-		equal(row.BarBorder.atlas, "Professions-skillbar-frame", "a band draws the client's bar frame")
-		near(Width(row.BarBorder) / Height(row.BarBorder), 451 / 29, "at the frame's own aspect")
-		equal(Width(row.BarBorder) <= 170, true, "inside the band's bar width")
+		equal(row.BarBg.atlas, "common-stat-bar-BG", "a band draws the native clean bar background")
+		equal(row.BarFill.atlas, "common-stat-bar-white", "a band draws the native clean bar fill")
+		equal(Height(row.BarBg), 29, "at the native background height")
+		equal(Height(row.BarFill), 15, "at the native fill height")
+		equal(Width(row.BarBg), 170, "inside the band's bar width")
 	end
 end
 equal(bands, 1, "the route draws its skill band's header")
@@ -1058,6 +1095,20 @@ for _, row in ipairs(page.ReagentList.scrollBox.frames) do
 			Width(row.Text),
 			row.entry.sourceIcon and 163.5 or 183.5,
 			"a reagent row gives its name the room beside its source icon"
+		)
+		local _, barBottom, _, barTop = Rect(row.BarBg)
+		local _, fillBottom, _, fillTop = Rect(row.Bar)
+		local _, nameBottom = Rect(row.Text)
+		local _, detailBottom, _, detailTop = Rect(row.Detail)
+		equal(Height(row.BarBg), 29, "reagent background keeps native height")
+		equal(Height(row.Bar), 15, "reagent fill keeps native height")
+		equal(fillBottom >= barBottom and fillTop <= barTop, true, "fill stays inside its background")
+		equal(nameBottom - barTop >= 3, true, "bar clears the item name")
+		equal(barBottom - detailTop >= 3, true, "bar clears the source label")
+		equal(
+			detailBottom >= bottom,
+			true,
+			("source label stays inside its row (%s >= %s)"):format(detailBottom, bottom)
 		)
 		equal(row.barNeed, row.entry.bar.need, "a reagent row carries its have/need bar")
 		equal(row.Source.shown, row.entry.sourceIcon ~= nil, "and a source icon where the source has one")

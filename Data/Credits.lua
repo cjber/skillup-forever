@@ -5,7 +5,7 @@ local _, ns = ...
 ns.Credits = {
 	players = {
 		{ name = "Brainc3ll", what = "French translation" },
-		{ name = "kopuliak", what = "Recipe minimum skills corrected" },
+		{ name = "kopuliak", what = "Recipe minimum skills and automatic auction list settings corrected" },
 		{ name = "kopuliak", what = "No more secret-number tooltip errors" },
 		{ name = "kopuliak", what = "Option to hide the tracked professions" },
 		{ name = "kopuliak", what = "Auctionator's latest price used" },

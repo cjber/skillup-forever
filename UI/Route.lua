@@ -26,6 +26,7 @@ local STALE_AFTER = 24 * 3600
 local page
 local selected -- skill line shown on the page
 local pending = false
+local LayoutHeader
 
 ---@param recipeID integer
 ---@return string
@@ -1107,6 +1108,7 @@ local function Render()
 	end
 	ProfessionsFrame:SetPortraitToAsset(profession.icon)
 	page.Skill:SetFormattedText(L["Skill  %d/%d     Target"], profession.base, profession.max)
+	LayoutHeader()
 	local plan = ns.PlanRoute(profession)
 	RenderMoney(plan)
 	if not page.Target:HasFocus() then
@@ -1260,6 +1262,18 @@ local function CreateHeader()
 	money:SetScript("OnLeave", GameTooltip_Hide)
 	page.Money = money
 	page.MoneyText = moneyText
+end
+
+-- Keep the rank line between the profession menu and the buy switch. The available width changes with the host
+-- window and with the translated switch label, so the target edit box never overlaps either neighbour.
+LayoutHeader = function()
+	local left = 76 + 180 + 16
+	local target = 10 + 40 + 16
+	local collect = page.Collect:GetWidth() + 4 + page.CollectLabel:GetStringWidth()
+	local available = math.max(1, page:GetWidth() - left - target - collect - 8)
+	page.Skill:SetWidth(math.max(1, math.min(page.Skill:GetStringWidth(), available)))
+	page.Skill:SetJustifyH("LEFT")
+	page.Skill:SetWordWrap(false)
 end
 
 local function CreateButtons()
@@ -1433,6 +1447,8 @@ local function CreatePage()
 	page:Hide()
 	CreateHeader()
 	CreateButtons()
+	LayoutHeader()
+	page:HookScript("OnSizeChanged", LayoutHeader)
 
 	local route = CreateInset(L["Route"])
 	route:SetPoint("TOPLEFT", 16, -88)
@@ -1449,7 +1465,9 @@ local function CreatePage()
 	page.Collect:SetPoint("LEFT", page.Target, "RIGHT", 16, 0)
 	-- One bottom row: Track at the route's bottom left with its label on the right, as the game's own
 	-- checkboxes and the Buy reagents switch read, and the actions right-aligned from the reagents' edge.
-	page.Track:SetPoint("BOTTOMLEFT", route, "BOTTOMLEFT", 0, -21)
+	-- The footer sits below the inset seam with the checkbox centred on the action row, rather than hanging from the
+	-- inset corner and rising into its border.
+	page.Track:SetPoint("CENTER", route, "BOTTOMLEFT", 13, -21)
 	page.TrackLabel:SetPoint("LEFT", page.Track, "RIGHT", 4, 0)
 	page.Craft:SetPoint("RIGHT", reagents, "BOTTOMRIGHT", 0, -21)
 	page.CraftCount:SetPoint("RIGHT", page.Craft, "LEFT", -4, 0)

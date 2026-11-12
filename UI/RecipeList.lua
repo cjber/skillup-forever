@@ -41,14 +41,6 @@ local function UnlearnedInfo(entry)
 	} --[[@as TradeSkillRecipeInfo]]
 end
 
--- Compatibility entry points for callers from older integrations. Width belongs to the client and ForeverCore.
----@return nil
-function ns.RecipeListMinWidth()
-	return nil
-end
-
-function ns.FitRecipeListWidth() end
-
 -- The row's own Init sized the label for Blizzard's right-hand widgets only;
 -- shrink it again so a long recipe name truncates instead of running under our text.
 ---@param row SkillUpRecipeRow

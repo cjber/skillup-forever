@@ -61,8 +61,6 @@
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
----@field RecipeListMinWidth fun(): number? the window width the widest learned profession's rows need, nil with the wide list off
----@field FitRecipeListWidth fun() fit the recipe list into the room the window has
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
 ---@field BuffLevel fun(recipeID: integer): integer? The product's required level when it is a buff, else nil.
@@ -744,7 +742,6 @@ SkillUpForeverDB = nil
 ---@field Select fun(id: SkillUpPageID)
 ---@field Sync fun()
 ---@field SideTab fun(): ForeverProfessionTab?
----@field SetMinWidth fun(width: number?): boolean
 ---@field BottomTab fun(id: SkillUpPageID): Button?
 ---@field Count fun(): integer
 

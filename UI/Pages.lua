@@ -340,14 +340,6 @@ function ns.Pages.SideTab()
 	return tab
 end
 
--- Compatibility entry point: the shared host owns the width.
----@param _ number?
----@return boolean applied
-function ns.Pages.SetMinWidth(_)
-	-- The shared Professions host owns one stable custom width. SkillUp no longer resizes it from list content.
-	return tab ~= nil
-end
-
 ---@param id string
 ---@return Button?
 function ns.Pages.BottomTab(id)

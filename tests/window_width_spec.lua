@@ -160,11 +160,8 @@ local function fitted(label)
 	assert(recipeList.width == 304, label .. ": expected the client list width, got " .. tostring(recipeList.width))
 end
 
-assert(ns.RecipeListMinWidth() == nil, "recipe content no longer changes the shared host width")
+assert(ns.RecipeListMinWidth == nil and ns.FitRecipeListWidth == nil, "SkillUp still exposes automatic width hooks")
 fitted("after attach")
-
-ns.FitRecipeListWidth()
-fitted("after fit")
 
 -- Opening another learned profession does not move the window, even though its own names are shorter.
 frame.professionInfo = { professionID = 200 }
@@ -175,7 +172,7 @@ ns.db.wideRecipeList = false
 stale.recipeList()
 fitted("with the legacy setting off")
 
--- And on again raises the same width, from the client's own list width.
+-- An old saved setting cannot re-enable the deferred feature.
 ns.db.wideRecipeList = true
 stale.recipeList()
 fitted("with the legacy setting on again")

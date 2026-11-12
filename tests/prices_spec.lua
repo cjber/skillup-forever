@@ -60,6 +60,21 @@ c.auction[2] = 200
 c.AuctionatorScan()
 equal(ns.Price(2).copper, 40, "a cheaper vendor still beats the latest auction price")
 
+-- Auctionator loads its database at PLAYER_LOGIN and answers nil before then, so a price asked for while the game
+-- loads is cached empty. A /reload brings no item data to clear it: entering the world asks again, once.
+do
+	local login = Client.load({ data = DATA })
+	equal(login.ns.Price(1), nil, "a price asked for before Auctionator loads is empty")
+	login.auction[1] = 500
+	login.Fire("PLAYER_LOGIN")
+	login.Fire("PLAYER_ENTERING_WORLD")
+	local price = login.ns.Price(1)
+	equal(price and price.copper, 500, "entering the world asks Auctionator again")
+	login.auction[1] = 900
+	login.Fire("PLAYER_ENTERING_WORLD")
+	equal(login.ns.Price(1).copper, 500, "later zoning keeps the cache")
+end
+
 -- A vendor visit records the unit price, reputation discount included, and it beats the auction.
 c.merchant = { { itemID = 3, price = 100, stackCount = 5 }, { itemID = 4, price = 10, hasExtendedCost = true } }
 c.Fire("MERCHANT_SHOW")

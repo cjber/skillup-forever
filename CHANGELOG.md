@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Routes keep their prices after a `/reload`.** Auctionator loads its prices at login, so a price SkillUp asked for while the game was still loading came back empty and stayed that way until the next auction house scan, leaving the route saying Auctionator hadn't seen its reagents. SkillUp now asks Auctionator again once you are in the world, as it already did for TradeSkillMaster.
+
 ## [1.8.2] - 2026-11-12
 
 - **Disabled auction list maintenance stays disabled.** Turning off Auctionator's automatic search option no longer rewrites tracked shopping lists when bags or prices change. The explicit Search button still searches for the selected recipe. Thanks to kopuliak (#647).

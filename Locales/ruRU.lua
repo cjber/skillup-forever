@@ -526,10 +526,10 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Если включить «Покупать реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Без Auctionator кнопка «Поиск» рецепта заполняет собственную строку поиска аукциона игры по одному реагенту за раз."
-L["Disabled auction list maintenance stays disabled."] = "Disabled auction list maintenance stays disabled." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s устарел. Обновите его, чтобы это исправить." -- mt
 L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s устарели. Обновите их, чтобы это исправить." -- mt
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s не удалось запустить. Переустановите %s, чтобы это исправить." -- mt
+L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt

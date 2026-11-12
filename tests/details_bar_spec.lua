@@ -63,6 +63,13 @@ equal(ns.DetailsBar(nil, 40), nil, "no thresholds, no bar")
 equal(ns.DetailsBar({ 1, 30, 45, 60 }, nil), nil, "no skill, no bar")
 equal(ns.DetailsBar({ 1, 30, 45 }, 40), nil, "a threshold set of the wrong size is no bar")
 
+local description = { shown = true, text = "Craft a Basic Campfire." }
+function description:IsShown()
+	return self.shown
+end
+function description:GetText()
+	return self.text
+end
 -- Which recipe: the selected one, or the higher rank of it this character has learned, as the tooltip draws it.
 local base = { recipeID = BANDAGE }
 local higher = { recipeID = LEARNED_BANDAGE }
@@ -123,6 +130,7 @@ equal(math.abs(made.marker.points[1][4] - BAR_FILL_WIDTH) < 0.001, true, "past g
 -- hidden, so showing their parent alone must not count as showing the content.
 local create = G.CreateFrame
 local details
+description.text = "Craft a Basic Campfire."
 G.CreateFrame = function(...)
 	local result = create(...)
 	if not details then
@@ -133,6 +141,7 @@ end
 G.ProfessionsFrame = {
 	CraftingPage = {
 		SchematicForm = {
+			Description = description,
 			GetRecipeInfo = function()
 				return higher
 			end,
@@ -140,7 +149,16 @@ G.ProfessionsFrame = {
 	},
 }
 ns.AttachDetailsBar()
-equal(details:IsShown(), true, "a selected recipe shows its details container")
-equal(details.bar:IsShown(), true, "the selected recipe's skill bar itself is shown")
+equal(details:IsShown(), false, "a native recipe description suppresses the overlapping details container")
+description.text = ""
+for _, callback in ipairs(c.callbacks["ProfessionsRecipeListMixin.Event.OnRecipeSelected"]) do
+	callback.callback(callback.owner, higher)
+end
+equal(details:IsShown(), true, "an empty native description restores the details container")
+description.text = "Craft a Basic Campfire."
+for _, callback in ipairs(c.callbacks["ProfessionsRecipeListMixin.Event.OnRecipeSelected"]) do
+	callback.callback(callback.owner, higher)
+end
+equal(details:IsShown(), false, "a repopulated native description suppresses the details container again")
 
 Client.report("details_bar_spec")

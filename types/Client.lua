@@ -198,6 +198,17 @@ function CreateDataProvider(tbl) end
 ---@alias SkillUpElementInitializer fun(frame: Frame, elementData: SkillUpListElement)
 ---@alias SkillUpElementFactory fun(factory: fun(template: string, initializer: SkillUpElementInitializer), elementData: SkillUpListElement)
 
+-- ForeverCore 1.8.0 no longer declares these client scroll types, so SkillUp declares what it uses.
+---@class ForeverScrollBoxView
+---@field SetElementInitializer fun(self: ForeverScrollBoxView, template: string, initializer: fun(button: Button, element: any))
+---@field SetElementExtent fun(self: ForeverScrollBoxView, extent: number)
+---@field SetPadding fun(self: ForeverScrollBoxView, ...: number)
+
+---@class ForeverScrollUtil
+---@field InitScrollBoxListWithScrollBar fun(box: Frame, bar: any, view: ForeverScrollBoxView)
+---@type ForeverScrollUtil
+ScrollUtil = nil
+
 ---@class SkillUpScrollView : ForeverScrollBoxView
 ---@field SetElementExtent fun(self: SkillUpScrollView, extent: number)
 ---@field SetElementExtentCalculator fun(self: SkillUpScrollView, calculator: fun(dataIndex: integer, elementData: SkillUpListElement): number)

@@ -2,8 +2,7 @@
 -- #555: SkillUp's tab in the Professions window is ForeverCore.ProfessionTabs'. A Commissions-like second tab
 -- sits beside it, and the walk the player makes (SkillUp, a client tab, a profession change, back, the other
 -- addon's tab) leaves exactly one page shown each time. The crafting page and every addon page keep the window's
--- one width, which follows the widest learned profession and whose room the list fills; the client's own overview
--- page keeps the client's width. A tab or profession switch moves neither the width nor the anchor.
+-- custom width chosen by ForeverCore. Recipe names and obsolete saved settings never resize the host or list.
 local ForeverCore = dofile("tests/forever_core.lua")
 
 scenario("SkillUp's professions tab shares the window with another addon", {
@@ -17,7 +16,7 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 			skill = 30,
 			max = 75,
 			categories = { { id = 1, name = "Materials" } },
-			-- The long name widens the window for every profession until a wider one is learned.
+			-- Long names must not resize the host or native recipe list.
 			recipes = {
 				{
 					id = 2660,
@@ -82,18 +81,9 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 		"the route page was built"
 	)
 
-	-- The wide list's one width: the client's 673 plus the room the widest learned profession's rows need
-	-- beyond the client's own 304-wide list, and the list fills that room beside the 360-wide schematic.
 	local recipeList = pf.CraftingPage.RecipeList
-	local function listRoom(window)
-		return window - 5 - 2 - 360 - 2
-	end
-	local widened = pf:GetWidth()
-	assert(widened > 673, "the long learned recipe did not widen the window: " .. tostring(widened))
-	assert(
-		recipeList:GetWidth() == listRoom(widened),
-		"the list did not fill the window's room: " .. tostring(recipeList:GetWidth())
-	)
+	assert(pf:GetWidth() == 673, "long recipes changed the native window width")
+	assert(recipeList:GetWidth() == 304, "long recipes changed the native list width")
 
 	-- A second addon's tab and page, registered the way Commissions registers its own.
 	local registered = sim:runAs(
@@ -105,6 +95,7 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 			icon = "Interface\\Icons\\INV_Misc_Note_01",
 			tooltip = "Commissions-like",
 			page = page,
+			minWidth = 850,
 		})
 		ForeverCore.ProfessionTabsScenario = { page = page, tab = tab }
 	]],
@@ -115,7 +106,7 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	local otherTab = G.ForeverCore.ProfessionTabsScenario.tab
 	assert(otherPage and otherTab, "the other addon's page and tab were registered")
 
-	local width, point = pf:GetWidth(), { pf:GetPoint(1) }
+	local nativeCraftingWidth, point = pf:GetWidth(), { pf:GetPoint(1) }
 	local function stableAt(expected, label)
 		assert(pf:GetWidth() == expected, label .. ": the window width changed to " .. tostring(pf:GetWidth()))
 		local now = { pf:GetPoint(1) }
@@ -124,9 +115,9 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 			assert(now[index] == point[index], label .. ": the window anchor changed at " .. index)
 		end
 	end
-	-- Every page but the client's own overview keeps the widened width.
+	-- Both custom pages use the explicit shared width, regardless of recipe content.
 	local function stable(label)
-		stableAt(width, label)
+		stableAt(850, label)
 	end
 
 	local function press(tab)
@@ -171,13 +162,10 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	assert(core.Selected() == nil, "a profession change hands the window back")
 	assert(not routePage:IsShown() and not otherPage:IsShown(), "with no addon page shown")
 	assert(pf.CraftingPage:IsShown(), "and the client's own crafting page takes the window again")
-	-- Back on the crafting page, the widened width returns.
-	stable("after a profession change")
-	assert(
-		pf:GetWidth() == widened,
-		"the window changed width for another learned profession: " .. tostring(pf:GetWidth())
-	)
-	assert(recipeList:GetWidth() == listRoom(widened), "the list changed with the profession")
+	-- Core owns native sizing. Its released and next versions differ here, but SkillUp must leave
+	-- the native width chosen before custom selection intact in either version.
+	stableAt(nativeCraftingWidth, "after a profession change")
+	assert(recipeList:GetWidth() == 304, "the native list changed with the profession")
 
 	press(skillupTab)
 	onePage("back on SkillUp", routePage)
@@ -192,19 +180,16 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	assert(core.Selected() == "skillup", "SkillUp's tab comes back")
 	onePage("back on SkillUp again", routePage)
 
-	-- The setting off clears the width, and on raises the same one again.
-	ns.db.wideRecipeList = false
-	ns.Changed("settings")
-	sim:advance(0.2)
-	assert(pf:GetWidth() == 673, "the wide list off did not give the client width back: " .. tostring(pf:GetWidth()))
-	assert(recipeList:GetWidth() == 304, "the wide list off did not give the client list width back")
-	ns.db.wideRecipeList = true
-	ns.Changed("settings")
-	sim:advance(0.2)
-	assert(pf:GetWidth() == widened, "the wide list on did not raise the window width again")
-	assert(recipeList:GetWidth() == listRoom(widened), "the wide list on did not fill the room again")
+	-- Obsolete saved values must not revive the removed width feature.
+	for _, value in ipairs({ false, true }) do
+		ns.db.wideRecipeList = value
+		ns.Changed("settings")
+		sim:advance(0.2)
+		stable("after an obsolete width setting changes")
+		assert(recipeList:GetWidth() == 304, "an obsolete setting resized the native list")
+	end
 
-	-- Learning a profession with a wider row recomputes the one width for every profession.
+	-- Learning a profession with longer names cannot change the shared width.
 	table.insert(sim.world.professions, {
 		skillLineID = 197,
 		name = "Tailoring",
@@ -218,9 +203,8 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	ns.db.learned[key][12075] = true
 	sim:event("SKILL_LINES_CHANGED")
 	sim:advance(0.2)
-	local learnedWidth = pf:GetWidth()
-	assert(learnedWidth > widened, "learning a wider profession did not widen the window: " .. tostring(learnedWidth))
-	assert(recipeList:GetWidth() == listRoom(learnedWidth), "the list did not fill the room learning a profession made")
+	stable("after learning a profession")
+	assert(recipeList:GetWidth() == 304, "learning a profession resized the native list")
 
 	sim:closeProfessions()
 	sim:expectNoErrors(ADDON)

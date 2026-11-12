@@ -4,6 +4,9 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "bromidious", what = "Buffs controls no longer overlap" },
+		{ name = "bromidious", what = "Native controls stay behind SkillUp pages" },
+		{ name = ".phear", what = "Native controls stay behind SkillUp pages" },
 		{ name = "Brainc3ll", what = "French translation" },
 		{ name = "kopuliak", what = "Recipe minimum skills and automatic auction list settings corrected" },
 		{ name = "kopuliak", what = "No more secret-number tooltip errors" },

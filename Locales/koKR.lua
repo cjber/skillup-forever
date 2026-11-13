@@ -371,6 +371,7 @@ L["  %d items have no price yet"] = "  %d개 아이템은 아직 가격이 없�
 L["%d x %s - %s each"] = "%d x %s - 개당 %s"
 L["%d x %s - price unknown"] = "%d x %s - 가격 없음"
 L["%s to %d"] = "%s, %d까지"
+L[" · "] = " · "
 L[", "] = ", "
 L[", price seen %d days ago"] = ", %d일 전 확인한 가격"
 L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =

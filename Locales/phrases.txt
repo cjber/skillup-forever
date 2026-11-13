@@ -7,6 +7,7 @@ end
 local L = ns.L
 
 L["  %d items have no price yet"] = "  %d items have no price yet"
+L[" · "] = " · "
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d crafts to %d, %s"
 L["%d crafts to %d, %s, at %s"] = "%d crafts to %d, %s, at %s"

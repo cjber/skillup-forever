@@ -219,6 +219,17 @@ local buy, craft, train = lw.steps[1], lw.steps[2], lw.steps[3]
 equal(buy.kind, "buy", "the thread the bags lack is bought first")
 equal(buy.text, "Buy 8 Fine Thread", "buy text")
 equal(buy.detail, "Gina, Darkshire · 800c", "buy detail names the nearest vendor and cost")
+-- The place and its fee are joined by a phrase of its own, so the Russian client, whose font has no middle dot,
+-- draws a bullet there (#692).
+local separator = ns.L[" · "]
+ns.L[" · "] = " • "
+ns.Changed("prices")
+c.Advance(0)
+local russian = API.Professions()[3].steps[1].detail
+equal(russian, "Gina, Darkshire • 800c", "the locale's separator joins the vendor and its fee")
+ns.L[" · "] = separator
+ns.Changed("prices")
+c.Advance(0)
 equal(buy.itemID, THREAD, "buy item")
 equal(buy.count, 8, "buy count")
 equal(buy.cost, 800, "buy cost")

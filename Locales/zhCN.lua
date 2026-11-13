@@ -363,6 +363,7 @@ L["  %d items have no price yet"] = "  %d 件物品还没有价格"
 L["%d x %s - %s each"] = "%d x %s - 每个 %s"
 L["%d x %s - price unknown"] = "%d x %s - 价格未知"
 L["%s to %d"] = "%s至%d"
+L[" · "] = " · "
 L[", "] = "，"
 L[", price seen %d days ago"] = "，%d 天前的价格"
 L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =

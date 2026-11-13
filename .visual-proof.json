@@ -1,23 +1,38 @@
 {
-  "input_digest": "91774d2ad3bdc2b1076ee70218d393d0430daa24d3f1d534471a8a49be11f36f",
-  "runtime_sha256": "91774d2ad3bdc2b1076ee70218d393d0430daa24d3f1d534471a8a49be11f36f",
-  "candidate": "b8099d47124363b3785ac09b7009eff0892939690a83531dc149e2ebc109cf93",
+  "input_digest": "37c3deaf497ba7b275be73b9d81340aaf7b79d17dc68b63bcc6d2e647df859b6",
+  "runtime_sha256": "37c3deaf497ba7b275be73b9d81340aaf7b79d17dc68b63bcc6d2e647df859b6",
+  "candidate": "f06b703312e90fad7e73690691ae549fee9aba4efb7c15bcb338930fb91837cc",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "3730239861a2e46f9fd3e5ee6c7ae0a2325ffc2f",
+  "source_commit": "0b3824df9cfdd9799948442dde4f55adc3d46ccb",
   "flows": [
     {
-      "name": "skill-ups",
+      "name": "World after login with the build loaded",
       "steps": [
-        "/skillup"
+        "Install the candidate and /reload",
+        "Select SkillUp's page through ForeverCore.ProfessionTabs.Select(\"skillup\"): the Lua run reports ok",
+        "The character is a ghost, so the client keeps the Professions window closed; the world shows with no error from SkillUp"
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "SkillUp settings",
+      "steps": [
+        "/skillup",
+        "The settings index opens with its six pages"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/6a2660a132b30bb13a967e5e5febc2cf/raw/c76a5450ed7a43e45d04390f9c35060bbf225140/1-skill-ups.png",
-      "sha256": "2d042e287c02d4ae2b76ee5d6c6501b5c93187bbf2d7091aa37d15e0d2816104"
+      "url": "https://gist.githubusercontent.com/cjber/b8e75a278561caea069473debcbbcfcc/raw/e032707f871af445ef7a486964698f5e314847c7/1-route-page-in-the-professions-window.png",
+      "sha256": "f0d59c9e72cb610f9be8f340a365bd6302ee820916dc1ac568e058d20c1a9a83"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/b8e75a278561caea069473debcbbcfcc/raw/e032707f871af445ef7a486964698f5e314847c7/2-skillup-settings.png",
+      "sha256": "3b392db9e3e175eed5cba5ee1b6b35a4602a1598973e359a9f1b4380062a9749"
     }
-  ]
+  ],
+  "notes": "Recorded in the client from an installed source-tree build of this commit. This change has no new visible surface: it removes a tooltip refresh and makes a route row return to the game's recipe page. The bag item and recipe selection behaviour is covered by tests/sim/bag_item_use_scenario.lua and tests/sim/show_recipe_scenario.lua."
 }

@@ -68,8 +68,11 @@ from the same build's `ItemSparse`) for the items in LibPeriodicTable-3.1's
 vendors sell is server data the client doesn't ship. Listed items missing from the
 build are reported and skipped; a stack count below one fails the run. It shares the build pin and cache with `gen_thresholds.py`.
 
-A recipe with no skill range in the build (`TrivialSkillLineRankHigh` not above
-`TrivialSkillLineRankLow`) never gives a skill-up and gets no row, so the addon shows `?` for it.
+A recipe with no skill range in the build (`TrivialSkillLineRankHigh` below
+`TrivialSkillLineRankLow`) never gives a skill-up and gets no row, so the addon shows `?` for it. Equal
+bounds are a real range with no yellow or green band (orange below the value, grey from it), as the
+smelting recipes have, and get a row; a profession ability or placeholder with equal bounds is not
+craftable and still gets none.
 
 `gen_recipes.py` writes `Data/Recipes.lua`, using only spell IDs already present in
 the same-build `Data/Thresholds.lua`. `ns.ProfessionSkillLines` names every profession the

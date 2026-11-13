@@ -291,7 +291,7 @@ equal(split.steps[3].craft.crafts, 13, "and the crafts past it carry the rest")
 
 -- The client lists recipes the bundle has no thresholds for (Forever's own, numbered past a million) and
 -- recipes whose grey it reports as 0. Neither keeps a live grey, so neither is a change on the next scan.
-local NEW_RECIPE, HEAVY_BANDAGE = 1263001, 3276
+local NEW_RECIPE, HEAVY_BANDAGE = 1263002, 3276
 local c6 = Client.load()
 local ns6 = c6.ns
 c6.professions = { { name = "First Aid", rank = 1, max = 75, id = 129 } }

@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Smelting recipes no longer show `?`.** Smelt Steel, Mithril, Truesilver, Dark Iron and Thorium have a skill range whose grey is its yellow, which SkillUp treated as contradictory and left unknown. They now show the range the game gives them, orange below the value and grey from it. Thanks to soviman1 for the report (#688).
+
 ## [1.9.4] - 2026-11-12
 
 <!-- forever-core-sync -->

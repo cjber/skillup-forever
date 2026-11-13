@@ -1,30 +1,25 @@
 {
-  "input_digest": "463d3810365ed6a519f76a76383ce529cb912b8dd5861f064c94004750060812",
-  "runtime_sha256": "463d3810365ed6a519f76a76383ce529cb912b8dd5861f064c94004750060812",
-  "candidate": "4fad2c55947a03dd2562bdac11c3d4152a21a2ed4d747c19e193a581ed0c2959",
+  "input_digest": "7f2a364d2d6ed38217492e8b9d2f8a936378ca8e5078e7acd97c97cce618b48d",
+  "runtime_sha256": "7f2a364d2d6ed38217492e8b9d2f8a936378ca8e5078e7acd97c97cce618b48d",
+  "candidate": "b65178fec24992023f8cb3c62866f8552996a216a47b4519ce8e853730d4c5d1",
   "tested_artifact": "source-tree",
   "client_build": "1.60.1.70938 (Interface 16001)",
-  "source_commit": "068fc8f2403cdcd6564a29b4951d066c81468493",
-  "notes": "Recorded on Hel Io in the headless client from a source-tree build of this commit (forever_client.py build-dev) linked into AddOns, with the store ForeverCore v1.10.0 and the Adventure Guide, SkillUp, Tweaks, Legacy, Commissions, Macro Assist and Field Guide 1.10.0 sync builds loaded in the same session. BugGrabber recorded no errors this session; the errors listed in the report window are earlier sessions' history.",
   "flows": [
     {
-      "name": "SkillUp Forever on ForeverCore 1.10.0",
+      "name": "The build loads on an enUS client with no Lua errors",
       "steps": [
-        "Link the candidate build with the store ForeverCore v1.10.0 and /reload",
-        "Print every Forever addon's loaded version: ForeverCore v1.10.0 and each sync build loaded, 0 BugGrabber errors this session",
-        "Run /skillup report: the addon's report window opens on this build"
+        "Install the PR's shipped files as the SkillUpForever folder (compare: no differing files; extra media/icon-400.png) beside ForeverCore v1.10.0 and /reload",
+        "Run errors --addon SkillUpForever: no Lua errors found",
+        "Confirm the loaded-addons list names this build and BugGrabber reports 0 errors",
+        "The ruRU separator itself cannot show on an enUS client; the mock render in the PR body shows it with the ruRU font"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/61e1d759a57ff98eb48b76f8121cf66a/raw/718803a62abd194c61351b6c32771bdb92df9555/sync110-skillup-report.png",
-      "sha256": "c5867075837e312d3ac2c7101ab779169517581a51e19301d04160d57f55e7ec"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/61e1d759a57ff98eb48b76f8121cf66a/raw/718803a62abd194c61351b6c32771bdb92df9555/sync110-versions-2.png",
-      "sha256": "9de2c6ed2ee42e7f4730c6e69322e9e834e7e2f29dbf9ccb7da79fcaa568c5e0"
+      "url": "https://gist.githubusercontent.com/cjber/94e6834396a64be6d9cbbffc4e931455/raw/96d42d340dab9778be4d45541369d44930b2e72e/ruru-ingame-1010.png",
+      "sha256": "cec9936a1628f61b09063cfc0111bde0548235602590fe589c0595570fae1e54"
     }
   ]
 }

@@ -794,7 +794,8 @@ function ns.Describe(recipeInfo, ctx)
 	}
 end
 
--- The compact "skill · chance · cost" text of a recipe row or trainer service.
+-- The compact "skill · chance · cost" text of a recipe row or trainer service. The separator is the locale's, as
+-- for Detail (#692).
 ---@param d SkillUpDescription
 ---@return string
 function ns.FormatRow(d)
@@ -815,7 +816,7 @@ function ns.FormatRow(d)
 	if ns.db.showCost and amount then
 		parts[#parts + 1] = ns.FormatSigned(ns.Model.RoundMoney(math.abs(amount)), amount < 0)
 	end
-	return table.concat(parts, " · ")
+	return table.concat(parts, L[" · "])
 end
 
 ---@param d SkillUpDescription

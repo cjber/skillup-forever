@@ -48,6 +48,14 @@ equal(
 )
 equal(ns.FormatRow({ thresholds = T, chance = 0.5 }), "50%", "an unpriced recipe shows only its chance")
 
+-- The separator between the parts is a phrase of its own, so a locale whose font has no middle dot draws its
+-- own: the Russian client gets a bullet (#692).
+local separator = ns.L[" · "]
+ns.L[" · "] = " • "
+local russian = ns.FormatRow({ thresholds = T, chance = 0.25, net = 200, perSkillUp = 800 })
+ns.L[" · "] = separator
+equal(russian, "25% • " .. MINUS .. "200c", "the row joins its parts with the locale's separator")
+
 ns.db.showCost = false
 equal(ns.FormatRow({ thresholds = T, chance = 0, net = -600 }), "0%", "Show cost per skill-up off hides the money")
 ns.db.showCost, ns.db.rowCost = true, "skillup"

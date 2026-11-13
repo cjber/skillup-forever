@@ -371,6 +371,7 @@ L["  %d items have no price yet"] = "  %d개 아이템은 아직 가격이 없�
 L["%d x %s - %s each"] = "%d x %s - 개당 %s"
 L["%d x %s - price unknown"] = "%d x %s - 가격 없음"
 L["%s to %d"] = "%s, %d까지"
+L[" · "] = " · "
 L[", "] = ", "
 L[", price seen %d days ago"] = ", %d일 전 확인한 가격"
 L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
@@ -511,7 +512,8 @@ L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s을(를) 시작할 수 없습니다. 문제를 해결하려면 %s을(를) 다시 설치하세요." -- mt
-L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["The skill band clears the recipe icon and the Reagents header."] =
+	"숙련도 막대가 제조법 아이콘과 '재료' 머리글을 가리지 않습니다." -- mt
 L["Region sale average"] = "지역 평균 판매가"
 L["Region sale average if higher"] = "더 높으면 지역 평균 판매가"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =

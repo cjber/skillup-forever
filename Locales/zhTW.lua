@@ -364,6 +364,7 @@ L["  %d items have no price yet"] = "  %d 件物品還沒有價格"
 L["%d x %s - %s each"] = "%d x %s - 每個 %s"
 L["%d x %s - price unknown"] = "%d x %s - 價格未知"
 L["%s to %d"] = "%s至%d"
+L[" · "] = " · "
 L[", "] = "，"
 L[", price seen %d days ago"] = "，%d 天前的價格"
 L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
@@ -493,7 +494,8 @@ L["Without Auctionator, a recipe's Search button fills the game's own auction bo
 L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已過期。請更新它來解決此問題。" -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已過期。請更新它們來解決此問題。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 無法啟動。請重新安裝 %s 來解決此問題。" -- mt
-L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["The skill band clears the recipe icon and the Reagents header."] =
+	"技能條不再遮住配方圖示和「材料」標題。" -- mt
 L["Region sale average"] = "地區平均成交價"
 L["Region sale average if higher"] = "較高時使用地區平均成交價"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =

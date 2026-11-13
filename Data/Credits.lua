@@ -4,6 +4,11 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "Diamondclaw", what = "The recipe skill band clears the icon and the Reagents header" },
+		{ name = "mimmordino", what = "The recipe skill band clears the icon and the Reagents header" },
+		{ name = "soviman1", what = "Smelting recipes show their skill range" },
+		{ name = "FreakinNerd", what = "SkillUp's pages no longer draw over the Professions window's own page" },
+		{ name = "nookie909", what = "A route you are shopping for stays put after buying its reagents" },
 		{ name = "_spada", what = "Asked for completed-sale values when planning profession levels" },
 		{ name = "kopuliak", what = "Reported that search left bundled unlearned recipes unfiltered" },
 		{ name = "SanyaBane", what = "Recipe tooltip keeps its skill bar when another tooltip clears (code)" },

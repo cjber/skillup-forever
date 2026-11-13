@@ -7,6 +7,7 @@ end
 local L = ns.L
 
 L["  %d items have no price yet"] = "  %d items have no price yet"
+L[" · "] = " · "
 L["%d %s"] = "%d %s"
 L["%d crafts to %d, %s"] = "%d crafts to %d, %s"
 L["%d crafts to %d, %s, at %s"] = "%d crafts to %d, %s, at %s"
@@ -201,7 +202,6 @@ L["Only for level %d"] = "Only for level %d"
 L["Open"] = "Open"
 L["Open %s to craft from here."] = "Open %s to craft from here."
 L["Open recipe"] = "Open recipe"
-L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes."
 L["Orange, yellow, green and grey thresholds when hovering a recipe."] = "Orange, yellow, green and grey thresholds when hovering a recipe."
 L["Other crafters"] = "Other crafters"
 L["Outside this route or a newer pin takes priority."] = "Outside this route or a newer pin takes priority."
@@ -313,6 +313,7 @@ L["The orange, yellow, green and grey thresholds and where your skill sits, unde
 L["The place this recipe is taught isn't known yet."] = "The place this recipe is taught isn't known yet."
 L["The rest comes from a vendor or your gathering."] = "The rest comes from a vendor or your gathering."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] = "The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."
+L["The skill band clears the recipe icon and the Reagents header."] = "The skill band clears the recipe icon and the Reagents header."
 L["The source of this recipe isn't known."] = "The source of this recipe isn't known."
 L["The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."] = "The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."
 L["These reagents have no vendor price. Auction prices need Auctionator or TradeSkillMaster."] = "These reagents have no vendor price. Auction prices need Auctionator or TradeSkillMaster."

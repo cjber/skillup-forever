@@ -366,6 +366,7 @@ L["  %d items have no price yet"] = "  %d itens ainda não têm preço"
 L["%d x %s - %s each"] = "%d x %s - %s cada"
 L["%d x %s - price unknown"] = "%d x %s - preço desconhecido"
 L["%s to %d"] = "%s a %d"
+L[" · "] = " · "
 L[", "] = ", "
 L[", price seen %d days ago"] = ", preço visto há %d dias"
 L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
@@ -500,7 +501,8 @@ L["Without Auctionator, a recipe's Search button fills the game's own auction bo
 L["%s: %s is out of date. Update it to fix this."] = "%s: %s está desatualizado. Atualize-o para corrigir isso." -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s: %s estão desatualizados. Atualize-os para corrigir isso." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s não pôde iniciar. Reinstale %s para corrigir isso." -- mt
-L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["The skill band clears the recipe icon and the Reagents header."] =
+	"A barra de perícia deixa livres o ícone da receita e o cabeçalho Reagentes." -- mt
 L["Region sale average"] = "Média regional de vendas"
 L["Region sale average if higher"] = "Média regional de vendas se for maior"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =

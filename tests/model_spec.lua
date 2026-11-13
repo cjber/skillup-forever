@@ -54,11 +54,21 @@ for _, case in ipairs(boundaries) do
 	end
 end
 
-for _, invalid in ipairs({ { 1, 40, 40, 40 }, { 1, 40, 35, 30 } }) do
+for _, invalid in ipairs({ { 1, 40, 35, 30 }, { 1, 40, 30, 30 } }) do
 	for _, skill in ipairs({ 0, 1, 29, 30, 39, 40, 70 }) do
-		equal(Model.Chance(invalid, skill), nil, "grey<=yellow at " .. skill)
+		equal(Model.Chance(invalid, skill), nil, "a band below the one before it at " .. skill)
 	end
 end
+
+-- A grey at yellow has no yellow or green band: orange below the value, grey from it (#688).
+local evenBands = { 1, 40, 40, 40 }
+ns.Thresholds = { [1] = evenBands }
+equal(Model.Get(1), evenBands, "equal bands are a range, not a contradiction")
+equal(Model.Color(evenBands, 39), "orange", "equal bands are orange below the value")
+equal(Model.Color(evenBands, 40), "grey", "and grey from it")
+near(Model.Chance(evenBands, 39), 1, "equal bands are certain below the value")
+near(Model.Chance(evenBands, 40), 0, "and impossible from it")
+ns.Thresholds = nil
 
 local tiny = { 1, 10, 10, 11 }
 equal(Model.Color(tiny, 9), "orange", "tiny range before yellow")
@@ -110,6 +120,14 @@ equal(coarse and table.concat(coarse, "/"), "1/40/47/55", "Coarse Sharpening Sto
 -- A pattern's own requirement is Runed Copper Breastplate's; Runed Copper Belt's moves with its range.
 equal(table.concat(Model.Get(2667), "/"), "55/95/115/135", "Runed Copper Breastplate starts where its plans ask")
 equal(Model.Color(Model.Get(2666), 75), "orange", "Runed Copper Belt is orange at 75, as the game says")
+-- Issue #688: Smelt Mithril's grey is its yellow in the client data, a range with no yellow or green band
+-- rather than a contradiction. It failed on the data that skipped equal bands and showed "?".
+local mithril = Model.Get(10097)
+equal(type(mithril), "table", "Smelt Mithril has thresholds")
+equal(mithril and table.concat(mithril, "/"), "1/175/175/175", "Smelt Mithril's grey is its yellow")
+equal(Model.Color(mithril, 174), "orange", "Smelt Mithril is orange below 175")
+equal(Model.Color(mithril, 175), "grey", "and grey from it")
+equal(Model.Chance(mithril, 175), 0, "with no skill-up from grey")
 for recipeID, t in pairs(ns.Thresholds) do
 	equal(Model.Get(recipeID) ~= nil, true, "bundled recipe " .. recipeID .. " is ordered: " .. table.concat(t, "/"))
 end
@@ -133,7 +151,7 @@ for recipeID, t in pairs(ns.Thresholds) do
 			equal(t[index - 1] <= t[index], true, label .. " ascending thresholds")
 		end
 	end
-	equal(t[4] > t[2], true, label .. " positive chance denominator")
+	equal(t[4] >= t[2], true, label .. " chance bounds in order")
 	equal(t[3], math.floor((t[2] + t[4]) / 2), label .. " green midpoint")
 end
 equal(rows > 0, true, "generated table is not empty")

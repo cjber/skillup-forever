@@ -140,6 +140,8 @@
 ---@field LayoutSkillBar fun(bar: SkillUpBar, t: number[], skill: number): SkillUpBar
 ---@field DetailsBar fun(t: number[]?, skill: number?): number[]?, number? the details pane's bar: thresholds and skill, nil without either
 ---@field DetailsBarRecipe fun(info: TradeSkillRecipeInfo?): integer? the recipe the details bar draws
+---@field DetailsBarAnchor fun(form: SkillUpSchematicForm): FontString? the pane's frame the bar sits under
+---@field DetailsBarRoom fun(form: SkillUpSchematicForm, anchor: FontString, height: number): boolean? whether the pane leaves the bar its room, nil before it is laid out
 ---@field AuctionatorAutoscan fun(): boolean?
 ---@field AuctionListName fun(profession: string): string?
 ---@field AuctionListNote fun(names: string[]?): string what the Shopping list and the Search tooltip say about the list

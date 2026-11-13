@@ -123,23 +123,33 @@ local noSection, noSectionLines = Require({ APIKit = { Hub = function() end, Not
 assert(noSection.broken == true, "a ForeverCore without the tracker section API stops the addon")
 assert(#noSectionLines == 1, "and the shared warning says so in one error line")
 
--- The Professions tabs arrived in ForeverCore 1.4.0 and SetMinWidth in 1.5.0:
--- UI/Pages.lua and UI/RecipeList.lua call both.
+-- The Professions tabs arrived in ForeverCore 1.4.0, SetMinWidth in 1.5.0 and minor 2 (native page hidden beneath
+-- SkillUp's) in 1.8.1: UI/Pages.lua and UI/RecipeList.lua call both, and the addon's page needs the native one gone.
 local noWidth, noWidthLines = Require({
 	APIKit = { Hub = function() end, NotReady = function() end },
 	TrackerSection = { Create = function() end },
 	TrackerLine = { SetInteractive = function() end },
-	ProfessionTabs = { Register = function() end },
+	ProfessionTabs = { Register = function() end, minor = 2 },
 })
 assert(noWidth.broken == true, "a ForeverCore without ProfessionTabs.SetMinWidth stops the addon")
 assert(#noWidthLines == 1, "and the shared warning says so in one error line")
+
+-- A core with both members but minor 1 leaves the client's own page showing beneath SkillUp's.
+local oldTabs, oldTabsLines = Require({
+	APIKit = { Hub = function() end, NotReady = function() end },
+	TrackerSection = { Create = function() end },
+	TrackerLine = { SetInteractive = function() end },
+	ProfessionTabs = { Register = function() end, SetMinWidth = function() end, minor = 1 },
+})
+assert(oldTabs.broken == true, "a ForeverCore with ProfessionTabs minor 1 stops the addon")
+assert(#oldTabsLines == 1, "and the shared warning says so in one error line")
 
 -- Every member this addon calls is there: the addon runs and says nothing.
 local ready, readyLines = Require({
 	APIKit = { Hub = function() end, NotReady = function() end },
 	TrackerSection = { Create = function() end },
 	TrackerLine = { SetInteractive = function() end },
-	ProfessionTabs = { Register = function() end, SetMinWidth = function() end },
+	ProfessionTabs = { Register = function() end, SetMinWidth = function() end, minor = 2 },
 })
 assert(ready.broken == nil, "a core with every member the addon calls runs it")
 assert(#readyLines == 0, "and says nothing")

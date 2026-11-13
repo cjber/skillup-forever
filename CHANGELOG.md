@@ -12,12 +12,49 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Russian players no longer see an empty box between a recipe's skill, chance and cost.** The Russian client's font has no middle dot, so SkillUp draws that separator with a bullet, and the Russian text that joins a place and its fee or a recipe and where it is learned uses the same. Found from a report by XaksFlaX on GitHub (cjber/shortest-path-forever#838).
+
 - **Craft values can use regional sales.** Choose Region sale average if higher to value crafted items with TradeSkillMaster and its desktop app. Buying reagents still uses listing prices. Missing sales fall back to the vendor price, and a value with neither source stays unknown. Thanks to _spada (#478).
 
 - **Search also filters unlearned recipes.** Typing in the Professions search box narrows the unlearned list, and clearing it brings the recipes back. Thanks to kopuliak (#662).
 - **The recipe tooltip keeps its skill bar when you skill up.** Crafting with the cursor on a recipe could leave its tooltip with an empty gap where the skill bar was: another tooltip cleared after the craft, such as an item tooltip refreshed when the crafted item reached your bags, hid the bar too. Now only the recipe tooltip's own redraw hides it. Thanks to SanyaBane (#649).
 
 - **A route with no progress draws an empty bar, and reagent counts stay readable.** A skill band at the start of its range no longer fills its track, and a reagent's have/need count is no longer hidden under its fill. Thanks to bromidious for reporting route progress bars overflowing their track (#665).
+
+## [1.9.6] - 2026-11-13
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [1.9.5] - 2026-11-13
+
+- **The skill band clears the recipe icon and the Reagents header.** On a recipe with no description, the bar now sits under the recipe's name, to the right of the icon, instead of covering the icon's lower half and running its "You" line into the header. Thanks to Diamondclaw and mimmordino for the report. (#674)
+- **Smelting recipes no longer show `?`.** Smelt Steel, Mithril, Truesilver, Dark Iron and Thorium have a skill range whose grey is its yellow, which SkillUp treated as contradictory and left unknown. They now show the range the game gives them, orange below the value and grey from it. Thanks to soviman1 for the report (#688).
+
+## [1.9.4] - 2026-11-12
+
+<!-- forever-core-sync -->
+
+- The Thanks page includes two more reporters: thanks to FreakinNerd for reporting that SkillUp's pages drew over the Professions window's own page, and to nookie909 for reporting that a route changed after buying its reagents. Both fixes shipped previously; this update adds their missing credits (#679).
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [1.9.3] - 2026-11-12
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [1.9.2] - 2026-11-12
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+- An older ForeverCore can no longer put the client's page back under SkillUp's: if another addon brings a ForeverCore from before 1.8.1, SkillUp stops and says it needs updating instead of drawing its pages over the Professions window's own page. (#658)
+
+## [1.9.1] - 2026-11-12
+
+- **SkillUp's pages no longer draw over the Professions window's own page.** 1.9.0 brought an older ForeverCore with it, which left the client's recipe list showing underneath SkillUp's route. This version carries ForeverCore 1.8.0, which hides the client's page while a SkillUp page is open and brings it back when you leave. (#658)
 
 ## [1.9.0] - 2026-11-12
 

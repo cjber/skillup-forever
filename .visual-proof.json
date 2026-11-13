@@ -1,25 +1,23 @@
 {
-  "input_digest": "7f2a364d2d6ed38217492e8b9d2f8a936378ca8e5078e7acd97c97cce618b48d",
-  "runtime_sha256": "7f2a364d2d6ed38217492e8b9d2f8a936378ca8e5078e7acd97c97cce618b48d",
-  "candidate": "b65178fec24992023f8cb3c62866f8552996a216a47b4519ce8e853730d4c5d1",
-  "tested_artifact": "source-tree",
+  "input_digest": "6ac524f83a49c31204a05c1bc627767284ac50b5cc92fd31c772fa96d61e3395",
+  "runtime_sha256": "6ac524f83a49c31204a05c1bc627767284ac50b5cc92fd31c772fa96d61e3395",
+  "candidate": "8ae01a2da4e7966c24340b0836b5443e2dcb6d34941680ebd0ed1d9c1b008da2",
   "client_build": "1.60.1.70938 (Interface 16001)",
+  "tested_artifact": "source-tree",
+  "source_commit": "1cd36b2b03ec5b27a023c31eb7ea0046989bbb27",
   "flows": [
     {
-      "name": "The build loads on an enUS client with no Lua errors",
+      "name": "skill-ups",
       "steps": [
-        "Install the PR's shipped files as the SkillUpForever folder (compare: no differing files; extra media/icon-400.png) beside ForeverCore v1.10.0 and /reload",
-        "Run errors --addon SkillUpForever: no Lua errors found",
-        "Confirm the loaded-addons list names this build and BugGrabber reports 0 errors",
-        "The ruRU separator itself cannot show on an enUS client; the mock render in the PR body shows it with the ruRU font"
+        "/skillup"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/94e6834396a64be6d9cbbffc4e931455/raw/96d42d340dab9778be4d45541369d44930b2e72e/ruru-ingame-1010.png",
-      "sha256": "cec9936a1628f61b09063cfc0111bde0548235602590fe589c0595570fae1e54"
+      "url": "https://gist.githubusercontent.com/cjber/6888a8540004971e47c5dd344dd2118b/raw/6513e86c2b217138e9491009ec92666297ea8536/1-skill-ups.png",
+      "sha256": "78fa9983d867e1d47b967db25507a35e4ac14551594688767f254129e63528bd"
     }
   ]
 }

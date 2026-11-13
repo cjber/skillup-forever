@@ -98,7 +98,7 @@ jobs:
       # input defaults to that file, resolved against the workspace) and installs and verifies each pin from.
       - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
         with:
-          tools: luals
+          tools: lua luals
       - run: tools/typecheck.sh
 
   generated:

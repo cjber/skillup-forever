@@ -14,6 +14,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Russian players no longer see an empty box between a recipe's skill, chance and cost.** The Russian client's font has no middle dot, so SkillUp draws that separator with a bullet, and the Russian text that joins a place and its fee or a recipe and where it is learned uses the same. Found from a report by XaksFlaX on GitHub (cjber/shortest-path-forever#838).
 
+## [1.9.6] - 2026-11-13
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
 ## [1.9.5] - 2026-11-13
 
 - **The skill band clears the recipe icon and the Reagents header.** On a recipe with no description, the bar now sits under the recipe's name, to the right of the icon, instead of covering the icon's lower half and running its "You" line into the header. Thanks to Diamondclaw and mimmordino for the report. (#674)

@@ -7,6 +7,8 @@ ns.Credits = {
 		{ name = "Diamondclaw", what = "The recipe skill band clears the icon and the Reagents header" },
 		{ name = "mimmordino", what = "The recipe skill band clears the icon and the Reagents header" },
 		{ name = "soviman1", what = "Smelting recipes show their skill range" },
+		{ name = "Yivry", what = "Items in your bags can be used after holding Shift over their tooltip" },
+		{ name = "luna", what = "A route step opens its recipe on the visible crafting page" },
 		{ name = "FreakinNerd", what = "SkillUp's pages no longer draw over the Professions window's own page" },
 		{ name = "nookie909", what = "A route you are shopping for stays put after buying its reagents" },
 		{ name = "Rambomst", what = "Fixed progress-bar fill masking and Auctionator prices after reload" },

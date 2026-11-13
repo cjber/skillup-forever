@@ -140,13 +140,15 @@ local cost, value = ns.CraftCost(BANDAGE)
 equal(cost, 10, "the reagents still cost what the vendor asks")
 equal(value and value.copper, 2, "and a secret sell price gives way to the bundled one")
 
--- Shift redraws the tooltip only for an item id it can read.
+-- Shift never asks the client to refill its own tooltip, whatever its item: a RefreshData from addon code made
+-- the game refuse to use a bag's item afterwards (#708). The lines follow the client's next set instead.
 tooltipItem = Secret
 c.Fire("MODIFIER_STATE_CHANGED", "LSHIFT", 1)
 equal(refreshed, 0, "a secret tooltip item is left alone")
 tooltipItem = SILK
 c.Fire("MODIFIER_STATE_CHANGED", "LSHIFT", 1)
-equal(refreshed, 1, "a readable one is redrawn")
+c.Fire("MODIFIER_STATE_CHANGED", "RSHIFT", 0)
+equal(refreshed, 0, "and a readable one is still the client's to redraw")
 
 -- Once the client lets the count be read again, it is the one used.
 secret = false

@@ -814,17 +814,10 @@ local function AddUses(tooltip, data)
 	}
 end
 
--- Shift changes what an item tooltip shows, so redraw the one on screen.
----@param key string
-local function OnModifierChanged(_, _, key)
-	if (key == "LSHIFT" or key == "RSHIFT") and ns.db.reagentTooltip == "route" and GameTooltip:IsShown() then
-		-- Read through ns.Readable first, as AddUses does: a secret id errors even on its truth test.
-		local itemID = ns.Readable((select(3, GameTooltip:GetItem())))
-		if itemID and GameTooltip.RefreshData then
-			GameTooltip:RefreshData()
-		end
-	end
-end
+-- Shift changes what an item tooltip shows, but only the client may redraw its own tooltip: a RefreshData from
+-- here wrote the tooltip's refresh state as ours and the game then refused to use a bag's item (#708). Our lines
+-- are added below the client's and cannot be taken back in place, so they follow the next tooltip the client
+-- itself sets, which reads IsShiftKeyDown then.
 
 -- Gathering (#122): the skill a herb or ore node asks, found by the name on its tooltip, and a gatherable
 -- corpse's. Both are coloured from your live skill with Classic's gathering bands (Model.GatherThresholds).
@@ -935,7 +928,4 @@ function ns.AttachItemTooltips()
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, AddUses)
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Object, AddNodeSkill)
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, AddCorpseSkill)
-	local events = CreateFrame("Frame")
-	events:RegisterEvent("MODIFIER_STATE_CHANGED")
-	events:SetScript("OnEvent", OnModifierChanged)
 end

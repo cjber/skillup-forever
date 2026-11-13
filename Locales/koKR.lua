@@ -511,5 +511,5 @@ L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s을(를) 시작할 수 없습니다. 문제를 해결하려면 %s을(를) 다시 설치하세요." -- mt
-L["SkillUp's pages no longer draw over the Professions window's own page."] =
-	"SkillUp's pages no longer draw over the Professions window's own page." -- mt
+L["The skill band clears the recipe icon and the Reagents header."] =
+	"숙련도 막대가 제조법 아이콘과 '재료' 머리글을 가리지 않습니다." -- mt

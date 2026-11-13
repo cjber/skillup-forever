@@ -1,37 +1,26 @@
 {
-  "input_digest": "b862f157ebed07b214a4eac96fe7444d749518a4f617271ff515149840102376",
-  "runtime_sha256": "b862f157ebed07b214a4eac96fe7444d749518a4f617271ff515149840102376",
-  "candidate": "a65371e71860b6b02b919d05c3ea95f77802d12acc18fcf3348905c55f26deac",
+  "input_digest": "f8512c90a23bce4c4c4fb5fe71542d3c908b51ca8bd36a5168222fc1def59937",
+  "runtime_sha256": "f8512c90a23bce4c4c4fb5fe71542d3c908b51ca8bd36a5168222fc1def59937",
+  "candidate": "c2bd45e31a4f87137072b3fe8904867a931bad9ec8b910f940efd89c0a1cecf0",
   "tested_artifact": "source-tree",
-  "client_build": "1.60.1.70888 (Interface 16001)",
-  "source_commit": "ffd9eb3d527c638b85a9efa5843828c24820e3a5",
-  "notes": "Recorded on Hel Io in the player's live client from an installed source-tree build of this commit (git archive); --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon. Every other Forever addon's 1.9.0 sync build was loaded in the same session. The only BugGrabber entries this session were the recorder's own over-long /run lines.",
+  "client_build": "1.60.1.70938 (Interface 16001)",
   "flows": [
     {
-      "name": "SkillUp's Thanks entries and Route page on ForeverCore 1.9.0",
+      "name": "The build loads on an enUS client with no Lua errors and its tracker text is unchanged",
       "steps": [
-        "Install the candidate with the store ForeverCore v1.9.0 and /reload",
-        "Print every Forever addon's loaded version into a chat tab with no channels: store ForeverCore v1.9.0 plus each 1.9.0 sync build, all loaded, and BugGrabber shows no addon errors this session",
-        "Run ForeverCore.Credits.Open(\"SkillUp Forever\") and scroll the list to FreakinNerd",
-        "FreakinNerd shows with its fix line",
-        "/cast Cooking, then ForeverCore.ProfessionTabs.Select(\"skillup\")",
-        "The Route page shows its route and reagents widened, with no client recipe list beneath"
+        "Install the PR's shipped files as the SkillUpForever folder (compare: no differing files; extra media/icon-400.png) beside ForeverCore v1.10.0-dev+c75429c and /reload",
+        "Run errors --addon SkillUpForever: no Lua errors found",
+        "Look at the tracker after /reload",
+        "Confirm the Profession reagents section draws as before",
+        "The ruRU separator itself cannot show on an enUS client; the mock render in the PR body shows it with the ruRU font"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-skillup-thanks.png",
-      "sha256": "e5f5c236c95c6feb7935cfad9476e215f26974ec21b23f66aca055ddce4f2aa4"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-skillup-page.png",
-      "sha256": "884d0ecc39ad05cd8f30cf77171ee31345979f3d4901c4ef39d71ec5a3c7df16"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-versions.png",
-      "sha256": "9731b84977a7daf94152f9129b9ea996b4c467006f822f7acc430332fa8f08ec"
+      "url": "https://gist.githubusercontent.com/cjber/94e6834396a64be6d9cbbffc4e931455/raw/c8862d01129c7b07648b6eefaefba9630c54c5e8/ruru-ingame-tracker.png",
+      "sha256": "910b3845bd4b177e5e902cb584dfbda05aebab6063b5eaadf2af61ef45edef88"
     }
   ]
 }

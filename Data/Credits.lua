@@ -4,6 +4,8 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "FreakinNerd", what = "SkillUp's pages no longer draw over the Professions window's own page" },
+		{ name = "nookie909", what = "A route you are shopping for stays put after buying its reagents" },
 		{ name = "Rambomst", what = "Fixed progress-bar fill masking and Auctionator prices after reload" },
 		{ name = "bromidious", what = "Reported the progress-bar overlap fixed in #656" },
 		{ name = "ItachiGrave", what = "Selected recipes show their skill band" },

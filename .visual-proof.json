@@ -1,31 +1,37 @@
 {
-  "input_digest": "798cff5c1fe3bf3cc536e6acd6ba2079f94566f781cf5833e1a2ba554ff2f627",
-  "runtime_sha256": "798cff5c1fe3bf3cc536e6acd6ba2079f94566f781cf5833e1a2ba554ff2f627",
-  "candidate": "830c653e7dc74e85c53c794eed1852bcde6082c252e0d3039a78f6584f7d0471",
+  "input_digest": "b862f157ebed07b214a4eac96fe7444d749518a4f617271ff515149840102376",
+  "runtime_sha256": "b862f157ebed07b214a4eac96fe7444d749518a4f617271ff515149840102376",
+  "candidate": "a65371e71860b6b02b919d05c3ea95f77802d12acc18fcf3348905c55f26deac",
   "tested_artifact": "source-tree",
   "client_build": "1.60.1.70888 (Interface 16001)",
-  "source_commit": "ac78edbab7a6362dda6c0a65e35d464591a291cb",
-  "notes": "Recorded on Hel Io in the player's live client from an installed source-tree build of this commit (git archive); visual_proof --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon media/icon-400.png. Every other Forever addon's ForeverCore 1.8.2 sync build was loaded in the same session. BugGrabber recorded no addon errors (the session's two errors were the recorder's own /run lines calling a missing client API).",
+  "source_commit": "ffd9eb3d527c638b85a9efa5843828c24820e3a5",
+  "notes": "Recorded on Hel Io in the player's live client from an installed source-tree build of this commit (git archive); --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon. Every other Forever addon's 1.9.0 sync build was loaded in the same session. The only BugGrabber entries this session were the recorder's own over-long /run lines.",
   "flows": [
     {
-      "name": "SkillUp's Route page on ForeverCore 1.8.2",
+      "name": "SkillUp's Thanks entries and Route page on ForeverCore 1.9.0",
       "steps": [
-        "Install the candidate with ForeverCore v1.8.2 and /reload",
-        "Print every Forever addon's loaded version into a chat tab with no channels: ForeverCore v1.8.2 plus this candidate, all loaded",
-        "/cast Cooking, then select the SkillUp side tab (ForeverCore.ProfessionTabs.Select)",
-        "The Route page shows widened with its route and reagents and no client recipe list beneath it"
+        "Install the candidate with the store ForeverCore v1.9.0 and /reload",
+        "Print every Forever addon's loaded version into a chat tab with no channels: store ForeverCore v1.9.0 plus each 1.9.0 sync build, all loaded, and BugGrabber shows no addon errors this session",
+        "Run ForeverCore.Credits.Open(\"SkillUp Forever\") and scroll the list to FreakinNerd",
+        "FreakinNerd shows with its fix line",
+        "/cast Cooking, then ForeverCore.ProfessionTabs.Select(\"skillup\")",
+        "The Route page shows its route and reagents widened, with no client recipe list beneath"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/5cd61b138c1e01654d7aadd509568514/raw/82bfd62fbba753c8cc0a35be3f8e1c07fb2ac713/sync182-skillup-page.png",
-      "sha256": "dad0f8e4440a93123bba8f6cbe56002ab7d9780227f2bfdc3813a5c3079cb58e"
+      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-skillup-thanks.png",
+      "sha256": "e5f5c236c95c6feb7935cfad9476e215f26974ec21b23f66aca055ddce4f2aa4"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/5cd61b138c1e01654d7aadd509568514/raw/82bfd62fbba753c8cc0a35be3f8e1c07fb2ac713/sync182-versions.png",
-      "sha256": "0a95af5dcd4392712f85093832d05c14411d76b4099d3b60185209cbdf0e1e1b"
+      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-skillup-page.png",
+      "sha256": "884d0ecc39ad05cd8f30cf77171ee31345979f3d4901c4ef39d71ec5a3c7df16"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-versions.png",
+      "sha256": "9731b84977a7daf94152f9129b9ea996b4c467006f822f7acc430332fa8f08ec"
     }
   ]
 }

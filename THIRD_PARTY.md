@@ -43,6 +43,8 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| [FreakinNerd](https://github.com/FreakinNerd) | SkillUp's pages no longer draw over the Professions window's own page | GitHub; #658, fixed in 1.9.1 (#669) |
+| nookie909 | A route you are shopping for stays put after buying its reagents | CurseForge; #621; thread 8689912 |
 | [Rambomst](https://github.com/Rambomst) | Fixed progress-bar fill masking and Auctionator prices after reload (#655, #656) | |
 | bromidious | Reported the progress-bar overlap fixed in #656 | Discord; #656 |
 | ItachiGrave | Selected recipes show their skill band | CurseForge; #613; thread 8688792 |

@@ -111,6 +111,9 @@ ProfessionsFrame = nil
 
 ---@class SkillUpSchematicForm : Frame
 ---@field Description FontString
+---@field OutputText? FontString
+---@field RequiredTools? FontString
+---@field Reagents? Frame
 ---@field GetRecipeInfo? fun(self: SkillUpSchematicForm): TradeSkillRecipeInfo?
 
 -- Blizzard_AuctionHouseUI's frame; its public SetSearchText fills the search box and queries nothing.

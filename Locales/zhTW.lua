@@ -494,5 +494,5 @@ L["Without Auctionator, a recipe's Search button fills the game's own auction bo
 L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已過期。請更新它來解決此問題。" -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已過期。請更新它們來解決此問題。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 無法啟動。請重新安裝 %s 來解決此問題。" -- mt
-L["SkillUp's pages no longer draw over the Professions window's own page."] =
-	"SkillUp's pages no longer draw over the Professions window's own page." -- mt
+L["The skill band clears the recipe icon and the Reagents header."] =
+	"技能條不再遮住配方圖示和「材料」標題。" -- mt

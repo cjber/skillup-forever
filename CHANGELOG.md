@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.9.5] - 2026-11-13
+
 - **The skill band clears the recipe icon and the Reagents header.** On a recipe with no description, the bar now sits under the recipe's name, to the right of the icon, instead of covering the icon's lower half and running its "You" line into the header. Thanks to Diamondclaw and mimmordino for the report. (#674)
 - **Smelting recipes no longer show `?`.** Smelt Steel, Mithril, Truesilver, Dark Iron and Thorium have a skill range whose grey is its yellow, which SkillUp treated as contradictory and left unknown. They now show the range the game gives them, orange below the value and grey from it. Thanks to soviman1 for the report (#688).
 - **Russian players no longer see an empty box between a recipe's skill, chance and cost.** The Russian client's font has no middle dot, so SkillUp draws that separator with a bullet, and the Russian text that joins a place and its fee or a recipe and where it is learned uses the same. Found from a report by XaksFlaX on GitHub (cjber/shortest-path-forever#838).

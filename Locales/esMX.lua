@@ -504,5 +504,5 @@ L["%s: %s is out of date. Update it to fix this."] = "%s: %s está desactualizad
 L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s están desactualizados. Actualízalos para solucionarlo." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s no pudo iniciarse. Reinstala %s para solucionarlo." -- mt
-L["SkillUp's pages no longer draw over the Professions window's own page."] =
-	"SkillUp's pages no longer draw over the Professions window's own page." -- mt
+L["The skill band clears the recipe icon and the Reagents header."] =
+	"La barra de habilidad deja libres el icono de la receta y el encabezado Componentes." -- mt

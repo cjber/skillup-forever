@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Items in your bags can be used after you hold Shift over them.** Shifting over an item's tooltip made the game refuse to use that item. The tooltip belongs to the game, which redraws it when you move the mouse over the item again, and SkillUp's own lines now follow that instead of forcing the tooltip to rebuild itself. Thanks to Yivry for the report. (#708)
+- **Clicking a step in the route opens its recipe where you can see it.** The recipe was being selected on the game's crafting page while SkillUp's page still covered it, so the click looked like it did nothing. The crafting page now comes forward with that recipe selected. Thanks to luna for the report. (#683)
 - **Russian players no longer see an empty box between a recipe's skill, chance and cost.** The Russian client's font has no middle dot, so SkillUp draws that separator with a bullet, and the Russian text that joins a place and its fee or a recipe and where it is learned uses the same. Found from a report by XaksFlaX on GitHub (cjber/shortest-path-forever#838).
 
 - **Craft values can use regional sales.** Choose Region sale average if higher to value crafted items with TradeSkillMaster and its desktop app. Buying reagents still uses listing prices. Missing sales fall back to the vendor price, and a value with neither source stays unknown. Thanks to _spada (#478).

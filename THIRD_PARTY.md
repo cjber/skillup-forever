@@ -46,6 +46,8 @@ Credit for the reports and requests behind the addon.
 | Diamondclaw | The recipe skill band clears the icon and the Reagents header | CurseForge; #674; thread 8700469 |
 | [mimmordino](https://github.com/mimmordino) | The recipe skill band clears the icon and the Reagents header | GitHub; #685; also CurseForge thread 8702929 |
 | soviman1 | Smelting recipes show their skill range | CurseForge; #688; thread 8703325 |
+| Yivry | Items in your bags can be used after holding Shift over their tooltip | CurseForge; #708; thread 8706489 |
+| luna | A route step opens its recipe on the visible crafting page | Discord; #683 |
 | [FreakinNerd](https://github.com/FreakinNerd) | SkillUp's pages no longer draw over the Professions window's own page | GitHub; #658, fixed in 1.9.1 (#669) |
 | nookie909 | A route you are shopping for stays put after buying its reagents | CurseForge; #621; thread 8689912 |
 | _spada | Asked for completed-sale values when planning profession levels (#478) | Discord |

@@ -1519,6 +1519,10 @@ function ns.ShowRecipe(recipeID, anyProfession)
 	if not (info and info.learned and (anyProfession or selected == ns.OpenSkillLine())) then
 		return
 	end
+	-- Hand the window back first: while SkillUp's side tab is selected the client's crafting page is only alpha
+	-- hidden, so showing it raises no OnShow and its own hand-back never runs. The recipe would then be selected
+	-- behind SkillUp's page, where the player cannot see it (#683).
+	ForeverCore.ProfessionTabs.ShowNative()
 	-- Let the client open its own recipe. Showing the page and selecting the recipe here wrote the recipe
 	-- list's selection and the schematic from addon code, and the craft path reads them: a potion or a
 	-- conversion could then be refused until /reload (#350). C_TradeSkillUI.OpenRecipe hands the same

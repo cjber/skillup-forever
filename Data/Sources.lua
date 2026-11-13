@@ -4,7 +4,7 @@
 -- fishing_loot_template. Which item is a recipe scroll and which spell is a rank: wago.tools SpellEffect,
 -- wow_classic_era 1.15.9.70576; gathering locks: wago.tools Lock, wow_classic_beta 1.60.1.70888.
 -- Neither QuestieDB nor AtlasLoot holds these; all else about a recipe's sources is read from them.
--- scrolls with named drops=191, world drops=198.
+-- scrolls with named drops=192, world drops=198.
 -- limited vendor rows=798.
 ---@type string, SkillUpNamespace
 local _, ns = ...
@@ -54,6 +54,7 @@ ns.ScrollDrops = {
 	[11611] = { { 10043, 9.24 }, { 9554, 7.76 } },
 	[11612] = { { 9543, 34 } },
 	[11813] = { { 9025, 15 } },
+	[11827] = { { 6229, 2 } },
 	[11828] = { { 7800, 15 } },
 	[12261] = { { 667, 0.02 }, { 740, 0.02 }, { 2377, 0.02 } },
 	[12698] = { { 6109, 3.75 }, { 11502, 3.75 }, { 12397, 3.75 } },
@@ -457,6 +458,7 @@ ns.GatheredBy = {
 	[3819] = 182,
 	[3820] = 182,
 	[3821] = 182,
+	[3857] = 356,
 	[3858] = 186,
 	[4232] = 393,
 	[4234] = 393,
@@ -481,11 +483,13 @@ ns.GatheredBy = {
 	[7287] = 393,
 	[7392] = 393,
 	[7428] = 393,
+	[7911] = 186,
 	[7912] = 186,
 	[8153] = 182,
 	[8154] = 393,
 	[8165] = 393,
 	[8167] = 393,
+	[8169] = 393,
 	[8170] = 393,
 	[8171] = 393,
 	[8365] = 356,
@@ -497,6 +501,7 @@ ns.GatheredBy = {
 	[8845] = 182,
 	[8846] = 182,
 	[10620] = 186,
+	[11370] = 186,
 	[12365] = 186,
 	[12607] = 393,
 	[13422] = 356,
@@ -570,6 +575,7 @@ ns.LootedFrom = {
 	[3712] = true,
 	[3730] = true,
 	[3731] = true,
+	[3857] = true,
 	[4096] = true,
 	[4306] = true,
 	[4337] = true,

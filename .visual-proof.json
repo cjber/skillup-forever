@@ -1,10 +1,10 @@
 {
-  "input_digest": "6ac524f83a49c31204a05c1bc627767284ac50b5cc92fd31c772fa96d61e3395",
-  "runtime_sha256": "6ac524f83a49c31204a05c1bc627767284ac50b5cc92fd31c772fa96d61e3395",
-  "candidate": "8ae01a2da4e7966c24340b0836b5443e2dcb6d34941680ebd0ed1d9c1b008da2",
+  "input_digest": "91774d2ad3bdc2b1076ee70218d393d0430daa24d3f1d534471a8a49be11f36f",
+  "runtime_sha256": "91774d2ad3bdc2b1076ee70218d393d0430daa24d3f1d534471a8a49be11f36f",
+  "candidate": "b8099d47124363b3785ac09b7009eff0892939690a83531dc149e2ebc109cf93",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "1cd36b2b03ec5b27a023c31eb7ea0046989bbb27",
+  "source_commit": "3730239861a2e46f9fd3e5ee6c7ae0a2325ffc2f",
   "flows": [
     {
       "name": "skill-ups",
@@ -16,8 +16,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/6888a8540004971e47c5dd344dd2118b/raw/6513e86c2b217138e9491009ec92666297ea8536/1-skill-ups.png",
-      "sha256": "78fa9983d867e1d47b967db25507a35e4ac14551594688767f254129e63528bd"
+      "url": "https://gist.githubusercontent.com/cjber/6a2660a132b30bb13a967e5e5febc2cf/raw/c76a5450ed7a43e45d04390f9c35060bbf225140/1-skill-ups.png",
+      "sha256": "2d042e287c02d4ae2b76ee5d6c6501b5c93187bbf2d7091aa37d15e0d2816104"
     }
   ]
 }

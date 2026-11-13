@@ -1,13 +1,13 @@
 {
-  "input_digest": "0d71351256da83051c2f41f9ead2e312265af136d48cc01b985a9870def9fc21",
-  "runtime_sha256": "0d71351256da83051c2f41f9ead2e312265af136d48cc01b985a9870def9fc21",
-  "candidate": "a9c0c28d2b5da8ec5ce8fd72771f5a6c20dd775f9cff6fc07c06a96cde246077",
+  "input_digest": "91774d2ad3bdc2b1076ee70218d393d0430daa24d3f1d534471a8a49be11f36f",
+  "runtime_sha256": "91774d2ad3bdc2b1076ee70218d393d0430daa24d3f1d534471a8a49be11f36f",
+  "candidate": "b8099d47124363b3785ac09b7009eff0892939690a83531dc149e2ebc109cf93",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "08c6c57f5540cd30eafacf1361b7814bcdec65c5",
+  "source_commit": "3730239861a2e46f9fd3e5ee6c7ae0a2325ffc2f",
   "flows": [
     {
-      "name": "skillup",
+      "name": "skill-ups",
       "steps": [
         "/skillup"
       ],
@@ -16,8 +16,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/188613f191f5939712d023beab519327/raw/28f2dcdf1ec6257dad53285e18e2b1d6e60a962e/1-skillup.png",
-      "sha256": "762f5b0713778b42a6fd6781e0e836f3421c33479880bf04d314f824c8ddcf05"
+      "url": "https://gist.githubusercontent.com/cjber/6a2660a132b30bb13a967e5e5febc2cf/raw/c76a5450ed7a43e45d04390f9c35060bbf225140/1-skill-ups.png",
+      "sha256": "2d042e287c02d4ae2b76ee5d6c6501b5c93187bbf2d7091aa37d15e0d2816104"
     }
   ]
 }

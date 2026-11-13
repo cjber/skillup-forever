@@ -76,12 +76,11 @@ class ThresholdSourceTest(unittest.TestCase):
             "TrivialSkillLineRankHigh": str(grey),
         }
 
-    def emit(self, rows, classic=(), scrolls=None):
+    def emit(self, rows, classic=(), scrolls=None, effects=None):
         classic = gen_thresholds.ability_values([self.row(*values) for values in classic])
         spells = {int(row["Spell"]) for row in rows}
-        emitted, _, sources = gen_thresholds.generate(
-            rows, {}, {164}, {}, {spell: {24} for spell in spells}, classic, scrolls or {}
-        )
+        effects = effects or {spell: {24} for spell in spells}
+        emitted, _, sources = gen_thresholds.generate(rows, {}, {164}, {}, effects, classic, scrolls or {})
         return emitted, sources
 
     # Issue #107: Forever moved these ranges 25 points down and left Classic's minimum on them.
@@ -143,6 +142,25 @@ class ThresholdSourceTest(unittest.TestCase):
         self.assertEqual(emitted[7], (40, 50, 75, 100))
         self.assertEqual(emitted[8], (50, 70, 85, 100))
         self.assertEqual(sources, {})
+
+    # Issue #688: Smelt Steel, Mithril, Truesilver, Dark Iron and Thorium have grey equal to yellow in the client
+    # data. That is a range with no yellow or green band, not a contradiction.
+    def test_grey_equal_to_yellow_keeps_its_range(self):
+        emitted, _ = self.emit([self.row(10097, 1, 175, 175)])
+        self.assertEqual(emitted[10097], (1, 175, 175, 175))
+
+    def test_grey_below_yellow_is_still_skipped(self):
+        emitted, _ = self.emit([self.row(10097, 1, 175, 170)])
+        self.assertEqual(emitted, {})
+
+    def test_a_skill_line_ability_with_no_range_is_skipped(self):
+        emitted, _ = self.emit([self.row(2018, 1, 0, 0)])
+        self.assertEqual(emitted, {})
+
+    def test_an_equal_range_that_is_not_a_recipe_is_skipped(self):
+        # Engineering's 1/1 profession ability sets the skill line; it is not craftable.
+        emitted, _ = self.emit([self.row(1235244, 1, 1, 1)], effects={1235244: {95, 118}})
+        self.assertEqual(emitted, {})
 
     def test_shifts_only_ranges_that_moved_together(self):
         classic = gen_thresholds.ability_values(
@@ -219,14 +237,15 @@ class GeneratedThresholdsTest(unittest.TestCase):
         for spell in (28461, 1250775):
             self.assertIn(f"\t[{spell}] =", content)
 
-    # Model.Get answers nil for a row that is not ordered, and the recipe shows "?".
+    # Model.Get answers nil for a row that is not ordered, and the recipe shows "?". Equal yellow, green and grey
+    # are a real range with no yellow or green band (#688), so green may equal grey.
     def test_every_bundled_row_is_ordered(self):
         content = (gen_thresholds.OUTPUT).read_text(encoding="utf-8")
         rows = re.findall(r"^\t\[(\d+)\] = \{ (\d+), (\d+), (\d+), (\d+) \},", content, re.MULTILINE)
         self.assertGreater(len(rows), 1000)
         for spell, *values in rows:
             orange, yellow, green, grey = map(int, values)
-            self.assertTrue(1 <= orange <= yellow <= green < grey, f"{spell}: {values}")
+            self.assertTrue(1 <= orange <= yellow <= green <= grey, f"{spell}: {values}")
 
 
 if __name__ == "__main__":

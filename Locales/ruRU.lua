@@ -214,7 +214,7 @@ L["Route and trainer"] = "Маршрут и учитель"
 L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
 	"Маршрут неполный: пропущено рецептов: %d, у их реагентов еще нет цен."
 L["Route needs"] = "Нужно маршруту"
-L["Route: %d/%d · %s to %d"] = "Маршрут: %d/%d · %s до %d"
+L["Route: %d/%d · %s to %d"] = "Маршрут: %d/%d • %s до %d"
 L["Sales"] = "Продажа"
 L["Scales the shared Forever tracker. 100% matches the game's own tracker."] =
 	"Меняет размер общей панели отслеживания Forever. 100% – как панель отслеживания игры."
@@ -387,6 +387,7 @@ L["  %d items have no price yet"] = "  %d предметов пока без ц�
 L["%d x %s - %s each"] = "%d x %s - %s за штуку"
 L["%d x %s - price unknown"] = "%d x %s - цена неизвестна"
 L["%s to %d"] = "%s до %d"
+L[" · "] = " • "
 L[", "] = ", "
 L[", price seen %d days ago"] = ", цена замечена %d дн. назад"
 L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
@@ -444,7 +445,7 @@ L["crafted"] = "создано" -- mt
 L["List unlearned recipes"] = "Показывать неизученные рецепты"
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
 	"Добавляет неизученные рецепты открытой профессии под разделителем «Не изучено», серым и с пометкой учителя или рецепта и требуемого навыка. Их нельзя выбрать или изготовить."
-L["Not learned · %s"] = "Не изучено · %s"
+L["Not learned · %s"] = "Не изучено • %s"
 L["Trainer"] = "Учитель"
 L["Recipe item"] = "Рецепт"
 L["listing unlearned recipes failed: %s"] =
@@ -532,5 +533,5 @@ L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s устарели. Обновите их, чтобы это исправить." -- mt
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s не удалось запустить. Переустановите %s, чтобы это исправить." -- mt
-L["SkillUp's pages no longer draw over the Professions window's own page."] =
-	"SkillUp's pages no longer draw over the Professions window's own page." -- mt
+L["The skill band clears the recipe icon and the Reagents header."] =
+	"Полоса навыка больше не закрывает значок рецепта и заголовок «Реагенты»." -- mt

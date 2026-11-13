@@ -961,7 +961,7 @@ function ProfessionTabs.SetMinWidth(key, width)
 	end
 	professionEntry.spec.minWidth = width
 end
-ProfessionTabs.minor = 1
+ProfessionTabs.minor = 2
 
 env.ForeverCore = {
 	API = 1,

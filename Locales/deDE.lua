@@ -365,6 +365,7 @@ L["  %d items have no price yet"] = "  %d Gegenstände haben noch keinen Preis"
 L["%d x %s - %s each"] = "%d x %s - je %s"
 L["%d x %s - price unknown"] = "%d x %s - Preis unbekannt"
 L["%s to %d"] = "%s bis %d"
+L[" · "] = " · "
 L[", "] = ", "
 L[", price seen %d days ago"] = ", Preis vor %d Tagen gesehen"
 L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
@@ -498,5 +499,5 @@ L["%s: %s is out of date. Update it to fix this."] = "%s: %s ist nicht aktuell. 
 L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s sind nicht aktuell. Aktualisiert sie, um das zu beheben." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s konnte nicht starten. Installiert %s neu, um das zu beheben." -- mt
-L["SkillUp's pages no longer draw over the Professions window's own page."] =
-	"SkillUp's pages no longer draw over the Professions window's own page." -- mt
+L["The skill band clears the recipe icon and the Reagents header."] =
+	"Der Fertigkeitsbalken lässt das Rezeptsymbol und die Überschrift „Reagenzien“ frei." -- mt

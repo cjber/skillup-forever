@@ -4,6 +4,11 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "Diamondclaw", what = "The recipe skill band clears the icon and the Reagents header" },
+		{ name = "mimmordino", what = "The recipe skill band clears the icon and the Reagents header" },
+		{ name = "soviman1", what = "Smelting recipes show their skill range" },
+		{ name = "FreakinNerd", what = "SkillUp's pages no longer draw over the Professions window's own page" },
+		{ name = "nookie909", what = "A route you are shopping for stays put after buying its reagents" },
 		{ name = "vladdoubrov", what = "Held sub-craft reagents are used from the bags before crafting more" },
 		{ name = "Rambomst", what = "Fixed progress-bar fill masking and Auctionator prices after reload" },
 		{ name = "bromidious", what = "Reported the progress-bar overlap fixed in #656" },

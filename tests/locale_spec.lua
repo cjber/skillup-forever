@@ -169,6 +169,14 @@ for line in Read("SkillUpForever.toc"):gmatch("[^\r\n]+") do
 				equal(ok, true, path .. ": " .. key .. " formats (" .. tostring(result) .. ")")
 			end
 		end
+		-- The ruRU client's font has no middle dot (U+00B7), so no Russian value draws one: a bullet carries the
+		-- separator between a recipe's skill, chance and cost instead (#692).
+		if locale == "ruRU" then
+			equal(stub.L[" · "], " • ", path .. " draws the separator with a bullet")
+			for key, text in pairs(stub.L) do
+				equal(text:find("\194\183", 1, true), nil, path .. ": " .. key .. " keeps no middle dot")
+			end
+		end
 		equal(count > 0, true, path .. " translates something")
 	end
 end

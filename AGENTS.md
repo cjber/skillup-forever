@@ -9,7 +9,7 @@ alone. Players install the zip the BigWigs packager builds on a `v*` tag, and th
 ## Commands
 
 ```sh
-python3 tools/doctor.py   # first on a new machine: every tool pin below, with a fix for each problem
+python3 tools/doctor.py   # first on a new machine: every pin in tools/toolchain.json and tools/pyproject.toml, and its fix
 export FOREVER_CORE=~/forever-core   # or the checkout of tools/forever-core.txt's ref, beside this one
 stylua --check .
 ruff format --check tools && ruff check tools
@@ -30,7 +30,10 @@ CI's `package` job builds the zip with the release's packager without uploading 
 THIRD_PARTY.md ship with README's `## Credits` and THIRD_PARTY's `## Players` (WFA-10, WFA-31), and the
 specs pass on the packaged files.
 
-The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and history.
+The same gate CI runs, plus actionlint, zizmor and gitleaks on the workflows and history. Every CI job installs its
+tools through `cjber/forever-core`'s shared `toolchain` action, which reads this repository's `tools/toolchain.json`
+and verifies each pin; the Python tools are the dev group in `tools/pyproject.toml`, resolved by `tools/uv.lock` and
+run with `uv run --project tools --frozen --group dev`. A version lives in those files alone, never in a workflow.
 `.github/workflows/speedpatrol.yml` times `tests/bench.lua` on every pull request against its base branch and fails on
 a regression (`.speedpatrol/instructions.md`).
 Every version needs a `CHANGELOG.md` entry (prose, bold-lead bullets) before its `v*` tag: the release
@@ -84,7 +87,8 @@ publishes it as the notes.
 - Host globals go in `.luacheckrc`; LuaLS gets WoW APIs from the pinned Ketho annotations.
   Add missing Forever/integration APIs with real types in `types/`, never `diagnostics.globals`.
 - Every TOC file, including generated data, stays in the LuaLS and multi-value gates.
-  Run `tools/typecheck.sh` with LuaLS 3.19.1; it fetches the pinned API annotations on first use.
+  Run `tools/typecheck.sh`; LuaLS is the version `tools/toolchain.json` pins, and the script fetches the pinned API
+  annotations on first use.
   Parenthesize scalar `select(...)` in last call/table/return positions; intentional expansion
   needs a trailing `-- multi-value: <reason>`.
 - Commits are signed (`git commit -S`) with the personal email.

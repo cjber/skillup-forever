@@ -10,12 +10,12 @@ from pathlib import Path
 from forever_tools import wago
 
 USER_AGENT = "SkillUpForever/1.0"
-BUILD = "1.60.1.70888"
+BUILD = "1.60.1.70938"
 # The Classic Era build Forever's thresholds are compared with: where Forever moved a recipe's yellow and
 # grey but kept Classic's minimum, the minimum is stale. gen_trainer.py reads its teaching spells too.
 TEACH_BUILD = "1.15.9.70576"
 # Date this source snapshot was selected, not the date of each regeneration.
-SOURCE_DATE = "2026-11-11"
+SOURCE_DATE = "2026-11-13"
 # SpellEffect.Effect codes the generators read.
 DUMMY = 3
 TELEPORT_UNITS = 5
@@ -26,6 +26,10 @@ TRANS_DOOR = 50  # summons an object: a campfire
 ENCHANT_ITEM = 53  # a permanent enchant
 SKILL = 118  # sets a skill line's rank: base points 0-3 raise the cap to 75-300
 SKILL_STEP = 44  # the same for Apprentice and Journeyman on Forever, which uses SKILL for Expert and Artisan
+# A recipe makes an item, enchants one, or summons a campfire. An equal-bounds row is a recipe only with one of
+# these: a profession ability (SKILL/SKILL_STEP or a tracking aura) and a row with no effect can share its 1/1 or
+# 315/315 shape without being craftable.
+RECIPE_EFFECTS = frozenset({CREATE_ITEM, ENCHANT_ITEM, TRANS_DOOR})
 # Each rank raises a profession's cap by this much. Classic Era's integer EffectBasePoints holds the tier less
 # one; Forever's export has only EffectBasePointsF, which holds the tier itself (1-4).
 RANK_SKILL = 75
@@ -258,18 +262,23 @@ def generate(ability_rows, skills, selected, names, effects, classic=None, scrol
             orange = int(row["MinSkillLineRank"])
             yellow = int(row["TrivialSkillLineRankLow"])
             grey = int(row["TrivialSkillLineRankHigh"])
-            if spell <= 0 or min(orange, yellow, grey) < 0:
+            if spell <= 0 or orange < 0 or yellow <= 0 or grey <= 0:
                 raise ValueError
         except (ValueError, TypeError):
             counts["skip:missing/invalid data"] += 1
             continue
-        if grey <= yellow:
-            counts["skip:grey<=yellow"] += 1
+        # Yellow and grey equal is a range with no yellow or green band: orange below the value, grey from it.
+        # Only a grey below yellow is contradictory.
+        if grey < yellow:
+            counts["skip:grey<yellow"] += 1
             continue
         # Mining's open-lock gathering abilities have thresholds but are not
         # crafting recipes. Do not emit them as smelting recipes.
         if effects.get(spell) == {OPEN_LOCK}:
             counts["skip:gathering ability"] += 1
+            continue
+        if grey == yellow and not (effects.get(spell, frozenset()) & RECIPE_EFFECTS):
+            counts["skip:not a recipe"] += 1
             continue
         if spell in retired:
             counts["skip:retired"] += 1

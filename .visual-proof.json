@@ -1,37 +1,30 @@
 {
-  "input_digest": "b862f157ebed07b214a4eac96fe7444d749518a4f617271ff515149840102376",
-  "runtime_sha256": "b862f157ebed07b214a4eac96fe7444d749518a4f617271ff515149840102376",
-  "candidate": "a65371e71860b6b02b919d05c3ea95f77802d12acc18fcf3348905c55f26deac",
+  "input_digest": "463d3810365ed6a519f76a76383ce529cb912b8dd5861f064c94004750060812",
+  "runtime_sha256": "463d3810365ed6a519f76a76383ce529cb912b8dd5861f064c94004750060812",
+  "candidate": "4fad2c55947a03dd2562bdac11c3d4152a21a2ed4d747c19e193a581ed0c2959",
   "tested_artifact": "source-tree",
-  "client_build": "1.60.1.70888 (Interface 16001)",
-  "source_commit": "ffd9eb3d527c638b85a9efa5843828c24820e3a5",
-  "notes": "Recorded on Hel Io in the player's live client from an installed source-tree build of this commit (git archive); --compare reported no missing or differing runtime files, the install additionally carries the ignored store icon. Every other Forever addon's 1.9.0 sync build was loaded in the same session. The only BugGrabber entries this session were the recorder's own over-long /run lines.",
+  "client_build": "1.60.1.70938 (Interface 16001)",
+  "source_commit": "068fc8f2403cdcd6564a29b4951d066c81468493",
+  "notes": "Recorded on Hel Io in the headless client from a source-tree build of this commit (forever_client.py build-dev) linked into AddOns, with the store ForeverCore v1.10.0 and the Adventure Guide, SkillUp, Tweaks, Legacy, Commissions, Macro Assist and Field Guide 1.10.0 sync builds loaded in the same session. BugGrabber recorded no errors this session; the errors listed in the report window are earlier sessions' history.",
   "flows": [
     {
-      "name": "SkillUp's Thanks entries and Route page on ForeverCore 1.9.0",
+      "name": "SkillUp Forever on ForeverCore 1.10.0",
       "steps": [
-        "Install the candidate with the store ForeverCore v1.9.0 and /reload",
-        "Print every Forever addon's loaded version into a chat tab with no channels: store ForeverCore v1.9.0 plus each 1.9.0 sync build, all loaded, and BugGrabber shows no addon errors this session",
-        "Run ForeverCore.Credits.Open(\"SkillUp Forever\") and scroll the list to FreakinNerd",
-        "FreakinNerd shows with its fix line",
-        "/cast Cooking, then ForeverCore.ProfessionTabs.Select(\"skillup\")",
-        "The Route page shows its route and reagents widened, with no client recipe list beneath"
+        "Link the candidate build with the store ForeverCore v1.10.0 and /reload",
+        "Print every Forever addon's loaded version: ForeverCore v1.10.0 and each sync build loaded, 0 BugGrabber errors this session",
+        "Run /skillup report: the addon's report window opens on this build"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-skillup-thanks.png",
-      "sha256": "e5f5c236c95c6feb7935cfad9476e215f26974ec21b23f66aca055ddce4f2aa4"
+      "url": "https://gist.githubusercontent.com/cjber/61e1d759a57ff98eb48b76f8121cf66a/raw/718803a62abd194c61351b6c32771bdb92df9555/sync110-skillup-report.png",
+      "sha256": "c5867075837e312d3ac2c7101ab779169517581a51e19301d04160d57f55e7ec"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-skillup-page.png",
-      "sha256": "884d0ecc39ad05cd8f30cf77171ee31345979f3d4901c4ef39d71ec5a3c7df16"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/627a1b4cf36d973bb26ba262c81eb601/raw/67bd0b623f26040eed9f66dd363a477dbb684579/sync190-versions.png",
-      "sha256": "9731b84977a7daf94152f9129b9ea996b4c467006f822f7acc430332fa8f08ec"
+      "url": "https://gist.githubusercontent.com/cjber/61e1d759a57ff98eb48b76f8121cf66a/raw/718803a62abd194c61351b6c32771bdb92df9555/sync110-versions-2.png",
+      "sha256": "9de2c6ed2ee42e7f4730c6e69322e9e834e7e2f29dbf9ccb7da79fcaa568c5e0"
     }
   ]
 }

@@ -223,11 +223,11 @@ ProfessionsFrame.ProfessionsOverviewTab:SetSize(43, 55)
 ProfessionsFrame.rightProfessionTabs = {}
 
 -- ForeverCore.ProfessionTabs, as the client's own side tab works: one register, its page shown and hidden, and a
--- selection callback after the page shows.
+-- selection callback after the page shows. Its minor is 2, the version Core/Require.lua asks for.
 local coreTab
 local coreEntry
 local coreSelected
-local Core = {}
+local Core = { minor = 2 }
 function Core.Register(key, spec)
 	coreEntry = { key = key, spec = spec }
 	coreTab = CreateFrame("Button", nil, ProfessionsFrame, "LargeSideTabButtonTemplate")

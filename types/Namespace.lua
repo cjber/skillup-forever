@@ -140,6 +140,8 @@
 ---@field LayoutSkillBar fun(bar: SkillUpBar, t: number[], skill: number): SkillUpBar
 ---@field DetailsBar fun(t: number[]?, skill: number?): number[]?, number? the details pane's bar: thresholds and skill, nil without either
 ---@field DetailsBarRecipe fun(info: TradeSkillRecipeInfo?): integer? the recipe the details bar draws
+---@field DetailsBarAnchor fun(form: SkillUpSchematicForm): FontString? the pane's frame the bar sits under
+---@field DetailsBarRoom fun(form: SkillUpSchematicForm, anchor: FontString, height: number): boolean? whether the pane leaves the bar its room, nil before it is laid out
 ---@field AuctionatorAutoscan fun(): boolean?
 ---@field AuctionListName fun(profession: string): string?
 ---@field AuctionListNote fun(names: string[]?): string what the Shopping list and the Search tooltip say about the list
@@ -250,7 +252,7 @@
 ---@field recipeTooltip 'window'|'cursor'|'row'
 ---@field rowCost 'skillup'|'craft'
 ---@field showCost boolean
----@field craftValue 'none'|'vendor'|'auction'
+---@field craftValue 'none'|'vendor'|'auction'|'sale'
 ---@field valueGathered boolean
 ---@field auctionOnly boolean
 ---@field sortMode 'blizzard'|'skill'|'newest'|'chance'|'cost'
@@ -297,6 +299,7 @@
 
 ---@class SkillUpDB : SkillUpDefaults, ForeverFamilyDB
 ---@field trackerHost? ForeverTrackerLegacySettings the addon's old tracker table, offered to Forever Core once
+---@field auctionListSignatures? table<string, string> The need SkillUp last wrote for each Auctionator list name
 ---@field showReagentTooltip? boolean Legacy migration only.
 ---@field priceDays? table Legacy migration only.
 ---@field latestPrice? number Legacy migration only.
@@ -470,9 +473,13 @@ SkillUpForeverDB = nil
 ---@field worth? 'auction'|'vendor' Gathered reagents valued at what they sell for: which price that is.
 ---@field unknown? boolean With Buy reagents on, no auction price yet: a gatherable nothing has priced, or a market good a vendor also sells.
 
+--- Where a craft's value came from: the vendor's sell price, an auction listing, or TradeSkillMaster's regional
+--- sale average. "sale" is the region's average sale and purchase price, never this character's own sales.
+---@alias SkillUpValueSource 'vendor'|'auction'|'sale'
+
 ---@class SkillUpValue
 ---@field copper number
----@field source 'vendor'|'auction'
+---@field source SkillUpValueSource
 ---@field quantity number
 
 ---@class SkillUpDescription

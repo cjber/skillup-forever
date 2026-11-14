@@ -16,7 +16,47 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **The first auction house visit prices only what is still unpriced.** One Auctionator search covers the tracked route's reagents with no price at all, then the route updates with the results. A price already seen is left alone, so a visit never repeats a search for it. (#561)
 
+## [1.10.1] - 2026-11-14
+
+- **SkillUp no longer fills Auctionator with shopping lists.** Each tracked profession's list is written only when Auctionator's copy no longer holds what the route still needs, so a login or reload leaves the Shopping tab where you left it. A route with nothing left to buy gets no list at all, and a list you delete stays deleted until the route's needs change. Thanks to fusionley (#714).
+
+## [1.10.0] - 2026-11-14
+
+<!-- discord-image: docs/screenshots/route.png -->
+
 - **Held reagents are used before a sub-craft is planned.** A route no longer asks you to craft an intermediate the bags already hold, or to buy the raw reagents for it; when the bags hold only some, the sub-craft covers just the shortfall. Thanks to vladdoubrov (#667).
+- **Items in your bags can be used after you hold Shift over them.** Shifting over an item's tooltip made the game refuse to use that item. The tooltip belongs to the game, which redraws it when you move the mouse over the item again, and SkillUp's own lines now follow that instead of forcing the tooltip to rebuild itself. Thanks to Yivry for the report. (#708)
+- **Clicking a step in the route opens its recipe where you can see it.** The recipe was being selected on the game's crafting page while SkillUp's page still covered it, so the click looked like it did nothing. The crafting page now comes forward with that recipe selected. Thanks to luna for the report. (#683)
+- **Russian players no longer see an empty box between a recipe's skill, chance and cost.** The Russian client's font has no middle dot, so SkillUp draws that separator with a bullet, and the Russian text that joins a place and its fee or a recipe and where it is learned uses the same. Found from a report by XaksFlaX on GitHub (cjber/shortest-path-forever#838).
+- **Craft values can use regional sales.** Choose Region sale average if higher to value crafted items with TradeSkillMaster and its desktop app. Buying reagents still uses listing prices. Missing sales fall back to the vendor price, and a value with neither source stays unknown. Thanks to _spada (#478).
+- **Search also filters unlearned recipes.** Typing in the Professions search box narrows the unlearned list, and clearing it brings the recipes back. Thanks to kopuliak (#662).
+- **The recipe tooltip keeps its skill bar when you skill up.** Crafting with the cursor on a recipe could leave its tooltip with an empty gap where the skill bar was: another tooltip cleared after the craft, such as an item tooltip refreshed when the crafted item reached your bags, hid the bar too. Now only the recipe tooltip's own redraw hides it. Thanks to SanyaBane (#649).
+- **A route with no progress draws an empty bar, and reagent counts stay readable.** A skill band at the start of its range no longer fills its track, and a reagent's have/need count is no longer hidden under its fill. Thanks to bromidious for reporting route progress bars overflowing their track (#665).
+
+## [1.9.5] - 2026-11-13
+
+- **The skill band clears the recipe icon and the Reagents header.** On a recipe with no description, the bar now sits under the recipe's name, to the right of the icon, instead of covering the icon's lower half and running its "You" line into the header. Thanks to Diamondclaw and mimmordino for the report. (#674)
+- **Smelting recipes no longer show `?`.** Smelt Steel, Mithril, Truesilver, Dark Iron and Thorium have a skill range whose grey is its yellow, which SkillUp treated as contradictory and left unknown. They now show the range the game gives them, orange below the value and grey from it. Thanks to soviman1 for the report (#688).
+
+## [1.9.4] - 2026-11-12
+
+<!-- forever-core-sync -->
+
+- The Thanks page includes two more reporters: thanks to FreakinNerd for reporting that SkillUp's pages drew over the Professions window's own page, and to nookie909 for reporting that a route changed after buying its reagents. Both fixes shipped previously; this update adds their missing credits (#679).
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [1.9.3] - 2026-11-12
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+## [1.9.2] - 2026-11-12
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+- An older ForeverCore can no longer put the client's page back under SkillUp's: if another addon brings a ForeverCore from before 1.8.1, SkillUp stops and says it needs updating instead of drawing its pages over the Professions window's own page. (#658)
 
 ## [1.9.1] - 2026-11-12
 

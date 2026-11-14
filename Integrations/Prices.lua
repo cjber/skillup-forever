@@ -97,6 +97,27 @@ local function AuctionPrice(itemID)
 	return AuctionatorPrice(itemID) or TradeSkillMasterPrice(itemID)
 end
 
+-- TradeSkillMaster's regional sale average, from the sale and purchase accounting its desktop app collects in the
+-- player's region. It is not a listing and not this character's own sales. TSM records an auction sale net of the
+-- auction house cut (bid less the cut over the quantity, Ledger/Mail.lua), while purchases record the bid. The
+-- combined average has no documented gross-price normalization, so use it as reported without another cut.
+-- A zero, absent or invalid answer is unknown:
+-- TSM itself answers nil for a value it has none of.
+local TSM_SALE = "DBRegionSaleAvg"
+
+---@param itemID integer
+---@return number?
+local function TradeSkillMasterSale(itemID)
+	if not ns.HasTradeSkillMaster() then
+		return nil
+	end
+	local ok, value = pcall(TSM_API.GetCustomPriceValue, TSM_SALE, "i:" .. itemID)
+	if not (ok and type(value) == "number" and value == value and value > 0 and value < math.huge) then
+		return nil
+	end
+	return value
+end
+
 local itemInfoPending = false
 
 -- Live vendor sell price wins, including zero. Bundled prices cover uncached
@@ -570,26 +591,33 @@ local function ReagentCost(reagents)
 	return total
 end
 
--- What one crafted item is worth under the craft value setting, and where that came from.
+-- What one crafted item is worth under the craft value setting, and where that came from: the higher of the
+-- vendor's guaranteed price and the market value the chosen source gives it. A listing is worth what it leaves
+-- after the auction house's cut; the reported regional sale average is counted unchanged as an estimate.
 ---@param sell number?
----@param auction number?
+---@param market number?
+---@param source 'auction'|'sale'?
 ---@return number?
----@return 'vendor'|'auction'|nil
-local function ItemValue(sell, auction)
+---@return 'vendor'|'auction'|'sale'|nil
+local function ItemValue(sell, market, source)
 	local mode = ns.db.craftValue
 	if mode == "none" then
 		return nil
 	end
 	local vendor = sell and sell > 0 and sell or nil
-	local resale = mode == "auction" and auction and auction * (1 - AUCTION_CUT) or nil
+	local resale = market
+	if resale and source == "auction" then
+		resale = resale * (1 - AUCTION_CUT)
+	end
 	if resale and (not vendor or resale > vendor) then
-		return resale, "auction"
+		return resale, source
 	end
 	return vendor, vendor and "vendor" or nil
 end
 
 -- What one craft sells for: { copper, source, quantity }, or nil when it counts for nothing. The
--- second result is true when that is only because the sell price isn't known (yet).
+-- second result is true when that is only because no price is known (yet). The sale mode asks only for the
+-- regional sale average, never for a listing: a missing sale falls back to the vendor, or stays unknown.
 ---@param recipeID integer
 ---@return SkillUpValue?
 ---@return boolean?
@@ -599,11 +627,24 @@ local function CraftValue(recipeID)
 	if not output then
 		return nil
 	end
-	local ah = AuctionPrice(output.itemID)
+	local mode = ns.db.craftValue
+	if mode == "none" then
+		return nil
+	end
 	local sell = SellPrice(output.itemID)
-	local each, source = ItemValue(sell, ah and ah.copper)
+	---@type number?
+	local market = nil
+	---@type 'auction'|'sale'?
+	local marketSource = nil
+	if mode == "auction" then
+		local ah = AuctionPrice(output.itemID)
+		market, marketSource = ah and ah.copper, "auction"
+	elseif mode == "sale" then
+		market, marketSource = TradeSkillMasterSale(output.itemID), "sale"
+	end
+	local each, source = ItemValue(sell, market, marketSource)
 	if not (each and source) then
-		return nil, sell == nil and ns.db.craftValue ~= "none"
+		return nil, not (sell or market)
 	end
 	return { copper = each * output.quantity, source = source, quantity = output.quantity }
 end

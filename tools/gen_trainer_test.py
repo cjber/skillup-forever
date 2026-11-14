@@ -78,7 +78,7 @@ class RequirementTests(unittest.TestCase):
         text = (ROOT / "Data" / "Trainer.lua").read_text(encoding="utf-8")
         for recipe, most in SEEN_REQUIREMENTS.items():
             row = re.search(rf"\n\t\[{recipe}\] = {{ \d+, (\d+) }},", text)
-            self.assertIsNotNone(row, recipe)
+            assert row is not None, recipe
             self.assertTrue(1 <= int(row.group(1)) <= most, recipe)
 
     # Issue #124: a Leatherworking trainer showed Gray Leather Boots at 35, where the rule gave 75 (classic-db 100).

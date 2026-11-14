@@ -604,14 +604,17 @@ local function RenderRoute(list, plan)
 	end
 	if #plan.crafts > 0 and plan.unpriced > 0 then
 		list:Message(
-			string.format(L["Route incomplete: %d recipes left out, their reagents not priced yet."], plan.unpriced)
+			string.format(
+				L["Route incomplete: %d recipes left out because their costs or sale values are unknown."],
+				plan.unpriced
+			)
 		)
 	end
 	local notice = ns.RouteNotice(plan)
 	if notice then
 		list:Message(
 			string.format(
-				L["This route is mostly %s: %d recipes are left out until their reagents are priced."],
+				L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."],
 				ItemName(notice.itemID),
 				notice.recipes
 			),
@@ -1263,7 +1266,7 @@ local function CreateHeader()
 				GameTooltip_AddNormalLine(
 					GameTooltip,
 					string.format(
-						L["Route incomplete: %d recipes left out, their reagents not priced yet."],
+						L["Route incomplete: %d recipes left out because their costs or sale values are unknown."],
 						self.unpriced
 					)
 				)
@@ -1528,6 +1531,10 @@ function ns.ShowRecipe(recipeID, anyProfession)
 	if not (info and info.learned and (anyProfession or selected == ns.OpenSkillLine())) then
 		return
 	end
+	-- Hand the window back first: while SkillUp's side tab is selected the client's crafting page is only alpha
+	-- hidden, so showing it raises no OnShow and its own hand-back never runs. The recipe would then be selected
+	-- behind SkillUp's page, where the player cannot see it (#683).
+	ForeverCore.ProfessionTabs.ShowNative()
 	-- Let the client open its own recipe. Showing the page and selecting the recipe here wrote the recipe
 	-- list's selection and the schematic from addon code, and the craft path reads them: a potion or a
 	-- conversion could then be refused until /reload (#350). C_TradeSkillUI.OpenRecipe hands the same

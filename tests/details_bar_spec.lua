@@ -131,6 +131,29 @@ equal(math.abs(made.marker.points[1][4] - BAR_FILL_WIDTH) < 0.001, true, "past g
 local create = G.CreateFrame
 local details
 description.text = "Craft a Basic Campfire."
+-- The pane's own frames around the bar, in the pane's coordinates (y grows upwards): the recipe icon, the
+-- recipe's name and its optional tool line in the icon's column, and the reagent header beneath them.
+local function paneFrame()
+	local child = create("Frame", nil, nil)
+	child.shown = true
+	return child
+end
+local outputText = paneFrame()
+outputText.left, outputText.top, outputText.height = 89, 600, 14
+local tools = paneFrame()
+tools.left, tools.top, tools.height = 89, 588, 12
+tools.shown = false
+local reagents = paneFrame()
+reagents.left, reagents.top, reagents.height = 27, 520, 20
+local form = {
+	Description = description,
+	OutputText = outputText,
+	RequiredTools = tools,
+	Reagents = reagents,
+	GetRecipeInfo = function()
+		return higher
+	end,
+}
 G.CreateFrame = function(...)
 	local result = create(...)
 	if not details then
@@ -140,25 +163,72 @@ G.CreateFrame = function(...)
 end
 G.ProfessionsFrame = {
 	CraftingPage = {
-		SchematicForm = {
-			Description = description,
-			GetRecipeInfo = function()
-				return higher
-			end,
-		},
+		SchematicForm = form,
 	},
 }
+local function selectRecipe()
+	for _, callback in ipairs(c.callbacks["ProfessionsRecipeListMixin.Event.OnRecipeSelected"]) do
+		callback.callback(callback.owner, higher)
+	end
+end
 ns.AttachDetailsBar()
 equal(details:IsShown(), false, "a native recipe description suppresses the overlapping details container")
+equal(
+	details:GetHeight(),
+	details.bar:GetHeight(),
+	"the container is the bar's own height, so it measures what it draws"
+)
+
+-- With no description the bar sits under the recipe's name, in the name's own column: the client's frame is
+-- the anchor, so it clears the icon and moves with the pane (#674). The old fixed TOPLEFT on the card overlapped
+-- the icon's lower half and ran the "You" line into the reagents header.
 description.text = ""
-for _, callback in ipairs(c.callbacks["ProfessionsRecipeListMixin.Event.OnRecipeSelected"]) do
-	callback.callback(callback.owner, higher)
-end
+selectRecipe()
 equal(details:IsShown(), true, "an empty native description restores the details container")
-description.text = "Craft a Basic Campfire."
-for _, callback in ipairs(c.callbacks["ProfessionsRecipeListMixin.Event.OnRecipeSelected"]) do
-	callback.callback(callback.owner, higher)
+local anchorPoint = details.points[1]
+equal(anchorPoint[1], "TOPLEFT", "the bar is anchored by its top left")
+equal(anchorPoint[2], outputText, "under the recipe's own name")
+equal(anchorPoint[3], "BOTTOMLEFT", "at the name's bottom left")
+equal(anchorPoint[4], 0, "in the name's column")
+equal(anchorPoint[5], -2, "one small gap under it")
+equal(ns.DetailsBarAnchor(form), outputText, "the name is the anchor when the recipe needs no tool")
+equal(
+	ns.DetailsBarRoom(form, outputText, details.bar:GetHeight()),
+	true,
+	"the pane leaves room above the reagent header"
+)
+
+-- A recipe that requires a tool has the client's line drawn under the name; the bar goes under that instead.
+tools.shown = true
+selectRecipe()
+equal(ns.DetailsBarAnchor(form), tools, "the tool line is the anchor when the recipe has one")
+equal(details.points[1][2], tools, "and the bar is anchored under it")
+equal(details:IsShown(), true, "with room left above the reagent header")
+tools.shown = false
+
+-- A pane that leaves no room keeps the bar hidden rather than covering the header.
+reagents.top = 570
+selectRecipe()
+equal(ns.DetailsBarRoom(form, outputText, details.bar:GetHeight()), false, "no room above the header")
+equal(details:IsShown(), false, "so the bar stays hidden instead of running into it")
+reagents.top = 520
+selectRecipe()
+equal(details:IsShown(), true, "and comes back when the pane leaves room again")
+
+-- The client lays the pane out after the recipe is picked: an unmeasured pane is not a reason to hide the bar.
+outputText.GetBottom = function()
+	return nil
 end
+equal(ns.DetailsBarRoom(form, outputText, details.bar:GetHeight()), nil, "an unlaid pane has no measurement")
+selectRecipe()
+equal(details:IsShown(), true, "so the bar draws where it belongs until the pane can be measured")
+outputText.GetBottom = nil
+selectRecipe()
+equal(ns.DetailsBarRoom(form, outputText, details.bar:GetHeight()), true, "the laid out pane measures again")
+equal(details:IsShown(), true, "and the bar stays under the name")
+
+description.text = "Craft a Basic Campfire."
+selectRecipe()
 equal(details:IsShown(), false, "a repopulated native description suppresses the details container again")
 
 Client.report("details_bar_spec")

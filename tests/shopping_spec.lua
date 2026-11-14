@@ -7,23 +7,65 @@ local function noop() end
 
 local BANDAGE, HEAVY, SILK = 1, 2, 3
 local BOOK = 5000
-local c = Client.load({
-	saved = { routeTargets = { [129] = 80 }, trackedProfessions = { [129] = true } },
-	-- First Aid in miniature: a known bandage, a better one to train at 40, and Journeyman from 50.
-	data = {
+local FIRST_AID = 129
+
+-- First Aid in miniature: a known bandage, a better one to train at 40, and Journeyman from 50. A fresh copy for
+-- each client, so a spec that changes one leaves the next as it was.
+local function Fixture()
+	return {
 		Thresholds = { [BANDAGE] = { 1, 30, 45, 60 }, [HEAVY] = { 40, 50, 75, 100 } },
 		RecipeData = {
-			[BANDAGE] = { skillLine = 129, reagents = { { itemID = SILK, quantity = 1 } } },
-			[HEAVY] = { skillLine = 129, reagents = { { itemID = SILK, quantity = 2 } } },
+			[BANDAGE] = { skillLine = FIRST_AID, reagents = { { itemID = SILK, quantity = 1 } } },
+			[HEAVY] = { skillLine = FIRST_AID, reagents = { { itemID = SILK, quantity = 2 } } },
 		},
 		TrainerFees = { [HEAVY] = { 100, 40 } },
-		TrainerRanks = { [129] = { { 150, 500, 50, 0 } } },
+		TrainerRanks = { [FIRST_AID] = { { 150, 500, 50, 0 } } },
 		ItemSellPrices = {},
 		GatheredBy = {},
 		VendorPrices = {},
 		ProfessionTrainers = {},
-	},
+	}
+end
+
+-- Auctionator's list API as its v1 ShoppingLists.lua behaves: GetShoppingListItems hands back a copy of the search
+-- strings a list holds and raises for a name no list has (ComposeError), and CreateShoppingList replaces a
+-- same-named list. The writes are counted, so a spec can say Auctionator was never asked to create one.
+local function AuctionatorLists(client)
+	local api = client.G.Auctionator.API.v1
+	local lists = client.shoppingLists
+	client.listWrites = 0
+	local create = api.CreateShoppingList
+	api.CreateShoppingList = function(caller, name, searches)
+		client.listWrites = client.listWrites + 1
+		return create(caller, name, searches)
+	end
+	api.GetShoppingListItems = function(caller, name)
+		if type(caller) ~= "string" or caller == "" then
+			error("Invalid callerID. Use the name of your add-on.")
+		end
+		local list = lists[name]
+		if not list then
+			error(
+				"Contact the maintainer of "
+					.. caller
+					.. " to resolve this problem. Details: List does not exist: "
+					.. tostring(name)
+			)
+		end
+		local held = {}
+		for index, search in ipairs(list) do
+			held[index] = search
+		end
+		return held
+	end
+	return api
+end
+
+local c = Client.load({
+	saved = { routeTargets = { [FIRST_AID] = 80 }, trackedProfessions = { [FIRST_AID] = true } },
+	data = Fixture(),
 })
+AuctionatorLists(c)
 local ns = c.ns
 ns.SetCollectMode("gather")
 local module = c.G.SkillUpForeverObjectiveTracker
@@ -302,6 +344,89 @@ equal(
 	"another character cannot rewrite the first list"
 )
 c.player.name = "Tester"
+
+-- A client tracking First Aid with its one reagent still to buy, for Auctionator's list cases (#714).
+local function AuctionClient(saved)
+	local client = Client.load({
+		saved = saved or { routeTargets = { [FIRST_AID] = 80 }, trackedProfessions = { [FIRST_AID] = true } },
+		data = Fixture(),
+	})
+	client.level = 20
+	client.spells[HEAVY] = "Heavy Linen Bandage"
+	client.items[SILK] = { name = "Linen Cloth" }
+	client.known[BANDAGE] = true
+	client.auction[SILK] = 10
+	client.professions = { { name = "First Aid", rank = 40, max = 75, id = FIRST_AID } }
+	AuctionatorLists(client)
+	return client
+end
+
+-- The searches the route's one reagent needs, as Auctionator's ConvertToSearchString writes them.
+local function RouteSearches(client)
+	local item = client.ns.TrackedNeeds()[1].items[1]
+	return { string.format("Linen Clothx%d", item.need - client.ns.Have(item.itemID)) }
+end
+
+-- #714: a login or reload leaves Auctionator's Shopping tab alone when the list already holds what the route
+-- needs: the list is read, found to match, and not written again.
+local matched = AuctionClient()
+local matchedName = matched.ns.AuctionListName("First Aid")
+matched.shoppingLists[matchedName] = RouteSearches(matched)
+matched.EnterWorld()
+matched.Advance(0)
+equal(matched.listWrites, 0, "a list that already holds the route's need is not written again")
+equal(#matched.shoppingLists[matchedName], 1, "and is left as it is")
+
+-- #714: a route with nothing left to buy never creates a list, and one that is there is emptied once.
+local covered = AuctionClient()
+local coveredName = covered.ns.AuctionListName("First Aid")
+covered.bags[SILK] = covered.ns.TrackedNeeds()[1].items[1].need
+covered.EnterWorld()
+covered.Advance(0)
+equal(covered.listWrites, 0, "a route with nothing left to buy asks Auctionator for no list")
+equal(covered.shoppingLists[coveredName], nil, "and none is made")
+
+local emptied = AuctionClient()
+local emptiedName = emptied.ns.AuctionListName("First Aid")
+emptied.shoppingLists[emptiedName] = { "Linen Clothx5" }
+emptied.bags[SILK] = emptied.ns.TrackedNeeds()[1].items[1].need
+emptied.EnterWorld()
+emptied.Advance(0)
+equal(emptied.listWrites, 1, "a list that is there is emptied")
+equal(#emptied.shoppingLists[emptiedName], 0, "leaving no searches")
+emptied.Fire("BAG_UPDATE_DELAYED")
+emptied.Advance(0)
+equal(emptied.listWrites, 1, "and only once")
+
+-- #714: a list the player deleted stays deleted across a login while the route's need has not moved, and comes
+-- back once it does.
+local firstRun = AuctionClient()
+local deletedName = firstRun.ns.AuctionListName("First Aid")
+firstRun.EnterWorld()
+firstRun.Advance(0)
+equal(firstRun.listWrites, 1, "the first visit writes the list the route needs")
+local written = (firstRun.ns.db.auctionListSignatures or {})[deletedName]
+equal(type(written), "string", "and saves what the route needed when it wrote it")
+firstRun.shoppingLists[deletedName] = nil
+
+local reloaded = AuctionClient({
+	routeTargets = { [FIRST_AID] = 80 },
+	trackedProfessions = { [FIRST_AID] = true },
+	auctionListSignatures = { [deletedName] = written },
+})
+reloaded.EnterWorld()
+reloaded.Advance(0)
+equal(reloaded.listWrites, 0, "a deleted list is not recreated while the need is unchanged")
+equal(reloaded.shoppingLists[deletedName], nil, "so it stays deleted")
+reloaded.bags[SILK] = reloaded.ns.TrackedNeeds()[1].items[1].need - 1
+reloaded.Fire("BAG_UPDATE_DELAYED")
+reloaded.Advance(0)
+equal(reloaded.listWrites, 1, "and comes back once the route needs something else")
+equal(
+	reloaded.shoppingLists[deletedName] and reloaded.shoppingLists[deletedName][1],
+	"Linen Clothx1",
+	"with the new need"
+)
 
 -- Disabling automatic list maintenance does not disable an explicit Search button query.
 c.ns.db.auctionSearch = false

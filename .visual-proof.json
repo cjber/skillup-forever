@@ -1,31 +1,23 @@
 {
-  "input_digest": "c24ef3530839a02a8798bcb04eca386b6ccd6de2039745f28f892d9b665ff7e4",
-  "runtime_sha256": "c24ef3530839a02a8798bcb04eca386b6ccd6de2039745f28f892d9b665ff7e4",
-  "candidate": "57301cc635fe168e06048128a6cbdbad4a61bdc80a7b1e595ef67b2fef49ced7",
-  "tested_artifact": "release-package",
-  "client_build": "1.60.1.70888 (Interface 16001)",
+  "input_digest": "13b32280e4576d7359962eab7f5b4084e563a87e2815799af0df0899c53420a2",
+  "runtime_sha256": "13b32280e4576d7359962eab7f5b4084e563a87e2815799af0df0899c53420a2",
+  "candidate": "b9a7a6ce9ebb58e61f22aaafc333816baf1c6ff72aac573dee18dc1b44276a81",
+  "client_build": "1.60.1.70938 (Interface 16001)",
+  "tested_artifact": "source-tree",
+  "source_commit": "cdd94b82154c2c5f66c4558d712aba2a48572d49",
   "flows": [
     {
-      "name": "SkillUp page hides the client's profession page",
+      "name": "skillup",
       "steps": [
-        "Install the packaged 1.9.1 candidate bundling ForeverCore v1.8.0 and reload",
-        "Open Cooking",
-        "Click the SkillUp side tab",
-        "Confirm the Route page shows with no client recipe list or recipe details beneath it",
-        "Click the Cooking side tab",
-        "Confirm the client's own Cooking page shows again at its own width"
+        "/skillup"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/c7a053a57644fb5ed589457676d2a2e8d9ba8618/skill658-skillup-page-57301cc.png",
-      "sha256": "de7a80d4470929ea9409d9ee7300afeb04ccbfb59ee4aef76658a02719dbd27e"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/328823e9708f8e8ea7847dc01bd53905/raw/c7a053a57644fb5ed589457676d2a2e8d9ba8618/skill658-native-page-57301cc.png",
-      "sha256": "10a6e14141179c61dfac18e9b54ce0ba5fc59f3f61267559677618622bc68000"
+      "url": "https://gist.githubusercontent.com/cjber/5e66b378cdba706271319f6f23c6a23f/raw/9fc157f0267896789b0a890345abb4b4e4095c11/1-skillup.png",
+      "sha256": "f32810c81779c4206d5466400b9824197395dd2b6f195fc4daa9c926f199783b"
     }
   ]
 }

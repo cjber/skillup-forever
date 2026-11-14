@@ -78,7 +78,8 @@ local function OutputItem(recipeID)
 	return recipe and recipe.output and recipe.output.itemID or nil
 end
 
--- "Name, Zone · fee", or the fallback when there is no NPC to name.
+-- "Name, Zone · fee", or the fallback when there is no NPC to name. The separator is the locale's: a font
+-- without a middle dot draws its own (Locales/ruRU.lua, #692).
 ---@param npcID integer?
 ---@param fallback string
 ---@param copper number?
@@ -90,7 +91,7 @@ local function Detail(npcID, fallback, copper)
 		text = where.name .. ", " .. where.label
 	end
 	if copper and copper > 0 then
-		text = text .. " · " .. Money(copper)
+		text = text .. L[" · "] .. Money(copper)
 	end
 	return text
 end

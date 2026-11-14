@@ -98,10 +98,23 @@ equal(Read("Locales/phrases.txt"), phrases, "Locales/phrases.txt is python3 tool
 assert(loadfile("Locales/phrases.txt"), "the translation template is valid Lua")
 
 -- CurseForge's localization export is gone: the packager fails a release on any keyword asking for it.
-local keyword = "@local" .. "ization"
-pipe = assert(io.popen("git grep -n -F -e '" .. keyword .. "' -- ."))
-equal(pipe:read("*a"), "", "no " .. keyword .. " keyword in the tree")
-pipe:close()
+local scan = assert(io.popen([[python3 - <<'PYSCAN'
+from pathlib import Path
+from tools.forever_tools.pkgmeta import localization_toc_files
+from tools.forever_tools.visual_proof import packaged_runtime_files
+root = Path.cwd()
+files = {p for p in packaged_runtime_files(root).values() if p.suffix == ".lua"}
+files.update(localization_toc_files(root))
+for path in sorted(files):
+    if "@" + "localization" in path.read_text(encoding="utf-8-sig"):
+        print(path.relative_to(root))
+print("scan-ok")
+PYSCAN
+]]))
+local hits = scan:read("*a")
+scan:close()
+-- LuaJIT 5.1 does not expose a failed pipe status; require Python to finish the scan.
+assert(hits == "scan-ok\n", "packaged localization scan failed or found a forbidden keyword:\n" .. hits)
 
 -- Untranslated phrases fall back to the English key.
 local ns = {}
@@ -167,6 +180,14 @@ for line in Read("SkillUpForever.toc"):gmatch("[^\r\n]+") do
 			if #args > 0 or key:find("%%%%") then
 				local ok, result = pcall(Format, text, args)
 				equal(ok, true, path .. ": " .. key .. " formats (" .. tostring(result) .. ")")
+			end
+		end
+		-- The ruRU client's font has no middle dot (U+00B7), so no Russian value draws one: a bullet carries the
+		-- separator between a recipe's skill, chance and cost instead (#692).
+		if locale == "ruRU" then
+			equal(stub.L[" · "], " • ", path .. " draws the separator with a bullet")
+			for key, text in pairs(stub.L) do
+				equal(text:find("\194\183", 1, true), nil, path .. ": " .. key .. " keeps no middle dot")
 			end
 		end
 		equal(count > 0, true, path .. " translates something")

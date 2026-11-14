@@ -113,6 +113,11 @@ end
 -- The one bar a tooltip has, made the first time it needs it and kept afterwards.
 ---@type SkillUpBar?
 local bar
+-- The tooltip the bar was last put into. Item tooltips hook their clearing too, so only this one's clear may hide
+-- the bar: another tooltip cleared after the recipe tooltip was drawn (a bag item refreshed or scanned after a
+-- craft) hid the bar and left its blank lines behind.
+---@type GameTooltip?
+local barTooltip
 
 -- The tooltips whose clearing has been hooked, so the bar hides and the lines kept for a tooltip are dropped.
 ---@type table<GameTooltip, true>
@@ -135,15 +140,17 @@ local drawn = {}
 -- with one of these.
 local bags = 0
 
--- Cleared for anything else, the tooltip no longer has the bar's blank lines or the lines kept for it.
+-- Cleared for anything else, the tooltip no longer has the lines kept for it, nor the bar's blank lines if the bar
+-- is in it.
 ---@param tooltip GameTooltip
 local function Cleared(tooltip)
 	if not ns.Usable(tooltip) then
 		return
 	end
 	drawn[tooltip] = nil
-	if bar then
+	if bar and tooltip == barTooltip then
 		bar:Hide()
+		barTooltip = nil
 	end
 end
 
@@ -177,6 +184,7 @@ local function AddBar(tooltip, after, t, skill)
 	frame:SetPoint("TOPLEFT", _G[tooltip:GetName() .. "TextLeft" .. (after + 1)], "TOPLEFT", 0, -BAR_PADDING)
 	tooltip:SetMinimumWidth(BAR_WIDTH)
 	frame:Show()
+	barTooltip = tooltip
 	HookCleared(tooltip)
 end
 
@@ -318,7 +326,9 @@ local function AddCost(tooltip, recipeID, d)
 			string.format(
 				"%s |cff808080(%s)|r",
 				Money(d.value.copper),
-				d.value.source == "auction" and L["AH"] or L["vendor"]
+				d.value.source == "auction" and L["AH"]
+					or d.value.source == "sale" and L["Region sale average"]
+					or L["vendor"]
 			),
 			1,
 			0.82,
@@ -814,17 +824,10 @@ local function AddUses(tooltip, data)
 	}
 end
 
--- Shift changes what an item tooltip shows, so redraw the one on screen.
----@param key string
-local function OnModifierChanged(_, _, key)
-	if (key == "LSHIFT" or key == "RSHIFT") and ns.db.reagentTooltip == "route" and GameTooltip:IsShown() then
-		-- Read through ns.Readable first, as AddUses does: a secret id errors even on its truth test.
-		local itemID = ns.Readable((select(3, GameTooltip:GetItem())))
-		if itemID and GameTooltip.RefreshData then
-			GameTooltip:RefreshData()
-		end
-	end
-end
+-- Shift changes what an item tooltip shows, but only the client may redraw its own tooltip: a RefreshData from
+-- here wrote the tooltip's refresh state as ours and the game then refused to use a bag's item (#708). Our lines
+-- are added below the client's and cannot be taken back in place, so they follow the next tooltip the client
+-- itself sets, which reads IsShiftKeyDown then.
 
 -- Gathering (#122): the skill a herb or ore node asks, found by the name on its tooltip, and a gatherable
 -- corpse's. Both are coloured from your live skill with Classic's gathering bands (Model.GatherThresholds).
@@ -935,7 +938,4 @@ function ns.AttachItemTooltips()
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, AddUses)
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Object, AddNodeSkill)
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, AddCorpseSkill)
-	local events = CreateFrame("Frame")
-	events:RegisterEvent("MODIFIER_STATE_CHANGED")
-	events:SetScript("OnEvent", OnModifierChanged)
 end

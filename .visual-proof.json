@@ -1,23 +1,23 @@
 {
-  "input_digest": "13b32280e4576d7359962eab7f5b4084e563a87e2815799af0df0899c53420a2",
-  "runtime_sha256": "13b32280e4576d7359962eab7f5b4084e563a87e2815799af0df0899c53420a2",
-  "candidate": "b9a7a6ce9ebb58e61f22aaafc333816baf1c6ff72aac573dee18dc1b44276a81",
+  "input_digest": "8375ea36189877993a77f48a63ec459afdb39935a9bb63685a210ad43c6a7b4f",
+  "runtime_sha256": "8375ea36189877993a77f48a63ec459afdb39935a9bb63685a210ad43c6a7b4f",
+  "candidate": "d53bb7cb3d0a9bb84b76afa64e8628e8e565a79c3e2465982b066995c4bdee10",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "cdd94b82154c2c5f66c4558d712aba2a48572d49",
+  "source_commit": "713f0d58bdc9d384953e69a79b23b71b498eb10a",
   "flows": [
     {
-      "name": "skillup",
+      "name": "shopping list with spares",
       "steps": [
-        "/skillup"
+        "/skillup shop"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/5e66b378cdba706271319f6f23c6a23f/raw/9fc157f0267896789b0a890345abb4b4e4095c11/1-skillup.png",
-      "sha256": "f32810c81779c4206d5466400b9824197395dd2b6f195fc4daa9c926f199783b"
+      "url": "https://gist.githubusercontent.com/cjber/3eb8278cebc092dceec63b962e2ec85d/raw/f5c88d47643cb25ba2f9774ffb7d98b866e18d68/1-shopping-list-with-spares.png",
+      "sha256": "bd98ebed68df022efa4ae0d2e8591506683767f0c15f3d0bf344c69c4afd6127"
     }
   ]
 }

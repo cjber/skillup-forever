@@ -67,7 +67,8 @@ class ThresholdSourceTest(unittest.TestCase):
         )
         self.assertEqual(emitted[9985], (1, 155, 170, 185))
 
-    def row(self, spell, orange, yellow, grey, skill_line="164"):
+    @staticmethod
+    def row(spell, orange, yellow, grey, skill_line="164"):
         return {
             "SkillLine": skill_line,
             "Spell": str(spell),
@@ -219,7 +220,7 @@ class RetiredRecipeTest(unittest.TestCase):
             gen_thresholds.check_retired(self.RETIRED, {1226206}, [], set(), [], [], [])
 
     def test_a_retired_recipe_is_not_emitted(self):
-        rows = [ThresholdSourceTest.row(None, spell, 1, 260, 280) for spell in (1226206, 3001)]
+        rows = [ThresholdSourceTest.row(spell, 1, 260, 280) for spell in (1226206, 3001)]
         effects = {1226206: {24}, 3001: {24}}
         emitted, coverage, _ = gen_thresholds.generate(rows, {}, {164}, {}, effects, retired={1226206})
         self.assertEqual(set(emitted), {3001})

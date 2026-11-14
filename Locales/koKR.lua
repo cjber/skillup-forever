@@ -512,8 +512,8 @@ L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s을(를) 시작할 수 없습니다. 문제를 해결하려면 %s을(를) 다시 설치하세요." -- mt
-L["The skill band clears the recipe icon and the Reagents header."] =
-	"숙련도 막대가 제조법 아이콘과 '재료' 머리글을 가리지 않습니다." -- mt
+L["Held reagents are used before a sub-craft is planned."] =
+	"가진 재료를 먼저 사용한 뒤 중간 제작물을 계획합니다." -- mt
 L["Region sale average"] = "지역 평균 판매가"
 L["Region sale average if higher"] = "더 높으면 지역 평균 판매가"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =

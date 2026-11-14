@@ -12,6 +12,7 @@ The SkillUp side tab on the Professions window opens the SkillUp page you used l
 - A step asks for enough crafts to reach its target in nine runs out of ten, worked out from the chance at each skill point on the way, not from the average. An orange recipe is unchanged; a yellow or green one carries its risk in its price, so the route leans on it less. A recipe that costs money prices every craft at its net, so what its products sell for lowers the whole step, not only the first craft. A free or profitable recipe's extra crafts a falling chance needs are priced at its reagents, so a near-grey recipe does not hold the route into grey. In choosing, each craft also costs a little for its time, so a stretch where the chance falls to 1 in 30 loses to a recipe with a better chance even when its reagents are free.
 - Recipes a trainer teaches are included when they pay for themselves or you pin them, shown as a *Train* step with its fee. The fee is counted once, and never before the trainer would teach them.
 - Recipes with an unpriced reagent are left out and counted.
+- Reagents your bags already hold are used before a sub-craft is planned: an intermediate you hold is not crafted, its raw reagents are not bought, and one you hold only partly plans just the shortfall.
 - Recipes you said *Not this recipe* to are left out (see below).
 
 ### It stays put

@@ -952,8 +952,9 @@ Drain()
 equal(LastListItem().detail, "vendor", "a skill change redraws the plan's reagents")
 equal(LastListItem().sourceIcon, "reagents", "and the vendor row names its source with the vendor icon")
 
--- With Auctionator's scan-on-open option known to be off, the page says where to turn it on; with
--- the option unread, it says nothing.
+-- With SkillUp's own reagent search off and Auctionator's scan-on-open option known to be off, the page says
+-- where to turn the latter on; with the option unread it says nothing.
+page.db.auctionSearch = false
 page.auctionAutoscan = false
 lists[2].messages = {}
 eventFrame:Event("BAG_UPDATE_DELAYED")
@@ -972,6 +973,18 @@ equal(
 	table.concat(lists[2].messages, " | "):find("Auctionator's scan", 1, true),
 	nil,
 	"an unread scan option says nothing"
+)
+-- With SkillUp's own search on, it prices the route at the auction house, so it never sends the player to
+-- Auctionator's options.
+page.db.auctionSearch = true
+page.auctionAutoscan = false
+lists[2].messages = {}
+eventFrame:Event("BAG_UPDATE_DELAYED")
+Drain()
+equal(
+	table.concat(lists[2].messages, " | "):find("Auctionator's scan", 1, true),
+	nil,
+	"SkillUp's own search makes Auctionator's scan option irrelevant"
 )
 
 -- The reagent list names the Auctionator shopping list it keeps up to date.
@@ -1375,6 +1388,7 @@ equal(BandRow(4).kind, "line", "which is one compact line")
 equal(BandRow(5).current, false, "and later crafts are not the current step")
 
 -- The page names the latest auction source and flags old prices.
+local savedPrice = page.Price
 page.Price = function()
 	return { copper = 10, source = "auctionator" }
 end
@@ -1399,6 +1413,18 @@ equal(
 	true,
 	"an old price asks for a rescan"
 )
+-- #561: a price the auction house has not seen is an unknown, and the route says it may change after a scan.
+page.Price = function()
+	return { copper = 0, source = "auction", unknown = true }
+end
+routeTab:Click()
+Drain()
+equal(
+	table.concat(lists[2].messages, " | "):find("Some prices are unknown: this route may change", 1, true) ~= nil,
+	true,
+	"an unknown price says the route may change after a scan"
+)
+page.Price = savedPrice
 
 -- A rank's book you already have (#121): the step only asks for it to be read, and neither the row,
 -- the total nor the tooltip sends you to buy it again (api_spec covers where a click goes).

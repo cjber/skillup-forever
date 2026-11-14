@@ -138,8 +138,10 @@ function ns.SearchReagents(recipeID, count)
 	return "game", item
 end
 
--- Price the tracked routes once per visit. Vendor fallbacks remain candidates: an auction may be cheaper.
--- Auctionator reports whole days, so zero is its current observation and anything older needs a refresh.
+-- Price the tracked routes once per visit. Only reagents with no price at all are searched: a vendor fallback is
+-- a price unknown with Buy reagents on, while a price the auction house has already seen is left alone until the
+-- route's own stale-price note asks for a rescan (#561). Auctionator's public MultiSearch starts the browse query
+-- itself, with no hardware click; it only needs the auction house open, which this event gives us.
 local visit = 0
 local visitSearched = false
 
@@ -160,9 +162,8 @@ local function PriceRoute()
 	local short = {}
 	for itemID, needed in pairs(needs) do
 		local missing = needed - ns.Have(itemID)
-		local price = api.GetAuctionPriceByItemID(CALLER, itemID)
-		local age = api.GetAuctionAgeByItemID and api.GetAuctionAgeByItemID(CALLER, itemID)
-		if missing > 0 and (price == nil or age == nil or age > 0) then
+		local price = ns.Price(itemID)
+		if missing > 0 and (not price or price.unknown) then
 			short[#short + 1] = { itemID = itemID, count = missing }
 		end
 	end

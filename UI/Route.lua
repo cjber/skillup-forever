@@ -195,7 +195,12 @@ local function CraftTooltip(tooltip, profession, craft)
 	AddToolLines(tooltip, recipeID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	AddReagentLines(tooltip, recipeID, craft.crafts)
-	AddLine(tooltip, L["Cost"], Money(ns.StepCost(recipeID, craft.crafts)))
+	local stepCost = ns.StepCost(recipeID, craft.crafts)
+	if stepCost then
+		AddLine(tooltip, L["Cost"], Money(stepCost))
+	else
+		GameTooltip_AddDisabledLine(tooltip, L["price unknown"])
+	end
 	if ns.IsLearned(recipeID) and profession.skillLine == ns.OpenSkillLine() then
 		GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
 	end
@@ -570,7 +575,8 @@ local function RenderRoute(list, plan)
 				menu = RecipeMenu(training.recipeID),
 			})
 		elseif craft then
-			local money = Money(ns.StepCost(craft.recipeID, craft.crafts))
+			local stepCost = ns.StepCost(craft.recipeID, craft.crafts)
+			local money = stepCost and Money(stepCost) or L["price unknown"]
 			local current = craft == currentCraft
 			list:Add({
 				icon = RecipeIcon(craft.recipeID),
@@ -730,14 +736,17 @@ local function RenderReagents(list, reagents)
 	end
 end
 
--- Identify the auction source and flag prices that need a fresh scan.
+-- Identify the auction source, flag prices that need a fresh scan, and say when a price is still unknown (#561).
 ---@param reagents SkillUpNeededItem[]
 ---@return string
 ---@return ColorMixin
 local function AuctionPriceStatus(reagents)
-	local found, stale, tsm
+	local found, stale, tsm, unknown
 	for _, item in ipairs(reagents) do
 		local price = ns.Price(item.itemID)
+		if not price or price.unknown then
+			unknown = true
+		end
 		tsm = tsm or (price and price.source == "tsm")
 		if price and price.source == "auctionator" then
 			found = true
@@ -746,6 +755,9 @@ local function AuctionPriceStatus(reagents)
 				stale = true
 			end
 		end
+	end
+	if unknown then
+		return L["Some prices are unknown: this route may change after an auction house scan."], ns.COLORS.orange
 	end
 	if not found then
 		return tsm and L["Latest TradeSkillMaster prices."] or "", GRAY_FONT_COLOR
@@ -761,7 +773,7 @@ end
 local function NeedsAuctionScan(reagents)
 	for _, item in ipairs(reagents) do
 		local price = ns.Price(item.itemID)
-		if not price then
+		if not price or price.unknown then
 			return true
 		end
 		if price.source == "auctionator" then
@@ -774,12 +786,12 @@ local function NeedsAuctionScan(reagents)
 	return false
 end
 
--- Auctionator can refresh its own prices when the auction house opens. With that option off, say
--- where to turn it on; silent when the option cannot be read.
+-- With SkillUp's own reagent search off, Auctionator's scan when the auction house opens is the remaining way to
+-- price a route. Say where to turn it on; silent when the option cannot be read.
 ---@param reagents SkillUpNeededItem[]
 ---@return string?
 local function AutoscanNote(reagents)
-	if not NeedsAuctionScan(reagents) or ns.AuctionatorAutoscan() ~= false then
+	if ns.db.auctionSearch ~= false or not NeedsAuctionScan(reagents) or ns.AuctionatorAutoscan() ~= false then
 		return nil
 	end
 	return L["Auctionator's scan when the auction house opens is off: turn it on in Auctionator, Basic Options."]

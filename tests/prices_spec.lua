@@ -4,11 +4,18 @@ local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local DAY = 86400
+local MARKET_LOOT, VENDOR_ONLY, CRAFTED = 60, 61, 62
 local DATA = {
-	VendorPrices = { [2] = 40 },
+	VendorPrices = { [2] = 40, [MARKET_LOOT] = 25, [VENDOR_ONLY] = 5, [CRAFTED] = 30 },
 	GatheredBy = {},
+	LootedFrom = { [MARKET_LOOT] = true },
 	RecipeData = {
 		[10] = { skillLine = 164, reagents = { { itemID = 1, quantity = 2 } }, output = { itemID = 7, quantity = 1 } },
+		[20] = {
+			skillLine = 164,
+			reagents = { { itemID = VENDOR_ONLY, quantity = 1 } },
+			output = { itemID = CRAFTED, quantity = 1 },
+		},
 	},
 }
 local c = Client.load({ data = DATA })
@@ -127,6 +134,25 @@ equal(m.ns.Price(1).copper, 800, "the latest price returns with the API")
 ns = Client.load({ data = DATA, auctionator = false }).ns
 equal(ns.Price(1), nil, "without Auctionator an auction-only reagent has no price")
 equal(ns.Price(2).source, "vendor", "without Auctionator the bundled vendor price is used")
+
+-- #561: with Buy reagents on, a vendor price is only a fallback for a market good. Without an auction price it
+-- is a price unknown, kept as the fallback the plan uses and never added to a total as if it were the market.
+local market = Client.load({ data = DATA }).ns
+equal(market.CollectMode(), "auction", "a new character buys reagents")
+local marketPrice = market.Price(MARKET_LOOT)
+equal(marketPrice.unknown, true, "a looted reagent no auction house has priced is unknown")
+equal(marketPrice.source, "auction", "so it goes with the auction house")
+equal(marketPrice.copper, 25, "the vendor price stays as the fallback the plan uses")
+equal(market.PriceSource(MARKET_LOOT), "auction", "the route and shopping list put it at the auction house")
+equal(market.PriceSourceText(marketPrice), "price unknown", "and say the price is unknown")
+equal(market.HasUnknownPrice(MARKET_LOOT), true, "a step that uses it has no known total")
+local vendorOnly = market.Price(VENDOR_ONLY)
+equal(vendorOnly.source, "vendor", "a reagent only a vendor sells keeps its vendor price")
+equal(vendorOnly.unknown, nil, "and is not called unknown")
+equal(market.HasUnknownPrice(VENDOR_ONLY), false, "so its step money is known")
+local crafted = market.Price(CRAFTED)
+equal(crafted.source, "auction", "a craftable market good with only a vendor price is unknown too")
+equal(crafted.unknown, true, "with no auction price yet")
 
 -- A creature's drop is gathered by anyone: no profession needed, and the price says it is loot.
 local LOOTED, FISH = 10, 20

@@ -208,11 +208,25 @@ local function Gathered(itemID)
 	return price
 end
 
+-- Whether something other than a vendor provides this reagent: a gathering profession, a creature's loot, or a
+-- recipe. With Buy reagents on its vendor price is only a fallback, so an auction price nothing has seen yet is a
+-- price unknown rather than a silent vendor total (#561). A reagent only a vendor sells keeps its vendor price.
+---@param itemID integer
+---@return boolean
+local function MarketGood(itemID)
+	if ns.GatheredBy and ns.GatheredBy[itemID] then
+		return true
+	elseif ns.LootedFrom and ns.LootedFrom[itemID] then
+		return true
+	end
+	return ns.MakersOf ~= nil and #ns.MakersOf(itemID) > 0
+end
+
 -- Cheapest known unit price and where it came from: "gather", "vendor", "auctionator"
 -- or "tsm". A price seen at a vendor beats the bundled list, since it includes
--- any reputation discount. With Buy reagents on, a reagent you could gather that nothing prices is still
--- bought at the auction house: its price is unknown, so it stays on the route and in the Auctionator list
--- without guessing a number (#559).
+-- any reputation discount. With Buy reagents on, a market good that nothing has priced at the auction house is
+-- a price unknown even where a vendor sells it: the vendor is a fallback, not the route's only source, so the
+-- price stays on the route and in the Auctionator list without guessing a number (#559, #561).
 ---@param itemID integer
 ---@return SkillUpPrice?
 function ns.Price(itemID)
@@ -230,7 +244,11 @@ function ns.Price(itemID)
 			cached = Gathered(itemID)
 		end
 		if not cached and vendor and (not ah or vendor <= ah.copper) then
-			cached = { copper = vendor, source = "vendor" }
+			if ns.CollectMode() == "auction" and MarketGood(itemID) then
+				cached = { copper = vendor, source = "auction", unknown = true }
+			else
+				cached = { copper = vendor, source = "vendor" }
+			end
 		elseif not cached and ah then
 			cached = ah
 		elseif not cached and ns.CollectMode() == "auction" and ns.CanGather(itemID) then
@@ -518,6 +536,39 @@ function ns.SubCraft(itemID)
 	ObtainCost(itemID, MAX_SUB_DEPTH)
 	local maker = subCraft[itemID]
 	return maker or nil
+end
+
+-- Whether one unit of `itemID` is priced by a number the route should not total: a price unknown, or a craft
+-- chosen to make it whose own reagents include one. Follows the same sub-craft the cost does, so a step's money
+-- and the route's total agree.
+---@param itemID integer
+---@param depth integer
+---@param stack table<integer, true>?
+---@return boolean
+local function PriceUnknown(itemID, depth, stack)
+	local maker = depth > 0 and ns.SubCraft(itemID) or nil
+	if maker then
+		stack = stack or {}
+		if not stack[itemID] then
+			stack[itemID] = true
+			for _, reagent in ipairs(ns.Reagents(maker.recipeID) or {}) do
+				if PriceUnknown(reagent.itemID, depth - 1, stack) then
+					stack[itemID] = nil
+					return true
+				end
+			end
+			stack[itemID] = nil
+			return false
+		end
+	end
+	local price = ns.Price(itemID)
+	return price ~= nil and price.unknown == true
+end
+
+---@param itemID integer
+---@return boolean
+function ns.HasUnknownPrice(itemID)
+	return PriceUnknown(itemID, MAX_SUB_DEPTH, nil)
 end
 
 -- Copper for one craft's reagents, or nil when any has no known price: a partial sum would rank a

@@ -165,6 +165,7 @@ limited.player.faction = "Alliance"
 limited.professions = { { name = "Cooking", id = COOKING, rank = 1, max = 75 } }
 limited.known[MACKEREL] = true
 local lns = limited.ns
+lns.SetCollectMode("gather")
 lns.db.routeTargets[COOKING] = 45
 local limitedPlan = lns.PlanRoute({
 	skillLine = COOKING,
@@ -207,6 +208,7 @@ unbundled.player.faction = "Alliance"
 unbundled.npc = { id = VENDOR_NPC, name = "Fish Vendor" }
 unbundled.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = LIMITED } }
 local uns = unbundled.ns
+uns.SetCollectMode("gather")
 equal(uns.LimitedStock[RAW_MACKEREL], nil, "the bundled data does not limit the fish")
 unbundled.Fire("MERCHANT_SHOW")
 equal(uns.IsLimitedStock(RAW_MACKEREL), LIMITED, "a vendor's own count flags the fish")
@@ -249,6 +251,7 @@ soldOut.known[MACKEREL] = true
 soldOut.npc = { id = VENDOR_NPC, name = "Fish Vendor" }
 soldOut.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = 0 } }
 local ons = soldOut.ns
+ons.SetCollectMode("gather")
 ons.db.routeTargets[COOKING] = 45
 soldOut.Fire("MERCHANT_SHOW")
 equal(

@@ -97,7 +97,7 @@
 ---@field PlayerSide fun(): 'A'|'H'|nil
 ---@field RankHeld fun(rank: SkillUpRank): boolean
 ---@field PlanMoney fun(plan: SkillUpPlan): { buy: number, fees: number, sells: number, unknown: integer }
----@field StepCost fun(recipeID: integer, crafts: number): number What a step's crafts cost, every craft at its net
+---@field StepCost fun(recipeID: integer, crafts: number): number? What a step's crafts cost, every craft at its net; nil while a reagent's price is unknown
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?
@@ -160,6 +160,7 @@
 ---@field ToolItemID fun(name: string): integer?
 ---@field MissingToolItems fun(plan: SkillUpPlan): integer[]
 ---@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
+---@field HasUnknownPrice fun(itemID: integer): boolean Whether obtaining it costs a price unknown, including a chosen sub-craft
 ---@field MakersOf fun(itemID: integer): integer[] The recipes that make the item, lowest recipe ID first.
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
@@ -470,7 +471,7 @@ SkillUpForeverDB = nil
 ---@field profession? string Gathered reagents only: the profession that yields it.
 ---@field loot? boolean A reagent creatures drop, which any character can loot: no profession needed.
 ---@field worth? 'auction'|'vendor' Gathered reagents valued at what they sell for: which price that is.
----@field unknown? boolean A gatherable with Buy reagents on that nothing has priced: it stays on the route.
+---@field unknown? boolean With Buy reagents on, no auction price yet: a gatherable nothing has priced, or a market good a vendor also sells.
 
 --- Where a craft's value came from: the vendor's sell price, an auction listing, or TradeSkillMaster's regional
 --- sale average. "sale" is the region's average sale and purchase price, never this character's own sales.

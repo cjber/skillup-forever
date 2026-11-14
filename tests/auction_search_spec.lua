@@ -26,6 +26,7 @@ local function Load(options)
 			TrainerRanks = {},
 			ItemSellPrices = {},
 			GatheredBy = {},
+			LootedFrom = {},
 			-- Salt is a vendor's: it is never searched for at the auction house.
 			VendorPrices = { [SALT] = 5 },
 			ProfessionTrainers = {},
@@ -152,42 +153,43 @@ c.CloseAuctionHouse()
 equal((ns.SearchReagents(HEAVY, 3)), "unfilled", "nothing is written while the auction house is closed")
 equal(#searched, 7, "so the box is left alone")
 
--- The first auction-house visit prices the tracked route, including vendor fallbacks.
+-- The first auction-house visit prices the tracked route's unpriced reagents, including vendor fallbacks for a
+-- market good (#561).
 c = Load({})
 ns = c.ns
 ns.SetCollectMode("auction")
+ns.LootedFrom[LINEN] = true
 c.auction[LINEN] = nil
 ns.VendorPrices[LINEN] = 5
 ns.Changed("prices")
-equal(ns.PriceSource(LINEN), "vendor", "the route has a vendor fallback before its first auction price")
+equal(ns.PriceSource(LINEN), "auction", "the route leaves a vendor fallback as a price unknown")
+equal(ns.Price(LINEN).unknown, true, "with no auction price yet")
 c.Fire("AUCTION_HOUSE_SHOW")
 c.Advance(0)
 equal(#c.auctionSearches, 1, "opening the auction house searches the unpriced tracked route")
 equal(c.auctionSearches[1][1]:match("^Linen Clothx") ~= nil, true, "the route search uses exact reagent names")
+equal(#c.auctionSearches[1], 1, "and searches only the reagent with no price, not the vendor's salt")
 c.Fire("AUCTION_HOUSE_SHOW")
 c.Advance(0)
 equal(#c.auctionSearches, 1, "duplicate show events do not repeat the visit search")
 c.Fire("AUCTION_HOUSE_CLOSED")
-c.auction[LINEN], c.auctionAge = 10, 0
+c.auction[LINEN], c.auctionAge = 10, 1
+ns.VendorPrices[LINEN] = 20
+ns.Changed("prices")
 c.Fire("AUCTION_HOUSE_SHOW")
 c.Advance(0)
-equal(#c.auctionSearches, 1, "today's recorded prices need no search")
-c.Fire("AUCTION_HOUSE_CLOSED")
-c.auctionAge = 1
-c.Fire("AUCTION_HOUSE_SHOW")
-c.Advance(0)
-equal(#c.auctionSearches, 2, "a later visit refreshes older recorded prices")
+equal(#c.auctionSearches, 1, "a recorded price needs no search, even when it is a day old")
 c.Fire("AUCTION_HOUSE_CLOSED")
 ns.db.auctionSearch = false
 c.Fire("AUCTION_HOUSE_SHOW")
 c.Advance(0)
-equal(#c.auctionSearches, 2, "disabled reagent searching never starts an automatic query")
+equal(#c.auctionSearches, 1, "disabled reagent searching never starts an automatic query")
 c.Fire("AUCTION_HOUSE_CLOSED")
 ns.db.auctionSearch = true
 c.Fire("AUCTION_HOUSE_SHOW")
 c.CloseAuctionHouse()
 c.Advance(0)
-equal(#c.auctionSearches, 2, "closing before the deferred visit leaves Auctionator alone")
+equal(#c.auctionSearches, 1, "closing before the deferred visit leaves Auctionator alone")
 
 c = Load({})
 ns = c.ns

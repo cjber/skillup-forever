@@ -223,6 +223,8 @@ L["Show profession routes in the objective tracker. Hiding them keeps your track
 L["Show skill on recipe rows"] = "Mostrar perícia nas linhas"
 L["Show skill range start on rows"] = "Mostrar início da faixa nas linhas"
 L["Show the merchant Reagents tab"] = "Mostrar a aba Reagentes do mercador"
+L["Some prices are unknown: this route may change after an auction house scan."] =
+	"Alguns preços são desconhecidos: esta rota pode mudar após uma varredura da casa de leilões."
 L["Show the crafted gear tab"] = "Mostrar a aba de equipamento criado"
 L["Show the levelling route tab"] = "Mostrar a aba da rota de evolução"
 L["Show thresholds tooltip"] = "Mostrar dica de limiares"

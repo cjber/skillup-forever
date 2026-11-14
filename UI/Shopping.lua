@@ -131,29 +131,73 @@ local function MissingFromAuction(items)
 	return missing
 end
 
----@param name string
+-- The searches a list holds for what the route still needs, in the route's order.
 ---@param missing SkillUpShoppingItem[]
-local function WriteAuctionList(name, missing)
+---@return string[]
+local function AuctionSearches(missing)
 	local api = Auctionator.API.v1
-	if #missing == 0 then
-		api.CreateShoppingList(CALLER, name, {})
-		return
+	local searches = {}
+	for index, item in ipairs(missing) do
+		searches[index] = api.ConvertToSearchString(CALLER, {
+			-- WithNames fires only after every item record is cached.
+			searchString = assert(C_Item.GetItemNameByID(item.itemID)),
+			isExact = true,
+			quantity = item.count,
+		})
 	end
-	WithNames(missing, function()
-		local searches = {}
-		for _, item in ipairs(missing) do
-			searches[#searches + 1] = api.ConvertToSearchString(CALLER, {
-				-- WithNames fires only after every item record is cached.
-				searchString = assert(C_Item.GetItemNameByID(item.itemID)),
-				isExact = true,
-				quantity = item.count,
-			})
-		end
-		api.CreateShoppingList(CALLER, name, searches)
-	end)
+	return searches
 end
 
--- The list last written for each profession, so an unchanged need leaves Auctionator alone.
+-- Writes these searches as the list. The caller has already decided the list needs one: an empty write only ever
+-- empties a list that is there, and never creates one (#714).
+---@param name string
+---@param searches string[]
+local function WriteAuctionList(name, searches)
+	Auctionator.API.v1.CreateShoppingList(CALLER, name, searches)
+end
+
+-- What Auctionator holds under this name, and whether it could be asked. Its reader raises for a list that does
+-- not exist, so an error means the list is gone, not one to write over (#714).
+---@param name string
+---@return string[]?, boolean
+local function ReadAuctionList(name)
+	local read = Auctionator.API.v1.GetShoppingListItems
+	if not read then
+		return nil, false
+	end
+	local ok, held = pcall(read, CALLER, name)
+	if ok and type(held) == "table" then
+		return held, true
+	end
+	return nil, true
+end
+
+-- Whether a list already holds exactly these searches, in any order: sorting it by hand changes no search.
+---@param held string[]
+---@param searches string[]
+---@return boolean
+local function SameSearches(held, searches)
+	if #held ~= #searches then
+		return false
+	end
+	---@type table<string, integer>
+	local counts = {}
+	for _, search in ipairs(held) do
+		counts[search] = (counts[search] or 0) + 1
+	end
+	for _, search in ipairs(searches) do
+		local count = counts[search]
+		if not count then
+			return false
+		end
+		counts[search] = count - 1
+	end
+	return true
+end
+
+-- The need this session has already left each list matching, so a bag change that moves nothing does not read
+-- Auctionator's lists again.
+---@type table<string, string>
 local auctionLists = {}
 
 ---@param missing SkillUpShoppingItem[]
@@ -166,8 +210,63 @@ local function AuctionSignature(missing)
 	return table.concat(parts, ",")
 end
 
--- Keep every tracked route's Auctionator list up to date with what it still buys, empties one it no
--- longer needs, and leaves an unchanged list alone. Gather mode buys nothing, so it is left as it is.
+-- What SkillUp last wrote for each list name, kept with the character: a list the player deleted stays deleted
+-- after a login too, while the route's need has not moved (#714). The field is new, so an older saved table has
+-- none until the first sync writes one.
+---@return table<string, string>
+local function SavedSignatures()
+	local saved = ns.db.auctionListSignatures
+	if type(saved) ~= "table" then
+		saved = {}
+		ns.db.auctionListSignatures = saved
+	end
+	return saved
+end
+
+-- Brings one route's list to what it needs, writing only when Auctionator's copy differs: a login or reload
+-- leaves the Shopping tab alone (#714).
+---@param name string
+---@param missing SkillUpShoppingItem[]
+---@param signature string
+local function SyncList(name, missing, signature)
+	local saved = SavedSignatures()
+	local held, readable = ReadAuctionList(name)
+	if #missing == 0 then
+		saved[name] = signature
+		-- A route with nothing left to buy never gets a list; one that is there is emptied once.
+		if readable and held and #held > 0 then
+			WriteAuctionList(name, {})
+		end
+		return
+	end
+	if not readable then
+		-- An Auctionator with no reader: only the saved signature says whether the route's need moved.
+		if saved[name] ~= signature then
+			saved[name] = signature
+			WithNames(missing, function()
+				WriteAuctionList(name, AuctionSearches(missing))
+			end)
+		end
+		return
+	end
+	-- Item names may still be loading, so the compare waits for them.
+	WithNames(missing, function()
+		local searches = AuctionSearches(missing)
+		if held and SameSearches(held, searches) then
+			saved[name] = signature
+			return
+		end
+		if not held and saved[name] == signature then
+			-- The player deleted the list and the route's need has not moved since SkillUp wrote it.
+			return
+		end
+		saved[name] = signature
+		WriteAuctionList(name, searches)
+	end)
+end
+
+-- Keep every tracked route's Auctionator list up to date with what it still buys, empties one it no longer needs,
+-- and leaves a list Auctionator already holds alone. Gather mode buys nothing, so it is left as it is.
 local function SyncAuctionator()
 	if not ns.HasAuctionator() or ns.CollectMode() ~= "auction" or ns.db.auctionSearch == false then
 		return
@@ -178,7 +277,7 @@ local function SyncAuctionator()
 		local signature = AuctionSignature(missing)
 		if name and auctionLists[name] ~= signature then
 			auctionLists[name] = signature
-			WriteAuctionList(name, missing)
+			SyncList(name, missing, signature)
 		end
 	end
 end

@@ -1,6 +1,7 @@
 -- A native provider replacement must sort through its callback without replacing native methods.
 local function noop() end
 local provider, callback, owner, replacements = nil, nil, nil, 0
+local searchText
 local box = {}
 function box.RegisterCallback(_, event, fn, target)
 	assert(event == "OnDataProviderReassigned")
@@ -115,6 +116,9 @@ local env = setmetatable({
 		GetCraftableCount = function()
 			return 0
 		end,
+		GetRecipeItemNameFilter = function()
+			return searchText
+		end,
 	},
 	UIParent = {
 		GetWidth = function()
@@ -129,6 +133,14 @@ local env = setmetatable({
 	Menu = { ModifyMenu = noop },
 	ScrollBoxConstants = { RetainScrollPosition = true },
 	CreateTreeDataProvider = tree,
+	strlower = string.lower,
+	strfind = string.find,
+	strcmputf8i = function(a, b)
+		if a == b then
+			return 0
+		end
+		return a < b and -1 or 1
+	end,
 	hooksecurefunc = function()
 		error("native recipe methods must stay unhooked")
 	end,
@@ -189,4 +201,32 @@ box:SetDataProvider(late)
 nodes = provider:GetRootNode():GetNodes()
 assert(nodes[1]:GetData().recipeInfo.recipeID == 50, "the recipe learned at 60 comes before the one learned at 40")
 assert(nodes[2]:GetData().recipeInfo.recipeID == 60, "even though the client starts it at 1")
+
+-- The client's search filters the bundled unlearned recipes in a sorted list too: only a matching added
+-- recipe follows the divider, no match leaves the client's rows, and clearing it brings both back.
+ns.UnlearnedRecipes = function()
+	return {
+		{ recipeID = 70, name = "Potion of Speed", kind = "trainer", skill = 90, thresholds = { 1, 25, 50, 75 } },
+		{ recipeID = 80, name = "Elixir of Might", kind = "trainer", skill = 95, thresholds = { 1, 25, 50, 75 } },
+	}
+end
+local searched = tree()
+searched:Insert({ recipeInfo = { recipeID = 10, name = "Ten", learned = true } })
+searchText = "POTION"
+replacements = 0
+box:SetDataProvider(searched)
+nodes = provider:GetRootNode():GetNodes()
+assert(#nodes == 3, "one learned recipe, a divider and one matching unlearned recipe")
+assert(nodes[3]:GetData().recipeInfo.recipeID == 70, "the added recipe whose name matches stays")
+searchText = "missing"
+replacements = 0
+box:SetDataProvider(searched)
+nodes = provider:GetRootNode():GetNodes()
+assert(#nodes == 1 and nodes[1]:GetData().recipeInfo.recipeID == 10, "no match leaves only the client's rows")
+searchText = ""
+replacements = 0
+box:SetDataProvider(searched)
+nodes = provider:GetRootNode():GetNodes()
+assert(#nodes == 4, "clearing the search brings both added recipes back")
+searchText = nil
 print("recipelist_spec: provider replacement, sort, newest first, recursion and native method identity passed")

@@ -245,6 +245,11 @@ do
 	equal(ns.db.sortMode, "cost", "a valid sort stays")
 	equal(ns.db.reagentTooltip, "full", "a valid reagent tooltip mode stays")
 	equal(ns.db.recipeTooltip, "row", "a valid recipe tooltip position stays")
+	equal(ns.CRAFT_VALUE_OPTIONS[3][1], "auction", "the auction choice keeps its index")
+	env.SkillUpForeverDB = { craftValue = "sale" }
+	callbacks.SkillUpForever()
+	equal(ns.db.craftValue, "sale", "the regional sale choice survives reload")
+	equal(ns.CRAFT_VALUE_OPTIONS[4][1], "sale", "the regional sale choice is appended")
 	env.SkillUpForeverDB = { sortMode = "newest" }
 	callbacks.SkillUpForever()
 	equal(ns.db.sortMode, "newest", "the newest-recipe sort stays")

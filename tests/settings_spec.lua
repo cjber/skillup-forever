@@ -202,7 +202,12 @@ local ns = {
 	ROW_COST_OPTIONS = { { "skillup", "Per skill-up" }, { "craft", "Per craft" } },
 	REAGENT_TOOLTIP_OPTIONS = { { "off", "Off" }, { "route", "Route" }, { "full", "Every recipe" } },
 	SORT_OPTIONS = { { "default", "Default" }, { "skill", "Skill" }, { "chance", "Chance" }, { "cost", "Cost" } },
-	CRAFT_VALUE_OPTIONS = { { "none", "None" }, { "vendor", "Vendor" }, { "auction", "Auction" } },
+	CRAFT_VALUE_OPTIONS = {
+		{ "none", "None" },
+		{ "vendor", "Vendor" },
+		{ "auction", "Auction" },
+		{ "sale", "Region sale" },
+	},
 	Changed = function(kind)
 		assert(kind == "settings")
 		refreshed = refreshed + 1
@@ -304,6 +309,8 @@ assert(
 		and craftValue.initializer.setting.default == 2
 )
 assert(craftValue.initializer.options.formatter(3) == "Auction" and craftValue.initializer.tooltip:find("5%% cut"))
+assert(craftValue.initializer.options.formatter(4) == "Region sale")
+assert(craftValue.initializer.tooltip:find("regional sales", 1, true), "the sales source is explained")
 assert(Row("sortMode").initializer.options.formatter(1) == "Default")
 assert(Row("showUnlearned").initializer.setting.default == false, "unlearned recipes start off")
 assert(Row("showUnlearned").initializer.tooltip:find("greyed"), "the unlearned list explains how it draws")

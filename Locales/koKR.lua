@@ -202,8 +202,8 @@ L["Requires"] = "요구 사항"
 L["Replan"] = "다시 계획"
 L["Route"] = "경로"
 L["Route and trainer"] = "경로와 전문가"
-L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
-	"경로 미완성: 제조법 %d개 제외됨, 재료 가격이 아직 없습니다."
+L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
+	"경로 미완성: 비용이나 판매 가치가 알려지지 않아 제조법 %d개가 제외되었습니다."
 L["Route needs"] = "경로 필요량"
 L["Route: %d/%d · %s to %d"] = "경로: %d/%d · %s → %d"
 L["Sales"] = "판매"
@@ -445,8 +445,8 @@ L["The game's Craft button is not ready for this recipe."] =
 	"게임의 제작 버튼이 이 제조법에 준비되지 않았습니다." -- mt
 L["vendor, limited stock"] = "상인, 한정 재고" -- mt
 L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt
-L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
-	"이 경로는 대부분 %s입니다: 재료 가격이 책정될 때까지 제조법 %d개가 제외됩니다." -- mt
+L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
+	"이 경로는 주로 %s을(를) 사용합니다. 비용이나 판매 가치를 알 때까지 제조법 %d개가 제외됩니다."
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
@@ -514,3 +514,7 @@ L["%s could not start. Reinstall %s to fix this."] =
 	"%s을(를) 시작할 수 없습니다. 문제를 해결하려면 %s을(를) 다시 설치하세요." -- mt
 L["The skill band clears the recipe icon and the Reagents header."] =
 	"숙련도 막대가 제조법 아이콘과 '재료' 머리글을 가리지 않습니다." -- mt
+L["Region sale average"] = "지역 평균 판매가"
+L["Region sale average if higher"] = "더 높으면 지역 평균 판매가"
+L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
+	"지역 평균 판매가에는 TradeSkillMaster와 데스크톱 앱이 필요합니다. 보고된 지역 판매 및 구매 기록으로 가치를 추정하며 상점 판매가보다 낮아지지 않습니다. 판매를 보장하지는 않습니다."

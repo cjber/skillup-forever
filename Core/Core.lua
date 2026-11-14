@@ -87,6 +87,7 @@ ns.CRAFT_VALUE_OPTIONS = {
 	{ "none", L["Don't count it"] },
 	{ "vendor", L["Vendor sell price"] },
 	{ "auction", L["Auction price if higher"] },
+	{ "sale", L["Region sale average if higher"] },
 }
 -- Beside the window by default: next to the recipe row, the tooltip covered the reagents (#163).
 ns.RECIPE_TOOLTIP_OPTIONS = {

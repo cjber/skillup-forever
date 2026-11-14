@@ -156,7 +156,9 @@ local function BuildRow(row)
 	fill:SetAtlas("common-stat-bar-white")
 	row.Bar:SetStatusBarTexture(fill)
 	row.BarMask = MaskBarFill(row.Bar, fill, row.BarBg)
-	row.BarText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	-- The StatusBar is a child frame, so its fill draws over the row's own layers. Its count is drawn
+	-- on the bar itself, above the fill, as the native progress bar draws its text.
+	row.BarText = row.Bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	row.BarText:SetPoint("CENTER", row.Bar, "CENTER", 0, 0)
 	row.BarBg:Hide()
 	row.Bar:Hide()
@@ -307,10 +309,14 @@ local function InitializeBand(band, elementData)
 	band.BarBg:SetSize(band.BarWidth, band.BarHeight)
 	local span = math.max(elementData.cap - elementData.from, 0)
 	local done = math.max(0, math.min(elementData.skill or 0, elementData.cap) - elementData.from)
-	local filled = span > 0 and (band.BarWidth - 2 * BAR_INSET) * math.min(done / span, 1) or 0
+	-- The client's own ColoredProgressBarTemplate crops the fill to the same fraction as its width, so
+	-- an empty fill draws no texture at all; a zero width alone is not empty on a texture with an atlas.
+	local fraction = span > 0 and math.min(math.max(done / span, 0), 1) or 0
 	band.BarFill:ClearAllPoints()
 	band.BarFill:SetPoint("LEFT", band.BarBg, "LEFT", BAR_INSET, 0)
-	band.BarFill:SetSize(filled, BAR_FILL_HEIGHT)
+	band.BarFill:SetSize((band.BarWidth - 2 * BAR_INSET) * fraction, BAR_FILL_HEIGHT)
+	band.BarFill:SetTexCoord(0, fraction, 1, 0)
+	band.BarFill:SetShown(fraction > 0)
 	band.BarText:SetFormattedText("%d/%d", done, span)
 end
 

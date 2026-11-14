@@ -39,3 +39,6 @@ externals:
 
 move-folders:
   SkillUpForever/ForeverCore: ForeverCore
+
+required-dependencies:
+  - forevercore

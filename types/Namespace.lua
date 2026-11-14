@@ -204,6 +204,7 @@
 ---@field AttachItemTooltips fun()
 ---@field AttachTrainer fun()
 ---@field SORT_OPTIONS string[][]
+---@field PRICE_SOURCE_OPTIONS string[][]
 ---@field CRAFT_VALUE_OPTIONS string[][]
 ---@field REAGENT_TOOLTIP_OPTIONS string[][]
 ---@field RECIPE_TOOLTIP_OPTIONS string[][]

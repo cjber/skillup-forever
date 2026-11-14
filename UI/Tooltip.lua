@@ -347,7 +347,8 @@ local function AddCost(tooltip, recipeID, d)
 			AddSaleValue(L["Auction price"], values.auction)
 		end
 		-- The regional sale average is neither a vendor nor a listing, so it keeps its own line and its own name.
-		if d.value and d.value.source == "sale" and d.net then
+		local net, perSkillUp = d.net, d.perSkillUp
+		if d.value and d.value.source == "sale" and net then
 			local sells = d.value.quantity ~= 1 and string.format(L["Sells for x%g"], d.value.quantity)
 				or L["Sells for"]
 			tooltip:AddDoubleLine(
@@ -361,8 +362,8 @@ local function AddCost(tooltip, recipeID, d)
 				1
 			)
 			tooltip:AddDoubleLine(
-				d.net < 0 and L["Profit per craft"] or L["Net per craft"],
-				ns.FormatSigned(math.abs(d.net), d.net < 0),
+				net < 0 and L["Profit per craft"] or L["Net per craft"],
+				ns.FormatSigned(math.abs(net), net < 0),
 				1,
 				0.82,
 				0,
@@ -370,18 +371,9 @@ local function AddCost(tooltip, recipeID, d)
 				1,
 				1
 			)
-			if d.perSkillUp then
-				local label = d.perSkillUp < 0 and L["Profit per skill-up"] or L["Per skill-up"]
-				tooltip:AddDoubleLine(
-					label,
-					ns.FormatSigned(math.abs(d.perSkillUp), d.perSkillUp < 0),
-					1,
-					0.82,
-					0,
-					1,
-					1,
-					1
-				)
+			if perSkillUp then
+				local label = perSkillUp < 0 and L["Profit per skill-up"] or L["Per skill-up"]
+				tooltip:AddDoubleLine(label, ns.FormatSigned(math.abs(perSkillUp), perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
 			end
 		end
 	end

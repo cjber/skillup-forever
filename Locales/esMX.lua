@@ -200,8 +200,8 @@ L["Requires"] = "Requiere"
 L["Replan"] = "Replanificar"
 L["Route"] = "Ruta"
 L["Route and trainer"] = "Ruta e instructor"
-L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
-	"Ruta incompleta: %d recetas excluidas, sus componentes aún no tienen precio."
+L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
+	"Ruta incompleta: se omiten %d recetas porque sus costos o valores de venta son desconocidos."
 L["Route needs"] = "La ruta necesita"
 L["Route: %d/%d · %s to %d"] = "Ruta: %d/%d · %s hasta %d"
 L["Sales"] = "Ventas"
@@ -440,8 +440,8 @@ L["The game's Craft button is not ready for this recipe."] =
 	"El botón Crear del juego no está listo para esta receta." -- mt
 L["vendor, limited stock"] = "vendedor, existencias limitadas" -- mt
 L["Sells %d at a time"] = "Vende %d a la vez" -- mt
-L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
-	"Esta ruta es sobre todo %s: %d recetas quedan excluidas hasta que sus componentes tengan precio." -- mt
+L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
+	"Esta ruta consiste principalmente en %s: se omiten %d recetas hasta conocer sus costos o valores de venta."
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
@@ -506,3 +506,7 @@ L["%s: %s are out of date. Update them to fix this."] =
 L["%s could not start. Reinstall %s to fix this."] = "%s no pudo iniciarse. Reinstala %s para solucionarlo." -- mt
 L["The skill band clears the recipe icon and the Reagents header."] =
 	"La barra de habilidad deja libres el icono de la receta y el encabezado Componentes." -- mt
+L["Region sale average"] = "Promedio regional de ventas"
+L["Region sale average if higher"] = "Promedio regional de ventas si es mayor"
+L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
+	"Las medias regionales de ventas requieren TradeSkillMaster y su aplicación de escritorio. Estiman el valor con compras y ventas regionales registradas, con el precio de venta al vendedor como mínimo. No garantizan una venta."

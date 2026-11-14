@@ -66,6 +66,7 @@ local function Provider(nodes)
 end
 
 local provider, callback, owner, replacements = nil, nil, nil, 0
+local searchText
 local box = {}
 function box.RegisterCallback(_, event, fn, target)
 	assert(event == "OnDataProviderReassigned")
@@ -183,6 +184,9 @@ local env = setmetatable({
 		GetCraftableCount = function()
 			return 0
 		end,
+		GetRecipeItemNameFilter = function()
+			return searchText
+		end,
 		GetAllRecipeIDs = function()
 			return { 10 }
 		end,
@@ -208,6 +212,8 @@ local env = setmetatable({
 	ScrollBoxConstants = { RetainScrollPosition = true },
 	CreateTreeDataProvider = Provider,
 	GRAY_FONT_COLOR = { GetRGB = noop },
+	strlower = string.lower,
+	strfind = string.find,
 	hooksecurefunc = function()
 		error("native recipe methods must stay unhooked")
 	end,
@@ -280,6 +286,26 @@ nodes = provider:GetRootNode():GetNodes()
 assert(nodes[1]:GetData().categoryInfo.name == "Unlearned", "the client's own unlearned category stays")
 assert(#nodes[1]:GetNodes() == 1 and nodes[1]:GetNodes()[1]:GetData().recipeInfo.recipeID == 20)
 assert(#nodes == 3 and nodes[3]:GetData().recipeInfo.recipeID == 30, "only the missing recipe is added")
+
+-- The client's search filters the recipes the bundle adds, as it filters the client's own rows. A match
+-- keeps only the matching added recipe, no match leaves the client's filtered list alone, and clearing the
+-- search brings both added recipes back.
+searchText = "RECIPE"
+provider, replacements = nil, 0
+box:SetDataProvider(input)
+nodes = provider:GetRootNode():GetNodes()
+assert(#nodes == 4, "two categories, a divider and only the matching unlearned recipe")
+assert(nodes[4]:GetData().recipeInfo.recipeID == 30, "the added recipe whose name matches stays")
+searchText = "missing"
+provider, replacements = nil, 0
+box:SetDataProvider(input)
+assert(provider == input, "no matching added recipe leaves the client's provider alone")
+searchText = ""
+provider, replacements = nil, 0
+box:SetDataProvider(input)
+nodes = provider:GetRootNode():GetNodes()
+assert(#nodes == 5, "clearing the search brings both added recipes back")
+searchText = nil
 
 -- Legacy wide-list settings no longer resize the shared host or native list.
 ns.db.wideRecipeList = true

@@ -18,17 +18,33 @@ local function Region()
 		SetText = function(self, text)
 			self.text = text
 		end,
+		SetFormattedText = function(self, format, ...)
+			self.text = string.format(format, ...)
+		end,
 		SetTextColor = function(self, r, g, b)
 			self.color = { r, g, b }
 		end,
-		SetAtlas = function(self, atlas)
+		SetAtlas = function(self, atlas, useAtlasSize, _, _, wrapHorizontal, wrapVertical)
 			self.atlas = atlas
+			self.useAtlasSize = useAtlasSize
+			self.wrapHorizontal, self.wrapVertical = wrapHorizontal, wrapVertical
+		end,
+		SetTexCoord = function(self, left, right, top, bottom)
+			self.texcoord = { left, right, top, bottom }
 		end,
 		SetStatusBarTexture = function(self, texture)
 			self.statusBarTexture = texture
 		end,
-		CreateMaskTexture = function()
-			return Region()
+		SetMinMaxValues = function(self, minimum, maximum)
+			self.minimum, self.maximum = minimum, maximum
+		end,
+		SetValue = function(self, value)
+			self.value = value
+		end,
+		CreateMaskTexture = function(self)
+			local mask = Region()
+			mask.parent = self
+			return mask
 		end,
 		AddMaskTexture = function(self, mask)
 			self.mask = mask
@@ -60,17 +76,21 @@ local function Region()
 		SetScript = function(self, name, script)
 			self.scripts[name] = script
 		end,
-		GetWidth = function()
-			return 300
+		GetWidth = function(self)
+			return rawget(self, "width") or 300
 		end,
 		GetStringHeight = function(self)
 			return self.text and #self.text > 20 and 24 or 12
 		end,
-		CreateFontString = function()
-			return Region()
+		CreateFontString = function(self, _, layer)
+			local font = Region()
+			font.parent, font.layer = self, layer
+			return font
 		end,
-		CreateTexture = function()
-			return Region()
+		CreateTexture = function(self, _, layer)
+			local texture = Region()
+			texture.parent, texture.layer = self, layer
+			return texture
 		end,
 	}
 	return setmetatable({ points = {}, scripts = {} }, {
@@ -105,7 +125,16 @@ local function CreateView()
 end
 
 local color = { GetRGB = function() end }
-local ns = { WhenEvent = function() end, WhenStale = function() end }
+local ns = {
+	WhenEvent = function() end,
+	WhenStale = function() end,
+	COLORS = { green = color },
+	L = setmetatable({}, {
+		__index = function(_, key)
+			return key
+		end,
+	}),
+}
 local env = setmetatable({
 	GameTooltip = Region(),
 	CreateFrame = CreateFrame,
@@ -303,5 +332,89 @@ line.scripts.OnClick(line, "RightButton")
 equal(#lineClicks, 1, "a line's right-click is not a left click")
 equal(menus[#menus].owner, line, "a line opens its menu on itself")
 equal(menus[#menus].generator, LineMenu, "filled by the line's menu")
+
+-- The skill band follows the client's ColoredProgressBarTemplate: its fill keeps the progress as
+-- its width and crops the texture to the same fraction, so an empty band draws nothing even where
+-- the client ignores a zero width, and one pooled frame redraws every state.
+local function Coords(texture)
+	local coords = rawget(texture, "texcoord")
+	return coords and table.concat(coords, ",") or ""
+end
+
+local function Shown(region)
+	return rawget(region, "shown")
+end
+
+local function BarBand(skill, frame)
+	list:Begin()
+	list:Band("Expert", 150, 225, skill)
+	list:Finish()
+	return Materialize(list.rows[1], frame)
+end
+
+local pooledBand = Region()
+local emptyBand = BarBand(150, pooledBand)
+equal(Shown(emptyBand.BarFill), false, "a band with no progress draws no fill")
+equal(Coords(emptyBand.BarFill), "0,0,1,0", "and crops its whole texture away")
+equal(emptyBand.BarFill.width, 0, "with no width")
+equal(emptyBand.BarText.text, "0/75", "while the band count reads zero")
+local track = emptyBand.BarBg:GetWidth() - 12
+
+local partialBand = BarBand(204, pooledBand)
+equal(Shown(partialBand.BarFill), true, "a partial band shows its fill")
+equal(partialBand.BarFill.texcoord[1], 0, "starting at the left of its texture")
+equal(math.abs(partialBand.BarFill.texcoord[2] - 54 / 75) < 1e-9, true, "cropped at the band's fraction")
+equal(
+	math.abs(partialBand.BarFill.width - track * 54 / 75) < 1e-9,
+	true,
+	"and only as wide as that fraction of the track"
+)
+equal(partialBand.BarText.text, "54/75", "with the band count over it")
+
+local fullBand = BarBand(225, pooledBand)
+equal(Shown(fullBand.BarFill), true, "a full band shows its fill")
+equal(Coords(fullBand.BarFill), "0,1,1,0", "cropped no further than the whole texture")
+equal(math.abs(fullBand.BarFill.width - track) < 1e-9, true, "filling the track")
+local overBand = BarBand(260, pooledBand)
+equal(overBand.BarFill.width, track, "a band over its cap stays at the track's width")
+equal(overBand.BarText.text, "75/75", "and clamps the count to the cap")
+local emptyAgain = BarBand(150, pooledBand)
+equal(Shown(emptyAgain.BarFill), false, "the pooled band hides its fill when it is empty again")
+equal(emptyAgain.BarFill.width, 0, "with no width")
+equal(Coords(emptyAgain.BarFill), "0,0,1,0", "and its texture cropped away")
+
+-- A reagent row's count is drawn by its StatusBar, above the fill that would otherwise cover it;
+-- the pooled row hides and shows that label with the bar.
+local function BarRow(have, need, frame)
+	list:Begin()
+	list:Add({ text = "Silk Cloth", bar = { have = have, need = need } })
+	list:Finish()
+	return Materialize(list.rows[1], frame)
+end
+
+local pooledBarRow = Region()
+local emptyRow = BarRow(0, 10, pooledBarRow)
+equal(emptyRow.Bar.value, 0, "an empty reagent bar carries no progress")
+equal(emptyRow.Bar.maximum, 10, "against its need")
+equal(emptyRow.BarText.text, "0/10", "and still shows its count")
+equal(emptyRow.BarText.parent, emptyRow.Bar, "the count is drawn by the bar, above its fill")
+list:Begin()
+list:Add({ text = "Total 54s" })
+list:Finish()
+local plainRow = Materialize(list.rows[1], pooledBarRow)
+equal(Shown(plainRow.BarText), false, "a pooled row without a bar hides its count")
+local partialRow = BarRow(5, 10, pooledBarRow)
+equal(partialRow.Bar.value, 5, "a partial reagent bar carries its progress")
+equal(partialRow.BarText.text, "5/10", "with its count shown again over the fill")
+equal(Shown(partialRow.BarText), true, "after the pooled row had no bar")
+local fullRow = BarRow(15, 10, pooledBarRow)
+equal(fullRow.Bar.value, 10, "a met reagent bar clamps its progress to the need")
+equal(fullRow.Bar.maximum, 10, "which stays its own need")
+equal(fullRow.BarText.text, "10/10", "and its count is clamped too")
+equal(fullRow.BarText.parent, fullRow.Bar, "still drawn by the bar itself")
+local emptyAgainRow = BarRow(0, 10, pooledBarRow)
+equal(emptyAgainRow.Bar.value, 0, "the pooled row carries no progress when empty again")
+equal(emptyAgainRow.BarText.text, "0/10", "and shows its zero count")
+equal(Shown(emptyAgainRow.BarText), true, "above the now empty bar")
 
 Client.report("list_spec")

@@ -68,6 +68,17 @@ local budgets, completion = Model.BudgetSegments(unknown, 0.95, 0)
 equal(completion >= 0.95, true, "an unpriced leg is still planned to the route's chance")
 equal(budgets[1] > 1, true, "which asks for more than one craft at a half chance")
 
+-- Guaranteed opening crafts preserve the independent probability model, including multi-point crafts.
+for _, ups in ipairs({ 1, 3 }) do
+	for _, target in ipairs({ 8, 15, 30 }) do
+		local thresholds = { 1, 10, 20, 40 }
+		local segment = { fromSkill = 1, toSkill = target, skillUps = ups, thresholds = thresholds }
+		local counts, chance = Model.BudgetSegments({ segment }, 0.95)
+		equal(counts[1], Model.CoveredCrafts(thresholds, 1, target, ups, 0.95), "one leg keeps its exact craft budget")
+		near(chance, Model.CompletionChance(thresholds, 1, target, ups, counts[1]))
+	end
+end
+
 --[[ A restock trip ]]
 
 -- Two legs with the same chance but different reagent prices: without a trip cost the cheaper leg carries the

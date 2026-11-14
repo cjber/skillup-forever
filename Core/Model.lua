@@ -326,12 +326,12 @@ function Model.CoveredCrafts(thresholds, from, to, skillUps, confidence)
 	if needed == 1 then
 		local chance = Model.Chance(thresholds, from)
 		if chance and chance > 0 then
-			local inHand, toCome, crafts = 0, 1, 0
-			while inHand < target do
-				crafts = crafts + 1
-				inHand, toCome = inHand + toCome * chance, toCome * (1 - chance)
+			if chance == 1 then
+				return 1
+			elseif target < 1 then
+				-- A single point is geometric: after n crafts its failure chance is (1 - chance)^n.
+				return math.ceil(math.log(1 - target) / math.log(1 - chance))
 			end
-			return crafts
 		end
 	end
 	-- A point's chance, and what a craft there gains, are the same for every craft counted: false where a
@@ -436,29 +436,17 @@ end
 ---@param skillUps integer?
 ---@return SkillUpBudgetLeg
 local function NewLeg(thresholds, from, to, skillUps)
+	-- Guaranteed opening crafts have only one possible state. Begin the distribution after them,
+	-- retaining their craft count, rather than propagating a single probability through every point.
+	local crafts = 0
+	local ups = math.max(skillUps or 1, 1)
+	while from < to and Model.Chance(thresholds, from) == 1 and crafts < MAX_CRAFTS do
+		from = from + math.min(ups, to - from, math.max(thresholds[4] - from, 1))
+		crafts = crafts + 1
+	end
 	local needed, chances, gains = CraftChances(thresholds, from, to, skillUps)
 	if needed <= 0 then
-		return { needed = 0, chances = {}, gains = {}, odds = {}, spare = {}, crafts = 0, p = 1 }
-	end
-	local certain = true
-	for points = 0, needed - 1 do
-		if chances[points] ~= 1 then
-			certain = false
-			break
-		end
-	end
-	if certain then
-		-- Every point is orange: the crafts that reach the end are certain, so there is nothing to allocate.
-		local ups = math.max(skillUps or 1, 1)
-		return {
-			needed = 0,
-			chances = {},
-			gains = {},
-			odds = {},
-			spare = {},
-			crafts = math.ceil(needed / ups),
-			p = 1,
-		}
+		return { needed = 0, chances = {}, gains = {}, odds = {}, spare = {}, crafts = crafts, p = 1 }
 	end
 	local leg = {
 		needed = needed,
@@ -466,7 +454,7 @@ local function NewLeg(thresholds, from, to, skillUps)
 		gains = gains,
 		odds = { [0] = 1 },
 		spare = {},
-		crafts = 0,
+		crafts = crafts,
 		p = 0,
 	}
 	while leg.p <= 0 and leg.crafts < MAX_CRAFTS do

@@ -145,6 +145,14 @@ function ns.RegisterSettings()
 			L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."]
 		)
 
+		Choice(
+			rows,
+			"unlearnedSortMode",
+			L["Unlearned recipe order"],
+			ns.UNLEARNED_SORT_OPTIONS,
+			L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."]
+		)
+
 		Checkbox(
 			rows,
 			"showCost",

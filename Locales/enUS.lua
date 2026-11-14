@@ -8,6 +8,9 @@ local L = setmetatable({}, {
 		return key
 	end,
 })
+L["Unlearned recipe order"] = "Unlearned recipe order"
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."
 ns.L = L
 L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
 	"This route is mostly %s: %d recipes are left out until their costs or sale values are known."

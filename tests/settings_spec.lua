@@ -192,6 +192,7 @@ local ns = {
 		recipeTooltip = "window",
 		rowCost = "skillup",
 		sortMode = "default",
+		unlearnedSortMode = "skill",
 		showRowText = true,
 		showUnlearned = false,
 		buffsOnly = false,
@@ -204,6 +205,7 @@ local ns = {
 	PRICE_SOURCE_OPTIONS = { { "auctionator", "Auctionator" }, { "tsm", "TradeSkillMaster" } },
 	REAGENT_TOOLTIP_OPTIONS = { { "off", "Off" }, { "route", "Route" }, { "full", "Every recipe" } },
 	SORT_OPTIONS = { { "default", "Default" }, { "skill", "Skill" }, { "chance", "Chance" }, { "cost", "Cost" } },
+	UNLEARNED_SORT_OPTIONS = { { "skill", "Skill" }, { "newest", "Newest" } },
 	CRAFT_VALUE_OPTIONS = {
 		{ "none", "None" },
 		{ "vendor", "Vendor" },
@@ -258,7 +260,7 @@ local groups = {
 		"Recipe rows",
 		"checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
 			.. " checkbox:showSkill checkbox:showTooltip"
-			.. " checkbox:detailsBar slider:recipeTooltip checkbox:showCost slider:rowCost",
+			.. " checkbox:detailsBar slider:recipeTooltip slider:unlearnedSortMode checkbox:showCost slider:rowCost",
 	},
 	{ "Prices", "slider:priceSource slider:craftValue checkbox:valueGathered checkbox:auctionOnly" },
 	{

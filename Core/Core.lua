@@ -40,6 +40,7 @@ local DEFAULTS = {
 	valueGathered = false, -- a reagent you gather costs what it would sell for, not nothing
 	auctionOnly = false, -- a self-supplied reagent costs a market price, and is unpriced when none is known
 	sortMode = "blizzard",
+	unlearnedSortMode = "skill",
 	showTrainer = true,
 	showRouteTab = true,
 	showTracker = true,
@@ -84,6 +85,10 @@ ns.SORT_OPTIONS = {
 	{ "newest", L["Newest recipes first"] },
 	{ "chance", L["Skill-up chance"] },
 	{ "cost", L["Cheapest skill-up"] },
+}
+ns.UNLEARNED_SORT_OPTIONS = {
+	{ "skill", L["Skill range start"] },
+	{ "newest", L["Newest recipes first"] },
 }
 ns.PRICE_SOURCE_OPTIONS = {
 	{ "auctionator", L["Auctionator"] },
@@ -237,6 +242,7 @@ local function LoadDB()
 		priceSource = ns.PRICE_SOURCE_OPTIONS,
 		craftValue = ns.CRAFT_VALUE_OPTIONS,
 		sortMode = ns.SORT_OPTIONS,
+		unlearnedSortMode = ns.UNLEARNED_SORT_OPTIONS,
 		reagentTooltip = ns.REAGENT_TOOLTIP_OPTIONS,
 		recipeTooltip = ns.RECIPE_TOOLTIP_OPTIONS,
 	}) do

@@ -513,3 +513,10 @@ L["Auction prices from"] = "Auktionspreise von"
 L["Auctionator"] = "Auctionator"
 L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
 	"Welches Addon die Auktionswerte bepreist, wenn beide installiert sind. Der Preis des gewählten Addons gewinnt; das andere füllt einen Gegenstand auf, für den es keinen Preis hat. Auctionator nennt außerdem das Alter seines Preises."
+
+L["Unlearned recipe order"] = "Reihenfolge ungelernter Rezepte" -- mt
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"Legt die Reihenfolge noch nicht erlernter Rezepte fest. Erlernte Rezepte behalten die gewählte Rezeptreihenfolge." -- mt
+L["TSM regional sales per day"] = "Regionale Verkäufe pro Tag laut TSM" -- mt
+L["Average sold per auction house in your region, reported by TSM."] =
+	"Durchschnittlich verkaufte Menge pro Auktionshaus in deiner Region, gemeldet von TSM." -- mt

@@ -547,3 +547,10 @@ L["Auction prices from"] = "Цены аукциона из"
 L["Auctionator"] = "Auctionator"
 L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
 	"Какой аддон оценивает аукционные цены, когда установлены оба. Цена выбранного аддона важнее; другой заполняет предмет, для которого у него нет цены. Auctionator также показывает давность своей цены."
+
+L["Unlearned recipe order"] = "Порядок неизученных рецептов" -- mt
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"Порядок рецептов, которые вы ещё не изучили. Изученные рецепты сохраняют выбранный порядок." -- mt
+L["TSM regional sales per day"] = "Продажи в регионе за день по данным TSM" -- mt
+L["Average sold per auction house in your region, reported by TSM."] =
+	"Среднее количество продаж на один аукционный дом в вашем регионе по данным TSM." -- mt

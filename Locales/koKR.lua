@@ -526,3 +526,10 @@ L["Auction prices from"] = "경매 가격 출처"
 L["Auctionator"] = "Auctionator"
 L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
 	"둘 다 설치되어 있을 때 경매 가치를 어느 애드온이 책정할지 정합니다. 선택한 애드온의 가격이 우선하며, 다른 애드온은 가격이 없는 아이템만 채웁니다. Auctionator는 가격의 경과 시간도 표시합니다."
+
+L["Unlearned recipe order"] = "배우지 않은 제조법 정렬" -- mt
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"아직 배우지 않은 제조법의 정렬 방식입니다. 배운 제조법은 선택한 정렬 방식을 유지합니다." -- mt
+L["TSM regional sales per day"] = "TSM 지역 일일 판매량" -- mt
+L["Average sold per auction house in your region, reported by TSM."] =
+	"TSM이 보고한 해당 지역 경매장당 평균 판매량입니다." -- mt

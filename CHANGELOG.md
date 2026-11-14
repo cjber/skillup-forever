@@ -12,6 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Unlearned recipes have their own order.** Sort them by required skill or newest first while learned recipes keep your chosen order. Thanks to davef1n for the idea (#720).
+- **Recipe tooltips show TSM regional sales per day when available.** The figure is the average sold per auction house in your region, alongside the craft's sale values and profit. Thanks to davef1n for the idea (#721).
+
 - **TSM-priced reagents stay in auction searches.** Recipe searches include their missing quantities with Auctionator or the game search box. (#561)
 
 - **Craft next follows the route's prerequisites.** It makes missing intermediates before their parent recipe, uses held materials once, and asks for the selected recipe's profession. Thanks to luna for the report (#683).

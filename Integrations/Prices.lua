@@ -108,6 +108,7 @@ end
 -- A zero, absent or invalid answer is unknown:
 -- TSM itself answers nil for a value it has none of.
 local TSM_SALE = "DBRegionSaleAvg"
+local TSM_VOLUME = "DBRegionSoldPerDay"
 
 ---@param itemID integer
 ---@return number?
@@ -117,6 +118,19 @@ local function TradeSkillMasterSale(itemID)
 	end
 	local ok, value = pcall(TSM_API.GetCustomPriceValue, TSM_SALE, "i:" .. itemID)
 	if not (ok and type(value) == "number" and value == value and value > 0 and value < math.huge) then
+		return nil
+	end
+	return value
+end
+
+---@param itemID integer
+---@return number?
+local function TradeSkillMasterSoldPerDay(itemID)
+	if not ns.HasTradeSkillMaster() then
+		return nil
+	end
+	local ok, value = pcall(TSM_API.GetCustomPriceValue, TSM_VOLUME, "i:" .. itemID)
+	if not (ok and type(value) == "number" and value == value and value >= 0 and value < math.huge) then
 		return nil
 	end
 	return value
@@ -611,7 +625,8 @@ local function CraftValue(recipeID)
 	if not (each and source) then
 		return nil, not (sell or market)
 	end
-	return { copper = each * output.quantity, source = source, quantity = output.quantity }
+	local volume = TradeSkillMasterSoldPerDay(output.itemID)
+	return { copper = each * output.quantity, source = source, quantity = output.quantity, volume = volume }
 end
 
 -- What one craft sells for at a vendor and at the auction house, both at once, for the tooltip's comparison:

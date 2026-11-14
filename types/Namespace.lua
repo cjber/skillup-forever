@@ -204,6 +204,7 @@
 ---@field AttachItemTooltips fun()
 ---@field AttachTrainer fun()
 ---@field SORT_OPTIONS string[][]
+---@field UNLEARNED_SORT_OPTIONS string[][]
 ---@field PRICE_SOURCE_OPTIONS string[][]
 ---@field CRAFT_VALUE_OPTIONS string[][]
 ---@field REAGENT_TOOLTIP_OPTIONS string[][]
@@ -258,6 +259,7 @@
 ---@field valueGathered boolean
 ---@field auctionOnly boolean
 ---@field sortMode 'blizzard'|'skill'|'newest'|'chance'|'cost'
+---@field unlearnedSortMode 'skill'|'newest'
 ---@field showTrainer boolean
 ---@field showRouteTab boolean
 ---@field showTracker boolean
@@ -484,6 +486,7 @@ SkillUpForeverDB = nil
 ---@field copper number
 ---@field source SkillUpValueSource
 ---@field quantity number
+---@field volume? number Average completed sales per Auction House per day in the player's region, reported by TSM.
 
 --- One craft's result sold to a vendor and at the auction house, both when known: the tooltip's comparison.
 ---@class SkillUpSaleValues

@@ -348,6 +348,19 @@ local function AddCost(tooltip, recipeID, d)
 		if values.auction then
 			AddSaleValue(L["Auction price"], values.auction)
 		end
+		if d.value and d.value.volume ~= nil then
+			tooltip:AddDoubleLine(
+				L["TSM regional sales per day"],
+				string.format("%.2f", d.value.volume),
+				1,
+				0.82,
+				0,
+				1,
+				1,
+				1
+			)
+			GameTooltip_AddDisabledLine(tooltip, L["Average sold per auction house in your region, reported by TSM."])
+		end
 		-- The regional sale average is neither a vendor nor a listing, so it keeps its own line and its own name.
 		local net, perSkillUp = d.net, d.perSkillUp
 		if d.value and d.value.source == "sale" and net then
@@ -364,6 +377,7 @@ local function AddCost(tooltip, recipeID, d)
 				1,
 				1
 			)
+
 			tooltip:AddDoubleLine(
 				net < 0 and L["Profit per craft"] or L["Net per craft"],
 				ns.FormatSigned(math.abs(net), net < 0),

@@ -43,6 +43,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| davef1n | Separate unlearned recipe order and regional sales volume | CurseForge; thread 8715846; #720; #721 |
 | sundered1985 | Vendor and auction profit on the recipe tooltip | CurseForge; #678; thread 8701206 |
 | jugg__ | Vendor and auction profit on the recipe tooltip | Discord; #678 |
 | keerp | Choose Auctionator or TradeSkillMaster for prices | CurseForge; #675; thread 8700437 |

@@ -171,6 +171,29 @@ for _, pair in ipairs(doubleLines) do
 	end
 end
 equal(saleLine and saleLine:find("Region sale average", 1, true) ~= nil, true, "the output value names regional sales")
+for _, sample in ipairs({ { volume = 12.5, text = "12.50" }, { volume = 0, text = "0.00" }, {} }) do
+	for _, source in ipairs({ "sale", "auction", "vendor" }) do
+		ns.CraftCost = function()
+			return 10, { copper = 95, source = source, quantity = 1, volume = sample.volume }, -85
+		end
+		ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+		local volumeLine
+		for _, pair in ipairs(doubleLines) do
+			if pair[1] == "TSM regional sales per day" then
+				volumeLine = pair[2]
+			end
+		end
+		equal(volumeLine, sample.text, "reported volume is independent of the selected price source")
+		local scope = false
+		for _, line in ipairs(lines) do
+			if line == "Average sold per auction house in your region, reported by TSM." then
+				scope = true
+			end
+		end
+		equal(scope, sample.volume ~= nil, "only a known volume gets its regional scope")
+	end
+end
+
 ns.CraftCost = originalCraftCost
 
 -- Both ways of selling the same craft are compared, and the profit follows the row's per-craft or per-skill-up

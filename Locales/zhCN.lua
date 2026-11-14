@@ -506,3 +506,10 @@ L["Auction prices from"] = "拍卖价格来源"
 L["Auctionator"] = "Auctionator"
 L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
 	"两个插件都安装时，由哪个插件为拍卖价值定价。所选插件的价格优先，另一个只补充它没有价格的物品。Auctionator 还会显示价格的记录时间。"
+
+L["Unlearned recipe order"] = "未学配方排序" -- mt
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"尚未学会的配方的排序方式。已学配方保留所选的排序方式。" -- mt
+L["TSM regional sales per day"] = "TSM地区每日销量" -- mt
+L["Average sold per auction house in your region, reported by TSM."] =
+	"TSM报告的所在地区每个拍卖行的平均销量。" -- mt

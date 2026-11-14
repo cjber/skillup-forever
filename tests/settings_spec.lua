@@ -258,7 +258,7 @@ local groups = {
 			.. " checkbox:showSkill checkbox:showTooltip"
 			.. " checkbox:detailsBar slider:recipeTooltip checkbox:showCost slider:rowCost",
 	},
-	{ "Prices", "slider:craftValue checkbox:valueGathered checkbox:auctionOnly" },
+	{ "Prices", "slider:craftValue checkbox:valueGathered checkbox:auctionOnly slider:restockCost" },
 	{
 		"Route and trainer",
 		"checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"

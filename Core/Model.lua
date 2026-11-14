@@ -199,26 +199,125 @@ function Model.RouteStepCost(netCost, reagentCost, crafts, timeCost)
 	return first + extra * (crafts - 1)
 end
 
--- The chance a run of crafts has to reach its skill goal, so a route is planned to cover an
--- unlucky run rather than the average one.
-Model.CONFIDENCE = 0.9
+-- The chance the whole route completes from its starting inventory: every leg's crafts are chosen
+-- together, so the product of their completion odds clears this rather than each leg clearing 90% alone.
+Model.ROUTE_CONFIDENCE = 0.95
 
 -- What a craft's time is worth, in copper. A craft takes a few seconds, and without a price on that
 -- a free recipe's last point before grey, which can take dozens of crafts, would still look free (#400).
 Model.CRAFT_TIME_COST = 100
 
--- The crafts that reach `to` from `from` with Model.CONFIDENCE certainty: the fewest crafts whose
--- odds of every needed skill point are at least that, worked out point by point because the
--- chance changes as skill rises. A craft can grant `skillUps` points at once, which the client's
--- own recipe info gives for an orange recipe.
+-- A certainty no floating-point run quite reaches, and the most crafts one leg may ask for: the second only
+-- bounds a recipe whose chance is so low that no practical run reaches the target.
+local CERTAIN = 1 - 1e-9
+local MAX_CRAFTS = 2000
+
+-- A point's chance and what a craft there gains, from `from` to `to`: false where a craft gains nothing.
 ---@param thresholds number[]
 ---@param from number
 ---@param to number
 ---@param skillUps integer?
----@return number
-function Model.CoveredCrafts(thresholds, from, to, skillUps)
+---@return integer needed
+---@return table<integer, number|false> chances
+---@return table<integer, integer> gains
+local function CraftChances(thresholds, from, to, skillUps)
 	local needed = to - from
 	if needed <= 0 then
+		return 0, {}, {}
+	end
+	local ups = math.max(skillUps or 1, 1)
+	local chances, gains = {}, {}
+	for points = 0, needed - 1 do
+		local chance = Model.Chance(thresholds, from + points)
+		if chance and chance > 0 then
+			chances[points] = chance
+			-- A craft never grants more points than the recipe has left before grey.
+			gains[points] = math.min(ups, needed - points, math.max(thresholds[4] - (from + points), 1))
+		else
+			chances[points] = false
+		end
+	end
+	return needed, chances, gains
+end
+
+-- The chance after `crafts` crafts that a leg has reached `to` from `from`, for every craft count up to the
+-- point it is effectively certain. Worked out point by point because the chance changes as skill rises; a
+-- craft can grant `skillUps` points at once, which the client's own recipe info gives for an orange recipe.
+---@param thresholds number[]
+---@param from number
+---@param to number
+---@param skillUps integer?
+---@return number[] odds odds[crafts] is the chance at most that many crafts reach the goal.
+function Model.CompletionOdds(thresholds, from, to, skillUps)
+	local needed, chances, gains = CraftChances(thresholds, from, to, skillUps)
+	local oddsByCraft = { 0 }
+	if needed <= 0 then
+		oddsByCraft[0] = 1
+		return oddsByCraft
+	end
+	-- odds[points]: the chance that many points are in hand after the crafts counted so far. Two tables
+	-- take turns, so a long run of crafts leaves no garbage.
+	local odds, next_ = { [0] = 1 }, {}
+	local crafts = 0
+	while crafts < MAX_CRAFTS do
+		crafts = crafts + 1
+		for points in pairs(next_) do
+			next_[points] = nil
+		end
+		next_[needed] = odds[needed] or 0
+		for points = 0, needed - 1 do
+			local inHand = odds[points]
+			if inHand then
+				local chance = chances[points]
+				if chance then
+					local gained = gains[points]
+					next_[points] = (next_[points] or 0) + inHand * (1 - chance)
+					next_[points + gained] = (next_[points + gained] or 0) + inHand * chance
+				else
+					next_[points] = (next_[points] or 0) + inHand
+				end
+			end
+		end
+		odds, next_ = next_, odds
+		oddsByCraft[crafts] = odds[needed] or 0
+		if oddsByCraft[crafts] >= CERTAIN then
+			break
+		end
+	end
+	return oddsByCraft
+end
+
+-- The chance that `crafts` crafts reach `to` from `from`, exact from the same model.
+---@param thresholds number[]
+---@param from number
+---@param to number
+---@param skillUps integer?
+---@param crafts number
+---@return number
+function Model.CompletionChance(thresholds, from, to, skillUps, crafts)
+	if crafts <= 0 then
+		return to <= from and 1 or 0
+	end
+	local odds = Model.CompletionOdds(thresholds, from, to, skillUps)
+	return odds[crafts] or 0
+end
+
+-- The crafts that reach `to` from `from` with `confidence` certainty: the fewest crafts whose odds of every
+-- needed skill point are at least that. A route's own budgets are chosen jointly by Model.BudgetSegments;
+-- this is the single-leg count its ranking and the parts of a plan that are not the whole route use.
+---@param thresholds number[]
+---@param from number
+---@param to number
+---@param skillUps integer?
+---@param confidence number? Defaults to Model.ROUTE_CONFIDENCE.
+---@return number
+function Model.CoveredCrafts(thresholds, from, to, skillUps, confidence)
+	local needed = to - from
+	if needed <= 0 then
+		return 0
+	end
+	local target = confidence or Model.ROUTE_CONFIDENCE
+	if target <= 0 then
 		return 0
 	end
 	local ups = math.max(skillUps or 1, 1)
@@ -227,12 +326,12 @@ function Model.CoveredCrafts(thresholds, from, to, skillUps)
 	if needed == 1 then
 		local chance = Model.Chance(thresholds, from)
 		if chance and chance > 0 then
-			local inHand, toCome, crafts = 0, 1, 0
-			while inHand < Model.CONFIDENCE do
-				crafts = crafts + 1
-				inHand, toCome = inHand + toCome * chance, toCome * (1 - chance)
+			if chance == 1 then
+				return 1
+			elseif target < 1 then
+				-- A single point is geometric: after n crafts its failure chance is (1 - chance)^n.
+				return math.ceil(math.log(1 - target) / math.log(1 - chance))
 			end
-			return crafts
 		end
 	end
 	-- A point's chance, and what a craft there gains, are the same for every craft counted: false where a
@@ -252,7 +351,7 @@ function Model.CoveredCrafts(thresholds, from, to, skillUps)
 	-- take turns, so a long run of crafts leaves no garbage.
 	local odds, next_ = { [0] = 1 }, {}
 	local crafts = 0
-	while (odds[needed] or 0) < Model.CONFIDENCE do
+	while (odds[needed] or 0) < target and crafts < MAX_CRAFTS do
 		crafts = crafts + 1
 		for points in pairs(next_) do
 			next_[points] = nil
@@ -276,6 +375,162 @@ function Model.CoveredCrafts(thresholds, from, to, skillUps)
 	return crafts
 end
 
+-- One leg's odds are advanced one craft at a time, so a budget search works out only the crafts it places,
+-- not the whole run to certainty. `Peek` holds the next craft's chance and state until the leg is chosen.
+---@class SkillUpBudgetLeg
+---@field needed integer
+---@field chances table<integer, number|false>
+---@field gains table<integer, integer>
+---@field odds table<integer, number>
+---@field spare table<integer, number>
+---@field crafts integer
+---@field p number
+---@field pendingP? number
+---@field pendingOdds? table<integer, number>
+---@field pendingSpare? table<integer, number>
+
+---@param leg SkillUpBudgetLeg
+---@return number
+local function Peek(leg)
+	if leg.needed <= 0 then
+		return leg.p
+	end
+	if leg.pendingP ~= nil then
+		return leg.pendingP
+	end
+	local needed = leg.needed
+	local odds, next_ = leg.odds, leg.spare
+	for points in pairs(next_) do
+		next_[points] = nil
+	end
+	next_[needed] = odds[needed] or 0
+	for points = 0, needed - 1 do
+		local inHand = odds[points]
+		if inHand then
+			local chance = leg.chances[points]
+			if chance then
+				local gained = leg.gains[points]
+				next_[points] = (next_[points] or 0) + inHand * (1 - chance)
+				next_[points + gained] = (next_[points + gained] or 0) + inHand * chance
+			else
+				next_[points] = (next_[points] or 0) + inHand
+			end
+		end
+	end
+	leg.pendingP = next_[needed] or 0
+	leg.pendingOdds, leg.pendingSpare = next_, odds
+	return leg.pendingP
+end
+
+---@param leg SkillUpBudgetLeg
+local function Commit(leg)
+	leg.odds, leg.spare = leg.pendingOdds, leg.pendingSpare
+	leg.crafts = leg.crafts + 1
+	leg.p = leg.pendingP
+	leg.pendingP, leg.pendingOdds, leg.pendingSpare = nil, nil, nil
+end
+
+---@param thresholds number[]
+---@param from number
+---@param to number
+---@param skillUps integer?
+---@return SkillUpBudgetLeg
+local function NewLeg(thresholds, from, to, skillUps)
+	-- Guaranteed opening crafts have only one possible state. Begin the distribution after them,
+	-- retaining their craft count, rather than propagating a single probability through every point.
+	local crafts = 0
+	local ups = math.max(skillUps or 1, 1)
+	while from < to and Model.Chance(thresholds, from) == 1 and crafts < MAX_CRAFTS do
+		from = from + math.min(ups, to - from, math.max(thresholds[4] - from, 1))
+		crafts = crafts + 1
+	end
+	local needed, chances, gains = CraftChances(thresholds, from, to, skillUps)
+	if needed <= 0 then
+		return { needed = 0, chances = {}, gains = {}, odds = {}, spare = {}, crafts = crafts, p = 1 }
+	end
+	local leg = {
+		needed = needed,
+		chances = chances,
+		gains = gains,
+		odds = { [0] = 1 },
+		spare = {},
+		crafts = crafts,
+		p = 0,
+	}
+	while leg.p <= 0 and leg.crafts < MAX_CRAFTS do
+		Peek(leg)
+		Commit(leg)
+	end
+	return leg
+end
+
+-- The per-leg craft budgets whose product of completion odds is at least `confidence`, chosen for the
+-- lowest reagent purchase cost. Each extra craft is placed where it adds the most completion chance per
+-- copper, using the reagent cost the caller has already priced. A leg with no price cannot be compared by
+-- cost, so an unknown price falls back to probability alone for the whole route rather than guessing one.
+-- `restockCost` is a player-set copper value for one trip to buy more after a leg falls short: an extra craft
+-- that raises a leg's chance lowers that expected trip cost too. Returns the budgets, the route's completion
+-- chance at them, and the expected number of restock trips.
+---@param segments SkillUpSegment[]
+---@param confidence number?
+---@param restockCost number?
+---@return number[] budgets
+---@return number completion
+---@return number trips
+function Model.BudgetSegments(segments, confidence, restockCost)
+	local target = confidence or Model.ROUTE_CONFIDENCE
+	local tripCost = math.max(restockCost or 0, 0)
+	local count = #segments
+	local budgets, legs = {}, {}
+	local completion = 1
+	local knownCost = true
+	for index = 1, count do
+		local segment = segments[index]
+		local thresholds = segment.thresholds
+		local leg = thresholds and NewLeg(thresholds, segment.fromSkill, segment.toSkill, segment.skillUps)
+			or { crafts = 0, p = 0 }
+		legs[index] = leg
+		budgets[index] = leg.crafts
+		completion = completion * leg.p
+		if segment.reagentCost == nil then
+			knownCost = false
+		end
+	end
+	while completion < target do
+		local bestIndex, bestScore
+		for index = 1, count do
+			local leg = legs[index]
+			local now, next = leg.p, leg.needed and Peek(leg) or leg.p
+			if next > now then
+				local gain = math.log(next) - math.log(now)
+				local score
+				if knownCost then
+					local saved = tripCost * (next - now)
+					score = ((segments[index].reagentCost or 0) - saved) / gain
+				else
+					score = 1 / gain
+				end
+				if not bestScore or score < bestScore then
+					bestIndex, bestScore = index, score
+				end
+			end
+		end
+		if not bestIndex then
+			break
+		end
+		local leg = legs[bestIndex]
+		local now, next = leg.p, Peek(leg)
+		completion = completion * next / now
+		Commit(leg)
+		budgets[bestIndex] = leg.crafts
+	end
+	local trips = 0
+	for index = 1, count do
+		trips = trips + (1 - legs[index].p)
+	end
+	return budgets, math.min(completion, 1), trips
+end
+
 -- The skill points one craft grants at `skill`, at most `room` of them: the client's live count,
 -- capped by what the recipe has left before grey and by what the target still wants.
 ---@param thresholds number[]
@@ -291,7 +546,7 @@ function Model.Gain(thresholds, skill, skillUps, room)
 	return math.max(1, math.min(skillUps or 1, left, room))
 end
 
--- Net cost of one skill point at Model.CONFIDENCE: a low chance carries the crafts it needs, and a
+-- Net cost of one skill point at Model.ROUTE_CONFIDENCE: a low chance carries the crafts it needs, and a
 -- craft that grants several points is worth that many.
 ---@param cost number?
 ---@param thresholds number[]
@@ -303,7 +558,7 @@ function Model.CostPerPoint(cost, thresholds, skill, skillUps)
 	if not cost or (Model.Chance(thresholds, skill) or 0) <= 0 then
 		return nil
 	end
-	return cost * Model.CoveredCrafts(thresholds, skill, skill + ups, ups) / ups
+	return cost * Model.CoveredCrafts(thresholds, skill, skill + ups, ups, Model.ROUTE_CONFIDENCE) / ups
 end
 
 -- A recipe's place in a route's order at a skill: what a point there costs, nil when a craft there gains none,
@@ -320,7 +575,7 @@ local function Rank(recipe, skill)
 	if not chance or chance <= 0 then
 		return nil, chance
 	end
-	local covered = Model.CoveredCrafts(thresholds, skill, skill + ups, ups)
+	local covered = Model.CoveredCrafts(thresholds, skill, skill + ups, ups, Model.ROUTE_CONFIDENCE)
 	local cost = Model.RouteStepCost(recipe.netCost, recipe.reagentCost, covered, Model.CRAFT_TIME_COST)
 	return (cost or 0) / ups, chance
 end
@@ -376,7 +631,7 @@ local function Planner(snapshot)
 	local keys, chances = {}, {}
 	-- [skill]: the list's best recipe there, false for none, and its rank.
 	local bests, bestKeys, bestChances = {}, {}, {}
-	-- [thresholds][from][to][skillUps]: Model.CoveredCrafts.
+	-- [thresholds][from][to][skillUps]: Model.CoveredCrafts at the route's confidence.
 	local covered = {}
 
 	---@param recipe SkillUpCandidate
@@ -432,7 +687,7 @@ local function Planner(snapshot)
 		local byTo = byFrom[fromSkill]
 		byTo[toSkill] = byTo[toSkill] or {}
 		local byUps = byTo[toSkill]
-		byUps[ups] = byUps[ups] or Model.CoveredCrafts(t, fromSkill, toSkill, ups)
+		byUps[ups] = byUps[ups] or Model.CoveredCrafts(t, fromSkill, toSkill, ups, Model.ROUTE_CONFIDENCE)
 		return byUps[ups]
 	end
 
@@ -497,14 +752,18 @@ local function Planner(snapshot)
 			segment.toSkill = skill + gain
 			route.reachedSkill = skill + gain
 		end
-		-- Each step carries the crafts and cost that reach its target in nine runs of ten, from the last
-		-- recipe in the list with its ID.
+		-- Each step carries the recipe's price and thresholds, and the crafts that cover it alone at the
+		-- route's confidence. The whole route's budgets are chosen together after the last route is picked,
+		-- by Model.BudgetRoute, so a training search's many re-plans stay cheap.
 		for _, segment in ipairs(route.segments) do
 			local recipeID = segment.recipeID
 			local t, cost, reagentCost = thresholds[recipeID], costOf[recipeID], reagentOf[recipeID]
 			if extra and extra.recipeID == recipeID then
 				t, cost, reagentCost = extra.thresholds, extra.netCost, extra.reagentCost
 			end
+			segment.thresholds = t
+			segment.cost = cost
+			segment.reagentCost = reagentCost
 			segment.crafts = Covered(t, segment.fromSkill, segment.toSkill, segment.skillUps)
 			route.expectedCost = route.expectedCost
 				+ (Model.RouteStepCost(cost, reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
@@ -540,12 +799,30 @@ local function Planner(snapshot)
 	return { Add = Add, Route = Route, Changes = Changes }
 end
 
+-- Chooses a picked route's per-leg budgets together, then prices the route at them.
+---@param route SkillUpRoute
+---@param confidence number?
+---@param restockCost number?
+---@return SkillUpRoute
+function Model.BudgetRoute(route, confidence, restockCost)
+	local budgets, completion = Model.BudgetSegments(route.segments, confidence, restockCost)
+	local cost = 0
+	for index, segment in ipairs(route.segments) do
+		segment.crafts = budgets[index]
+		cost = cost
+			+ (Model.RouteStepCost(segment.cost, segment.reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
+	end
+	route.completion = completion
+	route.expectedCost = cost
+	return route
+end
+
 -- Inputs are already filtered to learned recipes of one profession, with prices
 -- frozen by the caller. Inventory affects shopping, never recipe selection.
 ---@param snapshot SkillUpSnapshot
 ---@return SkillUpRoute
 function Model.PlanRoute(snapshot)
-	return (Planner(snapshot).Route())
+	return Model.BudgetRoute(Planner(snapshot).Route(), Model.ROUTE_CONFIDENCE, snapshot.restockCost)
 end
 
 -- Reach comes first, then a pin the resulting route uses, then savings for equal endpoints.
@@ -631,7 +908,7 @@ function Model.PlanWithTraining(snapshot, services)
 			end
 		end
 	end
-	local route = planner.Route()
+	local route = Model.BudgetRoute(planner.Route(), Model.ROUTE_CONFIDENCE, snapshot.restockCost)
 	---@cast route SkillUpTrainedRoute
 	local firstUse = {}
 	for _, segment in ipairs(route.segments) do

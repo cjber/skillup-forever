@@ -10,7 +10,7 @@ local frame
 -- keeps the scope the page asked for.
 ---@type integer?
 local scope
-local body, scroll, copyWindow, copyEdit, shown, footer, summary
+local body, scroll, copyWindow, copyEdit, shown, footer, summary, spares
 -- The body's headings, rows and empty state, made once and reused: a refresh shows what it needs and hides the
 -- rest, so nothing from an earlier draw is left on the window (#553).
 ---@type table<string, FontString>
@@ -256,6 +256,7 @@ local function Refresh()
 		emptyText:Hide()
 	end
 	body:SetHeight(math.max(1, -top + 20))
+	spares:SetText(#lists > 0 and ns.RouteSparesNote() or "")
 	footer:SetText(
 		L["Total for priced items: "]
 			.. ns.FormatNet(ns.Model.RoundMoney(total), false)
@@ -289,8 +290,14 @@ local function Create()
 	summary:SetPoint("RIGHT", -16, 0)
 	summary:SetJustifyH("LEFT")
 	summary:SetHeight(28)
+	spares = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	spares:SetPoint("TOPLEFT", 82, -64)
+	spares:SetPoint("RIGHT", -16, 0)
+	spares:SetJustifyH("LEFT")
+	spares:SetWordWrap(true)
+	spares:SetHeight(28)
 	local inset = CreateFrame("Frame", nil, frame, "InsetFrameTemplate")
-	inset:SetPoint("TOPLEFT", 10, -70)
+	inset:SetPoint("TOPLEFT", 10, -94)
 	inset:SetPoint("BOTTOMRIGHT", -10, 48)
 	scroll = CreateFrame("ScrollFrame", nil, inset, "ScrollFrameTemplate")
 	scroll:SetPoint("TOPLEFT", 8, -8)

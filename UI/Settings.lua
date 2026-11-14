@@ -185,6 +185,40 @@ function ns.RegisterSettings()
 			L["Price self-supplied reagents at auction values"],
 			L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."]
 		)
+
+		-- The optional cost of one trip to buy more when a leg falls short. Zero is the default: no trip cost is
+		-- invented, so the budgets follow the reagent purchase price alone. A set value makes an extra craft on a
+		-- risky leg worth more, because it also lowers the chance of that trip.
+		local restock = Settings.RegisterProxySetting(
+			rows,
+			"SkillUpForever_restockCost",
+			Settings.VarType.Number,
+			L["Restock visit cost"],
+			ns.DEFAULTS.restockCost,
+			function()
+				return ns.db.restockCost or 0
+			end,
+			function(value)
+				local copper = math.max(0, math.floor(tonumber(value) or 0))
+				if ns.db.restockCost ~= copper then
+					ns.db.restockCost = copper
+					ns.Changed("settings")
+				end
+			end
+		)
+		---@cast restock SkillUpSetting
+		local restockOptions = Settings.CreateSliderOptions(0, 1000000, 1000)
+		restockOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+			return value > 0 and ns.FormatNet(ns.Model.RoundMoney(value), false) or L["Not counted"]
+		end)
+		Settings.RegisterInitializer(
+			rows,
+			Settings.CreateSliderInitializer(
+				restock,
+				restockOptions,
+				L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."]
+			)
+		)
 	end)
 
 	Section(L["Route and trainer"], function(rows)

@@ -509,3 +509,10 @@ L["Region sale average"] = "Media regional de ventas"
 L["Region sale average if higher"] = "Media regional de ventas si es mayor"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"Las medias regionales de ventas requieren TradeSkillMaster y su aplicación de escritorio. Estiman el valor con compras y ventas regionales registradas, con el precio de venta al vendedor como mínimo. No garantizan una venta."
+
+L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
+	"Las cantidades incluyen reservas para una probabilidad estimada del %d%% de completar toda la ruta." -- mt
+L["Restock visit cost"] = "Coste de una visita de reabastecimiento" -- mt
+L["Not counted"] = "No contabilizado" -- mt
+L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."] =
+	"Cuánto vale en cobre un viaje para comprar más componentes cuando una tanda necesita más fabricaciones de las previstas. Solo se suma al precio de compra de ese componente cuando ocurre. Déjalo en cero para no contar ningún viaje." -- mt

@@ -44,6 +44,12 @@ L["No profession here makes buff items."] = "No profession here makes buff items
 L["Nothing is tracked for %s."] = "Nothing is tracked for %s."
 L["+%d more to train"] = "+%d more to train"
 L["Also train"] = "Also train"
+L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
+	"Counts include spares for an estimated %d%% chance to finish the whole route."
+L["Restock visit cost"] = "Restock visit cost"
+L["Not counted"] = "Not counted"
+L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."] =
+	"What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."
 L["Region sale average"] = "Region sale average"
 L["Region sale average if higher"] = "Region sale average if higher"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =

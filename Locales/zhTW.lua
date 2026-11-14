@@ -499,3 +499,10 @@ L["Region sale average"] = "地區平均成交價"
 L["Region sale average if higher"] = "較高時使用地區平均成交價"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"地區平均成交價需要 TradeSkillMaster 及其桌面應用程式。此價格根據已記錄的地區買賣估算價值，且不低於商店賣出價。此價格不保證物品能夠賣出。"
+
+L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
+	"數量包含預留，以估計 %d%% 的機率完成整條路線。" -- mt
+L["Restock visit cost"] = "補貨往返費用" -- mt
+L["Not counted"] = "不計入" -- mt
+L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."] =
+	"當一次製作需要比計畫更多的次數時，一趟去購買更多材料的費用值多少銅幣。它只在實際發生時加到該材料的購買價格上。保持為零則不計算往返費用。" -- mt

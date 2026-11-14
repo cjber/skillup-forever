@@ -539,3 +539,10 @@ L["Region sale average"] = "Средняя цена продажи в регио
 L["Region sale average if higher"] = "Средняя цена продажи в регионе, если выше"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"Для средних цен продажи в регионе нужны TradeSkillMaster и его приложение для компьютера. Они оценивают стоимость по зарегистрированным региональным продажам и покупкам, но не ниже цены продажи торговцу. Продажа не гарантируется."
+
+L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
+	"Количество включает запас для примерно %d%% вероятности пройти весь маршрут." -- mt
+L["Restock visit cost"] = "Стоимость похода за пополнением" -- mt
+L["Not counted"] = "Не учитывается" -- mt
+L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."] =
+	"Сколько в меди стоит один поход за дополнительными реагентами, когда на серию уходит больше изготовлений, чем планировалось. Он добавляется к цене покупки этого реагента только когда происходит. Оставьте ноль, чтобы не учитывать походы." -- mt

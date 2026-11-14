@@ -1453,14 +1453,22 @@ equal(bookRow.kind, "line", "a train or buy step is one gold line")
 equal(bookRow.text, "Buy and read Expert First Aid - Under Wraps at 125", "a book not yet bought is bought and read")
 equal(bookRow.click ~= nil, true, "and a click goes to its vendor")
 equal(bookRow.detail, "10000", "with its price on the right")
-equal(messages, nil, "and no Total line sits under the route")
+equal(
+	messages,
+	"Counts include spares for an estimated 95% chance to finish the whole route.",
+	"the route says its counts include spares"
+)
 bookRow.tooltip(Stub())
 equal(nearestShown, 1, "its tooltip names the nearest vendor")
 heldBook = 1
 bookRow, messages = BookPage()
 equal(bookRow.text, "Read Expert First Aid - Under Wraps at 125", "a book in the bags is only read")
 equal(bookRow.detail, "You have it", "with no price on the line")
-equal(messages, nil, "and still no Total line sits under the route")
+equal(
+	messages,
+	"Counts include spares for an estimated 95% chance to finish the whole route.",
+	"and still says its counts include spares"
+)
 bookRow.tooltip(Stub())
 equal(tooltipLines[#tooltipLines], "You have this book: read it.", "its tooltip says you have it")
 equal(nearestShown, 1, "and names no vendor")

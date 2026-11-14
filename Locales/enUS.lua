@@ -9,8 +9,8 @@ local L = setmetatable({}, {
 	end,
 })
 ns.L = L
-L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
-	"This route is mostly %s: %d recipes are left out until their reagents are priced."
+L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
+	"This route is mostly %s: %d recipes are left out until their costs or sale values are known."
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values"
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."
@@ -50,3 +50,10 @@ L["Restock visit cost"] = "Restock visit cost"
 L["Not counted"] = "Not counted"
 L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."] =
 	"What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."
+L["Region sale average"] = "Region sale average"
+L["Region sale average if higher"] = "Region sale average if higher"
+L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
+	"Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."
+
+L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
+	"Route incomplete: %d recipes left out because their costs or sale values are unknown."

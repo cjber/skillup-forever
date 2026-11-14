@@ -855,6 +855,11 @@ function Client.load(options)
 			target[method] = callback
 			return
 		end
+		-- ForeverCore's optional quest section (UI/TrackerQuests.lua) watches native modules join the tracker; SkillUp
+		-- itself still hooks nothing native.
+		if target == G.ObjectiveTrackerFrame and method == "AddModule" then
+			return
+		end
 		error("native methods must stay unhooked")
 	end
 	G.OBJECTIVE_TRACKER_COLOR = { Complete = "complete" }
@@ -1436,6 +1441,11 @@ function Client.load(options)
 			c.secureSettingsCalls = (c.secureSettingsCalls or 0) + 1
 			return fn(...) -- multi-value: the wrapped client function's results pass through
 		end
+	end
+	-- ForeverCore 1.8.0 dispatches the restricted openers through securecallfunction; count those calls the same way.
+	G.securecallfunction = function(fn, ...)
+		c.secureSettingsCalls = (c.secureSettingsCalls or 0) + 1
+		return fn(...) -- multi-value: the client function's results pass through
 	end
 	G.CreateSettingsButtonInitializer = noop
 	G.MinimalSliderWithSteppersMixin = { Label = { Right = 1 } }

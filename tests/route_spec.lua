@@ -1231,7 +1231,9 @@ end
 routeTab:Click()
 Drain()
 equal(
-	table.concat(lists[1].messages, " | "):find("Route incomplete: 2 recipes left out", 1, true) ~= nil,
+	table
+		.concat(lists[1].messages, " | ")
+		:find("Route incomplete: 2 recipes left out because their costs or sale values are unknown.", 1, true) ~= nil,
 	true,
 	"a route with an unpriced reagent is marked incomplete"
 )

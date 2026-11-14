@@ -104,6 +104,7 @@ function frame:SetWidth(width)
 end
 
 local playerLevel = 20
+local searchText
 local ctx = { skillLine = 171, skill = 50, base = 45, modifier = 5 }
 local thresholds = {
 	[1] = { 1, 25, 50, 75 },
@@ -208,6 +209,9 @@ local env = setmetatable({
 		GetCraftableCount = function()
 			return 0
 		end,
+		GetRecipeItemNameFilter = function()
+			return searchText
+		end,
 	},
 	UnitLevel = function()
 		return playerLevel
@@ -231,6 +235,8 @@ local env = setmetatable({
 	ScrollBoxConstants = { RetainScrollPosition = true },
 	CreateTreeDataProvider = Provider,
 	GRAY_FONT_COLOR = { GetRGB = noop },
+	strlower = string.lower,
+	strfind = string.find,
 	strcmputf8i = function(a, b)
 		if a == b then
 			return 0
@@ -245,7 +251,8 @@ local env = setmetatable({
 setfenv(assert(loadfile("Core/Gear.lua")), env)("SkillUpForever", ns)
 
 -- The spec's own recipe data: an elixir (level 10), buff food (level 25), a healing potion and a sword
--- that are no buff, two unlearned recipes (one buff), and a recipe whose output is no item.
+-- that are no buff, two unlearned recipes (one buff), a second unlearned buff for the search test, and a
+-- recipe whose output is no item.
 ns.RecipeData = {
 	[1] = { skillLine = 171, output = { itemID = 100, quantity = 1 } },
 	[2] = { skillLine = 185, output = { itemID = 101, quantity = 1 } },
@@ -253,9 +260,10 @@ ns.RecipeData = {
 	[4] = { skillLine = 164, output = { itemID = 103, quantity = 1 } },
 	[5] = { skillLine = 171, output = { itemID = 104, quantity = 1 } },
 	[6] = { skillLine = 171, output = { itemID = 105, quantity = 1 } },
+	[7] = { skillLine = 171, output = { itemID = 106, quantity = 1 } },
 	[9] = { skillLine = 171, output = false },
 }
-ns.BuffItems = { [100] = 1, [101] = 2, [104] = 4 }
+ns.BuffItems = { [100] = 1, [101] = 2, [104] = 4, [106] = 5 }
 ns.ItemGear = {
 	[100] = { 10 },
 	[101] = { 25 },
@@ -263,6 +271,7 @@ ns.ItemGear = {
 	[103] = { 0 },
 	[104] = { 15 },
 	[105] = { 5 },
+	[106] = { 10 },
 }
 
 setfenv(assert(loadfile("UI/RecipeList.lua")), env)("SkillUpForever", ns)
@@ -316,6 +325,33 @@ for _, node in ipairs(nodes) do
 	local info = node:GetData().recipeInfo
 	assert(not info or info.recipeID ~= 6, "an unlearned recipe that is no buff is left out")
 end
+
+-- The client's search filters the bundle's added rows in the buff list too: a match keeps only that
+-- unlearned buff, no match leaves the learned ones, and clearing the search brings both back.
+local unlearned = ns.UnlearnedRecipes
+ns.UnlearnedRecipes = function()
+	return {
+		{ recipeID = 5, name = "Unlearned Buff", kind = "trainer", skill = 50, thresholds = { 1, 25, 50, 75 } },
+		{ recipeID = 7, name = "Unlearned Elixir", kind = "trainer", skill = 55, thresholds = { 1, 25, 50, 75 } },
+	}
+end
+searchText = "ELIXIR"
+replacements = 0
+box:SetDataProvider(input)
+nodes = Nodes()
+assert(#nodes == 4, "two learned buffs, a divider and only the matching unlearned buff")
+assert(nodes[4]:GetData().recipeInfo.recipeID == 7, "the added buff whose name matches stays")
+searchText = "missing"
+box:SetDataProvider(input)
+nodes = Nodes()
+assert(#nodes == 2, "no matching added buff leaves the two learned ones")
+searchText = ""
+box:SetDataProvider(input)
+nodes = Nodes()
+assert(#nodes == 5, "clearing the search brings both added buffs back")
+assert(nodes[4]:GetData().recipeInfo.recipeID == 5 and nodes[5]:GetData().recipeInfo.recipeID == 7)
+ns.UnlearnedRecipes = unlearned
+searchText = nil
 
 -- A chosen sort mode orders by its own key instead of the required level.
 ns.db.showUnlearned = false

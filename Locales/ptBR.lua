@@ -197,8 +197,8 @@ L["Requires"] = "Requer"
 L["Replan"] = "Replanejar"
 L["Route"] = "Rota"
 L["Route and trainer"] = "Rota e instrutor"
-L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
-	"Rota incompleta: %d receitas deixadas de fora, seus reagentes ainda sem preço."
+L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
+	"Rota incompleta: %d receitas excluídas porque seus custos ou valores de venda são desconhecidos."
 L["Route needs"] = "A rota precisa"
 L["Route: %d/%d · %s to %d"] = "Rota: %d/%d · %s até %d"
 L["Sales"] = "Vendas"
@@ -366,6 +366,7 @@ L["  %d items have no price yet"] = "  %d itens ainda não têm preço"
 L["%d x %s - %s each"] = "%d x %s - %s cada"
 L["%d x %s - price unknown"] = "%d x %s - preço desconhecido"
 L["%s to %d"] = "%s a %d"
+L[" · "] = " · "
 L[", "] = ", "
 L[", price seen %d days ago"] = ", preço visto há %d dias"
 L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
@@ -437,8 +438,8 @@ L["The game's Craft button is not ready for this recipe."] =
 	"O botão Criar do jogo não está pronto para esta receita." -- mt
 L["vendor, limited stock"] = "vendedor, estoque limitado" -- mt
 L["Sells %d at a time"] = "Vende %d por vez" -- mt
-L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
-	"Esta rota é principalmente %s: %d receitas ficam de fora até que seus reagentes tenham preço." -- mt
+L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
+	"Esta rota usa principalmente %s: %d receitas são excluídas até que seus custos ou valores de venda sejam conhecidos."
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
@@ -500,7 +501,13 @@ L["Without Auctionator, a recipe's Search button fills the game's own auction bo
 L["%s: %s is out of date. Update it to fix this."] = "%s: %s está desatualizado. Atualize-o para corrigir isso." -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s: %s estão desatualizados. Atualize-os para corrigir isso." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s não pôde iniciar. Reinstale %s para corrigir isso." -- mt
-L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["SkillUp no longer fills Auctionator with shopping lists."] =
+	"O SkillUp não preenche mais o Auctionator com listas de compras." -- mt
+L["Region sale average"] = "Média regional de vendas"
+L["Region sale average if higher"] = "Média regional de vendas se for maior"
+L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
+	"As médias regionais de vendas exigem TradeSkillMaster e seu aplicativo de desktop. Elas estimam o valor com compras e vendas regionais registradas, com o preço de venda ao comerciante como mínimo. Elas não garantem uma venda."
+
 L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
 	"As quantidades incluem reservas para uma chance estimada de %d%% de concluir toda a rota." -- mt
 L["Restock visit cost"] = "Custo de uma visita de reabastecimento" -- mt

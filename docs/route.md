@@ -13,6 +13,7 @@ The SkillUp side tab on the Professions window opens the SkillUp page you used l
 - A reagent you already hold is counted once across every step that uses it, so a spare is not asked for twice. An optional *Restock visit cost* (Settings, Prices) adds a trip to the cost of running short when you set one; left at zero, no trip is counted.
 - Recipes a trainer teaches are included when they pay for themselves or you pin them, shown as a *Train* step with its fee. The fee is counted once, and never before the trainer would teach them.
 - Recipes with an unpriced reagent are left out and counted.
+- Reagents your bags already hold are used before a sub-craft is planned: an intermediate you hold is not crafted, its raw reagents are not bought, and one you hold only partly plans just the shortfall.
 - Recipes you said *Not this recipe* to are left out (see below).
 
 ### It stays put

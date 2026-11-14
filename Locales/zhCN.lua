@@ -196,8 +196,8 @@ L["Requires"] = "需要"
 L["Replan"] = "重新规划"
 L["Route"] = "路线"
 L["Route and trainer"] = "路线和训练师"
-L["Route incomplete: %d recipes left out, their reagents not priced yet."] =
-	"路线不完整：遗漏了%d个配方，其材料尚无价格。"
+L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
+	"路线不完整：%d 个配方因成本或出售价值未知而被排除。"
 L["Route needs"] = "路线需要"
 L["Route: %d/%d · %s to %d"] = "路线：%d/%d · %s至%d"
 L["Sales"] = "出售"
@@ -363,6 +363,7 @@ L["  %d items have no price yet"] = "  %d 件物品还没有价格"
 L["%d x %s - %s each"] = "%d x %s - 每个 %s"
 L["%d x %s - price unknown"] = "%d x %s - 价格未知"
 L["%s to %d"] = "%s至%d"
+L[" · "] = " · "
 L[", "] = "，"
 L[", price seen %d days ago"] = "，%d 天前的价格"
 L["/skillup export - show the trainer requirements this character has seen, to paste into a report"] =
@@ -429,8 +430,8 @@ L["Shift-click crafts all %d."] = "按住Shift点击制造全部%d个。" -- mt
 L["The game's Craft button is not ready for this recipe."] = "游戏自带的制造按钮尚未对这份配方就绪。" -- mt
 L["vendor, limited stock"] = "商人，库存有限" -- mt
 L["Sells %d at a time"] = "每次出售 %d 个" -- mt
-L["This route is mostly %s: %d recipes are left out until their reagents are priced."] =
-	"这条路线主要需要%s：在材料定价前有%d个配方被排除。" -- mt
+L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
+	"此路线主要使用 %s：%d 个配方会在成本或出售价值确定后加入。"
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
@@ -492,7 +493,12 @@ L["Without Auctionator, a recipe's Search button fills the game's own auction bo
 L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已过期。请更新它来解决此问题。" -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已过期。请更新它们来解决此问题。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 无法启动。请重新安装 %s 来解决此问题。" -- mt
-L["Opening the auction house prices your tracked routes."] = "Opening the auction house prices your tracked routes." -- mt
+L["SkillUp no longer fills Auctionator with shopping lists."] = "SkillUp 不再把购物清单写入 Auctionator。" -- mt
+L["Region sale average"] = "地区平均成交价"
+L["Region sale average if higher"] = "较高时使用地区平均成交价"
+L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
+	"地区平均成交价需要 TradeSkillMaster 及其桌面应用。此价格根据已记录的地区买卖估算价值，且不低于商店售出价。此价格不保证物品能够售出。"
+
 L["Counts include spares for an estimated %d%% chance to finish the whole route."] =
 	"数量包含预留，以估计 %d%% 的概率完成整条路线。" -- mt
 L["Restock visit cost"] = "补货往返费用" -- mt

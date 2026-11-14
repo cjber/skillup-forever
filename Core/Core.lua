@@ -88,6 +88,7 @@ ns.CRAFT_VALUE_OPTIONS = {
 	{ "none", L["Don't count it"] },
 	{ "vendor", L["Vendor sell price"] },
 	{ "auction", L["Auction price if higher"] },
+	{ "sale", L["Region sale average if higher"] },
 }
 -- Beside the window by default: next to the recipe row, the tooltip covered the reagents (#163).
 ns.RECIPE_TOOLTIP_OPTIONS = {
@@ -110,8 +111,8 @@ ns.TITLE = "SkillUp Forever"
 -- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
 -- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
 -- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
-ns.WHATS_NEW_VERSION = "1.9.0"
-ns.WHATS_NEW = L["Opening the auction house prices your tracked routes."]
+ns.WHATS_NEW_VERSION = "1.10.1"
+ns.WHATS_NEW = L["SkillUp no longer fills Auctionator with shopping lists."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -795,7 +796,8 @@ function ns.Describe(recipeInfo, ctx)
 	}
 end
 
--- The compact "skill · chance · cost" text of a recipe row or trainer service.
+-- The compact "skill · chance · cost" text of a recipe row or trainer service. The separator is the locale's, as
+-- for Detail (#692).
 ---@param d SkillUpDescription
 ---@return string
 function ns.FormatRow(d)
@@ -816,7 +818,7 @@ function ns.FormatRow(d)
 	if ns.db.showCost and amount then
 		parts[#parts + 1] = ns.FormatSigned(ns.Model.RoundMoney(math.abs(amount)), amount < 0)
 	end
-	return table.concat(parts, " · ")
+	return table.concat(parts, L[" · "])
 end
 
 ---@param d SkillUpDescription

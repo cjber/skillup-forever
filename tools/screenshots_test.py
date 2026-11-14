@@ -13,7 +13,7 @@ SOURCE = Path(__file__).with_name("screenshots.py")
 def port(name, *constants, scope=None):
     """Compile one screenshots.py function with the constants it reads."""
     tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
-    nodes = [
+    nodes: list[ast.stmt] = [
         node
         for node in tree.body
         if isinstance(node, ast.FunctionDef)

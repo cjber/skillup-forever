@@ -60,6 +60,7 @@ local DEFAULTS = {
 	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (ForeverCore.Family)
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
+	merchantEvidence = {}, -- [npcID][itemID] = dated price and current stock observations, never historical maxima
 	-- [itemID] = { [npcID] = count or false }: the most a vendor was seen selling at a time, false for unlimited
 	stock = {},
 	-- [npcID] = { name, side, map, x, y, build, items = { [itemID] = true } }: vendors seen selling a reagent or scroll

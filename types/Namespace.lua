@@ -52,6 +52,7 @@
 ---@field Price fun(itemID: integer): SkillUpPrice?
 ---@field PriceSource fun(itemID: integer): SkillUpPriceSource?
 ---@field CanGather fun(itemID: integer): string? The profession name, or "loot" for a reagent creatures drop.
+---@field MerchantEvidence fun(itemID: integer, npcID: integer, now: number): SkillUpMerchantEvidence?
 ---@field IsLimitedStock fun(itemID: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
 ---@field ObtainCost fun(itemID: integer): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
 ---@field LiveSchematicsArrived fun(recipeIDs: integer[]): boolean
@@ -285,6 +286,7 @@
 ---@field trainer table<integer, table<integer, number[]>> { fee, required skill, required skill the trainer showed? }
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
+---@field merchantEvidence table<integer, table<integer, SkillUpMerchantEvidence>> Dated observations owned by each NPC, not current availability guarantees.
 ---@field stock table<integer, table<integer, number|false>> Per item, per vendor: the most it was seen selling at a time, false for unlimited.
 ---@field sellers table<integer, SkillUpSeller>
 ---@field builds string[] The client builds this install has run with, oldest first.
@@ -460,8 +462,8 @@ SkillUpForeverDB = nil
 ---@field count number
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
----@alias SkillUpChange 'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
----@alias SkillUpStale 'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
+---@alias SkillUpChange 'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
+---@alias SkillUpStale 'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
@@ -963,3 +965,9 @@ SkillUpForeverDB = nil
 ---@field quests integer[]
 ---@field drops number[][] { npc, chance % }, likeliest first.
 ---@field world boolean
+
+---@class SkillUpMerchantEvidence
+---@field unitCopper? number Money quote absent for extended costs or missing quantities.
+---@field stock? integer|'unlimited' Available when observed, never a replenishment promise.
+---@field observedAt number Server Unix seconds.
+---@field ageSeconds? number Computed from the caller clock on a returned snapshot.

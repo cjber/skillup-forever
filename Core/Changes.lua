@@ -15,6 +15,7 @@ end
 local ORDER = {
 	"schematics",
 	"prices",
+	"sourceEvidence",
 	"plans",
 	"replan",
 	"bags",
@@ -42,6 +43,7 @@ local ORDER = {
 -- routes and the tools the bags lack. The two are dropped separately, so a bag or item change that moves no
 -- answer does not rebuild the lines a hover redraws.
 local STALE = {
+	sourceEvidence = { sourceEvidence = true },
 	-- What a profession's recipes are or need: a recipe learned, or the open window's scan finding a learned
 	-- flag, a live grey, skill points or a schematic the plans were built without. The plan is built from all
 	-- of it.

@@ -671,6 +671,59 @@ local function MerchantNPC()
 	return guid and tonumber(guid:match("^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)"))
 end
 
+-- These are past observations, not a promise that stock remains available or
+-- replenishes. In particular db.stock's historical maximum is never a source.
+---@param itemID integer
+---@param npcID integer
+---@param now number server Unix seconds, supplied by the snapshot owner
+---@return SkillUpMerchantEvidence?
+function ns.MerchantEvidence(itemID, npcID, now)
+	local vendors = ns.db.merchantEvidence
+	local vendor = vendors and vendors[npcID]
+	local seen = vendor and vendor[itemID]
+	if not seen or type(now) ~= "number" or now ~= now or now == math.huge or now < seen.observedAt then
+		return nil
+	end
+	return {
+		unitCopper = seen.unitCopper,
+		stock = seen.stock,
+		observedAt = seen.observedAt,
+		ageSeconds = now - seen.observedAt,
+	}
+end
+
+local function RecordEvidence(itemID, npcID, info)
+	local vendors = ns.db.merchantEvidence
+	local vendor = vendors[npcID] or {}
+	vendors[npcID] = vendor
+	local stock = info.numAvailable
+	if type(stock) ~= "number" or stock ~= stock or math.abs(stock) == math.huge or stock % 1 ~= 0 then
+		stock = nil
+	elseif stock < 0 then
+		stock = "unlimited"
+	end
+	local price, count = info.price, info.stackCount
+	local copper
+	if
+		not info.hasExtendedCost
+		and type(price) == "number"
+		and price >= 0
+		and price < math.huge
+		and type(count) == "number"
+		and count > 0
+		and count < math.huge
+	then
+		copper = price / count
+	end
+	local seen = vendor[itemID]
+	local at = GetServerTime()
+	if not seen or seen.unitCopper ~= copper or seen.stock ~= stock or seen.observedAt ~= at then
+		vendor[itemID] = { unitCopper = copper, stock = stock, observedAt = at }
+		return true
+	end
+	return false
+end
+
 -- What the open window shows this vendor sells at a time: the highest count seen as it restocks, or false
 -- once it shows no limit. A sold-out item shows zero, which proves a limit, so it is kept as at least one.
 ---@param itemID integer
@@ -704,13 +757,16 @@ end
 -- as the latest word on its stock: what the window says replaces the bundled limit for that vendor.
 ---@return SkillUpChange?
 local function RecordMerchant()
-	local changed, stocked, sold = false, false, {}
+	local changed, stocked, evidence, sold = false, false, false, {}
 	local npcID = MerchantNPC()
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
 		local info = C_MerchantFrame.GetItemInfo(index)
 		sold[#sold + 1] = itemID
 		if itemID and info then
+			if npcID and RecordEvidence(itemID, npcID, info) then
+				evidence = true
+			end
 			if npcID and type(info.numAvailable) == "number" and RecordStock(itemID, npcID, info.numAvailable) then
 				stocked = true
 			end
@@ -730,6 +786,9 @@ local function RecordMerchant()
 		end
 	end
 	local seen = ns.SeeVendor(sold)
+	if evidence then
+		ns.Changed("sourceEvidence")
+	end
 	return changed and "prices" or (seen or stocked) and "sources" or nil
 end
 
@@ -738,6 +797,9 @@ local function PricesChanged()
 end
 
 function ns.InitPrices()
+	if type(ns.db.merchantEvidence) ~= "table" then
+		ns.db.merchantEvidence = {}
+	end
 	if type(ns.db.vendor) ~= "table" then
 		ns.db.vendor = {}
 	end

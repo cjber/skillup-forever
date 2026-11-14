@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The route spells out what to craft in order.** Each craft step leads with its quantity and recipe, with its skill range, cost and station underneath. Thanks to codipherus for the report (#684).
+
 - **Unlearned recipes have their own order.** Sort them by required skill or newest first while learned recipes keep your chosen order. Thanks to davef1n for the idea (#720).
 - **Recipe tooltips show TSM regional sales per day when available.** The figure is the average sold per auction house in your region, alongside the craft's sale values and profit. Thanks to davef1n for the idea (#721).
 

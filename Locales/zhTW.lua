@@ -6,8 +6,6 @@ end
 local L = ns.L
 
 L["%d %s"] = "%d %s"
-L["%d crafts to %d, %s"] = "製造%d次至%d，%s"
-L["%d crafts to %d, %s, at %s"] = "製造%d次至%d，%s，地點：%s"
 L["%d more"] = "還有%d個"
 L["%d of %d"] = "%d/%d"
 L["%d reagents have no price"] = "%d 種材料沒有價格"
@@ -508,6 +506,8 @@ L["Auctionator"] = "Auctionator"
 L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
 	"兩個插件都安裝時，由哪個插件為拍賣價值定價。所選插件的價格優先，另一個只補上它沒有價格的物品。Auctionator 也會顯示價格的記錄時間。"
 
+L["Skill %d to %d, %s"] = "技能%d至%d，%s" -- mt
+L["Skill %d to %d, %s, at %s"] = "技能%d至%d，%s，地點：%s" -- mt
 L["Unlearned recipe order"] = "未學配方排序" -- mt
 L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
 	"尚未學會的配方的排序方式。已學配方保留所選的排序方式。" -- mt

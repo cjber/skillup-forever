@@ -6,8 +6,6 @@ end
 local L = ns.L
 
 L["%d %s"] = "%d %s"
-L["%d crafts to %d, %s"] = "%d회 제작, %d까지, %s"
-L["%d crafts to %d, %s, at %s"] = "%d회 제작, %d까지, %s, 장소: %s"
 L["%d more"] = "%d개 더"
 L["%d of %d"] = "%d / %d"
 L["%d reagents have no price"] = "%d개의 재료에 가격이 없습니다"
@@ -527,6 +525,8 @@ L["Auctionator"] = "Auctionator"
 L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
 	"둘 다 설치되어 있을 때 경매 가치를 어느 애드온이 책정할지 정합니다. 선택한 애드온의 가격이 우선하며, 다른 애드온은 가격이 없는 아이템만 채웁니다. Auctionator는 가격의 경과 시간도 표시합니다."
 
+L["Skill %d to %d, %s"] = "숙련도 %d~%d, %s" -- mt
+L["Skill %d to %d, %s, at %s"] = "숙련도 %d~%d, %s, %s에서" -- mt
 L["Unlearned recipe order"] = "배우지 않은 제조법 정렬" -- mt
 L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
 	"아직 배우지 않은 제조법의 정렬 방식입니다. 배운 제조법은 선택한 정렬 방식을 유지합니다." -- mt

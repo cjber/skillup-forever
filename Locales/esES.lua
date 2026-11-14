@@ -6,8 +6,6 @@ end
 local L = ns.L
 
 L["%d %s"] = "%d %s"
-L["%d crafts to %d, %s"] = "%d creaciones hasta %d, %s"
-L["%d crafts to %d, %s, at %s"] = "%d creaciones hasta %d, %s, en: %s"
 L["%d more"] = "%d más"
 L["%d of %d"] = "%d de %d"
 L["%d reagents have no price"] = "%d reactivos no tienen precio"
@@ -518,6 +516,8 @@ L["Auctionator"] = "Auctionator"
 L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
 	"Qué addon pone precio a los valores de subasta cuando ambos están instalados. Gana el precio del addon elegido; el otro rellena un objeto para el que no tiene precio. Auctionator también indica la antigüedad de su precio."
 
+L["Skill %d to %d, %s"] = "Habilidad de %d a %d, %s" -- mt
+L["Skill %d to %d, %s, at %s"] = "Habilidad de %d a %d, %s, en %s" -- mt
 L["Unlearned recipe order"] = "Orden de recetas sin aprender" -- mt
 L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
 	"Orden de las recetas que aún no has aprendido. Las recetas aprendidas conservan el orden seleccionado." -- mt

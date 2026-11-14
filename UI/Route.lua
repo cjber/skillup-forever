@@ -574,10 +574,10 @@ local function RenderRoute(list, plan)
 			local current = craft == currentCraft
 			list:Add({
 				icon = RecipeIcon(craft.recipeID),
-				text = RecipeName(craft.recipeID),
+				text = string.format(L["Craft %d× %s"], craft.crafts, RecipeName(craft.recipeID)),
 				detail = craft.station
-						and string.format(L["%d crafts to %d, %s, at %s"], craft.crafts, craft.to, money, craft.station)
-					or string.format(L["%d crafts to %d, %s"], craft.crafts, craft.to, money),
+						and string.format(L["Skill %d to %d, %s, at %s"], craft.from, craft.to, money, craft.station)
+					or string.format(L["Skill %d to %d, %s"], craft.from, craft.to, money),
 				color = ns.COLORS[craft.color],
 				current = current,
 				tooltip = function(tooltip)

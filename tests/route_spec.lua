@@ -1336,7 +1336,7 @@ page.pinned = nil
 local apprentice = { name = "Apprentice", from = 0, cap = 75 }
 local journeyman = { name = "Journeyman", from = 75, cap = 150 }
 local firstCraft = { recipeID = 3275, crafts = 2, from = 70, to = 75, color = "yellow" }
-local secondCraft = { recipeID = 3276, crafts = 2, from = 75, to = 80, color = "green" }
+local secondCraft = { recipeID = 3276, crafts = 5, from = 75, to = 80, color = "green", station = "Anvil" }
 local trainRank = { name = "Journeyman", cap = 150, reqSkill = 75, fee = 500, level = 0 }
 page.PlanRoute = function(profession)
 	return {
@@ -1367,12 +1367,16 @@ equal(BandRow(1).name, "Apprentice", "named at its cap")
 equal(BandRow(1).cap, 75, "with the cap it ends at")
 equal(BandRow(1).skill, 1, "and the current base skill for its progress")
 equal(BandRow(2).kind, "row", "the band holds its craft rows")
+equal(BandRow(2).text, "Craft 2× Spell 3275", "the first craft names its count on the primary line")
+equal(BandRow(2).detail, "Skill 70 to 75, 20", "the subline keeps skill and cost without repeating the count")
 equal(BandRow(2).current, true, "with the next craft marked as the current step")
 equal(BandRow(2).color, "yellow", "and keeps its own difficulty colour rather than a gold name")
 equal(BandRow(3).kind, "band", "the next band opens before the rank that trains it")
 equal(BandRow(3).name, "Journeyman", "named for that rank")
 equal(BandRow(4).kind, "line", "which is one compact line")
 equal(BandRow(5).current, false, "and later crafts are not the current step")
+equal(BandRow(5).text, "Craft 5× Spell 3276", "the next craft follows training with its own count")
+equal(BandRow(5).detail, "Skill 75 to 80, 0, at Anvil", "a later craft keeps its station on the subline")
 
 -- The page names the latest auction source and flags old prices.
 page.Price = function()

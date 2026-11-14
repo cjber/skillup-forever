@@ -1096,7 +1096,7 @@ for _, row in ipairs(page.RouteList.scrollBox.frames) do
 		currentRow = row
 	end
 end
-equal(currentRow and currentRow.Text.text, "Spell 3275", "the next craft is marked as the current step")
+equal(currentRow and currentRow.Text.text, "Craft 5× Spell 3275", "the next craft is marked as the current step")
 equal(
 	currentRow and currentRow.Current:IsShown(),
 	true,

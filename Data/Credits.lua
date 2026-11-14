@@ -5,6 +5,7 @@ local _, ns = ...
 ns.Credits = {
 	players = {
 		{ name = "davef1n", what = "Separate unlearned recipe order and regional sales volume" },
+		{ name = "codipherus", what = "Craft quantities lead each route step" },
 		{ name = "sundered1985", what = "Vendor and auction profit on the recipe tooltip" },
 		{ name = "jugg__", what = "Vendor and auction profit on the recipe tooltip" },
 		{ name = "keerp", what = "Choose Auctionator or TradeSkillMaster for prices" },

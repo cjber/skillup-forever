@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The Professions tab stays clear of other addons.** Bundles ForeverCore 1.12.1, whose tabs move below other addons in the same column.
+
 - **Reagent counts cover the whole route, not each step alone.** Every step's craft budget is chosen together so the route finishes 95 times in 100 from what you already hold, at the least reagent purchase cost. The route and shopping list say the counts include spares for that estimate, and a held reagent is counted once across the steps that use it. An optional restock visit cost, off by default, lets a trip to buy more after a shortfall change where the spare crafts go (#563).
 
 ## [1.10.1] - 2026-11-14

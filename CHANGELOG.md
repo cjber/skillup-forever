@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The Professions tab stays clear of other addons.** Bundles ForeverCore 1.12.1, whose tabs move below other addons in the same column.
+
 - **A vendor fallback is a price unknown until the auction house has seen it.** With Buy reagents on, a reagent you could gather, loot or craft that has no auction price yet is no longer quietly priced at a vendor: its route line says `price unknown`, the step and the route total say they are incomplete, and the route says it may change after a scan. A reagent only a vendor sells keeps its vendor price. (#561)
 
 - **The first auction house visit prices only what is still unpriced.** One Auctionator search covers the tracked route's reagents with no price at all, then the route updates with the results. A price already seen is left alone, so a visit never repeats a search for it. (#561)

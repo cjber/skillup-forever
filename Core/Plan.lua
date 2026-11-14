@@ -704,6 +704,7 @@ end
 local function Finish(profession, target, route)
 	local m = profession.modifier
 	local cost = route.trainingCost
+	local segmentCount = #route.segments
 	-- Each rank is needed once the route passes the cap below it: where it gets to,
 	-- which falls short of the target when the known recipes run out.
 	local ranks = {}
@@ -714,16 +715,20 @@ local function Finish(profession, target, route)
 			SplitAtRank(route.segments, rank, m)
 		end
 	end
-	-- A rank split made new segments, so the whole route's budgets are chosen again after it: the same
-	-- product of completion odds, at the least reagent purchase cost, over every leg the player walks.
-	for _, segment in ipairs(route.segments) do
-		segment.thresholds = ns.Model.Get(segment.recipeID)
-		segment.reagentCost = RecipeCosts(segment.recipeID)
-	end
-	local budgets, completion =
-		ns.Model.BudgetSegments(route.segments, ns.Model.ROUTE_CONFIDENCE, ns.db and ns.db.restockCost or 0)
-	for index, segment in ipairs(route.segments) do
-		segment.crafts = budgets[index]
+	-- Reuse the model's budget unless a rank split changed its segments. Rebuilding a held route has no
+	-- prior completion result, so it also budgets the current segments here.
+	local completion = route.completion
+	if completion == nil or #route.segments ~= segmentCount then
+		for _, segment in ipairs(route.segments) do
+			segment.thresholds = ns.Model.Get(segment.recipeID)
+			segment.reagentCost = RecipeCosts(segment.recipeID)
+		end
+		local budgets
+		budgets, completion =
+			ns.Model.BudgetSegments(route.segments, ns.Model.ROUTE_CONFIDENCE, ns.db and ns.db.restockCost or 0)
+		for index, segment in ipairs(route.segments) do
+			segment.crafts = budgets[index]
+		end
 	end
 	local crafts, bags = {}, {}
 	for index, segment in ipairs(route.segments) do

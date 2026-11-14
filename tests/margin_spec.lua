@@ -84,4 +84,24 @@ equal(tripChance >= 0.95, true, "with one it still reaches 95%")
 equal(trip[1] > cheap[1], true, "a restock visit cost buys another craft on the cheaper leg")
 equal(cheap[2], trip[2], "and leaves the more expensive leg alone")
 
+-- An unsplit route keeps its existing budget instead of repeating the probability search.
+do
+	local unsplitClient = Client.load({ saved = { vendor = { [2589] = 2 } }, data = { LootedFrom = {} } })
+	local unsplit = unsplitClient.ns
+	unsplitClient.level = 20
+	unsplitClient.professions = { { name = "First Aid", id = 129, rank = 1, max = 75 } }
+	unsplitClient.known[3275] = true
+	unsplitClient.items[1251] = { sell = 0 }
+	unsplit.db.routeTargets[129] = 40
+	local original, calls = unsplit.Model.BudgetSegments, 0
+	unsplit.Model.BudgetSegments = function(...)
+		calls = calls + 1
+		return original(...)
+	end
+	local unsplitPlan = unsplit.PlanRoute(unsplit.PlayerProfessions()[129])
+	equal(#unsplitPlan.crafts > 0 and #unsplitPlan.ranks == 0, true, "unsplit crafting route")
+	equal(unsplitPlan.completion >= 0.95, true, "the whole route remains budgeted")
+	equal(calls, 1, "an unchanged route should use its already calculated budget")
+end
+
 Client.report("margin_spec")

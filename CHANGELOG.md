@@ -12,23 +12,18 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-11-14
+
+<!-- discord-image: docs/screenshots/route.png -->
+
 - **Held reagents are used before a sub-craft is planned.** A route no longer asks you to craft an intermediate the bags already hold, or to buy the raw reagents for it; when the bags hold only some, the sub-craft covers just the shortfall. Thanks to vladdoubrov (#667).
 - **Items in your bags can be used after you hold Shift over them.** Shifting over an item's tooltip made the game refuse to use that item. The tooltip belongs to the game, which redraws it when you move the mouse over the item again, and SkillUp's own lines now follow that instead of forcing the tooltip to rebuild itself. Thanks to Yivry for the report. (#708)
 - **Clicking a step in the route opens its recipe where you can see it.** The recipe was being selected on the game's crafting page while SkillUp's page still covered it, so the click looked like it did nothing. The crafting page now comes forward with that recipe selected. Thanks to luna for the report. (#683)
 - **Russian players no longer see an empty box between a recipe's skill, chance and cost.** The Russian client's font has no middle dot, so SkillUp draws that separator with a bullet, and the Russian text that joins a place and its fee or a recipe and where it is learned uses the same. Found from a report by XaksFlaX on GitHub (cjber/shortest-path-forever#838).
-
 - **Craft values can use regional sales.** Choose Region sale average if higher to value crafted items with TradeSkillMaster and its desktop app. Buying reagents still uses listing prices. Missing sales fall back to the vendor price, and a value with neither source stays unknown. Thanks to _spada (#478).
-
 - **Search also filters unlearned recipes.** Typing in the Professions search box narrows the unlearned list, and clearing it brings the recipes back. Thanks to kopuliak (#662).
 - **The recipe tooltip keeps its skill bar when you skill up.** Crafting with the cursor on a recipe could leave its tooltip with an empty gap where the skill bar was: another tooltip cleared after the craft, such as an item tooltip refreshed when the crafted item reached your bags, hid the bar too. Now only the recipe tooltip's own redraw hides it. Thanks to SanyaBane (#649).
-
 - **A route with no progress draws an empty bar, and reagent counts stay readable.** A skill band at the start of its range no longer fills its track, and a reagent's have/need count is no longer hidden under its fill. Thanks to bromidious for reporting route progress bars overflowing their track (#665).
-
-## [1.9.6] - 2026-11-13
-
-<!-- forever-core-sync -->
-
-- Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ## [1.9.5] - 2026-11-13
 

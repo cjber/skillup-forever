@@ -34,7 +34,7 @@ These images are generated previews of the SkillUp UI.
 
 - **Recipe rows and tooltips.** Each recipe shows its skill-up chance, cost and colour thresholds, in the row and in its tooltip. Missing data shows `?`.
 - **A sortable recipe list.** See how many your bags can make after each name. Sort by difficulty range start, chance, cheapest skill-ups or newest learned first.
-- **Unlearned recipes.** A setting, off by default, lists them greyed under the learned ones, each marked with its trainer or recipe item and the skill it asks. Hovering one shows its reagents, cost and skill-up colours; it cannot be crafted.
+- **Unlearned recipes.** A setting, off by default, lists them greyed under the learned ones, each marked with its trainer or recipe item and the skill it asks. Hovering one shows its reagents, cost and skill-up colours, and typing in the search box narrows them too; it cannot be crafted.
 - **Levelling routes.** Crafts, trainer visits, skill books and rank quests to your target skill, including fees, tools and stations, with steps that allow for unlucky skill-ups. Cheaper crafted reagents become their own steps, routes that stop short name recipes that could extend them, and right-clicking a recipe and choosing *Not this recipe* plans without it.
 - **Shopping lists.** Reagents are counted against bags and bank. Buying is the default, so materials your professions gather are bought unless you choose to gather them; track the list beside quests, buy vendor stock and keep an Auctionator list up to date. The Shopping list says how that list works, and at the auction house you can search a recipe's reagents for as many crafts as you choose.
 - **Trainers, reagents and gathering.** Trainers mark the best recipe to train next, and reagent tooltips show what tracked routes need. On English clients, gathering nodes show the Herbalism or Mining skill they need, coloured at yours.
@@ -46,7 +46,7 @@ Each reagent uses the cheapest known vendor or Auctionator price; visiting a ven
 
 SkillUp never scans the auction house itself: scan with Auctionator to update prices. A gatherable reagent nobody has priced stays on the route under *Auction house* as a price unknown; other missing prices stay unknown and leave affected recipes out of the route.
 
-A craft's vendor sell value comes off its cost, or its auction value after the 5% cut if you choose. Profit shows a green `+`.
+A craft's vendor sell value comes off its cost, or its auction value after the 5% cut if you choose. With TradeSkillMaster and its desktop app, *Region sale average if higher* values the craft from regional sales instead, with the vendor price as a floor. Profit shows a green `+`.
 
 ## Usage
 

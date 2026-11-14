@@ -36,7 +36,10 @@ TOC_TEXT = (REPO / "SkillUpForever.toc").read_text(encoding="utf-8-sig")
 
 def toc_field(name):
     """A TOC metadata value, such as the addon's one identity icon."""
-    return re.search(rf"^##\s*{re.escape(name)}:\s*(.*?)\s*$", TOC_TEXT, re.MULTILINE)[1]
+    match = re.search(rf"^##\s*{re.escape(name)}:\s*(.*?)\s*$", TOC_TEXT, re.MULTILINE)
+    if match is None:
+        raise SystemExit(f"SkillUpForever.toc has no {name} field")
+    return match[1]
 
 
 TOC_METADATA = dict(re.findall(r"^##\s*([^:]+):\s*(.*?)\s*$", TOC_TEXT, re.MULTILINE))
@@ -1564,7 +1567,7 @@ def lua_scene(ui, *, buy_reagents=False, buffs=False):
 # ------------------------------------------------------------------------------------------------ render
 
 from PIL import Image, ImageOps
-from wowmock import (
+from wowmock import (  # ty: ignore[import-not-found]  # found through FOREVER_CORE at run time
     FONTS,
     INSET_FRAME_LAYOUT,
     NORMAL,
@@ -2795,6 +2798,7 @@ def horizontal_fade(canvas, x, y, w, h, left):
     """A soft dark edge over the clipped timeline, as UI/Buffs.lua's two fade frames draw it."""
     fade = Image.new("RGBA", (max(1, round(w)), max(1, round(h))), (0, 0, 0, 0))
     pixels = fade.load()
+    assert pixels is not None  # a freshly created image always has pixel access
     for px in range(fade.width):
         alpha = round(178 * (1 - px / max(1, fade.width - 1)))
         if not left:
@@ -2815,7 +2819,9 @@ def buffs_scene(ui, scene_data):
     # The Cooking specialization page's own art, at its native aspect, cropped to cover under the border.
     art = ui.atlas("Professions-Specializations-Background-Cooking")
     scale = art.image.width / art.width
-    cover = ImageOps.fit(art.image, (round((inset_w - 4) * scale), round((inset_h - 4) * scale)), Image.LANCZOS)
+    cover = ImageOps.fit(
+        art.image, (round((inset_w - 4) * scale), round((inset_h - 4) * scale)), Image.Resampling.LANCZOS
+    )
     canvas.draw(cover, inset_x + 2, inset_y + 2, inset_w - 4, inset_h - 4)
     inset_frame(canvas, inset_x, inset_y, inset_w, inset_h, expand(ui, buffs.get("title") or "Buffs"))
     # The switch beside the inset's title, its bottom above the inset's top edge so it never meets the axis (#599).

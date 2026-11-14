@@ -533,8 +533,8 @@ L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s устарели. Обновите их, чтобы это исправить." -- mt
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s не удалось запустить. Переустановите %s, чтобы это исправить." -- mt
-L["The skill band clears the recipe icon and the Reagents header."] =
-	"Полоса навыка больше не закрывает значок рецепта и заголовок «Реагенты»." -- mt
+L["Held reagents are used before a sub-craft is planned."] =
+	"Имеющиеся реагенты используются раньше, чем планируется промежуточный предмет." -- mt
 L["Region sale average"] = "Средняя цена продажи в регионе"
 L["Region sale average if higher"] = "Средняя цена продажи в регионе, если выше"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =

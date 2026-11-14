@@ -855,6 +855,11 @@ function Client.load(options)
 			target[method] = callback
 			return
 		end
+		-- ForeverCore's optional quest section (UI/TrackerQuests.lua) watches native modules join the tracker; SkillUp
+		-- itself still hooks nothing native.
+		if target == G.ObjectiveTrackerFrame and method == "AddModule" then
+			return
+		end
 		error("native methods must stay unhooked")
 	end
 	G.OBJECTIVE_TRACKER_COLOR = { Complete = "complete" }

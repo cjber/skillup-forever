@@ -499,8 +499,8 @@ L["%s: %s is out of date. Update it to fix this."] = "%s: %s ist nicht aktuell. 
 L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s sind nicht aktuell. Aktualisiert sie, um das zu beheben." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s konnte nicht starten. Installiert %s neu, um das zu beheben." -- mt
-L["The skill band clears the recipe icon and the Reagents header."] =
-	"Der Fertigkeitsbalken lässt das Rezeptsymbol und die Überschrift „Reagenzien“ frei." -- mt
+L["Held reagents are used before a sub-craft is planned."] =
+	"Vorhandene Reagenzien werden genutzt, bevor ein Zwischenprodukt eingeplant wird." -- mt
 L["Region sale average"] = "Regionaler Verkaufsdurchschnitt"
 L["Region sale average if higher"] = "Regionaler Verkaufsdurchschnitt, wenn höher"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =

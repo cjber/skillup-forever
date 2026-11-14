@@ -28,10 +28,10 @@ The recipe tooltip draws the thresholds on the game's own bar with your skill ma
 
 - **Recipe rows and tooltips** show skill-up chance, cost and colour thresholds.
 - **Recipe rows** show skill-up chances, costs and how many your bags can make, while keeping the game's own list width.
-- **Unlearned recipes** can sit under the learned ones in the same list. A setting, off by default, greys them and marks each with its trainer or recipe item and the skill it asks, and hovering one shows its reagents, cost and skill-up colours like a learned recipe's. They cannot be selected or crafted.
+- **Unlearned recipes** can sit under the learned ones in the same list. A setting, off by default, greys them and marks each with its trainer or recipe item and the skill it asks, and hovering one shows its reagents, cost and skill-up colours like a learned recipe's. Typing in the search box narrows them too. They cannot be selected or crafted.
 - **Sorting** orders recipes by difficulty range start, chance, cheapest skill-ups or newest learned first. *Default* restores the game's categories and filters.
 - **Buffs only** filters the list to the elixirs, flasks, Well Fed food, protection potions, stones, oils, armour kits and scopes you can use at your level, highest required level first, with unlearned ones following when *List unlearned recipes* is on.
-- **Levelling routes** list crafts, trainer visits, skill books and rank quests to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps; a route that stops short names recipes that could extend it. Right-click a recipe to pin it for skill-ups or choose *Not this recipe* to plan without it. [Route details](docs/route.md#levelling-route).
+- **Levelling routes** list crafts, trainer visits, skill books and rank quests to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps, and an intermediate your bags already hold is not crafted again; a route that stops short names recipes that could extend it. Right-click a recipe to pin it for skill-ups or choose *Not this recipe* to plan without it. [Route details](docs/route.md#levelling-route).
 - **Shopping lists** count reagents against your bags and bank. *Buy reagents* is on for a new character, so materials your professions gather are bought unless you choose to gather them. Track the list beside quests, buy vendor stock and keep an Auctionator list up to date. At the auction house, search a recipe's reagents for as many crafts as you choose. [Shopping details](docs/route.md#shopping-list).
 - **Trainer annotations** show chance and cost, with a green arrow on the recipe that best extends or cheapens your route.
 - **Reagent tooltips** show what tracked routes need. Hold Shift for every recipe that uses the item and still skills up.
@@ -96,7 +96,7 @@ Each reagent uses the cheapest known vendor or Auctionator price. Common vendor 
 
 Auction prices are Auctionator's latest recorded price for reagents and crafted items. With [TradeSkillMaster](https://www.curseforge.com/wow/addons/tradeskill-master) instead, or for an item Auctionator has no price for, they are its AuctionDB values, kept current by the TSM desktop app. SkillUp never scans the auction house itself: scan with Auctionator to update prices. Missing prices stay unknown and leave affected recipes out of the route.
 
-A craft's vendor sell value comes off its cost, or its auction value after the 5% cut if you choose. Profit shows a green `+` and cost a red `-`. Cost per skill-up is net craft cost divided by skill-up chance; *Money on recipe rows* shows net per craft instead, on recipes that no longer give skill too.
+A craft's vendor sell value comes off its cost, or its auction value after the 5% cut if you choose. With TradeSkillMaster and its desktop app, *Region sale average if higher* values the craft from regional sales, using the vendor price when there is no sale or it is higher. Profit shows a green `+` and cost a red `-`. Cost per skill-up is net craft cost divided by skill-up chance; *Money on recipe rows* shows net per craft instead, on recipes that no longer give skill too.
 
 ## How the numbers work
 

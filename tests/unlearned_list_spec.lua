@@ -293,8 +293,8 @@ ns.UnlearnedRecipes = function()
 end
 box:SetDataProvider(withUnlearned)
 nodes = provider:GetRootNode():GetNodes()
-assert(nodes[1]:GetData().categoryInfo.name == "Unlearned", "the client's own unlearned category stays")
-assert(#nodes[1]:GetNodes() == 1 and nodes[1]:GetNodes()[1]:GetData().recipeInfo.recipeID == 20)
+assert(nodes[1]:GetData().isDivider, "native and bundled unlearned rows share the sorted group")
+assert(nodes[2]:GetData().recipeInfo.recipeID == 20, "the native unlearned recipe appears once in skill order")
 assert(#nodes == 3 and nodes[3]:GetData().recipeInfo.recipeID == 30, "only the missing recipe is added")
 
 -- The client's search filters the recipes the bundle adds, as it filters the client's own rows. A match

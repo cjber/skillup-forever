@@ -251,7 +251,8 @@ def unlearned_text(recipe_id):
 
 
 BAGS = {2318: 23}  # Light Leather
-AUCTION = {2318: 90, 783: 320, 2934: 8}  # Light Leather, Light Hide, Ruined Leather Scraps (copper), from Auctionator
+# ItemID: copper from Auctionator. Light Leather, Light Hide, Ruined Leather Scraps, Handstitched Leather Bracers.
+AUCTION = {2318: 90, 783: 320, 2934: 8, 7277: 90}
 PROFESSIONS = [  # GetProfessions order, as the side tabs show them: name, icon, rank, max, skill line
     ("Leatherworking", 136247, SKILL, MAX_SKILL, 165),
     ("Skinning", 134366, 62, 75, 393),
@@ -299,6 +300,25 @@ def craft_value(recipe_id):
     if each is None or source is None:
         return None, sell is None
     return {"copper": each * output["quantity"], "source": source, "quantity": output["quantity"]}, False
+
+
+def craft_sale_values(recipe_id):
+    """Integrations/Prices.lua ns.CraftSaleValues: one craft's vendor and auction sale, both when known."""
+    output = NS["RecipeData"][recipe_id]["output"]
+    if not output:
+        return {}
+    quantity = output["quantity"]
+    sell = NS["ItemSellPrices"].get(output["itemID"])
+    vendor = {"copper": sell * quantity, "source": "vendor", "quantity": quantity} if sell and sell > 0 else None
+    auction = AUCTION.get(output["itemID"])
+    return {
+        "vendor": vendor,
+        "auction": (
+            {"copper": auction * 0.95 * quantity, "source": "auction", "quantity": quantity}
+            if auction is not None
+            else None
+        ),
+    }
 
 
 def craft_cost(recipe_id):
@@ -1698,23 +1718,44 @@ def recipe_tooltip_lines(ui, recipe_id):
         right = "{} |cff808080({})|r".format(money(p["copper"] * reagent["quantity"]), source_text(p))
         lines.append(TooltipLine(left, right=right))
     lines.append(TooltipLine("Reagents", gold, money(d["cost"])))
+
+    def profit(value):
+        return ("|cff40ff40+|r" if value < 0 else "|cffff2020-|r") + money(abs(value))
+
+    def sale_value(label, value):
+        net = d["cost"] - value["copper"]
+        per = model_cost_per_skill_up(net, d["chance"])
+        if per is not None:
+            return TooltipLine(label, gold, "{} ({} profit per skill-up)".format(money(value["copper"]), profit(per)))
+        return TooltipLine(label, gold, "{} ({} profit per craft)".format(money(value["copper"]), profit(net)))
+
+    values = craft_sale_values(recipe_id)
+    if values["vendor"]:
+        lines.append(sale_value("Vendor sell price", values["vendor"]))
+    if values["auction"]:
+        lines.append(sale_value("Auction price", values["auction"]))
+
+    # A regional sale average is neither a vendor nor a listing, so it keeps its own line and name.
     value, net = d["value"], d["net"]
-    if value and net is not None:
+    if value and value["source"] == "sale" and net is not None:
         each = " x{:g}".format(value["quantity"]) if value["quantity"] != 1 else ""
-        source = "AH" if value["source"] == "auction" else "vendor"
-        lines.append(
-            TooltipLine("Sells for" + each, gold, "{} |cff808080({})|r".format(money(value["copper"]), source))
-        )
-        lines.append(TooltipLine("Profit per craft" if net < 0 else "Net per craft", gold, money(abs(net))))
-    per = d["perSkillUp"]
-    if per is not None:
         lines.append(
             TooltipLine(
-                "Profit per skill-up" if per < 0 else "Per skill-up",
+                "Sells for" + each,
                 gold,
-                ("|cff40ff40+|r" if per < 0 else "|cffff2020-|r") + money(abs(per)),
+                "{} |cff808080(Region sale average)|r".format(money(value["copper"])),
             )
         )
+        lines.append(TooltipLine("Profit per craft" if net < 0 else "Net per craft", gold, money(abs(net))))
+        per = d["perSkillUp"]
+        if per is not None:
+            lines.append(
+                TooltipLine(
+                    "Profit per skill-up" if per < 0 else "Per skill-up",
+                    gold,
+                    profit(per),
+                )
+            )
     return lines, bar_line
 
 

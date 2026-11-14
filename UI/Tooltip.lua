@@ -239,13 +239,17 @@ function ns.PriceAgeText(price)
 	return string.format(L["%dd ago"], price.days)
 end
 
--- What to do about a reagent with no price: auction prices come only from Auctionator or TradeSkillMaster.
+-- What to do about a reagent with no price: auction prices come only from Auctionator or TradeSkillMaster. The
+-- chosen addon's advice comes first; an installed fallback still gets its own advice when the chosen one is absent.
 ---@return string
 function ns.UnpricedHint()
-	if ns.HasAuctionator() then
+	local auctionator, tsm = ns.HasAuctionator(), ns.HasTradeSkillMaster()
+	if (ns.db.priceSource == "tsm" and tsm) or not auctionator then
+		if tsm then
+			return L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."]
+		end
+	elseif auctionator then
 		return L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."]
-	elseif ns.HasTradeSkillMaster() then
-		return L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."]
 	end
 	return L["Visit a vendor to price reagents. Auction prices need Auctionator or TradeSkillMaster."]
 end
@@ -318,41 +322,68 @@ local function AddCost(tooltip, recipeID, d)
 		return
 	end
 	tooltip:AddDoubleLine(L["Reagents"], Money(d.cost), 1, 0.82, 0, 1, 1, 1)
-	local net = d.net
-	if d.value and net then
-		local sells = d.value.quantity ~= 1 and string.format(L["Sells for x%g"], d.value.quantity) or L["Sells for"]
-		tooltip:AddDoubleLine(
-			sells,
-			string.format(
-				"%s |cff808080(%s)|r",
-				Money(d.value.copper),
-				d.value.source == "auction" and L["AH"]
-					or d.value.source == "sale" and L["Region sale average"]
-					or L["vendor"]
-			),
-			1,
-			0.82,
-			0,
-			1,
-			1,
-			1
-		)
-		-- A loss carries the same red minus the per-skill-up line below uses, so the two rows read alike (#360).
-		tooltip:AddDoubleLine(
-			net < 0 and L["Profit per craft"] or L["Net per craft"],
-			ns.FormatSigned(math.abs(net), net < 0),
-			1,
-			0.82,
-			0,
-			1,
-			1,
-			1
-		)
+	-- Vendor and auction are always shown side by side, so a small vendor loss can be compared with a possible
+	-- auction profit. The profit follows the row's own per-craft or per-skill-up choice. Disenchant is absent under
+	-- the explicit #464 hold until authoritative Forever yield data exists.
+	---@param label string
+	---@param value SkillUpValue
+	local function AddSaleValue(label, value)
+		local net = d.cost - value.copper
+		local per = ns.db.rowCost == "skillup" and d.chance and ns.Model.CostPerSkillUp(net, d.chance)
+		local detail
+		if per then
+			detail = string.format(L["%s profit per skill-up"], ns.FormatSigned(math.abs(per), per < 0))
+		else
+			detail = string.format(L["%s profit per craft"], ns.FormatSigned(math.abs(net), net < 0))
+		end
+		tooltip:AddDoubleLine(label, string.format(L["%s (%s)"], Money(value.copper), detail), 1, 0.82, 0, 1, 1, 1)
 	end
-	local perSkillUp = d.perSkillUp
-	if perSkillUp then
-		local label = perSkillUp < 0 and L["Profit per skill-up"] or L["Per skill-up"]
-		tooltip:AddDoubleLine(label, ns.FormatSigned(math.abs(perSkillUp), perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
+	if ns.db.craftValue ~= "none" then
+		local values = ns.CraftSaleValues(recipeID)
+		if values.vendor then
+			AddSaleValue(L["Vendor sell price"], values.vendor)
+		end
+		if values.auction then
+			AddSaleValue(L["Auction price"], values.auction)
+		end
+		-- The regional sale average is neither a vendor nor a listing, so it keeps its own line and its own name.
+		if d.value and d.value.source == "sale" and d.net then
+			local sells = d.value.quantity ~= 1 and string.format(L["Sells for x%g"], d.value.quantity)
+				or L["Sells for"]
+			tooltip:AddDoubleLine(
+				sells,
+				string.format("%s |cff808080(%s)|r", Money(d.value.copper), L["Region sale average"]),
+				1,
+				0.82,
+				0,
+				1,
+				1,
+				1
+			)
+			tooltip:AddDoubleLine(
+				d.net < 0 and L["Profit per craft"] or L["Net per craft"],
+				ns.FormatSigned(math.abs(d.net), d.net < 0),
+				1,
+				0.82,
+				0,
+				1,
+				1,
+				1
+			)
+			if d.perSkillUp then
+				local label = d.perSkillUp < 0 and L["Profit per skill-up"] or L["Per skill-up"]
+				tooltip:AddDoubleLine(
+					label,
+					ns.FormatSigned(math.abs(d.perSkillUp), d.perSkillUp < 0),
+					1,
+					0.82,
+					0,
+					1,
+					1,
+					1
+				)
+			end
+		end
 	end
 end
 

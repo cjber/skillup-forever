@@ -90,10 +90,14 @@ local function TradeSkillMasterPrice(itemID)
 	return { copper = value, source = "tsm" }
 end
 
--- Auctionator's own observation when it has one, so a player with both keeps the prices they had.
+-- The addon whose auction price the player chose. The other addon fills in only an item the chosen one has no
+-- price for: the choice changes which observation wins, not whether a missing price falls back to the other.
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function AuctionPrice(itemID)
+	if ns.db.priceSource == "tsm" then
+		return TradeSkillMasterPrice(itemID) or AuctionatorPrice(itemID)
+	end
 	return AuctionatorPrice(itemID) or TradeSkillMasterPrice(itemID)
 end
 
@@ -596,6 +600,34 @@ local function CraftValue(recipeID)
 		return nil, not (sell or market)
 	end
 	return { copper = each * output.quantity, source = source, quantity = output.quantity }
+end
+
+-- What one craft sells for at a vendor and at the auction house, both at once, for the tooltip's comparison:
+-- the vendor's guaranteed price and the chosen auction source's listing after the house's cut. A zero vendor
+-- price counts for nothing; an auction source's zero is still its answer, as in ItemValue. Disenchant value is
+-- deliberately absent: #464 holds it until authoritative Forever yield data exists.
+---@param recipeID integer
+---@return { vendor?: SkillUpValue, auction?: SkillUpValue }
+function ns.CraftSaleValues(recipeID)
+	local recipe = Recipe(recipeID)
+	local output = recipe and recipe.output
+	if not output then
+		return {}
+	end
+	local sell = SellPrice(output.itemID)
+	local vendor = sell
+			and sell > 0
+			and { copper = sell * output.quantity, source = "vendor", quantity = output.quantity }
+		or nil
+	local ah = AuctionPrice(output.itemID)
+	local auction = ah
+			and {
+				copper = ah.copper * (1 - AUCTION_CUT) * output.quantity,
+				source = "auction",
+				quantity = output.quantity,
+			}
+		or nil
+	return { vendor = vendor, auction = auction }
 end
 
 -- What one craft costs, the one place that says so. Unknown is nil, never free.

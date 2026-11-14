@@ -58,6 +58,7 @@
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
 ---@field UsedIn fun(itemID: integer): integer[]
 ---@field CraftCost fun(recipeID: integer): number?, SkillUpValue?, number?
+---@field CraftSaleValues fun(recipeID: integer): SkillUpSaleValues
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
@@ -251,6 +252,7 @@
 ---@field recipeTooltip 'window'|'cursor'|'row'
 ---@field rowCost 'skillup'|'craft'
 ---@field showCost boolean
+---@field priceSource 'auctionator'|'tsm'
 ---@field craftValue 'none'|'vendor'|'auction'|'sale'
 ---@field valueGathered boolean
 ---@field auctionOnly boolean
@@ -480,6 +482,11 @@ SkillUpForeverDB = nil
 ---@field copper number
 ---@field source SkillUpValueSource
 ---@field quantity number
+
+--- One craft's result sold to a vendor and at the auction house, both when known: the tooltip's comparison.
+---@class SkillUpSaleValues
+---@field vendor? SkillUpValue
+---@field auction? SkillUpValue
 
 ---@class SkillUpDescription
 ---@field thresholds? number[]

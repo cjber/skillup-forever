@@ -52,7 +52,6 @@
 ---@field Price fun(itemID: integer): SkillUpPrice?
 ---@field PriceSource fun(itemID: integer): SkillUpPriceSource?
 ---@field CanGather fun(itemID: integer): string? The profession name, or "loot" for a reagent creatures drop.
----@field MerchantEvidence fun(itemID: integer, npcID: integer, now: number): SkillUpMerchantEvidence?
 ---@field IsLimitedStock fun(itemID: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
 ---@field ObtainCost fun(itemID: integer): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
 ---@field LiveSchematicsArrived fun(recipeIDs: integer[]): boolean
@@ -970,4 +969,3 @@ SkillUpForeverDB = nil
 ---@field unitCopper? number Money quote absent for extended costs or missing quantities.
 ---@field stock? integer|'unlimited' Available when observed, never a replenishment promise.
 ---@field observedAt number Server Unix seconds.
----@field ageSeconds? number Computed from the caller clock on a returned snapshot.

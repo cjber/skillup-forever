@@ -671,27 +671,7 @@ local function MerchantNPC()
 	return guid and tonumber(guid:match("^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)"))
 end
 
--- These are past observations, not a promise that stock remains available or
--- replenishes. In particular db.stock's historical maximum is never a source.
----@param itemID integer
----@param npcID integer
----@param now number server Unix seconds, supplied by the snapshot owner
----@return SkillUpMerchantEvidence?
-function ns.MerchantEvidence(itemID, npcID, now)
-	local vendors = ns.db.merchantEvidence
-	local vendor = vendors and vendors[npcID]
-	local seen = vendor and vendor[itemID]
-	if not seen or type(now) ~= "number" or now ~= now or now == math.huge or now < seen.observedAt then
-		return nil
-	end
-	return {
-		unitCopper = seen.unitCopper,
-		stock = seen.stock,
-		observedAt = seen.observedAt,
-		ageSeconds = now - seen.observedAt,
-	}
-end
-
+-- Record dated observations separately from historical maximum stock.
 local function RecordEvidence(itemID, npcID, info)
 	local vendors = ns.db.merchantEvidence
 	local vendor = vendors[npcID] or {}

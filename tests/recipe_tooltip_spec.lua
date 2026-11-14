@@ -204,9 +204,32 @@ equal(
 	"19 (|cff40ff40+|r9 profit per skill-up)",
 	"and the auction sale with its per-skill-up profit"
 )
+equal(SaleValue("Per skill-up"), nil, "sale comparisons already supply the per-skill-up amounts")
 ns.db.rowCost = "skillup"
 c.auction[BANDAGE_ITEM] = nil
 c.ns.Changed("prices")
+
+-- A known crafting cost still has a per-skill-up estimate when sale values are disabled or unknown.
+local craftValue = ns.db.craftValue
+c.SetSetting("craftValue", "none")
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(SaleValue("Per skill-up"), "|cffff2020-|r10", "ignoring sale value keeps the crafting cost per skill-up")
+equal(SaleValue("Vendor sell price"), nil, "ignoring sale value does not show a vendor comparison")
+c.SetSetting("craftValue", "auction")
+c.items[BANDAGE_ITEM].sell = nil
+ns.Changed("prices")
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(SaleValue("Per skill-up"), "|cffff2020-|r10", "unknown sale values keep the known crafting cost per skill-up")
+equal(SaleValue("Vendor sell price"), nil, "unknown vendor value is not a zero-price comparison")
+equal(SaleValue("Auction price"), nil, "unknown auction value is not a zero-price comparison")
+equal(ns.NetCost(BANDAGE), nil, "unknown sale values still leave the net cost unknown")
+recipe.canSkillUp = false
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(SaleValue("Per skill-up"), nil, "a recipe that cannot grant skill has no per-skill-up estimate")
+recipe.canSkillUp = nil
+c.items[BANDAGE_ITEM].sell = 3
+c.SetSetting("craftValue", craftValue)
+ns.Changed("prices")
 
 -- The bar is the first frame the tooltip made.
 local bar

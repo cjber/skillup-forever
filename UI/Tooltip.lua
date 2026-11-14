@@ -325,9 +325,11 @@ local function AddCost(tooltip, recipeID, d)
 	-- Vendor and auction are always shown side by side, so a small vendor loss can be compared with a possible
 	-- auction profit. The profit follows the row's own per-craft or per-skill-up choice. Disenchant is absent under
 	-- the explicit #464 hold until authoritative Forever yield data exists.
+	local comparedSale = false
 	---@param label string
 	---@param value SkillUpValue
 	local function AddSaleValue(label, value)
+		comparedSale = true
 		local net = d.cost - value.copper
 		local per = ns.db.rowCost == "skillup" and d.chance and ns.Model.CostPerSkillUp(net, d.chance)
 		local detail
@@ -349,6 +351,7 @@ local function AddCost(tooltip, recipeID, d)
 		-- The regional sale average is neither a vendor nor a listing, so it keeps its own line and its own name.
 		local net, perSkillUp = d.net, d.perSkillUp
 		if d.value and d.value.source == "sale" and net then
+			comparedSale = true
 			local sells = d.value.quantity ~= 1 and string.format(L["Sells for x%g"], d.value.quantity)
 				or L["Sells for"]
 			tooltip:AddDoubleLine(
@@ -376,6 +379,12 @@ local function AddCost(tooltip, recipeID, d)
 				tooltip:AddDoubleLine(label, ns.FormatSigned(math.abs(perSkillUp), perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
 			end
 		end
+	end
+	-- Resale can be unknown while the reagents and chance are known. Keep their crafting-cost estimate without
+	-- claiming a net cost or treating an unknown sale as zero.
+	local perSkillUp = not comparedSale and ns.Model.CostPerSkillUp(d.cost, d.chance)
+	if perSkillUp then
+		tooltip:AddDoubleLine(L["Per skill-up"], ns.FormatSigned(perSkillUp, false), 1, 0.82, 0, 1, 1, 1)
 	end
 end
 

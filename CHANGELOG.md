@@ -14,6 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Recipe tooltips compare selling to a vendor with selling at auction.** Each craft shows both sale values and the profit or loss for the per-craft or per-skill-up view you have selected, so a small vendor loss can be weighed against an auction profit. Disenchant value stays out until Forever's yields are known. Thanks to sundered1985 and jugg__ for the idea (#678).
 - **You can choose which auction addon prices your reagents.** When both Auctionator and TradeSkillMaster are installed, Auction prices from picks the one whose price wins; the other still fills in an item it has no price for. Thanks to keerp for the idea (#675).
+- Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ## [1.10.1] - 2026-11-14
 

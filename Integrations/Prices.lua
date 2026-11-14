@@ -212,11 +212,21 @@ local function Gathered(itemID)
 	return price
 end
 
+-- These items have a source beyond vendors even when this character cannot gather or craft them.
+-- A vendor-only reagent needs no auction observation to establish its cost.
+---@param itemID integer
+---@return boolean
+local function MarketGood(itemID)
+	return (ns.GatheredBy and ns.GatheredBy[itemID]) ~= nil
+		or (ns.LootedFrom and ns.LootedFrom[itemID]) ~= nil
+		or #ns.MakersOf(itemID) > 0
+end
+
 -- Cheapest known unit price and where it came from: "gather", "vendor", "auctionator"
 -- or "tsm". A price seen at a vendor beats the bundled list, since it includes
--- any reputation discount. With Buy reagents on, a reagent you could gather that nothing prices is still
--- bought at the auction house: its price is unknown, so it stays on the route and in the Auctionator list
--- without guessing a number (#559).
+-- any reputation discount. With Buy reagents on, a market good without an auction observation stays
+-- unknown, even with a vendor fallback, so it remains in the Auctionator list without treating the
+-- fallback as a known market cost (#559, #561).
 ---@param itemID integer
 ---@return SkillUpPrice?
 function ns.Price(itemID)
@@ -233,12 +243,13 @@ function ns.Price(itemID)
 		if ns.CollectMode() == "gather" then
 			cached = Gathered(itemID)
 		end
-		if not cached and vendor and (not ah or vendor <= ah.copper) then
+		if not cached and not ah and ns.CollectMode() == "auction" and MarketGood(itemID) then
+			-- Keep the vendor fallback for display, but do not rank it as a known market cost before a scan.
+			cached = { copper = vendor or 0, source = "auction", unknown = true }
+		elseif not cached and vendor and (not ah or vendor <= ah.copper) then
 			cached = { copper = vendor, source = "vendor" }
 		elseif not cached and ah then
 			cached = ah
-		elseif not cached and ns.CollectMode() == "auction" and ns.CanGather(itemID) then
-			cached = { copper = 0, source = "auction", unknown = true }
 		elseif not cached then
 			cached = Gathered(itemID) or false
 		end
@@ -453,7 +464,7 @@ end
 local function ObtainCost(itemID, depth, stack)
 	if depth <= 0 then
 		local price = ns.Price(itemID)
-		return price and WithSaleFloor(itemID, price.copper)
+		return price and not price.unknown and WithSaleFloor(itemID, price.copper) or nil
 	end
 	local cached = obtainCost[itemID]
 	if cached == false then
@@ -467,7 +478,7 @@ local function ObtainCost(itemID, depth, stack)
 		return nil
 	end
 	local buy = ns.Price(itemID)
-	local best = buy and buy.copper
+	local best = buy and not buy.unknown and buy.copper or nil
 	---@type integer?
 	local bestRecipe = nil
 	stack[itemID] = true

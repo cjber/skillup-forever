@@ -18,6 +18,8 @@ local c = Client.load({
 	},
 })
 local ns = c.ns
+-- This cache test uses the bundled vendor quote, without requiring an auction comparison.
+ns.SetCollectMode("gather")
 -- The open window's schematics, which are what the schematic cache keeps.
 local schematic = { reagents = { { CLOTH, 1 } }, output = SHIRT_ITEM }
 c.schematics = { [SHIRT] = schematic, [BOLT] = schematic }

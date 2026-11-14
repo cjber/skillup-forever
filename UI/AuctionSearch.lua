@@ -151,11 +151,27 @@ local function PriceRoute()
 	if not (api.GetAuctionPriceByItemID and (api.MultiSearchAdvanced or api.MultiSearchExact)) then
 		return
 	end
-	local needs = {}
+	local needs, discovery = {}, {}
 	for _, entry in ipairs(ns.TrackedNeeds()) do
 		for _, item in ipairs(entry.items) do
 			needs[item.itemID] = (needs[item.itemID] or 0) + item.need
 		end
+		-- Excluded recipes have no planned quantities yet. Their one-craft shortfall can request a price
+		-- observation without treating them as free crafts or adding them to the shopping totals.
+		local unpriced = {}
+		for _, itemID in ipairs(ns.UnpricedReagents(entry.plan)) do
+			unpriced[itemID] = true
+		end
+		for _, recipe in ipairs(entry.plan.unpricedRecipes) do
+			for _, reagent in ipairs(ns.Reagents(recipe) or {}) do
+				if unpriced[reagent.itemID] then
+					discovery[reagent.itemID] = math.max(discovery[reagent.itemID] or 0, reagent.quantity)
+				end
+			end
+		end
+	end
+	for itemID, quantity in pairs(discovery) do
+		needs[itemID] = math.max(needs[itemID] or 0, quantity)
 	end
 	local short = {}
 	for itemID, needed in pairs(needs) do

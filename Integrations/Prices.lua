@@ -225,8 +225,8 @@ end
 -- Cheapest known unit price and where it came from: "gather", "vendor", "auctionator"
 -- or "tsm". A price seen at a vendor beats the bundled list, since it includes
 -- any reputation discount. With Buy reagents on, a market good without an auction observation stays
--- unknown, even with a vendor fallback, so it remains in the Auctionator list without treating the
--- fallback as a known market cost (#559, #561).
+-- unknown with only a bundled vendor fallback. A price actually seen at a merchant is a known purchase
+-- cost; it does not need an auction observation to establish what the player can pay (#559, #561).
 ---@param itemID integer
 ---@return SkillUpPrice?
 function ns.Price(itemID)
@@ -238,12 +238,13 @@ function ns.Price(itemID)
 		if not professions and ns.PlayerProfessions then
 			professions = ns.PlayerProfessions()
 		end
-		local vendor = ns.db.vendor[itemID] or ns.VendorPrices[itemID]
+		local observedVendor = ns.db.vendor[itemID]
+		local vendor = observedVendor or ns.VendorPrices[itemID]
 		local ah = AuctionPrice(itemID)
 		if ns.CollectMode() == "gather" then
 			cached = Gathered(itemID)
 		end
-		if not cached and not ah and ns.CollectMode() == "auction" and MarketGood(itemID) then
+		if not cached and not ah and not observedVendor and ns.CollectMode() == "auction" and MarketGood(itemID) then
 			-- Keep the vendor fallback for display, but do not rank it as a known market cost before a scan.
 			cached = { copper = vendor or 0, source = "auction", unknown = true }
 		elseif not cached and vendor and (not ah or vendor <= ah.copper) then

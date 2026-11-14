@@ -197,4 +197,43 @@ c.Fire("AUCTION_HOUSE_SHOW")
 c.Advance(0)
 equal(#c.auctionSearches, 0, "gather mode starts no auction search")
 
+-- Item-name loading can finish after a visit ends. An old callback cannot consume the next visit's query.
+c = Load({})
+ns = c.ns
+ns.SetCollectMode("auction")
+c.auction[LINEN] = nil
+ns.Changed("prices")
+local pending = {}
+c.G.ContinuableContainer = {
+	Create = function()
+		return {
+			AddContinuable = function() end,
+			ContinueOnLoad = function(_, callback)
+				pending[#pending + 1] = callback
+			end,
+		}
+	end,
+}
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#pending, 1, "an entirely unpriced route waits for item names")
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#pending, 1, "duplicate events cannot enqueue another name callback")
+c.Fire("AUCTION_HOUSE_CLOSED")
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#pending, 2, "a new visit owns its own pending search")
+pending[1]()
+equal(#c.auctionSearches, 0, "the closed visit's callback cannot search during the new visit")
+pending[2]()
+equal(#c.auctionSearches, 1, "the current visit makes exactly one query")
+equal(c.auctionSearches[1][1], "Linen Clothx1", "unknown dependencies survive deferred name loading")
+c.Fire("AUCTION_HOUSE_CLOSED")
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+ns.db.auctionSearch = false
+pending[3]()
+equal(#c.auctionSearches, 1, "disabling search cancels a pending unknown-price query")
+
 Client.report("auction_search_spec")

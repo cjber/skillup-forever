@@ -1,21 +1,22 @@
 -- Run from the repository root: luajit tests/collect_mode_spec.lua
--- #559: buying reagents is the default, and a gatherable nothing has priced is still bought at the auction
--- house as a price unknown rather than dropped from the route. A character who chose gathering keeps it.
+-- Buying reagents is the default. Unobserved market costs remain unknown and searchable.
+-- A character who chose gathering keeps that choice.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local TAILORING, LINEN, BOLT = 197, 2589, 2963
 
 -- A Tailoring character whose only recipe uses Linen Cloth, a reagent anyone can loot, priced by nothing.
-local function Load(saved)
+local function Load(saved, quantity, shared)
 	local c = Client.load({
 		saved = saved,
 		data = {
-			Thresholds = { [BOLT] = { 1, 30, 45, 60 } },
+			Thresholds = { [BOLT] = { 1, 30, 45, 60 }, [999] = shared and { 1, 30, 45, 60 } or nil },
 			RecipeData = {
+				[999] = shared and { skillLine = TAILORING, reagents = { { itemID = LINEN, quantity = 2 } } } or nil,
 				[BOLT] = {
 					skillLine = TAILORING,
-					reagents = { { itemID = LINEN, quantity = 1 } },
+					reagents = { { itemID = LINEN, quantity = quantity or 1 } },
 					output = { itemID = 2964, quantity = 1 },
 				},
 			},
@@ -37,6 +38,7 @@ local function Load(saved)
 	c.items[LINEN] = { name = "Linen Cloth" }
 	c.items[2964] = { name = "Bolt of Linen Cloth", sell = 0 }
 	c.known[BOLT] = true
+	c.known[999] = shared or nil
 	c.spells[BOLT] = "Bolt of Linen Cloth"
 	local ns = c.ns
 	ns.db.routeTargets[TAILORING] = 26
@@ -54,42 +56,69 @@ equal(price.unknown, true, "as a price unknown")
 equal(ns.PriceSource(LINEN), "auction", "so the shopping list puts it in the auction bucket")
 equal(ns.Model.ShoppingSource(ns.PriceSource(LINEN)), "auction", "the bucket the window draws")
 
--- The route keeps the recipe: nothing priced it, but it is still something to buy (#162, #559).
+-- Unknown purchase costs are excluded from ranking, but their recipes and reagents stay searchable.
 local plan = ns.PlanRoute(ns.RouteProfessions()[TAILORING])
-equal(#plan.crafts > 0, true, "the route still has its craft")
-equal(ns.RouteBlocked(plan), nil, "and is not blocked for the unpriced reagent")
-local reagent
-for _, item in ipairs(ns.RouteReagents(plan)) do
-	if item.itemID == LINEN then
-		reagent = item
-	end
-end
-equal(reagent and reagent.source, "auction", "the reagent list sends it to the auction house")
-
--- The shopping list says it is a price unknown, never a made-up number, and still lists it in Auctionator.
+equal(#plan.crafts, 0, "an unknown zero placeholder cannot become a free route")
+equal(plan.reached, 1, "no skill gain is promised without a known cost")
+equal(plan.unpriced, 1, "the unpriced recipe is counted")
+equal(plan.unpricedRecipes[1], BOLT, "and identified for the route page")
+equal(ns.UnpricedReagents(plan)[1], LINEN, "the route page retains the missing market observation")
+equal(ns.NetCost(BOLT), nil, "the recipe has no known net cost")
+equal(
+	ns.RouteBlocked(plan),
+	"Auctionator hasn't seen these reagents yet: scan the auction house with it to price them.",
+	"the route explains the missing observation"
+)
 ns.db.trackedProfessions[TAILORING] = true
-ns.SetCollectMode("auction")
-local lists = ns.ShoppingList()
-local row
-for _, list in ipairs(lists) do
-	for _, item in ipairs(list.items) do
-		if item.itemID == LINEN then
-			row = item
-		end
-	end
-end
-equal(row and row.source, "auction", "the shopping list keeps it under Auction house")
-equal(row and row.price, nil, "with no price")
-equal(row and row.cost, nil, "and no cost")
-local listName = ns.AuctionListName("Tailoring")
-equal(type(c.shoppingLists[listName]), "table", "and writes the Auctionator list")
-local needed = 0
-for _, item in ipairs(ns.RouteReagents(plan)) do
-	if item.itemID == LINEN then
-		needed = item.need
-	end
-end
-equal(c.shoppingLists[listName][1], "Linen Clothx" .. needed, "with its exact name and what the route needs")
+c.G.AuctionHouseFrame = {
+	IsShown = function()
+		return true
+	end,
+}
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#c.auctionSearches, 1, "opening the auction house searches a wholly unpriced tracked route")
+equal(
+	c.auctionSearches[1][1],
+	"Linen Clothx1",
+	"price discovery asks for one observation, not invented route quantities"
+)
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#c.auctionSearches, 1, "duplicate show events keep price discovery to one query per visit")
+equal(
+	#ns.PlanRoute(ns.RouteProfessions()[TAILORING]).crafts,
+	0,
+	"searching does not turn unknown costs into planned crafts"
+)
+c.auctionSearches = {}
+equal((ns.SearchReagents(BOLT, 25)), "auctionator", "an unpriced recipe can still request its reagents")
+equal(#c.auctionSearches, 1, "the recipe search reaches Auctionator")
+equal(c.auctionSearches[1][1], "Linen Clothx25", "the query retains the exact reagent name and requested count")
+equal(c.auction[LINEN], nil, "a search request does not invent an auction observation")
+equal(ns.NetCost(BOLT), nil, "the cost stays unknown until an observation arrives")
+
+-- Price discovery shares inventory and deduplicates excluded recipes, without inventing their route counts.
+local shared, sharedNs = Load({ trackedProfessions = { [TAILORING] = true } }, 3, true)
+shared.bags[LINEN] = 1
+shared.G.AuctionHouseFrame = {
+	IsShown = function()
+		return true
+	end,
+}
+shared.Fire("AUCTION_HOUSE_SHOW")
+shared.Advance(0)
+equal(#shared.auctionSearches, 1, "excluded recipes share one visit query")
+equal(#shared.auctionSearches[1], 1, "their shared unpriced reagent appears once")
+equal(shared.auctionSearches[1][1], "Linen Clothx2", "one-craft discovery subtracts the held copy once")
+equal(shared.auction[LINEN], nil, "discovery still supplies no fictional price")
+equal(#sharedNs.PlanRoute(sharedNs.RouteProfessions()[TAILORING]).crafts, 0, "excluded recipes remain unplanned")
+shared.Fire("AUCTION_HOUSE_CLOSED")
+shared.bags[LINEN] = 3
+shared.Fire("BAG_UPDATE_DELAYED")
+shared.Fire("AUCTION_HOUSE_SHOW")
+shared.Advance(0)
+equal(#shared.auctionSearches, 1, "fully held one-craft dependencies need no discovery query")
 
 -- A character who picked gathering keeps it, and its reagent stays free.
 local gathered, gatheredNs = Load({ collectModes = { ["Tester-Realm"] = "gather" } })

@@ -114,7 +114,13 @@ local ns = {
 			return key
 		end,
 	}),
-	db = { sortMode = "blizzard", wideRecipeList = false, showRowText = true, showUnlearned = true },
+	db = {
+		sortMode = "blizzard",
+		unlearnedSortMode = "skill",
+		wideRecipeList = false,
+		showRowText = true,
+		showUnlearned = true,
+	},
 	SkillContext = function()
 		return ctx
 	end,
@@ -136,6 +142,10 @@ local ns = {
 			return { 1, 25, 50, 75 }
 		end,
 	},
+	RangeThresholds = function(_, id)
+		local starts = { [10] = 1, [20] = 60, [30] = 80 }
+		return { starts[id], 100, 100, 100 }
+	end,
 	LearnSourceText = function(source)
 		local text = source.kind == "trainer" and "Trainer" or "Recipe item"
 		if source.skill > 0 then

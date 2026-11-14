@@ -118,6 +118,7 @@ local ns = {
 	}),
 	db = {
 		sortMode = "blizzard",
+		unlearnedSortMode = "skill",
 		wideRecipeList = false,
 		showRowText = true,
 		showUnlearned = false,

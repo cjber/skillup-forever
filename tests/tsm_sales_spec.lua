@@ -24,6 +24,10 @@ local function load(mode, listings, sale)
 			c.saleAsked[#c.saleAsked + 1] = itemID
 			return sale(itemID)
 		end
+		if source == "DBRegionSoldPerDay" then
+			return nil, "no volume observed"
+		end
+		assert(source == "first(DBRecent, DBMinBuyout, DBMarket)", "expected an explicit listing price query")
 		c.listingsAsked[#c.listingsAsked + 1] = itemID
 		local copper = c.listings[itemID]
 		if copper then

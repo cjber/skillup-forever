@@ -1,10 +1,10 @@
 {
-  "input_digest": "f15753019afead208c7e6204c049a985c728c0a3e43977d676e9c7919a18d5c8",
-  "runtime_sha256": "f15753019afead208c7e6204c049a985c728c0a3e43977d676e9c7919a18d5c8",
-  "candidate": "c228ba100bca679d094bdce0b6adcf102e4c3682c1e06a11ec8fe40278a1a184",
+  "input_digest": "a10b8e441dcdbc4983f5014f40ddb47715cb341558a6ddc5c63775c127717c22",
+  "runtime_sha256": "a10b8e441dcdbc4983f5014f40ddb47715cb341558a6ddc5c63775c127717c22",
+  "candidate": "1bcaaf95c56e4296857071d7c0a1daacbe1502cb91ef4fd91e89627bf94e71cc",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "e94db9c31d1a5a1af9005fbf04ec49b268ffb975",
+  "source_commit": "7c2e5ae01a76918e4efb52de9a3f104489613301",
   "flows": [
     {
       "name": "skillup",
@@ -16,8 +16,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/196703e4f922a2e241c93d18da015638/raw/69cf25f5ee70f18e80057251803de26a410fe5b1/1-skillup.png",
-      "sha256": "a8fcfa1577890641fa270d5c5d56086ea2503109a07ca9ed948cb0bf3a412d16"
+      "url": "https://gist.githubusercontent.com/cjber/43d39c0d8c45ee2e9bf4f1585e3e1fd2/raw/658aefd21fd5d52bdcadefa6805cb052099b1c6d/1-skillup.png",
+      "sha256": "bc13e10adf43f2dc5cf68c79f08c703c26432e46a4a38baa0a8f7164e73d7e00"
     }
   ]
 }

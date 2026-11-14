@@ -11,6 +11,7 @@ ns.Credits = {
 		{ name = "luna", what = "A route step opens its recipe on the visible crafting page" },
 		{ name = "FreakinNerd", what = "SkillUp's pages no longer draw over the Professions window's own page" },
 		{ name = "nookie909", what = "A route you are shopping for stays put after buying its reagents" },
+		{ name = "vladdoubrov", what = "Held sub-craft reagents are used from the bags before crafting more" },
 		{ name = "_spada", what = "Asked for completed-sale values when planning profession levels" },
 		{ name = "kopuliak", what = "Reported that search left bundled unlearned recipes unfiltered" },
 		{ name = "SanyaBane", what = "Recipe tooltip keeps its skill bar when another tooltip clears (code)" },

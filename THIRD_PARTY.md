@@ -50,6 +50,7 @@ Credit for the reports and requests behind the addon.
 | luna | A route step opens its recipe on the visible crafting page | Discord; #683 |
 | [FreakinNerd](https://github.com/FreakinNerd) | SkillUp's pages no longer draw over the Professions window's own page | GitHub; #658, fixed in 1.9.1 (#669) |
 | nookie909 | A route you are shopping for stays put after buying its reagents | CurseForge; #621; thread 8689912 |
+| [vladdoubrov](https://github.com/vladdoubrov) | Held sub-craft reagents are used from the bags before crafting more (#667) | GitHub; #667 |
 | _spada | Asked for completed-sale values when planning profession levels (#478) | Discord |
 | kopuliak | Reported that search left bundled unlearned recipes unfiltered (#662) | CurseForge; thread 8697280 |
 | [SanyaBane](https://github.com/SanyaBane) | Recipe tooltip keeps its skill bar when another tooltip clears (code) | GitHub; #649, PR #649 |

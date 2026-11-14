@@ -164,6 +164,14 @@ function ns.RegisterSettings()
 	Section(L["Prices"], function(rows)
 		Choice(
 			rows,
+			"priceSource",
+			L["Auction prices from"],
+			ns.PRICE_SOURCE_OPTIONS,
+			L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."]
+		)
+
+		Choice(
+			rows,
 			"craftValue",
 			L["Count what crafts sell for"],
 			ns.CRAFT_VALUE_OPTIONS,

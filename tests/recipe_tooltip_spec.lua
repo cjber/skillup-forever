@@ -173,6 +173,41 @@ end
 equal(saleLine and saleLine:find("Region sale average", 1, true) ~= nil, true, "the output value names regional sales")
 ns.CraftCost = originalCraftCost
 
+-- Both ways of selling the same craft are compared, and the profit follows the row's per-craft or per-skill-up
+-- choice (#678). The reagent costs 10, the vendor pays 3 and the auction pays 20 before the 5% cut.
+c.auction[BANDAGE_ITEM] = 20
+c.ns.Changed("prices")
+local function SaleValue(label)
+	for _, pair in ipairs(doubleLines) do
+		if pair[1] == label then
+			return pair[2]
+		end
+	end
+end
+ns.db.rowCost = "craft"
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(SaleValue("Vendor sell price"), "3 (|cffff2020-|r7 profit per craft)", "the vendor sale and its per-craft loss")
+equal(
+	SaleValue("Auction price"),
+	"19 (|cff40ff40+|r9 profit per craft)",
+	"the auction sale after the cut and its per-craft profit"
+)
+ns.db.rowCost = "skillup"
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(
+	SaleValue("Vendor sell price"),
+	"3 (|cffff2020-|r7 profit per skill-up)",
+	"the same vendor sale with its per-skill-up loss"
+)
+equal(
+	SaleValue("Auction price"),
+	"19 (|cff40ff40+|r9 profit per skill-up)",
+	"and the auction sale with its per-skill-up profit"
+)
+ns.db.rowCost = "skillup"
+c.auction[BANDAGE_ITEM] = nil
+c.ns.Changed("prices")
+
 -- The bar is the first frame the tooltip made.
 local bar
 for _, frame in ipairs(c.frames) do

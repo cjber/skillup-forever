@@ -35,6 +35,7 @@ local DEFAULTS = {
 	detailsBar = true, -- the recipe tooltip's skill bar under the selected recipe, on the crafting page itself
 	showCost = true,
 	rowCost = "skillup", -- what a recipe row's money is: "skillup" (cost per skill-up) or "craft" (net per craft)
+	priceSource = "auctionator", -- the auction addon whose price wins when both are installed; the other fills gaps
 	craftValue = "vendor",
 	valueGathered = false, -- a reagent you gather costs what it would sell for, not nothing
 	auctionOnly = false, -- a self-supplied reagent costs a market price, and is unpriced when none is known
@@ -82,6 +83,10 @@ ns.SORT_OPTIONS = {
 	{ "newest", L["Newest recipes first"] },
 	{ "chance", L["Skill-up chance"] },
 	{ "cost", L["Cheapest skill-up"] },
+}
+ns.PRICE_SOURCE_OPTIONS = {
+	{ "auctionator", L["Auctionator"] },
+	{ "tsm", L["TradeSkillMaster"] },
 }
 ns.CRAFT_VALUE_OPTIONS = {
 	{ "none", L["Don't count it"] },
@@ -228,6 +233,7 @@ local function LoadDB()
 	end
 	-- A choice the menu no longer offers (or a typo) goes back to its default.
 	for key, options in pairs({
+		priceSource = ns.PRICE_SOURCE_OPTIONS,
 		craftValue = ns.CRAFT_VALUE_OPTIONS,
 		sortMode = ns.SORT_OPTIONS,
 		reagentTooltip = ns.REAGENT_TOOLTIP_OPTIONS,

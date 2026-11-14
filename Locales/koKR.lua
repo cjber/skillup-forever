@@ -518,3 +518,11 @@ L["Region sale average"] = "지역 평균 판매가"
 L["Region sale average if higher"] = "더 높으면 지역 평균 판매가"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"지역 평균 판매가에는 TradeSkillMaster와 데스크톱 앱이 필요합니다. 보고된 지역 판매 및 구매 기록으로 가치를 추정하며 상점 판매가보다 낮아지지 않습니다. 판매를 보장하지는 않습니다."
+L["%s (%s)"] = "%s (%s)"
+L["%s profit per craft"] = "제작당 %s 이익"
+L["%s profit per skill-up"] = "기술 숙련당 %s 이익"
+L["Auction price"] = "경매 가격"
+L["Auction prices from"] = "경매 가격 출처"
+L["Auctionator"] = "Auctionator"
+L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
+	"둘 다 설치되어 있을 때 경매 가치를 어느 애드온이 책정할지 정합니다. 선택한 애드온의 가격이 우선하며, 다른 애드온은 가격이 없는 아이템만 채웁니다. Auctionator는 가격의 경과 시간도 표시합니다."

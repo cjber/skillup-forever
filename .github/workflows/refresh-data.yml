@@ -87,6 +87,8 @@ jobs:
         id: pr
         uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
         with:
+          # main requires signed commits, and create-pull-request signs with GitHub's identity when asked.
+          sign-commits: true
           branch: data/refresh
           title: "data: profession data for ${{ steps.pins.outputs.moved }}"
           commit-message: "data: profession data for ${{ steps.pins.outputs.moved }}"

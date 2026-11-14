@@ -104,6 +104,45 @@ do
 	equal(value.copper, 380, "a scan refreshes crafted-item resale")
 end
 
+-- The vendor and auction sale of one craft are both available for the tooltip's comparison (#678), whatever the
+-- single value setting counts. The auction value is after the house's cut and counts the craft's whole output; a
+-- zero vendor price is not a sale, while an auction source's zero is still its answer.
+do
+	local saleData = {
+		VendorPrices = {},
+		GatheredBy = {},
+		RecipeData = {
+			[10] = {
+				skillLine = 164,
+				reagents = { { itemID = 1, quantity = 2 } },
+				output = { itemID = 7, quantity = 1 },
+			},
+			[11] = {
+				skillLine = 164,
+				reagents = { { itemID = 1, quantity = 2 } },
+				output = { itemID = 7, quantity = 3 },
+			},
+		},
+	}
+	local sale = Client.load({ data = saleData })
+	sale.auction = { [1] = 100, [7] = 200 }
+	sale.items[7] = { sell = 150 }
+	sale.ns.Changed("prices")
+	sale.ns.db.craftValue = "vendor"
+	local values = sale.ns.CraftSaleValues(10)
+	equal(values.vendor.copper, 150, "the vendor sale is the item's sell price")
+	equal(values.vendor.source, "vendor", "and says it is the vendor's")
+	equal(values.auction.copper, 190, "the auction sale is after the 5% cut")
+	equal(values.auction.source, "auction", "and says it is an auction sale")
+	equal(sale.ns.CraftSaleValues(11).auction.copper, 570, "a craft of three counts all three in its auction sale")
+	sale.items[7] = { sell = 0 }
+	sale.auction[7] = nil
+	sale.ns.Changed("prices")
+	values = sale.ns.CraftSaleValues(10)
+	equal(values.vendor, nil, "a zero vendor price is no sale")
+	equal(values.auction, nil, "and a missing auction price is none either")
+end
+
 -- Obsolete saved history and settings cannot supply a price, including when the latest is missing.
 local m = Client.load({ data = DATA, saved = {
 	priceDays = { Realm = { [1] = { [1] = 1 } } },

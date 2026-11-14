@@ -509,3 +509,11 @@ L["Region sale average"] = "Promedio regional de ventas"
 L["Region sale average if higher"] = "Promedio regional de ventas si es mayor"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"Las medias regionales de ventas requieren TradeSkillMaster y su aplicación de escritorio. Estiman el valor con compras y ventas regionales registradas, con el precio de venta al vendedor como mínimo. No garantizan una venta."
+L["%s (%s)"] = "%s (%s)"
+L["%s profit per craft"] = "%s de beneficio por creación"
+L["%s profit per skill-up"] = "%s de beneficio por subida de habilidad"
+L["Auction price"] = "Precio de subasta"
+L["Auction prices from"] = "Precios de subasta de"
+L["Auctionator"] = "Auctionator"
+L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
+	"Qué addon pone precio a los valores de subasta cuando ambos están instalados. Gana el precio del addon elegido; el otro rellena un objeto para el que no tiene precio. Auctionator también indica la antigüedad de su precio."

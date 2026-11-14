@@ -4,6 +4,9 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "sundered1985", what = "Vendor and auction profit on the recipe tooltip" },
+		{ name = "jugg__", what = "Vendor and auction profit on the recipe tooltip" },
+		{ name = "keerp", what = "Choose Auctionator or TradeSkillMaster for prices" },
 		{ name = "Diamondclaw", what = "The recipe skill band clears the icon and the Reagents header" },
 		{ name = "mimmordino", what = "The recipe skill band clears the icon and the Reagents header" },
 		{ name = "soviman1", what = "Smelting recipes show their skill range" },

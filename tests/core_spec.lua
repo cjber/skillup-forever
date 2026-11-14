@@ -232,15 +232,28 @@ do
 	callbacks.SkillUpForever()
 	equal(ns.db.suggestFamily, true, "a family setting already saved wins")
 	-- A saved choice the menu doesn't offer goes back to its default; a valid one stays.
-	env.SkillUpForeverDB =
-		{ craftValue = "auctoin", sortMode = "coost", reagentTooltip = "typo", recipeTooltip = "nowhere" }
+	env.SkillUpForeverDB = {
+		priceSource = "tsn",
+		craftValue = "auctoin",
+		sortMode = "coost",
+		reagentTooltip = "typo",
+		recipeTooltip = "nowhere",
+	}
 	callbacks.SkillUpForever()
+	equal(ns.db.priceSource, "auctionator", "an unknown auction price source resets")
 	equal(ns.db.craftValue, "vendor", "an unknown craft value resets")
 	equal(ns.db.sortMode, "blizzard", "an unknown sort resets")
 	equal(ns.db.reagentTooltip, "route", "an unknown reagent tooltip mode resets")
 	equal(ns.db.recipeTooltip, "window", "an unknown recipe tooltip position resets to beside the window")
-	env.SkillUpForeverDB = { craftValue = "auction", sortMode = "cost", reagentTooltip = "full", recipeTooltip = "row" }
+	env.SkillUpForeverDB = {
+		priceSource = "tsm",
+		craftValue = "auction",
+		sortMode = "cost",
+		reagentTooltip = "full",
+		recipeTooltip = "row",
+	}
 	callbacks.SkillUpForever()
+	equal(ns.db.priceSource, "tsm", "a valid auction price source stays")
 	equal(ns.db.craftValue, "auction", "a valid craft value stays")
 	equal(ns.db.sortMode, "cost", "a valid sort stays")
 	equal(ns.db.reagentTooltip, "full", "a valid reagent tooltip mode stays")

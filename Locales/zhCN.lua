@@ -498,3 +498,11 @@ L["Region sale average"] = "地区平均成交价"
 L["Region sale average if higher"] = "较高时使用地区平均成交价"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"地区平均成交价需要 TradeSkillMaster 及其桌面应用。此价格根据已记录的地区买卖估算价值，且不低于商店售出价。此价格不保证物品能够售出。"
+L["%s (%s)"] = "%s (%s)"
+L["%s profit per craft"] = "每次制造 %s 利润"
+L["%s profit per skill-up"] = "每点技能 %s 利润"
+L["Auction price"] = "拍卖价格"
+L["Auction prices from"] = "拍卖价格来源"
+L["Auctionator"] = "Auctionator"
+L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
+	"两个插件都安装时，由哪个插件为拍卖价值定价。所选插件的价格优先，另一个只补充它没有价格的物品。Auctionator 还会显示价格的记录时间。"

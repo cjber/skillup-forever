@@ -513,3 +513,11 @@ L["Region sale average"] = "Prix de vente régional moyen" -- mt
 L["Region sale average if higher"] = "Prix de vente régional moyen si supérieur" -- mt
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"Les prix de vente régionaux moyens nécessitent TradeSkillMaster et son application de bureau. Ils estiment la valeur à partir des ventes et achats régionaux enregistrés, sans descendre sous le prix de vente au marchand. Ils ne garantissent pas une vente." -- mt
+L["%s (%s)"] = "%s (%s)" -- mt
+L["%s profit per craft"] = "%s de bénéfice par fabrication" -- mt
+L["%s profit per skill-up"] = "%s de bénéfice par point de compétence" -- mt
+L["Auction price"] = "Prix aux enchères" -- mt
+L["Auction prices from"] = "Prix aux enchères de" -- mt
+L["Auctionator"] = "Auctionator" -- mt
+L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
+	"Quel addon estime les valeurs aux enchères quand les deux sont installés. Le prix de l'addon choisi l'emporte ; l'autre complète un objet pour lequel il n'a pas de prix. Auctionator indique aussi l'âge de son prix." -- mt

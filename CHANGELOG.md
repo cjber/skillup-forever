@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **SkillUp no longer fills Auctionator with shopping lists.** Each tracked profession's list is written only when Auctionator's copy no longer holds what the route still needs, so a login or reload leaves the Shopping tab where you left it. A route with nothing left to buy gets no list at all, and a list you delete stays deleted until the route's needs change. Thanks to fusionley (#714).
+
 ## [1.10.0] - 2026-11-14
 
 <!-- discord-image: docs/screenshots/route.png -->

@@ -17,6 +17,7 @@ ns.Credits = {
 		{ name = "SanyaBane", what = "Recipe tooltip keeps its skill bar when another tooltip clears (code)" },
 		{ name = "Rambomst", what = "Fixed progress-bar fill masking and Auctionator prices after reload" },
 		{ name = "bromidious", what = "Reported route progress bars overflowing their track" },
+		{ name = "fusionley", what = "Reported Auctionator lists coming back after being deleted" },
 		{ name = "bromidious", what = "Reported the progress-bar overlap fixed in #656" },
 		{ name = "ItachiGrave", what = "Selected recipes show their skill band" },
 		{ name = "bromidious", what = "Buffs controls no longer overlap" },

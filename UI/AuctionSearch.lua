@@ -10,11 +10,6 @@ local L = ns.L
 -- what its reagents still lack for that many (#142). It only searches; buying stays the player's.
 
 local CALLER = "SkillUp Forever"
--- Where a reagent's price comes from, as the route's shopping list groups it: only the auction house's, the
--- unpriced ones a gatherable stays with Buy reagents on, and the unpriced are searched there, as with the
--- route's own Auctionator list.
-local AUCTION_SOURCES = { auctionator = true, auction = true }
-
 -- How many of a recipe to search reagents for: the crafts the route plans for it, else one.
 ---@param recipeID integer
 ---@return integer
@@ -52,7 +47,7 @@ function ns.ReagentShortfall(recipeID, count)
 		local source = ns.PriceSource(reagent.itemID)
 		-- With Buy reagents on, a material you gather is priced as gathered only while nothing prices it: search it.
 		local buying = source == "gather" and ns.CollectMode() == "auction"
-		if missing > 0 and (source == nil or AUCTION_SOURCES[source] or buying) then
+		if missing > 0 and (source == nil or ns.Model.ShoppingSource(source) == "auction" or buying) then
 			short[#short + 1] = { itemID = reagent.itemID, count = missing }
 		elseif missing > 0 then
 			elsewhere = elsewhere + 1

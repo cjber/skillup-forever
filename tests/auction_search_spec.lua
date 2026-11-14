@@ -8,6 +8,7 @@ local BANDAGE, HEAVY, LINEN, THREAD, SALT = 1, 2, 3, 4, 5
 local function Load(options)
 	local c = Client.load({
 		auctionator = options.auctionator,
+		tsm = options.tsm,
 		saved = { routeTargets = { [129] = 60 }, trackedProfessions = { [129] = true } },
 		data = {
 			Thresholds = { [BANDAGE] = { 1, 30, 45, 60 }, [HEAVY] = { 40, 50, 75, 100 } },
@@ -235,5 +236,27 @@ c.Advance(0)
 ns.db.auctionSearch = false
 pending[3]()
 equal(#c.auctionSearches, 1, "disabling search cancels a pending unknown-price query")
+
+-- Saved TSM realm prices are auction purchases, including before this character visits the auction house.
+for _, auctionator in ipairs({ false, true }) do
+	c = Load({ auctionator = auctionator, tsm = { [LINEN] = 500 } })
+	ns = c.ns
+	c.SetSetting("priceSource", "tsm")
+	equal(ns.PriceSource(LINEN), "tsm", "the preferred saved TSM quote supplies the price")
+	local missing = ns.ReagentShortfall(BANDAGE, 2)
+	equal(#missing, 1, "TSM-priced reagents remain searchable")
+	equal(missing[1] and missing[1].count, 2, "TSM search retains the requested quantity")
+	local method = ns.SearchReagents(BANDAGE, 2)
+	equal(method, auctionator and "auctionator" or "game", "the available search provider handles TSM prices")
+	if auctionator then
+		equal(
+			c.auctionSearches[1] and c.auctionSearches[1][1],
+			"Linen Clothx2",
+			"Auctionator searches the TSM-priced quantity"
+		)
+	else
+		equal(c.G.AuctionHouseFrame.searched[1], "Linen Cloth", "the native search accepts the TSM-priced reagent")
+	end
+end
 
 Client.report("auction_search_spec")

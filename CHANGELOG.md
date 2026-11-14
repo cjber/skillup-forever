@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **TSM-priced reagents stay in auction searches.** Recipe searches include their missing quantities with Auctionator or the game search box. (#561)
+
 - **Craft next follows the route's prerequisites.** It makes missing intermediates before their parent recipe, uses held materials once, and asks for the selected recipe's profession. Thanks to luna for the report (#683).
 - **Unobserved auction prices stay unknown.** Vendor fallback values no longer make an unscanned market reagent look priced, and missing-price searches still include it (#561).
 

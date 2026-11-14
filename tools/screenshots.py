@@ -153,7 +153,7 @@ def model_color(t, skill):
 
 
 def model_chance(t, skill):
-    if not t or t[3] <= t[1] or skill < t[0]:
+    if not t or t[3] < t[1] or skill < t[0]:
         return None
     if skill < t[1]:
         return 1
@@ -334,7 +334,7 @@ def describe(recipe_id):
     """Core/Core.lua ns.Describe at SKILL, where the live difficulty agrees with the thresholds, so the chance is
     the thresholds' own. The range starts where the recipe is learned (#519)."""
     t = NS["Thresholds"].get(recipe_id)
-    if t and not (t[0] <= t[1] <= t[2] < t[3]):
+    if t and not (t[0] <= t[1] <= t[2] <= t[3]):
         t = None
     if t:
         t = range_thresholds(recipe_id, t)

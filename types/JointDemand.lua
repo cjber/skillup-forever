@@ -20,7 +20,8 @@
 ---@field coverageKnown boolean Whether coverage bounds are available.
 ---@field coverageLower number? Conservative lower probability conditional on Model.Chance.
 ---@field coverageUpper number? Conservative upper probability conditional on Model.Chance.
----@field costKnown boolean Always false: source-aware costs are not implemented by this producer.
+---@field costKnown boolean Whether every explicit basket item has an observed price.
+---@field costCopper number? Sum of observed prices for the explicit basket.
 ---@field reasons string[] Explicit unknown/unsupported/cancellation reasons.
 
 ---@class SkillUpJointDemandJob

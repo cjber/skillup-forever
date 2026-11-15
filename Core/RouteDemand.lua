@@ -6,6 +6,25 @@ if ns.broken then
 end
 local RouteDemand = {}
 
+---@param buy table<integer, integer>
+---@return number?, string?
+local function BasketCost(buy)
+	local total = 0
+	for item, count in pairs(buy) do
+		if count < 0 or count ~= math.floor(count) then
+			return nil, "invalid basket"
+		end
+		if count > 0 then
+			local price = ns.Price(item)
+			if not price or price.unknown then
+				return nil, "observed source price unavailable"
+			end
+			total = total + price.copper * count
+		end
+	end
+	return total
+end
+
 -- This adapter accepts final Plan output, never CoveredCrafts counts or expanded
 -- shopping rows. Its snapshot owns every table read by the asynchronous solver.
 ---@type table<SkillUpJointDemandJob, boolean>
@@ -131,6 +150,7 @@ end
 ---@return SkillUpJointDemandJob
 function RouteDemand.Start(plan, buy)
 	local input, reason = RouteDemand.Snapshot(plan, buy)
+	local basketCost, costReason = BasketCost(buy)
 	local inner = input and ns.Demand.Start(input)
 	local revision = ns.Model.ChanceRevision()
 	---@type SkillUpJointDemandResult
@@ -138,8 +158,9 @@ function RouteDemand.Start(plan, buy)
 		status = "unknown",
 		supported = false,
 		coverageKnown = false,
-		costKnown = false,
-		reasons = { reason or "source cost not evaluated" },
+		costKnown = basketCost ~= nil,
+		costCopper = basketCost,
+		reasons = { reason or costReason or "source cost not evaluated" },
 	}
 	---@param self SkillUpJointDemandJob
 	local function Cancel(self)
@@ -163,6 +184,11 @@ function RouteDemand.Start(plan, buy)
 		end
 		if inner and self.result.status == "calculating" then
 			self.result = inner:Advance(work)
+			self.result.costKnown = basketCost ~= nil
+			self.result.costCopper = basketCost
+			if costReason then
+				self.result.reasons[#self.result.reasons + 1] = costReason
+			end
 		end
 		return self.result
 	end

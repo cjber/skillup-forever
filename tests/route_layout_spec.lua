@@ -517,7 +517,7 @@ local ns = {
 			return key
 		end,
 	}),
-	db = { routeTargets = { [129] = 100 }, showRouteTab = true },
+	db = { routeTargets = { [129] = 100 }, showProfessionTabs = true, showRouteTab = true },
 	COLORS = setmetatable({}, {
 		__index = Color,
 	}),

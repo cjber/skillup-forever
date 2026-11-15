@@ -335,10 +335,26 @@ local function HasPatternSale(label, right)
 	end
 	return false
 end
-equal(HasPatternSale("Vendor sell price", "3 (Net per craft |cffff2020-|r7)"), true, "first shared pattern has vendor net")
-equal(HasPatternSale("Vendor sell price", "6 (Net per craft |cffff2020-|r4)"), true, "second shared pattern uses output quantity")
-equal(HasPatternSale("Auction price", "19 (Profit per craft |cff40ff40+|r9)"), true, "first pattern applies auction cut")
-equal(HasPatternSale("Auction price", "38 (Profit per craft |cff40ff40+|r28)"), true, "second pattern applies auction cut and quantity")
+equal(
+	HasPatternSale("Vendor sell price", "3 (Net per craft |cffff2020-|r7)"),
+	true,
+	"first shared pattern has vendor net"
+)
+equal(
+	HasPatternSale("Vendor sell price", "6 (Net per craft |cffff2020-|r4)"),
+	true,
+	"second shared pattern uses output quantity"
+)
+equal(
+	HasPatternSale("Auction price", "19 (Profit per craft |cff40ff40+|r9)"),
+	true,
+	"first pattern applies auction cut"
+)
+equal(
+	HasPatternSale("Auction price", "38 (Profit per craft |cff40ff40+|r28)"),
+	true,
+	"second pattern applies auction cut and quantity"
+)
 c.auction[BANDAGE_ITEM] = nil
 itemPairs = {}
 itemPosts[#itemPosts](itemTooltip, { id = SCROLL_ITEM })

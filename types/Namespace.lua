@@ -251,6 +251,7 @@
 ---@field buffsOnly boolean
 ---@field showSkill boolean
 ---@field showTooltip boolean
+---@field showTooltips boolean
 ---@field recipeTooltip 'window'|'cursor'|'row'
 ---@field rowCost 'skillup'|'craft'
 ---@field showCost boolean
@@ -261,6 +262,7 @@
 ---@field sortMode 'blizzard'|'skill'|'newest'|'chance'|'cost'
 ---@field unlearnedSortMode 'skill'|'newest'
 ---@field showTrainer boolean
+---@field showProfessionTabs boolean
 ---@field showRouteTab boolean
 ---@field showTracker boolean
 ---@field showGearTab boolean

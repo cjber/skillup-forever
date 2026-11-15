@@ -43,6 +43,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| [rissole](https://github.com/rissole) | Public recipe data and account-wide learned-recipe API | GitHub; #724 |
 | davef1n | Separate unlearned recipe order and regional sales volume | CurseForge; thread 8715846; #720; #721 |
 | codipherus | Craft quantities lead each route step | CurseForge; thread 8702620; #684 |
 | sundered1985 | Vendor and auction profit on the recipe tooltip | CurseForge; #678; thread 8701206 |

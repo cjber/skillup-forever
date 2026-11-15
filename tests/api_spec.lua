@@ -12,7 +12,11 @@ local BOOK = 5000
 
 local c = Client.load({
 	boot = false,
-	saved = { routeTargets = { [197] = 60, [164] = 20 }, trackedProfessions = { [197] = true } },
+	saved = {
+		routeTargets = { [197] = 60, [164] = 20 },
+		trackedProfessions = { [197] = true },
+		learned = { ["Tester-Realm"] = { [GLOVES] = true } },
+	},
 	data = {
 		Thresholds = {
 			[GLOVES] = { 125, 140, 155, 165 },
@@ -60,7 +64,7 @@ local c = Client.load({
 })
 local ns, API = c.ns, c.G.SkillUpForever.API
 equal(API.version, 1, "version 1")
-equal(API.minor, 6, "minor 6 adds tracking, the shopping trip, limits, stats and the leaderboard")
+equal(API.minor, 7, "minor 7 adds recipe and account-history reads")
 -- Publishing is discovery, not an API change (#594): the suite lists the addon with the API's own version and minor.
 local published
 for _, entry in ipairs(c.G.ForeverCore.APIKit.Addons()) do
@@ -69,10 +73,16 @@ for _, entry in ipairs(c.G.ForeverCore.APIKit.Addons()) do
 	end
 end
 equal(published and published.version, 1, "the suite list carries the API's version")
-equal(published and published.minor, 6, "and its minor")
+equal(published and published.minor, 7, "and its minor")
+
 equal(published and published.api, API, "and the addon's own API table")
 -- Nothing to answer says why, so a caller can tell "ask again later" from "there is nothing to ask about".
 local beforeLoad, beforeLoadReason = API.Professions()
+for _, member in ipairs({ "Recipes", "Recipe", "RecipeRequirement", "Characters", "Knows" }) do
+	local result, reason = API[member]()
+	equal(result, nil, member .. " waits for saved variables")
+	equal(reason, "loading", member .. " names its loading state")
+end
 equal(beforeLoad, nil, "nothing before the saved variables load")
 equal(beforeLoadReason, "loading", "and the read says to ask again")
 local noMaterials, noMaterialsReason = API.RequiredMaterials(999999)
@@ -115,6 +125,28 @@ c.professions = {
 c.Boot()
 ns.SetCollectMode("gather")
 equal(#c.chat, 0, "the addon starts without a word")
+
+local recipeIDs = API.Recipes(165)
+equal(recipeIDs[1], GLOVES, "Recipes filters by profession")
+local recipeDetails = API.Recipe(GLOVES)
+equal(recipeDetails.skillLineID, 165, "Recipe reports the skill line")
+equal(recipeDetails.reagents[1].itemID, LEATHER, "Recipe copies reagent data")
+recipeDetails.output.quantity = 999
+equal(API.Recipe(GLOVES).output.quantity, 1, "Recipe returns a fresh nested output record")
+recipeDetails.reagents[1].quantity = 999
+equal(API.Recipe(GLOVES).reagents[1].quantity ~= 999, true, "Recipe returns fresh reagent tables")
+local requirement = API.RecipeRequirement(HILLMANS)
+equal(requirement.source, "trainer", "RecipeRequirement identifies trainer recipes")
+equal(requirement.skill, 145, "RecipeRequirement reports the base skill")
+ns.TrainerFees[BRACERS] = { 225, 20 }
+local otherProfession = API.RecipeRequirement(BRACERS)
+equal(otherProfession.source, "trainer", "RecipeRequirement covers a bundled profession not currently known")
+equal(otherProfession.skill, 20, "RecipeRequirement reports the bundled base skill")
+local characterKey = ns.CharacterKey()
+local characters = API.Characters()
+equal(characters[1], characterKey, "Characters lists saved learned records")
+equal(API.Knows(characterKey, GLOVES), true, "Knows reads saved learned state")
+equal(API.Knows("missing-character", GLOVES), false, "Knows treats an unknown character as not knowing")
 
 -- Subscribe is ForeverCore's hub (docs/api.md): the frame after a change, once per burst, naming what moved.
 local heard = {}

@@ -74,6 +74,22 @@
 ---@field SubComponents fun(recipeID: integer, crafts?: number): SkillUpSubCraft[]?, SkillUpAPIReason? Known cheaper recipes needed to make the recipe's inputs; nil, "none" when SkillUp has no such recipe.
 ---@field Stats fun(): SkillUpAPIStat[] This character's own recipe observations.
 ---@field Subscribe fun(callback: fun(changes: SkillUpAPIChanges)): fun() Calls back the frame after the answers change, once per burst; returns an unsubscribe.
+---@field Recipes fun(skillLineID?: integer): integer[]?, SkillUpAPIReason? Bundled recipe IDs, or nil, "none" when no profession matches.
+---@field Recipe fun(recipeID: integer): SkillUpAPIRecipeDetails?, SkillUpAPIReason? Bundled recipe details, or nil, "none".
+---@field RecipeRequirement fun(recipeID: integer): SkillUpAPIRequirement?, SkillUpAPIReason? Learn requirement and source, or nil, "none".
+---@field Characters fun(): string[]?, SkillUpAPIReason? Character keys with saved learned-recipe records, or nil, "loading".
+---@field Knows fun(characterKey: string, recipeID: integer): boolean?, SkillUpAPIReason? Saved learned state, or nil, "invalid".
+
+---@class SkillUpAPIRecipeDetails
+---@field skillLineID integer
+---@field output? { itemID: integer, quantity: number }|false
+---@field reagents { itemID: integer, quantity: number }[]
+
+---@class SkillUpAPIRequirement
+---@field skill number
+---@field source 'trainer'|'item'
+---@field recipeItem? integer
+---@field trainerFee? number
 
 ---@class SkillUpAPIShoppingItem
 ---@field itemID integer

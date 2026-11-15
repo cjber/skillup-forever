@@ -487,7 +487,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 6 }
+local API = { version = 1, minor = 7 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe
@@ -865,6 +865,96 @@ function API.OpenRecipes(skillLineID)
 		return true
 	end
 	return id ~= skillLineID and C_TradeSkillUI.OpenTradeSkill(skillLineID) == true
+end
+
+-- Read-only recipe and account-history surfaces. These return fresh tables so callers cannot mutate the planner's
+-- bundled data or saved-variable records through the public API.
+---@param skillLineID integer?
+---@return integer[]?, SkillUpAPIReason?
+function API.Recipes(skillLineID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	local result = {}
+	for recipeID, recipe in pairs(ns.RecipeData or {}) do
+		if not skillLineID or recipe.skillLine == skillLineID then
+			result[#result + 1] = recipeID
+		end
+	end
+	if #result == 0 then
+		return nil, "none"
+	end
+	table.sort(result)
+	return result
+end
+
+---@param recipeID integer
+---@return SkillUpAPIRecipeDetails?, SkillUpAPIReason?
+function API.Recipe(recipeID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	local recipe = ns.RecipeData and ns.RecipeData[recipeID]
+	if not recipe then
+		return nil, "none"
+	end
+	local result = { skillLineID = recipe.skillLine, reagents = {} }
+	if recipe.output then
+		result.output = { itemID = recipe.output.itemID, quantity = recipe.output.quantity }
+	else
+		result.output = false
+	end
+	for _, reagent in ipairs(recipe.reagents or {}) do
+		result.reagents[#result.reagents + 1] = { itemID = reagent.itemID, quantity = reagent.quantity }
+	end
+	return result
+end
+
+---@param recipeID integer
+---@return SkillUpAPIRequirement?, SkillUpAPIReason?
+function API.RecipeRequirement(recipeID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	local recipe = ns.RecipeData and ns.RecipeData[recipeID]
+	if not recipe then
+		return nil, "none"
+	end
+	local training = ns.TrainingFor({ skillLine = recipe.skillLine }, recipeID)
+	if training then
+		return { skill = training[2], source = "trainer", trainerFee = training[1] }
+	end
+	local scroll = ns.RecipeScrolls and ns.RecipeScrolls[recipeID]
+	if scroll then
+		return { skill = scroll[2], source = "item", recipeItem = scroll[1] }
+	end
+	return nil, "none"
+end
+
+---@return string[]?, SkillUpAPIReason?
+function API.Characters()
+	if not ns.db then
+		return nil, "loading"
+	end
+	local result = {}
+	for key in pairs(ns.db.learned or {}) do
+		result[#result + 1] = key
+	end
+	table.sort(result)
+	return result
+end
+
+---@param characterKey string
+---@param recipeID integer
+---@return boolean?, SkillUpAPIReason?
+function API.Knows(characterKey, recipeID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	if type(characterKey) ~= "string" or type(recipeID) ~= "number" or not ns.RecipeData[recipeID] then
+		return nil, "invalid"
+	end
+	return ns.db.learned[characterKey] and ns.db.learned[characterKey][recipeID] == true or false
 end
 
 ---@type SkillUpPublicAddon

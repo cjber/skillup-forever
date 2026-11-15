@@ -4,6 +4,7 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "rissole", what = "Public recipe data and account-wide learned-recipe API" },
 		{ name = "davef1n", what = "Separate unlearned recipe order and regional sales volume" },
 		{ name = "codipherus", what = "Craft quantities lead each route step" },
 		{ name = "sundered1985", what = "Vendor and auction profit on the recipe tooltip" },

@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 6; the history:
+`minor` is 7; the history:
 
 | minor | added |
 |---|---|
@@ -16,6 +16,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 4 | `RequiredMaterials` and `SubComponents`, a recipe's inputs after known sub-crafts |
 | 5 | `Subscribe`, the not-ready answers below, and a fresh `Professions` table on every call |
 | 6 | `IsTracked`, `SetTracked`, `ShoppingTrip`, `Professions` limits, `Stats`, `Leaderboard` |
+| 7 | `Recipes`, `Recipe`, `RecipeRequirement`, `Characters` and `Knows` |
 
 ## Not ready
 
@@ -85,6 +86,13 @@ route.
 
 `OpenRecipes(skillLineID)` opens the Professions window on that profession, where SkillUp's recipe colours and route
 tab are, and returns whether the client opened it. It is a request too, for a player's click.
+
+`Recipes(skillLineID?)` returns sorted bundled recipe IDs, optionally filtered to one skill line. It returns
+`nil, "none"` when no matching profession exists. `Recipe(recipeID)` returns a fresh `{ skillLineID, output,
+reagents }` record, where `output` is `{ itemID, quantity }` or `false`. `RecipeRequirement(recipeID)` returns the
+known `{ skill, source, recipeItem?, trainerFee? }` learn requirement in base profession skill, or `nil, "none"` when SkillUp cannot establish
+one. `Characters()` lists saved character keys, and `Knows(characterKey, recipeID)` reads a saved learned flag,
+returning `nil, "invalid"` for an unknown recipe or malformed key.
 
 ## Tracking
 

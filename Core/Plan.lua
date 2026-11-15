@@ -277,7 +277,7 @@ end
 
 -- { fee, required base skill }: what a trainer was seen to charge, else the base fee;
 -- nil for a recipe no trainer teaches.
----@param profession SkillUpContext
+---@param profession {skillLine: integer}
 ---@param recipeID integer
 ---@return number[]?
 function ns.TrainingFor(profession, recipeID)

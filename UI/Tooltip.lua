@@ -549,40 +549,37 @@ local function PatternProfitLines(itemID)
 	if not ns.db.showTooltips or ns.db.craftValue == "none" or not ns.RecipeScrolls then
 		return {}
 	end
-	local recipeID
+	local recipeIDs = {}
 	for id, scroll in pairs(ns.RecipeScrolls) do
 		if scroll[1] == itemID then
-			recipeID = id
-			break
+			recipeIDs[#recipeIDs + 1] = id
 		end
 	end
-	local recipe = recipeID and ns.RecipeData[recipeID]
-	if not recipe then
+	table.sort(recipeIDs)
+	if #recipeIDs == 0 then
 		return {}
 	end
-	local d = ns.Describe(recipe, ns.SkillContext())
-	if not d or not d.cost then
-		return {}
-	end
-	local values = ns.CraftSaleValues(recipeID)
 	local lines = {}
-	for _, sale in ipairs({ { "Vendor sell price", values.vendor }, { "Auction price", values.auction } }) do
-		local label, value = sale[1], sale[2]
-		if value then
-			local net = d.cost - value.copper
-			lines[#lines + 1] = DoubleLine(
-				L[label],
-				string.format(
-					"%s (%s)",
-					Money(value.copper),
+	for _, recipeID in ipairs(recipeIDs) do
+		local d = ns.Describe(ns.RecipeData[recipeID], ns.SkillContext())
+		local values = d and d.cost and ns.CraftSaleValues(recipeID)
+		for _, sale in
+			ipairs(values and { { "Vendor sell price", values.vendor }, { "Auction price", values.auction } } or {})
+		do
+			local label, value = sale[1], sale[2]
+			if value then
+				local net = d.cost - value.copper
+				lines[#lines + 1] = DoubleLine(
+					L[label],
 					string.format(
-						"%s %s",
+						"%s (%s %s)",
+						Money(value.copper),
 						L[net < 0 and "Profit per craft" or "Net per craft"],
 						ns.FormatSigned(math.abs(net), net < 0)
-					)
-				),
-				ns.COLORS.green
-			)
+					),
+					ns.COLORS.green
+				)
+			end
 		end
 	end
 	return lines
@@ -886,14 +883,14 @@ local function AddUses(tooltip, data)
 		return
 	end
 	local mode = ns.db.reagentTooltip
-	if not ns.db.showTooltips or mode == "off" or not itemID then
+	if not ns.db.showTooltips or not itemID then
 		return
 	end
-	if mode ~= "route" and mode ~= "full" then
+	if mode ~= "off" and mode ~= "route" and mode ~= "full" then
 		error("unknown reagent tooltip mode: " .. tostring(mode))
 	end
-	local shifted = mode == "route" and IsShiftKeyDown()
-	local lines = ItemLines(itemID, mode, shifted)
+	local shifted = mode ~= "off" and mode == "route" and IsShiftKeyDown()
+	local lines = mode == "off" and PatternProfitLines(itemID) or ItemLines(itemID, mode, shifted)
 	local index = RouteNeedsIndex()
 	local last = drawn[tooltip]
 	if

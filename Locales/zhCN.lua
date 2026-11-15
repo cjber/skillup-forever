@@ -4,6 +4,8 @@ if GetLocale() ~= "zhCN" then
 	return
 end
 local L = ns.L
+L["Show SkillUp tooltip details"] = "显示 SkillUp 提示详情"
+L["Show SkillUp profession tabs"] = "显示 SkillUp 专业标签"
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "还有%d个"

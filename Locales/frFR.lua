@@ -5,6 +5,8 @@ if GetLocale() ~= "frFR" then
 	return
 end
 local L = ns.L
+L["Show SkillUp tooltip details"] = "Afficher les détails des infobulles de SkillUp"
+L["Show SkillUp profession tabs"] = "Afficher les onglets de métiers de SkillUp"
 
 L["%d %s"] = "%d %s" -- mt
 L["%d more"] = "%d de plus" -- mt

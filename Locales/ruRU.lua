@@ -4,6 +4,8 @@ if GetLocale() ~= "ruRU" then
 	return
 end
 local L = ns.L
+L["Show SkillUp tooltip details"] = "Показывать подробности подсказок SkillUp"
+L["Show SkillUp profession tabs"] = "Показывать вкладки профессий SkillUp"
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "еще %d"

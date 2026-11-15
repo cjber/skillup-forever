@@ -4,6 +4,8 @@ if GetLocale() ~= "koKR" then
 	return
 end
 local L = ns.L
+L["Show SkillUp tooltip details"] = "SkillUp 툴팁 세부 정보 표시"
+L["Show SkillUp profession tabs"] = "SkillUp 전문 기술 탭 표시"
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "%d개 더"

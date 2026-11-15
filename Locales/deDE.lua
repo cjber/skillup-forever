@@ -4,6 +4,8 @@ if GetLocale() ~= "deDE" then
 	return
 end
 local L = ns.L
+L["Show SkillUp tooltip details"] = "SkillUp-Tooltipdetails anzeigen"
+L["Show SkillUp profession tabs"] = "SkillUp-Berufsreiter anzeigen"
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "%d weitere"

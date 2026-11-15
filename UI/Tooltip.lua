@@ -542,6 +542,52 @@ local function ShiftHintLine(count)
 	return { kind = "shiftHint", count = count }
 end
 
+-- Recipe patterns are identified by the bundled RecipeScrolls table, never by parsing arbitrary item text.
+---@param itemID integer
+---@return SkillUpTooltipLine[]
+local function PatternProfitLines(itemID)
+	if ns.db.craftValue == "none" or not ns.RecipeScrolls then
+		return {}
+	end
+	local recipeID
+	for id, scroll in pairs(ns.RecipeScrolls) do
+		if scroll[1] == itemID then
+			recipeID = id
+			break
+		end
+	end
+	local recipe = recipeID and ns.RecipeData[recipeID]
+	if not recipe then
+		return {}
+	end
+	local d = ns.Describe(recipe, ns.SkillContext())
+	if not d or not d.cost then
+		return {}
+	end
+	local values = ns.CraftSaleValues(recipeID)
+	local lines = {}
+	for _, sale in ipairs({ { "Vendor sell price", values.vendor }, { "Auction price", values.auction } }) do
+		local label, value = sale[1], sale[2]
+		if value then
+			local net = d.cost - value.copper
+			lines[#lines + 1] = DoubleLine(
+				L[label],
+				string.format(
+					"%s (%s)",
+					Money(value.copper),
+					string.format(
+						"%s %s",
+						L[net < 0 and "Profit per craft" or "Net per craft"],
+						ns.FormatSigned(math.abs(net), net < 0)
+					)
+				),
+				ns.COLORS.green
+			)
+		end
+	end
+	return lines
+end
+
 -- Route lines are drawn from the tracked routes and the bags as they are now: declared before Draw, built
 -- below from the route index.
 local DrawRouteNeeds
@@ -804,6 +850,9 @@ local function ItemLines(itemID, mode, shifted)
 	local uses = Uses(itemID)
 	lines = {}
 	for _, line in ipairs(MadeByLines(itemID)) do
+		lines[#lines + 1] = line
+	end
+	for _, line in ipairs(PatternProfitLines(itemID)) do
 		lines[#lines + 1] = line
 	end
 	-- Drawn from the route index and the bags when the tooltip is set, never baked into this item's cache.

@@ -1001,15 +1001,6 @@ function ns.PlanRoute(profession)
 	end
 	local snapshot = Snapshot(profession, target)
 	local route = ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot))
-	if ns.SelectRouteChoices then
-		local choices = ns.SelectRouteChoices(route.segments, {}, 256)
-		if choices then
-			for index, choice in pairs(choices) do
-				route.segments[index].recipeID = choice.recipeID
-				route.segments[index].crafts = choice.crafts or route.segments[index].crafts
-			end
-		end
-	end
 	local plan = Finish(profession, target, route)
 	if
 		kept

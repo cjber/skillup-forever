@@ -34,7 +34,11 @@
 
 ---@class SkillUpJointDemandProducer
 ---@field Start fun(input: SkillUpJointDemandInput): SkillUpJointDemandJob
----@field StartBasketChoice fun(input: SkillUpJointDemandInput, baskets: table<integer, table<integer, integer>>, shortfallCost: number, unitCosts: table<integer, number>): SkillUpBasketChoiceJob
+---@field StartBasketChoice fun(input: SkillUpJointDemandInput, baskets: table<integer, table<integer, integer>>, resupply: SkillUpResupplyCosts, unitCosts: table<integer, number>): SkillUpBasketChoiceJob
+
+---@class SkillUpResupplyCosts
+---@field tripCopper number Observed cost of a resupply trip, charged once on any shortage.
+---@field unitCopper table<integer, number> Observed replacement cost per missing reagent unit.
 
 ---@class SkillUpRouteDemandProducer
 ---@field Snapshot fun(plan: SkillUpPlan, buy: table<integer, integer>): SkillUpJointDemandInput?, string?

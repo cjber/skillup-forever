@@ -266,14 +266,14 @@ function Demand.Start(input)
 	return { result = initial, Advance = Advance, Cancel = Cancel }
 end
 
--- Compare explicit baskets incrementally. The scalar shortfall cost is an
--- explicit caller observation, not a farm-time estimate or a source policy.
+-- Compare explicit baskets incrementally. Resupply costs are explicit caller
+-- observations, never inferred farm times or a fixed confidence policy.
 ---@param input SkillUpJointDemandInput
 ---@param baskets table<integer, table<integer, integer>>
----@param shortfallCost number
+---@param resupply SkillUpResupplyCosts
 ---@param unitCosts table<integer, number>
 ---@return SkillUpBasketChoiceJob
-function Demand.StartBasketChoice(input, baskets, shortfallCost, unitCosts)
+function Demand.StartBasketChoice(input, baskets, resupply, unitCosts)
 	local revision = ns.Model.ChanceRevision()
 	---@type SkillUpJointDemandJob?
 	local child
@@ -294,8 +294,8 @@ function Demand.StartBasketChoice(input, baskets, shortfallCost, unitCosts)
 		if type(input) ~= "table" or type(baskets) ~= "table" or type(unitCosts) ~= "table" then
 			return UnknownChoice("explicit route, baskets and observed costs required")
 		end
-		if not Money(shortfallCost) then
-			return UnknownChoice("shortfall cost unavailable")
+		if type(resupply) ~= "table" or not Money(resupply.tripCopper) or type(resupply.unitCopper) ~= "table" then
+			return UnknownChoice("observed resupply costs unavailable")
 		end
 		local count, largest = 0, 0
 		for key in pairs(baskets) do
@@ -344,8 +344,52 @@ function Demand.StartBasketChoice(input, baskets, shortfallCost, unitCosts)
 			if not result.coverageKnown then
 				return UnknownChoice("joint completion probability unavailable")
 			end
-			local lower = Down(purchaseLower + Down(Down(1 - result.coverageUpper) * shortfallCost))
-			local upper = Up(purchaseUpper + Up(Up(1 - result.coverageLower) * shortfallCost))
+			local lower = Down(purchaseLower + Down(Down(1 - result.coverageUpper) * resupply.tripCopper))
+			local upper = Up(purchaseUpper + Up(Up(1 - result.coverageLower) * resupply.tripCopper))
+			-- Evaluate each marginal separately: clipping a joint distribution on
+			-- another reagent would undercount this item's missing units.
+			local items = {}
+			for _, leg in ipairs(input.legs) do
+				for item, amount in pairs(leg.use) do
+					if amount > 0 then
+						items[item] = true
+					end
+					Tick()
+				end
+			end
+			for item in pairs(items) do
+				local replacement = resupply.unitCopper[item]
+				if not Money(replacement) then
+					return UnknownChoice("observed reagent resupply cost unavailable")
+				end
+				local projection =
+					{ legs = {}, held = { [item] = input.held[item] or 0 }, buy = { [item] = copied[item] or 0 } }
+				for _, leg in ipairs(input.legs) do
+					projection.legs[#projection.legs + 1] = {
+						fromSkill = leg.fromSkill,
+						toSkill = leg.toSkill,
+						skillUps = leg.skillUps,
+						thresholds = leg.thresholds,
+						use = { [item] = leg.use[item] or 0 },
+						rawConsumption = leg.rawConsumption,
+						deterministicOutput = leg.deterministicOutput,
+					}
+					Tick()
+				end
+				child = Demand.Start(projection)
+				while child.result.status == "calculating" do
+					child:Advance(1)
+					Tick()
+				end
+				local shortage = child.result
+				child = nil
+				if not shortage.expectedShortfallLower or not shortage.expectedShortfallUpper then
+					return UnknownChoice("expected reagent shortfall unavailable")
+				end
+				lower = Down(lower + Down(shortage.expectedShortfallLower * replacement))
+				upper = Up(upper + Up(shortage.expectedShortfallUpper * replacement))
+				Tick()
+			end
 			if not Money(lower) or not Money(upper) then
 				return UnknownChoice("shortfall cost overflow")
 			end

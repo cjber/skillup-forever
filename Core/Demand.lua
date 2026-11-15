@@ -2,6 +2,50 @@ local _, ns = ...
 local Demand = {}
 ns.Demand = Demand
 
+-- Compare explicit basket candidates after the joint route evaluator has
+-- computed completion bounds. Unknown source prices or shortfall costs keep
+-- the decision unknown rather than inventing a farm valuation.
+---@param input SkillUpJointDemandInput
+---@param baskets table[]
+---@param shortfallCost number
+---@param unitCosts table<integer, number>
+---@return table?, string?
+function Demand.ChooseBasket(input, baskets, shortfallCost, unitCosts)
+	if type(shortfallCost) ~= "number" or shortfallCost < 0 or shortfallCost ~= shortfallCost then
+		return nil, "shortfall cost unavailable"
+	end
+	local best, bestValue
+	for _, basket in ipairs(baskets) do
+		local purchase = 0
+		for item, count in pairs(basket) do
+			local price = unitCosts[item]
+			if
+				type(count) ~= "number"
+				or count < 0
+				or count ~= math.floor(count)
+				or type(price) ~= "number"
+				or price < 0
+				or price ~= price
+			then
+				return nil, "observed basket cost unavailable"
+			end
+			purchase = purchase + count * price
+		end
+		local job = Demand.Start({ legs = input.legs, held = input.held, buy = basket })
+		while job.result.status == "calculating" do
+			job:Advance(64)
+		end
+		if not job.result.coverageKnown then
+			return nil, "joint completion probability unavailable"
+		end
+		local value = purchase + (1 - job.result.coverageLower) * shortfallCost
+		if not bestValue or value < bestValue then
+			best, bestValue = basket, value
+		end
+	end
+	return best
+end
+
 -- IEEE binary64 outward enclosure. Each elementary operation is widened by
 -- more than one ulp, including gradual underflow. Model.Chance's returned
 -- binary64 value is the input probability, not an empirical RNG guarantee.

@@ -26,6 +26,7 @@
 ---@field Demand SkillUpJointDemandProducer
 ---@field RouteDemand SkillUpRouteDemandProducer
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
+---@field WhenStaleObserver fun(name: SkillUpStale, observer: fun())
 ---@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field CharacterKey fun(): string?

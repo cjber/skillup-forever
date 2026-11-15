@@ -275,8 +275,10 @@ for _, name in ipairs(ORDER) do
 	LABELS[name] = "stale " .. name
 end
 
----@type table<SkillUpStale, fun()[]>
+---@type table<SkillUpStale, fun()>
 local handlers = {}
+---@type table<SkillUpStale, fun()[]>
+local observers = {}
 ---@type table<string, (fun(): SkillUpChange?)[]>
 local watchers = {}
 
@@ -289,9 +291,13 @@ local function Apply(kinds)
 		end
 	end
 	for _, name in ipairs(ORDER) do
-		for _, handler in ipairs(stale[name] and handlers[name] or {}) do
+		local handler = stale[name] and handlers[name]
+		if handler then
 			-- One failing cache or view doesn't stop the rest; the error is kept for /skillup report.
 			ns.core.SafeCall(LABELS[name], handler)
+		end
+		for _, observer in ipairs(stale[name] and observers[name] or {}) do
+			ns.core.SafeCall(LABELS[name], observer)
 		end
 	end
 end
@@ -308,8 +314,14 @@ end
 ---@param name SkillUpStale
 ---@param handler fun()
 function ns.WhenStale(name, handler)
-	handlers[name] = handlers[name] or {}
-	handlers[name][#handlers[name] + 1] = handler
+	handlers[name] = handler
+end
+
+---@param name SkillUpStale
+---@param observer fun()
+function ns.WhenStaleObserver(name, observer)
+	observers[name] = observers[name] or {}
+	observers[name][#observers[name] + 1] = observer
 end
 
 local frame = CreateFrame("Frame")

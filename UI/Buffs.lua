@@ -901,6 +901,7 @@ function Render()
 	for _, row in ipairs(rows) do
 		elements[#elements + 1] = { row = row, columns = columns }
 	end
+	---@diagnostic disable-next-line: param-type-mismatch
 	page.Rows:SetDataProvider(CreateDataProvider(elements), ScrollBoxConstants.RetainScrollPosition)
 	PlaceContent()
 	SyncHorizontal()

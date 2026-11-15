@@ -970,7 +970,7 @@ function ns.AttachBuffs()
 		id = "buffs",
 		title = L["Buffs"],
 		setting = function()
-			return ns.db.showBuffsTab
+			return ns.db.showProfessionTabs and ns.db.showBuffsTab
 		end,
 		page = page,
 	})

@@ -97,6 +97,12 @@ function ns.RegisterSettings()
 	Section(L["Recipe rows"], function(rows)
 		Checkbox(
 			rows,
+			"showTooltips",
+			L["Show SkillUp tooltip details"],
+			L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."]
+		)
+		Checkbox(
+			rows,
 			"showUnlearned",
 			L["List unlearned recipes"],
 			L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."]
@@ -204,6 +210,12 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Route and trainer"], function(rows)
+		Checkbox(
+			rows,
+			"showProfessionTabs",
+			L["Show SkillUp profession tabs"],
+			L["Shows the route, gear and buffs tabs while preserving each individual tab choice."]
+		)
 		Checkbox(
 			rows,
 			"showTracker",

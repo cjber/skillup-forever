@@ -432,7 +432,7 @@ end
 ---@param data SkillUpRecipeNodeData
 function ns.ShowRecipeTooltip(_, row, data)
 	local info = data.recipeInfo
-	if not ns.db.showTooltip or not info then
+	if not ns.db.showTooltips or not ns.db.showTooltip or not info then
 		return
 	end
 	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
@@ -546,7 +546,7 @@ end
 ---@param itemID integer
 ---@return SkillUpTooltipLine[]
 local function PatternProfitLines(itemID)
-	if ns.db.craftValue == "none" or not ns.RecipeScrolls then
+	if not ns.db.showTooltips or ns.db.craftValue == "none" or not ns.RecipeScrolls then
 		return {}
 	end
 	local recipeID
@@ -886,7 +886,7 @@ local function AddUses(tooltip, data)
 		return
 	end
 	local mode = ns.db.reagentTooltip
-	if mode == "off" or not itemID then
+	if not ns.db.showTooltips or mode == "off" or not itemID then
 		return
 	end
 	if mode ~= "route" and mode ~= "full" then
@@ -973,7 +973,7 @@ end
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddNodeSkill(tooltip, data)
-	if not ns.Usable(tooltip) or not ns.db.gatherTooltip or GetLocale() ~= "enUS" then
+	if not ns.Usable(tooltip) or not ns.db.showTooltips or not ns.db.gatherTooltip or GetLocale() ~= "enUS" then
 		return
 	end
 	local name = FirstLine(data)
@@ -1008,7 +1008,7 @@ end
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddCorpseSkill(tooltip, data)
-	if not ns.Usable(tooltip) or not ns.db.gatherTooltip then
+	if not ns.Usable(tooltip) or not ns.db.showTooltips or not ns.db.gatherTooltip then
 		return
 	end
 	local skillLine

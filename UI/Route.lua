@@ -1538,7 +1538,7 @@ function ns.AttachRoute()
 		id = "route",
 		title = L["Route"],
 		setting = function()
-			return ns.db.showRouteTab
+			return ns.db.showProfessionTabs and ns.db.showRouteTab
 		end,
 		page = page,
 		prepare = Prepare,

@@ -578,7 +578,7 @@ function ns.AttachGear()
 		id = "gear",
 		title = L["Crafted gear"],
 		setting = function()
-			return ns.db.showGearTab
+			return ns.db.showProfessionTabs and ns.db.showGearTab
 		end,
 		page = page,
 	})

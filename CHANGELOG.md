@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The SkillUp minimap button can move around the rim.** Drag it to a clear spot when another addon's button is in the way, and its position stays after reload (#723).
+
 - **Turn whole SkillUp surfaces on or off.** Tooltip details and profession tabs have their own switches, while your individual choices and recipe-row skill-up display stay as you set them. Thanks to cotijelucie for the idea (#725).
 
 - **Recipe patterns show what their crafts can sell for.** Pattern item tooltips compare the vendor and auction value with the known reagent cost. Thanks to jugg__ for the idea (#726).

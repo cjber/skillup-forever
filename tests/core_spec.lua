@@ -5,7 +5,8 @@ local TOC = Client.TocMetadata()
 
 -- The host globals Core/Core.lua loads against: chat lines go to `messages`, load callbacks to `callbacks`.
 local function Env(messages, callbacks)
-	return setmetatable({
+	local env
+	env = setmetatable({
 		C_AddOns = {
 			GetAddOnMetadata = function(_, field)
 				return TOC[field]
@@ -49,8 +50,23 @@ local function Env(messages, callbacks)
 					title = spec.title,
 				}
 			end,
+			MinimapButton = {
+				Create = function(spec)
+					env.minimapSpec = spec
+					return {}
+				end,
+			},
+		},
+		SkillUpForever = {
+			API = {
+				OpenRecipes = function(skillLine)
+					env.openedSkillLine = skillLine
+					return true
+				end,
+			},
 		},
 	}, { __index = _G })
+	return env
 end
 
 -- An update followed by /reload can leave newly added files unloaded.
@@ -103,6 +119,32 @@ for _, complete in ipairs({ false, true }) do
 	callbacks.SkillUpForever()
 	if complete then
 		equal(#messages, 0, "complete install needs no warning")
+		equal(env.minimapSpec.name, "SkillUpForeverMinimapButton", "SkillUp registers a movable minimap button")
+		equal(env.minimapSpec.settings, env.SkillUpForeverDB, "minimap position is saved in SkillUp settings")
+		ns.SkillContext = function()
+			return { skillLine = 171 }
+		end
+		env.minimapSpec.onClick()
+		equal(env.openedSkillLine, 171, "minimap click uses the public profession opener before the frame loads")
+		ns.SkillContext = nil
+		ns.RouteProfessions = function()
+			return { [171] = {}, [185] = {} }
+		end
+		env.openedSkillLine = nil
+		env.minimapSpec.onClick()
+		equal(env.openedSkillLine, 171, "minimap fallback chooses the lowest profession ID")
+		ns.RouteProfessions = function()
+			return {}
+		end
+		ns.Print = function(message)
+			env.lastPrint = message
+		end
+		env.minimapSpec.onClick()
+		equal(
+			env.lastPrint,
+			"Learn a crafting profession to plan a route.",
+			"minimap click explains when no profession is available"
+		)
 		equal(initialized, 5, "complete install initializes")
 		equal(callbacks.Blizzard_Professions, ns.AttachRecipeList, "profession UI registered")
 		equal(callbacks.Blizzard_TrainerUI, ns.AttachTrainer, "trainer UI registered")

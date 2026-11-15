@@ -985,5 +985,10 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpMerchantEvidence
 ---@field unitCopper? number Money quote absent for extended costs or missing quantities.
----@field stock? integer|'unlimited' Available when observed, never a replenishment promise.
+---@field price? integer Original bundle money total in copper, including the money component of extended costs.
+---@field stackCount? integer Original positive integral bundle quantity, absent on historical records.
+---@field hasExtendedCost? boolean True requires non-money costs; absent is unknown on historical records.
+---@field numAvailable? integer Raw API count, -1 or nonnegative; its item/bundle unit is unverified.
+---@field stockSource? 'C_MerchantFrame.GetItemInfo.numAvailable' Provenance for the raw stock count.
+---@field stock? integer|'unlimited' Legacy normalized API count, never a replenishment promise or verified item quantity.
 ---@field observedAt number Server Unix seconds.

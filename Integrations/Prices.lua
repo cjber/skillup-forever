@@ -686,37 +686,57 @@ local function MerchantNPC()
 	return guid and tonumber(guid:match("^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)"))
 end
 
--- Record dated observations separately from historical maximum stock.
+-- Accept only finite integral API amounts. Missing data never becomes a one-item bundle.
+local function Integral(value, minimum)
+	return type(value) == "number" and value == value and value < math.huge and value >= minimum and value % 1 == 0
+end
+
+local function MoneyQuote(info)
+	if not info.hasExtendedCost and Integral(info.price, 0) and Integral(info.stackCount, 1) then
+		return info.price / info.stackCount
+	end
+end
+
+-- Raw offer components and API stock provenance: docs/merchant-evidence.md.
 local function RecordEvidence(itemID, npcID, info)
 	local vendors = ns.db.merchantEvidence
 	local vendor = vendors[npcID] or {}
 	vendors[npcID] = vendor
-	local stock = info.numAvailable
-	if type(stock) ~= "number" or stock ~= stock or math.abs(stock) == math.huge or stock % 1 ~= 0 then
-		stock = nil
-	elseif stock < 0 then
-		stock = "unlimited"
+	local available = Integral(info.numAvailable, -1) and info.numAvailable or nil
+	local extendedCost
+	if type(info.hasExtendedCost) == "boolean" then
+		extendedCost = info.hasExtendedCost
 	end
-	local price, count = info.price, info.stackCount
-	local copper
-	if
-		not info.hasExtendedCost
-		and type(price) == "number"
-		and price >= 0
-		and price < math.huge
-		and type(count) == "number"
-		and count > 0
-		and count < math.huge
-	then
-		copper = price / count
-	end
+	---@type SkillUpMerchantEvidence
+	local observation = {
+		price = Integral(info.price, 0) and info.price or nil,
+		stackCount = Integral(info.stackCount, 1) and info.stackCount or nil,
+		hasExtendedCost = extendedCost,
+		numAvailable = available,
+		stockSource = available and "C_MerchantFrame.GetItemInfo.numAvailable" or nil,
+		stock = available == -1 and "unlimited" or available,
+		unitCopper = MoneyQuote(info),
+		observedAt = GetServerTime(),
+	}
 	local seen = vendor[itemID]
-	local at = GetServerTime()
-	if not seen or seen.unitCopper ~= copper or seen.stock ~= stock or seen.observedAt ~= at then
-		vendor[itemID] = { unitCopper = copper, stock = stock, observedAt = at }
-		return true
+	if seen then
+		local same = true
+		for key, value in pairs(observation) do
+			if seen[key] ~= value then
+				same = false
+			end
+		end
+		for key, value in pairs(seen) do
+			if observation[key] ~= value then
+				same = false
+			end
+		end
+		if same then
+			return false
+		end
 	end
-	return false
+	vendor[itemID] = observation
+	return true
 end
 
 -- What the open window shows this vendor sells at a time: the highest count seen as it restocks, or false
@@ -762,21 +782,13 @@ local function RecordMerchant()
 			if npcID and RecordEvidence(itemID, npcID, info) then
 				evidence = true
 			end
-			if npcID and type(info.numAvailable) == "number" and RecordStock(itemID, npcID, info.numAvailable) then
+			if npcID and Integral(info.numAvailable, -1) and RecordStock(itemID, npcID, info.numAvailable) then
 				stocked = true
 			end
-			if
-				info.price
-				and info.price > 0
-				and info.stackCount
-				and info.stackCount > 0
-				and not info.hasExtendedCost
-			then
-				local each = info.price / info.stackCount
-				if ns.db.vendor[itemID] ~= each then
-					ns.db.vendor[itemID] = each
-					changed = true
-				end
+			local each = MoneyQuote(info)
+			if each and each > 0 and ns.db.vendor[itemID] ~= each then
+				ns.db.vendor[itemID] = each
+				changed = true
 			end
 		end
 	end

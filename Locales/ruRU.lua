@@ -6,6 +6,8 @@ end
 local L = ns.L
 L["Show SkillUp tooltip details"] = "Показывать подробности подсказок SkillUp"
 L["Show SkillUp profession tabs"] = "Показывать вкладки профессий SkillUp"
+L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] = "Добавляет сведения SkillUp в подсказки, сохраняя отдельные настройки подсказок."
+L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] = "Показывает вкладки маршрута, экипировки и усилений, сохраняя отдельные настройки вкладок."
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "еще %d"

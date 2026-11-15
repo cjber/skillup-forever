@@ -6,6 +6,8 @@ end
 local L = ns.L
 L["Show SkillUp tooltip details"] = "顯示 SkillUp 提示詳細資訊"
 L["Show SkillUp profession tabs"] = "顯示 SkillUp 專業分頁"
+L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] = "在保留個別提示設定的同時，將 SkillUp 詳細資訊加入提示。"
+L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] = "在保留個別分頁設定的同時，顯示路線、裝備和增益分頁。"
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "還有%d個"

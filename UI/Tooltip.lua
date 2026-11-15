@@ -561,7 +561,16 @@ local function PatternProfitLines(itemID)
 	end
 	local lines = {}
 	for _, recipeID in ipairs(recipeIDs) do
-		local d = ns.Describe(ns.RecipeData[recipeID], ns.SkillContext())
+		local recipe = ns.RecipeData[recipeID]
+		local info
+		if recipe then
+			info = {}
+			for key, value in pairs(recipe) do
+				info[key] = value
+			end
+			info.recipeID = recipeID
+		end
+		local d = info and ns.Describe(info, ns.SkillContext())
 		local values = d and d.cost and ns.CraftSaleValues(recipeID)
 		for _, sale in
 			ipairs(values and { { "Vendor sell price", values.vendor }, { "Auction price", values.auction } } or {})

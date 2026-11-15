@@ -38,11 +38,11 @@ local c = Client.load({
 			[LATE] = {
 				skillLine = 129,
 				reagents = { { itemID = LINEN, quantity = 1 } },
-				output = { itemID = BANDAGE_ITEM, quantity = 1 },
+				output = { itemID = BANDAGE_ITEM, quantity = 2 },
 			},
 		},
 		TrainerFees = { [TRAINED] = { 10, 40 }, [LATE] = { 10, 20 } },
-		RecipeScrolls = { [SCROLLED] = { SCROLL_ITEM, 45 } },
+		RecipeScrolls = { [SCROLLED] = { SCROLL_ITEM, 45 }, [LATE] = { SCROLL_ITEM, 45 } },
 		TrainerRanks = { [129] = {} },
 		ItemSellPrices = {},
 		GatheredBy = {},
@@ -293,7 +293,10 @@ function itemTooltip:HookScript(script, fn)
 	table.insert(self.hooks[script], fn)
 end
 function itemTooltip.AddLine() end
-function itemTooltip.AddDoubleLine() end
+local itemPairs = {}
+function itemTooltip.AddDoubleLine(_, left, right)
+	itemPairs[#itemPairs + 1] = { left, right }
+end
 function itemTooltip:Clear()
 	for _, hook in ipairs(self.hooks.OnTooltipCleared or {}) do
 		hook(self)
@@ -315,6 +318,36 @@ ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
 itemTooltip:Clear()
 equal(bar:IsShown(), true, "and the bar shown again after that is still only its own tooltip's to hide")
 tooltip:SetOwner({}, "ANCHOR_RIGHT")
+c.SetSetting("reagentTooltip", reagentMode)
+
+-- Pattern tooltips use every bundled recipe for a shared scroll, account for output quantity and AH cut, and remain
+-- available when reagent details are off. Unknown sale channels and craft-value suppression add no stale lines.
+c.auction[BANDAGE_ITEM] = 20
+c.SetSetting("reagentTooltip", "off")
+c.SetSetting("craftValue", "vendor")
+itemPairs = {}
+itemPosts[#itemPosts](itemTooltip, { id = SCROLL_ITEM })
+local function HasPatternSale(label, right)
+	for _, pair in ipairs(itemPairs) do
+		if pair[1] == label and (not right or pair[2] == right) then
+			return true
+		end
+	end
+	return false
+end
+equal(HasPatternSale("Vendor sell price", "3 (Net per craft |cffff2020-|r7)"), true, "first shared pattern has vendor net")
+equal(HasPatternSale("Vendor sell price", "6 (Net per craft |cffff2020-|r4)"), true, "second shared pattern uses output quantity")
+equal(HasPatternSale("Auction price", "19 (Profit per craft |cff40ff40+|r9)"), true, "first pattern applies auction cut")
+equal(HasPatternSale("Auction price", "38 (Profit per craft |cff40ff40+|r28)"), true, "second pattern applies auction cut and quantity")
+c.auction[BANDAGE_ITEM] = nil
+itemPairs = {}
+itemPosts[#itemPosts](itemTooltip, { id = SCROLL_ITEM })
+equal(HasPatternSale("Auction price"), false, "unknown auction sale is omitted")
+c.SetSetting("craftValue", "none")
+itemPairs = {}
+itemPosts[#itemPosts](itemTooltip, { id = SCROLL_ITEM })
+equal(#itemPairs, 0, "craft-value none suppresses pattern sales")
+c.SetSetting("craftValue", craftValue)
 c.SetSetting("reagentTooltip", reagentMode)
 
 -- Where the tooltip goes (#163): beside the window by default, past its side tabs, so it never covers the

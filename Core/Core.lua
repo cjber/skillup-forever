@@ -1108,8 +1108,8 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	if
 		type(ForeverCore.MinimapButton) == "table"
 		and type(ForeverCore.MinimapButton.Create) == "function"
-		and Minimap
-		and type(Minimap.GetWidth) == "function"
+		and _G.Minimap
+		and type(_G.Minimap.GetWidth) == "function"
 	then
 		ForeverCore.MinimapButton.Create({
 			name = "SkillUpForeverMinimapButton",

@@ -6,8 +6,10 @@ end
 local L = ns.L
 L["Show SkillUp tooltip details"] = "SkillUp 툴팁 세부 정보 표시"
 L["Show SkillUp profession tabs"] = "SkillUp 전문 기술 탭 표시"
-L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] = "각 툴팁 설정을 유지하면서 SkillUp 세부 정보를 툴팁에 추가합니다."
-L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] = "각 탭 설정을 유지하면서 경로, 장비 및 강화 효과 탭을 표시합니다."
+L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
+	"각 툴팁 설정을 유지하면서 SkillUp 세부 정보를 툴팁에 추가합니다."
+L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
+	"각 탭 설정을 유지하면서 경로, 장비 및 강화 효과 탭을 표시합니다."
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "%d개 더"

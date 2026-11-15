@@ -34,6 +34,7 @@ local ORDER = {
 	"tooltip",
 	"auctionSearch",
 	"detailsBar",
+	"recipePreview",
 	"shoppingList",
 }
 
@@ -46,6 +47,7 @@ local STALE = {
 	-- flag, a live grey, skill points or a schematic the plans were built without. The plan is built from all
 	-- of it.
 	recipes = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		schematics = true,
@@ -64,6 +66,7 @@ local STALE = {
 	-- they are. A list update while it is open is qualified by Core/Live.lua's scan, which marks this only
 	-- when the open profession, its skill or the known recipes actually moved.
 	window = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		api = true,
@@ -79,6 +82,7 @@ local STALE = {
 	-- its profession's skill, bonus and cap, so a profession's own skill-up rebuilds that one plan on its next ask.
 	-- `trackedNeeds` is left to that plan key too: a weapon skill-up must not rebuild every tracked route.
 	skill = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		api = true,
@@ -90,6 +94,7 @@ local STALE = {
 	},
 	-- A Legacy talent changed what a skill-up is worth: every chance shown, planned or priced moves.
 	talents = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
@@ -119,6 +124,7 @@ local STALE = {
 		shoppingList = true,
 	},
 	prices = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		prices = true,
@@ -135,7 +141,15 @@ local STALE = {
 	-- only the route index does, and only when the tools a route lacks actually moved. `bags` is Plan.lua's own
 	-- check, made when something next asks for the plan: a route a step can no longer afford to craft is planned
 	-- afresh there, and any other bag change keeps it (#621).
-	bags = { bags = true, tooltipRouteTools = true, api = true, route = true, tracker = true, shoppingList = true },
+	bags = {
+		recipePreview = true,
+		bags = true,
+		tooltipRouteTools = true,
+		api = true,
+		route = true,
+		tracker = true,
+		shoppingList = true,
+	},
 	-- Item data arrived; `names` when the public list was waiting on it. An item tooltip's lines hold no item
 	-- name, and a route's tooltip lines hold no shopping source, so `tooltipCache` and `tooltipRoute` stay.
 	-- `trackedNeeds` stays too: the one item-data input its list reads, a vendor sell price
@@ -144,6 +158,7 @@ local STALE = {
 	-- the same reason: UI/Shopping.lua keeps the names its section is waiting on and reports the tracker only
 	-- when one of them arrives, so a tooltip hover draws no section (#526).
 	items = {
+		recipePreview = true,
 		route = true,
 		gear = true,
 		buffs = true,
@@ -169,6 +184,7 @@ local STALE = {
 	merchant = { tracker = true, shoppingList = true },
 	-- Fees and requirements recorded at a trainer.
 	fees = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
@@ -213,6 +229,7 @@ local STALE = {
 		shoppingList = true,
 	},
 	settings = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		prices = true,
@@ -233,6 +250,8 @@ local STALE = {
 		detailsBar = true,
 		shoppingList = true,
 	},
+	-- The preview covers the recipe pane and temporarily hides the auction action for the selected learned recipe.
+	preview = { auctionSearch = true },
 	-- The page's Replan button: the player asked for this route afresh, so the one they were following is
 	-- forgotten (`replan`) and every view that draws a plan goes with the plans. Nothing else moved.
 	replan = {

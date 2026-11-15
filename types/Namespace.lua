@@ -56,11 +56,15 @@
 ---@field ObtainCost fun(itemID: integer): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
 ---@field LiveSchematicsArrived fun(recipeIDs: integer[]): boolean
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
+---@field RecipeOutput fun(recipeID: integer): SkillUpRecipeOutput?
 ---@field UsedIn fun(itemID: integer): integer[]
 ---@field CraftCost fun(recipeID: integer): number?, SkillUpValue?, number?
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
+---@field AttachRecipePreview fun(page: SkillUpCraftingPage): fun(row: SkillUpRecipeRow, data?: SkillUpRecipeNodeData)
+---@field IsRecipePreviewShown fun(): boolean
+---@field CloseRecipePreview fun()
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
 ---@field CraftedGear fun(level: number, classID: integer): SkillUpGearSlot[]
 ---@field BuffLevel fun(recipeID: integer): integer? The product's required level when it is a buff, else nil.
@@ -320,7 +324,11 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpSchematic
 ---@field reagents SkillUpReagent[]
----@field output? SkillUpReagent|false
+---@field output? SkillUpRecipeOutput|false
+
+---@class SkillUpRecipeOutput : SkillUpReagent
+---@field quantityMin? number
+---@field quantityMax? number
 
 ---@class SkillUpContext
 ---@field skillLine? integer
@@ -457,8 +465,8 @@ SkillUpForeverDB = nil
 ---@field count number
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
----@alias SkillUpChange 'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
----@alias SkillUpStale 'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
+---@alias SkillUpChange 'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'|'preview'
+---@alias SkillUpStale 'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'

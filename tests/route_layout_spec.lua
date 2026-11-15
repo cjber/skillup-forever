@@ -512,6 +512,7 @@ local stale = setmetatable({}, {
 	end,
 })
 local ns = {
+	CloseRecipePreview = noop,
 	L = setmetatable({}, {
 		__index = function(_, key)
 			return key

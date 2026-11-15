@@ -1512,9 +1512,10 @@ function Client.load(options)
 		end,
 		UnregisterCallback = noop,
 	}
-	-- A scroll box's initializer callback, called for each row as the client makes it.
+	-- A scroll box's callbacks for recycled row frames.
 	G.ScrollUtil = {
 		AddInitializedFrameCallback = noop,
+		AddReleasedFrameCallback = noop,
 	}
 	G.Menu = { ModifyMenu = noop }
 	G.MenuUtil = { ModifyMenu = noop }

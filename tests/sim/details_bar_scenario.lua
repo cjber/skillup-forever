@@ -74,4 +74,13 @@ scenario("The selected recipe's skill band clears the recipe icon and the Reagen
 	)
 	assert(band:GetRight() <= form:GetRight(), "the band stays inside the details pane")
 	assert(band.bar.you:GetText() == "You: 93", "the band names the player's skill")
+
+	sim:closeProfessions()
+	local visibleOnOpen
+	frame:HookScript("OnShow", function()
+		visibleOnOpen = band:IsVisible()
+	end)
+	sim:openProfessions(197)
+	assert(visibleOnOpen == false, "the previous band stays hidden until the reopened pane is laid out")
+	assert(band:IsVisible(), "the current band draws after the reopened pane is laid out")
 end)

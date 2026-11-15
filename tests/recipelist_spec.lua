@@ -51,6 +51,9 @@ local ns = {
 	AttachGear = noop,
 	AttachAuctionSearch = noop,
 	AttachDetailsBar = noop,
+	AttachRecipePreview = function()
+		return noop
+	end,
 	WhenStale = noop,
 	WhenEvent = noop,
 	GamepadUI = function()

@@ -265,6 +265,7 @@ end
 local handlers = {}
 local lastPage
 local ns = {
+	CloseRecipePreview = noop,
 	L = setmetatable({}, {
 		__index = function(_, key)
 			return key

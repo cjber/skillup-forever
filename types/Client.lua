@@ -93,6 +93,7 @@ ITEM_MIN_SKILL = "Requires %s (%d)"
 ---@field SchematicForm SkillUpSchematicForm
 ---@field CreateButton? Button
 ---@field CreateAllButton? Button
+---@field CreateMultipleInputBox? EditBox
 ---@field Init fun(self: SkillUpCraftingPage, info: ProfessionInfo)
 
 -- The client's Professions window is core's ForeverProfessionsWindow type (types/Client.lua there), which core no
@@ -110,11 +111,15 @@ ITEM_MIN_SKILL = "Requires %s (%d)"
 ProfessionsFrame = nil
 
 ---@class SkillUpSchematicForm : Frame
+---@field NineSlice? Frame
 ---@field Description FontString
 ---@field OutputText? FontString
 ---@field RequiredTools? FontString
----@field Reagents? Frame
+---@field Reagents? SkillUpSchematicReagents
 ---@field GetRecipeInfo? fun(self: SkillUpSchematicForm): TradeSkillRecipeInfo?
+
+---@class SkillUpSchematicReagents : Frame
+---@field Label FontString?
 
 -- Blizzard_AuctionHouseUI's frame; its public SetSearchText fills the search box and queries nothing.
 ---@class SkillUpAuctionHouseFrame : Frame
@@ -128,6 +133,7 @@ AuctionHouseFrame = nil
 ---@field SelectRecipe fun(self: SkillUpRecipeList, info: TradeSkillRecipeInfo, scroll: boolean)
 
 ---@class SkillUpRecipeRow : Button
+---@field SelectedOverlay? Texture
 ---@field Count FontString
 ---@field LockedIcon Texture
 ---@field SkillUps FontString
@@ -233,6 +239,7 @@ RAID_CLASS_COLORS = nil
 ---@type {UpdateImmediately: boolean, RetainScrollPosition: boolean, NoScrollInterpolation: boolean}
 ScrollBoxConstants = {}
 ---@class ForeverScrollUtil
+---@field AddReleasedFrameCallback fun(box: SkillUpRecipeScrollBox, callback: fun(owner: SkillUpNamespace, row: SkillUpRecipeRow), owner: SkillUpNamespace)
 ---@field AddInitializedFrameCallback fun(box: SkillUpRecipeScrollBox, callback: fun(owner: SkillUpNamespace, row: SkillUpRecipeRow, node: SkillUpTreeNode), owner: SkillUpNamespace)
 
 Professions = {}
@@ -241,6 +248,13 @@ function Professions.GetProfessionInfo() end
 ---@param info TradeSkillRecipeInfo
 ---@return TradeSkillRecipeInfo?
 function Professions.GetHighestLearnedRecipe(info) end
+---@param button SkillUpPreviewIcon
+---@param quantityMin integer
+---@param quantityMax integer
+---@param icon fileID
+---@param itemID integer?
+---@param quality Enum.ItemQuality
+function Professions.SetupOutputIconCommon(button, quantityMin, quantityMax, icon, itemID, quality) end
 
 -- The character's own skill lines, from Forever's Skills pane (SkillInfoDocumentation.lua).
 ---@class SkillUpSkillLine

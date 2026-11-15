@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **SkillUp pages stay inside the Professions window with ClassicUI Forever.** Their position follows the visible window when ClassicUI moves the native crafting page aside. Thanks to yavinn for the report (#734).
+
 - **Held routes keep unknown costs visible.** A craft whose auction price disappears shows “price unknown” in its route row and tooltip while keeping the route when all materials are held (#730).
 
 - **The minimap button explains how to open a profession.** If that profession is already open, it selects the recipe page. Otherwise it asks you to open it from your spellbook, avoiding a blocked action (#728).

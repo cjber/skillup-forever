@@ -255,7 +255,7 @@ end
 -- belong to ForeverCore.ProfessionTabs. The frame itself carries no art; the pages still draw in the window.
 local function CreateFrames()
 	shell = CreateFrame("Frame", "SkillUpForeverProfessionTabPage", ProfessionsFrame)
-	shell:SetAllPoints(ProfessionsFrame.CraftingPage)
+	shell:SetAllPoints(ProfessionsFrame)
 	shell:Hide()
 	shell:SetScript("OnShow", Reveal)
 	shell:SetScript("OnHide", Hide)

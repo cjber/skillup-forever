@@ -101,7 +101,7 @@
 ---@field PlayerSide fun(): 'A'|'H'|nil
 ---@field RankHeld fun(rank: SkillUpRank): boolean
 ---@field PlanMoney fun(plan: SkillUpPlan): { buy: number, fees: number, sells: number, unknown: integer }
----@field StepCost fun(recipeID: integer, crafts: number): number What a step's crafts cost, every craft at its net
+---@field StepCost fun(recipeID: integer, crafts: number): number? What a step's crafts cost, every craft at its net
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?

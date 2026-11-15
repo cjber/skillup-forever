@@ -1376,7 +1376,7 @@ equal(BandRow(3).name, "Journeyman", "named for that rank")
 equal(BandRow(4).kind, "line", "which is one compact line")
 equal(BandRow(5).current, false, "and later crafts are not the current step")
 equal(BandRow(5).text, "Craft 5× Spell 3276", "the next craft follows training with its own count")
-equal(BandRow(5).detail, "Skill 75 to 80, 0, at Anvil", "a later craft keeps its station on the subline")
+equal(BandRow(5).detail, "Skill 75 to 80, price unknown, at Anvil", "a later craft keeps its station on the subline")
 
 -- The page names the latest auction source and flags old prices.
 page.Price = function()

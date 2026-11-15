@@ -153,4 +153,91 @@ equal(
 	"a bag shortfall releases the committed route when its price is unknown"
 )
 
+-- Real retained-route state, with every material held and the market observation lost.
+routeClient.auction[60] = 10
+routeClient.AuctionatorScan()
+routeNS.Changed("replan")
+local committed = routeNS.PlanRoute(profession)
+routeClient.bags[60] = committed.crafts[1].crafts
+routeNS.Changed("bags")
+routeClient.auction[60] = nil
+routeClient.AuctionatorScan()
+local retained = routeNS.PlanRoute(profession)
+equal(retained.crafts[1].recipeID, 200, "the held route remains committed")
+-- Locate the loaded UI closure without modifying any addon function or upvalue.
+local seen = {}
+local function find(fn, wanted)
+	if seen[fn] then
+		return
+	end
+	seen[fn] = true
+	for i = 1, 100 do
+		local name, value = debug.getupvalue(fn, i)
+		if not name then
+			break
+		end
+		if name == wanted then
+			return value
+		end
+		if type(value) == "function" then
+			local result = find(value, wanted)
+			if result then
+				return result
+			end
+		end
+	end
+end
+local render = assert(find(routeNS.AttachRoute, "RenderRoute"), "loaded RenderRoute closure")
+local rows = {}
+local list = setmetatable({}, {
+	__index = function(_, key)
+		return function(_, row)
+			if key == "Add" then
+				rows[#rows + 1] = row
+			end
+		end
+	end,
+})
+render(list, retained)
+local craftRow
+for _, row in ipairs(rows) do
+	if row.text:find("Craft", 1, true) then
+		craftRow = row
+	end
+end
+assert(craftRow, "real route craft row")
+local costText
+routeClient.G.GameTooltip_AddColoredDoubleLine = function(_, left, right)
+	if left == "Cost" then
+		costText = right
+	end
+end
+local tooltip = setmetatable({}, {
+	__index = function()
+		return function() end
+	end,
+})
+-- Supply the color presentation method absent from the shared stub client.
+for _, color in pairs(routeNS.COLORS) do
+	color.WrapTextInColorCode = function(_, text)
+		return text
+	end
+end
+routeClient.G.GameTooltip_AddInstructionLine = function() end
+routeClient.G.Professions = false
+craftRow.tooltip(tooltip)
+local apiRecipe = routeClient.G.SkillUpForever.API.Recipe(200)
+assert(costText, "real craft tooltip cost")
+equal(routeNS.StepCost(200, retained.crafts[1].crafts), nil, "unknown held craft cost stays unknown")
+equal(craftRow.detail:find(routeNS.L["price unknown"], 1, true) ~= nil, true, "the row names the unknown price")
+equal(costText, routeNS.L["price unknown"], "the tooltip names the unknown price")
+equal(apiRecipe.netCost, nil, "the public recipe cost also stays unknown")
+routeClient.auction[60] = 20
+routeClient.AuctionatorScan()
+equal(
+	routeNS.StepCost(200, retained.crafts[1].crafts),
+	20 * retained.crafts[1].crafts,
+	"a new observation restores the cost"
+)
+
 Client.report("first_visit_prices_spec")

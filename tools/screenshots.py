@@ -1191,6 +1191,9 @@ local first = #created + 1
 -- auction house route and the shopping list.
 ns.db.collectModes[ns.CharacterKey()] = STATE.buyReagents and "auction" or "gather"
 ns.Changed("settings")
+if STATE.losePrices then
+    ns.db.routeTargets[STATE.open.skillLine] = STATE.open.rank + 2
+end
 ns.AttachRoute()
 assert(not hooks.RefreshRightTabs and not hooks.RightTabSelected, "native profession methods stay untouched")
 local page = created[first]
@@ -1202,6 +1205,21 @@ local buffsFirst = #created + 1
 ns.AttachBuffs()
 local buffsPage = created[buffsFirst]
 ns.Pages.Select("route")
+-- Retain a real planned route with all materials held, then lose its market observations.
+if STATE.losePrices then
+    local profession = ns.PlayerProfessions()[STATE.open.skillLine]
+    local plan = ns.PlanRoute(profession)
+    for _, item in ipairs(ns.RouteReagents(plan)) do
+        STATE.bags[item.itemID] = item.need
+    end
+    ns.Changed("bags")
+    for itemID in pairs(STATE.auction) do
+        STATE.auction[itemID] = nil
+    end
+    ns.Changed("prices")
+    ns.Pages.Select("route")
+    assert(ns.PlanRoute(profession).crafts[1].recipeID == plan.crafts[1].recipeID, "held route preserved")
+end
 local function Widget(frame)
 	return {
 		text = rawget(frame, "text"),
@@ -1542,7 +1560,7 @@ def buff_spell_text(ui):
     return names, descriptions
 
 
-def lua_scene(ui, *, buy_reagents=False, buffs=False):
+def lua_scene(ui, *, buy_reagents=False, buffs=False, lose_prices=False):
     """What the route, gear and buffs pages, the tracker, trainer and reagent tooltip draw for the scene."""
     canvas = ui.canvas(1, 1)
     professions = [
@@ -1553,6 +1571,7 @@ def lua_scene(ui, *, buy_reagents=False, buffs=False):
     state = {
         "metadata": TOC_METADATA,
         "buyReagents": buy_reagents,
+        "losePrices": lose_prices,
         "level": 12 if buffs else LEVEL,
         "money": MONEY,
         "learned": list(set(LEARNED) | set(COOKING_LEARNED)) if buffs else LEARNED,
@@ -3207,6 +3226,9 @@ def main():
     window_unlearned_scene(ui).save(OUT / "window-unlearned.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
     data = lua_scene(ui)
+    scene(ui, [(route_frame(ui, lua_scene(ui, buy_reagents=True, lose_prices=True)), 0, 0)]).save(
+        OUT / "route-unknown-cost.png"
+    )
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")
     scene(ui, [(route_frame(ui, lua_scene(ui, buy_reagents=True)), 0, 0)]).save(OUT / "route-auctionator.png")
     scene(ui, [(shopping_list_scene(ui, lua_scene(ui, buy_reagents=True)), 0, 0)]).save(OUT / "shopping-list.png")

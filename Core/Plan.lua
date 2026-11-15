@@ -235,10 +235,10 @@ end
 -- the route page's money is what the player pays.
 ---@param recipeID integer
 ---@param crafts number
----@return number
+---@return number?
 function ns.StepCost(recipeID, crafts)
 	local _, _, netCost = RecipeCosts(recipeID)
-	return ns.Model.StepCost(netCost, nil, crafts) or 0
+	return ns.Model.StepCost(netCost, nil, crafts)
 end
 
 -- What the planner works from: the recipes this character knows, for any of its professions, from
@@ -747,7 +747,7 @@ local function Finish(profession, target, route)
 	-- What the steps ask for, after any rank split them: the crafts and their cost.
 	local crafting = 0
 	for _, craft in ipairs(crafts) do
-		crafting = crafting + ns.StepCost(craft.recipeID, craft.crafts)
+		crafting = crafting + (ns.StepCost(craft.recipeID, craft.crafts) or 0)
 	end
 	---@type SkillUpPlan
 	local plan = {

@@ -45,9 +45,12 @@ local function ItemName(itemID)
 	return name
 end
 
----@param copper number
+---@param copper number?
 ---@return string
 local function Money(copper)
+	if copper == nil then
+		return L["price unknown"]
+	end
 	return ns.FormatNet(ns.Model.RoundMoney(math.abs(copper)), copper < 0)
 end
 

@@ -23,8 +23,8 @@
 ---@field shortfallItem integer? Only for a single-item marginal projection.
 ---@field expectedShortfallLower number? Expected units missing after using held and purchased stock.
 ---@field expectedShortfallUpper number?
----@field costKnown boolean Whether every explicit basket item has an observed price.
----@field costCopper number? Sum of observed prices for the explicit basket.
+---@field costKnown boolean Whether feasible source orders establish observed basket expenditure.
+---@field costCopper number? Observed expenditure for feasible source orders, never a market valuation.
 ---@field reasons string[] Explicit unknown/unsupported/cancellation reasons.
 
 ---@class SkillUpJointDemandJob

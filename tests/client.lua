@@ -1118,7 +1118,7 @@ function Client.load(options)
 				slots[index] =
 					{ reagentType = 0, quantityRequired = reagent[2], reagents = { { itemID = reagent[1] } } }
 			end
-			return { reagentSlotSchematics = slots, outputItemID = schematic.output, quantityMin = 1 }
+			return { reagentSlotSchematics = slots, outputItemID = schematic.output, quantityMin = 1, quantityMax = 1 }
 		end,
 		OpenTradeSkill = function(id)
 			c.opened[#c.opened + 1] = id

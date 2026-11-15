@@ -23,9 +23,14 @@ function ns.SelectRouteChoices(segments, held, maxStates)
 					for item, count in pairs(state.stock) do
 						stock[item] = count
 					end
+					local purchase = 0
 					for item, count in pairs(candidate.use) do
-						stock[item] = (stock[item] or 0) + count
-						key[#key + 1] = item .. "=" .. stock[item]
+						local available = stock[item] or 0
+						purchase = purchase + math.max(count - available, 0) * candidate.cost
+						stock[item] = math.max(available - count, 0)
+					end
+					for item, count in pairs(stock) do
+						key[#key + 1] = item .. "=" .. count
 					end
 					table.sort(key)
 					local stateKey = table.concat(key, ",")
@@ -35,8 +40,8 @@ function ns.SelectRouteChoices(segments, held, maxStates)
 						choices[k] = value
 					end
 					choices[index] = candidate
-					if not previous or state.cost + candidate.cost < previous.cost then
-						nextStates[stateKey] = { stock = stock, choices = choices, cost = state.cost + candidate.cost }
+					if not previous or state.cost + purchase < previous.cost then
+						nextStates[stateKey] = { stock = stock, choices = choices, cost = state.cost + purchase }
 					end
 				end
 			end

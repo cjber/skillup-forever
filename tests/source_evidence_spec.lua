@@ -60,6 +60,7 @@ offer = ns.db.merchantEvidence[5002][3]
 equal(offer.price, 0, "token offer preserves its zero money component")
 equal(offer.hasExtendedCost, true, "token requirement cannot become a free money offer")
 equal(offer.unitCopper, nil, "token offer has no money-only quote")
+c.merchant[1].hasExtendedCost, c.merchant[1].price = false, 100
 local previousPrice = ns.db.vendor[3]
 for _, quantity in ipairs({ 0, -1, 1.5, math.huge, 0 / 0 }) do
 	c.merchant[1].stackCount = quantity

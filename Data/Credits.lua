@@ -88,6 +88,8 @@ ns.Credits = {
 		{ name = "achubbert", what = "Wider recipe list with craftable counts" },
 		{ name = "jackthereaper_", what = "Addon loads without a separate ForeverCore install" },
 		{ name = "qwertzyxc", what = "Professions overview back to its own width" },
+		{ name = "Da_Tronic", what = "Movable minimap button when ATT shares its position" },
+		{ name = "shenhyrosame", what = "Minimap button discoverability and profession-window access" },
 	},
 	inspired = {
 		{ name = "Polestar by Fitz", what = "Ideas for many features" },

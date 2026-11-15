@@ -127,6 +127,8 @@ Credit for the reports and requests behind the addon.
 | achubbert | Wider recipe list with craftable counts | CurseForge; #343 |
 | jackthereaper\_ | Addon loads without a separate ForeverCore install | CurseForge; 1.4.0 |
 | qwertzyxc | Professions overview back to its own width | Discord; #636 |
+| Da_Tronic | Movable minimap button when ATT shares its position | CurseForge; threads 8710025, 8712306 |
+| shenhyrosame | Minimap button discoverability and profession-window access | CurseForge; threads 8715494, 8715499 |
 
 ## Inspired by
 

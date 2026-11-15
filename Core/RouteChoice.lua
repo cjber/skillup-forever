@@ -18,7 +18,7 @@ function ns.SelectRouteChoices(segments, held, maxStates)
 		local nextStates = {}
 		for _, state in ipairs(states) do
 			for _, candidate in ipairs(segment.candidates or {}) do
-				if type(candidate.use) == "table" and type(candidate.cost) == "number" then
+				if type(candidate.use) == "table" and type(candidate.cost) == "table" then
 					local stock, key = {}, {}
 					for item, count in pairs(state.stock) do
 						stock[item] = count
@@ -26,8 +26,16 @@ function ns.SelectRouteChoices(segments, held, maxStates)
 					local purchase = 0
 					for item, count in pairs(candidate.use) do
 						local available = stock[item] or 0
-						purchase = purchase + math.max(count - available, 0) * candidate.cost
+						local unit = candidate.cost[item]
+						if type(unit) ~= "number" or unit < 0 or unit ~= unit or unit == math.huge then
+							purchase = nil
+							break
+						end
+						purchase = purchase + math.max(count - available, 0) * unit
 						stock[item] = math.max(available - count, 0)
+					end
+					if not purchase then
+						goto continue
 					end
 					for item, count in pairs(stock) do
 						key[#key + 1] = item .. "=" .. count
@@ -44,6 +52,7 @@ function ns.SelectRouteChoices(segments, held, maxStates)
 						nextStates[stateKey] = { stock = stock, choices = choices, cost = state.cost + purchase }
 					end
 				end
+				::continue::
 			end
 		end
 		local count = 0

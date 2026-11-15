@@ -31,8 +31,24 @@
 
 ---@class SkillUpJointDemandProducer
 ---@field Start fun(input: SkillUpJointDemandInput): SkillUpJointDemandJob
+---@field StartBasketChoice fun(input: SkillUpJointDemandInput, baskets: table<integer, table<integer, integer>>, shortfallCost: number, unitCosts: table<integer, number>): SkillUpBasketChoiceJob
 
 ---@class SkillUpRouteDemandProducer
 ---@field Snapshot fun(plan: SkillUpPlan, buy: table<integer, integer>): SkillUpJointDemandInput?, string?
 ---@field Start fun(plan: SkillUpPlan, buy: table<integer, integer>): SkillUpJointDemandJob
 ---@field Invalidate fun()
+
+---@class SkillUpBasketChoiceResult
+---@field status 'calculating'|'complete'|'unknown'|'cancelled'
+---@field reasons string[]
+---@field basket table<integer, integer>?
+---@field purchaseCopper number?
+---@field costLower number?
+---@field costUpper number?
+---@field coverageLower number?
+---@field coverageUpper number?
+
+---@class SkillUpBasketChoiceJob
+---@field result SkillUpBasketChoiceResult
+---@field Advance fun(self: SkillUpBasketChoiceJob, work: integer): SkillUpBasketChoiceResult
+---@field Cancel fun(self: SkillUpBasketChoiceJob)

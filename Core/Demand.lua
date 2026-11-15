@@ -2,50 +2,6 @@ local _, ns = ...
 local Demand = {}
 ns.Demand = Demand
 
--- Compare explicit basket candidates after the joint route evaluator has
--- computed completion bounds. Unknown source prices or shortfall costs keep
--- the decision unknown rather than inventing a farm valuation.
----@param input SkillUpJointDemandInput
----@param baskets table[]
----@param shortfallCost number
----@param unitCosts table<integer, number>
----@return table?, string?
-function Demand.ChooseBasket(input, baskets, shortfallCost, unitCosts)
-	if type(shortfallCost) ~= "number" or shortfallCost < 0 or shortfallCost ~= shortfallCost then
-		return nil, "shortfall cost unavailable"
-	end
-	local best, bestValue
-	for _, basket in ipairs(baskets) do
-		local purchase = 0
-		for item, count in pairs(basket) do
-			local price = unitCosts[item]
-			if
-				type(count) ~= "number"
-				or count < 0
-				or count ~= math.floor(count)
-				or type(price) ~= "number"
-				or price < 0
-				or price ~= price
-			then
-				return nil, "observed basket cost unavailable"
-			end
-			purchase = purchase + count * price
-		end
-		local job = Demand.Start({ legs = input.legs, held = input.held, buy = basket })
-		while job.result.status == "calculating" do
-			job:Advance(64)
-		end
-		if not job.result.coverageKnown then
-			return nil, "joint completion probability unavailable"
-		end
-		local value = purchase + (1 - job.result.coverageLower) * shortfallCost
-		if not bestValue or value < bestValue then
-			best, bestValue = basket, value
-		end
-	end
-	return best
-end
-
 -- IEEE binary64 outward enclosure. Each elementary operation is widened by
 -- more than one ulp, including gradual underflow. Model.Chance's returned
 -- binary64 value is the input probability, not an empirical RNG guarantee.
@@ -72,6 +28,7 @@ function Demand.Start(input)
 	---@type SkillUpJointDemandResult
 	local initial = { status = "calculating", supported = true, coverageKnown = false, costKnown = false, reasons = {} }
 	local revision = ns.Model.ChanceRevision()
+	---@type thread?
 	---@type thread?
 	local thread = coroutine.create(function()
 		local function Tick()
@@ -271,6 +228,152 @@ function Demand.Start(input)
 			self.result = Unknown("cancelled", true)
 			self.result.status = "cancelled"
 			thread = nil
+		end
+	end
+	return { result = initial, Advance = Advance, Cancel = Cancel }
+end
+
+-- Compare explicit baskets incrementally. The scalar shortfall cost is an
+-- explicit caller observation, not a farm-time estimate or a source policy.
+---@param input SkillUpJointDemandInput
+---@param baskets table<integer, table<integer, integer>>
+---@param shortfallCost number
+---@param unitCosts table<integer, number>
+---@return SkillUpBasketChoiceJob
+function Demand.StartBasketChoice(input, baskets, shortfallCost, unitCosts)
+	local revision = ns.Model.ChanceRevision()
+	---@type SkillUpJointDemandJob?
+	local child
+	---@type SkillUpBasketChoiceResult
+	local initial = { status = "calculating", reasons = {} }
+	---@return SkillUpBasketChoiceResult
+	local function UnknownChoice(reason)
+		return { status = "unknown", reasons = { reason } }
+	end
+	local function Money(value)
+		return type(value) == "number" and value >= 0 and value < math.huge
+	end
+	---@type thread?
+	local thread = coroutine.create(function()
+		local function Tick()
+			coroutine.yield()
+		end
+		if type(input) ~= "table" or type(baskets) ~= "table" or type(unitCosts) ~= "table" then
+			return UnknownChoice("explicit route, baskets and observed costs required")
+		end
+		if not Money(shortfallCost) then
+			return UnknownChoice("shortfall cost unavailable")
+		end
+		local count, largest = 0, 0
+		for key in pairs(baskets) do
+			if not Integer(key) or key < 1 then
+				return UnknownChoice("dense basket candidates required")
+			end
+			count, largest = count + 1, math.max(largest, key)
+			Tick()
+		end
+		if count == 0 or count ~= largest then
+			return UnknownChoice("dense basket candidates required")
+		end
+		---@type SkillUpBasketChoiceResult[]
+		local evaluated = {}
+		for _, basket in ipairs(baskets) do
+			if type(basket) ~= "table" then
+				return UnknownChoice("explicit basket required")
+			end
+			local purchase, purchaseLower, purchaseUpper, copied = 0, 0, 0, {}
+			for item, amount in pairs(basket) do
+				if not Integer(item) or item < 1 or not Integer(amount) then
+					return UnknownChoice("invalid basket quantity")
+				end
+				if amount > 0 then
+					local price = unitCosts[item]
+					if not Money(price) then
+						return UnknownChoice("observed basket cost unavailable")
+					end
+					purchase = purchase + amount * price
+					purchaseLower = Down(purchaseLower + Down(amount * price))
+					purchaseUpper = Up(purchaseUpper + Up(amount * price))
+					if not Money(purchaseUpper) then
+						return UnknownChoice("basket cost overflow")
+					end
+					copied[item] = amount
+				end
+				Tick()
+			end
+			child = Demand.Start({ legs = input.legs, held = input.held, buy = copied })
+			while child.result.status == "calculating" do
+				child:Advance(1)
+				Tick()
+			end
+			local result = child.result
+			child = nil
+			if not result.coverageKnown then
+				return UnknownChoice("joint completion probability unavailable")
+			end
+			local lower = Down(purchaseLower + Down(Down(1 - result.coverageUpper) * shortfallCost))
+			local upper = Up(purchaseUpper + Up(Up(1 - result.coverageLower) * shortfallCost))
+			if not Money(lower) or not Money(upper) then
+				return UnknownChoice("shortfall cost overflow")
+			end
+			evaluated[#evaluated + 1] = {
+				basket = copied,
+				purchaseCopper = purchase,
+				costLower = lower,
+				costUpper = upper,
+				coverageLower = result.coverageLower,
+				coverageUpper = result.coverageUpper,
+			}
+			Tick()
+		end
+		---@type SkillUpBasketChoiceResult?
+		local best
+		for _, candidate in ipairs(evaluated) do
+			if not best or candidate.costUpper < best.costUpper then
+				best = candidate
+			end
+			Tick()
+		end
+		assert(best)
+		for _, candidate in ipairs(evaluated) do
+			if candidate ~= best and best.costUpper > candidate.costLower then
+				return UnknownChoice("cost bounds overlap; no proven basket choice")
+			end
+			Tick()
+		end
+		best.status, best.reasons = "complete", {}
+		return best
+	end)
+	local function Advance(self, work)
+		assert(Integer(work) and work > 0, "positive integer work budget required")
+		if self.result.status == "calculating" and revision ~= ns.Model.ChanceRevision() then
+			if child then
+				child:Cancel()
+			end
+			self.result = UnknownChoice("skill-up chance changed; start a new snapshot")
+			thread, child = nil, nil
+		end
+		for _ = 1, work do
+			if self.result.status ~= "calculating" then
+				break
+			end
+			local ok, result = coroutine.resume(assert(thread))
+			if not ok then
+				error(result)
+			end
+			if coroutine.status(thread) == "dead" then
+				self.result, thread = result, nil
+			end
+		end
+		return self.result
+	end
+	local function Cancel(self)
+		if self.result.status == "calculating" then
+			if child then
+				child:Cancel()
+			end
+			self.result = { status = "cancelled", reasons = { "cancelled" } }
+			thread, child = nil, nil
 		end
 	end
 	return { result = initial, Advance = Advance, Cancel = Cancel }

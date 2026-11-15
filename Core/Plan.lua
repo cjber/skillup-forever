@@ -724,6 +724,7 @@ local function Finish(profession, target, route)
 			color = ns.Model.Color(ns.Model.Get(segment.recipeID), segment.fromSkill),
 			station = ns.RecipeStation and ns.RecipeStation(segment.recipeID) or nil,
 			subcrafts = subcrafts,
+			candidates = segment.candidates,
 		}
 	end
 	local training = {}

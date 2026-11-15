@@ -379,6 +379,16 @@ SkillUpForeverDB = nil
 ---@field toSkill number
 ---@field crafts number
 ---@field skillUps? integer
+---@field candidates? SkillUpSegmentCandidate[] Viable source choices captured before route materialization.
+
+---@class SkillUpSegmentCandidate
+---@field recipeID integer
+---@field fromSkill number
+---@field toSkill number
+---@field thresholds number[]
+---@field netCost number?
+---@field reagentCost number?
+---@field skillUps? integer
 
 ---@class SkillUpTraining
 ---@field recipeID integer

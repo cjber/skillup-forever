@@ -519,6 +519,25 @@ local function Planner(snapshot)
 				route.segments[#route.segments + 1] = segment
 			end
 			segment.toSkill = skill + gain
+			-- Keep the viable producer choices at this transition. Finish used to
+			-- receive only the winner, making whole-route inventory/economic
+			-- evaluation impossible after the route was collapsed.
+			segment.candidates = segment.candidates or {}
+			for _, candidate in ipairs(priced) do
+				local candidateGain = candidate.thresholds
+					and Model.Gain(candidate.thresholds, skill, candidate.skillUps, target - skill)
+				if candidateGain and candidateGain > 0 then
+					segment.candidates[#segment.candidates + 1] = {
+						recipeID = candidate.recipeID,
+						fromSkill = skill,
+						toSkill = skill + candidateGain,
+						thresholds = candidate.thresholds,
+						netCost = candidate.netCost,
+						reagentCost = candidate.reagentCost,
+						skillUps = candidate.skillUps,
+					}
+				end
+			end
 			route.reachedSkill = skill + gain
 		end
 		-- Each step carries the crafts and cost that reach its target in nine runs of ten, from the last

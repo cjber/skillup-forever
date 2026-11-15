@@ -20,6 +20,9 @@
 ---@field coverageKnown boolean Whether coverage bounds are available.
 ---@field coverageLower number? Conservative lower probability conditional on Model.Chance.
 ---@field coverageUpper number? Conservative upper probability conditional on Model.Chance.
+---@field shortfallItem integer? Only for a single-item marginal projection.
+---@field expectedShortfallLower number? Expected units missing after using held and purchased stock.
+---@field expectedShortfallUpper number?
 ---@field costKnown boolean Whether every explicit basket item has an observed price.
 ---@field costCopper number? Sum of observed prices for the explicit basket.
 ---@field reasons string[] Explicit unknown/unsupported/cancellation reasons.

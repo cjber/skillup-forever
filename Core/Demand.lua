@@ -186,7 +186,7 @@ function Demand.Start(input)
 			low, high = Down(low + state.low), Up(high + state.high)
 			Tick()
 		end
-		return {
+		local result = {
 			status = "complete",
 			supported = true,
 			coverageKnown = true,
@@ -195,6 +195,39 @@ function Demand.Start(input)
 			costKnown = false,
 			reasons = { "source cost not evaluated" },
 		}
+		-- A one-item projection gives its marginal shortage, without clipping on
+		-- other reagents. For demand D and prepared capacity c:
+		-- E[(D-c)+] = E[D] - c + sum(d<=c, (c-d) * P(D=d)).
+		-- Each skill-up stage consumes a geometric number of crafts, with mean 1/p.
+		if #items == 1 then
+			local item = items[1]
+			local meanLower, meanUpper, savedLower, savedUpper = 0, 0, 0, 0
+			for _, stage in ipairs(stages) do
+				local mean = (stage.use[item] or 0) / stage.chance
+				meanLower, meanUpper = Down(meanLower + Down(mean)), Up(meanUpper + Up(mean))
+				Tick()
+			end
+			for _, state in ipairs(states) do
+				local unused = capacity[item] - (state.use[item] or 0)
+				savedLower = Down(savedLower + Down(unused * state.low))
+				savedUpper = Up(savedUpper + Up(unused * state.high))
+				Tick()
+			end
+			-- The intermediate subtraction can be negative, so only clamp after
+			-- adding the retained bounded distribution. Widen every operation.
+			local differenceLower = meanLower - capacity[item]
+			local differenceUpper = meanUpper - capacity[item]
+			local errorLower = math.abs(differenceLower) * 2 ^ -50 + 2 ^ -1074
+			local errorUpper = math.abs(differenceUpper) * 2 ^ -50 + 2 ^ -1074
+			local shortageLower = Down(differenceLower - errorLower + savedLower)
+			local shortageUpper = Up(differenceUpper + errorUpper + savedUpper)
+			if shortageLower < math.huge and shortageUpper < math.huge and shortageUpper >= 0 then
+				result.shortfallItem = item
+				result.expectedShortfallLower = shortageLower
+				result.expectedShortfallUpper = shortageUpper
+			end
+		end
+		return result
 	end)
 	---@param self SkillUpJointDemandJob
 	---@param work integer
@@ -317,6 +350,8 @@ function Demand.StartBasketChoice(input, baskets, shortfallCost, unitCosts)
 				return UnknownChoice("shortfall cost overflow")
 			end
 			evaluated[#evaluated + 1] = {
+				status = "complete",
+				reasons = {},
 				basket = copied,
 				purchaseCopper = purchase,
 				costLower = lower,
@@ -357,11 +392,12 @@ function Demand.StartBasketChoice(input, baskets, shortfallCost, unitCosts)
 			if self.result.status ~= "calculating" then
 				break
 			end
-			local ok, result = coroutine.resume(assert(thread))
+			local active = assert(thread)
+			local ok, result = coroutine.resume(active)
 			if not ok then
 				error(result)
 			end
-			if coroutine.status(thread) == "dead" then
+			if coroutine.status(active) == "dead" then
 				self.result, thread = result, nil
 			end
 		end

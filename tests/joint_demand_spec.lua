@@ -65,4 +65,21 @@ ns.Model.SetChanceBonus(0)
 local stage = ns.Model.DemandStage({ 0, 10, 20, 30 }, 25, 4, 30)
 Check(stage.chance == 0.25 and stage.gain == 4, "stage uses live chance and capped gain")
 Check(ns.Model.DemandStage({ 0, 10, 20, 30 }, 30, 1, 31).chance == 0, "grey stage remains unreachable")
+local function Shortfall(result, exact, label)
+	Check(result.shortfallItem == 1, label .. " marginal item")
+	Check(
+		result.expectedShortfallLower <= exact and result.expectedShortfallUpper >= exact,
+		label .. " exact shortage enclosed"
+	)
+	Check(result.expectedShortfallUpper - result.expectedShortfallLower < 1e-10, label .. " tight shortage bounds")
+end
+Shortfall(Run({ Leg(1, 2, { [1] = 1 }) }, {}, { [1] = 1 }), 1, "one geometric stage")
+Shortfall(Run({ Leg(1, 2, { [1] = 1 }) }, {}, { [1] = 2 }), 0.5, "extra spare reduces expected missing units")
+Shortfall(Run(shared, { [1] = 1 }, { [1] = 3 }), 0.75, "two stages use held stock once")
+Shortfall(Run(shared, {}, { [1] = 0 }), 4, "no stock retains full unbounded mean")
+Shortfall(Run({ Leg(1, 2, { [1] = 2 }) }, {}, { [1] = 3 }), 1.5, "multiple units per craft")
+Check(
+	Run({ Leg(1, 2, { [1] = 1, [2] = 1 }) }, {}, { [1] = 2, [2] = 2 }).shortfallItem == nil,
+	"a clipped joint distribution never claims marginal shortage"
+)
 print("joint demand: " .. checks .. " checks passed")

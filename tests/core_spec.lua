@@ -13,6 +13,11 @@ local function Env(messages, callbacks)
 			end,
 		},
 		CreateColor = function() end,
+		Minimap = {
+			GetWidth = function()
+				return 140
+			end,
+		},
 		Enum = { TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 } },
 		CreateFrame = function()
 			return { RegisterEvent = function() end, SetScript = function() end }
@@ -66,6 +71,7 @@ local function Env(messages, callbacks)
 			},
 		},
 	}, { __index = _G })
+	env._G = env
 	return env
 end
 

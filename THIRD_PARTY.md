@@ -47,7 +47,7 @@ Credit for the reports and requests behind the addon.
 | davef1n | Separate unlearned recipe order and regional sales volume | CurseForge; thread 8715846; #720; #721 |
 | codipherus | Craft quantities lead each route step | CurseForge; thread 8702620; #684 |
 | sundered1985 | Vendor and auction profit on the recipe tooltip | CurseForge; #678; thread 8701206 |
-| jugg__ | Vendor and auction profit on the recipe tooltip | Discord; #678 |
+| jugg__ | Vendor and auction profit on recipe and pattern tooltips | Discord; #678, #726 |
 | keerp | Choose Auctionator or TradeSkillMaster for prices | CurseForge; #675; thread 8700437 |
 | Diamondclaw | The recipe skill band clears the icon and the Reagents header | CurseForge; #674; thread 8700469 |
 | [mimmordino](https://github.com/mimmordino) | The recipe skill band clears the icon and the Reagents header | GitHub; #685; also CurseForge thread 8702929 |
@@ -105,7 +105,7 @@ Credit for the reports and requests behind the addon.
 | Rawveggie | Campfire and plan-use actions no longer blocked | GitHub; #489 |
 | sundered1985 | Campfire and plan-use actions no longer blocked | CurseForge; #489 |
 | hardliquor | Tracker no longer flashes on item hover | Discord; #526 |
-| cotijelucie | Newest recipes first | Discord; #486 |
+| cotijelucie | Newest recipes first and grouped feature controls | Discord; #486, #725 |
 | cotijelucie | Skill ranges start where learned | Discord; #519 |
 | CodexFD | Professions window keeps one width | CurseForge; #505 |
 | rockhumper84 | TradeSkillMaster as a price source | CurseForge; #488 |

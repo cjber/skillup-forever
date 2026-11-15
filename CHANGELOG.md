@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Turn whole SkillUp surfaces on or off.** Tooltip details and profession tabs have their own switches, while your individual choices and recipe-row skill-up display stay as you set them. Thanks to cotijelucie for the idea (#725).
+
+- **Recipe patterns show what their crafts can sell for.** Pattern item tooltips compare the vendor and auction value with the known reagent cost. Thanks to jugg__ for the idea (#726).
+
 - **The route spells out what to craft in order.** Each craft step leads with its quantity and recipe, with its skill range, cost and station underneath. Thanks to codipherus for the report (#684).
 
 - **Unlearned recipes have their own order.** Sort them by required skill or newest first while learned recipes keep your chosen order. Thanks to davef1n for the idea (#720).
@@ -24,11 +28,15 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Recipe tooltips compare selling to a vendor with selling at auction.** Each craft shows both sale values and the profit or loss for the per-craft or per-skill-up view you have selected, so a small vendor loss can be weighed against an auction profit. Disenchant value stays out until Forever's yields are known. Thanks to sundered1985 and jugg__ for the idea (#678).
 - **You can choose which auction addon prices your reagents.** When both Auctionator and TradeSkillMaster are installed, Auction prices from picks the one whose price wins; the other still fills in an item it has no price for. Thanks to keerp for the idea (#675).
-- Ships with the same shared code as your other Forever addons, so they keep working together.
-
 ### For addon authors
 
 - API minor 7 adds read-only recipe data, base-skill learn requirements and account-wide learned-recipe records. Thanks to rissole for the request (#724).
+
+## [1.10.2] - 2026-11-15
+
+<!-- forever-core-sync -->
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ## [1.10.1] - 2026-11-14
 

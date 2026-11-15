@@ -117,6 +117,7 @@ end
 -- rather than an argument so every route, plan and row that asks Chance sees the same talent; orange
 -- stays certain and grey stays impossible, since a grey recipe can give no skill-up to improve.
 local chanceBonus = 0
+local chanceRevision = 0
 
 -- Sets that bonus; returns whether it changed, so a reader on a game event only refreshes on a real change.
 ---@param bonus number
@@ -125,7 +126,15 @@ function Model.SetChanceBonus(bonus)
 	local value = math.max(0, tonumber(bonus) or 0)
 	local changed = value ~= chanceBonus
 	chanceBonus = value
+	if changed then
+		chanceRevision = chanceRevision + 1
+	end
 	return changed
+end
+
+---@return integer
+function Model.ChanceRevision()
+	return chanceRevision
 end
 
 ---@param t number[]?

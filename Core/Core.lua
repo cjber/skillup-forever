@@ -1105,7 +1105,12 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- The saved journal and log are core's now, under the same table: what SafeCall recorded before this line (the
 	-- client's own early errors) arrives with it, and a /reload keeps it.
 	ns.core.Attach(SkillUpForeverDB)
-	if type(ForeverCore.MinimapButton) == "table" and type(ForeverCore.MinimapButton.Create) == "function" then
+	if
+		type(ForeverCore.MinimapButton) == "table"
+		and type(ForeverCore.MinimapButton.Create) == "function"
+		and Minimap
+		and type(Minimap.GetWidth) == "function"
+	then
 		ForeverCore.MinimapButton.Create({
 			name = "SkillUpForeverMinimapButton",
 			icon = ns.ICON,

@@ -530,3 +530,5 @@ L["How recipes you have not learned are ordered. Learned recipes keep the select
 L["TSM regional sales per day"] = "Ventas regionales por día según TSM" -- mt
 L["Average sold per auction house in your region, reported by TSM."] =
 	"Cantidad promedio vendida por casa de subastas en tu región, según TSM." -- mt
+
+L["Open %s from your spellbook."] = "Abre %s desde tu libro de hechizos."

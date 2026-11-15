@@ -850,21 +850,25 @@ function API.Navigate(skillLineID, stepIndex)
 	return npcID ~= nil and ns.SetWaypoint(npcID)
 end
 
--- The profession's window, where SkillUp's recipe colours and route tab are.
+-- The client refuses OpenTradeSkill from addon code, including hardware clicks
+-- (live evidence: forever-core#538). Reuse an already-open profession instead;
+-- the player's own profession control is the only supported way to open it.
 ---@param skillLineID integer
 ---@return boolean
 function API.OpenRecipes(skillLineID)
+	if InCombatLockdown() then
+		return false
+	end
 	local profession = ns.db and ns.RouteProfessions()[skillLineID]
 	if not profession then
 		return false
 	end
-	-- Forever's own profession ID opens it; the classic skill line is the fallback, asked only when it is
-	-- another ID: the same one again would just repeat a request the client has refused.
-	local id = profession.professionID
-	if id and C_TradeSkillUI.OpenTradeSkill(id) then
+	if ProfessionsFrame and ProfessionsFrame:IsShown() and ns.OpenSkillLine and ns.OpenSkillLine() == skillLineID then
+		ForeverCore.ProfessionTabs.ShowNative()
 		return true
 	end
-	return id ~= skillLineID and C_TradeSkillUI.OpenTradeSkill(skillLineID) == true
+	ns.Print(string.format(L["Open %s from your spellbook."], profession.name))
+	return false
 end
 
 -- Read-only recipe and account-history surfaces. These return fresh tables so callers cannot mutate the planner's

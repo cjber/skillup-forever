@@ -207,6 +207,7 @@ L["One line in chat the first time a new version loads."] = "One line in chat th
 L["Only buffs for your level"] = "Only buffs for your level"
 L["Only for level %d"] = "Only for level %d"
 L["Open"] = "Open"
+L["Open %s from your spellbook."] = "Open %s from your spellbook."
 L["Open %s to craft from here."] = "Open %s to craft from here."
 L["Open recipe"] = "Open recipe"
 L["Orange, yellow, green and grey thresholds when hovering a recipe."] = "Orange, yellow, green and grey thresholds when hovering a recipe."

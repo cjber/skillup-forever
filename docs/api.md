@@ -84,8 +84,10 @@ A reagent is `{ itemID, need, have, source }`: how many the whole route needs, h
 has one, and returns whether it did. It is a request, not a read: ask it for a player's action, never to test the
 route.
 
-`OpenRecipes(skillLineID)` opens the Professions window on that profession, where SkillUp's recipe colours and route
-tab are, and returns whether the client opened it. It is a request too, for a player's click.
+`OpenRecipes(skillLineID)` selects the native recipe page when that profession is already open and returns `true`.
+If it is closed or another profession is open, it tells the player to open the requested profession from their
+spellbook and returns `false`. The client blocks addons from opening professions. Combat or an unknown profession
+returns `false`. It is a request for a player's click.
 
 `Recipes(skillLineID?)` returns sorted bundled recipe IDs, optionally filtered to one skill line. It returns
 `nil, "none"` when no matching profession exists. `Recipe(recipeID)` returns a fresh `{ skillLineID, output,

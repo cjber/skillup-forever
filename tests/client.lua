@@ -206,6 +206,8 @@ local OPTIONAL_GLOBALS = {
 	Syndicator = true,
 	-- AuctionHouseFrame: Blizzard's auction house frame, present once Blizzard_AuctionHouseUI loads.
 	AuctionHouseFrame = true,
+	-- Blizzard_Professions is load-on-demand; its window can be absent at login.
+	ProfessionsFrame = true,
 }
 
 -- A global the addon reads that this stub never set is a spec failure, not nil. Lua's own standard library stays

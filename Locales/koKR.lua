@@ -539,3 +539,5 @@ L["How recipes you have not learned are ordered. Learned recipes keep the select
 L["TSM regional sales per day"] = "TSM 지역 일일 판매량" -- mt
 L["Average sold per auction house in your region, reported by TSM."] =
 	"TSM이 보고한 해당 지역 경매장당 평균 판매량입니다." -- mt
+
+L["Open %s from your spellbook."] = "주문책에서 %s|1을;를; 여세요."

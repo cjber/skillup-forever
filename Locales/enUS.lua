@@ -54,3 +54,5 @@ L["Region sale averages need TradeSkillMaster and its desktop app. They estimate
 
 L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
 	"Route incomplete: %d recipes left out because their costs or sale values are unknown."
+
+L["Open %s from your spellbook."] = "Open %s from your spellbook."

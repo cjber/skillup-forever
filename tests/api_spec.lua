@@ -386,24 +386,56 @@ equal(routed, "Telonis", "to the trainer")
 equal(API.Navigate(165, 2), false, "a craft doesn't route")
 equal(API.Navigate(999, 1), false, "an unknown profession doesn't route")
 
-equal(API.OpenRecipes(165), true, "opens a profession")
-equal(c.opened[1], 8165, "by the ID the client reported")
-equal(API.OpenRecipes(999), false, "not one the character lacks")
--- A refused request is asked once more only by another ID.
-local OpenTradeSkill = c.G.C_TradeSkillUI.OpenTradeSkill
-c.G.C_TradeSkillUI.OpenTradeSkill = function(id)
-	OpenTradeSkill(id)
-	return false
+local nativeSelections = 0
+local showNative = c.G.ForeverCore.ProfessionTabs.ShowNative
+c.G.ForeverCore.ProfessionTabs.ShowNative = function()
+	nativeSelections = nativeSelections + 1
 end
-c.opened = {}
-equal(API.OpenRecipes(165), false, "a profession the client will not open")
-equal(table.concat(c.opened, " "), "8165 165", "is asked by its own ID, then the skill line")
-c.professions[1].id = 165
-c.opened = {}
-API.OpenRecipes(165)
-equal(table.concat(c.opened, " "), "165", "and once when the client reports the skill line itself")
-c.professions[1].id = 8165
-c.G.C_TradeSkillUI.OpenTradeSkill = OpenTradeSkill
+local currentSkillLine = ns.OpenSkillLine
+ns.OpenSkillLine = function()
+	return 165
+end
+c.G.ProfessionsFrame = {
+	IsShown = function()
+		return true
+	end,
+}
+equal(API.OpenRecipes(165), true, "an already-open profession selects its native recipes")
+equal(nativeSelections, 1, "native page selection goes through the shared tabs")
+equal(#c.opened, 0, "never calls the protected profession opener")
+equal(API.OpenRecipes(999), false, "not one the character lacks")
+c.combat = true
+equal(API.OpenRecipes(165), false, "combat refuses frame work")
+equal(nativeSelections, 1, "combat does not select a page")
+c.combat = false
+local printed
+local printMessage = ns.Print
+ns.Print = function(message)
+	printed = message
+end
+c.G.ProfessionsFrame = {
+	IsShown = function()
+		return false
+	end,
+}
+equal(API.OpenRecipes(165), false, "a closed profession waits for the player")
+equal(printed, "Open Leatherworking from your spellbook.", "explains the supported profession control")
+c.G.ProfessionsFrame = {
+	IsShown = function()
+		return true
+	end,
+}
+ns.OpenSkillLine = function()
+	return 197
+end
+equal(API.OpenRecipes(165), false, "another profession is not mistaken for the requested one")
+equal(nativeSelections, 1, "a mismatched profession is not reselected")
+c.G.ProfessionsFrame = nil
+equal(API.OpenRecipes(165), false, "an unloaded profession window waits for the player")
+equal(#c.opened, 0, "no state calls the protected profession opener")
+ns.Print = printMessage
+ns.OpenSkillLine = currentSkillLine
+c.G.ForeverCore.ProfessionTabs.ShowNative = showNative
 
 -- The shopping list's trip button, started through its own function.
 local shoppingTrip = ns.ShoppingTrip

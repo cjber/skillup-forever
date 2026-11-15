@@ -520,3 +520,5 @@ L["How recipes you have not learned are ordered. Learned recipes keep the select
 L["TSM regional sales per day"] = "TSM地區每日銷量" -- mt
 L["Average sold per auction house in your region, reported by TSM."] =
 	"TSM回報的所在地區每個拍賣行的平均銷量。" -- mt
+
+L["Open %s from your spellbook."] = "從法術書中開啟%s。"

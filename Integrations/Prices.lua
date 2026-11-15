@@ -774,24 +774,30 @@ end
 local function RecordMerchant()
 	local changed, stocked, evidence, sold = false, false, false, {}
 	local npcID = MerchantNPC()
+	local offers, lastByItem = {}, {}
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
-		local info = C_MerchantFrame.GetItemInfo(index)
+		local info = ns.MerchantOffers.Read(index, itemID, npcID)
+		offers[#offers + 1] = info
 		sold[#sold + 1] = itemID
-		if itemID and info then
-			if npcID and RecordEvidence(itemID, npcID, info) then
-				evidence = true
-			end
+		if itemID and info.infoPresent then
+			lastByItem[itemID] = info.rawInfo
 			if npcID and Integral(info.numAvailable, -1) and RecordStock(itemID, npcID, info.numAvailable) then
 				stocked = true
 			end
-			local each = MoneyQuote(info)
+			local each = MoneyQuote(info.rawInfo)
 			if each and each > 0 and ns.db.vendor[itemID] ~= each then
 				ns.db.vendor[itemID] = each
 				changed = true
 			end
 		end
 	end
+	for itemID, info in pairs(lastByItem) do
+		if npcID and RecordEvidence(itemID, npcID, info) then
+			evidence = true
+		end
+	end
+	evidence = ns.MerchantOffers.Replace(offers) or evidence
 	local seen = ns.SeeVendor(sold)
 	if evidence then
 		ns.Changed("sourceEvidence")
@@ -841,7 +847,15 @@ function ns.InitPrices()
 	for _, event in ipairs({ "TRADE_SKILL_SHOW", "TRADE_SKILL_DATA_SOURCE_CHANGED", "TRADE_SKILL_LIST_UPDATE" }) do
 		ns.WhenEvent(event, WindowSchematics)
 	end
-	ns.WhenEvent("MERCHANT_SHOW", RecordMerchant)
+	ns.WhenEvent("MERCHANT_SHOW", function()
+		ns.MerchantOffers.Open()
+		return RecordMerchant()
+	end)
+	ns.WhenEvent("MERCHANT_CLOSED", function()
+		if ns.MerchantOffers.Replace(nil) then
+			ns.Changed("sourceEvidence")
+		end
+	end)
 	ns.WhenEvent("MERCHANT_UPDATE", RecordMerchant)
 	ns.WhenEvent("GET_ITEM_INFO_RECEIVED", function()
 		if itemInfoPending then

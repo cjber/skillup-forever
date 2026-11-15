@@ -56,6 +56,7 @@ Core\Stats.lua
 Integrations\Questie.lua
 Integrations\AtlasLoot.lua
 Integrations\Catalogue.lua
+Integrations\MerchantOffers.lua
 Integrations\Prices.lua
 UI\Art.lua
 UI\Settings.lua

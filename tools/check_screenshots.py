@@ -45,6 +45,7 @@ SOURCES = (
     "Core/Gear.lua",
     "Core/Buffs.lua",
     "Integrations/Prices.lua",
+    "Integrations/MerchantOffers.lua",
     "Integrations/Sources.lua",
     "UI/Gear.lua",
     "UI/Buffs.lua",

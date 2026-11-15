@@ -41,6 +41,7 @@
 ---@field unitCopper table<integer, number> Observed replacement cost per missing reagent unit.
 
 ---@class SkillUpRouteDemandProducer
+---@field QuoteOrders fun(orders: {offer: SkillUpObservedMerchantOffer, bundles: integer}[]): SkillUpMerchantOrderQuote?, string?
 ---@field Snapshot fun(plan: SkillUpPlan, buy: table<integer, integer>): SkillUpJointDemandInput?, string?
 ---@field Start fun(plan: SkillUpPlan, buy: table<integer, integer>): SkillUpJointDemandJob
 ---@field Invalidate fun()

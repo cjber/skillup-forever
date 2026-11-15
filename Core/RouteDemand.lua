@@ -182,7 +182,51 @@ function RouteDemand.Start(plan, buy)
 	return job
 end
 
-ns.RouteDemand = { Snapshot = RouteDemand.Snapshot, Start = RouteDemand.Start, Invalidate = RouteDemand.Invalidate }
+-- Explicit current offer selections only. This quotes requirements without
+-- certifying starting inventory, source availability or future acquisitions.
+-- Retaining an old offer across an update cannot quote the new transient slot.
+---@param orders {offer: SkillUpObservedMerchantOffer, bundles: integer}[]
+---@return SkillUpMerchantOrderQuote?
+---@return string?
+function RouteDemand.QuoteOrders(orders)
+	local window = ns.MerchantOffers.current
+	if not window then
+		return nil, "current merchant window required"
+	end
+	local total = { products = {}, moneyCopper = 0, costs = {} }
+	for _, order in ipairs(orders) do
+		if window.offers[order.offer.index] ~= order.offer then
+			return nil, "merchant offer observation replaced"
+		end
+		local quote, reason = ns.MerchantOffers.Quote(order.offer, order.bundles)
+		if not quote then
+			return nil, reason
+		end
+		local itemID = order.offer.itemID
+		if type(itemID) ~= "number" or itemID <= 0 or itemID >= math.huge or itemID % 1 ~= 0 then
+			return nil, "product identity unavailable"
+		end
+		total.products[itemID] = (total.products[itemID] or 0) + quote.units
+		total.moneyCopper = total.moneyCopper + quote.moneyCopper
+		if total.products[itemID] >= math.huge or total.moneyCopper >= math.huge then
+			return nil, "quote arithmetic overflow"
+		end
+		for key, quantity in pairs(quote.costs) do
+			total.costs[key] = (total.costs[key] or 0) + quantity
+			if total.costs[key] >= math.huge then
+				return nil, "quote arithmetic overflow"
+			end
+		end
+	end
+	return total
+end
+
+ns.RouteDemand = {
+	Snapshot = RouteDemand.Snapshot,
+	Start = RouteDemand.Start,
+	Invalidate = RouteDemand.Invalidate,
+	QuoteOrders = RouteDemand.QuoteOrders,
+}
 
 -- RouteDemand owns a certificate over the final plan, inventory and basket. The
 -- regular stale graph is the producer seam for all three, so a completed result

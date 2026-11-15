@@ -24,6 +24,7 @@
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
 ---@field Changed fun(kind: SkillUpChange)
 ---@field Demand SkillUpJointDemandProducer
+---@field MerchantOffers SkillUpMerchantOffers
 ---@field RouteDemand SkillUpRouteDemandProducer
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
 ---@field WhenStaleObserver fun(name: SkillUpStale, observer: fun())

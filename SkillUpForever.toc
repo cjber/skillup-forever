@@ -45,6 +45,7 @@ Data\Trainer.lua
 Data\Sources.lua
 Data\Credits.lua
 Core\Model.lua
+Core\Demand.lua
 Core\Changes.lua
 Core\Live.lua
 Core\Plan.lua
@@ -71,6 +72,7 @@ UI\Buffs.lua
 UI\Shopping.xml
 UI\Shopping.lua
 UI\ShoppingList.lua
+Core\RouteDemand.lua
 UI\AuctionSearch.lua
 Integrations\Trainer.lua
 Core\API.lua

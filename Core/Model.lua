@@ -155,6 +155,20 @@ function Model.Chance(t, skill)
 	return math.min(1, (t[4] - skill) / (t[4] - t[2]) + chanceBonus)
 end
 
+---@param thresholds number[]?
+---@param skill number
+---@param skillUps integer?
+---@param target number
+---@return table?
+function Model.DemandStage(thresholds, skill, skillUps, target)
+	local chance = Model.Chance(thresholds, skill)
+	if not chance then
+		return nil
+	end
+	local gain = Model.Gain(thresholds, skill, skillUps, target - skill)
+	return { chance = chance, gain = gain }
+end
+
 -- Expected spend per skill point: one craft costs `cost` and succeeds with `chance`.
 ---@param cost number?
 ---@param chance number?

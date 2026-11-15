@@ -258,14 +258,14 @@ end
 local groups = {
 	{
 		"Recipe rows",
-		"checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
+		"checkbox:showTooltips checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
 			.. " checkbox:showSkill checkbox:showTooltip"
 			.. " checkbox:detailsBar slider:recipeTooltip slider:unlearnedSortMode checkbox:showCost slider:rowCost",
 	},
 	{ "Prices", "slider:priceSource slider:craftValue checkbox:valueGathered checkbox:auctionOnly" },
 	{
 		"Route and trainer",
-		"checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
+		"checkbox:showProfessionTabs checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
 			.. " checkbox:showRouteTab"
 			.. " checkbox:showGearTab checkbox:showBuffsTab"
 			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:showTrainer",

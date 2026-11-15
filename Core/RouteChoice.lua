@@ -25,13 +25,25 @@ function ns.SelectRouteChoices(segments, held, maxStates)
 					end
 					local purchase = 0
 					for item, count in pairs(candidate.use) do
-						local available = stock[item] or 0
-						local unit = candidate.cost[item]
-						if type(unit) ~= "number" or unit < 0 or unit ~= unit or unit == math.huge then
+						if
+							type(item) ~= "number"
+							or item < 0
+							or item ~= math.floor(item)
+							or type(count) ~= "number"
+							or count < 0
+							or count ~= math.floor(count)
+						then
 							purchase = nil
 							break
 						end
-						purchase = purchase + math.max(count - available, 0) * unit
+						local available = stock[item] or 0
+						local unit = candidate.cost[item]
+						local short = math.max(count - available, 0)
+						if short > 0 and (type(unit) ~= "number" or unit < 0 or unit ~= unit or unit == math.huge) then
+							purchase = nil
+							break
+						end
+						purchase = purchase + short * (unit or 0)
 						stock[item] = math.max(available - count, 0)
 					end
 					if purchase then

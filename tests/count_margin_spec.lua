@@ -25,7 +25,7 @@ local input = {
 	},
 }
 local basket = ns.Demand.ChooseBasket(input, { { [1] = 2 }, { [1] = 4 } }, 100, { [1] = 1 })
-assert(basket and basket[1] == 2, "joint margin chooses cheaper sufficient basket")
+assert(basket and basket[1] == 4, "joint margin buys extra stock when shortfall is expensive")
 local _, reason = ns.Demand.ChooseBasket(input, { { [1] = 2 } }, 100, {})
 assert(reason == "observed basket cost unavailable", "unknown source cost stays unknown")
 print("count margin: ok")

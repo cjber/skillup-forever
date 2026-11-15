@@ -69,7 +69,7 @@
 ---@field UsableBuffs fun(level: number): table<integer, true> The recipes whose product is a buff this level can use.
 ---@field BuffText fun(itemID: integer): string? The buff a crafted item leaves, in the game's own words; nil for an item that leaves none.
 ---@field Gear SkillUpGear
----@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
+---@field TrainingFor fun(profession: {skillLine: integer}, recipeID: integer): number[]?
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
 ---@field TrainerReport fun(): string[]
 ---@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/skillup export)

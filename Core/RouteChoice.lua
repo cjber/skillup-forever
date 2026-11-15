@@ -34,25 +34,23 @@ function ns.SelectRouteChoices(segments, held, maxStates)
 						purchase = purchase + math.max(count - available, 0) * unit
 						stock[item] = math.max(available - count, 0)
 					end
-					if not purchase then
-						goto continue
-					end
-					for item, count in pairs(stock) do
-						key[#key + 1] = item .. "=" .. count
-					end
-					table.sort(key)
-					local stateKey = table.concat(key, ",")
-					local previous = nextStates[stateKey]
-					local choices = {}
-					for k, value in pairs(state.choices) do
-						choices[k] = value
-					end
-					choices[index] = candidate
-					if not previous or state.cost + purchase < previous.cost then
-						nextStates[stateKey] = { stock = stock, choices = choices, cost = state.cost + purchase }
+					if purchase then
+						for item, count in pairs(stock) do
+							key[#key + 1] = item .. "=" .. count
+						end
+						table.sort(key)
+						local stateKey = table.concat(key, ",")
+						local previous = nextStates[stateKey]
+						local choices = {}
+						for k, value in pairs(state.choices) do
+							choices[k] = value
+						end
+						choices[index] = candidate
+						if not previous or state.cost + purchase < previous.cost then
+							nextStates[stateKey] = { stock = stock, choices = choices, cost = state.cost + purchase }
+						end
 					end
 				end
-				::continue::
 			end
 		end
 		local count = 0

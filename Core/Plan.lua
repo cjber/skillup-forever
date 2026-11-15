@@ -324,7 +324,11 @@ local function Trainable(profession, snapshot)
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
 		local training = ns.TrainingFor(profession, recipeID) or VendorTraining(recipeID)
 		local levelReady = not training or not training[4] or (UnitLevel("player") or 0) >= training[4]
-		local t = training and levelReady and not ns.IsLearned(recipeID) and not Skipped(recipeID) and ns.Model.Get(recipeID)
+		local t = training
+			and levelReady
+			and not ns.IsLearned(recipeID)
+			and not Skipped(recipeID)
+			and ns.Model.Get(recipeID)
 		if training and t then
 			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
 			if taught[1] <= snapshot.target and t[4] > snapshot.skill then

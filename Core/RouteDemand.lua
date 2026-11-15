@@ -173,6 +173,13 @@ end
 
 ns.RouteDemand = { Snapshot = RouteDemand.Snapshot, Start = RouteDemand.Start, Invalidate = RouteDemand.Invalidate }
 
+-- RouteDemand owns a certificate over the final plan, inventory and basket. The
+-- regular stale graph is the producer seam for all three, so a completed result
+-- cannot survive a replan or bag/target change.
+ns.WhenStale("plans", RouteDemand.Invalidate)
+ns.WhenStale("replan", RouteDemand.Invalidate)
+ns.WhenStale("bags", RouteDemand.Invalidate)
+
 -- Skill changes need not invalidate Plan's recipe cache. These events revoke
 -- the snapshot without changing its route choice or shopping counts.
 ns.WhenEvent("SKILL_LINES_CHANGED", function()

@@ -275,7 +275,7 @@ for _, name in ipairs(ORDER) do
 	LABELS[name] = "stale " .. name
 end
 
----@type table<SkillUpStale, fun()>
+---@type table<SkillUpStale, fun()[]>
 local handlers = {}
 ---@type table<string, (fun(): SkillUpChange?)[]>
 local watchers = {}

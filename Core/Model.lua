@@ -165,6 +165,7 @@ function Model.DemandStage(thresholds, skill, skillUps, target)
 	if not chance then
 		return nil
 	end
+	---@cast thresholds number[]
 	local gain = Model.Gain(thresholds, skill, skillUps, target - skill)
 	return { chance = chance, gain = gain }
 end

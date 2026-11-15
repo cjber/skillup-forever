@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Route coverage keeps unreadable inventory unknown.** A quantity retained for display cannot stand in for a fresh inventory read (#738).
+
 - **Recipe details can appear on Shift without the route line.** Turn off route needs in the tooltip settings to keep the recipes that use an item. Existing tooltip choices stay as they were. Thanks to cotijelucie for the idea (#736).
 
 - **SkillUp pages stay inside the Professions window with ClassicUI Forever.** Their position follows the visible window when ClassicUI moves the native crafting page aside. Thanks to yavinn for the report (#734).

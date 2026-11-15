@@ -49,6 +49,9 @@ local unsupported = Leg(1, 2, { [1] = 1 })
 unsupported.rawConsumption = false
 Check(not Run({ unsupported }).supported, "subcraft explicitly unsupported")
 Check(not Run(shared, { [1] = -1 }).supported, "invalid inventory")
+Check(not Run(shared, { [0] = 1 }).supported, "zero held identity rejected")
+Check(not Run(shared, {}, { [0] = 1 }).supported, "zero basket identity rejected")
+Check(not Run({ Leg(1, 2, { [0] = 1 }) }).supported, "zero raw identity rejected")
 local input = { legs = shared, held = {}, buy = { [1] = 1000000 } }
 local job = ns.Demand.Start(input)
 Check(job:Advance(1).status == "calculating", "bounded work yields")

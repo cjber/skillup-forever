@@ -104,4 +104,160 @@ for _, change in ipairs({ "sourceEvidence", "prices" }) do
 		equal(rebuilds, 0, "source evidence does not rebuild plans")
 	end
 end
+-- Probability certificates cannot use the display's last-readable count.
+equal(ns.Have(10), 2, "display count primed")
+local countAPI = c.G.C_Item.GetItemCount
+c.G.C_Item.GetItemCount = function()
+	return nil
+end
+equal(ns.Have(10), 2, "legacy display retains its last readable count")
+local missingCount, countReason = ns.RouteDemand.Snapshot(plan, {})
+equal(missingCount, nil, "unreadable current inventory never certifies an old quantity")
+assert(countReason and countReason:find("inventory"), "missing inventory has an explicit reason")
+c.G.C_Item.GetItemCount = countAPI
+c.G.C_Item.GetItemCount = nil
+equal(ns.RouteDemand.Snapshot(plan, {}), nil, "missing count capability stays unknown")
+c.G.C_Item.GetItemCount = countAPI
+c.bags[10] = 5
+local fresh = assert(ns.RouteDemand.Snapshot(plan, {}))
+equal(fresh.held[10], 5, "restored capability reads the new count")
+local Secret = {}
+local secretAPI = c.G.issecretvalue
+c.G.issecretvalue = function(value)
+	return value == Secret
+end
+c.G.C_Item.GetItemCount = function()
+	return Secret
+end
+equal(ns.RouteDemand.Snapshot(plan, {}), nil, "secret native count is unknown")
+c.G.C_Item.GetItemCount = countAPI
+c.G.issecretvalue = secretAPI
+equal(ns.RouteDemand.Count(0, true), nil, "zero is not an item identity")
+
+local function Policy()
+	return {
+		service = "fixed-batch",
+		journey = "independent-round-trips",
+		walletCopper = "unlimited",
+		route = { legs = {}, held = {}, buy = {} },
+		currencies = {},
+		tokenValues = {},
+		stock = { S = 1 },
+		sources = {
+			{
+				itemID = 10,
+				bundleUnits = 2,
+				moneyCopper = 3,
+				maxBundles = 1,
+				stockKey = "S",
+				stockPerBundle = 1,
+				vendor = "V",
+				access = true,
+				priceLaw = "fixed",
+				costs = {},
+			},
+		},
+		initialOrders = {},
+		refillOrders = { { source = 1, bundles = 1 } },
+		initialVisitCosts = { V = 5 },
+		refillVisitCosts = { V = 5 },
+		options = {
+			workLimit = 100000,
+			stateLimit = 1000,
+			coordinateLimit = 32,
+			probabilityTolerance = 1e-9,
+			costTolerance = 1e-8,
+			visitTolerance = 1e-9,
+		},
+	}
+end
+c.bags[10], c.money = 0, 3
+local contract = Policy()
+local owned = ns.RouteDemand.StartPolicy(plan, contract)
+contract.stock.S, contract.sources[1].bundleUnits, contract.options.workLimit = 0, 999, 1
+local evaluated = Finish(owned)
+equal(evaluated.status, "complete", "owned policy survives caller mutation")
+assert(evaluated.successLower <= 1 / 4 and evaluated.successUpper >= 1 / 4, "two-stage live pooled finite supply")
+assert(evaluated.costLower <= 8 and evaluated.costUpper >= 8, "live wallet and declared trip expense")
+for _, event in ipairs({
+	"PLAYER_MONEY",
+	"CURRENCY_DISPLAY_UPDATE",
+	"PLAYERBANKSLOTS_CHANGED",
+	"BANKFRAME_OPENED",
+	"BANKFRAME_CLOSED",
+}) do
+	local pending = ns.RouteDemand.StartPolicy(plan, Policy())
+	local complete = ns.RouteDemand.StartPolicy(plan, Policy())
+	equal(Finish(complete).status, "complete", "policy completed before " .. event)
+	c.Fire(event)
+	equal(pending:Advance(1).status, "cancelled", event .. " revokes pending policy")
+	equal(complete:Advance(1).status, "cancelled", event .. " revokes completed policy")
+end
+c.money = nil
+equal(Finish(ns.RouteDemand.StartPolicy(plan, Policy())).status, "unknown", "missing wallet never becomes zero")
+c.money = 3
+local withCurrency = Policy()
+withCurrency.sources[1].costs = { ["currency:9"] = 1 }
+withCurrency.tokenValues["currency:9"] = 2
+equal(Finish(ns.RouteDemand.StartPolicy(plan, withCurrency)).status, "unknown", "currency capability is independent")
+c.G.C_CurrencyInfo.GetCurrencyInfo = function()
+	return { quantity = 1 }
+end
+equal(Finish(ns.RouteDemand.StartPolicy(plan, withCurrency)).status, "complete", "live currency balance permits policy")
+c.G.C_CurrencyInfo.GetCurrencyInfo = function()
+	return {}
+end
+equal(Finish(ns.RouteDemand.StartPolicy(plan, withCurrency)).status, "unknown", "missing currency amount is not zero")
+local withToken = Policy()
+withToken.sources[1].costs = { ["item:20"] = 1 }
+withToken.tokenValues["item:20"] = 0
+c.bags[20] = 1
+c.G.C_Item.GetItemCount = function(id, includeBank)
+	return countAPI(id) + (includeBank and id == 20 and 1 or 0)
+end
+local located = Finish(ns.RouteDemand.StartPolicy(plan, withToken))
+equal(located.status, "unknown", "bank token needs an explicit location transition")
+assert(located.reasons[1]:find("location"), "location remains an explicit unknown")
+c.G.C_Item.GetItemCount = countAPI
+equal(
+	Finish(ns.RouteDemand.StartPolicy(plan, withToken)).status,
+	"complete",
+	"bag token shares the live item namespace"
+)
+
+-- The owned asynchronous selection publishes one shared raw budget. No getter
+-- drains work, and a resource event revokes it before another view can read it.
+local function Frame()
+	for index = c.coreFrames + 1, #c.frames do
+		local frame = c.frames[index]
+		if frame.scripts.OnUpdate then
+			frame.scripts.OnUpdate(frame, 0)
+		end
+	end
+end
+c.bags[10], c.money = 0, 6
+local selectedContract = Policy()
+selectedContract.stock.S = 2
+local selected = ns.RouteDemand.SelectSupply(plan, selectedContract, 0.65)
+equal(ns.RouteDemand.Supply(plan), nil, "pending selection is not a supply certificate")
+for _ = 1, 10000 do
+	Frame()
+	if selected.result.status ~= "calculating" then
+		break
+	end
+end
+equal(selected.result.status, "complete", "frame-owned selection completes")
+local supply = assert(ns.RouteDemand.Supply(plan))
+equal(supply.items[10], 4, "two-stage shared inventory coverage selects four raw units")
+equal(supply.have[10], 0, "published holdings are the fresh snapshot")
+local reagents = ns.RouteReagents(plan)
+equal(#reagents, 1, "shared raw budget is not duplicated per craft")
+equal(reagents[1].need, 4, "shopping reads the selected budget")
+c.Fire("PLAYER_MONEY")
+equal(ns.RouteDemand.Supply(plan), nil, "wallet revision revokes published shopping counts")
+equal(selected.result.status, "cancelled", "published result is revoked too")
+equal(plan.supply, nil, "plan does not retain stale published budget")
+local missingAlpha = ns.RouteDemand.SelectSupply(plan, Policy(), nil)
+equal(missingAlpha.result.status, "unknown", "live selection has no default confidence")
+equal(ns.RouteDemand.Supply(plan), nil, "unknown selection cannot change shopping counts")
 Client.report("Route demand")

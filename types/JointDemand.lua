@@ -33,6 +33,7 @@
 ---@field Cancel fun(self: SkillUpJointDemandJob)
 
 ---@class SkillUpJointDemandProducer
+---@field Prepare fun(input: SkillUpJointDemandInput, tick: fun()): {chance: number, use: table<integer, integer>}[]?, table<integer, integer>?, SkillUpJointDemandResult?
 ---@field Start fun(input: SkillUpJointDemandInput): SkillUpJointDemandJob
 ---@field StartBasketChoice fun(input: SkillUpJointDemandInput, baskets: table<integer, table<integer, integer>>, resupply: SkillUpResupplyCosts, unitCosts: table<integer, number>): SkillUpBasketChoiceJob
 
@@ -41,6 +42,11 @@
 ---@field unitCopper table<integer, number> Observed replacement cost per missing reagent unit.
 
 ---@class SkillUpRouteDemandProducer
+---@field ConfigureSupply fun(skillLine: integer, read: (fun(): SkillUpResupplyInput?, string?)?, alpha?: number): boolean, string?
+---@field SelectSupply fun(plan: SkillUpPlan, contract: SkillUpResupplyInput, alpha: number): SkillUpSupplyChoiceJob
+---@field Supply fun(plan: SkillUpPlan): SkillUpPlanSupply?
+---@field StartPolicy fun(plan: SkillUpPlan, contract: SkillUpResupplyInput): SkillUpResupplyJob
+---@field Count fun(itemID: integer, includeBank: boolean): integer?, string?
 ---@field QuoteOrders fun(orders: {offer: SkillUpObservedMerchantOffer, bundles: integer}[]): SkillUpMerchantOrderQuote?, string?
 ---@field Snapshot fun(plan: SkillUpPlan, buy: table<integer, integer>): SkillUpJointDemandInput?, string?
 ---@field Start fun(plan: SkillUpPlan, buy: table<integer, integer>): SkillUpJointDemandJob

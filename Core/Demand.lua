@@ -22,6 +22,121 @@ end
 -- A copied, fixed ordered route and one shared capacity. No source ranking or
 -- inventory expansion is performed here. Work units cover a coordinate or transition; table operations
 -- still scale with the explicit input dimension. Callers own scheduling, revision checks and cancellation.
+-- Shared immutable route compilation. Both starting-only coverage and repeated
+-- acquisition evaluation consume these exact stages and pooled coordinates.
+---@param input SkillUpJointDemandInput
+---@param Tick fun()
+---@return {chance: number, use: table<integer, integer>}[]?
+---@return table<integer, integer>?
+---@return SkillUpJointDemandResult?
+local function Prepare(input, Tick)
+	-- ipairs stops at the first hole, which must not certify a route prefix.
+	if type(input) ~= "table" or type(input.held) ~= "table" or type(input.buy) ~= "table" then
+		return nil, nil, Unknown("explicit route, held inventory and basket tables required", false)
+	end
+	if type(input.legs) ~= "table" then
+		return nil, nil, Unknown("dense route legs required", false)
+	end
+	local legCount, largest = 0, 0
+	for key in pairs(input.legs) do
+		if not Integer(key) or key < 1 then
+			return nil, nil, Unknown("dense route legs required", false)
+		end
+		legCount, largest = legCount + 1, math.max(largest, key)
+		Tick()
+	end
+	if legCount ~= largest then
+		return nil, nil, Unknown("dense route legs required", false)
+	end
+	local legs, capacity = {}, {}
+	for item, held in pairs(input.held) do
+		if not Integer(item) or item == 0 or not Integer(held) then
+			return nil, nil, Unknown("invalid inventory", false)
+		end
+		capacity[item] = held
+		Tick()
+	end
+	for item, buy in pairs(input.buy) do
+		if not Integer(item) or item == 0 or not Integer(buy) or not Integer((capacity[item] or 0) + buy) then
+			return nil, nil, Unknown("invalid basket", false)
+		end
+		capacity[item] = (capacity[item] or 0) + buy
+		Tick()
+	end
+	for _, leg in ipairs(input.legs) do
+		if type(leg) ~= "table" then
+			return nil, nil, Unknown("route leg record required", false)
+		end
+		if leg.rawConsumption ~= true or leg.deterministicOutput ~= true then
+			return nil, nil, Unknown("subcraft or random output requires an inventory transition", false)
+		end
+		if
+			not Integer(leg.fromSkill)
+			or not Integer(leg.toSkill)
+			or leg.toSkill < leg.fromSkill
+			or (leg.skillUps ~= nil and (not Integer(leg.skillUps) or leg.skillUps == 0))
+		then
+			return nil, nil, Unknown("invalid skill interval", false)
+		end
+		local copy = { fromSkill = leg.fromSkill, toSkill = leg.toSkill, skillUps = leg.skillUps, use = {} }
+		if leg.thresholds ~= nil and type(leg.thresholds) ~= "table" then
+			return nil, nil, Unknown("invalid thresholds", false)
+		end
+		if type(leg.use) ~= "table" then
+			return nil, nil, Unknown("raw consumption table required", false)
+		end
+		if leg.thresholds then
+			copy.thresholds = {}
+			for i = 1, 4 do
+				if not Integer(leg.thresholds[i]) then
+					return nil, nil, Unknown("invalid thresholds", false)
+				end
+				copy.thresholds[i] = leg.thresholds[i]
+			end
+		end
+		for item, count in pairs(leg.use) do
+			if not Integer(item) or item == 0 or not Integer(count) then
+				return nil, nil, Unknown("invalid raw consumption", false)
+			end
+			if count > 0 then
+				copy.use[item] = count
+				capacity[item] = capacity[item] or 0
+			end
+			Tick()
+		end
+		legs[#legs + 1] = copy
+		Tick()
+	end
+	-- Probability inputs are captured before evaluating any stochastic states.
+	local stages = {}
+	for _, leg in ipairs(legs) do
+		local skill = leg.fromSkill
+		while skill < leg.toSkill do
+			local stage = ns.Model.DemandStage(leg.thresholds, skill, leg.skillUps, leg.toSkill)
+			if not stage or stage.chance == nil then
+				return nil, nil, Unknown("missing skill-up chance", true)
+			elseif stage.chance <= 0 then
+				return nil,
+					nil,
+					{
+						status = "unreachable",
+						supported = true,
+						coverageKnown = true,
+						coverageLower = 0,
+						coverageUpper = 0,
+						costKnown = false,
+						reasons = { "zero skill-up chance", "source cost not evaluated" },
+					}
+			end
+			stages[#stages + 1] = { chance = stage.chance, use = leg.use }
+			skill = skill + stage.gain
+			Tick()
+		end
+	end
+	return stages, capacity
+end
+Demand.Prepare = Prepare
+
 ---@param input SkillUpJointDemandInput
 ---@return SkillUpJointDemandJob
 function Demand.Start(input)
@@ -34,107 +149,11 @@ function Demand.Start(input)
 		local function Tick()
 			coroutine.yield()
 		end
-		-- ipairs stops at the first hole, which must not certify a route prefix.
-		if type(input) ~= "table" or type(input.held) ~= "table" or type(input.buy) ~= "table" then
-			return Unknown("explicit route, held inventory and basket tables required", false)
+		local stages, capacity, failure = Prepare(input, Tick)
+		if failure then
+			return failure
 		end
-		if type(input.legs) ~= "table" then
-			return Unknown("dense route legs required", false)
-		end
-		local legCount, largest = 0, 0
-		for key in pairs(input.legs) do
-			if not Integer(key) or key < 1 then
-				return Unknown("dense route legs required", false)
-			end
-			legCount, largest = legCount + 1, math.max(largest, key)
-			Tick()
-		end
-		if legCount ~= largest then
-			return Unknown("dense route legs required", false)
-		end
-		local legs, capacity = {}, {}
-		for item, held in pairs(input.held) do
-			if not Integer(item) or not Integer(held) then
-				return Unknown("invalid inventory", false)
-			end
-			capacity[item] = held
-			Tick()
-		end
-		for item, buy in pairs(input.buy) do
-			if not Integer(item) or not Integer(buy) or not Integer((capacity[item] or 0) + buy) then
-				return Unknown("invalid basket", false)
-			end
-			capacity[item] = (capacity[item] or 0) + buy
-			Tick()
-		end
-		for _, leg in ipairs(input.legs) do
-			if type(leg) ~= "table" then
-				return Unknown("route leg record required", false)
-			end
-			if leg.rawConsumption ~= true or leg.deterministicOutput ~= true then
-				return Unknown("subcraft or random output requires an inventory transition", false)
-			end
-			if
-				not Integer(leg.fromSkill)
-				or not Integer(leg.toSkill)
-				or leg.toSkill < leg.fromSkill
-				or (leg.skillUps ~= nil and (not Integer(leg.skillUps) or leg.skillUps == 0))
-			then
-				return Unknown("invalid skill interval", false)
-			end
-			local copy = { fromSkill = leg.fromSkill, toSkill = leg.toSkill, skillUps = leg.skillUps, use = {} }
-			if leg.thresholds ~= nil and type(leg.thresholds) ~= "table" then
-				return Unknown("invalid thresholds", false)
-			end
-			if type(leg.use) ~= "table" then
-				return Unknown("raw consumption table required", false)
-			end
-			if leg.thresholds then
-				copy.thresholds = {}
-				for i = 1, 4 do
-					if not Integer(leg.thresholds[i]) then
-						return Unknown("invalid thresholds", false)
-					end
-					copy.thresholds[i] = leg.thresholds[i]
-				end
-			end
-			for item, count in pairs(leg.use) do
-				if not Integer(item) or not Integer(count) then
-					return Unknown("invalid raw consumption", false)
-				end
-				if count > 0 then
-					copy.use[item] = count
-					capacity[item] = capacity[item] or 0
-				end
-				Tick()
-			end
-			legs[#legs + 1] = copy
-			Tick()
-		end
-		-- Probability inputs are captured before evaluating any stochastic states.
-		local stages = {}
-		for _, leg in ipairs(legs) do
-			local skill = leg.fromSkill
-			while skill < leg.toSkill do
-				local stage = ns.Model.DemandStage(leg.thresholds, skill, leg.skillUps, leg.toSkill)
-				if not stage or stage.chance == nil then
-					return Unknown("missing skill-up chance", true)
-				elseif stage.chance <= 0 then
-					return {
-						status = "unreachable",
-						supported = true,
-						coverageKnown = true,
-						coverageLower = 0,
-						coverageUpper = 0,
-						costKnown = false,
-						reasons = { "zero skill-up chance", "source cost not evaluated" },
-					}
-				end
-				stages[#stages + 1] = { chance = stage.chance, use = leg.use }
-				skill = skill + stage.gain
-				Tick()
-			end
-		end
+		assert(stages and capacity)
 		local items = {}
 		for item in pairs(capacity) do
 			items[#items + 1] = item

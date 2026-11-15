@@ -1068,7 +1068,16 @@ function ns.RouteReagents(plan)
 	-- The raw reagents are worked out from the recipes as they stand now, so a bought or gathered
 	-- source in the settings shows without rebuilding the plan.
 	local raw, bags = {}, {}
-	for _, craft in ipairs(plan.crafts) do
+	local supply = ns.RouteDemand and ns.RouteDemand.Supply(plan)
+	if supply then
+		for itemID, count in pairs(supply.items) do
+			raw[#raw + 1] = { itemID = itemID, count = count }
+		end
+		table.sort(raw, function(a, b)
+			return a.itemID < b.itemID
+		end)
+	end
+	for _, craft in ipairs(supply and {} or plan.crafts) do
 		local _, craftRaw, craftUsed = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
 		for _, item in ipairs(craftRaw) do
 			raw[#raw + 1] = item

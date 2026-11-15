@@ -24,6 +24,8 @@
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
 ---@field Changed fun(kind: SkillUpChange)
 ---@field Demand SkillUpJointDemandProducer
+---@field SupplyChoice SkillUpSupplyChoiceProducer
+---@field Resupply SkillUpResupplyProducer
 ---@field MerchantOffers SkillUpMerchantOffers
 ---@field RouteDemand SkillUpRouteDemandProducer
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
@@ -461,7 +463,14 @@ SkillUpForeverDB = nil
 ---@field Changes fun(extra: SkillUpCandidate, picked: number[]): boolean Whether `extra` changes the route.
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
+---@class SkillUpPlanSupply
+---@field job SkillUpSupplyChoiceJob
+---@field revision integer
+---@field items table<integer, integer>? Starting budget in the current inventory revision, before initial purchases.
+---@field have table<integer, integer>? Fresh balances used by the selection, never display fallbacks.
+
 ---@class SkillUpPlan
+---@field supply SkillUpPlanSupply?
 ---@field profession SkillUpProfession
 ---@field target number
 ---@field reached number Where the crafts get to: short of the target when the known recipes run out.
@@ -480,7 +489,7 @@ SkillUpForeverDB = nil
 ---@field count number
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
----@alias SkillUpChange 'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
+---@alias SkillUpChange 'supply'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
 ---@alias SkillUpStale 'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'

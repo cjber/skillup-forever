@@ -276,6 +276,15 @@ local function Steps(plan)
 			picks[#steps] = pick
 		end
 	end
+	local supply = ns.RouteDemand.Supply(plan)
+	if supply then
+		for _, item in ipairs(ns.RouteReagents(plan)) do
+			local have = supply.have[item.itemID] or ns.Have(item.itemID)
+			if have < item.need then
+				Add(Acquire(item.itemID, item.need - have)) -- multi-value: the step and its picker
+			end
+		end
+	end
 	for _, walk in ipairs(plan.steps) do
 		if #steps >= MAX_LIMIT then
 			break
@@ -310,7 +319,7 @@ local function Steps(plan)
 			Add(step, pick)
 		elseif craft then
 			local recipeID = craft.recipeID
-			for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
+			for _, reagent in ipairs(supply and {} or ns.Reagents(recipeID) or {}) do
 				local itemID, need = reagent.itemID, reagent.quantity * craft.crafts
 				local have = held[itemID] or ns.Have(itemID)
 				held[itemID] = math.max(have - need, 0)
@@ -364,9 +373,14 @@ end
 ---@return SkillUpAPIReagent[]
 local function Reagents(plan)
 	local reagents = {}
+	local supply = ns.RouteDemand.Supply(plan)
 	for _, item in ipairs(ns.RouteReagents(plan)) do
-		reagents[#reagents + 1] =
-			{ itemID = item.itemID, need = item.need, have = ns.Have(item.itemID), source = ReagentSource(item) }
+		reagents[#reagents + 1] = {
+			itemID = item.itemID,
+			need = item.need,
+			have = supply and supply.have[item.itemID] or ns.Have(item.itemID),
+			source = ReagentSource(item),
+		}
 	end
 	return reagents
 end

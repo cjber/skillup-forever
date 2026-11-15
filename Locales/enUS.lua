@@ -56,3 +56,10 @@ L["Route incomplete: %d recipes left out because their costs or sale values are 
 	"Route incomplete: %d recipes left out because their costs or sale values are unknown."
 
 L["Open %s from your spellbook."] = "Open %s from your spellbook."
+
+L["Recipes on Shift"] = "Recipes on Shift"
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Show recipes on Shift or always. Off hides reagent details, including route needs."
+L["Show route needs on item tooltips"] = "Show route needs on item tooltips"
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."

@@ -106,7 +106,7 @@ Credit for the reports and requests behind the addon.
 | Rawveggie | Campfire and plan-use actions no longer blocked | GitHub; #489 |
 | sundered1985 | Campfire and plan-use actions no longer blocked | CurseForge; #489 |
 | hardliquor | Tracker no longer flashes on item hover | Discord; #526 |
-| cotijelucie | Newest recipes first and grouped feature controls | Discord; #486, #725 |
+| cotijelucie | Newest recipes, grouped controls and independent tooltip details | Discord; #486, #725, #736; message 1571545185374970028 |
 | cotijelucie | Skill ranges start where learned | Discord; #519 |
 | CodexFD | Professions window keeps one width | CurseForge; #505 |
 | rockhumper84 | TradeSkillMaster as a price source | CurseForge; #488 |

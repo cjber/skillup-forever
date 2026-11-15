@@ -862,7 +862,9 @@ local function ItemLines(itemID, mode, shifted)
 		lines[#lines + 1] = line
 	end
 	-- Drawn from the route index and the bags when the tooltip is set, never baked into this item's cache.
-	lines[#lines + 1] = RouteLine(itemID)
+	if ns.db.showTooltipRoute then
+		lines[#lines + 1] = RouteLine(itemID)
+	end
 	if mode == "route" then
 		if shifted and #uses > 0 then
 			for _, line in ipairs(UsedInLines(uses)) do

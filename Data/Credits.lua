@@ -67,7 +67,7 @@ ns.Credits = {
 		{ name = "Rawveggie", what = "Campfire and plan-use actions no longer blocked" },
 		{ name = "sundered1985", what = "Campfire and plan-use actions no longer blocked" },
 		{ name = "hardliquor", what = "Tracker no longer flashes on item hover" },
-		{ name = "cotijelucie", what = "Newest recipes first and grouped feature controls" },
+		{ name = "cotijelucie", what = "Newest recipes, grouped controls and independent tooltip details" },
 		{ name = "cotijelucie", what = "Skill ranges start where learned" },
 		{ name = "CodexFD", what = "Professions window keeps one width" },
 		{ name = "rockhumper84", what = "TradeSkillMaster as a price source" },

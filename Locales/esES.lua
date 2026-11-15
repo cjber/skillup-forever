@@ -267,7 +267,6 @@ L["To buy"] = "Por comprar"
 L["Tool"] = "Herramienta"
 L["Tooltips and sorting"] = "Descripciones y orden"
 L["Track"] = "Seguir"
-L["Tracked routes (Shift for all)"] = "Rutas seguidas (Mayús para todas)"
 L["Tracker scale"] = "Tamaño del rastreador"
 L["Train %s"] = "Aprender %s"
 L["Train %s at %d"] = "Aprender %s a %d"
@@ -290,8 +289,6 @@ L["Waist"] = "Cintura"
 L["Waypoint to a trainer"] = "Punto de ruta a un instructor"
 L["Waypoint to a vendor: %s"] = "Punto de ruta a un vendedor: %s"
 L["Waypoint to the quest giver: %s"] = "Punto de ruta al asignador de misiones: %s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"Lo que dice un objeto sobre tus profesiones al pasar el ratón: cuánto necesitan tus rutas seguidas (mantén Mayús para todas las recetas que lo usan), cada una de esas recetas con su color, o nada."
 L["What's new after an update"] = "Novedades tras una actualización"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Dónde aparece la descripción al pasar el cursor sobre una receta. Junto a la ventana, no tapa los componentes."
@@ -532,3 +529,10 @@ L["Average sold per auction house in your region, reported by TSM."] =
 	"Cantidad media vendida por casa de subastas en tu región, según TSM." -- mt
 
 L["Open %s from your spellbook."] = "Abre %s desde tu libro de hechizos."
+
+L["Recipes on Shift"] = "Recetas con Mayús" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Muestra recetas con Mayús o siempre. Desactivado oculta los detalles de componentes, incluidas las necesidades de las rutas." -- mt
+L["Show route needs on item tooltips"] = "Mostrar necesidades de las rutas en las descripciones de objetos" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"Muestra cuánto de un objeto necesitan todavía tus rutas seguidas. Desactívalo para conservar los detalles de recetas sin la línea de ruta." -- mt

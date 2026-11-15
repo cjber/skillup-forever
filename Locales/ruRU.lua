@@ -281,7 +281,6 @@ L["To buy"] = "К покупке"
 L["Tool"] = "Инструмент"
 L["Tooltips and sorting"] = "Подсказки и сортировка"
 L["Track"] = "Отслеживать"
-L["Tracked routes (Shift for all)"] = "Отслеживаемые маршруты (SHIFT — все)"
 L["Tracker scale"] = "Размер панели отслеживания"
 L["Train %s"] = "Изучить %s"
 L["Train %s at %d"] = "Изучить %s на %d"
@@ -305,8 +304,6 @@ L["Waist"] = "Пояс"
 L["Waypoint to a trainer"] = "Точка маршрута к учителю"
 L["Waypoint to a vendor: %s"] = "Точка маршрута к торговцу: %s"
 L["Waypoint to the quest giver: %s"] = "Точка маршрута к тому, кто дает задание: %s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"Что показывает подсказка предмета о ваших профессиях: сколько его нужно отслеживаемым маршрутам (удерживайте SHIFT, чтобы видеть все рецепты с ним), все такие рецепты и их цвет, или ничего."
 L["What's new after an update"] = "Что нового после обновления"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
@@ -562,3 +559,11 @@ L["Average sold per auction house in your region, reported by TSM."] =
 	"Среднее количество продаж на один аукционный дом в вашем регионе по данным TSM." -- mt
 
 L["Open %s from your spellbook."] = "Откройте %s в книге заклинаний."
+
+L["Recipes on Shift"] = "Рецепты по Shift" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Показывать рецепты по Shift или всегда. Выключение скрывает сведения о реагентах, включая потребности маршрутов." -- mt
+L["Show route needs on item tooltips"] =
+	"Показывать потребности маршрутов в подсказках предметов" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"Показывает, сколько предметов ещё нужно для отслеживаемых маршрутов. Отключите, чтобы оставить сведения о рецептах без строки маршрута." -- mt

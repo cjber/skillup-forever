@@ -268,7 +268,6 @@ L["To buy"] = "Zu kaufen"
 L["Tool"] = "Werkzeug"
 L["Tooltips and sorting"] = "Tooltips und Sortierung"
 L["Track"] = "Verfolgen"
-L["Tracked routes (Shift for all)"] = "Verfolgte Routen (Umschalt für alle)"
 L["Tracker scale"] = "Größe der Verfolgung"
 L["Train %s"] = "%s lernen"
 L["Train %s at %d"] = "%s bei %d lernen"
@@ -291,8 +290,6 @@ L["Waist"] = "Taille"
 L["Waypoint to a trainer"] = "Wegpunkt zu einem Lehrer"
 L["Waypoint to a vendor: %s"] = "Wegpunkt zu einem Händler: %s"
 L["Waypoint to the quest giver: %s"] = "Wegpunkt zum Questgeber: %s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"Was ein Gegenstand beim Überfahren über Eure Berufe sagt: wie viel Eure verfolgten Routen davon brauchen (Umschalt halten für jedes Rezept, das ihn nutzt), jedes solche Rezept mit Farbe, oder nichts."
 L["What's new after an update"] = "Neuerungen nach einem Update"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Wo der Tooltip erscheint, wenn Ihr mit der Maus über ein Rezept fahrt. Neben dem Fenster verdeckt er die Reagenzien nicht."
@@ -528,3 +525,10 @@ L["Average sold per auction house in your region, reported by TSM."] =
 	"Durchschnittlich verkaufte Menge pro Auktionshaus in deiner Region, gemeldet von TSM." -- mt
 
 L["Open %s from your spellbook."] = "Öffnet %s über Euer Zauberbuch."
+
+L["Recipes on Shift"] = "Rezepte mit Umschalt" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Rezepte mit Umschalt oder immer anzeigen. Aus blendet Reagenzdetails einschließlich des Routenbedarfs aus." -- mt
+L["Show route needs on item tooltips"] = "Routenbedarf in Gegenstandstooltips anzeigen" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"Zeigt, wie viel eines Gegenstands Eure verfolgten Routen noch benötigen. Ausschalten, um Rezeptdetails ohne die Routenzeile zu behalten." -- mt

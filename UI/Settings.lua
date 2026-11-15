@@ -356,7 +356,14 @@ function ns.RegisterSettings()
 			"reagentTooltip",
 			L["Reagent tooltips"],
 			ns.REAGENT_TOOLTIP_OPTIONS,
-			L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."]
+			L["Show recipes on Shift or always. Off hides reagent details, including route needs."]
+		)
+
+		Checkbox(
+			rows,
+			"showTooltipRoute",
+			L["Show route needs on item tooltips"],
+			L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."]
 		)
 
 		Checkbox(

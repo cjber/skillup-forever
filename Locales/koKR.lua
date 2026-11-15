@@ -270,7 +270,6 @@ L["To buy"] = "구매할 금액"
 L["Tool"] = "도구"
 L["Tooltips and sorting"] = "툴팁과 정렬"
 L["Track"] = "추적"
-L["Tracked routes (Shift for all)"] = "추적 중인 경로 (Shift: 전체)"
 L["Tracker scale"] = "추적기 크기"
 L["Train %s"] = "%s 배우기"
 L["Train %s at %d"] = "%s 배우기 (%d)"
@@ -293,8 +292,6 @@ L["Waist"] = "허리"
 L["Waypoint to a trainer"] = "전문가로 웨이포인트"
 L["Waypoint to a vendor: %s"] = "상인으로 웨이포인트: %s"
 L["Waypoint to the quest giver: %s"] = "퀘스트 NPC로 웨이포인트: %s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"아이템에 마우스를 올렸을 때 전문 기술 정보를 표시하는 방식: 추적 중인 경로의 필요량 (Shift를 누르면 그 재료를 쓰는 모든 제조법), 해당 제조법 전체와 색상, 또는 표시 안 함."
 L["What's new after an update"] = "업데이트 후 새로운 점"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
@@ -541,3 +538,10 @@ L["Average sold per auction house in your region, reported by TSM."] =
 	"TSM이 보고한 해당 지역 경매장당 평균 판매량입니다." -- mt
 
 L["Open %s from your spellbook."] = "주문책에서 %s|1을;를; 여세요."
+
+L["Recipes on Shift"] = "Shift로 조제법 표시" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Shift를 누를 때 또는 항상 조제법을 표시합니다. 끄면 경로에 필요한 수량을 포함한 재료 세부 정보가 숨겨집니다." -- mt
+L["Show route needs on item tooltips"] = "아이템 툴팁에 경로 필요 수량 표시" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"추적 중인 경로에 아직 필요한 아이템 수량을 표시합니다. 이 설정을 끄면 경로 줄 없이 조제법 세부 정보를 볼 수 있습니다." -- mt

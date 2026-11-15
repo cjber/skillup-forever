@@ -270,7 +270,10 @@ local groups = {
 			.. " checkbox:showGearTab checkbox:showBuffsTab"
 			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:showTrainer",
 	},
-	{ "Tooltips and sorting", "slider:reagentTooltip checkbox:gatherTooltip slider:sortMode" },
+	{
+		"Tooltips and sorting",
+		"slider:reagentTooltip checkbox:showTooltipRoute checkbox:gatherTooltip slider:sortMode",
+	},
 	{ "Addon", "checkbox:whatsNew" },
 }
 local kinds, expected = {}, {}

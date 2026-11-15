@@ -278,6 +278,7 @@
 ---@field auctionSearch boolean
 ---@field detailsBar boolean
 ---@field reagentTooltip 'off'|'route'|'full'
+---@field showTooltipRoute boolean
 ---@field gatherTooltip boolean
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field showAllGear table<string, boolean>

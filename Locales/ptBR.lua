@@ -264,7 +264,6 @@ L["To buy"] = "A comprar"
 L["Tool"] = "Ferramenta"
 L["Tooltips and sorting"] = "Dicas e classificação"
 L["Track"] = "Rastrear"
-L["Tracked routes (Shift for all)"] = "Rotas rastreadas (Shift para todas)"
 L["Tracker scale"] = "Tamanho do rastreador"
 L["Train %s"] = "Treinar %s"
 L["Train %s at %d"] = "Treinar %s em %d"
@@ -287,8 +286,6 @@ L["Waist"] = "Cintura"
 L["Waypoint to a trainer"] = "Ponto de referência até um instrutor"
 L["Waypoint to a vendor: %s"] = "Ponto de referência até um comerciante: %s"
 L["Waypoint to the quest giver: %s"] = "Ponto de referência até o recrutador: %s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"O que passar o cursor sobre um item diz sobre suas profissões: quanto dele suas rotas rastreadas precisam (segure Shift para todas as receitas que o usam), cada uma dessas receitas e sua cor, ou nada."
 L["What's new after an update"] = "Novidades após uma atualização"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Onde a dica aparece ao passar o cursor sobre uma receita. Ao lado da janela, ela não cobre os reagentes."
@@ -530,3 +527,10 @@ L["Average sold per auction house in your region, reported by TSM."] =
 	"Quantidade média vendida por casa de leilões na sua região, informada pelo TSM." -- mt
 
 L["Open %s from your spellbook."] = "Abra %s pelo seu grimório."
+
+L["Recipes on Shift"] = "Receitas com Shift" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Mostra receitas com Shift ou sempre. Desativado oculta os detalhes de reagentes, incluindo as necessidades das rotas." -- mt
+L["Show route needs on item tooltips"] = "Mostrar necessidades das rotas nas dicas de itens" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"Mostra quanto de um item suas rotas acompanhadas ainda precisam. Desative para manter os detalhes de receitas sem a linha da rota." -- mt

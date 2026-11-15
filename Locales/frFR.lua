@@ -270,7 +270,6 @@ L["To buy"] = "À acheter" -- mt
 L["Tool"] = "Outil" -- mt
 L["Tooltips and sorting"] = "Infobulles et tri" -- mt
 L["Track"] = "Suivre" -- mt
-L["Tracked routes (Shift for all)"] = "Parcours suivis (Maj pour tous)" -- mt
 L["Tracker scale"] = "Taille du suivi" -- mt
 L["Train %s"] = "Apprendre %s" -- mt
 L["Train %s at %d"] = "Apprendre %s à %d" -- mt
@@ -293,8 +292,6 @@ L["Waist"] = "Taille" -- mt
 L["Waypoint to a trainer"] = "Point de passage vers un maître" -- mt
 L["Waypoint to a vendor: %s"] = "Point de passage vers un marchand : %s" -- mt
 L["Waypoint to the quest giver: %s"] = "Point de passage vers le donneur de quête : %s" -- mt
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"Ce que le survol d'un objet indique sur vos métiers : la quantité requise par vos parcours suivis (maintenez Maj pour chaque recette qui l'utilise), chacune de ces recettes et sa couleur, ou rien." -- mt
 L["What's new after an update"] = "Nouveautés après une mise à jour"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Où l'infobulle s'affiche quand vous survolez une recette. À côté de la fenêtre, elle ne cache pas les composants." -- mt
@@ -536,3 +533,10 @@ L["Average sold per auction house in your region, reported by TSM."] =
 	"Quantité moyenne vendue par hôtel des ventes dans votre région, indiquée par TSM." -- mt
 
 L["Open %s from your spellbook."] = "Ouvrez %s depuis votre grimoire."
+
+L["Recipes on Shift"] = "Recettes avec Maj" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Afficher les recettes avec Maj ou en permanence. Désactivé masque les détails des composants, y compris les besoins des routes." -- mt
+L["Show route needs on item tooltips"] = "Afficher les besoins des routes dans les infobulles des objets" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"Affiche la quantité d'un objet encore nécessaire à vos routes suivies. Désactivez cette option pour garder les détails des recettes sans la ligne de route." -- mt

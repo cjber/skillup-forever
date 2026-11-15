@@ -56,6 +56,7 @@ local DEFAULTS = {
 	merchantButton = true, -- the merchant window's "Reagents still needed" button
 	auctionSearch = true, -- the Professions window's reagent search while the auction house is open
 	reagentTooltip = "route",
+	showTooltipRoute = true,
 	gatherTooltip = true, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a gatherable comes from; auction by default
 	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet
@@ -138,7 +139,7 @@ ns.ROW_COST_OPTIONS = {
 }
 ns.REAGENT_TOOLTIP_OPTIONS = {
 	{ "off", OFF },
-	{ "route", L["Tracked routes (Shift for all)"] },
+	{ "route", L["Recipes on Shift"] },
 	{ "full", L["Every recipe that uses it"] },
 }
 ns.TITLE = "SkillUp Forever"

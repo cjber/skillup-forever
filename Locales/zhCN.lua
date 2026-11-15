@@ -263,7 +263,6 @@ L["To buy"] = "待购买"
 L["Tool"] = "工具"
 L["Tooltips and sorting"] = "鼠标提示和排序"
 L["Track"] = "追踪"
-L["Tracked routes (Shift for all)"] = "追踪的路线（Shift显示全部）"
 L["Tracker scale"] = "追踪栏大小"
 L["Train %s"] = "学习%s"
 L["Train %s at %d"] = "学习%s（技能%d）"
@@ -286,8 +285,6 @@ L["Waist"] = "腰部"
 L["Waypoint to a trainer"] = "前往训练师的路径点"
 L["Waypoint to a vendor: %s"] = "前往商人的路径点：%s"
 L["Waypoint to the quest giver: %s"] = "前往任务NPC的路径点：%s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"鼠标悬停物品时显示的专业信息：你追踪的路线需要多少（按住Shift查看所有使用它的配方）、所有此类配方及其颜色，或不显示。"
 L["What's new after an update"] = "更新后的新内容"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
@@ -521,3 +518,10 @@ L["Average sold per auction house in your region, reported by TSM."] =
 	"TSM报告的所在地区每个拍卖行的平均销量。" -- mt
 
 L["Open %s from your spellbook."] = "从法术书中打开%s。"
+
+L["Recipes on Shift"] = "按住Shift显示配方" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"按住Shift或始终显示配方。关闭后会隐藏材料详情，包括路线需求。" -- mt
+L["Show route needs on item tooltips"] = "在物品提示中显示路线需求" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"显示追踪路线还需要多少此物品。关闭后可保留配方详情，但隐藏路线行。" -- mt

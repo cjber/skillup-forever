@@ -289,8 +289,7 @@ local function Apply(kinds)
 		end
 	end
 	for _, name in ipairs(ORDER) do
-		local handler = stale[name] and handlers[name]
-		if handler then
+		for _, handler in ipairs(stale[name] and handlers[name] or {}) do
 			-- One failing cache or view doesn't stop the rest; the error is kept for /skillup report.
 			ns.core.SafeCall(LABELS[name], handler)
 		end
@@ -309,7 +308,8 @@ end
 ---@param name SkillUpStale
 ---@param handler fun()
 function ns.WhenStale(name, handler)
-	handlers[name] = handler
+	handlers[name] = handlers[name] or {}
+	handlers[name][#handlers[name] + 1] = handler
 end
 
 local frame = CreateFrame("Frame")

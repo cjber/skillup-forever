@@ -1215,6 +1215,39 @@ equal(craftButton.attributes.clickbutton, nativeCreate, "on its Create button")
 equal(craftButton.enabled, true, "and it is ready")
 equal(#nativeWrites, 0, "with no write into Blizzard's crafting frames")
 
+-- #683: a request can finish on the native page while Route is hidden. Returning must ask again
+-- after the player selects something else, without repeating a request that is still pending.
+page.routeSpec.page:Hide()
+shownRecipeID = 9999
+eventCallbacks["Professions.RecipeSelected"]()
+equal(#openedRecipes, 1, "a native selection while Route is hidden does not request its recipe")
+routeTab:Click()
+Drain()
+equal(#openedRecipes, 2, "returning to Route asks for its recipe again")
+equal(openedRecipes[2], 3275, "the new request opens the route recipe")
+equal(craftButton.enabled, false, "the button waits for the client to apply the request")
+for _ = 1, 3 do
+	eventCallbacks["Professions.CraftingDisplayRefresh"]()
+	eventCallbacks["Professions.TransactionUpdated"]()
+	Drain()
+end
+equal(#openedRecipes, 2, "refreshes do not repeat a pending request")
+-- Leave before the pending request completes, as OpenRecipe can hand control to the native page.
+page.routeSpec.page:Hide()
+shownRecipeID = 3275
+eventCallbacks["Professions.RecipeSelected"]()
+shownRecipeID = 9999
+eventCallbacks["Professions.RecipeSelected"]()
+equal(#openedRecipes, 2, "the player's next native selection is left alone")
+routeTab:Click()
+Drain()
+equal(#openedRecipes, 3, "a request fulfilled while hidden does not block the next visit")
+equal(openedRecipes[3], 3275, "the next visit requests the route recipe")
+shownRecipeID = 3275
+eventCallbacks["Professions.RecipeSelected"]()
+equal(craftButton.enabled, true, "the client selecting the requested recipe rearms Craft")
+equal(#nativeWrites, 0, "requesting again never writes Blizzard's crafting frames")
+
 -- A route with crafts and an unpriced reagent is marked incomplete, and the reagent it left out is
 -- still named in the reagent list.
 page.PlanRoute = function(profession)

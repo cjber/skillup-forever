@@ -1531,6 +1531,8 @@ local function CreatePage()
 	local portrait
 	page:SetScript("OnShow", function()
 		portrait = ProfessionsFrame:GetPortrait():GetTexture()
+		-- A request may finish while Route is hidden; each visit starts a new request episode.
+		requestedRecipe = nil
 		Render()
 	end)
 	page:SetScript("OnHide", function()

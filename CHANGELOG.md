@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **The Craft button comes back after you use the game's own crafting page.** Returning to Route asks the client for the route's recipe again, so a previous request cannot leave Craft disabled. Thanks to luna for the report (#683).
+
 - **Preview unlearned recipes in the crafting pane.** Click an unlearned recipe to see its source, output, requirements, reagents and costs without changing your crafting selection. Thanks to puschie286 for the change (PR #729).
 
 - **Minimap button:** Show or hide the SkillUp minimap button in the addon settings. (#759)

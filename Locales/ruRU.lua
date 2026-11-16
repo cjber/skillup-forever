@@ -569,3 +569,32 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 	"Показывает, сколько предметов ещё нужно для отслеживаемых маршрутов. Отключите, чтобы оставить сведения о рецептах без строки маршрута." -- mt
 
 L["Have (bags only)"] = "В наличии (только сумки)" -- mt
+
+L["%s%% to %s%%"] = "От %s%% до %s%%" -- mt
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"Добавляет непроверенные 4 процентных пункта за каждый обнаруженный ранг Working Overtime к оценке вероятности повышения навыка для жёлтых и зелёных рецептов. Отключите, чтобы использовать базовую оценку вероятности для затрат и маршрутов. Ни одна из оценок не является подтверждённым правилом сервера." -- mt
+L["Chance of finishing with later purchases: %s."] =
+	"Вероятность завершения с последующими покупками: %s." -- mt
+L["Chance of finishing with starting supplies: %s."] =
+	"Вероятность завершения с начальными запасами: %s." -- mt
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"Количество изготовлений и объёмы покупок приблизительны. Может потребоваться больше реагентов." -- mt
+L["Craft next follows the estimated route."] =
+	"Кнопка «Создать следующее» следует расчётному маршруту." -- mt
+L["Include Working Overtime estimate"] = "Учитывать оценку Working Overtime" -- mt
+L["Starting inventory: bags and bank."] = "Начальные запасы: сумки и банк." -- mt
+L["Starting inventory: bags only."] = "Начальные запасы: только сумки." -- mt
+L["Supply estimate: calculating."] = "Расчёт запасов: вычисление." -- mt
+L["Supply estimate: cancelled."] = "Расчёт запасов: отменён." -- mt
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"Расчёт запасов: при этих допущениях самой дешёвой покупки не существует." -- mt
+L["Supply estimate: no starting purchase meets the target."] =
+	"Расчёт запасов: ни одна начальная покупка не достигает цели." -- mt
+L["Supply estimate: not enough information."] =
+	"Расчёт запасов: недостаточно информации." -- mt
+L["Supply estimate: ready."] = "Расчёт запасов: готов." -- mt
+L["Target chance of finishing with starting supplies: %s%%."] =
+	"Целевая вероятность завершения с начальными запасами: %s%%." -- mt
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"Эти вероятности предполагают указанные шансы повышения навыка, цены, доступность и доставку последующих покупок." -- mt
+L["unknown"] = "неизвестно" -- mt

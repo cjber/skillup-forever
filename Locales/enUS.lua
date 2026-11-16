@@ -99,3 +99,7 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."
 
 L["Craft next follows the estimated route."] = "Craft next follows the estimated route."
+
+L["Include Working Overtime estimate"] = "Include Working Overtime estimate"
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."

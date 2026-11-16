@@ -26,6 +26,7 @@ end
 
 ---@type SkillUpDefaults
 local DEFAULTS = {
+	includeWorkingOvertime = true,
 	showRowText = true,
 	showUnlearned = false, -- also list recipes this character has not learned, greyed, with where they are learned
 	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
@@ -339,8 +340,8 @@ local function LoadDB()
 	ns.db = loaded
 end
 
--- Working Overtime, the Legacy professions tree's node 110290 (talent 1225451): each point spent gives 4
--- percentage points to every tradeskill skill-up chance, up to 20 at its 5.
+-- Working Overtime, Legacy node 110290 (talent 1225451): the optional estimate assumes 4
+-- percentage points per detected rank. This additive interpretation is unverified.
 local WORKING_OVERTIME_NODE = 110290
 local WORKING_OVERTIME_TREE = 1187
 local WORKING_OVERTIME_MAX_RANKS = 5
@@ -372,13 +373,23 @@ local function WorkingOvertimePoints()
 	return math.min(math.max(rank, 0), maxRanks)
 end
 
--- Puts the talent's bonus in the Model; true when it moved, so its events only refresh on a real change.
+-- Keep the detected rank even when its estimate is excluded; only an applied change invalidates chances.
 ---@return boolean changed
 local function ReadChanceBonus()
+	ns.workingOvertimeRank = WorkingOvertimePoints()
 	if not (ns.Model and ns.Model.SetChanceBonus) then
 		return false
 	end
-	return ns.Model.SetChanceBonus(WorkingOvertimePoints() * WORKING_OVERTIME_PER_POINT)
+	local bonus = ns.db.includeWorkingOvertime and ns.workingOvertimeRank * WORKING_OVERTIME_PER_POINT or 0
+	return ns.Model.SetChanceBonus(bonus)
+end
+
+---@param enabled boolean
+function ns.SetIncludeWorkingOvertime(enabled)
+	ns.db.includeWorkingOvertime = enabled == true
+	if ReadChanceBonus() then
+		ns.Changed("talents")
+	end
 end
 
 -- One chat line after an update, never on a first install. A dev checkout's version is

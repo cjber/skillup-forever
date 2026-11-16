@@ -297,6 +297,32 @@ for _, event in ipairs({
 	Published()
 	equal(reads, before + 1, event .. " calls fresh reader")
 end
+-- The persisted estimate option revokes a published certificate through the chance producer.
+c.traitConfigs[1187] = 621140
+c.traitNodes[621140] = { [110290] = { activeRank = 5, maxRanks = 5 } }
+c.Fire("TRAIT_NODE_CHANGED", 110290)
+Published()
+local enabledPlan = Current()
+local enabledJob = enabledPlan.supply.job
+local enabledRevision = ns.Model.ChanceRevision()
+local optionReads = reads
+c.SetSetting("includeWorkingOvertime", false)
+equal(ns.Model.ChanceRevision(), enabledRevision + 1, "option advances chance revision")
+equal(enabledJob.result.status, "cancelled", "option revokes published certificate")
+assert(Current() ~= enabledPlan, "option invalidates cached route plan")
+equal(ns.RouteDemand.Supply(Current()), nil, "option hides old certificate until recomputed")
+equal(reads, optionReads, "option does not synchronously invoke reader")
+Published()
+equal(reads, optionReads + 1, "option obtains fresh certificate request")
+local disabledJob = Current().supply.job
+c.traitNodes[621140][110290].activeRank = 1
+c.Fire("TRAIT_CONFIG_UPDATED")
+equal(ns.Model.ChanceRevision(), enabledRevision + 1, "trait event while off preserves chance revision")
+equal(Current().supply.job, disabledJob, "trait event while off preserves certificate")
+c.SetSetting("includeWorkingOvertime", true)
+equal(disabledJob.result.status, "cancelled", "reenabling revokes base certificate")
+equal(ns.workingOvertimeRank, 1, "reenabling uses current detected rank")
+Published()
 local before = reads
 local previous = Current().supply.job
 ns.Model.SetChanceBonus(0.01)

@@ -1460,21 +1460,26 @@ local function BookPage()
 	routeTab:Click()
 	Drain()
 	tooltipLines = {}
-	return lists[1].rows[rows + 1], lists[1].messages[said + 1]
+	local messages = {}
+	for i = said + 1, #lists[1].messages do
+		messages[#messages + 1] = lists[1].messages[i]
+	end
+	return lists[1].rows[rows + 1], table.concat(messages, "\n")
 end
 local bookRow, messages = BookPage()
 equal(bookRow.kind, "line", "a train or buy step is one gold line")
 equal(bookRow.text, "Buy and read Expert First Aid - Under Wraps at 125", "a book not yet bought is bought and read")
 equal(bookRow.click ~= nil, true, "and a click goes to its vendor")
 equal(bookRow.detail, "10000", "with its price on the right")
-equal(messages, nil, "and no Total line sits under the route")
+local estimateNote = "Craft counts and shopping quantities are estimates. You may need more reagents."
+equal(messages, estimateNote, "only the estimate note sits under the route, with no Total line")
 bookRow.tooltip(Stub())
 equal(nearestShown, 1, "its tooltip names the nearest vendor")
 heldBook = 1
 bookRow, messages = BookPage()
 equal(bookRow.text, "Read Expert First Aid - Under Wraps at 125", "a book in the bags is only read")
 equal(bookRow.detail, "You have it", "with no price on the line")
-equal(messages, nil, "and still no Total line sits under the route")
+equal(messages, estimateNote, "still only the estimate note sits under the route, with no Total line")
 bookRow.tooltip(Stub())
 equal(tooltipLines[#tooltipLines], "You have this book: read it.", "its tooltip says you have it")
 equal(nearestShown, 1, "and names no vendor")

@@ -1,6 +1,5 @@
 -- Run from the repository root: luajit tests/working_overtime_spec.lua
--- The Legacy talent Working Overtime gives 4 percentage points to every yellow and green skill-up chance per
--- point spent, up to 20 at five.
+-- Tests the optional additive estimate, not the server probability law.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
@@ -70,6 +69,65 @@ node.currentRank = 1
 c.Fire("TRAIT_NODE_CHANGED", WORKING_OVERTIME_NODE)
 near(Model.Chance(thresholds, 48), 22 / 30 + 0.04, "the tree comes from Constants when it is there")
 c.G.Constants = nil
+
+-- The saved option gates the estimate, while the producer keeps reading the actual rank.
+local stale = {}
+for _, key in ipairs({ "plans", "trackedNeeds", "api", "recipeList" }) do
+	ns.WhenStale(key, function()
+		stale[key] = (stale[key] or 0) + 1
+	end)
+end
+equal(ns.db.includeWorkingOvertime, true, "existing behavior remains the default")
+for _, rank in ipairs({ 0, 1, 5 }) do
+	node.activeRank, node.currentRank = rank, rank
+	c.Fire("TRAIT_NODE_CHANGED", WORKING_OVERTIME_NODE)
+	local revision = Model.ChanceRevision()
+	c.SetSetting("includeWorkingOvertime", false)
+	equal(ns.db.includeWorkingOvertime, false, "off is saved")
+	equal(ns.workingOvertimeRank, rank, "actual rank retained while off")
+	near(Model.Chance(thresholds, 60), 1 / 3, "off uses base estimate")
+	local baseCost = Model.CostPerSkillUp(100, Model.Chance(thresholds, 60))
+	local snapshot = {
+		skill = 60,
+		target = 61,
+		recipes = { { recipeID = CLOAK, thresholds = thresholds, netCost = 100, reagentCost = 100 } },
+	}
+	local baseRoute = Model.PlanRoute(snapshot)
+	equal(Model.ChanceRevision(), revision + (rank > 0 and 1 or 0), "off revises only a changed chance")
+	local offRevision = Model.ChanceRevision()
+	node.activeRank = 5
+	for _, event in ipairs({ "TRAIT_NODE_CHANGED", "TRAIT_CONFIG_UPDATED", "SPELLS_CHANGED" }) do
+		c.Fire(event)
+		equal(ns.workingOvertimeRank, 5, "event still reads rank while disabled")
+		near(Model.Chance(thresholds, 60), 1 / 3, "event cannot reenable estimate")
+		equal(Model.ChanceRevision(), offRevision, "disabled events keep chance revision")
+	end
+	node.activeRank = rank
+	local invalidations = stale.plans or 0
+	c.SetSetting("includeWorkingOvertime", true)
+	equal(ns.workingOvertimeRank, rank, "enabling rereads the client rank")
+	near(Model.Chance(thresholds, 60), 1 / 3 + rank * 0.04, "on applies detected rank")
+	equal(Model.ChanceRevision(), offRevision + (rank > 0 and 1 or 0), "on chance revision")
+	if rank > 0 then
+		assert(Model.CostPerSkillUp(100, Model.Chance(thresholds, 60)) < baseCost, "cost uses selected estimate")
+		local route = Model.PlanRoute(snapshot)
+		assert(route.expectedCost < baseRoute.expectedCost, "route cost uses selected estimate")
+		assert(route.segments[1].crafts < baseRoute.segments[1].crafts, "route crafts use selected estimate")
+		equal(stale.plans, invalidations + 1, "producer invalidates plans")
+		for _, key in ipairs({ "trackedNeeds", "api", "recipeList" }) do
+			equal(stale[key], stale.plans, key .. " follows talents invalidation")
+		end
+	end
+	equal(Model.Chance(thresholds, 39), 1, "orange unchanged")
+	equal(Model.Chance(thresholds, 70), 0, "grey unchanged")
+end
+local restored = Client.load({ boot = false, saved = { includeWorkingOvertime = false } })
+restored.traitConfigs[WORKING_OVERTIME_TREE] = CONFIG
+restored.traitNodes[CONFIG] = { [WORKING_OVERTIME_NODE] = { activeRank = 5, maxRanks = 5 } }
+restored.Boot()
+equal(restored.ns.db.includeWorkingOvertime, false, "saved false survives load")
+equal(restored.ns.workingOvertimeRank, 5, "disabled startup reads actual rank")
+near(restored.ns.Model.Chance({ 1, 40, 55, 70 }, 60), 1 / 3, "disabled startup uses base estimate")
 
 -- A client without the Legacy talent API gives no bonus.
 node.currentRank = 5

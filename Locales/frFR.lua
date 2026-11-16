@@ -542,3 +542,28 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 	"Affiche la quantité d'un objet encore nécessaire à vos routes suivies. Désactivez cette option pour garder les détails des recettes sans la ligne de route." -- mt
 
 L["Have (bags only)"] = "Possédé (sacs uniquement)" -- mt
+
+L["%s%% to %s%%"] = "De %s%% à %s%%" -- mt
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"Ajoute 4 points de pourcentage non vérifiés par rang détecté de Working Overtime aux estimations des chances de gagner un point de compétence avec les recettes jaunes et vertes. Désactivez cette option pour utiliser l’estimation de base pour les coûts et les itinéraires. Aucune des deux estimations n’est une règle du serveur vérifiée." -- mt
+L["Chance of finishing with later purchases: %s."] = "Chance de terminer avec des achats ultérieurs : %s." -- mt
+L["Chance of finishing with starting supplies: %s."] = "Chance de terminer avec les réserves initiales : %s." -- mt
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"Le nombre de fabrications et les quantités à acheter sont des estimations. Vous pourriez avoir besoin de plus de composants." -- mt
+L["Craft next follows the estimated route."] = "Fabriquer la suivante suit l’itinéraire estimé." -- mt
+L["Include Working Overtime estimate"] = "Inclure l’estimation de Working Overtime" -- mt
+L["Starting inventory: bags and bank."] = "Inventaire initial : sacs et banque." -- mt
+L["Starting inventory: bags only."] = "Inventaire initial : sacs uniquement." -- mt
+L["Supply estimate: calculating."] = "Estimation des réserves : calcul en cours." -- mt
+L["Supply estimate: cancelled."] = "Estimation des réserves : annulée." -- mt
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"Estimation des réserves : aucun achat le moins cher n’existe avec ces hypothèses." -- mt
+L["Supply estimate: no starting purchase meets the target."] =
+	"Estimation des réserves : aucun achat initial n’atteint l’objectif." -- mt
+L["Supply estimate: not enough information."] = "Estimation des réserves : informations insuffisantes." -- mt
+L["Supply estimate: ready."] = "Estimation des réserves : prête." -- mt
+L["Target chance of finishing with starting supplies: %s%%."] =
+	"Chance visée de terminer avec les réserves initiales : %s%%." -- mt
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"Ces chances supposent les taux de gain de compétence, les prix, la disponibilité et la livraison des achats ultérieurs indiqués." -- mt
+L["unknown"] = "inconnu" -- mt

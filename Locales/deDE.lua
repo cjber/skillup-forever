@@ -534,3 +534,28 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 	"Zeigt, wie viel eines Gegenstands Eure verfolgten Routen noch benötigen. Ausschalten, um Rezeptdetails ohne die Routenzeile zu behalten." -- mt
 
 L["Have (bags only)"] = "Vorhanden (nur Taschen)" -- mt
+
+L["%s%% to %s%%"] = "%s%% bis %s%%" -- mt
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"Erhöht die geschätzte Fertigkeitssteigerungschance bei gelben und grünen Rezepten um unbestätigte 4 Prozentpunkte pro erkanntem Rang von Working Overtime. Ausschalten, um für Kosten und Routen die Basisschätzung zu verwenden. Keine der beiden Schätzungen ist eine bestätigte Serverregel." -- mt
+L["Chance of finishing with later purchases: %s."] = "Abschlusschance mit späteren Einkäufen: %s." -- mt
+L["Chance of finishing with starting supplies: %s."] = "Abschlusschance mit den Anfangsvorräten: %s." -- mt
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"Herstellungsanzahl und Einkaufsmengen sind Schätzungen. Möglicherweise benötigt Ihr mehr Reagenzien." -- mt
+L["Craft next follows the estimated route."] = "Als Nächstes herstellen folgt der geschätzten Route." -- mt
+L["Include Working Overtime estimate"] = "Schätzung für Working Overtime einbeziehen" -- mt
+L["Starting inventory: bags and bank."] = "Anfangsbestand: Taschen und Bank." -- mt
+L["Starting inventory: bags only."] = "Anfangsbestand: nur Taschen." -- mt
+L["Supply estimate: calculating."] = "Vorratsschätzung: wird berechnet." -- mt
+L["Supply estimate: cancelled."] = "Vorratsschätzung: abgebrochen." -- mt
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"Vorratsschätzung: Unter diesen Annahmen gibt es keinen günstigsten Einkauf." -- mt
+L["Supply estimate: no starting purchase meets the target."] =
+	"Vorratsschätzung: Kein anfänglicher Einkauf erreicht das Ziel." -- mt
+L["Supply estimate: not enough information."] = "Vorratsschätzung: nicht genügend Informationen." -- mt
+L["Supply estimate: ready."] = "Vorratsschätzung: bereit." -- mt
+L["Target chance of finishing with starting supplies: %s%%."] =
+	"Angestrebte Abschlusschance mit den Anfangsvorräten: %s%%." -- mt
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"Diese Chancen setzen die angegebenen Fertigkeitssteigerungsraten, Preise, Verfügbarkeit und Lieferung späterer Einkäufe voraus." -- mt
+L["unknown"] = "unbekannt" -- mt

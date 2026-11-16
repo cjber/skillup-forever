@@ -528,3 +528,27 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 	"顯示追蹤路線還需要多少此物品。關閉後可保留配方詳情，但隱藏路線列。" -- mt
 
 L["Have (bags only)"] = "擁有（僅背包）" -- mt
+
+L["%s%% to %s%%"] = "%s%%至%s%%" -- mt
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"每偵測到一級Working Overtime，就將黃色和綠色配方的預估技能提升機率增加未經驗證的4個百分點。關閉後，費用和路線將使用基礎機率估算。兩種估算都不是經過驗證的伺服器規則。" -- mt
+L["Chance of finishing with later purchases: %s."] = "後續繼續購買時的完成機率：%s。" -- mt
+L["Chance of finishing with starting supplies: %s."] = "僅用起始物資的完成機率：%s。" -- mt
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"製作次數和採購數量均為估算。你可能需要更多材料。" -- mt
+L["Craft next follows the estimated route."] = "「製造下一個」會遵循預估路線。" -- mt
+L["Include Working Overtime estimate"] = "計入Working Overtime估算" -- mt
+L["Starting inventory: bags and bank."] = "起始庫存：背包和銀行。" -- mt
+L["Starting inventory: bags only."] = "起始庫存：僅背包。" -- mt
+L["Supply estimate: calculating."] = "物資估算：正在計算。" -- mt
+L["Supply estimate: cancelled."] = "物資估算：已取消。" -- mt
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"物資估算：在這些假設下，不存在費用最低的採購方案。" -- mt
+L["Supply estimate: no starting purchase meets the target."] =
+	"物資估算：沒有起始採購方案能達到目標。" -- mt
+L["Supply estimate: not enough information."] = "物資估算：資訊不足。" -- mt
+L["Supply estimate: ready."] = "物資估算：已就緒。" -- mt
+L["Target chance of finishing with starting supplies: %s%%."] = "僅用起始物資完成的目標機率：%s%%。" -- mt
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"這些機率以所列技能提升機率、價格、供貨情況以及後續採購物資送達為前提。" -- mt
+L["unknown"] = "未知" -- mt

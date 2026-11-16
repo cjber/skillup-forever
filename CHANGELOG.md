@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Working Overtime estimates are optional.** Turn off “Include Working Overtime estimate” to calculate skill-up chances and route costs without the talent's estimated bonus. The setting starts on and remembers your choice (#741).
+
 - **Shopping estimates explain their scope.** Supply estimates distinguish the chance of finishing with starting supplies from the chance with later purchases. Their status and assumptions appear on the route, reagent list and copied shopping list. Craft counts and shopping quantities remain estimates.
 
 - **Route coverage keeps unreadable inventory unknown.** A quantity retained for display cannot stand in for a fresh inventory read (#738).

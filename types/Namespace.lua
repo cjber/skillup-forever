@@ -139,6 +139,8 @@
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
 ---@field SetBuffsOnly fun(on: boolean)
+---@field SetIncludeWorkingOvertime fun(enabled: boolean)
+---@field workingOvertimeRank number
 ---@field OpenSettings fun()
 ---@field HasAuctionator fun(): boolean
 ---@field HasTradeSkillMaster fun(): boolean
@@ -257,6 +259,7 @@
 ---@field InitCatalogue fun()
 
 ---@class SkillUpDefaults
+---@field includeWorkingOvertime boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field showRowText boolean
 ---@field showUnlearned boolean

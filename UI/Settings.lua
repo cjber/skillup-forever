@@ -18,7 +18,11 @@ local function Register(target, key, varType, name)
 	local setting =
 		Settings.RegisterAddOnSetting(target, "SkillUpForever_" .. key, key, ns.db, varType, name, ns.DEFAULTS[key])
 	setting:SetValueChangedCallback(function()
-		ns.Changed("settings")
+		if key == "includeWorkingOvertime" then
+			ns.SetIncludeWorkingOvertime(ns.db.includeWorkingOvertime)
+		else
+			ns.Changed("settings")
+		end
 	end)
 	return setting
 end
@@ -95,6 +99,12 @@ function ns.RegisterSettings()
 	end
 
 	Section(L["Recipe rows"], function(rows)
+		Checkbox(
+			rows,
+			"includeWorkingOvertime",
+			L["Include Working Overtime estimate"],
+			L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."]
+		)
 		Checkbox(
 			rows,
 			"showTooltips",

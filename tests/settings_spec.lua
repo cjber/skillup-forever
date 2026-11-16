@@ -258,7 +258,7 @@ end
 local groups = {
 	{
 		"Recipe rows",
-		"checkbox:showTooltips checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
+		"checkbox:includeWorkingOvertime checkbox:showTooltips checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
 			.. " checkbox:showSkill checkbox:showTooltip"
 			.. " checkbox:detailsBar slider:recipeTooltip slider:unlearnedSortMode checkbox:showCost slider:rowCost",
 	},

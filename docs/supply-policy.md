@@ -327,6 +327,22 @@ configuration API can remove the current mode with a nil reader. Invalid inputs
 preserve the existing configuration; replacing modes cancels its owned work and
 completed result. Reader failure or nil publishes structured unknown.
 
+`SupplyDraft.Validate(draft)` validates explicit profession, coverage, product and
+policy inputs and returns an owned copy. Offer declarations must be dense lists;
+the copy retains exact current merchant observation identities while copying the
+laws. Fixed and adaptive drafts use separate declaration types and exactly one
+policy mode. The draft boundary requires coverage in `(0, 1]` for either mode.
+
+`SupplyDraft.Apply(draft)` checks every relevant current merchant offer before
+replacing configuration. Missing source laws reject the draft without publishing
+a reader, changing the prior laws or consuming a declaration revision. An accepted
+draft commits its source laws and route mode together. Cancellation callbacks
+cannot replace that mode reentrantly; failure to cancel an old job does not undo
+the committed replacement, and the retired job loses ownership of its plan.
+
+These are internal session-only adapters. They do not supply a default target,
+infer future laws from observations or provide a player configuration interface.
+
 The shared frame dispatches one dirty profession per update and advances published
 jobs within one total 64-operation budget. Getters perform neither task. Only a
 current complete result with owned `items` and `have` supplies counts. The plan

@@ -1,15 +1,15 @@
 {
-  "input_digest": "e2a6ef430bda78b909ee3173a0b2068eb41e315a2043e304bf02287cca7cbce1",
-  "runtime_sha256": "e2a6ef430bda78b909ee3173a0b2068eb41e315a2043e304bf02287cca7cbce1",
-  "candidate": "271bbb8d558c6a18d1ce1c1db9eb3e5d341544aacca06c00d2ed34348c502fa6",
+  "input_digest": "6811167306920a072102bcb84b42f7582bf1e392c082f75aa0c3db715550df5d",
+  "runtime_sha256": "6811167306920a072102bcb84b42f7582bf1e392c082f75aa0c3db715550df5d",
+  "candidate": "e5b8f663af07fe85cb4f92a776468a704b1e141468009dccabe885b9330ee7c7",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "8d0eedd30de8c2628c7cafc3a784955a26d10003",
+  "source_commit": "e4e0cd00edd22ef50d1ca9a45dba4eda5836aae5",
   "flows": [
     {
-      "name": "route to a 95% finish",
+      "name": "route craft button",
       "steps": [
-        "su671-route.lua sha256:13ba8c2808279eb18e29c49ea570aec56e683209df591c4f23e77cb0cb3f1f72"
+        "route-craft.lua sha256:4e06c2ba5bba0c9f3d48c25b641a010c25b7fe6853d74492d71d86e282767611"
       ],
       "click": [
         960,
@@ -20,8 +20,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/1eef20d627f130097ab81e0b1c1c1636/raw/d956739206e533565695b13793b2dee8e8e692db/1-route-to-a-95-finish.png",
-      "sha256": "2cf057598d36930bac91d169271f7e3ace28b3e65083736e8d85e2f991904f32"
+      "url": "https://gist.githubusercontent.com/cjber/c04e56a108a372402b4aa9d46073df9d/raw/fb4314b467cb0ac1f4911ffcff7ba536db5a37f9/1-route-craft-button.png",
+      "sha256": "af550da9443f3e77b301eef2734d56f388419f0f42891fbe8fa1bcbb0aa16d6d"
     }
   ]
 }

@@ -68,6 +68,33 @@ c.merchant[1], c.merchant[2] = c.merchant[2], c.merchant[1]
 c.Fire("MERCHANT_UPDATE")
 equal(current()[1].costs[1].id, 900002, "reordered slot has current requirement")
 equal(current()[2].costs[1].id, 900003, "other offer survives reorder")
+-- MERCHANT_UPDATE also arrives for what this addon does not read. A window that still shows the last scan's
+-- offers is answered from them: no offer table is built and nothing is notified.
+local rescans = 0
+local read = ns.MerchantOffers.Read
+ns.MerchantOffers.Read = function(...)
+	rescans = rescans + 1
+	return read(...)
+end
+local scanned = current()
+local notified = changes
+local changedKinds = {}
+local realChanged = ns.Changed
+ns.Changed = function(kind)
+	changedKinds[#changedKinds + 1] = kind
+	return realChanged(kind)
+end
+c.Fire("MERCHANT_UPDATE")
+ns.Changed = realChanged
+equal(rescans, 0, "an unchanged window is not rescanned")
+equal(current(), scanned, "an unchanged window keeps its offers")
+equal(changes, notified, "an unchanged window notifies no source evidence")
+equal(#changedKinds, 0, "an unchanged window notifies nothing else either")
+c.merchant[2].numAvailable = 2
+c.Fire("MERCHANT_UPDATE")
+equal(rescans, 2, "a changed window is rescanned in full")
+equal(current()[2].numAvailable, 2, "the changed offer is recorded")
+ns.MerchantOffers.Read = read
 c.merchant[1].costs = {
 	{ 1, 1, "item:900001" },
 	{ 2, 2, "item:900002" },

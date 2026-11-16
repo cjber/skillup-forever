@@ -50,6 +50,7 @@
 ---@field current? SkillUpMerchantOfferWindow
 ---@field Read fun(index: integer, itemID: integer?, npcID: integer?): SkillUpObservedMerchantOffer
 ---@field Replace fun(offers: SkillUpObservedMerchantOffer[]?): boolean
+---@field Unchanged fun(npcID: integer?): boolean
 ---@field Open fun()
 ---@field Quote fun(offer: SkillUpObservedMerchantOffer, bundles: integer): SkillUpMerchantQuote?, string?
 ---@field BundleBound fun(offer: SkillUpObservedMerchantOffer, wallet: number?, balances: table<string, number>): integer?, string?

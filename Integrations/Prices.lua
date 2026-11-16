@@ -772,8 +772,13 @@ end
 -- as the latest word on its stock: what the window says replaces the bundled limit for that vendor.
 ---@return SkillUpChange?
 local function RecordMerchant()
-	local changed, stocked, evidence, sold = false, false, false, {}
 	local npcID = MerchantNPC()
+	-- MERCHANT_UPDATE arrives for what this addon does not read too (another tab, a restock elsewhere). A
+	-- window that still shows the last scan's offers has nothing to record, so nothing is rebuilt or notified.
+	if ns.MerchantOffers.Unchanged(npcID) then
+		return nil
+	end
+	local changed, stocked, evidence, sold = false, false, false, {}
 	local offers, lastByItem = {}, {}
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)

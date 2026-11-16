@@ -9,6 +9,8 @@ local SOURCE = "bebcb6bf309cf41b41bd74f8ca651e6a105b2676"
 local Offers = { session = 0 }
 ---@type SkillUpMerchantOfferWindow?
 Offers.current = nil
+-- The native readers the last scan used, one identity per capability. A replaced reader is another observation.
+Offers.readers = {}
 
 local function Integer(value, minimum)
 	return type(value) == "number" and value == value and value < math.huge and value >= minimum and value % 1 == 0
@@ -63,6 +65,13 @@ end
 ---@return SkillUpObservedMerchantOffer
 function Offers.Read(index, itemID, npcID)
 	local caps = {}
+	-- The readers this scan used, so Unchanged can tell a replaced one from the one it observed.
+	local readers = Offers.readers
+	readers.itemInfo = C_MerchantFrame and C_MerchantFrame.GetItemInfo
+	readers.costCount = GetMerchantItemCostInfo
+	readers.costSlot = GetMerchantItemCostItem
+	readers.nativeMaximum = GetMerchantItemMaxStack
+	readers.affordability = CanAffordMerchantItem
 	local build = Read(caps, "build", GetBuildInfo)
 	local raw = Read(caps, "itemInfo", C_MerchantFrame and C_MerchantFrame.GetItemInfo, index)[2]
 	local info = type(raw) == "table" and raw or {}
@@ -187,6 +196,155 @@ end
 
 function Offers.Open()
 	Offers.session = Offers.session + 1
+end
+
+-- Whether the open window still shows exactly what the last scan observed: the same session, vendor, slots,
+-- items and native values. MERCHANT_UPDATE also arrives for what this addon does not read, and a scan builds an
+-- offer table per slot where the client's own reads are cheap; this is the cheap question a scan waits on. A
+-- reader the scan saw as missing, failed or unreadable, or one replaced since, is another observation.
+---@param npcID integer?
+---@return boolean
+function Offers.Unchanged(npcID)
+	local window = Offers.current
+	if not window then
+		return false
+	end
+	local offers = window.offers
+	if window.session ~= Offers.session then
+		return false
+	end
+	local count = GetMerchantNumItems()
+	if count ~= #offers then
+		return false
+	end
+	local readers = Offers.readers
+	local getInfo, costCountAt = readers.itemInfo, readers.costCount
+	local costSlotAt, maxStackAt = readers.costSlot, readers.nativeMaximum
+	local affordAt = readers.affordability
+	if
+		(C_MerchantFrame and C_MerchantFrame.GetItemInfo) ~= getInfo
+		or GetMerchantItemCostInfo ~= costCountAt
+		or GetMerchantItemCostItem ~= costSlotAt
+		or GetMerchantItemMaxStack ~= maxStackAt
+		or CanAffordMerchantItem ~= affordAt
+	then
+		return false
+	end
+	for index = 1, count do
+		local seen = offers[index]
+		if seen.npcID ~= npcID then
+			return false
+		end
+		local itemID = GetMerchantItemID(index) --[[@as integer?]]
+		if not Integer(itemID, 1) then
+			itemID = nil
+		end
+		if itemID ~= seen.itemID then
+			return false
+		end
+		local raw
+		if getInfo then
+			if seen.capabilities.itemInfo ~= "available" then
+				return false
+			end
+			raw = getInfo(index)
+		elseif seen.capabilities.itemInfo ~= "missing" then
+			return false
+		end
+		local info = type(raw) == "table" and raw or nil
+		if info then
+			if not seen.infoPresent then
+				return false
+			end
+			local known = seen.rawInfo
+			if
+				info.price ~= known.price
+				or info.stackCount ~= known.stackCount
+				or info.numAvailable ~= known.numAvailable
+				or info.hasExtendedCost ~= known.hasExtendedCost
+				or info.isPurchasable ~= known.isPurchasable
+				or info.isUsable ~= known.isUsable
+				or info.currencyID ~= known.currencyID
+				or info.spellID ~= known.spellID
+			then
+				return false
+			end
+		elseif seen.infoPresent then
+			return false
+		end
+		local rawCount
+		if costCountAt then
+			if seen.capabilities.costCount ~= "available" then
+				return false
+			end
+			rawCount = costCountAt(index)
+		elseif seen.capabilities.costCount ~= "missing" then
+			return false
+		end
+		if rawCount ~= seen.rawCostCount then
+			return false
+		end
+		for slot = 1, (Integer(rawCount, 0) and rawCount) or 0 do
+			local cost = seen.costs[slot]
+			if not cost then
+				return false
+			end
+			local texture, quantity, link, currencyName
+			if costSlotAt then
+				if cost.capabilities.read ~= "available" then
+					return false
+				end
+				texture, quantity, link, currencyName = costSlotAt(index, slot)
+			elseif cost.capabilities.read ~= "missing" then
+				return false
+			end
+			if
+				texture ~= cost.texture
+				or quantity ~= cost.quantity
+				or link ~= cost.link
+				or currencyName ~= cost.currencyName
+			then
+				return false
+			end
+			-- A resolver that went away is another observation even when the link it reads stayed the same.
+			if type(cost.link) == "string" and cost.kind then
+				local resolver
+				if cost.kind == "currency" then
+					resolver = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyIDFromLink
+				elseif cost.kind == "item" then
+					resolver = C_Item and C_Item.GetItemInfoInstant
+				end
+				if (type(resolver) == "function" and "available" or "missing") ~= cost.capabilities.identity then
+					return false
+				end
+			end
+		end
+		local maximum
+		if maxStackAt then
+			if seen.capabilities.nativeMaximum ~= "available" then
+				return false
+			end
+			maximum = maxStackAt(index)
+		elseif seen.capabilities.nativeMaximum ~= "missing" then
+			return false
+		end
+		if maximum ~= seen.rawNativeMaximum then
+			return false
+		end
+		local affordable
+		if affordAt then
+			if seen.capabilities.affordability ~= "available" then
+				return false
+			end
+			affordable = affordAt(index)
+		elseif seen.capabilities.affordability ~= "missing" then
+			return false
+		end
+		if affordable ~= seen.rawCanAfford then
+			return false
+		end
+	end
+	return true
 end
 
 -- Arithmetic only: integer bundles and a full conjunction. No availability,

@@ -1,10 +1,10 @@
 {
-  "input_digest": "45c3c2fbee30287ed62f60e60d1e07bb35416c36cd9681cccfbc79dafd8c4e84",
-  "runtime_sha256": "45c3c2fbee30287ed62f60e60d1e07bb35416c36cd9681cccfbc79dafd8c4e84",
-  "candidate": "1ef52f6cf80e4402cf5a5d563ec421622ba03624d21ae87813ac22ede20c6c9c",
+  "input_digest": "01758533b0fcb7500394dc86f53609f1c931bf56c0846ee3e2f4c83ae4bf82b8",
+  "runtime_sha256": "01758533b0fcb7500394dc86f53609f1c931bf56c0846ee3e2f4c83ae4bf82b8",
+  "candidate": "3f207ae499e7b88193799a29791683e8e72f4d7a6d028f30b63ae31694d4926e",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "0ff40c736f2da6fe32b35902d6d50798726d8afb",
+  "source_commit": "38f622fc33831e8c35d38f09bad990b1d1012506",
   "flows": [
     {
       "name": "route",
@@ -20,8 +20,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/2c7a905189141841861ee1841b9a1e4b/raw/8c8b63f03d1730da25b4bc6d18661bd4308c42ec/1-route.png",
-      "sha256": "fae8445917532d29273e5056c82c209a822aff4607009c589ca434a58748c396"
+      "url": "https://gist.githubusercontent.com/cjber/394c075abedd3ba10569a42a8aa67138/raw/5c5932c10e7f6673dd5ab6ac4507dfaf6d4523d4/1-route.png",
+      "sha256": "78c6fe3419ec912bfd80b2bb2b1f8f3810c3bc189735929fdc4133ca0d176481"
     }
   ]
 }

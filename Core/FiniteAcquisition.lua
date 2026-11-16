@@ -138,6 +138,7 @@ function Finite.Start(input)
 			---@cast route SkillUpCraftedRoute
 			Fields(route, {
 				version = true,
+				skillCap = true,
 				coverage = true,
 				prerequisites = true,
 				recipes = true,
@@ -190,6 +191,7 @@ function Finite.Start(input)
 					professionID = true,
 					role = true,
 					available = true,
+					eligibility = true,
 					scope = true,
 					skillEffect = true,
 					productionLaw = true,
@@ -228,6 +230,28 @@ function Finite.Start(input)
 				then
 					Reject("complete scoped production evidence required")
 				end
+				local eligibility
+				if row.eligibility ~= nil then
+					Fields(
+						row.eligibility,
+						{ fromSkill = true, toSkill = true, fixedSkill = true },
+						"invalid recipe eligibility"
+					)
+					local bounds = assert(row.eligibility)
+					if
+						not Integer(bounds.fromSkill)
+						or not Integer(bounds.toSkill)
+						or bounds.toSkill < bounds.fromSkill
+						or (bounds.fixedSkill ~= nil and (row.role ~= "auxiliary" or not Integer(bounds.fixedSkill)))
+					then
+						Reject("invalid recipe eligibility")
+					end
+					if bounds.fixedSkill == nil and route.skillCap == nil then
+						Reject("dynamic recipe eligibility requires physical skill cap")
+					end
+					eligibility =
+						{ fromSkill = bounds.fromSkill, toSkill = bounds.toSkill, fixedSkill = bounds.fixedSkill }
+				end
 				local use, consumed = Map(row.use)
 				local produce, produced = Map(row.produce)
 				if not produced then
@@ -241,6 +265,7 @@ function Finite.Start(input)
 					professionID = row.professionID,
 					role = row.role,
 					available = row.available,
+					eligibility = eligibility,
 					scope = row.scope,
 					skillEffect = row.skillEffect,
 					productionLaw = row.productionLaw,
@@ -289,6 +314,14 @@ function Finite.Start(input)
 					Tick()
 				end
 			end
+			local physical
+			if route.skillCap ~= nil then
+				if not Integer(route.skillCap) then
+					Reject("invalid physical skill cap")
+				end
+				physical = { cap = route.skillCap }
+			end
+			local previousTarget
 			for _, leg in ipairs(route.legs) do
 				Fields(
 					leg,
@@ -298,6 +331,17 @@ function Finite.Start(input)
 				local recipe = recipes[leg.recipeID]
 				if not recipe or recipe.role ~= "main" then
 					Reject("main leg requires declared main recipe identity")
+				end
+				if physical then
+					if
+						not Integer(leg.fromSkill)
+						or not Integer(leg.toSkill)
+						or leg.toSkill > physical.cap
+						or (previousTarget and previousTarget ~= leg.fromSkill)
+					then
+						Reject("physical skill legs must be contiguous and within cap")
+					end
+					previousTarget = leg.toSkill
 				end
 				local prepared, _, failure = ns.Demand.Prepare({
 					legs = {
@@ -313,17 +357,19 @@ function Finite.Start(input)
 					},
 					held = {},
 					buy = {},
-				}, Tick)
+				}, Tick, physical)
 				if failure then
 					Reject(failure.reasons[1])
 				end
 				for _, stage in ipairs(assert(prepared)) do
 					stages[#stages + 1] = {
 						chance = stage.chance,
+						skill = stage.skill,
 						use = stage.use,
 						recipeID = recipe.recipeID,
 						produce = recipe.produce,
 						available = recipe.available,
+						eligibility = recipe.eligibility,
 						role = "main",
 					}
 					Tick()
@@ -677,6 +723,8 @@ function Finite.Start(input)
 				recipeID = stage.recipeID,
 				role = stage.role,
 				available = stage.available ~= false,
+				skill = stage.skill,
+				eligibility = stage.eligibility,
 				probability = p,
 				complement = exact.Subtract(one, p),
 			}
@@ -944,6 +992,13 @@ function Finite.Start(input)
 				if not stage.available then
 					return
 				end
+				local bounds = stage.eligibility
+				if bounds then
+					local skill = bounds.fixedSkill or compiled[state.stage].skill
+					if skill < bounds.fromSkill or skill > bounds.toSkill then
+						return
+					end
+				end
 				for i, count in pairs(stage.use) do
 					if state.balances[i] < count then
 						return
@@ -1195,6 +1250,7 @@ function Finite.Start(input)
 			end
 			routeLaws[i] = {
 				chance = stage.chance,
+				skill = stage.skill,
 				use = use,
 				produce = crafted and produce or nil,
 				recipeID = stage.recipeID,
@@ -1202,6 +1258,7 @@ function Finite.Start(input)
 			}
 		end
 		local laws = {
+			skillCap = crafted and input.route.skillCap or nil,
 			failureLoss = input.failureLoss,
 			tokenValues = CopyMap(input.tokenValues),
 			terminalCarry = CopyMap(input.terminalCarry),

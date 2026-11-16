@@ -26,10 +26,11 @@ end
 -- acquisition evaluation consume these exact stages and pooled coordinates.
 ---@param input SkillUpJointDemandInput
 ---@param Tick fun()
----@return {chance: number, use: table<integer, integer>}[]?
+---@param physical {skill: integer?, cap: integer}? Full successful gain law for crafted snapshots.
+---@return {chance: number, use: table<integer, integer>, skill: integer}[]?
 ---@return table<integer, integer>?
 ---@return SkillUpJointDemandResult?
-local function Prepare(input, Tick)
+local function Prepare(input, Tick, physical)
 	-- ipairs stops at the first hole, which must not certify a route prefix.
 	if type(input) ~= "table" or type(input.held) ~= "table" or type(input.buy) ~= "table" then
 		return nil, nil, Unknown("explicit route, held inventory and basket tables required", false)
@@ -110,7 +111,7 @@ local function Prepare(input, Tick)
 	-- Probability inputs are captured before evaluating any stochastic states.
 	local stages = {}
 	for _, leg in ipairs(legs) do
-		local skill = leg.fromSkill
+		local skill = physical and (physical.skill or leg.fromSkill) or leg.fromSkill
 		while skill < leg.toSkill do
 			local stage = ns.Model.DemandStage(leg.thresholds, skill, leg.skillUps, leg.toSkill)
 			if not stage or stage.chance == nil then
@@ -128,9 +129,14 @@ local function Prepare(input, Tick)
 						reasons = { "zero skill-up chance", "source cost not evaluated" },
 					}
 			end
-			stages[#stages + 1] = { chance = stage.chance, use = leg.use }
-			skill = skill + stage.gain
+			stages[#stages + 1] = { chance = stage.chance, use = leg.use, skill = skill }
+			-- Planning clips progress at a leg target and grey. A declared physical
+			-- gain instead advances the whole successful attempt, bounded by rank.
+			skill = skill + (physical and math.min(leg.skillUps or 1, physical.cap - skill) or stage.gain)
 			Tick()
+		end
+		if physical then
+			physical.skill = skill
 		end
 	end
 	return stages, capacity

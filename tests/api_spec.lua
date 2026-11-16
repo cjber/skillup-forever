@@ -64,7 +64,7 @@ local c = Client.load({
 })
 local ns, API = c.ns, c.G.SkillUpForever.API
 equal(API.version, 1, "version 1")
-equal(API.minor, 11, "minor 11 publishes complete adaptive supply certificates")
+equal(API.minor, 12, "minor 12 publishes recipe evidence without alpha")
 -- Publishing is discovery, not an API change (#594): the suite lists the addon with the API's own version and minor.
 local published
 for _, entry in ipairs(c.G.ForeverCore.APIKit.Addons()) do
@@ -73,7 +73,7 @@ for _, entry in ipairs(c.G.ForeverCore.APIKit.Addons()) do
 	end
 end
 equal(published and published.version, 1, "the suite list carries the API's version")
-equal(published and published.minor, 11, "and its minor")
+equal(published and published.minor, 12, "and its minor")
 
 equal(published and published.api, API, "and the addon's own API table")
 -- Nothing to answer says why, so a caller can tell "ask again later" from "there is nothing to ask about".

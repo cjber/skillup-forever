@@ -77,7 +77,7 @@
 
 ---@class SkillUpFiniteCertificate
 ---@field sources SkillUpFiniteSource[] Owned source-index bindings with exact identities, payments and delivery laws.
----@field stages {chance: number, use: table<string, integer>, produce: table<string, integer>?, recipeID: integer?, role: string?}[] Compiled ordered route transitions.
+---@field stages {skill: integer?, chance: number, use: table<string, integer>, produce: table<string, integer>?, recipeID: integer?, role: string?}[] Compiled ordered route transitions.
 ---@field laws SkillUpFiniteObjectiveLaws Owned explicit objective and trip laws; provenance is in result.assumptions.
 ---@field kind 'finite-dag-exhaustive'
 ---@field objective 'expected-expenditure-plus-terminal-carry-plus-failure-loss'
@@ -111,6 +111,9 @@
 ---@class SkillUpFiniteSelectionResult: SkillUpFiniteAcquisitionResult
 ---@field service 'adaptive-finite'?
 ---@field inventoryScope 'bags-only'?
+---@field recipeEvidence table? Owned declaration and native observations, including nested slots.
+---@field recipeRevision integer?
+---@field recipeScope 'declared-finite-recipes'?
 ---@field alpha number?
 ---@field selection SkillUpFiniteSelectionProof?
 ---@field orders SkillUpPolicyOrder[]?
@@ -138,13 +141,15 @@
 
 ---@class SkillUpAdaptiveSupplyRequest
 ---@field inventoryScope 'bags-only'
+---@field crafted {version: 'crafted-adapter-v1', revision: integer, skillLine: integer}? Opt-in current recipe declaration.
 ---@field policy SkillUpFiniteAcquisitionInput Immutable during asynchronous snapshot. Caller balance values are replaced by native quantities.
 
 ---@class SkillUpCraftedRecipe
 ---@field recipeID integer Positive identity, unique in the declared universe.
 ---@field professionID integer Positive profession identity.
 ---@field role 'main'|'auxiliary'
----@field available boolean Fixed eligibility throughout the solve.
+---@field available boolean Fixed availability gate throughout the solve.
+---@field eligibility {fromSkill: integer, toSkill: integer, fixedSkill: integer?}? Inclusive recipe bounds; dynamic bounds require route.skillCap. Absent preserves fixed availability.
 ---@field scope string Explicit eligibility and production scope.
 ---@field skillEffect 'route'|'neutral' Auxiliary effects on any modeled skill must be neutral.
 ---@field productionLaw 'deterministic-completed-attempt' Every completed attempt produces, including no gain.
@@ -161,6 +166,7 @@
 
 ---@class SkillUpCraftedRoute
 ---@field version 'crafted-deterministic-v1'
+---@field skillCap integer? Explicit physical successful-gain law: whole skillUps bounded by effective rank cap.
 ---@field coverage 'maximum-craft-only-completion'
 ---@field prerequisites 'already-satisfied' Conditional on all rank, training, tool, station and access gates already satisfied.
 ---@field recipes SkillUpCraftedRecipe[] Complete finite declared universe; optimum is conditional on these alternatives.

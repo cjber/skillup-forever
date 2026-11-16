@@ -437,6 +437,7 @@ local function Build()
 			recipes = Recipes(plan),
 			reagents = Reagents(plan),
 			sourceEvidence = ns.SupplySources.Inspect(products),
+			recipeEvidence = ns.RecipeEvidence.Inspect(skillLine),
 			supply = plan.supply and plan.supply.job.result,
 		}
 		entries[#entries + 1] = entry
@@ -509,7 +510,12 @@ local function CopyProfessions(list, steps, recipes)
 			recipes = copiedRecipes,
 			reagents = reagents,
 			sourceEvidence = CopyRow(entry.sourceEvidence),
-			supply = entry.supply and CopyRow(entry.supply),
+			recipeEvidence = ns.RecipeEvidence.Current(entry.recipeEvidence.recipeRevision) and CopyRow(
+				entry.recipeEvidence
+			) or ns.RecipeEvidence.Inspect(entry.skillLineID),
+			supply = entry.supply and (not entry.supply.recipeRevision or ns.RecipeEvidence.Current(
+				entry.supply.recipeRevision
+			)) and CopyRow(entry.supply) or nil,
 		}
 	end
 	return copy
@@ -531,7 +537,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 11 }
+local API = { version = 1, minor = 12 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe

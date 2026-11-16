@@ -77,6 +77,7 @@ UI\Buffs.lua
 UI\Shopping.xml
 UI\Shopping.lua
 UI\ShoppingList.lua
+Core\RecipeEvidence.lua
 Core\RouteDemand.lua
 Core\SupplySources.lua
 UI\AuctionSearch.lua

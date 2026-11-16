@@ -44,6 +44,7 @@
 ---@field recipes? integer Whole number from 1 to 25; the default is 5.
 
 ---@class SkillUpAPIProfession
+---@field recipeEvidence SkillUpRecipeEvidence Alpha-free conditional declaration status, never native production proof.
 ---@field sourceEvidence SkillUpSourceEvidence Current merchant evidence, even without a coverage target.
 ---@field supply SkillUpSupplyChoiceResult|SkillUpFiniteSelectionResult? Conditional fixed or adaptive selection status and complete certificate.
 ---@field name string Localized.

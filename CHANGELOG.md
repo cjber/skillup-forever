@@ -42,6 +42,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 - **You can choose which auction addon prices your reagents.** When both Auctionator and TradeSkillMaster are installed, Auction prices from picks the one whose price wins; the other still fills in an item it has no price for. Thanks to keerp for the idea (#675).
 ### For addon authors
 
+- API minor 12 exposes owned recipe observations and explicit declarations for conditional crafted supply evaluation. Recipe eligibility follows the current effective skill; successful gains use the caller-declared law. No default coverage target, recipe universe or supply law is chosen.
+
 - API minor 11 retains complete conditional adaptive supply certificates, native inventory scope and selection proofs. Profession readers can explicitly configure adaptive finite selection without choosing a default coverage target or future supply law.
 
 - API minor 7 adds read-only recipe data, base-skill learn requirements and account-wide learned-recipe records. Thanks to rissole for the request (#724).

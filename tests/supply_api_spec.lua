@@ -214,6 +214,8 @@ contract.stock.S = 0
 local supply = Published()
 equal(supply.items[10], 4, "configured input is owned and selects whole bundle budget")
 local entry = API.Professions()[1]
+equal(entry.recipeEvidence.status, "unsupported", "native production law absent without alpha")
+equal(entry.recipeEvidence.missing[1].code, "recipe-production-law-missing", "recipe evidence stable missing code")
 equal(entry.sourceEvidence.status, "unavailable", "default production owner reports missing evidence without alpha")
 equal(entry.sourceEvidence.missing[1].code, "merchant-window-unavailable", "default evidence keeps structured reasons")
 equal(entry.supply.sourceRevision, 7, "public certificate retains source revision")

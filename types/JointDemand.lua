@@ -33,7 +33,7 @@
 ---@field Cancel fun(self: SkillUpJointDemandJob)
 
 ---@class SkillUpJointDemandProducer
----@field Prepare fun(input: SkillUpJointDemandInput, tick: fun()): {chance: number, use: table<integer, integer>}[]?, table<integer, integer>?, SkillUpJointDemandResult?
+---@field Prepare fun(input: SkillUpJointDemandInput, tick: fun(), physical?: {skill: integer?, cap: integer}): {chance: number, use: table<integer, integer>, skill: integer}[]?, table<integer, integer>?, SkillUpJointDemandResult?
 ---@field Start fun(input: SkillUpJointDemandInput): SkillUpJointDemandJob
 ---@field StartBasketChoice fun(input: SkillUpJointDemandInput, baskets: table<integer, table<integer, integer>>, resupply: SkillUpResupplyCosts, unitCosts: table<integer, number>): SkillUpBasketChoiceJob
 

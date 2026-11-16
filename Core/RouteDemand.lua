@@ -444,6 +444,7 @@ end
 ---@return SkillUpFiniteSelectionJob
 function RouteDemand.StartAdaptive(plan, request, alpha)
 	local revision = ns.Model.ChanceRevision()
+	local recipeRevision = ns.RecipeEvidence.Revision()
 	---@type SkillUpFiniteSelectionJob?
 	local inner
 	---@type SkillUpFiniteSelectionJob
@@ -488,7 +489,7 @@ function RouteDemand.StartAdaptive(plan, request, alpha)
 		end
 		for key in pairs(request) do
 			Tick()
-			if key ~= "inventoryScope" and key ~= "policy" then
+			if key ~= "inventoryScope" and key ~= "policy" and key ~= "crafted" then
 				Reject("unsupported adaptive snapshot request field")
 			end
 		end
@@ -553,7 +554,12 @@ function RouteDemand.StartAdaptive(plan, request, alpha)
 				frozen[key] = Copy(value)
 			end
 		end
-		local route, reason = RouteDemand.Snapshot(plan, {}, false, Tick, true)
+		local route, reason, recipeEvidence
+		if request.crafted ~= nil then
+			route, reason, recipeEvidence = ns.RecipeEvidence.Snapshot(plan, Copy(request.crafted), Tick)
+		else
+			route, reason = RouteDemand.Snapshot(plan, {}, false, Tick, true)
+		end
 		if not route then
 			return Unknown(assert(reason))
 		end
@@ -656,6 +662,11 @@ function RouteDemand.StartAdaptive(plan, request, alpha)
 		end
 		inner.result.service = "adaptive-finite"
 		inner.result.inventoryScope = "bags-only"
+		if request.crafted ~= nil then
+			inner.result.recipeRevision = recipeRevision
+			inner.result.recipeScope = "declared-finite-recipes"
+			inner.result.recipeEvidence = recipeEvidence
+		end
 		return inner.result
 	end)
 	local function Cancel(self)
@@ -670,7 +681,7 @@ function RouteDemand.StartAdaptive(plan, request, alpha)
 		}
 	end
 	local function Advance(self, budget)
-		if revision ~= ns.Model.ChanceRevision() then
+		if revision ~= ns.Model.ChanceRevision() or not ns.RecipeEvidence.Current(recipeRevision) then
 			Cancel(self)
 		end
 		if type(budget) ~= "number" or budget < 1 or budget > 2 ^ 52 - 1 or budget % 1 ~= 0 then
@@ -682,7 +693,7 @@ function RouteDemand.StartAdaptive(plan, request, alpha)
 				break
 			end
 			local ok, result = coroutine.resume(active)
-			if revision ~= ns.Model.ChanceRevision() then
+			if revision ~= ns.Model.ChanceRevision() or not ns.RecipeEvidence.Current(recipeRevision) then
 				Cancel(self)
 			end
 			if thread ~= active then
@@ -865,6 +876,7 @@ function RouteDemand.Supply(plan)
 		supply
 		and supply.revision == ns.Model.ChanceRevision()
 		and supply.job.result.status == "complete"
+		and (not supply.job.result.recipeRevision or ns.RecipeEvidence.Current(supply.job.result.recipeRevision))
 		and supply.items
 		and supply.have
 	then
@@ -877,6 +889,7 @@ end
 local supplyFrame = CreateFrame("Frame")
 local supplyRevision = ns.Model.ChanceRevision()
 supplyFrame:SetScript("OnUpdate", function()
+	ns.RecipeEvidence.Refresh()
 	local revision = ns.Model.ChanceRevision()
 	if revision ~= supplyRevision then
 		supplyRevision = revision
@@ -888,7 +901,7 @@ supplyFrame:SetScript("OnUpdate", function()
 				config.dirty = false
 				local profession = ns.RouteProfessions()[skillLine]
 				if profession then
-					local ok, contract = pcall(config.read)
+					local ok, contract, missing = ns.RecipeEvidence.ReadRequest(config.read)
 					local plan = ns.PlanRoute(profession)
 					if configured[skillLine] ~= config or config.dirty then
 						break
@@ -903,7 +916,9 @@ supplyFrame:SetScript("OnUpdate", function()
 							job = RouteDemand.SelectSupply(plan, contract, config.alpha)
 						end
 					else
-						job = RejectedChoice("fresh complete source contract unavailable")
+						job = RejectedChoice(
+							ok and type(missing) == "string" and missing or "fresh complete source contract unavailable"
+						)
 						PublishSupply(plan, job)
 					end
 					if configured[skillLine] == config and not config.dirty then
@@ -1034,6 +1049,7 @@ ns.WhenStaleObserver("replan", RouteDemand.Invalidate)
 ns.WhenStaleObserver("bags", RouteDemand.Invalidate)
 ns.WhenStaleObserver("prices", RouteDemand.Invalidate)
 ns.WhenStaleObserver("sourceEvidence", RouteDemand.Invalidate)
+ns.WhenStaleObserver("recipeEvidence", RouteDemand.Invalidate)
 
 -- Skill changes need not invalidate Plan's recipe cache. These events revoke
 -- the snapshot without changing its route choice or shopping counts.

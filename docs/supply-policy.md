@@ -132,9 +132,9 @@ Inputs remain immutable for the job lifetime. Getters do not advance jobs.
 ## Deterministic crafted kernel
 
 The pure finite evaluator also accepts `route.version = "crafted-deterministic-v1"`.
-This contract is internal. Native snapshots still construct raw routes, and no
-crafted route API is published. Raw-demand and fixed-refill APIs retain their consumption-only
-contract. The caller supplies complete deterministic laws; no law is inferred from
+The native adapter accepts this contract only through an explicit current
+recipe-evidence declaration. Raw-demand and fixed-refill APIs retain their
+consumption-only contract. The caller supplies complete deterministic laws; no law is inferred from
 pricing means, schematic output bounds or a cheapest-maker estimate.
 
 A crafted route supplies dense `recipes` and ordered `legs`, `held`, zero `buy`,
@@ -149,6 +149,22 @@ positive item quantity. `evidence` contains an integer `revision` and nonempty
 `allocation` and `clientBuild` identities. These are caller declarations, not
 native gameplay verification. Recipe maps are keyed by item ID, so each item has
 one summed quantity rather than duplicate rows.
+
+Recipes may supply `eligibility = {fromSkill, toSkill, fixedSkill?}` with
+inclusive nonnegative integer bounds, including singleton intervals. For auxiliaries only, with
+`fixedSkill`, the recipe checks that unchanged effective skill; otherwise it
+checks the active main stage's effective skill. The same craft action gate
+applies in both coverage and economic policies. Absent eligibility preserves
+the legacy fixed `available` law.
+
+Dynamic eligibility requires an explicit `route.skillCap` physical gain law.
+A successful main attempt grants the whole `skillUps` count (default one),
+bounded by that effective cap. Targets and grey thresholds do not truncate
+that successful gain. Contiguous leg targets select main recipes; overshoot
+carries across legs and skips targets already reached. Prepared stages retain
+the exact effective skill, including modifiers. Without `skillCap`, legacy
+routes retain their existing target-clipped planning stages. The certificate
+owns the cap, recipe bounds and each main stage's skill.
 
 Main recipes declare `skillEffect = "route"`. Auxiliaries must explicitly declare
 `skillEffect = "neutral"`, including neutrality in other professions whose skills
@@ -189,8 +205,8 @@ the topological item order, rank schema, and separate `coveragePolicy` and `poli
 records with recipe identity, role, state rank and selected successors. Inputs
 remain immutable during a job. Callers must cancel both partial and complete jobs
 when recipe, allocation, eligibility or production evidence changes; the kernel
-also retains existing chance-revision invalidation. No native reader or craft
-instruction consumer is connected to this contract.
+also retains existing chance-revision invalidation. The opt-in native snapshot adapter described below connects this contract to
+finite selection. No craft instruction consumer is connected.
 
 ## Finite initial selection
 
@@ -238,11 +254,19 @@ before native balance reads. Every item read explicitly excludes bank, uses,
 reagent bank and account bank. Missing, unreadable or invalid quantities remain
 unknown; caller placeholders and display inventory fallbacks supply no balance.
 The completed result carries explicit adaptive service and bags-only scope.
+Crafted results also carry `recipeRevision`, `recipeScope` and an owned
+`recipeEvidence` snapshot of observations and declarations, separate from the
+kernel certificate. Known unmet Plan training/rank steps, native requirements,
+rank caps and missing eligibility bounds prevent certification.
 
 Future supply laws and finite pool reconciliation remain the source owner's
 responsibility. Native holdings and current merchant observations establish no
-future delivery, price or restocking law. This adapter still rejects subcrafts,
-optional or random outputs and output reuse under the raw-consumption contract.
+future delivery, price or restocking law. Requests without `crafted` retain the raw-consumption contract and reject
+subcrafts and output reuse. An explicit `crafted` token selects the separately
+versioned [recipe evidence adapter](recipe-evidence.md). It compiles final Plan
+legs against the entire declared finite recipe universe, including neutral
+auxiliaries, and reads every input and output coordinate. Random production
+and skill-affecting auxiliaries remain unsupported.
 
 ## Live ownership and consumers
 

@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 11; the history:
+`minor` is 12; the history:
 
 | minor | added |
 |---|---|
@@ -21,6 +21,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 9 | profession source-evidence status and conditional supply certificates with dated provenance |
 | 10 | proved `unattained` supply status and free-unlimited geometric nonattainment parameters |
 | 11 | complete adaptive finite supply certificates, scope and selection proof |
+| 12 | alpha-free recipe evidence status and opt-in declared crafted snapshot provenance |
 
 ## Not ready
 
@@ -54,6 +55,7 @@ replace the defaults of three and five for that call only. A missing field keeps
 | `steps` | the route's steps, in order: at most three by default, or the call's `limits.steps` |
 | `recipes` | the route's crafts: at most five by default, or the call's `limits.recipes` |
 | `reagents` | the route's reagents for the whole route |
+| `recipeEvidence` | alpha-free recipe declaration status, with stable missing-law reason codes |
 | `sourceEvidence` | structured source-law evidence for the current merchant window, available without a coverage target |
 | `supply` | optional conditional fixed or adaptive selection status and complete result, described below |
 
@@ -63,6 +65,14 @@ replace the defaults of three and five for that call only. A missing field keeps
 requested products have declared laws in the current window. It does not establish all
 sources available to the player, or an optimal acquisition policy. No coverage target is
 chosen by reading this field.
+
+`recipeEvidence` has `status` (`"unsupported"` or `"conditional"`),
+`recipeRevision`, `scope = "declared-finite-recipes"` and `missing` records with
+stable `code` and optional `recipeID`. Without an explicit completed-attempt
+law declaration it reports `recipe-production-law-missing`, even if native
+schematic bounds are equal. Conditional means a complete declared finite
+universe, never verified native production or an all-live-recipe optimum.
+See [Recipe evidence](recipe-evidence.md).
 
 `supply`, when a caller has configured a policy and target, is the selection result:
 `status`, `reasons`, `costKnown`, explicit `alpha`, C0 `coverageLower/Upper`, Ppi

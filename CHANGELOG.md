@@ -14,6 +14,12 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Minimap button:** Show or hide the SkillUp minimap button in the addon settings. (#759)
 - **Recipe prices:** "Money on recipe rows" has an Off choice, which hides prices on recipe rows and keeps the skill-up chances. (#760)
+## [1.12.1] - 2026-11-16
+
+<!-- forever-core-sync -->
+
+- Loads without ForeverCore, and says on screen what to do when ForeverCore is missing, turned off or out of date, in your client's language.
+- Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ## [1.12.0] - 2026-11-16
 

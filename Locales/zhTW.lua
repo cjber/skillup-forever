@@ -492,6 +492,12 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"開啟「購買試劑」會寫入一個 Auctionator 清單，包含所有仍缺少的拍賣場試劑。"
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"沒有 Auctionator 時，配方的「搜尋」按鈕會一次一個試劑地填入遊戲自帶的拍賣搜尋框。"
+L["%s needs ForeverCore. Install it from CurseForge, or choose Reinstall on ForeverCore in the CurseForge app."] =
+	"%s 需要 ForeverCore。請從 CurseForge 安裝，或在 CurseForge 應用程式中為 ForeverCore 選擇重新安裝。" -- mt
+L["%s: the installed ForeverCore is another addon (%s). Remove it and install ForeverCore from CurseForge."] =
+	"%s：已安裝的 ForeverCore 是另一個插件（%s）。請移除它並從 CurseForge 安裝 ForeverCore。" -- mt
+L["%s: ForeverCore is turned off. Enable it in the AddOns list to fix this."] =
+	"%s：ForeverCore 已停用。請在插件列表中啟用它來解決此問題。" -- mt
 L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已過期。請更新它來解決此問題。" -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已過期。請更新它們來解決此問題。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 無法啟動。請重新安裝 %s 來解決此問題。" -- mt

@@ -24,7 +24,7 @@ local L = ns.L
 PHRASE = re.compile(r'\bL\["((?:\\.|[^"\\\n])*)"\]')
 # ForeverCore's shared out-of-date warning (Core/ForeverRequire.lua, copied byte for byte) hands its English text to
 # a `phrase(key, ...)` helper and reads ns.L by that same key, so those strings are phrases too.
-SHARED = re.compile(r'\bphrase\("((?:\\.|[^"\\\n])*)"')
+SHARED = re.compile(r'\bphrase\(\s*"((?:\\.|[^"\\\n])*)"')
 # A shared window may choose a phrase in a bracket expression: `L[count == 1 and "board" or "boards"]` uses both,
 # so each string alternative is a phrase too.
 ALTERNATIVE = re.compile(r"\bL\[([^\]]*)\]")

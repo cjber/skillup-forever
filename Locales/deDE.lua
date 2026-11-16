@@ -419,7 +419,7 @@ L["Pinned (%d)"] = "Angeheftet (%d)" -- mt
 L["crafted"] = "hergestellt" -- mt
 L["List unlearned recipes"] = "Nicht erlernte Rezepte auflisten"
 L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
-	"Fügt die Rezepte des geöffneten Berufs, die du noch nicht erlernt hast, unter einem Trenner „Nicht erlernt“ hinzu, ausgegraut und mit Lehrer oder Rezept und der verlangten Fertigkeit markiert. Sie lassen sich weder auswählen noch herstellen."
+	"Fügt die Rezepte des geöffneten Berufs, die Ihr noch nicht erlernt habt, unter einem Trenner „Nicht erlernt“ hinzu, ausgegraut und mit Lehrer oder Rezept und der verlangten Fertigkeit markiert. Sie lassen sich weder auswählen noch herstellen."
 L["Not learned · %s"] = "Nicht erlernt · %s"
 L["Trainer"] = "Lehrer"
 L["Recipe item"] = "Rezept"
@@ -515,13 +515,13 @@ L["Which addon prices auction values when both are installed. The chosen addon's
 
 L["Skill %d to %d, %s"] = "Fertigkeit %d bis %d, %s" -- mt
 L["Skill %d to %d, %s, at %s"] = "Fertigkeit %d bis %d, %s, an: %s" -- mt
-L["%s, uses materials you have"] = "%s, verwendet Materialien aus euren Taschen" -- mt
+L["%s, uses materials you have"] = "%s, verwendet Materialien aus Euren Taschen" -- mt
 L["Unlearned recipe order"] = "Reihenfolge ungelernter Rezepte" -- mt
 L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
 	"Legt die Reihenfolge noch nicht erlernter Rezepte fest. Erlernte Rezepte behalten die gewählte Rezeptreihenfolge." -- mt
 L["TSM regional sales per day"] = "Regionale Verkäufe pro Tag laut TSM" -- mt
 L["Average sold per auction house in your region, reported by TSM."] =
-	"Durchschnittlich verkaufte Menge pro Auktionshaus in deiner Region, gemeldet von TSM." -- mt
+	"Durchschnittlich verkaufte Menge pro Auktionshaus in Eurer Region, gemeldet von TSM." -- mt
 
 L["Open %s from your spellbook."] = "Öffnet %s über Euer Zauberbuch."
 
@@ -647,7 +647,8 @@ L["Supply"] = "Vorrat" -- mt
 L["Supply policy"] = "Vorratsrichtlinie" -- mt
 L["Open the profession and a merchant window."] = "Öffnet den Beruf und ein Händlerfenster." -- mt
 L["Apply policy"] = "Richtlinie anwenden" -- mt
-L["No trainer of your faction teaches this recipe."] = "Kein Lehrer deiner Fraktion lehrt dieses Rezept." -- mt
+L["No trainer of your faction teaches this recipe."] = "Kein Lehrer Eurer Fraktion lehrt dieses Rezept." -- mt
 L["%s (level %d)"] = "%s (Stufe %d)" -- mt
 
-L["The route spells out what to craft in order."] = "Die Route zeigt der Reihe nach, was herzustellen ist." -- mt
+L["Routes prefer the materials your bags already hold."] =
+	"Routen bevorzugen die Materialien, die Ihr bereits in Euren Taschen habt." -- mt

@@ -642,4 +642,4 @@ L["Apply policy"] = "套用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的陣營沒有訓練師教授這個配方。" -- mt
 L["%s (level %d)"] = "%s（等級 %d）" -- mt
 
-L["The route spells out what to craft in order."] = "路線依序列出要製造的內容。" -- mt
+L["Routes prefer the materials your bags already hold."] = "路線優先使用背包中已有的材料。" -- mt

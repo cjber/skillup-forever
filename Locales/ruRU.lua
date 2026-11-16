@@ -706,5 +706,5 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["The route spells out what to craft in order."] =
-	"Маршрут по порядку показывает, что создать." -- mt
+L["Routes prefer the materials your bags already hold."] =
+	"Маршруты предпочитают материалы, которые уже есть в ваших сумках." -- mt

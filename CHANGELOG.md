@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-11-16
+
+<!-- discord-image: docs/screenshots/route.png -->
+
 - **Routes prefer the materials your bags already hold.** A recipe you can craft from what you carry is priced at what using those copies gives up, not at the price of buying new ones, so the route can choose it over a cheaper market recipe and says when a step uses your materials. Thanks to Belth on CurseForge for the idea (#744).
 - **Training steps name the trainer who actually teaches the recipe.** A Leatherworking route at 175 sent players to a trainer whose rank cap covered the recipe but who would not offer it, so he would not talk to them. Steps now name a trainer who lists that recipe, and say so when none of your faction's trainers teach it. A recipe a trainer asks a character level for stays in the list with that level while the route waits for it. Thanks to cursebandit for the report (#722).
 

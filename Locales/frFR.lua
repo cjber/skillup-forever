@@ -658,4 +658,5 @@ L["Apply policy"] = "Appliquer la politique" -- mt
 L["No trainer of your faction teaches this recipe."] = "Aucun maître de votre faction n'enseigne cette recette." -- mt
 L["%s (level %d)"] = "%s (niveau %d)" -- mt
 
-L["The route spells out what to craft in order."] = "Le parcours indique dans l'ordre ce qu'il faut fabriquer." -- mt
+L["Routes prefer the materials your bags already hold."] =
+	"Les parcours privilégient les matériaux que vous avez déjà dans vos sacs." -- mt

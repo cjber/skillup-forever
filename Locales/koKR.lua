@@ -507,6 +507,12 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"재료 구매를 켜면 아직 부족한 모든 경매장 재료가 Auctionator 목록에 기록됩니다."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Auctionator가 없으면 레시피의 검색 버튼이 게임 자체 경매 검색 상자에 한 번에 하나의 재료를 채웁니다."
+L["%s needs ForeverCore. Install it from CurseForge, or choose Reinstall on ForeverCore in the CurseForge app."] =
+	"%s에는 ForeverCore가 필요합니다. CurseForge에서 설치하거나 CurseForge 앱에서 ForeverCore의 재설치를 선택하세요." -- mt
+L["%s: the installed ForeverCore is another addon (%s). Remove it and install ForeverCore from CurseForge."] =
+	"%s: 설치된 ForeverCore는 다른 애드온(%s)입니다. 삭제하고 CurseForge에서 ForeverCore를 설치하세요." -- mt
+L["%s: ForeverCore is turned off. Enable it in the AddOns list to fix this."] =
+	"%s: ForeverCore가 꺼져 있습니다. 애드온 목록에서 켜서 이 문제를 해결하세요." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
 L["%s: %s are out of date. Update them to fix this."] =

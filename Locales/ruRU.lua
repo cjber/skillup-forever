@@ -528,6 +528,12 @@ L["Turning Buy reagents on writes an Auctionator list with every auction reagent
 	"Если включить «Покупать реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Без Auctionator кнопка «Поиск» рецепта заполняет собственную строку поиска аукциона игры по одному реагенту за раз."
+L["%s needs ForeverCore. Install it from CurseForge, or choose Reinstall on ForeverCore in the CurseForge app."] =
+	"%s требует ForeverCore. Установите его с CurseForge или выберите «Переустановить» для ForeverCore в приложении CurseForge." -- mt
+L["%s: the installed ForeverCore is another addon (%s). Remove it and install ForeverCore from CurseForge."] =
+	"%s: установленный ForeverCore является другой модификацией (%s). Удалите его и установите ForeverCore с CurseForge." -- mt
+L["%s: ForeverCore is turned off. Enable it in the AddOns list to fix this."] =
+	"%s: ForeverCore отключён. Включите его в списке модификаций, чтобы исправить это." -- mt
 L["%s: %s is out of date. Update it to fix this."] =
 	"%s: %s устарел. Обновите его, чтобы это исправить." -- mt
 L["%s: %s are out of date. Update them to fix this."] =

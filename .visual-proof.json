@@ -1,34 +1,27 @@
 {
-  "input_digest": "b2bd02fff4c380897909e513e87ff0cb4014aa8690ad5472e203f832e6b9eb36",
-  "runtime_sha256": "b2bd02fff4c380897909e513e87ff0cb4014aa8690ad5472e203f832e6b9eb36",
-  "candidate": "5c262866d3d0091b71fa36e345cb4a1d72ff1932a578042731666ff39d909686",
+  "input_digest": "b7cafb98c10563d6c7d3729a6f05edcbc009d902fa7d5592309d263205a64f71",
+  "runtime_sha256": "b7cafb98c10563d6c7d3729a6f05edcbc009d902fa7d5592309d263205a64f71",
+  "candidate": "ebe9d4f2f8f965608f83e99c14e9ef559592e0c29c0e616c24126016f640ba57",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "48f2cce8467a73606ddbd3f1ac69ef1efc91fe52",
+  "source_commit": "57660afb7d538fe4d08b1442c569bcc83f36b3b6",
   "flows": [
     {
-      "name": "minimap button setting",
+      "name": "unlearned recipe preview",
       "steps": [
-        "su759-minimap.lua sha256:b3591126701c5d760fd1b5c8fd2d6ecc0ec31c3b77bdc259980dca1c991b7d04"
+        "su767-preview.lua sha256:499c0463d0b04d155985d418bd1d18a55c38e84abb4f36bbd1f55d277ac78903"
       ],
-      "result": "pass"
-    },
-    {
-      "name": "money on recipe rows off",
-      "steps": [
-        "su760-rowmoney.lua sha256:e9df6f30517eb235a04fde6cb031f9ac07a8182832d1f50ef85ecb1d3063f6c1"
+      "click": [
+        960,
+        402
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/46fe8c7cfa9b6262c37443a8e2186278/raw/8a10c34da7d5520725e5ddfc334d8ff9093de552/1-minimap-button-setting.png",
-      "sha256": "65d5553d903923666f23270f0b81c34df0bf848741ce700192062e2de974719e"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/46fe8c7cfa9b6262c37443a8e2186278/raw/8a10c34da7d5520725e5ddfc334d8ff9093de552/2-money-on-recipe-rows-off.png",
-      "sha256": "9abad3e7d7e0f520bcc57d873dbb963fbb7dd93b2141e4408f8aa40ea1bd544f"
+      "url": "https://gist.githubusercontent.com/cjber/41bd874dffa589bbf646be8b6780f151/raw/93d37c9d94b7cb63cca1ece423138bb96225d829/1-unlearned-recipe-preview.png",
+      "sha256": "0fa2f5dded1b3eaf3237dec0490aab1d9b7a4034178036196fa7b7f46b827cc2"
     }
   ]
 }

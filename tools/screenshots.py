@@ -13,6 +13,7 @@ luajit (lua_scene) and only draw its output.
 Only the scene's state (professions, skill, bags, auction prices) is chosen here.
 """
 
+import argparse
 import io
 import json
 import math
@@ -22,6 +23,9 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+if __name__ == "__main__":
+    argparse.ArgumentParser(description="Render the README screenshots from the client's own UI art.").parse_args()
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
 WOWMOCK = FOREVER_CORE / "tools" / "wowmock"

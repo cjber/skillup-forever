@@ -1,10 +1,10 @@
 {
-  "input_digest": "5e2008a52dee4a4c31b473536c881dbab6982433d20ff8246774402285d6f8dc",
-  "runtime_sha256": "5e2008a52dee4a4c31b473536c881dbab6982433d20ff8246774402285d6f8dc",
-  "candidate": "075915e948d449fc31eb5d7301ea6682815c1598f5d59de4fdebed569a891c50",
+  "input_digest": "e5338a1cc02ff212c71c159ce4ddbf2c31dade7949eb81cf81a38bc60cc8594c",
+  "runtime_sha256": "e5338a1cc02ff212c71c159ce4ddbf2c31dade7949eb81cf81a38bc60cc8594c",
+  "candidate": "71856c3bbec6c251d0406ac36c1a85455b1357a28270ecc18578014582ad1e60",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "628ba545e4458ee51cc3867cb55c2e493e60f384",
+  "source_commit": "ffa8092d32ef72e4442d9c7892874317ab155150",
   "flows": [
     {
       "name": "supply page",
@@ -20,8 +20,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/fccbb913ccd54414f573a9447ecc6d29/raw/2b625b5f3a505061e96951c0472f2adba816a578/1-supply-page.png",
-      "sha256": "5906f0cfdc9b2e08217927715b735e6657225a6122783a7338bd1862800f22ff"
+      "url": "https://gist.githubusercontent.com/cjber/406d4ee20fa25f138f07dd3e93630de2/raw/a9efb2d08a5034dc155f9021949064df6796744e/1-supply-page.png",
+      "sha256": "3027b49e57089e785a6d1d369b32c99c883fe00c3a49bbbb052d36e50fb91bd4"
     }
   ]
 }

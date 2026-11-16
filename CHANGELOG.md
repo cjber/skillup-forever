@@ -14,6 +14,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [1.11.0] - 2026-11-16
 
+<!-- forever-core-sync -->
+
+- **This is the last update published on Wago.** Future updates come from CurseForge only. If you installed this addon through Wago or the WowUp Wago source, install it from CurseForge to keep getting updates; your settings stay.
+
 <!-- discord-image: docs/screenshots/route.png -->
 
 - **The route spells out what to craft in order.** Each craft step leads with its quantity and recipe, with its skill range, cost and station underneath. Thanks to codipherus for the report (#684).

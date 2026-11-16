@@ -16,7 +16,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 <!-- forever-core-sync -->
 
-- **SkillUp Forever tells you when ForeverCore is missing.** The addon now loads without ForeverCore and says on screen what to do when it is missing, turned off or out of date, in your client's language.
+- Loads without ForeverCore, and says on screen what to do when ForeverCore is missing, turned off or out of date, in your client's language.
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ## [1.12.0] - 2026-11-16

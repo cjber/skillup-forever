@@ -13,6 +13,10 @@
 ---@field costs table<string, integer> Complete typed transaction requirements.
 
 ---@class SkillUpSupplyChoiceResult: SkillUpResupplyResult
+---@field infimumKnown boolean? A proved infimum is distinct from a selected finite order.
+---@field objectiveInfimumLower number?
+---@field objectiveInfimumUpper number?
+---@field nonattainment SkillUpSupplyNonattainment? Exact restricted theorem parameters, with no finite basket.
 ---@field sourceRevision integer? Source-owner revision of this conditional certificate.
 ---@field assumptions SkillUpSourceAssumption[]? Owned dated, scoped provenance for the source laws.
 ---@field items table<integer, integer>? Shared initial raw inventory budget, before initial token payments.
@@ -22,6 +26,14 @@
 ---@field acquisitions SkillUpSelectedAcquisition[]? Owned INITIAL transactions only, including products used as payment tokens.
 ---@field initialVisits table<string, number>? One explicit setup/travel charge per selected vendor.
 ---@field alpha number? Explicit starting coverage constraint.
+
+---@class SkillUpSupplyNonattainment
+---@field kind 'free-unlimited-geometric'
+---@field chance number In (0,1), interpreted as the exact Model.Chance input.
+---@field heldUnits integer
+---@field bundleUnits integer
+---@field refillUnits integer Positive units per fixed refill.
+---@field refillVisitCost number Positive expenditure per refill visit.
 
 ---@class SkillUpSupplyChoiceJob
 ---@field result SkillUpSupplyChoiceResult

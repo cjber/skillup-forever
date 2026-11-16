@@ -183,6 +183,80 @@ input.sources[1].moneyCopper = 0
 result = Finish(ns.SupplyChoice.Start(input, 0.49))
 Check(result.status == "unknown", "free unlimited inventory has no assumed attained finite optimum")
 
+input = Input(0, 2, 0, 0)
+input.refillVisitCosts.V = 5
+input.sourceRevision, input.assumptions = 9, {}
+result = Finish(ns.SupplyChoice.Start(input, 0.7))
+Check(result.status == "unattained", "free initial supply with positive refill trips has no finite minimizer")
+Check(
+	result.infimumKnown and result.objectiveInfimumLower == 0 and result.objectiveInfimumUpper == 0,
+	"exact zero infimum is proved"
+)
+Check(
+	result.orders == nil and result.items == nil and not result.costKnown,
+	"nonattainment invents no selected finite basket"
+)
+Check(
+	result.nonattainment.chance == 0.5 and result.nonattainment.refillUnits == 2,
+	"geometric proof retains its declared parameters"
+)
+Check(
+	result.sourceRevision == 9 and result.assumptions ~= input.assumptions,
+	"nonattainment preserves owned source evidence"
+)
+input.terminalCarry = { ["item:1"] = 1 }
+Check(
+	Finish(ns.SupplyChoice.Start(input, 0.7)).status == "unknown",
+	"additional carrying cost needs another objective proof"
+)
+input.terminalCarry = nil
+input.capacity = 10
+Check(Finish(ns.SupplyChoice.Start(input, 0.7)).status == "unknown", "additional finite capacity needs another proof")
+input.capacity = nil
+input.initialVisitCosts.V = 1
+Check(Finish(ns.SupplyChoice.Start(input, 0.7)).status == "unknown", "positive initial cost is outside this theorem")
+input.initialVisitCosts.V = 0
+Check(
+	Finish(ns.SupplyChoice.Start(input, 1)).status == "unknown",
+	"alpha one is a separate finite feasibility question"
+)
+input.refillVisitCosts.V = 0
+Check(
+	Finish(ns.SupplyChoice.Start(input, 0.7)).status == "unknown",
+	"zero refill cost does not imply strict improvement"
+)
+input.refillVisitCosts.V = 5
+input.route.legs[2] = Leg({ [1] = 1 })
+Check(Finish(ns.SupplyChoice.Start(input, 0.7)).status == "unknown", "multiple stages require another theorem")
+input.route.legs[2] = nil
+input.route.legs[1].use[1] = 2
+Check(Finish(ns.SupplyChoice.Start(input, 0.7)).status == "unknown", "other consumption bands are outside this theorem")
+input.route.legs[1].use[1] = 1
+input.route.legs[1].thresholds = { 1, 2, 3, 4 }
+Check(
+	Finish(ns.SupplyChoice.Start(input, 0.7)).status == "unknown",
+	"certain skill-ups do not have geometric nonattainment"
+)
+input.route.legs[1].thresholds = { 0, 0, 0, 2 }
+input.stock.S = 2
+Check(
+	Finish(ns.SupplyChoice.Start(input, 0.7)).status ~= "unattained",
+	"finite stock cannot give an unbounded improvement sequence"
+)
+input.stock.S = "unlimited"
+input.sources[1].costs = { ["item:30"] = 1 }
+input.route.held[30], input.tokenValues["item:30"] = 2, 1
+Check(
+	Finish(ns.SupplyChoice.Start(input, 0.7)).status ~= "unattained",
+	"finite token payments are outside the free-source theorem"
+)
+input.sources[1].costs = {}
+input.refillOrders, input.refillVisitCosts = {}, {}
+Check(
+	Finish(ns.SupplyChoice.Start(input, 0.7)).status == "unknown",
+	"an empty refill batch has no geometric refill law"
+)
+
 input = Input(0, 2, 3, 5, 2)
 input.sources[1].offerID, input.sources[1].npcID = "token-offer", 123
 input.sources[1].costs = { ["item:30"] = 1, ["currency:9"] = 2 }

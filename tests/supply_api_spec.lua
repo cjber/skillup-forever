@@ -171,6 +171,25 @@ equal(API.Professions()[1].supply.status, "unknown", "terminal unknown replaces 
 unresolvedJob:Cancel()
 equal(API.Professions()[1].supply, nil, "cancelling an unpublished selection removes public status")
 
+local free = Policy()
+free.sources[2] = nil
+free.sources[1].moneyCopper, free.sources[1].costs = 0, {}
+free.stock.S, free.tokenValues = "unlimited", {}
+free.initialVisitCosts.V, free.refillVisitCosts.V = 0, 5
+local freeJob = ns.RouteDemand.SelectSupply(Current(), free, 0.9)
+for _ = 1, 100 do
+	PolicyFrame()
+end
+equal(freeJob.result.status, "unattained", "free initial acquisitions expose nonattainment through the real job")
+local freePublic = API.Professions()[1].supply
+equal(freePublic.status, "unattained", "public API preserves the distinct nonattainment status")
+equal(freePublic.objectiveInfimumUpper, 0, "public API publishes the proved infimum")
+equal(freePublic.orders, nil, "public nonattainment has no invented finite orders")
+equal(ns.RouteDemand.Supply(Current()), nil, "nonattainment never publishes a selectable budget")
+freePublic.nonattainment.refillUnits = 999
+equal(API.Professions()[1].supply.nonattainment.refillUnits, 2, "public proof parameters are owned")
+freeJob:Cancel()
+
 local contract = Policy()
 contract.stock.S = 2
 local declaredStock = 2

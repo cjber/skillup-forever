@@ -46,7 +46,7 @@
 ---@field options SkillUpPolicyOptions
 
 ---@class SkillUpResupplyResult
----@field status 'calculating'|'complete'|'unknown'|'cancelled'
+---@field status 'calculating'|'complete'|'unknown'|'cancelled'|'unattained' The selector alone can prove nonattainment.
 ---@field reasons string[]
 ---@field initialFeasible boolean? False only for proved initial batch infeasibility.
 ---@field costKnown boolean Conditional on all explicit policy laws, never live supply certification.

@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 9; the history:
+`minor` is 10; the history:
 
 | minor | added |
 |---|---|
@@ -19,6 +19,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 7 | `Recipes`, `Recipe`, `RecipeRequirement`, `Characters` and `Knows` |
 | 8 | conditional selected initial acquisition records on steps and shopping items |
 | 9 | profession source-evidence status and conditional supply certificates with dated provenance |
+| 10 | proved `unattained` supply status and free-unlimited geometric nonattainment parameters |
 
 ## Not ready
 
@@ -71,6 +72,14 @@ results also carry paired `sourceRevision` and `assumptions`. Each assumption re
 `observationRevision`, `session` and `index`. These are conditional mathematical
 results for one declared refill policy, not empirical gameplay guarantees. All nested
 tables are fresh copies. Missing, calculating or unknown results provide no optimum certificate.
+
+A selector may instead report `status = "unattained"`, `costKnown = false`,
+`infimumKnown = true` and exact `objectiveInfimumLower/Upper`, with no finite
+`orders`, `items` or coverage certificate. Its `nonattainment` record has
+`kind = "free-unlimited-geometric"`, `chance`, `heldUnits`, `bundleUnits`,
+`refillUnits` and `refillVisitCost`. This proves the restricted mathematical
+infimum described in [Conditional supply calculations](supply-policy.md), not
+a recommended finite basket or an observed future supply guarantee.
 
 A step is:
 

@@ -58,8 +58,26 @@ no greater than every potentially feasible competitor's lower bound. Coverage
 or objective intervals that prevent this comparison remain unknown. Paid unlimited sources first search expanding finite domains for a feasible
 incumbent. Its total expected upper cost bounds every competing initial money
 outlay, giving a complete finite domain. An unbounded free dimension requires a
-separate dominance proof and stays unknown;
+separate dominance or nonattainment proof and otherwise stays unknown;
 there is no arbitrary basket cutoff or claim of a global policy optimum.
+
+The selector proves one free-unlimited nonattainment case. It requires exactly
+one source, one skill-up stage with chance `p` strictly between zero and one,
+one unit of that source's item consumed per attempt, no money or token payment,
+zero initial visit cost, a positive refill visit cost `R`, a positive fixed
+refill of `B` units, and explicit `alpha < 1`. All these laws are conditional
+inputs. This fixed-refill expenditure objective contains no additional carrying
+or capacity term; additional contract fields are excluded from this proof.
+
+Let `q = 1-p`, `h` be held units, `u` units per bundle and `n` initial bundles.
+The expected later expenditure is `R*q^(h+n*u)/(1-q^B)`. It is positive for
+every finite `n`, strictly decreases as `n` grows, and tends to zero. Some finite
+`n` meets any `alpha < 1`, so zero is the exact infimum and no finite feasible
+basket attains it. The result is `unattained`, with proof parameters and no
+selected orders, inventory budget or coverage certificate. It is distinct from
+an unresolved search. Alpha equal to one stays unknown here, as a separate
+finite feasibility question. Arithmetic quantity limits do not invent a physical
+capacity or turn the infimum into an attained optimum.
 
 ## Live ownership and consumers
 
@@ -113,7 +131,7 @@ Removing the configuration cancels its result. Source laws remain explicit
 conditional assumptions; no observation silently certifies them.
 
 Actual future supply laws, a product choice of coverage target, general policy
-optimization, free-unbounded-domain proofs remain
+optimization and other free-unbounded-domain proofs remain
 open in [#563](https://github.com/cjber/skillup-forever/issues/563). There is no
 configured default policy and no native gameplay proof for these calculations.
 The UI renders are illustrative.

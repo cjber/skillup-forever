@@ -13,6 +13,99 @@ local function Unknown(reason)
 	return { status = "unknown", reasons = { reason }, costKnown = false }
 end
 
+-- This theorem concerns the fixed-refill expenditure objective only, which has
+-- no carrying/capacity term. No source observation establishes these laws.
+---@param input SkillUpResupplyInput Already validated by Resupply.
+---@param alpha number
+---@param tick fun()
+---@return SkillUpSupplyChoiceResult?
+local function FreeNonattainment(input, alpha, tick)
+	if alpha >= 1 or #input.sources ~= 1 then
+		return nil
+	end
+	local source = input.sources[1]
+	local refillCost = input.refillVisitCosts[source.vendor]
+	if
+		source.moneyCopper ~= 0
+		or next(source.costs) ~= nil
+		or source.access ~= true
+		or input.stock[source.stockKey] ~= "unlimited"
+		or input.initialVisitCosts[source.vendor] ~= 0
+		or not (type(refillCost) == "number" and refillCost > 0)
+	then
+		return nil
+	end
+	-- A closed contract guard: additional objective/capacity terms require a
+	-- different proof.
+	local fields = {
+		sourceRevision = true,
+		assumptions = true,
+		route = true,
+		service = true,
+		journey = true,
+		walletCopper = true,
+		currencies = true,
+		stock = true,
+		sources = true,
+		tokenValues = true,
+		initialOrders = true,
+		refillOrders = true,
+		initialVisitCosts = true,
+		refillVisitCosts = true,
+		options = true,
+	}
+	for field in pairs(input) do
+		if not fields[field] then
+			return nil
+		end
+		tick()
+	end
+	local stages, held, failure = ns.Demand.Prepare(input.route, tick)
+	if failure or not stages or not held or #stages ~= 1 then
+		return nil
+	end
+	local stage = stages[1]
+	if not (stage.chance > 0 and stage.chance < 1) or stage.use[source.itemID] ~= 1 then
+		return nil
+	end
+	for item in pairs(stage.use) do
+		if item ~= source.itemID then
+			return nil
+		end
+		tick()
+	end
+	local refillUnits = 0
+	for _, order in ipairs(input.refillOrders) do
+		refillUnits = refillUnits + order.bundles * source.bundleUnits
+		tick()
+	end
+	if refillUnits == 0 then
+		return nil
+	end
+	-- q=1-p in exact real arithmetic. For h held units and n initial bundles,
+	-- later cost is R*q^(h+n*u)/(1-q^B), strictly positive for every finite n,
+	-- strictly decreasing in n, and tending to zero. Alpha<1 has finite feasible
+	-- n. Thus zero is an infimum, with no finite attaining basket. LIMIT is an
+	-- arithmetic guard, not an invented physical inventory capacity.
+	return {
+		status = "unattained",
+		costKnown = false,
+		infimumKnown = true,
+		objectiveInfimumLower = 0,
+		objectiveInfimumUpper = 0,
+		alpha = alpha,
+		reasons = { "free unlimited initial supply has an unattained zero expenditure infimum" },
+		nonattainment = {
+			kind = "free-unlimited-geometric",
+			chance = stage.chance,
+			heldUnits = held[source.itemID] or 0,
+			bundleUnits = source.bundleUnits,
+			refillUnits = refillUnits,
+			refillVisitCost = refillCost,
+		},
+	}
+end
+
 ---@param input SkillUpResupplyInput Immutable during this job.
 ---@param alpha number Explicit starting-inventory coverage requirement.
 ---@return SkillUpSupplyChoiceJob
@@ -85,6 +178,11 @@ function Choice.Start(input, alpha)
 			return Unknown(child.result.reasons[1])
 		end
 		child:Cancel()
+		local unattained = FreeNonattainment(input, alpha, Tick)
+		if unattained then
+			unattained.sourceRevision, unattained.assumptions = input.sourceRevision, assumptions
+			return unattained
+		end
 		local bounds, quantities, resourceBounds, unbounded = {}, {}, {}, {}
 		local searching = false
 		local extent = 1

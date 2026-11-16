@@ -67,6 +67,7 @@
 ---@field CanGather fun(itemID: integer): string? The profession name, or "loot" for a reagent creatures drop.
 ---@field IsLimitedStock fun(itemID: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
 ---@field ObtainCost fun(itemID: integer): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
+---@field HeldCost fun(itemID: integer): number? what using one held unit gives up: the lesser of its sale value and ObtainCost
 ---@field LiveSchematicsArrived fun(recipeIDs: integer[]): boolean
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
 ---@field UsedIn fun(itemID: integer): integer[]
@@ -365,11 +366,19 @@ SkillUpForeverDB = nil
 ---@field name string
 ---@field icon fileID
 
+---@class SkillUpPricedReagent
+---@field itemID integer
+---@field quantity number One craft's need of it.
+---@field buy? number What one unit costs to obtain.
+---@field held? number What using one held unit gives up.
+
 ---@class SkillUpCandidate
 ---@field recipeID integer
 ---@field thresholds number[]
 ---@field netCost? number
 ---@field reagentCost? number What one craft's reagents cost, before the crafted item's value.
+---@field reagents? SkillUpPricedReagent[] Its reagents, priced to buy and to use from the bags.
+---@field value? number What one craft's output sells for, as CraftCost reports it.
 ---@field preference? integer Most recently pinned recipe wins.
 ---@field skillUps? integer Skill points one craft grants, from the client.
 
@@ -388,6 +397,7 @@ SkillUpForeverDB = nil
 ---@field target number
 ---@field recipes SkillUpCandidate[]
 ---@field buffs? table<integer, true> Recipes whose product is a buff this character's level can use: they win a tie.
+---@field held? table<integer, integer> What the bags and bank hold of every reagent those recipes could use.
 
 ---@class SkillUpSegment
 ---@field recipeID integer
@@ -422,6 +432,7 @@ SkillUpForeverDB = nil
 ---@field color string The recipe's colour where the craft starts.
 ---@field station? string Where the client says the recipe is made.
 ---@field subcrafts SkillUpSubCraft[] The recipes that make its reagents, deepest first.
+---@field held? boolean Whether the step uses materials the bags or bank already hold.
 
 ---@class SkillUpPlanTraining
 ---@field recipeID integer

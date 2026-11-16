@@ -510,6 +510,7 @@ L["Which addon prices auction values when both are installed. The chosen addon's
 
 L["Skill %d to %d, %s"] = "技能%d至%d，%s" -- mt
 L["Skill %d to %d, %s, at %s"] = "技能%d至%d，%s，地點：%s" -- mt
+L["%s, uses materials you have"] = "%s，使用你已有的材料" -- mt
 L["Unlearned recipe order"] = "未學配方排序" -- mt
 L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
 	"尚未學會的配方的排序方式。已學配方保留所選的排序方式。" -- mt

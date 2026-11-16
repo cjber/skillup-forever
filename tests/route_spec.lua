@@ -1388,6 +1388,22 @@ equal(BandRow(5).current, false, "and later crafts are not the current step")
 equal(BandRow(5).text, "Craft 5× Spell 3276", "the next craft follows training with its own count")
 equal(BandRow(5).detail, "Skill 75 to 80, price unknown, at Anvil", "a later craft keeps its station on the subline")
 
+-- #744: a craft step drawn from materials the bags already hold says so on its subline.
+firstCraft.held = true
+local heldStart = #lists[1].rows
+routeTab:Click()
+Drain()
+equal(
+	lists[1].rows[heldStart + 2].detail,
+	"Skill 70 to 75, 20, uses materials you have",
+	"a step using held materials says so in the game's own phrase"
+)
+firstCraft.held = nil
+local boughtStart = #lists[1].rows
+routeTab:Click()
+Drain()
+equal(lists[1].rows[boughtStart + 2].detail, "Skill 70 to 75, 20", "and says nothing when it buys its reagents")
+
 -- The page names the latest auction source and flags old prices.
 page.Price = function()
 	return { copper = 10, source = "auctionator" }

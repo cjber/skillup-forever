@@ -404,11 +404,13 @@ local MAX_SUB_DEPTH = 3
 local obtainCost = {}
 ---@type table<integer, {recipeID: integer, quantity: number}|false>
 local subCraft = {}
+---@type table<integer, number|false>
+local heldCost = {}
 ---@type table<integer, integer[]>?
 local craftMakers
 
 local function ResetCraftCosts()
-	obtainCost, subCraft = {}, {}
+	obtainCost, subCraft, heldCost = {}, {}, {}
 end
 
 -- An item no recipe makes shares this one empty list: MakersOf runs for every priced item, and callers only read it.
@@ -548,6 +550,30 @@ function ns.SubCraft(itemID)
 	ObtainCost(itemID, MAX_SUB_DEPTH)
 	local maker = subCraft[itemID]
 	return maker or nil
+end
+
+-- What using one held unit of `itemID` gives up: the lesser of selling it (SaleValue: auction after the cut,
+-- with the vendor's price as the floor) and obtaining another (ObtainCost). Selling and buying back never costs
+-- more than replacing it, so a held copy is never worth more than its ordinary acquisition cost. A sale value
+-- known to be zero makes the copy free to use; an unknown sale value falls back to ObtainCost, so unknown is
+-- never free. Nil when neither is known.
+---@param itemID integer
+---@return number?
+function ns.HeldCost(itemID)
+	local cached = heldCost[itemID]
+	if cached == nil then
+		local obtain = ObtainCost(itemID, MAX_SUB_DEPTH)
+		local sale = SaleValue(itemID)
+		if sale == nil then
+			cached = obtain or false
+		elseif obtain == nil then
+			cached = sale
+		else
+			cached = math.min(sale, obtain)
+		end
+		heldCost[itemID] = cached
+	end
+	return cached or nil
 end
 
 -- Copper for one craft's reagents, or nil when any has no known price: a partial sum would rank a

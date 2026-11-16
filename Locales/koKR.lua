@@ -528,6 +528,7 @@ L["Which addon prices auction values when both are installed. The chosen addon's
 
 L["Skill %d to %d, %s"] = "숙련도 %d~%d, %s" -- mt
 L["Skill %d to %d, %s, at %s"] = "숙련도 %d~%d, %s, %s에서" -- mt
+L["%s, uses materials you have"] = "%s, 보유한 재료를 사용합니다" -- mt
 L["Unlearned recipe order"] = "배우지 않은 제조법 정렬" -- mt
 L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
 	"아직 배우지 않은 제조법의 정렬 방식입니다. 배운 제조법은 선택한 정렬 방식을 유지합니다." -- mt

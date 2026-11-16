@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Routes prefer the materials your bags already hold.** A recipe you can craft from what you carry is priced at what using those copies gives up, not at the price of buying new ones, so the route can choose it over a cheaper market recipe and says when a step uses your materials. Thanks to Belth on CurseForge for the idea (#744).
+
 ## [1.11.0] - 2026-11-16
 
 <!-- discord-image: docs/screenshots/route.png -->

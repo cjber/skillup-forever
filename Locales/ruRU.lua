@@ -549,6 +549,7 @@ L["Which addon prices auction values when both are installed. The chosen addon's
 
 L["Skill %d to %d, %s"] = "Навык с %d до %d, %s" -- mt
 L["Skill %d to %d, %s, at %s"] = "Навык с %d до %d, %s, у: %s" -- mt
+L["%s, uses materials you have"] = "%s, использует материалы, которые у вас есть" -- mt
 L["Unlearned recipe order"] = "Порядок неизученных рецептов" -- mt
 L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
 	"Порядок рецептов, которые вы ещё не изучили. Изученные рецепты сохраняют выбранный порядок." -- mt

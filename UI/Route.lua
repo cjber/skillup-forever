@@ -575,12 +575,16 @@ local function RenderRoute(list, plan)
 		elseif craft then
 			local money = Money(ns.StepCost(craft.recipeID, craft.crafts))
 			local current = craft == currentCraft
+			local detail = craft.station
+					and string.format(L["Skill %d to %d, %s, at %s"], craft.from, craft.to, money, craft.station)
+				or string.format(L["Skill %d to %d, %s"], craft.from, craft.to, money)
+			if craft.held then
+				detail = string.format(L["%s, uses materials you have"], detail)
+			end
 			list:Add({
 				icon = RecipeIcon(craft.recipeID),
 				text = string.format(L["Craft %d× %s"], craft.crafts, RecipeName(craft.recipeID)),
-				detail = craft.station
-						and string.format(L["Skill %d to %d, %s, at %s"], craft.from, craft.to, money, craft.station)
-					or string.format(L["Skill %d to %d, %s"], craft.from, craft.to, money),
+				detail = detail,
 				color = ns.COLORS[craft.color],
 				current = current,
 				tooltip = function(tooltip)

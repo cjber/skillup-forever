@@ -43,6 +43,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| Belth | Routes prefer materials already in the bags | CurseForge; #744 |
 | yavinn | SkillUp pages stay visible with ClassicUI Forever | CurseForge; thread 8722440; #734 |
 | [rissole](https://github.com/rissole) | Public recipe data and account-wide learned-recipe API | GitHub; #724 |
 | davef1n | Separate unlearned recipe order and regional sales volume | CurseForge; thread 8715846; #720; #721 |

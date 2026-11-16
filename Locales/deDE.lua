@@ -515,6 +515,7 @@ L["Which addon prices auction values when both are installed. The chosen addon's
 
 L["Skill %d to %d, %s"] = "Fertigkeit %d bis %d, %s" -- mt
 L["Skill %d to %d, %s, at %s"] = "Fertigkeit %d bis %d, %s, an: %s" -- mt
+L["%s, uses materials you have"] = "%s, verwendet Materialien aus euren Taschen" -- mt
 L["Unlearned recipe order"] = "Reihenfolge ungelernter Rezepte" -- mt
 L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
 	"Legt die Reihenfolge noch nicht erlernter Rezepte fest. Erlernte Rezepte behalten die gewählte Rezeptreihenfolge." -- mt

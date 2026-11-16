@@ -394,7 +394,13 @@ end
 local function Planner(snapshot)
 	local from, target = snapshot.skill, snapshot.target
 	local buffs = snapshot.buffs or {}
-	local priced, thresholds, costOf, reagentOf = {}, {}, {}, {}
+	local held = snapshot.held or {}
+	local base, pooled = {}, {}
+	local byID = {}
+	-- [recipe] = true when any of its reagents is one the bags or bank hold: only those are re-priced from
+	-- the pool; the rest keep the list's static ranking, which a pool can only improve on (to lower a cost).
+	local pooledOf = {}
+	local thresholds, costOf, reagentOf = {}, {}, {}
 	local excluded = { unpriced = 0, recipes = {} }
 	-- [recipe][skill]: its rank there, the key false where it gains nothing.
 	local keys, chances = {}, {}
@@ -432,7 +438,7 @@ local function Planner(snapshot)
 		if best == nil then
 			local bestKey, bestChance
 			best = false
-			for _, recipe in ipairs(priced) do
+			for _, recipe in ipairs(base) do
 				local key, chance = RankAt(recipe, skill)
 				if Beats(recipe, key, chance, best, bestKey, bestChance, buffs) then
 					best, bestKey, bestChance = recipe, key, chance
@@ -460,6 +466,101 @@ local function Planner(snapshot)
 		return byUps[ups]
 	end
 
+	-- Whether a held copy could stand in for one of a recipe's reagents, so its cost has to be worked out from
+	-- the pool at this skill rather than taken from the list's static ranking.
+	---@param recipe SkillUpCandidate
+	---@return boolean
+	local function IsPooled(recipe)
+		local pooledRecipe = pooledOf[recipe]
+		if pooledRecipe == nil then
+			pooledRecipe = false
+			for _, reagent in ipairs(recipe.reagents or {}) do
+				if (held[reagent.itemID] or 0) > 0 then
+					pooledRecipe = true
+					break
+				end
+			end
+			pooledOf[recipe] = pooledRecipe
+		end
+		return pooledRecipe
+	end
+
+	-- What `crafts` crafts' reagents cost: held copies at what using them gives up, the rest at the buy price.
+	-- Nil when a unit it still needs has no price, as Rank's own cost is.
+	---@param recipe SkillUpCandidate
+	---@param crafts number
+	---@param pool table<integer, number>
+	---@return number?
+	local function PoolReagentCost(recipe, crafts, pool)
+		local total = 0
+		for _, reagent in ipairs(recipe.reagents or {}) do
+			local need = reagent.quantity * crafts
+			local have = pool[reagent.itemID] or 0
+			local copies = math.min(have, need)
+			if copies > 0 then
+				if not reagent.held then
+					return nil
+				end
+				total = total + copies * reagent.held
+			end
+			local short = need - copies
+			if short > 0 then
+				if not reagent.buy then
+					return nil
+				end
+				total = total + short * reagent.buy
+			end
+		end
+		return total
+	end
+
+	-- A recipe's rank at `skill` from the pool: Model.RouteStepCost's own money, with the reagents it takes
+	-- there priced from what is left in the bags and bank. The crafts and the points they are divided by are
+	-- Rank's own, so a pooled recipe is keyed on the same basis as every static one it is compared against.
+	---@param recipe SkillUpCandidate
+	---@param skill number
+	---@param pool table<integer, number>
+	---@return number?
+	---@return number?
+	local function PoolRank(recipe, skill, pool)
+		local ups = math.max(recipe.skillUps or 1, 1)
+		local chance = Model.Chance(recipe.thresholds, skill)
+		if not chance or chance <= 0 then
+			return nil, chance
+		end
+		local crafts = Covered(recipe.thresholds, skill, skill + ups, ups)
+		local batch = PoolReagentCost(recipe, crafts, pool)
+		if not batch then
+			return nil, chance
+		end
+		-- RouteStepCost takes one craft's money and multiplies it by the crafts, so the batch is divided back.
+		local each = crafts > 0 and batch / crafts or 0
+		local netCost = each - (recipe.value or 0)
+		local cost = Model.RouteStepCost(netCost, each, crafts, Model.CRAFT_TIME_COST)
+		return (cost or 0) / ups, chance
+	end
+
+	-- A fresh copy of what the bags and bank hold, for one walk to take reagents out of.
+	---@return table<integer, number>
+	local function CopyHeld()
+		local pool = {}
+		for itemID, count in pairs(held) do
+			pool[itemID] = count
+		end
+		return pool
+	end
+
+	-- Takes the reagents of `crafts` crafts out of the pool, so a later step never counts the same copy twice.
+	---@param recipe SkillUpCandidate
+	---@param crafts number
+	---@param pool table<integer, number>
+	local function TakePool(recipe, crafts, pool)
+		for _, reagent in ipairs(recipe.reagents or {}) do
+			local need = reagent.quantity * crafts
+			pool[reagent.itemID] = math.max((pool[reagent.itemID] or 0) - need, 0)
+		end
+	end
+
 	-- A recipe joins the end of the list.
 	---@param recipe SkillUpCandidate
 	local function Add(recipe)
@@ -471,10 +572,15 @@ local function Planner(snapshot)
 			end
 			return
 		end
-		priced[#priced + 1] = recipe
+		byID[recipe.recipeID] = recipe
 		thresholds[recipe.recipeID] = recipe.thresholds
 		costOf[recipe.recipeID] = recipe.netCost
 		reagentOf[recipe.recipeID] = recipe.reagentCost
+		if IsPooled(recipe) then
+			pooled[#pooled + 1] = recipe
+			return
+		end
+		base[#base + 1] = recipe
 		for skill, best in pairs(bests) do
 			local key, chance = RankAt(recipe, skill)
 			if Beats(recipe, key, chance, best, bestKeys[skill], bestChances[skill], buffs) then
@@ -494,12 +600,29 @@ local function Planner(snapshot)
 		end
 		local route = { segments = {}, expectedCost = 0, reachedSkill = from, excluded = excluded }
 		local picked = {}
+		-- A copy of what the bags and bank hold when the route starts: every craft takes its reagents out, so
+		-- a later step sees only what is left. Each call starts from the same pool, so a training search's
+		-- re-plans are all weighed against today's bags.
+		local pool = CopyHeld()
 		while route.reachedSkill < target do
 			local skill = route.reachedSkill
 			picked[#picked + 1] = skill
+			-- Recipes with no held reagent keep the list's static ranking; the others are priced from the pool
+			-- at this skill, which can only change which of them wins here.
 			local best, bestKey, bestChance = BestAt(skill)
+			for _, recipe in ipairs(pooled) do
+				local key, chance = PoolRank(recipe, skill, pool)
+				if Beats(recipe, key, chance, best, bestKey, bestChance, buffs) then
+					best, bestKey, bestChance = recipe, key, chance
+				end
+			end
 			if extra then
-				local key, chance = RankAt(extra, skill)
+				local key, chance
+				if IsPooled(extra) then
+					key, chance = PoolRank(extra, skill, pool)
+				else
+					key, chance = RankAt(extra, skill)
+				end
 				if Beats(extra, key, chance, best, bestKey, bestChance, buffs) then
 					best = extra
 				end
@@ -520,16 +643,34 @@ local function Planner(snapshot)
 			end
 			segment.toSkill = skill + gain
 			route.reachedSkill = skill + gain
+			if IsPooled(best) then
+				local ups = math.max(best.skillUps or 1, 1)
+				TakePool(best, Covered(best.thresholds, skill, skill + gain, ups), pool)
+			end
 		end
 		-- Each step carries the crafts and cost that reach its target in nine runs of ten, from the last
-		-- recipe in the list with its ID.
+		-- recipe in the list with its ID. Money comes from a fresh copy of the pool too: a step pays held
+		-- copies what using them gives up and only the shortfall at the buy price, and takes its crafts' reagents
+		-- out so the next step is priced from what is left.
+		local money = CopyHeld()
 		for _, segment in ipairs(route.segments) do
 			local recipeID = segment.recipeID
 			local t, cost, reagentCost = thresholds[recipeID], costOf[recipeID], reagentOf[recipeID]
+			local candidate = byID[recipeID]
 			if extra and extra.recipeID == recipeID then
-				t, cost, reagentCost = extra.thresholds, extra.netCost, extra.reagentCost
+				t, cost, reagentCost, candidate = extra.thresholds, extra.netCost, extra.reagentCost, extra
 			end
 			segment.crafts = Covered(t, segment.fromSkill, segment.toSkill, segment.skillUps)
+			if candidate and IsPooled(candidate) then
+				local pooledCost = PoolReagentCost(candidate, segment.crafts, money)
+				if pooledCost then
+					-- RouteStepCost multiplies one craft's money by the crafts, so the batch is divided back.
+					local each = segment.crafts > 0 and pooledCost / segment.crafts or 0
+					reagentCost = each
+					cost = each - (candidate.value or 0)
+				end
+				TakePool(candidate, segment.crafts, money)
+			end
 			route.expectedCost = route.expectedCost
 				+ (Model.RouteStepCost(cost, reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
 		end
@@ -538,14 +679,15 @@ local function Planner(snapshot)
 
 	-- Whether `extra` on the end of the list changes the route the list takes, which picked at the skills in
 	-- `picked`: only by going first at one of them, or by an ID the list already has, whose crafts are then
-	-- counted from it. A recipe with no price is never picked.
+	-- counted from it. A recipe with no price is never picked. One the pool can price is always worth a re-plan:
+	-- its own ranking at a skill is then worked out from what the bags and bank still hold.
 	---@param extra SkillUpCandidate
 	---@param picked number[]
 	---@return boolean
 	local function Changes(extra, picked)
 		if extra.netCost == nil then
 			return false
-		elseif costOf[extra.recipeID] ~= nil then
+		elseif IsPooled(extra) or costOf[extra.recipeID] ~= nil then
 			return true
 		end
 		for _, skill in ipairs(picked) do
@@ -565,7 +707,8 @@ local function Planner(snapshot)
 end
 
 -- Inputs are already filtered to learned recipes of one profession, with prices
--- frozen by the caller. Inventory affects shopping, never recipe selection.
+-- frozen by the caller. The bags and bank choose too: a held reagent is priced at what using it gives up,
+-- so a recipe the player can make from what they hold can win over a cheaper market one.
 ---@param snapshot SkillUpSnapshot
 ---@return SkillUpRoute
 function Model.PlanRoute(snapshot)

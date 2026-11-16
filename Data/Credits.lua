@@ -4,6 +4,13 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "yavinn", what = "SkillUp pages stay visible with ClassicUI Forever" },
+		{ name = "rissole", what = "Public recipe data and account-wide learned-recipe API" },
+		{ name = "davef1n", what = "Separate unlearned recipe order and regional sales volume" },
+		{ name = "codipherus", what = "Craft quantities lead each route step" },
+		{ name = "sundered1985", what = "Vendor and auction profit on the recipe tooltip" },
+		{ name = "jugg__", what = "Vendor and auction profit on recipe and pattern tooltips" },
+		{ name = "keerp", what = "Choose Auctionator or TradeSkillMaster for prices" },
 		{ name = "yusufdanis", what = "Each Used in tooltip line names its recipe's profession (code)" },
 		{ name = "Diamondclaw", what = "The recipe skill band clears the icon and the Reagents header" },
 		{ name = "mimmordino", what = "The recipe skill band clears the icon and the Reagents header" },
@@ -61,7 +68,7 @@ ns.Credits = {
 		{ name = "Rawveggie", what = "Campfire and plan-use actions no longer blocked" },
 		{ name = "sundered1985", what = "Campfire and plan-use actions no longer blocked" },
 		{ name = "hardliquor", what = "Tracker no longer flashes on item hover" },
-		{ name = "cotijelucie", what = "Newest recipes first" },
+		{ name = "cotijelucie", what = "Newest recipes, grouped controls and independent tooltip details" },
 		{ name = "cotijelucie", what = "Skill ranges start where learned" },
 		{ name = "CodexFD", what = "Professions window keeps one width" },
 		{ name = "rockhumper84", what = "TradeSkillMaster as a price source" },
@@ -83,6 +90,8 @@ ns.Credits = {
 		{ name = "achubbert", what = "Wider recipe list with craftable counts" },
 		{ name = "jackthereaper_", what = "Addon loads without a separate ForeverCore install" },
 		{ name = "qwertzyxc", what = "Professions overview back to its own width" },
+		{ name = "Da_Tronic", what = "Movable minimap button when ATT shares its position" },
+		{ name = "shenhyrosame", what = "Minimap button discoverability and profession-window access" },
 	},
 	inspired = {
 		{ name = "Polestar by Fitz", what = "Ideas for many features" },

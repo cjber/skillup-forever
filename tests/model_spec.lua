@@ -20,6 +20,12 @@ end
 equal(Model.Get(2152), nil, "lookup before data loads")
 equal(Model.Color(nil, 48), nil, "unknown color")
 equal(Model.Chance(nil, 48), nil, "unknown chance")
+local revision = Model.ChanceRevision()
+equal(Model.SetChanceBonus(0), false, "unchanged chance bonus does not invalidate snapshots")
+equal(Model.ChanceRevision(), revision, "unchanged chance bonus keeps its revision")
+equal(Model.SetChanceBonus(1), true, "changed chance bonus invalidates snapshots")
+equal(Model.ChanceRevision(), revision + 1, "changed chance bonus advances its revision")
+Model.SetChanceBonus(0)
 
 ns.Thresholds = { [2674] = { 125, 100, 107, 115 } }
 equal(Model.Get(2674), nil, "contradictory bundled thresholds are unknown")

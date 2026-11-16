@@ -414,8 +414,9 @@ end
 -- Core/Changes.lua's frame is the only one made while the files load: the game's events arrive on it.
 local eventFrame
 pageEnv.CreateFrame = function()
-	eventFrame = Stub()
-	return eventFrame
+	local frame = Stub()
+	eventFrame = eventFrame or frame
+	return frame
 end
 page.core = {
 	SafeCall = function(_, fn, ...)
@@ -430,6 +431,7 @@ for _, file in ipairs({
 	"Core/Model.lua",
 	"Core/Changes.lua",
 	"Core/Plan.lua",
+	"Core/RouteDemand.lua",
 	"Core/Gear.lua",
 	"UI/PageParts.lua",
 	"UI/Route.lua",
@@ -843,6 +845,14 @@ vendor:Click()
 equal(page.travel, true, "the vendor is ranked by the travel integration")
 equal(candidates[1], 555, "the nearest vendor of the missing reagent")
 equal(waypointed, 555, "and clicking sets the waypoint to that vendor")
+
+local knownVendor = page.NearestVendor
+page.NearestVendor = function() end
+routeTab:Click()
+equal(vendor.shown, true, "an ordinary vendor lookup may still be queued when the button is shown")
+page.NearestVendor = knownVendor
+vendor:Click()
+equal(waypointed, 555, "clicking resolves an ordinary vendor after the catalogue becomes ready")
 
 page.Reagents = function()
 	return { { itemID = 1, quantity = 1 } }
@@ -1336,7 +1346,7 @@ page.pinned = nil
 local apprentice = { name = "Apprentice", from = 0, cap = 75 }
 local journeyman = { name = "Journeyman", from = 75, cap = 150 }
 local firstCraft = { recipeID = 3275, crafts = 2, from = 70, to = 75, color = "yellow" }
-local secondCraft = { recipeID = 3276, crafts = 2, from = 75, to = 80, color = "green" }
+local secondCraft = { recipeID = 3276, crafts = 5, from = 75, to = 80, color = "green", station = "Anvil" }
 local trainRank = { name = "Journeyman", cap = 150, reqSkill = 75, fee = 500, level = 0 }
 page.PlanRoute = function(profession)
 	return {
@@ -1367,12 +1377,16 @@ equal(BandRow(1).name, "Apprentice", "named at its cap")
 equal(BandRow(1).cap, 75, "with the cap it ends at")
 equal(BandRow(1).skill, 1, "and the current base skill for its progress")
 equal(BandRow(2).kind, "row", "the band holds its craft rows")
+equal(BandRow(2).text, "Craft 2× Spell 3275", "the first craft names its count on the primary line")
+equal(BandRow(2).detail, "Skill 70 to 75, 20", "the subline keeps skill and cost without repeating the count")
 equal(BandRow(2).current, true, "with the next craft marked as the current step")
 equal(BandRow(2).color, "yellow", "and keeps its own difficulty colour rather than a gold name")
 equal(BandRow(3).kind, "band", "the next band opens before the rank that trains it")
 equal(BandRow(3).name, "Journeyman", "named for that rank")
 equal(BandRow(4).kind, "line", "which is one compact line")
 equal(BandRow(5).current, false, "and later crafts are not the current step")
+equal(BandRow(5).text, "Craft 5× Spell 3276", "the next craft follows training with its own count")
+equal(BandRow(5).detail, "Skill 75 to 80, price unknown, at Anvil", "a later craft keeps its station on the subline")
 
 -- The page names the latest auction source and flags old prices.
 page.Price = function()
@@ -1446,21 +1460,26 @@ local function BookPage()
 	routeTab:Click()
 	Drain()
 	tooltipLines = {}
-	return lists[1].rows[rows + 1], lists[1].messages[said + 1]
+	local messages = {}
+	for i = said + 1, #lists[1].messages do
+		messages[#messages + 1] = lists[1].messages[i]
+	end
+	return lists[1].rows[rows + 1], table.concat(messages, "\n")
 end
 local bookRow, messages = BookPage()
 equal(bookRow.kind, "line", "a train or buy step is one gold line")
 equal(bookRow.text, "Buy and read Expert First Aid - Under Wraps at 125", "a book not yet bought is bought and read")
 equal(bookRow.click ~= nil, true, "and a click goes to its vendor")
 equal(bookRow.detail, "10000", "with its price on the right")
-equal(messages, nil, "and no Total line sits under the route")
+local estimateNote = "Craft counts and shopping quantities are estimates. You may need more reagents."
+equal(messages, estimateNote, "only the estimate note sits under the route, with no Total line")
 bookRow.tooltip(Stub())
 equal(nearestShown, 1, "its tooltip names the nearest vendor")
 heldBook = 1
 bookRow, messages = BookPage()
 equal(bookRow.text, "Read Expert First Aid - Under Wraps at 125", "a book in the bags is only read")
 equal(bookRow.detail, "You have it", "with no price on the line")
-equal(messages, nil, "and still no Total line sits under the route")
+equal(messages, estimateNote, "still only the estimate note sits under the route, with no Total line")
 bookRow.tooltip(Stub())
 equal(tooltipLines[#tooltipLines], "You have this book: read it.", "its tooltip says you have it")
 equal(nearestShown, 1, "and names no vendor")

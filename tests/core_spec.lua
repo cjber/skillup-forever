@@ -5,13 +5,19 @@ local TOC = Client.TocMetadata()
 
 -- The host globals Core/Core.lua loads against: chat lines go to `messages`, load callbacks to `callbacks`.
 local function Env(messages, callbacks)
-	return setmetatable({
+	local env
+	env = setmetatable({
 		C_AddOns = {
 			GetAddOnMetadata = function(_, field)
 				return TOC[field]
 			end,
 		},
 		CreateColor = function() end,
+		Minimap = {
+			GetWidth = function()
+				return 140
+			end,
+		},
 		Enum = { TradeskillRelativeDifficulty = { Optimal = 1, Medium = 2, Easy = 3, Trivial = 4 } },
 		CreateFrame = function()
 			return { RegisterEvent = function() end, SetScript = function() end }
@@ -49,8 +55,24 @@ local function Env(messages, callbacks)
 					title = spec.title,
 				}
 			end,
+			MinimapButton = {
+				Create = function(spec)
+					env.minimapSpec = spec
+					return {}
+				end,
+			},
+		},
+		SkillUpForever = {
+			API = {
+				OpenRecipes = function(skillLine)
+					env.openedSkillLine = skillLine
+					return true
+				end,
+			},
 		},
 	}, { __index = _G })
+	env._G = env
+	return env
 end
 
 -- An update followed by /reload can leave newly added files unloaded.
@@ -103,6 +125,32 @@ for _, complete in ipairs({ false, true }) do
 	callbacks.SkillUpForever()
 	if complete then
 		equal(#messages, 0, "complete install needs no warning")
+		equal(env.minimapSpec.name, "SkillUpForeverMinimapButton", "SkillUp registers a movable minimap button")
+		equal(env.minimapSpec.settings, env.SkillUpForeverDB, "minimap position is saved in SkillUp settings")
+		ns.SkillContext = function()
+			return { skillLine = 171 }
+		end
+		env.minimapSpec.onClick()
+		equal(env.openedSkillLine, 171, "minimap click uses the public profession opener before the frame loads")
+		ns.SkillContext = nil
+		ns.RouteProfessions = function()
+			return { [171] = {}, [185] = {} }
+		end
+		env.openedSkillLine = nil
+		env.minimapSpec.onClick()
+		equal(env.openedSkillLine, 171, "minimap fallback chooses the lowest profession ID")
+		ns.RouteProfessions = function()
+			return {}
+		end
+		ns.Print = function(message)
+			env.lastPrint = message
+		end
+		env.minimapSpec.onClick()
+		equal(
+			env.lastPrint,
+			"Learn a crafting profession to plan a route.",
+			"minimap click explains when no profession is available"
+		)
 		equal(initialized, 5, "complete install initializes")
 		equal(callbacks.Blizzard_Professions, ns.AttachRecipeList, "profession UI registered")
 		equal(callbacks.Blizzard_TrainerUI, ns.AttachTrainer, "trainer UI registered")
@@ -232,15 +280,28 @@ do
 	callbacks.SkillUpForever()
 	equal(ns.db.suggestFamily, true, "a family setting already saved wins")
 	-- A saved choice the menu doesn't offer goes back to its default; a valid one stays.
-	env.SkillUpForeverDB =
-		{ craftValue = "auctoin", sortMode = "coost", reagentTooltip = "typo", recipeTooltip = "nowhere" }
+	env.SkillUpForeverDB = {
+		priceSource = "tsn",
+		craftValue = "auctoin",
+		sortMode = "coost",
+		reagentTooltip = "typo",
+		recipeTooltip = "nowhere",
+	}
 	callbacks.SkillUpForever()
+	equal(ns.db.priceSource, "auctionator", "an unknown auction price source resets")
 	equal(ns.db.craftValue, "vendor", "an unknown craft value resets")
 	equal(ns.db.sortMode, "blizzard", "an unknown sort resets")
 	equal(ns.db.reagentTooltip, "route", "an unknown reagent tooltip mode resets")
 	equal(ns.db.recipeTooltip, "window", "an unknown recipe tooltip position resets to beside the window")
-	env.SkillUpForeverDB = { craftValue = "auction", sortMode = "cost", reagentTooltip = "full", recipeTooltip = "row" }
+	env.SkillUpForeverDB = {
+		priceSource = "tsm",
+		craftValue = "auction",
+		sortMode = "cost",
+		reagentTooltip = "full",
+		recipeTooltip = "row",
+	}
 	callbacks.SkillUpForever()
+	equal(ns.db.priceSource, "tsm", "a valid auction price source stays")
 	equal(ns.db.craftValue, "auction", "a valid craft value stays")
 	equal(ns.db.sortMode, "cost", "a valid sort stays")
 	equal(ns.db.reagentTooltip, "full", "a valid reagent tooltip mode stays")

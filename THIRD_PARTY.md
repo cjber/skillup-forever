@@ -43,6 +43,13 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| yavinn | SkillUp pages stay visible with ClassicUI Forever | CurseForge; thread 8722440; #734 |
+| [rissole](https://github.com/rissole) | Public recipe data and account-wide learned-recipe API | GitHub; #724 |
+| davef1n | Separate unlearned recipe order and regional sales volume | CurseForge; thread 8715846; #720; #721 |
+| codipherus | Craft quantities lead each route step | CurseForge; thread 8702620; #684 |
+| sundered1985 | Vendor and auction profit on the recipe tooltip | CurseForge; #678; thread 8701206 |
+| jugg__ | Vendor and auction profit on recipe and pattern tooltips | Discord; #678, #726 |
+| keerp | Choose Auctionator or TradeSkillMaster for prices | CurseForge; #675; thread 8700437 |
 | [yusufdanis](https://github.com/yusufdanis) | Each Used in tooltip line names its recipe's profession (code) | GitHub; PR #670 |
 | Diamondclaw | The recipe skill band clears the icon and the Reagents header | CurseForge; #674; thread 8700469 |
 | [mimmordino](https://github.com/mimmordino) | The recipe skill band clears the icon and the Reagents header | GitHub; #685; also CurseForge thread 8702929 |
@@ -100,7 +107,7 @@ Credit for the reports and requests behind the addon.
 | Rawveggie | Campfire and plan-use actions no longer blocked | GitHub; #489 |
 | sundered1985 | Campfire and plan-use actions no longer blocked | CurseForge; #489 |
 | hardliquor | Tracker no longer flashes on item hover | Discord; #526 |
-| cotijelucie | Newest recipes first | Discord; #486 |
+| cotijelucie | Newest recipes, grouped controls and independent tooltip details | Discord; #486, #725, #736; message 1571545185374970028 |
 | cotijelucie | Skill ranges start where learned | Discord; #519 |
 | CodexFD | Professions window keeps one width | CurseForge; #505 |
 | rockhumper84 | TradeSkillMaster as a price source | CurseForge; #488 |
@@ -122,6 +129,8 @@ Credit for the reports and requests behind the addon.
 | achubbert | Wider recipe list with craftable counts | CurseForge; #343 |
 | jackthereaper\_ | Addon loads without a separate ForeverCore install | CurseForge; 1.4.0 |
 | qwertzyxc | Professions overview back to its own width | Discord; #636 |
+| Da_Tronic | Movable minimap button when ATT shares its position | CurseForge; threads 8710025, 8712306 |
+| shenhyrosame | Minimap button discoverability and profession-window access | CurseForge; threads 8715494, 8715499 |
 
 ## Inspired by
 

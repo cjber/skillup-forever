@@ -1,23 +1,27 @@
 {
-  "input_digest": "87a20ae688f8387d78c2ce7b9fb6296f9221e395b72eedf44d51806b2ccf3c90",
-  "runtime_sha256": "87a20ae688f8387d78c2ce7b9fb6296f9221e395b72eedf44d51806b2ccf3c90",
-  "candidate": "c0fb814e1beaf63d4bb504effd2f11a7b2ede13ec9fd682c5e7eb38e0ed662b9",
+  "input_digest": "1976f4235b6e28489d215ddd760da7837e431bfef2992b28cd4afc18954fbd45",
+  "runtime_sha256": "1976f4235b6e28489d215ddd760da7837e431bfef2992b28cd4afc18954fbd45",
+  "candidate": "fa18698882c3b4bb9e60544a3b85a9625bd013c93ad7618b5bf8697d52de7eb2",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "7b9660097836ce9cbdcc9a25e215f68e03a1cd06",
+  "source_commit": "250826d2e17f788b785d1ed222cd468cbf35ed14",
   "flows": [
     {
-      "name": "used in tooltips",
+      "name": "supply page",
       "steps": [
-        "su747-usedin.lua sha256:e18f039d38f5ae818f90a00c647d0a48dee2edabc238e957cac59af74a4f6e92"
+        "su-supply.lua sha256:7072904d20b40f566cebb057da3a1ee7070bac3862efa71f56d018380b0de587"
+      ],
+      "click": [
+        960,
+        402
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/241a8556b20965105b31791b8d61227d/raw/ab97466d281a1ef73f4a0b0f5d23de6398202056/1-used-in-tooltips.png",
-      "sha256": "1032dc1f3627e534d8457fab361c7689e1aa532114bb0404de9cc9fc6e3bf4e8"
+      "url": "https://gist.githubusercontent.com/cjber/dfff021fb368a30846b1e019ee54803c/raw/fbfcf737512ee7095a7429799026a6e800f05c6c/1-supply-page.png",
+      "sha256": "200289507802bbca9ede7be00ee75127be71080c5cdf60040befab5cdd11fe22"
     }
   ]
 }

@@ -4,10 +4,14 @@ if GetLocale() ~= "zhCN" then
 	return
 end
 local L = ns.L
+L["Show SkillUp tooltip details"] = "显示 SkillUp 提示详情"
+L["Show SkillUp profession tabs"] = "显示 SkillUp 专业标签"
+L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
+	"在保留各项提示设置的同时，将 SkillUp 详细信息添加到提示中。"
+L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
+	"在保留各项标签设置的同时，显示路线、装备和增益标签。"
 
 L["%d %s"] = "%d %s"
-L["%d crafts to %d, %s"] = "制造%d次至%d，%s"
-L["%d crafts to %d, %s, at %s"] = "制造%d次至%d，%s，地点：%s"
 L["%d more"] = "还有%d个"
 L["%d of %d"] = "%d/%d"
 L["%d reagents have no price"] = "%d 种材料没有价格"
@@ -259,7 +263,6 @@ L["To buy"] = "待购买"
 L["Tool"] = "工具"
 L["Tooltips and sorting"] = "鼠标提示和排序"
 L["Track"] = "追踪"
-L["Tracked routes (Shift for all)"] = "追踪的路线（Shift显示全部）"
 L["Tracker scale"] = "追踪栏大小"
 L["Train %s"] = "学习%s"
 L["Train %s at %d"] = "学习%s（技能%d）"
@@ -282,8 +285,6 @@ L["Waist"] = "腰部"
 L["Waypoint to a trainer"] = "前往训练师的路径点"
 L["Waypoint to a vendor: %s"] = "前往商人的路径点：%s"
 L["Waypoint to the quest giver: %s"] = "前往任务NPC的路径点：%s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"鼠标悬停物品时显示的专业信息：你追踪的路线需要多少（按住Shift查看所有使用它的配方）、所有此类配方及其颜色，或不显示。"
 L["What's new after an update"] = "更新后的新内容"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
@@ -498,3 +499,142 @@ L["Region sale average"] = "地区平均成交价"
 L["Region sale average if higher"] = "较高时使用地区平均成交价"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"地区平均成交价需要 TradeSkillMaster 及其桌面应用。此价格根据已记录的地区买卖估算价值，且不低于商店售出价。此价格不保证物品能够售出。"
+L["%s (%s)"] = "%s (%s)"
+L["%s profit per craft"] = "每次制造 %s 利润"
+L["%s profit per skill-up"] = "每点技能 %s 利润"
+L["Auction price"] = "拍卖价格"
+L["Auction prices from"] = "拍卖价格来源"
+L["Auctionator"] = "Auctionator"
+L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
+	"两个插件都安装时，由哪个插件为拍卖价值定价。所选插件的价格优先，另一个只补充它没有价格的物品。Auctionator 还会显示价格的记录时间。"
+
+L["Skill %d to %d, %s"] = "技能%d至%d，%s" -- mt
+L["Skill %d to %d, %s, at %s"] = "技能%d至%d，%s，地点：%s" -- mt
+L["Unlearned recipe order"] = "未学配方排序" -- mt
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"尚未学会的配方的排序方式。已学配方保留所选的排序方式。" -- mt
+L["TSM regional sales per day"] = "TSM地区每日销量" -- mt
+L["Average sold per auction house in your region, reported by TSM."] =
+	"TSM报告的所在地区每个拍卖行的平均销量。" -- mt
+
+L["Open %s from your spellbook."] = "从法术书中打开%s。"
+
+L["Recipes on Shift"] = "按住Shift显示配方" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"按住Shift或始终显示配方。关闭后会隐藏材料详情，包括路线需求。" -- mt
+L["Show route needs on item tooltips"] = "在物品提示中显示路线需求" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"显示追踪路线还需要多少此物品。关闭后可保留配方详情，但隐藏路线行。" -- mt
+
+L["Have (bags only)"] = "拥有（仅背包）" -- mt
+
+L["%s%% to %s%%"] = "%s%%至%s%%" -- mt
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"每检测到一级Working Overtime，就将黄色和绿色配方的预计技能提升几率增加未经验证的4个百分点。关闭后，费用和路线将使用基础几率估算。两种估算都不是经过验证的服务器规则。" -- mt
+L["Chance of finishing with later purchases: %s."] = "后续继续购买时的完成几率：%s。" -- mt
+L["Chance of finishing with starting supplies: %s."] = "仅用起始物资的完成几率：%s。" -- mt
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"制作次数和采购数量均为估算。你可能需要更多材料。" -- mt
+L["Craft next follows the estimated route."] = "「制造下一个」会遵循预计路线。" -- mt
+L["Include Working Overtime estimate"] = "计入Working Overtime估算" -- mt
+L["Starting inventory: bags and bank."] = "起始库存：背包和银行。" -- mt
+L["Starting inventory: bags only."] = "起始库存：仅背包。" -- mt
+L["Supply estimate: calculating."] = "物资估算：正在计算。" -- mt
+L["Supply estimate: cancelled."] = "物资估算：已取消。" -- mt
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"物资估算：在这些假设下，不存在费用最低的采购方案。" -- mt
+L["Supply estimate: no starting purchase meets the target."] =
+	"物资估算：没有起始采购方案能达到目标。" -- mt
+L["Supply estimate: not enough information."] = "物资估算：信息不足。" -- mt
+L["Supply estimate: ready."] = "物资估算：已就绪。" -- mt
+L["Target chance of finishing with starting supplies: %s%%."] = "仅用起始物资完成的目标几率：%s%%。" -- mt
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"这些几率以所列技能提升几率、价格、供货情况以及后续采购物资送达为前提。" -- mt
+L["unknown"] = "未知" -- mt
+
+L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
+	"自适应指引会打开推荐配方。请在专业技能窗口中选择制作数量。" -- mt
+
+L["currency %d"] = "货币 %d" -- mt
+L["an unknown payment"] = "一项未知支付" -- mt
+L["Name the stock each offer draws on, or give this offer its own stock."] =
+	"请命名每项报价所用的库存，或让它使用自己的库存。" -- mt
+L["The merchant shows no limit: limit the search to the number you will buy."] =
+	"商人没有显示上限：请将搜索限制在你要购买的数量。" -- mt
+L["The stock you assume does not match what the merchant shows."] = "你假设的库存与商人显示的不符。" -- mt
+L["Enter a starting chance between 1 and 100."] = "请输入 1 到 100 之间的起始几率。" -- mt
+L["The merchant sells none of this route's reagents."] = "商人不出售此路线的任何材料。" -- mt
+L["The merchant's offer for %s is incomplete."] = "%s 的商人报价不完整。" -- mt
+L["Every offer needs its price to stay as shown."] = "每项报价都需要价格保持显示的样子。" -- mt
+L["Fill in every value this offer needs."] = "请填写这项报价所需的每个数值。" -- mt
+L["The merchant sells fewer purchases at a time than that."] = "商人一次出售的购买次数少于此数。" -- mt
+L["Offers that draw on one stock pool need the same stock."] = "共用同一库存的报价需要相同的库存。" -- mt
+L["Offers at one vendor need the same trip costs and values."] =
+	"同一商人的报价需要相同的行程费用和价值。" -- mt
+L["Enter the chance each later purchase arrives, from 0 to 100."] =
+	"请输入之后每次购买到达的几率，0 到 100。" -- mt
+L["Check that the first purchase arrives for certain at every offer."] =
+	"请为每项报价确认第一次购买一定到达。" -- mt
+L["One item or payment needs one leftover value."] = "一件物品或一项支付需要一个剩余价值。" -- mt
+L["Offers that use one payment need the same value for it."] =
+	"使用同一支付的报价需要该支付具有相同价值。" -- mt
+L["The merchant changed. Check the form again."] = "商人已更换。请重新检查表单。" -- mt
+L["The merchant did not change, but the assumptions did. Check the form again."] =
+	"商人没有更换，但假设变了。请重新检查表单。" -- mt
+L["The merchant shows this offer sold out."] = "商人显示这项报价已售罄。" -- mt
+L["The merchant does not say how much is left."] = "商人没有说明还剩多少。" -- mt
+L["The merchant will not sell this offer to you now."] = "商人现在不会向你出售这项报价。" -- mt
+L["Choose the unit the stock count is in."] = "请选择库存计数的单位。" -- mt
+L["The assumptions were rejected. Fill in every value and check each offer."] =
+	"假设被拒绝。请填写每个数值并检查每项报价。" -- mt
+L["Open a profession to see its plan and coverage."] = "打开一个专业以查看其计划和覆盖率。" -- mt
+L["Plan: %s, %s to %s, %d crafts."] = "计划：%s，%s 到 %s，%d 次制作。" -- mt
+L["Unpriced crafts: %d."] = "无价格的制作：%d。" -- mt
+L["Your target chance: %s%%."] = "你的目标几率：%s%%。" -- mt
+L["Margin over your target: %s points."] = "高于目标的余量：%s 个百分点。" -- mt
+L["Below your target by %s points."] = "低于目标 %s 个百分点。" -- mt
+L["craft"] = "制作" -- mt
+L["buy"] = "购买" -- mt
+L["stop"] = "停止" -- mt
+L["Next step: %s."] = "下一步：%s。" -- mt
+L["Open a profession to set its supply policy."] = "打开一个专业以设置其补给策略。" -- mt
+L["This profession has no plan to supply yet."] = "这个专业还没有可补给的计划。" -- mt
+L["Open a merchant to set this profession's supply policy."] =
+	"打开一个商人以设置这个专业的补给策略。" -- mt
+L["Ready to apply these assumptions."] = "可以应用这些假设了。" -- mt
+L["no limit"] = "无上限" -- mt
+L["Offer %d: %s"] = "报价 %d：%s" -- mt
+L["The merchant shows %s in stock, %s per purchase, at most %s purchases."] =
+	"商人显示库存 %s，每次购买 %s，最多 %s 次购买。" -- mt
+L["Price: %s."] = "价格：%s。" -- mt
+L["Also costs %s %s."] = "还需 %s %s。" -- mt
+L["I can buy this offer"] = "我可以购买这项报价" -- mt
+L["The price stays as shown"] = "价格保持显示的样子" -- mt
+L["Stock I assume is left"] = "我假设剩余的库存" -- mt
+L["The stock does not run out"] = "库存不会用完" -- mt
+L["The stock count is in items, not purchases"] = "库存按物品计算，而不是按购买次数" -- mt
+L["This offer keeps its own stock"] = "这项报价保留自己的库存" -- mt
+L["Limit the search to the stock I typed"] = "将搜索限制在我输入的库存" -- mt
+L["Stock pool name"] = "库存名称" -- mt
+L["Purchases allowed per visit"] = "每次拜访允许的购买次数" -- mt
+L["First trip cost (copper)"] = "首次行程费用（铜币）" -- mt
+L["Later trip cost (copper)"] = "之后行程费用（铜币）" -- mt
+L["First trip value to you (copper)"] = "首次行程对你的价值（铜币）" -- mt
+L["Later trip value to you (copper)"] = "之后行程对你的价值（铜币）" -- mt
+L["Chance each later purchase arrives (%)"] = "之后每次购买到达的几率（%）" -- mt
+L["The first purchase arrives for certain"] = "第一次购买一定到达" -- mt
+L["I pay even when a purchase does not arrive"] = "购买没有到达时我也付款" -- mt
+L["Leftover value of one %s (copper)"] = "一个 %s 的剩余价值（铜币）" -- mt
+L["Value of one %s (copper)"] = "一个 %s 的价值（铜币）" -- mt
+L["These are your own assumptions. The merchant's window only shows what it shows now."] =
+	"这些是你自己的假设。商人窗口只显示它现在显示的内容。" -- mt
+L["Chance of finishing with starting supplies (%)"] = "用初始库存完成的几率（%）" -- mt
+L["Plan later purchases too"] = "也计划之后的购买" -- mt
+L["Cost of an unfinished route (copper)"] = "未完成路线的成本（铜币）" -- mt
+L["Applied. The plan and its coverage follow these assumptions."] =
+	"已应用。计划和覆盖率遵循这些假设。" -- mt
+L["Supply"] = "补给" -- mt
+
+L["Supply policy"] = "补给策略" -- mt
+L["Open the profession and a merchant window."] = "请打开专业和商人窗口。" -- mt
+L["Apply policy"] = "应用策略" -- mt

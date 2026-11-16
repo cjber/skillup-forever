@@ -38,11 +38,11 @@ local c = Client.load({
 			[LATE] = {
 				skillLine = 129,
 				reagents = { { itemID = LINEN, quantity = 1 } },
-				output = { itemID = BANDAGE_ITEM, quantity = 1 },
+				output = { itemID = BANDAGE_ITEM, quantity = 2 },
 			},
 		},
 		TrainerFees = { [TRAINED] = { 10, 40 }, [LATE] = { 10, 20 } },
-		RecipeScrolls = { [SCROLLED] = { SCROLL_ITEM, 45 } },
+		RecipeScrolls = { [SCROLLED] = { SCROLL_ITEM, 45 }, [LATE] = { SCROLL_ITEM, 45 } },
 		TrainerRanks = { [129] = {} },
 		ItemSellPrices = {},
 		GatheredBy = {},
@@ -171,7 +171,88 @@ for _, pair in ipairs(doubleLines) do
 	end
 end
 equal(saleLine and saleLine:find("Region sale average", 1, true) ~= nil, true, "the output value names regional sales")
+for _, sample in ipairs({ { volume = 12.5, text = "12.50" }, { volume = 0, text = "0.00" }, {} }) do
+	for _, source in ipairs({ "sale", "auction", "vendor" }) do
+		ns.CraftCost = function()
+			return 10, { copper = 95, source = source, quantity = 1, volume = sample.volume }, -85
+		end
+		ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+		local volumeLine
+		for _, pair in ipairs(doubleLines) do
+			if pair[1] == "TSM regional sales per day" then
+				volumeLine = pair[2]
+			end
+		end
+		equal(volumeLine, sample.text, "reported volume is independent of the selected price source")
+		local scope = false
+		for _, line in ipairs(lines) do
+			if line == "Average sold per auction house in your region, reported by TSM." then
+				scope = true
+			end
+		end
+		equal(scope, sample.volume ~= nil, "only a known volume gets its regional scope")
+	end
+end
+
 ns.CraftCost = originalCraftCost
+
+-- Both ways of selling the same craft are compared, and the profit follows the row's per-craft or per-skill-up
+-- choice (#678). The reagent costs 10, the vendor pays 3 and the auction pays 20 before the 5% cut.
+c.auction[BANDAGE_ITEM] = 20
+c.ns.Changed("prices")
+local function SaleValue(label)
+	for _, pair in ipairs(doubleLines) do
+		if pair[1] == label then
+			return pair[2]
+		end
+	end
+end
+ns.db.rowCost = "craft"
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(SaleValue("Vendor sell price"), "3 (|cffff2020-|r7 profit per craft)", "the vendor sale and its per-craft loss")
+equal(
+	SaleValue("Auction price"),
+	"19 (|cff40ff40+|r9 profit per craft)",
+	"the auction sale after the cut and its per-craft profit"
+)
+ns.db.rowCost = "skillup"
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(
+	SaleValue("Vendor sell price"),
+	"3 (|cffff2020-|r7 profit per skill-up)",
+	"the same vendor sale with its per-skill-up loss"
+)
+equal(
+	SaleValue("Auction price"),
+	"19 (|cff40ff40+|r9 profit per skill-up)",
+	"and the auction sale with its per-skill-up profit"
+)
+equal(SaleValue("Per skill-up"), nil, "sale comparisons already supply the per-skill-up amounts")
+ns.db.rowCost = "skillup"
+c.auction[BANDAGE_ITEM] = nil
+c.ns.Changed("prices")
+
+-- A known crafting cost still has a per-skill-up estimate when sale values are disabled or unknown.
+local craftValue = ns.db.craftValue
+c.SetSetting("craftValue", "none")
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(SaleValue("Per skill-up"), "|cffff2020-|r10", "ignoring sale value keeps the crafting cost per skill-up")
+equal(SaleValue("Vendor sell price"), nil, "ignoring sale value does not show a vendor comparison")
+c.SetSetting("craftValue", "auction")
+c.items[BANDAGE_ITEM].sell = nil
+ns.Changed("prices")
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(SaleValue("Per skill-up"), "|cffff2020-|r10", "unknown sale values keep the known crafting cost per skill-up")
+equal(SaleValue("Vendor sell price"), nil, "unknown vendor value is not a zero-price comparison")
+equal(SaleValue("Auction price"), nil, "unknown auction value is not a zero-price comparison")
+equal(ns.NetCost(BANDAGE), nil, "unknown sale values still leave the net cost unknown")
+recipe.canSkillUp = false
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(SaleValue("Per skill-up"), nil, "a recipe that cannot grant skill has no per-skill-up estimate")
+recipe.canSkillUp = nil
+c.items[BANDAGE_ITEM].sell = 3
+c.SetSetting("craftValue", craftValue)
+ns.Changed("prices")
 
 -- The bar is the first frame the tooltip made.
 local bar
@@ -212,7 +293,10 @@ function itemTooltip:HookScript(script, fn)
 	table.insert(self.hooks[script], fn)
 end
 function itemTooltip.AddLine() end
-function itemTooltip.AddDoubleLine() end
+local itemPairs = {}
+function itemTooltip.AddDoubleLine(_, left, right)
+	itemPairs[#itemPairs + 1] = { left, right }
+end
 function itemTooltip:Clear()
 	for _, hook in ipairs(self.hooks.OnTooltipCleared or {}) do
 		hook(self)
@@ -234,6 +318,52 @@ ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
 itemTooltip:Clear()
 equal(bar:IsShown(), true, "and the bar shown again after that is still only its own tooltip's to hide")
 tooltip:SetOwner({}, "ANCHOR_RIGHT")
+c.SetSetting("reagentTooltip", reagentMode)
+
+-- Pattern tooltips use every bundled recipe for a shared scroll, account for output quantity and AH cut, and remain
+-- available when reagent details are off. Unknown sale channels and craft-value suppression add no stale lines.
+c.auction[BANDAGE_ITEM] = 20
+c.SetSetting("reagentTooltip", "off")
+c.SetSetting("craftValue", "vendor")
+itemPairs = {}
+itemPosts[#itemPosts](itemTooltip, { id = SCROLL_ITEM })
+local function HasPatternSale(label, right)
+	for _, pair in ipairs(itemPairs) do
+		if pair[1] == label and (not right or pair[2] == right) then
+			return true
+		end
+	end
+	return false
+end
+equal(
+	HasPatternSale("Vendor sell price", "3 (Net per craft |cffff2020-|r7)"),
+	true,
+	"first shared pattern has vendor net"
+)
+equal(
+	HasPatternSale("Vendor sell price", "6 (Net per craft |cffff2020-|r4)"),
+	true,
+	"second shared pattern uses output quantity"
+)
+equal(
+	HasPatternSale("Auction price", "19 (Profit per craft |cff40ff40+|r9)"),
+	true,
+	"first pattern applies auction cut"
+)
+equal(
+	HasPatternSale("Auction price", "38 (Profit per craft |cff40ff40+|r28)"),
+	true,
+	"second pattern applies auction cut and quantity"
+)
+c.auction[BANDAGE_ITEM] = nil
+itemPairs = {}
+itemPosts[#itemPosts](itemTooltip, { id = SCROLL_ITEM })
+equal(HasPatternSale("Auction price"), false, "unknown auction sale is omitted")
+c.SetSetting("craftValue", "none")
+itemPairs = {}
+itemPosts[#itemPosts](itemTooltip, { id = SCROLL_ITEM })
+equal(#itemPairs, 0, "craft-value none suppresses pattern sales")
+c.SetSetting("craftValue", craftValue)
 c.SetSetting("reagentTooltip", reagentMode)
 
 -- Where the tooltip goes (#163): beside the window by default, past its side tabs, so it never covers the

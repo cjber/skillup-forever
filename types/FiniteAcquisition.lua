@@ -1,0 +1,192 @@
+---@meta
+
+---@class SkillUpFiniteSource
+---@field offerID string Distinct offer identity, never an item/NPC bucket.
+---@field npcID integer?
+---@field itemID integer
+---@field bundleUnits integer
+---@field moneyCopper integer
+---@field costs table<string, integer> Canonical item:ID or currency:ID requirements.
+---@field maxBundles integer Per-transaction ceiling, not a visit or basket ceiling.
+---@field stockKey string
+---@field stockPerBundle integer Opportunity units consumed even on failed delivery.
+---@field vendor string
+---@field access boolean Explicit fixed access law.
+---@field priceLaw 'fixed'
+---@field futureDelivery {chance: number, payOnFailure: boolean} Independent per-bundle outcomes.
+
+---@class SkillUpFiniteAcquisitionInput
+---@field service 'adaptive-finite'
+---@field journey 'independent-round-trips'
+---@field delivery 'independent-bundle-outcomes'
+---@field objective 'expected-expenditure-plus-terminal-carry-plus-failure-loss'
+---@field route SkillUpJointDemandInput|SkillUpCraftedRoute No separate buy inventory: initialOrders owns acquisitions.
+---@field walletCopper integer Finite shared wallet.
+---@field currencies table<integer, integer>
+---@field stock table<string, integer> Finite nonreplenishing opportunity pools.
+---@field sources SkillUpFiniteSource[]
+---@field initialOrders SkillUpPolicyOrder[] Explicit certain initial deliveries, legal transactions.
+---@field tokenValues table<string, number> Opportunity value of every payment coordinate.
+---@field terminalCarry table<string, number> Additional nonnegative value of every balance coordinate, including zero.
+---@field failureLoss number Explicit nonnegative loss on unfinished termination.
+---@field initialVisitMoney table<string, integer> Actual shared-wallet fare per selected vendor.
+---@field refillVisitMoney table<string, integer>
+---@field initialVisitValue table<string, number> Additional opportunity value, separate from fares.
+---@field refillVisitValue table<string, number>
+---@field sourceRevision integer
+---@field assumptions SkillUpSourceAssumption[] Explicit dated, scoped evidence, never inferred from observations.
+---@field options {workLimit: integer, stateLimit: integer, coordinateLimit: integer, limbLimit: integer}
+
+---@class SkillUpFiniteAcquisitionResult
+---@field status 'calculating'|'complete'|'unknown'|'cancelled'|'infeasible'
+---@field costKnown boolean
+---@field reasons string[]
+---@field sourceRevision integer?
+---@field assumptions SkillUpSourceAssumption[]?
+---@field coverageLower number? C0: craft-only completion after net initial payments.
+---@field coverageUpper number?
+---@field successLower number? Ppi: completion under the chosen adaptive continuation.
+---@field successUpper number?
+---@field moneyLower number?
+---@field moneyUpper number?
+---@field tokensLower number?
+---@field tokensUpper number?
+---@field visitValueLower number?
+---@field visitValueUpper number?
+---@field carryLower number?
+---@field carryUpper number?
+---@field failureLower number?
+---@field failureUpper number?
+---@field visitsLower number?
+---@field visitsUpper number?
+---@field costLower number? Expenditure: money, token opportunity and visit opportunity only.
+---@field costUpper number?
+---@field objectiveLower number? Expenditure plus terminal carry and unfinished loss.
+---@field objectiveUpper number?
+---@field acquisitions SkillUpSelectedAcquisition[]?
+---@field certificate SkillUpFiniteCertificate?
+
+---@class SkillUpFinitePolicyAction
+---@field state string Canonical state: mode, stage, balances, stock and wallet.
+---@field kind 'stop'|'complete'|'craft'|'acquire'
+---@field recipeID integer? Declared crafted recipe identity.
+---@field role 'main'|'auxiliary'?
+---@field rank integer[]? Crafted lexicographic rank at this state.
+---@field orders SkillUpPolicyOrder[]?
+---@field successors {state: string, probabilityLower: number, probabilityUpper: number}[]
+
+---@class SkillUpFiniteCertificate
+---@field sources SkillUpFiniteSource[] Owned source-index bindings with exact identities, payments and delivery laws.
+---@field stages {skill: integer?, chance: number, use: table<string, integer>, produce: table<string, integer>?, recipeID: integer?, role: string?}[] Compiled ordered route transitions.
+---@field laws SkillUpFiniteObjectiveLaws Owned explicit objective and trip laws; provenance is in result.assumptions.
+---@field kind 'finite-dag-exhaustive'
+---@field objective 'expected-expenditure-plus-terminal-carry-plus-failure-loss'
+---@field states integer
+---@field actions integer
+---@field transitions integer
+---@field preInitialState string Exact pre-payment economic key.
+---@field preInitialResources SkillUpFiniteResources
+---@field initialResources SkillUpFiniteResources Post-initial-delivery root, not evidence of actual delivery.
+---@field initialState string
+---@field coordinates string[] Order of canonical typed balance coordinates in state keys.
+---@field pools string[] Order of finite opportunity pools in state keys.
+---@field coverageState string
+---@field policy SkillUpFinitePolicyAction[] Adaptive economic policy; legacy raw certificates also retain coverage records.
+---@field coveragePolicy SkillUpFinitePolicyAction[] Separate maximum-success craft-only policy.
+---@field coverageInterpretation 'maximum-craft-only-completion'
+---@field craftedVersion 'crafted-deterministic-v1'?
+---@field recipes table<integer, SkillUpCraftedRecipe>? Owned full declared recipe universe.
+---@field topologicalItems integer[]? All consume-to-produce edges respect this order.
+---@field rankSchema string?
+
+---@class SkillUpFiniteAcquisitionJob
+---@field result SkillUpFiniteAcquisitionResult
+---@field Advance fun(self: SkillUpFiniteAcquisitionJob, work: integer): SkillUpFiniteAcquisitionResult
+---@field Cancel fun(self: SkillUpFiniteAcquisitionJob)
+
+---@class SkillUpFiniteSelectionProof
+---@field kind 'finite-initial-enumeration'
+---@field evaluated integer All resolved initial vectors, including infeasible atomic orders.
+---@field eligible integer Feasible initial vectors with exact C0 >= alpha.
+---@field domainBounds integer[] Per-source finite opportunity bounds, not independent shared-pool feasibility.
+---@field alpha number
+
+---@class SkillUpFiniteSelectionResult: SkillUpFiniteAcquisitionResult
+---@field service 'adaptive-finite'?
+---@field inventoryScope 'bags-only'?
+---@field recipeEvidence table? Owned declaration and native observations, including nested slots.
+---@field recipeRevision integer?
+---@field recipeScope 'declared-finite-recipes'?
+---@field alpha number?
+---@field selection SkillUpFiniteSelectionProof?
+---@field orders SkillUpPolicyOrder[]?
+---@field quantities integer[]?
+---@field have table<integer, integer>?
+---@field items table<integer, integer>? Gross held plus delivered initial products, before token payments.
+
+---@class SkillUpFiniteSelectionJob
+---@field result SkillUpFiniteSelectionResult
+---@field Advance fun(self: SkillUpFiniteSelectionJob, work: integer): SkillUpFiniteSelectionResult
+---@field Cancel fun(self: SkillUpFiniteSelectionJob)
+
+---@class SkillUpFiniteAcquisitionProducer
+---@field Select fun(input: SkillUpFiniteAcquisitionInput, alpha: number): SkillUpFiniteSelectionJob Exact finite initial enumeration with state-dependent continuation.
+---@field Start fun(input: SkillUpFiniteAcquisitionInput): SkillUpFiniteAcquisitionJob Caller retains an immutable input for the job lifetime.
+
+---@class SkillUpFiniteObjectiveLaws
+---@field failureLoss number
+---@field tokenValues table<string, number>
+---@field terminalCarry table<string, number>
+---@field initialVisitMoney table<string, integer>
+---@field refillVisitMoney table<string, integer>
+---@field initialVisitValue table<string, number>
+---@field refillVisitValue table<string, number>
+
+---@class SkillUpAdaptiveSupplyRequest
+---@field inventoryScope 'bags-only'
+---@field crafted {version: 'crafted-adapter-v1', revision: integer, skillLine: integer}? Opt-in current recipe declaration.
+---@field policy SkillUpFiniteAcquisitionInput Immutable during asynchronous snapshot. Caller balance values are replaced by native quantities.
+
+---@class SkillUpCraftedRecipe
+---@field recipeID integer Positive identity, unique in the declared universe.
+---@field professionID integer Positive profession identity.
+---@field role 'main'|'auxiliary'
+---@field available boolean Fixed availability gate throughout the solve.
+---@field eligibility {fromSkill: integer, toSkill: integer, fixedSkill: integer?}? Inclusive recipe bounds; dynamic bounds require route.skillCap. Absent preserves fixed availability.
+---@field scope string Explicit eligibility and production scope.
+---@field skillEffect 'route'|'neutral' Auxiliary effects on any modeled skill must be neutral.
+---@field productionLaw 'deterministic-completed-attempt' Every completed attempt produces, including no gain.
+---@field use table<integer, integer> Complete sparse item consumption, reserved before production.
+---@field produce table<integer, integer> Complete positive deterministic item production.
+---@field evidence {revision: integer, allocation: string, clientBuild: string} Caller-supplied exact law evidence, never inferred from mean yields.
+
+---@class SkillUpCraftedLeg
+---@field recipeID integer Declared main recipe.
+---@field fromSkill integer
+---@field toSkill integer
+---@field skillUps integer?
+---@field thresholds integer[]? Existing Model.Chance contract.
+
+---@class SkillUpCraftedRoute
+---@field version 'crafted-deterministic-v1'
+---@field skillCap integer? Explicit physical successful-gain law: whole skillUps bounded by effective rank cap.
+---@field coverage 'maximum-craft-only-completion'
+---@field prerequisites 'already-satisfied' Conditional on all rank, training, tool, station and access gates already satisfied.
+---@field recipes SkillUpCraftedRecipe[] Complete finite declared universe; optimum is conditional on these alternatives.
+---@field legs SkillUpCraftedLeg[] Ordered main legs, eligible only while active.
+---@field held table<integer, integer> Includes held intermediates and output-only items.
+---@field buy table<integer, integer> Must be empty or all zero; initialOrders owns acquisition.
+
+---@class SkillUpFiniteStage
+---@field chance number
+---@field use table<integer, integer>
+---@field produce table<integer, integer>?
+---@field recipeID integer?
+---@field available boolean?
+---@field role 'main'|'auxiliary'?
+
+---@class SkillUpFiniteResources
+---@field stage integer Compiled stage index, not a skill or attempt count.
+---@field balances integer[] In certificate.coordinates order.
+---@field stock integer[] In certificate.pools order.
+---@field wallet integer

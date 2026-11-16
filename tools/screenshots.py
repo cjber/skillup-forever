@@ -13,6 +13,7 @@ luajit (lua_scene) and only draw its output.
 Only the scene's state (professions, skill, bags, auction prices) is chosen here.
 """
 
+import argparse
 import io
 import json
 import math
@@ -22,6 +23,9 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+if __name__ == "__main__":
+    argparse.ArgumentParser(description="Render the README screenshots from the client's own UI art.").parse_args()
 
 FOREVER_CORE = Path(os.environ.get("FOREVER_CORE", Path(__file__).resolve().parents[2] / "forever-core")).expanduser()
 WOWMOCK = FOREVER_CORE / "tools" / "wowmock"
@@ -153,7 +157,7 @@ def model_color(t, skill):
 
 
 def model_chance(t, skill):
-    if not t or t[3] <= t[1] or skill < t[0]:
+    if not t or t[3] < t[1] or skill < t[0]:
         return None
     if skill < t[1]:
         return 1
@@ -251,7 +255,8 @@ def unlearned_text(recipe_id):
 
 
 BAGS = {2318: 23}  # Light Leather
-AUCTION = {2318: 90, 783: 320, 2934: 8}  # Light Leather, Light Hide, Ruined Leather Scraps (copper), from Auctionator
+# ItemID: copper from Auctionator. Light Leather, Light Hide, Ruined Leather Scraps, Handstitched Leather Bracers.
+AUCTION = {2318: 90, 783: 320, 2934: 8, 7277: 90}
 PROFESSIONS = [  # GetProfessions order, as the side tabs show them: name, icon, rank, max, skill line
     ("Leatherworking", 136247, SKILL, MAX_SKILL, 165),
     ("Skinning", 134366, 62, 75, 393),
@@ -301,6 +306,25 @@ def craft_value(recipe_id):
     return {"copper": each * output["quantity"], "source": source, "quantity": output["quantity"]}, False
 
 
+def craft_sale_values(recipe_id):
+    """Integrations/Prices.lua ns.CraftSaleValues: one craft's vendor and auction sale, both when known."""
+    output = NS["RecipeData"][recipe_id]["output"]
+    if not output:
+        return {}
+    quantity = output["quantity"]
+    sell = NS["ItemSellPrices"].get(output["itemID"])
+    vendor = {"copper": sell * quantity, "source": "vendor", "quantity": quantity} if sell and sell > 0 else None
+    auction = AUCTION.get(output["itemID"])
+    return {
+        "vendor": vendor,
+        "auction": (
+            {"copper": auction * 0.95 * quantity, "source": "auction", "quantity": quantity}
+            if auction is not None
+            else None
+        ),
+    }
+
+
 def craft_cost(recipe_id):
     """Integrations/Prices.lua ns.CraftCost: reagent cost, value and net (unknown until the sell price is)."""
     cost = model_recipe_cost(reagents(recipe_id), unit_price)
@@ -314,7 +338,7 @@ def describe(recipe_id):
     """Core/Core.lua ns.Describe at SKILL, where the live difficulty agrees with the thresholds, so the chance is
     the thresholds' own. The range starts where the recipe is learned (#519)."""
     t = NS["Thresholds"].get(recipe_id)
-    if t and not (t[0] <= t[1] <= t[2] < t[3]):
+    if t and not (t[0] <= t[1] <= t[2] <= t[3]):
         t = None
     if t:
         t = range_thresholds(recipe_id, t)
@@ -1171,6 +1195,9 @@ local first = #created + 1
 -- auction house route and the shopping list.
 ns.db.collectModes[ns.CharacterKey()] = STATE.buyReagents and "auction" or "gather"
 ns.Changed("settings")
+if STATE.losePrices then
+    ns.db.routeTargets[STATE.open.skillLine] = STATE.open.rank + 2
+end
 ns.AttachRoute()
 assert(not hooks.RefreshRightTabs and not hooks.RightTabSelected, "native profession methods stay untouched")
 local page = created[first]
@@ -1182,6 +1209,21 @@ local buffsFirst = #created + 1
 ns.AttachBuffs()
 local buffsPage = created[buffsFirst]
 ns.Pages.Select("route")
+-- Retain a real planned route with all materials held, then lose its market observations.
+if STATE.losePrices then
+    local profession = ns.PlayerProfessions()[STATE.open.skillLine]
+    local plan = ns.PlanRoute(profession)
+    for _, item in ipairs(ns.RouteReagents(plan)) do
+        STATE.bags[item.itemID] = item.need
+    end
+    ns.Changed("bags")
+    for itemID in pairs(STATE.auction) do
+        STATE.auction[itemID] = nil
+    end
+    ns.Changed("prices")
+    ns.Pages.Select("route")
+    assert(ns.PlanRoute(profession).crafts[1].recipeID == plan.crafts[1].recipeID, "held route preserved")
+end
 local function Widget(frame)
 	return {
 		text = rawget(frame, "text"),
@@ -1522,7 +1564,7 @@ def buff_spell_text(ui):
     return names, descriptions
 
 
-def lua_scene(ui, *, buy_reagents=False, buffs=False):
+def lua_scene(ui, *, buy_reagents=False, buffs=False, lose_prices=False):
     """What the route, gear and buffs pages, the tracker, trainer and reagent tooltip draw for the scene."""
     canvas = ui.canvas(1, 1)
     professions = [
@@ -1533,6 +1575,7 @@ def lua_scene(ui, *, buy_reagents=False, buffs=False):
     state = {
         "metadata": TOC_METADATA,
         "buyReagents": buy_reagents,
+        "losePrices": lose_prices,
         "level": 12 if buffs else LEVEL,
         "money": MONEY,
         "learned": list(set(LEARNED) | set(COOKING_LEARNED)) if buffs else LEARNED,
@@ -1698,23 +1741,44 @@ def recipe_tooltip_lines(ui, recipe_id):
         right = "{} |cff808080({})|r".format(money(p["copper"] * reagent["quantity"]), source_text(p))
         lines.append(TooltipLine(left, right=right))
     lines.append(TooltipLine("Reagents", gold, money(d["cost"])))
+
+    def profit(value):
+        return ("|cff40ff40+|r" if value < 0 else "|cffff2020-|r") + money(abs(value))
+
+    def sale_value(label, value):
+        net = d["cost"] - value["copper"]
+        per = model_cost_per_skill_up(net, d["chance"])
+        if per is not None:
+            return TooltipLine(label, gold, "{} ({} profit per skill-up)".format(money(value["copper"]), profit(per)))
+        return TooltipLine(label, gold, "{} ({} profit per craft)".format(money(value["copper"]), profit(net)))
+
+    values = craft_sale_values(recipe_id)
+    if values["vendor"]:
+        lines.append(sale_value("Vendor sell price", values["vendor"]))
+    if values["auction"]:
+        lines.append(sale_value("Auction price", values["auction"]))
+
+    # A regional sale average is neither a vendor nor a listing, so it keeps its own line and name.
     value, net = d["value"], d["net"]
-    if value and net is not None:
+    if value and value["source"] == "sale" and net is not None:
         each = " x{:g}".format(value["quantity"]) if value["quantity"] != 1 else ""
-        source = "AH" if value["source"] == "auction" else "vendor"
-        lines.append(
-            TooltipLine("Sells for" + each, gold, "{} |cff808080({})|r".format(money(value["copper"]), source))
-        )
-        lines.append(TooltipLine("Profit per craft" if net < 0 else "Net per craft", gold, money(abs(net))))
-    per = d["perSkillUp"]
-    if per is not None:
         lines.append(
             TooltipLine(
-                "Profit per skill-up" if per < 0 else "Per skill-up",
+                "Sells for" + each,
                 gold,
-                ("|cff40ff40+|r" if per < 0 else "|cffff2020-|r") + money(abs(per)),
+                "{} |cff808080(Region sale average)|r".format(money(value["copper"])),
             )
         )
+        lines.append(TooltipLine("Profit per craft" if net < 0 else "Net per craft", gold, money(abs(net))))
+        per = d["perSkillUp"]
+        if per is not None:
+            lines.append(
+                TooltipLine(
+                    "Profit per skill-up" if per < 0 else "Per skill-up",
+                    gold,
+                    profit(per),
+                )
+            )
     return lines, bar_line
 
 
@@ -3166,6 +3230,9 @@ def main():
     window_unlearned_scene(ui).save(OUT / "window-unlearned.png")
     scene(ui, [(recipe_tooltip(ui, HOVERED), 0, 0)]).save(OUT / "tooltip.png")
     data = lua_scene(ui)
+    scene(ui, [(route_frame(ui, lua_scene(ui, buy_reagents=True, lose_prices=True)), 0, 0)]).save(
+        OUT / "route-unknown-cost.png"
+    )
     scene(ui, [(route_frame(ui, data), 0, 0)]).save(OUT / "route.png")
     scene(ui, [(route_frame(ui, lua_scene(ui, buy_reagents=True)), 0, 0)]).save(OUT / "route-auctionator.png")
     scene(ui, [(shopping_list_scene(ui, lua_scene(ui, buy_reagents=True)), 0, 0)]).save(OUT / "shopping-list.png")

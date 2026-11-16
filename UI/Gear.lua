@@ -551,7 +551,7 @@ end
 
 local function CreatePage()
 	page = CreateFrame("Frame", nil, ProfessionsFrame) --[[@as SkillUpGearPage]]
-	page:SetAllPoints(ProfessionsFrame.CraftingPage)
+	page:SetAllPoints(ProfessionsFrame)
 	page:SetFrameLevel(ProfessionsFrame.CraftingPage:GetFrameLevel())
 	-- What's Training? paints its own page at the portrait container's level, over CraftingPage's, and never
 	-- hides it when another tab is chosen. HIGH sits above that page and below dialogs, so this one keeps the
@@ -578,7 +578,7 @@ function ns.AttachGear()
 		id = "gear",
 		title = L["Crafted gear"],
 		setting = function()
-			return ns.db.showGearTab
+			return ns.db.showProfessionTabs and ns.db.showGearTab
 		end,
 		page = page,
 	})

@@ -12,7 +12,52 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **This is the last update published on Wago.** Future updates come from CurseForge only. If you installed this addon through Wago or the WowUp Wago source, install it from CurseForge to keep getting updates; your settings stay.
+
+- **A Supply page shows what a merchant's terms would mean for your route.** Open a profession and a merchant, then write down what you assume about each offer's price, stock, purchase limit and trips. The page keeps what you typed while the merchant window rescans, names any two values that cannot both be true, and shows the route's chance and next step before you apply it. Nothing is filled in for you.
+
+- **Working Overtime estimates are optional.** Turn off “Include Working Overtime estimate” to calculate skill-up chances and route costs without the talent's estimated bonus. The setting starts on and remembers your choice (#741).
+
+- **Shopping estimates explain their scope.** Supply estimates distinguish the chance of finishing with starting supplies from the chance with later purchases. Their status and assumptions appear on the route, reagent list and copied shopping list. Craft counts and shopping quantities remain estimates.
+
+- **Route coverage keeps unreadable inventory unknown.** A quantity retained for display cannot stand in for a fresh inventory read (#738).
+
+- **Recipe details can appear on Shift without the route line.** Turn off route needs in the tooltip settings to keep the recipes that use an item. Existing tooltip choices stay as they were. Thanks to cotijelucie for the idea (#736).
+
+- **SkillUp pages stay inside the Professions window with ClassicUI Forever.** Their position follows the visible window when ClassicUI moves the native crafting page aside. Thanks to yavinn for the report (#734).
+
+- **Held routes keep unknown costs visible.** A craft whose auction price disappears shows “price unknown” in its route row and tooltip while keeping the route when all materials are held (#730).
+
+- **The minimap button explains how to open a profession.** If that profession is already open, it selects the recipe page. Otherwise it asks you to open it from your spellbook, avoiding a blocked action (#728).
+
+- **The SkillUp minimap button can move around the rim.** Drag it to a clear spot when another addon's button is in the way, and its position stays after reload (#723).
+
+- **Turn whole SkillUp surfaces on or off.** Tooltip details and profession tabs have their own switches, while your individual choices and recipe-row skill-up display stay as you set them. Thanks to cotijelucie for the idea (#725).
+
+- **Recipe patterns show what their crafts can sell for.** Pattern item tooltips compare the vendor and auction value with the known reagent cost. Thanks to jugg__ for the idea (#726).
+
+- **The route spells out what to craft in order.** Each craft step leads with its quantity and recipe, with its skill range, cost and station underneath. Thanks to codipherus for the report (#684).
+
+- **Unlearned recipes have their own order.** Sort them by required skill or newest first while learned recipes keep your chosen order. Thanks to davef1n for the idea (#720).
+- **Recipe tooltips show TSM regional sales per day when available.** The figure is the average sold per auction house in your region, alongside the craft's sale values and profit. Thanks to davef1n for the idea (#721).
+
+- **TSM-priced reagents stay in auction searches.** Recipe searches include their missing quantities with Auctionator or the game search box. (#561)
+
+- **Craft next follows the route's prerequisites.** It makes missing intermediates before their parent recipe, uses held materials once, and asks for the selected recipe's profession. Thanks to luna for the report (#683).
+- **Unobserved auction prices stay unknown.** Vendor fallback values no longer make an unscanned market reagent look priced, and missing-price searches still include it (#561).
+
+- **Recipe tooltips compare selling to a vendor with selling at auction.** Each craft shows both sale values and the profit or loss for the per-craft or per-skill-up view you have selected, so a small vendor loss can be weighed against an auction profit. Disenchant value stays out until Forever's yields are known. Thanks to sundered1985 and jugg__ for the idea (#678).
+- **You can choose which auction addon prices your reagents.** When both Auctionator and TradeSkillMaster are installed, Auction prices from picks the one whose price wins; the other still fills in an item it has no price for. Thanks to keerp for the idea (#675).
+
 - **Each "Used in" line says which profession its recipe belongs to.** When more than one of your professions uses a reagent, the lines now read "Alchemy: Elixir of Wisdom" and "First Aid: Linen Bandage" instead of leaving you to tell them apart, and an unlearned recipe keeps its "(unlearned)" after the name. The profession is the game's own name in your client's language. Thanks to yusufdanis for the change (#670).
+
+### For addon authors
+
+- API minor 12 exposes owned recipe observations and explicit declarations for conditional crafted supply evaluation. Recipe eligibility follows the current effective skill; successful gains use the caller-declared law. No default coverage target, recipe universe or supply law is chosen.
+
+- API minor 11 retains complete conditional adaptive supply certificates, native inventory scope and selection proofs. Profession readers can explicitly configure adaptive finite selection without choosing a default coverage target or future supply law.
+
+- API minor 7 adds read-only recipe data, base-skill learn requirements and account-wide learned-recipe records. Thanks to rissole for the request (#724).
 
 ## [1.10.2] - 2026-11-15
 

@@ -8,6 +8,9 @@ local L = setmetatable({}, {
 		return key
 	end,
 })
+L["Unlearned recipe order"] = "Unlearned recipe order"
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."
 ns.L = L
 L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
 	"This route is mostly %s: %d recipes are left out until their costs or sale values are known."
@@ -51,3 +54,142 @@ L["Region sale averages need TradeSkillMaster and its desktop app. They estimate
 
 L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
 	"Route incomplete: %d recipes left out because their costs or sale values are unknown."
+
+L["Open %s from your spellbook."] = "Open %s from your spellbook."
+
+L["Recipes on Shift"] = "Recipes on Shift"
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Show recipes on Shift or always. Off hides reagent details, including route needs."
+L["Show route needs on item tooltips"] = "Show route needs on item tooltips"
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."
+
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"Craft counts and shopping quantities are estimates. You may need more reagents."
+
+L["Supply estimate: calculating."] = "Supply estimate: calculating."
+
+L["Supply estimate: not enough information."] = "Supply estimate: not enough information."
+
+L["Supply estimate: no starting purchase meets the target."] = "Supply estimate: no starting purchase meets the target."
+
+L["Supply estimate: cancelled."] = "Supply estimate: cancelled."
+
+L["Supply estimate: ready."] = "Supply estimate: ready."
+
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"Supply estimate: no cheapest purchase exists under these assumptions."
+
+L["Target chance of finishing with starting supplies: %s%%."] =
+	"Target chance of finishing with starting supplies: %s%%."
+
+L["unknown"] = "unknown"
+
+L["%s%% to %s%%"] = "%s%% to %s%%"
+
+L["Chance of finishing with starting supplies: %s."] = "Chance of finishing with starting supplies: %s."
+
+L["Chance of finishing with later purchases: %s."] = "Chance of finishing with later purchases: %s."
+
+L["Starting inventory: bags only."] = "Starting inventory: bags only."
+
+L["Starting inventory: bags and bank."] = "Starting inventory: bags and bank."
+
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."
+
+L["Craft next follows the estimated route."] = "Craft next follows the estimated route."
+
+L["Include Working Overtime estimate"] = "Include Working Overtime estimate"
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."
+
+L["Supply policy"] = "Supply policy"
+L["Route-wide starting chance (required, no default)"] = "Route-wide starting chance (required, no default)"
+L["Adaptive continuation"] = "Adaptive continuation"
+L["Open the profession and a merchant window."] = "Open the profession and a merchant window."
+L["Apply policy"] = "Apply policy"
+L["Applied. Coverage and cost will update from the explicit policy."] =
+	"Applied. Coverage and cost will update from the explicit policy."
+L["Unknown: open the profession and a merchant before entering supply laws."] =
+	"Unknown: open the profession and a merchant before entering supply laws."
+L["Offer %d: item %s, observed stock %s"] = "Offer %d: item %s, observed stock %s"
+
+L["currency %d"] = "currency %d"
+L["an unknown payment"] = "an unknown payment"
+L["Name the stock each offer draws on, or give this offer its own stock."] =
+	"Name the stock each offer draws on, or give this offer its own stock."
+L["The merchant shows no limit: limit the search to the number you will buy."] =
+	"The merchant shows no limit: limit the search to the number you will buy."
+L["The stock you assume does not match what the merchant shows."] =
+	"The stock you assume does not match what the merchant shows."
+L["Enter a starting chance between 1 and 100."] = "Enter a starting chance between 1 and 100."
+L["The merchant sells none of this route's reagents."] = "The merchant sells none of this route's reagents."
+L["The merchant's offer for %s is incomplete."] = "The merchant's offer for %s is incomplete."
+L["Every offer needs its price to stay as shown."] = "Every offer needs its price to stay as shown."
+L["Fill in every value this offer needs."] = "Fill in every value this offer needs."
+L["The merchant sells fewer purchases at a time than that."] = "The merchant sells fewer purchases at a time than that."
+L["Offers that draw on one stock pool need the same stock."] = "Offers that draw on one stock pool need the same stock."
+L["Offers at one vendor need the same trip costs and values."] =
+	"Offers at one vendor need the same trip costs and values."
+L["Enter the chance each later purchase arrives, from 0 to 100."] =
+	"Enter the chance each later purchase arrives, from 0 to 100."
+L["Check that the first purchase arrives for certain at every offer."] =
+	"Check that the first purchase arrives for certain at every offer."
+L["One item or payment needs one leftover value."] = "One item or payment needs one leftover value."
+L["Offers that use one payment need the same value for it."] = "Offers that use one payment need the same value for it."
+L["The merchant changed. Check the form again."] = "The merchant changed. Check the form again."
+L["The merchant did not change, but the assumptions did. Check the form again."] =
+	"The merchant did not change, but the assumptions did. Check the form again."
+L["The merchant shows this offer sold out."] = "The merchant shows this offer sold out."
+L["The merchant does not say how much is left."] = "The merchant does not say how much is left."
+L["The merchant will not sell this offer to you now."] = "The merchant will not sell this offer to you now."
+L["Choose the unit the stock count is in."] = "Choose the unit the stock count is in."
+L["The assumptions were rejected. Fill in every value and check each offer."] =
+	"The assumptions were rejected. Fill in every value and check each offer."
+L["Open a profession to see its plan and coverage."] = "Open a profession to see its plan and coverage."
+L["Plan: %s, %s to %s, %d crafts."] = "Plan: %s, %s to %s, %d crafts."
+L["Unpriced crafts: %d."] = "Unpriced crafts: %d."
+L["Your target chance: %s%%."] = "Your target chance: %s%%."
+L["Margin over your target: %s points."] = "Margin over your target: %s points."
+L["Below your target by %s points."] = "Below your target by %s points."
+L["craft"] = "craft"
+L["buy"] = "buy"
+L["stop"] = "stop"
+L["Next step: %s."] = "Next step: %s."
+L["Open a profession to set its supply policy."] = "Open a profession to set its supply policy."
+L["This profession has no plan to supply yet."] = "This profession has no plan to supply yet."
+L["Open a merchant to set this profession's supply policy."] = "Open a merchant to set this profession's supply policy."
+L["Ready to apply these assumptions."] = "Ready to apply these assumptions."
+L["no limit"] = "no limit"
+L["Offer %d: %s"] = "Offer %d: %s"
+L["The merchant shows %s in stock, %s per purchase, at most %s purchases."] =
+	"The merchant shows %s in stock, %s per purchase, at most %s purchases."
+L["Price: %s."] = "Price: %s."
+L["Also costs %s %s."] = "Also costs %s %s."
+L["I can buy this offer"] = "I can buy this offer"
+L["The price stays as shown"] = "The price stays as shown"
+L["Stock I assume is left"] = "Stock I assume is left"
+L["The stock does not run out"] = "The stock does not run out"
+L["The stock count is in items, not purchases"] = "The stock count is in items, not purchases"
+L["This offer keeps its own stock"] = "This offer keeps its own stock"
+L["Limit the search to the stock I typed"] = "Limit the search to the stock I typed"
+L["Stock pool name"] = "Stock pool name"
+L["Purchases allowed per visit"] = "Purchases allowed per visit"
+L["First trip cost (copper)"] = "First trip cost (copper)"
+L["Later trip cost (copper)"] = "Later trip cost (copper)"
+L["First trip value to you (copper)"] = "First trip value to you (copper)"
+L["Later trip value to you (copper)"] = "Later trip value to you (copper)"
+L["Chance each later purchase arrives (%)"] = "Chance each later purchase arrives (%)"
+L["The first purchase arrives for certain"] = "The first purchase arrives for certain"
+L["I pay even when a purchase does not arrive"] = "I pay even when a purchase does not arrive"
+L["Leftover value of one %s (copper)"] = "Leftover value of one %s (copper)"
+L["Value of one %s (copper)"] = "Value of one %s (copper)"
+L["These are your own assumptions. The merchant's window only shows what it shows now."] =
+	"These are your own assumptions. The merchant's window only shows what it shows now."
+L["Chance of finishing with starting supplies (%)"] = "Chance of finishing with starting supplies (%)"
+L["Plan later purchases too"] = "Plan later purchases too"
+L["Cost of an unfinished route (copper)"] = "Cost of an unfinished route (copper)"
+L["Applied. The plan and its coverage follow these assumptions."] =
+	"Applied. The plan and its coverage follow these assumptions."
+L["Supply"] = "Supply"

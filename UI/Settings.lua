@@ -18,7 +18,11 @@ local function Register(target, key, varType, name)
 	local setting =
 		Settings.RegisterAddOnSetting(target, "SkillUpForever_" .. key, key, ns.db, varType, name, ns.DEFAULTS[key])
 	setting:SetValueChangedCallback(function()
-		ns.Changed("settings")
+		if key == "includeWorkingOvertime" then
+			ns.SetIncludeWorkingOvertime(ns.db.includeWorkingOvertime)
+		else
+			ns.Changed("settings")
+		end
 	end)
 	return setting
 end
@@ -97,6 +101,18 @@ function ns.RegisterSettings()
 	Section(L["Recipe rows"], function(rows)
 		Checkbox(
 			rows,
+			"includeWorkingOvertime",
+			L["Include Working Overtime estimate"],
+			L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."]
+		)
+		Checkbox(
+			rows,
+			"showTooltips",
+			L["Show SkillUp tooltip details"],
+			L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."]
+		)
+		Checkbox(
+			rows,
 			"showUnlearned",
 			L["List unlearned recipes"],
 			L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."]
@@ -145,6 +161,14 @@ function ns.RegisterSettings()
 			L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."]
 		)
 
+		Choice(
+			rows,
+			"unlearnedSortMode",
+			L["Unlearned recipe order"],
+			ns.UNLEARNED_SORT_OPTIONS,
+			L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."]
+		)
+
 		Checkbox(
 			rows,
 			"showCost",
@@ -162,6 +186,14 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Prices"], function(rows)
+		Choice(
+			rows,
+			"priceSource",
+			L["Auction prices from"],
+			ns.PRICE_SOURCE_OPTIONS,
+			L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."]
+		)
+
 		Choice(
 			rows,
 			"craftValue",
@@ -188,6 +220,12 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Route and trainer"], function(rows)
+		Checkbox(
+			rows,
+			"showProfessionTabs",
+			L["Show SkillUp profession tabs"],
+			L["Shows the route, gear and buffs tabs while preserving each individual tab choice."]
+		)
 		Checkbox(
 			rows,
 			"showTracker",
@@ -328,7 +366,14 @@ function ns.RegisterSettings()
 			"reagentTooltip",
 			L["Reagent tooltips"],
 			ns.REAGENT_TOOLTIP_OPTIONS,
-			L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."]
+			L["Show recipes on Shift or always. Off hides reagent details, including route needs."]
+		)
+
+		Checkbox(
+			rows,
+			"showTooltipRoute",
+			L["Show route needs on item tooltips"],
+			L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."]
 		)
 
 		Checkbox(

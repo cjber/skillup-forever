@@ -517,7 +517,7 @@ local ns = {
 			return key
 		end,
 	}),
-	db = { routeTargets = { [129] = 100 }, showRouteTab = true },
+	db = { routeTargets = { [129] = 100 }, showProfessionTabs = true, showRouteTab = true },
 	COLORS = setmetatable({}, {
 		__index = Color,
 	}),
@@ -800,6 +800,7 @@ for _, file in ipairs({
 	"Core/Model.lua",
 	"Core/Changes.lua",
 	"Core/Plan.lua",
+	"Core/RouteDemand.lua",
 	"UI/Art.lua",
 	"UI/List.lua",
 	"UI/PageParts.lua",
@@ -1096,7 +1097,7 @@ for _, row in ipairs(page.RouteList.scrollBox.frames) do
 		currentRow = row
 	end
 end
-equal(currentRow and currentRow.Text.text, "Spell 3275", "the next craft is marked as the current step")
+equal(currentRow and currentRow.Text.text, "Craft 5× Spell 3275", "the next craft is marked as the current step")
 equal(
 	currentRow and currentRow.Current:IsShown(),
 	true,

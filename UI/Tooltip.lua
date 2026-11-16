@@ -239,13 +239,17 @@ function ns.PriceAgeText(price)
 	return string.format(L["%dd ago"], price.days)
 end
 
--- What to do about a reagent with no price: auction prices come only from Auctionator or TradeSkillMaster.
+-- What to do about a reagent with no price: auction prices come only from Auctionator or TradeSkillMaster. The
+-- chosen addon's advice comes first; an installed fallback still gets its own advice when the chosen one is absent.
 ---@return string
 function ns.UnpricedHint()
-	if ns.HasAuctionator() then
+	local auctionator, tsm = ns.HasAuctionator(), ns.HasTradeSkillMaster()
+	if (ns.db.priceSource == "tsm" and tsm) or not auctionator then
+		if tsm then
+			return L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."]
+		end
+	elseif auctionator then
 		return L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."]
-	elseif ns.HasTradeSkillMaster() then
-		return L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."]
 	end
 	return L["Visit a vendor to price reagents. Auction prices need Auctionator or TradeSkillMaster."]
 end
@@ -318,41 +322,83 @@ local function AddCost(tooltip, recipeID, d)
 		return
 	end
 	tooltip:AddDoubleLine(L["Reagents"], Money(d.cost), 1, 0.82, 0, 1, 1, 1)
-	local net = d.net
-	if d.value and net then
-		local sells = d.value.quantity ~= 1 and string.format(L["Sells for x%g"], d.value.quantity) or L["Sells for"]
-		tooltip:AddDoubleLine(
-			sells,
-			string.format(
-				"%s |cff808080(%s)|r",
-				Money(d.value.copper),
-				d.value.source == "auction" and L["AH"]
-					or d.value.source == "sale" and L["Region sale average"]
-					or L["vendor"]
-			),
-			1,
-			0.82,
-			0,
-			1,
-			1,
-			1
-		)
-		-- A loss carries the same red minus the per-skill-up line below uses, so the two rows read alike (#360).
-		tooltip:AddDoubleLine(
-			net < 0 and L["Profit per craft"] or L["Net per craft"],
-			ns.FormatSigned(math.abs(net), net < 0),
-			1,
-			0.82,
-			0,
-			1,
-			1,
-			1
-		)
+	-- Vendor and auction are always shown side by side, so a small vendor loss can be compared with a possible
+	-- auction profit. The profit follows the row's own per-craft or per-skill-up choice. Disenchant is absent under
+	-- the explicit #464 hold until authoritative Forever yield data exists.
+	local comparedSale = false
+	---@param label string
+	---@param value SkillUpValue
+	local function AddSaleValue(label, value)
+		comparedSale = true
+		local net = d.cost - value.copper
+		local per = ns.db.rowCost == "skillup" and d.chance and ns.Model.CostPerSkillUp(net, d.chance)
+		local detail
+		if per then
+			detail = string.format(L["%s profit per skill-up"], ns.FormatSigned(math.abs(per), per < 0))
+		else
+			detail = string.format(L["%s profit per craft"], ns.FormatSigned(math.abs(net), net < 0))
+		end
+		tooltip:AddDoubleLine(label, string.format(L["%s (%s)"], Money(value.copper), detail), 1, 0.82, 0, 1, 1, 1)
 	end
-	local perSkillUp = d.perSkillUp
+	if ns.db.craftValue ~= "none" then
+		local values = ns.CraftSaleValues(recipeID)
+		if values.vendor then
+			AddSaleValue(L["Vendor sell price"], values.vendor)
+		end
+		if values.auction then
+			AddSaleValue(L["Auction price"], values.auction)
+		end
+		if d.value and d.value.volume ~= nil then
+			tooltip:AddDoubleLine(
+				L["TSM regional sales per day"],
+				string.format("%.2f", d.value.volume),
+				1,
+				0.82,
+				0,
+				1,
+				1,
+				1
+			)
+			GameTooltip_AddDisabledLine(tooltip, L["Average sold per auction house in your region, reported by TSM."])
+		end
+		-- The regional sale average is neither a vendor nor a listing, so it keeps its own line and its own name.
+		local net, perSkillUp = d.net, d.perSkillUp
+		if d.value and d.value.source == "sale" and net then
+			comparedSale = true
+			local sells = d.value.quantity ~= 1 and string.format(L["Sells for x%g"], d.value.quantity)
+				or L["Sells for"]
+			tooltip:AddDoubleLine(
+				sells,
+				string.format("%s |cff808080(%s)|r", Money(d.value.copper), L["Region sale average"]),
+				1,
+				0.82,
+				0,
+				1,
+				1,
+				1
+			)
+
+			tooltip:AddDoubleLine(
+				net < 0 and L["Profit per craft"] or L["Net per craft"],
+				ns.FormatSigned(math.abs(net), net < 0),
+				1,
+				0.82,
+				0,
+				1,
+				1,
+				1
+			)
+			if perSkillUp then
+				local label = perSkillUp < 0 and L["Profit per skill-up"] or L["Per skill-up"]
+				tooltip:AddDoubleLine(label, ns.FormatSigned(math.abs(perSkillUp), perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
+			end
+		end
+	end
+	-- Resale can be unknown while the reagents and chance are known. Keep their crafting-cost estimate without
+	-- claiming a net cost or treating an unknown sale as zero.
+	local perSkillUp = not comparedSale and ns.Model.CostPerSkillUp(d.cost, d.chance)
 	if perSkillUp then
-		local label = perSkillUp < 0 and L["Profit per skill-up"] or L["Per skill-up"]
-		tooltip:AddDoubleLine(label, ns.FormatSigned(math.abs(perSkillUp), perSkillUp < 0), 1, 0.82, 0, 1, 1, 1)
+		tooltip:AddDoubleLine(L["Per skill-up"], ns.FormatSigned(perSkillUp, false), 1, 0.82, 0, 1, 1, 1)
 	end
 end
 
@@ -386,7 +432,7 @@ end
 ---@param data SkillUpRecipeNodeData
 function ns.ShowRecipeTooltip(_, row, data)
 	local info = data.recipeInfo
-	if not ns.db.showTooltip or not info then
+	if not ns.db.showTooltips or not ns.db.showTooltip or not info then
 		return
 	end
 	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
@@ -494,6 +540,58 @@ end
 ---@return SkillUpTooltipLine
 local function ShiftHintLine(count)
 	return { kind = "shiftHint", count = count }
+end
+
+-- Recipe patterns are identified by the bundled RecipeScrolls table, never by parsing arbitrary item text.
+---@param itemID integer
+---@return SkillUpTooltipLine[]
+local function PatternProfitLines(itemID)
+	if not ns.db.showTooltips or ns.db.craftValue == "none" or not ns.RecipeScrolls then
+		return {}
+	end
+	local recipeIDs = {}
+	for id, scroll in pairs(ns.RecipeScrolls) do
+		if scroll[1] == itemID then
+			recipeIDs[#recipeIDs + 1] = id
+		end
+	end
+	table.sort(recipeIDs)
+	if #recipeIDs == 0 then
+		return {}
+	end
+	local lines = {}
+	for _, recipeID in ipairs(recipeIDs) do
+		local recipe = ns.RecipeData[recipeID]
+		local info
+		if recipe then
+			info = {}
+			for key, value in pairs(recipe) do
+				info[key] = value
+			end
+			info.recipeID = recipeID
+		end
+		local d = info and ns.Describe(info, ns.SkillContext())
+		local values = d and d.cost and ns.CraftSaleValues(recipeID)
+		for _, sale in
+			ipairs(values and { { "Vendor sell price", values.vendor }, { "Auction price", values.auction } } or {})
+		do
+			local label, value = sale[1], sale[2]
+			if value then
+				local net = d.cost - value.copper
+				lines[#lines + 1] = DoubleLine(
+					L[label],
+					string.format(
+						"%s (%s %s)",
+						Money(value.copper),
+						L[net < 0 and "Profit per craft" or "Net per craft"],
+						ns.FormatSigned(math.abs(net), net < 0)
+					),
+					ns.COLORS.green
+				)
+			end
+		end
+	end
+	return lines
 end
 
 -- Route lines are drawn from the tracked routes and the bags as they are now: declared before Draw, built
@@ -622,19 +720,21 @@ local function RouteTexts(itemID)
 	local lines = {}
 	local rows = index[itemID]
 	if rows then
-		local have = ns.Have(itemID)
 		for _, row in ipairs(rows) do
 			local item = row.item
-			lines[#lines + 1] = {
-				text = string.format(
-					L["Route: %d/%d · %s to %d"],
-					math.min(have, item.need),
-					item.need,
-					row.entry.plan.profession.name,
-					row.entry.plan.target
-				),
-				good = have >= item.need,
-			}
+			local have = ns.RouteDemand.Held(item)
+			if have then
+				lines[#lines + 1] = {
+					text = string.format(
+						L["Route: %d/%d · %s to %d"],
+						math.min(have, item.need),
+						item.need,
+						row.entry.plan.profession.name,
+						row.entry.plan.target
+					),
+					good = have >= item.need,
+				}
+			end
 		end
 	end
 	routeTexts[itemID] = { index = index, bags = bags, lines = lines }
@@ -766,8 +866,13 @@ local function ItemLines(itemID, mode, shifted)
 	for _, line in ipairs(MadeByLines(itemID)) do
 		lines[#lines + 1] = line
 	end
+	for _, line in ipairs(PatternProfitLines(itemID)) do
+		lines[#lines + 1] = line
+	end
 	-- Drawn from the route index and the bags when the tooltip is set, never baked into this item's cache.
-	lines[#lines + 1] = RouteLine(itemID)
+	if ns.db.showTooltipRoute then
+		lines[#lines + 1] = RouteLine(itemID)
+	end
 	if mode == "route" then
 		if shifted and #uses > 0 then
 			for _, line in ipairs(UsedInLines(uses)) do
@@ -797,14 +902,14 @@ local function AddUses(tooltip, data)
 		return
 	end
 	local mode = ns.db.reagentTooltip
-	if mode == "off" or not itemID then
+	if not ns.db.showTooltips or not itemID then
 		return
 	end
-	if mode ~= "route" and mode ~= "full" then
+	if mode ~= "off" and mode ~= "route" and mode ~= "full" then
 		error("unknown reagent tooltip mode: " .. tostring(mode))
 	end
-	local shifted = mode == "route" and IsShiftKeyDown()
-	local lines = ItemLines(itemID, mode, shifted)
+	local shifted = mode ~= "off" and mode == "route" and IsShiftKeyDown()
+	local lines = mode == "off" and PatternProfitLines(itemID) or ItemLines(itemID, mode, shifted)
 	local index = RouteNeedsIndex()
 	local last = drawn[tooltip]
 	if
@@ -884,7 +989,7 @@ end
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddNodeSkill(tooltip, data)
-	if not ns.Usable(tooltip) or not ns.db.gatherTooltip or GetLocale() ~= "enUS" then
+	if not ns.Usable(tooltip) or not ns.db.showTooltips or not ns.db.gatherTooltip or GetLocale() ~= "enUS" then
 		return
 	end
 	local name = FirstLine(data)
@@ -919,7 +1024,7 @@ end
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddCorpseSkill(tooltip, data)
-	if not ns.Usable(tooltip) or not ns.db.gatherTooltip then
+	if not ns.Usable(tooltip) or not ns.db.showTooltips or not ns.db.gatherTooltip then
 		return
 	end
 	local skillLine

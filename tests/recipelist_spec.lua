@@ -16,31 +16,28 @@ function box.SetDataProvider(_, value)
 	callback(owner)
 end
 local original = box.SetDataProvider
-local function tree()
+local function tree(data)
 	local nodes = {}
-	return {
-		Insert = function(_, data)
-			nodes[#nodes + 1] = {
-				GetData = function()
-					return data
-				end,
-				GetNodes = function()
-					return {}
-				end,
-			}
-		end,
-		GetRootNode = function()
-			return {
-				GetNodes = function()
-					return nodes
-				end,
-			}
-		end,
-	}
+	local branch = {}
+	function branch.Insert(_, value)
+		local child = tree(value)
+		nodes[#nodes + 1] = child
+		return child
+	end
+	function branch.GetData()
+		return data
+	end
+	function branch.GetNodes()
+		return nodes
+	end
+	function branch:GetRootNode()
+		return self
+	end
+	return branch
 end
 local ns = {
 	L = {},
-	db = { sortMode = "skill", wideRecipeList = true },
+	db = { sortMode = "skill", unlearnedSortMode = "skill", wideRecipeList = true },
 	Model = {
 		Get = function(id)
 			return { id }
@@ -172,6 +169,7 @@ ns.UnlearnedRecipes = function()
 	return {}
 end
 ns.db.showUnlearned = true
+ns.db.unlearnedSortMode = "skill"
 local newest = tree()
 newest:Insert({ recipeInfo = { recipeID = 10, name = "Ten", learned = true } })
 newest:Insert({ recipeInfo = { recipeID = 20, name = "Twenty", learned = true } })
@@ -229,4 +227,45 @@ box:SetDataProvider(searched)
 nodes = provider:GetRootNode():GetNodes()
 assert(#nodes == 4, "clearing the search brings both added recipes back")
 searchText = nil
+-- Learned and unlearned recipes can use opposing skill orders.
+ns.db.sortMode, ns.db.unlearnedSortMode = "skill", "newest"
+ns.Model.Get = function(id)
+	return { id == 10 and 90 or id == 20 and 20 or id == 70 and 90 or id == 80 and 20 or 0, 100, 100, 100 }
+end
+local split = tree()
+split:Insert({ recipeInfo = { recipeID = 10, name = "Learned expensive", learned = true } })
+split:Insert({ recipeInfo = { recipeID = 20, name = "Learned cheap", learned = true } })
+replacements = 0
+box:SetDataProvider(split)
+nodes = provider:GetRootNode():GetNodes()
+assert(nodes[1]:GetData().recipeInfo.recipeID == 20, "learned recipes retain their selected sort")
+assert(nodes[4]:GetData().recipeInfo.recipeID == 70, "unlearned recipes use their independent sort key")
 print("recipelist_spec: provider replacement, sort, newest first, recursion and native method identity passed")
+
+-- Blizzard mode retains learned categories while sorting native unlearned rows,
+-- even when the bundle has no missing recipes to add.
+ns.db.sortMode, ns.db.unlearnedSortMode = "blizzard", "skill"
+ns.db.showUnlearned = false -- this controls bundle additions, not the native rows already present
+ns.UnlearnedRecipes = function()
+	return {}
+end
+local categorized = tree()
+local category = categorized:Insert({ categoryInfo = { name = "Native category" } })
+category:Insert({ recipeInfo = { recipeID = 10, name = "Learned first", learned = true } })
+category:Insert({ recipeInfo = { recipeID = 20, name = "Learned second", learned = true } })
+category:Insert({ isDivider = true, dividerHeight = 70 })
+category:Insert({ recipeInfo = { recipeID = 70, name = "Unlearned high", learned = false } })
+category:Insert({ recipeInfo = { recipeID = 80, name = "Unlearned low", learned = false } })
+replacements = 0
+box:SetDataProvider(categorized)
+nodes = provider:GetRootNode():GetNodes()
+assert(nodes[1]:GetData().categoryInfo.name == "Native category", "native learned category stays")
+assert(nodes[1]:GetNodes()[1]:GetData().recipeInfo.recipeID == 10, "native learned ordering stays")
+assert(#nodes[1]:GetNodes() == 2, "unlearned rows leave the learned category")
+assert(nodes[3]:GetData().recipeInfo.recipeID == 80, "native unlearned rows use ascending independent skill")
+ns.db.unlearnedSortMode = "newest"
+replacements = 0
+box:SetDataProvider(categorized)
+nodes = provider:GetRootNode():GetNodes()
+assert(nodes[3]:GetData().recipeInfo.recipeID == 70, "changing unlearned order sorts native rows again")
+print("independent unlearned ordering: native categories and bundled recipes passed")

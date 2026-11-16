@@ -4,10 +4,14 @@ if GetLocale() ~= "ptBR" then
 	return
 end
 local L = ns.L
+L["Show SkillUp tooltip details"] = "Mostrar detalhes das dicas do SkillUp"
+L["Show SkillUp profession tabs"] = "Mostrar abas de profissões do SkillUp"
+L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
+	"Adiciona detalhes do SkillUp às dicas e preserva cada escolha individual."
+L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
+	"Mostra as abas de rota, equipamento e benefícios e preserva cada escolha individual."
 
 L["%d %s"] = "%d %s"
-L["%d crafts to %d, %s"] = "%d criações até %d, %s"
-L["%d crafts to %d, %s, at %s"] = "%d criações até %d, %s, em: %s"
 L["%d more"] = "mais %d"
 L["%d of %d"] = "%d de %d"
 L["%d reagents have no price"] = "%d reagentes não têm preço"
@@ -260,7 +264,6 @@ L["To buy"] = "A comprar"
 L["Tool"] = "Ferramenta"
 L["Tooltips and sorting"] = "Dicas e classificação"
 L["Track"] = "Rastrear"
-L["Tracked routes (Shift for all)"] = "Rotas rastreadas (Shift para todas)"
 L["Tracker scale"] = "Tamanho do rastreador"
 L["Train %s"] = "Treinar %s"
 L["Train %s at %d"] = "Treinar %s em %d"
@@ -283,8 +286,6 @@ L["Waist"] = "Cintura"
 L["Waypoint to a trainer"] = "Ponto de referência até um instrutor"
 L["Waypoint to a vendor: %s"] = "Ponto de referência até um comerciante: %s"
 L["Waypoint to the quest giver: %s"] = "Ponto de referência até o recrutador: %s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"O que passar o cursor sobre um item diz sobre suas profissões: quanto dele suas rotas rastreadas precisam (segure Shift para todas as receitas que o usam), cada uma dessas receitas e sua cor, ou nada."
 L["What's new after an update"] = "Novidades após uma atualização"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Onde a dica aparece ao passar o cursor sobre uma receita. Ao lado da janela, ela não cobre os reagentes."
@@ -507,3 +508,145 @@ L["Region sale average"] = "Média regional de vendas"
 L["Region sale average if higher"] = "Média regional de vendas se for maior"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"As médias regionais de vendas exigem TradeSkillMaster e seu aplicativo de desktop. Elas estimam o valor com compras e vendas regionais registradas, com o preço de venda ao comerciante como mínimo. Elas não garantem uma venda."
+L["%s (%s)"] = "%s (%s)"
+L["%s profit per craft"] = "%s de lucro por criação"
+L["%s profit per skill-up"] = "%s de lucro por ponto de habilidade"
+L["Auction price"] = "Preço de leilão"
+L["Auction prices from"] = "Preços de leilão de"
+L["Auctionator"] = "Auctionator"
+L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
+	"Qual addon define os valores de leilão quando ambos estão instalados. O preço do addon escolhido vence; o outro preenche um item para o qual não tem preço. O Auctionator também informa a idade do preço."
+
+L["Skill %d to %d, %s"] = "Perícia de %d a %d, %s" -- mt
+L["Skill %d to %d, %s, at %s"] = "Perícia de %d a %d, %s, em %s" -- mt
+L["Unlearned recipe order"] = "Ordem das receitas não aprendidas" -- mt
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"Ordem das receitas que você ainda não aprendeu. As receitas aprendidas mantêm a ordem selecionada." -- mt
+L["TSM regional sales per day"] = "Vendas regionais por dia segundo o TSM" -- mt
+L["Average sold per auction house in your region, reported by TSM."] =
+	"Quantidade média vendida por casa de leilões na sua região, informada pelo TSM." -- mt
+
+L["Open %s from your spellbook."] = "Abra %s pelo seu grimório."
+
+L["Recipes on Shift"] = "Receitas com Shift" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Mostra receitas com Shift ou sempre. Desativado oculta os detalhes de reagentes, incluindo as necessidades das rotas." -- mt
+L["Show route needs on item tooltips"] = "Mostrar necessidades das rotas nas dicas de itens" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"Mostra quanto de um item suas rotas acompanhadas ainda precisam. Desative para manter os detalhes de receitas sem a linha da rota." -- mt
+
+L["Have (bags only)"] = "Possui (somente bolsas)" -- mt
+
+L["%s%% to %s%%"] = "De %s%% a %s%%" -- mt
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"Adiciona 4 pontos percentuais não verificados por grau detectado de Working Overtime às estimativas de chance de ganhar perícia com receitas amarelas e verdes. Desative para usar a estimativa básica nos custos e rotas. Nenhuma das estimativas é uma regra verificada do servidor." -- mt
+L["Chance of finishing with later purchases: %s."] = "Chance de concluir com compras posteriores: %s." -- mt
+L["Chance of finishing with starting supplies: %s."] = "Chance de concluir com os suprimentos iniciais: %s." -- mt
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"As quantidades de criações e compras são estimativas. Você pode precisar de mais reagentes." -- mt
+L["Craft next follows the estimated route."] = "Criar a próxima segue a rota estimada." -- mt
+L["Include Working Overtime estimate"] = "Incluir estimativa de Working Overtime" -- mt
+L["Starting inventory: bags and bank."] = "Inventário inicial: bolsas e banco." -- mt
+L["Starting inventory: bags only."] = "Inventário inicial: apenas bolsas." -- mt
+L["Supply estimate: calculating."] = "Estimativa de suprimentos: calculando." -- mt
+L["Supply estimate: cancelled."] = "Estimativa de suprimentos: cancelada." -- mt
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"Estimativa de suprimentos: não existe uma compra de menor custo sob estas suposições." -- mt
+L["Supply estimate: no starting purchase meets the target."] =
+	"Estimativa de suprimentos: nenhuma compra inicial atende à meta." -- mt
+L["Supply estimate: not enough information."] = "Estimativa de suprimentos: informações insuficientes." -- mt
+L["Supply estimate: ready."] = "Estimativa de suprimentos: pronta." -- mt
+L["Target chance of finishing with starting supplies: %s%%."] =
+	"Chance desejada de concluir com os suprimentos iniciais: %s%%." -- mt
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"Estas chances pressupõem as taxas de ganho de perícia, os preços, a disponibilidade e a entrega das compras posteriores informados." -- mt
+L["unknown"] = "desconhecido" -- mt
+
+L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
+	"A orientação adaptativa abre a receita recomendada. Escolha quantas unidades criar na janela de profissão." -- mt
+
+L["currency %d"] = "moeda %d" -- mt
+L["an unknown payment"] = "um pagamento desconhecido" -- mt
+L["Name the stock each offer draws on, or give this offer its own stock."] =
+	"Nomeie o estoque de onde vem cada oferta, ou dê a ela um estoque próprio." -- mt
+L["The merchant shows no limit: limit the search to the number you will buy."] =
+	"O comerciante não mostra limite: limite a busca à quantidade que você vai comprar." -- mt
+L["The stock you assume does not match what the merchant shows."] =
+	"O estoque que você supõe não confere com o que o comerciante mostra." -- mt
+L["Enter a starting chance between 1 and 100."] = "Informe uma chance inicial entre 1 e 100." -- mt
+L["The merchant sells none of this route's reagents."] = "O comerciante não vende nenhum reagente desta rota." -- mt
+L["The merchant's offer for %s is incomplete."] = "A oferta do comerciante para %s está incompleta." -- mt
+L["Every offer needs its price to stay as shown."] = "Cada oferta precisa que o preço fique como mostrado." -- mt
+L["Fill in every value this offer needs."] = "Preencha cada valor que esta oferta precisa." -- mt
+L["The merchant sells fewer purchases at a time than that."] = "O comerciante vende menos compras por vez do que isso." -- mt
+L["Offers that draw on one stock pool need the same stock."] =
+	"Ofertas que usam o mesmo estoque precisam do mesmo estoque." -- mt
+L["Offers at one vendor need the same trip costs and values."] =
+	"Ofertas no mesmo comerciante precisam dos mesmos custos e valores de viagem." -- mt
+L["Enter the chance each later purchase arrives, from 0 to 100."] =
+	"Informe a chance de cada compra posterior chegar, de 0 a 100." -- mt
+L["Check that the first purchase arrives for certain at every offer."] =
+	"Marque que a primeira compra chega com certeza em cada oferta." -- mt
+L["One item or payment needs one leftover value."] = "Um item ou pagamento precisa de um valor restante." -- mt
+L["Offers that use one payment need the same value for it."] =
+	"Ofertas que usam o mesmo pagamento precisam do mesmo valor para ele." -- mt
+L["The merchant changed. Check the form again."] = "O comerciante mudou. Confira o formulário de novo." -- mt
+L["The merchant did not change, but the assumptions did. Check the form again."] =
+	"O comerciante não mudou, mas as suposições sim. Confira o formulário de novo." -- mt
+L["The merchant shows this offer sold out."] = "O comerciante mostra esta oferta esgotada." -- mt
+L["The merchant does not say how much is left."] = "O comerciante não diz quanto resta." -- mt
+L["The merchant will not sell this offer to you now."] = "O comerciante não venderá esta oferta a você agora." -- mt
+L["Choose the unit the stock count is in."] = "Escolha a unidade da contagem de estoque." -- mt
+L["The assumptions were rejected. Fill in every value and check each offer."] =
+	"As suposições foram recusadas. Preencha cada valor e confira cada oferta." -- mt
+L["Open a profession to see its plan and coverage."] = "Abra uma profissão para ver seu plano e sua cobertura." -- mt
+L["Plan: %s, %s to %s, %d crafts."] = "Plano: %s, %s a %s, %d fabricações." -- mt
+L["Unpriced crafts: %d."] = "Fabricações sem preço: %d." -- mt
+L["Your target chance: %s%%."] = "Sua chance alvo: %s%%." -- mt
+L["Margin over your target: %s points."] = "Margem acima do seu alvo: %s pontos." -- mt
+L["Below your target by %s points."] = "Abaixo do seu alvo em %s pontos." -- mt
+L["craft"] = "fabricar" -- mt
+L["buy"] = "comprar" -- mt
+L["stop"] = "parar" -- mt
+L["Next step: %s."] = "Próximo passo: %s." -- mt
+L["Open a profession to set its supply policy."] = "Abra uma profissão para definir sua política de suprimento." -- mt
+L["This profession has no plan to supply yet."] = "Esta profissão ainda não tem um plano para suprir." -- mt
+L["Open a merchant to set this profession's supply policy."] =
+	"Abra um comerciante para definir a política de suprimento desta profissão." -- mt
+L["Ready to apply these assumptions."] = "Pronto para aplicar estas suposições." -- mt
+L["no limit"] = "sem limite" -- mt
+L["Offer %d: %s"] = "Oferta %d: %s" -- mt
+L["The merchant shows %s in stock, %s per purchase, at most %s purchases."] =
+	"O comerciante mostra %s em estoque, %s por compra, no máximo %s compras." -- mt
+L["Price: %s."] = "Preço: %s." -- mt
+L["Also costs %s %s."] = "Também custa %s %s." -- mt
+L["I can buy this offer"] = "Posso comprar esta oferta" -- mt
+L["The price stays as shown"] = "O preço fica como mostrado" -- mt
+L["Stock I assume is left"] = "Estoque que suponho restante" -- mt
+L["The stock does not run out"] = "O estoque não acaba" -- mt
+L["The stock count is in items, not purchases"] = "A contagem de estoque é em itens, não em compras" -- mt
+L["This offer keeps its own stock"] = "Esta oferta mantém seu próprio estoque" -- mt
+L["Limit the search to the stock I typed"] = "Limitar a busca ao estoque que digitei" -- mt
+L["Stock pool name"] = "Nome do estoque" -- mt
+L["Purchases allowed per visit"] = "Compras permitidas por visita" -- mt
+L["First trip cost (copper)"] = "Custo da primeira viagem (cobre)" -- mt
+L["Later trip cost (copper)"] = "Custo das viagens seguintes (cobre)" -- mt
+L["First trip value to you (copper)"] = "Valor da primeira viagem para você (cobre)" -- mt
+L["Later trip value to you (copper)"] = "Valor das viagens seguintes para você (cobre)" -- mt
+L["Chance each later purchase arrives (%)"] = "Chance de cada compra posterior chegar (%)" -- mt
+L["The first purchase arrives for certain"] = "A primeira compra chega com certeza" -- mt
+L["I pay even when a purchase does not arrive"] = "Pago mesmo quando uma compra não chega" -- mt
+L["Leftover value of one %s (copper)"] = "Valor restante de um %s (cobre)" -- mt
+L["Value of one %s (copper)"] = "Valor de um %s (cobre)" -- mt
+L["These are your own assumptions. The merchant's window only shows what it shows now."] =
+	"Estas são suas próprias suposições. A janela do comerciante só mostra o que mostra agora." -- mt
+L["Chance of finishing with starting supplies (%)"] = "Chance de terminar com o estoque inicial (%)" -- mt
+L["Plan later purchases too"] = "Planejar também as compras posteriores" -- mt
+L["Cost of an unfinished route (copper)"] = "Custo de uma rota inacabada (cobre)" -- mt
+L["Applied. The plan and its coverage follow these assumptions."] =
+	"Aplicado. O plano e sua cobertura seguem estas suposições." -- mt
+L["Supply"] = "Suprimento" -- mt
+
+L["Supply policy"] = "Política de suprimento" -- mt
+L["Open the profession and a merchant window."] = "Abra a profissão e uma janela de comerciante." -- mt
+L["Apply policy"] = "Aplicar política" -- mt

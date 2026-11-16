@@ -4,10 +4,14 @@ if GetLocale() ~= "koKR" then
 	return
 end
 local L = ns.L
+L["Show SkillUp tooltip details"] = "SkillUp 툴팁 세부 정보 표시"
+L["Show SkillUp profession tabs"] = "SkillUp 전문 기술 탭 표시"
+L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
+	"각 툴팁 설정을 유지하면서 SkillUp 세부 정보를 툴팁에 추가합니다."
+L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
+	"각 탭 설정을 유지하면서 경로, 장비 및 강화 효과 탭을 표시합니다."
 
 L["%d %s"] = "%d %s"
-L["%d crafts to %d, %s"] = "%d회 제작, %d까지, %s"
-L["%d crafts to %d, %s, at %s"] = "%d회 제작, %d까지, %s, 장소: %s"
 L["%d more"] = "%d개 더"
 L["%d of %d"] = "%d / %d"
 L["%d reagents have no price"] = "%d개의 재료에 가격이 없습니다"
@@ -266,7 +270,6 @@ L["To buy"] = "구매할 금액"
 L["Tool"] = "도구"
 L["Tooltips and sorting"] = "툴팁과 정렬"
 L["Track"] = "추적"
-L["Tracked routes (Shift for all)"] = "추적 중인 경로 (Shift: 전체)"
 L["Tracker scale"] = "추적기 크기"
 L["Train %s"] = "%s 배우기"
 L["Train %s at %d"] = "%s 배우기 (%d)"
@@ -289,8 +292,6 @@ L["Waist"] = "허리"
 L["Waypoint to a trainer"] = "전문가로 웨이포인트"
 L["Waypoint to a vendor: %s"] = "상인으로 웨이포인트: %s"
 L["Waypoint to the quest giver: %s"] = "퀘스트 NPC로 웨이포인트: %s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"아이템에 마우스를 올렸을 때 전문 기술 정보를 표시하는 방식: 추적 중인 경로의 필요량 (Shift를 누르면 그 재료를 쓰는 모든 제조법), 해당 제조법 전체와 색상, 또는 표시 안 함."
 L["What's new after an update"] = "업데이트 후 새로운 점"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
@@ -518,3 +519,145 @@ L["Region sale average"] = "지역 평균 판매가"
 L["Region sale average if higher"] = "더 높으면 지역 평균 판매가"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"지역 평균 판매가에는 TradeSkillMaster와 데스크톱 앱이 필요합니다. 보고된 지역 판매 및 구매 기록으로 가치를 추정하며 상점 판매가보다 낮아지지 않습니다. 판매를 보장하지는 않습니다."
+L["%s (%s)"] = "%s (%s)"
+L["%s profit per craft"] = "제작당 %s 이익"
+L["%s profit per skill-up"] = "기술 숙련당 %s 이익"
+L["Auction price"] = "경매 가격"
+L["Auction prices from"] = "경매 가격 출처"
+L["Auctionator"] = "Auctionator"
+L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
+	"둘 다 설치되어 있을 때 경매 가치를 어느 애드온이 책정할지 정합니다. 선택한 애드온의 가격이 우선하며, 다른 애드온은 가격이 없는 아이템만 채웁니다. Auctionator는 가격의 경과 시간도 표시합니다."
+
+L["Skill %d to %d, %s"] = "숙련도 %d~%d, %s" -- mt
+L["Skill %d to %d, %s, at %s"] = "숙련도 %d~%d, %s, %s에서" -- mt
+L["Unlearned recipe order"] = "배우지 않은 제조법 정렬" -- mt
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"아직 배우지 않은 제조법의 정렬 방식입니다. 배운 제조법은 선택한 정렬 방식을 유지합니다." -- mt
+L["TSM regional sales per day"] = "TSM 지역 일일 판매량" -- mt
+L["Average sold per auction house in your region, reported by TSM."] =
+	"TSM이 보고한 해당 지역 경매장당 평균 판매량입니다." -- mt
+
+L["Open %s from your spellbook."] = "주문책에서 %s|1을;를; 여세요."
+
+L["Recipes on Shift"] = "Shift로 조제법 표시" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Shift를 누를 때 또는 항상 조제법을 표시합니다. 끄면 경로에 필요한 수량을 포함한 재료 세부 정보가 숨겨집니다." -- mt
+L["Show route needs on item tooltips"] = "아이템 툴팁에 경로 필요 수량 표시" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"추적 중인 경로에 아직 필요한 아이템 수량을 표시합니다. 이 설정을 끄면 경로 줄 없이 조제법 세부 정보를 볼 수 있습니다." -- mt
+
+L["Have (bags only)"] = "보유 (가방만)" -- mt
+
+L["%s%% to %s%%"] = "%s%%에서 %s%%까지" -- mt
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"감지된 Working Overtime 등급마다 노란색 및 녹색 제조법의 예상 숙련도 상승 확률에 검증되지 않은 4퍼센트포인트를 더합니다. 끄면 비용과 경로에 기본 확률 추정치를 사용합니다. 두 추정치 모두 검증된 서버 규칙이 아닙니다." -- mt
+L["Chance of finishing with later purchases: %s."] = "추가 구매 시 완료 확률: %s." -- mt
+L["Chance of finishing with starting supplies: %s."] = "시작 재료로 완료할 확률: %s." -- mt
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"제작 횟수와 구매 수량은 추정치입니다. 재료가 더 필요할 수 있습니다." -- mt
+L["Craft next follows the estimated route."] = "다음 제작은 예상 경로를 따릅니다." -- mt
+L["Include Working Overtime estimate"] = "Working Overtime 추정치 포함" -- mt
+L["Starting inventory: bags and bank."] = "시작 보유량: 가방과 은행." -- mt
+L["Starting inventory: bags only."] = "시작 보유량: 가방만." -- mt
+L["Supply estimate: calculating."] = "재료 추정: 계산 중." -- mt
+L["Supply estimate: cancelled."] = "재료 추정: 취소됨." -- mt
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"재료 추정: 이 가정에서는 최저 비용 구매가 존재하지 않습니다." -- mt
+L["Supply estimate: no starting purchase meets the target."] =
+	"재료 추정: 목표를 충족하는 시작 구매가 없습니다." -- mt
+L["Supply estimate: not enough information."] = "재료 추정: 정보가 부족합니다." -- mt
+L["Supply estimate: ready."] = "재료 추정: 준비됨." -- mt
+L["Target chance of finishing with starting supplies: %s%%."] = "시작 재료로 완료할 목표 확률: %s%%." -- mt
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"이 확률은 명시된 숙련도 상승률, 가격, 구매 가능 여부 및 추가 구매분의 인도를 가정합니다." -- mt
+L["unknown"] = "알 수 없음" -- mt
+
+L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
+	"적응형 안내는 추천 제조법을 엽니다. 전문 기술 창에서 제작할 수량을 선택하세요." -- mt
+
+L["currency %d"] = "화폐 %d" -- mt
+L["an unknown payment"] = "알 수 없는 지불" -- mt
+L["Name the stock each offer draws on, or give this offer its own stock."] =
+	"각 상품이 어느 재고에서 나오는지 이름을 적거나, 이 상품만의 재고를 지정하세요." -- mt
+L["The merchant shows no limit: limit the search to the number you will buy."] =
+	"상인은 한도를 표시하지 않습니다: 구매할 수량으로 검색을 제한하세요." -- mt
+L["The stock you assume does not match what the merchant shows."] =
+	"가정한 재고가 상인이 표시한 것과 맞지 않습니다." -- mt
+L["Enter a starting chance between 1 and 100."] = "시작 확률을 1에서 100 사이로 입력하세요." -- mt
+L["The merchant sells none of this route's reagents."] = "이 상인은 이 경로의 재료를 팔지 않습니다." -- mt
+L["The merchant's offer for %s is incomplete."] = "%s의 상인 상품 정보가 불완전합니다." -- mt
+L["Every offer needs its price to stay as shown."] = "모든 상품은 표시된 가격이 유지되어야 합니다." -- mt
+L["Fill in every value this offer needs."] = "이 상품에 필요한 값을 모두 입력하세요." -- mt
+L["The merchant sells fewer purchases at a time than that."] = "상인은 한 번에 그보다 적게 판매합니다." -- mt
+L["Offers that draw on one stock pool need the same stock."] =
+	"같은 재고를 쓰는 상품은 같은 재고가 필요합니다." -- mt
+L["Offers at one vendor need the same trip costs and values."] =
+	"같은 상인의 상품은 같은 이동 비용과 가치가 필요합니다." -- mt
+L["Enter the chance each later purchase arrives, from 0 to 100."] =
+	"이후 각 구매가 도착할 확률을 0에서 100 사이로 입력하세요." -- mt
+L["Check that the first purchase arrives for certain at every offer."] =
+	"모든 상품에서 첫 구매가 확실히 도착하는지 확인하세요." -- mt
+L["One item or payment needs one leftover value."] =
+	"물품이나 지불에는 하나의 잔여 가치가 필요합니다." -- mt
+L["Offers that use one payment need the same value for it."] =
+	"같은 지불을 쓰는 상품은 그 지불에 같은 가치가 필요합니다." -- mt
+L["The merchant changed. Check the form again."] = "상인이 바뀌었습니다. 양식을 다시 확인하세요." -- mt
+L["The merchant did not change, but the assumptions did. Check the form again."] =
+	"상인은 그대로지만 가정이 바뀌었습니다. 양식을 다시 확인하세요." -- mt
+L["The merchant shows this offer sold out."] = "상인은 이 상품을 매진으로 표시합니다." -- mt
+L["The merchant does not say how much is left."] = "상인은 얼마나 남았는지 알려주지 않습니다." -- mt
+L["The merchant will not sell this offer to you now."] = "상인은 지금 이 상품을 팔지 않습니다." -- mt
+L["Choose the unit the stock count is in."] = "재고 수량의 단위를 선택하세요." -- mt
+L["The assumptions were rejected. Fill in every value and check each offer."] =
+	"가정이 거부되었습니다. 모든 값을 입력하고 각 상품을 확인하세요." -- mt
+L["Open a profession to see its plan and coverage."] = "계획과 적용 범위를 보려면 전문기술을 여세요." -- mt
+L["Plan: %s, %s to %s, %d crafts."] = "계획: %s, %s에서 %s까지, 제작 %d회." -- mt
+L["Unpriced crafts: %d."] = "가격 없는 제작: %d." -- mt
+L["Your target chance: %s%%."] = "목표 확률: %s%%." -- mt
+L["Margin over your target: %s points."] = "목표보다 높은 여유: %s포인트." -- mt
+L["Below your target by %s points."] = "목표보다 %s포인트 낮음." -- mt
+L["craft"] = "제작" -- mt
+L["buy"] = "구매" -- mt
+L["stop"] = "중지" -- mt
+L["Next step: %s."] = "다음 단계: %s." -- mt
+L["Open a profession to set its supply policy."] = "공급 정책을 정하려면 전문기술을 여세요." -- mt
+L["This profession has no plan to supply yet."] = "이 전문기술에는 아직 공급할 계획이 없습니다." -- mt
+L["Open a merchant to set this profession's supply policy."] =
+	"이 전문기술의 공급 정책을 정하려면 상인을 여세요." -- mt
+L["Ready to apply these assumptions."] = "이 가정을 적용할 준비가 되었습니다." -- mt
+L["no limit"] = "한도 없음" -- mt
+L["Offer %d: %s"] = "상품 %d: %s" -- mt
+L["The merchant shows %s in stock, %s per purchase, at most %s purchases."] =
+	"상인은 재고 %s, 구매당 %s, 최대 %s회 구매를 표시합니다." -- mt
+L["Price: %s."] = "가격: %s." -- mt
+L["Also costs %s %s."] = "추가 비용 %s %s." -- mt
+L["I can buy this offer"] = "이 상품을 살 수 있습니다" -- mt
+L["The price stays as shown"] = "가격은 표시된 대로 유지됩니다" -- mt
+L["Stock I assume is left"] = "남아 있다고 가정하는 재고" -- mt
+L["The stock does not run out"] = "재고가 떨어지지 않습니다" -- mt
+L["The stock count is in items, not purchases"] = "재고 수량은 구매 횟수가 아니라 물품 기준입니다" -- mt
+L["This offer keeps its own stock"] = "이 상품은 자체 재고를 유지합니다" -- mt
+L["Limit the search to the stock I typed"] = "입력한 재고로 검색 제한" -- mt
+L["Stock pool name"] = "재고 이름" -- mt
+L["Purchases allowed per visit"] = "방문당 허용 구매 횟수" -- mt
+L["First trip cost (copper)"] = "첫 방문 비용(코퍼)" -- mt
+L["Later trip cost (copper)"] = "이후 방문 비용(코퍼)" -- mt
+L["First trip value to you (copper)"] = "첫 방문의 가치(코퍼)" -- mt
+L["Later trip value to you (copper)"] = "이후 방문의 가치(코퍼)" -- mt
+L["Chance each later purchase arrives (%)"] = "이후 각 구매가 도착할 확률 (%)" -- mt
+L["The first purchase arrives for certain"] = "첫 구매는 확실히 도착합니다" -- mt
+L["I pay even when a purchase does not arrive"] = "구매가 도착하지 않아도 지불합니다" -- mt
+L["Leftover value of one %s (copper)"] = "%s 하나의 잔여 가치(코퍼)" -- mt
+L["Value of one %s (copper)"] = "%s 하나의 가치(코퍼)" -- mt
+L["These are your own assumptions. The merchant's window only shows what it shows now."] =
+	"이것은 직접 정한 가정입니다. 상인 창은 지금 보이는 것만 보여줍니다." -- mt
+L["Chance of finishing with starting supplies (%)"] = "시작 재고로 완료할 확률 (%)" -- mt
+L["Plan later purchases too"] = "이후 구매도 계획" -- mt
+L["Cost of an unfinished route (copper)"] = "완료하지 못한 경로의 비용(코퍼)" -- mt
+L["Applied. The plan and its coverage follow these assumptions."] =
+	"적용했습니다. 계획과 적용 범위는 이 가정을 따릅니다." -- mt
+L["Supply"] = "공급" -- mt
+
+L["Supply policy"] = "공급 정책" -- mt
+L["Open the profession and a merchant window."] = "전문기술과 상인 창을 여세요." -- mt
+L["Apply policy"] = "정책 적용" -- mt

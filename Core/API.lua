@@ -6,6 +6,9 @@ if ns.broken then
 end
 local L = ns.L
 
+-- The public copy runs for every read, so its primitives are locals: a global lookup per copied value is not free.
+local type, next, min = type, next, math.min
+
 -- SkillUpForever.API, version 1: each profession's next steps, recipes and reagents,
 -- read from the same levelling plan the route tab shows, for other addons to draw.
 -- Built once and kept until Core/Changes.lua says it is stale.
@@ -261,11 +264,13 @@ local function Quest(profession, rank)
 	end or nil
 end
 
--- The route's first few steps, each craft preceded by getting what the bags lack for it.
+-- The route's first few steps, each craft preceded by getting what the bags lack for it. The build expands the
+-- route's reagents once and hands the same rows to every reader here.
 ---@param plan SkillUpPlan
+---@param rows SkillUpNeededItem[]
 ---@return SkillUpAPIStep[]
 ---@return table<integer, fun(): integer?>
-local function Steps(plan)
+local function Steps(plan, rows)
 	local profession = plan.profession
 	local steps, picks, held = {}, {}, {}
 	---@param step SkillUpAPIStep
@@ -274,6 +279,38 @@ local function Steps(plan)
 		if #steps < MAX_LIMIT then
 			steps[#steps + 1] = step
 			picks[#steps] = pick
+		end
+	end
+	local supply = ns.RouteDemand.Supply(plan)
+	if supply then
+		for _, acquisition in ipairs(supply.acquisitions or {}) do
+			local npcID = acquisition.npcID
+			local detail = Detail(npcID, L["Vendor"], acquisition.moneyCopper)
+			local payments = ns.AcquisitionPayments({ acquisition })
+			if payments ~= "" then
+				detail = detail .. " · " .. L["Requires"] .. " " .. payments
+			end
+			Add({
+				kind = "buy",
+				text = string.format(L["Buy %d %s"], acquisition.units, ItemName(acquisition.itemID)),
+				itemID = acquisition.itemID,
+				count = acquisition.units,
+				cost = acquisition.moneyCopper,
+				detail = detail,
+				nav = npcID ~= nil,
+				acquisition = acquisition,
+			}, npcID and function()
+				return npcID
+			end or nil)
+		end
+		for _, item in ipairs(rows) do
+			if not item.acquisitions then
+				local have = ns.RouteDemand.Held(item)
+				local missing = have and item.need - have
+				if missing and missing > 0 then
+					Add(Acquire(item.itemID, missing)) -- multi-value: the tool step and its picker
+				end
+			end
 		end
 	end
 	for _, walk in ipairs(plan.steps) do
@@ -310,7 +347,7 @@ local function Steps(plan)
 			Add(step, pick)
 		elseif craft then
 			local recipeID = craft.recipeID
-			for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
+			for _, reagent in ipairs(supply and {} or ns.Reagents(recipeID) or {}) do
 				local itemID, need = reagent.itemID, reagent.quantity * craft.crafts
 				local have = held[itemID] or ns.Have(itemID)
 				held[itemID] = math.max(have - need, 0)
@@ -360,13 +397,17 @@ local function Recipes(plan)
 	return recipes
 end
 
----@param plan SkillUpPlan
+---@param rows SkillUpNeededItem[]
 ---@return SkillUpAPIReagent[]
-local function Reagents(plan)
+local function Reagents(rows)
 	local reagents = {}
-	for _, item in ipairs(ns.RouteReagents(plan)) do
-		reagents[#reagents + 1] =
-			{ itemID = item.itemID, need = item.need, have = ns.Have(item.itemID), source = ReagentSource(item) }
+	for _, item in ipairs(rows) do
+		reagents[#reagents + 1] = {
+			itemID = item.itemID,
+			need = item.need,
+			have = ns.RouteDemand.Held(item),
+			source = ReagentSource(item),
+		}
 	end
 	return reagents
 end
@@ -384,8 +425,14 @@ local function Build()
 	pickers = {}
 	for skillLine, profession in pairs(ns.RouteProfessions()) do
 		local plan = ns.PlanRoute(profession)
-		local steps, picks = Steps(plan)
+		-- One expansion of the route serves the steps, the reagents and the source product universe.
+		local rows = ns.RouteReagents(plan)
+		local steps, picks = Steps(plan, rows)
 		pickers[skillLine] = picks
+		local products = {}
+		for _, item in ipairs(rows) do
+			products[item.itemID] = true
+		end
 		local entry = {
 			name = profession.name,
 			skillLineID = skillLine,
@@ -395,7 +442,13 @@ local function Build()
 			title = ns.RankName(profession.max),
 			steps = steps,
 			recipes = Recipes(plan),
-			reagents = Reagents(plan),
+			reagents = Reagents(rows),
+			sourceEvidence = ns.SupplySources.Inspect(products),
+			recipeEvidence = ns.RecipeEvidence.Inspect(skillLine),
+			supply = plan.supply and plan.supply.job.result,
+			-- Resolved once per build, copied per read. Every revocation that can replace this action drops the
+			-- API cache (Core/Changes.lua), so a cached nil cannot outlive a published or revoked action.
+			nextAction = ns.RouteDemand.NextAction(plan),
 		}
 		entries[#entries + 1] = entry
 		urgency[entry] = { #steps > 0 and 0 or 1, ns.IsTracked(skillLine) and 0 or 1, Urgency(entry) }
@@ -431,8 +484,9 @@ end
 ---@return T
 local function CopyRow(row)
 	local copy = {}
-	for key, value in pairs(row) do
-		copy[key] = value
+	-- `next` skips the iterator function `pairs` calls once per key; this runs for every public read.
+	for key, value in next, row do
+		copy[key] = type(value) == "table" and CopyRow(value) or value
 	end
 	return copy
 end
@@ -447,10 +501,10 @@ local function CopyProfessions(list, steps, recipes)
 	local copy = {}
 	for index, entry in ipairs(list) do
 		local copiedSteps, copiedRecipes, reagents = {}, {}, {}
-		for stepIndex = 1, math.min(#entry.steps, steps) do
+		for stepIndex = 1, min(#entry.steps, steps) do
 			copiedSteps[stepIndex] = CopyRow(entry.steps[stepIndex])
 		end
-		for recipeIndex = 1, math.min(#entry.recipes, recipes) do
+		for recipeIndex = 1, min(#entry.recipes, recipes) do
 			copiedRecipes[recipeIndex] = CopyRow(entry.recipes[recipeIndex])
 		end
 		for reagentIndex, reagent in ipairs(entry.reagents) do
@@ -460,12 +514,20 @@ local function CopyProfessions(list, steps, recipes)
 			name = entry.name,
 			skillLineID = entry.skillLineID,
 			icon = entry.icon,
+			nextAction = entry.nextAction and CopyRow(entry.nextAction) or nil,
 			rank = entry.rank,
 			maxRank = entry.maxRank,
 			title = entry.title,
 			steps = copiedSteps,
 			recipes = copiedRecipes,
 			reagents = reagents,
+			sourceEvidence = CopyRow(entry.sourceEvidence),
+			recipeEvidence = ns.RecipeEvidence.Current(entry.recipeEvidence.recipeRevision) and CopyRow(
+				entry.recipeEvidence
+			) or ns.RecipeEvidence.Inspect(entry.skillLineID),
+			supply = entry.supply and (not entry.supply.recipeRevision or ns.RecipeEvidence.Current(
+				entry.supply.recipeRevision
+			)) and CopyRow(entry.supply) or nil,
 		}
 	end
 	return copy
@@ -487,7 +549,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 6 }
+local API = { version = 1, minor = 14 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe
@@ -557,6 +619,7 @@ function API.ShoppingList(skillLineID)
 	for _, entry in ipairs(tracked) do
 		if not skillLineID or entry.plan.profession.skillLine == skillLineID then
 			local result = {
+				supplySummary = CopyRow(ns.RouteDemand.Summary(entry.plan)),
 				profession = entry.plan.profession.name,
 				skillLine = entry.plan.profession.skillLine,
 				target = entry.plan.target,
@@ -569,20 +632,28 @@ function API.ShoppingList(skillLineID)
 				bySource[source] = {}
 			end
 			for _, item in ipairs(entry.items) do
-				local price = ns.Price(item.itemID)
-				local have = ns.Have(item.itemID)
-				local missing = math.max(item.need - have, 0)
+				local price = not item.acquisitions and ns.Price(item.itemID) or nil
+				local have = ns.RouteDemand.Held(item)
+				local missing = have and math.max(item.need - have, 0)
 				local row = {
 					itemID = item.itemID,
 					need = item.need,
 					have = have,
 					missing = missing,
+					inventoryScope = item.supplyScope or "bags-and-bank",
 					source = item.source,
 					price = price and not price.unknown and price.copper or nil,
 					priceAge = price and price.source == "auctionator" and price.days or nil,
-					cost = price and not price.unknown and missing * price.copper or nil,
+					cost = price and not price.unknown and missing and missing * price.copper or nil,
 					alt = ns.AltCounts(item.itemID),
 				}
+				if item.acquisitions then
+					row.acquisitions = CopyRow(item.acquisitions)
+					row.cost = 0
+					for _, acquisition in ipairs(item.acquisitions) do
+						row.cost = row.cost + acquisition.moneyCopper
+					end
+				end
 				bySource[row.source][#bySource[row.source] + 1] = row
 			end
 			for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
@@ -591,7 +662,7 @@ function API.ShoppingList(skillLineID)
 				end)
 				for _, row in ipairs(bySource[source]) do
 					result.items[#result.items + 1] = row
-					if row.missing > 0 then
+					if row.missing and row.missing > 0 then
 						if row.cost then
 							result.total = result.total + row.cost
 						else
@@ -632,12 +703,15 @@ function ns.ShoppingText(skillLineID)
 		L["SkillUp Forever shopping list"],
 		#professions > 0 and table.concat(professions, ", ") or L["No tracked profession"],
 	}
+	for _, list in ipairs(lists) do
+		lines[#lines + 1] = list.profession .. ": " .. ns.SupplySummaryText(list.supplySummary)
+	end
 	local total = 0
 	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
 		local bucket = {}
 		for _, list in ipairs(lists) do
 			for _, row in ipairs(list.items) do
-				if row.source == source and row.missing > 0 then
+				if row.source == source and row.missing and row.missing > 0 then
 					local name = C_Item.GetItemNameByID(row.itemID)
 					if not name then
 						C_Item.RequestLoadItemDataByID(row.itemID)
@@ -653,6 +727,12 @@ function ns.ShoppingText(skillLineID)
 						total = total + row.cost
 					else
 						text = string.format(L["%d x %s - price unknown"], row.missing, name)
+					end
+					if row.acquisitions then
+						local payments = ns.AcquisitionPayments(row.acquisitions)
+						if payments ~= "" then
+							text = text .. " · " .. L["Requires"] .. " " .. payments
+						end
 					end
 					bucket[#bucket + 1] = text
 				end
@@ -681,11 +761,10 @@ function ns.ShoppingTrip(skillLineID)
 		local profession = ns.RouteProfessions()[list.skillLine]
 		local plan = profession and ns.PlanRoute(profession)
 		for _, row in ipairs(list.items) do
-			if row.missing > 0 then
+			if row.missing and row.missing > 0 then
 				anyMissing = true
 				if row.source == "vendor" then
-					local npcID = ns.NearestVendor(row.itemID, true)
-					if npcID then
+					for _, npcID in ipairs(ns.RouteDemand.Vendors(row, true)) do
 						byVendor[npcID] = true
 						vendorItems[npcID] = vendorItems[npcID] or {}
 						vendorItems[npcID][#vendorItems[npcID] + 1] = row.itemID
@@ -850,21 +929,115 @@ function API.Navigate(skillLineID, stepIndex)
 	return npcID ~= nil and ns.SetWaypoint(npcID)
 end
 
--- The profession's window, where SkillUp's recipe colours and route tab are.
+-- The client refuses OpenTradeSkill from addon code, including hardware clicks
+-- (live evidence: forever-core#538). Reuse an already-open profession instead;
+-- the player's own profession control is the only supported way to open it.
 ---@param skillLineID integer
 ---@return boolean
 function API.OpenRecipes(skillLineID)
+	if InCombatLockdown() then
+		return false
+	end
 	local profession = ns.db and ns.RouteProfessions()[skillLineID]
 	if not profession then
 		return false
 	end
-	-- Forever's own profession ID opens it; the classic skill line is the fallback, asked only when it is
-	-- another ID: the same one again would just repeat a request the client has refused.
-	local id = profession.professionID
-	if id and C_TradeSkillUI.OpenTradeSkill(id) then
+	if ProfessionsFrame and ProfessionsFrame:IsShown() and ns.OpenSkillLine and ns.OpenSkillLine() == skillLineID then
+		ForeverCore.ProfessionTabs.ShowNative()
 		return true
 	end
-	return id ~= skillLineID and C_TradeSkillUI.OpenTradeSkill(skillLineID) == true
+	ns.Print(string.format(L["Open %s from your spellbook."], profession.name))
+	return false
+end
+
+-- Read-only recipe and account-history surfaces. These return fresh tables so callers cannot mutate the planner's
+-- bundled data or saved-variable records through the public API.
+---@param skillLineID integer?
+---@return integer[]?, SkillUpAPIReason?
+function API.Recipes(skillLineID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	local result = {}
+	for recipeID, recipe in pairs(ns.RecipeData or {}) do
+		if not skillLineID or recipe.skillLine == skillLineID then
+			result[#result + 1] = recipeID
+		end
+	end
+	if #result == 0 then
+		return nil, "none"
+	end
+	table.sort(result)
+	return result
+end
+
+---@param recipeID integer
+---@return SkillUpAPIRecipeDetails?, SkillUpAPIReason?
+function API.Recipe(recipeID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	local recipe = ns.RecipeData and ns.RecipeData[recipeID]
+	if not recipe then
+		return nil, "none"
+	end
+	local result = { skillLineID = recipe.skillLine, reagents = {} }
+	if recipe.output then
+		result.output = { itemID = recipe.output.itemID, quantity = recipe.output.quantity }
+	else
+		result.output = false
+	end
+	for _, reagent in ipairs(recipe.reagents or {}) do
+		result.reagents[#result.reagents + 1] = { itemID = reagent.itemID, quantity = reagent.quantity }
+	end
+	return result
+end
+
+---@param recipeID integer
+---@return SkillUpAPIRequirement?, SkillUpAPIReason?
+function API.RecipeRequirement(recipeID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	local recipe = ns.RecipeData and ns.RecipeData[recipeID]
+	if not recipe then
+		return nil, "none"
+	end
+	local training = ns.TrainingFor({ skillLine = recipe.skillLine }, recipeID)
+	if training then
+		return { skill = training[2], source = "trainer", trainerFee = training[1] }
+	end
+	local scroll = ns.RecipeScrolls and ns.RecipeScrolls[recipeID]
+	if scroll then
+		return { skill = scroll[2], source = "item", recipeItem = scroll[1] }
+	end
+	return nil, "none"
+end
+
+---@return string[]?, SkillUpAPIReason?
+function API.Characters()
+	if not ns.db then
+		return nil, "loading"
+	end
+	local result = {}
+	for key in pairs(ns.db.learned or {}) do
+		result[#result + 1] = key
+	end
+	table.sort(result)
+	return result
+end
+
+---@param characterKey string
+---@param recipeID integer
+---@return boolean?, SkillUpAPIReason?
+function API.Knows(characterKey, recipeID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	if type(characterKey) ~= "string" or type(recipeID) ~= "number" or not ns.RecipeData[recipeID] then
+		return nil, "invalid"
+	end
+	return ns.db.learned[characterKey] and ns.db.learned[characterKey][recipeID] == true or false
 end
 
 ---@type SkillUpPublicAddon

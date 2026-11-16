@@ -12,7 +12,11 @@ local BOOK = 5000
 
 local c = Client.load({
 	boot = false,
-	saved = { routeTargets = { [197] = 60, [164] = 20 }, trackedProfessions = { [197] = true } },
+	saved = {
+		routeTargets = { [197] = 60, [164] = 20 },
+		trackedProfessions = { [197] = true },
+		learned = { ["Tester-Realm"] = { [GLOVES] = true } },
+	},
 	data = {
 		Thresholds = {
 			[GLOVES] = { 125, 140, 155, 165 },
@@ -60,7 +64,7 @@ local c = Client.load({
 })
 local ns, API = c.ns, c.G.SkillUpForever.API
 equal(API.version, 1, "version 1")
-equal(API.minor, 6, "minor 6 adds tracking, the shopping trip, limits, stats and the leaderboard")
+equal(API.minor, 14, "minor 14 publishes current adaptive actions")
 -- Publishing is discovery, not an API change (#594): the suite lists the addon with the API's own version and minor.
 local published
 for _, entry in ipairs(c.G.ForeverCore.APIKit.Addons()) do
@@ -69,10 +73,16 @@ for _, entry in ipairs(c.G.ForeverCore.APIKit.Addons()) do
 	end
 end
 equal(published and published.version, 1, "the suite list carries the API's version")
-equal(published and published.minor, 6, "and its minor")
+equal(published and published.minor, 14, "and its minor")
+
 equal(published and published.api, API, "and the addon's own API table")
 -- Nothing to answer says why, so a caller can tell "ask again later" from "there is nothing to ask about".
 local beforeLoad, beforeLoadReason = API.Professions()
+for _, member in ipairs({ "Recipes", "Recipe", "RecipeRequirement", "Characters", "Knows" }) do
+	local result, reason = API[member]()
+	equal(result, nil, member .. " waits for saved variables")
+	equal(reason, "loading", member .. " names its loading state")
+end
 equal(beforeLoad, nil, "nothing before the saved variables load")
 equal(beforeLoadReason, "loading", "and the read says to ask again")
 local noMaterials, noMaterialsReason = API.RequiredMaterials(999999)
@@ -115,6 +125,28 @@ c.professions = {
 c.Boot()
 ns.SetCollectMode("gather")
 equal(#c.chat, 0, "the addon starts without a word")
+
+local recipeIDs = API.Recipes(165)
+equal(recipeIDs[1], GLOVES, "Recipes filters by profession")
+local recipeDetails = API.Recipe(GLOVES)
+equal(recipeDetails.skillLineID, 165, "Recipe reports the skill line")
+equal(recipeDetails.reagents[1].itemID, LEATHER, "Recipe copies reagent data")
+recipeDetails.output.quantity = 999
+equal(API.Recipe(GLOVES).output.quantity, 1, "Recipe returns a fresh nested output record")
+recipeDetails.reagents[1].quantity = 999
+equal(API.Recipe(GLOVES).reagents[1].quantity ~= 999, true, "Recipe returns fresh reagent tables")
+local requirement = API.RecipeRequirement(HILLMANS)
+equal(requirement.source, "trainer", "RecipeRequirement identifies trainer recipes")
+equal(requirement.skill, 145, "RecipeRequirement reports the base skill")
+ns.TrainerFees[BRACERS] = { 225, 20 }
+local otherProfession = API.RecipeRequirement(BRACERS)
+equal(otherProfession.source, "trainer", "RecipeRequirement covers a bundled profession not currently known")
+equal(otherProfession.skill, 20, "RecipeRequirement reports the bundled base skill")
+local characterKey = ns.CharacterKey()
+local characters = API.Characters()
+equal(characters[1], characterKey, "Characters lists saved learned records")
+equal(API.Knows(characterKey, GLOVES), true, "Knows reads saved learned state")
+equal(API.Knows("missing-character", GLOVES), false, "Knows treats an unknown character as not knowing")
 
 -- Subscribe is ForeverCore's hub (docs/api.md): the frame after a change, once per burst, naming what moved.
 local heard = {}
@@ -354,24 +386,56 @@ equal(routed, "Telonis", "to the trainer")
 equal(API.Navigate(165, 2), false, "a craft doesn't route")
 equal(API.Navigate(999, 1), false, "an unknown profession doesn't route")
 
-equal(API.OpenRecipes(165), true, "opens a profession")
-equal(c.opened[1], 8165, "by the ID the client reported")
-equal(API.OpenRecipes(999), false, "not one the character lacks")
--- A refused request is asked once more only by another ID.
-local OpenTradeSkill = c.G.C_TradeSkillUI.OpenTradeSkill
-c.G.C_TradeSkillUI.OpenTradeSkill = function(id)
-	OpenTradeSkill(id)
-	return false
+local nativeSelections = 0
+local showNative = c.G.ForeverCore.ProfessionTabs.ShowNative
+c.G.ForeverCore.ProfessionTabs.ShowNative = function()
+	nativeSelections = nativeSelections + 1
 end
-c.opened = {}
-equal(API.OpenRecipes(165), false, "a profession the client will not open")
-equal(table.concat(c.opened, " "), "8165 165", "is asked by its own ID, then the skill line")
-c.professions[1].id = 165
-c.opened = {}
-API.OpenRecipes(165)
-equal(table.concat(c.opened, " "), "165", "and once when the client reports the skill line itself")
-c.professions[1].id = 8165
-c.G.C_TradeSkillUI.OpenTradeSkill = OpenTradeSkill
+local currentSkillLine = ns.OpenSkillLine
+ns.OpenSkillLine = function()
+	return 165
+end
+c.G.ProfessionsFrame = {
+	IsShown = function()
+		return true
+	end,
+}
+equal(API.OpenRecipes(165), true, "an already-open profession selects its native recipes")
+equal(nativeSelections, 1, "native page selection goes through the shared tabs")
+equal(#c.opened, 0, "never calls the protected profession opener")
+equal(API.OpenRecipes(999), false, "not one the character lacks")
+c.combat = true
+equal(API.OpenRecipes(165), false, "combat refuses frame work")
+equal(nativeSelections, 1, "combat does not select a page")
+c.combat = false
+local printed
+local printMessage = ns.Print
+ns.Print = function(message)
+	printed = message
+end
+c.G.ProfessionsFrame = {
+	IsShown = function()
+		return false
+	end,
+}
+equal(API.OpenRecipes(165), false, "a closed profession waits for the player")
+equal(printed, "Open Leatherworking from your spellbook.", "explains the supported profession control")
+c.G.ProfessionsFrame = {
+	IsShown = function()
+		return true
+	end,
+}
+ns.OpenSkillLine = function()
+	return 197
+end
+equal(API.OpenRecipes(165), false, "another profession is not mistaken for the requested one")
+equal(nativeSelections, 1, "a mismatched profession is not reselected")
+c.G.ProfessionsFrame = nil
+equal(API.OpenRecipes(165), false, "an unloaded profession window waits for the player")
+equal(#c.opened, 0, "no state calls the protected profession opener")
+ns.Print = printMessage
+ns.OpenSkillLine = currentSkillLine
+c.G.ForeverCore.ProfessionTabs.ShowNative = showNative
 
 -- The shopping list's trip button, started through its own function.
 local shoppingTrip = ns.ShoppingTrip
@@ -598,6 +662,34 @@ scrollClient.G.ShortestPathForever = {
 equal(scrollAPI.Navigate(COOKING, 1), true, "the scroll step routes")
 equal(scrollClient.routed, "Fish Vendor", "to its vendor, not a trainer")
 equal(trainerAsked, false, "even when it routes")
+
+-- One rebuild expands each route's reagents once and resolves each profession's action once. A cached read does
+-- neither: the copy it hands out is still fresh (below), but no route or action work runs for it.
+local professionCount = 0
+for _ in pairs(ns.RouteProfessions()) do
+	professionCount = professionCount + 1
+end
+local routeCalls, actionCalls = 0, 0
+local realRouteReagents, realNextAction = ns.RouteReagents, ns.RouteDemand.NextAction
+ns.RouteReagents = function(...)
+	routeCalls = routeCalls + 1
+	return realRouteReagents(...)
+end
+ns.RouteDemand.NextAction = function(...)
+	actionCalls = actionCalls + 1
+	return realNextAction(...)
+end
+ns.Changed("bags")
+API.Professions()
+equal(routeCalls, professionCount, "one rebuild expands each route's reagents once (" .. routeCalls .. ")")
+equal(actionCalls, professionCount, "one rebuild resolves each profession's action once (" .. actionCalls .. ")")
+routeCalls, actionCalls = 0, 0
+for _ = 1, 5 do
+	API.Professions()
+end
+equal(routeCalls, 0, "a cached read expands no route")
+equal(actionCalls, 0, "a cached read resolves no action")
+ns.RouteReagents, ns.RouteDemand.NextAction = realRouteReagents, realNextAction
 
 -- A core older than the kit's Publish still loads the addon: with the kit at minor 1 the guard hands it nothing.
 local kit = c.G.ForeverCore.APIKit

@@ -186,11 +186,13 @@ local ns = {
 	TITLE = "SkillUp Forever",
 	db = {},
 	DEFAULTS = {
+		priceSource = "auctionator",
 		craftValue = "vendor",
 		reagentTooltip = "route",
 		recipeTooltip = "window",
 		rowCost = "skillup",
 		sortMode = "default",
+		unlearnedSortMode = "skill",
 		showRowText = true,
 		showUnlearned = false,
 		buffsOnly = false,
@@ -200,8 +202,10 @@ local ns = {
 	},
 	RECIPE_TOOLTIP_OPTIONS = { { "window", "Beside" }, { "cursor", "Cursor" }, { "row", "Row" } },
 	ROW_COST_OPTIONS = { { "skillup", "Per skill-up" }, { "craft", "Per craft" } },
+	PRICE_SOURCE_OPTIONS = { { "auctionator", "Auctionator" }, { "tsm", "TradeSkillMaster" } },
 	REAGENT_TOOLTIP_OPTIONS = { { "off", "Off" }, { "route", "Route" }, { "full", "Every recipe" } },
 	SORT_OPTIONS = { { "default", "Default" }, { "skill", "Skill" }, { "chance", "Chance" }, { "cost", "Cost" } },
+	UNLEARNED_SORT_OPTIONS = { { "skill", "Skill" }, { "newest", "Newest" } },
 	CRAFT_VALUE_OPTIONS = {
 		{ "none", "None" },
 		{ "vendor", "Vendor" },
@@ -254,19 +258,22 @@ end
 local groups = {
 	{
 		"Recipe rows",
-		"checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
+		"checkbox:includeWorkingOvertime checkbox:showTooltips checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
 			.. " checkbox:showSkill checkbox:showTooltip"
-			.. " checkbox:detailsBar slider:recipeTooltip checkbox:showCost slider:rowCost",
+			.. " checkbox:detailsBar slider:recipeTooltip slider:unlearnedSortMode checkbox:showCost slider:rowCost",
 	},
-	{ "Prices", "slider:craftValue checkbox:valueGathered checkbox:auctionOnly" },
+	{ "Prices", "slider:priceSource slider:craftValue checkbox:valueGathered checkbox:auctionOnly" },
 	{
 		"Route and trainer",
-		"checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
+		"checkbox:showProfessionTabs checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
 			.. " checkbox:showRouteTab"
 			.. " checkbox:showGearTab checkbox:showBuffsTab"
 			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:showTrainer",
 	},
-	{ "Tooltips and sorting", "slider:reagentTooltip checkbox:gatherTooltip slider:sortMode" },
+	{
+		"Tooltips and sorting",
+		"slider:reagentTooltip checkbox:showTooltipRoute checkbox:gatherTooltip slider:sortMode",
+	},
 	{ "Addon", "checkbox:whatsNew" },
 }
 local kinds, expected = {}, {}
@@ -303,6 +310,18 @@ for _, entry in ipairs(registered) do
 end
 assert(table.concat(kinds, " ") == table.concat(expected, " "), table.concat(kinds, " "))
 
+local priceSource = Row("priceSource")
+assert(
+	priceSource.initializer.setting.variable == "SkillUpForever_priceSource_choice"
+		and priceSource.initializer.setting.default == 1,
+	"the auction source slider defaults to the first option"
+)
+assert(priceSource.initializer.options.formatter(1) == "Auctionator", "the first source is Auctionator")
+assert(priceSource.initializer.options.formatter(2) == "TradeSkillMaster", "the second is TradeSkillMaster")
+assert(
+	priceSource.initializer.tooltip:find("the other fills in an item it has no price for", 1, true),
+	"the setting explains its fallback"
+)
 local craftValue = Row("craftValue")
 assert(
 	craftValue.initializer.setting.variable == "SkillUpForever_craftValue_choice"
@@ -328,9 +347,10 @@ assert(
 assert(Row("showRowText").initializer.tooltip:find("Skill%-up chance"))
 Row("showRowText").initializer.setting.changed()
 assert(refreshed == 1, "a change is reported once")
-for _, key in ipairs({ "craftValue", "sortMode", "reagentTooltip", "recipeTooltip", "rowCost" }) do
+for _, key in ipairs({ "priceSource", "craftValue", "sortMode", "reagentTooltip", "recipeTooltip", "rowCost" }) do
 	local row = Row(key)
 	local options = ns[({
+		priceSource = "PRICE_SOURCE_OPTIONS",
 		craftValue = "CRAFT_VALUE_OPTIONS",
 		sortMode = "SORT_OPTIONS",
 		reagentTooltip = "REAGENT_TOOLTIP_OPTIONS",

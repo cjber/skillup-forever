@@ -116,6 +116,38 @@ function ns.AuctionatorAutoscan()
 	return nil
 end
 
+-- All selected typed payments, kept separate from the transaction's money.
+-- Missing localized names retain canonical typed identity, never an icon guess.
+---@param acquisitions SkillUpSelectedAcquisition[]
+---@return string
+function ns.AcquisitionPayments(acquisitions)
+	local totals, keys, parts = {}, {}, {}
+	for _, acquisition in ipairs(acquisitions) do
+		for key, quantity in pairs(acquisition.costs) do
+			if totals[key] == nil then
+				keys[#keys + 1] = key
+				totals[key] = 0
+			end
+			totals[key] = totals[key] + quantity
+		end
+	end
+	table.sort(keys)
+	for _, key in ipairs(keys) do
+		local kind, id = key:match("^(%a+):(%d+)$")
+		local name
+		local number = tonumber(id)
+		if kind == "item" and number then
+			name = ns.Readable(C_Item.GetItemNameByID(number))
+		elseif number and C_CurrencyInfo and type(C_CurrencyInfo.GetCurrencyInfo) == "function" then
+			local ok, info = pcall(C_CurrencyInfo.GetCurrencyInfo, number)
+			info = ok and ns.Readable(info)
+			name = type(info) == "table" and ns.Readable(info.name)
+		end
+		parts[#parts + 1] = tostring(totals[key]) .. " " .. (type(name) == "string" and name or key)
+	end
+	return table.concat(parts, ", ")
+end
+
 -- The auction house reagents a route still needs: what no vendor sells and this character buys. Written only
 -- with Buy reagents on, where a material you gather shows as gathered only while nothing prices it.
 ---@param items SkillUpNeededItem[]
@@ -123,8 +155,13 @@ end
 local function MissingFromAuction(items)
 	local missing = {}
 	for _, item in ipairs(items) do
-		local count = item.need - ns.Have(item.itemID)
-		if (item.source == "auction" or item.source == "unknown" or item.source == "gather") and count > 0 then
+		local have = ns.RouteDemand.Held(item)
+		local count = have and item.need - have
+		if
+			(item.source == "auction" or item.source == "unknown" or item.source == "gather")
+			and count
+			and count > 0
+		then
 			missing[#missing + 1] = { itemID = item.itemID, count = count }
 		end
 	end
@@ -354,12 +391,7 @@ end
 -- What the open merchant sells for gold of the tracked reagents still missing,
 -- and its cost. Two professions sharing a reagent need both amounts.
 local function MerchantPurchases()
-	local missing = {}
-	for _, entry in ipairs(ns.TrackedNeeds()) do
-		for _, item in ipairs(entry.items) do
-			missing[item.itemID] = (missing[item.itemID] or -ns.Have(item.itemID)) + item.need
-		end
-	end
+	local missing = ns.RouteDemand.Shortfalls(ns.TrackedNeeds())
 	local purchases, cost = {}, 0
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
@@ -856,7 +888,11 @@ function ModuleMixin:OnBlockHeaderClick(block)
 			-- A menu callback runs as addon code, so calling the protected craft API here taints the client's
 			-- craft path (#313). Open the recipe instead: its own Craft button then crafts securely.
 			root:CreateButton(craft.text, function()
-				ns.ShowRecipe(recipeID, true)
+				local profession = ns.RouteProfessions()[block.id]
+				local fresh = profession and ns.NextCraft(ns.PlanRoute(profession))
+				if fresh and fresh.recipeID then
+					ns.ShowRecipe(fresh.recipeID, true)
+				end
 			end)
 		end
 		-- The layout picked by straight line; a click ranks by travel time.
@@ -872,7 +908,7 @@ function ModuleMixin:OnBlockHeaderClick(block)
 		end
 		for _, item in ipairs(block.vendorMissing) do
 			root:CreateButton(string.format(L["Waypoint to a vendor: %s"], item.name), function()
-				ns.SetWaypoint(ns.NearestVendor(item.itemID, true) or item.vendor)
+				ns.SetWaypoint(item.selected and item.vendor or ns.NearestVendor(item.itemID, true) or item.vendor)
 			end)
 		end
 		-- Recipes left out with Not this recipe on the route page, each with Show again.
@@ -1036,8 +1072,8 @@ local function LayoutEntry(self, entry)
 	end
 	local shown = 0
 	for _, item in ipairs(entry.items) do
-		local have = ns.Have(item.itemID)
-		if have < item.need then
+		local have = ns.RouteDemand.Held(item)
+		if have == nil or have < item.need then
 			if shown == MAX_OBJECTIVES then
 				block:AddObjective("Extra", "...", nil, nil, OBJECTIVE_DASH_STYLE_HIDE)
 				break
@@ -1048,15 +1084,15 @@ local function LayoutEntry(self, entry)
 				name = string.format(L["item %d"], item.itemID)
 			end
 			local gather = item.source == "gather" and string.format(" |cff808080(%s)|r", L["gather"]) or ""
-			local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
-			local text = string.format("%d/%d %s%s", have, item.need, name, gather)
+			local vendor = ns.RouteDemand.Vendors(item)[1]
+			local text = string.format("%s/%d %s%s", have == nil and "?" or tostring(have), item.need, name, gather)
 			local line = block:AddObjective(item.itemID, text, vendor and LINE_TEMPLATE or nil)
 			if vendor then
-				local itemID = item.itemID
 				Waypointed(line, name, L["Nearest vendor"], function()
-					return ns.NearestVendor(itemID, true)
+					return ns.RouteDemand.Vendors(item, true)[1]
 				end)
-				block.vendorMissing[#block.vendorMissing + 1] = { name = name, itemID = item.itemID, vendor = vendor }
+				block.vendorMissing[#block.vendorMissing + 1] =
+					{ name = name, itemID = item.itemID, vendor = vendor, selected = item.acquisitions ~= nil }
 			end
 		end
 	end

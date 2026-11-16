@@ -2,12 +2,46 @@
 
 import ast
 import json
+import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 SOURCE = Path(__file__).with_name("screenshots.py")
+
+
+class CommandLineTests(unittest.TestCase):
+    def invoke(self, *args):
+        with tempfile.TemporaryDirectory() as directory:
+            return subprocess.run(
+                [sys.executable, "-S", str(SOURCE), *args],
+                env={**os.environ, "FOREVER_CORE": directory},
+                text=True,
+                capture_output=True,
+                timeout=10,
+            )
+
+    def test_help_exits_before_renderer_dependencies(self):
+        result = self.invoke("--help")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("usage:", result.stdout)
+        self.assertIn("Render the README screenshots", result.stdout)
+        self.assertEqual(result.stderr, "")
+
+    def test_unsupported_arguments_exit_before_renderer_dependencies(self):
+        for argument in ("--unsupported", "unexpected"):
+            with self.subTest(argument=argument):
+                result = self.invoke(argument)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("unrecognized arguments:", result.stderr)
+                self.assertNotIn("wowmock.py not found", result.stderr)
+
+    def test_no_arguments_reach_existing_renderer_setup(self):
+        result = self.invoke()
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("wowmock.py not found", result.stderr)
 
 
 def port(name, *constants, scope=None):
@@ -24,6 +58,63 @@ def port(name, *constants, scope=None):
     scope = dict(scope or {})
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SOURCE), "exec"), scope)
     return scope[name]
+
+
+class ProbabilityTests(unittest.TestCase):
+    def test_threshold_and_chance_parity_with_lua(self):
+        # These scenes use the default, zero Legacy talent bonus.
+        chance = port("model_chance")
+        color = port("model_color")
+        ranges = [
+            None,
+            [1, 20, 20, 20],
+            [20, 20, 20, 20],
+            [1, 20, 20, 40],
+            [1, 20, 30, 40],
+            [1, 20, 30, 20],
+            [1, 30, 20, 40],
+            [30, 20, 30, 40],
+        ]
+        skills = [0, 1, 19, 20, 29, 30, 39, 40, 48]
+        for thresholds in ranges:
+            for skill in skills:
+                with self.subTest(thresholds=thresholds, skill=skill):
+                    literal = "nil" if thresholds is None else "{" + ",".join(map(str, thresholds)) + "}"
+                    lua = f"""
+local ns = {{ Thresholds = {{ [1] = {literal} }} }}
+assert(loadfile("Core/Model.lua"))("SkillUpForever", ns)
+local t = ns.Model.Get(1)
+local chance = ns.Model.Chance(t, {skill})
+io.write(t and "valid" or "missing", "\\n", tostring(chance), "\\n", tostring(ns.Model.Color(t, {skill})))
+"""
+                    result = subprocess.run(
+                        ["luajit", "-"],
+                        input=lua,
+                        text=True,
+                        capture_output=True,
+                        check=True,
+                        cwd=SOURCE.parent.parent,
+                    ).stdout.splitlines()
+                    describe = port(
+                        "describe",
+                        scope={
+                            "NS": {"Thresholds": {1: thresholds}},
+                            "SKILL": skill,
+                            "range_thresholds": lambda recipe_id, t: t,
+                            "craft_cost": lambda recipe_id: (None, None, None),
+                            "model_chance": chance,
+                            "model_color": color,
+                            "model_cost_per_skill_up": port("model_cost_per_skill_up"),
+                        },
+                    )
+                    actual = describe(1)
+                    self.assertEqual(actual["thresholds"] is not None, result[0] == "valid")
+                    expected = None if result[1] == "nil" else float(result[1])
+                    self.assertEqual(actual["chance"], expected)
+                    self.assertEqual(actual["color"], None if result[2] == "nil" else result[2])
+                    # Chance also has its own narrower validation, independent of Model.Get.
+                    if thresholds is None or thresholds[0] <= thresholds[1] <= thresholds[2] <= thresholds[3]:
+                        self.assertEqual(chance(thresholds, skill), expected)
 
 
 class CraftValueTests(unittest.TestCase):

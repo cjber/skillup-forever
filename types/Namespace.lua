@@ -11,6 +11,8 @@
 
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
+---@field SupplyDraft SkillUpSupplyDraftAPI
+---@field SupplyUIRevision integer? The last applied explicit supply policy's session revision.
 ---@field Credits ForeverCreditsData the player credits Data/Credits.lua generates for the shared Thanks page
 ---@field Stats SkillUpStats
 ---@field RecipeMaterials fun(recipeID: integer, crafts: number): SkillUpSubCraft[]?, {itemID: integer, count: number}[]?
@@ -23,7 +25,18 @@
 ---@field GamepadUI fun(): boolean Whether the client is in its gamepad interface.
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
 ---@field Changed fun(kind: SkillUpChange)
----@field WhenStale fun(name: SkillUpStale, handler: fun())
+---@field FiniteAcquisition SkillUpFiniteAcquisitionProducer
+---@field Dyadic SkillUpDyadicProducer
+---@field Demand SkillUpJointDemandProducer
+---@field RecipeEvidence SkillUpRecipeEvidenceOwner
+---@field SupplySources SkillUpSupplySourceOwner
+---@field SupplyChoice SkillUpSupplyChoiceProducer
+---@field Resupply SkillUpResupplyProducer
+---@field MerchantOffers SkillUpMerchantOffers
+---@field SupplySummaryText fun(summary: SkillUpSupplySummary): string
+---@field RouteDemand SkillUpRouteDemandProducer
+---@field WhenStale fun(name: SkillUpStale, handler: fun()?)
+---@field WhenStaleObserver fun(name: SkillUpStale, observer: fun())
 ---@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field CharacterKey fun(): string?
@@ -58,6 +71,7 @@
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
 ---@field UsedIn fun(itemID: integer): integer[]
 ---@field CraftCost fun(recipeID: integer): number?, SkillUpValue?, number?
+---@field CraftSaleValues fun(recipeID: integer): SkillUpSaleValues
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
@@ -68,7 +82,7 @@
 ---@field UsableBuffs fun(level: number): table<integer, true> The recipes whose product is a buff this level can use.
 ---@field BuffText fun(itemID: integer): string? The buff a crafted item leaves, in the game's own words; nil for an item that leaves none.
 ---@field Gear SkillUpGear
----@field TrainingFor fun(profession: SkillUpContext, recipeID: integer): number[]?
+---@field TrainingFor fun(profession: {skillLine: integer}, recipeID: integer): number[]?
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
 ---@field TrainerReport fun(): string[]
 ---@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/skillup export)
@@ -97,12 +111,13 @@
 ---@field PlayerSide fun(): 'A'|'H'|nil
 ---@field RankHeld fun(rank: SkillUpRank): boolean
 ---@field PlanMoney fun(plan: SkillUpPlan): { buy: number, fees: number, sells: number, unknown: integer }
----@field StepCost fun(recipeID: integer, crafts: number): number What a step's crafts cost, every craft at its net
+---@field StepCost fun(recipeID: integer, crafts: number): number? What a step's crafts cost, every craft at its net
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?
 ---@field ShowRecipe fun(recipeID: integer, anyProfession?: boolean)
 ---@field AttachRoute fun()
+---@field AttachSupply fun()
 ---@field AttachGear fun()
 ---@field AttachBuffs fun()
 ---@field LastSkillUpPage fun(): SkillUpPageID?
@@ -127,9 +142,12 @@
 ---@field RegisterSettings fun()
 ---@field SetSortMode fun(mode: string)
 ---@field SetBuffsOnly fun(on: boolean)
+---@field SetIncludeWorkingOvertime fun(enabled: boolean)
+---@field workingOvertimeRank number
 ---@field OpenSettings fun()
 ---@field HasAuctionator fun(): boolean
 ---@field HasTradeSkillMaster fun(): boolean
+---@field AcquisitionPayments fun(acquisitions: SkillUpSelectedAcquisition[]): string
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())
 ---@field PlannedCrafts fun(recipeID: integer): integer
 ---@field ReagentShortfall fun(recipeID: integer, count: integer): SkillUpShoppingItem[], integer
@@ -203,6 +221,8 @@
 ---@field AttachItemTooltips fun()
 ---@field AttachTrainer fun()
 ---@field SORT_OPTIONS string[][]
+---@field UNLEARNED_SORT_OPTIONS string[][]
+---@field PRICE_SOURCE_OPTIONS string[][]
 ---@field CRAFT_VALUE_OPTIONS string[][]
 ---@field REAGENT_TOOLTIP_OPTIONS string[][]
 ---@field RECIPE_TOOLTIP_OPTIONS string[][]
@@ -242,20 +262,25 @@
 ---@field InitCatalogue fun()
 
 ---@class SkillUpDefaults
+---@field includeWorkingOvertime boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field showRowText boolean
 ---@field showUnlearned boolean
 ---@field buffsOnly boolean
 ---@field showSkill boolean
 ---@field showTooltip boolean
+---@field showTooltips boolean
 ---@field recipeTooltip 'window'|'cursor'|'row'
 ---@field rowCost 'skillup'|'craft'
 ---@field showCost boolean
+---@field priceSource 'auctionator'|'tsm'
 ---@field craftValue 'none'|'vendor'|'auction'|'sale'
 ---@field valueGathered boolean
 ---@field auctionOnly boolean
 ---@field sortMode 'blizzard'|'skill'|'newest'|'chance'|'cost'
+---@field unlearnedSortMode 'skill'|'newest'
 ---@field showTrainer boolean
+---@field showProfessionTabs boolean
 ---@field showRouteTab boolean
 ---@field showTracker boolean
 ---@field showGearTab boolean
@@ -267,6 +292,7 @@
 ---@field auctionSearch boolean
 ---@field detailsBar boolean
 ---@field reagentTooltip 'off'|'route'|'full'
+---@field showTooltipRoute boolean
 ---@field gatherTooltip boolean
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field showAllGear table<string, boolean>
@@ -282,6 +308,7 @@
 ---@field trainer table<integer, table<integer, number[]>> { fee, required skill, required skill the trainer showed? }
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
+---@field merchantEvidence table<integer, table<integer, SkillUpMerchantEvidence>> Dated observations owned by each NPC, not current availability guarantees.
 ---@field stock table<integer, table<integer, number|false>> Per item, per vendor: the most it was seen selling at a time, false for unlimited.
 ---@field sellers table<integer, SkillUpSeller>
 ---@field builds string[] The client builds this install has run with, oldest first.
@@ -368,6 +395,16 @@ SkillUpForeverDB = nil
 ---@field toSkill number
 ---@field crafts number
 ---@field skillUps? integer
+---@field candidates? SkillUpSegmentCandidate[] Viable source choices captured before route materialization.
+
+---@class SkillUpSegmentCandidate
+---@field recipeID integer
+---@field fromSkill number
+---@field toSkill number
+---@field thresholds number[]
+---@field netCost number?
+---@field reagentCost number?
+---@field skillUps? integer
 
 ---@class SkillUpTraining
 ---@field recipeID integer
@@ -438,7 +475,23 @@ SkillUpForeverDB = nil
 ---@field Changes fun(extra: SkillUpCandidate, picked: number[]): boolean Whether `extra` changes the route.
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
+---@class SkillUpPlanSupply
+---@field generation integer
+---@field configuration SkillUpSupplyConfiguration?
+---@field alpha number?
+---@field service string?
+---@field sourceRevision integer?
+---@field assumptions SkillUpSourceAssumption[]?
+---@field acquisitions SkillUpSelectedAcquisition[]?
+---@field initialVisits table<string, number>?
+---@field result SkillUpSupplyChoiceResult|SkillUpFiniteSelectionResult? Complete owned result including adaptive certificate and scope.
+---@field job SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob
+---@field revision integer
+---@field items table<integer, integer>? Starting budget in the current inventory revision, before initial purchases.
+---@field have table<integer, integer>? Fresh balances used by the selection, never display fallbacks.
+
 ---@class SkillUpPlan
+---@field supply SkillUpPlanSupply?
 ---@field profession SkillUpProfession
 ---@field target number
 ---@field reached number Where the crafts get to: short of the target when the known recipes run out.
@@ -457,8 +510,8 @@ SkillUpForeverDB = nil
 ---@field count number
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
----@alias SkillUpChange 'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
----@alias SkillUpStale 'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
+---@alias SkillUpChange 'supply'|'recipeEvidence'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
+---@alias SkillUpStale 'recipeEvidence'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'supplyPage'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
@@ -480,6 +533,12 @@ SkillUpForeverDB = nil
 ---@field copper number
 ---@field source SkillUpValueSource
 ---@field quantity number
+---@field volume? number Average completed sales per Auction House per day in the player's region, reported by TSM.
+
+--- One craft's result sold to a vendor and at the auction house, both when known: the tooltip's comparison.
+---@class SkillUpSaleValues
+---@field vendor? SkillUpValue
+---@field auction? SkillUpValue
 
 ---@class SkillUpDescription
 ---@field thresholds? number[]
@@ -538,6 +597,9 @@ SkillUpForeverDB = nil
 ---@alias SkillUpSuggestionNPC { kind: integer?, source: SkillUpScrollSource?, npcID: integer? }
 
 ---@class SkillUpNeededItem
+---@field supplyScope 'bags-only'|'bags-and-bank'? Holdings belong to a certified native snapshot.
+---@field have integer? Missing certified holdings remain unknown.
+---@field acquisitions SkillUpSelectedAcquisition[]? Conditional selected orders; an empty list forbids price/source fallback.
 ---@field itemID integer
 ---@field need number
 ---@field source SkillUpShoppingSource
@@ -548,6 +610,7 @@ SkillUpForeverDB = nil
 ---@field items SkillUpNeededItem[]
 
 ---@class SkillUpCraft
+---@field nextAction SkillUpNextAction? Adaptive guidance, never a secure craft proxy.
 ---@field text string
 ---@field recipeID? integer
 ---@field count? number How many the bags and the client allow now.
@@ -730,9 +793,43 @@ SkillUpForeverDB = nil
 ---@field click (fun())?
 
 -- The page IDs the SkillUp side tab reopens.
----@alias SkillUpPageID 'route'|'gear'|'buffs'
+---@alias SkillUpPageID 'route'|'supply'|'gear'|'buffs'
 
 -- One of SkillUp's pages in the Professions window, as UI/Pages.lua keeps it.
+-- The supply policy page (UI/Supply.lua): its scroll content and the two labels a refresh resizes.
+---@class SkillUpSupplyPage : Frame
+---@field content Frame Scroll content; one reused row per merchant slot.
+---@field scroll ScrollFrame
+---@field title FontString
+---@field note FontString
+
+-- A typed-value box on the supply page, found by name on the next refresh.
+---@class SkillUpSupplyInput : EditBox
+---@field name? string
+
+-- A checkbox on the supply page, found by name like an input.
+---@class SkillUpSupplyCheck : CheckButton
+---@field name? string
+
+-- The supply page's apply button and the draft its last refresh validated.
+---@class SkillUpSupplyApply : Button
+---@field draft? SkillUpSupplyDraft
+---@field name? string
+
+-- A label on the supply page the callbacks and a spec find by name.
+---@class SkillUpSupplyLabel : FontString
+---@field name? string
+
+-- One merchant offer's row: the controls built for it, and those the last refresh reused.
+---@class SkillUpSupplyRow : Frame
+---@field controls SkillUpSupplyControl[]
+---@field used SkillUpSupplyControl[]
+
+-- A widget a row owns, named so its callbacks and the spec read the form the same way.
+---@class SkillUpSupplyControl : Region
+---@field field? string
+---@field row? SkillUpSupplyRow
+
 ---@class SkillUpPageSpec
 ---@field id SkillUpPageID
 ---@field title string
@@ -887,7 +984,7 @@ SkillUpForeverDB = nil
 ---@field Vendor Button
 ---@field ShoppingList Button
 ---@field Replan Button
----@field vendorItems integer[]
+---@field vendorItems SkillUpNeededItem[]
 ---@field RouteList SkillUpList
 ---@field ReagentList SkillUpList
 
@@ -955,3 +1052,13 @@ SkillUpForeverDB = nil
 ---@field quests integer[]
 ---@field drops number[][] { npc, chance % }, likeliest first.
 ---@field world boolean
+
+---@class SkillUpMerchantEvidence
+---@field unitCopper? number Money quote absent for extended costs or missing quantities.
+---@field price? integer Original bundle money total in copper, including the money component of extended costs.
+---@field stackCount? integer Original positive integral bundle quantity, absent on historical records.
+---@field hasExtendedCost? boolean True requires non-money costs; absent is unknown on historical records.
+---@field numAvailable? integer Raw API count, -1 or nonnegative; its item/bundle unit is unverified.
+---@field stockSource? 'C_MerchantFrame.GetItemInfo.numAvailable' Provenance for the raw stock count.
+---@field stock? integer|'unlimited' Legacy normalized API count, never a replenishment promise or verified item quantity.
+---@field observedAt number Server Unix seconds.

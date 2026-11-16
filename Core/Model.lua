@@ -117,6 +117,7 @@ end
 -- rather than an argument so every route, plan and row that asks Chance sees the same talent; orange
 -- stays certain and grey stays impossible, since a grey recipe can give no skill-up to improve.
 local chanceBonus = 0
+local chanceRevision = 0
 
 -- Sets that bonus; returns whether it changed, so a reader on a game event only refreshes on a real change.
 ---@param bonus number
@@ -125,7 +126,15 @@ function Model.SetChanceBonus(bonus)
 	local value = math.max(0, tonumber(bonus) or 0)
 	local changed = value ~= chanceBonus
 	chanceBonus = value
+	if changed then
+		chanceRevision = chanceRevision + 1
+	end
 	return changed
+end
+
+---@return integer
+function Model.ChanceRevision()
+	return chanceRevision
 end
 
 ---@param t number[]?
@@ -144,6 +153,21 @@ function Model.Chance(t, skill)
 		return 0
 	end
 	return math.min(1, (t[4] - skill) / (t[4] - t[2]) + chanceBonus)
+end
+
+---@param thresholds number[]?
+---@param skill number
+---@param skillUps integer?
+---@param target number
+---@return table?
+function Model.DemandStage(thresholds, skill, skillUps, target)
+	local chance = Model.Chance(thresholds, skill)
+	if not chance then
+		return nil
+	end
+	---@cast thresholds number[]
+	local gain = Model.Gain(thresholds, skill, skillUps, target - skill)
+	return { chance = chance, gain = gain }
 end
 
 -- Expected spend per skill point: one craft costs `cost` and succeeds with `chance`.

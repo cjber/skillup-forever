@@ -24,7 +24,7 @@ c.live[BANDAGE] = {
 }
 c.items[HAMMER] = { name = "Blacksmith Hammer", sell = 1 }
 -- The bandage's cloth and its output are priced, so the route has a step to block.
-ns.db.vendor[CLOTH] = 10
+c.auction[CLOTH] = 10
 c.items[1251] = { sell = 0 }
 
 -- One scan per burst: the events of an open window arrive several to a frame.
@@ -110,7 +110,7 @@ c2.known[BANDAGE] = true
 c2.live[BANDAGE] = {
 	info = { learned = true, maxTrivialLevel = 60, numSkillUps = 2, relativeDifficulty = 1 },
 }
-ns2.db.vendor[CLOTH] = 10
+c2.auction[CLOTH] = 10
 c2.items[1251] = { sell = 0 }
 c2.Fire("TRADE_SKILL_LIST_UPDATE")
 c2.Advance(0)
@@ -152,6 +152,7 @@ local c3 = Client.load({
 		GatheredBy = {},
 	},
 })
+c3.auction[LEATHER] = 300
 local ns3 = c3.ns
 c3.professions = { { name = "First Aid", rank = 1, max = 300, id = 129 } }
 c3.known[200], c3.known[201] = true, true
@@ -273,6 +274,7 @@ local c4 = Client.load({
 		GatheredBy = {},
 	},
 })
+c4.auction[40], c4.auction[50] = 400, 100
 local ns4 = c4.ns
 c4.known[300], c4.known[301] = true, true
 equal(ns4.SubCraft(40).recipeID, 300, "the cycle's first item is made by its own recipe")
@@ -330,7 +332,7 @@ local ns6 = c6.ns
 c6.professions = { { name = "First Aid", rank = 1, max = 75, id = 129 } }
 c6.known[BANDAGE] = true
 c6.items[1251] = { sell = 0 }
-ns6.db.vendor[CLOTH] = 10
+c6.auction[CLOTH] = 10
 c6.live[BANDAGE] = { info = { learned = true, maxTrivialLevel = 200, numSkillUps = 1, relativeDifficulty = 1 } }
 c6.live[NEW_RECIPE] = { info = { learned = true, maxTrivialLevel = 300, numSkillUps = 1, relativeDifficulty = 1 } }
 c6.live[HEAVY_BANDAGE] = { info = { learned = false, maxTrivialLevel = 0, numSkillUps = 1, relativeDifficulty = 1 } }

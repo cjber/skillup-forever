@@ -73,7 +73,7 @@ c.G.Syndicator = {
 	},
 }
 local api = c.G.SkillUpForever.API
-equal(api.minor, 6, "API minor version")
+equal(api.minor, 14, "API minor version")
 local lists = api.ShoppingList()
 equal(#lists, 2, "both tracked professions are present")
 equal(lists[1].profession, "Blacksmithing", "profession names sort deterministically")
@@ -202,6 +202,9 @@ for _, key in ipairs(headingTexts) do
 	equal(#WithText(key), 1, "the " .. key .. " heading is reused by an empty refresh")
 	equal(WithText(key)[1]:IsShown(), false, "and hidden when it has no rows")
 end
+local empty = WithText(c.ns.L["No tracked profession"])[1]
+equal(empty.points[1][1], "TOPLEFT", "empty state uses top anchor")
+equal(empty.points[1][5], -10, "empty refresh resets its anchor")
 local pooled = #body.children
 
 c.ns.db.trackedProfessions = tracked
@@ -213,6 +216,27 @@ for _, key in ipairs(headingTexts) do
 end
 equal(#WithText(c.ns.L["No tracked profession"]), 1, "one empty text region after both states")
 equal(WithText(c.ns.L["No tracked profession"])[1]:IsShown(), false, "empty text hidden when rows show again")
+
+local savedBags = c.bags
+c.bags = setmetatable({}, {
+	__index = function()
+		return 1000000
+	end,
+})
+c.ns.Changed("bags")
+local nothing = WithText(c.ns.L["Nothing to buy"])[1]
+assert(nothing and nothing:IsShown(), "nothing to buy with fully held reagents")
+local bottom = -10
+for _, child in ipairs(body.children) do
+	if child:IsShown() and child.text and child.text:find("quantities are estimates", 1, true) then
+		bottom = math.min(bottom, child.points[1][5] - child:GetStringHeight() - 12)
+	end
+end
+equal(nothing.points[1][1], "TOPLEFT", "nothing to buy anchors below notes")
+equal(nothing.points[1][5], bottom, "empty state follows measured notes")
+equal(body.height >= -bottom + nothing:GetStringHeight() + 20, true, "body reserves empty label height")
+c.bags = savedBags
+c.ns.Changed("bags")
 
 -- The copy window has its own title and opens beside the list it copies.
 local copyButton

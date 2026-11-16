@@ -90,10 +90,14 @@ local function TradeSkillMasterPrice(itemID)
 	return { copper = value, source = "tsm" }
 end
 
--- Auctionator's own observation when it has one, so a player with both keeps the prices they had.
+-- The addon whose auction price the player chose. The other addon fills in only an item the chosen one has no
+-- price for: the choice changes which observation wins, not whether a missing price falls back to the other.
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function AuctionPrice(itemID)
+	if ns.db.priceSource == "tsm" then
+		return TradeSkillMasterPrice(itemID) or AuctionatorPrice(itemID)
+	end
 	return AuctionatorPrice(itemID) or TradeSkillMasterPrice(itemID)
 end
 
@@ -104,6 +108,7 @@ end
 -- A zero, absent or invalid answer is unknown:
 -- TSM itself answers nil for a value it has none of.
 local TSM_SALE = "DBRegionSaleAvg"
+local TSM_VOLUME = "DBRegionSoldPerDay"
 
 ---@param itemID integer
 ---@return number?
@@ -113,6 +118,19 @@ local function TradeSkillMasterSale(itemID)
 	end
 	local ok, value = pcall(TSM_API.GetCustomPriceValue, TSM_SALE, "i:" .. itemID)
 	if not (ok and type(value) == "number" and value == value and value > 0 and value < math.huge) then
+		return nil
+	end
+	return value
+end
+
+---@param itemID integer
+---@return number?
+local function TradeSkillMasterSoldPerDay(itemID)
+	if not ns.HasTradeSkillMaster() then
+		return nil
+	end
+	local ok, value = pcall(TSM_API.GetCustomPriceValue, TSM_VOLUME, "i:" .. itemID)
+	if not (ok and type(value) == "number" and value == value and value >= 0 and value < math.huge) then
 		return nil
 	end
 	return value
@@ -208,11 +226,21 @@ local function Gathered(itemID)
 	return price
 end
 
+-- These items have a source beyond vendors even when this character cannot gather or craft them.
+-- A vendor-only reagent needs no auction observation to establish its cost.
+---@param itemID integer
+---@return boolean
+local function MarketGood(itemID)
+	return (ns.GatheredBy and ns.GatheredBy[itemID]) ~= nil
+		or (ns.LootedFrom and ns.LootedFrom[itemID]) ~= nil
+		or #ns.MakersOf(itemID) > 0
+end
+
 -- Cheapest known unit price and where it came from: "gather", "vendor", "auctionator"
 -- or "tsm". A price seen at a vendor beats the bundled list, since it includes
--- any reputation discount. With Buy reagents on, a reagent you could gather that nothing prices is still
--- bought at the auction house: its price is unknown, so it stays on the route and in the Auctionator list
--- without guessing a number (#559).
+-- any reputation discount. With Buy reagents on, a market good without an auction observation stays
+-- unknown with only a bundled vendor fallback. A price actually seen at a merchant is a known purchase
+-- cost; it does not need an auction observation to establish what the player can pay (#559, #561).
 ---@param itemID integer
 ---@return SkillUpPrice?
 function ns.Price(itemID)
@@ -224,17 +252,19 @@ function ns.Price(itemID)
 		if not professions and ns.PlayerProfessions then
 			professions = ns.PlayerProfessions()
 		end
-		local vendor = ns.db.vendor[itemID] or ns.VendorPrices[itemID]
+		local observedVendor = ns.db.vendor[itemID]
+		local vendor = observedVendor or ns.VendorPrices[itemID]
 		local ah = AuctionPrice(itemID)
 		if ns.CollectMode() == "gather" then
 			cached = Gathered(itemID)
 		end
-		if not cached and vendor and (not ah or vendor <= ah.copper) then
+		if not cached and not ah and not observedVendor and ns.CollectMode() == "auction" and MarketGood(itemID) then
+			-- Keep the vendor fallback for display, but do not rank it as a known market cost before a scan.
+			cached = { copper = vendor or 0, source = "auction", unknown = true }
+		elseif not cached and vendor and (not ah or vendor <= ah.copper) then
 			cached = { copper = vendor, source = "vendor" }
 		elseif not cached and ah then
 			cached = ah
-		elseif not cached and ns.CollectMode() == "auction" and ns.CanGather(itemID) then
-			cached = { copper = 0, source = "auction", unknown = true }
 		elseif not cached then
 			cached = Gathered(itemID) or false
 		end
@@ -449,7 +479,7 @@ end
 local function ObtainCost(itemID, depth, stack)
 	if depth <= 0 then
 		local price = ns.Price(itemID)
-		return price and WithSaleFloor(itemID, price.copper)
+		return price and not price.unknown and WithSaleFloor(itemID, price.copper) or nil
 	end
 	local cached = obtainCost[itemID]
 	if cached == false then
@@ -463,7 +493,7 @@ local function ObtainCost(itemID, depth, stack)
 		return nil
 	end
 	local buy = ns.Price(itemID)
-	local best = buy and buy.copper
+	local best = buy and not buy.unknown and buy.copper or nil
 	---@type integer?
 	local bestRecipe = nil
 	stack[itemID] = true
@@ -595,7 +625,36 @@ local function CraftValue(recipeID)
 	if not (each and source) then
 		return nil, not (sell or market)
 	end
-	return { copper = each * output.quantity, source = source, quantity = output.quantity }
+	local volume = TradeSkillMasterSoldPerDay(output.itemID)
+	return { copper = each * output.quantity, source = source, quantity = output.quantity, volume = volume }
+end
+
+-- What one craft sells for at a vendor and at the auction house, both at once, for the tooltip's comparison:
+-- the vendor's guaranteed price and the chosen auction source's listing after the house's cut. A zero vendor
+-- price counts for nothing; an auction source's zero is still its answer, as in ItemValue. Disenchant value is
+-- deliberately absent: #464 holds it until authoritative Forever yield data exists.
+---@param recipeID integer
+---@return { vendor?: SkillUpValue, auction?: SkillUpValue }
+function ns.CraftSaleValues(recipeID)
+	local recipe = Recipe(recipeID)
+	local output = recipe and recipe.output
+	if not output then
+		return {}
+	end
+	local sell = SellPrice(output.itemID)
+	local vendor = sell
+			and sell > 0
+			and { copper = sell * output.quantity, source = "vendor", quantity = output.quantity }
+		or nil
+	local ah = AuctionPrice(output.itemID)
+	local auction = ah
+			and {
+				copper = ah.copper * (1 - AUCTION_CUT) * output.quantity,
+				source = "auction",
+				quantity = output.quantity,
+			}
+		or nil
+	return { vendor = vendor, auction = auction }
 end
 
 -- What one craft costs, the one place that says so. Unknown is nil, never free.
@@ -625,6 +684,59 @@ end
 local function MerchantNPC()
 	local guid = ns.Readable(UnitGUID("npc"))
 	return guid and tonumber(guid:match("^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)"))
+end
+
+-- Accept only finite integral API amounts. Missing data never becomes a one-item bundle.
+local function Integral(value, minimum)
+	return type(value) == "number" and value == value and value < math.huge and value >= minimum and value % 1 == 0
+end
+
+local function MoneyQuote(info)
+	if not info.hasExtendedCost and Integral(info.price, 0) and Integral(info.stackCount, 1) then
+		return info.price / info.stackCount
+	end
+end
+
+-- Raw offer components and API stock provenance: docs/merchant-evidence.md.
+local function RecordEvidence(itemID, npcID, info)
+	local vendors = ns.db.merchantEvidence
+	local vendor = vendors[npcID] or {}
+	vendors[npcID] = vendor
+	local available = Integral(info.numAvailable, -1) and info.numAvailable or nil
+	local extendedCost
+	if type(info.hasExtendedCost) == "boolean" then
+		extendedCost = info.hasExtendedCost
+	end
+	---@type SkillUpMerchantEvidence
+	local observation = {
+		price = Integral(info.price, 0) and info.price or nil,
+		stackCount = Integral(info.stackCount, 1) and info.stackCount or nil,
+		hasExtendedCost = extendedCost,
+		numAvailable = available,
+		stockSource = available and "C_MerchantFrame.GetItemInfo.numAvailable" or nil,
+		stock = available == -1 and "unlimited" or available,
+		unitCopper = MoneyQuote(info),
+		observedAt = GetServerTime(),
+	}
+	local seen = vendor[itemID]
+	if seen then
+		local same = true
+		for key, value in pairs(observation) do
+			if seen[key] ~= value then
+				same = false
+			end
+		end
+		for key, value in pairs(seen) do
+			if observation[key] ~= value then
+				same = false
+			end
+		end
+		if same then
+			return false
+		end
+	end
+	vendor[itemID] = observation
+	return true
 end
 
 -- What the open window shows this vendor sells at a time: the highest count seen as it restocks, or false
@@ -660,32 +772,41 @@ end
 -- as the latest word on its stock: what the window says replaces the bundled limit for that vendor.
 ---@return SkillUpChange?
 local function RecordMerchant()
-	local changed, stocked, sold = false, false, {}
 	local npcID = MerchantNPC()
+	-- MERCHANT_UPDATE arrives for what this addon does not read too (another tab, a restock elsewhere). A
+	-- window that still shows the last scan's offers has nothing to record, so nothing is rebuilt or notified.
+	if ns.MerchantOffers.Unchanged(npcID) then
+		return nil
+	end
+	local changed, stocked, evidence, sold = false, false, false, {}
+	local offers, lastByItem = {}, {}
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
-		local info = C_MerchantFrame.GetItemInfo(index)
+		local info = ns.MerchantOffers.Read(index, itemID, npcID)
+		offers[#offers + 1] = info
 		sold[#sold + 1] = itemID
-		if itemID and info then
-			if npcID and type(info.numAvailable) == "number" and RecordStock(itemID, npcID, info.numAvailable) then
+		if itemID and info.infoPresent then
+			lastByItem[itemID] = info.rawInfo
+			if npcID and Integral(info.numAvailable, -1) and RecordStock(itemID, npcID, info.numAvailable) then
 				stocked = true
 			end
-			if
-				info.price
-				and info.price > 0
-				and info.stackCount
-				and info.stackCount > 0
-				and not info.hasExtendedCost
-			then
-				local each = info.price / info.stackCount
-				if ns.db.vendor[itemID] ~= each then
-					ns.db.vendor[itemID] = each
-					changed = true
-				end
+			local each = MoneyQuote(info.rawInfo)
+			if each and each > 0 and ns.db.vendor[itemID] ~= each then
+				ns.db.vendor[itemID] = each
+				changed = true
 			end
 		end
 	end
+	for itemID, info in pairs(lastByItem) do
+		if npcID and RecordEvidence(itemID, npcID, info) then
+			evidence = true
+		end
+	end
+	evidence = ns.MerchantOffers.Replace(offers) or evidence
 	local seen = ns.SeeVendor(sold)
+	if evidence then
+		ns.Changed("sourceEvidence")
+	end
 	return changed and "prices" or (seen or stocked) and "sources" or nil
 end
 
@@ -694,6 +815,9 @@ local function PricesChanged()
 end
 
 function ns.InitPrices()
+	if type(ns.db.merchantEvidence) ~= "table" then
+		ns.db.merchantEvidence = {}
+	end
 	if type(ns.db.vendor) ~= "table" then
 		ns.db.vendor = {}
 	end
@@ -728,7 +852,15 @@ function ns.InitPrices()
 	for _, event in ipairs({ "TRADE_SKILL_SHOW", "TRADE_SKILL_DATA_SOURCE_CHANGED", "TRADE_SKILL_LIST_UPDATE" }) do
 		ns.WhenEvent(event, WindowSchematics)
 	end
-	ns.WhenEvent("MERCHANT_SHOW", RecordMerchant)
+	ns.WhenEvent("MERCHANT_SHOW", function()
+		ns.MerchantOffers.Open()
+		return RecordMerchant()
+	end)
+	ns.WhenEvent("MERCHANT_CLOSED", function()
+		if ns.MerchantOffers.Replace(nil) then
+			ns.Changed("sourceEvidence")
+		end
+	end)
 	ns.WhenEvent("MERCHANT_UPDATE", RecordMerchant)
 	ns.WhenEvent("GET_ITEM_INFO_RECEIVED", function()
 		if itemInfoPending then

@@ -45,9 +45,12 @@ local function ItemName(itemID)
 	return name
 end
 
----@param copper number
+---@param copper number?
 ---@return string
 local function Money(copper)
+	if copper == nil then
+		return L["price unknown"]
+	end
 	return ns.FormatNet(ns.Model.RoundMoney(math.abs(copper)), copper < 0)
 end
 
@@ -574,10 +577,10 @@ local function RenderRoute(list, plan)
 			local current = craft == currentCraft
 			list:Add({
 				icon = RecipeIcon(craft.recipeID),
-				text = RecipeName(craft.recipeID),
+				text = string.format(L["Craft %d× %s"], craft.crafts, RecipeName(craft.recipeID)),
 				detail = craft.station
-						and string.format(L["%d crafts to %d, %s, at %s"], craft.crafts, craft.to, money, craft.station)
-					or string.format(L["%d crafts to %d, %s"], craft.crafts, craft.to, money),
+						and string.format(L["Skill %d to %d, %s, at %s"], craft.from, craft.to, money, craft.station)
+					or string.format(L["Skill %d to %d, %s"], craft.from, craft.to, money),
 				color = ns.COLORS[craft.color],
 				current = current,
 				tooltip = function(tooltip)
@@ -632,11 +635,30 @@ local LIMITED_VENDOR = L["vendor, limited stock"]
 local function ReagentTooltip(tooltip, item)
 	tooltip:SetItemByID(item.itemID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
-	local have = ns.Have(item.itemID)
-	AddLine(tooltip, L["Have (bags and bank)"], tostring(have))
+	local have = ns.RouteDemand.Held(item)
+	AddLine(
+		tooltip,
+		item.supplyScope == "bags-only" and L["Have (bags only)"] or L["Have (bags and bank)"],
+		have and tostring(have) or "?"
+	)
 	AddLine(tooltip, L["Route needs"], tostring(item.need))
 	for _, alt in ipairs(ns.AltCounts(item.itemID)) do
 		AddLine(tooltip, string.format(L["On %s"], alt.name), tostring(alt.count), GRAY_FONT_COLOR)
+	end
+	if item.acquisitions then
+		local money = 0
+		for _, acquisition in ipairs(item.acquisitions) do
+			money = money + acquisition.moneyCopper
+		end
+		AddLine(tooltip, L["To buy"], Money(money))
+		local payments = ns.AcquisitionPayments(item.acquisitions)
+		if payments ~= "" then
+			AddLine(tooltip, L["Requires"], payments)
+		end
+		for _, npcID in ipairs(ns.RouteDemand.Vendors(item, true)) do
+			ns.AddNearest(tooltip, L["Vendor"], npcID)
+		end
+		return
 	end
 	local price = ns.Price(item.itemID)
 	if not price or price.unknown then
@@ -699,7 +721,7 @@ local function RenderReagents(list, reagents)
 			C_Item.RequestLoadItemDataByID(item.itemID)
 			name = string.format(L["item %d"], item.itemID)
 		end
-		local have = ns.Have(item.itemID)
+		local have = ns.RouteDemand.Held(item)
 		local sourceText = item.limited and LIMITED_VENDOR or SOURCE_TEXT[item.source]
 		list:Add({
 			icon = C_Item.GetItemIconByID(item.itemID) or 134400,
@@ -708,9 +730,9 @@ local function RenderReagents(list, reagents)
 			-- The bar under the name already shows the bags against the route's need, so the line names only
 			-- where the reagent comes from.
 			detail = sourceText,
-			detailColor = have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
-			bar = { have = math.min(have, item.need), need = item.need },
-			barColor = have >= item.need and ns.COLORS.green or ns.COLORS.yellow,
+			detailColor = have ~= nil and have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
+			bar = have and { have = math.min(have, item.need), need = item.need } or nil,
+			barColor = have ~= nil and have >= item.need and ns.COLORS.green or ns.COLORS.yellow,
 			sourceIcon = SOURCE_ICON[item.source],
 			tooltip = function(tooltip)
 				ReagentTooltip(tooltip, item)
@@ -721,7 +743,7 @@ local function RenderReagents(list, reagents)
 					HandleModifiedItemClick(link)
 					return
 				end
-				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID, true)
+				local vendor = ns.RouteDemand.Vendors(item, true)[1]
 				if vendor then
 					ns.SetWaypoint(vendor)
 				end
@@ -737,7 +759,7 @@ end
 local function AuctionPriceStatus(reagents)
 	local found, stale, tsm
 	for _, item in ipairs(reagents) do
-		local price = ns.Price(item.itemID)
+		local price = not item.acquisitions and ns.Price(item.itemID) or nil
 		tsm = tsm or (price and price.source == "tsm")
 		if price and price.source == "auctionator" then
 			found = true
@@ -760,11 +782,11 @@ end
 ---@return boolean
 local function NeedsAuctionScan(reagents)
 	for _, item in ipairs(reagents) do
-		local price = ns.Price(item.itemID)
-		if not price then
+		local price = not item.acquisitions and ns.Price(item.itemID) or nil
+		if not price and not item.acquisitions then
 			return true
 		end
-		if price.source == "auctionator" then
+		if price and price.source == "auctionator" then
 			local age = ns.PriceAge(price)
 			if age == nil or age > STALE_AFTER then
 				return true
@@ -787,29 +809,31 @@ end
 
 -- The route's vendor reagents it still needs, whose vendor can be named.
 ---@param reagents SkillUpNeededItem[]
----@return integer[]
+---@return SkillUpNeededItem[]
 local function VendorItems(reagents)
 	local items = {}
 	for _, item in ipairs(reagents) do
-		if item.source == "vendor" and ns.Have(item.itemID) < item.need then
-			items[#items + 1] = item.itemID
+		local have = ns.RouteDemand.Held(item)
+		if item.source == "vendor" and have and have < item.need then
+			if not item.acquisitions or #ns.RouteDemand.Vendors(item, true) > 0 then
+				items[#items + 1] = item
+			end
 		end
 	end
 	return items
 end
 
 -- The nearest vendor selling any of the route's missing vendor reagents, by the travel integration.
----@param itemIDs integer[]
+---@param items SkillUpNeededItem[]
 ---@return integer?
-local function NearestRouteVendor(itemIDs)
-	local candidates = {}
-	for _, itemID in ipairs(itemIDs) do
-		local npcID = ns.NearestVendor(itemID, true)
-		if npcID then
-			candidates[#candidates + 1] = npcID
+local function NearestRouteVendor(items)
+	local npcIDs = {}
+	for _, item in ipairs(items) do
+		for _, npcID in ipairs(ns.RouteDemand.Vendors(item, true)) do
+			npcIDs[#npcIDs + 1] = npcID
 		end
 	end
-	return ns.NearestNPC(candidates, true)
+	return ns.NearestNPC(npcIDs, true)
 end
 
 -- Whether pricing instead of getting it yourself could change this route: at least one reagent is one this
@@ -942,6 +966,14 @@ local function RequestRecipe(recipeID)
 	return false
 end
 
+-- Deferred refreshes must resolve the current Plan owner, never replay an
+-- action record captured before combat, a bag event or a configuration change.
+local function FreshCraft()
+	local profession = selected and ns.RouteProfessions()[selected]
+	return profession and ns.NextCraft(ns.PlanRoute(profession))
+		or { text = L["Craft next"], reason = L["Nothing to craft on this route."] }
+end
+
 ---@param craft SkillUpCraft
 local function ApplyCraft(craft)
 	local button = page.Craft
@@ -961,7 +993,9 @@ local function ApplyCraft(craft)
 	local canCreateAll = createAll and createAll:IsEnabled() and craftable > 0
 	local all = canCreateAll and count and count >= craftable
 	local onRecipe = recipeID and count and count > 0 and RequestRecipe(recipeID)
-	local ready = onRecipe and create and create:IsEnabled()
+	-- Adaptive actions are guidance only. RequestRecipe may open the native
+	-- recipe, but no Create, CreateAll or Shift proxy is armed for them.
+	local ready = not craft.nextAction and onRecipe and create and create:IsEnabled()
 
 	-- A secure type="click" presses the Professions window's own Create button, as Blizzard's own gamepad code
 	-- does (Blizzard_ProfessionsFrame.lua, Create/CreateAll, lines 979-985), and the client runs the protected
@@ -987,7 +1021,7 @@ local function ApplyCraft(craft)
 	end
 
 	local reason = CraftReason(craft)
-	if not reason and recipeID and count and count > 0 and not ready then
+	if not craft.nextAction and not reason and recipeID and count and count > 0 and not ready then
 		reason = L["The game's Craft button is not ready for this recipe."]
 	end
 	-- The button keeps one plain label and one width; the recipe and its count are named beside it and in
@@ -998,7 +1032,7 @@ local function ApplyCraft(craft)
 	button.reason = reason
 	button:SetText(L["Craft"])
 	local planned = craft.planned
-	local countText = planned and tostring(planned) or ""
+	local countText = craft.nextAction and count and tostring(count) or planned and tostring(planned) or ""
 	if ready and count and planned and count < planned then
 		countText = string.format(L["%d of %d"], count, planned)
 	end
@@ -1026,7 +1060,7 @@ end
 -- The route page owns the button while it shows; a change on the native page is not ours to answer.
 local function RefreshCraft()
 	if currentCraft and page:IsShown() then
-		SetCraft(currentCraft)
+		SetCraft(FreshCraft())
 	end
 end
 
@@ -1071,7 +1105,7 @@ local function ApplyPendingRoute()
 		page.CraftCount:SetShown(queued.craftShown)
 	end
 	if queued.craft then
-		ApplyCraft(queued.craft)
+		SetCraft(FreshCraft())
 	end
 end
 
@@ -1119,6 +1153,17 @@ local function Render()
 	end
 	local reagents = ns.RouteReagents(plan)
 	SetCollectEnabled(CollectChanges(reagents))
+	local summary = ns.RouteDemand.Summary(plan)
+	local supplyText = ns.SupplySummaryText(summary)
+	page.RouteList:Message(supplyText)
+	if summary.status ~= "unconfigured" then
+		page.RouteList:Message(
+			summary.service == "adaptive-finite"
+					and L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."]
+				or L["Craft next follows the estimated route."]
+		)
+	end
+	page.ReagentList:Message(supplyText)
 	RenderRoute(page.RouteList, plan)
 	local priceStatus, priceColor = AuctionPriceStatus(reagents)
 	if priceStatus ~= "" then
@@ -1441,7 +1486,7 @@ end
 -- Occupies the crafting page's place, as the overview page does.
 local function CreatePage()
 	page = CreateFrame("Frame", nil, ProfessionsFrame) --[[@as SkillUpPage]]
-	page:SetAllPoints(ProfessionsFrame.CraftingPage)
+	page:SetAllPoints(ProfessionsFrame)
 	page:SetFrameLevel(ProfessionsFrame.CraftingPage:GetFrameLevel())
 	-- What's Training? paints its own page at the portrait container's level, over CraftingPage's, and never
 	-- hides it when another tab is chosen. HIGH sits above that page and below dialogs, so this one keeps the
@@ -1538,7 +1583,7 @@ function ns.AttachRoute()
 		id = "route",
 		title = L["Route"],
 		setting = function()
-			return ns.db.showRouteTab
+			return ns.db.showProfessionTabs and ns.db.showRouteTab
 		end,
 		page = page,
 		prepare = Prepare,

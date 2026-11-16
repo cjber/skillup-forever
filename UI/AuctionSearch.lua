@@ -10,11 +10,6 @@ local L = ns.L
 -- what its reagents still lack for that many (#142). It only searches; buying stays the player's.
 
 local CALLER = "SkillUp Forever"
--- Where a reagent's price comes from, as the route's shopping list groups it: only the auction house's, the
--- unpriced ones a gatherable stays with Buy reagents on, and the unpriced are searched there, as with the
--- route's own Auctionator list.
-local AUCTION_SOURCES = { auctionator = true, auction = true }
-
 -- How many of a recipe to search reagents for: the crafts the route plans for it, else one.
 ---@param recipeID integer
 ---@return integer
@@ -52,7 +47,7 @@ function ns.ReagentShortfall(recipeID, count)
 		local source = ns.PriceSource(reagent.itemID)
 		-- With Buy reagents on, a material you gather is priced as gathered only while nothing prices it: search it.
 		local buying = source == "gather" and ns.CollectMode() == "auction"
-		if missing > 0 and (source == nil or AUCTION_SOURCES[source] or buying) then
+		if missing > 0 and (source == nil or ns.Model.ShoppingSource(source) == "auction" or buying) then
 			short[#short + 1] = { itemID = reagent.itemID, count = missing }
 		elseif missing > 0 then
 			elsewhere = elsewhere + 1
@@ -151,15 +146,31 @@ local function PriceRoute()
 	if not (api.GetAuctionPriceByItemID and (api.MultiSearchAdvanced or api.MultiSearchExact)) then
 		return
 	end
-	local needs = {}
-	for _, entry in ipairs(ns.TrackedNeeds()) do
-		for _, item in ipairs(entry.items) do
-			needs[item.itemID] = (needs[item.itemID] or 0) + item.need
+	local tracked = ns.TrackedNeeds()
+	local needs, unknown = ns.RouteDemand.Shortfalls(tracked)
+	local discovery = {}
+	for _, entry in ipairs(tracked) do
+		-- Excluded recipes have no planned quantities yet. Their one-craft shortfall can request a price
+		-- observation without treating them as free crafts or adding them to the shopping totals.
+		local unpriced = {}
+		for _, itemID in ipairs(ns.UnpricedReagents(entry.plan)) do
+			unpriced[itemID] = true
+		end
+		for _, recipe in ipairs(entry.plan.unpricedRecipes) do
+			for _, reagent in ipairs(ns.Reagents(recipe) or {}) do
+				if unpriced[reagent.itemID] then
+					discovery[reagent.itemID] = math.max(discovery[reagent.itemID] or 0, reagent.quantity)
+				end
+			end
+		end
+	end
+	for itemID, quantity in pairs(discovery) do
+		if not unknown[itemID] then
+			needs[itemID] = math.max(needs[itemID] or 0, quantity - ns.Have(itemID))
 		end
 	end
 	local short = {}
-	for itemID, needed in pairs(needs) do
-		local missing = needed - ns.Have(itemID)
+	for itemID, missing in pairs(needs) do
 		local price = api.GetAuctionPriceByItemID(CALLER, itemID)
 		local age = api.GetAuctionAgeByItemID and api.GetAuctionAgeByItemID(CALLER, itemID)
 		if missing > 0 and (price == nil or age == nil or age > 0) then

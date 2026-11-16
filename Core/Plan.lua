@@ -235,10 +235,10 @@ end
 -- the route page's money is what the player pays.
 ---@param recipeID integer
 ---@param crafts number
----@return number
+---@return number?
 function ns.StepCost(recipeID, crafts)
 	local _, _, netCost = RecipeCosts(recipeID)
-	return ns.Model.StepCost(netCost, nil, crafts) or 0
+	return ns.Model.StepCost(netCost, nil, crafts)
 end
 
 -- What the planner works from: the recipes this character knows, for any of its professions, from
@@ -277,7 +277,7 @@ end
 
 -- { fee, required base skill }: what a trainer was seen to charge, else the base fee;
 -- nil for a recipe no trainer teaches.
----@param profession SkillUpContext
+---@param profession {skillLine: integer}
 ---@param recipeID integer
 ---@return number[]?
 function ns.TrainingFor(profession, recipeID)
@@ -323,7 +323,12 @@ local function Trainable(profession, snapshot)
 	local services = {}
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
 		local training = ns.TrainingFor(profession, recipeID) or VendorTraining(recipeID)
-		local t = training and not ns.IsLearned(recipeID) and not Skipped(recipeID) and ns.Model.Get(recipeID)
+		local levelReady = not training or not training[4] or (UnitLevel("player") or 0) >= training[4]
+		local t = training
+			and levelReady
+			and not ns.IsLearned(recipeID)
+			and not Skipped(recipeID)
+			and ns.Model.Get(recipeID)
 		if training and t then
 			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
 			if taught[1] <= snapshot.target and t[4] > snapshot.skill then
@@ -742,7 +747,7 @@ local function Finish(profession, target, route)
 	-- What the steps ask for, after any rank split them: the crafts and their cost.
 	local crafting = 0
 	for _, craft in ipairs(crafts) do
-		crafting = crafting + ns.StepCost(craft.recipeID, craft.crafts)
+		crafting = crafting + (ns.StepCost(craft.recipeID, craft.crafts) or 0)
 	end
 	---@type SkillUpPlan
 	local plan = {
@@ -829,8 +834,11 @@ local function Affordable(plan)
 		local _, raw = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
 		for _, item in ipairs(raw) do
 			-- The bags' copies are already off; anything left must be buyable.
-			if item.count > 0 and not ns.Price(item.itemID) then
-				return false
+			if item.count > 0 then
+				local price = ns.Price(item.itemID)
+				if not price or price.unknown then
+					return false
+				end
 			end
 		end
 	end
@@ -991,7 +999,8 @@ function ns.PlanRoute(profession)
 		return cached
 	end
 	local snapshot = Snapshot(profession, target)
-	local plan = Finish(profession, target, ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot)))
+	local route = ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot))
+	local plan = Finish(profession, target, route)
 	if
 		kept
 		and kept.key == key
@@ -1059,7 +1068,34 @@ function ns.RouteReagents(plan)
 	-- The raw reagents are worked out from the recipes as they stand now, so a bought or gathered
 	-- source in the settings shows without rebuilding the plan.
 	local raw, bags = {}, {}
-	for _, craft in ipairs(plan.crafts) do
+	local supply = ns.RouteDemand and ns.RouteDemand.Supply(plan)
+	if supply then
+		local items = {}
+		for itemID, count in pairs(supply.items) do
+			local acquisitions = {}
+			for _, acquisition in ipairs(supply.acquisitions or {}) do
+				if acquisition.itemID == itemID then
+					acquisitions[#acquisitions + 1] = acquisition
+				end
+			end
+			items[#items + 1] = {
+				itemID = itemID,
+				need = count,
+				have = supply.have[itemID],
+				supplyScope = supply.result and supply.result.inventoryScope or "bags-and-bank",
+				source = #acquisitions > 0 and "vendor" or "unknown",
+				acquisitions = acquisitions,
+			}
+		end
+		table.sort(items, function(a, b)
+			return a.itemID < b.itemID
+		end)
+		for _, itemID in ipairs(ns.MissingToolItems and ns.MissingToolItems(plan) or {}) do
+			items[#items + 1] = { itemID = itemID, need = 1, source = ns.Model.ShoppingSource(ns.PriceSource(itemID)) }
+		end
+		return items
+	end
+	for _, craft in ipairs(supply and {} or plan.crafts) do
 		local _, craftRaw, craftUsed = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
 		for _, item in ipairs(craftRaw) do
 			raw[#raw + 1] = item
@@ -1095,9 +1131,12 @@ function ns.UnpricedReagents(plan)
 	local seen, items = {}, {}
 	for _, recipeID in ipairs(plan.unpricedRecipes) do
 		for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
-			if not seen[reagent.itemID] and not ns.Price(reagent.itemID) then
-				seen[reagent.itemID] = true
-				items[#items + 1] = reagent.itemID
+			if not seen[reagent.itemID] then
+				local price = ns.Price(reagent.itemID)
+				if not price or price.unknown then
+					seen[reagent.itemID] = true
+					items[#items + 1] = reagent.itemID
+				end
 			end
 		end
 	end
@@ -1175,15 +1214,48 @@ local function MissingReagent(recipeID, crafts)
 end
 
 -- The plan's first craft, as many times as it needs and the bags allow, with
--- its label; or why it can't be crafted. The profession must be the open one.
+-- its label; or why it can't be crafted. The selected recipe's profession must be open.
 ---@param plan SkillUpPlan
 ---@return SkillUpCraft
 function ns.NextCraft(plan)
+	local action = ns.RouteDemand.NextAction(plan)
+	if action then
+		local guidance = { text = L["Craft next"], nextAction = action }
+		if action.kind ~= "craft" then
+			guidance.reason = action.kind == "stop" and L["Nothing to craft on this route."]
+				or L["Supply estimate: not enough information."]
+			return guidance
+		end
+		local recipeID = action.recipeID
+		-- Craft actions bind a recipe before publication.
+		---@cast recipeID integer
+		local recipe = ns.RecipeData[recipeID]
+		local skillLine = recipe and recipe.skillLine or plan.profession.skillLine
+		if ns.OpenSkillLine() ~= skillLine or not ns.IsLearned(recipeID) then
+			guidance.reason = L["The game's Craft button is not ready for this recipe."]
+			return guidance
+		end
+		local tool = ns.MissingTool and ns.MissingTool(recipeID)
+		if tool then
+			guidance.reason = string.format(L["Need a %s in your bags."], tool.name)
+			return guidance
+		end
+		local craftable = ns.Readable(C_TradeSkillUI.GetCraftableCount(recipeID))
+		if type(craftable) ~= "number" or craftable < 1 then
+			guidance.reason = L["Missing reagents for this step."]
+			return guidance
+		end
+		guidance.recipeID, guidance.count = recipeID, 1
+		guidance.text = string.format(
+			L["Craft %d× %s"],
+			1,
+			C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
+		)
+		return guidance
+	end
 	local profession, craft = plan.profession, plan.crafts[1]
 	if not craft then
 		return { text = L["Craft next"], reason = L["Nothing to craft on this route."] }
-	elseif ns.OpenSkillLine() ~= profession.skillLine then
-		return { text = L["Craft next"], reason = string.format(L["Open %s to craft from here."], profession.name) }
 	elseif profession.capped and plan.ranks[1] then
 		local rank = plan.ranks[1]
 		local reason = rank.book and string.format(L["Read %s first: you're at your cap."], ns.RankBookName(rank))
@@ -1191,31 +1263,63 @@ function ns.NextCraft(plan)
 			or string.format(L["Train %s first: you're at your cap."], rank.name)
 		return { text = L["Craft next"], reason = reason }
 	end
+	-- Past the cap a craft gives no skill-up until the next rank is trained.
+	local crafts, m = craft.crafts, profession.modifier
+	if profession.max > 0 and craft.to > profession.max then
+		local thresholds = ns.Model.Get(craft.recipeID)
+		---@cast thresholds number[]
+		local ups = ns.RecipeSkillUps and ns.RecipeSkillUps(craft.recipeID) or 1
+		crafts = ns.Model.CoveredCrafts(thresholds, craft.from + m, profession.max + m, ups)
+	end
+	-- Resolve the ordered prerequisites backwards from the parent demand. Each held item is
+	-- allocated once, including intermediates shared by different branches of the recipe.
+	local needed, held, batches = {}, {}, {}
+	local function Require(recipe, count)
+		for _, reagent in ipairs(ns.Reagents(recipe) or {}) do
+			needed[reagent.itemID] = (needed[reagent.itemID] or 0) + reagent.quantity * count
+		end
+	end
+	Require(craft.recipeID, crafts)
+	local subcrafts = craft.subcrafts or {}
+	for i = #subcrafts, 1, -1 do
+		local sub = subcrafts[i]
+		local itemID = sub.itemID
+		held[itemID] = held[itemID] or ns.Have(itemID)
+		local used = math.min(held[itemID], needed[itemID] or 0)
+		held[itemID] = held[itemID] - used
+		local short = (needed[itemID] or 0) - used
+		local yield = sub.made / sub.crafts
+		local count = math.min(sub.crafts, math.ceil(short / yield))
+		needed[itemID] = math.max(0, short - count * yield)
+		held[itemID] = held[itemID] + math.max(0, count * yield - short)
+		batches[sub.recipeID] = (batches[sub.recipeID] or 0) + count
+		Require(sub.recipeID, count)
+	end
+	-- Repeated makers share one batch count at their first occurrence, so a later
+	-- branch cannot lend its batch surplus to an earlier step before it is made.
 	local recipeID = craft.recipeID
+	for _, sub in ipairs(subcrafts) do
+		if batches[sub.recipeID] > 0 then
+			recipeID, crafts = sub.recipeID, batches[sub.recipeID]
+			break
+		end
+	end
+	local recipe = ns.RecipeData[recipeID]
+	local skillLine = recipe and recipe.skillLine or profession.skillLine
+	if ns.OpenSkillLine() ~= skillLine then
+		local selected = ns.PlayerProfessions()[skillLine]
+		return {
+			text = L["Craft next"],
+			reason = string.format(L["Open %s to craft from here."], selected and selected.name or profession.name),
+		}
+	end
 	local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
 	if not ns.IsLearned(recipeID) then
 		return { text = L["Craft next"], reason = string.format(L["Train %s first."], name) }
 	end
-	-- A tool the step or a sub-craft needs and the bags don't hold stops the craft.
 	local tool = ns.MissingTool and ns.MissingTool(recipeID)
-	if not tool and ns.MissingTool then
-		for _, sub in ipairs(craft.subcrafts or {}) do
-			tool = ns.MissingTool(sub.recipeID)
-			if tool then
-				break
-			end
-		end
-	end
 	if tool then
 		return { text = L["Craft next"], reason = string.format(L["Need a %s in your bags."], tool.name) }
-	end
-	-- Past the cap a craft gives no skill-up until the next rank is trained.
-	local crafts, m = craft.crafts, profession.modifier
-	if profession.max > 0 and craft.to > profession.max then
-		local thresholds = ns.Model.Get(recipeID)
-		---@cast thresholds number[]
-		local ups = ns.RecipeSkillUps and ns.RecipeSkillUps(recipeID) or 1
-		crafts = ns.Model.CoveredCrafts(thresholds, craft.from + m, profession.max + m, ups)
 	end
 	-- RecipeInfo has no count; this one includes the client's reagent and resource rules.
 	local count = math.min(crafts, ns.Readable(C_TradeSkillUI.GetCraftableCount(recipeID)) or 0)

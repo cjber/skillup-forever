@@ -4,10 +4,14 @@ if GetLocale() ~= "ruRU" then
 	return
 end
 local L = ns.L
+L["Show SkillUp tooltip details"] = "Показывать подробности подсказок SkillUp"
+L["Show SkillUp profession tabs"] = "Показывать вкладки профессий SkillUp"
+L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
+	"Добавляет сведения SkillUp в подсказки, сохраняя отдельные настройки подсказок."
+L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
+	"Показывает вкладки маршрута, экипировки и усилений, сохраняя отдельные настройки вкладок."
 
 L["%d %s"] = "%d %s"
-L["%d crafts to %d, %s"] = "%d созд. до %d, %s"
-L["%d crafts to %d, %s, at %s"] = "%d созд. до %d, %s, у: %s"
 L["%d more"] = "еще %d"
 L["%d of %d"] = "%d из %d"
 L["%d reagents have no price"] = "У %d реагентов нет цены"
@@ -277,7 +281,6 @@ L["To buy"] = "К покупке"
 L["Tool"] = "Инструмент"
 L["Tooltips and sorting"] = "Подсказки и сортировка"
 L["Track"] = "Отслеживать"
-L["Tracked routes (Shift for all)"] = "Отслеживаемые маршруты (SHIFT — все)"
 L["Tracker scale"] = "Размер панели отслеживания"
 L["Train %s"] = "Изучить %s"
 L["Train %s at %d"] = "Изучить %s на %d"
@@ -301,8 +304,6 @@ L["Waist"] = "Пояс"
 L["Waypoint to a trainer"] = "Точка маршрута к учителю"
 L["Waypoint to a vendor: %s"] = "Точка маршрута к торговцу: %s"
 L["Waypoint to the quest giver: %s"] = "Точка маршрута к тому, кто дает задание: %s"
-L["What hovering an item says about your professions: how much of it your tracked routes need (hold Shift for every recipe that uses it), every such recipe and its colour, or nothing."] =
-	"Что показывает подсказка предмета о ваших профессиях: сколько его нужно отслеживаемым маршрутам (удерживайте SHIFT, чтобы видеть все рецепты с ним), все такие рецепты и их цвет, или ничего."
 L["What's new after an update"] = "Что нового после обновления"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
@@ -539,3 +540,166 @@ L["Region sale average"] = "Средняя цена продажи в регио
 L["Region sale average if higher"] = "Средняя цена продажи в регионе, если выше"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
 	"Для средних цен продажи в регионе нужны TradeSkillMaster и его приложение для компьютера. Они оценивают стоимость по зарегистрированным региональным продажам и покупкам, но не ниже цены продажи торговцу. Продажа не гарантируется."
+L["%s (%s)"] = "%s (%s)"
+L["%s profit per craft"] = "%s прибыли за создание"
+L["%s profit per skill-up"] = "%s прибыли за очко навыка"
+L["Auction price"] = "Цена аукциона"
+L["Auction prices from"] = "Цены аукциона из"
+L["Auctionator"] = "Auctionator"
+L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
+	"Какой аддон оценивает аукционные цены, когда установлены оба. Цена выбранного аддона важнее; другой заполняет предмет, для которого у него нет цены. Auctionator также показывает давность своей цены."
+
+L["Skill %d to %d, %s"] = "Навык с %d до %d, %s" -- mt
+L["Skill %d to %d, %s, at %s"] = "Навык с %d до %d, %s, у: %s" -- mt
+L["Unlearned recipe order"] = "Порядок неизученных рецептов" -- mt
+L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."] =
+	"Порядок рецептов, которые вы ещё не изучили. Изученные рецепты сохраняют выбранный порядок." -- mt
+L["TSM regional sales per day"] = "Продажи в регионе за день по данным TSM" -- mt
+L["Average sold per auction house in your region, reported by TSM."] =
+	"Среднее количество продаж на один аукционный дом в вашем регионе по данным TSM." -- mt
+
+L["Open %s from your spellbook."] = "Откройте %s в книге заклинаний."
+
+L["Recipes on Shift"] = "Рецепты по Shift" -- mt
+L["Show recipes on Shift or always. Off hides reagent details, including route needs."] =
+	"Показывать рецепты по Shift или всегда. Выключение скрывает сведения о реагентах, включая потребности маршрутов." -- mt
+L["Show route needs on item tooltips"] =
+	"Показывать потребности маршрутов в подсказках предметов" -- mt
+L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
+	"Показывает, сколько предметов ещё нужно для отслеживаемых маршрутов. Отключите, чтобы оставить сведения о рецептах без строки маршрута." -- mt
+
+L["Have (bags only)"] = "В наличии (только сумки)" -- mt
+
+L["%s%% to %s%%"] = "От %s%% до %s%%" -- mt
+L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
+	"Добавляет непроверенные 4 процентных пункта за каждый обнаруженный ранг Working Overtime к оценке вероятности повышения навыка для жёлтых и зелёных рецептов. Отключите, чтобы использовать базовую оценку вероятности для затрат и маршрутов. Ни одна из оценок не является подтверждённым правилом сервера." -- mt
+L["Chance of finishing with later purchases: %s."] =
+	"Вероятность завершения с последующими покупками: %s." -- mt
+L["Chance of finishing with starting supplies: %s."] =
+	"Вероятность завершения с начальными запасами: %s." -- mt
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"Количество изготовлений и объёмы покупок приблизительны. Может потребоваться больше реагентов." -- mt
+L["Craft next follows the estimated route."] =
+	"Кнопка «Создать следующее» следует расчётному маршруту." -- mt
+L["Include Working Overtime estimate"] = "Учитывать оценку Working Overtime" -- mt
+L["Starting inventory: bags and bank."] = "Начальные запасы: сумки и банк." -- mt
+L["Starting inventory: bags only."] = "Начальные запасы: только сумки." -- mt
+L["Supply estimate: calculating."] = "Расчёт запасов: вычисление." -- mt
+L["Supply estimate: cancelled."] = "Расчёт запасов: отменён." -- mt
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"Расчёт запасов: при этих допущениях самой дешёвой покупки не существует." -- mt
+L["Supply estimate: no starting purchase meets the target."] =
+	"Расчёт запасов: ни одна начальная покупка не достигает цели." -- mt
+L["Supply estimate: not enough information."] =
+	"Расчёт запасов: недостаточно информации." -- mt
+L["Supply estimate: ready."] = "Расчёт запасов: готов." -- mt
+L["Target chance of finishing with starting supplies: %s%%."] =
+	"Целевая вероятность завершения с начальными запасами: %s%%." -- mt
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"Эти вероятности предполагают указанные шансы повышения навыка, цены, доступность и доставку последующих покупок." -- mt
+L["unknown"] = "неизвестно" -- mt
+
+L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
+	"Адаптивные подсказки открывают рекомендуемый рецепт. Выберите количество для изготовления в окне профессии." -- mt
+
+L["currency %d"] = "валюта %d" -- mt
+L["an unknown payment"] = "неизвестный платёж" -- mt
+L["Name the stock each offer draws on, or give this offer its own stock."] =
+	"Назовите запас, из которого берётся каждое предложение, или дайте ему собственный запас." -- mt
+L["The merchant shows no limit: limit the search to the number you will buy."] =
+	"Торговец не показывает предел: ограничьте поиск количеством, которое вы купите." -- mt
+L["The stock you assume does not match what the merchant shows."] =
+	"Запас, который вы предполагаете, не совпадает с тем, что показывает торговец." -- mt
+L["Enter a starting chance between 1 and 100."] = "Введите начальный шанс от 1 до 100." -- mt
+L["The merchant sells none of this route's reagents."] =
+	"Торговец не продаёт ни одного реагента этого маршрута." -- mt
+L["The merchant's offer for %s is incomplete."] = "Предложение торговца для %s неполное." -- mt
+L["Every offer needs its price to stay as shown."] =
+	"Для каждого предложения цена должна оставаться такой, как показано." -- mt
+L["Fill in every value this offer needs."] =
+	"Заполните каждое значение, которое нужно этому предложению." -- mt
+L["The merchant sells fewer purchases at a time than that."] =
+	"Торговец продаёт меньше покупок за раз." -- mt
+L["Offers that draw on one stock pool need the same stock."] =
+	"Предложения из одного запаса требуют одного и того же запаса." -- mt
+L["Offers at one vendor need the same trip costs and values."] =
+	"Предложения у одного торговца требуют одинаковых затрат и ценностей поездки." -- mt
+L["Enter the chance each later purchase arrives, from 0 to 100."] =
+	"Введите шанс, что каждая следующая покупка придёт, от 0 до 100." -- mt
+L["Check that the first purchase arrives for certain at every offer."] =
+	"Отметьте, что первая покупка приходит точно, для каждого предложения." -- mt
+L["One item or payment needs one leftover value."] =
+	"Предмету или платежу нужна одна остаточная ценность." -- mt
+L["Offers that use one payment need the same value for it."] =
+	"Предложения с одним платежом требуют одинаковой ценности для него." -- mt
+L["The merchant changed. Check the form again."] =
+	"Торговец сменился. Проверьте форму снова." -- mt
+L["The merchant did not change, but the assumptions did. Check the form again."] =
+	"Торговец не сменился, но допущения изменились. Проверьте форму снова." -- mt
+L["The merchant shows this offer sold out."] =
+	"Торговец показывает это предложение распроданным." -- mt
+L["The merchant does not say how much is left."] =
+	"Торговец не говорит, сколько осталось." -- mt
+L["The merchant will not sell this offer to you now."] =
+	"Торговец сейчас не продаст вам это предложение." -- mt
+L["Choose the unit the stock count is in."] = "Выберите единицу учёта запаса." -- mt
+L["The assumptions were rejected. Fill in every value and check each offer."] =
+	"Допущения отклонены. Заполните каждое значение и проверьте каждое предложение." -- mt
+L["Open a profession to see its plan and coverage."] =
+	"Откройте профессию, чтобы увидеть её план и покрытие." -- mt
+L["Plan: %s, %s to %s, %d crafts."] = "План: %s, от %s до %s, изготовлений: %d." -- mt
+L["Unpriced crafts: %d."] = "Изготовлений без цены: %d." -- mt
+L["Your target chance: %s%%."] = "Ваш целевой шанс: %s%%." -- mt
+L["Margin over your target: %s points."] = "Запас над целью: %s балла." -- mt
+L["Below your target by %s points."] = "Ниже цели на %s балла." -- mt
+L["craft"] = "изготовить" -- mt
+L["buy"] = "купить" -- mt
+L["stop"] = "остановиться" -- mt
+L["Next step: %s."] = "Следующий шаг: %s." -- mt
+L["Open a profession to set its supply policy."] =
+	"Откройте профессию, чтобы задать её политику снабжения." -- mt
+L["This profession has no plan to supply yet."] =
+	"У этой профессии пока нет плана для снабжения." -- mt
+L["Open a merchant to set this profession's supply policy."] =
+	"Откройте торговца, чтобы задать политику снабжения этой профессии." -- mt
+L["Ready to apply these assumptions."] = "Готово применить эти допущения." -- mt
+L["no limit"] = "без предела" -- mt
+L["Offer %d: %s"] = "Предложение %d: %s" -- mt
+L["The merchant shows %s in stock, %s per purchase, at most %s purchases."] =
+	"Торговец показывает %s в запасе, %s за покупку, не более %s покупок." -- mt
+L["Price: %s."] = "Цена: %s." -- mt
+L["Also costs %s %s."] = "Также стоит %s %s." -- mt
+L["I can buy this offer"] = "Я могу купить это предложение" -- mt
+L["The price stays as shown"] = "Цена остаётся такой, как показано" -- mt
+L["Stock I assume is left"] = "Запас, который, как я предполагаю, остался" -- mt
+L["The stock does not run out"] = "Запас не заканчивается" -- mt
+L["The stock count is in items, not purchases"] =
+	"Запас считается в предметах, а не в покупках" -- mt
+L["This offer keeps its own stock"] = "У этого предложения собственный запас" -- mt
+L["Limit the search to the stock I typed"] = "Ограничить поиск введённым запасом" -- mt
+L["Stock pool name"] = "Название запаса" -- mt
+L["Purchases allowed per visit"] = "Покупок за визит разрешено" -- mt
+L["First trip cost (copper)"] = "Стоимость первой поездки (медь)" -- mt
+L["Later trip cost (copper)"] = "Стоимость следующих поездок (медь)" -- mt
+L["First trip value to you (copper)"] = "Ценность первой поездки для вас (медь)" -- mt
+L["Later trip value to you (copper)"] = "Ценность следующих поездок для вас (медь)" -- mt
+L["Chance each later purchase arrives (%)"] =
+	"Шанс, что каждая следующая покупка придёт (%)" -- mt
+L["The first purchase arrives for certain"] = "Первая покупка приходит точно" -- mt
+L["I pay even when a purchase does not arrive"] = "Я плачу, даже если покупка не пришла" -- mt
+L["Leftover value of one %s (copper)"] = "Остаточная ценность одного %s (медь)" -- mt
+L["Value of one %s (copper)"] = "Ценность одного %s (медь)" -- mt
+L["These are your own assumptions. The merchant's window only shows what it shows now."] =
+	"Это ваши собственные допущения. Окно торговца показывает только то, что показывает сейчас." -- mt
+L["Chance of finishing with starting supplies (%)"] =
+	"Шанс завершить с начальным запасом (%)" -- mt
+L["Plan later purchases too"] = "Планировать и последующие покупки" -- mt
+L["Cost of an unfinished route (copper)"] =
+	"Стоимость незавершённого маршрута (медь)" -- mt
+L["Applied. The plan and its coverage follow these assumptions."] =
+	"Применено. План и его покрытие следуют этим допущениям." -- mt
+L["Supply"] = "Снабжение" -- mt
+
+L["Supply policy"] = "Политика снабжения" -- mt
+L["Open the profession and a merchant window."] = "Откройте профессию и окно торговца." -- mt
+L["Apply policy"] = "Применить политику" -- mt

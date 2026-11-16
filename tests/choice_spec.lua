@@ -105,15 +105,17 @@ ns.SetCollectMode("auction")
 equal(ns.Price(ORE).source, "auctionator", "Buy reagents buys gathered materials at the auction house")
 equal(ns.Price(ORE).copper, 100, "at the full auction price")
 
--- With nothing to buy it at, ore this character mines stays on the route as an auction price unknown, so
--- turning Buy reagents on never leaves the recipes that use it out (#162, #559).
+-- Without an observation, ore remains searchable but cannot outrank a known purchase cost.
 c.auction[ORE] = nil
 c.AuctionatorScan()
 equal(ns.Price(ORE).source, "auction", "Buy reagents with no price for the ore: it is bought there")
 equal(ns.Price(ORE).unknown, true, "as a price unknown")
-equal(ns.Price(ORE).copper, 0, "that costs nothing in the plan")
+equal(ns.Price(ORE).copper, 0, "the placeholder is zero, not a known cost")
 c.SetSetting("valueGathered", false)
-equal(Plan().crafts[1].recipeID, FROM_ORE, "so the route still crafts from it")
+equal(ns.NetCost(FROM_ORE), nil, "an unknown placeholder cannot price the ore recipe")
+equal(Plan().crafts[1].recipeID, FROM_FLUX, "the known flux recipe carries the route")
+equal(Plan().unpricedRecipes[1], FROM_ORE, "the unpriced recipe remains identified")
+equal(ns.UnpricedReagents(Plan())[1], ORE, "its ore remains available for an auction search")
 ns.SetCollectMode("gather")
 equal(ns.Price(ORE).source, "gather", "off again, gathering is where it comes from")
 equal(ns.Price(ORE).copper, 0, "and it is free")

@@ -37,6 +37,7 @@ These images are generated previews of the SkillUp UI.
 - **Unlearned recipes.** A setting, off by default, lists them greyed under the learned ones, each marked with its trainer or recipe item and the skill it asks. Hovering one shows its reagents, cost and skill-up colours, and typing in the search box narrows them too; it cannot be crafted.
 - **Levelling routes.** Crafts, trainer visits, skill books and rank quests to your target skill, including fees, tools and stations, with steps that allow for unlucky skill-ups. Cheaper crafted reagents become their own steps, routes that stop short name recipes that could extend them, and right-clicking a recipe and choosing *Not this recipe* plans without it.
 - **Shopping lists.** Reagents are counted against bags and bank. Buying is the default, so materials your professions gather are bought unless you choose to gather them; track the list beside quests, buy vendor stock and keep an Auctionator list up to date. The Shopping list says how that list works, and at the auction house you can search a recipe's reagents for as many crafts as you choose.
+- **A supply page beside the route.** With a profession and a merchant open, write down what you assume about each offer's price, stock, purchase limit and trips, then read the route's chance and next step before you apply it. Nothing is filled in for you.
 - **Trainers, reagents and gathering.** Trainers mark the best recipe to train next, and reagent tooltips show what tracked routes need. On English clients, gathering nodes show the Herbalism or Mining skill they need, coloured at yours.
 - **Crafted gear and buffs.** The gear tab, enabled in settings, shows the newest craft for each slot with its recipe, reagents and learning location. The buffs tab shows what each profession can make for your level on a skill timeline: known buffs, the ones you can learn now and the ones still ahead, for any profession picked from its dropdown, including crafters you do not have.
 
@@ -59,7 +60,7 @@ Open a profession and the numbers are already there.
 - `/skillup issue` opens a ready-made GitHub issue link to report a bug or request a feature.
 - `/skillup trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
-Settings cover rows and tooltips, the recipe list's width, prices, the route, gear and buffs tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints.
+Settings cover rows and tooltips, the recipe list's width, prices, the route, gear and buffs tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints. The Supply page opens beside the route while the levelling route tab is on.
 
 For a bug report, paste `/skillup report`. It shows a report to copy.
 
@@ -92,7 +93,7 @@ With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path
 
 <!-- forever-credits:start -->
 
-Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, sundered1985, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc and everyone who reported a bug or asked for a feature.
+Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, sundered1985, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, yavinn, rissole, davef1n, codipherus, jugg__, keerp, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc, Da_Tronic, shenhyrosame and everyone who reported a bug or asked for a feature.
 
 <!-- forever-credits:end -->
 

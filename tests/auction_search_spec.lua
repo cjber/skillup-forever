@@ -8,6 +8,7 @@ local BANDAGE, HEAVY, LINEN, THREAD, SALT = 1, 2, 3, 4, 5
 local function Load(options)
 	local c = Client.load({
 		auctionator = options.auctionator,
+		tsm = options.tsm,
 		saved = { routeTargets = { [129] = 60 }, trackedProfessions = { [129] = true } },
 		data = {
 			Thresholds = { [BANDAGE] = { 1, 30, 45, 60 }, [HEAVY] = { 40, 50, 75, 100 } },
@@ -196,5 +197,66 @@ c.auction[LINEN] = nil
 c.Fire("AUCTION_HOUSE_SHOW")
 c.Advance(0)
 equal(#c.auctionSearches, 0, "gather mode starts no auction search")
+
+-- Item-name loading can finish after a visit ends. An old callback cannot consume the next visit's query.
+c = Load({})
+ns = c.ns
+ns.SetCollectMode("auction")
+c.auction[LINEN] = nil
+ns.Changed("prices")
+local pending = {}
+c.G.ContinuableContainer = {
+	Create = function()
+		return {
+			AddContinuable = function() end,
+			ContinueOnLoad = function(_, callback)
+				pending[#pending + 1] = callback
+			end,
+		}
+	end,
+}
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#pending, 1, "an entirely unpriced route waits for item names")
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#pending, 1, "duplicate events cannot enqueue another name callback")
+c.Fire("AUCTION_HOUSE_CLOSED")
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+equal(#pending, 2, "a new visit owns its own pending search")
+pending[1]()
+equal(#c.auctionSearches, 0, "the closed visit's callback cannot search during the new visit")
+pending[2]()
+equal(#c.auctionSearches, 1, "the current visit makes exactly one query")
+equal(c.auctionSearches[1][1], "Linen Clothx1", "unknown dependencies survive deferred name loading")
+c.Fire("AUCTION_HOUSE_CLOSED")
+c.Fire("AUCTION_HOUSE_SHOW")
+c.Advance(0)
+ns.db.auctionSearch = false
+pending[3]()
+equal(#c.auctionSearches, 1, "disabling search cancels a pending unknown-price query")
+
+-- Saved TSM realm prices are auction purchases, including before this character visits the auction house.
+for _, auctionator in ipairs({ false, true }) do
+	c = Load({ auctionator = auctionator, tsm = { [LINEN] = 500 } })
+	ns = c.ns
+	c.SetSetting("priceSource", "tsm")
+	equal(ns.PriceSource(LINEN), "tsm", "the preferred saved TSM quote supplies the price")
+	local missing = ns.ReagentShortfall(BANDAGE, 2)
+	equal(#missing, 1, "TSM-priced reagents remain searchable")
+	equal(missing[1] and missing[1].count, 2, "TSM search retains the requested quantity")
+	local method = ns.SearchReagents(BANDAGE, 2)
+	equal(method, auctionator and "auctionator" or "game", "the available search provider handles TSM prices")
+	if auctionator then
+		equal(
+			c.auctionSearches[1] and c.auctionSearches[1][1],
+			"Linen Clothx2",
+			"Auctionator searches the TSM-priced quantity"
+		)
+	else
+		equal(c.G.AuctionHouseFrame.searched[1], "Linen Cloth", "the native search accepts the TSM-priced reagent")
+	end
+end
 
 Client.report("auction_search_spec")

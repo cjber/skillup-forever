@@ -189,4 +189,49 @@ Reset()
 itemPost(main, { id = LINEN })
 equal(draws > 0, true, "another mode draws the other variant")
 
+-- #736: route needs and Shift-only recipe details are independent settings.
+c.SetSetting("showTooltipRoute", false)
+Reset()
+main:Clear()
+itemPost(main, { id = LINEN })
+equal(#main.lines, 0, "unshifted recipes remain collapsed with route needs hidden")
+for _, text in ipairs(colored) do
+	equal(text:find("^Route:") == nil, true, "route needs can be hidden without disabling recipe details")
+end
+G.IsShiftKeyDown = function()
+	return true
+end
+Reset()
+main:Clear()
+itemPost(main, { id = LINEN })
+equal(#main.lines > 0, true, "Shift still reveals recipes with route needs hidden")
+for _, text in ipairs(colored) do
+	equal(text:find("^Route:") == nil, true, "Shift never restores the disabled route line")
+end
+G.IsShiftKeyDown = function()
+	return false
+end
+Reset()
+main:Clear()
+itemPost(main, { id = LINEN })
+equal(#main.lines, 0, "releasing Shift collapses recipe details on the next client tooltip set")
+c.SetSetting("reagentTooltip", "full")
+Reset()
+main:Clear()
+itemPost(main, { id = LINEN })
+equal(#main.lines > 0, true, "full mode keeps recipes visible without Shift")
+for _, text in ipairs(colored) do
+	equal(text:find("^Route:") == nil, true, "full mode respects the independent route switch")
+end
+c.SetSetting("reagentTooltip", "route")
+c.SetSetting("showTooltipRoute", true)
+Reset()
+main:Clear()
+itemPost(main, { id = LINEN })
+local routeShown = false
+for _, text in ipairs(colored) do
+	routeShown = routeShown or text:find("^Route:") ~= nil
+end
+equal(routeShown, true, "reenabling route needs invalidates the same hovered item's cache")
+
 Client.report("tooltip_refresh_spec")

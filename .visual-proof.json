@@ -1,15 +1,15 @@
 {
-  "input_digest": "b7cafb98c10563d6c7d3729a6f05edcbc009d902fa7d5592309d263205a64f71",
-  "runtime_sha256": "b7cafb98c10563d6c7d3729a6f05edcbc009d902fa7d5592309d263205a64f71",
-  "candidate": "ebe9d4f2f8f965608f83e99c14e9ef559592e0c29c0e616c24126016f640ba57",
+  "input_digest": "372d3b0e1ca92001e3064b1346d0f07af3b34b94078e95eb24f1f13dbabc51db",
+  "runtime_sha256": "372d3b0e1ca92001e3064b1346d0f07af3b34b94078e95eb24f1f13dbabc51db",
+  "candidate": "e8d893de25597df42e67213dd0fe8d5bda087622b12612778abe043f5dcd021f",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "57660afb7d538fe4d08b1442c569bcc83f36b3b6",
+  "source_commit": "f13d5cafea6a1ad36c11c5a7a8f4fe65d7950017",
   "flows": [
     {
-      "name": "unlearned recipe preview",
+      "name": "route craft button",
       "steps": [
-        "su767-preview.lua sha256:499c0463d0b04d155985d418bd1d18a55c38e84abb4f36bbd1f55d277ac78903"
+        "route-craft.lua sha256:4e06c2ba5bba0c9f3d48c25b641a010c25b7fe6853d74492d71d86e282767611"
       ],
       "click": [
         960,
@@ -20,8 +20,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/41bd874dffa589bbf646be8b6780f151/raw/93d37c9d94b7cb63cca1ece423138bb96225d829/1-unlearned-recipe-preview.png",
-      "sha256": "0fa2f5dded1b3eaf3237dec0490aab1d9b7a4034178036196fa7b7f46b827cc2"
+      "url": "https://gist.githubusercontent.com/cjber/9268df836534b7a2214edbf40b8eba0c/raw/99375d2091fbd97137050cd0219a8ecb6f22b42c/1-route-craft-button.png",
+      "sha256": "16e62d8a088fa8f9a3c6f8d9c911dc5e062d83b259bed40196437657c30f88a4"
     }
   ]
 }

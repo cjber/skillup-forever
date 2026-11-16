@@ -648,6 +648,6 @@ L["Apply policy"] = "套用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的陣營沒有訓練師教授這個配方。" -- mt
 L["%s (level %d)"] = "%s（等級 %d）" -- mt
 
-L["Routes prefer the materials your bags already hold."] = "路線優先使用背包中已有的材料。" -- mt
 L["Show minimap button"] = "顯示小地圖按鈕" -- mt
 L["Show the SkillUp button on the minimap."] = "在小地圖上顯示SkillUp按鈕。" -- mt
+L["You can hide the minimap button."] = "現在可以隱藏小地圖按鈕。" -- mt

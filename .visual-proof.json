@@ -1,10 +1,10 @@
 {
-  "input_digest": "45886e18f19945386d3979499723adf6d28d2987acd7ce732d8279d06e2fc079",
-  "runtime_sha256": "45886e18f19945386d3979499723adf6d28d2987acd7ce732d8279d06e2fc079",
-  "candidate": "952d09b4c80160c194c02bf2c33a6baeb8fd6173773f847aac8298be8797cb8d",
+  "input_digest": "b2bd02fff4c380897909e513e87ff0cb4014aa8690ad5472e203f832e6b9eb36",
+  "runtime_sha256": "b2bd02fff4c380897909e513e87ff0cb4014aa8690ad5472e203f832e6b9eb36",
+  "candidate": "5c262866d3d0091b71fa36e345cb4a1d72ff1932a578042731666ff39d909686",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "e0b58881f0683e5baefb9a18c2d7036f92144ab6",
+  "source_commit": "48f2cce8467a73606ddbd3f1ac69ef1efc91fe52",
   "flows": [
     {
       "name": "minimap button setting",
@@ -23,12 +23,12 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/e98bf521d6b9a7fe3820f1f1585f861b/raw/1b8063f94ea46924819018b86483f784f5b96f7f/1-minimap-button-setting.png",
-      "sha256": "0c67b06b0db63e5fd492b8714abddac450e9ff361c0032d74af614488818d34e"
+      "url": "https://gist.githubusercontent.com/cjber/46fe8c7cfa9b6262c37443a8e2186278/raw/8a10c34da7d5520725e5ddfc334d8ff9093de552/1-minimap-button-setting.png",
+      "sha256": "65d5553d903923666f23270f0b81c34df0bf848741ce700192062e2de974719e"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/e98bf521d6b9a7fe3820f1f1585f861b/raw/1b8063f94ea46924819018b86483f784f5b96f7f/2-money-on-recipe-rows-off.png",
-      "sha256": "eaca106ac9e2e50c486b68d5fb2f2c9dba6fbde0bb8ed291143ca9fdebe7514f"
+      "url": "https://gist.githubusercontent.com/cjber/46fe8c7cfa9b6262c37443a8e2186278/raw/8a10c34da7d5520725e5ddfc334d8ff9093de552/2-money-on-recipe-rows-off.png",
+      "sha256": "9abad3e7d7e0f520bcc57d873dbb963fbb7dd93b2141e4408f8aa40ea1bd544f"
     }
   ]
 }

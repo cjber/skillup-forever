@@ -16,8 +16,6 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 <!-- discord-image: docs/screenshots/route.png -->
 
-<!-- forever-core-sync -->
-
 - **The route spells out what to craft in order.** Each craft step leads with its quantity and recipe, with its skill range, cost and station underneath. Thanks to codipherus for the report (#684).
 - **A Supply page shows what a merchant's terms would mean for your route.** Open a profession and a merchant, then write down what you assume about each offer's price, stock, purchase limit and trips. The page keeps what you typed while the merchant window rescans, names any two values that cannot both be true, and shows the route's chance and next step before you apply it. Nothing is filled in for you.
 - **Working Overtime estimates are optional.** Turn off “Include Working Overtime estimate” to calculate skill-up chances and route costs without the talent's estimated bonus. The setting starts on and remembers your choice (#741).

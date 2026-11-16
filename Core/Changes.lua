@@ -349,9 +349,9 @@ function ns.Changed(kind)
 end
 
 -- How the owner of a cache drops it, or of a view redraws it. A view registers once its frames exist;
--- until then it has nothing to redraw.
+-- until then it has nothing to redraw. A hidden view registers nil, so changes run no handler for it.
 ---@param name SkillUpStale
----@param handler fun()
+---@param handler fun()?
 function ns.WhenStale(name, handler)
 	handlers[name] = handler
 end

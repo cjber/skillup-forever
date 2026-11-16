@@ -1015,15 +1015,15 @@ local function Create()
 	layout.readoutY = -186
 	readout = Label(content, L["Open a profession to see its plan and coverage."], 0, layout.readoutY, 560)
 	readout.name = "readout"
+	-- A merchant, source, recipe or supply change redraws only while this page is shown. The form is rebuilt
+	-- against the new observation and its rows are reused, so a refresh never leaks a frame. A hidden page owns
+	-- no handler at all: every change would otherwise run one to find the page hidden and do nothing.
 	page:SetScript("OnShow", function()
+		ns.WhenStale("supplyPage", Render)
 		Render()
 	end)
-	-- A merchant, source, recipe or supply change redraws only while this page is shown. The form is rebuilt
-	-- against the new observation and its rows are reused, so a refresh never leaks a frame.
-	ns.WhenStale("supplyPage", function()
-		if page and page:IsShown() then
-			Render()
-		end
+	page:SetScript("OnHide", function()
+		ns.WhenStale("supplyPage", nil)
 	end)
 	return page
 end

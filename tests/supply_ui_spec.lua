@@ -384,9 +384,21 @@ Check(lastFixed.sources[1].stockKey ~= lastFixed.sources[2].stockKey, "two own-s
 Check(ns.SupplyUIRevision == 1, "a successful apply advances the revision")
 Check(Text("status") == "Applied. The plan and its coverage follow these assumptions.", "an apply is confirmed")
 
--- Reopening the same window keeps every typed law and consent; a repeat apply uses a new revision.
+-- Reopening the same window keeps every typed law and consent; a repeat apply uses a new revision. A hidden
+-- page registers no redraw at all, so a change elsewhere runs no handler for it.
+local pageWatch = {}
+local realWhenStale = ns.WhenStale
+ns.WhenStale = function(name, handler)
+	if name == "supplyPage" then
+		pageWatch[#pageWatch + 1] = handler
+	end
+	return realWhenStale(name, handler)
+end
 page:Hide()
+Check(pageWatch[#pageWatch] == nil, "a hidden Supply page registers no redraw")
 page:Show()
+Check(pageWatch[#pageWatch] ~= nil, "a shown Supply page registers its redraw")
+ns.WhenStale = realWhenStale
 Check(Collect()["offer1.initialMoney"]:GetText() == "0", "reopening the same observation keeps typed laws")
 Check(Collect()["offer1.priceStays"]:GetChecked() == true, "reopening keeps a checkbox consent")
 ClickApply()

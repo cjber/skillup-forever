@@ -35,7 +35,7 @@
 ---@field MerchantOffers SkillUpMerchantOffers
 ---@field SupplySummaryText fun(summary: SkillUpSupplySummary): string
 ---@field RouteDemand SkillUpRouteDemandProducer
----@field WhenStale fun(name: SkillUpStale, handler: fun())
+---@field WhenStale fun(name: SkillUpStale, handler: fun()?)
 ---@field WhenStaleObserver fun(name: SkillUpStale, observer: fun())
 ---@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?

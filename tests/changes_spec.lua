@@ -265,6 +265,18 @@ equal(
 	"a setting changed in the options panel: every view, once each, in the order they were always refreshed"
 )
 equal(pcall(ns.Changed, "typo"), false, "an unknown change is an error, not a silent no-op")
+
+-- A view that is not on screen registers nil for its redraw, so a change runs no handler for it at all.
+local hiddenRedraws = 0
+ns.WhenStale("buffs", function()
+	hiddenRedraws = hiddenRedraws + 1
+end)
+ns.Changed("items")
+equal(hiddenRedraws, 1, "a registered view hears the change")
+ns.WhenStale("buffs", nil)
+ns.Changed("items")
+equal(hiddenRedraws, 1, "a view that registered nil hears nothing")
+
 ns.RouteProfessions = realRouteProfessions
 
 Client.report("changes_spec")

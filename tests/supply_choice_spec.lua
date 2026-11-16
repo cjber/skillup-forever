@@ -135,6 +135,12 @@ result = Finish(ns.SupplyChoice.Start(input, 0.7))
 Check(result.status == "complete", result.reasons[1] or "distinct offer choice")
 Check(result.quantities[1] == 1 and result.quantities[2] == 0, "same product/vendor preserves different offers")
 Encloses(result, "cost", 8)
+Check(result.acquisitions ~= nil, "selected acquisition records must survive publication")
+local acquisition = result.acquisitions[1]
+Check(acquisition.source == 1 and acquisition.vendor == "V", "selected source and vendor identity preserved")
+Check(acquisition.itemID == 1 and acquisition.units == 2, "selected bundle output preserved")
+Check(acquisition.moneyCopper == 3 and next(acquisition.costs) == nil, "selected payment preserved")
+
 other.moneyCopper = 3
 result = Finish(ns.SupplyChoice.Start(input, 0.7))
 Check(result.status == "unknown", "overlapping objective bounds never invent a strict winner")
@@ -157,4 +163,36 @@ Encloses(result, "cost", 123 / 8)
 input.sources[1].moneyCopper = 0
 result = Finish(ns.SupplyChoice.Start(input, 0.49))
 Check(result.status == "unknown", "free unlimited inventory has no assumed attained finite optimum")
+
+input = Input(0, 2, 3, 5, 2)
+input.sources[1].offerID, input.sources[1].npcID = "token-offer", 123
+input.sources[1].costs = { ["item:30"] = 1, ["currency:9"] = 2 }
+input.route.held[30], input.currencies[9] = 3, 6
+input.tokenValues = { ["item:30"] = 1, ["currency:9"] = 1, ["item:88"] = 0 }
+local alternative = {}
+for key, value in pairs(input.sources[1]) do
+	alternative[key] = value
+end
+alternative.offerID, alternative.npcID, alternative.vendor = "cheaper-unaffordable", 456, "W"
+alternative.moneyCopper, alternative.bundleUnits = 1, 3
+alternative.costs = { ["item:88"] = 1 }
+input.sources[2] = alternative
+input.initialVisitCosts.W, input.refillVisitCosts.W = 0, 0
+result = Finish(ns.SupplyChoice.Start(input, 0.7))
+Check(result.status == "complete", result.reasons[1] or "typed selected identity")
+local selected = result.acquisitions[1]
+Check(
+	selected.offerID == "token-offer" and selected.npcID == 123,
+	"selected offer is not cheapest displayed alternative"
+)
+Check(selected.costs["item:30"] == 1 and selected.costs["currency:9"] == 2, "all typed payments retained")
+Check(result.initialVisits.V == 5 and result.initialVisits.W == nil, "only selected vendor charges an initial visit")
+input.sources[1].costs["item:30"] = 99
+Check(selected.costs["item:30"] == 1, "selected requirements own their table after completion")
+input.sources[1].offerID = {}
+result = Finish(ns.SupplyChoice.Start(input, 0.7))
+Check(result.status == "unknown", "untyped offer identity cannot escape in a certificate")
+input.sources[1].offerID, input.sources[1].npcID = "valid", 1.5
+result = Finish(ns.SupplyChoice.Start(input, 0.7))
+Check(result.status == "unknown", "fractional NPC identity cannot escape in a certificate")
 print("supply_choice_spec: " .. checks .. " checks passed")

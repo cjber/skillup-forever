@@ -3,6 +3,8 @@
 -- Explicit mathematical supply laws. No field is inferred from a merchant
 -- quote, historical stock, an auction valuation, an icon or a display name.
 ---@class SkillUpPolicySource
+---@field offerID string? Explicit source-owner identity.
+---@field npcID integer? Explicit navigation identity.
 ---@field itemID integer
 ---@field bundleUnits integer
 ---@field moneyCopper integer Per bundle, debited from the shared wallet.

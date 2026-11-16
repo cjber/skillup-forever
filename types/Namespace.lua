@@ -137,6 +137,7 @@
 ---@field OpenSettings fun()
 ---@field HasAuctionator fun(): boolean
 ---@field HasTradeSkillMaster fun(): boolean
+---@field AcquisitionPayments fun(acquisitions: SkillUpSelectedAcquisition[]): string
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())
 ---@field PlannedCrafts fun(recipeID: integer): integer
 ---@field ReagentShortfall fun(recipeID: integer, count: integer): SkillUpShoppingItem[], integer
@@ -464,6 +465,8 @@ SkillUpForeverDB = nil
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
 ---@class SkillUpPlanSupply
+---@field acquisitions SkillUpSelectedAcquisition[]?
+---@field initialVisits table<string, number>?
 ---@field job SkillUpSupplyChoiceJob
 ---@field revision integer
 ---@field items table<integer, integer>? Starting budget in the current inventory revision, before initial purchases.
@@ -576,6 +579,7 @@ SkillUpForeverDB = nil
 ---@alias SkillUpSuggestionNPC { kind: integer?, source: SkillUpScrollSource?, npcID: integer? }
 
 ---@class SkillUpNeededItem
+---@field acquisitions SkillUpSelectedAcquisition[]? Conditional selected orders; an empty list forbids price/source fallback.
 ---@field itemID integer
 ---@field need number
 ---@field source SkillUpShoppingSource

@@ -146,6 +146,8 @@ function Resupply.Start(input)
 		for _, source in ipairs(input.sources) do
 			if
 				type(source) ~= "table"
+				or (source.offerID ~= nil and (type(source.offerID) ~= "string" or source.offerID == ""))
+				or (source.npcID ~= nil and (not Integer(source.npcID) or source.npcID == 0))
 				or not Integer(source.itemID)
 				or source.itemID == 0
 				or not Integer(source.bundleUnits)

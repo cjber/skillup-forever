@@ -196,7 +196,7 @@ function Choice.Start(input, alpha)
 		if best.costUpper > competitorLower then
 			return Unknown("candidate cost enclosures overlap; optimum unresolved")
 		end
-		local products, consumed, items, have = {}, {}, {}, {}
+		local products, consumed, items, have, acquisitions, visits = {}, {}, {}, {}, {}, {}
 		for _, leg in ipairs(input.route.legs) do
 			for item in pairs(leg.use) do
 				consumed[item] = true
@@ -205,7 +205,26 @@ function Choice.Start(input, alpha)
 		end
 		for _, order in ipairs(assert(bestOrders)) do
 			local source = input.sources[order.source]
-			products[source.itemID] = (products[source.itemID] or 0) + source.bundleUnits * order.bundles
+			local costs = {}
+			for key, amount in pairs(source.costs) do
+				costs[key] = amount * order.bundles
+				Tick()
+			end
+			local acquisition = {
+				source = order.source,
+				offerID = source.offerID,
+				npcID = source.npcID,
+				vendor = source.vendor,
+				itemID = source.itemID,
+				bundles = order.bundles,
+				bundleUnits = source.bundleUnits,
+				units = source.bundleUnits * order.bundles,
+				moneyCopper = source.moneyCopper * order.bundles,
+				costs = costs,
+			}
+			acquisitions[#acquisitions + 1] = acquisition
+			visits[source.vendor] = input.initialVisitCosts[source.vendor]
+			products[source.itemID] = (products[source.itemID] or 0) + acquisition.units
 			Tick()
 		end
 		for item in pairs(consumed) do
@@ -218,6 +237,7 @@ function Choice.Start(input, alpha)
 		end
 		best.items, best.have = items, have
 		best.orders, best.quantities, best.alpha = bestOrders, bestQuantities, alpha
+		best.acquisitions, best.initialVisits = acquisitions, visits
 		return best
 	end)
 	---@param self SkillUpSupplyChoiceJob

@@ -76,7 +76,10 @@ Bank-only item tokens require an unsupported location transition.
 `RouteDemand.SelectSupply(plan, contract, alpha)` owns an asynchronous selection.
 At most 64 solver operations run per frame. A completed selection publishes one
 `plan.supply` starting raw-inventory budget. Shopping and API acquisition rows
-read this same record; recipe craft-count rows retain their attempt estimates.
+read this same record and its owned selected initial transactions. Each transaction retains its source index,
+optional distinct offer/NPC identities, vendor visit identity, bundle output, money and complete typed payments.
+Navigation uses only selected NPCs; missing identities never fall back to another vendor. These records describe
+initial purchases only, while later costs still evaluate the declared fixed refill batch; recipe craft-count rows retain their attempt estimates.
 Getters never start or drain a solver. Replacing or cancelling a selection, or a
 route, source, skill, inventory, wallet, currency or bank revision revokes the
 record. `ConfigureSupply(skillLine, read, alpha)` keeps a session-only contract reader

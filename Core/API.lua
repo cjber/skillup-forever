@@ -278,10 +278,32 @@ local function Steps(plan)
 	end
 	local supply = ns.RouteDemand.Supply(plan)
 	if supply then
+		for _, acquisition in ipairs(supply.acquisitions or {}) do
+			local npcID = acquisition.npcID
+			local detail = Detail(npcID, L["Vendor"], acquisition.moneyCopper)
+			local payments = ns.AcquisitionPayments({ acquisition })
+			if payments ~= "" then
+				detail = detail .. " · " .. L["Requires"] .. " " .. payments
+			end
+			Add({
+				kind = "buy",
+				text = string.format(L["Buy %d %s"], acquisition.units, ItemName(acquisition.itemID)),
+				itemID = acquisition.itemID,
+				count = acquisition.units,
+				cost = acquisition.moneyCopper,
+				detail = detail,
+				nav = npcID ~= nil,
+				acquisition = acquisition,
+			}, npcID and function()
+				return npcID
+			end or nil)
+		end
 		for _, item in ipairs(ns.RouteReagents(plan)) do
-			local have = supply.have[item.itemID] or ns.Have(item.itemID)
-			if have < item.need then
-				Add(Acquire(item.itemID, item.need - have)) -- multi-value: the step and its picker
+			if not item.acquisitions then
+				local missing = item.need - ns.Have(item.itemID)
+				if missing > 0 then
+					Add(Acquire(item.itemID, missing)) -- multi-value: the tool step and its picker
+				end
 			end
 		end
 	end
@@ -446,7 +468,7 @@ end
 local function CopyRow(row)
 	local copy = {}
 	for key, value in pairs(row) do
-		copy[key] = value
+		copy[key] = type(value) == "table" and CopyRow(value) or value
 	end
 	return copy
 end
@@ -501,7 +523,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 7 }
+local API = { version = 1, minor = 8 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe
@@ -578,13 +600,14 @@ function API.ShoppingList(skillLineID)
 				total = 0,
 				unpriced = 0,
 			}
+			local supply = ns.RouteDemand.Supply(entry.plan)
 			local bySource = {}
 			for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
 				bySource[source] = {}
 			end
 			for _, item in ipairs(entry.items) do
-				local price = ns.Price(item.itemID)
-				local have = ns.Have(item.itemID)
+				local price = not item.acquisitions and ns.Price(item.itemID) or nil
+				local have = supply and supply.have[item.itemID] or ns.Have(item.itemID)
 				local missing = math.max(item.need - have, 0)
 				local row = {
 					itemID = item.itemID,
@@ -597,6 +620,13 @@ function API.ShoppingList(skillLineID)
 					cost = price and not price.unknown and missing * price.copper or nil,
 					alt = ns.AltCounts(item.itemID),
 				}
+				if item.acquisitions then
+					row.acquisitions = CopyRow(item.acquisitions)
+					row.cost = 0
+					for _, acquisition in ipairs(item.acquisitions) do
+						row.cost = row.cost + acquisition.moneyCopper
+					end
+				end
 				bySource[row.source][#bySource[row.source] + 1] = row
 			end
 			for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
@@ -668,6 +698,12 @@ function ns.ShoppingText(skillLineID)
 					else
 						text = string.format(L["%d x %s - price unknown"], row.missing, name)
 					end
+					if row.acquisitions then
+						local payments = ns.AcquisitionPayments(row.acquisitions)
+						if payments ~= "" then
+							text = text .. " · " .. L["Requires"] .. " " .. payments
+						end
+					end
 					bucket[#bucket + 1] = text
 				end
 			end
@@ -698,8 +734,7 @@ function ns.ShoppingTrip(skillLineID)
 			if row.missing > 0 then
 				anyMissing = true
 				if row.source == "vendor" then
-					local npcID = ns.NearestVendor(row.itemID, true)
-					if npcID then
+					for _, npcID in ipairs(ns.RouteDemand.Vendors(row, true)) do
 						byVendor[npcID] = true
 						vendorItems[npcID] = vendorItems[npcID] or {}
 						vendorItems[npcID][#vendorItems[npcID] + 1] = row.itemID

@@ -116,6 +116,38 @@ function ns.AuctionatorAutoscan()
 	return nil
 end
 
+-- All selected typed payments, kept separate from the transaction's money.
+-- Missing localized names retain canonical typed identity, never an icon guess.
+---@param acquisitions SkillUpSelectedAcquisition[]
+---@return string
+function ns.AcquisitionPayments(acquisitions)
+	local totals, keys, parts = {}, {}, {}
+	for _, acquisition in ipairs(acquisitions) do
+		for key, quantity in pairs(acquisition.costs) do
+			if totals[key] == nil then
+				keys[#keys + 1] = key
+				totals[key] = 0
+			end
+			totals[key] = totals[key] + quantity
+		end
+	end
+	table.sort(keys)
+	for _, key in ipairs(keys) do
+		local kind, id = key:match("^(%a+):(%d+)$")
+		local name
+		local number = tonumber(id)
+		if kind == "item" and number then
+			name = ns.Readable(C_Item.GetItemNameByID(number))
+		elseif number and C_CurrencyInfo and type(C_CurrencyInfo.GetCurrencyInfo) == "function" then
+			local ok, info = pcall(C_CurrencyInfo.GetCurrencyInfo, number)
+			info = ok and ns.Readable(info)
+			name = type(info) == "table" and ns.Readable(info.name)
+		end
+		parts[#parts + 1] = tostring(totals[key]) .. " " .. (type(name) == "string" and name or key)
+	end
+	return table.concat(parts, ", ")
+end
+
 -- The auction house reagents a route still needs: what no vendor sells and this character buys. Written only
 -- with Buy reagents on, where a material you gather shows as gathered only while nothing prices it.
 ---@param items SkillUpNeededItem[]
@@ -872,7 +904,7 @@ function ModuleMixin:OnBlockHeaderClick(block)
 		end
 		for _, item in ipairs(block.vendorMissing) do
 			root:CreateButton(string.format(L["Waypoint to a vendor: %s"], item.name), function()
-				ns.SetWaypoint(ns.NearestVendor(item.itemID, true) or item.vendor)
+				ns.SetWaypoint(item.selected and item.vendor or ns.NearestVendor(item.itemID, true) or item.vendor)
 			end)
 		end
 		-- Recipes left out with Not this recipe on the route page, each with Show again.
@@ -1048,15 +1080,15 @@ local function LayoutEntry(self, entry)
 				name = string.format(L["item %d"], item.itemID)
 			end
 			local gather = item.source == "gather" and string.format(" |cff808080(%s)|r", L["gather"]) or ""
-			local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID)
+			local vendor = ns.RouteDemand.Vendors(item)[1]
 			local text = string.format("%d/%d %s%s", have, item.need, name, gather)
 			local line = block:AddObjective(item.itemID, text, vendor and LINE_TEMPLATE or nil)
 			if vendor then
-				local itemID = item.itemID
 				Waypointed(line, name, L["Nearest vendor"], function()
-					return ns.NearestVendor(itemID, true)
+					return ns.RouteDemand.Vendors(item, true)[1]
 				end)
-				block.vendorMissing[#block.vendorMissing + 1] = { name = name, itemID = item.itemID, vendor = vendor }
+				block.vendorMissing[#block.vendorMissing + 1] =
+					{ name = name, itemID = item.itemID, vendor = vendor, selected = item.acquisitions ~= nil }
 			end
 		end
 	end

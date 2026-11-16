@@ -10,6 +10,7 @@
 ---@alias SkillUpAPIChanges table<SkillUpAPIChangeName, true>
 
 ---@class SkillUpAPIStep
+---@field acquisition SkillUpSelectedAcquisition? Conditional selected transaction, with complete typed payments.
 ---@field kind SkillUpAPIStepKind
 ---@field text string Short imperative line, "Craft 3 Toughened Leather Gloves".
 ---@field detail? string "142 to 145", "Name, Zone · fee".
@@ -92,6 +93,7 @@
 ---@field trainerFee? number
 
 ---@class SkillUpAPIShoppingItem
+---@field acquisitions SkillUpSelectedAcquisition[]? Selected transactions, never repriced by display prices.
 ---@field itemID integer
 ---@field need number
 ---@field have number

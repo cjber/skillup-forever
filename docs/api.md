@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 7; the history:
+`minor` is 8; the history:
 
 | minor | added |
 |---|---|
@@ -17,6 +17,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 5 | `Subscribe`, the not-ready answers below, and a fresh `Professions` table on every call |
 | 6 | `IsTracked`, `SetTracked`, `ShoppingTrip`, `Professions` limits, `Stats`, `Leaderboard` |
 | 7 | `Recipes`, `Recipe`, `RecipeRequirement`, `Characters` and `Knows` |
+| 8 | conditional selected initial acquisition records on steps and shopping items |
 
 ## Not ready
 
@@ -64,6 +65,14 @@ A step is:
 | `count` | how many to get or craft |
 | `cost` | copper to buy or train |
 | `nav` | whether `Navigate` can route to the vendor, trainer or quest giver this step names |
+
+When an explicit source contract and coverage target have produced a completed conditional selection, each
+initial purchase step also has `acquisition`: `{ source, offerID?, npcID?, vendor, itemID, bundles, bundleUnits,
+units, moneyCopper, costs }`. `source` is the index in the frozen policy, and `offerID` identifies a distinct offer
+when the source owner establishes one. `costs` maps complete typed `item:ID` or `currency:ID` requirements to their
+transaction totals. `cost` is the transaction's money component, excluding token opportunity values and travel.
+The NPC is the selected offer's NPC; an unknown identity disables navigation. These records describe initial
+orders, not future refill orders or a promise that a purchase will succeed.
 
 A recipe is:
 
@@ -125,6 +134,14 @@ An item is `{ itemID, need, have, missing, source, price, priceAge, cost, alt }`
 bags and bank, and `missing` the difference; `price` is copper each when one is known, and `cost` the price of the
 missing units; `priceAge` is the whole days since Auctionator saw the price, when it came from there; `alt` is a
 fresh list of `{ name, count }`, this character's other characters that hold it, most first.
+
+With a completed conditional selection, a shopping item has `acquisitions`, the selected initial transactions
+for that product. `cost` sums their money components; `price` and `priceAge` are absent because a bundle with typed
+payments has no interchangeable display-price quote. Tokens and visit costs are separate from this money total.
+Steps and shopping items preserve the same selected offers, including several offers for one product. An empty
+`acquisitions` list means no purchase was selected; consumers must not substitute another vendor or price.
+The result remains conditional on explicit source laws and an explicit coverage target. Ordinary estimates have
+no acquisition certificate. Inventory or source revisions revoke a completed selection.
 
 ## Shopping trip
 

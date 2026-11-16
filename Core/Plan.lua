@@ -1070,12 +1070,28 @@ function ns.RouteReagents(plan)
 	local raw, bags = {}, {}
 	local supply = ns.RouteDemand and ns.RouteDemand.Supply(plan)
 	if supply then
+		local items = {}
 		for itemID, count in pairs(supply.items) do
-			raw[#raw + 1] = { itemID = itemID, count = count }
+			local acquisitions = {}
+			for _, acquisition in ipairs(supply.acquisitions or {}) do
+				if acquisition.itemID == itemID then
+					acquisitions[#acquisitions + 1] = acquisition
+				end
+			end
+			items[#items + 1] = {
+				itemID = itemID,
+				need = count,
+				source = #acquisitions > 0 and "vendor" or "unknown",
+				acquisitions = acquisitions,
+			}
 		end
-		table.sort(raw, function(a, b)
+		table.sort(items, function(a, b)
 			return a.itemID < b.itemID
 		end)
+		for _, itemID in ipairs(ns.MissingToolItems and ns.MissingToolItems(plan) or {}) do
+			items[#items + 1] = { itemID = itemID, need = 1, source = ns.Model.ShoppingSource(ns.PriceSource(itemID)) }
+		end
+		return items
 	end
 	for _, craft in ipairs(supply and {} or plan.crafts) do
 		local _, craftRaw, craftUsed = Expand(craft.recipeID, craft.crafts, 0, {}, bags)

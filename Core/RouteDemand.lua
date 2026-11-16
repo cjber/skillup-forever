@@ -525,11 +525,36 @@ supplyFrame:SetScript("OnUpdate", function()
 		if supply and supply.job == job and not supply.items and job.result.status == "complete" then
 			if job.result.items and job.result.have then
 				supply.items, supply.have = job.result.items, job.result.have
+				supply.acquisitions = job.result.acquisitions
+				supply.initialVisits = job.result.initialVisits
 				ns.Changed("supply")
 			end
 		end
 	end
 end)
+
+-- Conditional rows resolve only their selected NPCs. An unknown NPC or an empty
+-- selected order list must never acquire a different vendor through a fallback.
+---@param item SkillUpNeededItem|SkillUpAPIShoppingItem
+---@param byTravel boolean?
+---@return integer[]
+function RouteDemand.Vendors(item, byTravel)
+	local vendors, seen = {}, {}
+	if item.acquisitions then
+		for _, acquisition in ipairs(item.acquisitions) do
+			local npcID = acquisition.npcID
+			if npcID and not seen[npcID] then
+				vendors[#vendors + 1], seen[npcID] = npcID, true
+			end
+		end
+	elseif item.source == "vendor" then
+		local npcID = ns.NearestVendor(item.itemID, byTravel)
+		if npcID then
+			vendors[1] = npcID
+		end
+	end
+	return vendors
+end
 
 -- Explicit current offer selections only. This quotes requirements without
 -- certifying starting inventory, source availability or future acquisitions.
@@ -572,6 +597,7 @@ end
 
 ns.RouteDemand = {
 	ConfigureSupply = RouteDemand.ConfigureSupply,
+	Vendors = RouteDemand.Vendors,
 	SelectSupply = RouteDemand.SelectSupply,
 	Supply = RouteDemand.Supply,
 	Count = RouteDemand.Count,

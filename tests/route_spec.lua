@@ -414,8 +414,9 @@ end
 -- Core/Changes.lua's frame is the only one made while the files load: the game's events arrive on it.
 local eventFrame
 pageEnv.CreateFrame = function()
-	eventFrame = Stub()
-	return eventFrame
+	local frame = Stub()
+	eventFrame = eventFrame or frame
+	return frame
 end
 page.core = {
 	SafeCall = function(_, fn, ...)
@@ -430,6 +431,7 @@ for _, file in ipairs({
 	"Core/Model.lua",
 	"Core/Changes.lua",
 	"Core/Plan.lua",
+	"Core/RouteDemand.lua",
 	"Core/Gear.lua",
 	"UI/PageParts.lua",
 	"UI/Route.lua",

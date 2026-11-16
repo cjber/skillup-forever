@@ -641,6 +641,21 @@ local function ReagentTooltip(tooltip, item)
 	for _, alt in ipairs(ns.AltCounts(item.itemID)) do
 		AddLine(tooltip, string.format(L["On %s"], alt.name), tostring(alt.count), GRAY_FONT_COLOR)
 	end
+	if item.acquisitions then
+		local money = 0
+		for _, acquisition in ipairs(item.acquisitions) do
+			money = money + acquisition.moneyCopper
+		end
+		AddLine(tooltip, L["To buy"], Money(money))
+		local payments = ns.AcquisitionPayments(item.acquisitions)
+		if payments ~= "" then
+			AddLine(tooltip, L["Requires"], payments)
+		end
+		for _, npcID in ipairs(ns.RouteDemand.Vendors(item, true)) do
+			ns.AddNearest(tooltip, L["Vendor"], npcID)
+		end
+		return
+	end
 	local price = ns.Price(item.itemID)
 	if not price or price.unknown then
 		GameTooltip_AddDisabledLine(tooltip, ns.UnpricedHint())
@@ -724,7 +739,7 @@ local function RenderReagents(list, reagents)
 					HandleModifiedItemClick(link)
 					return
 				end
-				local vendor = item.source == "vendor" and ns.NearestVendor(item.itemID, true)
+				local vendor = ns.RouteDemand.Vendors(item, true)[1]
 				if vendor then
 					ns.SetWaypoint(vendor)
 				end
@@ -740,7 +755,7 @@ end
 local function AuctionPriceStatus(reagents)
 	local found, stale, tsm
 	for _, item in ipairs(reagents) do
-		local price = ns.Price(item.itemID)
+		local price = not item.acquisitions and ns.Price(item.itemID) or nil
 		tsm = tsm or (price and price.source == "tsm")
 		if price and price.source == "auctionator" then
 			found = true
@@ -763,11 +778,11 @@ end
 ---@return boolean
 local function NeedsAuctionScan(reagents)
 	for _, item in ipairs(reagents) do
-		local price = ns.Price(item.itemID)
-		if not price then
+		local price = not item.acquisitions and ns.Price(item.itemID) or nil
+		if not price and not item.acquisitions then
 			return true
 		end
-		if price.source == "auctionator" then
+		if price and price.source == "auctionator" then
 			local age = ns.PriceAge(price)
 			if age == nil or age > STALE_AFTER then
 				return true
@@ -795,24 +810,19 @@ local function VendorItems(reagents)
 	local items = {}
 	for _, item in ipairs(reagents) do
 		if item.source == "vendor" and ns.Have(item.itemID) < item.need then
-			items[#items + 1] = item.itemID
+			for _, npcID in ipairs(ns.RouteDemand.Vendors(item, true)) do
+				items[#items + 1] = npcID
+			end
 		end
 	end
 	return items
 end
 
 -- The nearest vendor selling any of the route's missing vendor reagents, by the travel integration.
----@param itemIDs integer[]
+---@param npcIDs integer[]
 ---@return integer?
-local function NearestRouteVendor(itemIDs)
-	local candidates = {}
-	for _, itemID in ipairs(itemIDs) do
-		local npcID = ns.NearestVendor(itemID, true)
-		if npcID then
-			candidates[#candidates + 1] = npcID
-		end
-	end
-	return ns.NearestNPC(candidates, true)
+local function NearestRouteVendor(npcIDs)
+	return ns.NearestNPC(npcIDs, true)
 end
 
 -- Whether pricing instead of getting it yourself could change this route: at least one reagent is one this

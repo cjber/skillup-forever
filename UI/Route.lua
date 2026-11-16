@@ -233,11 +233,11 @@ local function TrainTooltip(tooltip, profession, step)
 	RequiresLine(tooltip, profession, step.reqSkill)
 	AddLine(tooltip, L["First used at"], tostring(step.usedAt))
 	AddBands(tooltip, profession, step.recipeID)
-	ns.AddNearest(
-		tooltip,
-		step.scroll and L["Nearest vendor"] or L["Nearest trainer"],
-		step.scroll and ns.NearestScrollVendor(step.recipeID, true) or ns.NearestTrainer(profession, step.cap, true)
-	)
+	if step.scroll then
+		ns.AddNearest(tooltip, L["Nearest vendor"], ns.NearestScrollVendor(step.recipeID, true))
+	else
+		ns.AddRecipeTrainer(tooltip, profession, step.recipeID)
+	end
 	AddSkipHint(tooltip)
 end
 
@@ -273,13 +273,13 @@ local function RankTooltip(tooltip, profession, rank)
 	end
 end
 
--- A waypoint to the nearest trainer teaching up to `cap`.
+-- A waypoint to the nearest trainer teaching a recipe.
 ---@param profession SkillUpProfession
----@param cap number
+---@param recipeID integer
 ---@return fun()
-local function TrainerClick(profession, cap)
+local function TrainerClick(profession, recipeID)
 	return function()
-		local npcID = ns.NearestTrainer(profession, cap, true)
+		local npcID = ns.NearestRecipeTrainer(profession, recipeID, true)
 		if npcID then
 			ns.SetWaypoint(npcID)
 		end
@@ -569,7 +569,7 @@ local function RenderRoute(list, plan)
 				tooltip = function(tooltip)
 					TrainTooltip(tooltip, profession, training)
 				end,
-				click = scroll and ScrollClick(training.recipeID) or TrainerClick(profession, training.cap),
+				click = scroll and ScrollClick(training.recipeID) or TrainerClick(profession, training.recipeID),
 				menu = RecipeMenu(training.recipeID),
 			})
 		elseif craft then

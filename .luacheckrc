@@ -39,6 +39,7 @@ read_globals = { "ForeverCore", "C_DateAndTime",
 
 files["Data/Thresholds.lua"] = { max_line_length = false }
 files["Data/Sources.lua"] = { max_line_length = false }
+files["Data/Trainer.lua"] = { max_line_length = false }
 files["Locales/"] = { max_line_length = false } -- one phrase per line, however long
 files["tests/"] = { std = "+luajit" }
 read_globals[#read_globals + 1] = "EditModeManagerFrame"

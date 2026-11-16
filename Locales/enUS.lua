@@ -193,3 +193,5 @@ L["Cost of an unfinished route (copper)"] = "Cost of an unfinished route (copper
 L["Applied. The plan and its coverage follow these assumptions."] =
 	"Applied. The plan and its coverage follow these assumptions."
 L["Supply"] = "Supply"
+L["No trainer of your faction teaches this recipe."] = "No trainer of your faction teaches this recipe."
+L["%s (level %d)"] = "%s (level %d)"

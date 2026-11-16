@@ -661,3 +661,6 @@ L["Supply"] = "공급" -- mt
 L["Supply policy"] = "공급 정책" -- mt
 L["Open the profession and a merchant window."] = "전문기술과 상인 창을 여세요." -- mt
 L["Apply policy"] = "정책 적용" -- mt
+L["No trainer of your faction teaches this recipe."] =
+	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
+L["%s (level %d)"] = "%s (레벨 %d)" -- mt

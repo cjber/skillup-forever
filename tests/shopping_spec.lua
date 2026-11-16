@@ -456,13 +456,16 @@ local trainingPlan = {
 	ranks = {},
 	unpriced = 0,
 }
-local realTrackedNeeds, realNearestTrainer, realNearestForRank, realAddNearest =
-	ns.TrackedNeeds, ns.NearestTrainer, ns.NearestForRank, ns.AddNearest
+local realTrackedNeeds, realNearestTrainer, realNearestRecipeTrainer, realNearestForRank, realAddNearest =
+	ns.TrackedNeeds, ns.NearestTrainer, ns.NearestRecipeTrainer, ns.NearestForRank, ns.AddNearest
 ns.TrackedNeeds = function()
 	return { { plan = trainingPlan, items = {} } }
 end
 ns.NearestTrainer = function()
 	return 77
+end
+ns.NearestRecipeTrainer = function()
+	return 77, true
 end
 ns.NearestForRank = function()
 	return 77, "Nearest trainer"
@@ -494,7 +497,7 @@ equal(joined:find(firstText, 1, true) ~= nil, true, "the tooltip titles the firs
 equal(joined:find(ns.L["Also train"], 1, true) ~= nil, true, "under the training heading")
 equal(joined:find(secondText, 1, true) ~= nil, true, "and lists the second training stop")
 equal(joined:find(thirdText, 1, true) ~= nil, true, "and the third")
-ns.TrackedNeeds, ns.NearestTrainer, ns.NearestForRank, ns.AddNearest =
-	realTrackedNeeds, realNearestTrainer, realNearestForRank, realAddNearest
+ns.TrackedNeeds, ns.NearestTrainer, ns.NearestRecipeTrainer, ns.NearestForRank, ns.AddNearest =
+	realTrackedNeeds, realNearestTrainer, realNearestRecipeTrainer, realNearestForRank, realAddNearest
 
 Client.report("shopping_spec")

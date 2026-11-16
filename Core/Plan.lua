@@ -275,14 +275,27 @@ local function Snapshot(profession, target, known)
 	}
 end
 
--- { fee, required base skill }: what a trainer was seen to charge, else the base fee;
--- nil for a recipe no trainer teaches.
+-- { fee, required base skill, minimum character level }: what a trainer was seen to charge, else the base
+-- fee and the bundle's level gate; nil for a recipe no trainer teaches. The level sits at the fourth place,
+-- where a visit records it, so both kinds of training read the same.
 ---@param profession {skillLine: integer}
 ---@param recipeID integer
 ---@return number[]?
 function ns.TrainingFor(profession, recipeID)
 	local seen = ns.db.trainer[profession.skillLine]
-	return seen and seen[recipeID] or ns.TrainerFees[recipeID]
+	local training = seen and seen[recipeID]
+	if training then
+		return training
+	end
+	local bundled = ns.TrainerFees[recipeID]
+	local level = bundled and ns.TrainerLevels and ns.TrainerLevels[recipeID]
+	if not (bundled and level) then
+		return bundled
+	end
+	---@type number[]
+	local gated = { bundled[1], bundled[2] }
+	gated[4] = level
+	return gated
 end
 
 -- { fee, required base skill }: a recipe's scroll sold by a vendor, whose price is the fee, nil for a
@@ -354,15 +367,21 @@ end
 local BAND_NAMES = { "orange", "yellow", "green", "grey" }
 
 -- Where the bundle says a recipe is learned: a trainer's service or the pattern or recipe item that
--- teaches it, and the effective skill (base plus the profession's modifier) it asks. Nil for anything
--- else, including a quest, which only the catalogue knows.
+-- teaches it, the effective skill (base plus the profession's modifier) it asks and, for a trainer, the
+-- character level it asks. Nil for anything else, including a quest, which only the catalogue knows.
 ---@param profession SkillUpContext
 ---@param recipeID integer
 ---@return SkillUpLearnSource?
 function ns.LearnSource(profession, recipeID)
 	local training = ns.TrainingFor(profession, recipeID)
 	if training then
-		return { kind = "trainer", skill = training[2] + profession.modifier }
+		-- A visit records 0 for a service that asks no level.
+		local level = training[4]
+		return {
+			kind = "trainer",
+			skill = training[2] + profession.modifier,
+			level = level and level > 0 and level or nil,
+		}
 	end
 	local scroll = ns.RecipeScrolls[recipeID]
 	if scroll then
@@ -377,6 +396,9 @@ function ns.LearnSourceText(source)
 	local text = source.kind == "trainer" and L["Trainer"] or L["Recipe item"]
 	if source.skill > 0 then
 		text = string.format(L["%s %d"], text, source.skill)
+	end
+	if source.level and source.level > 1 then
+		text = string.format(L["%s (level %d)"], text, source.level)
 	end
 	return text
 end
@@ -437,6 +459,7 @@ function ns.UnlearnedRecipes(profession)
 						name = name,
 						kind = source.kind,
 						skill = source.skill,
+						level = source.level,
 						itemID = source.itemID,
 						thresholds = thresholds,
 					}

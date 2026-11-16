@@ -104,6 +104,10 @@ the dump by the column names in its own `CREATE TABLE` (`dump_tables`, which
 rows name teaching spells; Classic Era's `SpellEffect` (LEARN_SPELL) maps them to
 recipe spells, since Forever's client leaves the teaching spells out.
 Specialisation-gated rows are skipped, and fees recorded at a trainer in game win.
+The same rows say which trainers teach each recipe: `ns.TrainerSets` holds each distinct list of
+trainer NPCs once and `ns.RecipeTrainerSets` names a recipe's list, so a route goes to a trainer
+who lists that recipe rather than any trainer whose rank cap covers it (#722). A character level a
+trainer asks for a recipe, where one asks above 0, is in `ns.TrainerLevels`.
 classic-db's required skill is Classic's: where Forever moved a recipe's yellow and grey
 together from Classic Era's, the requirement moves as far (Forever moved its patterns'
 requirements that way for all but a few recipes both clients teach by pattern), never below 1. It also writes `ns.TrainerRanks`: each profession rank a trainer teaches (the

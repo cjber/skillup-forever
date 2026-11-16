@@ -103,7 +103,7 @@ function Parts.ItemTooltip(item, professions)
 			GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
 		elseif item.state == "trainable" and profession then
 			if ns.TrainingFor(profession, item.recipeID) then
-				ns.AddNearest(tooltip, L["Nearest trainer"], Parts.RecipeNPC(item, professions))
+				ns.AddRecipeTrainer(tooltip, profession, item.recipeID)
 			else
 				local source = ns.Catalogue.Recipe(item.recipeID)
 				if source then

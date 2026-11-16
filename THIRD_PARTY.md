@@ -44,6 +44,7 @@ Credit for the reports and requests behind the addon.
 | Who | What | Notes |
 |---|---|---|
 | yavinn | SkillUp pages stay visible with ClassicUI Forever | CurseForge; thread 8722440; #734 |
+| cursebandit | Reported the route sending players to a trainer who would not train them | CurseForge; comment 8718641; #722 |
 | [rissole](https://github.com/rissole) | Public recipe data and account-wide learned-recipe API | GitHub; #724 |
 | davef1n | Separate unlearned recipe order and regional sales volume | CurseForge; thread 8715846; #720; #721 |
 | codipherus | Craft quantities lead each route step | CurseForge; thread 8702620; #684 |

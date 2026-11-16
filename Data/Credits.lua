@@ -5,6 +5,7 @@ local _, ns = ...
 ns.Credits = {
 	players = {
 		{ name = "yavinn", what = "SkillUp pages stay visible with ClassicUI Forever" },
+		{ name = "cursebandit", what = "Reported the route sending players to a trainer who would not train them" },
 		{ name = "rissole", what = "Public recipe data and account-wide learned-recipe API" },
 		{ name = "davef1n", what = "Separate unlearned recipe order and regional sales volume" },
 		{ name = "codipherus", what = "Craft quantities lead each route step" },

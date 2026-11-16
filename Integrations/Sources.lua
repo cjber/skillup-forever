@@ -291,15 +291,15 @@ function ns.SuggestionNPC(suggestion)
 	return suggestion.npcID
 end
 
--- Where a recipe is learned: the nearest trainer of the profession when one teaches it (up to just
--- past the skill it asks), else the nearest NPC its scroll comes from. Nil until that is read.
+-- Where a recipe is learned: the nearest trainer who teaches that recipe when one does, else the nearest NPC
+-- its scroll comes from. Nil until that is read, and for a trainer-taught recipe no trainer of your faction
+-- teaches: that is not a scroll's recipe, so no other NPC is named for it.
 ---@param profession SkillUpContext
 ---@param recipeID integer
 ---@return integer?
 function ns.RecipeNPC(profession, recipeID)
-	local training = ns.TrainingFor(profession, recipeID)
-	if training then
-		return ns.NearestTrainer(profession, training[2] + 1, true)
+	if ns.TrainingFor(profession, recipeID) then
+		return (ns.NearestRecipeTrainer(profession, recipeID, true))
 	end
 	local source = C.Recipe(recipeID)
 	local kind, npcID
@@ -457,7 +457,7 @@ function ns.AddSourceLines(tooltip, source, first)
 end
 
 -- The nearest trainer of this profession, of your faction, who teaches up to `cap`; nil until the
--- profession's trainers are read.
+-- profession's trainers are read. For a rank, a trainer capped at or above it can teach it.
 ---@param profession SkillUpContext
 ---@param cap number
 ---@param byTravel boolean?
@@ -467,6 +467,22 @@ function ns.NearestTrainer(profession, cap, byTravel)
 		return nil
 	end
 	return ns.NearestNPC(C.Trainers(profession.skillLine, cap), byTravel)
+end
+
+-- The nearest trainer, of your faction, who teaches one recipe. A trainer whose rank cap covers the recipe
+-- is not enough: only one who lists it will talk (#722). Nil until the trainers are read, and nil when no
+-- trainer of your faction teaches it; `known` is false while nobody could say where one stands, so a caller
+-- does not read that as none teaching it.
+---@param profession SkillUpContext
+---@param recipeID integer
+---@param byTravel boolean?
+---@return integer? npcID
+---@return boolean known
+function ns.NearestRecipeTrainer(profession, recipeID, byTravel)
+	if not C.EnsureProfession(profession.skillLine) then
+		return nil, false
+	end
+	return ns.NearestNPC(C.RecipeTrainers(recipeID) or {}, byTravel), C.Hint(true) == nil
 end
 
 -- Where a rank is got: the nearest vendor of its book, the nearest giver of its quest, else the nearest trainer
@@ -574,4 +590,19 @@ function ns.AddNearest(tooltip, label, npcID, single)
 	AddNPC(tooltip, label, npcID, nil, true)
 	GameTooltip_AddInstructionLine(tooltip, L["Click for a waypoint."])
 	ns.AddCompanionHint(tooltip, single)
+end
+
+-- Under a training step: the nearest trainer who teaches that recipe, or that none of your faction does. While
+-- the trainers are still being read it says what to install, as AddNearest does.
+---@param tooltip GameTooltip
+---@param profession SkillUpContext
+---@param recipeID integer
+function ns.AddRecipeTrainer(tooltip, profession, recipeID)
+	local npcID, known = ns.NearestRecipeTrainer(profession, recipeID, true)
+	if npcID or not known then
+		ns.AddNearest(tooltip, L["Nearest trainer"], npcID)
+		return
+	end
+	GameTooltip_AddBlankLineToTooltip(tooltip)
+	GameTooltip_AddColoredLine(tooltip, L["No trainer of your faction teaches this recipe."], RED_FONT_COLOR)
 end

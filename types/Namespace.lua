@@ -202,10 +202,12 @@
 ---@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number?
 ---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource, first?: integer)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
+---@field NearestRecipeTrainer fun(profession: SkillUpContext, recipeID: integer, byTravel?: boolean): integer?, boolean
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field NearestScrollVendor fun(recipeID: integer, byTravel?: boolean): integer?
 ---@field NearestForRank fun(profession: SkillUpContext, rank: SkillUpRank, byTravel?: boolean): integer?, string
 ---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer, single?: boolean)
+---@field AddRecipeTrainer fun(tooltip: GameTooltip, profession: SkillUpContext, recipeID: integer)
 ---@field AddCompanionHint fun(tooltip: GameTooltip, single?: boolean)
 ---@field AddQuestChainHint fun(tooltip: GameTooltip)
 ---@field AnnounceUpdate fun()
@@ -247,6 +249,9 @@
 ---@field RecipeNames table<integer, table<string, integer|false>>
 ---@field ProfessionSkillLines table<string, integer>
 ---@field TrainerFees table<integer, number[]>
+---@field TrainerLevels table<integer, number> The character level a trainer asks for a recipe, where one asks above 0.
+---@field TrainerSets table<integer, integer[]> The trainers who teach one group of recipes, by NPC.
+---@field RecipeTrainerSets table<integer, integer> Per recipe, the set in TrainerSets that teaches it.
 ---@field TrainerRanks table<integer, number[][]>
 ---@field TrainerInferred table<integer, number> classic-db's required skill, where the bundled one was moved from it.
 ---@field ProfessionTrainers table<integer, number[][]>
@@ -561,6 +566,7 @@ SkillUpForeverDB = nil
 ---@class SkillUpLearnSource
 ---@field kind 'trainer'|'scroll'
 ---@field skill number
+---@field level? integer The character level a trainer asks for it.
 ---@field itemID? integer The pattern or recipe item that teaches it, for a scroll.
 
 -- One recipe the character has not learned, with the skill and the bundle's source it takes to learn it.
@@ -569,6 +575,7 @@ SkillUpForeverDB = nil
 ---@field name string
 ---@field kind 'trainer'|'scroll'
 ---@field skill number
+---@field level? integer The character level a trainer asks for it.
 ---@field itemID? integer
 ---@field thresholds number[]
 

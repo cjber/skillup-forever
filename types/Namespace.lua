@@ -24,6 +24,7 @@
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
 ---@field Changed fun(kind: SkillUpChange)
 ---@field Demand SkillUpJointDemandProducer
+---@field SupplySources SkillUpSupplySourceOwner
 ---@field SupplyChoice SkillUpSupplyChoiceProducer
 ---@field Resupply SkillUpResupplyProducer
 ---@field MerchantOffers SkillUpMerchantOffers
@@ -465,6 +466,8 @@ SkillUpForeverDB = nil
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
 ---@class SkillUpPlanSupply
+---@field sourceRevision integer?
+---@field assumptions SkillUpSourceAssumption[]?
 ---@field acquisitions SkillUpSelectedAcquisition[]?
 ---@field initialVisits table<string, number>?
 ---@field job SkillUpSupplyChoiceJob

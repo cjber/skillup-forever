@@ -24,7 +24,7 @@ function Choice.Start(input, alpha)
 	local operations = 0
 	---@type thread?
 	local thread = coroutine.create(function()
-		if type(alpha) ~= "number" or alpha <= 0 or alpha > 1 then
+		if type(alpha) ~= "number" or not (alpha > 0 and alpha <= 1) then
 			return Unknown("explicit starting coverage in (0, 1] required")
 		end
 		local limit = type(input) == "table" and type(input.options) == "table" and input.options.workLimit
@@ -37,6 +37,43 @@ function Choice.Start(input, alpha)
 				error({ choice = "selection work budget exhausted; no optimum certificate" }, 0)
 			end
 			coroutine.yield()
+		end
+		-- Evidence is optional for synthetic contracts, but a source-owned contract
+		-- must publish an owned, complete revision record rather than loose labels.
+		local assumptions
+		if input.sourceRevision ~= nil or input.assumptions ~= nil then
+			if not Integer(input.sourceRevision) or type(input.assumptions) ~= "table" then
+				return Unknown("paired source revision and dated assumptions required")
+			end
+			assumptions = {}
+			local count = 0
+			for index, evidence in pairs(input.assumptions) do
+				if not Integer(index) or index < 1 or type(evidence) ~= "table" then
+					return Unknown("dense dated source assumptions required")
+				end
+				local copy = {}
+				for _, field in ipairs({ "offerID", "field", "provenance", "scope", "observationRevision" }) do
+					if type(evidence[field]) ~= "string" or evidence[field] == "" then
+						return Unknown("complete scoped source provenance required")
+					end
+					copy[field] = evidence[field]
+					Tick()
+				end
+				for _, field in ipairs({ "revision", "observedAt", "session", "index" }) do
+					if not Integer(evidence[field]) or (field ~= "observedAt" and evidence[field] == 0) then
+						return Unknown("integral source evidence revisions required")
+					end
+					copy[field] = evidence[field]
+					Tick()
+				end
+				assumptions[index], count = copy, count + 1
+			end
+			for index = 1, count do
+				if not assumptions[index] then
+					return Unknown("dense dated source assumptions required")
+				end
+				Tick()
+			end
 		end
 		-- Validate every policy law before using its resources as domain bounds.
 		child = ns.Resupply.Start(input)
@@ -238,6 +275,7 @@ function Choice.Start(input, alpha)
 		best.items, best.have = items, have
 		best.orders, best.quantities, best.alpha = bestOrders, bestQuantities, alpha
 		best.acquisitions, best.initialVisits = acquisitions, visits
+		best.sourceRevision, best.assumptions = input.sourceRevision, assumptions
 		return best
 	end)
 	---@param self SkillUpSupplyChoiceJob

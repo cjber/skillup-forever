@@ -43,6 +43,20 @@ c.maps = { [0] = { mapID = 10, name = "Synthetic Zone" } }
 local ns, API = c.ns, c.G.SkillUpForever.API
 local function Policy()
 	return {
+		sourceRevision = 7,
+		assumptions = {
+			{
+				offerID = "selected-token-offer",
+				field = "stock",
+				revision = 2,
+				provenance = "synthetic declaration",
+				scope = "this run",
+				observedAt = 42,
+				observationRevision = "fixture",
+				session = 1,
+				index = 1,
+			},
+		},
 		service = "fixed-batch",
 		journey = "independent-round-trips",
 		walletCopper = "unlimited",
@@ -117,10 +131,57 @@ local function Published()
 	end
 	error("configured supply did not publish")
 end
+-- Advance only the source job: unrelated views must not refresh a stale API status.
+local function PolicyFrame()
+	for _, frame in ipairs(c.frames) do
+		local callback = frame.scripts.OnUpdate
+		if callback and debug.getinfo(callback, "S").source:find("Core/RouteDemand.lua", 1, true) then
+			callback(frame, 0)
+		end
+	end
+end
+for _ = 1, 4 do
+	Frame()
+end
+equal(API.Professions()[1].supply, nil, "unconfigured status is cached as absent")
+ns.RouteDemand.ConfigureSupply(197, function()
+	return nil
+end, 0.9)
+PolicyFrame()
+equal(
+	API.Professions()[1].supply.status,
+	"unknown",
+	"rejected source reader publishes status without unrelated invalidation"
+)
+ns.RouteDemand.ConfigureSupply(197, nil)
+equal(API.Professions()[1].supply, nil, "removing a rejected configuration removes its public status")
+local unresolved = Policy()
+unresolved.assumptions = {}
+for index = 1, 100 do
+	unresolved.assumptions[index] = Policy().assumptions[1]
+end
+unresolved.sources[1].priceLaw = "unestablished"
+local unresolvedJob = ns.RouteDemand.SelectSupply(Current(), unresolved, 0.9)
+equal(API.Professions()[1].supply.status, "calculating", "new selection publishes calculating status immediately")
+for _ = 1, 100 do
+	PolicyFrame()
+end
+equal(unresolvedJob.result.status, "unknown", "invalid law eventually rejects asynchronous work")
+equal(API.Professions()[1].supply.status, "unknown", "terminal unknown replaces the cached calculating status")
+unresolvedJob:Cancel()
+equal(API.Professions()[1].supply, nil, "cancelling an unpublished selection removes public status")
+
 local contract = Policy()
 contract.stock.S = 2
 local declaredStock = 2
 local available = true
+equal(
+	ns.RouteDemand.ConfigureSupply(197, function()
+		return Policy()
+	end, 0 / 0),
+	false,
+	"NaN is not a configured coverage target"
+)
 local ok = ns.RouteDemand.ConfigureSupply(197, function()
 	if not available then
 		return nil
@@ -134,6 +195,12 @@ contract.stock.S = 0
 local supply = Published()
 equal(supply.items[10], 4, "configured input is owned and selects whole bundle budget")
 local entry = API.Professions()[1]
+equal(entry.sourceEvidence.status, "unavailable", "default production owner reports missing evidence without alpha")
+equal(entry.sourceEvidence.missing[1].code, "merchant-window-unavailable", "default evidence keeps structured reasons")
+equal(entry.supply.sourceRevision, 7, "public certificate retains source revision")
+equal(entry.supply.assumptions[1].observedAt, 42, "public certificate retains dated provenance")
+entry.supply.assumptions[1].scope = "mutated"
+equal(API.Professions()[1].supply.assumptions[1].scope, "this run", "public evidence is recursively owned")
 local selectedStep = entry.steps[1]
 equal(entry.steps[3].itemID, 90, "conditional plan retains missing tool acquisition")
 equal(entry.steps[3].cost, 7, "missing tool retains its independent display price")
@@ -217,7 +284,7 @@ equal(Current().supply.job.result.status, "unknown", "missing fresh source law n
 equal(ns.RouteDemand.Supply(Current()), nil, "unknown fresh source cannot publish counts")
 ns.RouteDemand.ConfigureSupply(197, nil)
 equal(ns.RouteDemand.Supply(Current()), nil, "removing policy revokes canonical counts")
-equal(Current().supply.job.result.status, "cancelled", "removed policy job is cancelled")
+equal(Current().supply, nil, "removed policy clears its unpublished status")
 
 -- Both offers are needed: their distinct finite pools each permit one bundle.
 c.professions[1].rank, c.bags[10], c.bags[99], c.money = 1, 0, 1, 6
@@ -261,4 +328,55 @@ equal(
 c.G.ShortestPathForever = nil
 
 ns.RouteDemand.ConfigureSupply(197, nil)
+
+-- Default evidence reporting must revoke its cached answer without any policy.
+c.npc = { id = 123 }
+c.merchant = {}
+for _, reagent in ipairs(API.Professions()[1].reagents) do
+	c.merchant[#c.merchant + 1] = {
+		itemID = reagent.itemID,
+		price = 1,
+		stackCount = 1,
+		numAvailable = 8,
+		hasExtendedCost = false,
+	}
+end
+c.Fire("MERCHANT_SHOW")
+local function Law(value)
+	return { value = value, provenance = "synthetic finite law", scope = "this fixture run" }
+end
+local function DeclareAll(version)
+	for _, offer in ipairs(ns.MerchantOffers.current.offers) do
+		equal(
+			ns.SupplySources.Declare(offer, version, {
+				access = Law(true),
+				price = Law("fixed"),
+				vendor = Law("V"),
+				ceiling = Law(1),
+				stock = Law({ key = tostring(offer.itemID), perBundle = 1, available = 8, law = "finite-no-restock" }),
+				initialVisit = Law(0),
+				refillVisit = Law(1),
+				tokenValues = {},
+			}),
+			true,
+			"synthetic production offer laws declared"
+		)
+	end
+end
+for version, event in ipairs({
+	"PLAYER_MONEY",
+	"CURRENCY_DISPLAY_UPDATE",
+	"BANKFRAME_OPENED",
+	"PLAYERBANKSLOTS_CHANGED",
+	"BANKFRAME_CLOSED",
+}) do
+	DeclareAll(version)
+	local evidence = API.Professions()[1].sourceEvidence
+	equal(evidence.status, "conditional", "default API caches current-window laws without a policy before " .. event)
+	c.Fire(event)
+	local revoked = API.Professions()[1].sourceEvidence
+	equal(revoked.status, "unavailable", event .. " revokes cached default evidence without a policy")
+	equal(revoked.missing[1].code, "reconciliation-required", "revocation retains the missing stock-law reason")
+	equal(revoked.sourceRevision > evidence.sourceRevision, true, "law invalidation advances evidence revision")
+end
 Client.report("Supply API")

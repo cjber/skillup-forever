@@ -417,19 +417,14 @@ end
 -- or advances a solve. A missing explicit policy leaves the legacy estimates
 -- intact, without giving them a coverage or economic certificate.
 ---@param plan SkillUpPlan
----@param contract SkillUpResupplyInput
----@param alpha number
+---@param job SkillUpSupplyChoiceJob
 ---@return SkillUpSupplyChoiceJob
-function RouteDemand.SelectSupply(plan, contract, alpha)
-	local replaced = plan.supply and plan.supply.items ~= nil
+local function PublishSupply(plan, job)
 	if plan.supply then
 		local old = plan.supply.job
 		old:Cancel()
 		supplyPlans[old] = nil
 	end
-	local job = alpha ~= nil and RouteDemand.StartPolicy(plan, contract, alpha)
-		or RejectedPolicy("explicit starting coverage required")
-	---@cast job SkillUpSupplyChoiceJob
 	plan.supply = { job = job, revision = ns.Model.ChanceRevision() }
 	supplyPlans[job] = plan
 	local cancel = job.Cancel
@@ -437,16 +432,23 @@ function RouteDemand.SelectSupply(plan, contract, alpha)
 		cancel(self)
 		supplyPlans[self] = nil
 		if plan.supply and plan.supply.job == self then
-			local published = plan.supply.items ~= nil
 			plan.supply = nil
-			if published then
-				ns.Changed("supply")
-			end
+			ns.Changed("supply")
 		end
 	end
-	if replaced then
-		ns.Changed("supply")
-	end
+	ns.Changed("supply")
+	return job
+end
+
+---@param plan SkillUpPlan
+---@param contract SkillUpResupplyInput
+---@param alpha number
+---@return SkillUpSupplyChoiceJob
+function RouteDemand.SelectSupply(plan, contract, alpha)
+	local job = alpha ~= nil and RouteDemand.StartPolicy(plan, contract, alpha)
+		or RejectedPolicy("explicit starting coverage required")
+	---@cast job SkillUpSupplyChoiceJob
+	PublishSupply(plan, job)
 	return job
 end
 
@@ -462,7 +464,7 @@ function RouteDemand.ConfigureSupply(skillLine, read, alpha)
 	if type(skillLine) ~= "number" or skillLine <= 0 or skillLine > 2 ^ 52 - 1 or skillLine % 1 ~= 0 then
 		return false, "explicit profession identity required"
 	end
-	if read ~= nil and (type(read) ~= "function" or type(alpha) ~= "number" or alpha <= 0 or alpha > 1) then
+	if read ~= nil and (type(read) ~= "function" or type(alpha) ~= "number" or not (alpha > 0 and alpha <= 1)) then
 		return false, "explicit source contract reader and starting coverage required"
 	end
 	local previous = configured[skillLine]
@@ -504,7 +506,7 @@ supplyFrame:SetScript("OnUpdate", function()
 					else
 						local job = RejectedChoice("fresh complete source contract unavailable")
 						config.job = job
-						plan.supply = { job = job, revision = ns.Model.ChanceRevision() }
+						PublishSupply(plan, job)
 					end
 				end
 				-- Snapshot one configured profession per frame, outside getters.
@@ -517,18 +519,25 @@ supplyFrame:SetScript("OnUpdate", function()
 		if budget <= 0 then
 			break
 		end
-		if job.result.status == "calculating" then
+		local previousStatus = job.result.status
+		if previousStatus == "calculating" then
 			job:Advance(budget)
 			budget = 0
 		end
 		local supply = plan.supply
+		local changed = previousStatus ~= job.result.status
 		if supply and supply.job == job and not supply.items and job.result.status == "complete" then
 			if job.result.items and job.result.have then
 				supply.items, supply.have = job.result.items, job.result.have
 				supply.acquisitions = job.result.acquisitions
 				supply.initialVisits = job.result.initialVisits
-				ns.Changed("supply")
+				supply.sourceRevision = job.result.sourceRevision
+				supply.assumptions = job.result.assumptions
+				changed = true
 			end
+		end
+		if changed then
+			ns.Changed("supply")
 		end
 	end
 end)

@@ -13,6 +13,8 @@
 ---@field costs table<string, integer> Complete typed transaction requirements.
 
 ---@class SkillUpSupplyChoiceResult: SkillUpResupplyResult
+---@field sourceRevision integer? Source-owner revision of this conditional certificate.
+---@field assumptions SkillUpSourceAssumption[]? Owned dated, scoped provenance for the source laws.
 ---@field items table<integer, integer>? Shared initial raw inventory budget, before initial token payments.
 ---@field have table<integer, integer>? Fresh inventory snapshot.
 ---@field orders SkillUpPolicyOrder[]? Selected initial transactions.

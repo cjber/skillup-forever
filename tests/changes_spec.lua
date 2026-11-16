@@ -132,9 +132,9 @@ for _, case in ipairs({
 	{ "BAG_UPDATE_DELAYED", "api | route tracker" },
 	{ "PLAYER_LEVEL_UP", "api | route recipeList tracker" },
 	{ "ZONE_CHANGED_NEW_AREA", "api | " },
-	{ "MERCHANT_SHOW", " | tracker" },
+	{ "MERCHANT_SHOW", "api | tracker" },
 	{ "MERCHANT_UPDATE", " | tracker" },
-	{ "MERCHANT_CLOSED", " | tracker" },
+	{ "MERCHANT_CLOSED", "api | tracker" },
 	{ "GET_ITEM_INFO_RECEIVED", " | " },
 }) do
 	equal(c.Listeners(case[1]), 1, case[1] .. " arrives on one frame")

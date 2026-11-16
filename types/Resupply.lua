@@ -29,6 +29,8 @@
 ---@field coordinateLimit integer Bounds sorting/key construction dimensions.
 
 ---@class SkillUpResupplyInput
+---@field sourceRevision integer? Session-only source-owner revision.
+---@field assumptions SkillUpSourceAssumption[]? Explicit scoped law provenance.
 ---@field route SkillUpJointDemandInput buy must be empty; initial orders are checked separately.
 ---@field service 'fixed-batch' Every shortage attempts the declared batch, with no discretionary stop.
 ---@field journey 'independent-round-trips' Distinct vendors add one explicit trip cost per batch.

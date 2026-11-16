@@ -422,6 +422,10 @@ local function Build()
 		local plan = ns.PlanRoute(profession)
 		local steps, picks = Steps(plan)
 		pickers[skillLine] = picks
+		local products = {}
+		for _, item in ipairs(ns.RouteReagents(plan)) do
+			products[item.itemID] = true
+		end
 		local entry = {
 			name = profession.name,
 			skillLineID = skillLine,
@@ -432,6 +436,8 @@ local function Build()
 			steps = steps,
 			recipes = Recipes(plan),
 			reagents = Reagents(plan),
+			sourceEvidence = ns.SupplySources.Inspect(products),
+			supply = plan.supply and plan.supply.job.result,
 		}
 		entries[#entries + 1] = entry
 		urgency[entry] = { #steps > 0 and 0 or 1, ns.IsTracked(skillLine) and 0 or 1, Urgency(entry) }
@@ -502,6 +508,8 @@ local function CopyProfessions(list, steps, recipes)
 			steps = copiedSteps,
 			recipes = copiedRecipes,
 			reagents = reagents,
+			sourceEvidence = CopyRow(entry.sourceEvidence),
+			supply = entry.supply and CopyRow(entry.supply),
 		}
 	end
 	return copy
@@ -523,7 +531,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 8 }
+local API = { version = 1, minor = 9 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe

@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 8; the history:
+`minor` is 9; the history:
 
 | minor | added |
 |---|---|
@@ -18,6 +18,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 6 | `IsTracked`, `SetTracked`, `ShoppingTrip`, `Professions` limits, `Stats`, `Leaderboard` |
 | 7 | `Recipes`, `Recipe`, `RecipeRequirement`, `Characters` and `Knows` |
 | 8 | conditional selected initial acquisition records on steps and shopping items |
+| 9 | profession source-evidence status and conditional supply certificates with dated provenance |
 
 ## Not ready
 
@@ -51,6 +52,25 @@ replace the defaults of three and five for that call only. A missing field keeps
 | `steps` | the route's steps, in order: at most three by default, or the call's `limits.steps` |
 | `recipes` | the route's crafts: at most five by default, or the call's `limits.recipes` |
 | `reagents` | the route's reagents for the whole route |
+| `sourceEvidence` | structured source-law evidence for the current merchant window, available without a coverage target |
+| `supply` | optional conditional fixed-refill-policy selection status and result, described below |
+
+`sourceEvidence` has `status` (`"unavailable"` or `"conditional"`), `sourceRevision`,
+`scope = "current-merchant-window"`, `missing` and `assumptions`. Each missing record has a
+`code` and, when known, `offerID` and `field`. A conditional status means that the explicitly
+requested products have declared laws in the current window. It does not establish all
+sources available to the player, or an optimal acquisition policy. No coverage target is
+chosen by reading this field.
+
+`supply`, when a caller has configured a policy and target, is the selection result:
+`status`, `reasons`, `costKnown`, explicit `alpha`, C0 `coverageLower/Upper`, Ppi
+`successLower/Upper`, `costLower/Upper`, `visitsLower/Upper`, and selected initial
+`orders`, `quantities`, `acquisitions` and `initialVisits` when complete. Source-owned
+results also carry paired `sourceRevision` and `assumptions`. Each assumption retains
+`offerID`, `field`, law `revision`, `provenance`, validity `scope`, `observedAt`,
+`observationRevision`, `session` and `index`. These are conditional mathematical
+results for one declared refill policy, not empirical gameplay guarantees. All nested
+tables are fresh copies. Missing, calculating or unknown results provide no optimum certificate.
 
 A step is:
 

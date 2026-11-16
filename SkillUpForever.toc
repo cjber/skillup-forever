@@ -76,6 +76,7 @@ UI\Shopping.xml
 UI\Shopping.lua
 UI\ShoppingList.lua
 Core\RouteDemand.lua
+Core\SupplySources.lua
 UI\AuctionSearch.lua
 Integrations\Trainer.lua
 Core\API.lua

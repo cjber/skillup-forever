@@ -82,8 +82,25 @@ local function Encloses(result, name, expected)
 end
 
 local input = Input(0, 2, 3, 5, 2)
+input.sourceRevision = 7
+input.assumptions = {
+	{
+		offerID = "synthetic:1",
+		field = "stock",
+		revision = 2,
+		provenance = "synthetic finite pool",
+		scope = "this run",
+		observedAt = 42,
+		observationRevision = "fixture",
+		session = 1,
+		index = 1,
+	},
+}
 local result = Finish(ns.SupplyChoice.Start(input, 0.7))
 Check(result.status == "complete", result.reasons[1] or "finite optimum")
+Check(result.sourceRevision == 7 and result.assumptions[1].observedAt == 42, "dated source evidence survives selection")
+input.assumptions[1].scope = "changed by caller"
+Check(result.assumptions[1].scope == "this run", "published evidence is owned")
 Check(result.quantities[1] == 1, "one bundle is the least-cost feasible start")
 Encloses(result, "coverage", 3 / 4)
 Check(result.orders[1].bundles == 1, "transaction quantity preserved")
@@ -113,6 +130,8 @@ Check(result.status == "unknown", "finite domain has no feasible initial order")
 Check(result.reasons[1]:find("no feasible", 1, true), "infeasibility distinguished from optimum")
 result = Finish(ns.SupplyChoice.Start(input, nil))
 Check(result.status == "unknown", "no default confidence")
+result = Finish(ns.SupplyChoice.Start(input, 0 / 0))
+Check(result.status == "unknown", "NaN is not an explicit coverage target")
 input.options.workLimit = 5
 result = Finish(ns.SupplyChoice.Start(input, 0.7))
 Check(result.status == "unknown", "budget exhaustion is not infeasibility")

@@ -63,6 +63,28 @@ there is no arbitrary basket cutoff or claim of a global policy optimum.
 
 ## Live ownership and consumers
 
+`Core/SupplySources.lua` owns session-only, revisioned declarations for distinct
+current merchant offers. Its production `Inspect(products)` path reports structured
+missing observations or laws without requiring alpha or starting a solver. The API
+publishes that report on each profession under `sourceEvidence`. Its scope is only
+the current merchant window; other vendors, auction supply and future restocks are
+not established by that window.
+
+`Declare(offer, revision, laws)` requires a complete dated quote and separate scoped
+provenance for access, fixed price, stock identity and units, transaction ceiling,
+shared vendor identity, initial and refill visits, and every typed token value.
+Finite stock uses the explicit `finite-no-restock` law. Resource revisions require
+a newer reconciled declaration; rereading an unchanged declaration cannot restore
+stock. An `unlimited` law must be explicitly supplied and is never inferred from
+raw merchant stock. Replacement observations revoke their old declarations.
+
+`Read(options, refillOrders, products)` includes all current competing offers for
+the explicit product universe, including undeclared offers as missing-law reasons.
+Refill orders identify offers by session-scoped `offerID`, not a transient source
+index. Shared stock, visit and token laws must agree. `Configure` registers this
+reader only with an explicit alpha. Selected results retain the source revision
+and owned dated assumptions through the plan and public API.
+
 `RouteDemand.StartPolicy` freezes plain policy records before asynchronous work
 and substitutes the final route and fresh native balances. Snapshot copying
 counts operations, rejects cycles/metatables and bounds schema depth. Its

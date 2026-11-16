@@ -44,6 +44,8 @@
 ---@field recipes? integer Whole number from 1 to 25; the default is 5.
 
 ---@class SkillUpAPIProfession
+---@field sourceEvidence SkillUpSourceEvidence Current merchant evidence, even without a coverage target.
+---@field supply SkillUpSupplyChoiceResult? Conditional fixed-refill-policy selection status and certificate.
 ---@field name string Localized.
 ---@field skillLineID integer
 ---@field icon fileID

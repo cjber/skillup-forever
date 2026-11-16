@@ -348,3 +348,50 @@ The native balance signatures are pinned to Forever
 [CurrencyInfoDocumentation.lua](https://github.com/Gethe/wow-ui-source/blob/bebcb6bf309cf41b41bd74f8ca651e6a105b2676/Interface/AddOns/Blizzard_APIDocumentationGenerated/CurrencyInfoDocumentation.lua).
 The [merchant observation contract](merchant-evidence.md) documents what the
 current window proves and which values remain unknown.
+
+## Current merchant adaptive provider
+
+`SupplySources.DeclareAdaptive(offer, revision, laws)` binds explicit conditional
+laws to the exact current merchant observation. It requires fixed access and
+price, vendor identity, a positive bundle ceiling within the observed native
+item ceiling, certain initial delivery, independent future delivery probability
+and failure payment, and a finite nonreplenishing opportunity pool. Every law
+carries its own provenance and scope. Invalid replacements preserve the valid
+record. All competing offers for the explicit product set must be declared,
+including inaccessible offers.
+
+A stock declaration contains `key`, `unit`, `available`, `perBundle`,
+`law = "finite-no-restock"`, and `observedUnits`. Explicit `"items"` or
+`"bundles"` relates the pool to raw stock and requires exact whole-bundle
+consistency. Raw `-1` only permits `"finite-domain-restriction"` with an explicit
+`restriction` scope. This bounds the conditional search domain; it does not
+certify native stock. Missing units, sold-out positive pools, unavailable
+eligibility, contradictory access and excessive ceilings are rejected.
+`canAfford` is a dated observation, not a fixed access law. Fresh shared native
+balances decide atomic affordability through RouteDemand.
+
+`DeclareEconomics(revision, laws)` separately owns scoped declarations for
+`initialVisitMoney`, `refillVisitMoney`, `initialVisitValue`, `refillVisitValue`,
+`tokenValues`, `terminalCarry` and `failureLoss`. Each uses the same
+`{value, provenance, scope}` wrapper. Maps contain explicit values, including
+zero. Monetary fares debit the wallet; visit opportunity values do not.
+Economics bind the current merchant session and require a newer revision to
+replace them. Recipe-only coordinate completeness remains the existing snapshot
+and kernel's responsibility.
+
+`ReadAdaptive(options, products, crafted?)` returns an owned bags-only request
+with explicit work, state, coordinate and limb budgets. `InspectAdaptive(products,
+workLimit)` reports source/economic completeness without alpha, resource reads
+or solver work. Its conditional status concerns provider inputs, not recipe or
+route certification. `ConfigureAdaptive(skillLine, alpha, options, products,
+crafted?)` accepts explicit alpha in `[0,1]` and an optional current RecipeEvidence
+token. It registers a prepared reader with `RouteDemand.ConfigureAdaptiveSupply`.
+Declarations and source revisions prepare requests outside reader dispatch;
+RouteDemand retains the single scheduler, fresh native snapshot and publication
+authority. No wallet or policy evaluator is added.
+
+Resource events invalidate every adaptive finite pool. A newer explicit
+reconciliation for each competing offer is required before republication;
+reader calls cannot replenish opportunities. Observation replacement and window
+closure prevent old laws from publishing. This provider adds no purchase or
+craft execution and no default confidence or economic policy.

@@ -537,7 +537,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 12 }
+local API = { version = 1, minor = 13 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe
@@ -607,6 +607,7 @@ function API.ShoppingList(skillLineID)
 	for _, entry in ipairs(tracked) do
 		if not skillLineID or entry.plan.profession.skillLine == skillLineID then
 			local result = {
+				supplySummary = CopyRow(ns.RouteDemand.Summary(entry.plan)),
 				profession = entry.plan.profession.name,
 				skillLine = entry.plan.profession.skillLine,
 				target = entry.plan.target,
@@ -690,6 +691,9 @@ function ns.ShoppingText(skillLineID)
 		L["SkillUp Forever shopping list"],
 		#professions > 0 and table.concat(professions, ", ") or L["No tracked profession"],
 	}
+	for _, list in ipairs(lists) do
+		lines[#lines + 1] = list.profession .. ": " .. ns.SupplySummaryText(list.supplySummary)
+	end
 	local total = 0
 	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
 		local bucket = {}

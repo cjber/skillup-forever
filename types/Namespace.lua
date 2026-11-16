@@ -31,6 +31,7 @@
 ---@field SupplyChoice SkillUpSupplyChoiceProducer
 ---@field Resupply SkillUpResupplyProducer
 ---@field MerchantOffers SkillUpMerchantOffers
+---@field SupplySummaryText fun(summary: SkillUpSupplySummary): string
 ---@field RouteDemand SkillUpRouteDemandProducer
 ---@field WhenStale fun(name: SkillUpStale, handler: fun())
 ---@field WhenStaleObserver fun(name: SkillUpStale, observer: fun())
@@ -469,6 +470,8 @@ SkillUpForeverDB = nil
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
 ---@class SkillUpPlanSupply
+---@field alpha number?
+---@field service string?
 ---@field sourceRevision integer?
 ---@field assumptions SkillUpSourceAssumption[]?
 ---@field acquisitions SkillUpSelectedAcquisition[]?

@@ -722,7 +722,7 @@ end
 ---@param plan SkillUpPlan
 ---@param job SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob
 ---@return SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob
-local function PublishSupply(plan, job)
+local function PublishSupply(plan, job, alpha, service)
 	local previous = plan.supply
 	if previous then
 		local old = previous.job
@@ -733,7 +733,7 @@ local function PublishSupply(plan, job)
 			return job
 		end
 	end
-	plan.supply = { job = job, revision = ns.Model.ChanceRevision() }
+	plan.supply = { job = job, revision = ns.Model.ChanceRevision(), alpha = alpha, service = service }
 	supplyPlans[job] = plan
 	local cancel = job.Cancel
 	job.Cancel = function(self)
@@ -756,7 +756,7 @@ function RouteDemand.SelectSupply(plan, contract, alpha)
 	local job = alpha ~= nil and RouteDemand.StartPolicy(plan, contract, alpha)
 		or RejectedPolicy("explicit starting coverage required")
 	---@cast job SkillUpSupplyChoiceJob
-	PublishSupply(plan, job)
+	PublishSupply(plan, job, alpha, "fixed-batch")
 	return job
 end
 
@@ -816,7 +816,7 @@ end
 ---@return SkillUpFiniteSelectionJob
 function RouteDemand.SelectAdaptiveSupply(plan, request, alpha)
 	local job = RouteDemand.StartAdaptive(plan, request, alpha)
-	PublishSupply(plan, job)
+	PublishSupply(plan, job, alpha, "adaptive-finite")
 	return job
 end
 
@@ -884,6 +884,102 @@ function RouteDemand.Supply(plan)
 	end
 end
 
+-- Read only: status belongs to the current plan revision, never to a getter's clock.
+---@param plan SkillUpPlan
+---@return SkillUpSupplySummary
+function RouteDemand.Summary(plan)
+	local owner = plan.supply
+	local config = configured[plan.profession.skillLine]
+	if not owner then
+		if not config then
+			return { status = "unconfigured" }
+		end
+		return {
+			status = not config.dirty and config.job and config.job.result.status == "cancelled" and "cancelled"
+				or "calculating",
+			alpha = config.alpha,
+			conditional = true,
+			service = config.mode == "adaptive" and "adaptive-finite" or "fixed-batch",
+			inventoryScope = config.mode == "adaptive" and "bags-only" or "bags-and-bank",
+		}
+	end
+	local result = owner.job.result
+	local current = owner.revision == ns.Model.ChanceRevision()
+		and (not result.recipeRevision or ns.RecipeEvidence.Current(result.recipeRevision))
+	local summary = {
+		status = current and result.status or "cancelled",
+		alpha = owner.alpha,
+		service = owner.service,
+		inventoryScope = result.inventoryScope
+			or (owner.service == "adaptive-finite" and "bags-only" or "bags-and-bank"),
+		conditional = true,
+	}
+	if current and result.status == "complete" and not RouteDemand.Supply(plan) then
+		summary.status = "calculating"
+	end
+	if summary.status == "complete" then
+		summary.coverageLower, summary.coverageUpper = result.coverageLower, result.coverageUpper
+		summary.successLower, summary.successUpper = result.successLower, result.successUpper
+	end
+	return summary
+end
+
+-- Whole localized sentences are shared by the route, shopping window and export.
+---@param summary SkillUpSupplySummary
+---@return string
+function ns.SupplySummaryText(summary)
+	local L = ns.L
+	if summary.status == "unconfigured" then
+		return L["Craft counts and shopping quantities are estimates. You may need more reagents."]
+	end
+	local statuses = {
+		calculating = L["Supply estimate: calculating."],
+		unknown = L["Supply estimate: not enough information."],
+		infeasible = L["Supply estimate: no starting purchase meets the target."],
+		cancelled = L["Supply estimate: cancelled."],
+		complete = L["Supply estimate: ready."],
+		unattained = L["Supply estimate: no cheapest purchase exists under these assumptions."],
+	}
+	local lines = { statuses[summary.status] or L["Supply estimate: not enough information."] }
+	if summary.alpha ~= nil then
+		lines[#lines + 1] =
+			string.format(L["Target chance of finishing with starting supplies: %s%%."], tostring(summary.alpha * 100))
+	end
+	local function Probability(lower, upper)
+		if lower == nil or upper == nil then
+			return L["unknown"]
+		end
+		-- Outward rounding preserves the interval, including bounds very near 0 or 1.
+		local low = math.floor(lower * 10000)
+		local high = math.ceil(upper * 10000)
+		if lower < 1 then
+			low = math.min(low, 9999)
+		end
+		if upper > 0 then
+			high = math.max(high, 1)
+		end
+		return string.format(L["%s%% to %s%%"], string.format("%.2f", low / 100), string.format("%.2f", high / 100))
+	end
+	if summary.status == "complete" then
+		lines[#lines + 1] = string.format(
+			L["Chance of finishing with starting supplies: %s."],
+			Probability(summary.coverageLower, summary.coverageUpper)
+		)
+		lines[#lines + 1] = string.format(
+			L["Chance of finishing with later purchases: %s."],
+			Probability(summary.successLower, summary.successUpper)
+		)
+	end
+	if summary.inventoryScope then
+		lines[#lines + 1] = summary.inventoryScope == "bags-only" and L["Starting inventory: bags only."]
+			or L["Starting inventory: bags and bank."]
+	end
+	lines[#lines + 1] =
+		L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."]
+	lines[#lines + 1] = L["Craft counts and shopping quantities are estimates. You may need more reagents."]
+	return table.concat(lines, "\n")
+end
+
 -- At most 64 solver operations across all jobs per frame. This is a scheduling
 -- budget, not a probability cutoff; exhaustion of a model budget stays unknown.
 local supplyFrame = CreateFrame("Frame")
@@ -919,7 +1015,12 @@ supplyFrame:SetScript("OnUpdate", function()
 						job = RejectedChoice(
 							ok and type(missing) == "string" and missing or "fresh complete source contract unavailable"
 						)
-						PublishSupply(plan, job)
+						PublishSupply(
+							plan,
+							job,
+							config.alpha,
+							config.mode == "adaptive" and "adaptive-finite" or "fixed-batch"
+						)
 					end
 					if configured[skillLine] == config and not config.dirty then
 						config.job = job
@@ -1032,6 +1133,7 @@ ns.RouteDemand = {
 	Vendors = RouteDemand.Vendors,
 	SelectSupply = RouteDemand.SelectSupply,
 	Supply = RouteDemand.Supply,
+	Summary = RouteDemand.Summary,
 	Count = RouteDemand.Count,
 	StartPolicy = RouteDemand.StartPolicy,
 	StartAdaptive = RouteDemand.StartAdaptive,

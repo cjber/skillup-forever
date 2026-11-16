@@ -113,13 +113,53 @@ equal(ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0), true, "explicit ad
 API.Professions()
 API.ShoppingList()
 equal(reads, 0, "getters never dispatch reader")
+local pending = API.ShoppingList()[1].supplySummary
+equal(pending.status, "calculating", "configured reader pending status")
+equal(pending.alpha, 0, "pending explicit zero target")
 Frame()
 equal(reads, 1, "one frame dispatches fresh reader")
 equal(Current().supply.job.result.status, "calculating", "shared frame does not drain snapshot")
+local pendingJob = Current().supply.job
+for _ = 1, 3 do
+	API.ShoppingList()
+end
+equal(pendingJob.result.status, "calculating", "summary getter never advances job")
+local direct =
+	ns.RouteDemand.SelectAdaptiveSupply(Current(), { inventoryScope = "bags-only", policy = Copy(policy) }, 0)
+while direct.result.status == "calculating" do
+	direct:Advance(64)
+end
+equal(direct.result.status, "complete", "direct job completes before publication")
+equal(ns.RouteDemand.Supply(Current()), nil, "unpublished result has no supply authority")
+equal(API.ShoppingList()[1].supplySummary.status, "calculating", "unpublished summary waits for supply authority")
+equal(API.ShoppingList()[1].supplySummary.coverageLower, nil, "unpublished summary hides probabilities")
 local supply = Published()
 equal(supply.have[30], 2, "non-route source product held in native bags")
 equal(supply.result.service, "adaptive-finite", "plan keeps adaptive service")
 equal(supply.result.inventoryScope, "bags-only", "plan keeps scope")
+local summary = API.ShoppingList()[1].supplySummary
+assert(summary, "public ShoppingList missing supply summary")
+equal(summary.alpha, 0, "summary retains explicit zero")
+equal(summary.status, "complete", "summary reads completed owner")
+equal(summary.coverageLower, supply.result.coverageLower, "summary starting C0 lower")
+equal(summary.successUpper, supply.result.successUpper, "summary continuation Ppi upper")
+summary.status, summary.alpha = "mutated", 0.95
+equal(API.ShoppingList()[1].supplySummary.alpha, 0, "summary caller cannot mutate owner")
+local text = ns.ShoppingText()
+assert(text:find("Target chance of finishing with starting supplies: 0%.", 1, true), "export retains zero target")
+assert(text:find("Chance of finishing with starting supplies:", 1, true), "export explains C0")
+assert(text:find("Chance of finishing with later purchases:", 1, true), "export explains Ppi")
+local near = ns.SupplySummaryText({
+	status = "complete",
+	coverageLower = 1 - 1e-15,
+	coverageUpper = 1,
+	successLower = 0,
+	successUpper = 1e-15,
+})
+assert(near:find("99.99% to 100.00%", 1, true), "near certainty rounds outward")
+assert(near:find("0.00% to 0.01%", 1, true), "near zero rounds outward")
+local certain = ns.SupplySummaryText({ status = "complete", coverageLower = 1, coverageUpper = 1 })
+assert(certain:find("100.00% to 100.00%", 1, true), "exact certainty remains exact")
 assert(supply.result.carryLower <= 6 and supply.result.carryUpper >= 6, "plan retains terminal carry")
 c.Advance(0)
 local public = API.Professions()[1].supply
@@ -261,6 +301,8 @@ local before = reads
 local previous = Current().supply.job
 ns.Model.SetChanceBonus(0.01)
 equal(ns.RouteDemand.Supply(Current()), nil, "getter rejects stale chance certificate without starting work")
+equal(API.ShoppingList()[1].supplySummary.status, "cancelled", "summary rejects stale chance owner")
+equal(API.ShoppingList()[1].supplySummary.coverageLower, nil, "stale owner hides probability")
 equal(reads, before, "chance getter does not invoke reader")
 Frame()
 equal(previous.result.status, "cancelled", "shared frame revokes completed chance revision")
@@ -290,6 +332,18 @@ equal(
 )
 supply = Published()
 equal(supply.result.service, "adaptive-finite", "replacement reader remains adaptive")
+local beforeCancel = reads
+supply.job:Cancel()
+equal(API.ShoppingList()[1].supplySummary.status, "cancelled", "cancelled configured owner stays cancelled")
+for _ = 1, 5 do
+	Frame()
+	API.ShoppingList()
+end
+equal(reads, beforeCancel, "cancelled getter never schedules replacement")
+equal(API.ShoppingList()[1].supplySummary.status, "cancelled", "cancelled status persists without queued replacement")
+ns.RouteDemand.Invalidate()
+equal(API.ShoppingList()[1].supplySummary.status, "calculating", "invalidation queues replacement")
+Published()
 -- Typed payments and actual visit fares are separate from offer money.
 c.bags[10], c.bags[20], c.money = 0, 2, 20
 c.G.C_CurrencyInfo.GetCurrencyInfo = function()
@@ -351,10 +405,18 @@ end
 policy.options.workLimit = 2
 ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 1)
 equal(Status(), "unknown", "snapshot exhaustion cannot publish incumbent")
+local unknown = API.ShoppingList()[1].supplySummary
+equal(unknown.status, "unknown", "shopping retains unknown status")
+equal(unknown.coverageLower, nil, "unknown cannot publish probability")
 equal(ns.RouteDemand.Supply(Current()), nil, "unknown has no shopping budget")
 policy.options.workLimit, policy.stock.S = 1000000, 0
 ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 1)
 equal(Status(), "infeasible", "finite impossibility remains distinct")
+equal(API.ShoppingList()[1].supplySummary.status, "infeasible", "shopping retains infeasible status")
 equal(ns.RouteDemand.Supply(Current()), nil, "infeasible has no shopping budget")
 ns.RouteDemand.ConfigureSupply(197, nil)
+local unconfigured = API.ShoppingList()[1].supplySummary
+equal(unconfigured.status, "unconfigured", "removed configuration leaves ordinary estimates")
+equal(unconfigured.alpha, nil, "ordinary estimates have no default alpha")
+assert(ns.ShoppingText():find("quantities are estimates", 1, true), "ordinary export labels estimates")
 print("adaptive publication: passed")

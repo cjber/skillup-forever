@@ -63,3 +63,39 @@ L["Show recipes on Shift or always. Off hides reagent details, including route n
 L["Show route needs on item tooltips"] = "Show route needs on item tooltips"
 L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
 	"Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."
+
+L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
+	"Craft counts and shopping quantities are estimates. You may need more reagents."
+
+L["Supply estimate: calculating."] = "Supply estimate: calculating."
+
+L["Supply estimate: not enough information."] = "Supply estimate: not enough information."
+
+L["Supply estimate: no starting purchase meets the target."] = "Supply estimate: no starting purchase meets the target."
+
+L["Supply estimate: cancelled."] = "Supply estimate: cancelled."
+
+L["Supply estimate: ready."] = "Supply estimate: ready."
+
+L["Supply estimate: no cheapest purchase exists under these assumptions."] =
+	"Supply estimate: no cheapest purchase exists under these assumptions."
+
+L["Target chance of finishing with starting supplies: %s%%."] =
+	"Target chance of finishing with starting supplies: %s%%."
+
+L["unknown"] = "unknown"
+
+L["%s%% to %s%%"] = "%s%% to %s%%"
+
+L["Chance of finishing with starting supplies: %s."] = "Chance of finishing with starting supplies: %s."
+
+L["Chance of finishing with later purchases: %s."] = "Chance of finishing with later purchases: %s."
+
+L["Starting inventory: bags only."] = "Starting inventory: bags only."
+
+L["Starting inventory: bags and bank."] = "Starting inventory: bags and bank."
+
+L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
+	"These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."
+
+L["Craft next follows the estimated route."] = "Craft next follows the estimated route."

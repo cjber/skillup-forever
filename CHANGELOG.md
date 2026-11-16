@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Shopping estimates explain their scope.** Supply estimates distinguish the chance of finishing with starting supplies from the chance with later purchases. Their status and assumptions appear on the route, reagent list and copied shopping list. Craft counts and shopping quantities remain estimates.
+
 - **Route coverage keeps unreadable inventory unknown.** A quantity retained for display cannot stand in for a fresh inventory read (#738).
 
 - **Recipe details can appear on Shift without the route line.** Turn off route needs in the tooltip settings to keep the recipes that use an item. Existing tooltip choices stay as they were. Thanks to cotijelucie for the idea (#736).

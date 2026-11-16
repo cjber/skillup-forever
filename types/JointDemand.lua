@@ -42,6 +42,7 @@
 ---@field unitCopper table<integer, number> Observed replacement cost per missing reagent unit.
 
 ---@class SkillUpRouteDemandProducer
+---@field Summary fun(plan: SkillUpPlan): SkillUpSupplySummary
 ---@field Vendors fun(item: SkillUpNeededItem|SkillUpAPIShoppingItem, byTravel?: boolean): integer[]
 ---@field ConfigureAdaptiveSupply fun(skillLine: integer, read: (fun(): SkillUpAdaptiveSupplyRequest?, string?)?, alpha?: number): boolean, string?
 ---@field SelectAdaptiveSupply fun(plan: SkillUpPlan, request: SkillUpAdaptiveSupplyRequest, alpha: number): SkillUpFiniteSelectionJob

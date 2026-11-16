@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 12; the history:
+`minor` is 13; the history:
 
 | minor | added |
 |---|---|
@@ -22,6 +22,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 10 | proved `unattained` supply status and free-unlimited geometric nonattainment parameters |
 | 11 | complete adaptive finite supply certificates, scope and selection proof |
 | 12 | alpha-free recipe evidence status and opt-in declared crafted snapshot provenance |
+| 13 | copied revision-owned shopping supply summary |
 
 ## Not ready
 
@@ -175,12 +176,33 @@ Each entry is:
 
 | field | |
 |---|---|
+| `supplySummary` | current conditional supply status, described below |
 | `profession` | the route's localized name |
 | `skillLine` | the skill line |
 | `target` | the base skill the route's plan buys to, the number the route tab's Target box shows |
 | `items` | the missing items, gathered first, then vendor, then auction house, then unknown, by item ID inside each |
 | `total` | copper for the priced missing items |
 | `unpriced` | how many missing items have no price |
+
+`supplySummary` is a fresh record with `status`: `unconfigured`, `calculating`, `complete`,
+`unknown`, `infeasible`, `unattained` or `cancelled`. When supplied, `alpha` is the explicit starting
+coverage constraint, including zero. `service` names the declared `fixed-batch` or `adaptive-finite`
+model, `inventoryScope` names its holdings scope, and `conditional = true` identifies supplied assumptions.
+Only a current complete result whose owner also publishes the certified `items` and `have` exposes `coverageLower/Upper` (C0, completion from starting supplies
+alone) and `successLower/Upper` (Ppi, completion with modeled later acquisitions). Reads never dispatch
+source readers or advance jobs. A completed job awaiting inventory publication remains `calculating`.
+A cancelled configured job remains `cancelled` until replacement work is queued. Displayed probability
+bounds round outward to two decimal places; these API bounds remain unchanged. Without configuration, quantities remain ordinary estimates, with no
+coverage target or probability assigned. Craft next continues to use the ordinary route estimate; it does
+not execute the conditional certificate.
+
+The production adaptive provider and execution remain separate work for #563: establish live source
+eligibility, verified stock units and complete typed payments, measured or explicit travel and farm
+inputs, and recipe gain laws; supply a fresh complete request through
+`RouteDemand.ConfigureAdaptiveSupply` on each input revision. A later executor must follow the
+selected state-dependent continuation, reconcile actual purchases and craft outcomes, and invalidate
+or replan when observations differ. This presentation adds neither a provider nor that executor,
+and assigns no default confidence constraint.
 
 An item is `{ itemID, need, have, missing, source, price, priceAge, cost, alt }`: `need` for the route, `have` in the
 certified scope, or bags and bank without a certificate, and `missing` the difference; `price` is copper each when one is known, and `cost` the price of the

@@ -108,7 +108,19 @@
 ---@field cost? number Copper for missing units; nil if unpriced.
 ---@field alt {name: string, count: number}[]
 
+---@class SkillUpSupplySummary
+---@field status string unconfigured, calculating, complete, unknown, infeasible, unattained or cancelled.
+---@field conditional boolean? Supplied model assumptions, never execution proof.
+---@field alpha number? Explicit starting coverage constraint, including zero.
+---@field service string? Declared fixed-batch or adaptive-finite model.
+---@field inventoryScope string? Native holdings scope.
+---@field coverageLower number? C0, starting supplies only; complete current owner only.
+---@field coverageUpper number?
+---@field successLower number? Ppi, modeled continuation; complete current owner only.
+---@field successUpper number?
+
 ---@class SkillUpAPIShoppingProfession
+---@field supplySummary SkillUpSupplySummary Fresh revision-owned read-only status and probability summary.
 ---@field profession string Localized route name.
 ---@field skillLine integer
 ---@field target number Base skill the profession's plan buys to.

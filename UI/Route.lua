@@ -1143,6 +1143,12 @@ local function Render()
 	end
 	local reagents = ns.RouteReagents(plan)
 	SetCollectEnabled(CollectChanges(reagents))
+	local supplyText = ns.SupplySummaryText(ns.RouteDemand.Summary(plan))
+	page.RouteList:Message(supplyText)
+	if ns.RouteDemand.Summary(plan).status ~= "unconfigured" then
+		page.RouteList:Message(L["Craft next follows the estimated route."])
+	end
+	page.ReagentList:Message(supplyText)
 	RenderRoute(page.RouteList, plan)
 	local priceStatus, priceColor = AuctionPriceStatus(reagents)
 	if priceStatus ~= "" then

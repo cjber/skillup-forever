@@ -284,13 +284,14 @@ scenario("clicking an unlearned recipe previews it without changing the crafting
 	local barTopWithRequirement = barBottom + barHeight
 	assert(barTopWithRequirement <= requirementsBottom, "the required tool appears above the skill bar")
 	assert(bar:IsShown(), "the skill bar is visible when enabled")
+	local metRequirements = requirements:GetText()
 	toolMet = false
 	sim:tick(0.1)
 	local missingTool = sim.G.RED_FONT_COLOR:WrapTextInColorCode(tool)
 	assert(requirements:GetText():find(missingTool, 1, true), "station range refreshes without a bag or list event")
 	toolMet = true
 	sim:tick(0.1)
-	assert(requirements:GetText() == tool, "returning to station range clears the missing requirement color")
+	assert(requirements:GetText() == metRequirements, "returning to station range clears the missing requirement color")
 	toolMet = false
 	sim.G.SkillUpForeverDB.detailsBar = false
 	sim:event("BAG_UPDATE_DELAYED")

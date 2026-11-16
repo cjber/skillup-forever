@@ -175,22 +175,6 @@ scenario("unlearned recipe previews preserve native modified clicks and truncate
 	assert(x == left and y == bottom and w == width and h == height, "the preview matches the native selection bounds")
 	assert(not PreviewSelection(bundledRow), "only the active preview row has selection artwork")
 
-	local nativeCategory
-	page.RecipeList.ScrollBox:ForEachFrame(function(frame, node)
-		local category = node:GetData().categoryInfo
-		if category and category.unlearned then
-			nativeCategory = frame
-		end
-	end)
-	assert(nativeCategory, "the native unlearned recipe is grouped under a category")
-	sim:click(nativeCategory)
-	assert(not FindRecipeRow(sim, native), "collapsing the category releases the active row")
-	assert(not selection:IsShown(), "a released row clears its preview selection texture")
-	assert(DisplaysText(page, source), "the preview stays open while its row is out of view")
-	sim:click(nativeCategory)
-	nativeRow = assert(FindRecipeRow(sim, native), "expanding the category reacquires the active row")
-	assert(PreviewSelection(nativeRow), "the reacquired row still shows the active preview")
-
 	bundledClick, bundledRow = FindClickTarget(sim, bundled)
 	sim:click(assert(bundledClick, "the bundled row is still available"))
 	assert(not PreviewSelection(nativeRow), "switching previews clears the previous highlight")

@@ -46,6 +46,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Recipe tooltips compare selling to a vendor with selling at auction.** Each craft shows both sale values and the profit or loss for the per-craft or per-skill-up view you have selected, so a small vendor loss can be weighed against an auction profit. Disenchant value stays out until Forever's yields are known. Thanks to sundered1985 and jugg__ for the idea (#678).
 - **You can choose which auction addon prices your reagents.** When both Auctionator and TradeSkillMaster are installed, Auction prices from picks the one whose price wins; the other still fills in an item it has no price for. Thanks to keerp for the idea (#675).
+
+- **Each "Used in" line says which profession its recipe belongs to.** When more than one of your professions uses a reagent, the lines now read "Alchemy: Elixir of Wisdom" and "First Aid: Linen Bandage" instead of leaving you to tell them apart, and an unlearned recipe keeps its "(unlearned)" after the name. The profession is the game's own name in your client's language. Thanks to yusufdanis for the change (#670).
+
 ### For addon authors
 
 - API minor 12 exposes owned recipe observations and explicit declarations for conditional crafted supply evaluation. Recipe eligibility follows the current effective skill; successful gains use the caller-declared law. No default coverage target, recipe universe or supply law is chosen.

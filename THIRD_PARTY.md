@@ -50,6 +50,7 @@ Credit for the reports and requests behind the addon.
 | sundered1985 | Vendor and auction profit on the recipe tooltip | CurseForge; #678; thread 8701206 |
 | jugg__ | Vendor and auction profit on recipe and pattern tooltips | Discord; #678, #726 |
 | keerp | Choose Auctionator or TradeSkillMaster for prices | CurseForge; #675; thread 8700437 |
+| [yusufdanis](https://github.com/yusufdanis) | Each Used in tooltip line names its recipe's profession (code) | GitHub; PR #670 |
 | Diamondclaw | The recipe skill band clears the icon and the Reagents header | CurseForge; #674; thread 8700469 |
 | [mimmordino](https://github.com/mimmordino) | The recipe skill band clears the icon and the Reagents header | GitHub; #685; also CurseForge thread 8702929 |
 | soviman1 | Smelting recipes show their skill range | CurseForge; #688; thread 8703325 |

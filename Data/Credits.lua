@@ -11,6 +11,7 @@ ns.Credits = {
 		{ name = "sundered1985", what = "Vendor and auction profit on the recipe tooltip" },
 		{ name = "jugg__", what = "Vendor and auction profit on recipe and pattern tooltips" },
 		{ name = "keerp", what = "Choose Auctionator or TradeSkillMaster for prices" },
+		{ name = "yusufdanis", what = "Each Used in tooltip line names its recipe's profession (code)" },
 		{ name = "Diamondclaw", what = "The recipe skill band clears the icon and the Reagents header" },
 		{ name = "mimmordino", what = "The recipe skill band clears the icon and the Reagents header" },
 		{ name = "soviman1", what = "Smelting recipes show their skill range" },

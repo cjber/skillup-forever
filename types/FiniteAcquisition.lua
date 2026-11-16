@@ -1,0 +1,105 @@
+---@meta
+
+---@class SkillUpFiniteSource
+---@field offerID string Distinct offer identity, never an item/NPC bucket.
+---@field npcID integer?
+---@field itemID integer
+---@field bundleUnits integer
+---@field moneyCopper integer
+---@field costs table<string, integer> Canonical item:ID or currency:ID requirements.
+---@field maxBundles integer Per-transaction ceiling, not a visit or basket ceiling.
+---@field stockKey string
+---@field stockPerBundle integer Opportunity units consumed even on failed delivery.
+---@field vendor string
+---@field access boolean Explicit fixed access law.
+---@field priceLaw 'fixed'
+---@field futureDelivery {chance: number, payOnFailure: boolean} Independent per-bundle outcomes.
+
+---@class SkillUpFiniteAcquisitionInput
+---@field service 'adaptive-finite'
+---@field journey 'independent-round-trips'
+---@field delivery 'independent-bundle-outcomes'
+---@field objective 'expected-expenditure-plus-terminal-carry-plus-failure-loss'
+---@field route SkillUpJointDemandInput No separate buy inventory: initialOrders owns acquisitions.
+---@field walletCopper integer Finite shared wallet.
+---@field currencies table<integer, integer>
+---@field stock table<string, integer> Finite nonreplenishing opportunity pools.
+---@field sources SkillUpFiniteSource[]
+---@field initialOrders SkillUpPolicyOrder[] Explicit certain initial deliveries, legal transactions.
+---@field tokenValues table<string, number> Opportunity value of every payment coordinate.
+---@field terminalCarry table<string, number> Additional nonnegative value of every balance coordinate, including zero.
+---@field failureLoss number Explicit nonnegative loss on unfinished termination.
+---@field initialVisitMoney table<string, integer> Actual shared-wallet fare per selected vendor.
+---@field refillVisitMoney table<string, integer>
+---@field initialVisitValue table<string, number> Additional opportunity value, separate from fares.
+---@field refillVisitValue table<string, number>
+---@field sourceRevision integer
+---@field assumptions SkillUpSourceAssumption[] Explicit dated, scoped evidence, never inferred from observations.
+---@field options {workLimit: integer, stateLimit: integer, coordinateLimit: integer, limbLimit: integer}
+
+---@class SkillUpFiniteAcquisitionResult
+---@field status 'calculating'|'complete'|'unknown'|'cancelled'|'infeasible'
+---@field costKnown boolean
+---@field reasons string[]
+---@field sourceRevision integer?
+---@field assumptions SkillUpSourceAssumption[]?
+---@field coverageLower number? C0: craft-only completion after net initial payments.
+---@field coverageUpper number?
+---@field successLower number? Ppi: completion under the chosen adaptive continuation.
+---@field successUpper number?
+---@field moneyLower number?
+---@field moneyUpper number?
+---@field tokensLower number?
+---@field tokensUpper number?
+---@field visitValueLower number?
+---@field visitValueUpper number?
+---@field carryLower number?
+---@field carryUpper number?
+---@field failureLower number?
+---@field failureUpper number?
+---@field visitsLower number?
+---@field visitsUpper number?
+---@field costLower number? Expenditure: money, token opportunity and visit opportunity only.
+---@field costUpper number?
+---@field objectiveLower number? Expenditure plus terminal carry and unfinished loss.
+---@field objectiveUpper number?
+---@field acquisitions SkillUpSelectedAcquisition[]?
+---@field certificate SkillUpFiniteCertificate?
+
+---@class SkillUpFinitePolicyAction
+---@field state string Canonical state: mode, stage, balances, stock and wallet.
+---@field kind 'stop'|'complete'|'craft'|'acquire'
+---@field orders SkillUpPolicyOrder[]?
+---@field successors {state: string, probabilityLower: number, probabilityUpper: number}[]
+
+---@class SkillUpFiniteCertificate
+---@field sources SkillUpFiniteSource[] Owned source-index bindings with exact identities, payments and delivery laws.
+---@field stages {chance: number, use: table<string, integer>}[] Compiled ordered route transitions.
+---@field laws SkillUpFiniteObjectiveLaws Owned explicit objective and trip laws; provenance is in result.assumptions.
+---@field kind 'finite-dag-exhaustive'
+---@field objective 'expected-expenditure-plus-terminal-carry-plus-failure-loss'
+---@field states integer
+---@field actions integer
+---@field transitions integer
+---@field initialState string
+---@field coordinates string[] Order of canonical typed balance coordinates in state keys.
+---@field pools string[] Order of finite opportunity pools in state keys.
+---@field coverageState string
+---@field policy SkillUpFinitePolicyAction[]
+
+---@class SkillUpFiniteAcquisitionJob
+---@field result SkillUpFiniteAcquisitionResult
+---@field Advance fun(self: SkillUpFiniteAcquisitionJob, work: integer): SkillUpFiniteAcquisitionResult
+---@field Cancel fun(self: SkillUpFiniteAcquisitionJob)
+
+---@class SkillUpFiniteAcquisitionProducer
+---@field Start fun(input: SkillUpFiniteAcquisitionInput): SkillUpFiniteAcquisitionJob Caller retains an immutable input for the job lifetime.
+
+---@class SkillUpFiniteObjectiveLaws
+---@field failureLoss number
+---@field tokenValues table<string, number>
+---@field terminalCarry table<string, number>
+---@field initialVisitMoney table<string, integer>
+---@field refillVisitMoney table<string, integer>
+---@field initialVisitValue table<string, number>
+---@field refillVisitValue table<string, number>

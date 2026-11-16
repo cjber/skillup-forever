@@ -23,6 +23,8 @@
 ---@field GamepadUI fun(): boolean Whether the client is in its gamepad interface.
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
 ---@field Changed fun(kind: SkillUpChange)
+---@field FiniteAcquisition SkillUpFiniteAcquisitionProducer
+---@field Dyadic SkillUpDyadicProducer
 ---@field Demand SkillUpJointDemandProducer
 ---@field SupplySources SkillUpSupplySourceOwner
 ---@field SupplyChoice SkillUpSupplyChoiceProducer

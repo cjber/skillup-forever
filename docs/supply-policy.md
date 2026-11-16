@@ -79,6 +79,56 @@ an unresolved search. Alpha equal to one stays unknown here, as a separate
 finite feasibility question. Arithmetic quantity limits do not invent a physical
 capacity or turn the infimum into an attained optimum.
 
+## Finite adaptive continuation
+
+`Core/FiniteAcquisition.lua` is a separate, opt-in evaluator for a fixed initial
+order and a state-dependent continuation. Its explicit contract is
+`adaptive-finite`, `independent-round-trips`, `independent-bundle-outcomes` and
+`expected-expenditure-plus-terminal-carry-plus-failure-loss`. It does not replace
+the fixed-refill selector or configure a production policy.
+
+The caller supplies finite nonreplenishing shared opportunity pools, fixed access
+and prices, and independent per-bundle delivery probabilities. Each attempted
+bundle consumes its opportunity units, even on failure. A declared
+`payOnFailure` decides whether failed deliveries also pay the quoted money and
+typed tokens. A grouped action reserves all possible payments against its
+pre-action balances. Delivered products can fund a later visit, never their own
+atomic batch. Transaction ceilings split legal transactions within one grouped
+vendor visit, rather than bounding the total basket.
+
+Monetary trip fares debit the shared wallet on every attempted visit. Separate
+travel opportunity values affect the objective without increasing or decreasing
+that wallet. Every fare and value, including zero, must be explicit. Initial
+deliveries are declared certain and share the same finite pools as later actions.
+
+The objective includes expected money, token opportunity and visit opportunity
+expenditure, plus explicit nonnegative terminal carrying values and an explicit
+loss on unfinished termination. Carry is an additional holding or disposal cost,
+not a second charge for purchased inventory. No failure loss or carry valuation
+is defaulted. With zero loss, stopping can correctly win; its completion
+probability remains visible. Starting-only coverage C0 uses net inventory after
+initial payments and disables all later acquisitions. Adaptive completion Ppi
+is reported separately. This evaluator does not select an initial basket or
+claim a chance-constrained optimum.
+
+The complete finite action domain contains stop, feasible craft, and all feasible
+positive source-quantity vectors. Every purchase outcome lowers the finite
+opportunity sum. A craft lowers pooled consumables, or must deterministically
+advance a stage without consumption. This lexicographic rank proves a finite
+DAG without an invented basket cap. Probabilistic zero-consumption crafts,
+restock, waiting, location-dependent travel, subcrafts and output reuse require
+other transition laws and are rejected by this contract.
+
+Explicit-stack backward induction compares exact nonnegative dyadic values of
+the declared binary64 probabilities and valuations. Outward bounds are published
+only after exact action selection. The certificate includes state/action/edge
+counts, canonical balance and pool coordinates, owned source-index bindings and
+delivery/objective/trip laws with dated assumptions, and each selected state-dependent
+action with its successors. Zero-probability outcomes are excluded before child
+states are evaluated. Explicit work, state, coordinate and exact-number limb
+budgets, plus a checked exact exponent range, return unknown on exhaustion; they do not truncate the feasible domain.
+Inputs remain immutable for the job lifetime. Getters do not advance jobs.
+
 ## Live ownership and consumers
 
 `Core/SupplySources.lua` owns session-only, revisioned declarations for distinct

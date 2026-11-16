@@ -340,8 +340,9 @@ draft commits its source laws and route mode together. Cancellation callbacks
 cannot replace that mode reentrantly; failure to cancel an old job does not undo
 the committed replacement, and the retired job loses ownership of its plan.
 
-These are internal session-only adapters. They do not supply a default target,
-infer future laws from observations or provide a player configuration interface.
+These adapters stay session-only. They do not supply a default target or infer a
+future law from an observation. The Supply page below is the one player
+configuration interface over them.
 
 The shared frame dispatches one dirty profession per update and advances published
 jobs within one total 64-operation budget. Getters perform neither task. Only a
@@ -351,6 +352,38 @@ proof, source revision, dated assumptions and finite certificate. Route, shoppin
 and API rows read certified native holdings without a bank-inclusive fallback.
 Missing coordinates remain unknown. Initial acquisition quotes retain complete
 typed payments and offer money separately from the certificate's monetary fares.
+
+## Player configuration page
+
+`UI/Supply.lua` registers the Supply page beside the route, crafted gear and buffs
+pages. For the profession open in the window it lists every current merchant offer
+that sells one of the route's reagents. The row repeats only what the window shows:
+the item, its bundle size, the money price, any typed costs, the raw stock and the
+native purchase ceiling. Every future law is a control the player sets, and none is
+prefilled: access, that the price stays as shown, the stock assumed (finite in
+items or purchases, unlimited only in fixed mode, or a finite search restriction on
+an unlimited native listing), the stock pool, the purchases one visit may make,
+both trip costs, and in adaptive mode both trip values, the delivery chance, a
+certain first purchase, failure payment, one leftover value per item and payment,
+and the loss on an unfinished route.
+
+Two offers that name one economic coordinate must agree. Offers at one vendor share
+one trip cost and value; offers that pay with one typed token or item share one value
+and one leftover value; offers in one stock pool share one stock law. A disagreement
+keeps Apply off with the reason named. `SupplyDraft.Validate` still rechecks the whole
+draft before anything is published.
+
+The page is a view like the others: `Core/Changes.lua` lists `supplyPage` on the
+merchant, source, recipe and supply changes and on every change that rebuilds a plan.
+A refresh rebuilds only a changed observation (which clears typed laws and consents),
+reuses its row frames otherwise, and reads no further than the plan and the published
+status. Under Apply are the plan, its explicit target and probability bounds, the
+margin over that target, and the next modeled step, so the conditional answer stays
+visible beside the assumptions that produced it.
+
+Work, state, coordinate and exact-number limits, and the probability, cost and visit
+tolerances, are solver capacity owned by the page, not player assumptions about the
+game. They bound one applying session's search and are never shown as merchant facts.
 
 Actual future supply laws, a product choice of coverage target, general policy
 optimization and other free-unbounded-domain proofs remain

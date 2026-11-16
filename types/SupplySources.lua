@@ -5,6 +5,15 @@
 ---@field provenance string Nonempty authority or assumption origin.
 ---@field scope string Nonempty validity scope.
 
+---@class SkillUpSourceStockLaw
+---@field key string Shared stock identity.
+---@field unit string The unit the pool is counted in.
+---@field perBundle integer Units one purchase consumes from the pool.
+---@field available integer|'unlimited' Finite units left, or the explicit unlimited law.
+---@field law 'finite-no-restock'|'unlimited'
+---@field observedUnits 'items'|'bundles'|'finite-domain-restriction'? How the typed count relates to native raw stock.
+---@field restriction string? Why an unlimited native listing got a finite search domain.
+
 ---@class SkillUpSourceLaws
 ---@field access SkillUpSourceLaw Boolean current/future access assumption.
 ---@field price SkillUpSourceLaw Explicit fixed quote-price assumption.

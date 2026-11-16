@@ -30,6 +30,7 @@ local ORDER = {
 	"trainer",
 	"routeTab",
 	"pages",
+	"supplyPage",
 	"gear",
 	"buffs",
 	"tooltipCache",
@@ -54,9 +55,10 @@ local STALE = {
 		auctionSearch = true,
 		detailsBar = true,
 		shoppingList = true,
+		supplyPage = true,
 	},
-	sourceEvidence = { sourceEvidence = true, api = true },
-	recipeEvidence = { recipeEvidence = true, api = true },
+	sourceEvidence = { sourceEvidence = true, api = true, supplyPage = true },
+	recipeEvidence = { recipeEvidence = true, api = true, supplyPage = true },
 	-- What a profession's recipes are or need: a recipe learned, or the open window's scan finding a learned
 	-- flag, a live grey, skill points or a schematic the plans were built without. The plan is built from all
 	-- of it.
@@ -65,6 +67,7 @@ local STALE = {
 		tooltipRoute = true,
 		schematics = true,
 		plans = true,
+		supplyPage = true,
 		trackedNeeds = true,
 		api = true,
 		route = true,
@@ -79,6 +82,7 @@ local STALE = {
 	-- they are. A list update while it is open is qualified by Core/Live.lua's scan, which marks this only
 	-- when the open profession, its skill or the known recipes actually moved.
 	window = {
+		supplyPage = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		api = true,
@@ -94,6 +98,7 @@ local STALE = {
 	-- its profession's skill, bonus and cap, so a profession's own skill-up rebuilds that one plan on its next ask.
 	-- `trackedNeeds` is left to that plan key too: a weapon skill-up must not rebuild every tracked route.
 	skill = {
+		supplyPage = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		api = true,
@@ -108,6 +113,7 @@ local STALE = {
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
+		supplyPage = true,
 		trackedNeeds = true,
 		api = true,
 		route = true,
@@ -120,6 +126,7 @@ local STALE = {
 	},
 	-- A profession learned or dropped changes what counts as gathered, so what things cost.
 	professions = {
+		supplyPage = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		prices = true,
@@ -138,6 +145,7 @@ local STALE = {
 		tooltipRoute = true,
 		prices = true,
 		plans = true,
+		supplyPage = true,
 		trackedNeeds = true,
 		api = true,
 		route = true,
@@ -150,7 +158,15 @@ local STALE = {
 	-- only the route index does, and only when the tools a route lacks actually moved. `bags` is Plan.lua's own
 	-- check, made when something next asks for the plan: a route a step can no longer afford to craft is planned
 	-- afresh there, and any other bag change keeps it (#621).
-	bags = { bags = true, tooltipRouteTools = true, api = true, route = true, tracker = true, shoppingList = true },
+	bags = {
+		supplyPage = true,
+		bags = true,
+		tooltipRouteTools = true,
+		api = true,
+		route = true,
+		tracker = true,
+		shoppingList = true,
+	},
 	-- Item data arrived; `names` when the public list was waiting on it. An item tooltip's lines hold no item
 	-- name, and a route's tooltip lines hold no shopping source, so `tooltipCache` and `tooltipRoute` stay.
 	-- `trackedNeeds` stays too: the one item-data input its list reads, a vendor sell price
@@ -159,6 +175,7 @@ local STALE = {
 	-- the same reason: UI/Shopping.lua keeps the names its section is waiting on and reports the tracker only
 	-- when one of them arrives, so a tooltip hover draws no section (#526).
 	items = {
+		supplyPage = true,
 		route = true,
 		gear = true,
 		buffs = true,
@@ -169,6 +186,7 @@ local STALE = {
 	trackerNames = { tracker = true },
 	names = { api = true },
 	level = {
+		supplyPage = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		api = true,
@@ -181,12 +199,13 @@ local STALE = {
 	},
 	zone = { api = true },
 	-- A merchant opened, restocked or closed: the tracker's buy button. A price it records reports `prices`.
-	merchant = { tracker = true, shoppingList = true },
+	merchant = { tracker = true, shoppingList = true, supplyPage = true },
 	-- Fees and requirements recorded at a trainer.
 	fees = {
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
+		supplyPage = true,
 		trackedNeeds = true,
 		api = true,
 		route = true,
@@ -199,6 +218,7 @@ local STALE = {
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
+		supplyPage = true,
 		trackedNeeds = true,
 		api = true,
 		route = true,
@@ -212,6 +232,7 @@ local STALE = {
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
+		supplyPage = true,
 		trackedNeeds = true,
 		api = true,
 		route = true,
@@ -232,6 +253,7 @@ local STALE = {
 		tooltipRoute = true,
 		prices = true,
 		plans = true,
+		supplyPage = true,
 		-- A setting is the player's own choice: the route they were following is planned again from it.
 		replan = true,
 		trackedNeeds = true,
@@ -254,6 +276,7 @@ local STALE = {
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
+		supplyPage = true,
 		replan = true,
 		trackedNeeds = true,
 		api = true,

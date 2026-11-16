@@ -59,7 +59,7 @@ Open a profession and the numbers are already there.
 - `/skillup issue` opens a ready-made GitHub issue link to report a bug or request a feature.
 - `/skillup trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
-Settings cover rows and tooltips, the recipe list's width, prices, the route, gear and buffs tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints.
+Settings cover rows and tooltips, the recipe list's width, prices, the route, supply, gear and buffs tabs, trainer annotations, sorting, reagent tooltips and Forever addon hints.
 
 For a bug report, paste `/skillup report`. It shows a report to copy.
 

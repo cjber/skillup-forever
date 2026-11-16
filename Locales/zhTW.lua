@@ -555,3 +555,87 @@ L["unknown"] = "未知" -- mt
 
 L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
 	"自適應指引會開啟推薦配方。請在專業技能視窗中選擇製作數量。" -- mt
+
+L["currency %d"] = "貨幣 %d" -- mt
+L["an unknown payment"] = "一項未知支付" -- mt
+L["Name the stock each offer draws on, or give this offer its own stock."] =
+	"請命名每項報價所用的庫存，或讓它使用自己的庫存。" -- mt
+L["The merchant shows no limit: limit the search to the number you will buy."] =
+	"商人沒有顯示上限：請將搜尋限制在你要購買的數量。" -- mt
+L["The stock you assume does not match what the merchant shows."] = "你假設的庫存與商人顯示的不符。" -- mt
+L["Enter a starting chance between 1 and 100."] = "請輸入 1 到 100 之間的起始機率。" -- mt
+L["The merchant sells none of this route's reagents."] = "商人不出售此路線的任何材料。" -- mt
+L["The merchant's offer for %s is incomplete."] = "%s 的商人報價不完整。" -- mt
+L["Every offer needs its price to stay as shown."] = "每項報價都需要價格保持顯示的樣子。" -- mt
+L["Fill in every value this offer needs."] = "請填寫這項報價所需的每個數值。" -- mt
+L["The merchant sells fewer purchases at a time than that."] = "商人一次出售的購買次數少於此數。" -- mt
+L["Offers that draw on one stock pool need the same stock."] = "共用同一庫存的報價需要相同的庫存。" -- mt
+L["Offers at one vendor need the same trip costs and values."] =
+	"同一商人的報價需要相同的行程費用和價值。" -- mt
+L["Enter the chance each later purchase arrives, from 0 to 100."] =
+	"請輸入之後每次購買到達的機率，0 到 100。" -- mt
+L["Check that the first purchase arrives for certain at every offer."] =
+	"請為每項報價確認第一次購買一定到達。" -- mt
+L["One item or payment needs one leftover value."] = "一件物品或一項支付需要一個剩餘價值。" -- mt
+L["Offers that use one payment need the same value for it."] =
+	"使用同一支付的報價需要該支付具有相同價值。" -- mt
+L["The merchant changed. Check the form again."] = "商人已更換。請重新檢查表單。" -- mt
+L["The merchant did not change, but the assumptions did. Check the form again."] =
+	"商人沒有更換，但假設變了。請重新檢查表單。" -- mt
+L["The merchant shows this offer sold out."] = "商人顯示這項報價已售罄。" -- mt
+L["The merchant does not say how much is left."] = "商人沒有說明還剩多少。" -- mt
+L["The merchant will not sell this offer to you now."] = "商人現在不會向你出售這項報價。" -- mt
+L["Choose the unit the stock count is in."] = "請選擇庫存計數的單位。" -- mt
+L["The assumptions were rejected. Fill in every value and check each offer."] =
+	"假設被拒絕。請填寫每個數值並檢查每項報價。" -- mt
+L["Open a profession to see its plan and coverage."] = "打開一個專業以查看其計畫和覆蓋率。" -- mt
+L["Plan: %s, %s to %s, %d crafts."] = "計畫：%s，%s 到 %s，%d 次製作。" -- mt
+L["Unpriced crafts: %d."] = "無價格的製作：%d。" -- mt
+L["Your target chance: %s%%."] = "你的目標機率：%s%%。" -- mt
+L["Margin over your target: %s points."] = "高於目標的餘量：%s 個百分點。" -- mt
+L["Below your target by %s points."] = "低於目標 %s 個百分點。" -- mt
+L["craft"] = "製作" -- mt
+L["buy"] = "購買" -- mt
+L["stop"] = "停止" -- mt
+L["Next step: %s."] = "下一步：%s。" -- mt
+L["Open a profession to set its supply policy."] = "打開一個專業以設定其補給策略。" -- mt
+L["This profession has no plan to supply yet."] = "這個專業還沒有可補給的計畫。" -- mt
+L["Open a merchant to set this profession's supply policy."] =
+	"打開一個商人以設定這個專業的補給策略。" -- mt
+L["Ready to apply these assumptions."] = "可以套用這些假設了。" -- mt
+L["no limit"] = "無上限" -- mt
+L["Offer %d: %s"] = "報價 %d：%s" -- mt
+L["The merchant shows %s in stock, %s per purchase, at most %s purchases."] =
+	"商人顯示庫存 %s，每次購買 %s，最多 %s 次購買。" -- mt
+L["Price: %s."] = "價格：%s。" -- mt
+L["Also costs %s %s."] = "還需 %s %s。" -- mt
+L["I can buy this offer"] = "我可以購買這項報價" -- mt
+L["The price stays as shown"] = "價格保持顯示的樣子" -- mt
+L["Stock I assume is left"] = "我假設剩餘的庫存" -- mt
+L["The stock does not run out"] = "庫存不會用完" -- mt
+L["The stock count is in items, not purchases"] = "庫存按物品計算，而不是按購買次數" -- mt
+L["This offer keeps its own stock"] = "這項報價保留自己的庫存" -- mt
+L["Limit the search to the stock I typed"] = "將搜尋限制在我輸入的庫存" -- mt
+L["Stock pool name"] = "庫存名稱" -- mt
+L["Purchases allowed per visit"] = "每次拜訪允許的購買次數" -- mt
+L["First trip cost (copper)"] = "首次行程費用（銅幣）" -- mt
+L["Later trip cost (copper)"] = "之後行程費用（銅幣）" -- mt
+L["First trip value to you (copper)"] = "首次行程對你的價值（銅幣）" -- mt
+L["Later trip value to you (copper)"] = "之後行程對你的價值（銅幣）" -- mt
+L["Chance each later purchase arrives (%%)"] = "之後每次購買到達的機率（%%）" -- mt
+L["The first purchase arrives for certain"] = "第一次購買一定到達" -- mt
+L["I pay even when a purchase does not arrive"] = "購買沒有到達時我也付款" -- mt
+L["Leftover value of one %s (copper)"] = "一個 %s 的剩餘價值（銅幣）" -- mt
+L["Value of one %s (copper)"] = "一個 %s 的價值（銅幣）" -- mt
+L["These are your own assumptions. The merchant's window only shows what it shows now."] =
+	"這些是你自己的假設。商人視窗只顯示它現在顯示的內容。" -- mt
+L["Chance of finishing with starting supplies (%%)"] = "用初始庫存完成的機率（%%）" -- mt
+L["Plan later purchases too"] = "也計畫之後的購買" -- mt
+L["Cost of an unfinished route (copper)"] = "未完成路線的成本（銅幣）" -- mt
+L["Applied. The plan and its coverage follow these assumptions."] =
+	"已套用。計畫和覆蓋率遵循這些假設。" -- mt
+L["Supply"] = "補給" -- mt
+
+L["Supply policy"] = "補給策略" -- mt
+L["Open the profession and a merchant window."] = "請打開專業和商人視窗。" -- mt
+L["Apply policy"] = "套用策略" -- mt

@@ -72,6 +72,7 @@ UI\List.lua
 UI\PageParts.lua
 UI\Pages.lua
 UI\Route.lua
+UI\Supply.lua
 UI\Gear.lua
 UI\Buffs.lua
 UI\Shopping.xml

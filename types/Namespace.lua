@@ -12,6 +12,7 @@
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
 ---@field SupplyDraft SkillUpSupplyDraftAPI
+---@field SupplyUIRevision integer? The last applied explicit supply policy's session revision.
 ---@field Credits ForeverCreditsData the player credits Data/Credits.lua generates for the shared Thanks page
 ---@field Stats SkillUpStats
 ---@field RecipeMaterials fun(recipeID: integer, crafts: number): SkillUpSubCraft[]?, {itemID: integer, count: number}[]?
@@ -116,6 +117,7 @@
 ---@field OpenSkillLine fun(): integer?
 ---@field ShowRecipe fun(recipeID: integer, anyProfession?: boolean)
 ---@field AttachRoute fun()
+---@field AttachSupply fun()
 ---@field AttachGear fun()
 ---@field AttachBuffs fun()
 ---@field LastSkillUpPage fun(): SkillUpPageID?
@@ -509,7 +511,7 @@ SkillUpForeverDB = nil
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'supply'|'recipeEvidence'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
----@alias SkillUpStale 'recipeEvidence'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
+---@alias SkillUpStale 'recipeEvidence'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'supplyPage'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
@@ -791,9 +793,16 @@ SkillUpForeverDB = nil
 ---@field click (fun())?
 
 -- The page IDs the SkillUp side tab reopens.
----@alias SkillUpPageID 'route'|'gear'|'buffs'
+---@alias SkillUpPageID 'route'|'supply'|'gear'|'buffs'
 
 -- One of SkillUp's pages in the Professions window, as UI/Pages.lua keeps it.
+-- The supply policy page (UI/Supply.lua): its scroll content and the two labels a refresh resizes.
+---@class SkillUpSupplyPage
+---@field content Frame Scroll content; one reused row per merchant slot.
+---@field scroll ScrollFrame
+---@field title FontString
+---@field note FontString
+
 ---@class SkillUpPageSpec
 ---@field id SkillUpPageID
 ---@field title string

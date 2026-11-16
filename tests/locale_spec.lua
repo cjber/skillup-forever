@@ -37,8 +37,9 @@ local SINKS = {
 	"reason%s*=%s*",
 	"title%s*=%s*",
 }
--- A settings option, { value, label }, closes after its label.
-local OPTION = '{%s*"%l+",%s*"([^"\n]*)"%s*}'
+-- A settings option is a nested { value, label } row in an option list.
+-- A flat list of internal field names has no player-visible label.
+local OPTION = '[{,]%s*{%s*"%l+",%s*"([^"\n]*)"%s*}'
 
 -- Literals that may stay English. /skillup audit and /skillup report build their lines as data, so none pass a sink.
 local ALLOWED = {}
@@ -74,6 +75,9 @@ equal(#Unwrapped("x.lua", 'ns.Print(string.format("%d left", n))'), 1, "a bare f
 equal(#Unwrapped("x.lua", 'label:SetText(L["Hello"])'), 0, "a wrapped phrase passes")
 equal(#Unwrapped("x.lua", 'ns.Print("|cffff4040" .. L["Hi"] .. "|r")'), 0, "colour codes are not words")
 equal(#Unwrapped("x.lua", '\t-- label:SetText("Hello")'), 0, "comments are skipped")
+equal(#Unwrapped("x.lua", '{ { "first", "First" }, { "second", "Second" } }'), 2, "option labels are caught")
+equal(#Unwrapped("x.lua", '{ { "first", L["First"] } }'), 0, "wrapped option labels pass")
+equal(#Unwrapped("x.lua", 'ipairs({ "use", "produce" })'), 0, "internal field lists are not option labels")
 
 local unwrapped = {}
 for line in Read("SkillUpForever.toc"):gmatch("[^\r\n]+") do

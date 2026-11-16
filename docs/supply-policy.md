@@ -153,6 +153,34 @@ payments retain that distinction. Cancellation or a probability revision
 invalidates private exact values before reuse. This remains opt-in: no alpha,
 future law, failure loss or carrying value is chosen for the player.
 
+## Native adaptive snapshot
+
+`RouteDemand.StartAdaptive(plan, request, alpha)` is a separate opt-in native
+adapter. The request explicitly contains `inventoryScope = "bags-only"` and a
+finite adaptive `policy`; alpha is supplied separately in `[0, 1]`. It does not
+configure a profession or replace the existing fixed-policy adapter.
+
+The request and final plan remain immutable while the asynchronous snapshot is
+being copied. The copy accepts bounded acyclic plain records and replaces the
+caller's route, item balances, currency balances and wallet with owned live
+inputs. Copying, coordinate collection, native reads and enumeration advance
+only under the job's operation budget. No getter drains the job. Invalidating
+route, resources, source evidence or probability cancels partial and completed
+jobs, including invalidation during a native read.
+
+The complete modeled inventory domain includes route reagents, every source
+product even when inaccessible, typed payments, explicit currency identities,
+and token or carrying valuation coordinates. The coordinate budget is checked
+before native balance reads. Every item read explicitly excludes bank, uses,
+reagent bank and account bank. Missing, unreadable or invalid quantities remain
+unknown; caller placeholders and display inventory fallbacks supply no balance.
+The completed result carries explicit adaptive service and bags-only scope.
+
+Future supply laws and finite pool reconciliation remain the source owner's
+responsibility. Native holdings and current merchant observations establish no
+future delivery, price or restocking law. This adapter still rejects subcrafts,
+optional or random outputs and output reuse under the raw-consumption contract.
+
 ## Live ownership and consumers
 
 `Core/SupplySources.lua` owns session-only, revisioned declarations for distinct

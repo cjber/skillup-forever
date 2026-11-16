@@ -41,7 +41,7 @@ end
 
 -- This adapter accepts final Plan output, never CoveredCrafts counts or expanded
 -- shopping rows. Its snapshot owns every table read by the asynchronous solver.
----@type table<SkillUpJointDemandJob|SkillUpResupplyJob|SkillUpSupplyChoiceJob, boolean>
+---@type table<SkillUpJointDemandJob|SkillUpResupplyJob|SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob, boolean>
 local jobs = setmetatable({}, { __mode = "k" })
 ---@type table<SkillUpSupplyChoiceJob, SkillUpPlan>
 local supplyPlans = {}
@@ -50,14 +50,20 @@ local configured = {}
 
 ---@param plan SkillUpPlan
 ---@param buy table<integer, integer>
+---@param includeBank boolean? Existing callers include bank inventory.
+---@param tick (fun())? Adaptive callers share snapshot work with the solver budget.
+---@param deferInventory boolean? Collect route coordinates before reading balances.
 ---@return SkillUpJointDemandInput?
 ---@return string?
-function RouteDemand.Snapshot(plan, buy)
+function RouteDemand.Snapshot(plan, buy, includeBank, tick, deferInventory)
+	includeBank = includeBank ~= false
+	tick = tick or function() end
 	local legCount, largest = 0, 0
 	if type(plan) ~= "table" or type(plan.crafts) ~= "table" then
 		return nil, "dense ordered crafts required"
 	end
 	for key, craft in pairs(plan.crafts) do
+		tick()
 		if type(key) ~= "number" or key < 1 or key ~= math.floor(key) or type(craft) ~= "table" then
 			return nil, "dense ordered crafts required"
 		end
@@ -76,6 +82,7 @@ function RouteDemand.Snapshot(plan, buy)
 		end
 	end
 	for _, craft in ipairs(plan.crafts) do
+		tick()
 		if craft.subcrafts and #craft.subcrafts > 0 then
 			return nil, "subcraft requires an inventory transition"
 		end
@@ -98,6 +105,7 @@ function RouteDemand.Snapshot(plan, buy)
 		outputs[output] = true
 		local liveUse = {}
 		for _, slot in ipairs(schematic.reagentSlotSchematics) do
+			tick()
 			if slot.reagentType ~= Enum.CraftingReagentType.Basic or not slot.reagents or #slot.reagents ~= 1 then
 				return nil, "reagent choices require an inventory transition"
 			end
@@ -113,11 +121,17 @@ function RouteDemand.Snapshot(plan, buy)
 		end
 		local use = {}
 		for _, reagent in ipairs(reagents) do
+			tick()
 			local item = reagent.itemID
 			use[item] = (use[item] or 0) + reagent.quantity
 			consumed[item] = true
 			if input.held[item] == nil then
-				local count, reason = RouteDemand.Count(item, true)
+				local count, reason
+				if deferInventory then
+					count = 0
+				else
+					count, reason = RouteDemand.Count(item, includeBank)
+				end
 				if count == nil then
 					return nil, reason
 				end
@@ -125,11 +139,13 @@ function RouteDemand.Snapshot(plan, buy)
 			end
 		end
 		for item, count in pairs(liveUse) do
+			tick()
 			if use[item] ~= count then
 				return nil, "reagent producer differs from live schematic"
 			end
 		end
 		for item, count in pairs(use) do
+			tick()
 			if liveUse[item] ~= count then
 				return nil, "reagent producer differs from live schematic"
 			end
@@ -152,6 +168,7 @@ function RouteDemand.Snapshot(plan, buy)
 		}
 	end
 	for item in pairs(outputs) do
+		tick()
 		if consumed[item] then
 			return nil, "route output reuse requires an inventory transition"
 		end
@@ -413,6 +430,276 @@ function RouteDemand.StartPolicy(plan, contract, alpha)
 	return job
 end
 
+-- Opt-in native adapter. The request and plan remain immutable until snapshot
+-- completion; invalidation revokes both partial and completed certificates.
+-- Every traversal and native read yields under the caller's Advance budget.
+---@param plan SkillUpPlan
+---@param request SkillUpAdaptiveSupplyRequest
+---@param alpha number
+---@return SkillUpFiniteSelectionJob
+function RouteDemand.StartAdaptive(plan, request, alpha)
+	local revision = ns.Model.ChanceRevision()
+	---@type SkillUpFiniteSelectionJob?
+	local inner
+	---@type SkillUpFiniteSelectionJob
+	local job
+	local function Unknown(reason)
+		return { status = "unknown", costKnown = false, reasons = { reason } }
+	end
+	---@type thread?
+	local thread = coroutine.create(function()
+		local function Reject(reason)
+			error({ adaptiveSnapshot = reason }, 0)
+		end
+		if type(request) ~= "table" or getmetatable(request) ~= nil or request.inventoryScope ~= "bags-only" then
+			return Unknown("explicit bags-only inventory scope required")
+		end
+		if type(alpha) ~= "number" or not (alpha >= 0 and alpha <= 1) then
+			return Unknown("explicit starting coverage in [0,1] required")
+		end
+		local input = request.policy
+		if
+			type(input) ~= "table"
+			or getmetatable(input) ~= nil
+			or type(input.options) ~= "table"
+			or getmetatable(input.options) ~= nil
+		then
+			return Unknown("plain adaptive policy and resource budgets required")
+		end
+		local limit, coordinateLimit = input.options.workLimit, input.options.coordinateLimit
+		local function Integer(value)
+			return type(value) == "number" and value >= 0 and value <= 2 ^ 52 - 1 and value % 1 == 0
+		end
+		if not Integer(limit) or limit == 0 or not Integer(coordinateLimit) or coordinateLimit == 0 then
+			return Unknown("positive finite snapshot work and coordinate budgets required")
+		end
+		local work = 0
+		local function Tick()
+			work = work + 1
+			if work > limit then
+				Reject("adaptive snapshot work budget exhausted; no certificate")
+			end
+			coroutine.yield()
+		end
+		for key in pairs(request) do
+			Tick()
+			if key ~= "inventoryScope" and key ~= "policy" then
+				Reject("unsupported adaptive snapshot request field")
+			end
+		end
+		-- Explicit stack: work bounds copying and nesting, without a recursive
+		-- Lua stack limit or a fitted schema-depth cutoff. Active ancestors reject
+		-- cycles; repeated acyclic tables receive separate owned copies.
+		local function Copy(value)
+			local function Plain(field)
+				if type(field) == "table" then
+					if getmetatable(field) ~= nil then
+						Reject("adaptive snapshot requires plain records")
+					end
+				elseif
+					type(field) ~= "string"
+					and type(field) ~= "number"
+					and type(field) ~= "boolean"
+					and field ~= nil
+				then
+					Reject("adaptive snapshot requires plain records")
+				end
+			end
+			Tick()
+			Plain(value)
+			if type(value) ~= "table" then
+				return value
+			end
+			local result, visiting = {}, { [value] = true }
+			local stack = { { input = value, output = result } }
+			while #stack > 0 do
+				Tick()
+				local frame = stack[#stack]
+				local key, field = next(frame.input, frame.key)
+				frame.key = key
+				if key == nil then
+					visiting[frame.input], stack[#stack] = nil, nil
+				else
+					if type(key) ~= "number" and type(key) ~= "string" then
+						Reject("adaptive snapshot requires scalar keys")
+					end
+					Plain(field)
+					if type(field) == "table" then
+						if visiting[field] then
+							Reject("adaptive snapshot requires acyclic plain records")
+						end
+						local child = {}
+						frame.output[key], visiting[field] = child, true
+						stack[#stack + 1] = { input = field, output = child }
+					else
+						frame.output[key] = field
+					end
+				end
+			end
+			return result
+		end
+		local frozen = {}
+		for key, value in pairs(input) do
+			Tick()
+			if type(key) ~= "string" then
+				Reject("adaptive policy requires string fields")
+			end
+			if key ~= "route" then
+				frozen[key] = Copy(value)
+			end
+		end
+		local route, reason = RouteDemand.Snapshot(plan, {}, false, Tick, true)
+		if not route then
+			return Unknown(assert(reason))
+		end
+		local coordinates, count = {}, 0
+		local function Coordinate(kind, id)
+			Tick()
+			if (kind ~= "item" and kind ~= "currency") or not Integer(id) or id == 0 then
+				Reject("canonical typed inventory coordinate required")
+			end
+			local key = kind .. ":" .. string.format("%.0f", id)
+			if not coordinates[key] then
+				count = count + 1
+				if count > coordinateLimit then
+					Reject("adaptive snapshot coordinate budget exhausted")
+				end
+				coordinates[key] = { kind = kind, id = id }
+			end
+		end
+		local function Typed(key)
+			local kind, text
+			if type(key) == "string" then
+				kind, text = key:match("^(%a+):(%d+)$")
+			end
+			local id = text and tonumber(text)
+			if not Integer(id) or id == 0 or key ~= kind .. ":" .. string.format("%.0f", id) then
+				Reject("canonical typed inventory coordinate required")
+			end
+			Coordinate(kind, id)
+		end
+		for id in pairs(route.held) do
+			Coordinate("item", id)
+		end
+		if
+			type(frozen.sources) ~= "table"
+			or type(frozen.currencies) ~= "table"
+			or type(frozen.tokenValues) ~= "table"
+			or type(frozen.terminalCarry) ~= "table"
+		then
+			return Unknown("complete modeled inventory coordinate maps required")
+		end
+		for _, source in pairs(frozen.sources) do
+			Tick()
+			if type(source) ~= "table" or type(source.costs) ~= "table" then
+				Reject("complete typed source records required")
+			end
+			Coordinate("item", source.itemID)
+			for key in pairs(source.costs) do
+				Typed(key)
+			end
+		end
+		for id in pairs(frozen.currencies) do
+			Coordinate("currency", id)
+		end
+		for key in pairs(frozen.tokenValues) do
+			Typed(key)
+		end
+		for key in pairs(frozen.terminalCarry) do
+			Typed(key)
+		end
+		-- Native quantities replace every caller balance, including unused source
+		-- products and valuation-only coordinates. No bank withdrawal is implied.
+		route.held, frozen.currencies = {}, {}
+		for _, coordinate in pairs(coordinates) do
+			Tick()
+			if coordinate.kind == "item" then
+				local quantity, why = RouteDemand.Count(coordinate.id, false)
+				if quantity == nil then
+					return Unknown(assert(why))
+				end
+				route.held[coordinate.id] = quantity
+			else
+				local api = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo
+				if type(api) ~= "function" then
+					return Unknown("current currency capability unavailable")
+				end
+				local ok, info = pcall(api, coordinate.id)
+				info = ok and ns.Readable(info)
+				local quantity = type(info) == "table" and ns.Readable(info.quantity)
+				if not Integer(quantity) then
+					return Unknown("current currency quantity unavailable")
+				end
+				frozen.currencies[coordinate.id] = quantity
+			end
+		end
+		Tick()
+		if type(GetMoney) ~= "function" then
+			return Unknown("current wallet capability unavailable")
+		end
+		local ok, raw = pcall(GetMoney)
+		local wallet = ok and ns.Readable(raw)
+		if not Integer(wallet) then
+			return Unknown("current wallet quantity unavailable")
+		end
+		frozen.route, frozen.walletCopper = route, wallet
+		---@cast frozen SkillUpFiniteAcquisitionInput
+		inner = ns.FiniteAcquisition.Select(frozen, alpha)
+		while inner.result.status == "calculating" do
+			Tick()
+			inner:Advance(1)
+		end
+		inner.result.service = "adaptive-finite"
+		inner.result.inventoryScope = "bags-only"
+		return inner.result
+	end)
+	local function Cancel(self)
+		thread = nil
+		if inner then
+			inner:Cancel()
+		end
+		self.result = {
+			status = "cancelled",
+			costKnown = false,
+			reasons = { "adaptive inventory or source snapshot invalidated" },
+		}
+	end
+	local function Advance(self, budget)
+		if revision ~= ns.Model.ChanceRevision() then
+			Cancel(self)
+		end
+		if type(budget) ~= "number" or budget < 1 or budget > 2 ^ 52 - 1 or budget % 1 ~= 0 then
+			return self.result
+		end
+		for _ = 1, budget do
+			local active = thread
+			if not active then
+				break
+			end
+			local ok, result = coroutine.resume(active)
+			if revision ~= ns.Model.ChanceRevision() then
+				Cancel(self)
+			end
+			if thread ~= active then
+				return self.result
+			end
+			if not ok then
+				thread = nil
+				if inner then
+					inner:Cancel()
+				end
+				self.result = Unknown(type(result) == "table" and result.adaptiveSnapshot or "adaptive snapshot failed")
+			elseif coroutine.status(active) == "dead" then
+				thread, self.result = nil, result
+			end
+		end
+		return self.result
+	end
+	job = { result = { status = "calculating", costKnown = false, reasons = {} }, Advance = Advance, Cancel = Cancel }
+	jobs[job] = true
+	return job
+end
+
 -- One owner publishes the selected starting inventory budget. No getter starts
 -- or advances a solve. A missing explicit policy leaves the legacy estimates
 -- intact, without giving them a coverage or economic certificate.
@@ -611,6 +898,7 @@ ns.RouteDemand = {
 	Supply = RouteDemand.Supply,
 	Count = RouteDemand.Count,
 	StartPolicy = RouteDemand.StartPolicy,
+	StartAdaptive = RouteDemand.StartAdaptive,
 	Snapshot = RouteDemand.Snapshot,
 	Start = RouteDemand.Start,
 	Invalidate = RouteDemand.Invalidate,

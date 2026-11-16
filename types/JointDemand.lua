@@ -49,7 +49,8 @@
 ---@field StartPolicy fun(plan: SkillUpPlan, contract: SkillUpResupplyInput): SkillUpResupplyJob
 ---@field Count fun(itemID: integer, includeBank: boolean): integer?, string?
 ---@field QuoteOrders fun(orders: {offer: SkillUpObservedMerchantOffer, bundles: integer}[]): SkillUpMerchantOrderQuote?, string?
----@field Snapshot fun(plan: SkillUpPlan, buy: table<integer, integer>): SkillUpJointDemandInput?, string?
+---@field Snapshot fun(plan: SkillUpPlan, buy: table<integer, integer>, includeBank?: boolean, tick?: fun(), deferInventory?: boolean): SkillUpJointDemandInput?, string?
+---@field StartAdaptive fun(plan: SkillUpPlan, request: SkillUpAdaptiveSupplyRequest, alpha: number): SkillUpFiniteSelectionJob
 ---@field Start fun(plan: SkillUpPlan, buy: table<integer, integer>): SkillUpJointDemandJob
 ---@field Invalidate fun()
 

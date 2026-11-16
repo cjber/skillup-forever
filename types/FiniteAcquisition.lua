@@ -100,6 +100,8 @@
 ---@field alpha number
 
 ---@class SkillUpFiniteSelectionResult: SkillUpFiniteAcquisitionResult
+---@field service 'adaptive-finite'?
+---@field inventoryScope 'bags-only'?
 ---@field alpha number?
 ---@field selection SkillUpFiniteSelectionProof?
 ---@field orders SkillUpPolicyOrder[]?
@@ -124,3 +126,7 @@
 ---@field refillVisitMoney table<string, integer>
 ---@field initialVisitValue table<string, number>
 ---@field refillVisitValue table<string, number>
+
+---@class SkillUpAdaptiveSupplyRequest
+---@field inventoryScope 'bags-only'
+---@field policy SkillUpFiniteAcquisitionInput Immutable during asynchronous snapshot. Caller balance values are replaced by native quantities.

@@ -337,28 +337,33 @@ Published()
 equal(reads, before + 1, "chance revision obtains fresh request")
 ns.Model.SetChanceBonus(0)
 Published()
--- A cancellation callback that replaces configuration cannot be overwritten.
+-- Configuration commits reject nested replacement from cancellation callbacks.
 ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0)
 supply = Published()
 local configJob = supply.job
 local configCancel = configJob.Cancel
-local replaced = false
+local nestedResult
 configJob.Cancel = function(self)
 	configCancel(self)
-	if not replaced then
-		replaced = true
-		ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0)
-	end
+	nestedResult = ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0)
 end
+local beforeSwitchReads = reads
 equal(
 	ns.RouteDemand.ConfigureSupply(197, function()
 		return nil
 	end, 1),
-	false,
-	"reentrant configuration replacement supersedes outer mode change"
+	true,
+	"outer mode change commits despite reentrant cancellation callback"
 )
+equal(nestedResult, false, "nested configuration cannot replace the committed mode")
+equal(configJob.result.status, "cancelled", "committed switch retires the adaptive job")
+for _ = 1, 5 do
+	Frame()
+	API.ShoppingList()
+end
+equal(reads, beforeSwitchReads, "rejected nested configuration cannot resurrect adaptive reader")
+assert(ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0))
 supply = Published()
-equal(supply.result.service, "adaptive-finite", "replacement reader remains adaptive")
 local beforeCancel = reads
 supply.job:Cancel()
 equal(API.ShoppingList()[1].supplySummary.status, "cancelled", "cancelled configured owner stays cancelled")

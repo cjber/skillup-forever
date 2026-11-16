@@ -1018,7 +1018,7 @@ function Owner._ApplyDraft(owned)
 	if pending.changed then
 		ns.Changed("sourceEvidence")
 	end
-	return true, detail
+	return true
 end
 
 ---@cast Owner SkillUpSupplySourceOwner

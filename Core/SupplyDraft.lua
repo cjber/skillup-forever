@@ -143,7 +143,7 @@ local function Validate(draft)
 end
 
 ---@param draft table Player-owned explicit configuration.
----@return table? ownedDraft
+---@return SkillUpSupplyDraft? ownedDraft
 ---@return table[] errors
 function Draft.Validate(draft)
 	local ok, errors = Validate(draft)
@@ -160,6 +160,7 @@ function Draft.Validate(draft)
 	for index, declaration in ipairs(draft.adaptiveOffers or {}) do
 		owned.adaptiveOffers[index].offer = declaration.offer
 	end
+	---@cast owned SkillUpSupplyDraft
 	return owned, {}
 end
 
@@ -173,4 +174,5 @@ function Draft.Apply(draft)
 	return ns.SupplySources._ApplyDraft(owned)
 end
 
+---@cast Draft SkillUpSupplyDraftAPI
 ns.SupplyDraft = Draft

@@ -1489,7 +1489,8 @@ equal(bookRow.click ~= nil, true, "and a click goes to its vendor")
 equal(bookRow.detail, "10000", "with its price on the right")
 equal(
 	messages,
-	"Counts include spares for an estimated 95% chance to finish the whole route.",
+	"Craft counts and shopping quantities are estimates. You may need more reagents.\n"
+		.. "Counts include spares for an estimated 95% chance to finish the whole route.",
 	"the route says its counts include spares"
 )
 bookRow.tooltip(Stub())
@@ -1500,7 +1501,8 @@ equal(bookRow.text, "Read Expert First Aid - Under Wraps at 125", "a book in the
 equal(bookRow.detail, "You have it", "with no price on the line")
 equal(
 	messages,
-	"Counts include spares for an estimated 95% chance to finish the whole route.",
+	"Craft counts and shopping quantities are estimates. You may need more reagents.\n"
+		.. "Counts include spares for an estimated 95% chance to finish the whole route.",
 	"and still says its counts include spares"
 )
 bookRow.tooltip(Stub())

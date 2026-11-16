@@ -495,6 +495,7 @@ SkillUpForeverDB = nil
 
 -- One training search's list of recipes and what Core/Model.lua works out from it, kept between its re-plans.
 ---@class SkillUpPlanner
+---@field Budget fun(): SkillUpRoute The selected route with joint budgets and inventory-aware prices.
 ---@field Add fun(recipe: SkillUpCandidate) A recipe joins the end of the list.
 ---@field Route fun(extra?: SkillUpCandidate): SkillUpRoute, number[] The route, and each skill it picked at.
 ---@field Changes fun(extra: SkillUpCandidate, picked: number[]): boolean Whether `extra` changes the route.

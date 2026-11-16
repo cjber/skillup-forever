@@ -336,18 +336,18 @@ end
 ---@param confidence number? Defaults to Model.ROUTE_CONFIDENCE.
 ---@return number
 function Model.CoveredCrafts(thresholds, from, to, skillUps, confidence)
-	local needed = to - from
-	if needed <= 0 then
-		return 0
-	end
 	local target = confidence or Model.ROUTE_CONFIDENCE
 	if target <= 0 then
 		return 0
 	end
 	local ups = math.max(skillUps or 1, 1)
+	local needed = to - from
+	if needed <= 0 then
+		return 0
+	end
 	-- One point, as every recipe is ranked at each skill: the odds that it is in hand and that it is still to
 	-- come, which the count below keeps in tables, worked out in the same order.
-	if needed == 1 then
+	if needed <= ups and to <= thresholds[4] then
 		local chance = Model.Chance(thresholds, from)
 		if chance and chance > 0 then
 			if chance == 1 then
@@ -357,6 +357,17 @@ function Model.CoveredCrafts(thresholds, from, to, skillUps, confidence)
 				return math.ceil(math.log(1 - target) / math.log(1 - chance))
 			end
 		end
+	end
+	-- Orange crafts are deterministic. Start the distribution at the first uncertain point instead of
+	-- walking its single state through every guaranteed craft in each training candidate's route.
+	local guaranteed = 0
+	while from < to and Model.Chance(thresholds, from) == 1 do
+		from = from + math.min(ups, to - from, math.max(thresholds[4] - from, 1))
+		guaranteed = guaranteed + 1
+	end
+	needed = to - from
+	if needed <= 0 then
+		return guaranteed
 	end
 	-- A point's chance, and what a craft there gains, are the same for every craft counted: false where a
 	-- craft gains nothing.
@@ -371,32 +382,23 @@ function Model.CoveredCrafts(thresholds, from, to, skillUps, confidence)
 			chances[points] = false
 		end
 	end
-	-- odds[points]: the chance that many points are in hand after the crafts counted so far. Two tables
-	-- take turns, so a long run of crafts leaves no garbage.
-	local odds, next_ = { [0] = 1 }, {}
+	-- Descending skill order updates the distribution in place: a successful craft only moves to a
+	-- higher state, which has already been processed. No second table needs clearing or copying.
+	local odds = { [0] = 1 }
 	local crafts = 0
 	while (odds[needed] or 0) < target and crafts < MAX_CRAFTS do
 		crafts = crafts + 1
-		for points in pairs(next_) do
-			next_[points] = nil
-		end
-		next_[needed] = odds[needed] or 0
-		for points = 0, needed - 1 do
+		for points = needed - 1, 0, -1 do
 			local inHand = odds[points]
-			if inHand then
-				local chance = chances[points]
-				if chance then
-					local gained = gains[points]
-					next_[points] = (next_[points] or 0) + inHand * (1 - chance)
-					next_[points + gained] = (next_[points + gained] or 0) + inHand * chance
-				else
-					next_[points] = (next_[points] or 0) + inHand
-				end
+			local chance = chances[points]
+			if inHand and chance then
+				local gained = gains[points]
+				odds[points] = inHand * (1 - chance)
+				odds[points + gained] = (odds[points + gained] or 0) + inHand * chance
 			end
 		end
-		odds, next_ = next_, odds
 	end
-	return crafts
+	return guaranteed + crafts
 end
 
 -- One leg's odds are advanced one craft at a time, so a budget search works out only the crafts it places,
@@ -844,8 +846,41 @@ local function Planner(snapshot)
 		end
 	end
 
-	-- The route the list takes, or with `extra` on its end: Model.PlanRoute's, with what the list leaves out.
-	-- Then each skill it picked a recipe at, in order.
+	-- Use the same inventory pool to price trial routes and the final joint craft budget.
+	---@param route SkillUpRoute
+	---@param extra SkillUpCandidate?
+	local function Price(route, extra)
+		local money = CopyHeld()
+		route.expectedCost = 0
+		for _, segment in ipairs(route.segments) do
+			local recipeID = segment.recipeID
+			local t, cost, reagentCost = thresholds[recipeID], costOf[recipeID], reagentOf[recipeID]
+			local candidate = byID[recipeID]
+			if extra and extra.recipeID == recipeID then
+				t, cost, reagentCost, candidate = extra.thresholds, extra.netCost, extra.reagentCost, extra
+			end
+			segment.thresholds = t
+			segment.cost = cost
+			segment.reagentCost = reagentCost
+			if not route.completion then
+				segment.crafts = Covered(t, segment.fromSkill, segment.toSkill, segment.skillUps)
+			end
+			if candidate and IsPooled(candidate) then
+				local pooledCost = PoolReagentCost(candidate, segment.crafts, money)
+				if pooledCost then
+					-- RouteStepCost multiplies one craft's money by the crafts, so the batch is divided back.
+					local each = segment.crafts > 0 and pooledCost / segment.crafts or 0
+					reagentCost = each
+					cost = each - (candidate.value or 0)
+				end
+				TakePool(candidate, segment.crafts, money)
+			end
+			route.expectedCost = route.expectedCost
+				+ (Model.RouteStepCost(cost, reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
+		end
+	end
+
+	-- The route the list takes, optionally with one extra recipe, and each skill it picked at.
 	---@param extra SkillUpCandidate?
 	---@return SkillUpRoute
 	---@return number[]
@@ -906,31 +941,7 @@ local function Planner(snapshot)
 		-- Each step carries the recipe's price and thresholds, and the crafts that cover it alone at the
 		-- route's confidence. The whole route's budgets are chosen together after the last route is picked,
 		-- by Model.BudgetRoute, so a training search's many re-plans stay cheap.
-		local money = CopyHeld()
-		for _, segment in ipairs(route.segments) do
-			local recipeID = segment.recipeID
-			local t, cost, reagentCost = thresholds[recipeID], costOf[recipeID], reagentOf[recipeID]
-			local candidate = byID[recipeID]
-			if extra and extra.recipeID == recipeID then
-				t, cost, reagentCost, candidate = extra.thresholds, extra.netCost, extra.reagentCost, extra
-			end
-			segment.thresholds = t
-			segment.cost = cost
-			segment.reagentCost = reagentCost
-			segment.crafts = Covered(t, segment.fromSkill, segment.toSkill, segment.skillUps)
-			if candidate and IsPooled(candidate) then
-				local pooledCost = PoolReagentCost(candidate, segment.crafts, money)
-				if pooledCost then
-					-- RouteStepCost multiplies one craft's money by the crafts, so the batch is divided back.
-					local each = segment.crafts > 0 and pooledCost / segment.crafts or 0
-					reagentCost = each
-					cost = each - (candidate.value or 0)
-				end
-				TakePool(candidate, segment.crafts, money)
-			end
-			route.expectedCost = route.expectedCost
-				+ (Model.RouteStepCost(cost, reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
-		end
+		Price(route, extra)
 		return route, picked
 	end
 
@@ -960,7 +971,16 @@ local function Planner(snapshot)
 	for _, recipe in ipairs(snapshot.recipes) do
 		Add(recipe)
 	end
-	return { Add = Add, Route = Route, Changes = Changes }
+	return {
+		Add = Add,
+		Route = Route,
+		Changes = Changes,
+		Budget = function()
+			local route = Model.BudgetRoute(Route(), Model.ROUTE_CONFIDENCE, snapshot.restockCost)
+			Price(route)
+			return route
+		end,
+	}
 end
 
 -- Chooses a picked route's per-leg budgets together, then prices the route at them.
@@ -987,7 +1007,7 @@ end
 ---@param snapshot SkillUpSnapshot
 ---@return SkillUpRoute
 function Model.PlanRoute(snapshot)
-	return Model.BudgetRoute(Planner(snapshot).Route(), Model.ROUTE_CONFIDENCE, snapshot.restockCost)
+	return Planner(snapshot).Budget()
 end
 
 -- Reach comes first, then a pin the resulting route uses, then savings for equal endpoints.
@@ -1073,7 +1093,7 @@ function Model.PlanWithTraining(snapshot, services)
 			end
 		end
 	end
-	local route = Model.BudgetRoute(planner.Route(), Model.ROUTE_CONFIDENCE, snapshot.restockCost)
+	local route = planner.Budget()
 	---@cast route SkillUpTrainedRoute
 	local firstUse = {}
 	for _, segment in ipairs(route.segments) do

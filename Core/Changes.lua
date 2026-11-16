@@ -309,8 +309,11 @@ local function Apply(kinds)
 			-- One failing cache or view doesn't stop the rest; the error is kept for /skillup report.
 			ns.core.SafeCall(LABELS[name], handler)
 		end
-		for _, observer in ipairs(stale[name] and observers[name] or {}) do
-			ns.core.SafeCall(LABELS[name], observer)
+		local notified = stale[name] and observers[name]
+		if notified then
+			for _, observer in ipairs(notified) do
+				ns.core.SafeCall(LABELS[name], observer)
+			end
 		end
 	end
 end

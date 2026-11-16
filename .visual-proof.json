@@ -1,27 +1,34 @@
 {
-  "input_digest": "885456db1741025ffb87e0d707390697b9626a610af055b2d1d5eff8f21a1af1",
-  "runtime_sha256": "885456db1741025ffb87e0d707390697b9626a610af055b2d1d5eff8f21a1af1",
-  "candidate": "c337809cdc646723eec77fc931cadd1206d1f19027b55df95870ebcc3d4a6ea4",
+  "input_digest": "e14d0406810d89f688c47e20f80ae696b944ea53a7cfb1cfaa387d6cd4ab487d",
+  "runtime_sha256": "e14d0406810d89f688c47e20f80ae696b944ea53a7cfb1cfaa387d6cd4ab487d",
+  "candidate": "2688b017ba19282334a8eb939bfd1fa8687436c2503f1e756f309d15298f8131",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "bc0f5842ff354832182745ab7d6710a7a04f3bd1",
+  "source_commit": "50d54cc8b0642369972be8125e86741c06489878",
   "flows": [
     {
-      "name": "route",
+      "name": "minimap button setting",
       "steps": [
-        "su-744-route.lua sha256:c3495420023f4c9b49850c64108461651f38c9a758244000bfa2e545a4871713"
+        "su759-minimap.lua sha256:b3591126701c5d760fd1b5c8fd2d6ecc0ec31c3b77bdc259980dca1c991b7d04"
       ],
-      "click": [
-        960,
-        402
+      "result": "pass"
+    },
+    {
+      "name": "money on recipe rows off",
+      "steps": [
+        "su760-rowmoney.lua sha256:e9df6f30517eb235a04fde6cb031f9ac07a8182832d1f50ef85ecb1d3063f6c1"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/34a90748d02d7da123b9c65a06548dab/raw/02c86880f97b47eec793ace052a322486c3a510b/1-route.png",
-      "sha256": "2a199ac5078240bcdcf88b1dc0071b7a3ea9f75e211ed04caabe0b702bae4cf0"
+      "url": "https://gist.githubusercontent.com/cjber/d2a5482bc1fa699ac2402a806d599252/raw/1eed0d6da4fe4def13a07482fba94d7e4339a0f4/1-minimap-button-setting.png",
+      "sha256": "65f46a0d4a7961f7fd02dc3effa970c34ec1be584599041d0c7e40db8a4e9513"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/d2a5482bc1fa699ac2402a806d599252/raw/1eed0d6da4fe4def13a07482fba94d7e4339a0f4/2-money-on-recipe-rows-off.png",
+      "sha256": "2d85f6affca6635cd7c4c823966b0b158fb73d60383d2b53513ea0284f1c29a2"
     }
   ]
 }

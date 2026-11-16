@@ -800,6 +800,7 @@ for _, file in ipairs({
 	"Core/Model.lua",
 	"Core/Changes.lua",
 	"Core/Plan.lua",
+	"Core/RouteDemand.lua",
 	"UI/Art.lua",
 	"UI/List.lua",
 	"UI/PageParts.lua",

@@ -67,6 +67,27 @@ Check(contract == nil and missing[1].code == "missing-law", "default owner must 
 local inspection = ns.SupplySources.Inspect({ [10] = true })
 Check(inspection.status == "unavailable" and inspection.missing[1].code == "missing-law", "inspection needs no alpha")
 Check(inspection.scope == "current-merchant-window", "inspection does not claim every source was observed")
+
+-- The API asks for evidence on every rebuild. One unchanged revision, window and product universe assembles it
+-- once, and each caller still owns the records it was given.
+local readCalls = 0
+local realRead = ns.SupplySources.Read
+ns.SupplySources.Read = function(...)
+	readCalls = readCalls + 1
+	return realRead(...)
+end
+local first = ns.SupplySources.Inspect({ [10] = true, [11] = true })
+local second = ns.SupplySources.Inspect({ [10] = true, [11] = true })
+Check(readCalls == 1, "unchanged evidence assembles once")
+Check(first ~= second and first.missing ~= second.missing, "each inspection owns its tables")
+first.missing[1].code = "mutated"
+Check(
+	ns.SupplySources.Inspect({ [10] = true, [11] = true }).missing[1].code ~= "mutated",
+	"a changed inspection record never reaches the next caller"
+)
+ns.SupplySources.Inspect({ [11] = true })
+Check(readCalls == 2, "a different product universe reassembles")
+ns.SupplySources.Read = realRead
 local function Law(value)
 	return { value = value, provenance = "synthetic explicit assumption", scope = "this finite run" }
 end

@@ -275,11 +275,79 @@ function Owner.Read(options, refillOrders, products)
 	return input, missing
 end
 
+---@return integer
+function Owner.Revision()
+	return revision
+end
+
+---@param record table
+---@return table
+local function CopyRecord(record)
+	local copy = {}
+	for key, value in pairs(record) do
+		copy[key] = value
+	end
+	return copy
+end
+
+---@param evidence SkillUpSourceEvidence
+---@return SkillUpSourceEvidence
+local function CopyInspection(evidence)
+	local missing, assumptions = {}, {}
+	for index, record in ipairs(evidence.missing) do
+		missing[index] = CopyRecord(record)
+	end
+	for index, record in ipairs(evidence.assumptions) do
+		assumptions[index] = CopyRecord(record)
+	end
+	return {
+		status = evidence.status,
+		scope = evidence.scope,
+		sourceRevision = evidence.sourceRevision,
+		missing = missing,
+		assumptions = assumptions,
+	}
+end
+
+-- The API asks for evidence on every rebuild. The assembly is owned by this file for one revision, window and
+-- product universe, and each ask still receives its own records: a caller can change what it was given. A new
+-- declaration or merchant session drops every assembled record; a new product universe gets its own.
+---@type table<string, SkillUpSourceEvidence>
+local inspected = {}
+local inspectedRevision, inspectedSession
+---@param window SkillUpMerchantOfferWindow?
+---@param products table<integer, true>
+---@return string
+local function EvidenceKey(window, products)
+	local ids = {}
+	for itemID in pairs(products) do
+		ids[#ids + 1] = tostring(itemID)
+	end
+	table.sort(ids)
+	local key = tostring(window and window.session or 0)
+	if window then
+		for index, offer in ipairs(window.offers) do
+			key = key .. "|" .. index .. ":" .. tostring(offer) .. ":" .. tostring(offer.itemID)
+		end
+	end
+	return key .. "#" .. table.concat(ids, ",")
+end
+
 -- Evidence discovery does not need a confidence target or start a solver. Its
 -- scope is deliberately the current window, never every source in the world.
 ---@param products table<integer, true>
 ---@return SkillUpSourceEvidence
 function Owner.Inspect(products)
+	local window = ns.MerchantOffers.current
+	local session = window and window.session or 0
+	if inspectedRevision ~= revision or inspectedSession ~= session then
+		inspected, inspectedRevision, inspectedSession = {}, revision, session
+	end
+	local key = EvidenceKey(window, products)
+	local cached = inspected[key]
+	if cached then
+		return CopyInspection(cached)
+	end
 	-- This contract is discarded after evidence collection. Zero solver budgets
 	-- make it unusable for optimization even if this path is accidentally reused.
 	local input, missing = Owner.Read({
@@ -290,13 +358,15 @@ function Owner.Inspect(products)
 		stateLimit = 0,
 		coordinateLimit = 0,
 	}, {}, products)
-	return {
+	local evidence = {
 		status = input and "conditional" or "unavailable",
 		scope = "current-merchant-window",
 		sourceRevision = revision,
 		missing = missing,
 		assumptions = input and input.assumptions or {},
 	}
+	inspected[key] = evidence
+	return CopyInspection(evidence)
 end
 
 ---@param skillLine integer

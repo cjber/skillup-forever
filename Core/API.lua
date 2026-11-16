@@ -6,6 +6,9 @@ if ns.broken then
 end
 local L = ns.L
 
+-- The public copy runs for every read, so its primitives are locals: a global lookup per copied value is not free.
+local type, next, min = type, next, math.min
+
 -- SkillUpForever.API, version 1: each profession's next steps, recipes and reagents,
 -- read from the same levelling plan the route tab shows, for other addons to draw.
 -- Built once and kept until Core/Changes.lua says it is stale.
@@ -41,9 +44,6 @@ local KIND_ORDER = { craft = 1, buy = 2, gather = 3, train = 4 }
 
 ---@type SkillUpAPIProfession[]?
 local cache
--- Plans resolved by the cached build, kept private from callers.
----@type table<integer, SkillUpPlan>
-local entryPlans = {}
 -- [skill line][step index] = picks the step's NPC by travel time, for Navigate.
 ---@type table<integer, table<integer, fun(): integer?>>
 local pickers = {}
@@ -52,7 +52,6 @@ local namesPending = false
 ns.WhenStale("api", function()
 	namesPending = false
 	cache = nil
-	entryPlans = {}
 	revision = revision + 1
 	hub.Queue()
 end)
@@ -265,11 +264,13 @@ local function Quest(profession, rank)
 	end or nil
 end
 
--- The route's first few steps, each craft preceded by getting what the bags lack for it.
+-- The route's first few steps, each craft preceded by getting what the bags lack for it. The build expands the
+-- route's reagents once and hands the same rows to every reader here.
 ---@param plan SkillUpPlan
+---@param rows SkillUpReagent[]
 ---@return SkillUpAPIStep[]
 ---@return table<integer, fun(): integer?>
-local function Steps(plan)
+local function Steps(plan, rows)
 	local profession = plan.profession
 	local steps, picks, held = {}, {}, {}
 	---@param step SkillUpAPIStep
@@ -302,7 +303,7 @@ local function Steps(plan)
 				return npcID
 			end or nil)
 		end
-		for _, item in ipairs(ns.RouteReagents(plan)) do
+		for _, item in ipairs(rows) do
 			if not item.acquisitions then
 				local have = ns.RouteDemand.Held(item)
 				local missing = have and item.need - have
@@ -396,11 +397,11 @@ local function Recipes(plan)
 	return recipes
 end
 
----@param plan SkillUpPlan
+---@param rows SkillUpReagent[]
 ---@return SkillUpAPIReagent[]
-local function Reagents(plan)
+local function Reagents(rows)
 	local reagents = {}
-	for _, item in ipairs(ns.RouteReagents(plan)) do
+	for _, item in ipairs(rows) do
 		reagents[#reagents + 1] = {
 			itemID = item.itemID,
 			need = item.need,
@@ -424,11 +425,12 @@ local function Build()
 	pickers = {}
 	for skillLine, profession in pairs(ns.RouteProfessions()) do
 		local plan = ns.PlanRoute(profession)
-		entryPlans[skillLine] = plan
-		local steps, picks = Steps(plan)
+		-- One expansion of the route serves the steps, the reagents and the source product universe.
+		local rows = ns.RouteReagents(plan)
+		local steps, picks = Steps(plan, rows)
 		pickers[skillLine] = picks
 		local products = {}
-		for _, item in ipairs(ns.RouteReagents(plan)) do
+		for _, item in ipairs(rows) do
 			products[item.itemID] = true
 		end
 		local entry = {
@@ -440,10 +442,13 @@ local function Build()
 			title = ns.RankName(profession.max),
 			steps = steps,
 			recipes = Recipes(plan),
-			reagents = Reagents(plan),
+			reagents = Reagents(rows),
 			sourceEvidence = ns.SupplySources.Inspect(products),
 			recipeEvidence = ns.RecipeEvidence.Inspect(skillLine),
 			supply = plan.supply and plan.supply.job.result,
+			-- Resolved once per build, copied per read. Every revocation that can replace this action drops the
+			-- API cache (Core/Changes.lua), so a cached nil cannot outlive a published or revoked action.
+			nextAction = ns.RouteDemand.NextAction(plan),
 		}
 		entries[#entries + 1] = entry
 		urgency[entry] = { #steps > 0 and 0 or 1, ns.IsTracked(skillLine) and 0 or 1, Urgency(entry) }
@@ -479,7 +484,8 @@ end
 ---@return T
 local function CopyRow(row)
 	local copy = {}
-	for key, value in pairs(row) do
+	-- `next` skips the iterator function `pairs` calls once per key; this runs for every public read.
+	for key, value in next, row do
 		copy[key] = type(value) == "table" and CopyRow(value) or value
 	end
 	return copy
@@ -495,10 +501,10 @@ local function CopyProfessions(list, steps, recipes)
 	local copy = {}
 	for index, entry in ipairs(list) do
 		local copiedSteps, copiedRecipes, reagents = {}, {}, {}
-		for stepIndex = 1, math.min(#entry.steps, steps) do
+		for stepIndex = 1, min(#entry.steps, steps) do
 			copiedSteps[stepIndex] = CopyRow(entry.steps[stepIndex])
 		end
-		for recipeIndex = 1, math.min(#entry.recipes, recipes) do
+		for recipeIndex = 1, min(#entry.recipes, recipes) do
 			copiedRecipes[recipeIndex] = CopyRow(entry.recipes[recipeIndex])
 		end
 		for reagentIndex, reagent in ipairs(entry.reagents) do
@@ -508,7 +514,7 @@ local function CopyProfessions(list, steps, recipes)
 			name = entry.name,
 			skillLineID = entry.skillLineID,
 			icon = entry.icon,
-			nextAction = ns.RouteDemand.NextAction(entryPlans[entry.skillLineID]),
+			nextAction = entry.nextAction and CopyRow(entry.nextAction) or nil,
 			rank = entry.rank,
 			maxRank = entry.maxRank,
 			title = entry.title,

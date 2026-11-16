@@ -55,6 +55,18 @@ local configured = {}
 local adaptiveIntent = setmetatable({}, { __mode = "k" })
 local actionRecords = setmetatable({}, { __mode = "k" })
 local generation = 0
+local configuring = false
+
+local function DetachJob(job)
+	local plan = supplyPlans[job]
+	supplyPlans[job] = nil
+	actionRecords[job] = nil
+	jobs[job] = nil
+	if plan and plan.supply and plan.supply.job == job then
+		plan.supply = nil
+		ns.Changed("supply")
+	end
+end
 
 ---@generic T
 ---@param value T
@@ -843,11 +855,14 @@ local function PublishSupply(plan, job, alpha, service)
 	supplyPlans[job] = plan
 	local cancel = job.Cancel
 	job.Cancel = function(self)
-		cancel(self)
+		local ok, reason = pcall(cancel, self)
 		supplyPlans[self] = nil
 		if plan.supply and plan.supply.job == self then
 			plan.supply = nil
 			ns.Changed("supply")
+		end
+		if not ok then
+			error(reason, 0)
 		end
 	end
 	ns.Changed("supply")
@@ -892,6 +907,9 @@ end
 ---@return boolean
 ---@return string?
 local function Configure(skillLine, read, alpha, mode)
+	if configuring then
+		return false, "configuration reentrant"
+	end
 	if type(skillLine) ~= "number" or skillLine <= 0 or skillLine > 2 ^ 52 - 1 or skillLine % 1 ~= 0 then
 		return false, "explicit profession identity required"
 	end
@@ -906,14 +924,18 @@ local function Configure(skillLine, read, alpha, mode)
 		return false, "explicit source contract reader and starting coverage required"
 	end
 	local previous = configured[skillLine]
-	if previous and previous.job then
-		previous.job:Cancel()
-		if configured[skillLine] ~= previous then
-			return false, "configuration replaced during cancellation"
-		end
-	end
+	local nextConfiguration = read and { read = read, alpha = assert(alpha), mode = mode, dirty = true } or nil
+	configuring = true
+	configured[skillLine] = nextConfiguration
 	adaptiveIntent[skillLine] = nil
-	configured[skillLine] = read and { read = read, alpha = assert(alpha), mode = mode, dirty = true } or nil
+	if previous and previous.job then
+		-- Cancellation is the final commit step.  A broken old job must not
+		-- turn a committed replacement into a rejected ApplyDraft: its inner
+		-- solver cannot be revived safely after Cancel has started.
+		pcall(previous.job.Cancel, previous.job)
+		DetachJob(previous.job)
+	end
+	configuring = false
 	return true
 end
 

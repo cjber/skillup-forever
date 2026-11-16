@@ -80,6 +80,7 @@ UI\ShoppingList.lua
 Core\RecipeEvidence.lua
 Core\RouteDemand.lua
 Core\SupplySources.lua
+Core\SupplyDraft.lua
 UI\AuctionSearch.lua
 Integrations\Trainer.lua
 Core\API.lua

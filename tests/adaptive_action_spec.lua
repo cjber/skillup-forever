@@ -629,6 +629,29 @@ equal(Current().supply.job, callbackJob, "direct callback retains owner")
 Published()
 equal(Action().kind, "stop", "direct callback retains adaptive intent")
 
+-- A direct Configure call during cancellation is rejected without replacing
+-- the staged configuration, while the outer commit still completes.
+assert(ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0))
+local reentrant = Published().job
+local reentrantCancel = reentrant.Cancel
+local reentrantResult
+reentrant.Cancel = function(self)
+	reentrantCancel(self)
+	reentrantResult = ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0)
+end
+assert(ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0))
+assert(reentrantResult == false, "direct reentrant Configure is rejected")
+
+-- A failing old cancellation is contained at the final configuration commit.
+assert(ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0))
+local throwing = Published().job
+throwing.Cancel = function()
+	error("synthetic cancellation failure")
+end
+assert(ns.RouteDemand.ConfigureAdaptiveSupply(197, Reader, 0), "replacement survives old cancellation failure")
+assert(Current().supply == nil, "throwing cancellation detaches the retired plan owner")
+assert(ns.RouteDemand.ConfigureAdaptiveSupply(197, nil), "failed cancellation does not wedge configuration")
+
 assert(ns.RouteDemand.ConfigureAdaptiveSupply(197, nil))
 c.professions[1].rank = 75
 c.Fire("SKILL_LINES_CHANGED")

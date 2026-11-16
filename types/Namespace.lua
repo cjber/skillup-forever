@@ -929,7 +929,7 @@ SkillUpForeverDB = nil
 ---@field Vendor Button
 ---@field ShoppingList Button
 ---@field Replan Button
----@field vendorItems integer[]
+---@field vendorItems SkillUpNeededItem[]
 ---@field RouteList SkillUpList
 ---@field ReagentList SkillUpList
 

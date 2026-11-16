@@ -805,13 +805,13 @@ end
 
 -- The route's vendor reagents it still needs, whose vendor can be named.
 ---@param reagents SkillUpNeededItem[]
----@return integer[]
+---@return SkillUpNeededItem[]
 local function VendorItems(reagents)
 	local items = {}
 	for _, item in ipairs(reagents) do
 		if item.source == "vendor" and ns.Have(item.itemID) < item.need then
-			for _, npcID in ipairs(ns.RouteDemand.Vendors(item, true)) do
-				items[#items + 1] = npcID
+			if not item.acquisitions or #ns.RouteDemand.Vendors(item, true) > 0 then
+				items[#items + 1] = item
 			end
 		end
 	end
@@ -819,9 +819,15 @@ local function VendorItems(reagents)
 end
 
 -- The nearest vendor selling any of the route's missing vendor reagents, by the travel integration.
----@param npcIDs integer[]
+---@param items SkillUpNeededItem[]
 ---@return integer?
-local function NearestRouteVendor(npcIDs)
+local function NearestRouteVendor(items)
+	local npcIDs = {}
+	for _, item in ipairs(items) do
+		for _, npcID in ipairs(ns.RouteDemand.Vendors(item, true)) do
+			npcIDs[#npcIDs + 1] = npcID
+		end
+	end
 	return ns.NearestNPC(npcIDs, true)
 end
 

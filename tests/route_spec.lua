@@ -846,6 +846,14 @@ equal(page.travel, true, "the vendor is ranked by the travel integration")
 equal(candidates[1], 555, "the nearest vendor of the missing reagent")
 equal(waypointed, 555, "and clicking sets the waypoint to that vendor")
 
+local knownVendor = page.NearestVendor
+page.NearestVendor = function() end
+routeTab:Click()
+equal(vendor.shown, true, "an ordinary vendor lookup may still be queued when the button is shown")
+page.NearestVendor = knownVendor
+vendor:Click()
+equal(waypointed, 555, "clicking resolves an ordinary vendor after the catalogue becomes ready")
+
 page.Reagents = function()
 	return { { itemID = 1, quantity = 1 } }
 end

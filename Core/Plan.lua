@@ -1227,6 +1227,8 @@ function ns.NextCraft(plan)
 			return guidance
 		end
 		local recipeID = action.recipeID
+		-- Craft actions bind a recipe before publication.
+		---@cast recipeID integer
 		local recipe = ns.RecipeData[recipeID]
 		local skillLine = recipe and recipe.skillLine or plan.profession.skillLine
 		if ns.OpenSkillLine() ~= skillLine or not ns.IsLearned(recipeID) then

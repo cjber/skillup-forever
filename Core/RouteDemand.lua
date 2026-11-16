@@ -56,6 +56,9 @@ local adaptiveIntent = setmetatable({}, { __mode = "k" })
 local actionRecords = setmetatable({}, { __mode = "k" })
 local generation = 0
 
+---@generic T
+---@param value T
+---@return T
 local function CopyAction(value)
 	if type(value) ~= "table" then
 		return value

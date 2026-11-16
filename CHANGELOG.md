@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-11-16
+
+<!-- forever-core-sync -->
+
 - **This is the last update published on Wago.** Future updates come from CurseForge only. If you installed this addon through Wago or the WowUp Wago source, install it from CurseForge to keep getting updates; your settings stay.
 
 - **A Supply page shows what a merchant's terms would mean for your route.** Open a profession and a merchant, then write down what you assume about each offer's price, stock, purchase limit and trips. The page keeps what you typed while the merchant window rescans, names any two values that cannot both be true, and shows the route's chance and next step before you apply it. Nothing is filled in for you.
@@ -50,6 +54,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 - **You can choose which auction addon prices your reagents.** When both Auctionator and TradeSkillMaster are installed, Auction prices from picks the one whose price wins; the other still fills in an item it has no price for. Thanks to keerp for the idea (#675).
 
 - **Each "Used in" line says which profession its recipe belongs to.** When more than one of your professions uses a reagent, the lines now read "Alchemy: Elixir of Wisdom" and "First Aid: Linen Bandage" instead of leaving you to tell them apart, and an unlearned recipe keeps its "(unlearned)" after the name. The profession is the game's own name in your client's language. Thanks to yusufdanis for the change (#670).
+- Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ### For addon authors
 
@@ -58,12 +63,6 @@ optional `### For addon authors` subsection after a version's player bullets.
 - API minor 11 retains complete conditional adaptive supply certificates, native inventory scope and selection proofs. Profession readers can explicitly configure adaptive finite selection without choosing a default coverage target or future supply law.
 
 - API minor 7 adds read-only recipe data, base-skill learn requirements and account-wide learned-recipe records. Thanks to rissole for the request (#724).
-
-## [1.10.2] - 2026-11-15
-
-<!-- forever-core-sync -->
-
-- Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ## [1.10.1] - 2026-11-14
 

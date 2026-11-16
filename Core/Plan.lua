@@ -243,23 +243,40 @@ end
 
 -- A recipe's reagents for the planner's held pool: what buying each unit costs, and what using a held copy
 -- gives up. Only a reagent the bags or bank actually hold gets the second price: an unheld one is never read
--- from the pool, and pricing it anyway would ask the client for item data a plan does not otherwise need.
+-- from the pool, and pricing it anyway would ask the client for item data a plan does not otherwise need. A
+-- recipe with nothing held therefore keeps nil, and with nothing held anywhere it costs no table and no read
+-- at all: the planner uses `reagents` for nothing else.
 ---@param recipeID integer
 ---@param reagents SkillUpReagent[]? Already read, when the caller has them.
----@return SkillUpPricedReagent[]
-local function PricedReagents(recipeID, reagents)
-	local list = {}
-	for _, reagent in ipairs(reagents or (ns.Reagents and ns.Reagents(recipeID)) or {}) do
+---@param held table<integer, integer>? The snapshot's held counts, entries only for what is held.
+---@return SkillUpPricedReagent[]?
+local function PricedReagents(recipeID, reagents, held)
+	if not held or next(held) == nil then
+		-- The bags and bank hold nothing: no recipe can draw from them, so not even a reagent list is read.
+		return nil
+	end
+	local list = reagents or (ns.Reagents and ns.Reagents(recipeID)) or {}
+	local pooled = false
+	for _, reagent in ipairs(list) do
+		if held[reagent.itemID] then
+			pooled = true
+			break
+		end
+	end
+	if not pooled then
+		return nil
+	end
+	local priced = {}
+	for _, reagent in ipairs(list) do
 		local itemID = reagent.itemID
-		local count = ns.Have and ns.Have(itemID) or 0
-		list[#list + 1] = {
+		priced[#priced + 1] = {
 			itemID = itemID,
 			quantity = reagent.quantity,
 			buy = ns.ObtainCost and ns.ObtainCost(itemID) or nil,
-			held = count > 0 and ns.HeldCost and ns.HeldCost(itemID) or nil,
+			held = held[itemID] and ns.HeldCost and ns.HeldCost(itemID) or nil,
 		}
 	end
-	return list
+	return priced
 end
 
 -- What the planner works from: the recipes this character knows, for any of its professions, from
@@ -273,14 +290,22 @@ end
 ---@return SkillUpSnapshot
 local function Snapshot(profession, target, known)
 	local recipes = {}
+	-- Every reagent of the skill line is asked of the bags once, but only what is actually held is kept: a
+	-- count of zero would be copied into every walk's pool for nothing.
 	local held = {}
+	local counted = {}
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
 		local thresholds = not Skipped(recipeID) and ns.Model.Get(recipeID)
 		if thresholds then
 			local reagents = (ns.Reagents and ns.Reagents(recipeID))
 			for _, reagent in ipairs(reagents or {}) do
-				if held[reagent.itemID] == nil then
-					held[reagent.itemID] = ns.Have and ns.Have(reagent.itemID) or 0
+				local itemID = reagent.itemID
+				if not counted[itemID] then
+					counted[itemID] = true
+					local count = ns.Have and ns.Have(itemID) or 0
+					if count > 0 then
+						held[itemID] = count
+					end
 				end
 			end
 			if known and known[recipeID] or ns.IsLearned(recipeID) then
@@ -290,7 +315,7 @@ local function Snapshot(profession, target, known)
 					thresholds = thresholds,
 					netCost = netCost,
 					reagentCost = reagentCost,
-					reagents = PricedReagents(recipeID, reagents),
+					reagents = PricedReagents(recipeID, reagents, held),
 					value = value and value.copper or nil,
 					preference = ns.PinPreference(recipeID),
 					skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(recipeID) or 1,
@@ -385,7 +410,7 @@ local function Trainable(profession, snapshot)
 					thresholds = taught,
 					netCost = netCost,
 					reagentCost = reagentCost,
-					reagents = PricedReagents(recipeID),
+					reagents = PricedReagents(recipeID, nil, snapshot.held),
 					value = value and value.copper or nil,
 					preference = ns.PinPreference(recipeID),
 					fee = training[1],
@@ -1132,6 +1157,9 @@ function ns.BestTraining(profession, known, offers)
 	if profession.capped then
 		return nil
 	end
+	-- The snapshot is made before the offers are priced, so they are weighed against the same bags and bank the
+	-- training search re-plans over.
+	local snapshot = Snapshot(profession, RouteTarget(profession), known)
 	local services = {}
 	for _, offer in ipairs(offers) do
 		local thresholds = ns.Model.Get(offer.recipeID)
@@ -1147,7 +1175,7 @@ function ns.BestTraining(profession, known, offers)
 				},
 				netCost = netCost,
 				reagentCost = reagentCost,
-				reagents = PricedReagents(offer.recipeID),
+				reagents = PricedReagents(offer.recipeID, nil, snapshot.held),
 				value = value and value.copper or nil,
 				preference = ns.PinPreference(offer.recipeID),
 				skillUps = ns.RecipeSkillUps and ns.RecipeSkillUps(offer.recipeID) or 1,
@@ -1158,7 +1186,7 @@ function ns.BestTraining(profession, known, offers)
 	table.sort(services, function(a, b)
 		return a.recipeID < b.recipeID
 	end)
-	local best = ns.Model.RecommendTraining(Snapshot(profession, RouteTarget(profession), known), services)
+	local best = ns.Model.RecommendTraining(snapshot, services)
 	return best and best.recipeID or nil
 end
 

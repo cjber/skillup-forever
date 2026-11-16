@@ -418,8 +418,8 @@ L["The newest pin takes priority where skill ranges overlap."] =
 L["Pinned (%d)"] = "Angeheftet (%d)" -- mt
 L["crafted"] = "hergestellt" -- mt
 L["List unlearned recipes"] = "Nicht erlernte Rezepte auflisten"
-L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
-	"Fügt die Rezepte des geöffneten Berufs, die Ihr noch nicht erlernt habt, unter einem Trenner „Nicht erlernt“ hinzu, ausgegraut und mit Lehrer oder Rezept und der verlangten Fertigkeit markiert. Sie lassen sich weder auswählen noch herstellen."
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. Click a row to preview the recipe."] =
+	"Fügt die Rezepte des geöffneten Berufs, die du noch nicht erlernt hast, unter einem Trenner „Nicht erlernt“ hinzu, ausgegraut und mit Lehrer oder Rezept und der verlangten Fertigkeit markiert. Klicke auf einen Eintrag, um das Rezept in der Vorschau zu sehen."
 L["Not learned · %s"] = "Nicht erlernt · %s"
 L["Trainer"] = "Lehrer"
 L["Recipe item"] = "Rezept"

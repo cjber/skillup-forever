@@ -444,8 +444,8 @@ L["The newest pin takes priority where skill ranges overlap."] =
 L["Pinned (%d)"] = "Закреплено (%d)" -- mt
 L["crafted"] = "создано" -- mt
 L["List unlearned recipes"] = "Показывать неизученные рецепты"
-L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
-	"Добавляет неизученные рецепты открытой профессии под разделителем «Не изучено», серым и с пометкой учителя или рецепта и требуемого навыка. Их нельзя выбрать или изготовить."
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. Click a row to preview the recipe."] =
+	"Добавляет неизученные рецепты открытой профессии под разделителем «Не изучено», серым и с пометкой учителя или рецепта и требуемого навыка. Нажмите на строку, чтобы открыть предварительный просмотр рецепта."
 L["Not learned · %s"] = "Не изучено • %s"
 L["Trainer"] = "Учитель"
 L["Recipe item"] = "Рецепт"

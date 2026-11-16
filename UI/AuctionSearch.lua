@@ -275,7 +275,7 @@ local function Refresh()
 	elseif not shown then
 		seeded = false
 	end
-	bar:SetShown(shown)
+	bar:SetShown(shown and not ns.IsRecipePreviewShown())
 end
 
 ---@param info TradeSkillRecipeInfo?

@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Preview unlearned recipes in the crafting pane.** Click an unlearned recipe to see its source, output, requirements, reagents and costs without changing your crafting selection. Thanks to puschie286 for the change (PR #729).
+
 - **Minimap button:** Show or hide the SkillUp minimap button in the addon settings. (#759)
 - **Recipe prices:** "Money on recipe rows" has an Off choice, which hides prices on recipe rows and keeps the skill-up chances. (#760)
 ## [1.12.1] - 2026-11-16

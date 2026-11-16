@@ -12,6 +12,9 @@ local recipeList
 ---@type FontString
 local measure
 
+---@type fun(row: SkillUpRecipeRow, data?: SkillUpRecipeNodeData)
+local bindPreview
+
 -- An added recipe's row text: that it is not learned, and where and at what skill it is learned. Grey,
 -- like the name Blizzard greys for a recipe it knows is unlearned.
 ---@param entry SkillUpUnlearnedRecipe
@@ -64,6 +67,7 @@ local rowTexts = setmetatable({}, { __mode = "k" })
 ---@param elementData SkillUpTreeNode
 local function DecorateRow(row, elementData)
 	local data = elementData and elementData:GetData()
+	bindPreview(row, data)
 	if not data then
 		return
 	end
@@ -98,8 +102,8 @@ local function DecorateRow(row, elementData)
 		text:SetTextColor(GRAY_FONT_COLOR:GetRGB())
 		text:Show()
 		FitLabel(row, text)
-		-- A recipe this character has not learned cannot be selected or crafted: clicks stay off, while
-		-- mouse motion stays on so the row still raises the recipe tooltip.
+		-- Keep Blizzard's selection script off for these partial records. The addon-owned preview
+		-- button handles clicks; the row can still raise its tooltip when the button is hidden.
 		if row.EnableMouse then
 			row:EnableMouse(false)
 		end
@@ -516,6 +520,7 @@ end
 function ns.AttachRecipeList()
 	local craftingPage = ProfessionsFrame.CraftingPage --[[@as SkillUpCraftingPage]]
 	recipeList = craftingPage.RecipeList
+	bindPreview = ns.AttachRecipePreview(craftingPage)
 	measure = recipeList:CreateFontString(nil, "OVERLAY", "GameFontHighlight_NoShadow")
 	measure:Hide()
 	-- No iterateExisting: it calls back as (frame, data), not (owner, frame, data),

@@ -4,6 +4,7 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "puschie286", what = "Preview unlearned recipes in the crafting pane" },
 		{ name = "Belth", what = "Routes prefer materials already in the bags" },
 		{ name = "yavinn", what = "SkillUp pages stay visible with ClassicUI Forever" },
 		{ name = "cursebandit", what = "Reported the route sending players to a trainer who would not train them" },

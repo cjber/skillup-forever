@@ -137,11 +137,11 @@ equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), " | route", "item data nothing wait
 
 for _, case in ipairs({
 	-- The window's own events redraw what shows it and keep the plans: its scan reports what changed in them.
-	{ "TRADE_SKILL_DATA_SOURCE_CHANGED", "api | route tracker" },
+	{ "TRADE_SKILL_DATA_SOURCE_CHANGED", "api | route recipeList tracker" },
 	{ "NEW_RECIPE_LEARNED", "schematics plans api | route tracker" },
-	{ "TRADE_SKILL_SHOW", "api | route tracker" },
+	{ "TRADE_SKILL_SHOW", "api | route recipeList tracker" },
 	-- A weapon or defense skill-up: nothing the plans read.
-	{ "SKILL_LINES_CHANGED", "api | route tracker" },
+	{ "SKILL_LINES_CHANGED", "api | route recipeList tracker" },
 	{ "BAG_UPDATE_DELAYED", "api | route tracker" },
 	{ "PLAYER_LEVEL_UP", "api | route recipeList tracker" },
 	{ "ZONE_CHANGED_NEW_AREA", "api | " },
@@ -172,7 +172,7 @@ equal(
 		c.professions[1].rank = 51
 		c.Fire("SKILL_LINES_CHANGED")
 	end),
-	"plans api | route tracker",
+	"plans api | route recipeList tracker",
 	"a profession's own skill-up"
 )
 equal(ns.PlanRoute(Tailoring()).profession.skill, 51, "the rebuilt plan starts from the new skill")

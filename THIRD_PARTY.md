@@ -43,6 +43,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| [puschie286](https://github.com/puschie286) | Preview unlearned recipes in the crafting pane | GitHub; PR #729 |
 | Belth | Routes prefer materials already in the bags | CurseForge; #744 |
 | yavinn | SkillUp pages stay visible with ClassicUI Forever | CurseForge; thread 8722440; #734 |
 | cursebandit | Reported the route sending players to a trainer who would not train them | CurseForge; comment 8718641; #722 |

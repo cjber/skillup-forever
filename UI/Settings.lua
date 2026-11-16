@@ -115,7 +115,7 @@ function ns.RegisterSettings()
 			rows,
 			"showUnlearned",
 			L["List unlearned recipes"],
-			L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."]
+			L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. Click a row to preview the recipe."]
 		)
 
 		Checkbox(

@@ -65,6 +65,7 @@ UI\Art.lua
 UI\Settings.lua
 UI\Tooltip.lua
 UI\DetailsBar.lua
+UI\RecipePreview.lua
 UI\RecipeList.lua
 Integrations\Sources.lua
 UI\List.lua

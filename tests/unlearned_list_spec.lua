@@ -1,8 +1,8 @@
 -- Run from the repository root: luajit tests/unlearned_list_spec.lua
 -- The recipe list's unlearned rows: the setting off leaves Blizzard's provider alone; on, the categories
 -- stay as the client built them, favourites included, the bundle's unlearned recipes follow under a
--- divider, and one the client already lists is not added twice. Such a row is greyed with its source and
--- skill, cannot take a click, and widens the list.
+-- divider, and one the client already lists is not added twice. The added row shows its source and skill
+-- while the recipe preview owns its click.
 local function noop() end
 
 local function Font()
@@ -107,6 +107,7 @@ function frame:SetWidth(width)
 end
 
 local decorate
+local previewRows = {}
 local ctx = { skillLine = 165, skill = 50, base = 45, modifier = 5 }
 local ns = {
 	L = setmetatable({}, {
@@ -171,6 +172,11 @@ local ns = {
 	AttachGear = noop,
 	AttachAuctionSearch = noop,
 	AttachDetailsBar = noop,
+	AttachRecipePreview = function()
+		return function(row, data)
+			previewRows[row] = data
+		end
+	end,
 	ShowRecipeTooltip = noop,
 	Readable = function(value)
 		return value
@@ -326,7 +332,7 @@ recipeList.width, frame.width = 304, 673
 box:SetDataProvider(input)
 assert(recipeList.width == 304 and frame.width == 673, "at the client's width the list keeps its width")
 
--- A row decorated with an added recipe: grey text with where and at what skill, no count, no mouse.
+-- An added recipe has grey source text, no craftable count, and no native click.
 local function Row()
 	local row = {
 		Count = Font(),
@@ -386,16 +392,19 @@ decorate(ns, row, {
 })
 assert(row:GetText().text == "Not learned · Trainer 60", "the row says where and at what skill")
 assert(row.Count.shown == false, "an unlearned row has no craftable count")
-assert(row.mouse == false, "and takes no click")
+assert(row.mouse == false, "the native recipe row takes no click")
+assert(previewRows[row] and previewRows[row].recipeInfo.recipeID == 20, "the preview gets the unlearned record")
 assert(row.motion == true, "but still takes mouse motion, so it can show its tooltip")
 
 -- Recycled for a learned recipe, the same row takes clicks again and shows the ordinary row text.
+local learnedData = { recipeInfo = { recipeID = 10, name = "Learned", learned = true } }
 decorate(ns, row, {
 	GetData = function()
-		return { recipeInfo = { recipeID = 10, name = "Learned", learned = true } }
+		return learnedData
 	end,
 })
 assert(row.mouse == true, "a learned row takes clicks")
+assert(previewRows[row] == learnedData, "the preview gets the record after a row is recycled")
 assert(row.motion == true, "and keeps mouse motion")
 assert(row:GetText().text == "50%", "and shows the skill-up text")
 
@@ -420,5 +429,6 @@ decorate(ns, row, {
 	end,
 })
 assert(row:GetText().shown and row:GetText().text == "Not learned · Recipe item 80", "the marker stays")
+assert(previewRows[row] and previewRows[row].recipeInfo.recipeID == 30, "the preview gets the new unlearned record")
 
 print("unlearned_list_spec: setting, categories, dedupe, width, marker, source and click: ok")

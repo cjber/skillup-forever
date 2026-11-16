@@ -427,8 +427,8 @@ L["The newest pin takes priority where skill ranges overlap."] =
 L["Pinned (%d)"] = "고정됨 (%d)" -- mt
 L["crafted"] = "제작됨" -- mt
 L["List unlearned recipes"] = "배우지 않은 제조법 표시"
-L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
-	"열린 전문 기술에서 배우지 않은 제조법을 '배우지 않음' 구분선 아래에 추가하고, 회색으로 표시하며 교관 또는 제조법과 필요한 숙련도를 함께 보여 줍니다. 선택하거나 제작할 수는 없습니다."
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. Click a row to preview the recipe."] =
+	"열린 전문 기술에서 배우지 않은 제조법을 '배우지 않음' 구분선 아래에 추가하고, 회색으로 표시하며 교관 또는 제조법과 필요한 숙련도를 함께 보여 줍니다. 항목을 클릭하면 제조법을 미리 볼 수 있습니다."
 L["Not learned · %s"] = "배우지 않음 · %s"
 L["Trainer"] = "전문 기술 교관"
 L["Recipe item"] = "제조법"

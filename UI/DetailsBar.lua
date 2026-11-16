@@ -25,6 +25,7 @@ local BAR_GAP = 2
 local frame
 ---@type integer?
 local recipeID
+local waitingForLayout = false
 
 ---@param description FontString?
 ---@return boolean
@@ -97,6 +98,10 @@ local function Refresh()
 		return
 	end
 	local form = frame.form
+	if waitingForLayout or not form:IsVisible() then
+		frame:Hide()
+		return
+	end
 	local ctx = ns.SkillContext()
 	local t, skill = ns.DetailsBar(recipeID and ns.RangeThresholds(ctx, recipeID), ctx and ctx.skill)
 	local anchor = ns.DetailsBarAnchor(form)
@@ -126,9 +131,8 @@ local function OnRecipeSelected(_, info)
 	Refresh()
 end
 
--- The bar is our own frame, parented to the crafting page and anchored to the client's own name and reagents
--- frames: nothing of the pane's own points, scripts or callbacks is touched, so it stays safe in combat and
--- through Create All.
+-- Parent the bar to the schematic so it shares the native recipe's visibility when the preview replaces it.
+-- Its anchors follow the client's name and reagents.
 function ns.AttachDetailsBar()
 	local page = ProfessionsFrame and ProfessionsFrame.CraftingPage
 	---@cast page SkillUpCraftingPage
@@ -136,7 +140,7 @@ function ns.AttachDetailsBar()
 	if frame or not form then
 		return
 	end
-	local details = CreateFrame("Frame", nil, page) --[[@as SkillUpDetailsBar]]
+	local details = CreateFrame("Frame", nil, form) --[[@as SkillUpDetailsBar]]
 	details.form = form
 	details.nativeDescription = form.Description
 	details.bar = ns.LayoutSkillBar(ns.CreateSkillBar(), { 1, 26, 41, 56 }, 1)
@@ -147,11 +151,29 @@ function ns.AttachDetailsBar()
 	details:Hide()
 	frame = details
 	EventRegistry:RegisterCallback("ProfessionsRecipeListMixin.Event.OnRecipeSelected", OnRecipeSelected, details)
-	local info = form.GetRecipeInfo and form:GetRecipeInfo()
-	OnRecipeSelected(details, info)
-	ns.WhenStale("detailsBar", Refresh)
-	-- A reopened window draws the profession it opens with once Blizzard has chosen its recipe.
-	ns.WhenEvent("TRADE_SKILL_SHOW", function()
-		C_Timer.After(0, Refresh)
+	local function SyncSelection()
+		local info = form.GetRecipeInfo and form:GetRecipeInfo()
+		OnRecipeSelected(details, info)
+	end
+	local function RefreshAfterLayout()
+		if waitingForLayout then
+			return
+		end
+		waitingForLayout = true
+		details:Hide()
+		C_Timer.After(0, function()
+			waitingForLayout = false
+			SyncSelection()
+		end)
+	end
+	-- The child is still marked shown when an ancestor closes. Clear it before the next open can
+	-- display the previous bar, and read the new recipe once Blizzard has laid out its pane.
+	form:HookScript("OnHide", function()
+		recipeID = nil
+		details:Hide()
 	end)
+	form:HookScript("OnShow", RefreshAfterLayout)
+	ns.WhenEvent("TRADE_SKILL_SHOW", RefreshAfterLayout)
+	ns.WhenStale("detailsBar", Refresh)
+	SyncSelection()
 end

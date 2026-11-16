@@ -336,11 +336,26 @@ local function LiveRecipe(recipeID)
 		end
 	end
 	if schematic.outputItemID and schematic.outputItemID > 0 then
-		local quantity = ((schematic.quantityMin or 1) + (schematic.quantityMax or schematic.quantityMin or 1)) / 2
+		local minimum, maximum = schematic.quantityMin, schematic.quantityMax
+		local quantity = ((minimum or 1) + (maximum or minimum or 1)) / 2
 		if quantity <= 0 then
 			return nil
 		end
-		recipe.output = { itemID = schematic.outputItemID, quantity = quantity }
+		---@type SkillUpRecipeOutput
+		local output = { itemID = schematic.outputItemID, quantity = quantity }
+		local recipeTypes = Enum.TradeskillRecipeType
+		local recipeType = schematic.recipeType
+		if
+			recipeTypes
+			and recipeType
+			and (recipeType == recipeTypes.Salvage or recipeType == recipeTypes.Gathering)
+		then
+			-- The client's range describes reagent cost for these recipes.
+			output.quantityMin, output.quantityMax = 1, 1
+		elseif minimum and maximum and minimum >= 1 and maximum >= minimum then
+			output.quantityMin, output.quantityMax = minimum, maximum
+		end
+		recipe.output = output
 	end
 	if #recipe.reagents == 0 then
 		return nil
@@ -384,6 +399,13 @@ end
 function ns.Reagents(recipeID)
 	local recipe = Recipe(recipeID)
 	return recipe and recipe.reagents
+end
+
+---@param recipeID integer
+---@return SkillUpRecipeOutput?
+function ns.RecipeOutput(recipeID)
+	local recipe = Recipe(recipeID)
+	return recipe and recipe.output or nil
 end
 
 ---@param itemID integer
@@ -446,8 +468,7 @@ ns.MakersOf = MakersOf
 ---@param recipeID integer
 ---@return number?
 local function OutputQuantity(recipeID)
-	local recipe = Recipe(recipeID)
-	local output = recipe and recipe.output
+	local output = ns.RecipeOutput(recipeID)
 	return output and output.quantity or nil
 end
 
@@ -627,8 +648,7 @@ end
 ---@return SkillUpValue?
 ---@return boolean?
 local function CraftValue(recipeID)
-	local recipe = Recipe(recipeID)
-	local output = recipe and recipe.output
+	local output = ns.RecipeOutput(recipeID)
 	if not output then
 		return nil
 	end

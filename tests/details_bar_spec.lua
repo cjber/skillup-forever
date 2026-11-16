@@ -145,15 +145,15 @@ tools.left, tools.top, tools.height = 89, 588, 12
 tools.shown = false
 local reagents = paneFrame()
 reagents.left, reagents.top, reagents.height = 27, 520, 20
-local form = {
-	Description = description,
-	OutputText = outputText,
-	RequiredTools = tools,
-	Reagents = reagents,
-	GetRecipeInfo = function()
-		return higher
-	end,
-}
+local form = paneFrame()
+form.Description = description
+form.OutputText = outputText
+form.RequiredTools = tools
+form.Reagents = reagents
+local liveInfo = higher
+function form.GetRecipeInfo()
+	return liveInfo
+end
 G.CreateFrame = function(...)
 	local result = create(...)
 	if not details then
@@ -230,5 +230,18 @@ equal(details:IsShown(), true, "and the bar stays under the name")
 description.text = "Craft a Basic Campfire."
 selectRecipe()
 equal(details:IsShown(), false, "a repopulated native description suppresses the details container again")
+
+description.text = ""
+selectRecipe()
+form:Hide()
+equal(details:IsShown(), false, "closing the form hides the previous recipe's band")
+selectRecipe()
+equal(details:IsShown(), false, "a selection update while hidden does not show the band")
+form:Show()
+equal(details:IsShown(), false, "the band stays hidden before the reopened form is laid out")
+liveInfo = { recipeID = HEAVY }
+c.Advance(0)
+equal(details:IsShown(), true, "the band shows after reading the reopened form's recipe")
+equal(details.bar.labels[1].text, "80", "the band reads the new native recipe after layout")
 
 Client.report("details_bar_spec")

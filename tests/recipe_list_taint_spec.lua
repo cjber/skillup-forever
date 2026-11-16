@@ -150,6 +150,9 @@ local ns = {
 	AttachGear = noop,
 	AttachAuctionSearch = noop,
 	AttachDetailsBar = noop,
+	AttachRecipePreview = function()
+		return noop
+	end,
 	ShowRecipeTooltip = noop,
 	Print = function(message)
 		error(message)

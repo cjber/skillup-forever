@@ -37,6 +37,7 @@ local ORDER = {
 	"tooltip",
 	"auctionSearch",
 	"detailsBar",
+	"recipePreview",
 	"shoppingList",
 }
 
@@ -63,6 +64,7 @@ local STALE = {
 	-- flag, a live grey, skill points or a schematic the plans were built without. The plan is built from all
 	-- of it.
 	recipes = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		schematics = true,
@@ -82,7 +84,9 @@ local STALE = {
 	-- they are. A list update while it is open is qualified by Core/Live.lua's scan, which marks this only
 	-- when the open profession, its skill or the known recipes actually moved.
 	window = {
+		recipeList = true,
 		supplyPage = true,
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		api = true,
@@ -98,7 +102,9 @@ local STALE = {
 	-- its profession's skill, bonus and cap, so a profession's own skill-up rebuilds that one plan on its next ask.
 	-- `trackedNeeds` is left to that plan key too: a weapon skill-up must not rebuild every tracked route.
 	skill = {
+		recipeList = true,
 		supplyPage = true,
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		api = true,
@@ -110,6 +116,7 @@ local STALE = {
 	},
 	-- A Legacy talent changed what a skill-up is worth: every chance shown, planned or priced moves.
 	talents = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
@@ -141,6 +148,7 @@ local STALE = {
 		shoppingList = true,
 	},
 	prices = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		prices = true,
@@ -160,6 +168,7 @@ local STALE = {
 	-- afresh there, and any other bag change keeps it (#621).
 	bags = {
 		supplyPage = true,
+		recipePreview = true,
 		bags = true,
 		tooltipRouteTools = true,
 		api = true,
@@ -176,6 +185,7 @@ local STALE = {
 	-- when one of them arrives, so a tooltip hover draws no section (#526).
 	items = {
 		supplyPage = true,
+		recipePreview = true,
 		route = true,
 		gear = true,
 		buffs = true,
@@ -202,6 +212,7 @@ local STALE = {
 	merchant = { tracker = true, shoppingList = true, supplyPage = true },
 	-- Fees and requirements recorded at a trainer.
 	fees = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
@@ -249,6 +260,7 @@ local STALE = {
 		shoppingList = true,
 	},
 	settings = {
+		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		prices = true,
@@ -270,6 +282,8 @@ local STALE = {
 		detailsBar = true,
 		shoppingList = true,
 	},
+	-- The preview covers the recipe pane and temporarily hides the auction action for the selected learned recipe.
+	preview = { auctionSearch = true },
 	-- The page's Replan button: the player asked for this route afresh, so the one they were following is
 	-- forgotten (`replan`) and every view that draws a plan goes with the plans. Nothing else moved.
 	replan = {

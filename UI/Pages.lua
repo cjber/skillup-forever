@@ -213,6 +213,7 @@ end
 -- Core shows the frame it registered when its tab is selected. That frame's OnShow asks for the page the player
 -- wants, and core's onSelect callback follows it.
 local function Reveal()
+	ns.CloseRecipePreview()
 	local spec = wanted and byID[wanted] or Chosen()
 	if spec and Enabled(spec) then
 		revealed = spec

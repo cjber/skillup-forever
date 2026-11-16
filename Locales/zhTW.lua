@@ -415,8 +415,8 @@ L["The newest pin takes priority where skill ranges overlap."] =
 L["Pinned (%d)"] = "已釘選（%d）" -- mt
 L["crafted"] = "製作" -- mt
 L["List unlearned recipes"] = "列出未學習的配方"
-L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] =
-	"在「未學習」分隔線下列出目前專業中你尚未學習的配方，以灰色顯示，並標明訓練師或配方以及所需技能。它們無法被選取或製作。"
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. Click a row to preview the recipe."] =
+	"在「未學習」分隔線下列出目前專業中你尚未學習的配方，以灰色顯示，並標明訓練師或配方以及所需技能。點擊項目即可預覽配方。"
 L["Not learned · %s"] = "未學習 · %s"
 L["Trainer"] = "訓練師"
 L["Recipe item"] = "配方"

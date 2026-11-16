@@ -80,11 +80,10 @@ local function Prepare(c)
 		return self:IsShown()
 	end
 	crafting.RecipeList = recipeList
-	crafting.SchematicForm = {
-		GetRecipeInfo = function()
-			return c.live[1].info
-		end,
-	}
+	crafting.SchematicForm = Frame(nil, crafting)
+	crafting.SchematicForm.GetRecipeInfo = function()
+		return c.live[1].info
+	end
 	crafting.CreateAllButton = Frame(nil, crafting)
 	frame.CraftingPage, frame.BookPage = crafting, book
 	frame.ProfessionsOverviewTab = Frame(nil, frame)

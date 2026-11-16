@@ -70,7 +70,7 @@ L["Add the start of each recipe's difficulty range. This is separate from the sk
 L["Addon"] = "Addon"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] = "Adds SkillUp's details to tooltips while preserving each individual tooltip choice."
 L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] = "Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."
-L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."] = "Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. They cannot be selected or crafted."
+L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. Click a row to preview the recipe."] = "Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. Click a row to preview the recipe."
 L["Adventure Guide Forever can plan this quest chain."] = "Adventure Guide Forever can plan this quest chain."
 L["Already grey: no skill-ups."] = "Already grey: no skill-ups."
 L["Also costs %s %s."] = "Also costs %s %s."

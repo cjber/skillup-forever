@@ -14,6 +14,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Reagent counts cover the whole route, not each step alone.** Every step's craft budget is chosen together so the route finishes 95 times in 100 from what you already hold, at the least reagent purchase cost. The route and shopping list say the counts include spares for that estimate, and a held reagent is counted once across the steps that use it. An optional restock visit cost, off by default, lets a trip to buy more after a shortfall change where the spare crafts go (#563).
 
+- **Preview unlearned recipes in the crafting pane.** Click an unlearned recipe to see its source, output, requirements, reagents and costs without changing your crafting selection. Thanks to puschie286 for the change (PR #729).
+
+- **Minimap button:** Show or hide the SkillUp minimap button in the addon settings. (#759)
+- **Recipe prices:** "Money on recipe rows" has an Off choice, which hides prices on recipe rows and keeps the skill-up chances. (#760)
 ## [1.13.0] - 2026-11-16
 
 <!-- discord-image: docs/screenshots/window.png -->

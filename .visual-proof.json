@@ -1,23 +1,23 @@
 {
-  "input_digest": "4d1aa3c80c3eb2bef61436ba6d2ebde6b53b840cb78163fc198e352458644541",
-  "runtime_sha256": "4d1aa3c80c3eb2bef61436ba6d2ebde6b53b840cb78163fc198e352458644541",
-  "candidate": "df7f9497296e7dfb7ec0ef7bce2a42ba955d53a0b469ec17c85e2b1f62ce2583",
+  "input_digest": "87a20ae688f8387d78c2ce7b9fb6296f9221e395b72eedf44d51806b2ccf3c90",
+  "runtime_sha256": "87a20ae688f8387d78c2ce7b9fb6296f9221e395b72eedf44d51806b2ccf3c90",
+  "candidate": "c0fb814e1beaf63d4bb504effd2f11a7b2ede13ec9fd682c5e7eb38e0ed662b9",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "e52bc9fe88f47a78fe8c62285fe181f7d862031e",
+  "source_commit": "7b9660097836ce9cbdcc9a25e215f68e03a1cd06",
   "flows": [
     {
-      "name": "client",
+      "name": "used in tooltips",
       "steps": [
-        "/skillup report"
+        "su747-usedin.lua sha256:e18f039d38f5ae818f90a00c647d0a48dee2edabc238e957cac59af74a4f6e92"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/c9745f2763d5f6d0d65125e586a1b856/raw/1d5009bb052cd1f0b4064895d02ccb9409da6749/1-client.png",
-      "sha256": "872054924ddf3f2a29e16c47f23c40090e9951e24b9a145a0323acded50c180d"
+      "url": "https://gist.githubusercontent.com/cjber/241a8556b20965105b31791b8d61227d/raw/ab97466d281a1ef73f4a0b0f5d23de6398202056/1-used-in-tooltips.png",
+      "sha256": "1032dc1f3627e534d8457fab361c7689e1aa532114bb0404de9cc9fc6e3bf4e8"
     }
   ]
 }

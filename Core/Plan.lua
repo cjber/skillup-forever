@@ -354,6 +354,7 @@ local function Snapshot(profession, target, known)
 			}
 		end
 	end
+	snapshot.restockCost = ns.db and ns.db.restockCost or 0
 	return snapshot
 end
 
@@ -610,9 +611,11 @@ local function SplitAtRank(segments, rank, modifier)
 					toSkill = segment.toSkill,
 					skillUps = segment.skillUps,
 				}
-				rest.crafts = ns.Model.CoveredCrafts(thresholds, splitAt, segment.toSkill, ups)
+				rest.crafts =
+					ns.Model.CoveredCrafts(thresholds, splitAt, segment.toSkill, ups, ns.Model.ROUTE_CONFIDENCE)
 				segment.toSkill = splitAt
-				segment.crafts = ns.Model.CoveredCrafts(thresholds, segment.fromSkill, splitAt, ups)
+				segment.crafts =
+					ns.Model.CoveredCrafts(thresholds, segment.fromSkill, splitAt, ups, ns.Model.ROUTE_CONFIDENCE)
 				table.insert(segments, index + 1, rest)
 				return
 			end
@@ -622,6 +625,8 @@ end
 
 -- How deep a reagent is followed into the recipes that make it before it is left to buy.
 local MAX_SUB_DEPTH = 3
+-- What Expand returns as `used` when no bags are passed: never written, since only the bags branch adds to it.
+local NONE_USED = {}
 
 -- The sub-crafts a recipe's reagents need, deepest first, and the raw reagents left once every
 -- reagent a learned recipe makes for less than it costs to buy is replaced by what it is made from.
@@ -640,7 +645,8 @@ local MAX_SUB_DEPTH = 3
 ---@return boolean held Whether a held copy, raw or intermediate, stood in for a reagent.
 local function Expand(recipeID, crafts, depth, making, bags)
 	local subcrafts, raw = {}, {}
-	local used = {}
+	-- Only a caller that passes the bags writes or reads what they stood in for; the rest share one empty table.
+	local used = bags and {} or NONE_USED
 	local usedHeld = false
 	for _, reagent in ipairs((ns.Reagents and ns.Reagents(recipeID)) or {}) do
 		local need = reagent.quantity * crafts
@@ -822,6 +828,7 @@ end
 local function Finish(profession, target, route)
 	local m = profession.modifier
 	local cost = route.trainingCost
+	local segmentCount = #route.segments
 	-- Each rank is needed once the route passes the cap below it: where it gets to,
 	-- which falls short of the target when the known recipes run out.
 	local ranks = {}
@@ -830,6 +837,21 @@ local function Finish(profession, target, route)
 			ranks[#ranks + 1] = rank
 			cost = cost + rank.fee
 			SplitAtRank(route.segments, rank, m)
+		end
+	end
+	-- Reuse the model's budget unless a rank split changed its segments. Rebuilding a held route has no
+	-- prior completion result, so it also budgets the current segments here.
+	local completion = route.completion
+	if completion == nil or #route.segments ~= segmentCount then
+		for _, segment in ipairs(route.segments) do
+			segment.thresholds = ns.Model.Get(segment.recipeID)
+			segment.reagentCost = RecipeCosts(segment.recipeID)
+		end
+		local budgets
+		budgets, completion =
+			ns.Model.BudgetSegments(route.segments, ns.Model.ROUTE_CONFIDENCE, ns.db and ns.db.restockCost or 0)
+		for index, segment in ipairs(route.segments) do
+			segment.crafts = budgets[index]
 		end
 	end
 	local crafts, bags = {}, {}
@@ -882,6 +904,7 @@ local function Finish(profession, target, route)
 		steps = {},
 		bands = {},
 		cost = crafting + cost,
+		completion = completion,
 		unpriced = route.excluded.unpriced,
 		unpricedRecipes = route.excluded.recipes,
 		stopReason = route.stopReason,
@@ -1072,7 +1095,13 @@ local function Rebuild(profession, target, plan, fresh)
 			fromSkill = craft.from + modifier,
 			toSkill = craft.to + modifier,
 			skillUps = ups,
-			crafts = ns.Model.CoveredCrafts(thresholds, craft.from + modifier, craft.to + modifier, ups),
+			crafts = ns.Model.CoveredCrafts(
+				thresholds,
+				craft.from + modifier,
+				craft.to + modifier,
+				ups,
+				ns.Model.ROUTE_CONFIDENCE
+			),
 		}
 	end
 	for index, step in ipairs(plan.training) do
@@ -1219,6 +1248,16 @@ function ns.BestTraining(profession, known, offers)
 	end)
 	local best = ns.Model.RecommendTraining(snapshot, services)
 	return best and best.recipeID or nil
+end
+
+-- What the route page and shopping list say beside their quantities: the counts carry the spares that make the
+-- whole route finish with the model's stated chance, and it is an estimate from the skill-up chance, not a promise.
+---@return string
+function ns.RouteSparesNote()
+	return string.format(
+		L["Counts include spares for an estimated %d%% chance to finish the whole route."],
+		math.floor(ns.Model.ROUTE_CONFIDENCE * 100 + 0.5)
+	)
 end
 
 -- Everything the plan's crafts use, as totals: what you have is compared live, so the

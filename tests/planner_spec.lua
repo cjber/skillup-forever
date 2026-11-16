@@ -24,7 +24,7 @@ function Reference.CoveredCrafts(thresholds, from, to, skillUps)
 	local ups = math.max(skillUps or 1, 1)
 	local odds = { [0] = 1 }
 	local crafts = 0
-	while (odds[needed] or 0) < Model.CONFIDENCE do
+	while (odds[needed] or 0) < Model.ROUTE_CONFIDENCE do
 		crafts = crafts + 1
 		local next_ = { [needed] = odds[needed] or 0 }
 		for points = 0, needed - 1 do
@@ -53,7 +53,7 @@ function Reference.CostPerPoint(cost, thresholds, skill, skillUps)
 	return cost * Reference.CoveredCrafts(thresholds, skill, skill + ups, ups) / ups
 end
 
-function Reference.PlanRoute(snapshot)
+function Reference.Route(snapshot)
 	local route = {
 		segments = {},
 		expectedCost = 0,
@@ -123,23 +123,37 @@ function Reference.PlanRoute(snapshot)
 		route.reachedSkill = skill + gain
 	end
 	for _, segment in ipairs(route.segments) do
+		local recipeID = segment.recipeID
+		segment.thresholds = thresholds[recipeID]
+		segment.cost = costOf[recipeID]
+		segment.reagentCost = reagentOf[recipeID]
 		segment.crafts =
-			Reference.CoveredCrafts(thresholds[segment.recipeID], segment.fromSkill, segment.toSkill, segment.skillUps)
+			Reference.CoveredCrafts(thresholds[recipeID], segment.fromSkill, segment.toSkill, segment.skillUps)
 		route.expectedCost = route.expectedCost
-			+ (
-				Model.RouteStepCost(
-					costOf[segment.recipeID],
-					reagentOf[segment.recipeID],
-					segment.crafts,
-					Model.CRAFT_TIME_COST
-				) or 0
-			)
+			+ (Model.RouteStepCost(segment.cost, segment.reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
 	end
 	return route
 end
 
+-- The whole route's budgets are chosen together at the end, as Model.BudgetRoute does.
+function Reference.BudgetRoute(route, restockCost)
+	local budgets, completion = Model.BudgetSegments(route.segments, Model.ROUTE_CONFIDENCE, restockCost)
+	route.completion = completion
+	route.expectedCost = 0
+	for index, segment in ipairs(route.segments) do
+		segment.crafts = budgets[index]
+		route.expectedCost = route.expectedCost
+			+ (Model.RouteStepCost(segment.cost, segment.reagentCost, segment.crafts, Model.CRAFT_TIME_COST) or 0)
+	end
+	return route
+end
+
+function Reference.PlanRoute(snapshot)
+	return Reference.BudgetRoute(Reference.Route(snapshot), snapshot.restockCost)
+end
+
 function Reference.RecommendTraining(snapshot, services)
-	local baseline = Reference.PlanRoute(snapshot)
+	local baseline = Reference.Route(snapshot)
 	local recipes = {}
 	for index, recipe in ipairs(snapshot.recipes) do
 		recipes[index] = recipe
@@ -148,7 +162,7 @@ function Reference.RecommendTraining(snapshot, services)
 	local best
 	for _, service in ipairs(services) do
 		recipes[#snapshot.recipes + 1] = service
-		local route = Reference.PlanRoute(candidate)
+		local route = Reference.Route(candidate)
 		local savings = baseline.expectedCost - (route.expectedCost + service.fee)
 		local helps = route.reachedSkill > baseline.reachedSkill
 			or (route.reachedSkill == baseline.reachedSkill and savings > 0)
@@ -195,7 +209,7 @@ function Reference.PlanWithTraining(snapshot, services)
 			end
 		end
 	end
-	local route = Reference.PlanRoute(current)
+	local route = Reference.BudgetRoute(Reference.Route(current), current.restockCost)
 	local firstUse = {}
 	for _, segment in ipairs(route.segments) do
 		firstUse[segment.recipeID] = firstUse[segment.recipeID] or segment.fromSkill

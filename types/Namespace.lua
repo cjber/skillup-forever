@@ -173,6 +173,7 @@
 ---@field Usable fun(frame?: Frame): boolean
 ---@field AltCounts fun(itemID: integer): {name: string, count: number}[]
 ---@field RouteReagents fun(plan: SkillUpPlan): SkillUpNeededItem[]
+---@field RouteSparesNote fun(): string What the route and shopping list say about their spares.
 ---@field InitLive fun()
 ---@field LiveRecipes table<integer, SkillUpLiveRecipe>
 ---@field NoteLearnedRecipe fun(recipeID: integer, learned: boolean?): boolean
@@ -289,6 +290,7 @@
 ---@field craftValue 'none'|'vendor'|'auction'|'sale'
 ---@field valueGathered boolean
 ---@field auctionOnly boolean
+---@field restockCost number Copper for one trip to buy more after a shortfall; 0 counts no trip.
 ---@field sortMode 'blizzard'|'skill'|'newest'|'chance'|'cost'
 ---@field unlearnedSortMode 'skill'|'newest'
 ---@field showTrainer boolean
@@ -412,6 +414,7 @@ SkillUpForeverDB = nil
 ---@field target number
 ---@field recipes SkillUpCandidate[]
 ---@field buffs? table<integer, true> Recipes whose product is a buff this character's level can use: they win a tie.
+---@field restockCost? number Copper for one trip to buy more when a leg falls short; 0 leaves it out.
 ---@field held? table<integer, integer> What the bags and bank hold of every reagent those recipes could use.
 
 ---@class SkillUpSegment
@@ -420,6 +423,9 @@ SkillUpForeverDB = nil
 ---@field toSkill number
 ---@field crafts number
 ---@field skillUps? integer
+---@field thresholds? number[] The recipe's skill range, kept for the joint budget.
+---@field cost? number The recipe's net cost per craft, before its time.
+---@field reagentCost? number What one craft's reagents cost, before the crafted item's value.
 ---@field candidates? SkillUpSegmentCandidate[] Viable source choices captured before route materialization.
 
 ---@class SkillUpSegmentCandidate
@@ -487,6 +493,7 @@ SkillUpForeverDB = nil
 ---@field segments SkillUpSegment[]
 ---@field expectedCost number
 ---@field reachedSkill number
+---@field completion? number Chance every leg's budget completes the whole route.
 ---@field excluded {unpriced: integer, recipes: integer[]} Known recipes left out for an unpriced reagent.
 ---@field stopReason? 'no_recipe'
 
@@ -496,6 +503,7 @@ SkillUpForeverDB = nil
 
 -- One training search's list of recipes and what Core/Model.lua works out from it, kept between its re-plans.
 ---@class SkillUpPlanner
+---@field Budget fun(): SkillUpRoute The selected route with joint budgets and inventory-aware prices.
 ---@field Add fun(recipe: SkillUpCandidate) A recipe joins the end of the list.
 ---@field Route fun(extra?: SkillUpCandidate): SkillUpRoute, number[] The route, and each skill it picked at.
 ---@field Changes fun(extra: SkillUpCandidate, picked: number[]): boolean Whether `extra` changes the route.
@@ -527,6 +535,7 @@ SkillUpForeverDB = nil
 ---@field training SkillUpPlanTraining[]
 ---@field ranks SkillUpRank[]
 ---@field cost number Expected crafting cost plus every fee.
+---@field completion? number Chance the route's reagent counts complete it from its starting inventory.
 ---@field unpriced integer Known recipes left out for an unpriced reagent.
 ---@field unpricedRecipes integer[]
 ---@field stopReason? 'no_recipe'

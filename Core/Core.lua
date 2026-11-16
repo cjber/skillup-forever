@@ -41,6 +41,7 @@ local DEFAULTS = {
 	craftValue = "vendor",
 	valueGathered = false, -- a reagent you gather costs what it would sell for, not nothing
 	auctionOnly = false, -- a self-supplied reagent costs a market price, and is unpriced when none is known
+	restockCost = 0, -- copper for one trip to buy more after a route leg falls short; 0 never counts a trip
 	sortMode = "blizzard",
 	unlearnedSortMode = "skill",
 	showTrainer = true,

@@ -157,8 +157,8 @@ equal(Crafts(ns.PlanRoute(Profession())), tostring(BAGS), "a pooled recipe near 
 -- #744: PoolReagentCost totals a step's reagents over every craft, while Model.RouteStepCost takes a per-craft
 -- net and reagent cost and multiplies by the crafts. A step of several crafts must therefore be priced from
 -- the per-craft share: hand it the step's total and the money is multiplied by the crafts twice. At skill 4 a
--- half-chance recipe needs four crafts for one point; two of those crafts' reagent comes from the bags (2 held
--- at 50, 2 bought at 100), so one craft's reagents cost 75 and the step 700 -- not 300 a craft and 1600.
+-- The half-chance recipe needs five crafts at 95%. Two reagents come from the bags at 50 and three
+-- are bought at 100, so the batch costs 400 plus 500 for craft time.
 local POOLED, BOUGHT = 3001, 3002
 local many = ns.Model.PlanRoute({
 	skill = 4,
@@ -181,9 +181,9 @@ local many = ns.Model.PlanRoute({
 		},
 	},
 })
-equal(many.segments[1].crafts, 4, "a half-chance step covers one point in four crafts")
+equal(many.segments[1].crafts, 5, "a half-chance step covers one point at 95% in five crafts")
 equal(many.segments[1].recipeID, POOLED, "the partly held recipe wins on its per-craft cost")
-equal(many.expectedCost, 700, "a pooled step charges each craft its 75 share of the 300 batch")
+equal(many.expectedCost, 900, "the final budget prices held copies once and buys only the shortfall")
 
 -- #744: the bags weigh in on a training candidate too. A trained recipe is neither learned nor a walk's recipe
 -- until the search takes it, so the planner's held pool must count its reagents before the search re-plans over

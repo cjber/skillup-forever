@@ -513,8 +513,6 @@ L["%s: %s are out of date. Update them to fix this."] =
 	"%s: %s 버전이 오래되었습니다. 문제를 해결하려면 업데이트하세요." -- mt
 L["%s could not start. Reinstall %s to fix this."] =
 	"%s을(를) 시작할 수 없습니다. 문제를 해결하려면 %s을(를) 다시 설치하세요." -- mt
-L["SkillUp no longer fills Auctionator with shopping lists."] =
-	"SkillUp이 더 이상 Auctionator를 구매 목록으로 채우지 않습니다." -- mt
 L["Region sale average"] = "지역 평균 판매가"
 L["Region sale average if higher"] = "더 높으면 지역 평균 판매가"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
@@ -664,3 +662,5 @@ L["Apply policy"] = "정책 적용" -- mt
 L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt
+
+L["The route spells out what to craft in order."] = "경로에 제작할 항목이 순서대로 표시됩니다." -- mt

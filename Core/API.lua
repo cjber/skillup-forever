@@ -503,6 +503,7 @@ local function CopyProfessions(list, steps, recipes)
 			name = entry.name,
 			skillLineID = entry.skillLineID,
 			icon = entry.icon,
+			nextAction = ns.RouteDemand.NextAction(ns.PlanRoute(ns.RouteProfessions()[entry.skillLineID])),
 			rank = entry.rank,
 			maxRank = entry.maxRank,
 			title = entry.title,
@@ -537,7 +538,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 13 }
+local API = { version = 1, minor = 14 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe

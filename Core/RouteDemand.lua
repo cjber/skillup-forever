@@ -7,6 +7,9 @@ end
 local RouteDemand = {}
 
 local COST_REASON = "observed expenditure unavailable: feasible source orders not established"
+local ATOMIC_PURCHASE_REASON = "atomic-purchase-not-executable"
+local STALE_ACTION_REASON = "unpublished-or-stale"
+local MISSING_ACTION_REASON = "action-unavailable"
 
 -- A probability or acquisition certificate cannot inherit display fallbacks.
 -- Explicit bank scope follows Forever's GetItemCount declaration, with reagent
@@ -47,6 +50,22 @@ local jobs = setmetatable({}, { __mode = "k" })
 local supplyPlans = {}
 ---@type table<integer, SkillUpSupplyConfiguration>
 local configured = {}
+-- Intent survives cancellation, so a revoked adaptive owner cannot become an
+-- estimated craft. Explicit configuration removal/switching clears this intent.
+local adaptiveIntent = setmetatable({}, { __mode = "k" })
+local actionRecords = setmetatable({}, { __mode = "k" })
+local generation = 0
+
+local function CopyAction(value)
+	if type(value) ~= "table" then
+		return value
+	end
+	local result = {}
+	for key, field in pairs(value) do
+		result[key] = CopyAction(field)
+	end
+	return result
+end
 
 ---@param plan SkillUpPlan
 ---@param buy table<integer, integer>
@@ -667,6 +686,82 @@ function RouteDemand.StartAdaptive(plan, request, alpha)
 			inner.result.recipeScope = "declared-finite-recipes"
 			inner.result.recipeEvidence = recipeEvidence
 		end
+		if inner.result.status == "complete" then
+			local result, certificate = inner.result, inner.result.certificate
+			local function Unsupported(code)
+				return { kind = "unsupported", reason = code }
+			end
+			local action = Unsupported("economic-root-missing")
+			if certificate and certificate.kind == "finite-dag-exhaustive" then
+				local rows = {}
+				for _, row in ipairs(certificate.policy) do
+					Tick()
+					if rows[row.state] then
+						Reject("duplicate policy state")
+					end
+					rows[row.state] = row
+				end
+				for _, row in pairs(rows) do
+					Tick()
+					for _, edge in ipairs(row.successors) do
+						Tick()
+						if not rows[edge.state] then
+							Reject("policy successor missing")
+						end
+					end
+				end
+				local row = rows[certificate.initialState]
+				local orders = result.orders
+				local initial = orders and #orders > 0
+				if initial or (row and row.kind == "acquire") then
+					orders = initial and orders or row.orders
+					action = {
+						kind = "purchase",
+						phase = initial and "initial" or "continuation",
+						atomic = true,
+						executable = false,
+						orders = {},
+						reason = ATOMIC_PURCHASE_REASON,
+						visits = Copy(
+							initial and certificate.laws.initialVisitMoney or certificate.laws.refillVisitMoney
+						),
+						visitValues = Copy(
+							initial and certificate.laws.initialVisitValue or certificate.laws.refillVisitValue
+						),
+						assumptions = Copy(result.assumptions),
+					}
+					for _, order in ipairs(orders) do
+						Tick()
+						local source = certificate.sources[order.source]
+						if not source then
+							Reject("purchase source binding missing")
+						end
+						action.orders[#action.orders + 1] = {
+							source = order.source,
+							bundles = order.bundles,
+							binding = Copy(source),
+						}
+					end
+				elseif row and row.kind == "craft" then
+					local recipe = certificate.recipes and certificate.recipes[row.recipeID]
+					if recipe and recipe.role == row.role then
+						action =
+							{ kind = "craft", recipeID = row.recipeID, role = row.role, count = 1, executable = false }
+					else
+						action = Unsupported("recipe-binding-missing")
+					end
+				elseif row and (row.kind == "stop" or row.kind == "complete") then
+					action = { kind = "stop", reason = row.kind == "complete" and "complete" or "economic-stop" }
+				end
+				action.state = initial and certificate.preInitialState or certificate.initialState
+				action.resources = Copy(initial and certificate.preInitialResources or certificate.initialResources)
+				action.coordinates, action.pools = Copy(certificate.coordinates), Copy(certificate.pools)
+				action.postInitialState = initial and certificate.initialState or nil
+			end
+			action.conditional, action.inventoryScope = true, "bags-only"
+			action.sourceRevision, action.recipeRevision = result.sourceRevision, result.recipeRevision
+			actionRecords[job] = action
+		end
 		return inner.result
 	end)
 	local function Cancel(self)
@@ -733,7 +828,15 @@ local function PublishSupply(plan, job, alpha, service)
 			return job
 		end
 	end
-	plan.supply = { job = job, revision = ns.Model.ChanceRevision(), alpha = alpha, service = service }
+	generation = generation + 1
+	plan.supply = {
+		generation = generation,
+		configuration = configured[plan.profession.skillLine],
+		job = job,
+		revision = ns.Model.ChanceRevision(),
+		alpha = alpha,
+		service = service,
+	}
 	supplyPlans[job] = plan
 	local cancel = job.Cancel
 	job.Cancel = function(self)
@@ -753,9 +856,25 @@ end
 ---@param alpha number
 ---@return SkillUpSupplyChoiceJob
 function RouteDemand.SelectSupply(plan, contract, alpha)
+	local skillLine = plan.profession.skillLine
+	local previous = configured[skillLine]
+	local owner = plan.supply
 	local job = alpha ~= nil and RouteDemand.StartPolicy(plan, contract, alpha)
 		or RejectedPolicy("explicit starting coverage required")
 	---@cast job SkillUpSupplyChoiceJob
+	if previous and previous.mode == "adaptive" then
+		if previous.job then
+			previous.job:Cancel()
+		end
+		-- Cancellation callbacks may install a new configuration or direct owner.
+		-- That replacement wins; the outer fixed switch must not clear its intent.
+		if configured[skillLine] ~= previous or (plan.supply and plan.supply ~= owner) then
+			job:Cancel()
+			return job
+		end
+		configured[skillLine] = nil
+	end
+	adaptiveIntent[skillLine or plan] = nil
 	PublishSupply(plan, job, alpha, "fixed-batch")
 	return job
 end
@@ -790,6 +909,7 @@ local function Configure(skillLine, read, alpha, mode)
 			return false, "configuration replaced during cancellation"
 		end
 	end
+	adaptiveIntent[skillLine] = nil
 	configured[skillLine] = read and { read = read, alpha = assert(alpha), mode = mode, dirty = true } or nil
 	return true
 end
@@ -815,6 +935,7 @@ end
 ---@param alpha number
 ---@return SkillUpFiniteSelectionJob
 function RouteDemand.SelectAdaptiveSupply(plan, request, alpha)
+	adaptiveIntent[plan.profession.skillLine or plan] = true
 	local job = RouteDemand.StartAdaptive(plan, request, alpha)
 	PublishSupply(plan, job, alpha, "adaptive-finite")
 	return job
@@ -882,6 +1003,38 @@ function RouteDemand.Supply(plan)
 	then
 		return supply
 	end
+end
+
+-- A query over the frame-published owner only. No reader, native resource
+-- read, graph traversal or reconciliation happens here. Only a freshly solved
+-- empty initial basket can use its economic root; purchases stay outstanding.
+---@param plan SkillUpPlan
+---@return SkillUpNextAction? nil means ordinary estimated mode.
+function RouteDemand.NextAction(plan)
+	local config = configured[plan.profession.skillLine]
+	if not (config and config.mode == "adaptive") and not adaptiveIntent[plan.profession.skillLine or plan] then
+		return nil
+	end
+	local supply = RouteDemand.Supply(plan)
+	if
+		not supply
+		or supply.service ~= "adaptive-finite"
+		or (config and (config.dirty or supply.configuration ~= config))
+	then
+		return {
+			kind = "unsupported",
+			reason = STALE_ACTION_REASON,
+			conditional = true,
+			inventoryScope = "bags-only",
+		}
+	end
+	local action = actionRecords[supply.job]
+	if not action then
+		return { kind = "unsupported", reason = MISSING_ACTION_REASON, conditional = true, inventoryScope = "bags-only" }
+	end
+	local copy = CopyAction(action)
+	copy.generation = supply.generation
+	return copy
 end
 
 -- Read only: status belongs to the current plan revision, never to a getter's clock.
@@ -1125,6 +1278,7 @@ function RouteDemand.QuoteOrders(orders)
 end
 
 ns.RouteDemand = {
+	NextAction = RouteDemand.NextAction,
 	ConfigureSupply = RouteDemand.ConfigureSupply,
 	ConfigureAdaptiveSupply = RouteDemand.ConfigureAdaptiveSupply,
 	SelectAdaptiveSupply = RouteDemand.SelectAdaptiveSupply,

@@ -46,6 +46,7 @@
 ---@class SkillUpAPIProfession
 ---@field recipeEvidence SkillUpRecipeEvidence Alpha-free conditional declaration status, never native production proof.
 ---@field sourceEvidence SkillUpSourceEvidence Current merchant evidence, even without a coverage target.
+---@field nextAction SkillUpNextAction? Current copied adaptive guidance; absent in ordinary estimate mode.
 ---@field supply SkillUpSupplyChoiceResult|SkillUpFiniteSelectionResult? Conditional fixed or adaptive selection status and complete certificate.
 ---@field name string Localized.
 ---@field skillLineID integer

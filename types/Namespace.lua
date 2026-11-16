@@ -473,6 +473,8 @@ SkillUpForeverDB = nil
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
 ---@class SkillUpPlanSupply
+---@field generation integer
+---@field configuration SkillUpSupplyConfiguration?
 ---@field alpha number?
 ---@field service string?
 ---@field sourceRevision integer?
@@ -605,6 +607,7 @@ SkillUpForeverDB = nil
 ---@field items SkillUpNeededItem[]
 
 ---@class SkillUpCraft
+---@field nextAction SkillUpNextAction? Adaptive guidance, never a secure craft proxy.
 ---@field text string
 ---@field recipeID? integer
 ---@field count? number How many the bags and the client allow now.

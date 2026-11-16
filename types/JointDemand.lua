@@ -42,6 +42,7 @@
 ---@field unitCopper table<integer, number> Observed replacement cost per missing reagent unit.
 
 ---@class SkillUpRouteDemandProducer
+---@field NextAction fun(plan: SkillUpPlan): SkillUpNextAction?
 ---@field Summary fun(plan: SkillUpPlan): SkillUpSupplySummary
 ---@field Vendors fun(item: SkillUpNeededItem|SkillUpAPIShoppingItem, byTravel?: boolean): integer[]
 ---@field ConfigureAdaptiveSupply fun(skillLine: integer, read: (fun(): SkillUpAdaptiveSupplyRequest?, string?)?, alpha?: number): boolean, string?
@@ -73,3 +74,27 @@
 ---@field result SkillUpBasketChoiceResult
 ---@field Advance fun(self: SkillUpBasketChoiceJob, work: integer): SkillUpBasketChoiceResult
 ---@field Cancel fun(self: SkillUpBasketChoiceJob)
+
+---@class SkillUpNextAction
+---@field kind 'craft'|'purchase'|'stop'|'unsupported'
+---@field reason string?
+---@field generation integer? Monotone publication identity, never a resource revision.
+---@field conditional boolean
+---@field inventoryScope 'bags-only'
+---@field sourceRevision integer?
+---@field recipeRevision integer?
+---@field state string? Exact authorized economic key; pre-initial key while purchases are outstanding.
+---@field resources SkillUpFiniteResources?
+---@field coordinates string[]?
+---@field pools string[]?
+---@field postInitialState string? Not authorized until a fresh coherent publication; no inferred delivery.
+---@field recipeID integer?
+---@field role string?
+---@field count integer? One completed attempt, never a batch.
+---@field executable boolean? False: guidance only, no native craft/purchase authorization.
+---@field phase 'initial'|'continuation'?
+---@field atomic boolean?
+---@field orders {source: integer, bundles: integer, binding: SkillUpFiniteSource}[]? Complete indivisible basket.
+---@field visits table<string, integer>? Monetary fares, separate from offer quotes.
+---@field visitValues table<string, number>?
+---@field assumptions SkillUpSourceAssumption[]?

@@ -1277,6 +1277,21 @@ function Finite.Start(input)
 			actions = actionCount,
 			transitions = transitionCount,
 			initialState = adaptiveRoot.key,
+			-- Structured states are copied at their producer, with the same work
+			-- budget as the graph. Consumers need no second key decoder.
+			preInitialState = Key(start, false),
+			preInitialResources = {
+				stage = start.stage,
+				balances = Copy(start.balances),
+				stock = Copy(start.stock),
+				wallet = start.wallet,
+			},
+			initialResources = {
+				stage = initialState.stage,
+				balances = Copy(initialState.balances),
+				stock = Copy(initialState.stock),
+				wallet = initialState.wallet,
+			},
 			coverageState = coverageRoot.key,
 			coordinates = Copy(coordinates),
 			pools = Copy(poolKeys),

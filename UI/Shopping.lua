@@ -888,7 +888,11 @@ function ModuleMixin:OnBlockHeaderClick(block)
 			-- A menu callback runs as addon code, so calling the protected craft API here taints the client's
 			-- craft path (#313). Open the recipe instead: its own Craft button then crafts securely.
 			root:CreateButton(craft.text, function()
-				ns.ShowRecipe(recipeID, true)
+				local profession = ns.RouteProfessions()[block.id]
+				local fresh = profession and ns.NextCraft(ns.PlanRoute(profession))
+				if fresh and fresh.recipeID then
+					ns.ShowRecipe(fresh.recipeID, true)
+				end
 			end)
 		end
 		-- The layout picked by straight line; a click ranks by travel time.

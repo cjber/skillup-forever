@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 13; the history:
+`minor` is 14; the history:
 
 | minor | added |
 |---|---|
@@ -23,6 +23,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 11 | complete adaptive finite supply certificates, scope and selection proof |
 | 12 | alpha-free recipe evidence status and opt-in declared crafted snapshot provenance |
 | 13 | copied revision-owned shopping supply summary |
+| 14 | copied current economic `nextAction` guidance on professions |
 
 ## Not ready
 
@@ -58,7 +59,38 @@ replace the defaults of three and five for that call only. A missing field keeps
 | `reagents` | the route's reagents for the whole route |
 | `recipeEvidence` | alpha-free recipe declaration status, with stable missing-law reason codes |
 | `sourceEvidence` | structured source-law evidence for the current merchant window, available without a coverage target |
+| `nextAction` | optional current read-only economic guidance for adaptive mode, described below |
 | `supply` | optional conditional fixed or adaptive selection status and complete result, described below |
+
+`nextAction` is absent in ordinary estimate mode. In adaptive mode it has `kind`
+(`"craft"`, `"purchase"`, `"stop"` or `"unsupported"`), `conditional = true` and
+`inventoryScope = "bags-only"`. Published actions carry a monotone publication
+`generation`, exact economic `state`, `resources` (`stage`, ordered `balances`,
+ordered `stock`, `wallet`), `coordinates`, `pools` and declared source/recipe revisions.
+The stage is a compiled stage index. Generation is not a resource revision.
+Getters copy prepared records and never read resources, run a reader or advance work.
+
+A craft names the declared `recipeID`, `role` and `count = 1`. It is recipe-open
+guidance only (`executable = false`): the addon does not arm Create, CreateAll or
+Shift batch paths for it. The native page controls any subsequent player crafting.
+Stop distinguishes `reason = "complete"` from `"economic-stop"`; the economic
+policy may stop even when the separate maximum-coverage policy would craft.
+Unsupported includes `"unpublished-or-stale"`, `"action-unavailable"`,
+`"economic-root-missing"` or `"recipe-binding-missing"`. Adaptive mode never
+falls back to an estimated craft while calculating, stale, unknown or infeasible.
+
+A purchase has `phase = "initial"` or `"continuation"`, `atomic = true`,
+`executable = false` and `reason = "atomic-purchase-not-executable"`. `orders`
+retains the whole indivisible basket: each entry has `source`, `bundles` and its
+complete source `binding`, including offer/NPC identity, typed costs, product,
+ceiling and finite pool. `visits` holds monetary fares, `visitValues` opportunity
+values and `assumptions` dated session/slot provenance when declared. These are
+conditional instructions, never addon purchases or substitute reagent baskets.
+Initial purchases remain outstanding against the pre-payment state; `postInitialState`
+names the hypothetical delivered root, not an authorized current state. Repeated reads,
+opening a recipe and partial resource changes cannot reconcile delivery or traverse
+successors. Relevant observations revoke the owner and require fresh publication.
+The `steps` array remains explanatory route material, not an adaptive action fallback.
 
 `sourceEvidence` has `status` (`"unavailable"` or `"conditional"`), `sourceRevision`,
 `scope = "current-merchant-window"`, `missing` and `assumptions`. Each missing record has a

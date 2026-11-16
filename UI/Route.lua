@@ -966,6 +966,14 @@ local function RequestRecipe(recipeID)
 	return false
 end
 
+-- Deferred refreshes must resolve the current Plan owner, never replay an
+-- action record captured before combat, a bag event or a configuration change.
+local function FreshCraft()
+	local profession = selected and ns.RouteProfessions()[selected]
+	return profession and ns.NextCraft(ns.PlanRoute(profession))
+		or { text = L["Craft next"], reason = L["Nothing to craft on this route."] }
+end
+
 ---@param craft SkillUpCraft
 local function ApplyCraft(craft)
 	local button = page.Craft
@@ -985,7 +993,9 @@ local function ApplyCraft(craft)
 	local canCreateAll = createAll and createAll:IsEnabled() and craftable > 0
 	local all = canCreateAll and count and count >= craftable
 	local onRecipe = recipeID and count and count > 0 and RequestRecipe(recipeID)
-	local ready = onRecipe and create and create:IsEnabled()
+	-- Adaptive actions are guidance only. RequestRecipe may open the native
+	-- recipe, but no Create, CreateAll or Shift proxy is armed for them.
+	local ready = not craft.nextAction and onRecipe and create and create:IsEnabled()
 
 	-- A secure type="click" presses the Professions window's own Create button, as Blizzard's own gamepad code
 	-- does (Blizzard_ProfessionsFrame.lua, Create/CreateAll, lines 979-985), and the client runs the protected
@@ -1011,7 +1021,7 @@ local function ApplyCraft(craft)
 	end
 
 	local reason = CraftReason(craft)
-	if not reason and recipeID and count and count > 0 and not ready then
+	if not craft.nextAction and not reason and recipeID and count and count > 0 and not ready then
 		reason = L["The game's Craft button is not ready for this recipe."]
 	end
 	-- The button keeps one plain label and one width; the recipe and its count are named beside it and in
@@ -1022,7 +1032,7 @@ local function ApplyCraft(craft)
 	button.reason = reason
 	button:SetText(L["Craft"])
 	local planned = craft.planned
-	local countText = planned and tostring(planned) or ""
+	local countText = craft.nextAction and count and tostring(count) or planned and tostring(planned) or ""
 	if ready and count and planned and count < planned then
 		countText = string.format(L["%d of %d"], count, planned)
 	end
@@ -1050,7 +1060,7 @@ end
 -- The route page owns the button while it shows; a change on the native page is not ours to answer.
 local function RefreshCraft()
 	if currentCraft and page:IsShown() then
-		SetCraft(currentCraft)
+		SetCraft(FreshCraft())
 	end
 end
 
@@ -1095,7 +1105,7 @@ local function ApplyPendingRoute()
 		page.CraftCount:SetShown(queued.craftShown)
 	end
 	if queued.craft then
-		ApplyCraft(queued.craft)
+		SetCraft(FreshCraft())
 	end
 end
 
@@ -1143,10 +1153,15 @@ local function Render()
 	end
 	local reagents = ns.RouteReagents(plan)
 	SetCollectEnabled(CollectChanges(reagents))
-	local supplyText = ns.SupplySummaryText(ns.RouteDemand.Summary(plan))
+	local summary = ns.RouteDemand.Summary(plan)
+	local supplyText = ns.SupplySummaryText(summary)
 	page.RouteList:Message(supplyText)
-	if ns.RouteDemand.Summary(plan).status ~= "unconfigured" then
-		page.RouteList:Message(L["Craft next follows the estimated route."])
+	if summary.status ~= "unconfigured" then
+		page.RouteList:Message(
+			summary.service == "adaptive-finite"
+					and L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."]
+				or L["Craft next follows the estimated route."]
+		)
 	end
 	page.ReagentList:Message(supplyText)
 	RenderRoute(page.RouteList, plan)

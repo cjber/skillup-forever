@@ -84,6 +84,9 @@
 ---@field states integer
 ---@field actions integer
 ---@field transitions integer
+---@field preInitialState string Exact pre-payment economic key.
+---@field preInitialResources SkillUpFiniteResources
+---@field initialResources SkillUpFiniteResources Post-initial-delivery root, not evidence of actual delivery.
 ---@field initialState string
 ---@field coordinates string[] Order of canonical typed balance coordinates in state keys.
 ---@field pools string[] Order of finite opportunity pools in state keys.
@@ -181,3 +184,9 @@
 ---@field recipeID integer?
 ---@field available boolean?
 ---@field role 'main'|'auxiliary'?
+
+---@class SkillUpFiniteResources
+---@field stage integer Compiled stage index, not a skill or attempt count.
+---@field balances integer[] In certificate.coordinates order.
+---@field stock integer[] In certificate.pools order.
+---@field wallet integer

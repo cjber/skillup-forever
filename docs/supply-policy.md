@@ -129,6 +129,30 @@ states are evaluated. Explicit work, state, coordinate and exact-number limb
 budgets, plus a checked exact exponent range, return unknown on exhaustion; they do not truncate the feasible domain.
 Inputs remain immutable for the job lifetime. Getters do not advance jobs.
 
+## Finite initial selection
+
+`FiniteAcquisition.Select(input, alpha)` enumerates the complete initial quantity
+domain bounded by the finite opportunity pools. The input's `initialOrders`
+decision slot must be explicitly empty. Atomic payments, shared stock, access
+and legal transaction ceilings remain the evaluator's feasibility rules. An
+empty purchase is a candidate too.
+
+Eligibility requires exact starting-only C0 >= the explicitly supplied alpha.
+The selector compares private immutable dyadic coverage and total objective
+values, rather than their published rounded bounds. Exact ties retain the first
+source vector in declared enumeration order. One aggregate work budget includes
+child evaluation and comparison work. An unresolved candidate or exhausted
+budget returns unknown, without presenting an incumbent as globally optimal.
+Only complete enumeration can certify a selected order or finite infeasibility.
+
+The selected result owns legal initial orders, dense source quantities, the
+adaptive policy certificate, and enumeration counts. `have` is the native held
+inventory; `items` is held plus gross initial products before item-token
+payments. C0 uses net post-payment inventory. Source identities and typed
+payments retain that distinction. Cancellation or a probability revision
+invalidates private exact values before reuse. This remains opt-in: no alpha,
+future law, failure loss or carrying value is chosen for the player.
+
 ## Live ownership and consumers
 
 `Core/SupplySources.lua` owns session-only, revisioned declarations for distinct

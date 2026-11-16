@@ -1,6 +1,8 @@
 ---@type string, SkillUpNamespace
 local _, ns = ...
 local Finite = {}
+---@type table<SkillUpFiniteAcquisitionJob, {coverage: SkillUpDyadic, objective: SkillUpDyadic, revision: integer}>
+local exactResults = setmetatable({}, { __mode = "k" })
 local LIMIT = 2 ^ 52 - 1
 local COMPONENTS = { "success", "money", "tokens", "visitValue", "carry", "failure", "visits" }
 local function Integer(value)
@@ -10,7 +12,7 @@ local function Nonnegative(value)
 	return type(value) == "number" and value >= 0 and value < math.huge
 end
 ---@param reason string
----@return SkillUpFiniteAcquisitionResult
+---@return SkillUpFiniteSelectionResult
 local function Unknown(reason)
 	return { status = "unknown", costKnown = false, reasons = { reason } }
 end
@@ -18,6 +20,8 @@ end
 ---@param input SkillUpFiniteAcquisitionInput
 ---@return SkillUpFiniteAcquisitionJob
 function Finite.Start(input)
+	---@type SkillUpFiniteAcquisitionJob
+	local job
 	local revision = ns.Model.ChanceRevision()
 	---@type SkillUpFiniteAcquisitionResult
 	local initial = { status = "calculating", costKnown = false, reasons = {} }
@@ -898,10 +902,12 @@ function Finite.Start(input)
 			pools = Copy(poolKeys),
 			policy = policy,
 		}
+		exactResults[job] = { coverage = coverage[1], objective = Objective(value), revision = revision }
 		return result
 	end)
 	---@param self SkillUpFiniteAcquisitionJob
 	local function Cancel(self)
+		exactResults[self] = nil
 		thread = nil
 		self.result =
 			{ status = "cancelled", costKnown = false, reasons = { "finite acquisition snapshot invalidated" } }
@@ -937,7 +943,242 @@ function Finite.Start(input)
 		end
 		return self.result
 	end
+	job = { result = initial, Cancel = Cancel, Advance = Advance }
+	return job
+end
+
+-- Private values are valid only for the chance revision that produced them.
+-- Rounded publication bounds never decide selection eligibility or ordering.
+local function Exact(job)
+	local record = exactResults[job]
+	if record and record.revision ~= ns.Model.ChanceRevision() then
+		job:Cancel()
+		return nil
+	end
+	return record
+end
+
+---@param input SkillUpFiniteAcquisitionInput
+---@param alpha number
+---@return SkillUpFiniteSelectionJob
+function Finite.Select(input, alpha)
+	local revision = ns.Model.ChanceRevision()
+	---@type SkillUpFiniteAcquisitionJob?
+	local child, bestJob
+	---@type SkillUpFiniteSelectionResult
+	local initial = { status = "calculating", costKnown = false, reasons = {} }
+	---@type thread?
+	local thread = coroutine.create(function()
+		if not Nonnegative(alpha) or alpha > 1 then
+			return Unknown("explicit starting coverage alpha in [0,1] required")
+		end
+		if
+			type(input) ~= "table"
+			or type(input.options) ~= "table"
+			or type(input.initialOrders) ~= "table"
+			or next(input.initialOrders) ~= nil
+		then
+			return Unknown("finite selection requires an empty initialOrders decision slot")
+		end
+		local options = {}
+		for _, field in ipairs({ "workLimit", "stateLimit", "coordinateLimit", "limbLimit" }) do
+			if not Integer(input.options[field]) or input.options[field] == 0 then
+				return Unknown("explicit positive finite selection budgets required")
+			end
+			options[field] = input.options[field]
+		end
+		local work, evaluated, eligible = 0, 0, 0
+		local function Reject(reason)
+			error({ finiteSelection = reason }, 0)
+		end
+		local function Tick()
+			work = work + 1
+			if work > options.workLimit then
+				Reject("aggregate finite selection work budget exhausted; no optimum certificate")
+			end
+			coroutine.yield()
+		end
+		local function Safe(value)
+			if not Integer(value) then
+				Reject("selected gross inventory exceeds exact integer range")
+			end
+			return value
+		end
+		local exact = ns.Dyadic.Create(options.limbLimit, Tick)
+		local target = exact.Number(alpha)
+		local function Orders(quantities)
+			local orders = {}
+			for i, count in ipairs(quantities) do
+				while count > 0 do
+					local part = math.min(count, input.sources[i].maxBundles)
+					orders[#orders + 1], count = { source = i, bundles = part }, count - part
+					Tick()
+				end
+			end
+			return orders
+		end
+		local bestQuantities, bestOrders
+		local sourceEvidence
+		local function Evaluate(quantities)
+			local candidate, orders, childOptions = {}, Orders(quantities), {}
+			for key, value in pairs(input) do
+				candidate[key] = value
+				Tick()
+			end
+			for key, value in pairs(options) do
+				childOptions[key] = value
+				Tick()
+			end
+			candidate.initialOrders, candidate.options = orders, childOptions
+			---@cast candidate SkillUpFiniteAcquisitionInput
+			child = Finite.Start(candidate)
+			while child.result.status == "calculating" do
+				child:Advance(1)
+				Tick()
+			end
+			evaluated = evaluated + 1
+			if child.result.status == "infeasible" then
+				child = nil
+				return
+			end
+			if child.result.status ~= "complete" then
+				Reject(child.result.reasons[1] or "unresolved finite initial candidate")
+			end
+			if not sourceEvidence then
+				sourceEvidence =
+					{ sourceRevision = child.result.sourceRevision, assumptions = child.result.assumptions }
+			end
+			local record = Exact(child)
+			if not record then
+				Reject("finite initial candidate invalidated")
+			end
+			assert(record)
+			if exact.Compare(record.coverage, target) >= 0 then
+				eligible = eligible + 1
+				local previous = bestJob and Exact(bestJob)
+				if bestJob and not previous then
+					Reject("finite incumbent invalidated")
+				end
+				if not previous or exact.Compare(record.objective, previous.objective) < 0 then
+					bestJob, bestQuantities, bestOrders = child, {}, orders
+					for i, count in ipairs(quantities) do
+						bestQuantities[i] = count
+						Tick()
+					end
+				end
+			end
+			child = nil
+		end
+		-- The empty order validates the entire fixed-initial schema before source
+		-- bounds are read. Unknown anywhere prevents a global optimum claim.
+		Evaluate({})
+		local bounds, quantities = {}, {}
+		for i, source in ipairs(input.sources) do
+			bounds[i] = source.access and math.floor(input.stock[source.stockKey] / source.stockPerBundle) or 0
+			quantities[i] = 0
+			if bestQuantities and bestQuantities[i] == nil then
+				bestQuantities[i] = 0
+			end
+			Tick()
+		end
+		while #quantities > 0 do
+			local index = #quantities
+			while index > 0 and quantities[index] == bounds[index] do
+				quantities[index], index = 0, index - 1
+				Tick()
+			end
+			if index == 0 then
+				break
+			end
+			quantities[index] = quantities[index] + 1
+			Evaluate(quantities)
+		end
+		local selection = {
+			kind = "finite-initial-enumeration",
+			evaluated = evaluated,
+			eligible = eligible,
+			domainBounds = bounds,
+			alpha = alpha,
+		}
+		if not bestJob then
+			assert(sourceEvidence)
+			return {
+				status = "infeasible",
+				costKnown = false,
+				reasons = { "no finite initial order meets explicit starting coverage" },
+				sourceRevision = sourceEvidence.sourceRevision,
+				assumptions = sourceEvidence.assumptions,
+				alpha = alpha,
+				selection = selection,
+			}
+		end
+		if not Exact(bestJob) then
+			Reject("finite selected candidate invalidated")
+		end
+		local result = bestJob.result
+		local have, items = {}, {}
+		for item, count in pairs(input.route.held) do
+			have[item], items[item] = count, count
+			Tick()
+		end
+		for i, count in ipairs(bestQuantities) do
+			local source = input.sources[i]
+			items[source.itemID] = Safe((items[source.itemID] or 0) + Safe(count * source.bundleUnits))
+			Tick()
+		end
+		result.alpha, result.orders, result.quantities = alpha, bestOrders, bestQuantities
+		result.have, result.items, result.selection = have, items, selection
+		return result
+	end)
+	---@param self SkillUpFiniteSelectionJob
+	local function Cancel(self)
+		if child then
+			child:Cancel()
+		end
+		if bestJob then
+			bestJob:Cancel()
+		end
+		child, bestJob, thread = nil, nil, nil
+		self.result = { status = "cancelled", costKnown = false, reasons = { "finite selection snapshot invalidated" } }
+	end
+	---@param self SkillUpFiniteSelectionJob
+	---@param work integer
+	local function Advance(self, work)
+		assert(Integer(work) and work > 0, "positive finite integer advance budget required")
+		if revision ~= ns.Model.ChanceRevision() and self.result.status ~= "cancelled" then
+			self:Cancel()
+		end
+		for _ = 1, work do
+			if self.result.status ~= "calculating" then
+				break
+			end
+			local active = assert(thread)
+			local ok, result = coroutine.resume(active)
+			if not ok then
+				if type(result) == "table" and result.finiteSelection then
+					self.result = Unknown(result.finiteSelection)
+				elseif
+					result == "exact arithmetic limb budget exhausted"
+					or result == "exact arithmetic exponent budget exhausted"
+				then
+					self.result = Unknown(result)
+				else
+					error(result)
+				end
+				if child then
+					child:Cancel()
+				end
+				if bestJob then
+					bestJob:Cancel()
+				end
+				child, bestJob, thread = nil, nil, nil
+			elseif coroutine.status(active) == "dead" then
+				self.result, thread = result, nil
+			end
+		end
+		return self.result
+	end
 	return { result = initial, Cancel = Cancel, Advance = Advance }
 end
 
-ns.FiniteAcquisition = { Start = Finite.Start }
+ns.FiniteAcquisition = { Start = Finite.Start, Select = Finite.Select }

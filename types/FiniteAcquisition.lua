@@ -92,7 +92,28 @@
 ---@field Advance fun(self: SkillUpFiniteAcquisitionJob, work: integer): SkillUpFiniteAcquisitionResult
 ---@field Cancel fun(self: SkillUpFiniteAcquisitionJob)
 
+---@class SkillUpFiniteSelectionProof
+---@field kind 'finite-initial-enumeration'
+---@field evaluated integer All resolved initial vectors, including infeasible atomic orders.
+---@field eligible integer Feasible initial vectors with exact C0 >= alpha.
+---@field domainBounds integer[] Per-source finite opportunity bounds, not independent shared-pool feasibility.
+---@field alpha number
+
+---@class SkillUpFiniteSelectionResult: SkillUpFiniteAcquisitionResult
+---@field alpha number?
+---@field selection SkillUpFiniteSelectionProof?
+---@field orders SkillUpPolicyOrder[]?
+---@field quantities integer[]?
+---@field have table<integer, integer>?
+---@field items table<integer, integer>? Gross held plus delivered initial products, before token payments.
+
+---@class SkillUpFiniteSelectionJob
+---@field result SkillUpFiniteSelectionResult
+---@field Advance fun(self: SkillUpFiniteSelectionJob, work: integer): SkillUpFiniteSelectionResult
+---@field Cancel fun(self: SkillUpFiniteSelectionJob)
+
 ---@class SkillUpFiniteAcquisitionProducer
+---@field Select fun(input: SkillUpFiniteAcquisitionInput, alpha: number): SkillUpFiniteSelectionJob Exact finite initial enumeration with state-dependent continuation.
 ---@field Start fun(input: SkillUpFiniteAcquisitionInput): SkillUpFiniteAcquisitionJob Caller retains an immutable input for the job lifetime.
 
 ---@class SkillUpFiniteObjectiveLaws

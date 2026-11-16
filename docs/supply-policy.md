@@ -129,6 +129,69 @@ states are evaluated. Explicit work, state, coordinate and exact-number limb
 budgets, plus a checked exact exponent range, return unknown on exhaustion; they do not truncate the feasible domain.
 Inputs remain immutable for the job lifetime. Getters do not advance jobs.
 
+## Deterministic crafted kernel
+
+The pure finite evaluator also accepts `route.version = "crafted-deterministic-v1"`.
+This contract is internal. Native snapshots still construct raw routes, and no
+crafted route API is published. Raw-demand and fixed-refill APIs retain their consumption-only
+contract. The caller supplies complete deterministic laws; no law is inferred from
+pricing means, schematic output bounds or a cheapest-maker estimate.
+
+A crafted route supplies dense `recipes` and ordered `legs`, `held`, zero `buy`,
+`coverage = "maximum-craft-only-completion"` and
+`prerequisites = "already-satisfied"`. Each leg identifies a declared main recipe
+and supplies the existing effective-skill interval, thresholds and optional
+skill-up count. Each recipe has a unique positive `recipeID`, positive
+`professionID`, role `main` or `auxiliary`, fixed boolean `available`, nonempty
+`scope`, complete sparse integer item `use` and `produce` maps, and
+`productionLaw = "deterministic-completed-attempt"`. Production must contain a
+positive item quantity. `evidence` contains an integer `revision` and nonempty
+`allocation` and `clientBuild` identities. These are caller declarations, not
+native gameplay verification. Recipe maps are keyed by item ID, so each item has
+one summed quantity rather than duplicate rows.
+
+Main recipes declare `skillEffect = "route"`. Auxiliaries must explicitly declare
+`skillEffect = "neutral"`, including neutrality in other professions whose skills
+could change a subsequent law. Grey auxiliaries still produce items. Skill-affecting
+auxiliaries are rejected until skill state and boundary normalization are modeled.
+All rank, training, tool, station and access prerequisites must already hold and
+remain fixed. The universe is finite and declared: the optimum is conditional on
+those recipes and does not claim to discover every live alternative.
+
+A craft checks all consumption against pre-action inventory, debits it, then
+credits products with checked integer arithmetic. Both skill-gain and no-gain
+branches produce the same items. Execution failure, refunds, random output and
+other effects are excluded by the supplied law. Main recipes are selectable only
+in their active leg. Auxiliary recipes are selectable throughout unfinished
+states, including when no immediate shortage exists. Item outputs, reagents and
+source item-token payments share one balance. Neither crafting nor an acquisition
+batch can use its own outputs to fund pre-action requirements. Terminal completion
+is absorbing. Every modeled coordinate, including outputs and valuation-only
+coordinates, requires an explicit terminal carry value.
+
+The compiler adds an edge from every positively consumed item to every positively
+produced item for every declared recipe and rejects cycles, including self-loops.
+A deterministic raw-first topological order proves that each non-progress craft
+lowers the first changed inventory coordinate. The full lexicographic rank is
+remaining opportunity units, remaining main stages, then balances in that item
+order. Every positive-probability edge is checked against this rank. A free main
+craft is allowed only when its gain is certain; free auxiliaries are rejected.
+This sufficient proof needs no depth or inventory cap. Checked integer overflow
+and explicit work, state, coordinate or exact arithmetic exhaustion return unknown
+without a certificate.
+
+C0 maximizes exact craft-only completion probability over all enabled declared
+crafts. Ppi follows the separate minimum-economic-objective policy and may be lower,
+including zero when stopping is cheapest. Equal values retain the first action:
+stop, active main recipe, then auxiliaries in declaration order. The certificate
+owns recipe laws and evidence, stage recipe identities and typed production maps,
+the topological item order, rank schema, and separate `coveragePolicy` and `policy`
+records with recipe identity, role, state rank and selected successors. Inputs
+remain immutable during a job. Callers must cancel both partial and complete jobs
+when recipe, allocation, eligibility or production evidence changes; the kernel
+also retains existing chance-revision invalidation. No native reader or craft
+instruction consumer is connected to this contract.
+
 ## Finite initial selection
 
 `FiniteAcquisition.Select(input, alpha)` enumerates the complete initial quantity

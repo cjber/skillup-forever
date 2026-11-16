@@ -20,7 +20,7 @@
 ---@field journey 'independent-round-trips'
 ---@field delivery 'independent-bundle-outcomes'
 ---@field objective 'expected-expenditure-plus-terminal-carry-plus-failure-loss'
----@field route SkillUpJointDemandInput No separate buy inventory: initialOrders owns acquisitions.
+---@field route SkillUpJointDemandInput|SkillUpCraftedRoute No separate buy inventory: initialOrders owns acquisitions.
 ---@field walletCopper integer Finite shared wallet.
 ---@field currencies table<integer, integer>
 ---@field stock table<string, integer> Finite nonreplenishing opportunity pools.
@@ -69,12 +69,15 @@
 ---@class SkillUpFinitePolicyAction
 ---@field state string Canonical state: mode, stage, balances, stock and wallet.
 ---@field kind 'stop'|'complete'|'craft'|'acquire'
+---@field recipeID integer? Declared crafted recipe identity.
+---@field role 'main'|'auxiliary'?
+---@field rank integer[]? Crafted lexicographic rank at this state.
 ---@field orders SkillUpPolicyOrder[]?
 ---@field successors {state: string, probabilityLower: number, probabilityUpper: number}[]
 
 ---@class SkillUpFiniteCertificate
 ---@field sources SkillUpFiniteSource[] Owned source-index bindings with exact identities, payments and delivery laws.
----@field stages {chance: number, use: table<string, integer>}[] Compiled ordered route transitions.
+---@field stages {chance: number, use: table<string, integer>, produce: table<string, integer>?, recipeID: integer?, role: string?}[] Compiled ordered route transitions.
 ---@field laws SkillUpFiniteObjectiveLaws Owned explicit objective and trip laws; provenance is in result.assumptions.
 ---@field kind 'finite-dag-exhaustive'
 ---@field objective 'expected-expenditure-plus-terminal-carry-plus-failure-loss'
@@ -85,7 +88,13 @@
 ---@field coordinates string[] Order of canonical typed balance coordinates in state keys.
 ---@field pools string[] Order of finite opportunity pools in state keys.
 ---@field coverageState string
----@field policy SkillUpFinitePolicyAction[]
+---@field policy SkillUpFinitePolicyAction[] Adaptive economic policy; legacy raw certificates also retain coverage records.
+---@field coveragePolicy SkillUpFinitePolicyAction[] Separate maximum-success craft-only policy.
+---@field coverageInterpretation 'maximum-craft-only-completion'
+---@field craftedVersion 'crafted-deterministic-v1'?
+---@field recipes table<integer, SkillUpCraftedRecipe>? Owned full declared recipe universe.
+---@field topologicalItems integer[]? All consume-to-produce edges respect this order.
+---@field rankSchema string?
 
 ---@class SkillUpFiniteAcquisitionJob
 ---@field result SkillUpFiniteAcquisitionResult
@@ -130,3 +139,39 @@
 ---@class SkillUpAdaptiveSupplyRequest
 ---@field inventoryScope 'bags-only'
 ---@field policy SkillUpFiniteAcquisitionInput Immutable during asynchronous snapshot. Caller balance values are replaced by native quantities.
+
+---@class SkillUpCraftedRecipe
+---@field recipeID integer Positive identity, unique in the declared universe.
+---@field professionID integer Positive profession identity.
+---@field role 'main'|'auxiliary'
+---@field available boolean Fixed eligibility throughout the solve.
+---@field scope string Explicit eligibility and production scope.
+---@field skillEffect 'route'|'neutral' Auxiliary effects on any modeled skill must be neutral.
+---@field productionLaw 'deterministic-completed-attempt' Every completed attempt produces, including no gain.
+---@field use table<integer, integer> Complete sparse item consumption, reserved before production.
+---@field produce table<integer, integer> Complete positive deterministic item production.
+---@field evidence {revision: integer, allocation: string, clientBuild: string} Caller-supplied exact law evidence, never inferred from mean yields.
+
+---@class SkillUpCraftedLeg
+---@field recipeID integer Declared main recipe.
+---@field fromSkill integer
+---@field toSkill integer
+---@field skillUps integer?
+---@field thresholds integer[]? Existing Model.Chance contract.
+
+---@class SkillUpCraftedRoute
+---@field version 'crafted-deterministic-v1'
+---@field coverage 'maximum-craft-only-completion'
+---@field prerequisites 'already-satisfied' Conditional on all rank, training, tool, station and access gates already satisfied.
+---@field recipes SkillUpCraftedRecipe[] Complete finite declared universe; optimum is conditional on these alternatives.
+---@field legs SkillUpCraftedLeg[] Ordered main legs, eligible only while active.
+---@field held table<integer, integer> Includes held intermediates and output-only items.
+---@field buy table<integer, integer> Must be empty or all zero; initialOrders owns acquisition.
+
+---@class SkillUpFiniteStage
+---@field chance number
+---@field use table<integer, integer>
+---@field produce table<integer, integer>?
+---@field recipeID integer?
+---@field available boolean?
+---@field role 'main'|'auxiliary'?

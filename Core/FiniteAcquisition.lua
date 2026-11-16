@@ -113,42 +113,263 @@ function Finite.Start(input)
 			end
 			return copy
 		end
-		if type(input.route) == "table" then
-			for key in pairs(input.route) do
-				if key ~= "legs" and key ~= "held" and key ~= "buy" then
-					Reject("unsupported finite route law")
+		---@type SkillUpFiniteStage[]?
+		local stages
+		---@type table<integer, integer>?
+		local held
+		local recipes, auxiliary, topological = {}, {}, {}
+		local crafted = type(input.route) == "table" and rawget(input.route, "version") ~= nil
+		local function Fields(record, fields, reason)
+			if type(record) ~= "table" then
+				Reject(reason)
+			end
+			for key in pairs(record) do
+				if not fields[key] then
+					Reject(reason)
 				end
 				Tick()
 			end
-			if type(input.route.legs) == "table" then
-				local fields = {
-					fromSkill = true,
-					toSkill = true,
-					skillUps = true,
-					thresholds = true,
+		end
+		local function Text(value)
+			return type(value) == "string" and value ~= ""
+		end
+		if crafted then
+			local route = input.route
+			---@cast route SkillUpCraftedRoute
+			Fields(route, {
+				version = true,
+				coverage = true,
+				prerequisites = true,
+				recipes = true,
+				legs = true,
+				held = true,
+				buy = true,
+			}, "unsupported crafted route law")
+			if
+				route.version ~= "crafted-deterministic-v1"
+				or route.coverage ~= "maximum-craft-only-completion"
+				or route.prerequisites ~= "already-satisfied"
+			then
+				Reject("explicit versioned crafted laws and satisfied prerequisites required")
+			end
+			Dense(route.recipes)
+			Dense(route.legs)
+			if type(route.held) ~= "table" or type(route.buy) ~= "table" then
+				Reject("explicit crafted inventories required")
+			end
+			held, stages = {}, {}
+			for item, count in pairs(route.held) do
+				if not Integer(item) or item == 0 or not Integer(count) then
+					Reject("invalid crafted inventory")
+				end
+				held[item] = count
+				Tick()
+			end
+			local graph, indegree = {}, {}
+			local function Map(values)
+				if type(values) ~= "table" then
+					Reject("complete deterministic item maps required")
+				end
+				local copy, positive = {}, false
+				for item, count in pairs(values) do
+					if not Integer(item) or item == 0 or not Integer(count) then
+						Reject("invalid deterministic item map")
+					end
+					if count > 0 then
+						copy[item], positive = count, true
+					end
+					held[item] = held[item] or 0
+					graph[item], indegree[item] = graph[item] or {}, indegree[item] or 0
+					Tick()
+				end
+				return copy, positive
+			end
+			for _, row in ipairs(route.recipes) do
+				Fields(row, {
+					recipeID = true,
+					professionID = true,
+					role = true,
+					available = true,
+					scope = true,
+					skillEffect = true,
+					productionLaw = true,
 					use = true,
-					rawConsumption = true,
-					deterministicOutput = true,
+					produce = true,
+					evidence = true,
+				}, "unsupported crafted recipe law")
+				if
+					not Integer(row.recipeID)
+					or row.recipeID == 0
+					or recipes[row.recipeID]
+					or not Integer(row.professionID)
+					or row.professionID == 0
+					or (row.role ~= "main" and row.role ~= "auxiliary")
+					or type(row.available) ~= "boolean"
+					or not Text(row.scope)
+					or row.productionLaw ~= "deterministic-completed-attempt"
+				then
+					Reject("complete distinct identified deterministic recipes required")
+				end
+				if
+					(row.role == "auxiliary" and row.skillEffect ~= "neutral")
+					or (row.role == "main" and row.skillEffect ~= "route")
+				then
+					Reject("skill-affecting auxiliary recipes are not modeled")
+				end
+				Fields(
+					row.evidence,
+					{ revision = true, allocation = true, clientBuild = true },
+					"complete scoped production evidence required"
+				)
+				if
+					not Integer(row.evidence.revision)
+					or not Text(row.evidence.allocation)
+					or not Text(row.evidence.clientBuild)
+				then
+					Reject("complete scoped production evidence required")
+				end
+				local use, consumed = Map(row.use)
+				local produce, produced = Map(row.produce)
+				if not produced then
+					Reject("positive deterministic item production required")
+				end
+				if row.role == "auxiliary" and not consumed then
+					Reject("free auxiliary craft has no finite rank")
+				end
+				local recipe = {
+					recipeID = row.recipeID,
+					professionID = row.professionID,
+					role = row.role,
+					available = row.available,
+					scope = row.scope,
+					skillEffect = row.skillEffect,
+					productionLaw = row.productionLaw,
+					use = use,
+					produce = produce,
+					evidence = {
+						revision = row.evidence.revision,
+						allocation = row.evidence.allocation,
+						clientBuild = row.evidence.clientBuild,
+					},
 				}
-				for _, leg in pairs(input.route.legs) do
-					if type(leg) == "table" then
-						for key in pairs(leg) do
-							if not fields[key] then
-								Reject("unsupported finite craft transition")
+				recipes[row.recipeID] = recipe
+				if row.role == "auxiliary" then
+					auxiliary[#auxiliary + 1] = recipe
+				end
+				for item in pairs(use) do
+					for product in pairs(produce) do
+						if not graph[item][product] then
+							graph[item][product], indegree[product] = true, indegree[product] + 1
+						end
+						Tick()
+					end
+				end
+			end
+			-- Kahn's order includes every consume-to-produce edge, even for
+			-- unavailable declared recipes. Smallest item ID breaks ties.
+			local remaining = 0
+			for _ in pairs(graph) do
+				remaining = remaining + 1
+				Tick()
+			end
+			while remaining > 0 do
+				local first
+				for item, degree in pairs(indegree) do
+					if degree == 0 and (not first or item < first) then
+						first = item
+					end
+					Tick()
+				end
+				if not first then
+					Reject("cyclic consume-to-produce graph has no declared finite rank")
+				end
+				topological[#topological + 1], indegree[first], remaining = first, nil, remaining - 1
+				for product in pairs(graph[first]) do
+					indegree[product] = indegree[product] - 1
+					Tick()
+				end
+			end
+			for _, leg in ipairs(route.legs) do
+				Fields(
+					leg,
+					{ recipeID = true, fromSkill = true, toSkill = true, skillUps = true, thresholds = true },
+					"unsupported crafted main leg"
+				)
+				local recipe = recipes[leg.recipeID]
+				if not recipe or recipe.role ~= "main" then
+					Reject("main leg requires declared main recipe identity")
+				end
+				local prepared, _, failure = ns.Demand.Prepare({
+					legs = {
+						{
+							fromSkill = leg.fromSkill,
+							toSkill = leg.toSkill,
+							skillUps = leg.skillUps,
+							thresholds = leg.thresholds,
+							use = recipe.use,
+							rawConsumption = true,
+							deterministicOutput = true,
+						},
+					},
+					held = {},
+					buy = {},
+				}, Tick)
+				if failure then
+					Reject(failure.reasons[1])
+				end
+				for _, stage in ipairs(assert(prepared)) do
+					stages[#stages + 1] = {
+						chance = stage.chance,
+						use = stage.use,
+						recipeID = recipe.recipeID,
+						produce = recipe.produce,
+						available = recipe.available,
+						role = "main",
+					}
+					Tick()
+				end
+			end
+		else
+			if type(input.route) == "table" then
+				for key in pairs(input.route) do
+					if key ~= "legs" and key ~= "held" and key ~= "buy" then
+						Reject("unsupported finite route law")
+					end
+					Tick()
+				end
+				if type(input.route.legs) == "table" then
+					local fields = {
+						fromSkill = true,
+						toSkill = true,
+						skillUps = true,
+						thresholds = true,
+						use = true,
+						rawConsumption = true,
+						deterministicOutput = true,
+					}
+					for _, leg in pairs(input.route.legs) do
+						if type(leg) == "table" then
+							for key in pairs(leg) do
+								if not fields[key] then
+									Reject("unsupported finite craft transition")
+								end
+								Tick()
 							end
-							Tick()
 						end
 					end
 				end
 			end
-		end
-		local stages, held, failure = ns.Demand.Prepare(input.route, Tick)
-		if failure then
-			return Unknown(failure.reasons[1])
+			local failure
+			local raw = input.route
+			---@cast raw SkillUpJointDemandInput
+			stages, held, failure = ns.Demand.Prepare(raw, Tick)
+			if failure then
+				return Unknown(failure.reasons[1])
+			end
 		end
 		assert(stages and held)
-		for _, count in pairs(input.route.buy) do
-			if count ~= 0 then
+		for item, count in pairs(input.route.buy) do
+			if not Integer(item) or item == 0 or not Integer(count) or count ~= 0 then
 				Reject("initialOrders exclusively owns acquired inventory")
 			end
 			Tick()
@@ -404,6 +625,29 @@ function Finite.Start(input)
 				Tick()
 			end
 		end
+		if crafted then
+			for _, field in ipairs({ "terminalCarry", "tokenValues" }) do
+				local keys = {}
+				for key in pairs(input[field]) do
+					local kind, id = key:match("^(%a+):(%d+)$")
+					local numeric = tonumber(id)
+					if
+						(kind ~= "item" and kind ~= "currency")
+						or not Integer(numeric)
+						or numeric == 0
+						or key ~= kind .. ":" .. string.format("%.0f", numeric)
+					then
+						Reject("canonical typed valuation coordinates required")
+					end
+					keys[#keys + 1] = key
+					Tick()
+				end
+				table.sort(keys)
+				for _, key in ipairs(keys) do
+					Coordinate(key)
+				end
+			end
+		end
 		local carryValues, tokenValues = {}, {}
 		for i, key in ipairs(coordinates) do
 			if not Nonnegative(input.terminalCarry[key]) then
@@ -412,18 +656,64 @@ function Finite.Start(input)
 			carryValues[i], tokenValues[i] = n(input.terminalCarry[key]), n(input.tokenValues[key] or 0)
 			Tick()
 		end
-		local compiled = {}
-		for _, stage in ipairs(stages) do
-			local use, consumed = {}, false
+		local compiled, compiledAuxiliary = {}, {}
+		local function Compile(stage, neutral)
+			local use, produce, consumed = {}, {}, false
 			for item, count in pairs(stage.use) do
 				use[coordinateIndex["item:" .. string.format("%.0f", item)]], consumed = count, consumed or count > 0
 				Tick()
 			end
-			if not consumed and stage.chance ~= 1 then
-				Reject("probabilistic zero-consumption craft has no finite rank")
+			for item, count in pairs(stage.produce or {}) do
+				produce[coordinateIndex["item:" .. string.format("%.0f", item)]] = count
+				Tick()
 			end
-			local p = n(stage.chance)
-			compiled[#compiled + 1] = { use = use, probability = p, complement = exact.Subtract(one, p) }
+			if not consumed and (neutral or stage.chance ~= 1) then
+				Reject("zero-progress zero-consumption craft has no finite rank")
+			end
+			local p = n(neutral and 0 or stage.chance)
+			return {
+				use = use,
+				produce = produce,
+				recipeID = stage.recipeID,
+				role = stage.role,
+				available = stage.available ~= false,
+				probability = p,
+				complement = exact.Subtract(one, p),
+			}
+		end
+		for _, stage in ipairs(stages) do
+			compiled[#compiled + 1] = Compile(stage, false)
+		end
+		for _, recipe in ipairs(auxiliary) do
+			compiledAuxiliary[#compiledAuxiliary + 1] = Compile(recipe, true)
+		end
+		local rankCoordinates = {}
+		for _, item in ipairs(topological) do
+			rankCoordinates[#rankCoordinates + 1] = coordinateIndex["item:" .. string.format("%.0f", item)]
+			Tick()
+		end
+		local function Rank(state)
+			local units = 0
+			for _, count in ipairs(state.stock) do
+				units = Safe(units + count)
+				Tick()
+			end
+			local rank = { units, #compiled + 1 - state.stage }
+			for _, coordinate in ipairs(rankCoordinates) do
+				rank[#rank + 1] = state.balances[coordinate]
+				Tick()
+			end
+			return rank
+		end
+		local function Decreases(before, after)
+			local a, b = Rank(before), Rank(after)
+			for i = 1, #a do
+				if b[i] ~= a[i] then
+					return b[i] < a[i]
+				end
+				Tick()
+			end
+			return false
 		end
 		local function Vector()
 			return { zero, zero, zero, zero, zero, zero, zero }
@@ -642,26 +932,35 @@ function Finite.Start(input)
 				if cmp(probability, zero) == 0 then
 					return
 				end
+				if crafted and not Decreases(state, successor) then
+					Reject("transition violates declared lexicographic rank")
+				end
 				transitionCount = transitionCount + 1
 				action.edges[#action.edges + 1] =
 					{ probability = probability, node = Node(successor, node.coverage), immediate = immediate }
 				Tick()
 			end
-			local stage, feasible = compiled[state.stage], true
-			for i, count in pairs(stage.use) do
-				if state.balances[i] < count then
-					feasible = false
+			local function Craft(stage, neutral)
+				if not stage.available then
+					return
 				end
-				Tick()
-			end
-			if feasible then
+				for i, count in pairs(stage.use) do
+					if state.balances[i] < count then
+						return
+					end
+					Tick()
+				end
 				local balances = Copy(state.balances)
 				for i, count in pairs(stage.use) do
 					balances[i] = balances[i] - count
 					Tick()
 				end
-				local craft = { kind = "craft", edges = {} }
-				if cmp(stage.probability, zero) > 0 then
+				for i, count in pairs(stage.produce) do
+					balances[i] = Safe(balances[i] + count)
+					Tick()
+				end
+				local craft = { kind = "craft", recipeID = stage.recipeID, role = stage.role, edges = {} }
+				if not neutral then
 					Edge(
 						craft,
 						stage.probability,
@@ -669,19 +968,17 @@ function Finite.Start(input)
 						Vector()
 					)
 				end
-				if cmp(stage.complement, zero) > 0 then
-					Edge(
-						craft,
-						stage.complement,
-						{ stage = state.stage, balances = balances, stock = state.stock, wallet = state.wallet },
-						Vector()
-					)
-				end
-				if node.coverage then
-					actions = { craft }
-				else
-					actions[#actions + 1] = craft
-				end
+				Edge(
+					craft,
+					stage.complement,
+					{ stage = state.stage, balances = balances, stock = state.stock, wallet = state.wallet },
+					Vector()
+				)
+				actions[#actions + 1] = craft
+			end
+			Craft(compiled[state.stage], false)
+			for _, recipe in ipairs(compiledAuxiliary) do
+				Craft(recipe, true)
 			end
 			if node.coverage then
 				return actions
@@ -782,7 +1079,11 @@ function Finite.Start(input)
 						action.value, node.edge = value, node.edge + 1
 					else
 						local value = action.terminal or action.value
-						if not node.best or cmp(Objective(value), Objective(node.best)) < 0 then
+						if
+							not node.best
+							or (node.coverage and cmp(value[1], node.best[1]) > 0)
+							or (not node.coverage and cmp(Objective(value), Objective(node.best)) < 0)
+						then
 							node.best, node.winner = value, action
 						end
 						node.action, node.edge = node.action + 1, 1
@@ -824,7 +1125,7 @@ function Finite.Start(input)
 		end
 		Publish("cost", add(add(value[2], value[3]), value[4]))
 		Publish("objective", Objective(value))
-		local policy = {}
+		local policy, coveragePolicy = {}, {}
 		for _, node in ipairs(ordered) do
 			local selected, successors = assert(node.selected), {}
 			for _, edge in ipairs(selected.edges) do
@@ -835,8 +1136,19 @@ function Finite.Start(input)
 					probabilityUpper = math.min(1, upper),
 				}
 			end
-			policy[#policy + 1] =
-				{ state = node.key, kind = selected.kind, orders = selected.orders, successors = successors }
+			local target = node.coverage and coveragePolicy or policy
+			target[#target + 1] = {
+				state = node.key,
+				kind = selected.kind,
+				recipeID = selected.recipeID,
+				role = selected.role,
+				orders = selected.orders,
+				successors = successors,
+				rank = crafted and Rank(node.state) or nil,
+			}
+			if node.coverage and not crafted then
+				policy[#policy + 1] = target[#target]
+			end
 			Tick()
 		end
 		local function CopyMap(values)
@@ -876,7 +1188,18 @@ function Finite.Start(input)
 				use["item:" .. string.format("%.0f", item)] = count
 				Tick()
 			end
-			routeLaws[i] = { chance = stage.chance, use = use }
+			local produce = {}
+			for item, count in pairs(stage.produce or {}) do
+				produce["item:" .. string.format("%.0f", item)] = count
+				Tick()
+			end
+			routeLaws[i] = {
+				chance = stage.chance,
+				use = use,
+				produce = crafted and produce or nil,
+				recipeID = stage.recipeID,
+				role = stage.role,
+			}
 		end
 		local laws = {
 			failureLoss = input.failureLoss,
@@ -901,6 +1224,12 @@ function Finite.Start(input)
 			coordinates = Copy(coordinates),
 			pools = Copy(poolKeys),
 			policy = policy,
+			coveragePolicy = coveragePolicy,
+			coverageInterpretation = "maximum-craft-only-completion",
+			craftedVersion = crafted and input.route.version or nil,
+			recipes = crafted and recipes or nil,
+			topologicalItems = crafted and Copy(topological) or nil,
+			rankSchema = crafted and "remaining-opportunities,remaining-main-stages,topological-item-balances" or nil,
 		}
 		exactResults[job] = { coverage = coverage[1], objective = Objective(value), revision = revision }
 		return result

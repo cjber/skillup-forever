@@ -85,7 +85,7 @@ capacity or turn the infimum into an attained optimum.
 order and a state-dependent continuation. Its explicit contract is
 `adaptive-finite`, `independent-round-trips`, `independent-bundle-outcomes` and
 `expected-expenditure-plus-terminal-carry-plus-failure-loss`. It does not replace
-the fixed-refill selector or configure a production policy.
+the fixed-refill selector or choose a production policy.
 
 The caller supplies finite nonreplenishing shared opportunity pools, fixed access
 and prices, and independent per-bundle delivery probabilities. Each attempted
@@ -158,7 +158,7 @@ future law, failure loss or carrying value is chosen for the player.
 `RouteDemand.StartAdaptive(plan, request, alpha)` is a separate opt-in native
 adapter. The request explicitly contains `inventoryScope = "bags-only"` and a
 finite adaptive `policy`; alpha is supplied separately in `[0, 1]`. It does not
-configure a profession or replace the existing fixed-policy adapter.
+replace the existing fixed-policy adapter.
 
 The request and final plan remain immutable while the asynchronous snapshot is
 being copied. The copy accepts bounded acyclic plain records and replaces the
@@ -231,6 +231,23 @@ A copied finite stock record could silently replenish stock after purchases,
 so automatic reselection never inherits it. Native balances are read afresh too.
 Removing the configuration cancels its result. Source laws remain explicit
 conditional assumptions; no observation silently certifies them.
+
+`SelectAdaptiveSupply(plan, request, alpha)` publishes the native adaptive job
+through that same plan owner. `ConfigureAdaptiveSupply(skillLine, read, alpha)`
+accepts explicit alpha in `[0, 1]` and a reader returning a fresh complete scoped
+request on every revision. Fixed `ConfigureSupply` retains `(0, 1]`. Either
+configuration API can remove the current mode with a nil reader. Invalid inputs
+preserve the existing configuration; replacing modes cancels its owned work and
+completed result. Reader failure or nil publishes structured unknown.
+
+The shared frame dispatches one dirty profession per update and advances published
+jobs within one total 64-operation budget. Getters perform neither task. Only a
+current complete result with owned `items` and `have` supplies counts. The plan
+retains the whole result, including adaptive service, bags-only scope, selection
+proof, source revision, dated assumptions and finite certificate. Route, shopping
+and API rows read certified native holdings without a bank-inclusive fallback.
+Missing coordinates remain unknown. Initial acquisition quotes retain complete
+typed payments and offer money separately from the certificate's monetary fares.
 
 Actual future supply laws, a product choice of coverage target, general policy
 optimization and other free-unbounded-domain proofs remain

@@ -635,8 +635,12 @@ local LIMITED_VENDOR = L["vendor, limited stock"]
 local function ReagentTooltip(tooltip, item)
 	tooltip:SetItemByID(item.itemID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
-	local have = ns.Have(item.itemID)
-	AddLine(tooltip, L["Have (bags and bank)"], tostring(have))
+	local have = ns.RouteDemand.Held(item)
+	AddLine(
+		tooltip,
+		item.supplyScope == "bags-only" and L["Have (bags only)"] or L["Have (bags and bank)"],
+		have and tostring(have) or "?"
+	)
 	AddLine(tooltip, L["Route needs"], tostring(item.need))
 	for _, alt in ipairs(ns.AltCounts(item.itemID)) do
 		AddLine(tooltip, string.format(L["On %s"], alt.name), tostring(alt.count), GRAY_FONT_COLOR)
@@ -717,7 +721,7 @@ local function RenderReagents(list, reagents)
 			C_Item.RequestLoadItemDataByID(item.itemID)
 			name = string.format(L["item %d"], item.itemID)
 		end
-		local have = ns.Have(item.itemID)
+		local have = ns.RouteDemand.Held(item)
 		local sourceText = item.limited and LIMITED_VENDOR or SOURCE_TEXT[item.source]
 		list:Add({
 			icon = C_Item.GetItemIconByID(item.itemID) or 134400,
@@ -726,9 +730,9 @@ local function RenderReagents(list, reagents)
 			-- The bar under the name already shows the bags against the route's need, so the line names only
 			-- where the reagent comes from.
 			detail = sourceText,
-			detailColor = have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
-			bar = { have = math.min(have, item.need), need = item.need },
-			barColor = have >= item.need and ns.COLORS.green or ns.COLORS.yellow,
+			detailColor = have ~= nil and have >= item.need and ns.COLORS.green or HIGHLIGHT_FONT_COLOR,
+			bar = have and { have = math.min(have, item.need), need = item.need } or nil,
+			barColor = have ~= nil and have >= item.need and ns.COLORS.green or ns.COLORS.yellow,
 			sourceIcon = SOURCE_ICON[item.source],
 			tooltip = function(tooltip)
 				ReagentTooltip(tooltip, item)
@@ -809,7 +813,8 @@ end
 local function VendorItems(reagents)
 	local items = {}
 	for _, item in ipairs(reagents) do
-		if item.source == "vendor" and ns.Have(item.itemID) < item.need then
+		local have = ns.RouteDemand.Held(item)
+		if item.source == "vendor" and have and have < item.need then
 			if not item.acquisitions or #ns.RouteDemand.Vendors(item, true) > 0 then
 				items[#items + 1] = item
 			end

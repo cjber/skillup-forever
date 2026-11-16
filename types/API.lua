@@ -36,7 +36,7 @@
 ---@class SkillUpAPIReagent
 ---@field itemID integer
 ---@field need number For the whole route.
----@field have number Bags and bank.
+---@field have number? Certified native scope when configured, otherwise bags and bank. Nil is unknown.
 ---@field source? SkillUpAPIReagentSource
 
 ---@class SkillUpAPIProfessionLimits
@@ -45,7 +45,7 @@
 
 ---@class SkillUpAPIProfession
 ---@field sourceEvidence SkillUpSourceEvidence Current merchant evidence, even without a coverage target.
----@field supply SkillUpSupplyChoiceResult? Conditional fixed-refill-policy selection status and certificate.
+---@field supply SkillUpSupplyChoiceResult|SkillUpFiniteSelectionResult? Conditional fixed or adaptive selection status and complete certificate.
 ---@field name string Localized.
 ---@field skillLineID integer
 ---@field icon fileID
@@ -95,11 +95,12 @@
 ---@field trainerFee? number
 
 ---@class SkillUpAPIShoppingItem
+---@field inventoryScope 'bags-only'|'bags-and-bank' Scope of have and missing, including certified native holdings.
 ---@field acquisitions SkillUpSelectedAcquisition[]? Selected transactions, never repriced by display prices.
 ---@field itemID integer
 ---@field need number
----@field have number
----@field missing number
+---@field have number?
+---@field missing number?
 ---@field source SkillUpShoppingSource
 ---@field price? number Copper per item.
 ---@field priceAge? number Days since Auctionator's observation.

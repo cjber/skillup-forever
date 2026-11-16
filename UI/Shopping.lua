@@ -155,8 +155,13 @@ end
 local function MissingFromAuction(items)
 	local missing = {}
 	for _, item in ipairs(items) do
-		local count = item.need - ns.Have(item.itemID)
-		if (item.source == "auction" or item.source == "unknown" or item.source == "gather") and count > 0 then
+		local have = ns.RouteDemand.Held(item)
+		local count = have and item.need - have
+		if
+			(item.source == "auction" or item.source == "unknown" or item.source == "gather")
+			and count
+			and count > 0
+		then
 			missing[#missing + 1] = { itemID = item.itemID, count = count }
 		end
 	end
@@ -386,12 +391,7 @@ end
 -- What the open merchant sells for gold of the tracked reagents still missing,
 -- and its cost. Two professions sharing a reagent need both amounts.
 local function MerchantPurchases()
-	local missing = {}
-	for _, entry in ipairs(ns.TrackedNeeds()) do
-		for _, item in ipairs(entry.items) do
-			missing[item.itemID] = (missing[item.itemID] or -ns.Have(item.itemID)) + item.need
-		end
-	end
+	local missing = ns.RouteDemand.Shortfalls(ns.TrackedNeeds())
 	local purchases, cost = {}, 0
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
@@ -1068,8 +1068,8 @@ local function LayoutEntry(self, entry)
 	end
 	local shown = 0
 	for _, item in ipairs(entry.items) do
-		local have = ns.Have(item.itemID)
-		if have < item.need then
+		local have = ns.RouteDemand.Held(item)
+		if have == nil or have < item.need then
 			if shown == MAX_OBJECTIVES then
 				block:AddObjective("Extra", "...", nil, nil, OBJECTIVE_DASH_STYLE_HIDE)
 				break
@@ -1081,7 +1081,7 @@ local function LayoutEntry(self, entry)
 			end
 			local gather = item.source == "gather" and string.format(" |cff808080(%s)|r", L["gather"]) or ""
 			local vendor = ns.RouteDemand.Vendors(item)[1]
-			local text = string.format("%d/%d %s%s", have, item.need, name, gather)
+			local text = string.format("%s/%d %s%s", have == nil and "?" or tostring(have), item.need, name, gather)
 			local line = block:AddObjective(item.itemID, text, vendor and LINE_TEMPLATE or nil)
 			if vendor then
 				Waypointed(line, name, L["Nearest vendor"], function()

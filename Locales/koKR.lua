@@ -545,3 +545,5 @@ L["Show recipes on Shift or always. Off hides reagent details, including route n
 L["Show route needs on item tooltips"] = "아이템 툴팁에 경로 필요 수량 표시" -- mt
 L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
 	"추적 중인 경로에 아직 필요한 아이템 수량을 표시합니다. 이 설정을 끄면 경로 줄 없이 조제법 세부 정보를 볼 수 있습니다." -- mt
+
+L["Have (bags only)"] = "보유 (가방만)" -- mt

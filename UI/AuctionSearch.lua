@@ -146,11 +146,10 @@ local function PriceRoute()
 	if not (api.GetAuctionPriceByItemID and (api.MultiSearchAdvanced or api.MultiSearchExact)) then
 		return
 	end
-	local needs, discovery = {}, {}
-	for _, entry in ipairs(ns.TrackedNeeds()) do
-		for _, item in ipairs(entry.items) do
-			needs[item.itemID] = (needs[item.itemID] or 0) + item.need
-		end
+	local tracked = ns.TrackedNeeds()
+	local needs, unknown = ns.RouteDemand.Shortfalls(tracked)
+	local discovery = {}
+	for _, entry in ipairs(tracked) do
 		-- Excluded recipes have no planned quantities yet. Their one-craft shortfall can request a price
 		-- observation without treating them as free crafts or adding them to the shopping totals.
 		local unpriced = {}
@@ -166,11 +165,12 @@ local function PriceRoute()
 		end
 	end
 	for itemID, quantity in pairs(discovery) do
-		needs[itemID] = math.max(needs[itemID] or 0, quantity)
+		if not unknown[itemID] then
+			needs[itemID] = math.max(needs[itemID] or 0, quantity - ns.Have(itemID))
+		end
 	end
 	local short = {}
-	for itemID, needed in pairs(needs) do
-		local missing = needed - ns.Have(itemID)
+	for itemID, missing in pairs(needs) do
 		local price = api.GetAuctionPriceByItemID(CALLER, itemID)
 		local age = api.GetAuctionAgeByItemID and api.GetAuctionAgeByItemID(CALLER, itemID)
 		if missing > 0 and (price == nil or age == nil or age > 0) then

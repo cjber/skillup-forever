@@ -525,3 +525,5 @@ L["Show recipes on Shift or always. Off hides reagent details, including route n
 L["Show route needs on item tooltips"] = "在物品提示中显示路线需求" -- mt
 L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
 	"显示追踪路线还需要多少此物品。关闭后可保留配方详情，但隐藏路线行。" -- mt
+
+L["Have (bags only)"] = "拥有（仅背包）" -- mt

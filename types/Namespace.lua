@@ -472,7 +472,8 @@ SkillUpForeverDB = nil
 ---@field assumptions SkillUpSourceAssumption[]?
 ---@field acquisitions SkillUpSelectedAcquisition[]?
 ---@field initialVisits table<string, number>?
----@field job SkillUpSupplyChoiceJob
+---@field result SkillUpSupplyChoiceResult|SkillUpFiniteSelectionResult? Complete owned result including adaptive certificate and scope.
+---@field job SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob
 ---@field revision integer
 ---@field items table<integer, integer>? Starting budget in the current inventory revision, before initial purchases.
 ---@field have table<integer, integer>? Fresh balances used by the selection, never display fallbacks.
@@ -584,6 +585,8 @@ SkillUpForeverDB = nil
 ---@alias SkillUpSuggestionNPC { kind: integer?, source: SkillUpScrollSource?, npcID: integer? }
 
 ---@class SkillUpNeededItem
+---@field supplyScope 'bags-only'|'bags-and-bank'? Holdings belong to a certified native snapshot.
+---@field have integer? Missing certified holdings remain unknown.
 ---@field acquisitions SkillUpSelectedAcquisition[]? Conditional selected orders; an empty list forbids price/source fallback.
 ---@field itemID integer
 ---@field need number

@@ -13,6 +13,7 @@
 ---@field costs table<string, integer> Complete typed transaction requirements.
 
 ---@class SkillUpSupplyChoiceResult: SkillUpResupplyResult
+---@field inventoryScope 'bags-and-bank'?
 ---@field infimumKnown boolean? A proved infimum is distinct from a selected finite order.
 ---@field objectiveInfimumLower number?
 ---@field objectiveInfimumUpper number?
@@ -44,7 +45,8 @@
 ---@field Start fun(input: SkillUpResupplyInput, alpha: number): SkillUpSupplyChoiceJob Immutable inputs, one fixed refill policy.
 
 ---@class SkillUpSupplyConfiguration
----@field read fun(): SkillUpResupplyInput?, string?
+---@field mode 'fixed'|'adaptive'
+---@field read fun(): SkillUpResupplyInput|SkillUpAdaptiveSupplyRequest|nil, string?
 ---@field alpha number
 ---@field dirty boolean
----@field job SkillUpSupplyChoiceJob?
+---@field job SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob?

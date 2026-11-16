@@ -720,19 +720,21 @@ local function RouteTexts(itemID)
 	local lines = {}
 	local rows = index[itemID]
 	if rows then
-		local have = ns.Have(itemID)
 		for _, row in ipairs(rows) do
 			local item = row.item
-			lines[#lines + 1] = {
-				text = string.format(
-					L["Route: %d/%d · %s to %d"],
-					math.min(have, item.need),
-					item.need,
-					row.entry.plan.profession.name,
-					row.entry.plan.target
-				),
-				good = have >= item.need,
-			}
+			local have = ns.RouteDemand.Held(item)
+			if have then
+				lines[#lines + 1] = {
+					text = string.format(
+						L["Route: %d/%d · %s to %d"],
+						math.min(have, item.need),
+						item.need,
+						row.entry.plan.profession.name,
+						row.entry.plan.target
+					),
+					good = have >= item.need,
+				}
+			end
 		end
 	end
 	routeTexts[itemID] = { index = index, bags = bags, lines = lines }

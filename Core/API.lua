@@ -300,8 +300,9 @@ local function Steps(plan)
 		end
 		for _, item in ipairs(ns.RouteReagents(plan)) do
 			if not item.acquisitions then
-				local missing = item.need - ns.Have(item.itemID)
-				if missing > 0 then
+				local have = ns.RouteDemand.Held(item)
+				local missing = have and item.need - have
+				if missing and missing > 0 then
 					Add(Acquire(item.itemID, missing)) -- multi-value: the tool step and its picker
 				end
 			end
@@ -395,12 +396,11 @@ end
 ---@return SkillUpAPIReagent[]
 local function Reagents(plan)
 	local reagents = {}
-	local supply = ns.RouteDemand.Supply(plan)
 	for _, item in ipairs(ns.RouteReagents(plan)) do
 		reagents[#reagents + 1] = {
 			itemID = item.itemID,
 			need = item.need,
-			have = supply and supply.have[item.itemID] or ns.Have(item.itemID),
+			have = ns.RouteDemand.Held(item),
 			source = ReagentSource(item),
 		}
 	end
@@ -531,7 +531,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 10 }
+local API = { version = 1, minor = 11 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe
@@ -608,24 +608,24 @@ function API.ShoppingList(skillLineID)
 				total = 0,
 				unpriced = 0,
 			}
-			local supply = ns.RouteDemand.Supply(entry.plan)
 			local bySource = {}
 			for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
 				bySource[source] = {}
 			end
 			for _, item in ipairs(entry.items) do
 				local price = not item.acquisitions and ns.Price(item.itemID) or nil
-				local have = supply and supply.have[item.itemID] or ns.Have(item.itemID)
-				local missing = math.max(item.need - have, 0)
+				local have = ns.RouteDemand.Held(item)
+				local missing = have and math.max(item.need - have, 0)
 				local row = {
 					itemID = item.itemID,
 					need = item.need,
 					have = have,
 					missing = missing,
+					inventoryScope = item.supplyScope or "bags-and-bank",
 					source = item.source,
 					price = price and not price.unknown and price.copper or nil,
 					priceAge = price and price.source == "auctionator" and price.days or nil,
-					cost = price and not price.unknown and missing * price.copper or nil,
+					cost = price and not price.unknown and missing and missing * price.copper or nil,
 					alt = ns.AltCounts(item.itemID),
 				}
 				if item.acquisitions then
@@ -643,7 +643,7 @@ function API.ShoppingList(skillLineID)
 				end)
 				for _, row in ipairs(bySource[source]) do
 					result.items[#result.items + 1] = row
-					if row.missing > 0 then
+					if row.missing and row.missing > 0 then
 						if row.cost then
 							result.total = result.total + row.cost
 						else
@@ -689,7 +689,7 @@ function ns.ShoppingText(skillLineID)
 		local bucket = {}
 		for _, list in ipairs(lists) do
 			for _, row in ipairs(list.items) do
-				if row.source == source and row.missing > 0 then
+				if row.source == source and row.missing and row.missing > 0 then
 					local name = C_Item.GetItemNameByID(row.itemID)
 					if not name then
 						C_Item.RequestLoadItemDataByID(row.itemID)
@@ -739,7 +739,7 @@ function ns.ShoppingTrip(skillLineID)
 		local profession = ns.RouteProfessions()[list.skillLine]
 		local plan = profession and ns.PlanRoute(profession)
 		for _, row in ipairs(list.items) do
-			if row.missing > 0 then
+			if row.missing and row.missing > 0 then
 				anyMissing = true
 				if row.source == "vendor" then
 					for _, npcID in ipairs(ns.RouteDemand.Vendors(row, true)) do

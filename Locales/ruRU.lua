@@ -567,3 +567,5 @@ L["Show route needs on item tooltips"] =
 	"Показывать потребности маршрутов в подсказках предметов" -- mt
 L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
 	"Показывает, сколько предметов ещё нужно для отслеживаемых маршрутов. Отключите, чтобы оставить сведения о рецептах без строки маршрута." -- mt
+
+L["Have (bags only)"] = "В наличии (только сумки)" -- mt

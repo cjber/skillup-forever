@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 10; the history:
+`minor` is 11; the history:
 
 | minor | added |
 |---|---|
@@ -20,6 +20,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 8 | conditional selected initial acquisition records on steps and shopping items |
 | 9 | profession source-evidence status and conditional supply certificates with dated provenance |
 | 10 | proved `unattained` supply status and free-unlimited geometric nonattainment parameters |
+| 11 | complete adaptive finite supply certificates, scope and selection proof |
 
 ## Not ready
 
@@ -54,7 +55,7 @@ replace the defaults of three and five for that call only. A missing field keeps
 | `recipes` | the route's crafts: at most five by default, or the call's `limits.recipes` |
 | `reagents` | the route's reagents for the whole route |
 | `sourceEvidence` | structured source-law evidence for the current merchant window, available without a coverage target |
-| `supply` | optional conditional fixed-refill-policy selection status and result, described below |
+| `supply` | optional conditional fixed or adaptive selection status and complete result, described below |
 
 `sourceEvidence` has `status` (`"unavailable"` or `"conditional"`), `sourceRevision`,
 `scope = "current-merchant-window"`, `missing` and `assumptions`. Each missing record has a
@@ -72,6 +73,18 @@ results also carry paired `sourceRevision` and `assumptions`. Each assumption re
 `observationRevision`, `session` and `index`. These are conditional mathematical
 results for one declared refill policy, not empirical gameplay guarantees. All nested
 tables are fresh copies. Missing, calculating or unknown results provide no optimum certificate.
+
+Adaptive results retain `service = "adaptive-finite"`, `inventoryScope = "bags-only"`,
+`items` as gross initial inventory targets, native pre-payment `have`, exact-selection
+proof `selection`, and the complete finite policy `certificate`. C0 uses net inventory
+after item-token payments; Ppi includes the selected future actions. Objective, carry,
+failure-loss and expenditure bounds remain separate. The certificate owns source
+bindings, typed payments, canonical coordinates, trip laws and selected actions.
+Initial step and shopping quotes use only `acquisition.moneyCopper` and its complete
+typed `costs`. Monetary visit fares remain in the certificate and objective.
+Certified reagent and shopping counts use native holdings in the declared scope.
+A missing certified coordinate has no `have` or `missing` count and never reads the
+bags-and-bank display fallback. A certified zero remains zero.
 
 A selector may instead report `status = "unattained"`, `costKnown = false`,
 `infimumKnown = true` and exact `objectiveInfimumLower/Upper`, with no finite
@@ -115,7 +128,7 @@ A recipe is:
 | `trainAt` | where the route first trains it, while it is still to learn |
 | `cost` | its training fee in copper, while it is still to learn |
 
-A reagent is `{ itemID, need, have, source }`: how many the whole route needs, how many the bags and bank hold, and
+A reagent is `{ itemID, need, have, source }`: how many the whole route needs, native holdings in the certified scope, or bags and bank without a certificate, and
 `"vendor"`, `"craft"`, `"gather"` or `"auction"` when SkillUp can tell how it is got.
 
 `Navigate(skillLineID, stepIndex)` sets a waypoint to the vendor, trainer or quest giver of that step when the step
@@ -160,9 +173,12 @@ Each entry is:
 | `unpriced` | how many missing items have no price |
 
 An item is `{ itemID, need, have, missing, source, price, priceAge, cost, alt }`: `need` for the route, `have` in the
-bags and bank, and `missing` the difference; `price` is copper each when one is known, and `cost` the price of the
+certified scope, or bags and bank without a certificate, and `missing` the difference; `price` is copper each when one is known, and `cost` the price of the
 missing units; `priceAge` is the whole days since Auctionator saw the price, when it came from there; `alt` is a
 fresh list of `{ name, count }`, this character's other characters that hold it, most first.
+Each row exposes `inventoryScope = "bags-only"` for adaptive native holdings or
+`"bags-and-bank"` for fixed and ordinary route holdings. `have` and `missing` are
+absent when the certified coordinate is unknown.
 
 With a completed conditional selection, a shopping item has `acquisitions`, the selected initial transactions
 for that product. `cost` sums their money components; `price` and `priceAge` are absent because a bundle with typed

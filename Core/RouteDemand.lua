@@ -41,9 +41,9 @@ end
 
 -- This adapter accepts final Plan output, never CoveredCrafts counts or expanded
 -- shopping rows. Its snapshot owns every table read by the asynchronous solver.
----@type table<SkillUpJointDemandJob|SkillUpResupplyJob|SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob, boolean>
+---@type table<SkillUpJointDemandJob|SkillUpResupplyJob|SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob, integer>
 local jobs = setmetatable({}, { __mode = "k" })
----@type table<SkillUpSupplyChoiceJob, SkillUpPlan>
+---@type table<SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob, SkillUpPlan>
 local supplyPlans = {}
 ---@type table<integer, SkillUpSupplyConfiguration>
 local configured = {}
@@ -179,23 +179,27 @@ end
 -- Called by Plan's existing cache owners on plans/replan/bags invalidation,
 -- and by the caller when replacing its explicit basket. It revokes completed
 -- results too: a formerly valid bag snapshot is not a current certificate.
-function RouteDemand.Invalidate()
+---@param revision integer? Only revoke older chance snapshots when supplied by the frame.
+function RouteDemand.Invalidate(revision)
 	for _, config in pairs(configured) do
 		config.dirty = true
 	end
-	local published = false
-	for job in pairs(jobs) do
-		job:Cancel()
+	-- Freeze the revoked set before cancellation: callbacks can publish a new
+	-- current owner, which does not belong to this invalidation.
+	local revoked = {}
+	for job, captured in pairs(jobs) do
+		if revision == nil or captured ~= revision then
+			revoked[job] = true
+		end
 	end
 	for job, plan in pairs(supplyPlans) do
-		if plan.supply and plan.supply.job == job then
-			published = published or plan.supply.items ~= nil
-			plan.supply = nil
+		if revision == nil or (plan.supply and plan.supply.job == job and plan.supply.revision ~= revision) then
+			revoked[job] = true
 		end
-		supplyPlans[job] = nil
 	end
-	if published then
-		ns.Changed("supply")
+	for job in pairs(revoked) do
+		job:Cancel()
+		jobs[job], supplyPlans[job] = nil, nil
 	end
 end
 
@@ -248,7 +252,7 @@ function RouteDemand.Start(plan, buy)
 	if inner then
 		job.result.reasons[#job.result.reasons + 1] = COST_REASON
 	end
-	jobs[job] = true
+	jobs[job] = revision
 	return job
 end
 
@@ -358,6 +362,7 @@ end
 ---@param alpha number? Explicit when selecting initial orders.
 ---@return SkillUpResupplyJob|SkillUpSupplyChoiceJob
 function RouteDemand.StartPolicy(plan, contract, alpha)
+	local revision = ns.Model.ChanceRevision()
 	local frozen, reason = FreezePolicy(contract)
 	if not frozen then
 		return RejectedPolicy(assert(reason))
@@ -426,7 +431,7 @@ function RouteDemand.StartPolicy(plan, contract, alpha)
 		end
 	end
 	local job = alpha ~= nil and ns.SupplyChoice.Start(frozen, alpha) or ns.Resupply.Start(frozen)
-	jobs[job] = true
+	jobs[job] = revision
 	return job
 end
 
@@ -696,7 +701,7 @@ function RouteDemand.StartAdaptive(plan, request, alpha)
 		return self.result
 	end
 	job = { result = { status = "calculating", costKnown = false, reasons = {} }, Advance = Advance, Cancel = Cancel }
-	jobs[job] = true
+	jobs[job] = revision
 	return job
 end
 
@@ -704,13 +709,18 @@ end
 -- or advances a solve. A missing explicit policy leaves the legacy estimates
 -- intact, without giving them a coverage or economic certificate.
 ---@param plan SkillUpPlan
----@param job SkillUpSupplyChoiceJob
----@return SkillUpSupplyChoiceJob
+---@param job SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob
+---@return SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob
 local function PublishSupply(plan, job)
-	if plan.supply then
-		local old = plan.supply.job
+	local previous = plan.supply
+	if previous then
+		local old = previous.job
 		old:Cancel()
 		supplyPlans[old] = nil
+		if plan.supply and plan.supply ~= previous then
+			job:Cancel()
+			return job
+		end
 	end
 	plan.supply = { job = job, revision = ns.Model.ChanceRevision() }
 	supplyPlans[job] = plan
@@ -743,23 +753,108 @@ end
 -- Copying a finite stock record across purchases would silently replenish it.
 -- The reader may return nil when current/future laws are no longer established.
 ---@param skillLine integer
----@param read (fun(): SkillUpResupplyInput?, string?)? nil removes the configuration.
+---@param read (fun(): SkillUpResupplyInput|SkillUpAdaptiveSupplyRequest|nil, string?)? nil removes either mode.
 ---@param alpha number?
+---@param mode 'fixed'|'adaptive'
 ---@return boolean
 ---@return string?
-function RouteDemand.ConfigureSupply(skillLine, read, alpha)
+local function Configure(skillLine, read, alpha, mode)
 	if type(skillLine) ~= "number" or skillLine <= 0 or skillLine > 2 ^ 52 - 1 or skillLine % 1 ~= 0 then
 		return false, "explicit profession identity required"
 	end
-	if read ~= nil and (type(read) ~= "function" or type(alpha) ~= "number" or not (alpha > 0 and alpha <= 1)) then
+	if
+		read ~= nil
+		and (
+			type(read) ~= "function"
+			or type(alpha) ~= "number"
+			or not (alpha >= 0 and alpha <= 1 and (mode == "adaptive" or alpha > 0))
+		)
+	then
 		return false, "explicit source contract reader and starting coverage required"
 	end
 	local previous = configured[skillLine]
 	if previous and previous.job then
 		previous.job:Cancel()
+		if configured[skillLine] ~= previous then
+			return false, "configuration replaced during cancellation"
+		end
 	end
-	configured[skillLine] = read and { read = read, alpha = assert(alpha), dirty = true } or nil
+	configured[skillLine] = read and { read = read, alpha = assert(alpha), mode = mode, dirty = true } or nil
 	return true
+end
+
+---@param skillLine integer
+---@param read (fun(): SkillUpResupplyInput?, string?)?
+---@param alpha number?
+---@return boolean, string?
+function RouteDemand.ConfigureSupply(skillLine, read, alpha)
+	return Configure(skillLine, read, alpha, "fixed")
+end
+
+---@param skillLine integer
+---@param read (fun(): SkillUpAdaptiveSupplyRequest?, string?)?
+---@param alpha number?
+---@return boolean, string?
+function RouteDemand.ConfigureAdaptiveSupply(skillLine, read, alpha)
+	return Configure(skillLine, read, alpha, "adaptive")
+end
+
+---@param plan SkillUpPlan
+---@param request SkillUpAdaptiveSupplyRequest
+---@param alpha number
+---@return SkillUpFiniteSelectionJob
+function RouteDemand.SelectAdaptiveSupply(plan, request, alpha)
+	local job = RouteDemand.StartAdaptive(plan, request, alpha)
+	PublishSupply(plan, job)
+	return job
+end
+
+-- Certified coordinates never inherit the display helper's bank scope.
+---@param item SkillUpNeededItem
+---@return integer?
+function RouteDemand.Held(item)
+	if item.supplyScope then
+		return item.have
+	end
+	return ns.Have(item.itemID)
+end
+
+-- Purchases arrive in bags. They must cover total demand across bags and bank,
+-- and bags-only demand independently. Count each shared holding only once.
+---@param tracked SkillUpTracked[]
+---@return table<integer, number> missing
+---@return table<integer, boolean> unknown
+function RouteDemand.Shortfalls(tracked)
+	local totals = {}
+	for _, entry in ipairs(tracked) do
+		for _, item in ipairs(entry.items) do
+			local total = totals[item.itemID]
+			if not total then
+				total = { need = 0, bagsNeed = 0, held = {} }
+				totals[item.itemID] = total
+			end
+			local scope = item.supplyScope or "bags-and-bank"
+			local have = RouteDemand.Held(item)
+			if have == nil or (total.held[scope] ~= nil and total.held[scope] ~= have) then
+				total.unknown = true
+			end
+			total.held[scope] = have
+			total.need = total.need + item.need
+			if scope == "bags-only" then
+				total.bagsNeed = total.bagsNeed + item.need
+			end
+		end
+	end
+	local missing, unknown = {}, {}
+	for itemID, total in pairs(totals) do
+		local bags, all = total.held["bags-only"], total.held["bags-and-bank"]
+		if total.unknown or (all and bags and all < bags) then
+			unknown[itemID] = true
+		else
+			missing[itemID] = math.max(0, total.need - (all or bags), total.bagsNeed - (bags or 0))
+		end
+	end
+	return missing, unknown
 end
 
 ---@param plan SkillUpPlan
@@ -771,6 +866,7 @@ function RouteDemand.Supply(plan)
 		and supply.revision == ns.Model.ChanceRevision()
 		and supply.job.result.status == "complete"
 		and supply.items
+		and supply.have
 	then
 		return supply
 	end
@@ -779,7 +875,13 @@ end
 -- At most 64 solver operations across all jobs per frame. This is a scheduling
 -- budget, not a probability cutoff; exhaustion of a model budget stays unknown.
 local supplyFrame = CreateFrame("Frame")
+local supplyRevision = ns.Model.ChanceRevision()
 supplyFrame:SetScript("OnUpdate", function()
+	local revision = ns.Model.ChanceRevision()
+	if revision ~= supplyRevision then
+		supplyRevision = revision
+		RouteDemand.Invalidate(revision)
+	end
 	if ns.db then
 		for skillLine, config in pairs(configured) do
 			if config.dirty then
@@ -788,12 +890,26 @@ supplyFrame:SetScript("OnUpdate", function()
 				if profession then
 					local ok, contract = pcall(config.read)
 					local plan = ns.PlanRoute(profession)
+					if configured[skillLine] ~= config or config.dirty then
+						break
+					end
+					local job
 					if ok and contract then
-						config.job = RouteDemand.SelectSupply(plan, contract, config.alpha)
+						if config.mode == "adaptive" then
+							---@cast contract SkillUpAdaptiveSupplyRequest
+							job = RouteDemand.SelectAdaptiveSupply(plan, contract, config.alpha)
+						else
+							---@cast contract SkillUpResupplyInput
+							job = RouteDemand.SelectSupply(plan, contract, config.alpha)
+						end
 					else
-						local job = RejectedChoice("fresh complete source contract unavailable")
-						config.job = job
+						job = RejectedChoice("fresh complete source contract unavailable")
 						PublishSupply(plan, job)
+					end
+					if configured[skillLine] == config and not config.dirty then
+						config.job = job
+					else
+						job:Cancel()
 					end
 				end
 				-- Snapshot one configured profession per frame, outside getters.
@@ -820,6 +936,7 @@ supplyFrame:SetScript("OnUpdate", function()
 				supply.initialVisits = job.result.initialVisits
 				supply.sourceRevision = job.result.sourceRevision
 				supply.assumptions = job.result.assumptions
+				supply.result = job.result
 				changed = true
 			end
 		end
@@ -893,6 +1010,10 @@ end
 
 ns.RouteDemand = {
 	ConfigureSupply = RouteDemand.ConfigureSupply,
+	ConfigureAdaptiveSupply = RouteDemand.ConfigureAdaptiveSupply,
+	SelectAdaptiveSupply = RouteDemand.SelectAdaptiveSupply,
+	Held = RouteDemand.Held,
+	Shortfalls = RouteDemand.Shortfalls,
 	Vendors = RouteDemand.Vendors,
 	SelectSupply = RouteDemand.SelectSupply,
 	Supply = RouteDemand.Supply,

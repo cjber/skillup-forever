@@ -1081,6 +1081,8 @@ function ns.RouteReagents(plan)
 			items[#items + 1] = {
 				itemID = itemID,
 				need = count,
+				have = supply.have[itemID],
+				supplyScope = supply.result and supply.result.inventoryScope or "bags-and-bank",
 				source = #acquisitions > 0 and "vendor" or "unknown",
 				acquisitions = acquisitions,
 			}

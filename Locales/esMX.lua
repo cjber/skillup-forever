@@ -536,3 +536,5 @@ L["Show recipes on Shift or always. Off hides reagent details, including route n
 L["Show route needs on item tooltips"] = "Mostrar necesidades de las rutas en las descripciones de objetos" -- mt
 L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
 	"Muestra cuánto de un objeto necesitan todavía tus rutas seguidas. Desactívalo para conservar los detalles de recetas sin la línea de ruta." -- mt
+
+L["Have (bags only)"] = "Tienes (solo bolsas)" -- mt

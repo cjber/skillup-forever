@@ -271,4 +271,5 @@ cycle.self = cycle
 policy.assumptions = cycle
 Check(Finish().status == "unknown", "cyclic caller records are rejected under budget")
 policy.assumptions = {}
+Check(type(ns.RouteDemand.ConfigureAdaptiveSupply) == "function", "configured adaptive publication exists")
 print("adaptive supply: " .. checks .. " checks passed")

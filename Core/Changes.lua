@@ -46,6 +46,7 @@ local STALE = {
 	-- Publishing a supply certificate changes its consumers, not its input plan.
 	supply = {
 		trackedNeeds = true,
+		tooltipRoute = true,
 		api = true,
 		route = true,
 		tracker = true,

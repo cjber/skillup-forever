@@ -1,15 +1,15 @@
 {
-  "input_digest": "1976f4235b6e28489d215ddd760da7837e431bfef2992b28cd4afc18954fbd45",
-  "runtime_sha256": "1976f4235b6e28489d215ddd760da7837e431bfef2992b28cd4afc18954fbd45",
-  "candidate": "fa18698882c3b4bb9e60544a3b85a9625bd013c93ad7618b5bf8697d52de7eb2",
+  "input_digest": "5d2e8835ee281c875cb8f2f95d159cd9b9bcdac7aa71328f73cb58e614b8f1f9",
+  "runtime_sha256": "5d2e8835ee281c875cb8f2f95d159cd9b9bcdac7aa71328f73cb58e614b8f1f9",
+  "candidate": "34424f1d9d7ce22ff79ccdb6152d32d2eb7dcfd2ceff7e34a4a922eea654607f",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "250826d2e17f788b785d1ed222cd468cbf35ed14",
+  "source_commit": "830c5e432f0d9112d83f0f73c341cbe5504cfc43",
   "flows": [
     {
-      "name": "supply page",
+      "name": "leatherworking route",
       "steps": [
-        "su-supply.lua sha256:7072904d20b40f566cebb057da3a1ee7070bac3862efa71f56d018380b0de587"
+        "su-722-lw-route.lua sha256:f202c5d8cc5a2b23d03caffbb560a07a2ebdaf20c94abf1ae91afed017a0107c"
       ],
       "click": [
         960,
@@ -20,8 +20,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/dfff021fb368a30846b1e019ee54803c/raw/fbfcf737512ee7095a7429799026a6e800f05c6c/1-supply-page.png",
-      "sha256": "200289507802bbca9ede7be00ee75127be71080c5cdf60040befab5cdd11fe22"
+      "url": "https://gist.githubusercontent.com/cjber/e2ffaf1b560db05088cef7cfe54061a1/raw/1a069818b55563aad458e6d3e26a8a73e09ea848/1-leatherworking-route.png",
+      "sha256": "8cd430f890d7bcb12ffacc398b1093cdb911d4b0dfb6d2fdec91622763664393"
     }
   ]
 }

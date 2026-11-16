@@ -668,3 +668,4 @@ L["Routes prefer the materials your bags already hold."] =
 	"Les parcours privilégient les matériaux que vous avez déjà dans vos sacs." -- mt
 L["Show minimap button"] = "Afficher le bouton de la minicarte" -- mt
 L["Show the SkillUp button on the minimap."] = "Affiche le bouton SkillUp sur la minicarte." -- mt
+L["You can hide the minimap button."] = "Vous pouvez masquer le bouton de la minicarte." -- mt

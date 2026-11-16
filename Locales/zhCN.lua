@@ -650,3 +650,4 @@ L["%s (level %d)"] = "%s（等级 %d）" -- mt
 L["Routes prefer the materials your bags already hold."] = "路线优先使用背包中已有的材料。" -- mt
 L["Show minimap button"] = "显示小地图按钮" -- mt
 L["Show the SkillUp button on the minimap."] = "在小地图上显示SkillUp按钮。" -- mt
+L["You can hide the minimap button."] = "现在可以隐藏小地图按钮。" -- mt

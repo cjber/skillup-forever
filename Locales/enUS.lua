@@ -198,3 +198,4 @@ L["No trainer of your faction teaches this recipe."] = "No trainer of your facti
 L["%s (level %d)"] = "%s (level %d)"
 L["Show minimap button"] = "Show minimap button"
 L["Show the SkillUp button on the minimap."] = "Show the SkillUp button on the minimap."
+L["You can hide the minimap button."] = "You can hide the minimap button."

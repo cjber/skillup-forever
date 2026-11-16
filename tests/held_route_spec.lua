@@ -6,21 +6,35 @@ local equal = Client.equal
 
 local SKILL = 171
 local BAGS, MARKET = 201, 202
+-- #744: a second profession, for a training candidate whose reagent the bags hold. One learned recipe is grey
+-- by the character's skill, so only training can carry the route, and two candidates can carry it: one the bags
+-- can make, one only from the market. Both are held by the same trainer at the same fee.
+local TRAINING_SKILL = 333
+local STALE, TRAINED_HELD, TRAINED_MARKET = 4101, 4102, 4103
 
 local c = Client.load({
 	saved = {
 		routeTargets = { [SKILL] = 20 },
 		craftValue = "none",
-		vendor = { [2001] = 10, [2002] = 12 },
+		vendor = { [2001] = 10, [2002] = 12, [2101] = 10 },
 	},
 	data = {
-		Thresholds = { [BAGS] = { 1, 5, 8, 30 }, [MARKET] = { 1, 5, 8, 30 } },
+		Thresholds = {
+			[BAGS] = { 1, 5, 8, 30 },
+			[MARKET] = { 1, 5, 8, 30 },
+			[STALE] = { 1, 2, 3, 4 },
+			[TRAINED_HELD] = { 1, 10, 15, 40 },
+			[TRAINED_MARKET] = { 1, 10, 15, 40 },
+		},
 		RecipeData = {
 			[BAGS] = { skillLine = SKILL, reagents = { { itemID = 2002, quantity = 1 } } },
 			[MARKET] = { skillLine = SKILL, reagents = { { itemID = 2001, quantity = 1 } } },
+			[STALE] = { skillLine = TRAINING_SKILL, reagents = { { itemID = 2101, quantity = 1 } } },
+			[TRAINED_HELD] = { skillLine = TRAINING_SKILL, reagents = { { itemID = 2002, quantity = 1 } } },
+			[TRAINED_MARKET] = { skillLine = TRAINING_SKILL, reagents = { { itemID = 2001, quantity = 1 } } },
 		},
 		VendorPrices = {},
-		TrainerFees = {},
+		TrainerFees = { [TRAINED_HELD] = { 50, 1 }, [TRAINED_MARKET] = { 50, 1 } },
 		TrainerRanks = {},
 		ItemSellPrices = {},
 		GatheredBy = {},
@@ -170,5 +184,29 @@ local many = ns.Model.PlanRoute({
 equal(many.segments[1].crafts, 4, "a half-chance step covers one point in four crafts")
 equal(many.segments[1].recipeID, POOLED, "the partly held recipe wins on its per-craft cost")
 equal(many.expectedCost, 700, "a pooled step charges each craft its 75 share of the 300 batch")
+
+-- #744: the bags weigh in on a training candidate too. A trained recipe is neither learned nor a walk's recipe
+-- until the search takes it, so the planner's held pool must count its reagents before the search re-plans over
+-- them. Both candidates reach the same skill from a grey learned recipe; the one the bags can make is the
+-- cheaper craft, so the market one wins only while the pool doesn't know the bags hold its rival's reagent.
+c.professions = { { name = "Enchanting", id = TRAINING_SKILL, rank = 4, max = 75 } }
+c.known[STALE] = true
+c.bags[2002] = 1000
+ns.db.routeTargets[TRAINING_SKILL] = 20
+ns.Changed("prices")
+ns.Changed("replan")
+local training = ns.RouteProfessions()[TRAINING_SKILL]
+local trained = ns.PlanRoute(training)
+equal(
+	trained.crafts[1] and trained.crafts[1].recipeID,
+	TRAINED_HELD,
+	"a training candidate the bags can make wins over a cheaper market one"
+)
+equal(trained.training[1] and trained.training[1].recipeID, TRAINED_HELD, "and the route is planned by training it")
+equal(
+	ns.BestTraining(training, {}, { { recipeID = TRAINED_HELD, fee = 50 }, { recipeID = TRAINED_MARKET, fee = 50 } }),
+	TRAINED_HELD,
+	"the trainer window weighs an offer against the bags too"
+)
 
 Client.report("held_route_spec")

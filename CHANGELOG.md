@@ -12,6 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Minimap button:** Show or hide the SkillUp minimap button in the addon settings. (#759)
+- **Recipe prices:** "Money on recipe rows" has an Off choice, which hides prices on recipe rows and keeps the skill-up chances. (#760)
+
 ## [1.12.0] - 2026-11-16
 
 <!-- discord-image: docs/screenshots/route.png -->

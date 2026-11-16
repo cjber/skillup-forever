@@ -652,3 +652,5 @@ L["%s (level %d)"] = "%s (Stufe %d)" -- mt
 
 L["Routes prefer the materials your bags already hold."] =
 	"Routen bevorzugen die Materialien, die Ihr bereits in Euren Taschen habt." -- mt
+L["Show minimap button"] = "Minikartenbutton anzeigen" -- mt
+L["Show the SkillUp button on the minimap."] = "Zeigt den SkillUp-Button an der Minikarte." -- mt

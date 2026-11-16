@@ -36,7 +36,7 @@ local DEFAULTS = {
 	recipeTooltip = "window", -- where the recipe tooltip goes: beside the Professions window, at the cursor, by the row
 	detailsBar = true, -- the recipe tooltip's skill bar under the selected recipe, on the crafting page itself
 	showCost = true,
-	rowCost = "skillup", -- what a recipe row's money is: "skillup" (cost per skill-up) or "craft" (net per craft)
+	rowCost = "skillup", -- what a recipe row's money is: "skillup" (cost per skill-up), "craft" (net per craft) or "off"
 	priceSource = "auctionator", -- the auction addon whose price wins when both are installed; the other fills gaps
 	craftValue = "vendor",
 	valueGathered = false, -- a reagent you gather costs what it would sell for, not nothing
@@ -137,6 +137,7 @@ ns.RECIPE_TOOLTIP_OPTIONS = {
 ns.ROW_COST_OPTIONS = {
 	{ "skillup", L["Per skill-up"] },
 	{ "craft", L["Per craft"] },
+	{ "off", OFF },
 }
 ns.REAGENT_TOOLTIP_OPTIONS = {
 	{ "off", OFF },
@@ -863,7 +864,8 @@ function ns.FormatRow(d)
 	end
 	parts[#parts + 1] = string.format("%d%%", math.floor(d.chance * 100 + 0.5))
 	-- A negative amount is a profit, a positive one a cost.
-	local amount = ns.db.rowCost == "craft" and d.net or d.perSkillUp
+	local mode = ns.db.rowCost
+	local amount = mode == "craft" and d.net or mode == "skillup" and d.perSkillUp or nil
 	if ns.db.showCost and amount then
 		parts[#parts + 1] = ns.FormatSigned(ns.Model.RoundMoney(math.abs(amount)), amount < 0)
 	end

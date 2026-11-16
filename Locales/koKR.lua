@@ -666,3 +666,5 @@ L["%s (level %d)"] = "%s (레벨 %d)" -- mt
 
 L["Routes prefer the materials your bags already hold."] =
 	"경로는 가방에 이미 있는 재료를 우선합니다." -- mt
+L["Show minimap button"] = "미니맵 버튼 표시" -- mt
+L["Show the SkillUp button on the minimap."] = "미니맵에 SkillUp 버튼을 표시합니다." -- mt

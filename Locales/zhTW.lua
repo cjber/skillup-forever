@@ -643,3 +643,5 @@ L["No trainer of your faction teaches this recipe."] = "你的陣營沒有訓練
 L["%s (level %d)"] = "%s（等級 %d）" -- mt
 
 L["Routes prefer the materials your bags already hold."] = "路線優先使用背包中已有的材料。" -- mt
+L["Show minimap button"] = "顯示小地圖按鈕" -- mt
+L["Show the SkillUp button on the minimap."] = "在小地圖上顯示SkillUp按鈕。" -- mt

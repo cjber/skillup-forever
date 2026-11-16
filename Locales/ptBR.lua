@@ -502,8 +502,6 @@ L["Without Auctionator, a recipe's Search button fills the game's own auction bo
 L["%s: %s is out of date. Update it to fix this."] = "%s: %s está desatualizado. Atualize-o para corrigir isso." -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s: %s estão desatualizados. Atualize-os para corrigir isso." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s não pôde iniciar. Reinstale %s para corrigir isso." -- mt
-L["SkillUp no longer fills Auctionator with shopping lists."] =
-	"O SkillUp não preenche mais o Auctionator com listas de compras." -- mt
 L["Region sale average"] = "Média regional de vendas"
 L["Region sale average if higher"] = "Média regional de vendas se for maior"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
@@ -650,3 +648,5 @@ L["Supply"] = "Suprimento" -- mt
 L["Supply policy"] = "Política de suprimento" -- mt
 L["Open the profession and a merchant window."] = "Abra a profissão e uma janela de comerciante." -- mt
 L["Apply policy"] = "Aplicar política" -- mt
+
+L["The route spells out what to craft in order."] = "A rota mostra em ordem o que criar." -- mt

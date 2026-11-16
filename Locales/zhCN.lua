@@ -494,7 +494,6 @@ L["Without Auctionator, a recipe's Search button fills the game's own auction bo
 L["%s: %s is out of date. Update it to fix this."] = "%s：%s 已过期。请更新它来解决此问题。" -- mt
 L["%s: %s are out of date. Update them to fix this."] = "%s：%s 已过期。请更新它们来解决此问题。" -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s 无法启动。请重新安装 %s 来解决此问题。" -- mt
-L["SkillUp no longer fills Auctionator with shopping lists."] = "SkillUp 不再把购物清单写入 Auctionator。" -- mt
 L["Region sale average"] = "地区平均成交价"
 L["Region sale average if higher"] = "较高时使用地区平均成交价"
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
@@ -638,3 +637,5 @@ L["Supply"] = "补给" -- mt
 L["Supply policy"] = "补给策略" -- mt
 L["Open the profession and a merchant window."] = "请打开专业和商人窗口。" -- mt
 L["Apply policy"] = "应用策略" -- mt
+
+L["The route spells out what to craft in order."] = "路线按顺序列出要制造的内容。" -- mt

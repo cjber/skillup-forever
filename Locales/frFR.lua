@@ -508,8 +508,6 @@ L["%s: %s is out of date. Update it to fix this."] = "%s : %s n'est pas à jour.
 L["%s: %s are out of date. Update them to fix this."] =
 	"%s : %s ne sont pas à jour. Mettez-les à jour pour corriger cela." -- mt
 L["%s could not start. Reinstall %s to fix this."] = "%s n'a pas pu démarrer. Réinstallez %s pour corriger cela." -- mt
-L["SkillUp no longer fills Auctionator with shopping lists."] =
-	"SkillUp ne remplit plus Auctionator de listes d'achats." -- mt
 L["Region sale average"] = "Prix de vente régional moyen" -- mt
 L["Region sale average if higher"] = "Prix de vente régional moyen si supérieur" -- mt
 L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."] =
@@ -656,3 +654,5 @@ L["Supply"] = "Approvisionnement" -- mt
 L["Supply policy"] = "Politique d'approvisionnement" -- mt
 L["Open the profession and a merchant window."] = "Ouvrez le métier et une fenêtre de marchand." -- mt
 L["Apply policy"] = "Appliquer la politique" -- mt
+
+L["The route spells out what to craft in order."] = "Le parcours indique dans l'ordre ce qu'il faut fabriquer." -- mt

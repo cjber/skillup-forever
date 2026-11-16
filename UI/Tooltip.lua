@@ -704,6 +704,12 @@ local function UsedInLines(uses)
 		end
 		local band, color = Band(use.t, use.skill)
 		local name = C_Spell.GetSpellName(use.recipeID) or string.format(L["recipe %d"], use.recipeID)
+		-- The game's own profession name, so a line says which of your professions the recipe belongs to (#670).
+		local recipe = ns.RecipeData[use.recipeID]
+		local profession = recipe and C_TradeSkillUI.GetTradeSkillDisplayName(recipe.skillLine)
+		if profession then
+			name = string.format(L["%s: %s"], profession, name)
+		end
 		lines[#lines + 1] = DoubleLine(use.learned and name or string.format(L["%s (unlearned)"], name), band, color)
 	end
 	return lines

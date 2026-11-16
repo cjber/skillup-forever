@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Each "Used in" line says which profession its recipe belongs to.** When more than one of your professions uses a reagent, the lines now read "Alchemy: Elixir of Wisdom" and "First Aid: Linen Bandage" instead of leaving you to tell them apart, and an unlearned recipe keeps its "(unlearned)" after the name. The profession is the game's own name in your client's language. Thanks to yusufdanis for the change (#670).
+
 ## [1.10.2] - 2026-11-15
 
 <!-- forever-core-sync -->

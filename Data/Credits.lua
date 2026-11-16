@@ -4,6 +4,7 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "yusufdanis", what = "Each Used in tooltip line names its recipe's profession (code)" },
 		{ name = "Diamondclaw", what = "The recipe skill band clears the icon and the Reagents header" },
 		{ name = "mimmordino", what = "The recipe skill band clears the icon and the Reagents header" },
 		{ name = "soviman1", what = "Smelting recipes show their skill range" },

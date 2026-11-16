@@ -5,8 +5,8 @@ local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local FIRST_AID, ALCHEMY = 129, 171
-local BUFF_RECIPE, PLAIN_RECIPE, HIGHER_MAKER, UNTRAINED_MAKER = 1, 2, 3, 4
-local BUFF_ITEM, PLAIN_ITEM, THIRD_ITEM = 101, 102, 103
+local BUFF_RECIPE, PLAIN_RECIPE, HIGHER_MAKER, UNTRAINED_MAKER, ALCHEMY_LINEN = 1, 2, 3, 4, 5
+local BUFF_ITEM, PLAIN_ITEM, THIRD_ITEM, ALCHEMY_ITEM = 101, 102, 103, 104
 local LINEN, THREAD, SILK = 201, 202, 203
 local BUFF_SPELL = 500
 local BUFF_NAME, BUFF_DESCRIPTION = "Elixir of Wisdom", "Increases Intellect by 5 for 5 min."
@@ -20,6 +20,7 @@ local c = Client.load({
 			[BUFF_RECIPE] = { 30, 45, 60, 75 },
 			[PLAIN_RECIPE] = { 1, 30, 45, 60 },
 			[HIGHER_MAKER] = { 100, 120, 140, 160 },
+			[ALCHEMY_LINEN] = { 1, 30, 45, 60 },
 		},
 		RecipeData = {
 			[BUFF_RECIPE] = {
@@ -42,6 +43,12 @@ local c = Client.load({
 				skillLine = FIRST_AID,
 				reagents = { { itemID = LINEN, quantity = 1 } },
 				output = { itemID = THIRD_ITEM, quantity = 1 },
+			},
+			-- Another profession's recipe for the same reagent, so one "Used in" list names two professions.
+			[ALCHEMY_LINEN] = {
+				skillLine = ALCHEMY,
+				reagents = { { itemID = LINEN, quantity = 1 } },
+				output = { itemID = ALCHEMY_ITEM, quantity = 1 },
 			},
 		},
 		BuffItems = { [BUFF_ITEM] = BUFF_SPELL, [THIRD_ITEM] = BUFF_SPELL },
@@ -147,9 +154,11 @@ c.items[SILK] = { name = "Silk Cloth" }
 c.items[BUFF_ITEM] = { name = "Elixir of Wisdom", sell = 3 }
 c.items[PLAIN_ITEM] = { name = "Plain Bandage", sell = 3 }
 c.items[THIRD_ITEM] = { name = "Third Elixir", sell = 3 }
+c.items[ALCHEMY_ITEM] = { name = "Linen Elixir", sell = 3 }
 c.spells[BUFF_SPELL] = BUFF_NAME
 c.spellDescriptions[BUFF_SPELL] = BUFF_DESCRIPTION
 c.spellCached[BUFF_SPELL] = true
+c.spells[ALCHEMY_LINEN] = "Elixir of Linen"
 c.tradeSkillNames[FIRST_AID] = "First Aid"
 c.tradeSkillNames[ALCHEMY] = "Alchemy"
 c.known[BUFF_RECIPE] = true
@@ -262,6 +271,33 @@ equal(untrained[2], "Made by First Aid", "without thresholds the line names the 
 
 -- An item that leaves no buff has no maker line.
 equal(#ItemLines(PLAIN_ITEM), 0, "a plain item has no made-by line")
+
+--[[ A reagent two professions use: every "Used in" line names its own profession (#670) ]]
+
+c.known[ALCHEMY_LINEN] = true
+c.spells[PLAIN_RECIPE] = "Plain Bandage"
+c.professions = {
+	{ name = "First Aid", rank = 40, max = 75, id = FIRST_AID },
+	{ name = "Alchemy", rank = 40, max = 75, id = ALCHEMY },
+}
+ns.Changed("professions")
+local used = ItemLines(LINEN)
+---@param text string
+---@return boolean
+local function UsesLine(text)
+	for _, line in ipairs(used) do
+		if line == text then
+			return true
+		end
+	end
+	return false
+end
+equal(UsesLine("Used in"), true, "the reagent tooltip lists what uses it")
+equal(UsesLine("Alchemy: Elixir of Linen"), true, "an alchemy recipe is named by its profession")
+equal(UsesLine("First Aid: Plain Bandage (unlearned)"), true, "a first aid recipe is named by its own")
+equal(UsesLine("Plain Bandage"), false, "no line is left without a profession")
+equal(UsesLine("Alchemy: Plain Bandage"), false, "a line never takes another profession's name")
+equal(UsesLine("First Aid: Elixir of Linen"), false, "and the alchemy line is not first aid's")
 
 --[[ Where the droppers are when none can be ranked: one shared zone map, or nothing ]]
 

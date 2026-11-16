@@ -537,15 +537,24 @@ function Owner.DeclareEconomics(version, laws)
 	if type(laws) ~= "table" then
 		return false, { Missing("economic-laws-required") }
 	end
-	---@type SkillUpAdaptiveEconomics
-	local record = { revision = version, session = window.session, evidence = {} }
+	---@type SkillUpAdaptiveEconomicMaps
+	local maps = {
+		initialVisitMoney = {},
+		refillVisitMoney = {},
+		initialVisitValue = {},
+		refillVisitValue = {},
+		tokenValues = {},
+		terminalCarry = {},
+	}
+	---@type SkillUpSourceAssumption[]
+	local evidence = {}
 	local missing = {}
 	for _, field in ipairs(ECONOMIC_MAPS) do
 		local law = laws[field]
 		if not Provenance(law) or type(law.value) ~= "table" or getmetatable(law.value) ~= nil then
 			missing[#missing + 1] = Missing("economic-map-required", nil, field)
 		else
-			record[field] = {}
+			maps[field] = {}
 			for key, value in pairs(law.value) do
 				local typed = field == "tokenValues" or field == "terminalCarry"
 				local money = field == "initialVisitMoney" or field == "refillVisitMoney"
@@ -556,22 +565,32 @@ function Owner.DeclareEconomics(version, laws)
 				then
 					missing[#missing + 1] = Missing("invalid-economic-coordinate", nil, field)
 				else
-					record[field][key] = value
+					maps[field][key] = value
 				end
 			end
-			record.evidence[#record.evidence + 1] = Evidence(nil, version, field, law)
+			evidence[#evidence + 1] = Evidence(nil, version, field, law)
 		end
 	end
 	if not Provenance(laws.failureLoss) or not Value(laws.failureLoss.value) then
 		missing[#missing + 1] = Missing("failure-loss-required", nil, "failureLoss")
 	else
-		record.failureLoss = laws.failureLoss.value
-		record.evidence[#record.evidence + 1] = Evidence(nil, version, "failureLoss", laws.failureLoss)
+		evidence[#evidence + 1] = Evidence(nil, version, "failureLoss", laws.failureLoss)
 	end
 	if #missing > 0 then
 		return false, missing
 	end
-	economics = record
+	economics = {
+		revision = version,
+		session = window.session,
+		evidence = evidence,
+		failureLoss = laws.failureLoss.value,
+		initialVisitMoney = maps.initialVisitMoney,
+		refillVisitMoney = maps.refillVisitMoney,
+		initialVisitValue = maps.initialVisitValue,
+		refillVisitValue = maps.refillVisitValue,
+		tokenValues = maps.tokenValues,
+		terminalCarry = maps.terminalCarry,
+	}
 	revision = revision + 1
 	ns.Changed("sourceEvidence")
 	return true
@@ -611,31 +630,44 @@ function Owner.ReadAdaptive(options, products, crafted)
 		work = work + 1
 		return work <= options.workLimit
 	end
-	---@type SkillUpFiniteAcquisitionInput
+	---@type SkillUpAdaptiveEconomicMaps
+	local maps = {
+		initialVisitMoney = {},
+		refillVisitMoney = {},
+		initialVisitValue = {},
+		refillVisitValue = {},
+		tokenValues = {},
+		terminalCarry = {},
+	}
+	---@type SkillUpSourceAssumption[]
+	local assumptions = {}
+	---@type SkillUpFiniteSource[]
+	local sources = {}
 	local policy = {
-		service = "adaptive-finite",
-		journey = "independent-round-trips",
-		delivery = "independent-bundle-outcomes",
-		objective = "expected-expenditure-plus-terminal-carry-plus-failure-loss",
-		route = { legs = {}, held = {}, buy = {} },
-		walletCopper = 0,
-		currencies = {},
-		sources = {},
+		sources = sources,
 		stock = {},
-		initialOrders = {},
-		assumptions = {},
-		sourceRevision = revision,
-		options = {},
+		assumptions = assumptions,
 	}
 	for _, field in ipairs({ "workLimit", "stateLimit", "coordinateLimit", "limbLimit" }) do
 		if not Integer(options[field], 1) then
 			missing[#missing + 1] = Missing("explicit-solver-budget-required", nil, field)
 		end
-		policy.options[field] = options[field]
 	end
+	---@param records SkillUpSourceAssumption[]
 	local function CopyEvidence(records)
 		for _, entry in ipairs(records) do
-			local copy = {}
+			---@type SkillUpSourceAssumption
+			local copy = {
+				observedAt = entry.observedAt,
+				observationRevision = entry.observationRevision,
+				session = entry.session,
+				index = entry.index,
+				offerID = entry.offerID,
+				field = entry.field,
+				revision = entry.revision,
+				provenance = entry.provenance,
+				scope = entry.scope,
+			}
 			for key, value in pairs(entry) do
 				if not Tick() then
 					return false
@@ -652,14 +684,13 @@ function Owner.ReadAdaptive(options, products, crafted)
 		end
 		missing[#missing + 1] = Missing("failure-loss-required", nil, "failureLoss")
 	else
-		policy.failureLoss = currentEconomics.failureLoss
 		for _, field in ipairs(ECONOMIC_MAPS) do
-			policy[field] = {}
+			maps[field] = {}
 			for key, value in pairs(currentEconomics[field]) do
 				if not Tick() then
 					return nil, { Missing("reader-work-budget-exhausted") }
 				end
-				policy[field][key] = value
+				maps[field][key] = value
 			end
 		end
 		if not CopyEvidence(currentEconomics.evidence) then
@@ -777,11 +808,42 @@ function Owner.ReadAdaptive(options, products, crafted)
 			Carry(key)
 		end
 	end
-	if #missing > 0 then
+	if #missing > 0 or not currentEconomics then
 		return nil, missing
 	end
 	local token = crafted and { version = crafted.version, revision = crafted.revision, skillLine = crafted.skillLine }
-	return { inventoryScope = "bags-only", policy = policy, crafted = token }, missing
+	return {
+		inventoryScope = "bags-only",
+		crafted = token,
+		policy = {
+			service = "adaptive-finite",
+			journey = "independent-round-trips",
+			delivery = "independent-bundle-outcomes",
+			objective = "expected-expenditure-plus-terminal-carry-plus-failure-loss",
+			route = { legs = {}, held = {}, buy = {} },
+			walletCopper = 0,
+			currencies = {},
+			sources = policy.sources,
+			stock = policy.stock,
+			initialOrders = {},
+			assumptions = policy.assumptions,
+			sourceRevision = revision,
+			options = {
+				workLimit = options.workLimit,
+				stateLimit = options.stateLimit,
+				coordinateLimit = options.coordinateLimit,
+				limbLimit = options.limbLimit,
+			},
+			failureLoss = currentEconomics.failureLoss,
+			initialVisitMoney = maps.initialVisitMoney,
+			refillVisitMoney = maps.refillVisitMoney,
+			initialVisitValue = maps.initialVisitValue,
+			refillVisitValue = maps.refillVisitValue,
+			tokenValues = maps.tokenValues,
+			terminalCarry = maps.terminalCarry,
+		},
+	},
+		missing
 end
 
 ---@param products table<integer, true>
@@ -824,13 +886,19 @@ function Owner.ConfigureAdaptive(skillLine, alpha, options, products, crafted)
 	if type(options) ~= "table" or type(products) ~= "table" then
 		return false, "explicit adaptive options and products required"
 	end
-	local frozenOptions, frozenProducts = {}, {}
+	local frozenProducts = {}
 	for _, field in ipairs({ "workLimit", "stateLimit", "coordinateLimit", "limbLimit" }) do
 		if not Integer(options[field], 1) then
 			return false, "explicit positive solver budgets required"
 		end
-		frozenOptions[field] = options[field]
 	end
+	---@type SkillUpAdaptiveSourceOptions
+	local frozenOptions = {
+		workLimit = options.workLimit,
+		stateLimit = options.stateLimit,
+		coordinateLimit = options.coordinateLimit,
+		limbLimit = options.limbLimit,
+	}
 	for itemID, included in pairs(products) do
 		if not Integer(itemID, 1) or included ~= true then
 			return false, "explicit product identity set required"

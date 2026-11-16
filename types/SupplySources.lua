@@ -117,3 +117,11 @@
 ---@field version 'crafted-adapter-v1'
 ---@field revision integer
 ---@field skillLine integer
+
+---@class SkillUpAdaptiveEconomicMaps
+---@field tokenValues table<string, number>
+---@field terminalCarry table<string, number>
+---@field initialVisitMoney table<string, integer>
+---@field refillVisitMoney table<string, integer>
+---@field initialVisitValue table<string, number>
+---@field refillVisitValue table<string, number>

@@ -1,0 +1,1151 @@
+{
+  "policy": "Only reviewed phrase-to-widget contracts with confirmed FontObjects are checked. Source digests pin producers and local font-governing helpers. Review callers and later font setters before refreshing a digest. Buttons are checked in each confirmed font state. Bindings cover translated wording, not dynamic text inserted into placeholders. Tooltips, menus, chat, external helper results, uncertain fonts and unlisted producers have no coverage claim. Empty bindings record reviewed exclusions or font-governing dependencies, not glyph coverage.",
+  "producers": [
+    {
+      "source": "UI/List.lua",
+      "sha256": "afee04eb24cfb64ab7c8a4abd1984c896a14d670fd5efbb9de6ffa66ed14a156",
+      "review": "Reviewed BuildRow, InitializeRow, InitializeHeading, InitializeMessage, BuildBand, InitializeBand, BuildLine and InitializeLine and CreateList callers in Route.lua. Each element kind has its own pool and explicit FontObjects; callbacks change text and colour, never fonts. Range uses GameFontNormalSmall. Pins the row, line and message fonts used by Route.lua bindings. Dynamic entry text, skill numbers and rank names are not covered.",
+      "bindings": [
+        {
+          "font": "GameFontNormalSmall",
+          "widget": "InitializeBand band.Range",
+          "phrase": "%d to %d"
+        }
+      ]
+    },
+    {
+      "source": "UI/Shopping.xml",
+      "sha256": "4fb8f16f452596494692967f7336d3661a043849c01b082a3224edb25df00986",
+      "review": "Read all list and buff row declarations and their List.lua and Buffs.lua initializers. These are empty virtual frames with no inheritance or FontStrings; all fonts are established in Lua. Pins the template definitions used by the reviewed pools. No phrases are set here.",
+      "bindings": []
+    },
+    {
+      "source": "UI/Route.lua",
+      "sha256": "bce82b004a092f2a7a5f52e9bc23e4a3898e0552ce219118e3d36a0521d68e3c",
+      "review": "Reviewed CreateInset, CreateHeader, CreateButtons, Render, RenderMoney, RenderRoute, RenderPinned, RenderSkipped, RenderSuggestions, RenderReagents and their List.lua consumers. PageParts.CreateHeader fixes Skill to GameFontNormal. List:Add text/detail use GameFontHighlight/GameFontNormal, List:Line text/detail use GameFontHighlight/GameFontNormalSmall, List:Message uses GameFontNormal. No later font setters. Pinned client Blizzard_SharedXML/Shared/Button/ThreeSliceButtonTemplate.xml: SharedButtonSmallTemplate inherits BigRedThreeSliceButtonTemplate then ThreeSliceButtonTemplate; normal/highlight/disabled fonts are GameFontNormal/GameFontHighlight/GameFontDisable, all bound. SecureActionButtonTemplate adds no font override. Tooltips, menus, chat, numeric edit fields, dynamic names, external helper results and text inserted into format placeholders have no coverage claim.",
+      "bindings": [
+        {
+          "font": "GameFontNormal",
+          "widget": "CreateInset title",
+          "phrase": "Route"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "CreateInset title",
+          "phrase": "Reagents  (have / need)"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.Skill via PageParts.CreateHeader",
+          "phrase": "Skill  %d/%d     Target"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.MoneyText via RenderMoney",
+          "phrase": "Needs %s, sells back %s (incomplete)"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.MoneyText via RenderMoney",
+          "phrase": "Needs %s, sells back %s"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "CreateButtons trackLabel / collect label",
+          "phrase": "Track"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "CreateButtons trackLabel / collect label",
+          "phrase": "Buy reagents"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.Craft",
+          "phrase": "Craft"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "page.Craft",
+          "phrase": "Craft"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "page.Craft",
+          "phrase": "Craft"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.Vendor",
+          "phrase": "Nearest vendor"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "page.Vendor",
+          "phrase": "Nearest vendor"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "page.Vendor",
+          "phrase": "Nearest vendor"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.ShoppingList",
+          "phrase": "Shopping list"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "page.ShoppingList",
+          "phrase": "Shopping list"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "page.ShoppingList",
+          "phrase": "Shopping list"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.Replan",
+          "phrase": "Replan"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "page.Replan",
+          "phrase": "Replan"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "page.Replan",
+          "phrase": "Replan"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "List:Add row.Text",
+          "phrase": "Pinned: %s"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "List:Add row.Text",
+          "phrase": "Skipped (%d)"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "List:Add row.Text",
+          "phrase": "Craft %d× %s"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "List:Add row.Text",
+          "phrase": "item %d"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Pinned for skill-ups."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Skill range unknown."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Already grey: no skill-ups."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Requires skill %d."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Learn this recipe first."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Reagents not priced yet."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Outside this route or a newer pin takes priority."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Not in this route: you chose Not this recipe."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "%s, %s, to %d"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "makes %d %s"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Skill %d to %d, %s, at %s"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "Skill %d to %d, %s"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "%s, uses materials you have"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "gather"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "vendor"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "AH"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "no price"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Add row.Detail",
+          "phrase": "vendor, limited stock"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "List:Line line.Text",
+          "phrase": "Buy %s"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "List:Line line.Text",
+          "phrase": "Train %s"
+        },
+        {
+          "font": "GameFontNormalSmall",
+          "widget": "List:Line line.Detail",
+          "phrase": "You have it"
+        },
+        {
+          "font": "GameFontNormalSmall",
+          "widget": "List:Line line.Detail",
+          "phrase": "Quest"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Recipes from vendors, quests and drops that would carry it on:"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Nothing priced you know skills up past %d."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Nothing you know skills up past %d."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Route incomplete: %d recipes left out because their costs or sale values are unknown."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "This route is mostly %s: %d recipes are left out until their costs or sale values are known."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "No step yet: learn or train a %s recipe that skills up."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Nothing to buy for this route."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Latest TradeSkillMaster prices."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Latest Auctionator prices: rescan to update old prices."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Latest Auctionator prices."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Auctionator's scan when the auction house opens is off: turn it on in Auctionator, Basic Options."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Learn a crafting profession to plan a route."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Craft next follows the estimated route."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Kept in the Auctionator list '%s'."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "List:Message message.Text",
+          "phrase": "Need %d more %s"
+        }
+      ]
+    },
+    {
+      "source": "UI/Gear.lua",
+      "sha256": "61b0a39a07fd4e70ee5d8612e98efe313bd749c637659ce84f15e07cc6b4032f",
+      "review": "Reviewed CreateRow, FillRow, RenderReagents, RenderOthers, RenderDetail, Requirement, CreateShowAll, CreateDetail and CreatePage. Explicit FontStrings retain their creation fonts; colour changes do not change FontObjects. Bound local phrases reaching these widgets. SharedButtonSmallTemplate action text is produced by PageParts and excluded here; page registration titles, tooltips, game item names and helper output are excluded. No font overrides occur.",
+      "bindings": [
+        {
+          "font": "GameFontNormal",
+          "widget": "detail.Requirement via Requirement",
+          "phrase": "Level %d %s"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "detail.Requirement via Requirement",
+          "phrase": "Level %d"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "RenderReagents row.Text",
+          "phrase": "item %d"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "detail.Empty",
+          "phrase": "No crafted gear for your level and class yet."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "detail.Empty",
+          "phrase": "No crafted gear you can make yet. Tick the box above to see gear you cannot make."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "CreateShowAll label",
+          "phrase": "Show gear I cannot make yet"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "CreateDetail detail.Reagents / detail.Also",
+          "phrase": "Reagents"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "CreateDetail detail.Reagents / detail.Also",
+          "phrase": "Also for this slot"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "CreatePage inset title",
+          "phrase": "Crafted gear"
+        }
+      ]
+    },
+    {
+      "source": "UI/Buffs.lua",
+      "sha256": "20ae8fcc288ba52e793efabbd719828fcf42145b8e55963a91a56d0bb95dd19c",
+      "review": "Reviewed CreateFurniture, CreateLevelCheck, CreatePage, Render, RenderDetail, LearnLine, RenderDivider and row initialization. Title and Learn use GameFontNormal; legend, LevelLabel and DividerLabel use GameFontNormalSmall; Empty uses GameFontHighlight. No later font overrides occur. PageParts.CreateHeader fixes Skill to GameFontNormal. Bound local phrases only. Dynamic buff descriptions, row names, rank names, helper results, menu text, tooltips and inserted game text are excluded. Action button helper phrases are reviewed with PageParts.lua.",
+      "bindings": [
+        {
+          "font": "GameFontNormalSmall",
+          "widget": "CreateFurniture legend label",
+          "phrase": "Known"
+        },
+        {
+          "font": "GameFontNormalSmall",
+          "widget": "CreateFurniture legend label",
+          "phrase": "Learn now"
+        },
+        {
+          "font": "GameFontNormalSmall",
+          "widget": "CreateFurniture legend label",
+          "phrase": "Later"
+        },
+        {
+          "font": "GameFontNormalSmall",
+          "widget": "CreateFurniture legend label",
+          "phrase": "Above your level"
+        },
+        {
+          "font": "GameFontNormalSmall",
+          "widget": "page.LevelLabel",
+          "phrase": "Only for level %d"
+        },
+        {
+          "font": "GameFontNormalSmall",
+          "widget": "page.DividerLabel via NextRank",
+          "phrase": "%s at %d"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.Title",
+          "phrase": "Buffs by %s skill"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.Title",
+          "phrase": "Buffs"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "page.Skill via PageParts.CreateHeader",
+          "phrase": "Skill  %d/%d"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "detail.Learn via LearnLine",
+          "phrase": "Source unknown"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "detail.Learn via LearnLine",
+          "phrase": "item %d"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "page.Empty",
+          "phrase": "No profession here makes buff items."
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "page.Empty",
+          "phrase": "No buff items for your level yet."
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "page.Empty",
+          "phrase": "This profession makes no buff items."
+        }
+      ]
+    },
+    {
+      "source": "UI/PageParts.lua",
+      "sha256": "f793b15686bfcdfcf0427fe9486b6b5a312c3b88180fef338493ee7269500a98",
+      "review": "Read CreateHeader, Status, LearnedAt, Action, BuffAction, ItemName and Gear.lua/Buffs.lua consumers. Gear detail.State uses GameFontHighlight, OtherRows.Detail uses GameFontNormal; Gear detail.Learn uses GameFontNormal. Action labels reach SharedButtonSmallTemplate in both pages, whose pinned ThreeSliceButtonTemplate.xml defines normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. No consumer font overrides. ItemName fallback is also displayed by Gear detail.Name (GameFontNormalLarge), Gear row.Text (GameFontHighlight) and Buff detail.Name (GameFontNormal). Tooltip-only action reasons, tooltips, menus, external game names and inserted text are excluded.",
+      "bindings": [
+        {
+          "font": "GameFontHighlight",
+          "widget": "Gear detail.State via Status",
+          "phrase": "You know it"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Gear detail.State via Status",
+          "phrase": "Can learn it"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Gear detail.State via Status",
+          "phrase": "Needs %s %d"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Gear detail.State via Status",
+          "phrase": "Source unknown"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Gear detail.State via Status",
+          "phrase": "Another crafter"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Gear OtherRows.Detail via Status",
+          "phrase": "You know it"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Gear OtherRows.Detail via Status",
+          "phrase": "Can learn it"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Gear OtherRows.Detail via Status",
+          "phrase": "Needs %s %d"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Gear OtherRows.Detail via Status",
+          "phrase": "Source unknown"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Gear OtherRows.Detail via Status",
+          "phrase": "Another crafter"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Gear detail.Learn via LearnedAt",
+          "phrase": "%s, %d"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Gear detail.Learn via LearnedAt",
+          "phrase": "%s, source unknown"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Gear/Buffs detail.Action via Action / BuffAction",
+          "phrase": "Open recipe"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Gear/Buffs detail.Action via Action / BuffAction",
+          "phrase": "Set waypoint"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Gear/Buffs detail.Action via Action / BuffAction",
+          "phrase": "Open recipe"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Gear/Buffs detail.Action via Action / BuffAction",
+          "phrase": "Set waypoint"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "Gear/Buffs detail.Action via Action / BuffAction",
+          "phrase": "Open recipe"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "Gear/Buffs detail.Action via Action / BuffAction",
+          "phrase": "Set waypoint"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Gear detail.Name via ItemName",
+          "phrase": "item %d"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Gear row.Text via ItemName",
+          "phrase": "item %d"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Buffs detail.Name via ItemName",
+          "phrase": "item %d"
+        }
+      ]
+    },
+    {
+      "source": "UI/AuctionSearch.lua",
+      "sha256": "ffbf37ed33053435afebeea944065c5df3ddaf588a94c91702cefdac45106f22",
+      "review": "Read AttachAuctionSearch, Refresh, OnRecipeSelected and search callbacks. bar.Label and bar.Crafts explicitly use GameFontNormal with no override. bar.Search uses SharedButtonSmallTemplate: pinned ThreeSliceButtonTemplate.xml supplies normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable, all bound. Count is numeric game state. Tooltips, chat search messages and dynamic reagent names are excluded.",
+      "bindings": [
+        {
+          "font": "GameFontNormal",
+          "widget": "bar.Label",
+          "phrase": "Reagents for"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "bar.Crafts",
+          "phrase": "crafts"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "bar.Search",
+          "phrase": "Search"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "bar.Search",
+          "phrase": "Search"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "bar.Search",
+          "phrase": "Search"
+        }
+      ]
+    },
+    {
+      "source": "UI/ShoppingList.lua",
+      "sha256": "935dd29c327e042f4b4dc223046e0d6d0f1292f8c1ab67f72e6f2efe371456bb",
+      "review": "Reviewed Copy, Heading, Note, NewRow, Refresh and Create. hint, pooled name, emptyText and footer have explicit fonts. summary, pooled detail and notes use GameFontHighlightSmall; headings use GameFontNormalLarge. No font changes after construction. copyEdit explicitly uses ChatFontNormal but contains external ShoppingText output, excluded. Copy/trip buttons use pinned SharedButtonSmallTemplate normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Portrait window title inheritance was not established, so window titles are excluded. Helper-generated notes, spares, copy text, inserted item/profession/player names and tooltip text are excluded.",
+      "bindings": [
+        {
+          "font": "GameFontNormal",
+          "widget": "Copy hint",
+          "phrase": "The text is selected. Press Ctrl+C (Cmd+C on a Mac) to copy it."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh summary",
+          "phrase": "%s to %d"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh summary",
+          "phrase": "Buying for %s"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh summary",
+          "phrase": "Nothing is tracked for %s."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh summary",
+          "phrase": "profession %d"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Refresh Heading(source)",
+          "phrase": "Gather"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Refresh Heading(source)",
+          "phrase": "Vendor"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Refresh Heading(source)",
+          "phrase": "Auction house"
+        },
+        {
+          "font": "GameFontNormalLarge",
+          "widget": "Refresh Heading(source)",
+          "phrase": "Unknown"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "NewRow pooled.name",
+          "phrase": "%s (%s to %d)"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "NewRow pooled.name",
+          "phrase": "item %d"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "NewRow pooled.detail",
+          "phrase": "on %s"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "NewRow pooled.detail",
+          "phrase": "price unknown"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "NewRow pooled.detail",
+          "phrase": "Need %d, have %d, missing %d  %s  %s each  %s"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "NewRow pooled.detail",
+          "phrase": "Requires"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Refresh emptyText",
+          "phrase": "No tracked profession"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Refresh emptyText",
+          "phrase": "Nothing to buy"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Refresh footer",
+          "phrase": "Total for priced items: "
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Refresh footer",
+          "phrase": "  %d items have no price yet"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Create copy button",
+          "phrase": "Copy list"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Create copy button",
+          "phrase": "Copy list"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "Create copy button",
+          "phrase": "Copy list"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Create trip button",
+          "phrase": "Plan buy trip"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Create trip button",
+          "phrase": "Plan buy trip"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "Create trip button",
+          "phrase": "Plan buy trip"
+        }
+      ]
+    },
+    {
+      "source": "UI/Supply.lua",
+      "sha256": "d45ad4e40c6783707163c800481e0465677e74b9bf511d56e3de44ce62981ade",
+      "review": "Reviewed Label, Input, BuildRow Line/Pair/Choice and Reuse/Own, RenderReadout, Refresh, Reason and Create. All labels created by Label use GameFontHighlightSmall and reuse only changes text, geometry or colour. Bound the explicit form labels and locally produced readout/status text whose paths were confirmed. Apply uses pinned SharedButtonSmallTemplate normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. User-entered EditBox contents, external SupplySummaryText, draft validation/helper results not listed below, page registration title and inserted game names have no coverage claim. No font overrides occur.",
+      "bindings": [
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Create page labels",
+          "phrase": "Supply policy"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Create page labels",
+          "phrase": "These are your own assumptions. The merchant's window only shows what it shows now."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Create page labels",
+          "phrase": "Chance of finishing with starting supplies (%)"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Create page labels",
+          "phrase": "Plan later purchases too"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Create page labels",
+          "phrase": "Cost of an unfinished route (copper)"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "unknown"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "no limit"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Offer %d: %s"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "The merchant shows %s in stock, %s per purchase, at most %s purchases."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Price: %s."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Also costs %s %s."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "The merchant will not sell this offer to you now."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "I can buy this offer"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "The price stays as shown"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Stock I assume is left"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "The stock does not run out"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "The stock count is in items, not purchases"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "This offer keeps its own stock"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Limit the search to the stock I typed"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Stock pool name"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Purchases allowed per visit"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "First trip cost (copper)"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Later trip cost (copper)"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "First trip value to you (copper)"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Later trip value to you (copper)"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Chance each later purchase arrives (%)"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "The first purchase arrives for certain"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "I pay even when a purchase does not arrive"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Leftover value of one %s (copper)"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "BuildRow Line / Pair / Choice labels",
+          "phrase": "Value of one %s (copper)"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "Open a profession to see its plan and coverage."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "Plan: %s, %s to %s, %d crafts."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "Unpriced crafts: %d."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "Your target chance: %s%%."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "Margin over your target: %s points."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "Below your target by %s points."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "craft"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "buy"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "stop"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "unknown"
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "RenderReadout readout",
+          "phrase": "Next step: %s."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "Open a profession to set its supply policy."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "This profession has no plan to supply yet."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "Open a merchant to set this profession's supply policy."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "Ready to apply these assumptions."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "Applied. The plan and its coverage follow these assumptions."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "The merchant changed. Check the form again."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "The merchant did not change, but the assumptions did. Check the form again."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "Offers at one vendor need the same trip costs and values."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "Offers that use one payment need the same value for it."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "Offers that draw on one stock pool need the same stock."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "The merchant shows this offer sold out."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "The stock you assume does not match what the merchant shows."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "The merchant does not say how much is left."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "The merchant sells fewer purchases at a time than that."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "The merchant will not sell this offer to you now."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "Choose the unit the stock count is in."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "One item or payment needs one leftover value."
+        },
+        {
+          "font": "GameFontHighlightSmall",
+          "widget": "Refresh / Apply status",
+          "phrase": "The assumptions were rejected. Fill in every value and check each offer."
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Create apply",
+          "phrase": "Apply policy"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Create apply",
+          "phrase": "Apply policy"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "Create apply",
+          "phrase": "Apply policy"
+        }
+      ]
+    },
+    {
+      "source": "UI/Shopping.lua",
+      "sha256": "0949397e30182fe6b0a682cec36c8148cfce04af961a42f6407602c76a264a8b",
+      "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets.",
+      "bindings": [
+        {
+          "font": "GameFontHighlight",
+          "widget": "AskToBuy Confirm.Text via PurchaseList",
+          "phrase": "Reagents still needed"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "AskToBuy Confirm.Text via PurchaseList",
+          "phrase": "%d more"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "AskToBuy Confirm.Text via PurchaseList",
+          "phrase": "%d %s"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "Confirm frame.Close",
+          "phrase": "Close"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "Confirm frame.Close",
+          "phrase": "Close"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "Confirm frame.Close",
+          "phrase": "Close"
+        },
+        {
+          "font": "GameFontNormal",
+          "widget": "RenderMerchantPage merchantBuyAll",
+          "phrase": "Buy all"
+        },
+        {
+          "font": "GameFontHighlight",
+          "widget": "RenderMerchantPage merchantBuyAll",
+          "phrase": "Buy all"
+        },
+        {
+          "font": "GameFontDisable",
+          "widget": "RenderMerchantPage merchantBuyAll",
+          "phrase": "Buy all"
+        }
+      ]
+    },
+    {
+      "source": "UI/RecipeList.lua",
+      "sha256": "1b914ed55af5d1da710a0e548ecb21cb957850bc6f0d257e4f03d2940392b26e",
+      "review": "Reviewed DecorateRow, UnlearnedText, AttachRecipeList and preview callback. rowTexts FontString explicitly uses GameFontHighlight_NoShadow and never changes font. Bound UnlearnedText wording only. ns.FormatRow and ns.LearnSourceText output, recipe names, native Count text, menus and chat are excluded. Preview callback operates its own widgets and does not set this FontString font.",
+      "bindings": [
+        {
+          "font": "GameFontHighlight_NoShadow",
+          "widget": "DecorateRow rowTexts[row] via UnlearnedText",
+          "phrase": "Not learned · %s"
+        }
+      ]
+    },
+    {
+      "source": "UI/RecipePreview.lua",
+      "sha256": "571eebc7f91b96c09c7fab79246d21b05de59506320be3bd9499b1a1538eb5dc",
+      "review": "Reviewed Label, MatchFont, ItemRow and preview construction/render paths. MatchFont copies both live FontObject and font face from client widgets, including skin overrides; creation templates cannot establish a fixed final font for those labels. Those phrases, dynamic item names, descriptions and helper results are excluded. Close uses SharedButtonSmallTemplate but is passed to the optional EllesmereUI skin.Button callback, so its final font is also uncertain and excluded.",
+      "bindings": []
+    },
+    {
+      "source": "UI/Settings.lua",
+      "sha256": "2015e60382f9643817bf6e39bb6923b97911144ee62c841c87a42926c40d924e",
+      "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded.",
+      "bindings": []
+    },
+    {
+      "source": "UI/Pages.lua",
+      "sha256": "63339758085d9e644a638ccb0eeb094372dda36ff46f04382149c93c0678fc86",
+      "review": "Reviewed CreateBottomTab, Sync, Show, CreateFrames and Register. Bottom tab titles come from page specs and PanelTabButtonTemplate. Pinned SharedUIPanelTemplates.xml supplies GameFontNormalSmall and GameFontHighlightSmall, but PanelTemplates selection changes disabled fonts in SharedUIPanelTemplates.lua. Caller-provided titles and selection-dependent fonts are excluded from this review; side tab wording is a tooltip.",
+      "bindings": []
+    },
+    {
+      "source": "UI/Tooltip.lua",
+      "sha256": "98a13ba3b65f80d1607bab23db9c0aabc9ee234ae75bc7c4b23d7454f2b40222",
+      "review": "Reviewed CreateSkillBar and LayoutSkillBar, recipe and item tooltip producers. Tooltip phrases and tooltip-owned fonts are excluded by policy. The reusable skill bar explicitly uses GameFontHighlightSmall and is also reparented by DetailsBar.lua, but no tooltip producer is included in this coverage claim. Dynamic threshold values and helper text are excluded.",
+      "bindings": []
+    },
+    {
+      "source": "UI/DetailsBar.lua",
+      "sha256": "5558d6e4929dab9df977a49819599c4ac8b9f2c5b869e7cc81e6b2163dd30031",
+      "review": "Read AttachDetailsBar, Refresh and the CreateSkillBar/LayoutSkillBar calls into Tooltip.lua. This file sets no localized phrase itself; it reparents the shared skill bar. Tooltip producer coverage and dynamic threshold values are excluded.",
+      "bindings": []
+    }
+  ]
+}

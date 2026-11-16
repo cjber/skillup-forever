@@ -32,6 +32,7 @@ python3 tools/lint_multivalue.py
 python3 tools/lint_art.py
 python3 tools/lint_secret.py
 python3 tools/lint_client_calls.py
+python3 tools/check_font_glyphs.py
 python3 tools/check_editorconfig.py
 # A locale gap fails the PR that adds the English string, not the release that ships it.
 python3 tools/check_locales.py --release

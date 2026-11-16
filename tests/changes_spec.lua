@@ -116,6 +116,19 @@ end
 equal(#ns.PlanRoute(Tailoring()).crafts > 0, true, "the plan under test has crafts")
 equal(Stale(function() end), " | ", "nothing changes on its own")
 
+-- Copying a primed public answer must not resolve plans again or mutate their current owner.
+local planReads = 0
+local realPlanRoute = ns.PlanRoute
+ns.PlanRoute = function(...)
+	planReads = planReads + 1
+	return realPlanRoute(...)
+end
+for _ = 1, 3 do
+	c.G.SkillUpForever.API.Professions()
+end
+ns.PlanRoute = realPlanRoute
+equal(planReads, 0, "stable API copies do not resolve plans")
+
 -- The public list was built without the reagent's name, so item data arriving rebuilds it once.
 equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), "api | route", "item data the public list waited on")
 c.items[CLOTH] = { name = "Linen Cloth" }

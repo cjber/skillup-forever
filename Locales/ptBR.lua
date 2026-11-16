@@ -561,3 +561,6 @@ L["Target chance of finishing with starting supplies: %s%%."] =
 L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
 	"Estas chances pressupõem as taxas de ganho de perícia, os preços, a disponibilidade e a entrega das compras posteriores informados." -- mt
 L["unknown"] = "desconhecido" -- mt
+
+L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
+	"A orientação adaptativa abre a receita recomendada. Escolha quantas unidades criar na janela de profissão." -- mt

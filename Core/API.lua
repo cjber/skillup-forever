@@ -41,6 +41,9 @@ local KIND_ORDER = { craft = 1, buy = 2, gather = 3, train = 4 }
 
 ---@type SkillUpAPIProfession[]?
 local cache
+-- Plans resolved by the cached build, kept private from callers.
+---@type table<integer, SkillUpPlan>
+local entryPlans = {}
 -- [skill line][step index] = picks the step's NPC by travel time, for Navigate.
 ---@type table<integer, table<integer, fun(): integer?>>
 local pickers = {}
@@ -49,6 +52,7 @@ local namesPending = false
 ns.WhenStale("api", function()
 	namesPending = false
 	cache = nil
+	entryPlans = {}
 	revision = revision + 1
 	hub.Queue()
 end)
@@ -420,6 +424,7 @@ local function Build()
 	pickers = {}
 	for skillLine, profession in pairs(ns.RouteProfessions()) do
 		local plan = ns.PlanRoute(profession)
+		entryPlans[skillLine] = plan
 		local steps, picks = Steps(plan)
 		pickers[skillLine] = picks
 		local products = {}
@@ -503,7 +508,7 @@ local function CopyProfessions(list, steps, recipes)
 			name = entry.name,
 			skillLineID = entry.skillLineID,
 			icon = entry.icon,
-			nextAction = ns.RouteDemand.NextAction(ns.PlanRoute(ns.RouteProfessions()[entry.skillLineID])),
+			nextAction = ns.RouteDemand.NextAction(entryPlans[entry.skillLineID]),
 			rank = entry.rank,
 			maxRank = entry.maxRank,
 			title = entry.title,

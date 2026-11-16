@@ -163,15 +163,30 @@ for _ = 1, 4 do
 	equal(public.kind, "stop", "API uses current action owner")
 	public.resources.balances[1] = 888
 end
+local routeProfessions, planRoute = ns.RouteProfessions, ns.PlanRoute
+ns.RouteProfessions = function()
+	error("API copy re-enumerated professions")
+end
+ns.PlanRoute = function()
+	error("API copy resolved a plan")
+end
+for _ = 1, 3 do
+	local public = API.Professions()[1].nextAction
+	equal(public.generation, supply.generation, "stable API copy retains current publication generation")
+	equal(public.kind, "stop", "stable API copy retains current action")
+end
+ns.RouteProfessions, ns.PlanRoute = routeProfessions, planRoute
 equal(reads, beforeReads, "getters do not dispatch reader")
 equal(Action().resources.balances[1], 2, "action and API copies own nested resources")
 c.G.C_Item.GetItemCount, c.G.GetMoney = itemCount, wallet
 local oldGeneration = Action().generation
 c.Fire("PLAYER_MONEY")
 equal(Action().kind, "unsupported", "resource event revokes action immediately")
+equal(API.Professions()[1].nextAction.kind, "unsupported", "API copy rejects revoked action owner")
 equal(ns.NextCraft(Current()).recipeID, nil, "stale configured mode cannot estimate")
 Published()
 assert(Action().generation > oldGeneration, "new publication generation")
+equal(API.Professions()[1].nextAction.generation, Action().generation, "API copy observes replacement publication")
 -- A direct finished job has no authority until the existing shared frame publishes.
 local direct = ns.RouteDemand.SelectAdaptiveSupply(Current(), Reader(), 0.75)
 while direct.result.status == "calculating" do

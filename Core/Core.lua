@@ -26,23 +26,30 @@ end
 
 ---@type SkillUpDefaults
 local DEFAULTS = {
+	includeWorkingOvertime = true,
 	showRowText = true,
 	showUnlearned = false, -- also list recipes this character has not learned, greyed, with where they are learned
 	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
 	showSkill = false,
 	showTooltip = true,
+	showTooltips = true,
 	recipeTooltip = "window", -- where the recipe tooltip goes: beside the Professions window, at the cursor, by the row
 	detailsBar = true, -- the recipe tooltip's skill bar under the selected recipe, on the crafting page itself
 	showCost = true,
-	rowCost = "skillup", -- what a recipe row's money is: "skillup" (cost per skill-up) or "craft" (net per craft)
+	rowCost = "skillup", -- what a recipe row's money is: "skillup" (cost per skill-up), "craft" (net per craft) or "off"
+	priceSource = "auctionator", -- the auction addon whose price wins when both are installed; the other fills gaps
 	craftValue = "vendor",
 	valueGathered = false, -- a reagent you gather costs what it would sell for, not nothing
 	auctionOnly = false, -- a self-supplied reagent costs a market price, and is unpriced when none is known
 	restockCost = 0, -- copper for one trip to buy more after a route leg falls short; 0 never counts a trip
 	sortMode = "blizzard",
+	unlearnedSortMode = "skill",
 	showTrainer = true,
 	showRouteTab = true,
+	showProfessionTabs = true,
 	showTracker = true,
+	minimapButtonAngle = nil,
+	minimapButtonHidden = false,
 	showGearTab = false,
 	showBuffsTab = true,
 	lastSkillUpPage = {}, -- ["Name-Realm"] = "route" | "gear" | "buffs": the SkillUp page the side tab reopens
@@ -51,6 +58,7 @@ local DEFAULTS = {
 	merchantButton = true, -- the merchant window's "Reagents still needed" button
 	auctionSearch = true, -- the Professions window's reagent search while the auction house is open
 	reagentTooltip = "route",
+	showTooltipRoute = true,
 	gatherTooltip = true, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a gatherable comes from; auction by default
 	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet
@@ -60,6 +68,7 @@ local DEFAULTS = {
 	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (ForeverCore.Family)
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
+	merchantEvidence = {}, -- [npcID][itemID] = dated price and current stock observations, never historical maxima
 	-- [itemID] = { [npcID] = count or false }: the most a vendor was seen selling at a time, false for unlimited
 	stock = {},
 	-- [npcID] = { name, side, map, x, y, build, items = { [itemID] = true } }: vendors seen selling a reagent or scroll
@@ -76,6 +85,27 @@ local DEFAULTS = {
 	trainerRanks = {}, -- [skill line] = { [cap] = fee }: what a trainer charges for the rank ending at that cap
 }
 
+local function OpenSkillUpProfession()
+	local context = ns.SkillContext and ns.SkillContext()
+	local skillLine = context and context.skillLine
+	if not skillLine then
+		local professions = ns.RouteProfessions and ns.RouteProfessions() or {}
+		local ids = {}
+		for id in pairs(professions) do
+			ids[#ids + 1] = id
+		end
+		table.sort(ids)
+		skillLine = ids[1]
+	end
+	if skillLine and SkillUpForever and SkillUpForever.API and SkillUpForever.API.OpenRecipes then
+		return SkillUpForever.API.OpenRecipes(skillLine) == true
+	end
+	if ns.Print then
+		ns.Print(L["Learn a crafting profession to plan a route."])
+	end
+	return false
+end
+
 ns.DEFAULTS = DEFAULTS
 ns.SORT_OPTIONS = {
 	{ "blizzard", DEFAULT },
@@ -83,6 +113,14 @@ ns.SORT_OPTIONS = {
 	{ "newest", L["Newest recipes first"] },
 	{ "chance", L["Skill-up chance"] },
 	{ "cost", L["Cheapest skill-up"] },
+}
+ns.UNLEARNED_SORT_OPTIONS = {
+	{ "skill", L["Skill range start"] },
+	{ "newest", L["Newest recipes first"] },
+}
+ns.PRICE_SOURCE_OPTIONS = {
+	{ "auctionator", L["Auctionator"] },
+	{ "tsm", L["TradeSkillMaster"] },
 }
 ns.CRAFT_VALUE_OPTIONS = {
 	{ "none", L["Don't count it"] },
@@ -100,10 +138,11 @@ ns.RECIPE_TOOLTIP_OPTIONS = {
 ns.ROW_COST_OPTIONS = {
 	{ "skillup", L["Per skill-up"] },
 	{ "craft", L["Per craft"] },
+	{ "off", OFF },
 }
 ns.REAGENT_TOOLTIP_OPTIONS = {
 	{ "off", OFF },
-	{ "route", L["Tracked routes (Shift for all)"] },
+	{ "route", L["Recipes on Shift"] },
 	{ "full", L["Every recipe that uses it"] },
 }
 ns.TITLE = "SkillUp Forever"
@@ -111,8 +150,8 @@ ns.TITLE = "SkillUp Forever"
 -- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
 -- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
 -- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
-ns.WHATS_NEW_VERSION = "1.10.1"
-ns.WHATS_NEW = L["SkillUp no longer fills Auctionator with shopping lists."]
+ns.WHATS_NEW_VERSION = "1.12.0"
+ns.WHATS_NEW = L["Routes prefer the materials your bags already hold."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -229,8 +268,10 @@ local function LoadDB()
 	end
 	-- A choice the menu no longer offers (or a typo) goes back to its default.
 	for key, options in pairs({
+		priceSource = ns.PRICE_SOURCE_OPTIONS,
 		craftValue = ns.CRAFT_VALUE_OPTIONS,
 		sortMode = ns.SORT_OPTIONS,
+		unlearnedSortMode = ns.UNLEARNED_SORT_OPTIONS,
 		reagentTooltip = ns.REAGENT_TOOLTIP_OPTIONS,
 		recipeTooltip = ns.RECIPE_TOOLTIP_OPTIONS,
 	}) do
@@ -301,8 +342,8 @@ local function LoadDB()
 	ns.db = loaded
 end
 
--- Working Overtime, the Legacy professions tree's node 110290 (talent 1225451): each point spent gives 4
--- percentage points to every tradeskill skill-up chance, up to 20 at its 5.
+-- Working Overtime, Legacy node 110290 (talent 1225451): the optional estimate assumes 4
+-- percentage points per detected rank. This additive interpretation is unverified.
 local WORKING_OVERTIME_NODE = 110290
 local WORKING_OVERTIME_TREE = 1187
 local WORKING_OVERTIME_MAX_RANKS = 5
@@ -334,13 +375,23 @@ local function WorkingOvertimePoints()
 	return math.min(math.max(rank, 0), maxRanks)
 end
 
--- Puts the talent's bonus in the Model; true when it moved, so its events only refresh on a real change.
+-- Keep the detected rank even when its estimate is excluded; only an applied change invalidates chances.
 ---@return boolean changed
 local function ReadChanceBonus()
+	ns.workingOvertimeRank = WorkingOvertimePoints()
 	if not (ns.Model and ns.Model.SetChanceBonus) then
 		return false
 	end
-	return ns.Model.SetChanceBonus(WorkingOvertimePoints() * WORKING_OVERTIME_PER_POINT)
+	local bonus = ns.db.includeWorkingOvertime and ns.workingOvertimeRank * WORKING_OVERTIME_PER_POINT or 0
+	return ns.Model.SetChanceBonus(bonus)
+end
+
+---@param enabled boolean
+function ns.SetIncludeWorkingOvertime(enabled)
+	ns.db.includeWorkingOvertime = enabled == true
+	if ReadChanceBonus() then
+		ns.Changed("talents")
+	end
 end
 
 -- One chat line after an update, never on a first install. A dev checkout's version is
@@ -814,7 +865,8 @@ function ns.FormatRow(d)
 	end
 	parts[#parts + 1] = string.format("%d%%", math.floor(d.chance * 100 + 0.5))
 	-- A negative amount is a profit, a positive one a cost.
-	local amount = ns.db.rowCost == "craft" and d.net or d.perSkillUp
+	local mode = ns.db.rowCost
+	local amount = mode == "craft" and d.net or mode == "skillup" and d.perSkillUp or nil
 	if ns.db.showCost and amount then
 		parts[#parts + 1] = ns.FormatSigned(ns.Model.RoundMoney(math.abs(amount)), amount < 0)
 	end
@@ -1068,6 +1120,22 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- The saved journal and log are core's now, under the same table: what SafeCall recorded before this line (the
 	-- client's own early errors) arrives with it, and a /reload keeps it.
 	ns.core.Attach(SkillUpForeverDB)
+	if
+		type(ForeverCore.MinimapButton) == "table"
+		and type(ForeverCore.MinimapButton.Create) == "function"
+		and _G.Minimap
+		and type(_G.Minimap.GetWidth) == "function"
+	then
+		ForeverCore.MinimapButton.Create({
+			name = "SkillUpForeverMinimapButton",
+			icon = ns.ICON,
+			title = L["SkillUp"],
+			settings = ns.db,
+			host = ns,
+			safeCall = ns.core.SafeCall,
+			onClick = OpenSkillUpProfession,
+		})
+	end
 	ns.NoteBuild()
 	ReadChanceBonus()
 	ns.InitCatalogue()

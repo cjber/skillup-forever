@@ -17,7 +17,7 @@ read_globals = { "ForeverCore", "C_DateAndTime",
 	"GameTooltip_SetTitle", "hooksecurefunc", "Professions", "ProfessionsFrame", "ScrollUtil",
 	"Settings", "strtrim", "UIParent",
 	"Auctionator", "TSM_API", "C_CurrencyInfo", "C_Item", "C_MerchantFrame",
-	"GameTooltip_AddBlankLineToTooltip", "GetBuildInfo", "GetMerchantItemID", "GetMerchantNumItems", "GetNormalizedRealmName", "GetRealmName", "time",
+	"GameTooltip_AddBlankLineToTooltip", "GetBuildInfo", "WOW_PROJECT_ID", "GetMerchantItemCostInfo", "GetMerchantItemCostItem", "CanAffordMerchantItem", "GetMerchantItemID", "GetMerchantNumItems", "GetNormalizedRealmName", "GetRealmName", "time",
 	"UnitFactionGroup", "Menu", "MenuResponse", "C_Timer",
 	"DIFFICULT_DIFFICULTY_COLOR", "EASY_DIFFICULTY_COLOR", "FAIR_DIFFICULTY_COLOR", "GRAY_FONT_COLOR",
 	"HIGHLIGHT_FONT_COLOR", "RED_FONT_COLOR", "TRIVIAL_DIFFICULTY_COLOR",
@@ -39,6 +39,7 @@ read_globals = { "ForeverCore", "C_DateAndTime",
 
 files["Data/Thresholds.lua"] = { max_line_length = false }
 files["Data/Sources.lua"] = { max_line_length = false }
+files["Data/Trainer.lua"] = { max_line_length = false }
 files["Locales/"] = { max_line_length = false } -- one phrase per line, however long
 files["tests/"] = { std = "+luajit" }
 read_globals[#read_globals + 1] = "EditModeManagerFrame"

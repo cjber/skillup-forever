@@ -94,8 +94,8 @@ end
 local function Services()
 	local services = {}
 	for index = 1, GetNumTrainerServices() do
-		local name, kind = GetTrainerServiceInfo(index)
-		services[index] = { name = name, kind = kind, recipeID = TooltipRecipe(index) }
+		local name, kind, _, level = GetTrainerServiceInfo(index)
+		services[index] = { name = name, kind = kind, level = level, recipeID = TooltipRecipe(index) }
 	end
 	return services
 end
@@ -128,7 +128,7 @@ local function BuildState(services)
 			local bundled = ns.TrainerFees[service.recipeID]
 			local required = shown or (bundled and bundled[2])
 			if required then
-				seen[service.recipeID] = { GetTrainerServiceCost(index), required, shown }
+				seen[service.recipeID] = { GetTrainerServiceCost(index), required, shown, service.level }
 			end
 		end
 	end

@@ -18,6 +18,8 @@ local c = Client.load({
 	},
 })
 local ns = c.ns
+-- This cache test uses the bundled vendor quote, without requiring an auction comparison.
+ns.SetCollectMode("gather")
 -- The open window's schematics, which are what the schematic cache keeps.
 local schematic = { reagents = { { CLOTH, 1 } }, output = SHIRT_ITEM }
 c.schematics = { [SHIRT] = schematic, [BOLT] = schematic }
@@ -114,6 +116,19 @@ end
 equal(#ns.PlanRoute(Tailoring()).crafts > 0, true, "the plan under test has crafts")
 equal(Stale(function() end), " | ", "nothing changes on its own")
 
+-- Copying a primed public answer must not resolve plans again or mutate their current owner.
+local planReads = 0
+local realPlanRoute = ns.PlanRoute
+ns.PlanRoute = function(...)
+	planReads = planReads + 1
+	return realPlanRoute(...)
+end
+for _ = 1, 3 do
+	c.G.SkillUpForever.API.Professions()
+end
+ns.PlanRoute = realPlanRoute
+equal(planReads, 0, "stable API copies do not resolve plans")
+
 -- The public list was built without the reagent's name, so item data arriving rebuilds it once.
 equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), "api | route", "item data the public list waited on")
 c.items[CLOTH] = { name = "Linen Cloth" }
@@ -130,9 +145,9 @@ for _, case in ipairs({
 	{ "BAG_UPDATE_DELAYED", "api | route tracker" },
 	{ "PLAYER_LEVEL_UP", "api | route recipeList tracker" },
 	{ "ZONE_CHANGED_NEW_AREA", "api | " },
-	{ "MERCHANT_SHOW", " | tracker" },
+	{ "MERCHANT_SHOW", "api | tracker" },
 	{ "MERCHANT_UPDATE", " | tracker" },
-	{ "MERCHANT_CLOSED", " | tracker" },
+	{ "MERCHANT_CLOSED", "api | tracker" },
 	{ "GET_ITEM_INFO_RECEIVED", " | " },
 }) do
 	equal(c.Listeners(case[1]), 1, case[1] .. " arrives on one frame")
@@ -250,6 +265,18 @@ equal(
 	"a setting changed in the options panel: every view, once each, in the order they were always refreshed"
 )
 equal(pcall(ns.Changed, "typo"), false, "an unknown change is an error, not a silent no-op")
+
+-- A view that is not on screen registers nil for its redraw, so a change runs no handler for it at all.
+local hiddenRedraws = 0
+ns.WhenStale("buffs", function()
+	hiddenRedraws = hiddenRedraws + 1
+end)
+ns.Changed("items")
+equal(hiddenRedraws, 1, "a registered view hears the change")
+ns.WhenStale("buffs", nil)
+ns.Changed("items")
+equal(hiddenRedraws, 1, "a view that registered nil hears nothing")
+
 ns.RouteProfessions = realRouteProfessions
 
 Client.report("changes_spec")

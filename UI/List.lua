@@ -451,6 +451,7 @@ function ns.CreateList(parent)
 	end
 
 	function list:Finish()
+		---@diagnostic disable-next-line: param-type-mismatch
 		self.scrollBox:SetDataProvider(CreateDataProvider(self.rows), ScrollBoxConstants.RetainScrollPosition)
 	end
 	return list

@@ -1,23 +1,34 @@
 {
-  "input_digest": "8375ea36189877993a77f48a63ec459afdb39935a9bb63685a210ad43c6a7b4f",
-  "runtime_sha256": "8375ea36189877993a77f48a63ec459afdb39935a9bb63685a210ad43c6a7b4f",
-  "candidate": "d53bb7cb3d0a9bb84b76afa64e8628e8e565a79c3e2465982b066995c4bdee10",
+  "input_digest": "45886e18f19945386d3979499723adf6d28d2987acd7ce732d8279d06e2fc079",
+  "runtime_sha256": "45886e18f19945386d3979499723adf6d28d2987acd7ce732d8279d06e2fc079",
+  "candidate": "952d09b4c80160c194c02bf2c33a6baeb8fd6173773f847aac8298be8797cb8d",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "713f0d58bdc9d384953e69a79b23b71b498eb10a",
+  "source_commit": "e0b58881f0683e5baefb9a18c2d7036f92144ab6",
   "flows": [
     {
-      "name": "shopping list with spares",
+      "name": "minimap button setting",
       "steps": [
-        "/skillup shop"
+        "su759-minimap.lua sha256:b3591126701c5d760fd1b5c8fd2d6ecc0ec31c3b77bdc259980dca1c991b7d04"
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "money on recipe rows off",
+      "steps": [
+        "su760-rowmoney.lua sha256:e9df6f30517eb235a04fde6cb031f9ac07a8182832d1f50ef85ecb1d3063f6c1"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/3eb8278cebc092dceec63b962e2ec85d/raw/f5c88d47643cb25ba2f9774ffb7d98b866e18d68/1-shopping-list-with-spares.png",
-      "sha256": "bd98ebed68df022efa4ae0d2e8591506683767f0c15f3d0bf344c69c4afd6127"
+      "url": "https://gist.githubusercontent.com/cjber/e98bf521d6b9a7fe3820f1f1585f861b/raw/1b8063f94ea46924819018b86483f784f5b96f7f/1-minimap-button-setting.png",
+      "sha256": "0c67b06b0db63e5fd492b8714abddac450e9ff361c0032d74af614488818d34e"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/e98bf521d6b9a7fe3820f1f1585f861b/raw/1b8063f94ea46924819018b86483f784f5b96f7f/2-money-on-recipe-rows-off.png",
+      "sha256": "eaca106ac9e2e50c486b68d5fb2f2c9dba6fbde0bb8ed291143ca9fdebe7514f"
     }
   ]
 }

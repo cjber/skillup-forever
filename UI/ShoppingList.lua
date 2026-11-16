@@ -168,13 +168,21 @@ local function Refresh()
 	end
 	summary:SetText(summaryText)
 	local top, any, total, unpriced, drawn = -10, false, 0, 0, 0
+	for index, list in ipairs(lists) do
+		local note = Note("supply" .. index)
+		note:ClearAllPoints()
+		note:SetPoint("TOPLEFT", 8, top)
+		note:SetText(list.profession .. ": " .. ns.SupplySummaryText(list.supplySummary))
+		note:Show()
+		top = top - note:GetStringHeight() - 12
+	end
 	local headings =
 		{ gather = L["Gather"], vendor = L["Vendor"], auction = L["Auction house"], unknown = L["Unknown"] }
 	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
 		local entries = {}
 		for _, list in ipairs(lists) do
 			for _, row in ipairs(list.items) do
-				if row.source == source and row.missing > 0 then
+				if row.source == source and row.missing and row.missing > 0 then
 					entries[#entries + 1] = { list = list, row = row }
 				end
 			end
@@ -222,6 +230,7 @@ local function Refresh()
 				local alt = row.alt[1] and string.format(L["on %s"], row.alt[1].name) or ""
 				local unit = row.price and ns.FormatNet(ns.Model.RoundMoney(row.price), false) or L["price unknown"]
 				local cost = row.cost and ns.FormatNet(ns.Model.RoundMoney(row.cost), false) or "-"
+				local payments = row.acquisitions and ns.AcquisitionPayments(row.acquisitions) or ""
 				pooled.detail:SetText(
 					string.format(
 						L["Need %d, have %d, missing %d  %s  %s each  %s"],
@@ -231,7 +240,7 @@ local function Refresh()
 						alt,
 						unit,
 						cost
-					)
+					) .. (payments ~= "" and (" · " .. L["Requires"] .. " " .. payments) or "")
 				)
 				if row.cost then
 					total = total + row.cost
@@ -248,10 +257,12 @@ local function Refresh()
 	if not any then
 		if not emptyText then
 			emptyText = body:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-			emptyText:SetPoint("CENTER")
 		end
+		emptyText:ClearAllPoints()
+		emptyText:SetPoint("TOPLEFT", 8, top)
 		emptyText:SetText(#lists == 0 and L["No tracked profession"] or L["Nothing to buy"])
 		emptyText:Show()
+		top = top - emptyText:GetStringHeight()
 	elseif emptyText then
 		emptyText:Hide()
 	end

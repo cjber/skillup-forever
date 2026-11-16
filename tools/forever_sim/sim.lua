@@ -32,13 +32,14 @@ Sim.CORE = {
 	"Blizzard_SharedXML",
 	"Blizzard_SharedXMLGame",
 	"Blizzard_FrameXMLBase",
+	-- FriendsFrame reads the social utility mixins even when the full social panel is not loaded.
+	"Blizzard_SocialUIShared/SocialUIUtil.lua",
 	"Blizzard_UIParent",
 	"Blizzard_UIErrorsFrame",
 	"Blizzard_StaticPopup",
 	"Blizzard_UIPanelTemplates",
 	"Blizzard_UIParentPanelManager",
 	"Blizzard_GameTooltip",
-	"Blizzard_SplashFrame",
 	"Blizzard_ItemButton",
 	"Blizzard_FrameXMLUtil",
 	"Blizzard_Flyout",
@@ -55,15 +56,31 @@ Sim.CORE = {
 	"Blizzard_FrameXML/DeprecatedTemplates.xml",
 	"Blizzard_FrameXML/Mainline/AlertFrames.lua",
 	"Blizzard_FrameXML/Mainline/AlertFrames.xml",
+	"Blizzard_FrameXML/Mainline/AlertFrameSystems.lua",
+	"Blizzard_FrameXML/Camelot/AlertFrameSystemsOverride.lua",
+	"Blizzard_FrameXML/Mainline/AlertFrameSystems.xml",
+	-- SplashFrame's OnLoad disables alerts through AlertFrame, so it loads after the alert frames it names.
+	"Blizzard_SplashFrame",
 	"Blizzard_FrameXML/Mainline/NavigationBar.lua",
 	"Blizzard_FrameXML/Mainline/NavigationBar.xml",
 	-- The quest session dialog the quest log updates when it is shown, loaded by the client at startup.
 	"Blizzard_FrameXML/QuestSession.lua",
 	"Blizzard_FrameXML/QuestSession.xml",
 	"Blizzard_ActionBar/Shared/ActionButtonUtil.lua",
+	-- ActionButtonTemplate inherits QuickKeybindButtonTemplate, which its own addon declares in one XML file.
+	-- Load that file rather than the addon, whose SettingsDefinitions_Frame dependency is not part of this boot.
+	"Blizzard_QuickKeybind/QuickKeybind.xml",
+	-- ActionButton's UpdateSpellAlert calls ActionButtonSpellAlertManager, defined beside its button code.
+	"Blizzard_ActionBar/Shared/ActionButtonSpellAlerts.lua",
+	"Blizzard_ActionBar/Shared/ActionButtonSpellAlerts.xml",
 	"Blizzard_ActionBar/Shared/ActionButton.lua",
 	"Blizzard_ActionBar/Shared/ActionButtonComponentTemplate.xml",
 	"Blizzard_ActionBar/Mainline/ActionButtonTemplate.xml",
+	-- PetActionButtonMixin, which the gamepad pet buttons mix in through GamepadActionBarPetButtonMixin.
+	"Blizzard_ActionBar/Shared/PetActionBar.lua",
+	-- SpellFlyoutMixin and its popup button mixin, which the gamepad flyouts mix in.
+	"Blizzard_ActionBar/Shared/SpellFlyout.lua",
+	"Blizzard_ActionBar/Shared/SpellFlyout.xml",
 	-- The Escape handler registry Blizzard_ActionBar loads at startup: addons register into its file-local list.
 	"Blizzard_GameMenuEsc",
 	-- The gamepad action bars are real: they are where UpdateInteractIcons makes its protected call. The action
@@ -72,6 +89,12 @@ Sim.CORE = {
 	"Blizzard_GamepadSharedUtility",
 	"Blizzard_GamepadSmartNavigation",
 	"Blizzard_GamepadActionBars",
+	-- Action-bar click handlers consume modifiers through the native targeting controller.
+	"Blizzard_GamepadTargeting/TargetLogic.lua",
+	-- Native objective-tracker clicks offer quest chat links before opening quest details.
+	"Blizzard_ChatFrameBase/Shared/ChatFrameConstants.lua",
+	"Blizzard_ChatFrameBase/Shared/ChatTypeInfoConstants.lua",
+	"Blizzard_ChatFrameBase/Shared/ChatFrameUtil.lua",
 	"Blizzard_ChatFrameBase/Shared/SlashCommands.lua",
 	-- The map, quest log and fog-of-war pieces of Blizzard_UIPanels_Game, in its TOC order, plus the quest frame
 	-- the quest log's OnHide closes the quest portrait through.
@@ -79,7 +102,14 @@ Sim.CORE = {
 		.. "|MapLegend|QuestMap|FogOfWar|UnitPosition|CastingBarFrame|ContainerFrame"
 		.. "|QuestFrameTemplates|QuestFrame|QuestInfo|CharacterFrame|MerchantFrame|SkillsFrame",
 	-- Loaded at startup by the client, and what most Forever addons draw on.
+	-- EncounterBar lives in Blizzard_UnitFrame's UnitPowerBarAlt files; UIWidgets' power-bar layout anchors to it.
+	"Blizzard_UnitFrame/Mainline/UnitPowerBarAlt.lua",
+	"Blizzard_UnitFrame/Mainline/UnitPowerBarAlt.xml",
 	"Blizzard_WorldMap",
+	-- Bonus objective QUEST_ACCEPTED events display banners through this native manager.
+	"Blizzard_FrameXML/Mainline/ZoneText.lua",
+	"Blizzard_FrameXML/Mainline/ZoneText.xml",
+	"Blizzard_FrameXML/TopBannerManager.lua",
 	"Blizzard_ObjectiveTracker",
 	"Blizzard_ContentTracking",
 	"Blizzard_TrainerUI",

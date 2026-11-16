@@ -60,4 +60,11 @@ ns.db.showCost = false
 equal(ns.FormatRow({ thresholds = T, chance = 0, net = -600 }), "0%", "Show cost per skill-up off hides the money")
 ns.db.showCost, ns.db.rowCost = true, "skillup"
 
+ns.db.rowCost = "off"
+equal(
+	ns.FormatRow({ thresholds = T, chance = 0.25, net = 200, perSkillUp = 800 }),
+	"25%",
+	"Money on recipe rows off keeps only the chance"
+)
+ns.db.rowCost = "skillup"
 Client.report("row_cost_spec")

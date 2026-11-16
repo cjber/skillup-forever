@@ -172,6 +172,13 @@ end
 -- reads nil. Each entry says who defines it. Anything else the addon reads must be stubbed in this file first, so a
 -- client API it calls is either here or in the pinned annotations.
 local OPTIONAL_GLOBALS = {
+	-- Merchant observation capabilities are independent and may be absent.
+	CanAffordMerchantItem = true,
+	GetMerchantItemMaxStack = true,
+	GetMerchantItemCostInfo = true,
+	GetMerchantItemCostItem = true,
+	C_MerchantFrame = true,
+	WOW_PROJECT_ID = true,
 	-- Core/Core.lua: the Legacy talent API, which only a client with the Legacy system has.
 	C_Traits = true,
 	-- ForeverCore's saved table, made by its own ADDON_LOADED handler.
@@ -206,6 +213,8 @@ local OPTIONAL_GLOBALS = {
 	Syndicator = true,
 	-- AuctionHouseFrame: Blizzard's auction house frame, present once Blizzard_AuctionHouseUI loads.
 	AuctionHouseFrame = true,
+	-- Blizzard_Professions is load-on-demand; its window can be absent at login.
+	ProfessionsFrame = true,
 }
 
 -- A global the addon reads that this stub never set is a spec failure, not nil. Lua's own standard library stays
@@ -1116,7 +1125,7 @@ function Client.load(options)
 				slots[index] =
 					{ reagentType = 0, quantityRequired = reagent[2], reagents = { { itemID = reagent[1] } } }
 			end
-			return { reagentSlotSchematics = slots, outputItemID = schematic.output, quantityMin = 1 }
+			return { reagentSlotSchematics = slots, outputItemID = schematic.output, quantityMin = 1, quantityMax = 1 }
 		end,
 		OpenTradeSkill = function(id)
 			c.opened[#c.opened + 1] = id
@@ -1186,6 +1195,11 @@ function Client.load(options)
 			if type(itemInfo) == "number" then
 				return itemInfo
 			end
+			local linked = type(itemInfo) == "string"
+				and (itemInfo:match("^item:(%d+)") or itemInfo:match("|Hitem:(%d+)"))
+			if linked then
+				return tonumber(linked)
+			end
 			for itemID, item in pairs(c.items) do
 				if item.name == itemInfo then
 					return itemID
@@ -1194,6 +1208,9 @@ function Client.load(options)
 		end,
 	}
 	G.C_CurrencyInfo = {
+		GetCurrencyIDFromLink = function(link)
+			return tonumber(link:match("^currency:(%d+)") or link:match("|Hcurrency:(%d+)"))
+		end,
 		GetCoinTextureString = function(copper)
 			return copper .. "c"
 		end,
@@ -1214,6 +1231,16 @@ function Client.load(options)
 			return c.merchant[index]
 		end,
 	}
+	G.GetMerchantItemCostInfo = function(index)
+		local row = c.merchant[index]
+		return row.costCount or (row.costs and #row.costs or 0)
+	end
+	G.GetMerchantItemCostItem = function(index, slot)
+		local row = c.merchant[index].costs
+		if row and row[slot] then
+			return unpack(row[slot], 1, 4)
+		end
+	end
 	G.GetMerchantItemMaxStack = function()
 		return 20
 	end

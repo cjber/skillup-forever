@@ -16,6 +16,8 @@ GENERATORS = ["gen_thresholds.py", "gen_vendor.py", "gen_recipes.py", "gen_train
 SUBSETS = [
     Subset("ns.RecipeData", "ns.Thresholds", "recipe data covers threshold recipes only"),
     Subset("ns.TrainerFees", "ns.Thresholds", "trainer fees cover threshold recipes only"),
+    Subset("ns.TrainerLevels", "ns.TrainerFees", "a level gate belongs to a recipe a trainer teaches"),
+    Subset("ns.RecipeTrainerSets", "ns.TrainerFees", "every trainer-taught recipe names its trainers"),
 ]
 
 

@@ -184,19 +184,6 @@ local function CollectRecipes(node, learned, unlearned, seen)
 	end
 end
 
----@param node SkillUpTreeNode
----@param seen table<integer, boolean>
-local function CollectIDs(node, seen)
-	for _, child in ipairs(node:GetNodes()) do
-		local info = child:GetData().recipeInfo
-		if info then
-			seen[info.recipeID] = true
-		else
-			CollectIDs(child, seen)
-		end
-	end
-end
-
 -- The client's recipe search is a case-insensitive name filter, which it applies to its own rows before
 -- handing us a provider. A bundled recipe the client does not list never reaches that filter, so it has to
 -- pass the same test here or every search would leave it in the list.
@@ -245,9 +232,10 @@ end
 
 ---@param source SkillUpTreeProvider
 ---@param key SkillUpSortKey
+---@param unlearnedKey SkillUpSortKey
 ---@param ctx SkillUpContext?
 ---@return SkillUpTreeProvider
-local function BuildSorted(source, key, ctx)
+local function BuildSorted(source, key, unlearnedKey, ctx)
 	local learned, unlearned, seen = {}, {}, {}
 	CollectRecipes(source:GetRootNode(), learned, unlearned, seen)
 	if ns.db.showUnlearned and ctx then
@@ -256,7 +244,7 @@ local function BuildSorted(source, key, ctx)
 		end
 	end
 	SortRecipes(learned, key, ctx)
-	SortRecipes(unlearned, key, ctx)
+	SortRecipes(unlearned, unlearnedKey, ctx)
 
 	local sorted = CreateTreeDataProvider()
 	for _, data in ipairs(learned) do
@@ -284,9 +272,10 @@ end
 -- it; Default puts the highest required level first. An empty match is an empty list, not the client's.
 ---@param source SkillUpTreeProvider
 ---@param key SkillUpSortKey?
+---@param unlearnedKey SkillUpSortKey
 ---@param ctx SkillUpContext?
 ---@return SkillUpTreeProvider
-local function BuildBuffs(source, key, ctx)
+local function BuildBuffs(source, key, unlearnedKey, ctx)
 	local level = UnitLevel("player") or 0
 	local learned, unlearned, seen = {}, {}, {}
 	local clientLearned, clientUnlearned = {}, {}
@@ -309,7 +298,7 @@ local function BuildBuffs(source, key, ctx)
 	end
 	key = key or BuffLevelKey
 	SortRecipes(learned, key, ctx)
-	SortRecipes(unlearned, key, ctx)
+	SortRecipes(unlearned, unlearnedKey, ctx)
 
 	local filtered = CreateTreeDataProvider()
 	for _, data in ipairs(learned) do
@@ -332,9 +321,9 @@ end
 local function HasRecipe(node)
 	for _, child in ipairs(node:GetNodes()) do
 		local info = child:GetData().recipeInfo
-		if info then
+		if info and info.learned then
 			return true
-		elseif HasRecipe(child) then
+		elseif not info and HasRecipe(child) then
 			return true
 		end
 	end
@@ -353,9 +342,16 @@ local function BuildCategories(source, extra)
 	---@param node SkillUpTreeNode
 	---@param target SkillUpTreeProvider|SkillUpTreeNode
 	local function Clone(node, target)
-		for _, child in ipairs(node:GetNodes()) do
+		local children, lastLearned = node:GetNodes(), 0
+		for index, child in ipairs(children) do
+			local info = child:GetData().recipeInfo
+			if (info and info.learned) or (not info and HasRecipe(child)) then
+				lastLearned = index
+			end
+		end
+		for index, child in ipairs(children) do
 			local data = child:GetData()
-			if data.recipeInfo then
+			if data.recipeInfo and data.recipeInfo.learned then
 				count = count + 1
 				-- The client's own node data, as in the sorted list: a table of ours would be the addon's and
 				-- the selection keeps it for the craft path to read (#350).
@@ -368,7 +364,7 @@ local function BuildCategories(source, extra)
 					end
 					Clone(child, category)
 				end
-			elseif data.isDivider then
+			elseif data.isDivider and index < lastLearned then
 				target:Insert({ isDivider = true, dividerHeight = data.dividerHeight })
 			elseif data.topPadding or data.bottomPadding then
 				target:Insert({ topPadding = data.topPadding, bottomPadding = data.bottomPadding })
@@ -391,17 +387,19 @@ end
 ---@return SkillUpTreeProvider?
 local function BuildProvider(source, key, ctx)
 	if ns.db.buffsOnly then
-		return BuildBuffs(source, key, ctx)
+		return BuildBuffs(source, key, SORT_KEYS[ns.db.unlearnedSortMode], ctx)
 	end
 	if key then
-		return BuildSorted(source, key, ctx)
+		return BuildSorted(source, key, SORT_KEYS[ns.db.unlearnedSortMode], ctx)
 	end
-	if not (ns.db.showUnlearned and ctx) then
-		return nil
+	local learned, extra, seen = {}, {}, {}
+	CollectRecipes(source:GetRootNode(), learned, extra, seen)
+	if ns.db.showUnlearned and ctx then
+		for _, data in ipairs(UnlearnedMissing(seen, ctx)) do
+			extra[#extra + 1] = data
+		end
 	end
-	local seen = {}
-	CollectIDs(source:GetRootNode(), seen)
-	local extra = UnlearnedMissing(seen, ctx)
+	SortRecipes(extra, SORT_KEYS[ns.db.unlearnedSortMode], ctx)
 	if #extra == 0 then
 		return nil
 	end
@@ -540,6 +538,9 @@ function ns.AttachRecipeList()
 		end
 	end)
 	ns.AttachRoute()
+	if ns.AttachSupply then
+		ns.AttachSupply()
+	end
 	ns.AttachGear()
 	if ns.AttachBuffs then
 		ns.AttachBuffs()

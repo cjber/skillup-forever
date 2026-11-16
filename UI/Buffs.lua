@@ -901,6 +901,7 @@ function Render()
 	for _, row in ipairs(rows) do
 		elements[#elements + 1] = { row = row, columns = columns }
 	end
+	---@diagnostic disable-next-line: param-type-mismatch
 	page.Rows:SetDataProvider(CreateDataProvider(elements), ScrollBoxConstants.RetainScrollPosition)
 	PlaceContent()
 	SyncHorizontal()
@@ -928,7 +929,7 @@ end
 
 local function CreatePage()
 	page = CreateFrame("Frame", nil, ProfessionsFrame) --[[@as SkillUpBuffsPage]]
-	page:SetAllPoints(ProfessionsFrame.CraftingPage)
+	page:SetAllPoints(ProfessionsFrame)
 	page:SetFrameLevel(ProfessionsFrame.CraftingPage:GetFrameLevel())
 	-- What's Training? paints its own page at the portrait container's level, over CraftingPage's, and never
 	-- hides it when another tab is chosen. HIGH sits above that page and below dialogs, so this one keeps the
@@ -970,7 +971,7 @@ function ns.AttachBuffs()
 		id = "buffs",
 		title = L["Buffs"],
 		setting = function()
-			return ns.db.showBuffsTab
+			return ns.db.showProfessionTabs and ns.db.showBuffsTab
 		end,
 		page = page,
 	})

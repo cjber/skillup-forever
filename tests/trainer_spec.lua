@@ -7,6 +7,7 @@ local COOKING, CAMPFIRE, BREAD = 185, 818, 37836
 local hooks, timers, changes = {}, {}, {}
 local tracked = {}
 local dropPlans
+local playerLevel = 20
 -- { name, kind, fee, required skill, taught spell }: the window's rows, in its order.
 local services = {}
 local ns = {
@@ -100,7 +101,7 @@ local env = setmetatable({
 		return { RegisterEvent = function() end, SetScript = function() end }
 	end,
 	UnitLevel = function()
-		return 20
+		return playerLevel
 	end,
 	GetMoney = function()
 		return 100000
@@ -109,7 +110,7 @@ local env = setmetatable({
 		return #services
 	end,
 	GetTrainerServiceInfo = function(index)
-		return services[index][1], services[index][2]
+		return services[index][1], services[index][2], nil, services[index][6]
 	end,
 	GetTrainerServiceCost = function(index)
 		return services[index][3]
@@ -150,6 +151,7 @@ equal(Journeyman().fee, 500, "the bundled fee before a trainer is seen")
 Open({ { "Spice Bread", "available", 40, 1, BREAD }, { "Journeyman Cook", "available", 450, 50 } })
 equal(tracked[#tracked], COOKING, "opening the Cooking trainer asks to track Cooking")
 equal(ns.db.trainer[COOKING][BREAD][1], 40, "a recipe's fee is recorded")
+equal(ns.db.trainer[COOKING][BREAD][4], nil, "a service without a level gate records none")
 equal(ns.db.trainerRanks[COOKING][150], 450, "and the rank's, under the cap it trains to")
 equal(Journeyman().fee, 450, "what the trainer charges replaces the bundled fee")
 equal(Journeyman().reqSkill, 50, "the skill it wants is unchanged")
@@ -173,6 +175,42 @@ ns.TrainerFees[BREAD] = { 30, 25 }
 Open({ { "Spice Bread", "available", 40, nil, BREAD } })
 equal(table.concat(ns.db.trainer[COOKING][BREAD], "/"), "40/25", "the fee is kept with the bundled requirement")
 ns.TrainerFees[BREAD] = nil
+
+-- A level-gated service is recorded, omitted below its gate, and available at the gate.
+ns.TrainerFees[BREAD] = { 30, 25 }
+ns.db.trainer = {}
+playerLevel = 20
+Open({ { "Spice Bread", "available", 40, 25, BREAD, 35 } })
+equal(ns.db.trainer[COOKING][BREAD][4], 35, "a service level gate is recorded")
+profession.base, profession.skill = 1, 1
+profession.max = 150
+profession.base, profession.skill = 25, 25
+ns.db.routeTargets[COOKING] = 35
+ns.NetCost = function(recipeID)
+	return recipeID == CAMPFIRE and 100 or 1
+end
+local belowGate = ns.PlanRoute(profession)
+local hasBreadBelow = false
+for _, step in ipairs(belowGate.training) do
+	hasBreadBelow = hasBreadBelow or step.recipeID == BREAD
+end
+equal(hasBreadBelow, false, "a level-gated service is omitted below the player level")
+playerLevel = 35
+local atGate = ns.PlanRoute(profession)
+equal(ns.TrainingFor(profession, BREAD)[4], 35, "the recorded gate remains available at the player level")
+local hasBreadAt = false
+for _, step in ipairs(atGate.training) do
+	hasBreadAt = hasBreadAt or step.recipeID == BREAD
+end
+equal(hasBreadAt, true, "the route includes the service at the player level")
+profession.base, profession.skill = 60, 60
+profession.max = 75
+ns.db.routeTargets[COOKING] = 100
+ns.NetCost = function()
+	return 1
+end
+playerLevel = 20
+ns.db.trainer[COOKING][BREAD] = { 40, 25 }
 
 -- Issue #124: the requirement the trainer showed is saved apart from the one the plan uses, and /skillup trainers
 -- compares it with the bundled one, which the generator moved from classic-db's.

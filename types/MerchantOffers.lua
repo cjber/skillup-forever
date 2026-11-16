@@ -1,0 +1,66 @@
+---@meta
+
+---@class SkillUpMerchantCost
+---@field slot integer
+---@field texture any Raw display value, never identity.
+---@field quantity any Raw per-bundle amount, validated before requirementsComplete.
+---@field link any Raw native link, never synthesized from a name.
+---@field currencyName any Raw display name, never identity.
+---@field kind? 'item'|'currency'
+---@field id? integer Stable identity from a typed-link resolver.
+---@field capabilities table<string, string>
+
+---@class SkillUpObservedMerchantOffer
+---@field index integer Transient row, scoped to this window session.
+---@field itemID? integer
+---@field npcID? integer
+---@field session integer
+---@field observedAt number
+---@field infoPresent boolean Whether the structured API returned a readable record.
+---@field rawInfo table<string, any> Readable original components before normalization.
+---@field version? string
+---@field build? string
+---@field projectID? integer
+---@field interface? integer
+---@field rawNativeMaximum any
+---@field rawCanAfford any
+---@field sourceRevision string Source caller contract, not runtime certification.
+---@field price? integer
+---@field stackCount? integer
+---@field numAvailable? integer Raw stock; positive units and -1 guarantees unverified.
+---@field hasExtendedCost? boolean
+---@field isPurchasable? boolean
+---@field isUsable? boolean
+---@field currencyID? integer Product-side ID, never a cost identity.
+---@field spellID? integer
+---@field rawCostCount any
+---@field costs SkillUpMerchantCost[]
+---@field requirementsComplete boolean Includes valid money/bundle and every reported non-money requirement.
+---@field reasons string[]
+---@field capabilities table<string, string>
+---@field maxPurchaseItems? integer Raw native per-purchase ceiling, not supply.
+---@field canAfford? boolean Raw single-offer observation, not a multi-order guarantee.
+
+---@class SkillUpMerchantOfferWindow
+---@field session integer
+---@field offers SkillUpObservedMerchantOffer[]
+
+---@class SkillUpMerchantOffers
+---@field session integer
+---@field current? SkillUpMerchantOfferWindow
+---@field Read fun(index: integer, itemID: integer?, npcID: integer?): SkillUpObservedMerchantOffer
+---@field Replace fun(offers: SkillUpObservedMerchantOffer[]?): boolean
+---@field Unchanged fun(npcID: integer?): boolean
+---@field Open fun()
+---@field Quote fun(offer: SkillUpObservedMerchantOffer, bundles: integer): SkillUpMerchantQuote?, string?
+---@field BundleBound fun(offer: SkillUpObservedMerchantOffer, wallet: number?, balances: table<string, number>): integer?, string?
+
+---@class SkillUpMerchantQuote
+---@field units integer
+---@field moneyCopper integer
+---@field costs table<string, integer> Typed identities; duplicate components summed once.
+
+---@class SkillUpMerchantOrderQuote
+---@field products table<integer, integer> Item units by product, never mixed into one quantity.
+---@field moneyCopper integer
+---@field costs table<string, integer>

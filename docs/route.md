@@ -13,7 +13,7 @@ The SkillUp side tab on the Professions window opens the SkillUp page you used l
 - A reagent you already hold is counted once across every step that uses it, so a spare is not asked for twice. An optional *Restock visit cost* (Settings, Prices) adds a trip to the cost of running short when you set one; left at zero, no trip is counted.
 - Recipes a trainer teaches are included when they pay for themselves or you pin them, shown as a *Train* step with its fee. The fee is counted once, and never before the trainer would teach them.
 - Recipes with an unpriced reagent are left out and counted.
-- Reagents your bags already hold are used before a sub-craft is planned: an intermediate you hold is not crafted, its raw reagents are not bought, and one you hold only partly plans just the shortfall.
+- Reagents your bags already hold are used before a sub-craft is planned: an intermediate you hold is not crafted, its raw reagents are not bought, and one you hold only partly plans just the shortfall. A recipe your bags can make is priced at what using those materials gives up, so the route can prefer it, and its step says it uses materials you have.
 - Recipes you said *Not this recipe* to are left out (see below).
 
 ### It stays put
@@ -73,7 +73,7 @@ Each shows the scroll's price (what it cost at the auction house or at a merchan
 
 ### Waypoints
 
-*Train* steps and vendor reagents name the nearest trainer (one who teaches that far, of your faction) or vendor, with its zone and coordinates. A click sets a waypoint there. A *Nearest vendor* button in the route page does the same for every vendor reagent the route still needs at once. Names and places come from Questie: without it a step names nobody and its tooltip says so.
+*Train* steps name the nearest trainer of your faction who teaches that recipe, and vendor reagents name the nearest vendor, with its zone and coordinates. When none of your faction's trainers teaches a recipe, the step says so. A click sets a waypoint there. A *Nearest vendor* button in the route page does the same for every vendor reagent the route still needs at once. Names and places come from Questie: without it a step names nobody and its tooltip says so.
 
 A vendor whose window you open is remembered, with where you stood and what it sold, so it is named from then on even without Questie. It is used for the client build you saw it on and the build after; once two builds have gone by without seeing it, it stops being named, though nothing is forgotten.
 

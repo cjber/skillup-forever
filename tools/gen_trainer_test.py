@@ -6,7 +6,16 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from gen_trainer import ROOT, SEEN_REQUIREMENTS, dump_tables, generate, rank_quests
+from gen_trainer import (
+    ROOT,
+    SEEN_REQUIREMENTS,
+    dump_tables,
+    generate,
+    rank_quests,
+    recipe_levels,
+    recipe_trainers,
+    render,
+)
 
 
 class DumpEncodingTests(unittest.TestCase):
@@ -112,6 +121,89 @@ class RequirementTests(unittest.TestCase):
             trainer = [self.trainer(10, order[0]), self.trainer(11, order[1]), self.trainer(13, 50)]
             _, _, _, inferred = generate({5}, trainer, effects, {5: -25})
             self.assertEqual(inferred, {5: 20})
+
+
+def table(text, name):
+    """One generated Lua table's body, without its comment or the closing brace."""
+    body = re.search(rf"ns\.{name} = \{{\n(.*?)\n\}}", text, re.S)
+    assert body is not None, name
+    return body.group(1)
+
+
+def entries(body):
+    """[key] = value rows, as integers."""
+    return {int(key): int(value) for key, value in re.findall(r"\n\t\[(\d+)\] = (\d+),", body)}
+
+
+class RecipeTrainerTests(unittest.TestCase):
+    # Issue #722: Una and Telonis teach Barbaric Shoulders and Guardian Gloves, Drakk Stonehand does not,
+    # though his Artisan cap covers them.
+    def trainer(self, entry, spell, level="0", skill="165"):
+        return {
+            "entry": str(entry),
+            "spell": str(spell),
+            "spellcost": "900",
+            "reqskill": skill,
+            "reqskillvalue": "0",
+            "reqlevel": level,
+            "ReqAbility1": None,
+            "condition_id": "0",
+        }
+
+    def effects(self, *pairs):
+        return [
+            {"SpellID": str(teach), "DifficultyID": "0", "Effect": "36", "EffectTriggerSpell": str(taught)}
+            for teach, taught in pairs
+        ]
+
+    def test_trainers_teaching_the_same_recipes_share_one_set(self):
+        effects = self.effects((10, 100), (10, 200), (11, 100), (12, 300))
+        trainer = [
+            self.trainer(1, 10),
+            self.trainer(2, 10),
+            self.trainer(3, 11),
+            self.trainer(4, 12),
+            self.trainer(5, 13),  # teaches no bundled recipe, so it names no set
+        ]
+        self.assertEqual(
+            recipe_trainers({100, 200, 300}, trainer, effects),
+            ({100: 1, 200: 2, 300: 3}, [(1, 2, 3), (1, 2), (4,)]),
+        )
+
+    def test_a_recipe_no_trainer_teaches_names_no_set(self):
+        found, sets = recipe_trainers({100, 400}, [self.trainer(1, 10)], self.effects((10, 100)))
+        self.assertEqual((found, sets), ({100: 1}, [(1,)]))
+
+    def test_a_level_above_zero_is_kept_and_a_disagreement_refused(self):
+        effects = self.effects((10, 100), (11, 200), (12, 300))
+        trainer = [
+            self.trainer(1, 10, level="35"),
+            self.trainer(2, 10),
+            self.trainer(3, 11, level="35"),
+            self.trainer(4, 11, level="40"),
+            self.trainer(5, 12),
+        ]
+        self.assertEqual(recipe_levels({100, 200, 300}, [trainer[0], trainer[1], trainer[4]], effects), {100: 35})
+        with self.assertRaisesRegex(ValueError, "disagree on the level for recipe 200"):
+            recipe_levels({100, 200, 300}, trainer, effects)
+
+    def test_render_emits_the_sets_the_recipes_name(self):
+        rendered = render({}, [], {}, {}, None, ({100: 1}, [(3007, 4212)]), {100: 35})
+        self.assertIn("ns.TrainerSets = {\n\t[1] = { 3007, 4212 },\n}", rendered)
+        self.assertIn("ns.RecipeTrainerSets = {\n\t[100] = 1,\n}", rendered)
+        self.assertIn("ns.TrainerLevels = {\n\t[100] = 35,\n}", rendered)
+
+    def test_barbaric_shoulders_names_una_and_telonis_alone(self):
+        text = (ROOT / "Data" / "Trainer.lua").read_text(encoding="utf-8")
+        chosen, sets = entries(table(text, "RecipeTrainerSets")), table(text, "TrainerSets")
+        self.assertEqual(chosen[7151], chosen[7156])
+        members = re.search(rf"\n\t\[{chosen[7151]}\] = \{{ ([^}}]+) \}},", sets)
+        assert members is not None
+        self.assertEqual([int(npc) for npc in members.group(1).split(", ")], [3007, 4212])
+
+    def test_runecloth_bandages_ask_level_35(self):
+        levels = entries(table((ROOT / "Data" / "Trainer.lua").read_text(encoding="utf-8"), "TrainerLevels"))
+        self.assertEqual((levels.get(18629), levels.get(18630)), (35, 35))
 
 
 class RankQuestTests(unittest.TestCase):

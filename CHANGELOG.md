@@ -13,6 +13,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 ## [Unreleased]
 
 - **Training steps name the trainer who actually teaches the recipe.** A Leatherworking route at 175 sent players to a trainer whose rank cap covered the recipe but who would not offer it, so he would not talk to them. Steps now name a trainer who lists that recipe, and say so when none of your faction's trainers teach it. A recipe a trainer asks a character level for stays in the list with that level while the route waits for it. Thanks to cursebandit for the report (#722).
+
 - **This is the last update published on Wago.** Future updates come from CurseForge only. If you installed this addon through Wago or the WowUp Wago source, install it from CurseForge to keep getting updates; your settings stay.
 
 - **A Supply page shows what a merchant's terms would mean for your route.** Open a profession and a merchant, then write down what you assume about each offer's price, stock, purchase limit and trips. The page keeps what you typed while the merchant window rescans, names any two values that cannot both be true, and shows the route's chance and next step before you apply it. Nothing is filled in for you.

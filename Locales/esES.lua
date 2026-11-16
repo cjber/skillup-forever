@@ -652,5 +652,7 @@ L["Supply"] = "Suministro" -- mt
 L["Supply policy"] = "Política de suministro" -- mt
 L["Open the profession and a merchant window."] = "Abrid la profesión y una ventana de mercader." -- mt
 L["Apply policy"] = "Aplicar política" -- mt
+L["No trainer of your faction teaches this recipe."] = "Ningún instructor de tu facción enseña esta receta." -- mt
+L["%s (level %d)"] = "%s (nivel %d)" -- mt
 
 L["The route spells out what to craft in order."] = "La ruta indica en orden qué crear." -- mt

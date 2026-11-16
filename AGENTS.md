@@ -121,7 +121,8 @@ publishes it as the notes.
 - WFA-28: trainer fees, rank fees and their skill and level requirements (`Data/Trainer.lua`): CMaNGOS
   classic-db `npc_trainer`, QuestieDB and AtlasLoot hold no trainer service; a fee read at a trainer's window
   replaces the bundled one.
-- WFA-28: which NPC trains which profession and to what cap (`ns.ProfessionTrainers`): CMaNGOS classic-db
+- WFA-28: which NPC trains which profession and to what cap (`ns.ProfessionTrainers`) and which recipes each
+  one teaches (`ns.TrainerSets`, `ns.RecipeTrainerSets`): CMaNGOS classic-db
   `npc_trainer`, QuestieDB has only an NPC's subtitle and flags and AtlasLoot has no trainers; the trainer's
   name, side and place are QuestieDB's.
 - WFA-28: a recipe scroll's drop chances and world-drop marking (`ns.ScrollDrops`, `ns.WorldDrops`): CMaNGOS

@@ -40,6 +40,8 @@ local c = Client.load({
 			[BRACERS] = { skillLine = 164, reagents = { { itemID = BAR, quantity = 1 } } },
 		},
 		TrainerFees = { [HILLMANS] = { 1800, 145 } },
+		TrainerSets = { [1] = { TELONIS } },
+		RecipeTrainerSets = { [HILLMANS] = 1 },
 		TrainerRanks = {},
 		RankBooks = { [197] = { { 150, BOOK, 500, 70, 0 } } },
 		ItemSellPrices = {},

@@ -1034,7 +1034,7 @@ local function TrainingSteps(plan)
 				steps[#steps + 1] = {
 					text = string.format(L["Train %s at %d"], name, training.usedAt),
 					nearest = function(byTravel)
-						return ns.NearestTrainer(profession, training.cap, byTravel), L["Nearest trainer"]
+						return (ns.NearestRecipeTrainer(profession, training.recipeID, byTravel)), L["Nearest trainer"]
 					end,
 				}
 			end

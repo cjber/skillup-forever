@@ -638,5 +638,7 @@ L["Supply"] = "补给" -- mt
 L["Supply policy"] = "补给策略" -- mt
 L["Open the profession and a merchant window."] = "请打开专业和商人窗口。" -- mt
 L["Apply policy"] = "应用策略" -- mt
+L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
+L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
 L["The route spells out what to craft in order."] = "路线按顺序列出要制造的内容。" -- mt

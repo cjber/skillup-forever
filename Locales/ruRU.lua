@@ -702,6 +702,9 @@ L["Supply"] = "Снабжение" -- mt
 L["Supply policy"] = "Политика снабжения" -- mt
 L["Open the profession and a merchant window."] = "Откройте профессию и окно торговца." -- mt
 L["Apply policy"] = "Применить политику" -- mt
+L["No trainer of your faction teaches this recipe."] =
+	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
+L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
 L["The route spells out what to craft in order."] =
 	"Маршрут по порядку показывает, что создать." -- mt

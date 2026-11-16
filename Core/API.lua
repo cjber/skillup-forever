@@ -198,6 +198,33 @@ local function Train(profession, text, cap, fee)
 	end or nil
 end
 
+-- A recipe a trainer teaches: the nearest trainer who teaches that one, never one whose rank cap covers it
+-- but who does not offer it (#722). A recipe only the other faction's trainers teach says so in the detail.
+---@param profession SkillUpProfession
+---@param text string
+---@param training SkillUpPlanTraining
+---@return SkillUpAPIStep
+---@return (fun(): integer?)?
+local function RecipeTrain(profession, text, training)
+	local trainer, known = ns.NearestRecipeTrainer(profession, training.recipeID)
+	local step = {
+		kind = "train",
+		text = text,
+		detail = Detail(
+			trainer,
+			known and L["No trainer of your faction teaches this recipe."]
+				or string.format(L["%s trainer"], profession.name),
+			training.fee
+		),
+		cost = training.fee > 0 and training.fee or nil,
+		nav = trainer ~= nil,
+	}
+	return step,
+		trainer and function()
+			return (ns.NearestRecipeTrainer(profession, training.recipeID, true))
+		end or nil
+end
+
 -- A recipe no trainer teaches: buy its scroll from a vendor, and go to that vendor, not a trainer (#358).
 ---@param training SkillUpPlanTraining
 ---@return SkillUpAPIStep
@@ -341,7 +368,7 @@ local function Steps(plan, rows)
 			if training.scroll then
 				step, pick = Scroll(training)
 			else
-				step, pick = Train(profession, string.format(L["Train %s"], name), training.cap, training.fee)
+				step, pick = RecipeTrain(profession, string.format(L["Train %s"], name), training)
 				step.spellID, step.itemID = training.recipeID, OutputItem(training.recipeID)
 			end
 			Add(step, pick)
@@ -781,7 +808,7 @@ function ns.ShoppingTrip(skillLineID)
 				vendorItems[npcID][#vendorItems[npcID] + 1] = first.scroll
 			end
 		elseif first then
-			local npcID = ns.NearestTrainer(profession, first.cap, true)
+			local npcID = ns.NearestRecipeTrainer(profession, first.recipeID, true)
 			if npcID then
 				trainers[npcID] = true
 			end

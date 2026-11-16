@@ -295,6 +295,16 @@ function C.Trainers(skillLine, cap)
 	return trainers
 end
 
+-- The trainers who teach one recipe, as classic-db's npc_trainer rows say. A trainer teaches only the
+-- recipes it lists, which is not the same as every recipe up to the rank cap it teaches (#722). Nil for a
+-- recipe no trainer teaches.
+---@param recipeID integer
+---@return integer[]?
+function C.RecipeTrainers(recipeID)
+	local set = ns.RecipeTrainerSets and ns.RecipeTrainerSets[recipeID]
+	return set and ns.TrainerSets and ns.TrainerSets[set] or nil
+end
+
 ---@param npcIDs integer[]
 local function ReadNPCs(npcIDs)
 	for _, npcID in ipairs(npcIDs) do
@@ -304,6 +314,24 @@ local function ReadNPCs(npcIDs)
 			end)
 		end
 	end
+end
+
+-- Every trainer who teaches one of a profession's recipes, read along with the rank caps' trainers: a
+-- journeyman who trains no rank is still the one who shows its recipes, and needs a place to route to.
+---@param skillLine integer
+local function ReadRecipeTrainers(skillLine)
+	local seen, npcIDs = {}, {}
+	for recipeID, recipe in pairs(ns.RecipeData) do
+		if recipe.skillLine == skillLine then
+			for _, npcID in ipairs(C.RecipeTrainers(recipeID) or {}) do
+				if not seen[npcID] then
+					seen[npcID] = true
+					npcIDs[#npcIDs + 1] = npcID
+				end
+			end
+		end
+	end
+	ReadNPCs(npcIDs)
 end
 
 ---@param spellID integer
@@ -422,6 +450,7 @@ function C.EnsureProfession(skillLine)
 			end)
 		end
 		ReadNPCs(C.Trainers(skillLine, 0))
+		ReadRecipeTrainers(skillLine)
 		-- The recipes queue their NPCs and quests behind this, so the snapshot is published behind those.
 		Enqueue(function()
 			Enqueue(function()

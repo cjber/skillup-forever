@@ -639,14 +639,14 @@ L["First trip cost (copper)"] = "Coût du premier trajet (cuivre)" -- mt
 L["Later trip cost (copper)"] = "Coût des trajets suivants (cuivre)" -- mt
 L["First trip value to you (copper)"] = "Valeur du premier trajet pour vous (cuivre)" -- mt
 L["Later trip value to you (copper)"] = "Valeur des trajets suivants pour vous (cuivre)" -- mt
-L["Chance each later purchase arrives (%%)"] = "Chance que chaque achat ultérieur arrive (%%)" -- mt
+L["Chance each later purchase arrives (%)"] = "Chance que chaque achat ultérieur arrive (%)" -- mt
 L["The first purchase arrives for certain"] = "Le premier achat arrive à coup sûr" -- mt
 L["I pay even when a purchase does not arrive"] = "Je paie même si un achat n'arrive pas" -- mt
 L["Leftover value of one %s (copper)"] = "Valeur résiduelle d'un %s (cuivre)" -- mt
 L["Value of one %s (copper)"] = "Valeur d'un %s (cuivre)" -- mt
 L["These are your own assumptions. The merchant's window only shows what it shows now."] =
 	"Ce sont vos propres hypothèses. La fenêtre du marchand ne montre que ce qu'elle montre maintenant." -- mt
-L["Chance of finishing with starting supplies (%%)"] = "Chance de finir avec les stocks de départ (%%)" -- mt
+L["Chance of finishing with starting supplies (%)"] = "Chance de finir avec les stocks de départ (%)" -- mt
 L["Plan later purchases too"] = "Planifier aussi les achats ultérieurs" -- mt
 L["Cost of an unfinished route (copper)"] = "Coût d'une route inachevée (cuivre)" -- mt
 L["Applied. The plan and its coverage follow these assumptions."] =

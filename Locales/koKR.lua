@@ -644,14 +644,14 @@ L["First trip cost (copper)"] = "첫 방문 비용(코퍼)" -- mt
 L["Later trip cost (copper)"] = "이후 방문 비용(코퍼)" -- mt
 L["First trip value to you (copper)"] = "첫 방문의 가치(코퍼)" -- mt
 L["Later trip value to you (copper)"] = "이후 방문의 가치(코퍼)" -- mt
-L["Chance each later purchase arrives (%%)"] = "이후 각 구매가 도착할 확률 (%%)" -- mt
+L["Chance each later purchase arrives (%)"] = "이후 각 구매가 도착할 확률 (%)" -- mt
 L["The first purchase arrives for certain"] = "첫 구매는 확실히 도착합니다" -- mt
 L["I pay even when a purchase does not arrive"] = "구매가 도착하지 않아도 지불합니다" -- mt
 L["Leftover value of one %s (copper)"] = "%s 하나의 잔여 가치(코퍼)" -- mt
 L["Value of one %s (copper)"] = "%s 하나의 가치(코퍼)" -- mt
 L["These are your own assumptions. The merchant's window only shows what it shows now."] =
 	"이것은 직접 정한 가정입니다. 상인 창은 지금 보이는 것만 보여줍니다." -- mt
-L["Chance of finishing with starting supplies (%%)"] = "시작 재고로 완료할 확률 (%%)" -- mt
+L["Chance of finishing with starting supplies (%)"] = "시작 재고로 완료할 확률 (%)" -- mt
 L["Plan later purchases too"] = "이후 구매도 계획" -- mt
 L["Cost of an unfinished route (copper)"] = "완료하지 못한 경로의 비용(코퍼)" -- mt
 L["Applied. The plan and its coverage follow these assumptions."] =

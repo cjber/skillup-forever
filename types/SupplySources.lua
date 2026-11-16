@@ -64,7 +64,6 @@
 ---@field refillVisit number
 
 ---@class SkillUpSupplySourceOwner
----@field Revision fun(): integer Bumped by every declaration, reconciliation and rollback.
 ---@field _ApplyDraft fun(draft: SkillUpSupplyDraft): boolean, table[]?
 ---@field DeclareAdaptive fun(offer: SkillUpObservedMerchantOffer, version: integer, laws: SkillUpAdaptiveSourceLaws): boolean, SkillUpSourceUnavailable[]?
 ---@field DeclareEconomics fun(version: integer, laws: SkillUpAdaptiveEconomicLaws): boolean, SkillUpSourceUnavailable[]?

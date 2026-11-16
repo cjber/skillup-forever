@@ -416,4 +416,31 @@ Check(
 		.. ":"
 		.. tostring(applyMissing and applyMissing[1] and applyMissing[1].field)
 )
+
+-- Inspection is assembled for one declaration revision, merchant session and product universe. A declaration, a
+-- resource reconciliation and a new merchant session each reach the next Inspect call rather than a later frame.
+ns.MerchantOffers.Open()
+local sessionOffer = {}
+for key, value in pairs(offer) do
+	sessionOffer[key] = value
+end
+sessionOffer.session = ns.MerchantOffers.session
+ns.MerchantOffers.current = { session = ns.MerchantOffers.session, offers = { sessionOffer } }
+local beforeDeclare = ns.SupplySources.Inspect({ [10] = true })
+Check(beforeDeclare.status == "unavailable", "a new merchant session is unknown to inspection")
+Check(ns.SupplySources.Declare(sessionOffer, 20, Laws()), "a new session's offer takes a declaration")
+local afterDeclare = ns.SupplySources.Inspect({ [10] = true })
+Check(afterDeclare.status == "conditional", "a declaration reaches the next inspection")
+Check(
+	afterDeclare.assumptions[1] and afterDeclare.assumptions[1].session == ns.MerchantOffers.session,
+	"fresh evidence names the current session"
+)
+local changesBeforeReconcile = changes
+observers.bags()
+Check(changes == changesBeforeReconcile + 1, "reconciliation reports its change")
+local afterReconcile = ns.SupplySources.Inspect({ [10] = true })
+Check(
+	afterReconcile.status == "unavailable" and afterReconcile.missing[1].code == "reconciliation-required",
+	"a reconciliation flip reaches the next inspection"
+)
 print("supply_sources_spec: " .. checks .. " checks passed")

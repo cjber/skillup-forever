@@ -33,6 +33,7 @@ The recipe tooltip draws the thresholds on the game's own bar with your skill ma
 - **Buffs only** filters the list to the elixirs, flasks, Well Fed food, protection potions, stones, oils, armour kits and scopes you can use at your level, highest required level first, with unlearned ones following when *List unlearned recipes* is on.
 - **Levelling routes** list crafts, trainer visits, skill books and rank quests to your target skill, including fees, tools and stations. Steps allow for unlucky skill-ups. Cheaper crafted reagents become their own steps, and an intermediate your bags already hold is not crafted again; a route that stops short names recipes that could extend it. Right-click a recipe to pin it for skill-ups or choose *Not this recipe* to plan without it. [Route details](docs/route.md#levelling-route).
 - **Shopping lists** count reagents against your bags and bank. *Buy reagents* is on for a new character, so materials your professions gather are bought unless you choose to gather them. Track the list beside quests, buy vendor stock and keep an Auctionator list up to date. At the auction house, search a recipe's reagents for as many crafts as you choose. [Shopping details](docs/route.md#shopping-list).
+- **Supply page** sits beside the route. With a profession and a merchant open, set what you assume about each offer's price, stock, purchase limit and trips, and read the route's chance and next step before you apply it. [Supply details](docs/supply-policy.md).
 - **Trainer annotations** show chance and cost, with a green arrow on the recipe that best extends or cheapens your route.
 - **Reagent tooltips** show what tracked routes need. Hold Shift for every recipe that uses the item and still skills up.
 - **Gathering nodes** show the Herbalism or Mining skill they need, coloured at yours, on English clients.
@@ -88,7 +89,7 @@ Open a profession and the numbers are already there.
 | `/skillup shopping`, `/skillup shop` | Open the shopping list for tracked professions, copy it, or plan a buy trip with Shortest Path Forever |
 | `/skillup trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer has confirmed or shown differently |
 
-Settings cover rows and tooltips, the recipe list's width, what crafts count for, sort order, the route, supply, crafted gear and buffs tabs, trainer annotations, reagent and gathering tooltips and Forever addon hints. Turn off **Show tracked professions** to hide the tracker, or **Attach to quest tracker** to drag the Forever column. **Tracker scale** sizes the shared tracker from 50% to 200%, where 100% matches the game's own tracker.
+Settings cover rows and tooltips, the recipe list's width, what crafts count for, sort order, the route, crafted gear and buffs tabs, trainer annotations, reagent and gathering tooltips and Forever addon hints. The Supply page opens beside the route while **Show the levelling route tab** is on. Turn off **Show tracked professions** to hide the tracker, or **Attach to quest tracker** to drag the Forever column. **Tracker scale** sizes the shared tracker from 50% to 200%, where 100% matches the game's own tracker.
 
 ## Prices
 

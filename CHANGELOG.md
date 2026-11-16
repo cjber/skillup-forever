@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **A Supply page shows what a merchant's terms would mean for your route.** Open a profession and a merchant, then write down what you assume about each offer's price, stock, purchase limit and trips. The page keeps what you typed while the merchant window rescans, names any two values that cannot both be true, and shows the route's chance and next step before you apply it. Nothing is filled in for you.
+
 - **Working Overtime estimates are optional.** Turn off “Include Working Overtime estimate” to calculate skill-up chances and route costs without the talent's estimated bonus. The setting starts on and remembers your choice (#741).
 
 - **Shopping estimates explain their scope.** Supply estimates distinguish the chance of finishing with starting supplies from the chance with later purchases. Their status and assumptions appear on the route, reagent list and copied shopping list. Craft counts and shopping quantities remain estimates.

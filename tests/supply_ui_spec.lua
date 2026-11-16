@@ -549,6 +549,32 @@ Check(Collect()["offer1.chancePercent"]:GetText() == "50", "an ordinary refresh 
 Check(Rows() == beforeRows, "an ordinary refresh adds no row")
 Check(Controls() == beforeControls, "an ordinary refresh adds no control")
 
+-- A merchant rescan in one session hands back equal offers in new tables with a newer observation time: the same
+-- offers keep the form as typed. A changed offer still resets it.
+local function Rescan(offer, change)
+	local copy = {}
+	for key, value in pairs(offer) do
+		copy[key] = value
+	end
+	copy.observedAt = (offer.observedAt or 1) + 1
+	if change then
+		change(copy)
+	end
+	return copy
+end
+ns.MerchantOffers.Replace({ Rescan(unlimited) })
+ns.Changed("merchant")
+Check(Collect().alphaPercent:GetText() == "70", "a rescan of the same offers keeps typed values")
+Check(Collect()["offer1.chancePercent"]:GetText() == "50", "a rescan keeps adaptive values")
+Check(Collect()["offer1.carryItem"]:GetText() == "0", "a rescan keeps a leftover value")
+ns.MerchantOffers.Replace({
+	Rescan(unlimited, function(copy)
+		copy.price = 99
+	end),
+})
+ns.Changed("merchant")
+Check(Collect().alphaPercent:GetText() == "", "a changed offer clears typed values")
+
 -- A new window clears consent and values, and still reuses its rows.
 local replacement = Offer(1, 10)
 ns.MerchantOffers.Open()
@@ -612,5 +638,45 @@ Check(
 	fixedPublications == beforeFixed + 1 and ns.SupplyUIRevision == beforeRevision + 1,
 	"a retry applies at a fresh revision"
 )
+
+-- A product and another offer's payment can name one item: its leftover value is one terminal coordinate, so two
+-- typed values stop the apply instead of the last one winning.
+routeProducts = { 10, 11 }
+ns.MerchantOffers.Open()
+local priced = Offer(1, 10)
+local token = Offer(2, 11, {
+	price = 0,
+	costs = { { slot = 1, kind = "item", id = 10, quantity = 1 } },
+})
+ns.MerchantOffers.Replace({ priced, token })
+ns.Changed("merchant")
+Toggle("adaptive", true)
+for index = 1, 2 do
+	local prefix = "offer" .. index .. "."
+	for _, name in ipairs({ "priceStays", "ownStock", "initialPaid" }) do
+		Toggle(prefix .. name, true)
+	end
+	Set(prefix .. "stock", 2)
+	Set(prefix .. "ceiling", 2)
+	Set(prefix .. "initialMoney", 0)
+	Set(prefix .. "refillMoney", 0)
+	Set(prefix .. "initialValue", 0)
+	Set(prefix .. "refillValue", 0)
+	Set(prefix .. "chancePercent", 100)
+end
+Set("offer1.carryItem", 1)
+Set("offer2.carryItem", 0)
+Set("offer2.token.item:10", 0)
+Set("failureLoss", 0)
+Set("alphaPercent", 70)
+Set("offer2.carry.item:10", 2)
+Check(Collect().apply.enabled == false, "an item with two leftover values cannot apply")
+Check(Text("status") == "One item or payment needs one leftover value.", "the form names the item leftover conflict")
+Set("offer2.carry.item:10", 1)
+Check(Collect().apply.enabled == true, "one leftover value for an item can apply")
+local beforeShared = adaptivePublications
+ClickApply()
+Check(adaptivePublications == beforeShared + 1, "the shared item leftover value publishes")
+Check(lastAdaptive.policy.terminalCarry["item:10"] == 1, "the shared leftover value reaches the policy")
 
 print("supply_ui_spec: " .. checks .. " checks passed")

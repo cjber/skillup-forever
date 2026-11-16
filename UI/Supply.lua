@@ -43,11 +43,11 @@ local page
 local selected
 local alphaBox, adaptiveBox, failureBox
 local alphaLabel, adaptiveLabel, failureLabel
----@type FontString?
+---@type SkillUpSupplyLabel?
 local status
----@type FontString?
+---@type SkillUpSupplyLabel?
 local readout
----@type Button?
+---@type SkillUpSupplyApply?
 local apply
 -- Every addressable control, by name, so the callbacks and a spec read the form the same way.
 ---@type table<string, any>
@@ -57,7 +57,7 @@ local rendered = "\0"
 local applying = false
 local dirty = false
 -- One frame per merchant slot, reused for the life of the page: an ordinary refresh never makes a row.
----@type table<integer, Frame>
+---@type table<integer, SkillUpSupplyRow>
 local rows = {}
 local Refresh
 -- The page's own vertical rhythm; the scroll content starts every offer below the readout.
@@ -98,9 +98,9 @@ end
 ---@param x number
 ---@param y number
 ---@param width number
----@return FontString
+---@return SkillUpSupplyLabel
 local function Label(parent, text, x, y, width)
-	local label = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	local label = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall") --[[@as SkillUpSupplyLabel]]
 	label:SetPoint("TOPLEFT", x, y)
 	label:SetWidth(width)
 	label:SetJustifyH("LEFT")
@@ -113,9 +113,9 @@ end
 ---@param x number
 ---@param y number
 ---@param width number
----@return EditBox
+---@return SkillUpSupplyInput
 local function Input(parent, name, x, y, width)
-	local box = CreateFrame("EditBox", nil, parent, "InputBoxTemplate") --[[@as EditBox]]
+	local box = CreateFrame("EditBox", nil, parent, "InputBoxTemplate") --[[@as SkillUpSupplyInput]]
 	box:SetSize(width, 20)
 	box:SetPoint("TOPLEFT", x, y)
 	box:SetAutoFocus(false)
@@ -234,19 +234,53 @@ local function OfferSet(window)
 	return window.offers
 end
 
--- A replacement window or offer, not a restock: slot numbers are not identities, so a changed observation clears
--- the typed laws and every checkbox consent.
+-- The parts of an offer a typed law reads. A rescan can hand back equal offers in new tables and stamp them with
+-- a new time; neither is a different window, so the form keeps what the player typed.
+local OBSERVED = {
+	"itemID",
+	"npcID",
+	"price",
+	"stackCount",
+	"numAvailable",
+	"maxPurchaseItems",
+	"isPurchasable",
+	"isUsable",
+	"hasExtendedCost",
+	"requirementsComplete",
+}
+
+---@param offer SkillUpObservedMerchantOffer
+---@return string
+local function OfferContent(offer)
+	local parts = {}
+	for _, key in ipairs(OBSERVED) do
+		parts[#parts + 1] = tostring(offer[key])
+	end
+	for _, cost in ipairs(offer.costs or {}) do
+		parts[#parts + 1] = table.concat({
+			tostring(cost.slot),
+			tostring(cost.kind),
+			tostring(cost.id),
+			tostring(cost.quantity),
+		}, ":")
+	end
+	return table.concat(parts, ";")
+end
+
+-- A replacement window or a changed offer, not a restock or a rescan: slot numbers are not identities, and the
+-- clock and a table's address are not content, so only those clear the typed laws and every checkbox consent.
 ---@param window SkillUpMerchantOfferWindow?
 ---@param offers SkillUpObservedMerchantOffer[]?
 ---@return string
 local function Observation(window, offers)
-	local key = tostring(window and window.session or 0)
-	if offers then
-		for index, offer in ipairs(offers) do
-			key = key .. "|" .. index .. ":" .. tostring(offer) .. ":" .. tostring(offer.itemID)
-		end
+	if not (window and offers) then
+		return "closed"
 	end
-	return key
+	local parts = { tostring(window.session) }
+	for index, offer in ipairs(offers) do
+		parts[#parts + 1] = tostring(index) .. "=" .. OfferContent(offer)
+	end
+	return table.concat(parts, "|")
 end
 
 local function ClearFields()
@@ -332,6 +366,10 @@ end
 ---@return SkillUpSupplyDraft?
 ---@return string?
 local function Draft(plan, window)
+	local skillLine = selected
+	if not skillLine then
+		return nil, L["Open a profession to set its supply policy."]
+	end
 	local offers = OfferSet(window)
 	if not offers then
 		return nil, L["Open the profession and a merchant window."]
@@ -500,7 +538,7 @@ local function Draft(plan, window)
 		return nil, L["The merchant sells none of this route's reagents."]
 	end
 	---@type SkillUpSupplyDraft
-	local draft = { skillLine = selected, alpha = alpha, products = products }
+	local draft = { skillLine = skillLine, alpha = alpha, products = products }
 	if adaptive then
 		local failure = Number("failureLoss")
 		if not failure then
@@ -520,8 +558,14 @@ local function Draft(plan, window)
 				failureLoss = Law(failure, "failureLoss"),
 			},
 		}
-		-- The offer item and the typed payments are one terminal-carry map.
+		-- The offer item and the typed payments are one terminal-carry map. One item can be both an offer's
+		-- product and another offer's payment, so two typed leftovers for it stop the apply rather than the
+		-- offer item overwriting the payment.
 		for key, value in pairs(itemCarry) do
+			local prior = tokenCarry[key]
+			if prior ~= nil and prior ~= value then
+				return nil, L["One item or payment needs one leftover value."]
+			end
 			draft.economics.laws.terminalCarry.value[key] = value
 		end
 	else
@@ -561,7 +605,7 @@ end
 
 -- The plan, its probabilities and the next modeled step: the conditional answer this policy produces, always
 -- visible beside the form so a player can see what they are about to accept.
----@param plan SkillUpPlan
+---@param plan SkillUpPlan?
 local function RenderReadout(plan)
 	if not readout then
 		return
@@ -611,7 +655,7 @@ local function RenderReadout(plan)
 end
 
 Refresh = function()
-	if not status then
+	if not (status and apply) then
 		return
 	end
 	local window = ns.MerchantOffers and ns.MerchantOffers.current
@@ -621,6 +665,8 @@ Refresh = function()
 		reason = L["Open a profession to set its supply policy."]
 	elseif not plan then
 		reason = L["This profession has no plan to supply yet."]
+	elseif not window then
+		reason = L["Open a merchant to set this profession's supply policy."]
 	elseif not OfferSet(window) then
 		reason = L["Open a merchant to set this profession's supply policy."]
 	else
@@ -639,7 +685,7 @@ end
 
 -- Reuse the control this row already made for a name, so a refresh never adds a frame. A control hidden by an
 -- earlier mode stays addressable and is shown again when its mode returns.
----@param row Frame
+---@param row SkillUpSupplyRow
 ---@param name string
 ---@return any
 local function Reuse(row, name)
@@ -653,31 +699,32 @@ local function Reuse(row, name)
 	end
 end
 
----@param row Frame
----@param control Frame
+---@param row SkillUpSupplyRow
+---@param control Region
 ---@param name string
 local function Own(row, control, name)
-	control.field = name
-	control.row = row
-	fields[name] = control
-	row.controls[#row.controls + 1] = control
-	row.used[#row.used + 1] = control
+	local owned = control --[[@as SkillUpSupplyControl]]
+	owned.field = name
+	owned.row = row
+	fields[name] = owned
+	row.controls[#row.controls + 1] = owned
+	row.used[#row.used + 1] = owned
 end
 
 ---@param parent Frame
 ---@param index integer
----@return Frame
+---@return SkillUpSupplyRow
 local function RowFrame(parent, index)
 	local row = rows[index]
 	if not row then
-		row = CreateFrame("Frame", nil, parent)
+		row = CreateFrame("Frame", nil, parent) --[[@as SkillUpSupplyRow]]
 		row.controls = {}
 		rows[index] = row
 	end
 	return row
 end
 
----@param row Frame
+---@param row SkillUpSupplyRow
 ---@param index integer
 ---@param offer SkillUpObservedMerchantOffer
 ---@param quote SkillUpMerchantQuote
@@ -726,7 +773,7 @@ local function BuildRow(row, index, offer, quote, adaptive, width)
 		if box then
 			box:SetPoint("TOPLEFT", 0, y)
 		else
-			box = CreateFrame("CheckButton", nil, row, "UICheckButtonTemplate")
+			box = CreateFrame("CheckButton", nil, row, "UICheckButtonTemplate") --[[@as SkillUpSupplyCheck]]
 			box:SetPoint("TOPLEFT", 0, y)
 			box:SetChecked(false)
 			box.name = fieldName
@@ -789,7 +836,7 @@ local function BuildRow(row, index, offer, quote, adaptive, width)
 	if adaptive then
 		Pair(L["First trip value to you (copper)"], "initialValue")
 		Pair(L["Later trip value to you (copper)"], "refillValue")
-		Pair(L["Chance each later purchase arrives (%%)"], "chancePercent")
+		Pair(L["Chance each later purchase arrives (%)"], "chancePercent")
 		Choice(L["The first purchase arrives for certain"], "initialPaid")
 		Choice(L["I pay even when a purchase does not arrive"], "payFailure")
 		Pair(L["Leftover value of one %s (copper)"]:format(ItemName(offer.itemID)), "carryItem")
@@ -831,7 +878,7 @@ local function ContentWidth()
 end
 
 local function Render()
-	if not status then
+	if not (status and readout) then
 		return
 	end
 	if applying then
@@ -889,10 +936,10 @@ local function Render()
 end
 
 local function Create()
-	page = CreateFrame("Frame", nil, ProfessionsFrame)
+	page = CreateFrame("Frame", nil, ProfessionsFrame) --[[@as SkillUpSupplyPage]]
 	page:SetAllPoints(ProfessionsFrame)
 	page:Hide()
-	local scroll = CreateFrame("ScrollFrame", nil, page, "ScrollFrameTemplate")
+	local scroll = CreateFrame("ScrollFrame", nil, page, "ScrollFrameTemplate") --[[@as ScrollFrame]]
 	scroll:SetPoint("TOPLEFT", 12, -12)
 	scroll:SetPoint("BOTTOMRIGHT", -28, 18)
 	page.scroll = scroll
@@ -910,12 +957,12 @@ local function Create()
 		560
 	)
 	layout.alphaY = -56
-	alphaLabel = Label(content, L["Chance of finishing with starting supplies (%%)"], 0, layout.alphaY, 300)
+	alphaLabel = Label(content, L["Chance of finishing with starting supplies (%)"], 0, layout.alphaY, 300)
 	alphaBox = Input(content, "alphaPercent", 496, layout.alphaY, INPUT_WIDTH)
 	alphaBox:SetNumeric(false)
 	alphaBox:SetMaxLetters(6)
 	layout.adaptiveY = -80
-	adaptiveBox = CreateFrame("CheckButton", nil, content, "UICheckButtonTemplate") --[[@as CheckButton]]
+	adaptiveBox = CreateFrame("CheckButton", nil, content, "UICheckButtonTemplate") --[[@as SkillUpSupplyCheck]]
 	adaptiveBox:SetPoint("TOPLEFT", 0, layout.adaptiveY)
 	adaptiveBox:SetChecked(false)
 	adaptiveBox.name = "adaptive"
@@ -928,12 +975,12 @@ local function Create()
 	failureLabel = Label(content, L["Cost of an unfinished route (copper)"], 0, layout.failureY, 260)
 	failureBox = Input(content, "failureLoss", 496, layout.failureY, INPUT_WIDTH)
 	layout.applyY = -132
-	apply = CreateFrame("Button", nil, content, "SharedButtonSmallTemplate") --[[@as Button]]
+	apply = CreateFrame("Button", nil, content, "SharedButtonSmallTemplate") --[[@as SkillUpSupplyApply]]
 	apply:SetSize(110, 22)
 	apply:SetPoint("TOPLEFT", 0, layout.applyY)
 	apply:SetText(L["Apply policy"])
 	apply:SetScript("OnClick", function()
-		if applying then
+		if applying or not (apply and status) then
 			return
 		end
 		Render()

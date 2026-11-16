@@ -936,6 +936,11 @@ local function Configure(skillLine, read, alpha, mode)
 		DetachJob(previous.job)
 	end
 	configuring = false
+	-- The API's answers read this configuration and its cache drops on a change, so a read straight after this
+	-- call sees the new mode rather than the one from before it.
+	if previous or nextConfiguration then
+		ns.Changed("supply")
+	end
 	return true
 end
 

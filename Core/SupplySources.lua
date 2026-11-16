@@ -275,11 +275,6 @@ function Owner.Read(options, refillOrders, products)
 	return input, missing
 end
 
----@return integer
-function Owner.Revision()
-	return revision
-end
-
 ---@param record table
 ---@return table
 local function CopyRecord(record)

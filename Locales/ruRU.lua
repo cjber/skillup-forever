@@ -683,16 +683,16 @@ L["First trip cost (copper)"] = "Стоимость первой поездки 
 L["Later trip cost (copper)"] = "Стоимость следующих поездок (медь)" -- mt
 L["First trip value to you (copper)"] = "Ценность первой поездки для вас (медь)" -- mt
 L["Later trip value to you (copper)"] = "Ценность следующих поездок для вас (медь)" -- mt
-L["Chance each later purchase arrives (%%)"] =
-	"Шанс, что каждая следующая покупка придёт (%%)" -- mt
+L["Chance each later purchase arrives (%)"] =
+	"Шанс, что каждая следующая покупка придёт (%)" -- mt
 L["The first purchase arrives for certain"] = "Первая покупка приходит точно" -- mt
 L["I pay even when a purchase does not arrive"] = "Я плачу, даже если покупка не пришла" -- mt
 L["Leftover value of one %s (copper)"] = "Остаточная ценность одного %s (медь)" -- mt
 L["Value of one %s (copper)"] = "Ценность одного %s (медь)" -- mt
 L["These are your own assumptions. The merchant's window only shows what it shows now."] =
 	"Это ваши собственные допущения. Окно торговца показывает только то, что показывает сейчас." -- mt
-L["Chance of finishing with starting supplies (%%)"] =
-	"Шанс завершить с начальным запасом (%%)" -- mt
+L["Chance of finishing with starting supplies (%)"] =
+	"Шанс завершить с начальным запасом (%)" -- mt
 L["Plan later purchases too"] = "Планировать и последующие покупки" -- mt
 L["Cost of an unfinished route (copper)"] =
 	"Стоимость незавершённого маршрута (медь)" -- mt

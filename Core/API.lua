@@ -267,7 +267,7 @@ end
 -- The route's first few steps, each craft preceded by getting what the bags lack for it. The build expands the
 -- route's reagents once and hands the same rows to every reader here.
 ---@param plan SkillUpPlan
----@param rows SkillUpReagent[]
+---@param rows SkillUpNeededItem[]
 ---@return SkillUpAPIStep[]
 ---@return table<integer, fun(): integer?>
 local function Steps(plan, rows)
@@ -397,7 +397,7 @@ local function Recipes(plan)
 	return recipes
 end
 
----@param rows SkillUpReagent[]
+---@param rows SkillUpNeededItem[]
 ---@return SkillUpAPIReagent[]
 local function Reagents(rows)
 	local reagents = {}

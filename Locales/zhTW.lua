@@ -622,14 +622,14 @@ L["First trip cost (copper)"] = "首次行程費用（銅幣）" -- mt
 L["Later trip cost (copper)"] = "之後行程費用（銅幣）" -- mt
 L["First trip value to you (copper)"] = "首次行程對你的價值（銅幣）" -- mt
 L["Later trip value to you (copper)"] = "之後行程對你的價值（銅幣）" -- mt
-L["Chance each later purchase arrives (%%)"] = "之後每次購買到達的機率（%%）" -- mt
+L["Chance each later purchase arrives (%)"] = "之後每次購買到達的機率（%）" -- mt
 L["The first purchase arrives for certain"] = "第一次購買一定到達" -- mt
 L["I pay even when a purchase does not arrive"] = "購買沒有到達時我也付款" -- mt
 L["Leftover value of one %s (copper)"] = "一個 %s 的剩餘價值（銅幣）" -- mt
 L["Value of one %s (copper)"] = "一個 %s 的價值（銅幣）" -- mt
 L["These are your own assumptions. The merchant's window only shows what it shows now."] =
 	"這些是你自己的假設。商人視窗只顯示它現在顯示的內容。" -- mt
-L["Chance of finishing with starting supplies (%%)"] = "用初始庫存完成的機率（%%）" -- mt
+L["Chance of finishing with starting supplies (%)"] = "用初始庫存完成的機率（%）" -- mt
 L["Plan later purchases too"] = "也計畫之後的購買" -- mt
 L["Cost of an unfinished route (copper)"] = "未完成路線的成本（銅幣）" -- mt
 L["Applied. The plan and its coverage follow these assumptions."] =

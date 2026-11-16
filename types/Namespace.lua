@@ -797,11 +797,38 @@ SkillUpForeverDB = nil
 
 -- One of SkillUp's pages in the Professions window, as UI/Pages.lua keeps it.
 -- The supply policy page (UI/Supply.lua): its scroll content and the two labels a refresh resizes.
----@class SkillUpSupplyPage
+---@class SkillUpSupplyPage : Frame
 ---@field content Frame Scroll content; one reused row per merchant slot.
 ---@field scroll ScrollFrame
 ---@field title FontString
 ---@field note FontString
+
+-- A typed-value box on the supply page, found by name on the next refresh.
+---@class SkillUpSupplyInput : EditBox
+---@field name? string
+
+-- A checkbox on the supply page, found by name like an input.
+---@class SkillUpSupplyCheck : CheckButton
+---@field name? string
+
+-- The supply page's apply button and the draft its last refresh validated.
+---@class SkillUpSupplyApply : Button
+---@field draft? SkillUpSupplyDraft
+---@field name? string
+
+-- A label on the supply page the callbacks and a spec find by name.
+---@class SkillUpSupplyLabel : FontString
+---@field name? string
+
+-- One merchant offer's row: the controls built for it, and those the last refresh reused.
+---@class SkillUpSupplyRow : Frame
+---@field controls SkillUpSupplyControl[]
+---@field used SkillUpSupplyControl[]
+
+-- A widget a row owns, named so its callbacks and the spec read the form the same way.
+---@class SkillUpSupplyControl : Region
+---@field field? string
+---@field row? SkillUpSupplyRow
 
 ---@class SkillUpPageSpec
 ---@field id SkillUpPageID

@@ -1,34 +1,27 @@
 {
-  "input_digest": "b2bd02fff4c380897909e513e87ff0cb4014aa8690ad5472e203f832e6b9eb36",
-  "runtime_sha256": "b2bd02fff4c380897909e513e87ff0cb4014aa8690ad5472e203f832e6b9eb36",
-  "candidate": "5c262866d3d0091b71fa36e345cb4a1d72ff1932a578042731666ff39d909686",
+  "input_digest": "8df723a5b37e107c538df42b258ff7d804e0b303790bf08d644f76cffdb14cbf",
+  "runtime_sha256": "8df723a5b37e107c538df42b258ff7d804e0b303790bf08d644f76cffdb14cbf",
+  "candidate": "f3f91db96cec9107956b71cb8c200f3b96f5bece9bcb5bbe3299ef796d1a99d8",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "48f2cce8467a73606ddbd3f1ac69ef1efc91fe52",
+  "source_commit": "abaa3b038c322acbebd3868bd7d06bc1af34c9c5",
   "flows": [
     {
-      "name": "minimap button setting",
+      "name": "route to a 95% finish",
       "steps": [
-        "su759-minimap.lua sha256:b3591126701c5d760fd1b5c8fd2d6ecc0ec31c3b77bdc259980dca1c991b7d04"
+        "su671-route.lua sha256:13ba8c2808279eb18e29c49ea570aec56e683209df591c4f23e77cb0cb3f1f72"
       ],
-      "result": "pass"
-    },
-    {
-      "name": "money on recipe rows off",
-      "steps": [
-        "su760-rowmoney.lua sha256:e9df6f30517eb235a04fde6cb031f9ac07a8182832d1f50ef85ecb1d3063f6c1"
+      "click": [
+        960,
+        402
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/46fe8c7cfa9b6262c37443a8e2186278/raw/8a10c34da7d5520725e5ddfc334d8ff9093de552/1-minimap-button-setting.png",
-      "sha256": "65d5553d903923666f23270f0b81c34df0bf848741ce700192062e2de974719e"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/46fe8c7cfa9b6262c37443a8e2186278/raw/8a10c34da7d5520725e5ddfc334d8ff9093de552/2-money-on-recipe-rows-off.png",
-      "sha256": "9abad3e7d7e0f520bcc57d873dbb963fbb7dd93b2141e4408f8aa40ea1bd544f"
+      "url": "https://gist.githubusercontent.com/cjber/be867928aea3566bd30ab799c107b35e/raw/04a9a7632693e69b465d7b5193a6d80f722aeaa9/1-route-to-a-95-finish.png",
+      "sha256": "965fb604d04167cce9c4f8f260119127323247ef9461783f5492cf42f8e3c19c"
     }
   ]
 }

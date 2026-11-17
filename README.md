@@ -75,7 +75,7 @@ Hover a reagent to see how much your tracked routes need.
 
 ## Install
 
-Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forever) or [Wago Addons](https://addons.wago.io/addons/skillup-forever), or take the zip from [Releases](https://github.com/cjber/skillup-forever/releases) and extract it into the client's `Interface/AddOns/` folder (`_forever_` on the live client).
+Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forever), or take the zip from [Releases](https://github.com/cjber/skillup-forever/releases) and extract it into the client's `Interface/AddOns/` folder (`_forever_` on the live client).
 
 ## Usage
 
@@ -148,7 +148,7 @@ With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path
 
 Link the checkout into the game (`ln -s "$PWD" ".../Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands). CI runs the same gate plus actionlint, zizmor, gitleaks and the project rules; [tools/README.md](tools/README.md) covers the data generators.
 
-**Releasing:** follow the [release skill](.agents/skills/release/SKILL.md); the BigWigs packager publishes each version's changelog entry to GitHub, CurseForge and Wago.
+**Releasing:** follow the [release skill](.agents/skills/release/SKILL.md); the BigWigs packager publishes each version's changelog entry to GitHub, CurseForge.
 
 **Translating:** German, French, Spanish, Brazilian Portuguese, Russian, Korean and Chinese, machine translated; corrections welcome through the [translation form](https://github.com/cjber/skillup-forever/issues/new?template=translation.yml).
 

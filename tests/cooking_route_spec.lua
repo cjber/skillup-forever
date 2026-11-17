@@ -146,7 +146,8 @@ local VENDOR_NPC, LIMITED = 5001, 5
 local limited = Client.load({
 	auctionator = false,
 	saved = {
-		valueGathered = false, gatheredValueSeen = true,
+		valueGathered = false,
+		gatheredValueSeen = true,
 		vendor = { [RAW_MACKEREL] = 5 },
 		sellers = {
 			[VENDOR_NPC] = {
@@ -190,7 +191,8 @@ equal(fish and fish.limited, LIMITED, "and marked with the limited stock count")
 local unbundled = Client.load({
 	auctionator = false,
 	saved = {
-		valueGathered = false, gatheredValueSeen = true,
+		valueGathered = false,
+		gatheredValueSeen = true,
 		sellers = {
 			[VENDOR_NPC] = {
 				name = "Fish Vendor",
@@ -231,7 +233,8 @@ equal(Reagent(lns.RouteReagents(limitedPlan), RAW_MACKEREL).limited, nil, "the r
 local soldOut = Client.load({
 	auctionator = false,
 	saved = {
-		valueGathered = false, gatheredValueSeen = true,
+		valueGathered = false,
+		gatheredValueSeen = true,
 		sellers = {
 			[VENDOR_NPC] = {
 				name = "Fish Vendor",

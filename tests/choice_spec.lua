@@ -65,7 +65,6 @@ do
 	equal(fresh.ns.db.valueGathered, true, "a new install values gathered materials")
 end
 
-
 equal(ns.db.valueGathered, false, "the saved free-material choice is preserved")
 equal(ns.Price(ORE).copper, 0, "so ore this character mines costs nothing")
 equal(Plan().crafts[1].recipeID, FROM_ORE, "and the route crafts from it")
@@ -245,7 +244,8 @@ equal(c.chat[1]:find("no skipped recipes", 1, true) ~= nil, true, "with none ski
 -- A save that isn't a recipe ID set is dropped on load.
 local reloaded = Client.load({
 	saved = {
-		valueGathered = false, gatheredValueSeen = true,
+		valueGathered = false,
+		gatheredValueSeen = true,
 		skippedRecipes = { ["Tester-Realm"] = { [FROM_ORE] = true, bad = true, [7] = "yes" }, Other = 3 },
 	},
 })

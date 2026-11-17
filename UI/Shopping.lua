@@ -1125,7 +1125,7 @@ end
 local function CreateModule()
 	-- ForeverCore builds and attaches the section after saved variables load, so no tracker frame, no shared host
 	-- and no old table is this file's problem: core records the first two and offers the third once. The column's
-	-- scale, Lock and position were SkillUp's before Forever Core kept them, so the player keeps the layout they
+	-- scale, Lock and position were SkillUp's before ForeverCore kept them, so the player keeps the layout they
 	-- chose.
 	local created = ForeverCore.TrackerSection.Create("SkillUpForeverObjectiveTracker", ModuleMixin, {
 		header = ModuleMixin.headerText,

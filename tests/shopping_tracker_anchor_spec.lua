@@ -8,7 +8,7 @@ local equal = Client.equal
 local c = Client.load({
 	saved = {
 		trackedProfessions = { [129] = true },
-		-- SkillUp's own tracker table from before Forever Core kept the column.
+		-- SkillUp's own tracker table from before ForeverCore kept the column.
 		trackerHost = { scale = 1.5, locked = true },
 	},
 	data = {

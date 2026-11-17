@@ -452,7 +452,7 @@ L["Price self-supplied reagents at auction values"] = "Price self-supplied reage
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
 
--- Shared debug log (Forever Core's Core/Log.lua).
+-- Shared debug log (ForeverCore's Core/Log.lua).
 L["Only buffs for your level"] = "내 레벨에 맞는 버프만"
 L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =
 	"내 레벨에 사용할 수 있는 버프를 만드는 제조법만 표시합니다: 비약, 영약, 잘 먹음 음식, 보호 물약, 연마석, 기름, 방어구 키트. 요구 레벨이 높은 순서입니다. 배운 제조법이 먼저, 배우지 않은 제조법은 해당 목록을 표시할 때 그 뒤에 나옵니다."

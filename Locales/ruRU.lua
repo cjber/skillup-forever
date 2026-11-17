@@ -470,7 +470,7 @@ L["Price self-supplied reagents at auction values"] = "Price self-supplied reage
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
 
--- Shared debug log (Forever Core's Core/Log.lua).
+-- Shared debug log (ForeverCore's Core/Log.lua).
 L["Only buffs for your level"] =
 	"Только положительные эффекты для вашего уровня"
 L["Lists only the recipes whose product is a buff you can use at your level: elixirs, flasks, Well Fed food, protection potions, stones, oils and armour kits. Highest required level first. Learned recipes come first, then unlearned ones when those are listed."] =

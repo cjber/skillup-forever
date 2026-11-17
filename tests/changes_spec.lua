@@ -102,6 +102,14 @@ local function Stale(change)
 	return table.concat(dropped, " ") .. " | " .. views
 end
 
+equal(
+	Stale(function()
+		ns.Changed("recipeFilter")
+	end),
+	" | recipeList",
+	"an awaited numeric-filter level redraws only the recipe list"
+)
+
 local function Event(event)
 	return function()
 		c.Fire(event)

@@ -63,7 +63,7 @@ Credit for the reports and requests behind the addon.
 | nookie909 | A route you are shopping for stays put after buying its reagents | CurseForge; #621; thread 8689912 |
 | [vladdoubrov](https://github.com/vladdoubrov) | Held sub-craft reagents are used from the bags before crafting more (#667) | GitHub; #667 |
 | _spada | Asked for completed-sale values when planning profession levels (#478) | Discord |
-| kopuliak | Reported that search left bundled unlearned recipes unfiltered (#662) | CurseForge; thread 8697280 |
+| kopuliak | Item-level searches filter bundled unlearned recipes | CurseForge; #662, thread 8697280 |
 | [SanyaBane](https://github.com/SanyaBane) | Recipe tooltip keeps its skill bar when another tooltip clears (code) | GitHub; #649, PR #649 |
 | [Rambomst](https://github.com/Rambomst) | Fixed progress-bar fill masking and Auctionator prices after reload (#655, #656) | |
 | bromidious | Reported overlapping Supply controls and profession tabs staying visible (#787) | Discord; #787 |

@@ -1107,7 +1107,7 @@
     },
     {
       "source": "UI/RecipeList.lua",
-      "sha256": "1b914ed55af5d1da710a0e548ecb21cb957850bc6f0d257e4f03d2940392b26e",
+      "sha256": "547ac15fa16ea3947050a43de3f1aaf3f34b2c1cd419620f5fd4f7275a437f8a",
       "review": "Reviewed DecorateRow, UnlearnedText, AttachRecipeList and preview callback. rowTexts FontString explicitly uses GameFontHighlight_NoShadow and never changes font. Bound UnlearnedText wording only. ns.FormatRow and ns.LearnSourceText output, recipe names, native Count text, menus and chat are excluded. Preview callback operates its own widgets and does not set this FontString font.",
       "bindings": [
         {

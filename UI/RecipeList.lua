@@ -201,6 +201,34 @@ local function MatchesSearch(name, search)
 	return strfind(strlower(name), strlower(search), 1, true) ~= nil
 end
 
+---@type table<integer, true>
+local pendingLevels = {}
+
+-- Read the output, not the scroll that teaches the recipe. Numeric searches have no name filter.
+---@param recipeID integer
+---@param minimum number
+---@param maximum number
+---@return boolean
+local function MatchesItemLevel(recipeID, minimum, maximum)
+	if minimum == 0 and maximum == 0 then
+		return true
+	end
+	local recipe = ns.RecipeData[recipeID]
+	local output = recipe and recipe.output
+	local level
+	if output then
+		local _, _, _, itemLevel = C_Item.GetItemInfo(output.itemID)
+		level = itemLevel
+		if not level then
+			pendingLevels[output.itemID] = true
+			C_Item.RequestLoadItemDataByID(output.itemID)
+		end
+	end
+	-- An active level range requires a known output level: uncached items and non-item outputs cannot
+	-- establish a match. ITEM_DATA_LOAD_RESULT refilters the list when the client supplies missing data.
+	return level ~= nil and level >= minimum and level <= maximum
+end
+
 -- The bundled recipes missing from the client's list, in the order ns.UnlearnedRecipes sorted them. A
 -- recipe the client does not list has no node data of its own, so its row gets our wrapper around it.
 ---@param seen table<integer, boolean>
@@ -209,8 +237,17 @@ end
 local function UnlearnedMissing(seen, ctx)
 	local missing = {}
 	local search = C_TradeSkillUI.GetRecipeItemNameFilter()
+	local minimum, maximum = 0, 0
+	if C_TradeSkillUI.GetRecipeItemLevelFilter then
+		local low, high = C_TradeSkillUI.GetRecipeItemLevelFilter()
+		minimum, maximum = low or 0, high or 0
+	end
 	for _, entry in ipairs(ns.UnlearnedRecipes(ctx)) do
-		if not seen[entry.recipeID] and MatchesSearch(entry.name, search) then
+		if
+			not seen[entry.recipeID]
+			and MatchesSearch(entry.name, search)
+			and MatchesItemLevel(entry.recipeID, minimum, maximum)
+		then
 			seen[entry.recipeID] = true
 			missing[#missing + 1] = { recipeInfo = UnlearnedInfo(entry) }
 		end
@@ -415,6 +452,7 @@ local function ApplyList(scrollBox)
 	if replacing then
 		return
 	end
+	pendingLevels = {}
 	local source = scrollBox:GetDataProvider()
 	if not (source and source.GetRootNode) then
 		return
@@ -532,6 +570,15 @@ function ns.AttachRecipeList()
 		ApplyList(scrollBox)
 	end, recipeList.ScrollBox)
 	EventRegistry:RegisterCallback("Professions.RecipeListOnEnter", ns.ShowRecipeTooltip, ns)
+	ns.WhenEvent("ITEM_DATA_LOAD_RESULT", function()
+		for itemID in pairs(pendingLevels) do
+			local _, _, _, level = C_Item.GetItemInfo(itemID)
+			if level then
+				pendingLevels[itemID] = nil
+				return "recipeFilter"
+			end
+		end
+	end)
 	ns.WhenEvent("INPUT_DEVICE_INTERFACE_TRANSITION" --[[@as WowEvent]], SyncFilterMenu)
 	SyncFilterMenu()
 	-- A row setting, a price or a profession changed: redraw the rows and re-sort in place. Never rebuild

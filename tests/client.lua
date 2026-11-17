@@ -264,6 +264,8 @@ function Client.load(options)
 		-- [recipeID] = { info = { maxTrivialLevel, numSkillUps, learned, relativeDifficulty }, requirements = { ... } }:
 		-- what the client's own recipe read answers, empty for a recipe it says nothing about.
 		live = {},
+		recipeItemLevelMin = 0,
+		recipeItemLevelMax = 0,
 		craftable = 999, -- what C_TradeSkillUI.GetCraftableCount answers
 		auction = {}, -- [itemID] = copper, as Auctionator last saw it
 		auctionAge = 0, -- whole days
@@ -1153,6 +1155,9 @@ function Client.load(options)
 		end,
 	}
 	G.C_TradeSkillUI = {
+		GetRecipeItemLevelFilter = function()
+			return c.recipeItemLevelMin, c.recipeItemLevelMax
+		end,
 		GetRecipeSchematic = function(recipeID)
 			local schematic = c.schematics[recipeID]
 			if not schematic then
@@ -1208,7 +1213,7 @@ function Client.load(options)
 	G.C_Item = {
 		GetItemInfo = function(id)
 			local item = c.items[id] or {}
-			return item.name, nil, nil, nil, nil, nil, nil, nil, nil, nil, item.sell
+			return item.name, nil, nil, item.level, nil, nil, nil, nil, nil, nil, item.sell
 		end,
 		GetItemNameByID = function(id)
 			return c.items[id] and c.items[id].name

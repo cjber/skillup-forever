@@ -540,3 +540,8 @@ function CreateSettingsButtonInitializer(name, buttonText, onClick, tooltip, add
 ---@return number? maxRank
 ---@return number? modifier
 function GetTrainerTradeskillRankValues() end
+
+-- Forever exposes the numeric recipe search bounds; 0, 0 disables this filter.
+---@return number? minimum
+---@return number? maximum
+function C_TradeSkillUI.GetRecipeItemLevelFilter() end

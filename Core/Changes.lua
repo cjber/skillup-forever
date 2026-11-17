@@ -183,6 +183,7 @@ local STALE = {
 	-- from any addon, so dropping the list here rebuilt every tracked route on every hover. `tracker` stays for
 	-- the same reason: UI/Shopping.lua keeps the names its section is waiting on and reports the tracker only
 	-- when one of them arrives, so a tooltip hover draws no section (#526).
+	recipeFilter = { recipeList = true },
 	items = {
 		supplyPage = true,
 		recipePreview = true,

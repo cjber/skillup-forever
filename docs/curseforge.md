@@ -37,9 +37,9 @@ These images are generated previews of the SkillUp UI.
 - **Unlearned recipes.** A setting, off by default, lists them greyed under the learned ones, each marked with its trainer or recipe item and the skill it asks, sorted by required skill or newest first. Hovering one shows its reagents, cost and skill-up colours, and the search box narrows them too; it cannot be crafted.
 - **Levelling routes.** Crafts, trainer visits, skill books and rank quests to your target skill, in the order you craft them, with fees, tools and stations and steps that allow for unlucky skill-ups. Cheaper crafted reagents become their own steps, Craft next makes missing intermediates first, and right-clicking a recipe and choosing *Not this recipe* plans without it.
 - **Shopping lists.** Reagents are counted against bags and bank. Buying is the default, so materials your professions gather are bought unless you choose to gather them; track the list beside quests, buy vendor stock and keep an Auctionator list up to date. At the auction house you can search a recipe's reagents for as many crafts as you choose.
-- **A supply page beside the route.** With a profession and a merchant open, write down what you assume about each offer's price, stock, purchase limit and trips, then read the route's chance and next step before you apply it. Nothing is filled in for you.
-- **Trainers, reagents and gathering.** Trainers mark the best recipe to train next, and reagent tooltips show what tracked routes need; hold Shift for every recipe that uses the item, and each line names its profession. On English clients, gathering nodes show the Herbalism or Mining skill they need, coloured at yours.
-- **Crafted gear and buffs.** The gear tab, enabled in settings, shows the newest craft for each slot with its recipe, reagents and learning location. The buffs tab shows what each profession can make for your level on a skill timeline, for any profession picked from its dropdown.
+- **A supply page beside the route**, enabled in settings. With a profession and a merchant open, write down what you assume about each offer's price, stock, purchase limit and trips, then read the route's chance and next step before you apply it. Nothing is filled in for you.
+- **Trainers, reagents and gathering.** Trainers mark the best recipe to train next, and reagent tooltips show what tracked routes need; hold Shift for every recipe that uses the item, and each line names its profession. Turn on *Gathering skill on nodes* and, on English clients, herb and ore nodes show the skill they need, coloured at yours.
+- **Crafted gear and buffs.** The gear tab, enabled in settings, shows the newest craft for each slot with its recipe, reagents and learning location. The buffs tab, also enabled in settings, shows what each profession can make for your level on a skill timeline, for any profession picked from its dropdown.
 
 ## Prices
 
@@ -61,7 +61,7 @@ Open a profession and the numbers are already there.
 - `/skillup issue` opens a ready-made GitHub issue link to report a bug or request a feature.
 - `/skillup trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
-Settings cover tooltips, recipe rows, prices, tabs, trainers, sorting and addon hints. *Include Working Overtime estimate* off uses the base chance, two switches hide tooltip details or the profession tabs whole, and the minimap button drags around the rim. The Supply page opens beside the route while the levelling route tab is on.
+Settings cover tooltips, recipe rows, prices, tabs, trainers, sorting and addon hints. *Include Working Overtime estimate* off uses the base chance, two switches hide tooltip details or the profession tabs whole, and the minimap button drags around the rim. The route tab is on by default; crafted gear, buffs and supply each have their own checkbox.
 
 For a bug report, paste `/skillup report`.
 

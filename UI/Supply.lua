@@ -1048,7 +1048,7 @@ local function Create()
 end
 
 local function Enabled()
-	return ns.db.showProfessionTabs and ns.db.showRouteTab
+	return ns.db.showProfessionTabs and ns.db.showSupplyTab
 end
 
 -- Called by UI/RecipeList.lua with the other pages, so Route stays the page the tab opens first.

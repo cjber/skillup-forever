@@ -65,6 +65,25 @@ do
 	equal(fresh.ns.db.valueGathered, true, "a new install values gathered materials")
 end
 
+--[[ Extras start off ]]
+
+-- The Buffs page and node tooltips were saved on for everyone without a choice: they go off once, a page turned
+-- back on afterwards stays on, and a new install starts with them and the Supply page off (#811).
+do
+	local old = Client.load({ saved = { showBuffsTab = true, gatherTooltip = true } })
+	equal(old.ns.db.showBuffsTab, false, "the Buffs page saved on before the reset goes off")
+	equal(old.ns.db.gatherTooltip, false, "and so do node tooltips")
+	equal(old.ns.db.extrasOffSeen, true, "and the reset is recorded")
+	local chosen = Client.load({ saved = { showBuffsTab = true, gatherTooltip = true, extrasOffSeen = true } })
+	equal(chosen.ns.db.showBuffsTab, true, "a Buffs page turned on after the reset stays on")
+	equal(chosen.ns.db.gatherTooltip, true, "and so do node tooltips")
+	local fresh = Client.load({})
+	equal(fresh.ns.db.showBuffsTab, false, "a new install starts without the Buffs page")
+	equal(fresh.ns.db.showSupplyTab, false, "or the Supply page")
+	equal(fresh.ns.db.gatherTooltip, false, "or node tooltips")
+	equal(fresh.ns.db.showRouteTab, true, "and keeps the Route page")
+end
+
 equal(ns.db.valueGathered, false, "the saved free-material choice is preserved")
 equal(ns.Price(ORE).copper, 0, "so ore this character mines costs nothing")
 equal(Plan().crafts[1].recipeID, FROM_ORE, "and the route crafts from it")

@@ -268,7 +268,7 @@ local groups = {
 		"Route and trainer",
 		"checkbox:showProfessionTabs checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
 			.. " checkbox:showRouteTab"
-			.. " checkbox:showGearTab checkbox:showBuffsTab"
+			.. " checkbox:showGearTab checkbox:showBuffsTab checkbox:showSupplyTab"
 			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:showTrainer",
 	},
 	{

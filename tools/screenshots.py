@@ -926,6 +926,11 @@ env = setmetatable({
 		trackedProfessions = { [STATE.open.skillLine] = true },
 		collectModes = {},
 		showGearTab = true,
+		-- The scenes draw every page and the node line, which a player turns on in settings (#811).
+		showBuffsTab = true,
+		showSupplyTab = true,
+		gatherTooltip = true,
+		extrasOffSeen = true,
 	},
 	-- The optional databases the addon reads through their public tables: absent in this scene.
 	AtlasLoot = false,

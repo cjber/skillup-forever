@@ -4,7 +4,10 @@
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
-local c = Client.load({ data = { NodeSkills = { ["Copper Vein"] = { 186, 1 }, ["Iron Deposit"] = { 186, 125 } } } })
+local c = Client.load({
+	saved = { gatherTooltip = true, extrasOffSeen = true },
+	data = { NodeSkills = { ["Copper Vein"] = { 186, 1 }, ["Iron Deposit"] = { 186, 125 } } },
+})
 local ns = c.ns
 c.professions = {
 	{ name = "Mining", icon = 1, rank = 140, max = 150, id = 186 },

@@ -8,7 +8,7 @@ ns.Credits = {
 		{ name = "Belth", what = "Routes prefer materials already in the bags" },
 		{ name = "yavinn", what = "SkillUp pages stay visible with ClassicUI Forever" },
 		{ name = "cursebandit", what = "Reported the route sending players to a trainer who would not train them" },
-		{ name = "rissole", what = "Public recipe data and account-wide learned-recipe API" },
+		{ name = "rissole", what = "Public recipe data, recipe source and account-wide learned-recipe API" },
 		{ name = "davef1n", what = "Separate unlearned recipe order and regional sales volume" },
 		{ name = "codipherus", what = "Craft quantities lead each route step" },
 		{ name = "sundered1985", what = "Vendor and auction profit on the recipe tooltip" },

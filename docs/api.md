@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 14; the history:
+`minor` is 15; the history:
 
 | minor | added |
 |---|---|
@@ -24,6 +24,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 12 | alpha-free recipe evidence status and opt-in declared crafted snapshot provenance |
 | 13 | copied revision-owned shopping supply summary |
 | 14 | copied current economic `nextAction` guidance on professions |
+| 15 | `RecipeSources`, the catalogue sources of a recipe's teaching item |
 
 ## Not ready
 
@@ -189,6 +190,15 @@ reagents }` record, where `output` is `{ itemID, quantity }` or `false`. `Recipe
 known `{ skill, source, recipeItem?, trainerFee? }` learn requirement in base profession skill, or `nil, "none"` when SkillUp cannot establish
 one. `Characters()` lists saved character keys, and `Knows(characterKey, recipeID)` reads a saved learned flag,
 returning `nil, "invalid"` for an unknown recipe or malformed key.
+
+`RecipeSources(recipeID)` returns a fresh `{ itemID, vendors, quests, drops, world }` record for the item that
+teaches the recipe, from the same catalogue as SkillUp's tooltips. Vendors are `{ npcID, name, zone, usable }`,
+quests are `{ questID, title, usable }`, and drops are `{ npcID, name, zone, chance, usable }`. Only NPCs and quests
+the catalogue can name are listed. `zone` is SkillUp's location label, `chance` is a percentage, and `world` is
+true for a world drop. `usable` applies the tooltip's faction rule to vendors, quests and droppers: both-faction
+sources and this character's faction are usable; opposing or unknown factions are false.
+It returns `nil, "loading"` while saved variables load or the profession's sources are being read: ask again
+shortly. It returns `nil, "none"` when no teaching item is known, including an unknown recipe ID.
 
 ## Tracking
 

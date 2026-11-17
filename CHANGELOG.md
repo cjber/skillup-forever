@@ -12,6 +12,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+### For addon authors
+
+- API minor 15 adds `RecipeSources(recipeID)`: the vendors, quests and drops of the item that teaches a recipe, from the same catalogue as SkillUp's tooltips, with each source's faction and zone. Thanks to rissole for the request (#757).
+
 ## [1.14.0] - 2026-11-17
 
 <!-- forever-core-sync -->

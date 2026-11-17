@@ -1,23 +1,23 @@
 {
-  "input_digest": "e1fd12868694eb429c4c3ba17b99772091d55c4861ac9d84f190c7b51b4d357d",
-  "runtime_sha256": "e1fd12868694eb429c4c3ba17b99772091d55c4861ac9d84f190c7b51b4d357d",
-  "candidate": "7340b9e1a28b7cce6b10a3bc34904b8bd5245fc040d1b0e5f0f5d817e4040a54",
+  "input_digest": "4f9b303850c1a262d5d537a29c93a746f577cf0db86815365f243c05bc930fba",
+  "runtime_sha256": "4f9b303850c1a262d5d537a29c93a746f577cf0db86815365f243c05bc930fba",
+  "candidate": "56c02a6569fde6cf6cdbb94df10f933fd7cf4d4c818d3430e7c35ee823d5c743",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "a34067a6a4a06b083d2ee94460e1c200783f3d98",
+  "source_commit": "8b6022d2eec791a4cf4e3124740b484d7ce113c8",
   "flows": [
     {
-      "name": "skillup window",
+      "name": "recipe sources api",
       "steps": [
-        "/skillup"
+        "sha256:c9916166af6e548342b431c4d03e721c9d6c63e05d58970cdead93f064c75e01 recipe-sources.lua"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/7f0bc378cb876489fa03ab91382da0bb/raw/6efa34d289699c79ecc783775ce8a96a64283136/1-skillup-window.png",
-      "sha256": "454a0da4faa78122c0cc31149067ce7cad0dc5d1cf3843ca7f67f298a4e30f53"
+      "url": "https://gist.githubusercontent.com/cjber/f8098ea6aee05bec95976899905fc4af/raw/5838ebb212a928303fba3c8e94352ef96599084e/1-recipe-sources-api.png",
+      "sha256": "99d2d4fa2c9267f2dc9614549578b07f197120ac71ebafbcb5f875f1e44b9e4e"
     }
   ]
 }

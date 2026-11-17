@@ -1,23 +1,27 @@
 {
-  "input_digest": "2e068ff55fd22ff87a0d8321eb1fb6ec9bc918d513fd1ba185de79f0b929d78c",
-  "runtime_sha256": "2e068ff55fd22ff87a0d8321eb1fb6ec9bc918d513fd1ba185de79f0b929d78c",
-  "candidate": "a354e300c90480add2be610c96361cc1abd80ce30f0bafc82d4f73c0d9c7c8aa",
+  "input_digest": "6d9e59165a6484c4952b43c008b282455f33ba4171fad908bf54c8f768656d37",
+  "runtime_sha256": "6d9e59165a6484c4952b43c008b282455f33ba4171fad908bf54c8f768656d37",
+  "candidate": "a3691b9af820a5ce94891ebcfb5854471fba7fe175f41e6955eae9937ff8cb37",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "0ad8a26b7f583a484af57183d4ed10e349d6b4a7",
+  "source_commit": "c98ba3e17a2b229643a3dee1df15c77de8bf2173",
   "flows": [
     {
-      "name": "recipe sources api",
+      "name": "route craft button",
       "steps": [
-        "recipe-sources.lua sha256:c9916166af6e548342b431c4d03e721c9d6c63e05d58970cdead93f064c75e01"
+        "route-craft.lua sha256:4e06c2ba5bba0c9f3d48c25b641a010c25b7fe6853d74492d71d86e282767611"
+      ],
+      "click": [
+        960,
+        402
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/e06bf6f809de3b046732f2743b64bc04/raw/bdd71220df174f90d8d96a1720473ad8274633b8/1-recipe-sources-api.png",
-      "sha256": "645adfbfc5bd02ab351a58deda86de0a664df044595d0852038ec1da7bd00bb1"
+      "url": "https://gist.githubusercontent.com/cjber/94240949ca4978a7d4d16ebbf1b65cd8/raw/90652cf45ea49a6525832c61cc5ab7ba4706562f/1-route-craft-button.png",
+      "sha256": "6e27bbaacdddd3964a0b1a098cfc54ba0e1e1dd0b3408febabe711c08b5e96da"
     }
   ]
 }

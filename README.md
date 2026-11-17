@@ -91,7 +91,7 @@ Open a profession and the numbers are already there.
 | `/skillup shopping`, `/skillup shop` | Open the shopping list, copy it, or plan a buy trip with Shortest Path Forever |
 | `/skillup trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer confirmed |
 
-Settings cover rows and tooltips, prices, sort order, the tabs, trainer annotations and addon hints. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** off uses the base chance. The Supply page opens beside the route while the route tab is on, and the minimap button drags around the rim.
+Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** off uses the base chance. The Supply page opens beside the route while the route tab is on, and the minimap button drags around the rim.
 
 ## Prices
 
@@ -142,7 +142,7 @@ For help, ideas and each day's release notes, join [cjber's Workshop on Discord]
 
 <!-- forever-family:end -->
 
-With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever), clicking a trainer or vendor in the route plans the trip there, and SkillUp picks the nearest one by travel time. [Adventure Guide Forever](https://www.curseforge.com/wow/addons/adventure-guide-forever) shows each profession's next steps in its Professions tab. A tracked route shares one tracker column with the Shortest Path, Adventure Guide and Legacy Forever sections, above your quests.
+With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path-forever), clicking a trainer or vendor in the route plans the trip there, and SkillUp picks the nearest one by travel time. [Adventure Guide Forever](https://www.curseforge.com/wow/addons/adventure-guide-forever) shows each profession's next steps in its Professions tab. A tracked route shares one tracker column with the Shortest Path, Adventure Guide and Legacy Forever sections, beside the game's quest tracker.
 
 ## Development
 

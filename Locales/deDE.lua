@@ -464,6 +464,9 @@ L["Learn now"] = "Jetzt lernen" -- mt
 L["No buff items for your level yet."] = "Noch keine Stärkungsgegenstände für Eure Stufe." -- mt
 L["Only for level %d"] = "Nur für Stufe %d" -- mt
 L["Show the buffs tab"] = "Stärkungsreiter anzeigen" -- mt
+L["Show the supply tab"] = "Vorratsreiter anzeigen" -- mt
+L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
+	"Ein Reiter unten im Berufefenster, in dem du festlegst, was ein Händler verkauft und liefert, damit die Route damit planen kann. Er öffnet sich über den SkillUp-Seitenreiter, neben dem Routenreiter." -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] = "Dieser Beruf stellt keine Stärkungsgegenstände her." -- mt
 L["spell %d"] = "Zauber %d" -- mt

@@ -288,11 +288,9 @@
 ---@field buffsOnly boolean
 ---@field showSkill boolean
 ---@field showTooltip boolean
----@field showTooltips boolean
 ---@field recipeTooltip 'window'|'cursor'|'row'
 ---@field showRowPrices boolean
 ---@field rowCost 'skillup'|'craft'
----@field showCost boolean
 ---@field priceSource 'auctionator'|'tsm'|'ahdb'|'naowh'
 ---@field craftValue 'none'|'vendor'|'auction'|'sale'
 ---@field valueGathered boolean
@@ -323,7 +321,6 @@
 ---@field pinnedRecipes table<string, table<integer, integer>>
 ---@field skippedRecipes table<string, table<integer, true>>
 ---@field whatsNew boolean
----@field suggestFamily boolean
 ---@field lastVersion string
 ---@field routeTargets table<integer, number>
 ---@field learned table<string, table<integer, boolean>>
@@ -357,7 +354,7 @@
 ---@field tracked? table<integer, boolean> Legacy migration only.
 ---@field auctions? table Legacy migration only.
 ---@field gatherFree? boolean Legacy migration only.
----@field companionHints? boolean Legacy migration only: off turns suggestFamily off once.
+---@field companionHints? boolean Legacy migration only: dropped on load
 
 ---@type SkillUpDB
 SkillUpForeverDB = nil

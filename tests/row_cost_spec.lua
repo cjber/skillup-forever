@@ -11,7 +11,6 @@ local PLUS, MINUS = "|cff40ff40+|r", "|cffff2020-|r"
 local T = { 10, 20, 30, 40 }
 
 ns.db.showSkill = false
-ns.db.showCost = true
 
 equal(ns.db.rowCost, "skillup", "rows show the cost per skill-up by default")
 equal(

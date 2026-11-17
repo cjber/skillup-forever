@@ -1121,6 +1121,18 @@ function Client.load(options)
 	G.InCombatLockdown = function()
 		return c.combat == true
 	end
+	-- ForeverCore drives the game's tracker visibility through a state driver; only the fixed "show"/"hide" states
+	-- it registers are modelled.
+	G.RegisterStateDriver = function(frame, attribute, state)
+		if attribute == "visibility" then
+			if state == "hide" then
+				frame:Hide()
+			elseif state == "show" then
+				frame:Show()
+			end
+		end
+	end
+	G.UnregisterStateDriver = function() end
 	G.GetMoney = function()
 		return c.money
 	end

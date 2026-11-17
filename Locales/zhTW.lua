@@ -8,6 +8,10 @@ L["Show SkillUp tooltip details"] = "顯示 SkillUp 提示詳細資訊"
 L["Show SkillUp profession tabs"] = "顯示 SkillUp 專業分頁"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"在保留個別提示設定的同時，將 SkillUp 詳細資訊加入提示。"
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "在每個配方旁顯示金錢。關閉後價格仍顯示在配方滑鼠提示中。" -- mt
+L["Show prices on recipe rows"] = "在配方行顯示價格" -- mt
+L["Show recipe tooltip on hover"] = "滑鼠指向時顯示配方提示" -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "滑鼠指向配方時在專業視窗旁顯示 SkillUp 提示。關閉可避免遮擋材料。" -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"在保留個別分頁設定的同時，顯示路線、裝備和增益分頁。"
 
@@ -164,8 +168,6 @@ L["One line in chat the first time a new version loads."] = "新版本首次載�
 L["Open"] = "開啟"
 L["Open %s to craft from here."] = "開啟%s以便在此製造。"
 L["Open recipe"] = "開啟配方"
-L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
-	"滑鼠停在配方上時顯示橙、黃、綠、灰的分界點。"
 L["Per craft"] = "每次製作"
 L["Per skill-up"] = "每點技能"
 L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."] =
@@ -228,7 +230,6 @@ L["Show skill range start on rows"] = "在列上顯示區間起點"
 L["Show the merchant Reagents tab"] = "顯示商人材料分頁"
 L["Show the crafted gear tab"] = "顯示製造裝備標籤頁"
 L["Show the levelling route tab"] = "顯示升級路線標籤頁"
-L["Show thresholds tooltip"] = "顯示分界點提示"
 L["Show tracked professions"] = "顯示追蹤的專業技能"
 L["Skill  %d/%d     Target"] = "技能  %d/%d     目標"
 L["Skill points a craft"] = "每次製造技能點"

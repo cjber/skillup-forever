@@ -9,6 +9,10 @@ L["Show SkillUp tooltip details"] = "Afficher les détails des infobulles de Ski
 L["Show SkillUp profession tabs"] = "Afficher les onglets de métiers de SkillUp"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"Afficher les détails de SkillUp dans les infobulles tout en conservant chaque choix individuel."
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "Affiche l'argent à côté de chaque recette. Désactivé, les prix restent dans l'infobulle de la recette." -- mt
+L["Show prices on recipe rows"] = "Afficher les prix sur les lignes de recettes" -- mt
+L["Show recipe tooltip on hover"] = "Afficher l'infobulle de recette au survol" -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "Affiche l'infobulle SkillUp à côté de la fenêtre des métiers au survol d'une recette. Désactivez-la pour garder les composants dégagés." -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"Afficher les onglets de route, d'équipement et de buffs tout en conservant chaque choix individuel."
 
@@ -171,8 +175,6 @@ L["One line in chat the first time a new version loads."] =
 L["Open"] = "Ouvrir"
 L["Open %s to craft from here."] = "Ouvrez %s pour fabriquer d'ici." -- mt
 L["Open recipe"] = "Ouvrir la recette" -- mt
-L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
-	"Seuils orange, jaune, vert et gris au survol d'une recette." -- mt
 L["Per craft"] = "Par fabrication" -- mt
 L["Per skill-up"] = "Par point de compétence" -- mt
 L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."] =
@@ -235,7 +237,6 @@ L["Show skill range start on rows"] = "Afficher le début de plage sur les ligne
 L["Show the merchant Reagents tab"] = "Afficher l'onglet Composants du marchand"
 L["Show the crafted gear tab"] = "Afficher l'onglet Équipement fabriqué" -- mt
 L["Show the levelling route tab"] = "Afficher l'onglet Parcours de progression" -- mt
-L["Show thresholds tooltip"] = "Afficher l'infobulle des seuils" -- mt
 L["Show tracked professions"] = "Afficher les métiers suivis" -- mt
 L["Skill  %d/%d     Target"] = "Compétence  %d/%d     Cible" -- mt
 L["Skill points a craft"] = "Points de compétence par fabrication" -- mt

@@ -8,6 +8,10 @@ L["Show SkillUp tooltip details"] = "Показывать подробности
 L["Show SkillUp profession tabs"] = "Показывать вкладки профессий SkillUp"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"Добавляет сведения SkillUp в подсказки, сохраняя отдельные настройки подсказок."
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "Показывать деньги рядом с каждым рецептом. Если выключить, цены останутся в подсказке рецепта." -- mt
+L["Show prices on recipe rows"] = "Показывать цены в строках рецептов" -- mt
+L["Show recipe tooltip on hover"] = "Показывать подсказку рецепта при наведении" -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "Показывать подсказку SkillUp рядом с окном профессий при наведении на рецепт. Выключите, чтобы не закрывать реагенты." -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"Показывает вкладки маршрута, экипировки и усилений, сохраняя отдельные настройки вкладок."
 
@@ -178,8 +182,6 @@ L["One line in chat the first time a new version loads."] =
 L["Open"] = "Открыть"
 L["Open %s to craft from here."] = "Откройте %s, чтобы создавать отсюда."
 L["Open recipe"] = "Открыть рецепт"
-L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
-	"Пороги оранжевого, желтого, зеленого и серого цвета при наведении на рецепт."
 L["Per craft"] = "За создание"
 L["Per skill-up"] = "За очко навыка"
 L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."] =
@@ -244,7 +246,6 @@ L["Show skill range start on rows"] = "Начало диапазона в стр
 L["Show the merchant Reagents tab"] = "Показывать вкладку «Реагенты» у торговца"
 L["Show the crafted gear tab"] = "Вкладка созданного снаряжения"
 L["Show the levelling route tab"] = "Вкладка маршрута прокачки"
-L["Show thresholds tooltip"] = "Подсказка с порогами"
 L["Show tracked professions"] = "Показывать отслеживаемые профессии"
 L["Skill  %d/%d     Target"] = "Навык  %d/%d     Цель"
 L["Skill points a craft"] = "Очков навыка за создание"

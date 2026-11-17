@@ -8,6 +8,10 @@ L["Show SkillUp tooltip details"] = "Mostrar detalles de descripción de SkillUp
 L["Show SkillUp profession tabs"] = "Mostrar pestañas de profesiones de SkillUp"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"Añade los detalles de SkillUp a las descripciones y conserva cada ajuste individual."
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "Muestra el dinero junto a cada receta. Si lo desactivas, los precios siguen en el tooltip de la receta." -- mt
+L["Show prices on recipe rows"] = "Mostrar precios en las filas de recetas" -- mt
+L["Show recipe tooltip on hover"] = "Mostrar tooltip de receta al pasar el cursor" -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "Muestra el tooltip de SkillUp junto a la ventana de profesiones al pasar el cursor por una receta. Desactívalo para ver los componentes sin estorbos." -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"Muestra las pestañas de ruta, equipo y beneficios y conserva cada ajuste individual."
 
@@ -168,8 +172,6 @@ L["One line in chat the first time a new version loads."] =
 L["Open"] = "Abrir"
 L["Open %s to craft from here."] = "Abre %s para crear desde aquí."
 L["Open recipe"] = "Abrir receta"
-L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
-	"Umbrales naranja, amarillo, verde y gris al pasar el cursor sobre una receta."
 L["Per craft"] = "Por fabricación"
 L["Per skill-up"] = "Por subida de habilidad"
 L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."] =
@@ -232,7 +234,6 @@ L["Show skill range start on rows"] = "Mostrar inicio del rango en las filas"
 L["Show the merchant Reagents tab"] = "Mostrar la pestaña Componentes del mercader"
 L["Show the crafted gear tab"] = "Mostrar la pestaña de equipo creado"
 L["Show the levelling route tab"] = "Mostrar la pestaña de ruta de progreso"
-L["Show thresholds tooltip"] = "Mostrar descripción de umbrales"
 L["Show tracked professions"] = "Mostrar profesiones seguidas"
 L["Skill  %d/%d     Target"] = "Habilidad  %d/%d     Objetivo"
 L["Skill points a craft"] = "Puntos de habilidad por creación"

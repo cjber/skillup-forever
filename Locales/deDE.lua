@@ -8,6 +8,10 @@ L["Show SkillUp tooltip details"] = "SkillUp-Tooltipdetails anzeigen"
 L["Show SkillUp profession tabs"] = "SkillUp-Berufsreiter anzeigen"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"SkillUp-Details in Tooltips anzeigen und die einzelnen Tooltip-Einstellungen beibehalten."
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "Zeigt Gold neben jedem Rezept. Ausgeschaltet bleiben die Preise im Rezept-Tooltip." -- mt
+L["Show prices on recipe rows"] = "Preise in Rezeptzeilen zeigen" -- mt
+L["Show recipe tooltip on hover"] = "Rezept-Tooltip beim Überfahren zeigen" -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "Zeigt den SkillUp-Tooltip neben dem Berufefenster beim Überfahren eines Rezepts. Ausschalten hält die Reagenzien frei." -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"Routen-, Ausrüstungs- und Stärkungszauberreiter anzeigen und die einzelnen Reitereinstellungen beibehalten."
 
@@ -172,8 +176,6 @@ L["One line in chat the first time a new version loads."] =
 L["Open"] = "Öffnen"
 L["Open %s to craft from here."] = "Öffnet %s, um von hier aus herzustellen."
 L["Open recipe"] = "Rezept öffnen"
-L["Orange, yellow, green and grey thresholds when hovering a recipe."] =
-	"Schwellen für Orange, Gelb, Grün und Grau beim Überfahren eines Rezepts."
 L["Per craft"] = "Pro Herstellung"
 L["Per skill-up"] = "Pro Fertigkeitspunkt"
 L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."] =
@@ -233,7 +235,6 @@ L["Show skill range start on rows"] = "Bereichsbeginn in Zeilen zeigen"
 L["Show the merchant Reagents tab"] = "Reiter „Reagenzien“ beim Händler anzeigen"
 L["Show the crafted gear tab"] = "Reiter „Hergestellte Ausrüstung“ zeigen"
 L["Show the levelling route tab"] = "Reiter „Leveling-Route“ zeigen"
-L["Show thresholds tooltip"] = "Schwellen-Tooltip zeigen"
 L["Show tracked professions"] = "Verfolgte Berufe zeigen"
 L["Skill  %d/%d     Target"] = "Fertigkeit  %d/%d     Ziel"
 L["Skill points a craft"] = "Fertigkeitspunkte pro Herstellung"

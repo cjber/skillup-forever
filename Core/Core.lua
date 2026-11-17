@@ -36,7 +36,8 @@ local DEFAULTS = {
 	recipeTooltip = "window", -- where the recipe tooltip goes: beside the Professions window, at the cursor, by the row
 	detailsBar = true, -- the recipe tooltip's skill bar under the selected recipe, on the crafting page itself
 	showCost = true,
-	rowCost = "skillup", -- what a recipe row's money is: "skillup" (cost per skill-up), "craft" (net per craft) or "off"
+	showRowPrices = true,
+	rowCost = "skillup", -- "skillup" (cost per skill-up) or "craft" (net per craft)
 	priceSource = "auctionator", -- the auction addon whose price wins when both are installed; the other fills gaps
 	craftValue = "vendor",
 	valueGathered = true, -- a reagent you gather costs what it would sell for, not nothing
@@ -50,7 +51,7 @@ local DEFAULTS = {
 	showProfessionTabs = true,
 	showTracker = true,
 	minimapButtonAngle = nil,
-	minimapButtonHidden = false,
+	minimapButtonHidden = true,
 	showGearTab = false,
 	showBuffsTab = true,
 	lastSkillUpPage = {}, -- ["Name-Realm"] = "route" | "gear" | "buffs": the SkillUp page the side tab reopens
@@ -65,7 +66,7 @@ local DEFAULTS = {
 	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet
 	pinnedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = priority }: most recently pinned wins
 	skippedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = true }: "Not this recipe", left out of every route
-	whatsNew = true,
+	whatsNew = false,
 	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (ForeverCore.Family)
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
@@ -142,7 +143,6 @@ ns.RECIPE_TOOLTIP_OPTIONS = {
 ns.ROW_COST_OPTIONS = {
 	{ "skillup", L["Per skill-up"] },
 	{ "craft", L["Per craft"] },
-	{ "off", OFF },
 }
 ns.REAGENT_TOOLTIP_OPTIONS = {
 	{ "off", OFF },
@@ -233,6 +233,10 @@ local function LoadDB()
 		loaded.reagentTooltip = "off"
 	end
 	loaded.showReagentTooltip = nil
+	-- Keep the old row-money hide choice separate from how prices are calculated.
+	if loaded.rowCost == "off" then
+		loaded.showRowPrices, loaded.rowCost = false, "skillup"
+	end
 	-- Auction prices come from Auctionator now; drop what SkillUp's own scanner saved.
 	loaded.priceDays, loaded.latestPrice = nil, nil
 	loaded.scanAuctions, loaded.tracked, loaded.auctions, loaded.gatherFree = nil, nil, nil, nil
@@ -285,6 +289,7 @@ local function LoadDB()
 		unlearnedSortMode = ns.UNLEARNED_SORT_OPTIONS,
 		reagentTooltip = ns.REAGENT_TOOLTIP_OPTIONS,
 		recipeTooltip = ns.RECIPE_TOOLTIP_OPTIONS,
+		rowCost = ns.ROW_COST_OPTIONS,
 	}) do
 		local valid = false
 		for _, option in ipairs(options) do
@@ -878,7 +883,7 @@ function ns.FormatRow(d)
 	-- A negative amount is a profit, a positive one a cost.
 	local mode = ns.db.rowCost
 	local amount = mode == "craft" and d.net or mode == "skillup" and d.perSkillUp or nil
-	if ns.db.showCost and amount then
+	if ns.db.showCost and ns.db.showRowPrices and amount then
 		parts[#parts + 1] = ns.FormatSigned(ns.Model.RoundMoney(math.abs(amount)), amount < 0)
 	end
 	return table.concat(parts, L[" · "])

@@ -60,11 +60,25 @@ ns.db.showCost = false
 equal(ns.FormatRow({ thresholds = T, chance = 0, net = -600 }), "0%", "Show cost per skill-up off hides the money")
 ns.db.showCost, ns.db.rowCost = true, "skillup"
 
-ns.db.rowCost = "off"
+ns.db.showRowPrices = false
 equal(
 	ns.FormatRow({ thresholds = T, chance = 0.25, net = 200, perSkillUp = 800 }),
 	"25%",
 	"Money on recipe rows off keeps only the chance"
 )
-ns.db.rowCost = "skillup"
+ns.db.showRowPrices = true
+
+for _, hidden in ipairs({ false, true }) do
+	local saved = Client.load({ saved = { minimapButtonHidden = hidden, whatsNew = hidden } }).ns.db
+	equal(saved.minimapButtonHidden, hidden, "saved minimap choice survives")
+	equal(saved.whatsNew, hidden, "saved update choice survives")
+end
+local fresh = Client.load({}).ns.db
+equal(fresh.minimapButtonHidden, true, "fresh installs hide the minimap button")
+equal(fresh.whatsNew, false, "fresh installs disable update chat")
+equal(fresh.showRowPrices, true, "fresh installs show row prices")
+local migrated = Client.load({ saved = { rowCost = "off" } }).ns
+equal(migrated.db.showRowPrices, false, "old off choice hides row prices")
+equal(migrated.db.rowCost, "skillup", "old off choice restores the calculation default")
+equal(migrated.FormatRow({ thresholds = T, chance = 0.25, perSkillUp = 800 }), "25%", "migrated rows hide money")
 Client.report("row_cost_spec")

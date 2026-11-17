@@ -145,6 +145,11 @@ end
 
 local row = {}
 local recipe = { recipeID = BANDAGE, name = "Linen Bandage", learned = true }
+ns.db.showTooltip = false
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
+equal(#lines, 0, "disabled recipe hover adds no tooltip lines")
+equal(owner, nil, "disabled recipe hover does not open the tooltip")
+ns.db.showTooltip = true
 ns.ShowRecipeTooltip(ns, row, { recipeInfo = recipe })
 
 equal(lines[1], "Linen Bandage", "the title")

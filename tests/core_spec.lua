@@ -240,6 +240,7 @@ do
 		local major, minor, patch = release:match("^(%d+)%.(%d+)%.(%d+)$")
 		return ("%s.%s.%d"):format(major, minor, tonumber(patch) + 1)
 	end
+	ns.db.whatsNew = true
 	local headline = ns.WHATS_NEW_VERSION
 	local maintenance, next = Bump(headline), Bump(Bump(headline))
 	version = headline

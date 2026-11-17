@@ -134,6 +134,13 @@ function ns.RegisterSettings()
 
 		Checkbox(
 			rows,
+			"showRowPrices",
+			L["Show prices on recipe rows"],
+			L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."]
+		)
+
+		Checkbox(
+			rows,
 			"showSkill",
 			L["Show skill range start on rows"],
 			L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."]
@@ -142,8 +149,8 @@ function ns.RegisterSettings()
 		Checkbox(
 			rows,
 			"showTooltip",
-			L["Show thresholds tooltip"],
-			L["Orange, yellow, green and grey thresholds when hovering a recipe."]
+			L["Show recipe tooltip on hover"],
+			L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."]
 		)
 
 		Checkbox(
@@ -432,7 +439,7 @@ function ns.RegisterSettings()
 			"SkillUpForever_minimapButton",
 			Settings.VarType.Boolean,
 			L["Show minimap button"],
-			true,
+			false,
 			function()
 				return ns.db.minimapButtonHidden ~= true
 			end,

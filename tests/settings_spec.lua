@@ -260,7 +260,7 @@ local groups = {
 	{
 		"Recipe rows",
 		"checkbox:includeWorkingOvertime checkbox:showTooltips checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
-			.. " checkbox:showSkill checkbox:showTooltip"
+			.. " checkbox:showRowPrices checkbox:showSkill checkbox:showTooltip"
 			.. " checkbox:detailsBar slider:recipeTooltip slider:unlearnedSortMode checkbox:showCost slider:rowCost",
 	},
 	{ "Prices", "slider:priceSource slider:craftValue checkbox:valueGathered checkbox:auctionOnly slider:restockCost" },
@@ -425,7 +425,10 @@ env.ForeverCore.MinimapButton = {
 	end,
 }
 local minimap = settings.SkillUpForever_minimapButton
-assert(minimap.default == true and minimap:GetValue(), "minimap button starts shown")
+assert(
+	minimap.default == false and minimap:GetValue(),
+	"minimap default is hidden while a saved show choice stays shown"
+)
 minimap:SetValue(false)
 assert(ns.db.minimapButtonHidden == true and not minimapShown, "hiding saves and applies immediately")
 minimap:SetValue(true)

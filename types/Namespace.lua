@@ -290,7 +290,8 @@
 ---@field showTooltip boolean
 ---@field showTooltips boolean
 ---@field recipeTooltip 'window'|'cursor'|'row'
----@field rowCost 'skillup'|'craft'|'off'
+---@field showRowPrices boolean
+---@field rowCost 'skillup'|'craft'
 ---@field showCost boolean
 ---@field priceSource 'auctionator'|'tsm'|'ahdb'|'naowh'
 ---@field craftValue 'none'|'vendor'|'auction'|'sale'

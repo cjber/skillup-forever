@@ -656,4 +656,6 @@ L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
 L["Show minimap button"] = "显示小地图按钮" -- mt
 L["Show the SkillUp button on the minimap."] = "在小地图上显示SkillUp按钮。" -- mt
-L["You can hide the minimap button."] = "现在可以隐藏小地图按钮。" -- mt
+
+L["Reagent counts cover the whole route, not each step alone."] =
+	"材料数量按整条路线计算，而非分别计算每个步骤。" -- mt

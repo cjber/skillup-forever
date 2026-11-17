@@ -679,4 +679,6 @@ L["%s (level %d)"] = "%s (레벨 %d)" -- mt
 
 L["Show minimap button"] = "미니맵 버튼 표시" -- mt
 L["Show the SkillUp button on the minimap."] = "미니맵에 SkillUp 버튼을 표시합니다." -- mt
-L["You can hide the minimap button."] = "미니맵 버튼을 숨길 수 있습니다." -- mt
+
+L["Reagent counts cover the whole route, not each step alone."] =
+	"재료 수량은 각 단계가 아닌 전체 경로를 기준으로 계산됩니다." -- mt

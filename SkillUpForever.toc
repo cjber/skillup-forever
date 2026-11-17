@@ -18,7 +18,6 @@
 ## X-Website: https://github.com/cjber/skillup-forever
 ## X-Donate: https://github.com/sponsors/cjber
 ## X-Curse-Project-ID: 1705762
-## X-Wago-ID: aNerqn62
 ## SavedVariables: SkillUpForeverDB
 ## OptionalDeps: Auctionator, TradeSkillMaster, AuctionDB, NaowhForever, NaowhForever_QoL, TomTom, Syndicator, ShortestPathForever, QuestieDB, Questie, AtlasLootClassic, ForeverCore
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon

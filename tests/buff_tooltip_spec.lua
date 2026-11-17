@@ -257,6 +257,7 @@ local function ItemLines(itemID)
 	return drawn
 end
 
+c.SetSetting("reagentTooltip", "route") -- off by default (#811)
 local made = ItemLines(BUFF_ITEM)
 equal(made[1], " ", "the maker line has a blank line above it")
 equal(made[2], "Made by First Aid 30", "the maker with the lowest skill range start names its profession and skill")

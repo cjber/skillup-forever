@@ -460,6 +460,9 @@ L["Learn now"] = "現在可學" -- mt
 L["No buff items for your level yet."] = "還沒有適合你等級的增益物品。" -- mt
 L["Only for level %d"] = "僅限等級 %d" -- mt
 L["Show the buffs tab"] = "顯示增益標籤頁" -- mt
+L["Show the supply tab"] = "顯示補給標籤頁" -- mt
+L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
+	"專業技能視窗底部的一個標籤頁，用於設定商人將出售與交付的物品，讓路線據此規劃。從 SkillUp 側邊標籤頁開啟，位於路線標籤頁旁。" -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] = "該專業不製造增益物品。" -- mt
 L["spell %d"] = "法術 %d" -- mt

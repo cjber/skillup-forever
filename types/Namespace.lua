@@ -305,6 +305,7 @@
 ---@field showTracker boolean
 ---@field showGearTab boolean
 ---@field showBuffsTab boolean
+---@field showSupplyTab boolean
 ---@field lastSkillUpPage table<string, SkillUpPageID>
 ---@field buffProfession table<string, integer>
 ---@field onlyBuffsForLevel table<string, boolean>
@@ -314,6 +315,7 @@
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field showTooltipRoute boolean
 ---@field gatherTooltip boolean
+---@field extrasOffSeen boolean
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field showAllGear table<string, boolean>
 ---@field pinnedRecipes table<string, table<integer, integer>>

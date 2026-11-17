@@ -467,6 +467,9 @@ L["Learn now"] = "Aprender agora" -- mt
 L["No buff items for your level yet."] = "Ainda não há itens de bônus para o seu nível." -- mt
 L["Only for level %d"] = "Apenas para nível %d" -- mt
 L["Show the buffs tab"] = "Mostrar a aba de bônus" -- mt
+L["Show the supply tab"] = "Mostrar a aba de suprimento" -- mt
+L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
+	"Uma aba na parte inferior da janela de profissões onde você define o que um mercador vai vender e entregar, para a rota levar isso em conta. Ela abre pela aba lateral do SkillUp, ao lado da aba de rota." -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] = "Esta profissão não fabrica itens de bônus." -- mt
 L["spell %d"] = "feitiço %d" -- mt

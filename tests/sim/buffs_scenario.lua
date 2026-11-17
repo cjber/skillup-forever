@@ -39,6 +39,8 @@ scenario("the SkillUp side tab and the buffs page", { addons = ForeverCore.addon
 
 	sim:login()
 	ns.RecipeData = {}
+	-- Buffs starts off (#811); this scenario covers the page once the player turns it on.
+	ns.db.showBuffsTab = true
 
 	sim:openProfessions(129)
 	local sideTab = find(G.ProfessionsFrame, function(frame)

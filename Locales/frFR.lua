@@ -472,6 +472,9 @@ L["Learn now"] = "Apprendre maintenant" -- mt
 L["No buff items for your level yet."] = "Aucun objet d'amélioration pour votre niveau pour l'instant." -- mt
 L["Only for level %d"] = "Seulement pour le niveau %d" -- mt
 L["Show the buffs tab"] = "Afficher l'onglet des améliorations" -- mt
+L["Show the supply tab"] = "Afficher l'onglet d'approvisionnement" -- mt
+L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
+	"Un onglet en bas de la fenêtre des métiers où vous indiquez ce qu'un marchand vendra et livrera, pour que le parcours en tienne compte. Il s'ouvre depuis l'onglet latéral de SkillUp, à côté de l'onglet du parcours." -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] = "Ce métier ne fabrique aucun objet d'amélioration." -- mt
 L["spell %d"] = "sort %d" -- mt

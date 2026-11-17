@@ -217,6 +217,7 @@ equal(calls.TrackedNeeds, 0, "and the next item reads it")
 
 -- Herb and ore nodes: the line for a node's skill is looked up by the skill it asks, not recomputed, and a
 -- bag or zone change does not touch it either.
+c.SetSetting("gatherTooltip", true)
 local node = Tooltip()
 local nodeData = { lines = { { leftText = "Copper Vein" } } }
 Reset()

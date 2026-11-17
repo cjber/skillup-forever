@@ -43,9 +43,6 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 		end
 	end
 	assert(ns, "the full addon namespace loaded")
-	-- Supply and Buffs start off (#811); this walk covers all three pages.
-	ns.db.showSupplyTab = true
-	ns.db.showBuffsTab = true
 
 	-- The client says these recipes are known; the wide list measures what it knows.
 	local key = ns.CharacterKey()

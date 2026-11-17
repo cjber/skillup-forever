@@ -103,6 +103,7 @@ local unitPost = Post(UNIT, #c.postCalls[UNIT])
 
 -- An item's uses, route needs and names are worked out once, then read from the cache. The old code repeated
 -- every one of them on each set, and this is the check that failed.
+c.SetSetting("reagentTooltip", "route") -- off by default (#811)
 local tooltip = Tooltip()
 local data = { id = LINEN }
 Reset()

@@ -15,7 +15,6 @@ scenario("SkillUp pages stay inside the host when the native page is parked", {
 	for _, entry in ipairs(sim.loader.addons) do
 		if entry.name == ADDON then
 			entry.ns.RecipeData = {}
-			entry.ns.db.showBuffsTab = true -- off by default (#811)
 		end
 	end
 	local host = sim:openProfessions(129)

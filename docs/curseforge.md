@@ -4,6 +4,13 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 
 [![Join me on Discord](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/discord-button.png)](https://discord.gg/FpHugGxRJY) [![Sponsor me on GitHub](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/github-sponsors-button.png)](https://github.com/sponsors/cjber) [![Support me on Ko-fi](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/kofi-button.png)](https://ko-fi.com/cjber)
 
+**Known limitations**
+
+- Recipe colours come from the game, but a recipe you have not seen yet uses bundled thresholds that can be slightly off.
+- Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
+- Gathering nodes and corpses have no colour in the game, so theirs is an estimate, on English clients only.
+- Prices need an auction scan or a price addon, and a recipe with an unpriced reagent stays out of the route.
+
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)
 
 From 48 to 60 the rows re-sort by cost per skill-up, and the bracers turn green at 55.
@@ -34,8 +41,8 @@ These images are generated previews of the SkillUp UI.
 
 - **Recipe rows and tooltips.** Each recipe shows its skill-up chance, cost and colour thresholds, in the row and in its tooltip. Missing data shows `?`.
 - **A sortable recipe list.** See how many your bags can make after each name. Sort by difficulty range start, chance, cheapest skill-ups, highest craft profit or newest learned first.
-- **Unlearned recipes.** A setting, off by default, lists them greyed under the learned ones, each marked with its trainer or recipe item and the skill it asks, sorted by required skill or newest first. Hovering one shows its reagents, cost and skill-up colours, and the search box narrows them too; it cannot be crafted.
-- **Levelling routes.** Crafts, trainer visits, skill books and rank quests to your target skill, in the order you craft them, with fees, tools and stations and steps that allow for unlucky skill-ups. Cheaper crafted reagents become their own steps, Craft next makes missing intermediates first, and right-clicking a recipe and choosing *Not this recipe* plans without it.
+- **Unlearned recipes.** A setting, off by default, lists them greyed under the learned ones, each marked with its trainer or recipe item and the skill it asks, sorted by required skill or newest first. Hover one for its reagents and cost; it cannot be crafted.
+- **Levelling routes.** Crafts, trainer visits, skill books and rank quests to your target skill, in the order you craft them, with fees, tools and stations. Cheaper crafted reagents become their own steps, Craft next makes missing intermediates first, and right-clicking a recipe and choosing *Not this recipe* plans without it.
 - **Shopping lists.** Reagents are counted against bags and bank. Buying is the default, so materials your professions gather are bought unless you choose to gather them; track the list beside quests, buy vendor stock and keep an Auctionator list up to date. At the auction house you can search a recipe's reagents for as many crafts as you choose.
 - **A supply page beside the route.** With a profession and a merchant open, write down what you assume about each offer's price, stock, purchase limit and trips, then read the route's chance and next step before you apply it. Nothing is filled in for you.
 - **Trainers, reagents and gathering.** Trainers mark the best recipe to train next, and reagent tooltips show what tracked routes need; hold Shift for every recipe that uses the item, and each line names its profession. On English clients, gathering nodes show the Herbalism or Mining skill they need, coloured at yours.
@@ -43,11 +50,9 @@ These images are generated previews of the SkillUp UI.
 
 ## Prices
 
-Each reagent uses the cheapest known vendor or auction price; visiting a vendor records its prices and reputation discounts. Materials your professions gather are bought with *Buy reagents* on, which is the default; choose gathering to supply them yourself. *Value gathered materials at what they'd sell for* is on for new installs and costs them at their sale value; turn it off to count them as free. *Price self-supplied reagents at auction values* prices whatever you gather, loot or already own at its market value, and leaves it unpriced rather than free when there is none.
+Each reagent uses the cheapest known vendor or auction price; visiting a vendor records its prices and reputation discounts. *Value gathered materials at what they'd sell for* is on for new installs and costs them at their sale value; turn it off to count them as free. *Price self-supplied reagents at auction values* prices whatever you gather, loot or already own at its market value, and leaves it unpriced rather than free when there is none.
 
-Auction prices come from Auctionator, TradeSkillMaster's AuctionDB, AHDB or Naowh Forever's scans and nightly snapshot. Naowh can price materials before your first auction house visit. *Auction prices from* picks the source; the others fill gaps. Recipe tooltips show TSM's regional sales per day. Scan with Auctionator to update prices.
-
-Missing prices stay unknown and leave affected recipes out of the route, though a gatherable reagent nobody has priced stays on it as a price unknown.
+Auction prices come from Auctionator, TradeSkillMaster's AuctionDB, AHDB or Naowh Forever's scans and nightly snapshot. Naowh can price materials before your first auction house visit. *Auction prices from* picks the source; the others fill gaps.
 
 A craft's vendor sell value comes off its cost, or its auction value after the 5% cut if you choose. With TradeSkillMaster and its desktop app, *Region sale average if higher* values the craft from regional sales instead, with the vendor price as a floor. Profit shows a green `+`.
 
@@ -58,7 +63,6 @@ Open a profession and the numbers are already there.
 - `/skillup` opens the settings (also in Settings > AddOns, the minimap button and the addon compartment).
 - `/skillup skipped` lists the recipes you said *Not this recipe* to, and `/skillup unskip <ID>` (or `all`) brings them back.
 - `/skillup audit`, with a profession open, prints where the bundled thresholds differ from the colours the game shows.
-- `/skillup issue` opens a ready-made GitHub issue link to report a bug or request a feature.
 - `/skillup trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
 Settings cover tooltips, recipe rows, prices, tabs, trainers, sorting and addon hints. *Include Working Overtime estimate* off uses the base chance, two switches hide tooltip details or the profession tabs whole, and the minimap button drags around the rim. The Supply page opens beside the route while the levelling route tab is on.

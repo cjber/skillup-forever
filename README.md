@@ -12,6 +12,13 @@ Classic profession-levelling numbers inside WoW: Forever's Professions window.<b
 
 SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in the Professions window, with levelling routes, shopping lists, crafted gear and buffs in its side panel.
 
+## Known limitations
+
+- Recipe colours come from the game, but a recipe you have not seen yet uses bundled thresholds that can be slightly off.
+- Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
+- Gathering nodes and corpses have no colour in the game, so theirs is an estimate, on English clients only.
+- Prices need an auction scan or a price addon, and a recipe with an unpriced reagent stays out of the route.
+
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif" width="640" alt="Leatherworking levelling from 48 to 60 in the Professions window"></p>
 
 From 48 to 60 the rows re-sort by cost per skill-up, and Handstitched Leather Bracers turns green at 55.

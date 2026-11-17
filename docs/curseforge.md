@@ -65,7 +65,7 @@ Open a profession and the numbers are already there.
 - `/skillup audit`, with a profession open, prints where the bundled thresholds differ from the colours the game shows.
 - `/skillup trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
-Settings cover tooltips, recipe rows, prices, tabs, trainers, sorting and addon hints. *Include Working Overtime estimate* off uses the base chance, two switches hide tooltip details or the profession tabs whole, and the minimap button drags around the rim. The Supply page opens beside the route while the levelling route tab is on.
+Settings cover tooltips, recipe rows, prices, tabs, trainers, sorting and addon hints. *Include Working Overtime estimate* off uses the base chance, and the minimap button drags around the rim. The Supply page opens beside the route while the levelling route tab is on.
 
 For a bug report, paste `/skillup report`.
 

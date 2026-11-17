@@ -4,18 +4,10 @@ if GetLocale() ~= "koKR" then
 	return
 end
 local L = ns.L
-L["Show SkillUp tooltip details"] = "SkillUp 툴팁 세부 정보 표시"
-L["Show SkillUp profession tabs"] = "SkillUp 전문 기술 탭 표시"
-L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
-	"각 툴팁 설정을 유지하면서 SkillUp 세부 정보를 툴팁에 추가합니다."
-L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
-	"각 제조법 옆에 금액을 표시합니다. 끄면 가격은 제조법 툴팁에만 표시됩니다." -- mt
 L["Show prices on recipe rows"] = "제조법 줄에 가격 표시" -- mt
 L["Show recipe tooltip on hover"] = "마우스를 올리면 제조법 툴팁 표시" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"제조법에 마우스를 올리면 전문 기술 창 옆에 SkillUp 툴팁을 표시합니다. 끄면 재료가 가려지지 않습니다." -- mt
-L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
-	"각 탭 설정을 유지하면서 경로, 장비 및 강화 효과 탭을 표시합니다."
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "%d개 더"
@@ -53,8 +45,6 @@ L["AH"] = "경매장"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"각 제조법의 난이도 구간 시작점을 표시합니다. 배우는 데 필요한 숙련도와는 별개입니다."
 L["Addon"] = "애드온"
-L["Adventure Guide Forever can plan this quest chain."] =
-	"Adventure Guide Forever로 이 연계 퀘스트를 계획할 수 있습니다."
 L["Also for this slot"] = "이 슬롯의 다른 아이템"
 L["Annotate trainer recipes"] = "전문가 제조법에 정보 표시"
 L["Another craft makes this recipe, not yours."] =
@@ -108,15 +98,12 @@ L["Crafts"] = "제작 횟수"
 L["Don't count it"] = "반영 안 함"
 L["Dropped by"] = "획득처"
 L["Each"] = "개당"
-L["Enable Shortest Path Forever for walked routes and boat times."] =
-	"도보 경로와 배 시간을 보려면 Shortest Path Forever를 켜세요."
 L["Every recipe that uses it"] = "이 재료를 쓰는 모든 제조법"
 L["Fee"] = "수수료"
 L["Fees"] = "수수료"
 L["Feet"] = "발"
 L["Finger"] = "손가락"
 L["First used at"] = "처음 쓰이는 숙련도"
-L["Forever addons"] = "Forever 애드온"
 L["Gather %d %s"] = "%d개 채집: %s"
 L["Gathering skill on nodes"] = "채집물의 채집 숙련도"
 L["Hands"] = "손"
@@ -143,7 +130,6 @@ L["Level %d %s"] = "레벨 %d %s"
 L["Made at"] = "제작 장소"
 L["Main hand"] = "주장비"
 L["Missing reagents for this step."] = "이 단계에 필요한 재료가 부족합니다."
-L["Money on recipe rows"] = "제조법 줄의 금액"
 L["Nearest trainer"] = "가장 가까운 전문가"
 L["Nearest vendor"] = "가장 가까운 상인"
 L["Neck"] = "목"
@@ -192,8 +178,6 @@ L["Ranged"] = "원거리 장비"
 L["Read %s at %d"] = "%s 읽기 (%d)"
 L["Read %s at %d (level %d)"] = "%s 읽기 (%d, 레벨 %d)"
 L["Read %s first: you're at your cap."] = "먼저 %s을(를) 읽으세요: 숙련도가 최대입니다."
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"재료 비용을 숙련도 상승 확률로 나눈 값을 제조법 행과 툴팁에 표시합니다. 흔한 상점 재료는 처음부터 가격이 있고 방문한 상인에서 갱신됩니다. 채집하는 재료는 가격 설정에서 이 옵션을 끄지 않으면 판매 가치로 계산되며, 경매 가격은 Auctionator/TradeSkillMaster / AHDB / Naowh Forever가 필요합니다."
 L["Reagent tooltips"] = "재료 툴팁"
 L["Reagents"] = "재료"
 L["Reagents  (have / need)"] = "재료  (보유 / 필요)"
@@ -229,7 +213,6 @@ L["Shift-click to link the scroll."] = "Shift-클릭으로 제조법을 링크�
 L["Shift: used in %d of your recipes"] = "Shift: 내 제조법 %d개에 사용"
 L["Shoulder"] = "어깨"
 L["Show again: %s"] = "다시 표시: %s"
-L["Show cost per skill-up"] = "숙련도 1당 비용 표시"
 L["Show gear I cannot make yet"] = "아직 만들 수 없는 장비도 표시"
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"목표 추적기에 전문 기술 경로를 표시합니다. 숨겨도 추적 중인 전문 기술과 목표는 유지됩니다."
@@ -296,10 +279,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"경매장이 열려 있으면 전문 기술 창에서 선택한 제조법의 재료를 검색할 수 있습니다: 가방과 은행을 뺀 뒤 선택한 제작 횟수에 아직 필요한 만큼입니다. Auctionator 구매 목록이 수량을 담고, 없으면 클릭할 때마다 다음 재료가 검색창에 들어갑니다."
-L["With Shortest Path Forever, a click leads you there."] =
-	"Shortest Path Forever가 있으면 클릭 한 번으로 그곳까지 안내합니다."
-L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
-	"Shortest Path Forever가 있으면 이동 시간 기준으로 가장 가까운 곳을 골라 안내합니다."
 L["World drop"] = "무작위 전리품"
 L["Wrist"] = "손목"
 L["You have it"] = "보유 중"
@@ -708,3 +687,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator/TradeSkillMaster, AHDB, Naowh Forever가 필요합니다." -- mt
+L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."] =
+	"각 제작법 옆에 비용을 표시합니다. 끄면 비용은 제작법 툴팁에만 표시됩니다." -- mt
+L["Price shown on recipe rows"] = "제작법 줄에 표시할 가격" -- mt

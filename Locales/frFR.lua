@@ -5,18 +5,10 @@ if GetLocale() ~= "frFR" then
 	return
 end
 local L = ns.L
-L["Show SkillUp tooltip details"] = "Afficher les détails des infobulles de SkillUp"
-L["Show SkillUp profession tabs"] = "Afficher les onglets de métiers de SkillUp"
-L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
-	"Afficher les détails de SkillUp dans les infobulles tout en conservant chaque choix individuel."
-L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
-	"Affiche l'argent à côté de chaque recette. Désactivé, les prix restent dans l'infobulle de la recette." -- mt
 L["Show prices on recipe rows"] = "Afficher les prix sur les lignes de recettes" -- mt
 L["Show recipe tooltip on hover"] = "Afficher l'infobulle de recette au survol" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"Affiche l'infobulle SkillUp à côté de la fenêtre des métiers au survol d'une recette. Désactivez-la pour garder les composants dégagés." -- mt
-L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
-	"Afficher les onglets de route, d'équipement et de buffs tout en conservant chaque choix individuel."
 
 L["%d %s"] = "%d %s" -- mt
 L["%d more"] = "%d de plus" -- mt
@@ -55,8 +47,6 @@ L["AH"] = "HV" -- mt
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Ajoute le début de la plage de difficulté de chaque recette. Ce n'est pas la compétence requise pour l'apprendre." -- mt
 L["Addon"] = "Addon" -- mt
-L["Adventure Guide Forever can plan this quest chain."] =
-	"Adventure Guide Forever peut planifier cette suite de quêtes." -- mt
 L["Also for this slot"] = "Aussi pour cet emplacement" -- mt
 L["Annotate trainer recipes"] = "Annoter les recettes du maître" -- mt
 L["Another craft makes this recipe, not yours."] = "Un autre métier fabrique cette recette, pas le vôtre." -- mt
@@ -108,15 +98,12 @@ L["Crafts"] = "Fabrications" -- mt
 L["Don't count it"] = "Ne pas compter" -- mt
 L["Dropped by"] = "Butin de" -- mt
 L["Each"] = "L'unité" -- mt
-L["Enable Shortest Path Forever for walked routes and boat times."] =
-	"Activez Shortest Path Forever pour les trajets à pied et les horaires des bateaux." -- mt
 L["Every recipe that uses it"] = "Chaque recette qui l'utilise" -- mt
 L["Fee"] = "Frais" -- mt
 L["Fees"] = "Frais"
 L["Feet"] = "Pieds" -- mt
 L["Finger"] = "Doigt" -- mt
 L["First used at"] = "Utilisé dès" -- mt
-L["Forever addons"] = "Addons Forever" -- mt
 L["Gather %d %s"] = "Récolter %d %s" -- mt
 L["Gathering skill on nodes"] = "Compétence de récolte sur les gisements" -- mt
 L["Hands"] = "Mains" -- mt
@@ -143,7 +130,6 @@ L["Level %d %s"] = "Niveau %d %s" -- mt
 L["Made at"] = "Fabriqué à" -- mt
 L["Main hand"] = "Main droite" -- mt
 L["Missing reagents for this step."] = "Composants manquants pour cette étape." -- mt
-L["Money on recipe rows"] = "Argent sur les lignes de recettes" -- mt
 L["Nearest trainer"] = "Maître le plus proche" -- mt
 L["Nearest vendor"] = "Marchand le plus proche" -- mt
 L["Neck"] = "Cou" -- mt
@@ -193,8 +179,6 @@ L["Ranged"] = "À distance" -- mt
 L["Read %s at %d"] = "Lire %s à %d" -- mt
 L["Read %s at %d (level %d)"] = "Lire %s à %d (niveau %d)" -- mt
 L["Read %s first: you're at your cap."] = "Lisez d'abord %s : vous êtes au maximum." -- mt
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"Coût des composants divisé par la chance de gain de compétence, sur les lignes de recettes et dans l'infobulle. Les composants courants des marchands ont un prix dès le départ, mis à jour chez les marchands que vous visitez ; les composants que vous récoltez coûtent leur valeur de vente, sauf si vous désactivez cette option sous Prix ; les prix aux enchères nécessitent Auctionator/TradeSkillMaster / AHDB / Naowh Forever." -- mt
 L["Reagent tooltips"] = "Infobulles des composants" -- mt
 L["Reagents"] = "Composants" -- mt
 L["Reagents  (have / need)"] = "Composants  (possédés / requis)" -- mt
@@ -230,7 +214,6 @@ L["Shift-click to link the scroll."] = "Maj-clic pour lier la recette." -- mt
 L["Shift: used in %d of your recipes"] = "Maj : utilisé dans %d de vos recettes" -- mt
 L["Shoulder"] = "Épaule" -- mt
 L["Show again: %s"] = "Réaffichée : %s" -- mt
-L["Show cost per skill-up"] = "Afficher le coût par point de compétence" -- mt
 L["Show gear I cannot make yet"] = "Afficher l'équipement que je ne peux pas fabriquer" -- mt
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"Afficher les parcours de métier dans le suivi des objectifs. Les masquer conserve vos métiers suivis et vos cibles." -- mt
@@ -296,9 +279,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Où l'infobulle s'affiche quand vous survolez une recette. À côté de la fenêtre, elle ne cache pas les composants." -- mt
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Quand l'hôtel des ventes est ouvert, la fenêtre des métiers propose de chercher les composants de la recette choisie : autant qu'il en faut encore aux fabrications choisies, après vos sacs et votre banque. La liste d'achats d'Auctionator reprend les quantités ; sans elle, chaque clic met le composant suivant dans le champ de recherche." -- mt
-L["With Shortest Path Forever, a click leads you there."] = "Avec Shortest Path Forever, un clic vous y mène." -- mt
-L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
-	"Avec Shortest Path Forever, ceci choisit le plus proche en temps de trajet et vous y mène." -- mt
 L["World drop"] = "Butin mondial" -- mt
 L["Wrist"] = "Poignets" -- mt
 L["You have it"] = "Vous l'avez"
@@ -702,3 +682,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"Ces composants n'ont pas de prix chez les marchands. Les prix aux enchères nécessitent Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
+L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."] =
+	"Coût à côté de chaque recette. Désactivé, le coût reste dans l'infobulle de la recette." -- mt
+L["Price shown on recipe rows"] = "Prix affiché sur les lignes de recettes" -- mt

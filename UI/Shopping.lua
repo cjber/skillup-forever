@@ -944,9 +944,8 @@ local LINE_TEMPLATE = "ForeverTrackerInteractiveLineTemplate"
 ---@param title string
 ---@param label string
 ---@param nearest fun(): integer?
----@param quest? boolean an Artisan quest step
 ---@param steps? SkillUpTrackerStep[] the training steps, the rest listed on the tooltip
-local function Waypointed(line, title, label, nearest, quest, steps)
+local function Waypointed(line, title, label, nearest, steps)
 	ForeverCore.TrackerLine.SetInteractive(line, {
 		onClick = function()
 			local npcID = nearest()
@@ -958,9 +957,6 @@ local function Waypointed(line, title, label, nearest, quest, steps)
 			GameTooltip:SetOwner(self, "ANCHOR_LEFT")
 			GameTooltip_SetTitle(GameTooltip, title)
 			ns.AddNearest(GameTooltip, label, nearest())
-			if quest then
-				ns.AddQuestChainHint(GameTooltip)
-			end
 			if steps and #steps > 1 then
 				GameTooltip_AddBlankLineToTooltip(GameTooltip)
 				GameTooltip_AddNormalLine(GameTooltip, L["Also train"])
@@ -1074,7 +1070,7 @@ local function LayoutEntry(self, entry)
 		if npc then
 			Waypointed(line, first.text, label, function()
 				return (first.nearest(true))
-			end, first.quest and true, steps)
+			end, steps)
 		end
 	end
 	local shown = 0

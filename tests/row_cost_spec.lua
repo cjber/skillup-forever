@@ -56,15 +56,11 @@ local russian = ns.FormatRow({ thresholds = T, chance = 0.25, net = 200, perSkil
 ns.L[" · "] = separator
 equal(russian, "25% • " .. MINUS .. "200c", "the row joins its parts with the locale's separator")
 
-ns.db.showCost = false
-equal(ns.FormatRow({ thresholds = T, chance = 0, net = -600 }), "0%", "Show cost per skill-up off hides the money")
-ns.db.showCost, ns.db.rowCost = true, "skillup"
-
 ns.db.showRowPrices = false
 equal(
 	ns.FormatRow({ thresholds = T, chance = 0.25, net = 200, perSkillUp = 800 }),
 	"25%",
-	"Money on recipe rows off keeps only the chance"
+	"Show prices on recipe rows off keeps only the chance"
 )
 ns.db.showRowPrices = true
 

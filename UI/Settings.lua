@@ -1,5 +1,5 @@
 ---@type string, SkillUpNamespace
-local addonName, ns = ...
+local _, ns = ...
 
 if ns.broken then
 	return
@@ -107,12 +107,6 @@ function ns.RegisterSettings()
 		)
 		Checkbox(
 			rows,
-			"showTooltips",
-			L["Show SkillUp tooltip details"],
-			L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."]
-		)
-		Checkbox(
-			rows,
 			"showUnlearned",
 			L["List unlearned recipes"],
 			L["Adds the recipes of the open profession you have not learned under an Unlearned divider, greyed and marked with a trainer or recipe item and the skill it asks. Click a row to preview the recipe."]
@@ -136,7 +130,15 @@ function ns.RegisterSettings()
 			rows,
 			"showRowPrices",
 			L["Show prices on recipe rows"],
-			L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."]
+			L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."]
+		)
+
+		Choice(
+			rows,
+			"rowCost",
+			L["Price shown on recipe rows"],
+			ns.ROW_COST_OPTIONS,
+			L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."]
 		)
 
 		Checkbox(
@@ -174,21 +176,6 @@ function ns.RegisterSettings()
 			L["Unlearned recipe order"],
 			ns.UNLEARNED_SORT_OPTIONS,
 			L["How recipes you have not learned are ordered. Learned recipes keep the selected recipe order."]
-		)
-
-		Checkbox(
-			rows,
-			"showCost",
-			L["Show cost per skill-up"],
-			L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
-		)
-
-		Choice(
-			rows,
-			"rowCost",
-			L["Money on recipe rows"],
-			ns.ROW_COST_OPTIONS,
-			L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."]
 		)
 	end)
 
@@ -261,12 +248,6 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Route and trainer"], function(rows)
-		Checkbox(
-			rows,
-			"showProfessionTabs",
-			L["Show SkillUp profession tabs"],
-			L["Shows the route, gear and buffs tabs while preserving each individual tab choice."]
-		)
 		Checkbox(
 			rows,
 			"showTracker",
@@ -463,21 +444,6 @@ function ns.RegisterSettings()
 			L["One line in chat the first time a new version loads."]
 		)
 	end)
-
-	-- The Forever addons page is core's (ForeverCore.Family), with the hint setting on it.
-	-- Its rows are plain frames on our own canvas, so nothing of ours goes into Blizzard's layouts or search.
-	-- With the gamepad interface on the page is the client's own rows so the Options navigation can enter it
-	-- (cjber/tweaks-forever#382).
-	local Family = ForeverCore.Family --[[@as ForeverFamilyAPI]]
-	local family = Family.Register(category, function()
-		return ns.db
-	end, addonName, ns.core.SafeCall)
-	Settings.RegisterInitializer(
-		category,
-		CreateSettingsButtonInitializer(L["Forever addons"], L["Open"], function()
-			ForeverCore.OpenSettingsPanel(family:GetID())
-		end, nil, false)
-	)
 
 	Settings.RegisterAddOnCategory(category)
 end

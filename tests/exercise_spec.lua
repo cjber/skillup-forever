@@ -377,13 +377,6 @@ local function Surfaces(c)
 			assert(c.secureSettingsCalls and c.secureSettingsCalls > 0, "the client's own opener ran securely")
 		end
 	end)
-	Run(c, "family page", function()
-		local panel = rawget(G, "ForeverFamilyPanel" .. ADDON)
-		assert(panel, "the Forever addons page exists")
-		panel:Show()
-		assert(panel:IsShown(), "the Forever addons page is shown")
-		panel:Hide()
-	end)
 
 	-- The report window and the issue composer.
 	Run(c, "report window", function()
@@ -444,28 +437,6 @@ local function Surfaces(c)
 		auctionHouse:Hide()
 		Fire(c, "AUCTION_HOUSE_CLOSED")
 		assert(not auctionHouse:IsShown(), "the auction house is hidden")
-	end)
-
-	-- The family link windows.
-	Run(c, "family link", function()
-		local opened = c.G.ForeverCore.Family.ShowLink(ns.db, "exercise", ADDON, nil)
-		local window = rawget(G, "ForeverFamilyLink")
-		if c.combat then
-			assert(opened == false, "a family link never opens in combat")
-		else
-			assert(opened and window and window:IsShown(), "the family link window is shown")
-			window:Hide()
-		end
-	end)
-	Run(c, "family support", function()
-		local opened = c.G.ForeverCore.Family.ShowSupport()
-		local window = rawget(G, "ForeverFamilyLink")
-		if c.combat then
-			assert(opened == false, "family support never opens in combat")
-		else
-			assert(opened and window and window:IsShown(), "the family support window is shown")
-			window:Hide()
-		end
 	end)
 
 	-- The objective tracker section the addon attaches.

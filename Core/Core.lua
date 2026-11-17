@@ -32,10 +32,8 @@ local DEFAULTS = {
 	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
 	showSkill = false,
 	showTooltip = true,
-	showTooltips = true,
 	recipeTooltip = "window", -- where the recipe tooltip goes: beside the Professions window, at the cursor, by the row
 	detailsBar = true, -- the recipe tooltip's skill bar under the selected recipe, on the crafting page itself
-	showCost = true,
 	showRowPrices = true,
 	rowCost = "skillup", -- "skillup" (cost per skill-up) or "craft" (net per craft)
 	priceSource = "auctionator", -- the auction addon whose price wins when both are installed; the other fills gaps
@@ -67,7 +65,6 @@ local DEFAULTS = {
 	pinnedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = priority }: most recently pinned wins
 	skippedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = true }: "Not this recipe", left out of every route
 	whatsNew = false,
-	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (ForeverCore.Family)
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
 	merchantEvidence = {}, -- [npcID][itemID] = dated price and current stock observations, never historical maxima
@@ -240,11 +237,21 @@ local function LoadDB()
 	-- Auction prices come from Auctionator now; drop what SkillUp's own scanner saved.
 	loaded.priceDays, loaded.latestPrice = nil, nil
 	loaded.scanAuctions, loaded.tracked, loaded.auctions, loaded.gatherFree = nil, nil, nil, nil
-	-- Suggest companion addons became the shared Suggest my other Forever addons: turned off, it stays off.
-	if loaded.companionHints == false and loaded.suggestFamily == nil then
-		loaded.suggestFamily = false
+	loaded.companionHints, loaded.suggestFamily = nil, nil
+	-- The tooltip master switch and the cost switch are gone: each off hides what its own rows still choose.
+	if loaded.showTooltips == false then
+		loaded.showTooltip, loaded.reagentTooltip = false, "off"
+		loaded.showTooltipRoute, loaded.gatherTooltip = false, false
 	end
-	loaded.companionHints = nil
+	if loaded.showCost == false then
+		loaded.showRowPrices = false
+	end
+	loaded.showTooltips, loaded.showCost = nil, nil
+	-- The tabs' master switch is gone: off, it turned every tab off. Its key stays true, so the tabs read it as before.
+	if loaded.showProfessionTabs == false then
+		loaded.showRouteTab, loaded.showGearTab, loaded.showBuffsTab = false, false, false
+		loaded.showProfessionTabs = true
+	end
 	-- Every player before 1.14 had valueGathered = false saved without choosing it, because the defaults below are
 	-- written into the saved table, so the sale-value default reaches each of them once. A choice made after this
 	-- one reset sticks (#807).
@@ -883,7 +890,7 @@ function ns.FormatRow(d)
 	-- A negative amount is a profit, a positive one a cost.
 	local mode = ns.db.rowCost
 	local amount = mode == "craft" and d.net or mode == "skillup" and d.perSkillUp or nil
-	if ns.db.showCost and ns.db.showRowPrices and amount then
+	if ns.db.showRowPrices and amount then
 		parts[#parts + 1] = ns.FormatSigned(ns.Model.RoundMoney(math.abs(amount)), amount < 0)
 	end
 	return table.concat(parts, L[" · "])

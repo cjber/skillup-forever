@@ -4,18 +4,10 @@ if GetLocale() ~= "zhCN" then
 	return
 end
 local L = ns.L
-L["Show SkillUp tooltip details"] = "显示 SkillUp 提示详情"
-L["Show SkillUp profession tabs"] = "显示 SkillUp 专业标签"
-L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
-	"在保留各项提示设置的同时，将 SkillUp 详细信息添加到提示中。"
-L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
-	"在每个配方旁显示金钱。关闭后价格仍显示在配方鼠标提示中。" -- mt
 L["Show prices on recipe rows"] = "在配方行显示价格" -- mt
 L["Show recipe tooltip on hover"] = "悬停时显示配方提示" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"悬停配方时在专业窗口旁显示 SkillUp 提示。关闭可避免遮挡材料。" -- mt
-L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
-	"在保留各项标签设置的同时，显示路线、装备和增益标签。"
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "还有%d个"
@@ -54,7 +46,6 @@ L["AH"] = "拍卖行"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"显示每个配方难度区间的起点。这与学习它所需的技能不同。"
 L["Addon"] = "插件"
-L["Adventure Guide Forever can plan this quest chain."] = "Adventure Guide Forever可以规划这条任务链。"
 L["Also for this slot"] = "此部位的其他物品"
 L["Annotate trainer recipes"] = "标注训练师配方"
 L["Another craft makes this recipe, not yours."] = "此配方由其他专业制造，而不是你的专业。"
@@ -106,15 +97,12 @@ L["Crafts"] = "制造次数"
 L["Don't count it"] = "不计入"
 L["Dropped by"] = "掉落自"
 L["Each"] = "单价"
-L["Enable Shortest Path Forever for walked routes and boat times."] =
-	"启用Shortest Path Forever以获得步行路线和船只时刻。"
 L["Every recipe that uses it"] = "所有使用它的配方"
 L["Fee"] = "费用"
 L["Fees"] = "费用"
 L["Feet"] = "脚"
 L["Finger"] = "手指"
 L["First used at"] = "首次使用于"
-L["Forever addons"] = "Forever插件"
 L["Gather %d %s"] = "采集%d个%s"
 L["Gathering skill on nodes"] = "采集点的采集技能"
 L["Hands"] = "手部"
@@ -140,7 +128,6 @@ L["Level %d %s"] = "等级%d %s"
 L["Made at"] = "制造地点"
 L["Main hand"] = "主手"
 L["Missing reagents for this step."] = "此步骤缺少材料。"
-L["Money on recipe rows"] = "配方行中的金额"
 L["Nearest trainer"] = "最近的训练师"
 L["Nearest vendor"] = "最近的商人"
 L["Neck"] = "颈部"
@@ -186,8 +173,6 @@ L["Ranged"] = "远程"
 L["Read %s at %d"] = "阅读%s（技能%d）"
 L["Read %s at %d (level %d)"] = "阅读%s（技能%d，等级%d）"
 L["Read %s first: you're at your cap."] = "请先阅读%s：你已达上限。"
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"材料成本除以技能提升几率，显示在配方行和鼠标提示中。常见商人材料一开始就有价格，并在你访问商人时更新；你采集的材料按出售价值计价，除非你在“价格”中关闭此选项；拍卖价需要Auctionator/TradeSkillMaster / AHDB / Naowh Forever。"
 L["Reagent tooltips"] = "材料鼠标提示"
 L["Reagents"] = "材料"
 L["Reagents  (have / need)"] = "材料  （已有 / 需要）"
@@ -223,7 +208,6 @@ L["Shift-click to link the scroll."] = "Shift-点击以链接配方。"
 L["Shift: used in %d of your recipes"] = "Shift：用于你的%d个配方"
 L["Shoulder"] = "肩部"
 L["Show again: %s"] = "恢复显示：%s"
-L["Show cost per skill-up"] = "显示每点技能成本"
 L["Show gear I cannot make yet"] = "显示我还不能制造的装备"
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"在目标追踪栏中显示专业路线。隐藏时会保留你追踪的专业和目标。"
@@ -289,9 +273,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"拍卖行打开时，专业窗口可以搜索所选配方的材料：数量为扣除背包和银行后，你选择的制造次数仍需要的数量。Auctionator的购物清单会带上数量；没有它时，每次点击会把下一个材料填入搜索框。"
-L["With Shortest Path Forever, a click leads you there."] = "有Shortest Path Forever时，点击即可带你前往。"
-L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
-	"有Shortest Path Forever时，会按路程时间选择最近的并带你前往。"
 L["World drop"] = "世界掉落"
 L["Wrist"] = "手腕"
 L["You have it"] = "已拥有"
@@ -685,3 +666,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"这些材料没有商人价格。拍卖价需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever。" -- mt
+L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."] =
+	"在每个配方旁显示成本。关闭后,成本仍显示在配方提示中。" -- mt
+L["Price shown on recipe rows"] = "配方行显示的价格" -- mt

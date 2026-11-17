@@ -4,18 +4,10 @@ if GetLocale() ~= "esES" then
 	return
 end
 local L = ns.L
-L["Show SkillUp tooltip details"] = "Mostrar detalles de descripción de SkillUp"
-L["Show SkillUp profession tabs"] = "Mostrar pestañas de profesiones de SkillUp"
-L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
-	"Añade los detalles de SkillUp a las descripciones y conserva cada ajuste individual."
-L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
-	"Muestra el dinero junto a cada receta. Si lo desactivas, los precios siguen en el tooltip de la receta." -- mt
 L["Show prices on recipe rows"] = "Mostrar precios en las filas de recetas" -- mt
 L["Show recipe tooltip on hover"] = "Mostrar tooltip de receta al pasar el ratón" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"Muestra el tooltip de SkillUp junto a la ventana de profesiones al pasar el ratón por una receta. Desactívalo para ver los componentes sin estorbos." -- mt
-L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
-	"Muestra las pestañas de ruta, equipo y beneficios y conserva cada ajuste individual."
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "%d más"
@@ -54,8 +46,6 @@ L["AH"] = "CS"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Añade el inicio del rango de dificultad de cada receta. No es la habilidad necesaria para aprenderla."
 L["Addon"] = "Addon"
-L["Adventure Guide Forever can plan this quest chain."] =
-	"Adventure Guide Forever puede planear esta cadena de misiones."
 L["Also for this slot"] = "También para esta ranura"
 L["Annotate trainer recipes"] = "Anotar recetas del instructor"
 L["Another craft makes this recipe, not yours."] = "Otra profesión crea esta receta, no la tuya."
@@ -108,15 +98,12 @@ L["Crafts"] = "Creaciones"
 L["Don't count it"] = "No contarlo"
 L["Dropped by"] = "Lo suelta"
 L["Each"] = "Cada uno"
-L["Enable Shortest Path Forever for walked routes and boat times."] =
-	"Activa Shortest Path Forever para rutas a pie y horarios de barcos."
 L["Every recipe that uses it"] = "Todas las recetas que lo usan"
 L["Fee"] = "Tarifa"
 L["Fees"] = "Tarifas"
 L["Feet"] = "Pies"
 L["Finger"] = "Dedo"
 L["First used at"] = "Se usa desde"
-L["Forever addons"] = "Addons Forever"
 L["Gather %d %s"] = "Recoger %d %s"
 L["Gathering skill on nodes"] = "Habilidad de recolección en vetas y hierbas"
 L["Hands"] = "Manos"
@@ -143,7 +130,6 @@ L["Level %d %s"] = "Nivel %d %s"
 L["Made at"] = "Se crea en"
 L["Main hand"] = "Mano principal"
 L["Missing reagents for this step."] = "Faltan componentes para este paso."
-L["Money on recipe rows"] = "Dinero en las filas de recetas"
 L["Nearest trainer"] = "Instructor más cercano"
 L["Nearest vendor"] = "Vendedor más cercano"
 L["Neck"] = "Cuello"
@@ -190,8 +176,6 @@ L["Ranged"] = "A distancia"
 L["Read %s at %d"] = "Leer %s a %d"
 L["Read %s at %d (level %d)"] = "Leer %s a %d (nivel %d)"
 L["Read %s first: you're at your cap."] = "Lee primero %s: estás en tu máximo."
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"Coste de componentes dividido por la probabilidad de subir habilidad, en las filas de recetas y en la descripción. Los componentes comunes de vendedor tienen precio desde el principio y se actualizan en los mercaderes que visitas; los que recoges cuestan su valor de venta salvo que desactives esa opción en Precios; los precios de subasta necesitan Auctionator/TradeSkillMaster / AHDB / Naowh Forever."
 L["Reagent tooltips"] = "Descripciones de componentes"
 L["Reagents"] = "Componentes"
 L["Reagents  (have / need)"] = "Componentes  (tienes / necesitas)"
@@ -227,7 +211,6 @@ L["Shift-click to link the scroll."] = "Mayús-clic para enlazar la receta."
 L["Shift: used in %d of your recipes"] = "Mayús: se usa en %d de tus recetas"
 L["Shoulder"] = "Hombro"
 L["Show again: %s"] = "Se vuelve a mostrar: %s"
-L["Show cost per skill-up"] = "Mostrar coste por subida de habilidad"
 L["Show gear I cannot make yet"] = "Mostrar equipo que aún no puedo crear"
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"Muestra las rutas de profesión en el rastreador de objetivos. Ocultarlas conserva tus profesiones seguidas y objetivos."
@@ -293,9 +276,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Dónde aparece la descripción al pasar el cursor sobre una receta. Junto a la ventana, no tapa los componentes."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Con la casa de subastas abierta, la ventana de profesiones ofrece buscar los componentes de la receta seleccionada: tantos como aún necesiten las creaciones que elijas tras contar tus bolsas y banco. La lista de compras de Auctionator lleva las cantidades; sin ella, cada clic pone el siguiente componente en el cuadro de búsqueda."
-L["With Shortest Path Forever, a click leads you there."] = "Con Shortest Path Forever, un clic te lleva allí."
-L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
-	"Con Shortest Path Forever, esto elige el más cercano por tiempo de viaje y te lleva allí."
 L["World drop"] = "Objeto del mundo"
 L["Wrist"] = "Muñeca"
 L["You have it"] = "Lo tienes"
@@ -699,3 +679,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"Estos componentes no tienen precio de vendedor. Los precios de subasta necesitan Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
+L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."] =
+	"Coste junto a cada receta. Desactivado, el coste queda en la descripción emergente de la receta." -- mt
+L["Price shown on recipe rows"] = "Precio mostrado en las filas de recetas" -- mt

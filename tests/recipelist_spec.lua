@@ -298,7 +298,7 @@ for _, id in ipairs({ 10, 30, 40, 20 }) do
 end
 replacements = 0
 box:SetDataProvider(profits)
-nodes = provider:GetRootNode():GetNodes()
+nodes = activeProvider():GetRootNode():GetNodes()
 for index, id in ipairs({ 20, 10, 30, 40 }) do
 	assert(
 		nodes[index]:GetData().recipeInfo.recipeID == id,

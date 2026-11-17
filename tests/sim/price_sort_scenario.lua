@@ -34,7 +34,15 @@ scenario("profit sorting includes grey recipes priced by a snapshot", { addons =
 		savedVariables = { SkillUpForeverDB = { priceSource = "naowh", sortMode = "profit", craftValue = "auction" } },
 	})
 	local frame = sim:openProfessions(197)
-	local provider = frame.CraftingPage.RecipeList.ScrollBox:GetDataProvider()
+	local native = frame.CraftingPage.RecipeList
+	local shown
+	for _, child in ipairs({ native:GetChildren() }) do
+		if child.ScrollBox and child ~= native and child:IsShown() then
+			shown = child
+		end
+	end
+	assert(shown, "the addon's view displays the profit-sorted rows")
+	local provider = shown.ScrollBox:GetDataProvider()
 	assert(
 		provider:GetRootNode():GetNodes()[1]:GetData().recipeInfo.recipeID == 2963,
 		"grey recipe with the highest craft profit comes first"

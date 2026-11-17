@@ -738,7 +738,7 @@
     },
     {
       "source": "UI/Supply.lua",
-      "sha256": "ab5a4f8d5f8942b999a1cd4463ee4eece71b140789a6afa481e152cd0b247b34",
+      "sha256": "03564ffb2d06c1a6438ad7cd9a3b9f501d807d8823d9c7c30f829a531a02ee68",
       "review": "Reviewed Label, Input, BuildRow Line/Pair/Choice and Reuse/Own, RenderReadout, Refresh, Reason and Create. All labels created by Label use GameFontHighlightSmall and reuse only changes text, geometry or colour. Bound the explicit form labels and locally produced readout/status text whose paths were confirmed. Apply uses pinned SharedButtonSmallTemplate normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. User-entered EditBox contents, external SupplySummaryText, draft validation/helper results not listed below, page registration title and inserted game names have no coverage claim. No font overrides occur. Reviewed FormReason and the centred label anchors; these change enabled state and geometry only, preserving the same font objects.",
       "bindings": [
         {
@@ -1125,7 +1125,7 @@
     },
     {
       "source": "UI/Settings.lua",
-      "sha256": "9e5bf9df4d7c6899a71a674257d24661d847a5157aa69dc93deb64e498c20b24",
+      "sha256": "027ad3890274a3adeac2f7f6023ee0a6997625d11f9586d53fa07f541d96f79c",
       "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded.",
       "bindings": []
     },

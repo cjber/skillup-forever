@@ -16,11 +16,29 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 <!-- discord-image: docs/screenshots/route.png -->
 
+### Changed
+
 - **Reagent counts cover the whole route, not each step alone.** Every step's craft budget is chosen together so the route finishes 95 times in 100 from what you already hold, at the least reagent purchase cost. The route and shopping list say the counts include spares for that estimate, and a held reagent is counted once across the steps that use it. An optional restock visit cost, off by default, lets a trip to buy more after a shortfall change where the spare crafts go (#563).
 - **The Craft button comes back after you use the game's own crafting page.** Returning to Route asks the client for the route's recipe again, so a previous request cannot leave Craft disabled. Thanks to luna for the report (#683).
-
 - **Preview unlearned recipes in the crafting pane.** Click an unlearned recipe to see its source, output, requirements, reagents and costs without changing your crafting selection. Thanks to puschie286 for the change (PR #729).
+- **A quieter first install.** The minimap button and the What's New chat lines start off; choices you already saved are kept. Thanks to Mirades96, p1tu, noenken and fusionley (#806).
+- **Hide prices on recipe rows on their own.** A new Show prices on recipe rows checkbox keeps the money in the recipe tooltip; rows you had hidden stay hidden.
+- **The recipe hover tooltip says what it is.** Its setting is now Show recipe tooltip on hover, so it is clear how to keep the reagents uncovered. Thanks to cheeq.
+- **Missing-price hints name the price addon you chose.** With AHDB or Naowh Forever chosen, the reagent tooltip and a route stopped on prices say how to update that addon. A linked or guild profession window keeps the game's own recipe list.
+- **Supply controls line up beside their labels.** The form waits for a merchant selling route reagents, and SkillUp's bottom tabs hide when you switch professions. Thanks to bromidious for the report (#787).
+- **Item-level searches filter unlearned recipes too.** Exact levels, approximate levels and ranges now filter the bundled recipes by their output item level, thanks to kopuliak for the report (#662).
+- **Closing Professions keeps gamepad controls working.** Sorted and unlearned recipes use their own list, leaving the game's recipe provider and footer bindings intact (#794).
+- **Tracked professions have one visibility switch.** Hiding the reagent section uses the same setting as Show tracked professions. Section and profession menus include Open and keep their tracker options together (#771).
+- **Gathered materials have a sale value by default.** Gathered and looted reagents cost what selling them would bring, for every player: the free setting older versions saved for everyone is reset once, and turning it off again sticks. The cost line no longer says 0 copper for leather you skin. Thanks to berserkerlxl and messajahswe on CurseForge for the reports (#780, #807).
+- **Sort every learned recipe by craft profit.** Highest craft profit orders by net value per craft, including grey recipes, with unknown values last. Thanks to davef1n on CurseForge for the idea (#781).
+- **AHDB can supply auction prices.** Choose AHDB under Prices, with other installed price addons filling gaps and tooltips showing the observation's age. Thanks to user_bvgv4fnauhmhf9i7 on CurseForge for the idea (#761).
+- **Auction data can price a route before your first auction house visit.** SkillUp reads Naowh Forever's scans and nightly auction snapshot when installed, keeps its age and leaves missing prices unknown (#783, #561).
 
+### Fixed
+
+- **Training no longer reroutes your levelling.** Learning a recipe the route already planned for keeps the crafts you bought reagents for, and drops the fee you just paid. Thanks to user_2md58226ziq3j0em (#807).
+- **A trainer row with no skill requirement keeps the known one.** The recipe no longer shows as available from skill 0.
+- **The SkillUp tab stays where it belongs.** Opening a recipe from your route no longer reshuffles the Professions window's tabs, which could move or drop the SkillUp tab and trigger a blocked-action warning. Thanks to Joly0, Tinter and user_2z94vp7dvu2wcvai.
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ### For addon authors

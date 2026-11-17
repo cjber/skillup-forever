@@ -1055,7 +1055,7 @@
     },
     {
       "source": "UI/Shopping.lua",
-      "sha256": "0949397e30182fe6b0a682cec36c8148cfce04af961a42f6407602c76a264a8b",
+      "sha256": "c346d6eebcc7384d22a2153f9ea628417cc00ad3973b0d847744d83710f0301c",
       "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets.",
       "bindings": [
         {

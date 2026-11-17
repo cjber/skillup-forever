@@ -21,7 +21,7 @@ assert(ns.core == G.ForeverCore.Register("SkillUpForever"), "Register is idempot
 assert(type(ns.core.SafeCall) == "function", "the context carries the addon's SafeCall")
 assert(type(ns.core.Report.Show) == "function", "and its own report window")
 
--- The saved trackerHost is a Forever Core setting now: the host copies it once and the addon drops its copy.
+-- The saved trackerHost is a ForeverCore setting now: the host copies it once and the addon drops its copy.
 local settings = G.ForeverCoreDB.trackerHost
 assert(settings, "the shared host has its settings")
 assert(settings.migrated == true, "the copy is marked done")
@@ -45,7 +45,7 @@ assert(G.ForeverCore.TrackerHost.IsAttached(module), "and hangs in the one share
 local function Addons()
 	local entries = {
 		{ "SkillUpForever", "SkillUp Forever", "v1.5.0", { "ForeverCore" } },
-		{ "ForeverCore", "Forever Core", "v1.5.0", {} },
+		{ "ForeverCore", "ForeverCore", "v1.5.0", {} },
 	}
 	local function At(index)
 		return entries[index]

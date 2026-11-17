@@ -297,7 +297,7 @@
 ---@field items table<integer, true>
 
 ---@class SkillUpDB : SkillUpDefaults, ForeverFamilyDB
----@field trackerHost? ForeverTrackerLegacySettings the addon's old tracker table, offered to Forever Core once
+---@field trackerHost? ForeverTrackerLegacySettings the addon's old tracker table, offered to ForeverCore once
 ---@field auctionListSignatures? table<string, string> The need SkillUp last wrote for each Auctionator list name
 ---@field showReagentTooltip? boolean Legacy migration only.
 ---@field priceDays? table Legacy migration only.

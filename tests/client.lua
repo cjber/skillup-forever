@@ -875,6 +875,44 @@ function Client.load(options)
 	-- Blizzard's quest-tracker mixin and header, which ForeverCore's own optional quest section extends.
 	G.QuestObjectiveTrackerMixin = {}
 	G.TRACKER_HEADER_QUESTS = "Quests"
+	-- An empty quest log: ForeverCore's quest list, on by default, reads it from the shared tracker.
+	G.C_QuestLog = {
+		GetNumQuestLogEntries = function()
+			return 0, 0
+		end,
+		GetNumQuestWatches = function()
+			return 0
+		end,
+		GetInfo = noop,
+		GetLogIndexForQuestID = noop,
+		GetQuestIDForQuestWatchIndex = noop,
+		GetTitleForQuestID = noop,
+		GetDistanceSqToQuest = noop,
+		GetNextWaypointText = noop,
+		GetQuestObjectives = noop,
+		GetMapForQuestPOIs = function()
+			return 0
+		end,
+		GetQuestsOnMap = function()
+			return {}
+		end,
+		IsComplete = function()
+			return false
+		end,
+		IsFailed = function()
+			return false
+		end,
+		IsPushableQuest = function()
+			return false
+		end,
+		IsQuestDisabledForSession = function()
+			return false
+		end,
+		ReadyForTurnIn = noop,
+		RemoveQuestWatch = function()
+			return false
+		end,
+	}
 	-- The addon-owned frame pools the tracker host builds, and the template reader it asks for a name.
 	G.CreateFramePoolCollection = function()
 		return {

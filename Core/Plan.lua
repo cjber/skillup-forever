@@ -315,6 +315,26 @@ local function CountHeld(snapshot, reagents)
 	return held
 end
 
+-- Missing sale values do not prevent gathering. Every unpriced input must have that source.
+---@param reagents SkillUpReagent[]?
+---@return boolean
+local function GatherableUnknown(reagents)
+	if not ns.ObtainCost or not ns.Price then
+		return false
+	end
+	local missing = false
+	for _, reagent in ipairs(reagents or {}) do
+		if ns.ObtainCost(reagent.itemID) == nil then
+			local price = ns.Price(reagent.itemID)
+			if not price or price.source ~= "gather" then
+				return false
+			end
+			missing = true
+		end
+	end
+	return missing
+end
+
 -- What the planner works from: the recipes this character knows, for any of its professions, from
 -- the bundled recipe data plus the learned record, so the profession needn't be open. `known` adds
 -- recipes the caller knows are learned. Skills here are effective (base + bonus), as the
@@ -346,6 +366,7 @@ local function Snapshot(profession, target, known)
 				recipeID = recipeID,
 				thresholds = thresholds,
 				netCost = netCost,
+				gatherableUnknown = netCost == nil and GatherableUnknown(reagents),
 				reagentCost = reagentCost,
 				reagents = PricedReagents(recipeID, reagents, held),
 				value = value and value.copper or nil,
@@ -437,6 +458,7 @@ local function Trainable(profession, snapshot)
 					recipeID = recipeID,
 					thresholds = taught,
 					netCost = netCost,
+					gatherableUnknown = netCost == nil and GatherableUnknown(reagents),
 					reagentCost = reagentCost,
 					reagents = PricedReagents(recipeID, reagents, held),
 					value = value and value.copper or nil,
@@ -983,7 +1005,7 @@ local function Affordable(plan)
 			-- The bags' copies are already off; anything left must be buyable.
 			if item.count > 0 then
 				local price = ns.Price(item.itemID)
-				if not price or price.unknown then
+				if not price or (price.unknown and price.source ~= "gather") then
 					return false
 				end
 			end
@@ -1234,6 +1256,7 @@ function ns.BestTraining(profession, known, offers)
 					thresholds[4],
 				},
 				netCost = netCost,
+				gatherableUnknown = netCost == nil and GatherableUnknown(reagents),
 				reagentCost = reagentCost,
 				reagents = PricedReagents(offer.recipeID, reagents, held),
 				value = value and value.copper or nil,
@@ -1388,7 +1411,8 @@ function ns.RouteBlocked(plan)
 		return string.format(L["At the %d cap: no trainer teaches the next rank."], plan.profession.max)
 	elseif plan.unpriced > 0 then
 		-- An auction addon knows only what it has scanned, so installing it isn't enough.
-		local without = L["These reagents have no vendor price. Auction prices need Auctionator or TradeSkillMaster."]
+		local without =
+			L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
 		local with = L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."]
 		if ns.HasTradeSkillMaster() and not ns.HasAuctionator() then
 			return L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."]

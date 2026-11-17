@@ -8,6 +8,8 @@ local BANDAGE, HEAVY, LINEN, THREAD, SALT = 1, 2, 3, 4, 5
 local function Load(options)
 	local c = Client.load({
 		auctionator = options.auctionator,
+		ahdb = options.ahdb,
+		naowh = options.naowh,
 		tsm = options.tsm,
 		saved = { routeTargets = { [129] = 60 }, trackedProfessions = { [129] = true } },
 		data = {
@@ -259,4 +261,23 @@ for _, auctionator in ipairs({ false, true }) do
 	end
 end
 
+for _, source in ipairs({ "ahdb", "naowh" }) do
+	c = Load({ ahdb = { [LINEN] = { 1700000000, 25 } }, naowh = { [LINEN] = { 30, 1700000000 } } })
+	ns = c.ns
+	c.auction[LINEN] = nil
+	c.SetSetting("priceSource", source)
+	equal(ns.Model.ShoppingSource(ns.PriceSource(LINEN)), "auction", "snapshot prices use the auction shopping bucket")
+	c.Fire("AUCTION_HOUSE_SHOW")
+	c.Advance(0)
+	equal(#c.auctionSearches, 0, "today's snapshot needs no refresh without an Auctionator observation")
+	c.Fire("AUCTION_HOUSE_CLOSED")
+	c.now = c.now + 86400
+	ns.Changed("prices")
+	c.Fire("AUCTION_HOUSE_SHOW")
+	c.Advance(0)
+	equal(#c.auctionSearches, 1, "an old snapshot refreshes on the first auction visit")
+	c.Fire("AUCTION_HOUSE_SHOW")
+	c.Advance(0)
+	equal(#c.auctionSearches, 1, "the snapshot query still runs only once per visit")
+end
 Client.report("auction_search_spec")

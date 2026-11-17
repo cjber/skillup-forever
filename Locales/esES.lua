@@ -38,8 +38,8 @@ L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."]
 	"/skillup unskip <recipe ID> vuelve a mostrar una, /skillup unskip all todas."
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"Una pestaña Componentes en la ventana del mercader que muestra los componentes que tus rutas seguidas aún necesitan de ese mercader y su coste total. Cómpralos en la propia ventana del mercader."
-L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."] =
-	"Un material que recogen tus profesiones cuesta lo que obtendrías al venderlo en lugar de nada: su precio de subasta tras la comisión del 5 %, o su precio de venta al vendedor si es mayor. Se usa para la ruta y los costes de las filas de recetas. Los precios de subasta necesitan Auctionator/TradeSkillMaster."
+L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
+	"Un material que recogen tus profesiones cuesta lo que obtendrías al venderlo en lugar de nada: su precio de subasta tras la comisión del 5 %, o su precio de venta al vendedor si es mayor. Se usa para la ruta y los costes de las filas de recetas. Los precios de subasta necesitan Auctionator/TradeSkillMaster / AHDB / Naowh Forever."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"Mantiene el rastreador compartido Forever donde lo pones. El tirador de arriba ya no lo arrastra."
 L["Lock the tracker"] = "Bloquear el rastreador"
@@ -186,8 +186,8 @@ L["Ranged"] = "A distancia"
 L["Read %s at %d"] = "Leer %s a %d"
 L["Read %s at %d (level %d)"] = "Leer %s a %d (nivel %d)"
 L["Read %s first: you're at your cap."] = "Lee primero %s: estás en tu máximo."
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather are free unless you value them under Prices, and auction prices need Auctionator or TradeSkillMaster."] =
-	"Coste de componentes dividido por la probabilidad de subir habilidad, en las filas de recetas y en la descripción. Los componentes comunes de vendedor tienen precio desde el principio y se actualizan en los mercaderes que visitas; los que recoges son gratis salvo que los valores en Precios; los precios de subasta necesitan Auctionator/TradeSkillMaster."
+L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
+	"Coste de componentes dividido por la probabilidad de subir habilidad, en las filas de recetas y en la descripción. Los componentes comunes de vendedor tienen precio desde el principio y se actualizan en los mercaderes que visitas; los que recoges cuestan su valor de venta salvo que desactives esa opción en Precios; los precios de subasta necesitan Auctionator/TradeSkillMaster / AHDB / Naowh Forever."
 L["Reagent tooltips"] = "Descripciones de componentes"
 L["Reagents"] = "Componentes"
 L["Reagents  (have / need)"] = "Componentes  (tienes / necesitas)"
@@ -248,21 +248,17 @@ L["Skipped (%d):"] = "Omitidas (%d):"
 L["Sold by"] = "Lo vende"
 L["Sort by"] = "Ordenar por"
 L["Sort recipes"] = "Ordenar recetas"
-L["Sort recipes in one list, learned first, then unlearned. Default restores categories."] =
-	'Ordena las recetas en una sola lista, primero las aprendidas y luego las no aprendidas. "Predeterminado" restaura las categorías.'
 L["Source"] = "Origen"
 L["Source unknown"] = "Origen desconocido"
 L["Stop tracking"] = "Dejar de seguir"
-L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator or TradeSkillMaster, are after the 5% cut, and may not sell."] =
-	"Resta del coste lo que vale vender el objeto creado. Los precios de subasta necesitan Auctionator/TradeSkillMaster, son tras la comisión del 5 % y puede que no se vendan."
+L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever, are after the 5% cut, and may not sell."] =
+	"Resta del coste lo que vale vender el objeto creado. Los precios de subasta necesitan Auctionator/TradeSkillMaster / AHDB / Naowh Forever, son tras la comisión del 5 % y puede que no se vendan."
 L["Taught by %s trainers."] = "Lo enseñan los instructores de %s."
 L["The place this recipe is taught isn't known yet."] = "Aún no se sabe dónde se enseña esta receta."
 L["The rest comes from a vendor or your gathering."] = "El resto viene de un vendedor o de tu recolección."
 L["The route asks for %d to reach %d in 9 runs of 10; a worse run needs more."] =
 	"La ruta cuenta con %d para llegar a %d 9 de cada 10 veces; con peor suerte harán falta más."
 L["The source of this recipe isn't known."] = "Se desconoce el origen de esta receta."
-L["These reagents have no vendor price. Auction prices need Auctionator or TradeSkillMaster."] =
-	"Estos componentes no tienen precio de vendedor. Los precios de subasta necesitan Auctionator/TradeSkillMaster."
 L["To buy"] = "Por comprar"
 L["Tool"] = "Herramienta"
 L["Tooltips and sorting"] = "Descripciones y orden"
@@ -283,8 +279,8 @@ L["Value gathered materials at what they'd sell for"] = "Valorar los materiales 
 L["Vendor"] = "Vendedor"
 L["Vendor reagents"] = "Componentes de vendedor"
 L["Vendor sell price"] = "Precio de venta al vendedor"
-L["Visit a vendor to price reagents. Auction prices need Auctionator or TradeSkillMaster."] =
-	"Visita a un vendedor para poner precio a los componentes. Los precios de subasta necesitan Auctionator/TradeSkillMaster."
+L["Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
+	"Visita a un vendedor para poner precio a los componentes. Los precios de subasta necesitan Auctionator/TradeSkillMaster / AHDB / Naowh Forever."
 L["Waist"] = "Cintura"
 L["Waypoint to a trainer"] = "Punto de ruta a un instructor"
 L["Waypoint to a vendor: %s"] = "Punto de ruta a un vendedor: %s"
@@ -444,8 +440,8 @@ L["Sells %d at a time"] = "Vende %d a la vez" -- mt
 L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
 	"Esta ruta consiste principalmente en %s: se omiten %d recetas hasta conocer sus costes o valores de venta."
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
-L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."] =
-	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster." -- mt
+L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
+	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster / AHDB / Naowh Forever." -- mt
 
 -- Shared debug log (ForeverCore's Core/Log.lua).
 L["Only buffs for your level"] = "Solo mejoras para tu nivel"
@@ -528,8 +524,6 @@ L["%s profit per skill-up"] = "%s de beneficio por subida de habilidad"
 L["Auction price"] = "Precio de subasta"
 L["Auction prices from"] = "Precios de subasta de"
 L["Auctionator"] = "Auctionator"
-L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."] =
-	"Qué addon pone precio a los valores de subasta cuando ambos están instalados. Gana el precio del addon elegido; el otro rellena un objeto para el que no tiene precio. Auctionator también indica la antigüedad de su precio."
 
 L["Skill %d to %d, %s"] = "Habilidad de %d a %d, %s" -- mt
 L["Skill %d to %d, %s, at %s"] = "Habilidad de %d a %d, %s, en %s" -- mt
@@ -673,3 +667,32 @@ L["Show the SkillUp button on the minimap."] = "Muestra el botón de SkillUp en 
 
 L["Reagent counts cover the whole route, not each step alone."] =
 	"Las cantidades de materiales cubren toda la ruta, no solo cada paso por separado." -- mt
+
+L["Highest craft profit"] = "Mayor beneficio por fabricación" -- mt
+
+L["AHDB"] = "AHDB" -- mt
+
+L["Naowh Forever"] = "Naowh Forever" -- mt
+
+L["AHDB, %s"] = "AHDB, %s" -- mt
+
+L["Naowh Forever, %s"] = "Naowh Forever, %s" -- mt
+
+L["you loot it from creatures, would sell for %s"] = "lo despojas de criaturas, se vendería por %s" -- mt
+
+L["you gather it (%s), would sell for %s"] = "lo recolectas (%s), se vendería por %s" -- mt
+
+L["Scan the auction house with AHDB, or visit a vendor, to price reagents."] =
+	"Escanea la casa de subastas con AHDB o visita un vendedor para obtener precios de componentes." -- mt
+
+L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."] =
+	"Actualiza los datos de subastas de Naowh Forever o visita un vendedor para obtener precios de componentes." -- mt
+
+L["Choose Auctionator, TradeSkillMaster, AHDB or Naowh Forever. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."] =
+	"Elige Auctionator, TradeSkillMaster, AHDB o Naowh Forever. El precio elegido tiene prioridad; los demás rellenan los huecos. Las descripciones muestran la antigüedad del dato cuando se conoce." -- mt
+
+L["Sort recipes in one list, learned first, then unlearned. Highest craft profit includes grey recipes. Default restores categories."] =
+	"Ordena las recetas en una lista, primero las aprendidas y luego las no aprendidas. Mayor beneficio por fabricación incluye recetas grises. Predeterminado restaura las categorías." -- mt
+
+L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
+	"Estos componentes no tienen precio de vendedor. Los precios de subasta necesitan Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt

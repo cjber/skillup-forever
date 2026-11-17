@@ -205,6 +205,8 @@ local OPTIONAL_GLOBALS = {
 	Auctionator = true,
 	-- TradeSkillMaster: its public API table, present only when TSM is installed and enabled.
 	TSM_API = true,
+	AuctionDB = true,
+	NaowhForever = true,
 	-- TomTom: its addon table, present only when TomTom is installed and enabled.
 	TomTom = true,
 	-- Shortest Path Forever: its addon table, present only when that Forever addon is installed.
@@ -1392,6 +1394,32 @@ function Client.load(options)
 					return c.auctionAutoscan
 				end,
 			},
+		}
+	end
+	c.ahdb, c.naowh = options.ahdb, options.naowh
+	c.ahdbListeners = {}
+	if options.ahdb then
+		G.AuctionDB = {
+			ViewHouse = function()
+				return "test house"
+			end,
+			LastPrice = function(_, itemID, house)
+				assert(house == "test house")
+				return c.ahdb[itemID]
+			end,
+			Listen = function(_, event, fn)
+				c.ahdbListeners[event] = fn
+			end,
+		}
+	end
+	if options.naowh then
+		G.NaowhForever = {
+			AuctionPrice = function(itemID)
+				local point = c.naowh[itemID]
+				if point then
+					return point[1], point[2]
+				end
+			end,
 		}
 	end
 	-- options.tsm = { [itemID] = copper }, what TSM's AuctionDB holds; a spec may change it through c.tsm.

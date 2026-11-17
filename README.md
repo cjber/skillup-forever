@@ -18,7 +18,7 @@ From 48 to 60 the rows re-sort by cost per skill-up, and Handstitched Leather Br
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/window.png" width="640" alt="The Leatherworking window with skill-up chance and cost per skill-up on each recipe row, and a tooltip showing reagent prices and cost per skill-up"></p>
 
-Each row shows its chance and cost; the tooltip prices each reagent. This character skins, so Light Leather is free.
+Each row shows its chance and cost; the tooltip prices each reagent. This character skins, so Light Leather is valued at what selling it would bring.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/tooltip.png" width="640" alt="A recipe tooltip with the orange, yellow, green and grey thresholds on a bar, your skill marked, and each reagent's price and cost per skill-up"></p>
 
@@ -27,7 +27,7 @@ The tooltip draws the thresholds on the game's bar, then each reagent's price an
 ## Features
 
 - **Recipe rows and tooltips** show skill-up chance, cost, colour thresholds and how many your bags can make.
-- **Sorting** orders recipes by difficulty range start, chance, cheapest skill-ups or newest learned first; unlearned ones sort separately.
+- **Sorting** orders recipes by difficulty range start, chance, cheapest skill-ups, highest craft profit or newest learned first; unlearned ones sort separately.
 - **Unlearned recipes** can sit under the learned ones, greyed and marked with their trainer or recipe item, and the search box narrows them. Click one to preview its read-only details in the crafting pane.
 - **Buffs only** filters the list to the buffs you can use at your level.
 - **Levelling routes** list the crafts, trainer visits, skill books and rank quests to your target skill, in order, each with its amount and cost. [Route details](docs/route.md#levelling-route).
@@ -62,7 +62,7 @@ Tracked, the route sits beside your quests: the next trainer visit and what is s
 
 At the trainer, each recipe shows its chance and cost; a green arrow marks the best next one.
 
-<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/reagent.png" width="320" alt="Light Leather's tooltip with how much the tracked route needs"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/reagent.png" width="320" alt="Ruined Leather Scraps' tooltip with how much the tracked route needs"></p>
 
 Hover a reagent to see how much your tracked routes need.
 
@@ -88,9 +88,9 @@ Settings cover rows and tooltips, prices, sort order, the tabs, trainer annotati
 
 ## Prices
 
-Each reagent uses the cheapest known vendor or auction price, and visiting a vendor records its prices and reputation discounts. *Buy reagents* is on by default, so materials your professions gather are bought; choose gathering, or turn on *Value gathered materials at what they'd sell for* to cost them at their sale value. *Price self-supplied reagents at auction values* prices what you gather, loot or own at market value, and leaves it unpriced when there is none.
+Each reagent uses the cheapest known vendor or auction price, and visiting a vendor records its prices and reputation discounts. *Buy reagents* is on by default, so materials your professions gather are bought; choose gathering to supply them yourself. *Value gathered materials at what they'd sell for* is on for new installs and costs them at their sale value; turn it off to count them as free. *Price self-supplied reagents at auction values* prices what you gather, loot or own at market value, and leaves it unpriced when there is none.
 
-Auction prices are Auctionator's latest recorded scan, or TradeSkillMaster's AuctionDB with its desktop app. *Auction prices from* picks which one wins when both are installed, and the other fills the gaps. SkillUp never scans the auction house, and a price nobody has seen stays unknown.
+Auction prices come from Auctionator's latest scan, TradeSkillMaster's AuctionDB with its desktop app, AHDB, or Naowh Forever's scans and nightly auction data. Naowh's snapshot can price materials before your first auction house visit. *Auction prices from* picks which source wins, and the others fill the gaps. SkillUp never scans the auction house, and a price nobody has seen stays unknown.
 
 A craft's vendor sell value comes off its cost, or its auction value after the 5% cut if you choose. *Region sale average if higher* uses regional sales with the vendor price as a floor, and recipe tooltips add TSM's regional sales per day where it has them. Profit shows a green `+`, and cost per skill-up divides net cost by chance.
 
@@ -110,7 +110,7 @@ The colour comes from the game, the grey band uses its live value where the clie
 
 ## Works alongside
 
-All optional: Auctionator supplies auction prices and takes the shopping list, TomTom draws waypoint arrows, and Syndicator shows your alts' reagents. [Questie](https://www.curseforge.com/wow/addons/questie) names the vendors, quests and trainers the route points to, and [AtlasLoot Classic Forever](https://www.curseforge.com/wow/addons/atlasloot-forever) names the scroll that teaches each recipe.
+All optional: Auctionator, TradeSkillMaster, AHDB and Naowh Forever supply auction prices; Auctionator also takes the shopping list, TomTom draws waypoint arrows, and Syndicator shows your alts' reagents. [Questie](https://www.curseforge.com/wow/addons/questie) names the vendors, quests and trainers the route points to, and [AtlasLoot Classic Forever](https://www.curseforge.com/wow/addons/atlasloot-forever) names the scroll that teaches each recipe.
 
 <!-- forever-family:start -->
 
@@ -157,7 +157,7 @@ Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees
 
 <!-- forever-credits:start -->
 
-Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, sundered1985, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, puschie286, Belth, yavinn, cursebandit, rissole, davef1n, codipherus, jugg__, keerp, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc, Da_Tronic, shenhyrosame and everyone who reported a bug or asked for a feature.
+Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, davef1n, sundered1985, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, messajahswe, user_bvgv4fnauhmhf9i7, puschie286, Belth, yavinn, cursebandit, rissole, codipherus, jugg__, keerp, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc, Da_Tronic, shenhyrosame and everyone who reported a bug or asked for a feature.
 
 <!-- forever-credits:end -->
 

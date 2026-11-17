@@ -318,10 +318,7 @@ assert(
 )
 assert(priceSource.initializer.options.formatter(1) == "Auctionator", "the first source is Auctionator")
 assert(priceSource.initializer.options.formatter(2) == "TradeSkillMaster", "the second is TradeSkillMaster")
-assert(
-	priceSource.initializer.tooltip:find("the other fills in an item it has no price for", 1, true),
-	"the setting explains its fallback"
-)
+assert(priceSource.initializer.tooltip:find("the others fill gaps", 1, true), "the setting explains its fallback")
 local craftValue = Row("craftValue")
 assert(
 	craftValue.initializer.setting.variable == "SkillUpForever_craftValue_choice"

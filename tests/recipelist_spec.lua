@@ -286,3 +286,22 @@ box:SetDataProvider(categorized)
 nodes = activeProvider():GetRootNode():GetNodes()
 assert(nodes[3]:GetData().recipeInfo.recipeID == 70, "changing unlearned order sorts native rows again")
 print("independent unlearned ordering: native categories and bundled recipes passed")
+
+-- Profit is net per craft, including grey recipes, with unknowns last.
+ns.db.sortMode = "profit"
+ns.NetCost = function(id)
+	return ({ [10] = -200, [20] = -500, [30] = 100 })[id]
+end
+local profits = tree()
+for _, id in ipairs({ 10, 30, 40, 20 }) do
+	profits:Insert({ recipeInfo = { recipeID = id, name = tostring(id), learned = true, canSkillUp = id ~= 20 } })
+end
+replacements = 0
+box:SetDataProvider(profits)
+nodes = provider:GetRootNode():GetNodes()
+for index, id in ipairs({ 20, 10, 30, 40 }) do
+	assert(
+		nodes[index]:GetData().recipeInfo.recipeID == id,
+		"profit orders every learned recipe, grey included, unknown last"
+	)
+end

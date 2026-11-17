@@ -11,7 +11,7 @@ local BOLT, LINEN_BANDAGE, HEAVY_LINEN_BANDAGE = 2963, 3275, 3276
 
 -- A character with this profession, the recipes it knows and a route target, and the plan for it.
 local function Load(name, skillLine, rank, max, known, target)
-	local c = Client.load({ auctionator = false })
+	local c = Client.load({ auctionator = false, saved = { valueGathered = false } })
 	c.level = 60
 	c.player.faction = "Alliance"
 	c.professions = { { name = name, id = skillLine, rank = rank, max = max } }

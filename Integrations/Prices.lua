@@ -90,16 +90,83 @@ local function TradeSkillMasterPrice(itemID)
 	return { copper = value, source = "tsm" }
 end
 
--- The addon whose auction price the player chose. The other addon fills in only an item the chosen one has no
--- price for: the choice changes which observation wins, not whether a missing price falls back to the other.
+---@return boolean
+function ns.HasAHDB()
+	return type(AuctionDB) == "table"
+		and type(AuctionDB.LastPrice) == "function"
+		and type(AuctionDB.ViewHouse) == "function"
+end
+
+---@return boolean
+function ns.HasNaowhForever()
+	return type(NaowhForever) == "table" and type(NaowhForever.AuctionPrice) == "function"
+end
+
+---@param value any
+---@return boolean
+local function ValidPrice(value)
+	return type(value) == "number" and value == value and value >= 0 and value < math.huge
+end
+
+local function ObservationDays(at)
+	if ValidPrice(at) then
+		return math.max(0, math.floor((GetServerTime() - at) / 86400))
+	end
+	return nil
+end
+
+---@param itemID integer
+---@return SkillUpPrice?
+local function AHDBPrice(itemID)
+	if not ns.HasAHDB() then
+		return nil
+	end
+	local ok, point = pcall(function()
+		return AuctionDB:LastPrice(itemID, AuctionDB:ViewHouse())
+	end)
+	if not (ok and type(point) == "table" and ValidPrice(point[2])) then
+		return nil
+	end
+	return { copper = point[2], source = "ahdb", days = ObservationDays(point[1]) }
+end
+
+---@param itemID integer
+---@return SkillUpPrice?
+local function NaowhPrice(itemID)
+	if not ns.HasNaowhForever() then
+		return nil
+	end
+	local ok, value, at = pcall(NaowhForever.AuctionPrice, itemID)
+	if not (ok and type(value) == "number" and ValidPrice(value)) then
+		return nil
+	end
+	return { copper = value, source = "naowh", days = ObservationDays(at) }
+end
+
+local PROVIDERS = { auctionator = AuctionatorPrice, tsm = TradeSkillMasterPrice, ahdb = AHDBPrice, naowh = NaowhPrice }
+local PROVIDER_ORDER = { "auctionator", "tsm", "ahdb", "naowh" }
+
+-- The chosen observation wins; every other installed provider fills gaps in a fixed order.
 ---@param itemID integer
 ---@return SkillUpPrice?
 local function AuctionPrice(itemID)
-	if ns.db.priceSource == "tsm" then
-		return TradeSkillMasterPrice(itemID) or AuctionatorPrice(itemID)
+	local selected = ns.db.priceSource
+	local chosen = PROVIDERS[selected]
+	local price = chosen and chosen(itemID)
+	if price then
+		return price
 	end
-	return AuctionatorPrice(itemID) or TradeSkillMasterPrice(itemID)
+	for _, source in ipairs(PROVIDER_ORDER) do
+		if source ~= selected then
+			price = PROVIDERS[source](itemID)
+			if price then
+				return price
+			end
+		end
+	end
+	return nil
 end
+ns.AuctionPrice = AuctionPrice
 
 -- TradeSkillMaster's regional sale average, from the sale and purchase accounting its desktop app collects in the
 -- player's region. It is not a listing and not this character's own sales. TSM records an auction sale net of the
@@ -203,20 +270,19 @@ local function Gathered(itemID)
 		return nil
 	end
 	local marketOnly = ns.db.auctionOnly
-	local worth, from, market = nil, nil, nil
-	if ns.db.valueGathered or marketOnly then
-		worth, from, market = SaleValue(itemID)
-	end
+	local worth, from, market = SaleValue(itemID)
 	if marketOnly and not (worth and worth > 0) then
 		-- No market price: leave it unknown, never a free material (issue #399).
 		return nil
 	end
 	---@type SkillUpPrice
 	local price = {
-		copper = worth or 0,
+		copper = (ns.db.valueGathered or marketOnly) and worth or 0,
+		unknown = (ns.db.valueGathered or marketOnly) and worth == nil or nil,
+		sale = not (ns.db.valueGathered or marketOnly) and worth or nil,
 		-- Priced from the market, a self-supplied reagent is bought there in the shopping list too.
 		source = marketOnly and (from == "auction" and market or "vendor") or "gather",
-		worth = from,
+		worth = (ns.db.valueGathered or marketOnly) and from or nil,
 	}
 	if source == "loot" then
 		price.loot = true
@@ -237,7 +303,7 @@ local function MarketGood(itemID)
 end
 
 -- Cheapest known unit price and where it came from: "gather", "vendor", "auctionator"
--- or "tsm". A price seen at a vendor beats the bundled list, since it includes
+-- "tsm", "ahdb" or "naowh". A price seen at a vendor beats the bundled list, since it includes
 -- any reputation discount. With Buy reagents on, a market good without an auction observation stays
 -- unknown with only a bundled vendor fallback. A price actually seen at a merchant is a known purchase
 -- cost; it does not need an auction observation to establish what the player can pay (#559, #561).
@@ -920,9 +986,12 @@ function ns.InitPrices()
 	if api and api.RegisterForDBUpdate then
 		api.RegisterForDBUpdate(addonName, PricesChanged)
 	end
-	-- Auctionator loads its database at PLAYER_LOGIN and TradeSkillMaster reads its AuctionDB at login: a price asked
-	-- for before then came back empty, and the cache keeps that until a scan.
-	if api or ns.HasTradeSkillMaster() then
+	-- Installed price addons finish loading their databases at login. Drop any early misses once on entering the world.
+	if ns.HasAHDB() and type(AuctionDB.Listen) == "function" then
+		pcall(AuctionDB.Listen, AuctionDB, "SCAN_DATA", PricesChanged)
+		pcall(AuctionDB.Listen, AuctionDB, "HISTORY_MERGED", PricesChanged)
+	end
+	if api or ns.HasTradeSkillMaster() or ns.HasAHDB() or ns.HasNaowhForever() then
 		local entered = false
 		ns.WhenEvent("PLAYER_ENTERING_WORLD", function()
 			if entered then

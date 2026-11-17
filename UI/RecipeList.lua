@@ -153,6 +153,9 @@ local SORT_KEYS = {
 		local chance = ns.Describe(recipeInfo, ctx).chance
 		return chance and -chance or math.huge
 	end,
+	profit = function(recipeInfo)
+		return ns.NetCost(recipeInfo.recipeID) or math.huge
+	end,
 	cost = function(recipeInfo, ctx)
 		return ns.Describe(recipeInfo, ctx).perSkillUp or math.huge
 	end,
@@ -508,7 +511,7 @@ local function AddFilterMenu(owner, rootDescription)
 		return MenuResponse.Refresh
 	end)
 	rootDescription:CreateTitle(L["Sort by"])
-	for _, option in ipairs(ns.SORT_OPTIONS) do -- menu-scroll-ok: SORT_OPTIONS is five fixed sort modes
+	for _, option in ipairs(ns.SORT_OPTIONS) do -- menu-scroll-ok: SORT_OPTIONS is six fixed sort modes
 		rootDescription:CreateRadio(option[2], function(mode)
 			return ns.db.sortMode == mode
 		end, function(mode)

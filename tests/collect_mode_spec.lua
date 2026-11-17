@@ -121,7 +121,7 @@ shared.Advance(0)
 equal(#shared.auctionSearches, 1, "fully held one-craft dependencies need no discovery query")
 
 -- A character who picked gathering keeps it, and its reagent stays free.
-local gathered, gatheredNs = Load({ collectModes = { ["Tester-Realm"] = "gather" } })
+local gathered, gatheredNs = Load({ valueGathered = false, collectModes = { ["Tester-Realm"] = "gather" } })
 equal(gatheredNs.CollectMode(), "gather", "a saved gather choice is kept")
 equal(gatheredNs.Price(LINEN).source, "gather", "so its reagent is priced as gathered")
 equal(gatheredNs.Price(LINEN).copper, 0, "at no cost")

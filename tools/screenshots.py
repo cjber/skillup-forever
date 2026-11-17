@@ -268,14 +268,15 @@ SKILL_LINE_NAMES = {line: name for name, _, _, _, line in PROFESSIONS}
 
 
 def price(item_id):
-    """Integrations/Prices.lua ns.Price in gather mode: free when one of the
-    character's professions gathers it or a creature drops it, else vendor (when
-    it's no dearer than the auction house), else auction."""
-    if NS.get("LootedFrom", {}).get(item_id):
-        return {"copper": 0, "source": "gather", "loot": True}
+    """Integrations/Prices.lua ns.Price in gather mode, with the default opportunity value."""
     profession = SKILL_LINE_NAMES.get(NS["GatheredBy"].get(item_id))
-    if profession:
-        return {"copper": 0, "source": "gather", "profession": profession}
+    loot = bool(NS.get("LootedFrom", {}).get(item_id))
+    if profession or loot:
+        sell, auction = NS["ItemSellPrices"].get(item_id), AUCTION.get(item_id)
+        resale = auction * 0.95 if auction is not None else None
+        worth = "auction" if resale is not None and (sell is None or resale > sell) else "vendor"
+        copper = resale if worth == "auction" else sell
+        return {"copper": copper, "source": "gather", "loot": loot, "profession": profession, "worth": worth}
     vendor, ah = NS["VendorPrices"].get(item_id), AUCTION.get(item_id)
     if vendor is not None and (ah is None or vendor <= ah):
         return {"copper": vendor, "source": "vendor"}
@@ -388,7 +389,7 @@ def craftable_count(recipe_id, bags=BAGS):
 
 LEVEL = 20
 MONEY = 25000  # 2g 50s: every Apprentice fee is within reach, so the trainer's next pick can be any of them
-TOOLTIP_ITEM = 2318  # Light Leather
+TOOLTIP_ITEM = 2934  # Ruined Leather Scraps, the gathered input the route needs.
 
 # Loads the TOC's Lua files under luajit into recording stubs
 # of the client (as tests/route_spec.lua does), runs the addon's start-up, opens its route page, lays out its
@@ -931,6 +932,8 @@ env = setmetatable({
 	LibQuestieDB = false,
 	Syndicator = false,
 	TSM_API = false,
+	AuctionDB = false,
+	NaowhForever = false,
 	-- ForeverCore's shared services; the scene below fills them in.
 	ForeverCore = false,
 	BugGrabber = false,
@@ -1713,10 +1716,10 @@ def format_row(d):
 
 def source_text(p):
     """UI/Tooltip.lua ns.PriceSourceText, for an Auctionator price seen today."""
-    if p.get("loot"):
-        return "you loot it from creatures"
     if p["source"] == "gather":
-        return f"you gather it ({p['profession']})"
+        origin = "you loot it from creatures" if p.get("loot") else f"you gather it ({p['profession']})"
+        value = "AH price" if p["worth"] == "auction" else "vendor sell price"
+        return f"{origin}, valued at its {value}"
     return "vendor" if p["source"] == "vendor" else "Auctionator, today"
 
 
@@ -3144,7 +3147,7 @@ def trainer_scene(ui, scene_data):
 
 
 def reagent_tooltip(ui, scene_data):
-    """Light Leather's item tooltip with what UI/Tooltip.lua's post-call adds (route mode, Shift up)."""
+    """Ruined Leather Scraps' item tooltip with what UI/Tooltip.lua's post-call adds (route mode, Shift up)."""
     item = ui.item(TOOLTIP_ITEM)
     lines = [TooltipLine(item.name, QUALITY_TEXT[item.quality]), TooltipLine("Sell Price:", money=item.sell_price)]
     for line in scene_data["reagent"]:

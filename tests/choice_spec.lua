@@ -11,7 +11,7 @@ local ORE, FLUX = 2770, 2880
 
 local c = Client.load({
 	boot = false,
-	saved = { routeTargets = { [164] = 20 } },
+	saved = { valueGathered = false, routeTargets = { [164] = 20 } },
 	data = {
 		Thresholds = {
 			[FROM_ORE] = { 1, 30, 45, 60 },
@@ -53,7 +53,7 @@ end
 
 --[[ Gathered materials ]]
 
-equal(ns.db.valueGathered, false, "gathered materials are free by default")
+equal(ns.db.valueGathered, false, "the saved free-material choice is preserved")
 equal(ns.Price(ORE).copper, 0, "so ore this character mines costs nothing")
 equal(Plan().crafts[1].recipeID, FROM_ORE, "and the route crafts from it")
 
@@ -231,7 +231,10 @@ equal(c.chat[1]:find("no skipped recipes", 1, true) ~= nil, true, "with none ski
 
 -- A save that isn't a recipe ID set is dropped on load.
 local reloaded = Client.load({
-	saved = { skippedRecipes = { ["Tester-Realm"] = { [FROM_ORE] = true, bad = true, [7] = "yes" }, Other = 3 } },
+	saved = {
+		valueGathered = false,
+		skippedRecipes = { ["Tester-Realm"] = { [FROM_ORE] = true, bad = true, [7] = "yes" }, Other = 3 },
+	},
 })
 equal(reloaded.ns.db.skippedRecipes["Tester-Realm"][FROM_ORE], true, "a saved skip survives a reload")
 equal(reloaded.ns.db.skippedRecipes["Tester-Realm"].bad, nil, "a key that isn't a recipe ID is dropped")

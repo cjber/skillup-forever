@@ -193,6 +193,7 @@ equal(
 -- and one no market prices stays unpriced rather than free.
 local MARKETED, UNMARKETED = 30, 40
 local self = Client.load({
+	saved = { valueGathered = false },
 	data = {
 		GatheredBy = {},
 		LootedFrom = { [MARKETED] = true, [UNMARKETED] = true },
@@ -240,6 +241,7 @@ equal(fish.ns.Price(FISH).profession, "Fishing", "and priced under that professi
 -- price for the bolt wins over the vendor's when there is one.
 local SILK, BOLT, ROBE = 4306, 4305, 4324
 local bolt = Client.load({
+	saved = { valueGathered = false },
 	data = {
 		GatheredBy = {},
 		LootedFrom = { [SILK] = true },

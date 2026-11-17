@@ -43,6 +43,9 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| messajahswe | Gathered materials have a sale value by default | CurseForge; comment 8733694; #780 |
+| davef1n | Sort recipes by profit regardless of skill | CurseForge; comment 8735009; #781 |
+| user_bvgv4fnauhmhf9i7 | AHDB supplies auction prices | CurseForge; comment 8730894; #761 |
 | [puschie286](https://github.com/puschie286) | Preview unlearned recipes in the crafting pane | GitHub; PR #729 |
 | Belth | Routes prefer materials already in the bags | CurseForge; #744 |
 | yavinn | SkillUp pages stay visible with ClassicUI Forever | CurseForge; thread 8722440; #734 |

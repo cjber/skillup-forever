@@ -3,6 +3,7 @@ local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local c = Client.load({
+	saved = { valueGathered = false },
 	data = {
 		VendorPrices = { [60] = 25, [61] = 40, [62] = 30 },
 		LootedFrom = { [60] = true, [64] = true },

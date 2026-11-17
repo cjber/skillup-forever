@@ -218,18 +218,19 @@ local DAY = 86400
 ---@param price SkillUpPrice
 ---@return number?
 function ns.PriceAge(price)
-	if price.source ~= "auctionator" then
-		error("not an auction price: " .. tostring(price.source))
+	if price.ageUnavailable then
+		return nil
 	end
-	return not price.ageUnavailable and (price.days or 22) * DAY or nil
+	if price.days ~= nil then
+		return price.days * DAY
+	end
+	return price.source == "auctionator" and 22 * DAY or nil
 end
 
 ---@param price SkillUpPrice
 ---@return string
 function ns.PriceAgeText(price)
-	if price.source ~= "auctionator" then
-		error("not an auction price: " .. tostring(price.source))
-	elseif price.ageUnavailable then
+	if price.ageUnavailable or (price.days == nil and price.source ~= "auctionator") then
 		return L["unknown age"]
 	elseif price.days == nil then
 		return L["over 3 weeks ago"]
@@ -239,11 +240,17 @@ function ns.PriceAgeText(price)
 	return string.format(L["%dd ago"], price.days)
 end
 
--- What to do about a reagent with no price: auction prices come only from Auctionator or TradeSkillMaster. The
+-- What to do about a reagent with no price. The
 -- chosen addon's advice comes first; an installed fallback still gets its own advice when the chosen one is absent.
 ---@return string
 function ns.UnpricedHint()
 	local auctionator, tsm = ns.HasAuctionator(), ns.HasTradeSkillMaster()
+	if (ns.db.priceSource == "ahdb" or not (auctionator or tsm)) and ns.HasAHDB() then
+		return L["Scan the auction house with AHDB, or visit a vendor, to price reagents."]
+	end
+	if (ns.db.priceSource == "naowh" or not (auctionator or tsm)) and ns.HasNaowhForever() then
+		return L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."]
+	end
 	if (ns.db.priceSource == "tsm" and tsm) or not auctionator then
 		if tsm then
 			return L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."]
@@ -251,12 +258,18 @@ function ns.UnpricedHint()
 	elseif auctionator then
 		return L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."]
 	end
-	return L["Visit a vendor to price reagents. Auction prices need Auctionator or TradeSkillMaster."]
+	return L["Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
 end
 
 ---@param price SkillUpPrice
 ---@return string
 function ns.PriceSourceText(price)
+	if price.sale then
+		if price.loot then
+			return string.format(L["you loot it from creatures, would sell for %s"], Money(price.sale))
+		end
+		return string.format(L["you gather it (%s), would sell for %s"], price.profession, Money(price.sale))
+	end
 	if price.loot and price.worth == "auction" then
 		return L["you loot it from creatures, valued at its AH price"]
 	elseif price.loot and price.worth == "vendor" then
@@ -273,6 +286,10 @@ function ns.PriceSourceText(price)
 		return L["vendor"]
 	elseif price.source == "auctionator" then
 		return string.format(L["Auctionator, %s"], ns.PriceAgeText(price))
+	elseif price.source == "ahdb" then
+		return string.format(L["AHDB, %s"], ns.PriceAgeText(price))
+	elseif price.source == "naowh" then
+		return string.format(L["Naowh Forever, %s"], ns.PriceAgeText(price))
 	elseif price.source == "tsm" then
 		return L["TradeSkillMaster"]
 	elseif price.source == "auction" then

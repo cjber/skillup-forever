@@ -81,3 +81,13 @@ Questie = nil
 ---@field GetData fun(self: SkillUpAtlasLootDroprate, npcID: integer, itemID: integer): number?
 ---@type {Data: {Recipe: SkillUpAtlasLootRecipes?, Droprate: SkillUpAtlasLootDroprate?}?}?
 AtlasLoot = nil
+
+---@class SkillUpAHDB
+---@field LastPrice fun(self: SkillUpAHDB, itemID: integer, house: string): number[]?
+---@field ViewHouse fun(self: SkillUpAHDB): string
+---@field Listen? fun(self: SkillUpAHDB, event: string, callback: fun())
+---@type SkillUpAHDB?
+AuctionDB = nil
+
+---@type {AuctionPrice: fun(itemID: integer): number?, number?}?
+NaowhForever = nil

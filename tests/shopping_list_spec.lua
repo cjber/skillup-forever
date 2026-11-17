@@ -4,6 +4,7 @@ local equal = Client.equal
 local c = Client.load({
 	boot = false,
 	saved = {
+		valueGathered = false,
 		routeTargets = { [197] = 60, [164] = 70 },
 		trackedProfessions = { [197] = true, [164] = true },
 	},
@@ -295,6 +296,7 @@ local LW_ITEM, COOK_ITEM = 1101, 1201
 local scoped = Client.load({
 	boot = false,
 	saved = {
+		valueGathered = false,
 		routeTargets = { [LEATHERWORKING] = 60, [COOKING] = 70 },
 		trackedProfessions = { [LEATHERWORKING] = true, [COOKING] = true },
 	},

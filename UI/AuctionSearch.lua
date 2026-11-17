@@ -171,8 +171,8 @@ local function PriceRoute()
 	end
 	local short = {}
 	for itemID, missing in pairs(needs) do
-		local price = api.GetAuctionPriceByItemID(CALLER, itemID)
-		local age = api.GetAuctionAgeByItemID and api.GetAuctionAgeByItemID(CALLER, itemID)
+		local price = ns.AuctionPrice(itemID)
+		local age = price and ns.PriceAge(price)
 		if missing > 0 and (price == nil or age == nil or age > 0) then
 			short[#short + 1] = { itemID = itemID, count = missing }
 		end

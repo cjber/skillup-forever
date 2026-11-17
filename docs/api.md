@@ -248,7 +248,7 @@ and assigns no default confidence constraint.
 
 An item is `{ itemID, need, have, missing, source, price, priceAge, cost, alt }`: `need` for the route, `have` in the
 certified scope, or bags and bank without a certificate, and `missing` the difference; `price` is copper each when one is known, and `cost` the price of the
-missing units; `priceAge` is the whole days since Auctionator saw the price, when it came from there; `alt` is a
+missing units; `priceAge` is the whole days since the auction source observed the price, when known; `alt` is a
 fresh list of `{ name, count }`, this character's other characters that hold it, most first.
 Each row exposes `inventoryScope = "bags-only"` for adaptive native holdings or
 `"bags-and-bank"` for fixed and ordinary route holdings. `have` and `missing` are

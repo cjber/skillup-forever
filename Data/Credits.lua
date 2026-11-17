@@ -4,6 +4,9 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "messajahswe", what = "Gathered materials have a sale value by default" },
+		{ name = "davef1n", what = "Sort recipes by profit regardless of skill" },
+		{ name = "user_bvgv4fnauhmhf9i7", what = "AHDB supplies auction prices" },
 		{ name = "puschie286", what = "Preview unlearned recipes in the crafting pane" },
 		{ name = "Belth", what = "Routes prefer materials already in the bags" },
 		{ name = "yavinn", what = "SkillUp pages stay visible with ClassicUI Forever" },

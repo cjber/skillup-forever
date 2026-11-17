@@ -173,7 +173,7 @@ function ns.RegisterSettings()
 			rows,
 			"showCost",
 			L["Show cost per skill-up"],
-			L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather are free unless you value them under Prices, and auction prices need Auctionator or TradeSkillMaster."]
+			L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
 		)
 
 		Choice(
@@ -191,7 +191,7 @@ function ns.RegisterSettings()
 			"priceSource",
 			L["Auction prices from"],
 			ns.PRICE_SOURCE_OPTIONS,
-			L["Which addon prices auction values when both are installed. The chosen addon's price wins; the other fills in an item it has no price for. Auctionator also says how old its price is."]
+			L["Choose Auctionator, TradeSkillMaster, AHDB or Naowh Forever. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."]
 		)
 
 		Choice(
@@ -199,7 +199,7 @@ function ns.RegisterSettings()
 			"craftValue",
 			L["Count what crafts sell for"],
 			ns.CRAFT_VALUE_OPTIONS,
-			L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator or TradeSkillMaster, are after the 5% cut, and may not sell."]
+			L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever, are after the 5% cut, and may not sell."]
 				.. " "
 				.. L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."]
 		)
@@ -208,14 +208,14 @@ function ns.RegisterSettings()
 			rows,
 			"valueGathered",
 			L["Value gathered materials at what they'd sell for"],
-			L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator or TradeSkillMaster."]
+			L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
 		)
 
 		Checkbox(
 			rows,
 			"auctionOnly",
 			L["Price self-supplied reagents at auction values"],
-			L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator or TradeSkillMaster."]
+			L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
 		)
 
 		-- The optional cost of one trip to buy more when a leg falls short. Zero is the default: no trip cost is
@@ -422,7 +422,7 @@ function ns.RegisterSettings()
 			"sortMode",
 			L["Sort recipes"],
 			ns.SORT_OPTIONS,
-			L["Sort recipes in one list, learned first, then unlearned. Default restores categories."]
+			L["Sort recipes in one list, learned first, then unlearned. Highest craft profit includes grey recipes. Default restores categories."]
 		)
 	end)
 

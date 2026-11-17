@@ -670,7 +670,7 @@ function API.ShoppingList(skillLineID)
 					inventoryScope = item.supplyScope or "bags-and-bank",
 					source = item.source,
 					price = price and not price.unknown and price.copper or nil,
-					priceAge = price and price.source == "auctionator" and price.days or nil,
+					priceAge = price and price.days or nil,
 					cost = price and not price.unknown and missing and missing * price.copper or nil,
 					alt = ns.AltCounts(item.itemID),
 				}

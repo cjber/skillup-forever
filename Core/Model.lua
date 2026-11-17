@@ -601,6 +601,9 @@ local function Rank(recipe, skill)
 	if not chance or chance <= 0 then
 		return nil, chance
 	end
+	if recipe.gatherableUnknown then
+		return math.huge, chance
+	end
 	local covered = Model.CoveredCrafts(thresholds, skill, skill + ups, ups, Model.ROUTE_CONFIDENCE)
 	local cost = Model.RouteStepCost(recipe.netCost, recipe.reagentCost, covered, Model.CRAFT_TIME_COST)
 	return (cost or 0) / ups, chance
@@ -728,6 +731,9 @@ local function Planner(snapshot)
 	---@param recipe SkillUpCandidate
 	---@return boolean
 	local function IsPooled(recipe)
+		if recipe.gatherableUnknown then
+			return false
+		end
 		local pooledRecipe = pooledOf[recipe]
 		if pooledRecipe == nil then
 			pooledRecipe = false
@@ -821,7 +827,7 @@ local function Planner(snapshot)
 	-- A recipe joins the end of the list.
 	---@param recipe SkillUpCandidate
 	local function Add(recipe)
-		if recipe.netCost == nil then
+		if recipe.netCost == nil and not recipe.gatherableUnknown then
 			-- A grey recipe could not help even with a price, so it keeps nothing out.
 			if recipe.thresholds[4] > from then
 				excluded.unpriced = excluded.unpriced + 1
@@ -885,7 +891,7 @@ local function Planner(snapshot)
 	---@return SkillUpRoute
 	---@return number[]
 	local function Route(extra)
-		if extra and extra.netCost == nil then
+		if extra and extra.netCost == nil and not extra.gatherableUnknown then
 			extra = nil
 		end
 		local route = { segments = {}, expectedCost = 0, reachedSkill = from, excluded = excluded }
@@ -953,7 +959,7 @@ local function Planner(snapshot)
 	---@param picked number[]
 	---@return boolean
 	local function Changes(extra, picked)
-		if extra.netCost == nil then
+		if extra.netCost == nil and not extra.gatherableUnknown then
 			return false
 		elseif IsPooled(extra) or costOf[extra.recipeID] ~= nil then
 			return true
@@ -1119,7 +1125,15 @@ end
 ---@type SkillUpShoppingSource[]
 Model.SHOPPING_SOURCES = { "gather", "vendor", "auction", "unknown" }
 ---@type table<SkillUpPriceSource, SkillUpShoppingSource>
-local BUCKET = { gather = "gather", vendor = "vendor", auctionator = "auction", tsm = "auction", auction = "auction" }
+local BUCKET = {
+	gather = "gather",
+	vendor = "vendor",
+	auctionator = "auction",
+	tsm = "auction",
+	ahdb = "auction",
+	naowh = "auction",
+	auction = "auction",
+}
 
 -- The shopping list's bucket for a price source: what every item in the list carries as its source.
 ---@param source SkillUpPriceSource?

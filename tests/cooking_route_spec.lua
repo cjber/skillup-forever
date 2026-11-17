@@ -12,7 +12,7 @@ local MILD_SPICES, LOCH_FRENZY = 2678, 6317
 
 local c = Client.load({
 	auctionator = false,
-	saved = { vendor = { [RAW_MACKEREL] = 5 } },
+	saved = { valueGathered = false, vendor = { [RAW_MACKEREL] = 5 } },
 })
 local ns = c.ns
 ns.SetCollectMode("gather")
@@ -146,6 +146,7 @@ local VENDOR_NPC, LIMITED = 5001, 5
 local limited = Client.load({
 	auctionator = false,
 	saved = {
+		valueGathered = false,
 		vendor = { [RAW_MACKEREL] = 5 },
 		sellers = {
 			[VENDOR_NPC] = {
@@ -189,6 +190,7 @@ equal(fish and fish.limited, LIMITED, "and marked with the limited stock count")
 local unbundled = Client.load({
 	auctionator = false,
 	saved = {
+		valueGathered = false,
 		sellers = {
 			[VENDOR_NPC] = {
 				name = "Fish Vendor",
@@ -229,6 +231,7 @@ equal(Reagent(lns.RouteReagents(limitedPlan), RAW_MACKEREL).limited, nil, "the r
 local soldOut = Client.load({
 	auctionator = false,
 	saved = {
+		valueGathered = false,
 		sellers = {
 			[VENDOR_NPC] = {
 				name = "Fish Vendor",

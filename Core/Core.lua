@@ -39,7 +39,7 @@ local DEFAULTS = {
 	rowCost = "skillup", -- what a recipe row's money is: "skillup" (cost per skill-up), "craft" (net per craft) or "off"
 	priceSource = "auctionator", -- the auction addon whose price wins when both are installed; the other fills gaps
 	craftValue = "vendor",
-	valueGathered = false, -- a reagent you gather costs what it would sell for, not nothing
+	valueGathered = true, -- a reagent you gather costs what it would sell for, not nothing
 	auctionOnly = false, -- a self-supplied reagent costs a market price, and is unpriced when none is known
 	restockCost = 0, -- copper for one trip to buy more after a route leg falls short; 0 never counts a trip
 	sortMode = "blizzard",
@@ -113,6 +113,7 @@ ns.SORT_OPTIONS = {
 	{ "newest", L["Newest recipes first"] },
 	{ "chance", L["Skill-up chance"] },
 	{ "cost", L["Cheapest skill-up"] },
+	{ "profit", L["Highest craft profit"] },
 }
 ns.UNLEARNED_SORT_OPTIONS = {
 	{ "skill", L["Skill range start"] },
@@ -121,6 +122,8 @@ ns.UNLEARNED_SORT_OPTIONS = {
 ns.PRICE_SOURCE_OPTIONS = {
 	{ "auctionator", L["Auctionator"] },
 	{ "tsm", L["TradeSkillMaster"] },
+	{ "ahdb", L["AHDB"] },
+	{ "naowh", L["Naowh Forever"] },
 }
 ns.CRAFT_VALUE_OPTIONS = {
 	{ "none", L["Don't count it"] },

@@ -113,7 +113,7 @@
 ---@field missing number?
 ---@field source SkillUpShoppingSource
 ---@field price? number Copper per item.
----@field priceAge? number Days since Auctionator's observation.
+---@field priceAge? number Days since the auction price observation, when known.
 ---@field cost? number Copper for missing units; nil if unpriced.
 ---@field alt {name: string, count: number}[]
 

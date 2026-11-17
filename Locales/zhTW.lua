@@ -8,10 +8,12 @@ L["Show SkillUp tooltip details"] = "顯示 SkillUp 提示詳細資訊"
 L["Show SkillUp profession tabs"] = "顯示 SkillUp 專業分頁"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"在保留個別提示設定的同時，將 SkillUp 詳細資訊加入提示。"
-L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "在每個配方旁顯示金錢。關閉後價格仍顯示在配方滑鼠提示中。" -- mt
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
+	"在每個配方旁顯示金錢。關閉後價格仍顯示在配方滑鼠提示中。" -- mt
 L["Show prices on recipe rows"] = "在配方行顯示價格" -- mt
 L["Show recipe tooltip on hover"] = "滑鼠指向時顯示配方提示" -- mt
-L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "滑鼠指向配方時在專業視窗旁顯示 SkillUp 提示。關閉可避免遮擋材料。" -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
+	"滑鼠指向配方時在專業視窗旁顯示 SkillUp 提示。關閉可避免遮擋材料。" -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"在保留個別分頁設定的同時，顯示路線、裝備和增益分頁。"
 

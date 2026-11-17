@@ -8,10 +8,12 @@ L["Show SkillUp tooltip details"] = "Показывать подробности
 L["Show SkillUp profession tabs"] = "Показывать вкладки профессий SkillUp"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"Добавляет сведения SkillUp в подсказки, сохраняя отдельные настройки подсказок."
-L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "Показывать деньги рядом с каждым рецептом. Если выключить, цены останутся в подсказке рецепта." -- mt
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
+	"Показывать деньги рядом с каждым рецептом. Если выключить, цены останутся в подсказке рецепта." -- mt
 L["Show prices on recipe rows"] = "Показывать цены в строках рецептов" -- mt
 L["Show recipe tooltip on hover"] = "Показывать подсказку рецепта при наведении" -- mt
-L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "Показывать подсказку SkillUp рядом с окном профессий при наведении на рецепт. Выключите, чтобы не закрывать реагенты." -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
+	"Показывать подсказку SkillUp рядом с окном профессий при наведении на рецепт. Выключите, чтобы не закрывать реагенты." -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"Показывает вкладки маршрута, экипировки и усилений, сохраняя отдельные настройки вкладок."
 

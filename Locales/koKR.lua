@@ -8,10 +8,12 @@ L["Show SkillUp tooltip details"] = "SkillUp 툴팁 세부 정보 표시"
 L["Show SkillUp profession tabs"] = "SkillUp 전문 기술 탭 표시"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"각 툴팁 설정을 유지하면서 SkillUp 세부 정보를 툴팁에 추가합니다."
-L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "각 제조법 옆에 금액을 표시합니다. 끄면 가격은 제조법 툴팁에만 표시됩니다." -- mt
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
+	"각 제조법 옆에 금액을 표시합니다. 끄면 가격은 제조법 툴팁에만 표시됩니다." -- mt
 L["Show prices on recipe rows"] = "제조법 줄에 가격 표시" -- mt
 L["Show recipe tooltip on hover"] = "마우스를 올리면 제조법 툴팁 표시" -- mt
-L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "제조법에 마우스를 올리면 전문 기술 창 옆에 SkillUp 툴팁을 표시합니다. 끄면 재료가 가려지지 않습니다." -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
+	"제조법에 마우스를 올리면 전문 기술 창 옆에 SkillUp 툴팁을 표시합니다. 끄면 재료가 가려지지 않습니다." -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"각 탭 설정을 유지하면서 경로, 장비 및 강화 효과 탭을 표시합니다."
 

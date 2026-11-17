@@ -9,10 +9,12 @@ L["Show SkillUp tooltip details"] = "Afficher les détails des infobulles de Ski
 L["Show SkillUp profession tabs"] = "Afficher les onglets de métiers de SkillUp"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"Afficher les détails de SkillUp dans les infobulles tout en conservant chaque choix individuel."
-L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "Affiche l'argent à côté de chaque recette. Désactivé, les prix restent dans l'infobulle de la recette." -- mt
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
+	"Affiche l'argent à côté de chaque recette. Désactivé, les prix restent dans l'infobulle de la recette." -- mt
 L["Show prices on recipe rows"] = "Afficher les prix sur les lignes de recettes" -- mt
 L["Show recipe tooltip on hover"] = "Afficher l'infobulle de recette au survol" -- mt
-L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "Affiche l'infobulle SkillUp à côté de la fenêtre des métiers au survol d'une recette. Désactivez-la pour garder les composants dégagés." -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
+	"Affiche l'infobulle SkillUp à côté de la fenêtre des métiers au survol d'une recette. Désactivez-la pour garder les composants dégagés." -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"Afficher les onglets de route, d'équipement et de buffs tout en conservant chaque choix individuel."
 

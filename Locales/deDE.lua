@@ -8,10 +8,12 @@ L["Show SkillUp tooltip details"] = "SkillUp-Tooltipdetails anzeigen"
 L["Show SkillUp profession tabs"] = "SkillUp-Berufsreiter anzeigen"
 L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
 	"SkillUp-Details in Tooltips anzeigen und die einzelnen Tooltip-Einstellungen beibehalten."
-L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] = "Zeigt Gold neben jedem Rezept. Ausgeschaltet bleiben die Preise im Rezept-Tooltip." -- mt
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
+	"Zeigt Gold neben jedem Rezept. Ausgeschaltet bleiben die Preise im Rezept-Tooltip." -- mt
 L["Show prices on recipe rows"] = "Preise in Rezeptzeilen zeigen" -- mt
 L["Show recipe tooltip on hover"] = "Rezept-Tooltip beim Überfahren zeigen" -- mt
-L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] = "Zeigt den SkillUp-Tooltip neben dem Berufefenster beim Überfahren eines Rezepts. Ausschalten hält die Reagenzien frei." -- mt
+L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
+	"Zeigt den SkillUp-Tooltip neben dem Berufefenster beim Überfahren eines Rezepts. Ausschalten hält die Reagenzien frei." -- mt
 L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
 	"Routen-, Ausrüstungs- und Stärkungszauberreiter anzeigen und die einzelnen Reitereinstellungen beibehalten."
 

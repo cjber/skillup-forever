@@ -196,7 +196,7 @@ local ns = {
 		showRowText = true,
 		showUnlearned = false,
 		buffsOnly = false,
-		valueGathered = false,
+		valueGathered = false, gatheredValueSeen = true,
 		auctionOnly = false,
 		showBuffsTab = true,
 	},

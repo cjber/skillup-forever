@@ -10,7 +10,7 @@ equal(gathered.ns.db.valueGathered, true, "new installs value gathered materials
 equal(gathered.ns.Price(1).copper, 95, "gathered cost includes the forgone sale after the cut")
 local free = Client.load({
 	data = { VendorPrices = {}, GatheredBy = {}, LootedFrom = { [1] = true }, RecipeData = {} },
-	saved = { valueGathered = false },
+	saved = { valueGathered = false, gatheredValueSeen = true },
 })
 free.ns.SetCollectMode("gather")
 free.auction[1] = 100

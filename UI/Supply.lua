@@ -32,9 +32,9 @@ local ADAPTIVE_OPTIONS = {
 local PROVENANCE = "player entered for the current merchant window"
 local RESTRICTION = "player limit for an unlimited merchant listing"
 
-local ROW_PITCH = 22
+local ROW_PITCH = 32
 local INPUT_WIDTH = 72
-local CHECK = 22
+local CHECK = 32
 local OFFERS_TOP = -400
 
 ---@type SkillUpSupplyPage
@@ -654,6 +654,24 @@ local function RenderReadout(plan)
 	readout:SetText(table.concat(lines, "\n"))
 end
 
+-- Session-scoped laws are editable only when this window offers a reagent from the plan.
+local function FormReason(plan, window)
+	if not selected then
+		return L["Open a profession to set its supply policy."]
+	elseif not plan then
+		return L["This profession has no plan to supply yet."]
+	elseif not window then
+		return L["Open a merchant to set this profession's supply policy."]
+	end
+	local products = Products(plan)
+	for _, offer in ipairs(window.offers or {}) do
+		if products[offer.itemID] then
+			return nil
+		end
+	end
+	return L["The merchant sells none of this route's reagents."]
+end
+
 Refresh = function()
 	if not (status and apply) then
 		return
@@ -661,15 +679,12 @@ Refresh = function()
 	local window = ns.MerchantOffers and ns.MerchantOffers.current
 	local plan = CurrentPlan()
 	local draft, reason
-	if not selected then
-		reason = L["Open a profession to set its supply policy."]
-	elseif not plan then
-		reason = L["This profession has no plan to supply yet."]
-	elseif not window then
-		reason = L["Open a merchant to set this profession's supply policy."]
-	elseif not OfferSet(window) then
-		reason = L["Open a merchant to set this profession's supply policy."]
-	else
+	reason = FormReason(plan, window)
+	local enabled = reason == nil
+	alphaBox:SetEnabled(enabled)
+	adaptiveBox:SetEnabled(enabled)
+	failureBox:SetEnabled(enabled)
+	if enabled and plan and window then
 		draft, reason = Draft(plan, window)
 	end
 	status:SetText(reason or L["Ready to apply these assumptions."])
@@ -709,6 +724,7 @@ local function Own(row, control, name)
 	fields[name] = owned
 	row.controls[#row.controls + 1] = owned
 	row.used[#row.used + 1] = owned
+	return control
 end
 
 ---@param parent Frame
@@ -752,29 +768,25 @@ local function BuildRow(row, index, offer, quote, adaptive, width)
 	local function Pair(text, name)
 		local labelName = prefix .. name .. ".label"
 		local label = Reuse(row, labelName)
-		if label then
-			label:SetText(text)
-			label:SetWidth(width - INPUT_WIDTH - 8)
-			label:SetPoint("TOPLEFT", 0, y - 3)
-		else
-			Own(row, Label(row, text, 0, y - 3, width - INPUT_WIDTH - 8), labelName)
+		if not label then
+			label = Own(row, Label(row, text, 0, y, width), labelName)
 		end
+		label:SetText(text)
+		label:SetWidth(math.min(label:GetStringWidth(), width - INPUT_WIDTH - 13))
+		label:SetPoint("TOPLEFT", 0, y)
 		local box = Reuse(row, prefix .. name)
-		if box then
-			box:SetPoint("TOPLEFT", width - INPUT_WIDTH, y)
-		else
-			Own(row, Input(row, prefix .. name, width - INPUT_WIDTH, y, INPUT_WIDTH), prefix .. name)
+		if not box then
+			box = Own(row, Input(row, prefix .. name, 0, y, INPUT_WIDTH), prefix .. name)
 		end
+		box:ClearAllPoints()
+		box:SetPoint("LEFT", label, "RIGHT", 13, 0)
 		y = y - ROW_PITCH
 	end
 	local function Choice(text, name)
 		local fieldName = prefix .. name
 		local box = Reuse(row, fieldName)
-		if box then
-			box:SetPoint("TOPLEFT", 0, y)
-		else
+		if not box then
 			box = CreateFrame("CheckButton", nil, row, "UICheckButtonTemplate") --[[@as SkillUpSupplyCheck]]
-			box:SetPoint("TOPLEFT", 0, y)
 			box:SetChecked(false)
 			box.name = fieldName
 			box:SetScript("OnClick", function()
@@ -782,16 +794,18 @@ local function BuildRow(row, index, offer, quote, adaptive, width)
 			end)
 			Own(row, box, fieldName)
 		end
+		box:SetSize(CHECK, CHECK)
+		box:SetPoint("TOPLEFT", -4, y)
 		local labelName = prefix .. name .. ".label"
 		local label = Reuse(row, labelName)
-		if label then
-			label:SetText(text)
-			label:SetWidth(width - CHECK)
-			label:SetPoint("TOPLEFT", CHECK, y - 3)
-		else
-			Own(row, Label(row, text, CHECK, y - 3, width - CHECK), labelName)
+		if not label then
+			label = Own(row, Label(row, text, 0, 0, width), labelName)
 		end
-		y = y - ROW_PITCH
+		label:SetText(text)
+		label:SetWidth(width - CHECK + 2)
+		label:ClearAllPoints()
+		label:SetPoint("LEFT", box, "RIGHT", 2, 0)
+		y = y - ROW_PITCH - 8
 	end
 	local stock = offer.numAvailable == nil and L["unknown"]
 		or (offer.numAvailable == -1 and L["no limit"] or tostring(offer.numAvailable))
@@ -901,11 +915,9 @@ local function Render()
 	page.note:SetWidth(width)
 	status:SetWidth(width)
 	readout:SetWidth(width)
-	alphaLabel:SetWidth(width - INPUT_WIDTH - 8)
-	adaptiveLabel:SetWidth(width - CHECK)
-	alphaBox:SetPoint("TOPLEFT", width - INPUT_WIDTH, layout.alphaY)
-	failureLabel:SetWidth(width - INPUT_WIDTH - 8)
-	failureBox:SetPoint("TOPLEFT", width - INPUT_WIDTH, layout.failureY)
+	alphaLabel:SetWidth(math.min(alphaLabel:GetStringWidth(), width - INPUT_WIDTH - 13))
+	adaptiveLabel:SetWidth(width - CHECK - 8)
+	failureLabel:SetWidth(math.min(failureLabel:GetStringWidth(), width - INPUT_WIDTH - 13))
 	local adaptive = Checked("adaptive")
 	local top = OFFERS_TOP
 	local built = {}
@@ -940,7 +952,7 @@ local function Create()
 	page:SetAllPoints(ProfessionsFrame)
 	page:Hide()
 	local scroll = CreateFrame("ScrollFrame", nil, page, "ScrollFrameTemplate") --[[@as ScrollFrame]]
-	scroll:SetPoint("TOPLEFT", 12, -12)
+	scroll:SetPoint("TOPLEFT", 12, -76)
 	scroll:SetPoint("BOTTOMRIGHT", -28, 18)
 	page.scroll = scroll
 	page.content = CreateFrame("Frame", nil, scroll)
@@ -958,23 +970,30 @@ local function Create()
 	)
 	layout.alphaY = -56
 	alphaLabel = Label(content, L["Chance of finishing with starting supplies (%)"], 0, layout.alphaY, 300)
-	alphaBox = Input(content, "alphaPercent", 496, layout.alphaY, INPUT_WIDTH)
+	alphaBox = Input(content, "alphaPercent", 0, layout.alphaY, INPUT_WIDTH)
+	alphaBox:ClearAllPoints()
+	alphaBox:SetPoint("LEFT", alphaLabel, "RIGHT", 13, 0)
 	alphaBox:SetNumeric(false)
 	alphaBox:SetMaxLetters(6)
 	layout.adaptiveY = -80
 	adaptiveBox = CreateFrame("CheckButton", nil, content, "UICheckButtonTemplate") --[[@as SkillUpSupplyCheck]]
-	adaptiveBox:SetPoint("TOPLEFT", 0, layout.adaptiveY)
+	adaptiveBox:SetSize(CHECK, CHECK)
+	adaptiveBox:SetPoint("TOPLEFT", -4, layout.adaptiveY)
 	adaptiveBox:SetChecked(false)
 	adaptiveBox.name = "adaptive"
 	adaptiveBox:SetScript("OnClick", function()
 		Render()
 	end)
 	fields.adaptive = adaptiveBox
-	adaptiveLabel = Label(content, L["Plan later purchases too"], CHECK, layout.adaptiveY - 3, 300)
-	layout.failureY = -104
+	adaptiveLabel = Label(content, L["Plan later purchases too"], 0, 0, 300)
+	adaptiveLabel:ClearAllPoints()
+	adaptiveLabel:SetPoint("LEFT", adaptiveBox, "RIGHT", 2, 0)
+	layout.failureY = -120
 	failureLabel = Label(content, L["Cost of an unfinished route (copper)"], 0, layout.failureY, 260)
-	failureBox = Input(content, "failureLoss", 496, layout.failureY, INPUT_WIDTH)
-	layout.applyY = -132
+	failureBox = Input(content, "failureLoss", 0, layout.failureY, INPUT_WIDTH)
+	failureBox:ClearAllPoints()
+	failureBox:SetPoint("LEFT", failureLabel, "RIGHT", 13, 0)
+	layout.applyY = -152
 	apply = CreateFrame("Button", nil, content, "SharedButtonSmallTemplate") --[[@as SkillUpSupplyApply]]
 	apply:SetSize(110, 22)
 	apply:SetPoint("TOPLEFT", 0, layout.applyY)
@@ -1008,11 +1027,11 @@ local function Create()
 	apply:SetEnabled(false)
 	apply.draft = nil
 	apply.name = "apply"
-	layout.statusY = -164
+	layout.statusY = -184
 	status = Label(content, L["Open a profession to set its supply policy."], 0, layout.statusY, 560)
 	status.name = "status"
 	status:SetTextColor(1, 0.82, 0.2)
-	layout.readoutY = -186
+	layout.readoutY = -206
 	readout = Label(content, L["Open a profession to see its plan and coverage."], 0, layout.readoutY, 560)
 	readout.name = "readout"
 	-- A merchant, source, recipe or supply change redraws only while this page is shown. The form is rebuilt

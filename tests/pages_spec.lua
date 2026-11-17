@@ -266,6 +266,10 @@ local handlers = {}
 local lastPage
 local ns = {
 	CloseRecipePreview = noop,
+	WhenEvent = noop,
+	OpenSkillLine = function()
+		return 164
+	end,
 	L = setmetatable({}, {
 		__index = function(_, key)
 			return key

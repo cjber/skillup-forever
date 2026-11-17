@@ -6,8 +6,14 @@ local function Check(value, message)
 	assert(value, message)
 end
 
-local function Frame(_, _, parent)
-	local f = { children = {}, scripts = {}, shown = false, text = "", checked = false }
+local metrics = os.getenv("SUPPLY_FONT_WIDTHS")
+local textWidths = metrics and dofile(metrics) or {}
+
+local function Frame(kind, _, parent, template)
+	local f = { children = {}, scripts = {}, shown = false, text = "", checked = false, kind = kind }
+	if template == "UICheckButtonTemplate" then
+		f.width, f.height = 32, 32
+	end
 	if parent then
 		parent.children[#parent.children + 1] = f
 	end
@@ -55,6 +61,14 @@ local function Frame(_, _, parent)
 	end
 	function f:SetPoint(...)
 		self.point = { ... }
+		self.points = self.points or {}
+		self.points[self.point[1]] = self.point
+	end
+	function f:ClearAllPoints()
+		self.point = nil
+	end
+	function f:GetStringWidth()
+		return textWidths[self.text] or #self.text * 5
 	end
 	function f:SetAllPoints(...)
 		self.allPoints = { ... }
@@ -264,8 +278,8 @@ page:Show()
 local function Walk(frame, result)
 	result = result or {}
 	for _, child in ipairs(frame.children or {}) do
-		if child.name then
-			result[child.name] = child
+		if child.name or child.field then
+			result[child.name or child.field] = child
 		end
 		Walk(child, result)
 	end
@@ -326,7 +340,10 @@ local function Fits(width)
 			local shown = visible and child.shown ~= false
 			if shown and child.point and child.point[1] == "TOPLEFT" and type(child.point[2]) == "number" then
 				local x = child.point[2]
-				Check(type(x) == "number" and x >= 0, "control starts inside the scroll content")
+				Check(
+					type(x) == "number" and x >= (child.kind == "CheckButton" and -4 or 0),
+					"control art starts inside the scroll content"
+				)
 				if child.width then
 					Check(
 						x + child.width <= width + 0.01,
@@ -347,6 +364,38 @@ local function Fits(width)
 	CheckFrame(page.content, true)
 end
 
+-- The screenshot fixture exports the real form anchors, including template dimensions.
+if arg[1] == "--capture" then
+	ns.MerchantOffers.Replace(nil)
+	ns.Changed("merchant")
+	print("scroll\t" .. page.scroll.points.TOPLEFT[2] .. "\t" .. page.scroll.points.TOPLEFT[3])
+	local ids = {}
+	for index, child in ipairs(page.content.children) do
+		ids[child] = index
+	end
+	for index, child in ipairs(page.content.children) do
+		if child.point and child.kind ~= "Frame" then
+			local p = child.point
+			local relative = type(p[2]) == "table"
+			print(table.concat({
+				index,
+				child.kind,
+				child.width or 0,
+				child.height or 10,
+				p[1],
+				relative and ids[p[2]] or 0,
+				relative and p[3] or "TOPLEFT",
+				relative and p[4] or p[2],
+				relative and p[5] or p[3],
+				(child.text:gsub("\n", " | ")),
+				tostring(child.enabled ~= false),
+				table.concat(child.textColor or { 1, 1, 1 }, ","),
+			}, "\t"))
+		end
+	end
+	return
+end
+
 -- The page's own shell and the readout are present before any law is typed.
 Check(page.content and page.scroll and page.scroll.scrollChild == page.content, "page uses a scroll child")
 Check(fields.alphaPercent and fields.alphaPercent.numeric ~= true, "chance input accepts fractional values")
@@ -357,6 +406,62 @@ Fits(560)
 Check(Text("readout"):find("Plan: Leatherworking", 1, true) ~= nil, "readout names the plan")
 Check(Text("readout"):find("Below your target by 5.00 points.", 1, true) ~= nil, "readout shows the margin")
 Check(Text("readout"):find("Next step: craft.", 1, true) ~= nil, "readout shows the next modeled step")
+
+-- Labels follow their controls, rather than sharing unrelated page offsets.
+Check(fields.adaptive.width == 32 and fields.adaptive.height == 32, "native checkbox has explicit dimensions")
+local function LabelFor(text)
+	for _, child in ipairs(page.content.children) do
+		if child.text == text then
+			return child
+		end
+	end
+end
+Check(fields.adaptive.point[2] == -4, "checkbox art aligns with the text column")
+local adaptiveLabel = LabelFor("Plan later purchases too")
+Check(
+	adaptiveLabel.point[1] == "LEFT"
+		and adaptiveLabel.point[2] == fields.adaptive
+		and adaptiveLabel.point[3] == "RIGHT"
+		and adaptiveLabel.point[4] == 2
+		and adaptiveLabel.point[5] == 0,
+	"checkbox label follows its right edge and vertical centre"
+)
+for name, text in pairs({
+	alphaPercent = "Chance of finishing with starting supplies (%)",
+	failureLoss = "Cost of an unfinished route (copper)",
+}) do
+	local label, box = LabelFor(text), fields[name]
+	Check(
+		box.point[1] == "LEFT"
+			and box.point[2] == label
+			and box.point[3] == "RIGHT"
+			and box.point[4] == 13
+			and box.point[5] == 0,
+		"input follows label with room for its outside border"
+	)
+end
+Check(
+	fields.alphaPercent:IsEnabled() and fields.adaptive:IsEnabled() and fields.failureLoss:IsEnabled(),
+	"a merchant with route offers enables the form"
+)
+
+Check(page.scroll.points.TOPLEFT[3] <= -76, "form content clears the native portrait and header")
+for _, name in ipairs({ "offer1.access", "offer1.priceStays", "offer1.ownStock" }) do -- gitleaks:allow
+	local box, label = fields[name], fields[name .. ".label"]
+	Check(
+		box.width == 32
+			and box.point[2] == -4
+			and label.point[2] == box
+			and label.point[3] == "RIGHT"
+			and label.point[4] == 2,
+		"merchant checkbox label follows the native control"
+	)
+end
+local offerInput = fields["offer1.initialMoney"]
+Check(
+	offerInput.point[2] == fields["offer1.initialMoney.label"] and offerInput.point[4] == 13,
+	"merchant number input follows its label"
+)
 
 -- A fixed policy needs a price consent, an access choice, a stock and both trip costs on every offer.
 Set("alphaPercent", 70)
@@ -602,6 +707,24 @@ ns.MerchantOffers.Replace(nil)
 ns.Changed("merchant")
 Check(Text("status") == "Open a merchant to set this profession's supply policy.", "a closed merchant is named")
 Check(Collect().apply.enabled == false, "a closed merchant cannot apply")
+
+for _, name in ipairs({ "alphaPercent", "adaptive", "failureLoss" }) do
+	Check(not Collect()[name]:IsEnabled(), "closed merchant disables " .. name)
+end
+ns.MerchantOffers.Replace({})
+ns.Changed("merchant")
+Check(
+	Text("status") == "The merchant sells none of this route's reagents.",
+	"an empty open merchant is named accurately"
+)
+Check(not Collect().alphaPercent:IsEnabled(), "an empty merchant disables the form")
+ns.MerchantOffers.Replace({ Offer(1, 999) })
+ns.Changed("merchant")
+Check(
+	Text("status") == "The merchant sells none of this route's reagents.",
+	"unrelated offers are named before input validation"
+)
+Check(not Collect().adaptive:IsEnabled(), "unrelated offers disable the form")
 
 -- The window switching profession moves the form; a removed profession is forgotten, not drawn stale.
 ns.MerchantOffers.Replace({ Offer(1, 10) })

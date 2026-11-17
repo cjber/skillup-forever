@@ -738,8 +738,8 @@
     },
     {
       "source": "UI/Supply.lua",
-      "sha256": "d45ad4e40c6783707163c800481e0465677e74b9bf511d56e3de44ce62981ade",
-      "review": "Reviewed Label, Input, BuildRow Line/Pair/Choice and Reuse/Own, RenderReadout, Refresh, Reason and Create. All labels created by Label use GameFontHighlightSmall and reuse only changes text, geometry or colour. Bound the explicit form labels and locally produced readout/status text whose paths were confirmed. Apply uses pinned SharedButtonSmallTemplate normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. User-entered EditBox contents, external SupplySummaryText, draft validation/helper results not listed below, page registration title and inserted game names have no coverage claim. No font overrides occur.",
+      "sha256": "ab5a4f8d5f8942b999a1cd4463ee4eece71b140789a6afa481e152cd0b247b34",
+      "review": "Reviewed Label, Input, BuildRow Line/Pair/Choice and Reuse/Own, RenderReadout, Refresh, Reason and Create. All labels created by Label use GameFontHighlightSmall and reuse only changes text, geometry or colour. Bound the explicit form labels and locally produced readout/status text whose paths were confirmed. Apply uses pinned SharedButtonSmallTemplate normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. User-entered EditBox contents, external SupplySummaryText, draft validation/helper results not listed below, page registration title and inserted game names have no coverage claim. No font overrides occur. Reviewed FormReason and the centred label anchors; these change enabled state and geometry only, preserving the same font objects.",
       "bindings": [
         {
           "font": "GameFontHighlightSmall",
@@ -1131,8 +1131,8 @@
     },
     {
       "source": "UI/Pages.lua",
-      "sha256": "63339758085d9e644a638ccb0eeb094372dda36ff46f04382149c93c0678fc86",
-      "review": "Reviewed CreateBottomTab, Sync, Show, CreateFrames and Register. Bottom tab titles come from page specs and PanelTabButtonTemplate. Pinned SharedUIPanelTemplates.xml supplies GameFontNormalSmall and GameFontHighlightSmall, but PanelTemplates selection changes disabled fonts in SharedUIPanelTemplates.lua. Caller-provided titles and selection-dependent fonts are excluded from this review; side tab wording is a tooltip.",
+      "sha256": "e430aaa1c3268aac5a162e74925d2ff7f134014f074abe0383a97c68efa9bd1e",
+      "review": "Reviewed CreateBottomTab, Sync, Show, CreateFrames and Register. Bottom tab titles come from page specs and PanelTabButtonTemplate. Pinned SharedUIPanelTemplates.xml supplies GameFontNormalSmall and GameFontHighlightSmall, but PanelTemplates selection changes disabled fonts in SharedUIPanelTemplates.lua. Caller-provided titles and selection-dependent fonts are excluded from this review; side tab wording is a tooltip. Reviewed ProfessionChanged, Show and Hide: only selection state and visibility change; tab titles and native font states remain unchanged.",
       "bindings": []
     },
     {

@@ -12,6 +12,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Supply controls line up beside their labels.** The form waits for a merchant selling route reagents, and SkillUp's bottom tabs hide when you switch professions. Thanks to bromidious for the report (#787).
+
 ## [1.14.0] - 2026-11-17
 
 <!-- forever-core-sync -->

@@ -81,6 +81,13 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 		"the route page was built"
 	)
 
+	local function bottomTabsShown(expected, label)
+		for _, id in ipairs({ "route", "supply", "buffs" }) do
+			local button = assert(ns.Pages.BottomTab(id), id .. " bottom tab exists")
+			assert(button:IsShown() == expected, label .. ": " .. id .. " visibility")
+		end
+	end
+
 	local recipeList = pf.CraftingPage.RecipeList
 	assert(pf:GetWidth() == 673, "long recipes changed the native window width")
 	assert(recipeList:GetWidth() == 304, "long recipes changed the native list width")
@@ -147,11 +154,13 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	assert(checked(skillupTab), "and checked")
 	assert(pf.CraftingPage:IsShown(), "the client's own crafting page is left shown underneath")
 	onePage("after SkillUp", routePage)
+	bottomTabsShown(true, "on SkillUp")
 
 	press(pf.ProfessionsOverviewTab)
 	assert(core.Selected() == nil, "a client side tab hands the window back")
 	assert(not routePage:IsShown() and not otherPage:IsShown(), "and hides both addons' pages")
 	assert(not checked(skillupTab), "and unchecks the SkillUp tab")
+	bottomTabsShown(false, "after native overview")
 	assert(pf.BookPage:IsShown(), "and shows the client's own overview page")
 	-- The overview page lays its panels out at the client's own width and the client never resizes the window for
 	-- it, so it keeps that width: a wider window only stretched empty art past its panels.
@@ -165,11 +174,37 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	-- Core owns native sizing. Its released and next versions differ here, but SkillUp must leave
 	-- the native width chosen before custom selection intact in either version.
 	stableAt(nativeCraftingWidth, "after a profession change")
+	bottomTabsShown(false, "after profession spellbook open")
 	assert(recipeList:GetWidth() == 304, "the native list changed with the profession")
 
 	press(skillupTab)
 	onePage("back on SkillUp", routePage)
 
+	ns.Pages.Select("supply")
+	sim:advance(0.2)
+	bottomTabsShown(true, "on Supply")
+	local currentProfession = sim.world.openProfession
+	for _, transient in ipairs({ false, true }) do
+		sim.world.openProfession = not transient and currentProfession or nil
+		sim:event("TRADE_SKILL_DATA_SOURCE_CHANGED")
+		sim:advance(0.2)
+		assert(core.Selected() == "skillup", "data-source refresh keeps SkillUp selected")
+		assert(ns.Pages.BottomTab("supply").LeftActive:IsShown(), "data-source refresh keeps Supply selected")
+		bottomTabsShown(true, transient and "with transient nil skill line" or "with same skill line")
+	end
+	sim.world.openProfession = currentProfession
+	sim:openProfessions(164)
+	sim:advance(0.2)
+	bottomTabsShown(false, "switch profession while Supply is selected")
+	press(skillupTab)
+	bottomTabsShown(true, "return from profession switch")
+	-- Click the client's own profession side tab while an addon page is active.
+	press(pf.rightProfessionTabs[1])
+	bottomTabsShown(false, "native profession side tab")
+	press(skillupTab)
+
+	ns.Pages.Select("route")
+	sim:advance(0.2)
 	press(otherTab)
 	assert(core.Selected() == "commissions-like", "the other addon's tab takes the window")
 	assert(otherPage:IsShown(), "and shows its page")

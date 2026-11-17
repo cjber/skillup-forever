@@ -36,6 +36,8 @@ local wanted
 ---@type SkillUpPageSpec?
 local revealed
 local token = 0
+---@type integer?
+local shownProfession
 
 ---@return boolean
 local function Locked()
@@ -168,6 +170,7 @@ end
 ---@param spec SkillUpPageSpec
 local function Show(spec)
 	wanted = spec.id
+	shownProfession = ns.OpenSkillLine()
 	token = token + 1
 	local myToken = token
 	ns.SetLastSkillUpPage(spec.id)
@@ -193,6 +196,7 @@ end
 -- own page when it hides the frame this answers.
 local function Hide()
 	wanted = nil
+	shownProfession = nil
 	revealed = nil
 	token = token + 1
 	local myToken = token
@@ -370,3 +374,18 @@ function ns.Pages.Select(id)
 		end
 	end
 end
+
+-- Opening another profession can reuse an already shown native crafting page, so its OnShow never fires.
+-- Follow the client's actual skill line, rather than treating a recipe-list update as a page switch.
+local function ProfessionChanged()
+	if not wanted then
+		return
+	end
+	local currentProfession = ns.OpenSkillLine()
+	if currentProfession and shownProfession ~= currentProfession then
+		Hide()
+		ForeverCore.ProfessionTabs.ShowNative()
+	end
+end
+ns.WhenEvent("TRADE_SKILL_SHOW", ProfessionChanged)
+ns.WhenEvent("TRADE_SKILL_DATA_SOURCE_CHANGED", ProfessionChanged)

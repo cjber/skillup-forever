@@ -66,6 +66,7 @@ Credit for the reports and requests behind the addon.
 | kopuliak | Reported that search left bundled unlearned recipes unfiltered (#662) | CurseForge; thread 8697280 |
 | [SanyaBane](https://github.com/SanyaBane) | Recipe tooltip keeps its skill bar when another tooltip clears (code) | GitHub; #649, PR #649 |
 | [Rambomst](https://github.com/Rambomst) | Fixed progress-bar fill masking and Auctionator prices after reload (#655, #656) | |
+| bromidious | Reported overlapping Supply controls and profession tabs staying visible (#787) | Discord; #787 |
 | bromidious | Reported route progress bars overflowing their track (#665) | Discord; #665 |
 | fusionley | Reported Auctionator lists coming back after being deleted (#714) | CurseForge; thread 8710486 |
 | bromidious | Reported the progress-bar overlap fixed in #656 | Discord; #656 |

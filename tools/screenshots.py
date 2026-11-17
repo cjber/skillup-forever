@@ -2054,8 +2054,8 @@ def create_controls(canvas, fx, fy, count, frame_w=FRAME_W):
     canvas.draw(ui.atlas("Profession-button-arrow-left"), ix - 29.5, iy - 1, 22, 22)
 
 
-PAGE_TABS = ("Route", "Crafted gear", "Buffs")
-PAGE_IDS = ("route", "gear", "buffs")
+PAGE_TABS = ("Route", "Supply", "Crafted gear", "Buffs")
+PAGE_IDS = ("route", "supply", "gear", "buffs")
 
 
 def profession_tabs(canvas, fx, fy, selected, frame_w=FRAME_W):
@@ -3224,6 +3224,9 @@ def main():
     scale = float(os.environ.get("SCALE", "2"))
     ui = Ui(build=UI_ART_BUILD, scale=scale)
     OUT.mkdir(parents=True, exist_ok=True)
+    from supply_preview import render as render_supply
+
+    render_supply(OUT / "supply.png", audit=True)
     merchant_confirm_scene(ui).save(OUT / "merchant-confirm.png")
     window_scene(ui).save(OUT / "window.png")
     window_wide_scene(ui).save(OUT / "window-wide.png")

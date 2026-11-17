@@ -27,6 +27,7 @@ ns.Credits = {
 		{ name = "kopuliak", what = "Reported that search left bundled unlearned recipes unfiltered" },
 		{ name = "SanyaBane", what = "Recipe tooltip keeps its skill bar when another tooltip clears (code)" },
 		{ name = "Rambomst", what = "Fixed progress-bar fill masking and Auctionator prices after reload" },
+		{ name = "bromidious", what = "Reported overlapping Supply controls and profession tabs staying visible" },
 		{ name = "bromidious", what = "Reported route progress bars overflowing their track" },
 		{ name = "fusionley", what = "Reported Auctionator lists coming back after being deleted" },
 		{ name = "bromidious", what = "Reported the progress-bar overlap fixed in #656" },

@@ -576,7 +576,8 @@ local function HandleNativeRecipeShortcut(recipe)
 end
 
 ---@param page SkillUpCraftingPage
-function ns.AttachRecipePreview(page)
+---@param extraScrollBox? SkillUpRecipeScrollBox
+function ns.AttachRecipePreview(page, extraScrollBox)
 	---@param button SkillUpPreviewClick
 	local function OnRowClick(button)
 		local node = button.data
@@ -597,10 +598,14 @@ function ns.AttachRecipePreview(page)
 		end
 		local wasOpen = selected ~= nil
 		selected = recipe
-		page.RecipeList.ScrollBox:ForEachFrame(function(visibleRow, visibleNode)
+		local function UpdateSelection(visibleRow, visibleNode)
 			local visibleData = visibleNode and visibleNode:GetData()
 			UpdateRowSelection(visibleRow, visibleData and visibleData.recipeInfo)
-		end)
+		end
+		page.RecipeList.ScrollBox:ForEachFrame(UpdateSelection)
+		if extraScrollBox then
+			extraScrollBox:ForEachFrame(UpdateSelection)
+		end
 		preview:Show()
 		Refresh()
 		preview.Scroll:SetVerticalScroll(0)

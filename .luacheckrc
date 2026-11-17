@@ -10,7 +10,7 @@ globals = { "SkillUpForeverDB",
 	"SlashCmdList",
 }
 
-read_globals = { "ForeverCore", "C_DateAndTime",
+read_globals = { "BATTLE_PET_FAVORITE", "BATTLE_PET_UNFAVORITE", "ForeverCore", "C_DateAndTime",
 	"C_ChatInfo", "GetServerTime", "GetTime", "IsInGuild", "IsInGroup", "IsInRaid", "GetCursorPosition",
 	"C_TradeSkillUI", "CreateColor", "CreateFrame", "CreateTreeDataProvider", "ScrollBoxConstants", "strcmputf8i", "strfind", "strlower", "DEFAULT_CHAT_FRAME", "Enum", "EventRegistry", "EventUtil",
 	"GameTooltip", "GameTooltip_AddColoredLine", "GameTooltip_AddDisabledLine", "GameTooltip_InsertFrame",

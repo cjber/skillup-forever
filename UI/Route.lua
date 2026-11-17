@@ -1586,6 +1586,23 @@ function ns.ShowRecipe(recipeID, anyProfession)
 	C_TradeSkillUI.OpenRecipe(recipeID)
 end
 
+-- The route can show any of the player's professions inside an open Professions window.
+-- Opening a closed window still belongs to the player's spellbook control.
+---@param skillLine integer?
+---@return boolean
+function ns.OpenRoute(skillLine)
+	if not skillLine or InCombatLockdown() or not ns.RouteProfessions()[skillLine] then
+		return false
+	end
+	if not ProfessionsFrame or not ProfessionsFrame:IsShown() then
+		return SkillUpForever.API.OpenRecipes(skillLine)
+	end
+	ns.Pages.Select("route")
+	selected = skillLine
+	Render()
+	return true
+end
+
 function ns.AttachRoute()
 	CreatePage()
 	ns.Pages.Register({

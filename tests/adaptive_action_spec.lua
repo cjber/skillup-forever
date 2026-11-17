@@ -404,7 +404,9 @@ local module = G.SkillUpForeverObjectiveTracker
 module.GetContextMenuParent = function()
 	return module
 end
-module:OnBlockHeaderClick(block)
+c.EnterWorld()
+c.Advance(0)
+dofile("tests/tracker_menu.lua")(module, block, menu)
 local captured
 for _, button in ipairs(menu.buttons) do
 	if button.text:find("^Craft") then

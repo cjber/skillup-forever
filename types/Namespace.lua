@@ -77,7 +77,7 @@
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
----@field AttachRecipePreview fun(page: SkillUpCraftingPage): fun(row: SkillUpRecipeRow, data?: SkillUpRecipeNodeData)
+---@field AttachRecipePreview fun(page: SkillUpCraftingPage, extraScrollBox?: SkillUpRecipeScrollBox): fun(row: SkillUpRecipeRow, data?: SkillUpRecipeNodeData)
 ---@field IsRecipePreviewShown fun(): boolean
 ---@field CloseRecipePreview fun()
 ---@field RouteProfessions fun(): table<integer, SkillUpProfession>
@@ -121,6 +121,7 @@
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?
+---@field OpenRoute fun(skillLine?: integer): boolean
 ---@field ShowRecipe fun(recipeID: integer, anyProfession?: boolean)
 ---@field AttachRoute fun()
 ---@field AttachSupply fun()

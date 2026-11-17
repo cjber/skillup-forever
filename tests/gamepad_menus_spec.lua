@@ -63,22 +63,10 @@ equal(#menus, 1, "a row's right-click opens the shared menu")
 equal(menus[1].owner, row, "on the row")
 equal(menus[1].generator, Menu, "with the row's own generator")
 
--- The tracker's header click, the section's own path into the menu. The stub client leaves out the stock
--- module's context menu parent, so the spec gives it one.
-local module = G.SkillUpForeverObjectiveTracker
-function module.GetContextMenuParent()
-	return module
-end
-local block = {
-	profession = "First Aid",
-	plan = { profession = { name = "First Aid", skillLine = 129 }, crafts = {}, ranks = {}, steps = {} },
-	steps = {},
-}
-Reset()
-module:OnBlockHeaderClick(block)
-equal(#menus, 1, "the tracker's header opens the shared menu")
-equal(menus[1].owner, module, "on the tracker's menu parent")
-equal(type(menus[1].generator), "function", "filled by the section's generator")
+-- Core owns tracker menu dispatch; SkillUp supplies the menu contract instead of opening a menu itself.
+c.EnterWorld()
+c.Advance(0)
+equal(type(G.SkillUpForeverObjectiveTracker.trackerMenu), "function", "the tracker supplies core's menu contract")
 
 -- The dropdown's OpenMenu steps to the next radio under the gamepad interface and opens the menu otherwise.
 local current

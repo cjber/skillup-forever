@@ -72,9 +72,41 @@ equal(ns.TrackerAttached(), false, "and the attachment answer is core's")
 c.G.ForeverCore.TrackerHost = host
 equal(ns.TrackerAttached(), true, "the section is still in the column")
 
--- The section's visibility stays SkillUp's own Options setting: the column offers no Hide this section entry for it,
--- as before the move to core.
-equal(module.show, nil, "the section passes no show switch to the column")
+-- Core's Hide action and the settings panel share the same saved switch.
+equal(type(module.show), "table", "the section supplies its show switch")
+equal(module.show.get(), true, "the switch reads the existing setting")
+module.show.set(false)
+equal(ns.db.showTracker, false, "core hiding the section changes the setting")
+ns.db.showTracker = true
+equal(module.show.get(), true, "a settings change is immediately visible to core")
+local slots = {}
+local menu = {}
+for _, kind in ipairs({ "Title", "Action", "Open", "End", "Submenu" }) do
+	menu[kind] = function(_, text, fn)
+		slots[#slots + 1] = { kind = kind, text = text, fn = fn }
+	end
+end
+equal(type(module.trackerMenu), "function", "the section declares a menu contract")
+module.trackerMenu({ kind = "section", module = module }, menu)
+equal(slots[1].kind, "Title", "section menu begins with its title")
+equal(slots[2].kind, "Open", "section menu opens the profession page")
+equal(#slots, 2, "core owns the section Hide action")
+slots = {}
+module.trackerMenu({
+	kind = "block",
+	module = module,
+	id = 129,
+	block = {
+		id = 129,
+		profession = "First Aid",
+		plan = { profession = { name = "First Aid", skillLine = 129 }, steps = {}, crafts = {} },
+		steps = {},
+		vendorMissing = {},
+	},
+}, menu)
+equal(slots[1].text, "First Aid", "block menu names its profession")
+equal(slots[#slots - 1].kind, "Open", "block menu includes Open")
+equal(slots[#slots].kind, "End", "block menu ends with Stop tracking")
 
 -- Core's default CanUpdate holds the layout in combat, where moving a protected frame is refused.
 equal(module.CanUpdate(), true, "the section lays itself out out of combat")

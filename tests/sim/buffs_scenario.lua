@@ -1,7 +1,7 @@
 -- luacheck: read globals scenario ADDON
 -- #460, #461: one SkillUp side tab opens the pages, and the Buffs page draws, switches and hands the window
--- back, in and out of combat and across a reload. This scenario runs without recipe data so the page draws
--- its empty state; the timeline and its nodes are covered by tests/buffs_spec.lua.
+-- back, in and out of combat and across a reload. First Aid has a real recipe but no buff profession,
+-- so the page draws its empty state; the timeline and its nodes are covered by tests/buffs_spec.lua.
 local ForeverCore = dofile("tests/forever_core.lua")
 
 scenario("the SkillUp side tab and the buffs page", { addons = ForeverCore.addons() }, function(sim)
@@ -20,6 +20,8 @@ scenario("the SkillUp side tab and the buffs page", { addons = ForeverCore.addon
 			name = "First Aid",
 			skill = 1,
 			max = 75,
+			categories = { { id = 1, name = "Bandages" } },
+			recipes = { { id = 3275, name = "Linen Bandage", category = 1, itemID = 1251 } },
 		},
 	}
 
@@ -44,7 +46,7 @@ scenario("the SkillUp side tab and the buffs page", { addons = ForeverCore.addon
 	end)
 	assert(sideTab, "the one SkillUp side tab is there")
 	-- The side tab is a real Button with the template's own mouse-up handler.
-	sim:run(function()
+	sim.run(function()
 		local handler = sideTab:GetScript("OnMouseUp")
 		assert(handler, "the side tab has a mouse-up handler")
 		handler(sideTab, "LeftButton", true)

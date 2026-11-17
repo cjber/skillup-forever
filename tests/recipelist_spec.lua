@@ -15,6 +15,12 @@ function box.SetDataProvider(_, value)
 	assert(replacements < 10, "sorting must not recurse through provider callbacks")
 	callback(owner)
 end
+local custom, widget = dofile("tests/recipe_list_view.lua")(box)
+local nativeGet = box.GetDataProvider
+local function activeProvider()
+	return custom:IsShown() and custom.ScrollBox:GetDataProvider() or nativeGet()
+end
+box.ForEachFrame = noop
 local original = box.SetDataProvider
 local function tree(data)
 	local nodes = {}
@@ -105,7 +111,14 @@ end
 function frame:SetWidth(width)
 	self.width = width
 end
+recipeList.GetFrameLevel = function()
+	return 1
+end
+recipeList.ScrollBar = widget
 local env = setmetatable({
+	CreateFrame = function()
+		return custom
+	end,
 	ProfessionsFrame = frame,
 	Professions = {
 		GetHighestLearnedRecipe = function(info)
@@ -128,7 +141,7 @@ local env = setmetatable({
 	InCombatLockdown = function()
 		return false
 	end,
-	ScrollUtil = { AddInitializedFrameCallback = noop },
+	ScrollUtil = { AddInitializedFrameCallback = noop, AddReleasedFrameCallback = noop },
 	EventRegistry = { RegisterCallback = noop },
 	Menu = { ModifyMenu = noop },
 	ScrollBoxConstants = { RetainScrollPosition = true },
@@ -151,8 +164,9 @@ local input = tree()
 input:Insert({ recipeInfo = { recipeID = 30, learned = true } })
 input:Insert({ recipeInfo = { recipeID = 10, learned = true } })
 box:SetDataProvider(input)
-assert(replacements == 2, "one native update and one sorted replacement")
-assert(provider:GetRootNode():GetNodes()[1]:GetData().recipeInfo.recipeID == 10)
+assert(replacements == 1, "only Blizzard assigns its native provider")
+assert(provider == input, "sorting leaves the native provider untouched")
+assert(activeProvider():GetRootNode():GetNodes()[1]:GetData().recipeInfo.recipeID == 10)
 assert(box.SetDataProvider == original, "native method remains untouched")
 ns.db.sortMode = "blizzard"
 box:SetDataProvider(input)
@@ -180,7 +194,7 @@ newest:Insert({ recipeInfo = { recipeID = 30, name = "Thirty", learned = true } 
 newest:Insert({ recipeInfo = { recipeID = 40, name = "Forty", learned = false } })
 ns.db.sortMode = "newest"
 box:SetDataProvider(newest)
-local nodes = provider:GetRootNode():GetNodes()
+local nodes = activeProvider():GetRootNode():GetNodes()
 assert(nodes[1]:GetData().recipeInfo.recipeID == 20, "the highest skill range start comes first")
 assert(nodes[2]:GetData().recipeInfo.recipeID == 10, "then the next highest")
 assert(nodes[3]:GetData().recipeInfo.recipeID == 30, "then the lowest")
@@ -199,7 +213,7 @@ local late = tree()
 late:Insert({ recipeInfo = { recipeID = 60, name = "Sixty", learned = true } })
 late:Insert({ recipeInfo = { recipeID = 50, name = "Fifty", learned = true } })
 box:SetDataProvider(late)
-nodes = provider:GetRootNode():GetNodes()
+nodes = activeProvider():GetRootNode():GetNodes()
 assert(nodes[1]:GetData().recipeInfo.recipeID == 50, "the recipe learned at 60 comes before the one learned at 40")
 assert(nodes[2]:GetData().recipeInfo.recipeID == 60, "even though the client starts it at 1")
 
@@ -216,18 +230,18 @@ searched:Insert({ recipeInfo = { recipeID = 10, name = "Ten", learned = true } }
 searchText = "POTION"
 replacements = 0
 box:SetDataProvider(searched)
-nodes = provider:GetRootNode():GetNodes()
+nodes = activeProvider():GetRootNode():GetNodes()
 assert(#nodes == 3, "one learned recipe, a divider and one matching unlearned recipe")
 assert(nodes[3]:GetData().recipeInfo.recipeID == 70, "the added recipe whose name matches stays")
 searchText = "missing"
 replacements = 0
 box:SetDataProvider(searched)
-nodes = provider:GetRootNode():GetNodes()
+nodes = activeProvider():GetRootNode():GetNodes()
 assert(#nodes == 1 and nodes[1]:GetData().recipeInfo.recipeID == 10, "no match leaves only the client's rows")
 searchText = ""
 replacements = 0
 box:SetDataProvider(searched)
-nodes = provider:GetRootNode():GetNodes()
+nodes = activeProvider():GetRootNode():GetNodes()
 assert(#nodes == 4, "clearing the search brings both added recipes back")
 searchText = nil
 -- Learned and unlearned recipes can use opposing skill orders.
@@ -240,7 +254,7 @@ split:Insert({ recipeInfo = { recipeID = 10, name = "Learned expensive", learned
 split:Insert({ recipeInfo = { recipeID = 20, name = "Learned cheap", learned = true } })
 replacements = 0
 box:SetDataProvider(split)
-nodes = provider:GetRootNode():GetNodes()
+nodes = activeProvider():GetRootNode():GetNodes()
 assert(nodes[1]:GetData().recipeInfo.recipeID == 20, "learned recipes retain their selected sort")
 assert(nodes[4]:GetData().recipeInfo.recipeID == 70, "unlearned recipes use their independent sort key")
 print("recipelist_spec: provider replacement, sort, newest first, recursion and native method identity passed")
@@ -261,7 +275,7 @@ category:Insert({ recipeInfo = { recipeID = 70, name = "Unlearned high", learned
 category:Insert({ recipeInfo = { recipeID = 80, name = "Unlearned low", learned = false } })
 replacements = 0
 box:SetDataProvider(categorized)
-nodes = provider:GetRootNode():GetNodes()
+nodes = activeProvider():GetRootNode():GetNodes()
 assert(nodes[1]:GetData().categoryInfo.name == "Native category", "native learned category stays")
 assert(nodes[1]:GetNodes()[1]:GetData().recipeInfo.recipeID == 10, "native learned ordering stays")
 assert(#nodes[1]:GetNodes() == 2, "unlearned rows leave the learned category")
@@ -269,6 +283,6 @@ assert(nodes[3]:GetData().recipeInfo.recipeID == 80, "native unlearned rows use 
 ns.db.unlearnedSortMode = "newest"
 replacements = 0
 box:SetDataProvider(categorized)
-nodes = provider:GetRootNode():GetNodes()
+nodes = activeProvider():GetRootNode():GetNodes()
 assert(nodes[3]:GetData().recipeInfo.recipeID == 70, "changing unlearned order sorts native rows again")
 print("independent unlearned ordering: native categories and bundled recipes passed")

@@ -128,11 +128,16 @@ ProfessionsFrame = nil
 AuctionHouseFrame = nil
 
 ---@class SkillUpRecipeList : Frame
+---@field ScrollBar Frame
+---@field SearchBox EditBox
+---@field Background Texture
+---@field BackgroundNineSlice Frame
 ---@field ScrollBox SkillUpRecipeScrollBox
 ---@field FilterDropdown DropdownButton
 ---@field SelectRecipe fun(self: SkillUpRecipeList, info: TradeSkillRecipeInfo, scroll: boolean)
 
 ---@class SkillUpRecipeRow : Button
+---@field SetSelected fun(self: SkillUpRecipeRow, selected: boolean)
 ---@field SelectedOverlay? Texture
 ---@field Count FontString
 ---@field LockedIcon Texture
@@ -173,6 +178,9 @@ function CreateTreeDataProvider() end
 ---@field SetScrollPercentage fun(self: SkillUpScrollBox, percentage: number, noInterpolation?: boolean)
 
 ---@class SkillUpRecipeScrollBox : SkillUpScrollBox, CallbackRegistryMixin
+---@field ScrollTarget Frame
+---@field GetDerivedScrollRange fun(self: SkillUpRecipeScrollBox): number
+---@field GetDerivedScrollOffset fun(self: SkillUpRecipeScrollBox): number
 ---@field GetDataProvider fun(self: SkillUpRecipeScrollBox): SkillUpTreeProvider?
 ---@field SetDataProvider fun(self: SkillUpRecipeScrollBox, provider: SkillUpBaseDataProvider, retain?: boolean|integer)
 ---@field ForEachFrame fun(self: SkillUpRecipeScrollBox, callback: fun(frame: SkillUpRecipeRow, elementData: SkillUpTreeNode))
@@ -545,3 +553,9 @@ function GetTrainerTradeskillRankValues() end
 ---@return number? minimum
 ---@return number? maximum
 function C_TradeSkillUI.GetRecipeItemLevelFilter() end
+
+-- Native recipe-row favorite menu labels, also used by Blizzard_ProfessionsRecipeList.lua.
+---@type string
+BATTLE_PET_FAVORITE = nil
+---@type string
+BATTLE_PET_UNFAVORITE = nil

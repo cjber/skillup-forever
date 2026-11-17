@@ -1,8 +1,9 @@
 -- luacheck: read globals scenario ADDON
 local ForeverCore = dofile("tests/forever_core.lua")
+local RecipeRows = dofile("tests/sim_recipe_rows.lua")
 
 local function FindRecipeRow(sim, recipeID)
-	for _, record in ipairs(sim:recipeRows()) do
+	for _, record in ipairs(RecipeRows(sim)) do
 		if record.recipeInfo.recipeID == recipeID then
 			return record.frame, record.recipeInfo
 		end

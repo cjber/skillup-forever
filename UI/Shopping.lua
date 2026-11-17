@@ -9,8 +9,6 @@ local L = ns.L
 local CALLER = "SkillUp Forever"
 -- Missing reagents shown per profession before "...".
 local MAX_OBJECTIVES = 6
--- The header menu lists each missing vendor item, so it scrolls past 20 rows of 20 px (WFA-36).
-local MENU_EXTENT = 20 * 20
 
 ---@type SkillUpTrackerModule?
 local module
@@ -875,54 +873,63 @@ end
 ---@class SkillUpModuleMixin : SkillUpTrackerModule
 local ModuleMixin = { headerText = L["Profession reagents"] }
 
----@param block SkillUpTrackerBlock
-function ModuleMixin:OnBlockHeaderClick(block)
-	ForeverCore.ContextMenu(self:GetContextMenuParent(), function(_, root)
-		root:SetScrollMode(MENU_EXTENT)
-		root:CreateTitle(block.profession)
-		-- Only while this profession is open: the client crafts from the open one.
-		local craft = ns.NextCraft(block.plan)
-		local recipeID = craft.recipeID
-		if recipeID then
-			---@cast recipeID integer
-			-- A menu callback runs as addon code, so calling the protected craft API here taints the client's
-			-- craft path (#313). Open the recipe instead: its own Craft button then crafts securely.
-			root:CreateButton(craft.text, function()
-				local profession = ns.RouteProfessions()[block.id]
-				local fresh = profession and ns.NextCraft(ns.PlanRoute(profession))
-				if fresh and fresh.recipeID then
-					ns.ShowRecipe(fresh.recipeID, true)
-				end
-			end)
-		end
-		-- The layout picked by straight line; a click ranks by travel time.
-		local first = block.steps[1]
-		local npc = first and first.nearest()
-		if npc then
-			local label = first.book and string.format(L["Waypoint to a vendor: %s"], first.book)
-				or first.quest and string.format(L["Waypoint to the quest giver: %s"], first.quest)
-				or L["Waypoint to a trainer"]
-			root:CreateButton(label, function()
-				ns.SetWaypoint((first.nearest(true)) or npc)
-			end)
-		end
-		for _, item in ipairs(block.vendorMissing) do
-			root:CreateButton(string.format(L["Waypoint to a vendor: %s"], item.name), function()
-				ns.SetWaypoint(item.selected and item.vendor or ns.NearestVendor(item.itemID, true) or item.vendor)
-			end)
-		end
-		-- Recipes left out with Not this recipe on the route page, each with Show again.
-		local pinned = #ns.PinnedRecipes(block.id)
-		if pinned > 0 then
-			ns.AddPinnedMenu(root:CreateButton(string.format(L["Pinned (%d)"], pinned)), block.id)
-		end
-		local skipped = #ns.SkippedRecipes(block.id)
-		if skipped > 0 then
-			ns.AddSkippedMenu(root:CreateButton(string.format(L["Skipped (%d)"], skipped)), block.id)
-		end
-		root:CreateButton(L["Stop tracking"], function()
-			ns.SetTrackedByPlayer(block.id, false)
+---@param target ForeverTrackerTarget
+---@param menu ForeverTrackerMenuBuilder
+local function TrackerMenu(target, menu)
+	local block = target.block --[[@as SkillUpTrackerBlock?]]
+	if not block then
+		menu:Title(L["Profession reagents"])
+		menu:Open(L["Open"], function()
+			return ns.OpenRoute(ns.OpenSkillLine() or next(ns.RouteProfessions()))
 		end)
+		return
+	end
+	menu:Title(block.profession)
+	-- Only while this profession is open: the client crafts from the open one.
+	local craft = ns.NextCraft(block.plan)
+	local recipeID = craft.recipeID
+	if recipeID then
+		---@cast recipeID integer
+		-- A menu callback runs as addon code, so calling the protected craft API here taints the client's
+		-- craft path (#313). Open the recipe instead: its own Craft button then crafts securely.
+		menu:Action(craft.text, function()
+			local profession = ns.RouteProfessions()[block.id]
+			local fresh = profession and ns.NextCraft(ns.PlanRoute(profession))
+			if fresh and fresh.recipeID then
+				ns.ShowRecipe(fresh.recipeID, true)
+			end
+		end)
+	end
+	-- The layout picked by straight line; a click ranks by travel time.
+	local first = block.steps[1]
+	local npc = first and first.nearest()
+	if npc then
+		local label = first.book and string.format(L["Waypoint to a vendor: %s"], first.book)
+			or first.quest and string.format(L["Waypoint to the quest giver: %s"], first.quest)
+			or L["Waypoint to a trainer"]
+		menu:Action(label, function()
+			ns.SetWaypoint((first.nearest(true)) or npc)
+		end)
+	end
+	for _, item in ipairs(block.vendorMissing) do
+		menu:Action(string.format(L["Waypoint to a vendor: %s"], item.name), function()
+			ns.SetWaypoint(item.selected and item.vendor or ns.NearestVendor(item.itemID, true) or item.vendor)
+		end)
+	end
+	-- Recipes left out with Not this recipe on the route page, each with Show again.
+	local pinned = #ns.PinnedRecipes(block.id)
+	if pinned > 0 then
+		ns.AddPinnedMenu(menu:Submenu(string.format(L["Pinned (%d)"], pinned)), block.id)
+	end
+	local skipped = #ns.SkippedRecipes(block.id)
+	if skipped > 0 then
+		ns.AddSkippedMenu(menu:Submenu(string.format(L["Skipped (%d)"], skipped)), block.id)
+	end
+	menu:Open(L["Open"], function()
+		return ns.OpenRoute(block.id)
+	end)
+	menu:End(L["Stop tracking"], function()
+		ns.SetTrackedByPlayer(block.id, false)
 	end)
 end
 
@@ -1129,6 +1136,16 @@ local function CreateModule()
 	-- chose.
 	local created = ForeverCore.TrackerSection.Create("SkillUpForeverObjectiveTracker", ModuleMixin, {
 		header = ModuleMixin.headerText,
+		show = {
+			get = function()
+				return ns.db.showTracker
+			end,
+			set = function(shown)
+				Settings.SetValue("SkillUpForever_showTracker", shown)
+			end,
+			where = L["Show tracked professions"],
+		},
+		contract = { menu = TrackerMenu },
 		legacy = function()
 			return ns.db
 		end,

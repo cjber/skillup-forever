@@ -174,7 +174,9 @@ c.G.Professions = {
 }
 local craftRecipeID = ns.NextCraft(block.plan).recipeID
 equal(craftRecipeID ~= nil, true, "the tracked profession has a craft to offer")
-module:OnBlockHeaderClick(block)
+c.EnterWorld()
+c.Advance(0)
+dofile("tests/tracker_menu.lua")(module, block, root)
 local skippedMenu, craftMenuEntry
 for _, button in ipairs(root.buttons) do
 	if button.text == "Skipped (1)" then
@@ -197,7 +199,6 @@ equal(shownRecipe[1], craftRecipeID, "opening the craft's recipe in the native p
 equal(shownRecipe[2], true, "even when the route page shows another profession")
 equal(skippedMenu ~= nil, true, "the tracker's header menu counts the skipped recipes")
 equal(skippedMenu.buttons[1].text, "Show again: Copper Chain Belt", "and shows each one again")
-equal(root.scrollExtent, 400, "the header menu scrolls past 20 rows")
 equal(skippedMenu.scrollExtent, 400, "and so does the skipped list")
 skippedMenu.buttons[1].action()
 equal(ns.IsSkipped(FROM_ORE), false, "from there")

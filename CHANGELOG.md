@@ -14,6 +14,8 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Supply controls line up beside their labels.** The form waits for a merchant selling route reagents, and SkillUp's bottom tabs hide when you switch professions. Thanks to bromidious for the report (#787).
 - **Item-level searches filter unlearned recipes too.** Exact levels, approximate levels and ranges now filter the bundled recipes by their output item level, thanks to kopuliak for the report (#662).
+- **Closing Professions keeps gamepad controls working.** Sorted and unlearned recipes use their own list, leaving the game's recipe provider and footer bindings intact (#794).
+- **Tracked professions have one visibility switch.** Hiding the reagent section uses the same setting as Show tracked professions. Section and profession menus include Open and keep their tracker options together (#771).
 
 ## [1.14.0] - 2026-11-17
 

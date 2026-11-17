@@ -541,6 +541,19 @@ function Client.load(options)
 	function Methods:GetWidth()
 		return self.width or 100
 	end
+	function Methods:SetScrollChild(child)
+		self.scrollChild = child
+	end
+	function Methods:SetVerticalScroll(offset)
+		self.verticalScroll = offset
+	end
+	function Methods:GetDerivedScrollRange()
+		return self.derivedScrollRange or 0
+	end
+	function Methods:GetDerivedScrollOffset()
+		return self.derivedScrollOffset or 0
+	end
+
 	function Methods:GetHeight()
 		return self.height or 20
 	end
@@ -729,7 +742,20 @@ function Client.load(options)
 			for _, key in ipairs({ "Left", "Middle", "Right", "LeftActive", "MiddleActive", "RightActive" }) do
 				frame[key] = NewFrame(nil, frame)
 			end
+		elseif stock == "ProfessionsRecipeListTemplate" then
+			for _, key in ipairs({ "SearchBox", "FilterDropdown", "Background", "BackgroundNineSlice", "ScrollBar" }) do
+				frame[key] = NewFrame(nil, frame)
+			end
+			frame.ScrollBox = G.CreateFrame("Frame", nil, frame, "WowScrollBoxList")
 		elseif stock == "WowScrollBoxList" then
+			frame.ScrollTarget = NewFrame(nil, frame)
+			function frame:ForEachFrame(callback)
+				for _, row in ipairs(self.children) do
+					if row.elementData then
+						callback(row, row.elementData)
+					end
+				end
+			end
 			function frame:SetDataProvider(provider)
 				self.provider = provider
 			end
@@ -742,6 +768,7 @@ function Client.load(options)
 					frame.elementFactory(function(rowTemplate, initialize)
 						local row = NewFrame(nil, self)
 						row.template = rowTemplate
+						row.elementData = elementData
 						if initialize then
 							initialize(row, elementData)
 						end
@@ -1756,8 +1783,8 @@ function Client.load(options)
 		local attach = c.host.Attach
 		-- ForeverCore's own quest section joins the same column from v1.2.0, and it lays itself out through
 		-- Update rather than LayoutContents. c.tracker holds this addon's own sections, which the specs drive.
-		function c.host.Attach(module, show)
-			attach(module, show)
+		function c.host.Attach(module, show, contract)
+			attach(module, show, contract)
 			local name = module:GetName()
 			local own = type(name) ~= "string" or not name:find("^ForeverCore")
 			if own and not G.tContains(c.tracker, module) and c.host.IsAttached(module) then

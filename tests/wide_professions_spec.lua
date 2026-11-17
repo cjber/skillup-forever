@@ -158,7 +158,15 @@ local ns = {
 		return { GetRGB = noop }
 	end,
 }
+local custom, widget = dofile("tests/recipe_list_view.lua")(box)
+recipeList.ScrollBar = widget
+recipeList.GetFrameLevel = function()
+	return 1
+end
 local env = setmetatable({
+	CreateFrame = function()
+		return custom
+	end,
 	ProfessionsFrame = frame,
 	Professions = {
 		GetHighestLearnedRecipe = function(info)
@@ -190,6 +198,7 @@ local env = setmetatable({
 		return combat
 	end,
 	ScrollUtil = {
+		AddReleasedFrameCallback = noop,
 		AddInitializedFrameCallback = function(_, callback)
 			decorate = callback
 		end,

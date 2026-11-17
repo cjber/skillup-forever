@@ -1,10 +1,10 @@
 {
-  "input_digest": "6811167306920a072102bcb84b42f7582bf1e392c082f75aa0c3db715550df5d",
-  "runtime_sha256": "6811167306920a072102bcb84b42f7582bf1e392c082f75aa0c3db715550df5d",
-  "candidate": "e5b8f663af07fe85cb4f92a776468a704b1e141468009dccabe885b9330ee7c7",
+  "input_digest": "6d9e59165a6484c4952b43c008b282455f33ba4171fad908bf54c8f768656d37",
+  "runtime_sha256": "6d9e59165a6484c4952b43c008b282455f33ba4171fad908bf54c8f768656d37",
+  "candidate": "a3691b9af820a5ce94891ebcfb5854471fba7fe175f41e6955eae9937ff8cb37",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "e4e0cd00edd22ef50d1ca9a45dba4eda5836aae5",
+  "source_commit": "c98ba3e17a2b229643a3dee1df15c77de8bf2173",
   "flows": [
     {
       "name": "route craft button",
@@ -20,8 +20,8 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/c04e56a108a372402b4aa9d46073df9d/raw/fb4314b467cb0ac1f4911ffcff7ba536db5a37f9/1-route-craft-button.png",
-      "sha256": "af550da9443f3e77b301eef2734d56f388419f0f42891fbe8fa1bcbb0aa16d6d"
+      "url": "https://gist.githubusercontent.com/cjber/94240949ca4978a7d4d16ebbf1b65cd8/raw/90652cf45ea49a6525832c61cc5ab7ba4706562f/1-route-craft-button.png",
+      "sha256": "6e27bbaacdddd3964a0b1a098cfc54ba0e1e1dd0b3408febabe711c08b5e96da"
     }
   ]
 }

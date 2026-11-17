@@ -673,4 +673,6 @@ L["%s (level %d)"] = "%s (niveau %d)" -- mt
 
 L["Show minimap button"] = "Afficher le bouton de la minicarte" -- mt
 L["Show the SkillUp button on the minimap."] = "Affiche le bouton SkillUp sur la minicarte." -- mt
-L["You can hide the minimap button."] = "Vous pouvez masquer le bouton de la minicarte." -- mt
+
+L["Reagent counts cover the whole route, not each step alone."] =
+	"Les quantités de composants couvrent tout le parcours, pas seulement chaque étape séparément." -- mt

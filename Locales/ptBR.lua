@@ -53,7 +53,6 @@ L["At the %d cap: no trainer teaches the next rank."] = "No limite de %d: nenhum
 L["At the cursor"] = "No cursor"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"O AtlasLoot está instalado, mas não está ativo: ative-o na lista de AddOns ou atualize-o se estiver desatualizado."
-L["Attach to quest tracker"] = "Fixar no rastreador de missões"
 L["Auction house"] = "Casa de leilões"
 L["Auction price if higher"] = "Preço de leilão, se maior"
 L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."] =
@@ -253,8 +252,6 @@ L["Train %s at %d (level %d)"] = "Treinar %s em %d (nível %d)"
 L["Train %s first."] = "Treine %s primeiro."
 L["Train %s first: you're at your cap."] = "Treine %s primeiro: você está no limite."
 L["Trinket"] = "Berloque"
-L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
-	"Desligue isto para arrastar o rastreador Forever compartilhado para qualquer lugar da tela."
 L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"Atualize o QuestieDB para ver comerciantes, missões e instrutores, com pontos de referência."
 L["Used in"] = "Usado em"

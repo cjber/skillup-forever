@@ -54,7 +54,6 @@ L["At the %d cap: no trainer teaches the next rank."] = "已达上限%d：没有
 L["At the cursor"] = "鼠标位置"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"AtlasLoot已安装但未运行：请在插件列表中启用，或在过期时更新。"
-L["Attach to quest tracker"] = "附着到任务追踪栏"
 L["Auction house"] = "拍卖行"
 L["Auction price if higher"] = "拍卖价（若更高）"
 L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."] =
@@ -253,8 +252,6 @@ L["Train %s at %d (level %d)"] = "学习%s（技能%d，等级%d）"
 L["Train %s first."] = "请先学习%s。"
 L["Train %s first: you're at your cap."] = "请先学习%s：你已达上限。"
 L["Trinket"] = "饰品"
-L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
-	"关闭此项后可将共享的Forever追踪栏拖到屏幕任意位置。"
 L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"更新QuestieDB以查看商人、任务和训练师，并可设置路径点。"
 L["Used in"] = "用于"

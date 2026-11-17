@@ -17,7 +17,6 @@ L["This route is mostly %s: %d recipes are left out until their costs or sale va
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values"
 L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."
-L["Tooltips stay cheap while the pointer rests on an item."] = "Tooltips stay cheap while the pointer rests on an item."
 L["%s: %s"] = "%s: %s"
 L["%s drops in %s"] = "%s drops in %s"
 L["Made by %s %d"] = "Made by %s %d"
@@ -111,15 +110,8 @@ L["Adds an unverified 4 percentage points per detected Working Overtime rank to 
 	"Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."
 
 L["Supply policy"] = "Supply policy"
-L["Route-wide starting chance (required, no default)"] = "Route-wide starting chance (required, no default)"
-L["Adaptive continuation"] = "Adaptive continuation"
 L["Open the profession and a merchant window."] = "Open the profession and a merchant window."
 L["Apply policy"] = "Apply policy"
-L["Applied. Coverage and cost will update from the explicit policy."] =
-	"Applied. Coverage and cost will update from the explicit policy."
-L["Unknown: open the profession and a merchant before entering supply laws."] =
-	"Unknown: open the profession and a merchant before entering supply laws."
-L["Offer %d: item %s, observed stock %s"] = "Offer %d: item %s, observed stock %s"
 
 L["currency %d"] = "currency %d"
 L["an unknown payment"] = "an unknown payment"

@@ -19,6 +19,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 ### Changed
 
 - **Reagent counts cover the whole route, not each step alone.** Every step's craft budget is chosen together so the route finishes 95 times in 100 from what you already hold, at the least reagent purchase cost. The route and shopping list say the counts include spares for that estimate, and a held reagent is counted once across the steps that use it. An optional restock visit cost, off by default, lets a trip to buy more after a shortfall change where the spare crafts go (#563).
+- **The minimap button is gone.** Open SkillUp with /skillup, from the game's settings or from the addon compartment. (#820)
 - **The Craft button comes back after you use the game's own crafting page.** Returning to Route asks the client for the route's recipe again, so a previous request cannot leave Craft disabled. Thanks to luna for the report (#683).
 - **Preview unlearned recipes in the crafting pane.** Click an unlearned recipe to see its source, output, requirements, reagents and costs without changing your crafting selection. Thanks to puschie286 for the change (PR #729).
 - **A quieter first install.** The minimap button and the What's New chat lines start off; choices you already saved are kept. Thanks to Mirades96, p1tu, noenken and fusionley (#806).

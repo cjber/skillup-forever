@@ -662,8 +662,6 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Nenhum instrutor da sua facção ensina esta receita." -- mt
 L["%s (level %d)"] = "%s (nível %d)" -- mt
 
-L["Show minimap button"] = "Mostrar botão do minimapa" -- mt
-L["Show the SkillUp button on the minimap."] = "Mostra o botão do SkillUp no minimapa." -- mt
 
 L["Reagent counts cover the whole route, not each step alone."] =
 	"As quantidades de reagentes cobrem toda a rota, não apenas cada etapa separadamente." -- mt

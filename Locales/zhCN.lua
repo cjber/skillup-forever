@@ -651,8 +651,6 @@ L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
-L["Show minimap button"] = "显示小地图按钮" -- mt
-L["Show the SkillUp button on the minimap."] = "在小地图上显示SkillUp按钮。" -- mt
 
 L["Reagent counts cover the whole route, not each step alone."] =
 	"材料数量按整条路线计算，而非分别计算每个步骤。" -- mt

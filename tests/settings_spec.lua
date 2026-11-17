@@ -275,7 +275,7 @@ local groups = {
 		"Tooltips and sorting",
 		"slider:reagentTooltip checkbox:showTooltipRoute checkbox:gatherTooltip slider:sortMode",
 	},
-	{ "Addon", "checkbox:minimapButton checkbox:whatsNew" },
+	{ "Addon", "checkbox:whatsNew" },
 }
 local kinds, expected = {}, {}
 for _, group in ipairs(groups) do
@@ -417,21 +417,3 @@ local before = opens
 ns.OpenSettings()
 assert(opens == before + 1, "OpenSettings opens through the client's own opener")
 assert(opened == category:GetID(), "OpenSettings opens the addon's own category")
-
-local minimapShown
-env.ForeverCore.MinimapButton = {
-	Refresh = function()
-		minimapShown = ns.db.minimapButtonHidden ~= true
-	end,
-}
-local minimap = settings.SkillUpForever_minimapButton
-assert(
-	minimap.default == false and minimap:GetValue(),
-	"minimap default is hidden while a saved show choice stays shown"
-)
-minimap:SetValue(false)
-assert(ns.db.minimapButtonHidden == true and not minimapShown, "hiding saves and applies immediately")
-minimap:SetValue(true)
-assert(ns.db.minimapButtonHidden == false and minimapShown, "showing saves and applies immediately")
-ns.db.minimapButtonHidden = true
-assert(not minimap:GetValue(), "the checkbox reads an existing saved hide choice")

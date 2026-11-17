@@ -202,8 +202,6 @@ L["%s, uses materials you have"] = "%s, uses materials you have"
 L["Supply"] = "Supply"
 L["No trainer of your faction teaches this recipe."] = "No trainer of your faction teaches this recipe."
 L["%s (level %d)"] = "%s (level %d)"
-L["Show minimap button"] = "Show minimap button"
-L["Show the SkillUp button on the minimap."] = "Show the SkillUp button on the minimap."
 
 L["Reagent counts cover the whole route, not each step alone."] =
 	"Reagent counts cover the whole route, not each step alone."

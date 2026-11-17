@@ -83,7 +83,7 @@ Open a profession and the numbers are already there.
 
 | Command | What it does |
 |---|---|
-| `/skillup` | Open the settings (also in Settings → AddOns, the minimap button or the addon compartment) |
+| `/skillup` | Open the settings (also in Settings → AddOns or the addon compartment) |
 | `/skillup skipped` | List the recipes you said *Not this recipe* to, and `/skillup unskip <ID>` (or `all`) brings them back |
 | `/skillup audit` | Compare the bundled thresholds with the colours the game shows |
 | `/skillup report` | Show a report to copy into a bug report |

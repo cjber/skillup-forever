@@ -394,28 +394,6 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Addon"], function(rows)
-		local minimap = Settings.RegisterProxySetting(
-			rows,
-			"SkillUpForever_minimapButton",
-			Settings.VarType.Boolean,
-			L["Show minimap button"],
-			false,
-			function()
-				return ns.db.minimapButtonHidden ~= true
-			end,
-			function(value)
-				ns.db.minimapButtonHidden = value ~= true
-				local buttons = ForeverCore.MinimapButton
-				if buttons then
-					buttons.Refresh()
-				end
-			end
-		)
-		---@cast minimap SkillUpSetting
-		Settings.RegisterInitializer(
-			rows,
-			Settings.CreateCheckboxInitializer(minimap, nil, L["Show the SkillUp button on the minimap."])
-		)
 		Checkbox(
 			rows,
 			"whatsNew",

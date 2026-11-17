@@ -48,8 +48,6 @@ local DEFAULTS = {
 	showRouteTab = true,
 	showProfessionTabs = true,
 	showTracker = true,
-	minimapButtonAngle = nil,
-	minimapButtonHidden = true,
 	showGearTab = false,
 	showBuffsTab = true,
 	showSupplyTab = true,
@@ -85,27 +83,6 @@ local DEFAULTS = {
 	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
 	trainerRanks = {}, -- [skill line] = { [cap] = fee }: what a trainer charges for the rank ending at that cap
 }
-
-local function OpenSkillUpProfession()
-	local context = ns.SkillContext and ns.SkillContext()
-	local skillLine = context and context.skillLine
-	if not skillLine then
-		local professions = ns.RouteProfessions and ns.RouteProfessions() or {}
-		local ids = {}
-		for id in pairs(professions) do
-			ids[#ids + 1] = id
-		end
-		table.sort(ids)
-		skillLine = ids[1]
-	end
-	if skillLine and SkillUpForever and SkillUpForever.API and SkillUpForever.API.OpenRecipes then
-		return SkillUpForever.API.OpenRecipes(skillLine) == true
-	end
-	if ns.Print then
-		ns.Print(L["Learn a crafting profession to plan a route."])
-	end
-	return false
-end
 
 ns.DEFAULTS = DEFAULTS
 ns.SORT_OPTIONS = {
@@ -232,6 +209,8 @@ local function LoadDB()
 		loaded.reagentTooltip = "off"
 	end
 	loaded.showReagentTooltip = nil
+	-- The minimap button is gone; its saved choices are dead keys.
+	loaded.minimapButtonHidden, loaded.minimapButtonAngle = nil, nil
 	-- Keep the old row-money hide choice separate from how prices are calculated.
 	if loaded.rowCost == "off" then
 		loaded.showRowPrices, loaded.rowCost = false, "skillup"
@@ -1151,22 +1130,6 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- The saved journal and log are core's now, under the same table: what SafeCall recorded before this line (the
 	-- client's own early errors) arrives with it, and a /reload keeps it.
 	ns.core.Attach(SkillUpForeverDB)
-	if
-		type(ForeverCore.MinimapButton) == "table"
-		and type(ForeverCore.MinimapButton.Create) == "function"
-		and _G.Minimap
-		and type(_G.Minimap.GetWidth) == "function"
-	then
-		ForeverCore.MinimapButton.Create({
-			name = "SkillUpForeverMinimapButton",
-			icon = ns.ICON,
-			title = L["SkillUp"],
-			settings = ns.db,
-			host = ns,
-			safeCall = ns.core.SafeCall,
-			onClick = OpenSkillUpProfession,
-		})
-	end
 	ns.NoteBuild()
 	ReadChanceBonus()
 	ns.InitCatalogue()

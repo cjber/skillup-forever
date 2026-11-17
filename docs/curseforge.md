@@ -60,7 +60,7 @@ A craft's vendor sell value comes off its cost, or its auction value after the 5
 
 Open a profession and the numbers are already there.
 
-- `/skillup` opens the settings (also in Settings > AddOns, the minimap button and the addon compartment).
+- `/skillup` opens the settings (also in Settings > AddOns and the addon compartment).
 - `/skillup skipped` lists the recipes you said *Not this recipe* to, and `/skillup unskip <ID>` (or `all`) brings them back.
 - `/skillup audit`, with a profession open, prints where the bundled thresholds differ from the colours the game shows.
 - `/skillup trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.

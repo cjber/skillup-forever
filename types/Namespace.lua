@@ -282,8 +282,6 @@
 ---@field includeWorkingOvertime boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field showRowText boolean
----@field minimapButtonHidden boolean
----@field minimapButtonAngle? number
 ---@field showUnlearned boolean
 ---@field buffsOnly boolean
 ---@field showSkill boolean

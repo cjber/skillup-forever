@@ -338,8 +338,8 @@ do
 	equal(ns.db.trainer[185]["4"], nil, "as is a recipe")
 end
 
--- The update line belongs to the release it ships in: the newest CHANGELOG.md entry with a bold lead. The Unreleased
--- section is work in progress and does not count until the version is cut, and a core sync's maintenance entry has no
+-- The update line belongs to the release it ships in: the newest CHANGELOG.md entry with a bold lead. Pending
+-- changes/*.md notes do not count until the version is cut, and a core sync's maintenance entry has no
 -- bold lead, so it changes nothing a player sees. 0.9.2 and 0.9.3 went out still announcing 0.9.1's.
 do
 	local function Read(path)
@@ -353,8 +353,7 @@ do
 	local whatsNew = core:match('\nns%.WHATS_NEW =%s*L%["([^"]+)"%]')
 	local whatsNewVersion = core:match('\nns%.WHATS_NEW_VERSION = "([^"]+)"')
 
-	-- Each entry is its heading and its text up to the next heading; only versioned headings count, so Unreleased is
-	-- skipped.
+	-- Each entry is its heading and its text up to the next heading; only versioned headings count.
 	local function Releases(text)
 		local found = {}
 		local nextSearch = 1

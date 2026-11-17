@@ -37,7 +37,9 @@ run with `uv run --project tools --frozen --group dev`. A version lives in those
 `.github/workflows/speedpatrol.yml` times `tests/bench.lua` on every pull request against its base branch and fails on
 a regression (`.speedpatrol/instructions.md`).
 Every version needs a `CHANGELOG.md` entry (prose, bold-lead bullets) before its `v*` tag: the release
-publishes it as the notes.
+publishes it as the notes. A change's player-facing notes go in `changes/<issue>.md` as bold-lead bullets, with an optional `### For addon
+authors` section after them. The release commit gathers them with `python3 tools/changelog.py release X.Y.Z`; no
+other pull request edits `CHANGELOG.md`, and CI's `--check --base` fails one that does.
 
 ## Layout
 

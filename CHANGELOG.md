@@ -10,18 +10,6 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
-## [Unreleased]
-
-- **Missing-price hints name the price addon you chose.** With AHDB or Naowh Forever chosen, the reagent tooltip and a route stopped on prices say how to update that addon. A linked or guild profession window keeps the game's own recipe list.
-- **Supply controls line up beside their labels.** The form waits for a merchant selling route reagents, and SkillUp's bottom tabs hide when you switch professions. Thanks to bromidious for the report (#787).
-- **Item-level searches filter unlearned recipes too.** Exact levels, approximate levels and ranges now filter the bundled recipes by their output item level, thanks to kopuliak for the report (#662).
-- **Closing Professions keeps gamepad controls working.** Sorted and unlearned recipes use their own list, leaving the game's recipe provider and footer bindings intact (#794).
-- **Tracked professions have one visibility switch.** Hiding the reagent section uses the same setting as Show tracked professions. Section and profession menus include Open and keep their tracker options together (#771).
-- **Gathered materials have a sale value by default.** New installs price gathered and looted reagents at what selling them would bring. An existing choice to count them as free stays, and its cost line shows the sale value when known. Thanks to messajahswe on CurseForge for the report (#780).
-- **Sort every learned recipe by craft profit.** Highest craft profit orders by net value per craft, including grey recipes, with unknown values last. Thanks to davef1n on CurseForge for the idea (#781).
-- **AHDB can supply auction prices.** Choose AHDB under Prices, with other installed price addons filling gaps and tooltips showing the observation's age. Thanks to user_bvgv4fnauhmhf9i7 on CurseForge for the idea (#761).
-- **Auction data can price a route before your first auction house visit.** SkillUp reads Naowh Forever's scans and nightly auction snapshot when installed, keeps its age and leaves missing prices unknown (#783, #561).
-
 ## [1.14.0] - 2026-11-17
 
 <!-- forever-core-sync -->

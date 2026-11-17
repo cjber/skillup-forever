@@ -24,8 +24,8 @@ authorization. A preparation-only request ends before tags or uploads.
    prove that those pins are newest. Inspect `python3 tools/data_report.py --base
    <last-release-tag>`. Keep generated data and its source pins together.
 3. Prepare release changes on a branch from fresh main. Choose a new version from
-   the changes since the last tag. Retain `[Unreleased]` and move shipped notes
-   into `## [X.Y.Z] - YYYY-MM-DD` using the UTC release date. Keep the TOC version
+   the changes since the last tag. Run `python3 tools/changelog.py release X.Y.Z`: it writes `## [X.Y.Z] - YYYY-MM-DD`
+   (UTC date) from the `changes/*.md` fragments and deletes them. Keep the TOC version
    as `@project-version@`. Set `ns.WHATS_NEW` in `Core/Core.lua` (the chat line
    after an update) to the bold lead of one of this version's bullets;
    `tests/core_spec.lua` fails while it names an older entry. Run

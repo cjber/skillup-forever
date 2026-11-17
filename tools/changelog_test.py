@@ -13,8 +13,6 @@ from tools.forever_tools.changelog import check, section
 
 CHANGELOG = """# Changelog
 
-## [Unreleased]
-
 ## [1.6.3] - 2026-11-12
 
 <!-- forever-core-sync -->

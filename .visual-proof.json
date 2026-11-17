@@ -1,23 +1,146 @@
 {
-  "input_digest": "e01b616f4188f89f95564c3718c1ad71e6f007f7b3dc5b064c139699f5fd96d8",
-  "runtime_sha256": "e01b616f4188f89f95564c3718c1ad71e6f007f7b3dc5b064c139699f5fd96d8",
-  "candidate": "a24c590efb6e2b80a7419682d99798e304993b81dda34b8650421040f24dd552",
+  "input_digest": "64e7f7dbc067a5e25c97fdd5f7c6ec202bae8fca322a3c4da6f49858e736bc16",
+  "runtime_sha256": "64e7f7dbc067a5e25c97fdd5f7c6ec202bae8fca322a3c4da6f49858e736bc16",
+  "candidate": "62143626699b2cb3d2568ff485f56aaab06a355b2620209d7e4db9cf9f2d462c",
   "client_build": "1.60.1.70938 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "eb475a429cb6584a877003a6167a5f4b9e3858cb",
+  "source_commit": "3972885eadc9e7c8274bdfb0515dfe6ad57f205a",
   "flows": [
     {
-      "name": "skillup window",
+      "name": "skillup",
       "steps": [
         "/skillup"
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "price-source",
+      "steps": [
+        "sha256:2237dc324fb6a3d66361a4b9f67c156c2d16d4af3af528b0168643aefe64132e price-source.lua"
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "supply",
+      "steps": [
+        "sha256:ebf262da76c8c5d35075c6e7b3523ed74f9563c8d76eaf7b060c80ebd755ef8d supply.lua"
+      ],
+      "click": [
+        960,
+        402
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "route",
+      "steps": [
+        "sha256:a061532be1795d75365f88f0c3176d7e2ec153d4746ea385f8fd66491e9a45ef route.lua"
+      ],
+      "click": [
+        960,
+        402
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "unlearned-search-tilde",
+      "steps": [
+        "sha256:0e02b2a93aad959e52e151c8ff5bbe8ef7f7de2a510852d9f0a15d860c74021b unlearned-search-tilde.lua"
+      ],
+      "click": [
+        960,
+        402
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "unlearned-search-cleared",
+      "steps": [
+        "sha256:1a0316a28706dad2e83a075e28985eeb3b7c87727b8e279e156e18a7bba311c1 unlearned-search-cleared.lua"
+      ],
+      "click": [
+        960,
+        402
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "profit-sort",
+      "steps": [
+        "sha256:6c8eedb04a8de56ad32fa8a970179fa041f21a230d85b116d2cc544978f74c4c profit-sort.lua"
+      ],
+      "click": [
+        960,
+        402
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "sorted-list",
+      "steps": [
+        "sha256:cec2889dfdda20a04f6387445329cf151e7b29501c9d470261b019b8a2b7da7d sorted-list.lua"
+      ],
+      "click": [
+        960,
+        402
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "tracker-section-menu",
+      "steps": [
+        "sha256:6b9e4003058eaabebea2881e7c2deae6212c0be91adbdf290b593ae64516a99c tracker-section-menu.lua"
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "tracker-block-menu",
+      "steps": [
+        "sha256:90c65e4a56f8f9237c0342592f723f31d82685fca585f9641302e4cf82269093 tracker-block-menu.lua"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/92b2b335af252df50b303946695f11d8/raw/1ca8b2c802a2b407f3538a3a370484ab5261987a/1-skillup-window.png",
-      "sha256": "2f9aa05ce4d113bcbf94500be99690ae3108b46afbe3ae6b566ffc749021f855"
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/1-skillup.png",
+      "sha256": "9579c6617cd07076d0eb9b49e42fc9713b7793cb8fa72c36afb1b2f638a79eaf"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/2-price-source.png",
+      "sha256": "d2d432ba6cd8e004a77747c5577bc233ed65f574e9ea6bf0fcdcff96aa2e2ca1"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/3-supply.png",
+      "sha256": "34c85ab864dbf3b2a4bc78c81c985a0500e2f9abb8c62d7c2c3935a79ac14764"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/4-route.png",
+      "sha256": "ceb682c33d3fc0f3fd05ee31ee0243d0d4621e15796403c185617a3786273742"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/5-unlearned-search-tilde.png",
+      "sha256": "ecacd76285c5076e8c582537b6ec20e81bbf60e401e09c7e790dc33c67b0c11f"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/6-unlearned-search-cleared.png",
+      "sha256": "7e05763594e9f080f6db5a891d6d5fde3300fd35a648132da48f8ec983aa82f4"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/7-profit-sort.png",
+      "sha256": "d04d38987fc22419292965f6c4f1fac560294576d453fada708f0454a4633d4f"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/8-sorted-list.png",
+      "sha256": "e6c85630107e49509fb926303f0a696194fa5d17c0eb8847ec3efe9acd0fe1c1"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/9-tracker-section-menu.png",
+      "sha256": "fb555d76906601661671469c1c634553e839f2816d1f52e6a2e6fa1bf36b229a"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/a5db0a1e484c83fde4dae8ca4d6a14af/raw/dc18c8ccce031a34b9ee920edfdc3db21365e506/10-tracker-block-menu.png",
+      "sha256": "331b3fd831dd047d13106cec6735beb7e0b4594498e09310d307a746f104978c"
     }
   ]
 }

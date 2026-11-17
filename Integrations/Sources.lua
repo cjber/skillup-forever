@@ -21,7 +21,7 @@ end
 
 ---@param faction string?
 ---@return boolean
-local function OurFaction(faction)
+function ns.SourceFactionUsable(faction)
 	return faction == "" or (faction ~= nil and faction == ns.PlayerSide())
 end
 
@@ -30,7 +30,7 @@ end
 ---@return boolean
 local function Usable(npcID)
 	local npc = C.NPC(npcID)
-	return npc ~= nil and OurFaction(npc.side)
+	return npc ~= nil and ns.SourceFactionUsable(npc.side)
 end
 
 ---@param source SkillUpScrollSource
@@ -38,7 +38,7 @@ end
 local function QuestFor(source)
 	for _, questID in ipairs(source.quests) do
 		local quest = C.Quest(questID)
-		if quest and OurFaction(quest.side) then
+		if quest and ns.SourceFactionUsable(quest.side) then
 			return questID
 		end
 	end
@@ -442,7 +442,7 @@ function ns.AddSourceLines(tooltip, source, first)
 				L["Quest"],
 				quest.title,
 				NORMAL_FONT_COLOR,
-				OurFaction(quest.side) and HIGHLIGHT_FONT_COLOR or RED_FONT_COLOR
+				ns.SourceFactionUsable(quest.side) and HIGHLIGHT_FONT_COLOR or RED_FONT_COLOR
 			)
 		end
 	end

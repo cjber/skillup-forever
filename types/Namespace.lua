@@ -113,6 +113,7 @@
 ---@field RankText fun(rank: SkillUpRank): string
 ---@field RankBookName fun(rank: SkillUpRank): string
 ---@field RankQuestName fun(rank: SkillUpRank): string
+---@field SourceFactionUsable fun(faction: string?): boolean
 ---@field PlayerSide fun(): 'A'|'H'|nil
 ---@field RankHeld fun(rank: SkillUpRank): boolean
 ---@field PlanMoney fun(plan: SkillUpPlan): { buy: number, fees: number, sells: number, unknown: integer }

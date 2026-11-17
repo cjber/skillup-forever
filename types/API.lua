@@ -82,6 +82,7 @@
 ---@field Recipes fun(skillLineID?: integer): integer[]?, SkillUpAPIReason? Bundled recipe IDs, or nil, "none" when no profession matches.
 ---@field Recipe fun(recipeID: integer): SkillUpAPIRecipeDetails?, SkillUpAPIReason? Bundled recipe details, or nil, "none".
 ---@field RecipeRequirement fun(recipeID: integer): SkillUpAPIRequirement?, SkillUpAPIReason? Learn requirement and source, or nil, "none".
+---@field RecipeSources fun(recipeID: integer): SkillUpAPIRecipeSources?, SkillUpAPIReason? Named sources of the teaching item.
 ---@field Characters fun(): string[]?, SkillUpAPIReason? Character keys with saved learned-recipe records, or nil, "loading".
 ---@field Knows fun(characterKey: string, recipeID: integer): boolean?, SkillUpAPIReason? Saved learned state, or nil, "invalid".
 
@@ -89,6 +90,13 @@
 ---@field skillLineID integer
 ---@field output? { itemID: integer, quantity: number }|false
 ---@field reagents { itemID: integer, quantity: number }[]
+
+---@class SkillUpAPIRecipeSources
+---@field itemID integer
+---@field vendors { npcID: integer, name: string, zone: string, usable: boolean }[]
+---@field quests { questID: integer, title: string, usable: boolean }[]
+---@field drops { npcID: integer, name: string, zone: string, chance: number, usable: boolean }[]
+---@field world boolean
 
 ---@class SkillUpAPIRequirement
 ---@field skill number

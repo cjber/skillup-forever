@@ -576,7 +576,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 14 }
+local API = { version = 1, minor = 15 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe
@@ -1039,6 +1039,63 @@ function API.RecipeRequirement(recipeID)
 		return { skill = scroll[2], source = "item", recipeItem = scroll[1] }
 	end
 	return nil, "none"
+end
+
+-- An NPC a recipe's item comes from, as the tooltip names and colours it; nil for one the catalogue cannot name.
+---@param npcID integer
+---@return table?
+local function SourceNPC(npcID)
+	local npc = ns.Catalogue.NPC(npcID)
+	return npc
+		and {
+			npcID = npcID,
+			name = npc.name,
+			zone = ns.NPCLocation(npcID).label,
+			usable = ns.SourceFactionUsable(npc.side),
+		}
+end
+
+---@param recipeID integer
+---@return SkillUpAPIRecipeSources?, SkillUpAPIReason?
+function API.RecipeSources(recipeID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	local recipe = ns.RecipeData[recipeID]
+	if not recipe then
+		return nil, "none"
+	end
+	local C = ns.Catalogue
+	if not C.EnsureProfession(recipe.skillLine) then
+		return nil, "loading"
+	end
+	local source = C.Recipe(recipeID)
+	if not source then
+		return nil, "none"
+	end
+	---@type SkillUpAPIRecipeSources
+	local result = { itemID = source.item, vendors = {}, quests = {}, drops = {}, world = source.world == true }
+	for _, npcID in ipairs(source.vendors) do
+		result.vendors[#result.vendors + 1] = SourceNPC(npcID)
+	end
+	for _, questID in ipairs(source.quests) do
+		local quest = C.Quest(questID)
+		if quest then
+			result.quests[#result.quests + 1] = {
+				questID = questID,
+				title = quest.title,
+				usable = ns.SourceFactionUsable(quest.side),
+			}
+		end
+	end
+	for _, drop in ipairs(source.drops) do
+		local row = SourceNPC(drop[1])
+		if row then
+			row.chance = drop[2]
+			result.drops[#result.drops + 1] = row
+		end
+	end
+	return result
 end
 
 ---@return string[]?, SkillUpAPIReason?

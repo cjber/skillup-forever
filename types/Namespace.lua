@@ -317,7 +317,7 @@
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field showTooltipRoute boolean
 ---@field gatherTooltip boolean
----@field extrasOffSeen boolean
+---@field reagentTooltipOffSeen boolean
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field showAllGear table<string, boolean>
 ---@field pinnedRecipes table<string, table<integer, integer>>

@@ -39,11 +39,11 @@ The tooltip draws the thresholds on the game's bar, then each reagent's price an
 - **Buffs only** filters the list to the buffs you can use at your level.
 - **Levelling routes** list the crafts, trainer visits, skill books and rank quests to your target skill, in order, each with its amount and cost. [Route details](docs/route.md#levelling-route).
 - **Shopping lists** count reagents against bags and bank and keep an Auctionator list current; at the auction house, search a recipe's reagents for the crafts you choose. [Shopping details](docs/route.md#shopping-list).
-- **Supply page**, on in settings, sits beside the route: with a profession and a merchant open, note what you assume about each offer's price, stock, limit and trips, then read the route's chance. [Supply details](docs/supply-policy.md).
+- **Supply page** sits beside the route: with a profession and a merchant open, note what you assume about each offer's price, stock, limit and trips, then read the route's chance. [Supply details](docs/supply-policy.md).
 - **Trainer annotations** show chance and cost, with a green arrow on the best recipe for your route.
-- **Reagent tooltips** show what tracked routes need; Shift lists every recipe that uses the item, naming its profession. With *Gathering skill on nodes* on, herb and ore nodes show the skill they need, coloured at yours, on English clients.
+- **Reagent tooltips**, on in settings, show what tracked routes need; Shift lists every recipe that uses the item, naming its profession. Herb and ore nodes show the skill they need, coloured at yours, on English clients.
 - **Crafted gear** shows the newest item you could craft for each slot, with its recipe and reagents. [Gear details](docs/gear.md).
-- **Buffs**, on in settings, show what each profession can make for your level on a skill timeline. [Buffs details](docs/buffs.md).
+- **Buffs** show what each profession can make for your level on a skill timeline. [Buffs details](docs/buffs.md).
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png" width="640" alt="The SkillUp route tab: training and crafting steps from 48 to 73 with their costs, and the reagents they need"></p>
 
@@ -91,7 +91,7 @@ Open a profession and the numbers are already there.
 | `/skillup shopping`, `/skillup shop` | Open the shopping list, copy it, or plan a buy trip with Shortest Path Forever |
 | `/skillup trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer confirmed |
 
-Settings cover rows and tooltips, prices, sort order, the tabs, trainer annotations and addon hints. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** off uses the base chance. The Route tab is on by default; Crafted gear, Buffs and Supply are each one checkbox away. The minimap button drags around the rim.
+Settings cover rows and tooltips, prices, sort order, the tabs, trainer annotations and addon hints. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** off uses the base chance. Crafted gear and reagent tooltips start off, each one setting away; Supply has its own checkbox. The minimap button drags around the rim.
 
 ## Prices
 

@@ -292,13 +292,14 @@ do
 	equal(ns.db.priceSource, "auctionator", "an unknown auction price source resets")
 	equal(ns.db.craftValue, "vendor", "an unknown craft value resets")
 	equal(ns.db.sortMode, "blizzard", "an unknown sort resets")
-	equal(ns.db.reagentTooltip, "route", "an unknown reagent tooltip mode resets")
+	equal(ns.db.reagentTooltip, "off", "an unknown reagent tooltip mode resets")
 	equal(ns.db.recipeTooltip, "window", "an unknown recipe tooltip position resets to beside the window")
 	env.SkillUpForeverDB = {
 		priceSource = "tsm",
 		craftValue = "auction",
 		sortMode = "cost",
 		reagentTooltip = "full",
+		reagentTooltipOffSeen = true,
 		recipeTooltip = "row",
 	}
 	callbacks.SkillUpForever()

@@ -94,6 +94,7 @@ c.bags[SILK] = 4
 c.Boot()
 c.EnterWorld()
 c.Advance(0)
+ns.db.reagentTooltip = "route" -- off by default (#811)
 
 equal(ns.Have(SILK), 4, "a readable count")
 secret = true

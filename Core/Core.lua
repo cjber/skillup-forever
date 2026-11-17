@@ -53,17 +53,17 @@ local DEFAULTS = {
 	minimapButtonAngle = nil,
 	minimapButtonHidden = true,
 	showGearTab = false,
-	showBuffsTab = false,
-	showSupplyTab = false,
+	showBuffsTab = true,
+	showSupplyTab = true,
 	lastSkillUpPage = {}, -- ["Name-Realm"] = "route" | "gear" | "buffs": the SkillUp page the side tab reopens
 	buffProfession = {}, -- ["Name-Realm"] = skill line: the profession the Buffs page shows
 	onlyBuffsForLevel = {}, -- ["Name-Realm"] = true: the buffs page hides buffs this character's level cannot use
 	merchantButton = true, -- the merchant window's "Reagents still needed" button
 	auctionSearch = true, -- the Professions window's reagent search while the auction house is open
-	reagentTooltip = "route",
+	reagentTooltip = "off", -- reagent lines on item tooltips cost frame rate on every hover (#811)
 	showTooltipRoute = true,
-	gatherTooltip = false, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
-	extrasOffSeen = false, -- the off-by-default extras have reached this player once (#811)
+	gatherTooltip = true, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
+	reagentTooltipOffSeen = false, -- the off-by-default reagent tooltip has reached this player once (#811)
 	collectModes = {}, -- ["Name-Realm"] = "gather" | "auction": where a gatherable comes from; auction by default
 	showAllGear = {}, -- ["Name-Realm"] = true: the crafted gear view shows gear this character cannot make yet
 	pinnedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = priority }: most recently pinned wins
@@ -254,13 +254,11 @@ local function LoadDB()
 		loaded.valueGathered = true
 		loaded.gatheredValueSeen = true
 	end
-	-- The Buffs page and node tooltips were on for everyone and saved that way without a choice; SkillUp's own job
-	-- is chance, cost, route and shopping, so these extras start off once for every player. Turning one back on
-	-- sticks (#811).
-	if loaded.extrasOffSeen ~= true then
-		loaded.showBuffsTab = false
-		loaded.gatherTooltip = false
-		loaded.extrasOffSeen = true
+	-- Reagent lines on item tooltips were on for everyone and saved that way without a choice, and players named
+	-- them in frame rate reports, so they start off once for every player. Turning them back on sticks (#811).
+	if loaded.reagentTooltipOffSeen ~= true then
+		loaded.reagentTooltip = "off"
+		loaded.reagentTooltipOffSeen = true
 	end
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then

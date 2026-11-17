@@ -5,7 +5,7 @@ local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local c = Client.load({
-	saved = { gatherTooltip = true, extrasOffSeen = true },
+	saved = { gatherTooltip = true },
 	data = { NodeSkills = { ["Copper Vein"] = { 186, 1 }, ["Iron Deposit"] = { 186, 125 } } },
 })
 local ns = c.ns

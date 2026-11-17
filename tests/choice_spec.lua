@@ -65,23 +65,21 @@ do
 	equal(fresh.ns.db.valueGathered, true, "a new install values gathered materials")
 end
 
---[[ Extras start off ]]
+--[[ Reagent tooltips start off ]]
 
--- The Buffs page and node tooltips were saved on for everyone without a choice: they go off once, a page turned
--- back on afterwards stays on, and a new install starts with them and the Supply page off (#811).
+-- Reagent lines on item tooltips were saved on for everyone without a choice: they go off once, a mode chosen
+-- afterwards stays, and a new install starts with them off and every page on (#811).
 do
-	local old = Client.load({ saved = { showBuffsTab = true, gatherTooltip = true } })
-	equal(old.ns.db.showBuffsTab, false, "the Buffs page saved on before the reset goes off")
-	equal(old.ns.db.gatherTooltip, false, "and so do node tooltips")
-	equal(old.ns.db.extrasOffSeen, true, "and the reset is recorded")
-	local chosen = Client.load({ saved = { showBuffsTab = true, gatherTooltip = true, extrasOffSeen = true } })
-	equal(chosen.ns.db.showBuffsTab, true, "a Buffs page turned on after the reset stays on")
-	equal(chosen.ns.db.gatherTooltip, true, "and so do node tooltips")
+	local old = Client.load({ saved = { reagentTooltip = "route" } })
+	equal(old.ns.db.reagentTooltip, "off", "reagent tooltips saved on before the reset go off")
+	equal(old.ns.db.reagentTooltipOffSeen, true, "and the reset is recorded")
+	local chosen = Client.load({ saved = { reagentTooltip = "full", reagentTooltipOffSeen = true } })
+	equal(chosen.ns.db.reagentTooltip, "full", "a mode chosen after the reset stays")
 	local fresh = Client.load({})
-	equal(fresh.ns.db.showBuffsTab, false, "a new install starts without the Buffs page")
-	equal(fresh.ns.db.showSupplyTab, false, "or the Supply page")
-	equal(fresh.ns.db.gatherTooltip, false, "or node tooltips")
-	equal(fresh.ns.db.showRouteTab, true, "and keeps the Route page")
+	equal(fresh.ns.db.reagentTooltip, "off", "a new install starts without reagent tooltips")
+	equal(fresh.ns.db.showBuffsTab, true, "and keeps the Buffs page")
+	equal(fresh.ns.db.showSupplyTab, true, "the Supply page")
+	equal(fresh.ns.db.gatherTooltip, true, "and node tooltips")
 end
 
 equal(ns.db.valueGathered, false, "the saved free-material choice is preserved")

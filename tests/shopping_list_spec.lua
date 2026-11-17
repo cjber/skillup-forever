@@ -5,6 +5,7 @@ local c = Client.load({
 	boot = false,
 	saved = {
 		valueGathered = false,
+		gatheredValueSeen = true,
 		routeTargets = { [197] = 60, [164] = 70 },
 		trackedProfessions = { [197] = true, [164] = true },
 	},
@@ -297,6 +298,7 @@ local scoped = Client.load({
 	boot = false,
 	saved = {
 		valueGathered = false,
+		gatheredValueSeen = true,
 		routeTargets = { [LEATHERWORKING] = 60, [COOKING] = 70 },
 		trackedProfessions = { [LEATHERWORKING] = true, [COOKING] = true },
 	},

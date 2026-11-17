@@ -12,7 +12,7 @@ local MILD_SPICES, LOCH_FRENZY = 2678, 6317
 
 local c = Client.load({
 	auctionator = false,
-	saved = { valueGathered = false, vendor = { [RAW_MACKEREL] = 5 } },
+	saved = { valueGathered = false, gatheredValueSeen = true, vendor = { [RAW_MACKEREL] = 5 } },
 })
 local ns = c.ns
 ns.SetCollectMode("gather")
@@ -147,6 +147,7 @@ local limited = Client.load({
 	auctionator = false,
 	saved = {
 		valueGathered = false,
+		gatheredValueSeen = true,
 		vendor = { [RAW_MACKEREL] = 5 },
 		sellers = {
 			[VENDOR_NPC] = {
@@ -191,6 +192,7 @@ local unbundled = Client.load({
 	auctionator = false,
 	saved = {
 		valueGathered = false,
+		gatheredValueSeen = true,
 		sellers = {
 			[VENDOR_NPC] = {
 				name = "Fish Vendor",
@@ -232,6 +234,7 @@ local soldOut = Client.load({
 	auctionator = false,
 	saved = {
 		valueGathered = false,
+		gatheredValueSeen = true,
 		sellers = {
 			[VENDOR_NPC] = {
 				name = "Fish Vendor",

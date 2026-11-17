@@ -197,6 +197,7 @@ local ns = {
 		showUnlearned = false,
 		buffsOnly = false,
 		valueGathered = false,
+		gatheredValueSeen = true,
 		auctionOnly = false,
 		showBuffsTab = true,
 	},

@@ -40,6 +40,7 @@ local DEFAULTS = {
 	priceSource = "auctionator", -- the auction addon whose price wins when both are installed; the other fills gaps
 	craftValue = "vendor",
 	valueGathered = true, -- a reagent you gather costs what it would sell for, not nothing
+	gatheredValueSeen = false, -- the sale-value default has reached this player once (#807)
 	auctionOnly = false, -- a self-supplied reagent costs a market price, and is unpriced when none is known
 	restockCost = 0, -- copper for one trip to buy more after a route leg falls short; 0 never counts a trip
 	sortMode = "blizzard",
@@ -240,6 +241,13 @@ local function LoadDB()
 		loaded.suggestFamily = false
 	end
 	loaded.companionHints = nil
+	-- Every player before 1.14 had valueGathered = false saved without choosing it, because the defaults below are
+	-- written into the saved table, so the sale-value default reaches each of them once. A choice made after this
+	-- one reset sticks (#807).
+	if loaded.gatheredValueSeen ~= true then
+		loaded.valueGathered = true
+		loaded.gatheredValueSeen = true
+	end
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
 			loaded[key] = type(value) == "table" and {} or value

@@ -295,6 +295,7 @@
 ---@field priceSource 'auctionator'|'tsm'|'ahdb'|'naowh'
 ---@field craftValue 'none'|'vendor'|'auction'|'sale'
 ---@field valueGathered boolean
+---@field gatheredValueSeen boolean
 ---@field auctionOnly boolean
 ---@field restockCost number Copper for one trip to buy more after a shortfall; 0 counts no trip.
 ---@field sortMode 'blizzard'|'skill'|'newest'|'chance'|'cost'|'profit'

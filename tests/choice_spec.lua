@@ -11,7 +11,7 @@ local ORE, FLUX = 2770, 2880
 
 local c = Client.load({
 	boot = false,
-	saved = { valueGathered = false, routeTargets = { [164] = 20 } },
+	saved = { valueGathered = false, gatheredValueSeen = true, routeTargets = { [164] = 20 } },
 	data = {
 		Thresholds = {
 			[FROM_ORE] = { 1, 30, 45, 60 },
@@ -52,6 +52,18 @@ local function Plan()
 end
 
 --[[ Gathered materials ]]
+
+-- A free choice saved before the reset was the old default written into the saved table, not a choice: it becomes
+-- the sale value once, and a choice made afterwards sticks (#807).
+do
+	local old = Client.load({ saved = { valueGathered = false } })
+	equal(old.ns.db.valueGathered, true, "a free setting saved before the reset becomes the sale value")
+	equal(old.ns.db.gatheredValueSeen, true, "and the reset is recorded")
+	local chosen = Client.load({ saved = { valueGathered = false, gatheredValueSeen = true } })
+	equal(chosen.ns.db.valueGathered, false, "a free choice made after the reset is kept")
+	local fresh = Client.load({})
+	equal(fresh.ns.db.valueGathered, true, "a new install values gathered materials")
+end
 
 equal(ns.db.valueGathered, false, "the saved free-material choice is preserved")
 equal(ns.Price(ORE).copper, 0, "so ore this character mines costs nothing")
@@ -233,6 +245,7 @@ equal(c.chat[1]:find("no skipped recipes", 1, true) ~= nil, true, "with none ski
 local reloaded = Client.load({
 	saved = {
 		valueGathered = false,
+		gatheredValueSeen = true,
 		skippedRecipes = { ["Tester-Realm"] = { [FROM_ORE] = true, bad = true, [7] = "yes" }, Other = 3 },
 	},
 })

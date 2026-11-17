@@ -252,6 +252,9 @@ page = {
 	HasTradeSkillMaster = function()
 		return false
 	end,
+	AuctionProvider = function()
+		return page.HasAuctionator() and "auctionator" or nil
+	end,
 	AuctionatorAutoscan = function()
 		return page.auctionAutoscan
 	end,

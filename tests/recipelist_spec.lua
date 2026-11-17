@@ -115,6 +115,7 @@ recipeList.GetFrameLevel = function()
 	return 1
 end
 recipeList.ScrollBar = widget
+local linkedView = false
 local env = setmetatable({
 	CreateFrame = function()
 		return custom
@@ -126,6 +127,12 @@ local env = setmetatable({
 		end,
 	},
 	C_TradeSkillUI = {
+		IsTradeSkillLinked = function()
+			return linkedView
+		end,
+		IsTradeSkillGuild = function()
+			return false
+		end,
 		GetCraftableCount = function()
 			return 0
 		end,
@@ -305,3 +312,10 @@ for index, id in ipairs({ 20, 10, 30, 40 }) do
 		"profit orders every learned recipe, grey included, unknown last"
 	)
 end
+
+-- A linked or guild window keeps the client's own list: SkillUp's rows open recipes in this character's profession.
+linkedView = true
+replacements = 0
+box:SetDataProvider(profits)
+assert(activeProvider() == profits, "a linked profession keeps the client's list")
+linkedView = false

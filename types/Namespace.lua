@@ -155,6 +155,7 @@
 ---@field HasAuctionator fun(): boolean
 ---@field HasAHDB fun(): boolean
 ---@field HasNaowhForever fun(): boolean
+---@field AuctionProvider fun(): "auctionator"|"tsm"|"ahdb"|"naowh"|nil
 ---@field AuctionPrice fun(itemID: integer): SkillUpPrice?
 ---@field HasTradeSkillMaster fun(): boolean
 ---@field AcquisitionPayments fun(acquisitions: SkillUpSelectedAcquisition[]): string

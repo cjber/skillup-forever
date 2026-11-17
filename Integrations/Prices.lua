@@ -145,6 +145,35 @@ end
 
 local PROVIDERS = { auctionator = AuctionatorPrice, tsm = TradeSkillMasterPrice, ahdb = AHDBPrice, naowh = NaowhPrice }
 local PROVIDER_ORDER = { "auctionator", "tsm", "ahdb", "naowh" }
+-- Looked up on each call: the detectors are replaced after load when an addon is installed late, and in specs.
+local INSTALLED = {
+	auctionator = function()
+		return ns.HasAuctionator()
+	end,
+	tsm = function()
+		return ns.HasTradeSkillMaster()
+	end,
+	ahdb = function()
+		return ns.HasAHDB()
+	end,
+	naowh = function()
+		return ns.HasNaowhForever()
+	end,
+}
+
+-- The installed auction price addon a missing price is up to: the chosen one, else the first in fallback order.
+---@return "auctionator"|"tsm"|"ahdb"|"naowh"|nil
+function ns.AuctionProvider()
+	local selected = ns.db.priceSource
+	if INSTALLED[selected] and INSTALLED[selected]() then
+		return selected
+	end
+	for _, source in ipairs(PROVIDER_ORDER) do
+		if INSTALLED[source]() then
+			return source
+		end
+	end
+end
 
 -- The chosen observation wins; every other installed provider fills gaps in a fixed order.
 ---@param itemID integer

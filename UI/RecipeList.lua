@@ -450,8 +450,14 @@ local function ApplyList(scrollBox)
 	if not (source and source.GetRootNode) then
 		return
 	end
+	-- A linked or guild window lists someone else's recipes. Its rows select through the client's own list:
+	-- SkillUp's rows open recipes with C_TradeSkillUI.OpenRecipe, which switches to this character's profession.
+	local linked = C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild()
 	local key = SORT_KEYS[ns.db.sortMode]
-	local ok, built = pcall(BuildProvider, source, key, ns.SkillContext())
+	local ok, built = true, nil
+	if not linked then
+		ok, built = pcall(BuildProvider, source, key, ns.SkillContext())
+	end
 	if not ok then
 		if key then
 			ns.SetSortMode("blizzard")
@@ -591,6 +597,8 @@ function ns.AttachRecipeList()
 			row:SetSelected(selected ~= nil and info.recipeID == selected.recipeID)
 		end
 		DecorateRow(row, node)
+		-- The template's initializer runs first and sets a fresh OnClick on every init, so this wraps that
+		-- handler for the recipe shown now, never an earlier wrapper.
 		if info then
 			local nativeClick = row:GetScript("OnClick")
 			row:SetScript("OnClick", function(_, button)

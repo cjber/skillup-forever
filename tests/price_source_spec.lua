@@ -66,6 +66,14 @@ for _, source in ipairs({ "ahdb", "naowh" }) do
 	local c = Client.load({ data = DATA, auctionator = false, ahdb = {}, naowh = {}, saved = { priceSource = source } })
 	local ns = c.ns
 	equal(ns.db.priceSource, source, "the saved source is accepted")
+	local hint = source == "ahdb" and "Scan the auction house with AHDB, or visit a vendor, to price reagents."
+		or "Update Naowh Forever's auction data, or visit a vendor, to price reagents."
+	equal(ns.UnpricedHint(), hint, "with both installed the hint names the chosen source")
+	equal(
+		ns.RouteBlocked({ crafts = {}, ranks = {}, profession = {}, unpriced = 1 }),
+		hint,
+		"a route blocked on prices names the chosen source, not a missing addon"
+	)
 	equal(ns.Price(1), nil, "an empty feed is unknown")
 	c.ahdb[1], c.naowh[1] = { 1700000000 - 2 * 86400, 120, 150, 3 }, { 180, 1700000000 - 3 * 86400 }
 	c.Fire("PLAYER_ENTERING_WORLD")

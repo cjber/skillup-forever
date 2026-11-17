@@ -1411,13 +1411,17 @@ function ns.RouteBlocked(plan)
 		return string.format(L["At the %d cap: no trainer teaches the next rank."], plan.profession.max)
 	elseif plan.unpriced > 0 then
 		-- An auction addon knows only what it has scanned, so installing it isn't enough.
-		local without =
-			L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
-		local with = L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."]
-		if ns.HasTradeSkillMaster() and not ns.HasAuctionator() then
+		local provider = ns.AuctionProvider()
+		if provider == "auctionator" then
+			return L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."]
+		elseif provider == "tsm" then
 			return L["TradeSkillMaster has no price for these reagents: update its AuctionDB with the TSM desktop app."]
+		elseif provider then
+			return ns.UnpricedHint()
 		end
-		return ns.HasAuctionator() and with or without
+		local none =
+			L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
+		return none
 	elseif plan.stopReason == "no_recipe" then
 		return string.format(L["Nothing you know skills up past %d."], plan.reached)
 	end

@@ -12,6 +12,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [Unreleased]
 
+- **Missing-price hints name the price addon you chose.** With AHDB or Naowh Forever chosen, the reagent tooltip and a route stopped on prices say how to update that addon. A linked or guild profession window keeps the game's own recipe list.
 - **Supply controls line up beside their labels.** The form waits for a merchant selling route reagents, and SkillUp's bottom tabs hide when you switch professions. Thanks to bromidious for the report (#787).
 - **Item-level searches filter unlearned recipes too.** Exact levels, approximate levels and ranges now filter the bundled recipes by their output item level, thanks to kopuliak for the report (#662).
 - **Closing Professions keeps gamepad controls working.** Sorted and unlearned recipes use their own list, leaving the game's recipe provider and footer bindings intact (#794).

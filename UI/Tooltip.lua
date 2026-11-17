@@ -244,19 +244,15 @@ end
 -- chosen addon's advice comes first; an installed fallback still gets its own advice when the chosen one is absent.
 ---@return string
 function ns.UnpricedHint()
-	local auctionator, tsm = ns.HasAuctionator(), ns.HasTradeSkillMaster()
-	if (ns.db.priceSource == "ahdb" or not (auctionator or tsm)) and ns.HasAHDB() then
-		return L["Scan the auction house with AHDB, or visit a vendor, to price reagents."]
-	end
-	if (ns.db.priceSource == "naowh" or not (auctionator or tsm)) and ns.HasNaowhForever() then
-		return L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."]
-	end
-	if (ns.db.priceSource == "tsm" and tsm) or not auctionator then
-		if tsm then
-			return L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."]
-		end
-	elseif auctionator then
+	local provider = ns.AuctionProvider()
+	if provider == "auctionator" then
 		return L["Scan the auction house with Auctionator, or visit a vendor, to price reagents."]
+	elseif provider == "tsm" then
+		return L["Update TradeSkillMaster's AuctionDB with the TSM desktop app, or visit a vendor, to price reagents."]
+	elseif provider == "ahdb" then
+		return L["Scan the auction house with AHDB, or visit a vendor, to price reagents."]
+	elseif provider == "naowh" then
+		return L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."]
 	end
 	return L["Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
 end

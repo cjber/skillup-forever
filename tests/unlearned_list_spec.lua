@@ -225,6 +225,12 @@ local env = setmetatable({
 		end,
 	},
 	C_TradeSkillUI = {
+		IsTradeSkillLinked = function()
+			return false
+		end,
+		IsTradeSkillGuild = function()
+			return false
+		end,
 		GetCraftableCount = function()
 			return 0
 		end,

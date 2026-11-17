@@ -1582,7 +1582,6 @@ function ns.ShowRecipe(recipeID, anyProfession)
 	-- conversion could then be refused until /reload (#350). C_TradeSkillUI.OpenRecipe hands the same
 	-- selection to Blizzard's own code, as its recipe tracker and crafted gear page do.
 	ProfessionsFrame.CraftingPage:Show()
-	ProfessionsFrame:RefreshRightTabs()
 	C_TradeSkillUI.OpenRecipe(recipeID)
 end
 

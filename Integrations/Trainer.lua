@@ -124,7 +124,9 @@ local function BuildState(services)
 	-- The third value is the requirement the trainer showed, kept apart so /skillup trainers can tell the two apart.
 	for index, service in pairs(services) do
 		if service.recipeID then
-			local _, shown = GetTrainerServiceSkillReq(index)
+			local _, req = GetTrainerServiceSkillReq(index)
+			-- Match LoadDB: no positive skill requirement was observed when the API returns zero.
+			local shown = type(req) == "number" and req > 0 and req or nil
 			local bundled = ns.TrainerFees[service.recipeID]
 			local required = shown or (bundled and bundled[2])
 			if required then

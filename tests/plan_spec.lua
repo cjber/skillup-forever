@@ -657,10 +657,22 @@ learn.level = 20
 local taught = learnNs.PlanRoute(learnNs.RouteProfessions()[171])
 equal(Crafts(taught), "101 102", "the route trains the recipe that carries it on")
 equal(taught.training[1].recipeID, 102, "training it before its first craft")
+-- #807: a new scan makes the long-lived recipe cheaper after the player bought the route's reagents.
+-- Learning its planned recipe completes training, rather than releasing those purchased crafts.
+learn.bags[1000] = 12
+learn.Fire("BAG_UPDATE_DELAYED")
+learnNs.db.vendor[1000], learnNs.db.vendor[1001] = 100, 1
+learnNs.Changed("prices")
+equal(
+	Crafts(learnNs.PlanRoute(learnNs.RouteProfessions()[171])),
+	"101 102",
+	"a fee or price refresh retains planned crafts before training"
+)
 learn.known[102] = true
 learn.Fire("NEW_RECIPE_LEARNED")
 local learnedPlan = learnNs.PlanRoute(learnNs.RouteProfessions()[171])
 equal(#learnedPlan.training, 0, "learning the recipe drops the training step")
+equal(learnNs.PlanMoney(learnedPlan).fees, 0, "completed training is not charged again")
 equal(Crafts(learnedPlan), "101 102", "and keeps the crafts and their order")
 
 Client.report("plan_spec")

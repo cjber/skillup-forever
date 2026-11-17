@@ -1026,9 +1026,11 @@ function ns.RouteFollowable(plan)
 		-- A training step the player already took is done, a recipe nobody still teaches can't be learned, and
 		-- one taught later than the route crafts it cannot be trained where the route puts it.
 		if
-			ns.IsLearned(training.recipeID)
-			or not (ns.TrainingFor(profession, training.recipeID) or VendorTraining(training.recipeID))
-			or ns.LearnSkill(profession, training.recipeID) > training.usedAt + modifier
+			not ns.IsLearned(training.recipeID)
+			and (
+				not (ns.TrainingFor(profession, training.recipeID) or VendorTraining(training.recipeID))
+				or ns.LearnSkill(profession, training.recipeID) > training.usedAt + modifier
+			)
 		then
 			return false
 		end
@@ -1126,11 +1128,17 @@ local function Rebuild(profession, target, plan, fresh)
 			),
 		}
 	end
-	for index, step in ipairs(plan.training) do
-		local training = ns.TrainingFor(profession, step.recipeID) or VendorTraining(step.recipeID)
-		---@cast training number[]
-		route.training[index] = { recipeID = step.recipeID, fee = training[1], atSkill = step.usedAt + modifier }
-		route.trainingCost = route.trainingCost + training[1]
+	for _, step in ipairs(plan.training) do
+		if not ns.IsLearned(step.recipeID) then
+			local training = ns.TrainingFor(profession, step.recipeID) or VendorTraining(step.recipeID)
+			---@cast training number[]
+			route.training[#route.training + 1] = {
+				recipeID = step.recipeID,
+				fee = training[1],
+				atSkill = step.usedAt + modifier,
+			}
+			route.trainingCost = route.trainingCost + training[1]
+		end
 	end
 	return Finish(profession, target, route)
 end

@@ -652,7 +652,6 @@ L["Apply policy"] = "套用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的陣營沒有訓練師教授這個配方。" -- mt
 L["%s (level %d)"] = "%s（等級 %d）" -- mt
 
-
 L["Reagent counts cover the whole route, not each step alone."] =
 	"材料數量按整條路線計算，而非分別計算每個步驟。" -- mt
 

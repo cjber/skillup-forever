@@ -716,7 +716,6 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-
 L["Reagent counts cover the whole route, not each step alone."] =
 	"Количество реагентов рассчитано на весь маршрут, а не на каждый шаг по отдельности." -- mt
 

@@ -1,6 +1,5 @@
 -- luacheck: read globals scenario ADDON
 local ForeverCore = dofile("tests/forever_core.lua")
-local RecipeRows = dofile("tests/sim_recipe_rows.lua")
 
 for _, mode in ipairs({ "native", "default", "sorted", "unlearned" }) do
 	scenario("controller navigates visible recipes: " .. mode, {
@@ -53,7 +52,7 @@ for _, mode in ipairs({ "native", "default", "sorted", "unlearned" }) do
 		})
 		sim:openProfessions(185)
 		sim:advance(0.2)
-		local rows = RecipeRows(sim)
+		local rows = sim:recipeRows()
 		assert(#rows >= 3, "three recipes are visible")
 		local nav = sim.G.SmartNavigation
 
@@ -90,7 +89,7 @@ for _, mode in ipairs({ "native", "default", "sorted", "unlearned" }) do
 				list.SearchBox:SetText("Boar")
 			end)
 			sim:advance(0.3)
-			local filtered = RecipeRows(sim)
+			local filtered = sim:recipeRows()
 			assert(
 				#filtered == 1 and filtered[1].recipeInfo.recipeID == 2540,
 				"native search filters the sorted SkillUp rows"
@@ -103,7 +102,7 @@ for _, mode in ipairs({ "native", "default", "sorted", "unlearned" }) do
 				list.SearchBox:SetText("")
 			end)
 			sim:advance(0.3)
-			assert(#RecipeRows(sim) == 3, "clearing native search restores all sorted rows")
+			assert(#sim:recipeRows() == 3, "clearing native search restores all sorted rows")
 		end
 		sim:closeProfessions()
 		-- Known limitation (#794): a sorted list sits in the client's own view, so its row click selects through

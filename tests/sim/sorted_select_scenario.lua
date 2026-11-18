@@ -2,7 +2,6 @@
 -- #840: under every SkillUp sort, a left click on a learned recipe row selects that recipe in the crafting
 -- page through the client's own row click, and the window stays open.
 local ForeverCore = dofile("tests/forever_core.lua")
-local RecipeRows = dofile("tests/sim_recipe_rows.lua")
 
 for _, mode in ipairs({ "skill", "chance", "cost", "profit", "name" }) do
 	scenario(
@@ -36,7 +35,7 @@ for _, mode in ipairs({ "skill", "chance", "cost", "profit", "name" }) do
 			local frame = sim:openProfessions(185)
 			sim:advance(0.2)
 			local page = frame.CraftingPage
-			local rows = RecipeRows(sim)
+			local rows = sim:recipeRows()
 			assert(#rows >= 2, "the sorted list shows recipes")
 			local first = page.SchematicForm:GetRecipeInfo()
 			local target

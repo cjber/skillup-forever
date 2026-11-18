@@ -21,7 +21,7 @@
     },
     {
       "source": "UI/Route.lua",
-      "sha256": "a9a3823c10d34011d0e325e986e1209644d2e82b4f6657b69f79c9df9e618191",
+      "sha256": "b19afd7bae8cc6e40b9d305db7b3ffcc111ca700d1116ea4cde73f3aa8be9d54",
       "review": "Reviewed CreateInset, CreateHeader, CreateButtons, Render, RenderMoney, RenderRoute, RenderPinned, RenderSkipped, RenderSuggestions, RenderReagents and their List.lua consumers. PageParts.CreateHeader fixes Skill to GameFontNormal. List:Add text/detail use GameFontHighlight/GameFontNormal, List:Line text/detail use GameFontHighlight/GameFontNormalSmall, List:Message uses GameFontNormal. No later font setters. Pinned client Blizzard_SharedXML/Shared/Button/ThreeSliceButtonTemplate.xml: SharedButtonSmallTemplate inherits BigRedThreeSliceButtonTemplate then ThreeSliceButtonTemplate; normal/highlight/disabled fonts are GameFontNormal/GameFontHighlight/GameFontDisable, all bound. SecureActionButtonTemplate adds no font override. Tooltips, menus, chat, numeric edit fields, dynamic names, external helper results and text inserted into format placeholders have no coverage claim. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed.",
       "bindings": [
         {
@@ -333,7 +333,7 @@
     },
     {
       "source": "UI/Gear.lua",
-      "sha256": "61b0a39a07fd4e70ee5d8612e98efe313bd749c637659ce84f15e07cc6b4032f",
+      "sha256": "df2dd3162bbe000bda40851701ff9f64cd2e1db10470c1ca704cec63d862071c",
       "review": "Reviewed CreateRow, FillRow, RenderReagents, RenderOthers, RenderDetail, Requirement, CreateShowAll, CreateDetail and CreatePage. Explicit FontStrings retain their creation fonts; colour changes do not change FontObjects. Bound local phrases reaching these widgets. SharedButtonSmallTemplate action text is produced by PageParts and excluded here; page registration titles, tooltips, game item names and helper output are excluded. No font overrides occur.",
       "bindings": [
         {
@@ -385,7 +385,7 @@
     },
     {
       "source": "UI/Buffs.lua",
-      "sha256": "20ae8fcc288ba52e793efabbd719828fcf42145b8e55963a91a56d0bb95dd19c",
+      "sha256": "2f1b648cd8c026413c2deec3c0a648501414e795dc874e9d093123b76956a04e",
       "review": "Reviewed CreateFurniture, CreateLevelCheck, CreatePage, Render, RenderDetail, LearnLine, RenderDivider and row initialization. Title and Learn use GameFontNormal; legend, LevelLabel and DividerLabel use GameFontNormalSmall; Empty uses GameFontHighlight. No later font overrides occur. PageParts.CreateHeader fixes Skill to GameFontNormal. Bound local phrases only. Dynamic buff descriptions, row names, rank names, helper results, menu text, tooltips and inserted game text are excluded. Action button helper phrases are reviewed with PageParts.lua.",
       "bindings": [
         {
@@ -462,7 +462,7 @@
     },
     {
       "source": "UI/PageParts.lua",
-      "sha256": "c35065a098e3ecce272d0398767fbc5c617ed8876b1dd3b8c4c017e75dcf42e9",
+      "sha256": "b985b65789ac432f3b54918ce32df00e6abcf382d6085a45693d8888bba1f39f",
       "review": "Read CreateHeader, Status, LearnedAt, Action, BuffAction, ItemName and Gear.lua/Buffs.lua consumers. Gear detail.State uses GameFontHighlight, OtherRows.Detail uses GameFontNormal; Gear detail.Learn uses GameFontNormal. Action labels reach SharedButtonSmallTemplate in both pages, whose pinned ThreeSliceButtonTemplate.xml defines normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. No consumer font overrides. ItemName fallback is also displayed by Gear detail.Name (GameFontNormalLarge), Gear row.Text (GameFontHighlight) and Buff detail.Name (GameFontNormal). Tooltip-only action reasons, tooltips, menus, external game names and inserted text are excluded.",
       "bindings": [
         {
@@ -574,7 +574,7 @@
     },
     {
       "source": "UI/AuctionSearch.lua",
-      "sha256": "259761bc475e16739800084ad2f0333e97da090fa5783b98a46668904c7e983a",
+      "sha256": "a193b7a46dd46ca0c465ba3ec2a38bf24aede34e4705662ef13aa51ceab6a94b",
       "review": "Read AttachAuctionSearch, Refresh, OnRecipeSelected and search callbacks. bar.Label and bar.Crafts explicitly use GameFontNormal with no override. bar.Search uses SharedButtonSmallTemplate: pinned ThreeSliceButtonTemplate.xml supplies normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable, all bound. Count is numeric game state. Tooltips, chat search messages and dynamic reagent names are excluded.",
       "bindings": [
         {
@@ -606,7 +606,7 @@
     },
     {
       "source": "UI/ShoppingList.lua",
-      "sha256": "935dd29c327e042f4b4dc223046e0d6d0f1292f8c1ab67f72e6f2efe371456bb",
+      "sha256": "3837a1008f59507874836719da63fb2db05db5d50ffcf2e07cd7b4715ec0dff7",
       "review": "Reviewed Copy, Heading, Note, NewRow, Refresh and Create. hint, pooled name, emptyText and footer have explicit fonts. summary, pooled detail and notes use GameFontHighlightSmall; headings use GameFontNormalLarge. No font changes after construction. copyEdit explicitly uses ChatFontNormal but contains external ShoppingText output, excluded. Copy/trip buttons use pinned SharedButtonSmallTemplate normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Portrait window title inheritance was not established, so window titles are excluded. Helper-generated notes, spares, copy text, inserted item/profession/player names and tooltip text are excluded.",
       "bindings": [
         {
@@ -1055,7 +1055,7 @@
     },
     {
       "source": "UI/Shopping.lua",
-      "sha256": "3fc56cad274d8c1e7c2a7182b2116cb8fcc726548433a06a08f0e12caa5aec41",
+      "sha256": "a593d7ca667c62742804b1f3194abe30593e7738cc899bce446be2fcecc39420",
       "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed.",
       "bindings": [
         {
@@ -1107,7 +1107,7 @@
     },
     {
       "source": "UI/RecipeList.lua",
-      "sha256": "fe5309e78d7a6784da94fe04d91396598a5e3ba8eaff3db061603cfa3139102d",
+      "sha256": "7579612617e472dc249f6a219a83b96e751772057b77f5a7a2d604a3af04d6ef",
       "review": "Reviewed DecorateRow, UnlearnedText, AttachRecipeList and preview callback. rowTexts FontString explicitly uses GameFontHighlight_NoShadow and never changes font. Bound UnlearnedText wording only. ns.FormatRow and ns.LearnSourceText output, recipe names, native Count text, menus and chat are excluded. Preview callback operates its own widgets and does not set this FontString font. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed.",
       "bindings": [
         {
@@ -1119,7 +1119,7 @@
     },
     {
       "source": "UI/RecipePreview.lua",
-      "sha256": "6612fac30cb02625338b0e7d72119884b06261bd16566d1685449076ec457d61",
+      "sha256": "ae80af9a53d1ed8b19f4902cd438db9f562605fb6b6f31abc05e918c7e3e12be",
       "review": "Reviewed Label, MatchFont, ItemRow and preview construction/render paths. MatchFont copies both live FontObject and font face from client widgets, including skin overrides; creation templates cannot establish a fixed final font for those labels. Those phrases, dynamic item names, descriptions and helper results are excluded. Close uses SharedButtonSmallTemplate but is passed to the optional EllesmereUI skin.Button callback, so its final font is also uncertain and excluded. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed.",
       "bindings": []
     },

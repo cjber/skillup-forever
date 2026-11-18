@@ -559,3 +559,11 @@ function C_TradeSkillUI.GetRecipeItemLevelFilter() end
 BATTLE_PET_FAVORITE = nil
 ---@type string
 BATTLE_PET_UNFAVORITE = nil
+
+-- The client's objective tracker palette (Blizzard_ObjectiveTracker). ForeverCore 1.15.0 no longer declares it.
+---@class ForeverObjectiveTrackerColor
+---@field r number
+---@field g number
+---@field b number
+---@type table<string, ForeverObjectiveTrackerColor>
+OBJECTIVE_TRACKER_COLOR = nil

@@ -1128,12 +1128,27 @@ end
 -- intermediate, or held copies cover it, so the steps match what Reagents asks for (#858). The crafts stay.
 ---@param plan SkillUpPlan
 local function RefreshSubcrafts(plan)
-	local bags = {}
+	local bags, changed = {}, false
 	for _, craft in ipairs(plan.crafts) do
 		local subcrafts, _, _, usedHeld = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
+		local old = craft.subcrafts or {}
+		if #old ~= #subcrafts then
+			changed = true
+		else
+			for index, sub in ipairs(subcrafts) do
+				local was = old[index]
+				if was.recipeID ~= sub.recipeID or was.itemID ~= sub.itemID or was.crafts ~= sub.crafts then
+					changed = true
+				end
+			end
+		end
 		craft.subcrafts, craft.held = subcrafts, usedHeld or nil
 	end
-	Lay(plan)
+	-- What a cache keyed on the plan reads with it: the same plan with other sub-crafts asks for other reagents.
+	if changed then
+		plan.revision = (plan.revision or 0) + 1
+		Lay(plan)
+	end
 end
 
 -- Whether every step of a route can still be walked: each craft's recipe is known, or trained by a step of the

@@ -373,6 +373,8 @@ function ns.TrackedNeeds()
 		local plan = ns.PlanRoute(profession)
 		tracked[index] = { plan = plan }
 		key[#key + 1] = tostring(plan)
+		-- A followed route kept across a bag change can take new sub-crafts in place (#858).
+		key[#key + 1] = tostring(plan.revision or 0)
 		key[#key + 1] = table.concat(ns.MissingToolItems(plan), ",")
 	end
 	local signature = table.concat(key, ";")

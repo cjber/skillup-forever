@@ -121,7 +121,17 @@ do
 		end
 		return made, need, table.concat(crafts, " ")
 	end
+	---@return table<integer, number>
+	local function Tracked()
+		local byItem = {}
+		for _, item in ipairs(fns.TrackedNeeds()[1].items) do
+			byItem[item.itemID] = item.need
+		end
+		return byItem
+	end
+	fns.SetTracked(LEATHERWORKING, true)
 	local made, need, crafts = Read()
+	assert(Tracked()[LIGHT_LEATHER], "the tracked list buys Light Leather")
 	equal(made[LIGHT_LEATHER], nil, "while buying Light Leather is cheaper, no step makes it")
 	assert(need[LIGHT_LEATHER], "and Reagents buys it")
 	f.bags[SCRAPS] = 3 * need[LIGHT_LEATHER]
@@ -131,6 +141,7 @@ do
 	equal(craftsAfter, crafts, "the followed route keeps its crafts")
 	equal(needAfter[LIGHT_LEATHER], nil, "the held scraps cover its Light Leather")
 	assert(madeAfter[LIGHT_LEATHER] and madeAfter[LIGHT_LEATHER] >= need[LIGHT_LEATHER], "and a step makes it")
+	equal(Tracked()[LIGHT_LEATHER], nil, "the tracked shopping list follows the new step")
 end
 
 -- Held inputs come before the market's own maker too: with Transmute: Iron to Gold the cheapest Gold Bar at market,

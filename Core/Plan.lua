@@ -763,11 +763,12 @@ local function Expand(recipeID, crafts, depth, making, bags)
 					used[#used + 1] = { itemID = reagent.itemID, count = held }
 					usedHeld = true
 				end
-				local makerID, quantity, inputs, covered
-				if need > 0 and depth < MAX_SUB_DEPTH and not making[reagent.itemID] then
-					makerID, quantity, inputs, covered = HeldMaker(reagent.itemID, bags)
-				end
-				if makerID then
+				-- Each held maker in turn, cheapest first, until the held inputs cover the shortfall or none is left.
+				while need > 0 and depth < MAX_SUB_DEPTH and not making[reagent.itemID] do
+					local makerID, quantity, inputs, covered = HeldMaker(reagent.itemID, bags)
+					if not makerID then
+						break
+					end
 					---@cast quantity number
 					---@cast inputs {itemID: integer, quantity: number}[]
 					local batches = math.min(assert(covered), math.ceil(need / quantity))

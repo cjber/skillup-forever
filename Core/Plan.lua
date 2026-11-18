@@ -658,6 +658,38 @@ local MAX_SUB_DEPTH = 3
 -- What Expand returns as `used` when no bags are passed: never written, since only the bags branch adds to it.
 local NONE_USED = {}
 
+-- A learned recipe that makes `itemID` from what the bags still hold, with its output per craft, its reagents and
+-- how many crafts those held reagents cover in full. Inputs bought for a route keep making its intermediate once
+-- the market turns to buying it, instead of sitting unused while the route asks for the intermediate (#858).
+-- Only crafts the bags cover whole count: buying more inputs to make it is the market choice SubCraft makes. The
+-- maker passes the same test SubCraft's does (ns.UsableMaker).
+---@param itemID integer
+---@param bags table<integer, number>
+---@return integer?, number?, {itemID: integer, quantity: number}[]?, integer?
+local function HeldMaker(itemID, bags)
+	---@type integer?, number?, {itemID: integer, quantity: number}[]?, integer?, number?
+	local bestID, bestQuantity, bestReagents, bestCrafts, bestCost
+	for _, makerID in ipairs(ns.MakersOf and ns.MakersOf(itemID) or {}) do
+		if ns.UsableMaker(makerID) then
+			local quantity, reagents = ns.RecipeOutput(makerID).quantity, ns.Reagents(makerID)
+			local crafts, cost = math.huge, 0
+			for _, reagent in ipairs(reagents) do
+				bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
+				crafts = math.min(crafts, math.floor(bags[reagent.itemID] / reagent.quantity))
+				local each = cost and ns.HeldCost and ns.HeldCost(reagent.itemID)
+				cost = each and cost + each * reagent.quantity or nil
+			end
+			-- Of the makers the bags cover, the one whose held inputs give up least per item made; an input with
+			-- no known worth ranks its maker after every priced one, and a tie keeps the lower recipe ID.
+			local unit = cost and cost / quantity
+			if crafts > 0 and (not bestID or (unit and (not bestCost or unit < bestCost))) then
+				bestID, bestQuantity, bestReagents, bestCrafts, bestCost = makerID, quantity, reagents, crafts, unit
+			end
+		end
+	end
+	return bestID, bestQuantity, bestReagents, bestCrafts
+end
+
 -- The sub-crafts a recipe's reagents need, deepest first, and the raw reagents left once every
 -- reagent a learned recipe makes for less than it costs to buy is replaced by what it is made from.
 -- A reagent already being made higher up is left raw, so a cycle cannot recurse. `bags` is the held
@@ -729,6 +761,24 @@ local function Expand(recipeID, crafts, depth, making, bags)
 				need = need - held
 				if held > 0 then
 					used[#used + 1] = { itemID = reagent.itemID, count = held }
+					usedHeld = true
+				end
+				local makerID, quantity, inputs, covered
+				if need > 0 and depth < MAX_SUB_DEPTH and not making[reagent.itemID] then
+					makerID, quantity, inputs, covered = HeldMaker(reagent.itemID, bags)
+				end
+				if makerID then
+					---@cast quantity number
+					---@cast inputs {itemID: integer, quantity: number}[]
+					local batches = math.min(assert(covered), math.ceil(need / quantity))
+					for _, input in ipairs(inputs) do
+						local count = input.quantity * batches
+						bags[input.itemID] = bags[input.itemID] - count
+						used[#used + 1] = { itemID = input.itemID, count = count }
+					end
+					subcrafts[#subcrafts + 1] =
+						{ recipeID = makerID, itemID = reagent.itemID, crafts = batches, made = batches * quantity }
+					need = math.max(0, need - batches * quantity)
 					usedHeld = true
 				end
 			end

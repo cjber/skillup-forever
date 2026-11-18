@@ -1,34 +1,23 @@
 {
-  "input_digest": "8f27328e1a2de3e4a1145f65d9a3a6fed739e036403ddcc0cc6722cd97fc5624",
-  "runtime_sha256": "8f27328e1a2de3e4a1145f65d9a3a6fed739e036403ddcc0cc6722cd97fc5624",
-  "candidate": "861f1130b6d84e6ad454cf0960715b085026a53023e9e793c7c56b799e347f03",
+  "input_digest": "13729d22d2a03fe806e950dce19d776c6b21fefdbefaa6ba717eff9ad82c0877",
+  "runtime_sha256": "13729d22d2a03fe806e950dce19d776c6b21fefdbefaa6ba717eff9ad82c0877",
+  "candidate": "1391f970acaa598a67d6075fc1786be59c8cb2d743f20f21069bb27a86ed5b13",
   "client_build": "1.60.1.70959 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "1627d1e87ac9782d0c812bb86d9a0e86b57cd42e",
+  "source_commit": "ef1f45d5c31d4bacead236b5d86d93d462415f8d",
   "flows": [
     {
-      "name": "core-off",
+      "name": "settings-tooltip",
       "steps": [
-        "sha256:7a97d2d7d8e316db43364800d15033bda3103efd7331b897032fcc5ec8f4c46b noop.lua"
-      ],
-      "result": "pass"
-    },
-    {
-      "name": "compartment",
-      "steps": [
-        "sha256:fd218852016ed4bb648b774a194ad974b28081017262349948b1a3ceaee332c6 skillup-forever.lua"
+        "sha256:652c68e115e699a4574d57f388c748af98df00cac703201fc8d05f3b1392a10e settings-tooltip.lua"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/f0269b61d7c784a733b12e5def860449/raw/ae6cd5a497edf5275a4bbbc9883bed282ff4abe5/1-core-off.png",
-      "sha256": "aa9bf49238247f5d843272037cf7170f21b809f6708654e7a32097aa40159111"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/f0269b61d7c784a733b12e5def860449/raw/ae6cd5a497edf5275a4bbbc9883bed282ff4abe5/2-compartment.png",
-      "sha256": "f4d8af3edec8b8bb3b2d839c568323cccc7d5e03b0d5ed4411a937e110cbf4e6"
+      "url": "https://gist.githubusercontent.com/cjber/2974dacf2e771258fa252d0ac3bdcbc2/raw/bb35b0388baeffdbdcc24c2cebd08382b45ee361/1-settings-tooltip.png",
+      "sha256": "6d5ab47432e85f7ed7e86127fcf8a86e3cfef0bcac51ea4eca67f01a7edc0032"
     }
   ]
 }

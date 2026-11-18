@@ -1,13 +1,13 @@
 {
-  "input_digest": "2ccde49ec9bd81bab70f72ad6fda0532fca13dcd2d12c6dfc76e21ed1d8a3d00",
-  "runtime_sha256": "2ccde49ec9bd81bab70f72ad6fda0532fca13dcd2d12c6dfc76e21ed1d8a3d00",
-  "candidate": "30eb04eb2f62dc2c08782bb417ef13500bef0a0f05f3d55c12707894f150ef22",
+  "input_digest": "abd162e20816163ec2f37a8e8f3b07314f130c75420ef08b30d6cdf87bd5fc4a",
+  "runtime_sha256": "abd162e20816163ec2f37a8e8f3b07314f130c75420ef08b30d6cdf87bd5fc4a",
+  "candidate": "bd78af4990994c4f0873659668f957274b1a23a1df56fb30cd2b804a2d58dc37",
   "client_build": "1.60.1.70959 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "f9dfcdf0189229d1a7d14a64d5e9d54cc3b2bcad",
+  "source_commit": "7cf22d79629197f5ebf66d2303fbfbf70e41feb4",
   "flows": [
     {
-      "name": "professions",
+      "name": "sorted-list",
       "steps": [
         "sha256:07ce11da525e0711a7017479e96fded9d34fbe7e9be073692394c4d4d2ac38b7 professions.lua"
       ],
@@ -27,12 +27,12 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/cf8bfa8a51c1c3eb85a3cba10be85af2/raw/913a4706e6541a4544a23d8477233d0d555f0b18/1-professions.png",
-      "sha256": "7f55aff0fb094fcbb11aec689571b6ae9d22a0a20597c9f47a56476b5c831e9a"
+      "url": "https://gist.githubusercontent.com/cjber/94ed32e963cc22ed8325e595e3c6b6eb/raw/e4375e6a9da9575ea22174107d616a6570378031/1-sorted-list.png",
+      "sha256": "0e5c1b966a2f6b5f39d1caaa0f006a97012f01e46d3dc9c92dd007141348f2e4"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/cf8bfa8a51c1c3eb85a3cba10be85af2/raw/913a4706e6541a4544a23d8477233d0d555f0b18/2-settings.png",
-      "sha256": "0597fc824712050199a2a15a9577dde814cfee8ce5800d29238c1c491438211a"
+      "url": "https://gist.githubusercontent.com/cjber/94ed32e963cc22ed8325e595e3c6b6eb/raw/e4375e6a9da9575ea22174107d616a6570378031/2-settings.png",
+      "sha256": "ebf295012d9479e07d1c4be0dcfafceae67939f3e0c27969dcf9b5fb55d4d288"
     }
   ]
 }

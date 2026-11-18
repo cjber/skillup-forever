@@ -644,7 +644,7 @@ L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
-L["Working Overtime's bonus is left out of chances by default."] = "加班奖励默认不计入几率。" -- mt
+L["Clicking a recipe selects it again under every sort."] = "在任何排序下点击配方都会再次选中它。" -- mt
 
 L["Highest craft profit"] = "单次制造利润最高" -- mt
 

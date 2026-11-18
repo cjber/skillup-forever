@@ -657,8 +657,8 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Ningún instructor de tu facción enseña esta receta." -- mt
 L["%s (level %d)"] = "%s (nivel %d)" -- mt
 
-L["Working Overtime's bonus is left out of chances by default."] =
-	"La bonificación de Horas extra no se incluye en las probabilidades por defecto." -- mt
+L["Clicking a recipe selects it again under every sort."] =
+	"Hacer clic en una receta vuelve a seleccionarla con cualquier orden." -- mt
 
 L["Highest craft profit"] = "Mayor beneficio por fabricación" -- mt
 

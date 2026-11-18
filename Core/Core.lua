@@ -133,8 +133,8 @@ ns.TITLE = "SkillUp Forever"
 -- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
 -- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
 -- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
-ns.WHATS_NEW_VERSION = "1.14.1"
-ns.WHATS_NEW = L["Working Overtime's bonus is left out of chances by default."]
+ns.WHATS_NEW_VERSION = "1.14.2"
+ns.WHATS_NEW = L["Clicking a recipe selects it again under every sort."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

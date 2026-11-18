@@ -665,8 +665,8 @@ L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt
 
-L["Working Overtime's bonus is left out of chances by default."] =
-	"초과 근무 보너스는 기본적으로 확률에 포함되지 않습니다." -- mt
+L["Clicking a recipe selects it again under every sort."] =
+	"어떤 정렬에서도 제조법을 클릭하면 다시 선택됩니다." -- mt
 
 L["Highest craft profit"] = "제작당 최고 이익" -- mt
 

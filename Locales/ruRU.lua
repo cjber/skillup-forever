@@ -707,8 +707,8 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["Working Overtime's bonus is left out of chances by default."] =
-	"Бонус «Сверхурочной работы» по умолчанию не учитывается в шансах." -- mt
+L["Clicking a recipe selects it again under every sort."] =
+	"Щелчок по рецепту снова выбирает его при любой сортировке." -- mt
 
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 

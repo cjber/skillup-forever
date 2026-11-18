@@ -47,10 +47,12 @@ local cache
 -- [skill line][step index] = picks the step's NPC by travel time, for Navigate.
 ---@type table<integer, table<integer, fun(): integer?>>
 local pickers = {}
-local namesPending = false
+-- Item names the list was built without; only one of these arriving rebuilds it (#846).
+---@type table<integer, true>
+local waitingNames = {}
 
 ns.WhenStale("api", function()
-	namesPending = false
+	waitingNames = {}
 	cache = nil
 	revision = revision + 1
 	hub.Queue()
@@ -69,7 +71,7 @@ local function ItemName(itemID)
 	if name then
 		return name
 	end
-	namesPending = true
+	waitingNames[itemID] = true
 	C_Item.RequestLoadItemDataByID(itemID)
 	return string.format(L["item %d"], itemID)
 end
@@ -1130,6 +1132,8 @@ if (ForeverCore.APIKit.minor or 1) >= 2 then
 	ForeverCore.APIKit.Publish("SkillUpForever", API)
 end
 
-ns.WhenEvent("ITEM_DATA_LOAD_RESULT", function()
-	return namesPending and "names" or nil
+ns.WhenEvent("ITEM_DATA_LOAD_RESULT", function(itemID, success)
+	if success and waitingNames[itemID] and C_Item.GetItemNameByID(itemID) then
+		return "names"
+	end
 end)

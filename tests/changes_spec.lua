@@ -138,11 +138,16 @@ end
 ns.PlanRoute = realPlanRoute
 equal(planReads, 0, "stable API copies do not resolve plans")
 
--- The public list was built without the reagent's name, so item data arriving rebuilds it once.
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), "api | route", "item data the public list waited on")
+-- The public list was built without the reagent's name: only that name arriving rebuilds it, once.
+equal(Stale(Event("ITEM_DATA_LOAD_RESULT", 9999, true)), " | route", "item data for another item")
+equal(Stale(Event("ITEM_DATA_LOAD_RESULT", CLOTH, true)), " | route", "the awaited item, still without its name")
 c.items[CLOTH] = { name = "Linen Cloth" }
 c.Fire("BAG_UPDATE_DELAYED")
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), " | route", "item data nothing waited on")
+c.items[CLOTH] = nil
+APIAnswer(true)
+c.items[CLOTH] = { name = "Linen Cloth" }
+equal(Stale(Event("ITEM_DATA_LOAD_RESULT", CLOTH, true)), "api | route", "the name the public list waited on")
+equal(Stale(Event("ITEM_DATA_LOAD_RESULT", CLOTH, true)), " | route", "item data nothing waited on")
 
 for _, case in ipairs({
 	-- The window's own events redraw what shows it and keep the plans: its scan reports what changed in them.

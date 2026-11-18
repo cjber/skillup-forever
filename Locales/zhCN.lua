@@ -644,7 +644,8 @@ L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
-L["Clicking a recipe selects it again under every sort."] = "在任何排序下点击配方都会再次选中它。" -- mt
+L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
+	"拍卖行尚未给出材料价格时，路线不再显示为空。" -- mt
 
 L["Highest craft profit"] = "单次制造利润最高" -- mt
 

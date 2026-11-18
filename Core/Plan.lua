@@ -326,6 +326,7 @@ local function GatherableUnknown(reagents)
 	if not ns.ObtainCost or not ns.Price then
 		return false
 	end
+	---@type false|"gather"|"auction"
 	local missing = false
 	for _, reagent in ipairs(reagents or {}) do
 		if ns.ObtainCost(reagent.itemID) == nil then
@@ -934,10 +935,22 @@ local function Finish(profession, target, route)
 		bands = {},
 		cost = crafting + cost,
 		completion = completion,
-		unpriced = route.excluded.unpriced,
-		unpricedRecipes = route.excluded.recipes,
+		unpriced = 0,
+		unpricedRecipes = {},
 		stopReason = route.stopReason,
 	}
+	-- Left out means not on the route: a recipe waiting on an auction price that the route picks is a step, shown
+	-- with its cost unknown, not one of the recipes the page says it left out (#855).
+	local onRoute = {}
+	for _, segment in ipairs(route.segments) do
+		onRoute[segment.recipeID] = true
+	end
+	for _, recipeID in ipairs(route.excluded.recipes) do
+		if not onRoute[recipeID] then
+			plan.unpriced = plan.unpriced + 1
+			plan.unpricedRecipes[plan.unpriced] = recipeID
+		end
+	end
 	plan.steps = Walk(plan)
 	-- Each step's skill band, from the cap it starts under and the caps its ranks raise: the route page groups
 	-- steps by these without working the ranks out again (#574).
@@ -1367,13 +1380,14 @@ end
 ---@return integer[]
 function ns.UnpricedReagents(plan)
 	local seen, items = {}, {}
-	-- A recipe the route picks while it waits on a price lists its reagents with the route's own (#855).
-	local picked = {}
+	-- A reagent a planned step uses is listed with the route's own reagents, not again here (#855).
 	for _, craft in ipairs(plan.crafts or {}) do
-		picked[craft.recipeID] = true
+		for _, reagent in ipairs(ns.Reagents(craft.recipeID) or {}) do
+			seen[reagent.itemID] = true
+		end
 	end
 	for _, recipeID in ipairs(plan.unpricedRecipes) do
-		for _, reagent in ipairs(not picked[recipeID] and ns.Reagents(recipeID) or {}) do
+		for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
 			if not seen[reagent.itemID] then
 				local price = ns.Price(reagent.itemID)
 				if not price or price.unknown then

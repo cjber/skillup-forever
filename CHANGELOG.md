@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.3] - 2026-11-18
+
+### Fixed
+
+- **Routes no longer come up empty when the auction house hasn't priced your reagents yet.** With Buy reagents on, a recipe whose reagents Auctionator had not seen was left out, so a Leatherworking route at 54 could show no steps at all. Those steps now show with a price unknown, their reagents are in the Reagents list and the Auctionator list so a search prices them, and the total says it is incomplete until then. Thanks to the player who reported it on Discord (#855).
+
 ## [1.14.2] - 2026-11-18
 
 ### Fixed

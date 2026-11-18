@@ -62,8 +62,7 @@ local plan = ns.PlanRoute(ns.RouteProfessions()[TAILORING])
 equal(#plan.crafts, 1, "the recipe waiting on an auction price still plans")
 equal(plan.reached, 26, "so the route reaches its target")
 equal(ns.PlanMoney(plan).unknown > 0, true, "with its cost unknown, never free")
-equal(plan.unpriced, 1, "the unpriced recipe is counted")
-equal(plan.unpricedRecipes[1], BOLT, "and identified for the route page")
+equal(plan.unpriced, 0, "a step on the route is not counted as left out")
 local routeLinen
 for _, item in ipairs(ns.RouteReagents(plan)) do
 	if item.itemID == LINEN then

@@ -653,8 +653,8 @@ L["Apply policy"] = "Richtlinie anwenden" -- mt
 L["No trainer of your faction teaches this recipe."] = "Kein Lehrer Eurer Fraktion lehrt dieses Rezept." -- mt
 L["%s (level %d)"] = "%s (Stufe %d)" -- mt
 
-L["Clicking a recipe selects it again under every sort."] =
-	"Ein Klick auf ein Rezept wählt es unter jeder Sortierung wieder aus." -- mt
+L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
+	"Routen bleiben nicht mehr leer, wenn das Auktionshaus deine Reagenzien noch nicht bepreist hat." -- mt
 
 L["Highest craft profit"] = "Höchster Gewinn pro Herstellung" -- mt
 

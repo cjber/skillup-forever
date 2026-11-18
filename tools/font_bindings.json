@@ -574,7 +574,7 @@
     },
     {
       "source": "UI/AuctionSearch.lua",
-      "sha256": "a193b7a46dd46ca0c465ba3ec2a38bf24aede34e4705662ef13aa51ceab6a94b",
+      "sha256": "b3afbee3efc3edda3e359bb8f15e48641809f108ca897e4f17c7a3ee0aaab1c1",
       "review": "Read AttachAuctionSearch, Refresh, OnRecipeSelected and search callbacks. bar.Label and bar.Crafts explicitly use GameFontNormal with no override. bar.Search uses SharedButtonSmallTemplate: pinned ThreeSliceButtonTemplate.xml supplies normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable, all bound. Count is numeric game state. Tooltips, chat search messages and dynamic reagent names are excluded.",
       "bindings": [
         {

@@ -707,8 +707,8 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["Clicking a recipe selects it again under every sort."] =
-	"Щелчок по рецепту снова выбирает его при любой сортировке." -- mt
+L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
+	"Маршруты больше не пустеют, если аукцион ещё не знает цен ваших реагентов." -- mt
 
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 

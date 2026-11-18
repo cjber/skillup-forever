@@ -665,8 +665,8 @@ L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt
 
-L["Clicking a recipe selects it again under every sort."] =
-	"어떤 정렬에서도 제조법을 클릭하면 다시 선택됩니다." -- mt
+L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
+	"경매장에 재료 가격이 아직 없어도 경로가 더 이상 비어 있지 않습니다." -- mt
 
 L["Highest craft profit"] = "제작당 최고 이익" -- mt
 

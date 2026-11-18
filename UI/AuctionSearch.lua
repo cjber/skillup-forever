@@ -150,7 +150,7 @@ local function PriceRoute()
 	local needs, unknown = ns.RouteDemand.Shortfalls(tracked)
 	local discovery = {}
 	for _, entry in ipairs(tracked) do
-		-- Excluded recipes have no planned quantities yet. Their one-craft shortfall can request a price
+		-- Recipes left out of the route have no planned quantities. Their one-craft shortfall can request a price
 		-- observation without treating them as free crafts or adding them to the shopping totals.
 		local unpriced = {}
 		for _, itemID in ipairs(ns.UnpricedReagents(entry.plan)) do

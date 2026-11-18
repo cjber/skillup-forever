@@ -72,6 +72,25 @@ local leatherOrHide = Reagent(reagents, LIGHT_LEATHER)
 	or Reagent(reagents, LIGHT_HIDE)
 	or Reagent(reagents, CURED_LIGHT_HIDE)
 equal(leatherOrHide ~= nil and leatherOrHide.need > 0, true, "Light Leather or Light Hide is among them")
+-- The page names only recipes it left out: a step on the route is not one, so no "left out" warning or notice
+-- speaks of the steps it shows, and no reagent is listed both with the route's and among the unpriced.
+local onRoute = {}
+for _, craft in ipairs(plan.crafts) do
+	onRoute[craft.recipeID] = true
+end
+for _, recipeID in ipairs(plan.unpricedRecipes) do
+	equal(onRoute[recipeID], nil, "a recipe counted as left out is not on the route: " .. recipeID)
+end
+local listed = {}
+for _, item in ipairs(reagents) do
+	listed[item.itemID] = true
+end
+for _, itemID in ipairs(unscanned.ns.UnpricedReagents(plan)) do
+	equal(listed[itemID], nil, "an unpriced reagent is listed once: " .. itemID)
+end
+if plan.unpriced == 0 then
+	equal(unscanned.ns.RouteNotice(plan), nil, "with nothing left out, no notice says recipes were left out")
+end
 
 -- The scan that prices them replans: the same route now has known costs and nothing missing.
 for _, itemID in ipairs({ LIGHT_LEATHER, LIGHT_HIDE, CURED_LIGHT_HIDE, 2320, 4289, 2321, 2319, 4234 }) do
@@ -98,5 +117,39 @@ for _, craft in ipairs(partialPlan.crafts) do
 	local cost = partial.ns.StepCost(craft.recipeID, 1)
 	equal(cost ~= nil, true, "every craft it picks is a priced recipe: " .. tostring(craft.recipeID))
 end
+
+-- Training: a learned recipe waiting on an auction price against a priced recipe the trainer teaches, equal in
+-- thresholds and reach. The waiting steps count as nothing in the route's money, so savings alone would keep them;
+-- the priced recipe is trained instead, because a known cost beats an unknown one.
+local SMITHING, WAITING, TRAINED, MARKET_GOOD, VENDOR_GOOD = 164, 300, 301, 3001, 3002
+local trainer = Client.load({
+	auctionator = true,
+	saved = { routeTargets = { [SMITHING] = 20 }, craftValue = "none", vendor = { [VENDOR_GOOD] = 10 } },
+	data = {
+		Thresholds = { [WAITING] = { 1, 10, 15, 40 }, [TRAINED] = { 1, 10, 15, 40 } },
+		RecipeData = {
+			[WAITING] = { skillLine = SMITHING, reagents = { { itemID = MARKET_GOOD, quantity = 1 } } },
+			[TRAINED] = { skillLine = SMITHING, reagents = { { itemID = VENDOR_GOOD, quantity = 1 } } },
+		},
+		VendorPrices = {},
+		TrainerFees = { [TRAINED] = { 50, 1 } },
+		TrainerRanks = {},
+		ItemSellPrices = {},
+		GatheredBy = {},
+		LootedFrom = { [MARKET_GOOD] = true },
+		ProfessionTrainers = {},
+		ScrollDrops = {},
+		WorldDrops = {},
+	},
+})
+trainer.professions = { { name = "Blacksmithing", id = SMITHING, rank = 1, max = 75 } }
+trainer.known[WAITING] = true
+trainer.level = 20
+trainer.ns.SetCollectMode("auction")
+trainer.ns.Changed("target")
+local trained = trainer.ns.PlanRoute(trainer.ns.RouteProfessions()[SMITHING])
+equal(trained.reached, 20, "the route reaches its target")
+equal(trained.training[1] and trained.training[1].recipeID, TRAINED, "by training the priced recipe")
+equal(trained.crafts[1] and trained.crafts[1].recipeID, TRAINED, "whose crafts carry the route")
 
 Client.report("unpriced_route_spec")

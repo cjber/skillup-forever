@@ -518,6 +518,7 @@ SkillUpForeverDB = nil
 ---@field Add fun(recipe: SkillUpCandidate) A recipe joins the end of the list.
 ---@field Route fun(extra?: SkillUpCandidate): SkillUpRoute, number[] The route, and each skill it picked at.
 ---@field Changes fun(extra: SkillUpCandidate, picked: number[]): boolean Whether `extra` changes the route.
+---@field Waiting fun(route: SkillUpRoute, extra?: SkillUpCandidate): integer The route's steps waiting on an auction price.
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
 ---@class SkillUpPlanSupply

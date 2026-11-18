@@ -934,6 +934,28 @@ local function Walk(plan)
 	return steps
 end
 
+-- A plan's steps, in Walk's order, and each step's skill band, from the cap it starts under and the caps its ranks
+-- raise: the route page groups steps by these without working the ranks out again (#574).
+---@param plan SkillUpPlan
+local function Lay(plan)
+	plan.steps = Walk(plan)
+	plan.bands = {}
+	local cap = plan.profession.max
+	if cap > 0 then
+		plan.bands[1] = { name = ns.RankName(cap) or tostring(cap), from = math.max(cap - RANK_SPAN, 0), cap = cap }
+	end
+	for _, rank in ipairs(plan.ranks) do
+		plan.bands[#plan.bands + 1] = { name = rank.name, from = math.max(rank.cap - RANK_SPAN, 0), cap = rank.cap }
+	end
+	local bandIndex = 1
+	for _, step in ipairs(plan.steps) do
+		if step.rank then
+			bandIndex = bandIndex + 1
+		end
+		step.band = plan.bands[bandIndex] or plan.bands[#plan.bands]
+	end
+end
+
 -- The planner's route, which is in effective skill, as the plan a player reads.
 ---@param profession SkillUpProfession
 ---@param target number
@@ -1035,23 +1057,7 @@ local function Finish(profession, target, route)
 			plan.unpricedRecipes[plan.unpriced] = recipeID
 		end
 	end
-	plan.steps = Walk(plan)
-	-- Each step's skill band, from the cap it starts under and the caps its ranks raise: the route page groups
-	-- steps by these without working the ranks out again (#574).
-	local cap = profession.max
-	if cap > 0 then
-		plan.bands[1] = { name = ns.RankName(cap) or tostring(cap), from = math.max(cap - RANK_SPAN, 0), cap = cap }
-	end
-	for _, rank in ipairs(ranks) do
-		plan.bands[#plan.bands + 1] = { name = rank.name, from = math.max(rank.cap - RANK_SPAN, 0), cap = rank.cap }
-	end
-	local bandIndex = 1
-	for _, step in ipairs(plan.steps) do
-		if step.rank then
-			bandIndex = bandIndex + 1
-		end
-		step.band = plan.bands[bandIndex] or plan.bands[#plan.bands]
-	end
+	Lay(plan)
 	return plan
 end
 
@@ -1116,6 +1122,18 @@ local function Affordable(plan)
 		end
 	end
 	return true
+end
+
+-- A followed route kept across a bag change takes its sub-crafts from today's bags: held inputs may now make an
+-- intermediate, or held copies cover it, so the steps match what Reagents asks for (#858). The crafts stay.
+---@param plan SkillUpPlan
+local function RefreshSubcrafts(plan)
+	local bags = {}
+	for _, craft in ipairs(plan.crafts) do
+		local subcrafts, _, _, usedHeld = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
+		craft.subcrafts, craft.held = subcrafts, usedHeld or nil
+	end
+	Lay(plan)
 end
 
 -- Whether every step of a route can still be walked: each craft's recipe is known, or trained by a step of the
@@ -1288,6 +1306,8 @@ function ns.PlanRoute(profession)
 			Forget(cache, kept.key)
 			committed[profession.skillLine] = nil
 			kept = nil
+		else
+			RefreshSubcrafts(kept.plan)
 		end
 	end
 	-- A plan made before the last bag change is not today's choice: the bags may now favour another recipe. A

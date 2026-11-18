@@ -80,6 +80,59 @@ local skipped = Reagents()
 equal(skipped[SCRAPS], nil, "a skipped maker leaves the held scraps alone")
 assert(skipped[LIGHT_LEATHER], "and the route buys its Light Leather")
 
+-- A route followed while buying Light Leather was cheaper gains the Light Leather step once the bags hold the scraps
+-- to make it, so its steps match Reagents; its crafts stay.
+do
+	local f = Client.load({ auctionator = false })
+	local fns = f.ns
+	f.level = 60
+	f.player.faction = "Alliance"
+	f.professions = { { name = "Leatherworking", id = LEATHERWORKING, rank = 35, max = 150 } }
+	for _, recipeID in ipairs(KNOWN) do
+		f.known[recipeID] = true
+	end
+	for itemID, price in pairs({
+		[LIGHT_LEATHER] = 20,
+		[COARSE_LEATHER] = 60,
+		[COARSE_THREAD] = 10,
+		[FINE_THREAD] = 40,
+		[CURED_LIGHT_HIDE] = 90,
+		[SCRAPS] = 50,
+	}) do
+		fns.db.vendor[itemID] = price
+	end
+	fns.Changed("prices")
+	fns.db.routeTargets[LEATHERWORKING] = 125
+	fns.Changed("target")
+	---@return table<integer, number>, table<integer, number>, string
+	local function Read()
+		local plan = fns.PlanRoute(profession)
+		local made, need, crafts = {}, {}, {}
+		for _, step in ipairs(plan.steps) do
+			if step.subcraft then
+				made[step.subcraft.itemID] = (made[step.subcraft.itemID] or 0) + step.subcraft.made
+			end
+		end
+		for _, craft in ipairs(plan.crafts) do
+			crafts[#crafts + 1] = craft.recipeID .. "x" .. craft.crafts
+		end
+		for _, item in ipairs(fns.RouteReagents(plan)) do
+			need[item.itemID] = item.need
+		end
+		return made, need, table.concat(crafts, " ")
+	end
+	local made, need, crafts = Read()
+	equal(made[LIGHT_LEATHER], nil, "while buying Light Leather is cheaper, no step makes it")
+	assert(need[LIGHT_LEATHER], "and Reagents buys it")
+	f.bags[SCRAPS] = 3 * need[LIGHT_LEATHER]
+	f.Fire("BAG_UPDATE_DELAYED")
+	f.Advance(0)
+	local madeAfter, needAfter, craftsAfter = Read()
+	equal(craftsAfter, crafts, "the followed route keeps its crafts")
+	equal(needAfter[LIGHT_LEATHER], nil, "the held scraps cover its Light Leather")
+	assert(madeAfter[LIGHT_LEATHER] and madeAfter[LIGHT_LEATHER] >= need[LIGHT_LEATHER], "and a step makes it")
+end
+
 -- Held inputs come before the market's own maker too: with Transmute: Iron to Gold the cheapest Gold Bar at market,
 -- held Gold Ore still smelts what it covers, so only the rest is transmuted from bought Iron Bars.
 do

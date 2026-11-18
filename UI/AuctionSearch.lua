@@ -116,7 +116,7 @@ function ns.SearchReagents(recipeID, count)
 	local item = short[nextIndex]
 	local name = C_Item.GetItemNameByID(item.itemID)
 	if not name then
-		C_Item.RequestLoadItemDataByID(item.itemID)
+		ns.RequestItemData(item.itemID)
 		return "loading", item
 	end
 	-- The auction house's own public setter, which Blizzard's item clicks use: it fills the search box and

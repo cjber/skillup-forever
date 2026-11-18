@@ -247,7 +247,7 @@ local function SellPrice(itemID)
 	local bundled = ns.ItemSellPrices and ns.ItemSellPrices[itemID]
 	if sell == nil and awaitingSell[itemID] == nil then
 		awaitingSell[itemID] = bundled or false
-		C_Item.RequestLoadItemDataByID(itemID)
+		ns.RequestItemData(itemID)
 	end
 	if sell == nil then
 		return bundled

@@ -31,7 +31,7 @@ function ns.RankBookName(rank)
 		return name
 	end
 	if rank.book then
-		C_Item.RequestLoadItemDataByID(rank.book)
+		ns.RequestItemData(rank.book)
 	end
 	return string.format(L["the %s book"], rank.name)
 end

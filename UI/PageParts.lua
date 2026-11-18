@@ -176,6 +176,6 @@ function Parts.ItemName(item)
 		return name
 	end
 	-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
-	C_Item.RequestLoadItemDataByID(item.itemID)
+	ns.RequestItemData(item.itemID)
 	return string.format(L["item %d"], item.itemID)
 end

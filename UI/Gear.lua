@@ -190,7 +190,7 @@ local function RenderReagents(detail, item)
 		local need = reagent.quantity
 		local name = C_Item.GetItemNameByID(reagent.itemID)
 		if not name then
-			C_Item.RequestLoadItemDataByID(reagent.itemID)
+			ns.RequestItemData(reagent.itemID)
 			name = string.format(L["item %d"], reagent.itemID)
 		end
 		row:ClearAllPoints()

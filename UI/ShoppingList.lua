@@ -25,7 +25,7 @@ local emptyText
 local function Name(itemID)
 	local name = C_Item.GetItemNameByID(itemID)
 	if not name then
-		C_Item.RequestLoadItemDataByID(itemID)
+		ns.RequestItemData(itemID)
 		return string.format(L["item %d"], itemID)
 	end
 	return name

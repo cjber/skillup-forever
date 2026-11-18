@@ -76,4 +76,45 @@ equal(
 )
 equal(ns.Price(LIGHT_LEATHER).copper, 20, "from the live sell price")
 
+-- The rest of a bag, merchant and camera session's traffic: item data SkillUp did not ask for, bag slots that
+-- did not move a route, and a merchant whose offers do not change. None of it plans a route.
+c.merchant = {}
+equal(
+	Plans(function()
+		for _ = 1, 40 do
+			c.Fire("ITEM_DATA_LOAD_RESULT", UNRELATED, true)
+			c.Fire("BAG_UPDATE_DELAYED")
+		end
+		c.Fire("MERCHANT_SHOW")
+		for _ = 1, 20 do
+			c.Fire("MERCHANT_UPDATE")
+		end
+		c.Fire("MERCHANT_CLOSED")
+	end),
+	0,
+	"unrelated item, bag and merchant traffic plans nothing"
+)
+
+-- Item data SkillUp asked for arrives in a burst: one pass for the frame it arrives in and one for the rest,
+-- however many arrive, and an answer that failed to load is still an answer.
+local passes = 0
+ns.WhenStaleObserver("route", function()
+	passes = passes + 1
+end)
+for itemID = 30000, 30039 do
+	ns.RequestItemData(itemID)
+end
+c.Advance(1)
+for itemID = 30000, 30039 do
+	c.Fire("ITEM_DATA_LOAD_RESULT", itemID, itemID % 2 == 0)
+end
+c.Advance(0)
+equal(passes <= 2, true, "a burst of 40 answers is at most two passes, got " .. passes)
+passes = 0
+for itemID = 30000, 30039 do
+	c.Fire("ITEM_DATA_LOAD_RESULT", itemID, true)
+end
+c.Advance(0)
+equal(passes, 0, "answered requests, loaded or not, are not heard again")
+
 Client.report("item_info_spec")

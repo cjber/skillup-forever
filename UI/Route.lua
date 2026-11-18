@@ -39,7 +39,7 @@ end
 local function ItemName(itemID)
 	local name = C_Item.GetItemNameByID(itemID)
 	if not name then
-		C_Item.RequestLoadItemDataByID(itemID)
+		ns.RequestItemData(itemID)
 		name = string.format(L["item %d"], itemID)
 	end
 	return name
@@ -695,7 +695,7 @@ local function RenderUnpriced(list, items)
 		local name = C_Item.GetItemNameByID(itemID)
 		if not name then
 			-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
-			C_Item.RequestLoadItemDataByID(itemID)
+			ns.RequestItemData(itemID)
 			name = string.format(L["item %d"], itemID)
 		end
 		list:Add({
@@ -721,7 +721,7 @@ local function RenderReagents(list, reagents)
 		local name = C_Item.GetItemNameByID(item.itemID)
 		if not name then
 			-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
-			C_Item.RequestLoadItemDataByID(item.itemID)
+			ns.RequestItemData(item.itemID)
 			name = string.format(L["item %d"], item.itemID)
 		end
 		local have = ns.RouteDemand.Held(item)

@@ -116,6 +116,13 @@ local function Event(event, ...)
 		c.Fire(event, unpack(args))
 	end
 end
+-- Item data arriving, and the next frame, where the rest of a burst lands.
+local function ItemData(itemID)
+	return function()
+		c.Fire("ITEM_DATA_LOAD_RESULT", itemID, true)
+		c.Advance(0)
+	end
+end
 local function Changed(kind)
 	return function()
 		ns.Changed(kind)
@@ -138,16 +145,17 @@ end
 ns.PlanRoute = realPlanRoute
 equal(planReads, 0, "stable API copies do not resolve plans")
 
--- The public list was built without the reagent's name: only that name arriving rebuilds it, once.
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT", 9999, true)), " | route", "item data for another item")
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT", CLOTH, true)), " | route", "the awaited item, still without its name")
+-- The public list was built without the reagent's name: only that name arriving rebuilds it, once. Item data
+-- SkillUp never asked for is someone else's and changes nothing.
+equal(Stale(ItemData(9999)), " | ", "item data for an item SkillUp did not ask for")
+equal(Stale(ItemData(CLOTH)), " | route", "the awaited item, still without its name")
 c.items[CLOTH] = { name = "Linen Cloth" }
 c.Fire("BAG_UPDATE_DELAYED")
 c.items[CLOTH] = nil
 APIAnswer(true)
 c.items[CLOTH] = { name = "Linen Cloth" }
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT", CLOTH, true)), "api | route", "the name the public list waited on")
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT", CLOTH, true)), " | route", "item data nothing waited on")
+equal(Stale(ItemData(CLOTH)), "api | route", "the name the public list waited on")
+equal(Stale(ItemData(CLOTH)), " | ", "item data nothing waits on any more")
 
 for _, case in ipairs({
 	-- The window's own events redraw what shows it and keep the plans: its scan reports what changed in them.

@@ -176,6 +176,9 @@ local ns = {
 		return { GetRGB = noop }
 	end,
 	WhenStale = noop,
+	RequestItemData = function(itemID)
+		client.G.C_Item.RequestLoadItemDataByID(itemID)
+	end,
 	WhenEvent = function(event, handler)
 		if event == "ITEM_DATA_LOAD_RESULT" then
 			itemDataArrived = handler

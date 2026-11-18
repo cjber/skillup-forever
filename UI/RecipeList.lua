@@ -217,7 +217,7 @@ local function MatchesItemLevel(recipeID, minimum, maximum)
 		level = itemLevel
 		if not level then
 			pendingLevels[output.itemID] = true
-			C_Item.RequestLoadItemDataByID(output.itemID)
+			ns.RequestItemData(output.itemID)
 		end
 	end
 	-- An active level range requires a known output level: uncached items and non-item outputs cannot

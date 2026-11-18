@@ -178,7 +178,7 @@ local function ItemName(itemID)
 	local name = ns.Readable(C_Item.GetItemNameByID(itemID))
 	if not name and not requestedItems[itemID] then
 		requestedItems[itemID] = true
-		C_Item.RequestLoadItemDataByID(itemID)
+		ns.RequestItemData(itemID)
 	end
 	return name or string.format(L["item %d"], itemID)
 end

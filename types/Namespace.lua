@@ -38,6 +38,7 @@
 ---@field WhenStale fun(name: SkillUpStale, handler: fun()?)
 ---@field WhenStaleObserver fun(name: SkillUpStale, observer: fun())
 ---@field WhenEvent fun(event: WowEvent, watcher: fun(...): SkillUpChange?)
+---@field RequestItemData fun(itemID: integer)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field CharacterKey fun(): string?
 ---@field NormalizedRealm fun(): string?

@@ -72,7 +72,7 @@ local function ItemName(itemID)
 		return name
 	end
 	waitingNames[itemID] = true
-	C_Item.RequestLoadItemDataByID(itemID)
+	ns.RequestItemData(itemID)
 	return string.format(L["item %d"], itemID)
 end
 
@@ -743,7 +743,7 @@ function ns.ShoppingText(skillLineID)
 				if row.source == source and row.missing and row.missing > 0 then
 					local name = C_Item.GetItemNameByID(row.itemID)
 					if not name then
-						C_Item.RequestLoadItemDataByID(row.itemID)
+						ns.RequestItemData(row.itemID)
 						name = string.format(L["item %d"], row.itemID)
 					end
 					local text

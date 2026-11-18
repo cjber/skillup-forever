@@ -178,6 +178,34 @@ do
 	equal(need[IRON_BAR], 14, "so only the coif's own Iron Bars are bought, none for transmuting")
 end
 
+-- A maker that lists one input in two slots needs both slots' worth held: three scraps do not cover a recipe asking
+-- for three twice.
+do
+	local d = Client.load({ auctionator = false })
+	local dns = d.ns
+	d.level = 60
+	d.professions = { { name = "Leatherworking", id = LEATHERWORKING, rank = 35, max = 150 } }
+	for _, recipeID in ipairs(KNOWN) do
+		d.known[recipeID] = true
+	end
+	for itemID, price in pairs({ [LIGHT_LEATHER] = 20, [COARSE_THREAD] = 10, [SCRAPS] = 50 }) do
+		dns.db.vendor[itemID] = price
+	end
+	local recipe = dns.RecipeData[2881]
+	recipe.reagents = { { itemID = SCRAPS, quantity = 3 }, { itemID = SCRAPS, quantity = 3 } }
+	dns.Changed("prices")
+	d.bags[SCRAPS] = 3
+	d.Fire("BAG_UPDATE_DELAYED")
+	d.Advance(0)
+	local BOOTS = 2149
+	local need = {}
+	for _, item in ipairs(dns.RouteReagents({ crafts = { { recipeID = BOOTS, crafts = 1 } }, training = {} })) do
+		need[item.itemID] = item.need
+	end
+	equal(need[SCRAPS], nil, "three scraps make no Light Leather from a six-scrap schematic")
+	assert(need[LIGHT_LEATHER], "so the boots' Light Leather is bought")
+end
+
 -- A held input this recipe needs directly is not spent making another of its reagents: with eight Essence of Fire
 -- held and Essence of Earth cheaper to buy than to transmute from Fire, the Fire goes into the craft and the Earth is
 -- bought.

@@ -674,11 +674,16 @@ local function HeldMaker(itemID, bags)
 			local quantity, reagents = ns.RecipeOutput(makerID).quantity, ns.Reagents(makerID) or {}
 			---@type number, number?
 			local crafts, cost = math.huge, 0
+			-- A schematic can list one item in two slots, so what a craft takes of each item is summed first.
+			local per = {}
 			for _, reagent in ipairs(reagents) do
-				bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
-				crafts = math.min(crafts, math.floor(bags[reagent.itemID] / reagent.quantity))
+				per[reagent.itemID] = (per[reagent.itemID] or 0) + reagent.quantity
 				local each = cost and ns.HeldCost and ns.HeldCost(reagent.itemID)
 				cost = each and cost + each * reagent.quantity or nil
+			end
+			for input, total in pairs(per) do
+				bags[input] = bags[input] or ns.Have(input)
+				crafts = math.min(crafts, math.floor(bags[input] / total))
 			end
 			-- Of the makers the bags cover, the one whose held inputs give up least per item made; an input with
 			-- no known worth ranks its maker after every priced one, and a tie keeps the lower recipe ID.

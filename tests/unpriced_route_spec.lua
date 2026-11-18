@@ -96,8 +96,8 @@ end
 for _, itemID in ipairs({ LIGHT_LEATHER, LIGHT_HIDE, CURED_LIGHT_HIDE, 2320, 4289, 2321, 2319, 4234 }) do
 	unscanned.auction[itemID] = 25
 end
+-- Auctionator's database-update callback alone replans: SkillUp registers for it, nothing else is called.
 unscanned.AuctionatorScan()
-unscanned.ns.Changed("prices")
 local priced = unscanned.ns.PlanRoute(PROFESSION)
 equal(priced.reached, 79, "the priced route reaches its target")
 equal(unscanned.ns.PlanMoney(priced).unknown, 0, "with every price known once scanned")

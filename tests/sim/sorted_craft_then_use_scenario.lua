@@ -40,6 +40,11 @@ scenario("after a sorted-row click, Create crafts and a bag item is usable", {
 	sim:login({ savedVariables = { SkillUpForeverDB = { sortMode = "skill" } } })
 	sim:event("ADDON_LOADED", "Blizzard_TokenUI")
 
+	-- The shared sim refuses CraftRecipe from tainted code at any time (cjber/skillup-forever#313). On this path the
+	-- live client crafts: after a click on a SkillUp-sorted row, whose selection reads SkillUp's node data, a hardware
+	-- Create crafted Light Armor Kit and Basic Campfire Kit with no blocked action (in-game checks on #845). The
+	-- override follows that evidence until the shared rule is narrowed (cjber/forever-core#859).
+	sim.restrictionOverrides["C_TradeSkillUI.CraftRecipe"] = nil
 	local crafted = {}
 	sim.impl["C_TradeSkillUI.CraftRecipe"] = function(recipeID)
 		crafted[#crafted + 1] = recipeID

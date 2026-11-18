@@ -1107,15 +1107,9 @@
     },
     {
       "source": "UI/RecipeList.lua",
-      "sha256": "8648845872c3e93a87c62f5eff86e1c6cb6aac1d2214262a1a4b88ce129682a6",
-      "review": "Reviewed DecorateRow, UnlearnedText, AttachRecipeList and preview callback. rowTexts FontString explicitly uses GameFontHighlight_NoShadow and never changes font. Bound UnlearnedText wording only. ns.FormatRow and ns.LearnSourceText output, recipe names, native Count text, menus and chat are excluded. Preview callback operates its own widgets and does not set this FontString font. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed.",
-      "bindings": [
-        {
-          "font": "GameFontHighlight_NoShadow",
-          "widget": "DecorateRow rowTexts[row] via UnlearnedText",
-          "phrase": "Not learned · %s"
-        }
-      ]
+      "sha256": "a5be7130916627c9246ef310bcc957a2a818e5faf3280c1d8ca14ca2c598d15c",
+      "review": "Reviewed DecorateRow, UnlearnedText, AttachRecipeList and preview callback. rowTexts FontString explicitly uses GameFontHighlight_NoShadow and never changes font. Bound UnlearnedText wording only. ns.FormatRow and ns.LearnSourceText output, recipe names, native Count text, menus and chat are excluded. Preview callback operates its own widgets and does not set this FontString font. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed. Reviewed #854: UnlearnedText now returns only ns.LearnSourceText output on the same rowTexts FontString, so the Not learned binding is dropped; no font change.",
+      "bindings": []
     },
     {
       "source": "UI/RecipePreview.lua",

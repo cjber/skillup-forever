@@ -602,7 +602,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"Эти вероятности предполагают указанные шансы повышения навыка, цены, доступность и доставку последующих покупок." -- mt
 L["unknown"] = "неизвестно" -- mt
 
-
 L["currency %d"] = "валюта %d" -- mt
 L["an unknown payment"] = "неизвестный платёж" -- mt
 L["Name the stock each offer draws on, or give this offer its own stock."] =
@@ -740,3 +739,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"У этих реагентов нет цены у торговца. Для цен аукциона нужен Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
+L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt

@@ -559,7 +559,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"這些機率以所列技能提升機率、價格、供貨情況以及後續採購物資送達為前提。" -- mt
 L["unknown"] = "未知" -- mt
 
-
 L["currency %d"] = "貨幣 %d" -- mt
 L["an unknown payment"] = "一項未知支付" -- mt
 L["Name the stock each offer draws on, or give this offer its own stock."] =
@@ -676,3 +675,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"這些材料沒有商人價格。拍賣價需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever。" -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"自適應指引會提供配方。選取它，然後在專業視窗中選擇製作數量。" -- mt
+L["Select %s in the recipe list first."] = "請先在配方清單中選取%s。" -- mt

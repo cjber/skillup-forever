@@ -569,7 +569,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"Estas probabilidades suponen las tasas de subida de habilidad, los precios, la disponibilidad y la entrega de compras posteriores indicados." -- mt
 L["unknown"] = "desconocido" -- mt
 
-
 L["currency %d"] = "moneda %d" -- mt
 L["an unknown payment"] = "un pago desconocido" -- mt
 L["Name the stock each offer draws on, or give this offer its own stock."] =
@@ -689,3 +688,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"Estos componentes no tienen precio de vendedor. Los precios de subasta necesitan Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"La guía adaptativa indica la receta. Selecciónala y elige cuántas fabricar en la ventana de profesión." -- mt
+L["Select %s in the recipe list first."] = "Selecciona primero %s en la lista de recetas." -- mt

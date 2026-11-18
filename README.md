@@ -93,7 +93,7 @@ Open a profession and the numbers are already there.
 | `/skillup shopping`, `/skillup shop` | Open the shopping list, copy it, or plan a buy trip with Shortest Path Forever |
 | `/skillup trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer confirmed |
 
-Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** starts off, so chances use the base formula. Crafted gear and reagent tooltips start off, each one setting away; Supply has its own checkbox. The minimap button drags around the rim.
+Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** starts off, so chances use the base formula. Crafted gear and reagent tooltips start off, each one setting away; Supply has its own checkbox.
 
 ## Prices
 

@@ -15,12 +15,13 @@ local measure
 ---@type fun(row: SkillUpRecipeRow, data?: SkillUpRecipeNodeData)
 local bindPreview
 
--- An added recipe's row text: that it is not learned, and where and at what skill it is learned. Grey,
--- like the name Blizzard greys for a recipe it knows is unlearned.
+-- An added recipe's row text: where and at what skill it is learned. Grey, like the name Blizzard greys for a
+-- recipe it knows is unlearned. These rows sit only under the Unlearned divider (BuildSorted), which already says
+-- they are not learned, so the row leaves that to it and gives the width to the name; the tooltip still says it.
 ---@param entry SkillUpUnlearnedRecipe
 ---@return string
 local function UnlearnedText(entry)
-	return string.format(L["Not learned · %s"], ns.LearnSourceText(entry))
+	return ns.LearnSourceText(entry)
 end
 
 ---@param recipeID integer

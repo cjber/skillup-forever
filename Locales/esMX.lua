@@ -569,9 +569,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"Estas probabilidades suponen las tasas de subida de habilidad, los precios, la disponibilidad y la entrega de compras posteriores indicados." -- mt
 L["unknown"] = "desconocido" -- mt
 
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"La guía adaptativa abre la receta recomendada. Elige cuántas unidades fabricar en la ventana de profesión." -- mt
-
 L["currency %d"] = "moneda %d" -- mt
 L["an unknown payment"] = "un pago desconocido" -- mt
 L["Name the stock each offer draws on, or give this offer its own stock."] =
@@ -660,8 +657,8 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Ningún instructor de tu facción enseña esta receta." -- mt
 L["%s (level %d)"] = "%s (nivel %d)" -- mt
 
-L["Working Overtime's bonus is left out of chances by default."] =
-	"La bonificación de Horas extra no se incluye en las probabilidades por defecto." -- mt
+L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
+	"Las rutas ya no aparecen vacías cuando la casa de subastas aún no ha puesto precio a tus componentes." -- mt
 
 L["Highest craft profit"] = "Mayor beneficio por fabricación" -- mt
 
@@ -691,3 +688,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"Estos componentes no tienen precio de vendedor. Los precios de subasta necesitan Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"La guía adaptativa indica la receta. Selecciónala y elige cuántas fabricar en la ventana de profesión." -- mt
+L["Select %s in the recipe list first."] = "Selecciona primero %s en la lista de recetas." -- mt

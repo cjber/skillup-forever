@@ -31,7 +31,7 @@ function ns.RankBookName(rank)
 		return name
 	end
 	if rank.book then
-		C_Item.RequestLoadItemDataByID(rank.book)
+		ns.RequestItemData(rank.book)
 	end
 	return string.format(L["the %s book"], rank.name)
 end
@@ -315,21 +315,29 @@ local function CountHeld(snapshot, reagents)
 	return held
 end
 
--- Missing sale values do not prevent gathering. Every unpriced input must have that source.
+-- Whether a recipe with no known cost still plans, as an unknown-cost step ranked after every priced recipe, and
+-- why. Every unpriced input must have a source: "gather" when each is one this character gathers (a missing sale
+-- value does not prevent gathering), "auction" when any is an auction reagent with no listing seen yet. That
+-- reagent stays on the route and in the Auctionator list as a price unknown, so a search can price it (#559,
+-- #855). An input with no source at all keeps the recipe out (false).
 ---@param reagents SkillUpReagent[]?
----@return boolean
+---@return false|"gather"|"auction"
 local function GatherableUnknown(reagents)
 	if not ns.ObtainCost or not ns.Price then
 		return false
 	end
+	---@type false|"gather"|"auction"
 	local missing = false
 	for _, reagent in ipairs(reagents or {}) do
 		if ns.ObtainCost(reagent.itemID) == nil then
 			local price = ns.Price(reagent.itemID)
-			if not price or price.source ~= "gather" then
+			if price and price.source == "auction" and price.unknown then
+				missing = "auction"
+			elseif price and price.source == "gather" then
+				missing = missing or "gather"
+			else
 				return false
 			end
-			missing = true
 		end
 	end
 	return missing
@@ -927,10 +935,22 @@ local function Finish(profession, target, route)
 		bands = {},
 		cost = crafting + cost,
 		completion = completion,
-		unpriced = route.excluded.unpriced,
-		unpricedRecipes = route.excluded.recipes,
+		unpriced = 0,
+		unpricedRecipes = {},
 		stopReason = route.stopReason,
 	}
+	-- Left out means not on the route: a recipe waiting on an auction price that the route picks is a step, shown
+	-- with its cost unknown, not one of the recipes the page says it left out (#855).
+	local onRoute = {}
+	for _, segment in ipairs(route.segments) do
+		onRoute[segment.recipeID] = true
+	end
+	for _, recipeID in ipairs(route.excluded.recipes) do
+		if not onRoute[recipeID] then
+			plan.unpriced = plan.unpriced + 1
+			plan.unpricedRecipes[plan.unpriced] = recipeID
+		end
+	end
 	plan.steps = Walk(plan)
 	-- Each step's skill band, from the cap it starts under and the caps its ranks raise: the route page groups
 	-- steps by these without working the ranks out again (#574).
@@ -1360,6 +1380,12 @@ end
 ---@return integer[]
 function ns.UnpricedReagents(plan)
 	local seen, items = {}, {}
+	-- A reagent a planned step uses is listed with the route's own reagents, not again here (#855).
+	for _, craft in ipairs(plan.crafts or {}) do
+		for _, reagent in ipairs(ns.Reagents(craft.recipeID) or {}) do
+			seen[reagent.itemID] = true
+		end
+	end
 	for _, recipeID in ipairs(plan.unpricedRecipes) do
 		for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
 			if not seen[reagent.itemID] then

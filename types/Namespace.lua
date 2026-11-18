@@ -37,7 +37,8 @@
 ---@field RouteDemand SkillUpRouteDemandProducer
 ---@field WhenStale fun(name: SkillUpStale, handler: fun()?)
 ---@field WhenStaleObserver fun(name: SkillUpStale, observer: fun())
----@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
+---@field WhenEvent fun(event: WowEvent, watcher: fun(...): SkillUpChange?)
+---@field RequestItemData fun(itemID: integer)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field CharacterKey fun(): string?
 ---@field NormalizedRealm fun(): string?
@@ -399,7 +400,7 @@ SkillUpForeverDB = nil
 ---@field held? number What using one held unit gives up.
 
 ---@class SkillUpCandidate
----@field gatherableUnknown? boolean
+---@field gatherableUnknown? false|"gather"|"auction" Why a recipe with no known cost still plans (Plan.lua GatherableUnknown).
 ---@field recipeID integer
 ---@field thresholds number[]
 ---@field netCost? number
@@ -517,6 +518,7 @@ SkillUpForeverDB = nil
 ---@field Add fun(recipe: SkillUpCandidate) A recipe joins the end of the list.
 ---@field Route fun(extra?: SkillUpCandidate): SkillUpRoute, number[] The route, and each skill it picked at.
 ---@field Changes fun(extra: SkillUpCandidate, picked: number[]): boolean Whether `extra` changes the route.
+---@field Waiting fun(route: SkillUpRoute, extra?: SkillUpCandidate): integer The route's steps waiting on an auction price.
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
 ---@class SkillUpPlanSupply

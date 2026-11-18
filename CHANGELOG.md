@@ -10,6 +10,21 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.3] - 2026-11-18
+
+### Fixed
+
+- **Routes no longer come up empty when the auction house hasn't priced your reagents yet.** With Buy reagents on, a recipe whose reagents Auctionator had not seen was left out, so a Leatherworking route at 54 could show no steps at all. Those steps now show with a price unknown, their reagents are in the Reagents list and the Auctionator list so a search prices them, and the total says it is incomplete until then. Thanks to the player who reported it on Discord (#855).
+
+## [1.14.2] - 2026-11-18
+
+### Fixed
+
+- **Clicking a recipe selects it again under every sort.** Under a SkillUp sort, or with unlearned recipes listed, a click on a recipe closed the Professions window instead of selecting it. Sorted lists are back in the game's own recipe list, so the game selects the recipe you click. Thanks to the players who reported it on CurseForge (#840).
+- **Opening a recipe from Route, Gear or the shopping list keeps the window open.** SkillUp shows the crafting page and searches the recipe list for that recipe; click it to select it, then craft it from Route (#840).
+- **No more freeze on opening bags, talking to a merchant or turning the camera with a route tracked.** Item data the game loads for anything on screen made SkillUp plan every tracked route again, about a second each time. Now new item data plans a route again only when it changes a sell price the route was waiting on, and only once however much arrives together. Thanks to the players who reported it on CurseForge (#846).
+- **Known limitation:** with a controller, closing the Professions window while a SkillUp sort or the unlearned list is on can report a blocked action. It does no harm; reopen the window to carry on (#794).
+
 ## [1.14.1] - 2026-11-18
 
 ### Changed

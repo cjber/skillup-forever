@@ -301,7 +301,7 @@ local function LearnLine(item, profession)
 	for _, reagent in ipairs(ns.Reagents(item.recipeID) or {}) do
 		local name = C_Item.GetItemNameByID(reagent.itemID)
 		if not name then
-			C_Item.RequestLoadItemDataByID(reagent.itemID)
+			ns.RequestItemData(reagent.itemID)
 			name = string.format(L["item %d"], reagent.itemID)
 		end
 		reagents[#reagents + 1] = name

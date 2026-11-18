@@ -56,19 +56,23 @@ equal(price.unknown, true, "as a price unknown")
 equal(ns.PriceSource(LINEN), "auction", "so the shopping list puts it in the auction bucket")
 equal(ns.Model.ShoppingSource(ns.PriceSource(LINEN)), "auction", "the bucket the window draws")
 
--- Unknown purchase costs are excluded from ranking, but their recipes and reagents stay searchable.
+-- An unknown purchase cost plans as an unknown-cost step, ranked after any priced recipe, and stays counted and
+-- searchable (#559, #855): the route still shows what to craft, never as free.
 local plan = ns.PlanRoute(ns.RouteProfessions()[TAILORING])
-equal(#plan.crafts, 0, "an unknown zero placeholder cannot become a free route")
-equal(plan.reached, 1, "no skill gain is promised without a known cost")
-equal(plan.unpriced, 1, "the unpriced recipe is counted")
-equal(plan.unpricedRecipes[1], BOLT, "and identified for the route page")
-equal(ns.UnpricedReagents(plan)[1], LINEN, "the route page retains the missing market observation")
+equal(#plan.crafts, 1, "the recipe waiting on an auction price still plans")
+equal(plan.reached, 26, "so the route reaches its target")
+equal(ns.PlanMoney(plan).unknown > 0, true, "with its cost unknown, never free")
+equal(plan.unpriced, 0, "a step on the route is not counted as left out")
+local routeLinen
+for _, item in ipairs(ns.RouteReagents(plan)) do
+	if item.itemID == LINEN then
+		routeLinen = item
+	end
+end
+equal(routeLinen ~= nil and routeLinen.need > 0, true, "the route page lists the reagent it waits on")
+equal(#ns.UnpricedReagents(plan), 0, "once, with the route's own reagents")
 equal(ns.NetCost(BOLT), nil, "the recipe has no known net cost")
-equal(
-	ns.RouteBlocked(plan),
-	"Auctionator hasn't seen these reagents yet: scan the auction house with it to price them.",
-	"the route explains the missing observation"
-)
+equal(ns.RouteBlocked(plan), nil, "a route with a craft to show is not blocked")
 ns.db.trackedProfessions[TAILORING] = true
 c.G.AuctionHouseFrame = {
 	IsShown = function()
@@ -78,19 +82,12 @@ c.G.AuctionHouseFrame = {
 c.Fire("AUCTION_HOUSE_SHOW")
 c.Advance(0)
 equal(#c.auctionSearches, 1, "opening the auction house searches a wholly unpriced tracked route")
-equal(
-	c.auctionSearches[1][1],
-	"Linen Clothx1",
-	"price discovery asks for one observation, not invented route quantities"
-)
+-- The waiting recipe is a planned step, so the search asks for what the route needs of it.
+equal(c.auctionSearches[1][1], "Linen Clothx25", "the search asks for the route's planned need")
 c.Fire("AUCTION_HOUSE_SHOW")
 c.Advance(0)
 equal(#c.auctionSearches, 1, "duplicate show events keep price discovery to one query per visit")
-equal(
-	#ns.PlanRoute(ns.RouteProfessions()[TAILORING]).crafts,
-	0,
-	"searching does not turn unknown costs into planned crafts"
-)
+equal(#ns.PlanRoute(ns.RouteProfessions()[TAILORING]).crafts, 1, "searching leaves the waiting step planned")
 c.auctionSearches = {}
 equal((ns.SearchReagents(BOLT, 25)), "auctionator", "an unpriced recipe can still request its reagents")
 equal(#c.auctionSearches, 1, "the recipe search reaches Auctionator")
@@ -98,7 +95,7 @@ equal(c.auctionSearches[1][1], "Linen Clothx25", "the query retains the exact re
 equal(c.auction[LINEN], nil, "a search request does not invent an auction observation")
 equal(ns.NetCost(BOLT), nil, "the cost stays unknown until an observation arrives")
 
--- Price discovery shares inventory and deduplicates excluded recipes, without inventing their route counts.
+-- Two recipes waiting on the same reagent: the route plans one, and the search asks for its need less what is held.
 local shared, sharedNs = Load({ trackedProfessions = { [TAILORING] = true } }, 3, true)
 shared.bags[LINEN] = 1
 shared.G.AuctionHouseFrame = {
@@ -108,17 +105,18 @@ shared.G.AuctionHouseFrame = {
 }
 shared.Fire("AUCTION_HOUSE_SHOW")
 shared.Advance(0)
-equal(#shared.auctionSearches, 1, "excluded recipes share one visit query")
+equal(#shared.auctionSearches, 1, "the waiting recipes share one visit query")
 equal(#shared.auctionSearches[1], 1, "their shared unpriced reagent appears once")
-equal(shared.auctionSearches[1][1], "Linen Clothx2", "one-craft discovery subtracts the held copy once")
-equal(shared.auction[LINEN], nil, "discovery still supplies no fictional price")
-equal(#sharedNs.PlanRoute(sharedNs.RouteProfessions()[TAILORING]).crafts, 0, "excluded recipes remain unplanned")
+equal(shared.auctionSearches[1][1], "Linen Clothx49", "the planned need less the held copy")
+equal(shared.auction[LINEN], nil, "the search supplies no fictional price")
+equal(#sharedNs.PlanRoute(sharedNs.RouteProfessions()[TAILORING]).crafts, 1, "one waiting recipe is planned")
 shared.Fire("AUCTION_HOUSE_CLOSED")
 shared.bags[LINEN] = 3
 shared.Fire("BAG_UPDATE_DELAYED")
 shared.Fire("AUCTION_HOUSE_SHOW")
 shared.Advance(0)
-equal(#shared.auctionSearches, 1, "fully held one-craft dependencies need no discovery query")
+equal(#shared.auctionSearches, 2, "the next visit searches again")
+equal(shared.auctionSearches[2][1], "Linen Clothx47", "for the need less the three now held")
 
 -- A character who picked gathering keeps it, and its reagent stays free.
 local gathered, gatheredNs =

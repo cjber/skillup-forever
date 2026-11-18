@@ -979,7 +979,7 @@ local function TrackerName(itemID)
 	local name = C_Item.GetItemNameByID(itemID)
 	if not name then
 		waitingNames[itemID] = true
-		C_Item.RequestLoadItemDataByID(itemID)
+		ns.RequestItemData(itemID)
 	end
 	return name
 end

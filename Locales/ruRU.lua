@@ -602,9 +602,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"Эти вероятности предполагают указанные шансы повышения навыка, цены, доступность и доставку последующих покупок." -- mt
 L["unknown"] = "неизвестно" -- mt
 
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"Адаптивные подсказки открывают рекомендуемый рецепт. Выберите количество для изготовления в окне профессии." -- mt
-
 L["currency %d"] = "валюта %d" -- mt
 L["an unknown payment"] = "неизвестный платёж" -- mt
 L["Name the stock each offer draws on, or give this offer its own stock."] =
@@ -710,8 +707,8 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["Working Overtime's bonus is left out of chances by default."] =
-	"Бонус «Сверхурочной работы» по умолчанию не учитывается в шансах." -- mt
+L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
+	"Маршруты больше не пустеют, если аукцион ещё не знает цен ваших реагентов." -- mt
 
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 
@@ -742,3 +739,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"У этих реагентов нет цены у торговца. Для цен аукциона нужен Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
+L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt

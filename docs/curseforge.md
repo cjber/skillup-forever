@@ -9,8 +9,9 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 - Recipe colours come from the game, but a recipe you have not seen yet uses bundled thresholds that can be slightly off.
 - Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
 - Gathering nodes and corpses have no colour in the game, so theirs is an estimate, on English clients only.
-- Prices need an auction scan or a price addon, and a recipe with an unpriced reagent stays out of the route.
+- Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) is not confirmed as added points or a multiplier, so the estimate is off by default; turn on Include Working Overtime estimate to see the additive reading.
+- With a controller, closing the window under a SkillUp sort can report a harmless blocked action.
 
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)
 
@@ -22,7 +23,7 @@ Colour thresholds and reagent prices for the recipe you hover.
 
 ![The SkillUp route tab with training and crafting steps and the reagents they need](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/route.png)
 
-The route tab from 48 to 73: what to train, what to craft and where reagents come from.
+The route tab from 48 to 73: what to train, craft and buy.
 
 ![A Leatherworking trainer's recipes with skill-up chance, cost and a green arrow on the one that best helps the route](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/trainer.png)
 
@@ -30,7 +31,7 @@ At the trainer, a green arrow marks the recipe that best extends or cheapens you
 
 ![The Crafted gear tab: item slots around the edge with the newest crafted item, and one slot's recipe, reagents and status](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/gear.png)
 
-The gear tab, turned on in settings: each slot shows the newest thing this character could craft for it.
+The gear tab, turned on in settings: the newest craftable item for each slot.
 
 ![The Buffs tab: the Cooking buff timeline by skill, its rank divider and legend, and the selected buff's words and reagents](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/buffs.png)
 
@@ -65,7 +66,7 @@ Open a profession and the numbers are already there.
 - `/skillup audit`, with a profession open, prints where the bundled thresholds differ from the colours the game shows.
 - `/skillup trainers` lists the trainer skill requirements SkillUp guessed and which ones a trainer has confirmed.
 
-Settings cover tooltips, recipe rows, prices, tabs, trainers and sorting. Two switches hide tooltip details or the profession tabs whole, and the minimap button drags around the rim. Crafted gear and reagent tooltips start off, each one setting away; supply has its own checkbox.
+Settings cover tooltips, recipe rows, prices, tabs, trainers and sorting. Two switches hide tooltip details or the profession tabs whole. Crafted gear and reagent tooltips start off, each one setting away; supply has its own checkbox.
 
 For a bug report, paste `/skillup report`.
 

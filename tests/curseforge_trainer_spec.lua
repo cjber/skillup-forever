@@ -3,6 +3,15 @@ local Client = dofile("tests/client.lua")
 local c = Client.load()
 local G, ns = c.G, c.ns
 c.professions = { { name = "Engineering", id = 202, rank = 50, max = 75 } }
+-- The route plans with its reagents unpriced, so the Auctionator list names them; the client has every name cached
+-- before the list is written.
+for _, recipe in pairs(ns.RecipeData) do
+	if recipe.skillLine == 202 then
+		for _, reagent in ipairs(recipe.reagents or {}) do
+			c.items[reagent.itemID] = c.items[reagent.itemID] or { name = "Item " .. reagent.itemID }
+		end
+	end
+end
 c.level = 20
 local hooks = {}
 G.hooksecurefunc = function(name, callback)

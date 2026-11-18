@@ -558,9 +558,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"这些几率以所列技能提升几率、价格、供货情况以及后续采购物资送达为前提。" -- mt
 L["unknown"] = "未知" -- mt
 
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"自适应指引会打开推荐配方。请在专业技能窗口中选择制作数量。" -- mt
-
 L["currency %d"] = "货币 %d" -- mt
 L["an unknown payment"] = "一项未知支付" -- mt
 L["Name the stock each offer draws on, or give this offer its own stock."] =
@@ -647,7 +644,8 @@ L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
-L["Working Overtime's bonus is left out of chances by default."] = "加班奖励默认不计入几率。" -- mt
+L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
+	"拍卖行尚未给出材料价格时，路线不再显示为空。" -- mt
 
 L["Highest craft profit"] = "单次制造利润最高" -- mt
 
@@ -677,3 +675,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"这些材料没有商人价格。拍卖价需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever。" -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"自适应指引会给出配方。选中它，然后在专业窗口中选择制作数量。" -- mt
+L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt

@@ -378,6 +378,7 @@ local pageEnv = setmetatable({
 		GetRecipeInfo = function(recipeID)
 			return { learned = true, recipeID = recipeID, previousRecipeID = previousRecipe[recipeID] }
 		end,
+		-- It closes an open Professions window on this client (#840), so the route never calls it.
 		OpenRecipe = function(recipeID)
 			openedRecipes[#openedRecipes + 1] = recipeID
 		end,
@@ -1195,9 +1196,10 @@ equal(craftButton.attributes["shift-clickbutton1"], nil, "and no Shift button")
 equal(craftButton.enabled, false, "and is disabled")
 equal(craftCount.text, "", "with no count beside it")
 
--- The crafting page showing another recipe disables the button and clears its attributes. The button asks
--- the client to open the route's recipe, and the client's own RecipeSelected event arms it once the page
--- shows it. Nothing here selects, shows or Initialises Blizzard's page (#350).
+-- The crafting page showing another recipe disables the button and clears its attributes, and the tooltip tells
+-- the player to select the route's recipe. Nothing here selects, shows or Initialises Blizzard's page (#350),
+-- and nothing calls OpenRecipe, which closes the window on this client (#840). The client's own RecipeSelected
+-- event arms the button once the player selects it.
 page.NextCraft = function()
 	return { recipeID = 3275, count = 3, planned = 5, to = 20, text = "Craft 3 of 5× Spell 3275" }
 end
@@ -1209,47 +1211,22 @@ equal(craftButton.attributes.type, nil, "another recipe on the page clears the c
 equal(craftButton.attributes.clickbutton, nil, "and the button it presses")
 equal(craftButton.attributes["shift-clickbutton1"], nil, "and the Shift button")
 equal(craftButton.enabled, false, "and the button is disabled")
-equal(openedRecipes[#openedRecipes], 3275, "the client is asked to open the route's recipe")
-equal(craftButton.reason, "The game's Craft button is not ready for this recipe.", "and the tooltip says why")
-shownRecipeID = 3275
-eventCallbacks["Professions.RecipeSelected"]()
-equal(craftButton.attributes.type, "click", "the client showing the recipe arms the button again")
-equal(craftButton.attributes.clickbutton, nativeCreate, "on its Create button")
-equal(craftButton.enabled, true, "and it is ready")
-equal(#nativeWrites, 0, "with no write into Blizzard's crafting frames")
-
--- #683: a request can finish on the native page while Route is hidden. Returning must ask again
--- after the player selects something else, without repeating a request that is still pending.
-page.routeSpec.page:Hide()
-shownRecipeID = 9999
-eventCallbacks["Professions.RecipeSelected"]()
-equal(#openedRecipes, 1, "a native selection while Route is hidden does not request its recipe")
-routeTab:Click()
-Drain()
-equal(#openedRecipes, 2, "returning to Route asks for its recipe again")
-equal(openedRecipes[2], 3275, "the new request opens the route recipe")
-equal(craftButton.enabled, false, "the button waits for the client to apply the request")
+equal(craftButton.reason, "Select Spell 3275 in the recipe list first.", "and the tooltip says what to select")
 for _ = 1, 3 do
 	eventCallbacks["Professions.CraftingDisplayRefresh"]()
 	eventCallbacks["Professions.TransactionUpdated"]()
 	Drain()
 end
-equal(#openedRecipes, 2, "refreshes do not repeat a pending request")
--- Leave before the pending request completes, as OpenRecipe can hand control to the native page.
 page.routeSpec.page:Hide()
-shownRecipeID = 3275
-eventCallbacks["Professions.RecipeSelected"]()
-shownRecipeID = 9999
-eventCallbacks["Professions.RecipeSelected"]()
-equal(#openedRecipes, 2, "the player's next native selection is left alone")
 routeTab:Click()
 Drain()
-equal(#openedRecipes, 3, "a request fulfilled while hidden does not block the next visit")
-equal(openedRecipes[3], 3275, "the next visit requests the route recipe")
+equal(#openedRecipes, 0, "no redraw or visit asks the client to open a recipe")
 shownRecipeID = 3275
 eventCallbacks["Professions.RecipeSelected"]()
-equal(craftButton.enabled, true, "the client selecting the requested recipe rearms Craft")
-equal(#nativeWrites, 0, "requesting again never writes Blizzard's crafting frames")
+equal(craftButton.attributes.type, "click", "the player selecting the recipe arms the button again")
+equal(craftButton.attributes.clickbutton, nativeCreate, "on its Create button")
+equal(craftButton.enabled, true, "and it is ready")
+equal(#nativeWrites, 0, "with no write into Blizzard's crafting frames")
 
 -- A route with crafts and an unpriced reagent is marked incomplete, and the reagent it left out is
 -- still named in the reagent list.
@@ -1568,25 +1545,76 @@ page.Catalogue.Quest = savedQuest
 page.PlanRoute, page.Have, page.NearestForRank, page.AddNearest = realPlan, savedHave, nil, nil
 pageEnv.GameTooltip_AddNormalLine, pageEnv.C_Item.GetItemNameByID = savedNormalLine, savedItemName
 
--- Opening a recipe hands it to the client. Selecting it in Blizzard's list from addon code wrote the list's
--- selection and the schematic as ours, and the craft path reads them (#350).
-local selected, openedRecipe
+-- Opening a recipe finds it in the client's own list for the player to select. Selecting it in Blizzard's list
+-- from addon code wrote the list's selection and the schematic as ours, and the craft path reads them (#350);
+-- OpenRecipe closes the open window on this client (#840).
+local selected, openedRecipe, searched
 local craftingPage = Stub()
 craftingPage.RecipeList = {
 	SelectRecipe = function()
 		selected = true
 	end,
+	SearchBox = {
+		SetText = function(_, text)
+			searched = text
+		end,
+	},
+}
+craftingPage.SchematicForm = {
+	GetRecipeInfo = function()
+		return { recipeID = shownRecipeID }
+	end,
 }
 pageEnv.ProfessionsFrame.CraftingPage = craftingPage
-pageEnv.C_TradeSkillUI.GetRecipeInfo = function()
-	return { learned = true, recipeID = 3275 }
+pageEnv.C_TradeSkillUI.GetRecipeInfo = function(recipeID)
+	return { learned = true, recipeID = recipeID, name = "Recipe " .. recipeID }
 end
 pageEnv.C_TradeSkillUI.OpenRecipe = function(recipeID)
 	openedRecipe = recipeID
 end
+local openSkillLine = page.OpenSkillLine
+local recipeSkillLine = page.RecipeData[3275].skillLine
+local guided = {}
+local previousSkillUp = pageEnv.SkillUpForever
+pageEnv.SkillUpForever = {
+	API = {
+		OpenRecipes = function(skillLine)
+			guided[#guided + 1] = skillLine
+			return false
+		end,
+	},
+}
+-- A window open on another profession has no row of this recipe: the player is told to open its profession.
+page.OpenSkillLine = function()
+	return recipeSkillLine + 1
+end
+shownRecipeID = 9999
+page.ShowRecipe(3275, true)
+equal(guided[1], recipeSkillLine, "a window on another profession points the player at the recipe's profession")
+equal(searched, nil, "and searches nothing")
+page.OpenSkillLine = function()
+	return recipeSkillLine
+end
 page.ShowRecipe(3275, true)
 equal(selected, nil, "opening a recipe does not select it in Blizzard's list from addon code")
-equal(openedRecipe, 3275, "the client opens its own recipe")
+equal(openedRecipe, nil, "nor asks the client to open it")
+equal(searched, "Recipe 3275", "it searches the client's list for the recipe")
+searched = nil
+shownRecipeID = 3275
+page.ShowRecipe(3275, true)
+equal(searched, nil, "a recipe already shown leaves the player's search alone")
+-- A closed window: the tracker menu's Craft entry tells the player to open the profession, never a silent no-op.
+local shown = pageEnv.ProfessionsFrame.IsShown
+pageEnv.ProfessionsFrame.IsShown = function()
+	return false
+end
+guided = {}
+page.ShowRecipe(3275, true)
+equal(guided[1], recipeSkillLine, "a closed window points the player at the recipe's profession")
+equal(openedRecipe, nil, "without asking the client to open the recipe")
+pageEnv.ProfessionsFrame.IsShown = shown
+page.OpenSkillLine = openSkillLine
+pageEnv.SkillUpForever = previousSkillUp
 
 -- A burst of window events, as a profession opening or a craft session sends, schedules one deferred pass
 -- rather than one per event.

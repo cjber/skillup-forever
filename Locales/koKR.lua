@@ -575,9 +575,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"이 확률은 명시된 숙련도 상승률, 가격, 구매 가능 여부 및 추가 구매분의 인도를 가정합니다." -- mt
 L["unknown"] = "알 수 없음" -- mt
 
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"적응형 안내는 추천 제조법을 엽니다. 전문 기술 창에서 제작할 수량을 선택하세요." -- mt
-
 L["currency %d"] = "화폐 %d" -- mt
 L["an unknown payment"] = "알 수 없는 지불" -- mt
 L["Name the stock each offer draws on, or give this offer its own stock."] =
@@ -668,8 +665,8 @@ L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt
 
-L["Working Overtime's bonus is left out of chances by default."] =
-	"초과 근무 보너스는 기본적으로 확률에 포함되지 않습니다." -- mt
+L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
+	"경매장에 재료 가격이 아직 없어도 경로가 더 이상 비어 있지 않습니다." -- mt
 
 L["Highest craft profit"] = "제작당 최고 이익" -- mt
 
@@ -699,3 +696,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator/TradeSkillMaster, AHDB, Naowh Forever가 필요합니다." -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"적응형 안내는 제조법을 알려 줍니다. 제조법을 선택하고 전문 기술 창에서 만들 개수를 정하세요." -- mt
+L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt

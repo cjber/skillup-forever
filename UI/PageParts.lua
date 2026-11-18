@@ -129,7 +129,7 @@ end
 function Parts.Action(item, professions)
 	if item.state == "known" then
 		return L["Open recipe"], true, function()
-			C_TradeSkillUI.OpenRecipe(item.recipeID)
+			ns.ShowRecipe(item.recipeID, true)
 		end
 	end
 	if item.state == "trainable" then

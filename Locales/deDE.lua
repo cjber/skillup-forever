@@ -565,8 +565,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"Diese Chancen setzen die angegebenen Fertigkeitssteigerungsraten, Preise, Verfügbarkeit und Lieferung späterer Einkäufe voraus." -- mt
 L["unknown"] = "unbekannt" -- mt
 
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"Die adaptive Anleitung öffnet das empfohlene Rezept. Wählt im Berufsfenster, wie viele Ihr herstellen möchtet." -- mt
 
 L["currency %d"] = "Währung %d" -- mt
 L["an unknown payment"] = "eine unbekannte Zahlung" -- mt

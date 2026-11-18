@@ -559,8 +559,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"這些機率以所列技能提升機率、價格、供貨情況以及後續採購物資送達為前提。" -- mt
 L["unknown"] = "未知" -- mt
 
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"自適應指引會開啟推薦配方。請在專業技能視窗中選擇製作數量。" -- mt
 
 L["currency %d"] = "貨幣 %d" -- mt
 L["an unknown payment"] = "一項未知支付" -- mt

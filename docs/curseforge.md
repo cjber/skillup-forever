@@ -11,6 +11,7 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 - Gathering nodes and corpses have no colour in the game, so theirs is an estimate, on English clients only.
 - Prices need an auction scan or a price addon, and a recipe with an unpriced reagent stays out of the route.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) is not confirmed as added points or a multiplier, so the estimate is off by default; turn on Include Working Overtime estimate to see the additive reading.
+- With a controller, closing the Professions window while a SkillUp sort or the unlearned list is on can report a blocked action. It does no harm; reopen the window to carry on.
 
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)
 

@@ -175,15 +175,7 @@ local ns = {
 function ns.RangeThresholds(_, recipeID)
 	return ns.Model.Get(recipeID)
 end
-local custom, widget = dofile("tests/recipe_list_view.lua")(box)
-recipeList.ScrollBar = widget
-recipeList.GetFrameLevel = function()
-	return 1
-end
 local env = setmetatable({
-	CreateFrame = function()
-		return custom
-	end,
 	ProfessionsFrame = frame,
 	Professions = {
 		GetHighestLearnedRecipe = function(info)
@@ -285,9 +277,8 @@ local native = Tree({
 })
 ns.db.sortMode = "skill"
 box:SetDataProvider(native)
-assert(box:GetDataProvider() == native, "sorting leaves the client provider untouched")
-assert(custom:IsShown(), "sorting shows the addon list")
-local sortedNodes = custom.ScrollBox:GetDataProvider():GetRootNode():GetNodes()
+assert(box:GetDataProvider() ~= native, "a chosen sort replaces the client's provider")
+local sortedNodes = box:GetDataProvider():GetRootNode():GetNodes()
 assert(sortedNodes[1]:GetData() == clientData, "the sort keeps the client's own node data in the list")
 ns.db.sortMode = "blizzard"
 stale.recipeList()

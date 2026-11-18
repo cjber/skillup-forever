@@ -710,8 +710,8 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"Количество реагентов рассчитано на весь маршрут, а не на каждый шаг по отдельности." -- mt
+L["Working Overtime's bonus is left out of chances by default."] =
+	"Бонус «Сверхурочной работы» по умолчанию не учитывается в шансах." -- mt
 
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 

@@ -12,9 +12,9 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [1.14.1] - 2026-11-18
 
-<!-- forever-core-sync -->
+### Changed
 
-- Ships with the same shared code as your other Forever addons, so they keep working together.
+- **Working Overtime's bonus is left out of chances by default.** The game gives 4% per rank, 20% at 5/5, but it is not yet confirmed whether that adds 20 points to a skill-up chance or multiplies it, so SkillUp now shows the base chance. Turn on Include Working Overtime estimate in settings to see the added-points reading. This resets once for everyone; turning it back on sticks. Thanks to ratman_codes and jugg__ for the reports (#741).
 
 ## [1.14.0] - 2026-11-18
 

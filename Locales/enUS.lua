@@ -203,5 +203,5 @@ L["Supply"] = "Supply"
 L["No trainer of your faction teaches this recipe."] = "No trainer of your faction teaches this recipe."
 L["%s (level %d)"] = "%s (level %d)"
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"Reagent counts cover the whole route, not each step alone."
+L["Working Overtime's bonus is left out of chances by default."] =
+	"Working Overtime's bonus is left out of chances by default."

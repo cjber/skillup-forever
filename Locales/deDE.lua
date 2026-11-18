@@ -656,8 +656,8 @@ L["Apply policy"] = "Richtlinie anwenden" -- mt
 L["No trainer of your faction teaches this recipe."] = "Kein Lehrer Eurer Fraktion lehrt dieses Rezept." -- mt
 L["%s (level %d)"] = "%s (Stufe %d)" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"Die Reagenzienmengen gelten für die gesamte Route, nicht nur für jeden einzelnen Schritt." -- mt
+L["Working Overtime's bonus is left out of chances by default."] =
+	"Der Bonus von Überstunden fließt standardmäßig nicht in die Chancen ein." -- mt
 
 L["Highest craft profit"] = "Höchster Gewinn pro Herstellung" -- mt
 

@@ -59,6 +59,9 @@ supplyFrame:Hide()
 local function WakeSupply()
 	supplyFrame:Show()
 end
+-- A chance revision can change without any game event (Model.SetChanceBonus), so its producer wakes the
+-- frame; the handler then revokes the old revision's results as before.
+ns.Model.OnChanceRevision(WakeSupply)
 local adaptiveIntent = setmetatable({}, { __mode = "k" })
 local actionRecords = setmetatable({}, { __mode = "k" })
 local generation = 0
@@ -1179,6 +1182,8 @@ end
 -- budget, not a probability cutoff; exhaustion of a model budget stays unknown.
 local supplyRevision = ns.Model.ChanceRevision()
 supplyFrame:SetScript("OnUpdate", function()
+	-- The client build cannot change inside one Lua session (a patch needs a client restart, which reloads
+	-- every addon), so checking it on each wake rather than every frame loses no revocation in the game.
 	ns.RecipeEvidence.Refresh()
 	local revision = ns.Model.ChanceRevision()
 	if revision ~= supplyRevision then

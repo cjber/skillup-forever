@@ -266,6 +266,16 @@ equal(supplyFrame:IsShown(), true, "invalidation wakes the solver frame")
 equal(ns.RouteDemand.Supply(plan), nil, "wallet revision revokes published shopping counts")
 equal(selected.result.status, "cancelled", "published result is revoked too")
 equal(plan.supply, nil, "plan does not retain stale published budget")
+for _ = 1, 10000 do
+	Frame()
+	if not supplyFrame:IsShown() then
+		break
+	end
+end
+equal(supplyFrame:IsShown(), false, "solver frame sleeps again after the revocation drains")
+ns.Model.SetChanceBonus(0.02)
+equal(supplyFrame:IsShown(), true, "a chance revision with no game event wakes the solver frame")
+ns.Model.SetChanceBonus(0)
 local missingAlpha = ns.RouteDemand.SelectSupply(plan, Policy(), nil)
 equal(missingAlpha.result.status, "unknown", "live selection has no default confidence")
 equal(ns.RouteDemand.Supply(plan), nil, "unknown selection cannot change shopping counts")

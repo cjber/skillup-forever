@@ -1560,8 +1560,9 @@ function ns.ShowRecipe(recipeID, anyProfession)
 	-- hidden, so showing it raises no OnShow and its own hand-back never runs. The recipe would then be selected
 	-- behind SkillUp's page, where the player cannot see it (#683).
 	ForeverCore.ProfessionTabs.ShowNative()
+	-- ShowNative gives the client its own crafting page back; showing the page from here would run its OnShow
+	-- as addon code (#350).
 	local craftingPage = ProfessionsFrame.CraftingPage --[[@as SkillUpCraftingPage]]
-	craftingPage:Show()
 	local shown = ShownRecipe()
 	if shown and FirstRecipeID(shown) == FirstRecipeID(info) then
 		return

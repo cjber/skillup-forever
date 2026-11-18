@@ -77,6 +77,19 @@ scenario("A route step hands the Professions window back to the client's craftin
 	assert(not routePage:IsShown(), "SkillUp's page stepped aside")
 	local list = frame.CraftingPage.RecipeList
 	assert(list.SearchBox:GetText() == "Rough Weightstone", "the client's search finds the recipe")
+	-- Showing, initialising or selecting on the client's crafting page from addon code writes the state the craft
+	-- path and bag item use read (#350). The opener leaves every field of the page, its schematic and its list
+	-- as the client wrote them.
+	local written = {}
+	for label, owner in pairs({ page = frame.CraftingPage, form = frame.CraftingPage.SchematicForm, list = list }) do
+		for key, slot in pairs(sim.taint.slots[owner] or {}) do
+			if slot.addon == ADDON then
+				written[#written + 1] = label .. "." .. tostring(key)
+			end
+		end
+	end
+	table.sort(written)
+	assert(#written == 0, "the opener wrote the client's crafting page: " .. table.concat(written, ", "))
 	local target
 	for _, row in ipairs(sim:recipeRows()) do
 		if row.recipeInfo.recipeID == 3115 then

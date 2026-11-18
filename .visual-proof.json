@@ -1,23 +1,38 @@
 {
-  "input_digest": "13729d22d2a03fe806e950dce19d776c6b21fefdbefaa6ba717eff9ad82c0877",
-  "runtime_sha256": "13729d22d2a03fe806e950dce19d776c6b21fefdbefaa6ba717eff9ad82c0877",
-  "candidate": "1391f970acaa598a67d6075fc1786be59c8cb2d743f20f21069bb27a86ed5b13",
+  "input_digest": "2ccde49ec9bd81bab70f72ad6fda0532fca13dcd2d12c6dfc76e21ed1d8a3d00",
+  "runtime_sha256": "2ccde49ec9bd81bab70f72ad6fda0532fca13dcd2d12c6dfc76e21ed1d8a3d00",
+  "candidate": "30eb04eb2f62dc2c08782bb417ef13500bef0a0f05f3d55c12707894f150ef22",
   "client_build": "1.60.1.70959 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "ef1f45d5c31d4bacead236b5d86d93d462415f8d",
+  "source_commit": "f9dfcdf0189229d1a7d14a64d5e9d54cc3b2bcad",
   "flows": [
     {
-      "name": "settings-tooltip",
+      "name": "professions",
       "steps": [
-        "sha256:652c68e115e699a4574d57f388c748af98df00cac703201fc8d05f3b1392a10e settings-tooltip.lua"
+        "sha256:07ce11da525e0711a7017479e96fded9d34fbe7e9be073692394c4d4d2ac38b7 professions.lua"
+      ],
+      "click": [
+        960,
+        402
+      ],
+      "result": "pass"
+    },
+    {
+      "name": "settings",
+      "steps": [
+        "sha256:652c68e115e699a4574d57f388c748af98df00cac703201fc8d05f3b1392a10e settings.lua"
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/2974dacf2e771258fa252d0ac3bdcbc2/raw/bb35b0388baeffdbdcc24c2cebd08382b45ee361/1-settings-tooltip.png",
-      "sha256": "6d5ab47432e85f7ed7e86127fcf8a86e3cfef0bcac51ea4eca67f01a7edc0032"
+      "url": "https://gist.githubusercontent.com/cjber/cf8bfa8a51c1c3eb85a3cba10be85af2/raw/913a4706e6541a4544a23d8477233d0d555f0b18/1-professions.png",
+      "sha256": "7f55aff0fb094fcbb11aec689571b6ae9d22a0a20597c9f47a56476b5c831e9a"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/cf8bfa8a51c1c3eb85a3cba10be85af2/raw/913a4706e6541a4544a23d8477233d0d555f0b18/2-settings.png",
+      "sha256": "0597fc824712050199a2a15a9577dde814cfee8ce5800d29238c1c491438211a"
     }
   ]
 }

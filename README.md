@@ -41,7 +41,7 @@ The tooltip draws the thresholds on the game's bar, then each reagent's price an
 - **Shopping lists** count reagents against bags and bank and keep an Auctionator list current; at the auction house, search a recipe's reagents for the crafts you choose. [Shopping details](docs/route.md#shopping-list).
 - **Supply page** sits beside the route: with a profession and a merchant open, note what you assume about each offer's price, stock, limit and trips, then read the route's chance. [Supply details](docs/supply-policy.md).
 - **Trainer annotations** show chance and cost, with a green arrow on the best recipe for your route.
-- **Reagent tooltips** show what tracked routes need; Shift lists every recipe that uses the item, naming its profession. Gathering nodes show the skill they need, coloured at yours, on English clients.
+- **Reagent tooltips**, on in settings, show what tracked routes need; Shift lists every recipe that uses the item, naming its profession. Herb and ore nodes show the skill they need, coloured at yours, on English clients.
 - **Crafted gear** shows the newest item you could craft for each slot, with its recipe and reagents. [Gear details](docs/gear.md).
 - **Buffs** show what each profession can make for your level on a skill timeline. [Buffs details](docs/buffs.md).
 
@@ -75,7 +75,7 @@ Hover a reagent to see how much your tracked routes need.
 
 ## Install
 
-Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forever) or [Wago Addons](https://addons.wago.io/addons/skillup-forever), or take the zip from [Releases](https://github.com/cjber/skillup-forever/releases) and extract it into the client's `Interface/AddOns/` folder (`_forever_` on the live client).
+Install it from [CurseForge](https://www.curseforge.com/wow/addons/skillup-forever), or take the zip from [Releases](https://github.com/cjber/skillup-forever/releases) and extract it into the client's `Interface/AddOns/` folder (`_forever_` on the live client).
 
 ## Usage
 
@@ -83,7 +83,7 @@ Open a profession and the numbers are already there.
 
 | Command | What it does |
 |---|---|
-| `/skillup` | Open the settings (also in Settings → AddOns, the minimap button or the addon compartment) |
+| `/skillup` | Open the settings (also in Settings → AddOns or the addon compartment) |
 | `/skillup skipped` | List the recipes you said *Not this recipe* to, and `/skillup unskip <ID>` (or `all`) brings them back |
 | `/skillup audit` | Compare the bundled thresholds with the colours the game shows |
 | `/skillup report` | Show a report to copy into a bug report |
@@ -91,7 +91,7 @@ Open a profession and the numbers are already there.
 | `/skillup shopping`, `/skillup shop` | Open the shopping list, copy it, or plan a buy trip with Shortest Path Forever |
 | `/skillup trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer confirmed |
 
-Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** off uses the base chance. The Supply page opens beside the route while the route tab is on, and the minimap button drags around the rim.
+Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** off uses the base chance. Crafted gear and reagent tooltips start off, each one setting away; Supply has its own checkbox. The minimap button drags around the rim.
 
 ## Prices
 
@@ -148,7 +148,7 @@ With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path
 
 Link the checkout into the game (`ln -s "$PWD" ".../Interface/AddOns/SkillUpForever"`) and run the gate under [Commands in AGENTS.md](AGENTS.md#commands). CI runs the same gate plus actionlint, zizmor, gitleaks and the project rules; [tools/README.md](tools/README.md) covers the data generators.
 
-**Releasing:** follow the [release skill](.agents/skills/release/SKILL.md); the BigWigs packager publishes each version's changelog entry to GitHub, CurseForge and Wago.
+**Releasing:** follow the [release skill](.agents/skills/release/SKILL.md); the BigWigs packager publishes each version's changelog entry to GitHub, CurseForge.
 
 **Translating:** German, French, Spanish, Brazilian Portuguese, Russian, Korean and Chinese, machine translated; corrections welcome through the [translation form](https://github.com/cjber/skillup-forever/issues/new?template=translation.yml).
 

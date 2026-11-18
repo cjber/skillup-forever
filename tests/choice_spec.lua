@@ -65,6 +65,23 @@ do
 	equal(fresh.ns.db.valueGathered, true, "a new install values gathered materials")
 end
 
+--[[ Reagent tooltips start off ]]
+
+-- Reagent lines on item tooltips were saved on for everyone without a choice: they go off once, a mode chosen
+-- afterwards stays, and a new install starts with them off and every page on (#811).
+do
+	local old = Client.load({ saved = { reagentTooltip = "route" } })
+	equal(old.ns.db.reagentTooltip, "off", "reagent tooltips saved on before the reset go off")
+	equal(old.ns.db.reagentTooltipOffSeen, true, "and the reset is recorded")
+	local chosen = Client.load({ saved = { reagentTooltip = "full", reagentTooltipOffSeen = true } })
+	equal(chosen.ns.db.reagentTooltip, "full", "a mode chosen after the reset stays")
+	local fresh = Client.load({})
+	equal(fresh.ns.db.reagentTooltip, "off", "a new install starts without reagent tooltips")
+	equal(fresh.ns.db.showBuffsTab, true, "and keeps the Buffs page")
+	equal(fresh.ns.db.showSupplyTab, true, "the Supply page")
+	equal(fresh.ns.db.gatherTooltip, true, "and node tooltips")
+end
+
 equal(ns.db.valueGathered, false, "the saved free-material choice is preserved")
 equal(ns.Price(ORE).copper, 0, "so ore this character mines costs nothing")
 equal(Plan().crafts[1].recipeID, FROM_ORE, "and the route crafts from it")

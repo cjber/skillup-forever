@@ -381,6 +381,13 @@ function ns.RegisterSettings()
 
 		Checkbox(
 			rows,
+			"showSupplyTab",
+			L["Show the supply tab"],
+			L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."]
+		)
+
+		Checkbox(
+			rows,
 			"merchantButton",
 			L["Show the merchant Reagents tab"],
 			L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."]
@@ -434,28 +441,6 @@ function ns.RegisterSettings()
 	end)
 
 	Section(L["Addon"], function(rows)
-		local minimap = Settings.RegisterProxySetting(
-			rows,
-			"SkillUpForever_minimapButton",
-			Settings.VarType.Boolean,
-			L["Show minimap button"],
-			false,
-			function()
-				return ns.db.minimapButtonHidden ~= true
-			end,
-			function(value)
-				ns.db.minimapButtonHidden = value ~= true
-				local buttons = ForeverCore.MinimapButton
-				if buttons then
-					buttons.Refresh()
-				end
-			end
-		)
-		---@cast minimap SkillUpSetting
-		Settings.RegisterInitializer(
-			rows,
-			Settings.CreateCheckboxInitializer(minimap, nil, L["Show the SkillUp button on the minimap."])
-		)
 		Checkbox(
 			rows,
 			"whatsNew",

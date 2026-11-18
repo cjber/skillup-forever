@@ -474,6 +474,9 @@ L["Learn now"] = "지금 배우기" -- mt
 L["No buff items for your level yet."] = "아직 내 레벨에 맞는 강화 효과 아이템이 없습니다." -- mt
 L["Only for level %d"] = "레벨 %d 전용" -- mt
 L["Show the buffs tab"] = "강화 효과 탭 표시" -- mt
+L["Show the supply tab"] = "공급 탭 표시" -- mt
+L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
+	"전문 기술 창 하단의 탭으로, 상인이 판매하고 배달할 품목을 정해 경로가 이를 반영하도록 합니다. SkillUp 측면 탭에서 경로 탭 옆에 열립니다." -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] = "이 전문 기술은 강화 효과 아이템을 만들지 않습니다." -- mt
 L["spell %d"] = "주문 %d" -- mt
@@ -673,9 +676,6 @@ L["Apply policy"] = "정책 적용" -- mt
 L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt
-
-L["Show minimap button"] = "미니맵 버튼 표시" -- mt
-L["Show the SkillUp button on the minimap."] = "미니맵에 SkillUp 버튼을 표시합니다." -- mt
 
 L["Reagent counts cover the whole route, not each step alone."] =
 	"재료 수량은 각 단계가 아닌 전체 경로를 기준으로 계산됩니다." -- mt

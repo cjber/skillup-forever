@@ -282,8 +282,6 @@
 ---@field includeWorkingOvertime boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field showRowText boolean
----@field minimapButtonHidden boolean
----@field minimapButtonAngle? number
 ---@field showUnlearned boolean
 ---@field buffsOnly boolean
 ---@field showSkill boolean
@@ -307,6 +305,7 @@
 ---@field showTracker boolean
 ---@field showGearTab boolean
 ---@field showBuffsTab boolean
+---@field showSupplyTab boolean
 ---@field lastSkillUpPage table<string, SkillUpPageID>
 ---@field buffProfession table<string, integer>
 ---@field onlyBuffsForLevel table<string, boolean>
@@ -316,6 +315,7 @@
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field showTooltipRoute boolean
 ---@field gatherTooltip boolean
+---@field reagentTooltipOffSeen boolean
 ---@field collectModes table<string, SkillUpCollectMode>
 ---@field showAllGear table<string, boolean>
 ---@field pinnedRecipes table<string, table<integer, integer>>

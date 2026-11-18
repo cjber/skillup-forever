@@ -58,7 +58,7 @@ other pull request edits `CHANGELOG.md`, and CI's `--check --base` fails one tha
   zip or a test: fixtures are the synthetic `Client.QuestieDB` and `Client.AtlasLoot` in `tests/client.lua`.
 - `Core/Core.lua` registers the addon's shared services once at load (`ns.core`), and the tracker section it
   attaches lives in `UI/Shopping.lua` with the shopping routes. Everything shared (tracker, report, leaderboards,
-  journal, log, settings page, family page, minimap button, context menu) is ForeverCore's, read from the
+  journal, log, settings page, family page, context menu) is ForeverCore's, read from the
   `ForeverCore` global: never copy one of its files here.
 - `Core/Model.lua`, `Integrations/Prices.lua` — the headless-testable maths; the UI files call them.
   `Integrations/Prices.lua` also holds the sub-craft cost: a reagent a known recipe makes is priced at the
@@ -75,7 +75,7 @@ other pull request edits `CHANGELOG.md`, and CI's `--check --base` fails one tha
   after it in the TOC (`Locales/README.md`). Player-visible text is a whole `L["..."]` phrase (format strings
   included); after changing one, `python3 tools/phrases.py > Locales/phrases.txt`. `tests/locale_spec.lua` checks
   both, and that no packager localization keyword (which fails the release) is in the tree.
-- `docs/curseforge.md` — the store description, pasted into CurseForge and Wago by hand.
+- `docs/curseforge.md` — the store description, pasted into CurseForge by hand.
 
 ## Rules
 

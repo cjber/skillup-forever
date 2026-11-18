@@ -459,6 +459,9 @@ L["Learn now"] = "现在可学" -- mt
 L["No buff items for your level yet."] = "还没有适合你等级的增益物品。" -- mt
 L["Only for level %d"] = "仅限等级 %d" -- mt
 L["Show the buffs tab"] = "显示增益标签页" -- mt
+L["Show the supply tab"] = "显示补给标签页" -- mt
+L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
+	"专业窗口底部的一个标签页，用于设置商人将出售和交付的物品，以便路线据此规划。从 SkillUp 侧边标签页打开，位于路线标签页旁。" -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] = "该专业不制造增益物品。" -- mt
 L["spell %d"] = "法术 %d" -- mt
@@ -650,9 +653,6 @@ L["Open the profession and a merchant window."] = "请打开专业和商人窗�
 L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
-
-L["Show minimap button"] = "显示小地图按钮" -- mt
-L["Show the SkillUp button on the minimap."] = "在小地图上显示SkillUp按钮。" -- mt
 
 L["Reagent counts cover the whole route, not each step alone."] =
 	"材料数量按整条路线计算，而非分别计算每个步骤。" -- mt

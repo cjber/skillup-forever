@@ -103,6 +103,7 @@ local unitPost = Post(UNIT, #c.postCalls[UNIT])
 
 -- An item's uses, route needs and names are worked out once, then read from the cache. The old code repeated
 -- every one of them on each set, and this is the check that failed.
+c.SetSetting("reagentTooltip", "route") -- off by default (#811)
 local tooltip = Tooltip()
 local data = { id = LINEN }
 Reset()
@@ -217,6 +218,7 @@ equal(calls.TrackedNeeds, 0, "and the next item reads it")
 
 -- Herb and ore nodes: the line for a node's skill is looked up by the skill it asks, not recomputed, and a
 -- bag or zone change does not touch it either.
+c.SetSetting("gatherTooltip", true)
 local node = Tooltip()
 local nodeData = { lines = { { leftText = "Copper Vein" } } }
 Reset()

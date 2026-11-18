@@ -10,7 +10,7 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
-## [1.14.0] - 2026-11-17
+## [1.14.0] - 2026-11-18
 
 <!-- forever-core-sync -->
 
@@ -19,6 +19,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 ### Changed
 
 - **Reagent counts cover the whole route, not each step alone.** Every step's craft budget is chosen together so the route finishes 95 times in 100 from what you already hold, at the least reagent purchase cost. The route and shopping list say the counts include spares for that estimate, and a held reagent is counted once across the steps that use it. An optional restock visit cost, off by default, lets a trip to buy more after a shortfall change where the spare crafts go (#563).
+- **The minimap button is gone.** Open SkillUp with /skillup, from the game's settings or from the addon compartment. (#820)
 - **The Craft button comes back after you use the game's own crafting page.** Returning to Route asks the client for the route's recipe again, so a previous request cannot leave Craft disabled. Thanks to luna for the report (#683).
 - **Preview unlearned recipes in the crafting pane.** Click an unlearned recipe to see its source, output, requirements, reagents and costs without changing your crafting selection. Thanks to puschie286 for the change (PR #729).
 - **A quieter first install.** The minimap button and the What's New chat lines start off; choices you already saved are kept. Thanks to Mirades96, p1tu, noenken and fusionley (#806).
@@ -33,12 +34,17 @@ optional `### For addon authors` subsection after a version's player bullets.
 - **Sort every learned recipe by craft profit.** Highest craft profit orders by net value per craft, including grey recipes, with unknown values last. Thanks to davef1n on CurseForge for the idea (#781).
 - **AHDB can supply auction prices.** Choose AHDB under Prices, with other installed price addons filling gaps and tooltips showing the observation's age. Thanks to user_bvgv4fnauhmhf9i7 on CurseForge for the idea (#761).
 - **Auction data can price a route before your first auction house visit.** SkillUp reads Naowh Forever's scans and nightly auction snapshot when installed, keeps its age and leaves missing prices unknown (#783, #561).
+- **Reagent lines on item tooltips start off.** Players reported frame rate drops while hovering bag items with them on, so they are off for new installs and once for everyone else, since they were saved on without anyone choosing them. Turn them back on under Tooltips and sorting, and the choice sticks. The Supply page also has its own checkbox now. Thanks to 0xTrk on CurseForge (#811).
+- **The Buffs page, the Supply page and the skill line on herb and ore nodes start off.** SkillUp keeps to skill-up chances, costs, the route and shopping. These extras were saved on for everyone without anyone choosing them, so they go off once; turn one back on in the settings and the choice sticks (#817).
+- **Updates are published on CurseForge and GitHub.** Wago publishing has ended, so install and update from CurseForge. (cjber/forever-core#649)
 
 ### Fixed
 
 - **Training no longer reroutes your levelling.** Learning a recipe the route already planned for keeps the crafts you bought reagents for, and drops the fee you just paid. Thanks to user_2md58226ziq3j0em (#807).
 - **A trainer row with no skill requirement keeps the known one.** The recipe no longer shows as available from skill 0.
 - **The SkillUp tab stays where it belongs.** Opening a recipe from your route no longer reshuffles the Professions window's tabs, which could move or drop the SkillUp tab and trigger a blocked-action warning. Thanks to Joly0, Tinter and user_2z94vp7dvu2wcvai.
+- **A turned-off ForeverCore is named as the problem.** With ForeverCore turned off, SkillUp Forever now says so at login, instead of naming every other Forever addon as out of date. (cjber/forever-core#816)
+- **The addon compartment entry says why SkillUp Forever stopped.** While SkillUp Forever cannot start, clicking its entry repeats the line naming the fix instead of raising a Lua error.
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 
 ### For addon authors

@@ -464,6 +464,9 @@ L["Learn now"] = "Jetzt lernen" -- mt
 L["No buff items for your level yet."] = "Noch keine Stärkungsgegenstände für Eure Stufe." -- mt
 L["Only for level %d"] = "Nur für Stufe %d" -- mt
 L["Show the buffs tab"] = "Stärkungsreiter anzeigen" -- mt
+L["Show the supply tab"] = "Vorratsreiter anzeigen" -- mt
+L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
+	"Ein Reiter unten im Berufefenster, in dem du festlegst, was ein Händler verkauft und liefert, damit die Route damit planen kann. Er öffnet sich über den SkillUp-Seitenreiter, neben dem Routenreiter." -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] = "Dieser Beruf stellt keine Stärkungsgegenstände her." -- mt
 L["spell %d"] = "Zauber %d" -- mt
@@ -659,9 +662,6 @@ L["Open the profession and a merchant window."] = "Öffnet den Beruf und ein Hä
 L["Apply policy"] = "Richtlinie anwenden" -- mt
 L["No trainer of your faction teaches this recipe."] = "Kein Lehrer Eurer Fraktion lehrt dieses Rezept." -- mt
 L["%s (level %d)"] = "%s (Stufe %d)" -- mt
-
-L["Show minimap button"] = "Minikartenbutton anzeigen" -- mt
-L["Show the SkillUp button on the minimap."] = "Zeigt den SkillUp-Button an der Minikarte." -- mt
 
 L["Reagent counts cover the whole route, not each step alone."] =
 	"Die Reagenzienmengen gelten für die gesamte Route, nicht nur für jeden einzelnen Schritt." -- mt

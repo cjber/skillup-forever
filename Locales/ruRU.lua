@@ -494,6 +494,9 @@ L["No buff items for your level yet."] =
 	"Пока нет предметов усиления для вашего уровня." -- mt
 L["Only for level %d"] = "Только для уровня %d" -- mt
 L["Show the buffs tab"] = "Показывать вкладку усилений" -- mt
+L["Show the supply tab"] = "Показывать вкладку снабжения" -- mt
+L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
+	"Вкладка внизу окна профессий, где вы указываете, что торговец продаст и доставит, чтобы маршрут это учитывал. Открывается с боковой вкладки SkillUp, рядом с вкладкой маршрута." -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] =
 	"Эта профессия не создаёт предметы усиления." -- mt
@@ -715,9 +718,6 @@ L["Apply policy"] = "Применить политику" -- mt
 L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
-
-L["Show minimap button"] = "Показывать кнопку у миникарты" -- mt
-L["Show the SkillUp button on the minimap."] = "Показывает кнопку SkillUp у миникарты." -- mt
 
 L["Reagent counts cover the whole route, not each step alone."] =
 	"Количество реагентов рассчитано на весь маршрут, а не на каждый шаг по отдельности." -- mt

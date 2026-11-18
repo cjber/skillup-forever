@@ -21,7 +21,7 @@
     },
     {
       "source": "UI/Route.lua",
-      "sha256": "5011e292c23452ff6904596d7e783d15984b033ff1aaff820f6523624f11ec80",
+      "sha256": "a9a3823c10d34011d0e325e986e1209644d2e82b4f6657b69f79c9df9e618191",
       "review": "Reviewed CreateInset, CreateHeader, CreateButtons, Render, RenderMoney, RenderRoute, RenderPinned, RenderSkipped, RenderSuggestions, RenderReagents and their List.lua consumers. PageParts.CreateHeader fixes Skill to GameFontNormal. List:Add text/detail use GameFontHighlight/GameFontNormal, List:Line text/detail use GameFontHighlight/GameFontNormalSmall, List:Message uses GameFontNormal. No later font setters. Pinned client Blizzard_SharedXML/Shared/Button/ThreeSliceButtonTemplate.xml: SharedButtonSmallTemplate inherits BigRedThreeSliceButtonTemplate then ThreeSliceButtonTemplate; normal/highlight/disabled fonts are GameFontNormal/GameFontHighlight/GameFontDisable, all bound. SecureActionButtonTemplate adds no font override. Tooltips, menus, chat, numeric edit fields, dynamic names, external helper results and text inserted into format placeholders have no coverage claim. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed.",
       "bindings": [
         {
@@ -462,7 +462,7 @@
     },
     {
       "source": "UI/PageParts.lua",
-      "sha256": "f793b15686bfcdfcf0427fe9486b6b5a312c3b88180fef338493ee7269500a98",
+      "sha256": "c35065a098e3ecce272d0398767fbc5c617ed8876b1dd3b8c4c017e75dcf42e9",
       "review": "Read CreateHeader, Status, LearnedAt, Action, BuffAction, ItemName and Gear.lua/Buffs.lua consumers. Gear detail.State uses GameFontHighlight, OtherRows.Detail uses GameFontNormal; Gear detail.Learn uses GameFontNormal. Action labels reach SharedButtonSmallTemplate in both pages, whose pinned ThreeSliceButtonTemplate.xml defines normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. No consumer font overrides. ItemName fallback is also displayed by Gear detail.Name (GameFontNormalLarge), Gear row.Text (GameFontHighlight) and Buff detail.Name (GameFontNormal). Tooltip-only action reasons, tooltips, menus, external game names and inserted text are excluded.",
       "bindings": [
         {
@@ -1055,7 +1055,7 @@
     },
     {
       "source": "UI/Shopping.lua",
-      "sha256": "3a6a80730068b2b351830036a75c43509ae65d587ec8e8753d1a27ddc2422ecf",
+      "sha256": "3fc56cad274d8c1e7c2a7182b2116cb8fcc726548433a06a08f0e12caa5aec41",
       "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed.",
       "bindings": [
         {
@@ -1125,7 +1125,7 @@
     },
     {
       "source": "UI/Settings.lua",
-      "sha256": "b77c686d724eabc09f6efbaff4746ab32977a93eed5263d3b7b1b6b3169f26a2",
+      "sha256": "48662d6f25eb13f458ca583ff813a55da739cfe7ab34132e94ea726aba0929fd",
       "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded.",
       "bindings": []
     },

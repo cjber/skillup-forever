@@ -29,7 +29,7 @@ local function Initializer(kind, setting, tooltip)
 	return { kind = kind, setting = setting, tooltip = tooltip }
 end
 
-local opened, addOnCategory, canvas, family
+local opened, addOnCategory
 -- Calls to ForeverCore's shared settings opener.
 local opens = 0
 
@@ -43,9 +43,6 @@ local env = setmetatable({
 		RegisterVerticalLayoutSubcategory = function(parent, name)
 			assert(parent == category, "a subpage belongs to the addon's category")
 			return Category(name, parent), { AddInitializer = Tainted }
-		end,
-		RegisterCanvasLayoutSubcategory = function()
-			error("the Forever addons page is registered through ForeverCore.Family.Register")
 		end,
 		RegisterAddOnSetting = function(_target, variable, key, db, varType, _name, default)
 			if db[key] == nil then
@@ -169,14 +166,6 @@ env.ForeverCore.TrackerHost = {
 		attachmentChanged = callback
 	end,
 }
--- ForeverCore.Family builds the page; Core's own specs cover what is on it.
-env.ForeverCore.Family = {
-	Register = function(parent, db, current, safeCall)
-		family = { parent = parent, db = db, current = current, safeCall = safeCall }
-		canvas = Category("Forever addons", parent)
-		return canvas
-	end,
-}
 local ns = {
 	core = {
 		SafeCall = function(_, fn, ...)
@@ -291,17 +280,6 @@ for _, group in ipairs(groups) do
 	assert(opens == before + 1, name .. "'s button opens through the client's own opener")
 	assert(opened == Subpage(name):GetID(), name .. "'s button opens its subpage")
 end
--- Then the Forever addons page: the shared module registers it with this addon's saved variables, its button last.
-expected[#expected + 1] = "button@" .. addOnCategory.name
-assert(canvas and canvas.name == "Forever addons", "the Forever addons page is registered")
-assert(family.parent == category, "the page belongs to the addon's category")
-assert(family.db() == ns.db, "the page reads and writes SkillUp's saved variables")
-assert(family.current == "SkillUpForever", "the page marks this addon's row")
-assert(family.safeCall == ns.core.SafeCall, "the page reports its failures in SkillUp's journal")
-local familyOpens = opens
-Button("Forever addons").initializer.onClick()
-assert(opens == familyOpens + 1, "the Forever addons button opens through the client's own opener")
-assert(opened == canvas:GetID(), "the Forever addons button opens its page")
 for _, entry in ipairs(registered) do
 	local kind = entry.initializer.kind
 	if entry.initializer.setting then

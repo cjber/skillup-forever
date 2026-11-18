@@ -1545,13 +1545,6 @@ bookRow.tooltip(Stub())
 equal(tooltipLines[#tooltipLines], "You have this book: read it.", "its tooltip says you have it")
 equal(nearestShown, 1, "and names no vendor")
 equal(bookRow.click, nil, "and a click goes nowhere")
--- Only an Artisan quest step's tooltip carries the Adventure Guide Forever hint (waypoint_spec covers when it shows).
-local chainHints = 0
-page.AddQuestChainHint = function()
-	chainHints = chainHints + 1
-end
-bookRow.tooltip(Stub())
-equal(chainHints, 0, "a book step has no quest chain hint")
 local questRank = { name = "Artisan", quest = 6622, cap = 300, reqSkill = 225, fee = 0, level = 35 }
 page.PlanRoute = function(profession)
 	return {
@@ -1571,9 +1564,7 @@ page.Catalogue.Quest = function()
 end
 local questRow = BookPage()
 equal(questRow.text:find("the Artisan quest", 1, true) ~= nil, true, "the quest step is drawn")
-questRow.tooltip(Stub())
-equal(chainHints, 1, "a quest step's tooltip offers the quest chain hint once")
-page.AddQuestChainHint, page.Catalogue.Quest = nil, savedQuest
+page.Catalogue.Quest = savedQuest
 page.PlanRoute, page.Have, page.NearestForRank, page.AddNearest = realPlan, savedHave, nil, nil
 pageEnv.GameTooltip_AddNormalLine, pageEnv.C_Item.GetItemNameByID = savedNormalLine, savedItemName
 

@@ -228,21 +228,12 @@ do
 	ns.AnnounceUpdate()
 	equal(#messages, 1, "a dev checkout is silent")
 	equal(ns.db.lastVersion, next, "a dev checkout's version isn't remembered")
-	-- Suggest companion addons became Suggest my other Forever addons: off stays off, once; on by default.
-	equal(ns.db.suggestFamily, true, "the family hints are on for a first install")
-	env.SkillUpForeverDB = { companionHints = false }
+	-- The family hints left ForeverCore 1.15: their saved keys are cleared once.
+	env.SkillUpForeverDB = { companionHints = false, suggestFamily = true, familyDismissed = { x = true } }
 	callbacks.SkillUpForever()
-	equal(ns.db.suggestFamily, false, "companion hints turned off turn the family hints off")
-	equal(ns.db.companionHints, nil, "and the old setting goes")
-	ns.db.suggestFamily = true
-	callbacks.SkillUpForever()
-	equal(ns.db.suggestFamily, true, "turned back on, it stays on: the migration ran once")
-	env.SkillUpForeverDB = { companionHints = true }
-	callbacks.SkillUpForever()
-	equal(ns.db.suggestFamily, true, "companion hints left on keep the family hints on")
-	env.SkillUpForeverDB = { companionHints = false, suggestFamily = true }
-	callbacks.SkillUpForever()
-	equal(ns.db.suggestFamily, true, "a family setting already saved wins")
+	equal(ns.db.companionHints, nil, "the old companion setting goes")
+	equal(ns.db.suggestFamily, nil, "the family hint setting goes")
+	equal(ns.db.familyDismissed, nil, "and its dismissed hints")
 	-- A saved choice the menu doesn't offer goes back to its default; a valid one stays.
 	env.SkillUpForeverDB = {
 		priceSource = "tsn",

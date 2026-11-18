@@ -53,8 +53,6 @@ L["AH"] = "경매장"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"각 제조법의 난이도 구간 시작점을 표시합니다. 배우는 데 필요한 숙련도와는 별개입니다."
 L["Addon"] = "애드온"
-L["Adventure Guide Forever can plan this quest chain."] =
-	"Adventure Guide Forever로 이 연계 퀘스트를 계획할 수 있습니다."
 L["Also for this slot"] = "이 슬롯의 다른 아이템"
 L["Annotate trainer recipes"] = "전문가 제조법에 정보 표시"
 L["Another craft makes this recipe, not yours."] =
@@ -108,15 +106,12 @@ L["Crafts"] = "제작 횟수"
 L["Don't count it"] = "반영 안 함"
 L["Dropped by"] = "획득처"
 L["Each"] = "개당"
-L["Enable Shortest Path Forever for walked routes and boat times."] =
-	"도보 경로와 배 시간을 보려면 Shortest Path Forever를 켜세요."
 L["Every recipe that uses it"] = "이 재료를 쓰는 모든 제조법"
 L["Fee"] = "수수료"
 L["Fees"] = "수수료"
 L["Feet"] = "발"
 L["Finger"] = "손가락"
 L["First used at"] = "처음 쓰이는 숙련도"
-L["Forever addons"] = "Forever 애드온"
 L["Gather %d %s"] = "%d개 채집: %s"
 L["Gathering skill on nodes"] = "채집물의 채집 숙련도"
 L["Hands"] = "손"
@@ -296,10 +291,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"경매장이 열려 있으면 전문 기술 창에서 선택한 제조법의 재료를 검색할 수 있습니다: 가방과 은행을 뺀 뒤 선택한 제작 횟수에 아직 필요한 만큼입니다. Auctionator 구매 목록이 수량을 담고, 없으면 클릭할 때마다 다음 재료가 검색창에 들어갑니다."
-L["With Shortest Path Forever, a click leads you there."] =
-	"Shortest Path Forever가 있으면 클릭 한 번으로 그곳까지 안내합니다."
-L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
-	"Shortest Path Forever가 있으면 이동 시간 기준으로 가장 가까운 곳을 골라 안내합니다."
 L["World drop"] = "무작위 전리품"
 L["Wrist"] = "손목"
 L["You have it"] = "보유 중"

@@ -218,10 +218,8 @@
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field NearestScrollVendor fun(recipeID: integer, byTravel?: boolean): integer?
 ---@field NearestForRank fun(profession: SkillUpContext, rank: SkillUpRank, byTravel?: boolean): integer?, string
----@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer, single?: boolean)
+---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
 ---@field AddRecipeTrainer fun(tooltip: GameTooltip, profession: SkillUpContext, recipeID: integer)
----@field AddCompanionHint fun(tooltip: GameTooltip, single?: boolean)
----@field AddQuestChainHint fun(tooltip: GameTooltip)
 ---@field AnnounceUpdate fun()
 ---@field WHATS_NEW string
 ---@field WHATS_NEW_VERSION string the release whose headline WHATS_NEW is
@@ -321,7 +319,6 @@
 ---@field pinnedRecipes table<string, table<integer, integer>>
 ---@field skippedRecipes table<string, table<integer, true>>
 ---@field whatsNew boolean
----@field suggestFamily boolean
 ---@field lastVersion string
 ---@field routeTargets table<integer, number>
 ---@field learned table<string, table<integer, boolean>>
@@ -345,7 +342,7 @@
 ---@field build? string The client build it was last seen on.
 ---@field items table<integer, true>
 
----@class SkillUpDB : SkillUpDefaults, ForeverFamilyDB
+---@class SkillUpDB : SkillUpDefaults
 ---@field trackerHost? ForeverTrackerLegacySettings the addon's old tracker table, offered to ForeverCore once
 ---@field auctionListSignatures? table<string, string> The need SkillUp last wrote for each Auctionator list name
 ---@field showReagentTooltip? boolean Legacy migration only.
@@ -355,7 +352,10 @@
 ---@field tracked? table<integer, boolean> Legacy migration only.
 ---@field auctions? table Legacy migration only.
 ---@field gatherFree? boolean Legacy migration only.
----@field companionHints? boolean Legacy migration only: off turns suggestFamily off once.
+---@field companionHints? boolean Legacy migration only.
+---@field suggestFamily? boolean Legacy migration only.
+---@field familyDismissed? table Legacy migration only.
+---@field familyLinks? table Legacy migration only.
 
 ---@type SkillUpDB
 SkillUpForeverDB = nil

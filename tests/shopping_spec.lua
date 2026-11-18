@@ -120,18 +120,14 @@ equal(lines[1].key, "Train", "the book leads")
 equal(lines[1].text, "Buy and read Journeyman's Handbook at 50", "bought and read")
 ns.TrainerRanks[129], ns.RankBooks[129] = {}, nil
 
--- Journeyman from a quest instead: hovering the tracker's line adds the Adventure Guide Forever hint after the
--- quest giver (waypoint_spec covers when the hint itself shows); a book's line doesn't.
+-- Journeyman from a quest instead: hovering the tracker's line names the quest giver.
 local hovered = {}
-local nearestForRank, addNearest, addChain = ns.NearestForRank, ns.AddNearest, ns.AddQuestChainHint
+local nearestForRank, addNearest = ns.NearestForRank, ns.AddNearest
 ns.NearestForRank = function()
 	return 77, "Quest giver"
 end
 ns.AddNearest = function()
 	hovered[#hovered + 1] = "nearest"
-end
-ns.AddQuestChainHint = function()
-	hovered[#hovered + 1] = "chain"
 end
 c.G.GameTooltip = { SetOwner = function() end, Show = function() end }
 c.G.GameTooltip_SetTitle = function() end
@@ -140,14 +136,14 @@ ns.Changed("fees")
 lines = c.Tracker()[1].lines
 equal(lines[1].text, "Complete the Journeyman quest at 50", "the quest leads")
 lines[1].frame.scripts.OnEnter(lines[1].frame)
-equal(table.concat(hovered, " "), "nearest chain", "its tooltip names the giver, then the quest chain hint")
+equal(table.concat(hovered, " "), "nearest", "its tooltip names the giver")
 ns.RankQuests, hovered = nil, {}
 ns.RankBooks[129] = { { 150, BOOK, 500, 50, 0 } }
 ns.Changed("fees")
 lines = c.Tracker()[1].lines
 lines[1].frame.scripts.OnEnter(lines[1].frame)
-equal(table.concat(hovered, " "), "nearest", "a book's line has no quest chain hint")
-ns.NearestForRank, ns.AddNearest, ns.AddQuestChainHint = nearestForRank, addNearest, addChain
+equal(table.concat(hovered, " "), "nearest", "a book's line names its seller")
+ns.NearestForRank, ns.AddNearest = nearestForRank, addNearest
 c.G.GameTooltip, c.G.GameTooltip_SetTitle = nil, nil
 ns.TrainerRanks[129], ns.RankBooks[129] = trainerRanks, nil
 c.known[HEAVY] = nil

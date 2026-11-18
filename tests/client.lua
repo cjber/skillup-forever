@@ -1837,6 +1837,13 @@ function Client.load(options)
 	local data = options.data
 	for line in io.lines(ADDON .. ".toc") do
 		local file = line:match("^([%w_\\]+%.lua)%s*$")
+		-- A packaged TOC (tools/check_package.py) also lists the embedded ForeverCore copy and the files that defer
+		-- the addon's own until a core is ready. ForeverCore is loaded above, as the standalone addon, and beside it
+		-- each wrapped file runs at once in TOC order, so those files are skipped here; the embedded copy's own boot
+		-- is tests/embedded_scenario.lua.
+		if file and (file:find("^Libs\\ForeverCore\\") or file:find("^ForeverCore%u%l+%.lua$")) then
+			file = nil
+		end
 		if file then
 			-- The fixtures stand in for the bundled tables before any addon file reads them; the two broken checks
 			-- (Core/ForeverRequire.lua and Core/Require.lua) and the locale files read no data.

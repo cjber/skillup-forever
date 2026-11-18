@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [Unreleased]
+
+### Changed
+
+- **SkillUp Forever carries ForeverCore inside itself.** It now works with ForeverCore turned off or uninstalled, and your ForeverCore settings carry over. The separate ForeverCore addon still installs alongside it for now. (cjber/forever-core#801)
+
 ## [1.14.0] - 2026-11-18
 
 <!-- forever-core-sync -->

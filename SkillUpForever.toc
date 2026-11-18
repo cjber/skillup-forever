@@ -19,6 +19,7 @@
 ## X-Donate: https://github.com/sponsors/cjber
 ## X-Curse-Project-ID: 1705762
 ## SavedVariables: SkillUpForeverDB
+## X-Forever-Core-Embed: 1
 ## OptionalDeps: Auctionator, TradeSkillMaster, AuctionDB, NaowhForever, NaowhForever_QoL, TomTom, Syndicator, ShortestPathForever, QuestieDB, Questie, AtlasLootClassic, ForeverCore
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
 ## X-Forever-Icon: Interface\Icons\INV_Scroll_03

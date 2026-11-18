@@ -574,8 +574,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "В наличии (только сумки)" -- mt
 
 L["%s%% to %s%%"] = "От %s%% до %s%%" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"Добавляет непроверенные 4 процентных пункта за каждый обнаруженный ранг Working Overtime к оценке вероятности повышения навыка для жёлтых и зелёных рецептов. Отключите, чтобы использовать базовую оценку вероятности для затрат и маршрутов. Ни одна из оценок не является подтверждённым правилом сервера." -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Добавляет оценочные 4 процентных пункта за каждый ранг Working Overtime к вероятности повышения навыка для жёлтых и зелёных рецептов. Пока не подтверждено, прибавляет ли игра бонус таланта как пункты или умножает на него вероятность, поэтому по умолчанию это отключено и вероятности считаются по базовой формуле." -- mt
 L["Chance of finishing with later purchases: %s."] =
 	"Вероятность завершения с последующими покупками: %s." -- mt
 L["Chance of finishing with starting supplies: %s."] =

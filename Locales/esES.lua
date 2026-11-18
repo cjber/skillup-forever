@@ -545,8 +545,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "Tienes (solo bolsas)" -- mt
 
 L["%s%% to %s%%"] = "De %s%% a %s%%" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"Añade 4 puntos porcentuales sin verificar por cada rango detectado de Working Overtime a las probabilidades estimadas de subir habilidad con recetas amarillas y verdes. Desactívalo para usar la estimación base en costes y rutas. Ninguna de las dos estimaciones es una regla del servidor verificada." -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Añade una estimación de 4 puntos porcentuales por cada rango de Working Overtime a las probabilidades de subir habilidad con recetas amarillas y verdes. Aún no se ha confirmado si el juego suma la bonificación del talento como puntos o multiplica la probabilidad, así que empieza desactivado y las probabilidades usan la fórmula base." -- mt
 L["Chance of finishing with later purchases: %s."] = "Probabilidad de terminar con compras posteriores: %s." -- mt
 L["Chance of finishing with starting supplies: %s."] = "Probabilidad de terminar con los suministros iniciales: %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =

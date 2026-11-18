@@ -107,8 +107,8 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 L["Craft next follows the estimated route."] = "Craft next follows the estimated route."
 
 L["Include Working Overtime estimate"] = "Include Working Overtime estimate"
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."
 
 L["Supply policy"] = "Supply policy"
 L["Route-wide starting chance (required, no default)"] = "Route-wide starting chance (required, no default)"

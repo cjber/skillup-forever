@@ -26,7 +26,8 @@ end
 
 ---@type SkillUpDefaults
 local DEFAULTS = {
-	includeWorkingOvertime = true,
+	includeWorkingOvertime = false, -- how the server applies the talent's bonus is not confirmed (#741)
+	workingOvertimeOffSeen = false, -- the estimate's off default has reached this player once (#741)
 	showRowText = true,
 	showUnlearned = false, -- also list recipes this character has not learned, greyed, with where they are learned
 	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
@@ -235,6 +236,13 @@ local function LoadDB()
 		loaded.reagentTooltip = "off"
 		loaded.reagentTooltipOffSeen = true
 	end
+	-- The Working Overtime estimate was saved on for everyone without a choice, and whether the server adds the
+	-- talent's bonus as points or multiplies by it is unconfirmed, so it goes off once for every player. A saved off
+	-- stays off, and turning it back on afterwards sticks (#741).
+	if loaded.workingOvertimeOffSeen ~= true then
+		loaded.includeWorkingOvertime = false
+		loaded.workingOvertimeOffSeen = true
+	end
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
 			loaded[key] = type(value) == "table" and {} or value
@@ -341,8 +349,9 @@ local function LoadDB()
 	ns.db = loaded
 end
 
--- Working Overtime, Legacy node 110290 (talent 1225451): the optional estimate assumes 4
--- percentage points per detected rank. This additive interpretation is unverified.
+-- Working Overtime, Legacy node 110290 (talent 1225451): the client data gives 4 per rank (curve 97508) but not
+-- how the server combines it with the base chance. The optional estimate, off by default, adds 4 percentage
+-- points per detected rank; that additive reading is unverified (#741).
 local WORKING_OVERTIME_NODE = 110290
 local WORKING_OVERTIME_TREE = 1187
 local WORKING_OVERTIME_MAX_RANKS = 5

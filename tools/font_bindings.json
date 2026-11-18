@@ -1125,7 +1125,7 @@
     },
     {
       "source": "UI/Settings.lua",
-      "sha256": "48662d6f25eb13f458ca583ff813a55da739cfe7ab34132e94ea726aba0929fd",
+      "sha256": "fb115ccdf693dbf30838d3d53f50e4c5c9d02c30f7d709b419930a6882f9988a",
       "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded.",
       "bindings": []
     },

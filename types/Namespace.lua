@@ -278,6 +278,7 @@
 
 ---@class SkillUpDefaults
 ---@field includeWorkingOvertime boolean
+---@field workingOvertimeOffSeen boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field showRowText boolean
 ---@field showUnlearned boolean

@@ -299,6 +299,7 @@ for _, event in ipairs({
 	equal(reads, before + 1, event .. " calls fresh reader")
 end
 -- The persisted estimate option revokes a published certificate through the chance producer.
+c.SetSetting("includeWorkingOvertime", true)
 c.traitConfigs[1187] = 621140
 c.traitNodes[621140] = { [110290] = { activeRank = 5, maxRanks = 5 } }
 c.Fire("TRAIT_NODE_CHANGED", 110290)

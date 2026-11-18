@@ -18,6 +18,7 @@ SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in th
 - Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
 - Gathering nodes and corpses have no colour in the game, so theirs is an estimate, on English clients only.
 - Prices need an auction scan or a price addon, and a recipe with an unpriced reagent stays out of the route.
+- Working Overtime's bonus (4% per rank, 20% at 5/5) is not confirmed as added points or a multiplier, so the estimate is off by default; turn on Include Working Overtime estimate to see the additive reading.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif" width="640" alt="Leatherworking levelling from 48 to 60 in the Professions window"></p>
 
@@ -91,7 +92,7 @@ Open a profession and the numbers are already there.
 | `/skillup shopping`, `/skillup shop` | Open the shopping list, copy it, or plan a buy trip with Shortest Path Forever |
 | `/skillup trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer confirmed |
 
-Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** off uses the base chance. Crafted gear and reagent tooltips start off, each one setting away; Supply has its own checkbox. The minimap button drags around the rim.
+Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Show SkillUp tooltip details** and **Show SkillUp profession tabs** hide a whole surface while your individual choices stay. **Include Working Overtime estimate** starts off, so chances use the base formula. Crafted gear and reagent tooltips start off, each one setting away; Supply has its own checkbox. The minimap button drags around the rim.
 
 ## Prices
 

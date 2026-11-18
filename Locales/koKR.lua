@@ -552,8 +552,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "보유 (가방만)" -- mt
 
 L["%s%% to %s%%"] = "%s%%에서 %s%%까지" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"감지된 Working Overtime 등급마다 노란색 및 녹색 제조법의 예상 숙련도 상승 확률에 검증되지 않은 4퍼센트포인트를 더합니다. 끄면 비용과 경로에 기본 확률 추정치를 사용합니다. 두 추정치 모두 검증된 서버 규칙이 아닙니다." -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Working Overtime 등급마다 노란색 및 녹색 제조법의 숙련도 상승 확률에 추정치 4퍼센트포인트를 더합니다. 게임이 특성 보너스를 포인트로 더하는지 확률에 곱하는지 아직 확인되지 않아 기본으로 꺼져 있으며, 확률은 기본 공식을 사용합니다." -- mt
 L["Chance of finishing with later purchases: %s."] = "추가 구매 시 완료 확률: %s." -- mt
 L["Chance of finishing with starting supplies: %s."] = "시작 재료로 완료할 확률: %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =

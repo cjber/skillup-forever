@@ -280,6 +280,10 @@ box:SetDataProvider(native)
 assert(box:GetDataProvider() ~= native, "a chosen sort replaces the client's provider")
 local sortedNodes = box:GetDataProvider():GetRootNode():GetNodes()
 assert(sortedNodes[1]:GetData() == clientData, "the sort keeps the client's own node data in the list")
+-- A redraw that builds the same rows keeps the shown provider: replacing it clears the client's row selection.
+local shownSorted = box:GetDataProvider()
+stale.recipeList()
+assert(box:GetDataProvider() == shownSorted, "a redraw with the same rows keeps the shown provider")
 ns.db.sortMode = "blizzard"
 stale.recipeList()
 assert(inits == 0, "a settings change never rebuilds Blizzard's crafting page")
@@ -292,4 +296,4 @@ stale.recipeList()
 assert(inits == 0, "a row setting change never rebuilds Blizzard's crafting page")
 assert(row.Count:IsShown() and row.Count:GetText() == " (3) ", "the rows redraw from what they hold")
 
-print("recipe_list_taint_spec: 8 checks passed")
+print("recipe_list_taint_spec: 9 checks passed")

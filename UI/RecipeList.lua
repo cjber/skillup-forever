@@ -449,6 +449,48 @@ local function BuildProvider(source, key, ctx)
 	return BuildCategories(source, extra)
 end
 
+-- What a row is: its recipe (and whether it is the favourites copy), its category, or its spacer. The builders make
+-- new tables for categories, dividers and unlearned recipes on every build, so rows compare by this, not by table.
+---@param data table
+---@return string
+local function RowKey(data)
+	local info = data.recipeInfo
+	if info then
+		return "r" .. tostring(info.recipeID) .. (info.favoritesInstance and "f" or "") .. (info.learned and "" or "u")
+	end
+	if data.categoryInfo then
+		return "c" .. tostring(data.categoryInfo.categoryID)
+	end
+	return ("s%s:%s:%s"):format(tostring(data.dividerHeight), tostring(data.topPadding), tostring(data.bottomPadding))
+end
+
+-- Whether two providers hold the same rows in the same order, depth first. A redraw that builds the list already
+-- shown keeps the shown provider: replacing it clears the client's row selection, and only the client's own Init
+-- selects again. Row text is drawn from the client's live data on each redraw, not from these nodes.
+---@param a SkillUpTreeProvider
+---@param b SkillUpTreeProvider
+---@return boolean
+local function SameRows(a, b)
+	local left, right = {}, {}
+	local function walk(node, out)
+		for _, child in ipairs(node:GetNodes()) do
+			out[#out + 1] = RowKey(child:GetData())
+			walk(child, out)
+		end
+	end
+	walk(a:GetRootNode(), left)
+	walk(b:GetRootNode(), right)
+	if #left ~= #right then
+		return false
+	end
+	for index = 1, #left do
+		if left[index] ~= right[index] then
+			return false
+		end
+	end
+	return true
+end
+
 ---@param scrollBox SkillUpRecipeScrollBox
 local function ApplyList(scrollBox)
 	if replacing then
@@ -491,6 +533,9 @@ local function ApplyList(scrollBox)
 		return
 	end
 	---@cast built SkillUpTreeProvider
+	if builtProviders[source] and SameRows(source, built) then
+		return
+	end
 	builtProviders[built] = true
 	replacing = true
 	scrollBox:SetDataProvider(built, ScrollBoxConstants.RetainScrollPosition)

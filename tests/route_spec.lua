@@ -1572,7 +1572,29 @@ end
 pageEnv.C_TradeSkillUI.OpenRecipe = function(recipeID)
 	openedRecipe = recipeID
 end
+local openSkillLine = page.OpenSkillLine
+local recipeSkillLine = page.RecipeData[3275].skillLine
+local guided = {}
+local previousSkillUp = pageEnv.SkillUpForever
+pageEnv.SkillUpForever = {
+	API = {
+		OpenRecipes = function(skillLine)
+			guided[#guided + 1] = skillLine
+			return false
+		end,
+	},
+}
+-- A window open on another profession has no row of this recipe: the player is told to open its profession.
+page.OpenSkillLine = function()
+	return recipeSkillLine + 1
+end
 shownRecipeID = 9999
+page.ShowRecipe(3275, true)
+equal(guided[1], recipeSkillLine, "a window on another profession points the player at the recipe's profession")
+equal(searched, nil, "and searches nothing")
+page.OpenSkillLine = function()
+	return recipeSkillLine
+end
 page.ShowRecipe(3275, true)
 equal(selected, nil, "opening a recipe does not select it in Blizzard's list from addon code")
 equal(openedRecipe, nil, "nor asks the client to open it")
@@ -1581,6 +1603,18 @@ searched = nil
 shownRecipeID = 3275
 page.ShowRecipe(3275, true)
 equal(searched, nil, "a recipe already shown leaves the player's search alone")
+-- A closed window: the tracker menu's Craft entry tells the player to open the profession, never a silent no-op.
+local shown = pageEnv.ProfessionsFrame.IsShown
+pageEnv.ProfessionsFrame.IsShown = function()
+	return false
+end
+guided = {}
+page.ShowRecipe(3275, true)
+equal(guided[1], recipeSkillLine, "a closed window points the player at the recipe's profession")
+equal(openedRecipe, nil, "without asking the client to open the recipe")
+pageEnv.ProfessionsFrame.IsShown = shown
+page.OpenSkillLine = openSkillLine
+pageEnv.SkillUpForever = previousSkillUp
 
 -- A burst of window events, as a profession opening or a craft session sends, schedules one deferred pass
 -- rather than one per event.

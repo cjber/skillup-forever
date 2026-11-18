@@ -21,7 +21,7 @@
     },
     {
       "source": "UI/Route.lua",
-      "sha256": "b94ce04b23c747af2229cdc38957f353aebd762f22e1e4a783bc592c4098b204",
+      "sha256": "405967c95d65fd561bf88b3e9fe199843cf1ff56d4bc76493f6253916d00ea28",
       "review": "Reviewed CreateInset, CreateHeader, CreateButtons, Render, RenderMoney, RenderRoute, RenderPinned, RenderSkipped, RenderSuggestions, RenderReagents and their List.lua consumers. PageParts.CreateHeader fixes Skill to GameFontNormal. List:Add text/detail use GameFontHighlight/GameFontNormal, List:Line text/detail use GameFontHighlight/GameFontNormalSmall, List:Message uses GameFontNormal. No later font setters. Pinned client Blizzard_SharedXML/Shared/Button/ThreeSliceButtonTemplate.xml: SharedButtonSmallTemplate inherits BigRedThreeSliceButtonTemplate then ThreeSliceButtonTemplate; normal/highlight/disabled fonts are GameFontNormal/GameFontHighlight/GameFontDisable, all bound. SecureActionButtonTemplate adds no font override. Tooltips, menus, chat, numeric edit fields, dynamic names, external helper results and text inserted into format placeholders have no coverage claim. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed.",
       "bindings": [
         {
@@ -1107,7 +1107,7 @@
     },
     {
       "source": "UI/RecipeList.lua",
-      "sha256": "cbb4754be9ac40b6bfb350d9c3c42f0b120e48aa2193e9463142d2c14e30ae98",
+      "sha256": "8648845872c3e93a87c62f5eff86e1c6cb6aac1d2214262a1a4b88ce129682a6",
       "review": "Reviewed DecorateRow, UnlearnedText, AttachRecipeList and preview callback. rowTexts FontString explicitly uses GameFontHighlight_NoShadow and never changes font. Bound UnlearnedText wording only. ns.FormatRow and ns.LearnSourceText output, recipe names, native Count text, menus and chat are excluded. Preview callback operates its own widgets and does not set this FontString font. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed.",
       "bindings": [
         {

@@ -1553,7 +1553,15 @@ function ns.ShowRecipe(recipeID, anyProfession)
 	if not (info and info.learned and (anyProfession or selected == ns.OpenSkillLine())) then
 		return
 	end
-	if not (ProfessionsFrame and ProfessionsFrame:IsShown()) then
+	-- A closed window, or one on another profession, has no row of this recipe to find. The player opens the
+	-- profession themselves (the client refuses OpenTradeSkill from addon code, forever-core#538), and
+	-- OpenRecipes says so, as SkillUp's other ways into a closed window do.
+	local recipe = ns.RecipeData[recipeID]
+	local skillLine = recipe and recipe.skillLine
+	if not (ProfessionsFrame and ProfessionsFrame:IsShown()) or (skillLine and skillLine ~= ns.OpenSkillLine()) then
+		if skillLine then
+			SkillUpForever.API.OpenRecipes(skillLine)
+		end
 		return
 	end
 	-- Hand the window back first: while SkillUp's side tab is selected the client's crafting page is only alpha

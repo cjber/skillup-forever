@@ -1128,24 +1128,25 @@ end
 -- intermediate, or held copies cover it, so the steps match what Reagents asks for (#858). The crafts stay.
 ---@param plan SkillUpPlan
 local function RefreshSubcrafts(plan)
-	local bags, changed = {}, false
+	local bags, parts = {}, {}
 	for _, craft in ipairs(plan.crafts) do
-		local subcrafts, _, _, usedHeld = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
-		local old = craft.subcrafts or {}
-		if #old ~= #subcrafts then
-			changed = true
-		else
-			for index, sub in ipairs(subcrafts) do
-				local was = old[index]
-				if was.recipeID ~= sub.recipeID or was.itemID ~= sub.itemID or was.crafts ~= sub.crafts then
-					changed = true
-				end
-			end
-		end
+		local subcrafts, raw, used, usedHeld = Expand(craft.recipeID, craft.crafts, 0, {}, bags)
 		craft.subcrafts, craft.held = subcrafts, usedHeld or nil
+		for _, sub in ipairs(subcrafts) do
+			parts[#parts + 1] = "s" .. sub.recipeID .. ":" .. sub.itemID .. ":" .. sub.crafts
+		end
+		for _, item in ipairs(raw) do
+			parts[#parts + 1] = "r" .. item.itemID .. ":" .. item.count
+		end
+		for _, item in ipairs(used) do
+			parts[#parts + 1] = "u" .. item.itemID .. ":" .. item.count
+		end
 	end
-	-- What a cache keyed on the plan reads with it: the same plan with other sub-crafts asks for other reagents.
-	if changed then
+	-- What a cache keyed on the plan reads with it (RouteReagents' raw and held totals, the steps) changes with the
+	-- bags while the plan stays the same table, so the revision follows those.
+	local expanded = table.concat(parts, ",")
+	if plan.expanded ~= expanded then
+		plan.expanded = expanded
 		plan.revision = (plan.revision or 0) + 1
 		Lay(plan)
 	end

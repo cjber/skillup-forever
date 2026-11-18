@@ -552,7 +552,8 @@ SkillUpForeverDB = nil
 ---@field unpriced integer Known recipes left out for an unpriced reagent.
 ---@field unpricedRecipes integer[]
 ---@field stopReason? 'no_recipe'
----@field revision? integer Bumped when a kept route takes new sub-crafts in place, for caches keyed on the plan.
+---@field revision? integer Bumped when a kept route's expansion changes in place, for caches keyed on the plan.
+---@field expanded? string The kept route's sub-crafts, raw and held totals at its last refresh.
 
 ---@class SkillUpShoppingItem
 ---@field itemID integer

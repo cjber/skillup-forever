@@ -210,6 +210,21 @@ do
 	end
 	equal(need[FIRE], 8, "the held Fire goes into the craft")
 	equal(need[EARTH], 8, "and the Earth is bought, not transmuted from it")
+
+	-- Nor by an earlier craft of the route: Earth to Water first, then Fire to Earth with the held Fire.
+	local EARTH_TO_WATER = 17561
+	a.known[EARTH_TO_WATER] = true
+	ans.Changed("prices")
+	local route = {
+		crafts = { { recipeID = EARTH_TO_WATER, crafts = 8 }, { recipeID = FIRE_TO_EARTH, crafts = 8 } },
+		training = {},
+	}
+	local routeNeed = {}
+	for _, item in ipairs(ans.RouteReagents(route)) do
+		routeNeed[item.itemID] = item.need
+	end
+	equal(routeNeed[FIRE], 8, "the later craft keeps its held Fire")
+	equal(routeNeed[EARTH], 8, "and the earlier craft buys its Earth")
 end
 
 Client.report("held_subcraft_spec")

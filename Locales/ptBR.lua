@@ -53,8 +53,6 @@ L["AH"] = "CL"
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Mostra o início da faixa de dificuldade de cada receita. Isso é diferente da perícia necessária para aprendê-la."
 L["Addon"] = "AddOn"
-L["Adventure Guide Forever can plan this quest chain."] =
-	"O Adventure Guide Forever pode planejar esta sequência de missões."
 L["Also for this slot"] = "Também para este espaço"
 L["Annotate trainer recipes"] = "Anotar receitas do instrutor"
 L["Another craft makes this recipe, not yours."] = "Outra profissão cria esta receita, não a sua."
@@ -106,15 +104,12 @@ L["Crafts"] = "Criações"
 L["Don't count it"] = "Não contar"
 L["Dropped by"] = "Saque de"
 L["Each"] = "Cada"
-L["Enable Shortest Path Forever for walked routes and boat times."] =
-	"Ative o Shortest Path Forever para rotas a pé e horários de barcos."
 L["Every recipe that uses it"] = "Todas as receitas que o usam"
 L["Fee"] = "Taxa"
 L["Fees"] = "Taxas"
 L["Feet"] = "Pés"
 L["Finger"] = "Dedo"
 L["First used at"] = "Usado a partir de"
-L["Forever addons"] = "AddOns Forever"
 L["Gather %d %s"] = "Coletar %d %s"
 L["Gathering skill on nodes"] = "Perícia de coleta em nódulos e ervas"
 L["Hands"] = "Mãos"
@@ -290,10 +285,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Onde a dica aparece ao passar o cursor sobre uma receita. Ao lado da janela, ela não cobre os reagentes."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Com a casa de leilões aberta, a janela de profissões oferece uma busca pelos reagentes da receita selecionada: tantos quanto as criações escolhidas ainda precisam depois das bolsas e do banco. A lista de compras do Auctionator leva as quantidades; sem ela, cada clique coloca o próximo reagente na caixa de busca."
-L["With Shortest Path Forever, a click leads you there."] =
-	"Com o Shortest Path Forever, um clique leva você até lá."
-L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
-	"Com o Shortest Path Forever, isto escolhe o mais próximo pelo tempo de viagem e leva você até lá."
 L["World drop"] = "Espólio do Mundo"
 L["Wrist"] = "Pulsos"
 L["You have it"] = "Você tem"

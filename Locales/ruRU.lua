@@ -54,8 +54,6 @@ L["AH"] = "Аук."
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Показывает начало диапазона сложности каждого рецепта. Это не навык, нужный для изучения."
 L["Addon"] = "Модификация"
-L["Adventure Guide Forever can plan this quest chain."] =
-	"Adventure Guide Forever может спланировать эту цепочку заданий."
 L["Also for this slot"] = "Еще для этой ячейки"
 L["Annotate trainer recipes"] = "Подсказки к рецептам учителя"
 L["Another craft makes this recipe, not yours."] =
@@ -110,15 +108,12 @@ L["Crafts"] = "Созданий"
 L["Don't count it"] = "Не учитывать"
 L["Dropped by"] = "Добыча с"
 L["Each"] = "За шт."
-L["Enable Shortest Path Forever for walked routes and boat times."] =
-	"Включите Shortest Path Forever для пеших маршрутов и расписания кораблей."
 L["Every recipe that uses it"] = "Все рецепты, где он нужен"
 L["Fee"] = "Плата"
 L["Fees"] = "Сборы"
 L["Feet"] = "Ступни"
 L["Finger"] = "Палец"
 L["First used at"] = "Впервые нужен на"
-L["Forever addons"] = "Модификации Forever"
 L["Gather %d %s"] = "Добыть %d %s"
 L["Gathering skill on nodes"] = "Навык сбора на месторождениях"
 L["Hands"] = "Кисти рук"
@@ -308,10 +303,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Пока открыт аукцион, окно профессий предлагает поиск реагентов выбранного рецепта: столько, сколько еще нужно для выбранного числа созданий с учетом сумок и банка. Список покупок Auctionator передает количество; без него каждый щелчок вставляет следующий реагент в поле поиска."
-L["With Shortest Path Forever, a click leads you there."] =
-	"С Shortest Path Forever щелчок приведет вас туда."
-L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
-	"С Shortest Path Forever выбирается ближайший по времени пути, и вас ведут туда."
 L["World drop"] = "Случайная добыча"
 L["Wrist"] = "Запястья"
 L["You have it"] = "У вас есть"

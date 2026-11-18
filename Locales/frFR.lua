@@ -55,8 +55,6 @@ L["AH"] = "HV" -- mt
 L["Add the start of each recipe's difficulty range. This is separate from the skill needed to learn it."] =
 	"Ajoute le début de la plage de difficulté de chaque recette. Ce n'est pas la compétence requise pour l'apprendre." -- mt
 L["Addon"] = "Addon" -- mt
-L["Adventure Guide Forever can plan this quest chain."] =
-	"Adventure Guide Forever peut planifier cette suite de quêtes." -- mt
 L["Also for this slot"] = "Aussi pour cet emplacement" -- mt
 L["Annotate trainer recipes"] = "Annoter les recettes du maître" -- mt
 L["Another craft makes this recipe, not yours."] = "Un autre métier fabrique cette recette, pas le vôtre." -- mt
@@ -108,15 +106,12 @@ L["Crafts"] = "Fabrications" -- mt
 L["Don't count it"] = "Ne pas compter" -- mt
 L["Dropped by"] = "Butin de" -- mt
 L["Each"] = "L'unité" -- mt
-L["Enable Shortest Path Forever for walked routes and boat times."] =
-	"Activez Shortest Path Forever pour les trajets à pied et les horaires des bateaux." -- mt
 L["Every recipe that uses it"] = "Chaque recette qui l'utilise" -- mt
 L["Fee"] = "Frais" -- mt
 L["Fees"] = "Frais"
 L["Feet"] = "Pieds" -- mt
 L["Finger"] = "Doigt" -- mt
 L["First used at"] = "Utilisé dès" -- mt
-L["Forever addons"] = "Addons Forever" -- mt
 L["Gather %d %s"] = "Récolter %d %s" -- mt
 L["Gathering skill on nodes"] = "Compétence de récolte sur les gisements" -- mt
 L["Hands"] = "Mains" -- mt
@@ -296,9 +291,6 @@ L["Where the tooltip goes when you hover a recipe. Beside the window, it stays c
 	"Où l'infobulle s'affiche quand vous survolez une recette. À côté de la fenêtre, elle ne cache pas les composants." -- mt
 L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
 	"Quand l'hôtel des ventes est ouvert, la fenêtre des métiers propose de chercher les composants de la recette choisie : autant qu'il en faut encore aux fabrications choisies, après vos sacs et votre banque. La liste d'achats d'Auctionator reprend les quantités ; sans elle, chaque clic met le composant suivant dans le champ de recherche." -- mt
-L["With Shortest Path Forever, a click leads you there."] = "Avec Shortest Path Forever, un clic vous y mène." -- mt
-L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."] =
-	"Avec Shortest Path Forever, ceci choisit le plus proche en temps de trajet et vous y mène." -- mt
 L["World drop"] = "Butin mondial" -- mt
 L["Wrist"] = "Poignets" -- mt
 L["You have it"] = "Vous l'avez"

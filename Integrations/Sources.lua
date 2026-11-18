@@ -526,59 +526,12 @@ function ns.NearestScrollVendor(recipeID, byTravel)
 	return source and #source.vendors > 0 and ns.NearestNPC(source.vendors, byTravel) or nil
 end
 
-local SHORTEST_PATH = "ShortestPathForever"
-local ADVENTURE_GUIDE = "AdventureGuideForever"
--- Hint keys are shared by every Forever addon (ForeverCore.Family), so they start with this addon's folder.
-local HINT_TRAVEL = "SkillUpForever:travel"
-local HINT_QUEST_CHAIN = "SkillUpForever:questChain"
-
--- Whether Shortest Path Forever is installed but switched off in the AddOns list. A read the client won't give
--- (a secret value, or no C_AddOns) is "don't know", so no line.
----@return boolean
-local function ShortestPathDisabled()
-	local ok, disabled = pcall(function()
-		local _, _, _, _, reason = C_AddOns.GetAddOnInfo(SHORTEST_PATH)
-		return reason == "DISABLED"
-	end)
-	return ok and disabled == true
-end
-
--- Under a waypoint click: what Shortest Path Forever would add. Not installed, it's one of the family hints;
--- installed but switched off, the line says how to get the feature back, under the same setting. `single` is a
--- waypoint to one fixed NPC, where there is no nearest to pick.
----@param tooltip GameTooltip
----@param single? boolean
-function ns.AddCompanionHint(tooltip, single)
-	local Family = ForeverCore.Family --[[@as ForeverFamilyAPI]]
-	local state = Family.State(SHORTEST_PATH)
-	if state == "missing" then
-		if Family.Hint(ns.db, HINT_TRAVEL, SHORTEST_PATH) then
-			GameTooltip_AddDisabledLine(
-				tooltip,
-				single and L["With Shortest Path Forever, a click leads you there."]
-					or L["With Shortest Path Forever, this picks the nearest by travel time and leads you there."]
-			)
-		end
-	elseif state == "off" and ns.db.suggestFamily ~= false and ShortestPathDisabled() then
-		GameTooltip_AddDisabledLine(tooltip, L["Enable Shortest Path Forever for walked routes and boat times."])
-	end
-end
-
--- Under an Artisan quest step, when Adventure Guide Forever isn't installed.
----@param tooltip GameTooltip
-function ns.AddQuestChainHint(tooltip)
-	if ForeverCore.Family.Hint(ns.db, HINT_QUEST_CHAIN, ADVENTURE_GUIDE) then
-		GameTooltip_AddDisabledLine(tooltip, L["Adventure Guide Forever can plan this quest chain."])
-	end
-end
-
 -- "Nearest trainer  Name" over its zone and coordinates, and what a click does; without Questie, the one
 -- line saying what would name it.
 ---@param tooltip GameTooltip
 ---@param label string
 ---@param npcID integer?
----@param single? boolean `npcID` is the one place, not the nearest of several
-function ns.AddNearest(tooltip, label, npcID, single)
+function ns.AddNearest(tooltip, label, npcID)
 	if not npcID then
 		local hint = C.Hint(true)
 		if hint then
@@ -589,7 +542,6 @@ function ns.AddNearest(tooltip, label, npcID, single)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	AddNPC(tooltip, label, npcID, nil, true)
 	GameTooltip_AddInstructionLine(tooltip, L["Click for a waypoint."])
-	ns.AddCompanionHint(tooltip, single)
 end
 
 -- Under a training step: the nearest trainer who teaches that recipe, or that none of your faction does. While

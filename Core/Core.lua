@@ -67,7 +67,6 @@ local DEFAULTS = {
 	pinnedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = priority }: most recently pinned wins
 	skippedRecipes = {}, -- ["Name-Realm"] = { [recipeID] = true }: "Not this recipe", left out of every route
 	whatsNew = false,
-	suggestFamily = true, -- the quiet lines about my other Forever addons, where one would help (ForeverCore.Family)
 	lastVersion = "", -- the version that last ran; "" before the first
 	vendor = {}, -- [itemID] = copper per unit, observed at merchants
 	merchantEvidence = {}, -- [npcID][itemID] = dated price and current stock observations, never historical maxima
@@ -221,11 +220,8 @@ local function LoadDB()
 	-- Auction prices come from Auctionator now; drop what SkillUp's own scanner saved.
 	loaded.priceDays, loaded.latestPrice = nil, nil
 	loaded.scanAuctions, loaded.tracked, loaded.auctions, loaded.gatherFree = nil, nil, nil, nil
-	-- Suggest companion addons became the shared Suggest my other Forever addons: turned off, it stays off.
-	if loaded.companionHints == false and loaded.suggestFamily == nil then
-		loaded.suggestFamily = false
-	end
-	loaded.companionHints = nil
+	-- The family hints and their page left ForeverCore 1.15: drop what they saved.
+	loaded.companionHints, loaded.suggestFamily, loaded.familyDismissed, loaded.familyLinks = nil, nil, nil, nil
 	-- Every player before 1.14 had valueGathered = false saved without choosing it, because the defaults below are
 	-- written into the saved table, so the sale-value default reaches each of them once. A choice made after this
 	-- one reset sticks (#807).

@@ -673,6 +673,8 @@ function Client.load(options)
 			return
 		end
 		self.availableHeight = availableHeight or 0
+		-- The stock mixin marks every block unused first, so a rebuild starts from none.
+		self.blocks = {}
 		self:LayoutContents()
 	end
 	function TrackerModule:GetContentsHeight()
@@ -685,6 +687,7 @@ function Client.load(options)
 			block.lines[#block.lines + 1] = { key = key, text = text, frame = frame }
 			return frame
 		end
+		self.blocks = self.blocks or {}
 		self.blocks[#self.blocks + 1] = block
 		return block
 	end

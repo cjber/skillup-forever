@@ -178,4 +178,38 @@ do
 	equal(need[IRON_BAR], 14, "so only the coif's own Iron Bars are bought, none for transmuting")
 end
 
+-- A held input this recipe needs directly is not spent making another of its reagents: with eight Essence of Fire
+-- held and Essence of Earth cheaper to buy than to transmute from Fire, the Fire goes into the craft and the Earth is
+-- bought.
+do
+	local a = Client.load({ auctionator = false })
+	local ans = a.ns
+	a.level = 60
+	a.professions = { { name = "Alchemy", id = 171, rank = 300, max = 300 } }
+	local STONE, FIRE_TO_EARTH = 17632, 17560
+	local EARTH, FIRE = 7076, 7078
+	a.known[STONE], a.known[FIRE_TO_EARTH] = true, true
+	for itemID, price in pairs({
+		[EARTH] = 100,
+		[FIRE] = 200,
+		[7080] = 5,
+		[7082] = 5,
+		[9262] = 5,
+		[12803] = 5,
+		[13468] = 5,
+	}) do
+		ans.db.vendor[itemID] = price
+	end
+	ans.Changed("prices")
+	a.bags[FIRE] = 8
+	a.Fire("BAG_UPDATE_DELAYED")
+	a.Advance(0)
+	local need = {}
+	for _, item in ipairs(ans.RouteReagents({ crafts = { { recipeID = STONE, crafts = 1 } }, training = {} })) do
+		need[item.itemID] = item.need
+	end
+	equal(need[FIRE], 8, "the held Fire goes into the craft")
+	equal(need[EARTH], 8, "and the Earth is bought, not transmuted from it")
+end
+
 Client.report("held_subcraft_spec")

@@ -748,7 +748,19 @@ local function Expand(recipeID, crafts, depth, making, bags)
 	-- Only a caller that passes the bags writes or reads what they stood in for; the rest share one empty table.
 	local used = bags and {} or NONE_USED
 	local usedHeld = false
-	for _, reagent in ipairs((ns.Reagents and ns.Reagents(recipeID)) or {}) do
+	local reagents = (ns.Reagents and ns.Reagents(recipeID)) or {}
+	-- The held copies of this recipe's own reagents are set aside first, so no sub-craft below spends them making
+	-- another reagent while this one then has to be bought (#858).
+	local reserved = {}
+	if bags then
+		for index, reagent in ipairs(reagents) do
+			bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
+			local held = math.min(bags[reagent.itemID], reagent.quantity * crafts)
+			bags[reagent.itemID] = bags[reagent.itemID] - held
+			reserved[index] = held
+		end
+	end
+	for index, reagent in ipairs(reagents) do
 		local need = reagent.quantity * crafts
 		local maker = depth < MAX_SUB_DEPTH
 			and not making[reagent.itemID]
@@ -759,9 +771,7 @@ local function Expand(recipeID, crafts, depth, making, bags)
 			-- (#858); the market's maker makes the rest. The steps after this see what is left.
 			local heldCrafts = 0
 			if bags then
-				bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
-				local held = math.min(bags[reagent.itemID], need)
-				bags[reagent.itemID] = bags[reagent.itemID] - held
+				local held = reserved[index]
 				local left
 				left, heldCrafts = MakeFromHeld(reagent.itemID, need - held, maker.recipeID, bags, subcrafts, used)
 				if left < need then
@@ -800,9 +810,7 @@ local function Expand(recipeID, crafts, depth, making, bags)
 			-- A raw reagent the bags hold is not bought or gathered, nor is what held inputs make of it (#858); the
 			-- rest is what the route still needs.
 			if bags then
-				bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
-				local held = math.min(bags[reagent.itemID], need)
-				bags[reagent.itemID] = bags[reagent.itemID] - held
+				local held = reserved[index]
 				need = need - held
 				if held > 0 then
 					used[#used + 1] = { itemID = reagent.itemID, count = held }

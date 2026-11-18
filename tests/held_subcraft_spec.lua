@@ -80,4 +80,38 @@ local skipped = Reagents()
 equal(skipped[SCRAPS], nil, "a skipped maker leaves the held scraps alone")
 assert(skipped[LIGHT_LEATHER], "and the route buys its Light Leather")
 
+-- Held inputs come before the market's own maker too: with Transmute: Iron to Gold the cheapest Gold Bar at market,
+-- held Gold Ore still smelts what it covers, so only the rest is transmuted from bought Iron Bars.
+do
+	local g = Client.load({ auctionator = false })
+	local gns = g.ns
+	g.level = 60
+	g.professions = {
+		{ name = "Blacksmithing", id = 164, rank = 150, max = 225 },
+		{ name = "Mining", id = 186, rank = 150, max = 225 },
+		{ name = "Alchemy", id = 171, rank = 225, max = 300 },
+	}
+	local GOLDEN_SCALE_COIF, SMELT_GOLD, TRANSMUTE_IRON_TO_GOLD = 3498, 3308, 11479
+	local GOLD_ORE, IRON_BAR = 2776, 3575
+	for _, recipeID in ipairs({ GOLDEN_SCALE_COIF, SMELT_GOLD, TRANSMUTE_IRON_TO_GOLD }) do
+		g.known[recipeID] = true
+	end
+	for itemID, price in pairs({ [3577] = 500, [IRON_BAR] = 20, [GOLD_ORE] = 400, [3466] = 5, [3486] = 5, [4234] = 5 }) do
+		gns.db.vendor[itemID] = price
+	end
+	gns.Changed("prices")
+	g.bags[GOLD_ORE] = 4
+	g.Fire("BAG_UPDATE_DELAYED")
+	g.Advance(0)
+	equal(gns.SubCraft(3577).recipeID, TRANSMUTE_IRON_TO_GOLD, "the market makes Gold Bars by transmuting")
+	local need = {}
+	for _, item in
+		ipairs(gns.RouteReagents({ crafts = { { recipeID = GOLDEN_SCALE_COIF, crafts = 1 } }, training = {} }))
+	do
+		need[item.itemID] = item.need
+	end
+	equal(need[GOLD_ORE], 4, "the held Gold Ore smelts the coif's four Gold Bars")
+	equal(need[IRON_BAR], 14, "so only the coif's own Iron Bars are bought, none for transmuting")
+end
+
 Client.report("held_subcraft_spec")

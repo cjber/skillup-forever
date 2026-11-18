@@ -671,7 +671,8 @@ local function HeldMaker(itemID, bags)
 	local bestID, bestQuantity, bestReagents, bestCrafts, bestCost
 	for _, makerID in ipairs(ns.MakersOf and ns.MakersOf(itemID) or {}) do
 		if ns.UsableMaker(makerID) then
-			local quantity, reagents = ns.RecipeOutput(makerID).quantity, ns.Reagents(makerID)
+			local quantity, reagents = ns.RecipeOutput(makerID).quantity, ns.Reagents(makerID) or {}
+			---@type number, number?
 			local crafts, cost = math.huge, 0
 			for _, reagent in ipairs(reagents) do
 				bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
@@ -688,6 +689,43 @@ local function HeldMaker(itemID, bags)
 		end
 	end
 	return bestID, bestQuantity, bestReagents, bestCrafts
+end
+
+-- Makes what the held inputs cover of `need` copies of `itemID`, each held maker in turn, cheapest first, taking
+-- those inputs off `bags` and recording them in `used`. Returns the need left and how many crafts of `market` (the
+-- recipe SubCraft chose, or nil) it made: the caller folds those into the market step, so one recipe is one step.
+---@param itemID integer
+---@param need number
+---@param market integer?
+---@param bags table<integer, number>
+---@param subcrafts SkillUpSubCraft[]
+---@param used {itemID: integer, count: number}[]
+---@return number left
+---@return integer marketCrafts
+local function MakeFromHeld(itemID, need, market, bags, subcrafts, used)
+	local marketCrafts = 0
+	while need > 0 do
+		local makerID, quantity, inputs, covered = HeldMaker(itemID, bags)
+		if not makerID then
+			break
+		end
+		---@cast quantity number
+		---@cast inputs {itemID: integer, quantity: number}[]
+		local batches = math.min(assert(covered), math.ceil(need / quantity))
+		for _, input in ipairs(inputs) do
+			local count = input.quantity * batches
+			bags[input.itemID] = bags[input.itemID] - count
+			used[#used + 1] = { itemID = input.itemID, count = count }
+		end
+		if makerID == market then
+			marketCrafts = marketCrafts + batches
+		else
+			subcrafts[#subcrafts + 1] =
+				{ recipeID = makerID, itemID = itemID, crafts = batches, made = batches * quantity }
+		end
+		need = math.max(0, need - batches * quantity)
+	end
+	return need, marketCrafts
 end
 
 -- The sub-crafts a recipe's reagents need, deepest first, and the raw reagents left once every
@@ -717,18 +755,22 @@ local function Expand(recipeID, crafts, depth, making, bags)
 			and ns.SubCraft
 			and ns.SubCraft(reagent.itemID)
 		if maker and maker.quantity and maker.quantity > 0 then
-			-- Held copies of the intermediate are used before any are made; the steps after this see what is left.
+			-- Held copies of the intermediate are used before any are made, then held inputs make what they cover
+			-- (#858); the market's maker makes the rest. The steps after this see what is left.
+			local heldCrafts = 0
 			if bags then
 				bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
 				local held = math.min(bags[reagent.itemID], need)
 				bags[reagent.itemID] = bags[reagent.itemID] - held
-				need = need - held
-				if held > 0 then
+				local left
+				left, heldCrafts = MakeFromHeld(reagent.itemID, need - held, maker.recipeID, bags, subcrafts, used)
+				if left < need then
 					usedHeld = true
 				end
+				need = left
 			end
-			if need > 0 then
-				local batches = math.ceil(need / maker.quantity)
+			local batches = need > 0 and math.ceil(need / maker.quantity) or 0
+			if batches > 0 then
 				making[reagent.itemID] = true
 				local childSubcrafts, childRaw, childUsed, childHeld =
 					Expand(maker.recipeID, batches, depth + 1, making, bags)
@@ -736,12 +778,6 @@ local function Expand(recipeID, crafts, depth, making, bags)
 				for _, sub in ipairs(childSubcrafts) do
 					subcrafts[#subcrafts + 1] = sub
 				end
-				subcrafts[#subcrafts + 1] = {
-					recipeID = maker.recipeID,
-					itemID = reagent.itemID,
-					crafts = batches,
-					made = batches * maker.quantity,
-				}
 				for _, item in ipairs(childRaw) do
 					raw[#raw + 1] = item
 				end
@@ -752,8 +788,17 @@ local function Expand(recipeID, crafts, depth, making, bags)
 					usedHeld = true
 				end
 			end
+			if batches + heldCrafts > 0 then
+				subcrafts[#subcrafts + 1] = {
+					recipeID = maker.recipeID,
+					itemID = reagent.itemID,
+					crafts = batches + heldCrafts,
+					made = (batches + heldCrafts) * maker.quantity,
+				}
+			end
 		else
-			-- A raw reagent the bags hold is not bought or gathered; the rest is what the route still needs.
+			-- A raw reagent the bags hold is not bought or gathered, nor is what held inputs make of it (#858); the
+			-- rest is what the route still needs.
 			if bags then
 				bags[reagent.itemID] = bags[reagent.itemID] or ns.Have(reagent.itemID)
 				local held = math.min(bags[reagent.itemID], need)
@@ -763,24 +808,12 @@ local function Expand(recipeID, crafts, depth, making, bags)
 					used[#used + 1] = { itemID = reagent.itemID, count = held }
 					usedHeld = true
 				end
-				-- Each held maker in turn, cheapest first, until the held inputs cover the shortfall or none is left.
-				while need > 0 and depth < MAX_SUB_DEPTH and not making[reagent.itemID] do
-					local makerID, quantity, inputs, covered = HeldMaker(reagent.itemID, bags)
-					if not makerID then
-						break
+				if need > 0 and depth < MAX_SUB_DEPTH and not making[reagent.itemID] then
+					local left = MakeFromHeld(reagent.itemID, need, nil, bags, subcrafts, used)
+					if left < need then
+						usedHeld = true
 					end
-					---@cast quantity number
-					---@cast inputs {itemID: integer, quantity: number}[]
-					local batches = math.min(assert(covered), math.ceil(need / quantity))
-					for _, input in ipairs(inputs) do
-						local count = input.quantity * batches
-						bags[input.itemID] = bags[input.itemID] - count
-						used[#used + 1] = { itemID = input.itemID, count = count }
-					end
-					subcrafts[#subcrafts + 1] =
-						{ recipeID = makerID, itemID = reagent.itemID, crafts = batches, made = batches * quantity }
-					need = math.max(0, need - batches * quantity)
-					usedHeld = true
+					need = left
 				end
 			end
 			if need > 0 then

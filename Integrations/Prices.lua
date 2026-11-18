@@ -641,7 +641,7 @@ local function ObtainCost(itemID, depth, stack)
 	stack[itemID] = true
 	for _, recipeID in ipairs(MakersOf(itemID)) do
 		if UsableMaker(recipeID) then
-			local quantity, reagents = assert(OutputQuantity(recipeID)), ns.Reagents(recipeID)
+			local quantity, reagents = assert(OutputQuantity(recipeID)), ns.Reagents(recipeID) or {}
 			---@type number?
 			local total = 0
 			for _, reagent in ipairs(reagents) do

@@ -867,6 +867,34 @@ local function ExpandRoute(crafts)
 	return expanded
 end
 
+-- What a cache keyed on the plan reads from one expansion of its crafts: the sub-craft steps, and each item's total
+-- need, raw plus held, which RouteReagents lists. How that total splits between the bags and what is still to buy
+-- is left out: looting a raw reagent moves the split, and every reader takes it from the live bag count, so it must
+-- not rebuild the routes. Finish records it for the expansion it built, so the first refresh moves nothing.
+---@param expanded SkillUpExpanded[]
+---@return string
+local function ExpandedSignature(expanded)
+	local parts, order, total = {}, {}, {}
+	for _, part in ipairs(expanded) do
+		for _, sub in ipairs(part.subcrafts) do
+			parts[#parts + 1] = "s" .. sub.recipeID .. ":" .. sub.itemID .. ":" .. sub.crafts
+		end
+		for _, list in ipairs({ part.raw, part.used }) do
+			for _, item in ipairs(list) do
+				if not total[item.itemID] then
+					order[#order + 1] = item.itemID
+				end
+				total[item.itemID] = (total[item.itemID] or 0) + item.count
+			end
+		end
+	end
+	table.sort(order)
+	for _, itemID in ipairs(order) do
+		parts[#parts + 1] = "n" .. itemID .. ":" .. total[itemID]
+	end
+	return table.concat(parts, ",")
+end
+
 -- Public, price-aware bill of materials for other addons: one raw entry per item, in first-seen order.
 -- Unknown recipes and a craft count that is not a whole number above zero return nil.
 ---@param recipeID integer
@@ -1099,6 +1127,7 @@ local function Finish(profession, target, route)
 			plan.unpricedRecipes[plan.unpriced] = recipeID
 		end
 	end
+	plan.expanded = ExpandedSignature(expanded)
 	Lay(plan)
 	return plan
 end
@@ -1168,24 +1197,12 @@ end
 -- intermediate, or held copies cover it, so the steps match what Reagents asks for (#858). The crafts stay.
 ---@param plan SkillUpPlan
 local function RefreshSubcrafts(plan)
-	local parts = {}
 	local expanded = ExpandRoute(plan.crafts)
 	for index, craft in ipairs(plan.crafts) do
-		local subcrafts, raw, used = expanded[index].subcrafts, expanded[index].raw, expanded[index].used
-		craft.subcrafts, craft.held = subcrafts, expanded[index].held or nil
-		for _, sub in ipairs(subcrafts) do
-			parts[#parts + 1] = "s" .. sub.recipeID .. ":" .. sub.itemID .. ":" .. sub.crafts
-		end
-		for _, item in ipairs(raw) do
-			parts[#parts + 1] = "r" .. item.itemID .. ":" .. item.count
-		end
-		for _, item in ipairs(used) do
-			parts[#parts + 1] = "u" .. item.itemID .. ":" .. item.count
-		end
+		craft.subcrafts, craft.held = expanded[index].subcrafts, expanded[index].held or nil
 	end
-	-- What a cache keyed on the plan reads with it (RouteReagents' raw and held totals, the steps) changes with the
-	-- bags while the plan stays the same table, so the revision follows those.
-	local signature = table.concat(parts, ",")
+	-- The plan stays the same table while its expansion follows the bags, so the revision follows the expansion.
+	local signature = ExpandedSignature(expanded)
 	if plan.expanded ~= signature then
 		plan.expanded = signature
 		plan.revision = (plan.revision or 0) + 1

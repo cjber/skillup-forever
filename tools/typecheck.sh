@@ -25,7 +25,7 @@ if [[ "$(git -C "$annotations" rev-parse HEAD)" != "$revision" ]] ||
     echo "Expected a clean WoW API checkout at $revision in $annotations" >&2
     exit 1
 fi
-if (( run_luals )) && [[ "$(lua-language-server --version)" != "$luals" ]]; then
+if ((run_luals)) && [[ "$(lua-language-server --version)" != "$luals" ]]; then
     echo "Install lua-language-server $luals to match CI." >&2
     exit 1
 fi
@@ -44,7 +44,7 @@ python3 tools/check_locales.py --release
 python3 tools/check_family.py
 python3 tools/check_store_page.py
 # --no-luals (gate --changed): the checks above run, and the whole-repo LuaLS run is left to CI.
-if (( ! run_luals )); then
+if ((! run_luals)); then
     echo "typecheck: LuaLS left to CI (--no-luals)"
     exit 0
 fi

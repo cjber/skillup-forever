@@ -382,13 +382,13 @@ local frame = CreateFrame("Frame")
 for event in pairs(EVENTS) do
 	frame:RegisterEvent(event)
 end
-frame:SetScript("OnEvent", function(_, event)
+frame:SetScript("OnEvent", function(_, event, ...)
 	local kinds = {}
 	if EVENTS[event] then
 		kinds[EVENTS[event]] = true
 	end
 	for _, watcher in ipairs(watchers[event] or {}) do
-		local ok, kind = ns.core.SafeCall(event, watcher)
+		local ok, kind = ns.core.SafeCall(event, watcher, ...)
 		if ok and kind then
 			kinds[kind] = true
 		end
@@ -397,9 +397,9 @@ frame:SetScript("OnEvent", function(_, event)
 end)
 
 -- A file's own work on a game event, run before anything is dropped or redrawn for it. It returns
--- what else it found changed, which joins the event's own change in one pass.
+-- what else it found changed, which joins the event's own change in one pass. It is given the event's arguments.
 ---@param event WowEvent
----@param watcher fun(): SkillUpChange?
+---@param watcher fun(...): SkillUpChange?
 function ns.WhenEvent(event, watcher)
 	watchers[event] = watchers[event] or {}
 	table.insert(watchers[event], watcher)

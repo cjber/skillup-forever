@@ -110,9 +110,10 @@ equal(
 	"an awaited numeric-filter level redraws only the recipe list"
 )
 
-local function Event(event)
+local function Event(event, ...)
+	local args = { ... }
 	return function()
-		c.Fire(event)
+		c.Fire(event, unpack(args))
 	end
 end
 local function Changed(kind)
@@ -217,17 +218,22 @@ equal(
 equal(ns.Price(CLOTH).copper, 8, "which is the price now")
 equal(Stale(Event("MERCHANT_UPDATE")), " | tracker", "the same merchant again")
 
--- A sell price the client had not loaded: one re-price after the burst of item data.
+-- A sell price the client had not loaded: one re-price on the next frame, for the item it waited on alone.
 c.items[SHIRT_ITEM].sell = nil
 ns.CraftCost(SHIRT)
 equal(c.requested[SHIRT_ITEM], true, "the sell price is asked for")
 c.items[SHIRT_ITEM].sell = 5
-equal(Stale(Event("GET_ITEM_INFO_RECEIVED")), " | ", "item info a craft's value waited on changes nothing yet")
-local function HalfASecond()
-	c.Advance(0.5)
+equal(Stale(Event("GET_ITEM_INFO_RECEIVED", CLOTH, true)), " | ", "item info for another item")
+equal(
+	Stale(Event("GET_ITEM_INFO_RECEIVED", SHIRT_ITEM, true)),
+	" | ",
+	"item info a craft's value waited on changes nothing yet"
+)
+local function NextFrame()
+	c.Advance(0)
 end
-equal(Stale(HalfASecond), "prices plans api | route recipeList tracker", "it waits out the burst, then prices changed")
-equal(Stale(HalfASecond), " | ", "once")
+equal(Stale(NextFrame), "prices plans api | route recipeList tracker", "on the next frame prices changed")
+equal(Stale(NextFrame), " | ", "once")
 
 -- #503: item data arrives for any item, from any addon, so it must not drop the tracked routes' material
 -- lists. The one item-data input those lists read, a vendor sell price, reports `prices` when it arrives.

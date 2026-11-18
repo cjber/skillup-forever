@@ -247,6 +247,14 @@ for _ = 1, 10000 do
 	end
 end
 equal(selected.result.status, "complete", "frame-owned selection completes")
+local supplyFrame
+for _, frame in ipairs(c.frames) do
+	local callback = frame.scripts and frame.scripts.OnUpdate
+	if callback and debug.getinfo(callback, "S").source:find("Core/RouteDemand.lua", 1, true) then
+		supplyFrame = frame
+	end
+end
+equal(supplyFrame:IsShown(), false, "solver frame hides once no work is pending")
 local supply = assert(ns.RouteDemand.Supply(plan))
 equal(supply.items[10], 4, "two-stage shared inventory coverage selects four raw units")
 equal(supply.have[10], 0, "published holdings are the fresh snapshot")
@@ -254,6 +262,7 @@ local reagents = ns.RouteReagents(plan)
 equal(#reagents, 1, "shared raw budget is not duplicated per craft")
 equal(reagents[1].need, 4, "shopping reads the selected budget")
 c.Fire("PLAYER_MONEY")
+equal(supplyFrame:IsShown(), true, "invalidation wakes the solver frame")
 equal(ns.RouteDemand.Supply(plan), nil, "wallet revision revokes published shopping counts")
 equal(selected.result.status, "cancelled", "published result is revoked too")
 equal(plan.supply, nil, "plan does not retain stale published budget")

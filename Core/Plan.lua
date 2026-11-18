@@ -315,9 +315,13 @@ local function CountHeld(snapshot, reagents)
 	return held
 end
 
--- Missing sale values do not prevent gathering. Every unpriced input must have that source.
+-- Whether a recipe with no known cost still plans, as an unknown-cost step ranked after every priced recipe, and
+-- why. Every unpriced input must have a source: "gather" when each is one this character gathers (a missing sale
+-- value does not prevent gathering), "auction" when any is an auction reagent with no listing seen yet. That
+-- reagent stays on the route and in the Auctionator list as a price unknown, so a search can price it (#559,
+-- #855). An input with no source at all keeps the recipe out (false).
 ---@param reagents SkillUpReagent[]?
----@return boolean
+---@return false|"gather"|"auction"
 local function GatherableUnknown(reagents)
 	if not ns.ObtainCost or not ns.Price then
 		return false
@@ -326,10 +330,13 @@ local function GatherableUnknown(reagents)
 	for _, reagent in ipairs(reagents or {}) do
 		if ns.ObtainCost(reagent.itemID) == nil then
 			local price = ns.Price(reagent.itemID)
-			if not price or price.source ~= "gather" then
+			if price and price.source == "auction" and price.unknown then
+				missing = "auction"
+			elseif price and price.source == "gather" then
+				missing = missing or "gather"
+			else
 				return false
 			end
-			missing = true
 		end
 	end
 	return missing
@@ -1360,8 +1367,13 @@ end
 ---@return integer[]
 function ns.UnpricedReagents(plan)
 	local seen, items = {}, {}
+	-- A recipe the route picks while it waits on a price lists its reagents with the route's own (#855).
+	local picked = {}
+	for _, craft in ipairs(plan.crafts or {}) do
+		picked[craft.recipeID] = true
+	end
 	for _, recipeID in ipairs(plan.unpricedRecipes) do
-		for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
+		for _, reagent in ipairs(not picked[recipeID] and ns.Reagents(recipeID) or {}) do
 			if not seen[reagent.itemID] then
 				local price = ns.Price(reagent.itemID)
 				if not price or price.unknown then

@@ -400,7 +400,7 @@ SkillUpForeverDB = nil
 ---@field held? number What using one held unit gives up.
 
 ---@class SkillUpCandidate
----@field gatherableUnknown? boolean
+---@field gatherableUnknown? false|"gather"|"auction" Why a recipe with no known cost still plans (Plan.lua GatherableUnknown).
 ---@field recipeID integer
 ---@field thresholds number[]
 ---@field netCost? number

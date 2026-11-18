@@ -827,13 +827,18 @@ local function Planner(snapshot)
 	-- A recipe joins the end of the list.
 	---@param recipe SkillUpCandidate
 	local function Add(recipe)
-		if recipe.netCost == nil and not recipe.gatherableUnknown then
+		-- A recipe waiting on an auction price is counted as unpriced, so its reagents stay in the Auctionator search
+		-- and the total says it is incomplete, and it still plans as an unknown cost after every priced recipe (#855).
+		local waiting = recipe.netCost == nil and recipe.gatherableUnknown == "auction"
+		if (recipe.netCost == nil and not recipe.gatherableUnknown) or waiting then
 			-- A grey recipe could not help even with a price, so it keeps nothing out.
 			if recipe.thresholds[4] > from then
 				excluded.unpriced = excluded.unpriced + 1
 				excluded.recipes[excluded.unpriced] = recipe.recipeID
 			end
-			return
+			if not waiting then
+				return
+			end
 		end
 		byID[recipe.recipeID] = recipe
 		thresholds[recipe.recipeID] = recipe.thresholds

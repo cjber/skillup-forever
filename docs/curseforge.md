@@ -9,7 +9,7 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 - Recipe colours come from the game, but a recipe you have not seen yet uses bundled thresholds that can be slightly off.
 - Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
 - Gathering nodes and corpses have no colour in the game, so theirs is an estimate, on English clients only.
-- Prices need an auction scan or a price addon, and a recipe with an unpriced reagent stays out of the route.
+- Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) is not confirmed as added points or a multiplier, so the estimate is off by default; turn on Include Working Overtime estimate to see the additive reading.
 - With a controller, closing the window under a SkillUp sort can report a harmless blocked action.
 

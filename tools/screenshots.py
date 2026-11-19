@@ -251,7 +251,7 @@ def range_thresholds(recipe_id, t=None):
 def unlearned_text(recipe_id):
     """UI/RecipeList.lua UnlearnedText: the grey marker on a recipe the addon added."""
     source = unlearned_source(recipe_id)
-    return None if source is None else f"Not learned · {source[0]} {source[1]}"
+    return None if source is None else f"{source[0]} {source[1]}"
 
 
 BAGS = {2318: 23}  # Light Leather

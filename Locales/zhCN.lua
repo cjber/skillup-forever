@@ -480,7 +480,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"开启（默认）：你可以采集、钓鱼或从生物身上剥取的试剂会从商人或拍卖行购买。关闭：自己获取花费其出售价值。"
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"按住 Shift 滚动滚轮，或拖动，可横向滚动时间线。"
-L["SkillUp's list"] = "SkillUp 的列表"
 L["Timeline"] = "时间线"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"开启“购买试剂”会写入一个 Auctionator 列表，包含所有仍缺少的拍卖行试剂。"
@@ -535,8 +534,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "拥有（仅背包）" -- mt
 
 L["%s%% to %s%%"] = "%s%%至%s%%" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"每检测到一级Working Overtime，就将黄色和绿色配方的预计技能提升几率增加未经验证的4个百分点。关闭后，费用和路线将使用基础几率估算。两种估算都不是经过验证的服务器规则。" -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"每一级Working Overtime为黄色和绿色配方的技能提升几率增加估算的4个百分点。游戏是以百分点加上天赋加成还是以其倍乘几率尚未确认，因此默认关闭，几率使用基础公式。" -- mt
 L["Chance of finishing with later purchases: %s."] = "后续继续购买时的完成几率：%s。" -- mt
 L["Chance of finishing with starting supplies: %s."] = "仅用起始物资的完成几率：%s。" -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
@@ -557,9 +556,6 @@ L["Target chance of finishing with starting supplies: %s%%."] = "仅用起始物
 L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
 	"这些几率以所列技能提升几率、价格、供货情况以及后续采购物资送达为前提。" -- mt
 L["unknown"] = "未知" -- mt
-
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"自适应指引会打开推荐配方。请在专业技能窗口中选择制作数量。" -- mt
 
 L["currency %d"] = "货币 %d" -- mt
 L["an unknown payment"] = "一项未知支付" -- mt
@@ -647,8 +643,7 @@ L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"材料数量按整条路线计算，而非分别计算每个步骤。" -- mt
+L["/skillup always answers."] = "/skillup 总会响应。" -- mt
 
 L["Highest craft profit"] = "单次制造利润最高" -- mt
 
@@ -678,3 +673,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"这些材料没有商人价格。拍卖价需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever。" -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"自适应指引会给出配方。选中它，然后在专业窗口中选择制作数量。" -- mt
+L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt

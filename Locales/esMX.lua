@@ -489,7 +489,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"Activado (predeterminado): un reactivo que podrías recolectar, pescar o saquear de criaturas se compra en un vendedor o en la casa de subastas. Desactivado: conseguirlo tú mismo cuesta lo que se vendería por él."
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"Mayús + rueda, o arrastrar, desplaza la línea de tiempo lateralmente."
-L["SkillUp's list"] = "Lista de SkillUp"
 L["Timeline"] = "Línea de tiempo"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"Activar Comprar reactivos escribe una lista de Auctionator con todos los reactivos de subasta que aún faltan."
@@ -545,8 +544,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "Tienes (solo bolsas)" -- mt
 
 L["%s%% to %s%%"] = "De %s%% a %s%%" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"Agrega 4 puntos porcentuales sin verificar por cada rango detectado de Working Overtime a las probabilidades estimadas de subir habilidad con recetas amarillas y verdes. Desactívalo para usar la estimación base en costos y rutas. Ninguna de las dos estimaciones es una regla del servidor verificada." -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Agrega una estimación de 4 puntos porcentuales por cada rango de Working Overtime a las probabilidades de subir habilidad con recetas amarillas y verdes. Aún no se ha confirmado si el juego suma la bonificación del talento como puntos o multiplica la probabilidad, así que empieza desactivado y las probabilidades usan la fórmula base." -- mt
 L["Chance of finishing with later purchases: %s."] = "Probabilidad de terminar con compras posteriores: %s." -- mt
 L["Chance of finishing with starting supplies: %s."] = "Probabilidad de terminar con los suministros iniciales: %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
@@ -568,9 +567,6 @@ L["Target chance of finishing with starting supplies: %s%%."] =
 L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
 	"Estas probabilidades suponen las tasas de subida de habilidad, los precios, la disponibilidad y la entrega de compras posteriores indicados." -- mt
 L["unknown"] = "desconocido" -- mt
-
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"La guía adaptativa abre la receta recomendada. Elige cuántas unidades fabricar en la ventana de profesión." -- mt
 
 L["currency %d"] = "moneda %d" -- mt
 L["an unknown payment"] = "un pago desconocido" -- mt
@@ -660,8 +656,7 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Ningún instructor de tu facción enseña esta receta." -- mt
 L["%s (level %d)"] = "%s (nivel %d)" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"Las cantidades de materiales cubren toda la ruta, no solo cada paso por separado." -- mt
+L["/skillup always answers."] = "/skillup siempre responde." -- mt
 
 L["Highest craft profit"] = "Mayor beneficio por fabricación" -- mt
 
@@ -691,3 +686,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"Estos componentes no tienen precio de vendedor. Los precios de subasta necesitan Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"La guía adaptativa indica la receta. Selecciónala y elige cuántas fabricar en la ventana de profesión." -- mt
+L["Select %s in the recipe list first."] = "Selecciona primero %s en la lista de recetas." -- mt

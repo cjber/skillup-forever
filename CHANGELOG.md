@@ -10,11 +10,42 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.5] - 2026-11-19
+
+### Fixed
+
+- **/skillup always answers.** If one part of SkillUp failed to start on your setup, /skillup did nothing at all. The settings now load first, so /skillup opens them even then. When SkillUp cannot start because ForeverCore is missing, turned off or out of date, /skillup now repeats the line that says how to fix it instead of "Unknown command". Thanks to the player who reported it on CurseForge (#866).
+
+## [1.14.4] - 2026-11-19
+
+### Fixed
+
+- **Bought reagents stay in your route after a price change.** When the auction house price of an intermediate such as Light Leather moved, the route stopped crafting it from the Ruined Leather Scraps you had already bought and asked for new materials instead. Now the route makes that intermediate from what you hold first, and only asks you to buy the rest. Thanks to the player who reported it on CurseForge (#858).
+- **Unlearned recipes show their full names.** Rows under the Unlearned divider now say only where and at what skill you learn the recipe, such as "Trainer 60" or "Recipe item 65", so long names are no longer cut short. The recipe's tooltip still says "Not learned". Thanks to the player who suggested it on CurseForge (#854).
+- **SkillUp names an Auctionator list only when it keeps one.** The route page, the shopping list and the auction house search tooltip could name a "SkillUp:" Auctionator list for a route you weren't tracking, or with auction search off, when no such list existed. Track a route with Buy reagents on and its list appears (#860).
+- **The SkillUp tab stays under the game's profession tabs.** Another addon's frame at the bottom right of the Professions window no longer pulls the tab to the bottom of the window or off screen. Thanks to the players who reported it on CurseForge (cjber/forever-core#862, Refs #807).
+- **The Forever tracker column sits under the quest tracker** and follows it as quests come and go, moving left of it only when there is no room below. Right-click a Forever section and pick Tracker position to choose (cjber/forever-core#850).
+
+## [1.14.3] - 2026-11-18
+
+### Fixed
+
+- **Routes no longer come up empty when the auction house hasn't priced your reagents yet.** With Buy reagents on, a recipe whose reagents Auctionator had not seen was left out, so a Leatherworking route at 54 could show no steps at all. Those steps now show with a price unknown, their reagents are in the Reagents list and the Auctionator list so a search prices them, and the total says it is incomplete until then. Thanks to the player who reported it on Discord (#855).
+
+## [1.14.2] - 2026-11-18
+
+### Fixed
+
+- **Clicking a recipe selects it again under every sort.** Under a SkillUp sort, or with unlearned recipes listed, a click on a recipe closed the Professions window instead of selecting it. Sorted lists are back in the game's own recipe list, so the game selects the recipe you click. Thanks to the players who reported it on CurseForge (#840).
+- **Opening a recipe from Route, Gear or the shopping list keeps the window open.** SkillUp shows the crafting page and searches the recipe list for that recipe; click it to select it, then craft it from Route (#840).
+- **No more freeze on opening bags, talking to a merchant or turning the camera with a route tracked.** Item data the game loads for anything on screen made SkillUp plan every tracked route again, about a second each time. Now new item data plans a route again only when it changes a sell price the route was waiting on, and only once however much arrives together. Thanks to the players who reported it on CurseForge (#846).
+- **Known limitation:** with a controller, closing the Professions window while a SkillUp sort or the unlearned list is on can report a blocked action. It does no harm; reopen the window to carry on (#794).
+
 ## [1.14.1] - 2026-11-18
 
-<!-- forever-core-sync -->
+### Changed
 
-- Ships with the same shared code as your other Forever addons, so they keep working together.
+- **Working Overtime's bonus is left out of chances by default.** The game gives 4% per rank, 20% at 5/5, but it is not yet confirmed whether that adds 20 points to a skill-up chance or multiplies it, so SkillUp now shows the base chance. Turn on Include Working Overtime estimate in settings to see the added-points reading. This resets once for everyone; turning it back on sticks. Thanks to ratman_codes and jugg__ for the reports (#741).
 
 ## [1.14.0] - 2026-11-18
 

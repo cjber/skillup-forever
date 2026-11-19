@@ -378,28 +378,80 @@ function ns.WhenStaleObserver(name, observer)
 	observers[name][#observers[name] + 1] = observer
 end
 
+-- Item data SkillUp asked for and has not had yet. Item data arrives for any item any addon or the game asked
+-- for, on every bag open, merchant page and player coming into view; only SkillUp's own requests change what it
+-- shows, so the rest is ignored at the door (#846). An answer clears its request, loaded or not.
+---@type table<integer, true>
+local requestedItems = {}
+
+-- Ask the client for an item's data; its arrival is then a change SkillUp hears.
+---@param itemID integer
+function ns.RequestItemData(itemID)
+	requestedItems[itemID] = true
+	C_Item.RequestLoadItemDataByID(itemID)
+end
+
+-- Item data SkillUp asked for arrives in bursts, a route page's names at once. The first of a frame applies at
+-- once; the rest of that frame's burst joins one pass on the next frame, so a burst costs at most one pass a
+-- frame however long it runs (#846). Bag and merchant bursts are already one pass: the game batches bag slots
+-- into BAG_UPDATE_DELAYED, and what they drop rebuilds lazily (tests/idle_cpu_spec.lua).
+local BURSTS = { ITEM_DATA_LOAD_RESULT = true }
+---@type number?
+local burstFrame
+---@type table<SkillUpChange, true>?
+local deferred
+
+local function ApplyDeferred()
+	local kinds = deferred
+	deferred = nil
+	if kinds then
+		Apply(kinds)
+	end
+end
+
 local frame = CreateFrame("Frame")
 for event in pairs(EVENTS) do
 	frame:RegisterEvent(event)
 end
-frame:SetScript("OnEvent", function(_, event)
+frame:SetScript("OnEvent", function(_, event, ...)
+	if event == "ITEM_DATA_LOAD_RESULT" then
+		local itemID = ...
+		if not requestedItems[itemID] then
+			return
+		end
+		requestedItems[itemID] = nil
+	end
 	local kinds = {}
 	if EVENTS[event] then
 		kinds[EVENTS[event]] = true
 	end
 	for _, watcher in ipairs(watchers[event] or {}) do
-		local ok, kind = ns.core.SafeCall(event, watcher)
+		local ok, kind = ns.core.SafeCall(event, watcher, ...)
 		if ok and kind then
 			kinds[kind] = true
 		end
+	end
+	if BURSTS[event] then
+		local now = GetTime()
+		if burstFrame == now then
+			if not deferred then
+				deferred = {}
+				C_Timer.After(0, ApplyDeferred)
+			end
+			for kind in pairs(kinds) do
+				deferred[kind] = true
+			end
+			return
+		end
+		burstFrame = now
 	end
 	Apply(kinds)
 end)
 
 -- A file's own work on a game event, run before anything is dropped or redrawn for it. It returns
--- what else it found changed, which joins the event's own change in one pass.
+-- what else it found changed, which joins the event's own change in one pass. It is given the event's arguments.
 ---@param event WowEvent
----@param watcher fun(): SkillUpChange?
+---@param watcher fun(...): SkillUpChange?
 function ns.WhenEvent(event, watcher)
 	watchers[event] = watchers[event] or {}
 	table.insert(watchers[event], watcher)

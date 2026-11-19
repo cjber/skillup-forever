@@ -515,7 +515,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"Вкл. (по умолчанию): реагент, который можно собрать, выловить или добыть с существ, покупается у торговца или на аукционе. Выкл.: добыть его самостоятельно стоит столько, за сколько его можно продать."
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"Shift + колесо мыши или перетаскивание прокручивает временную шкалу вбок."
-L["SkillUp's list"] = "Список SkillUp"
 L["Timeline"] = "Временная шкала"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"Если включить «Покупать реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
@@ -574,8 +573,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "В наличии (только сумки)" -- mt
 
 L["%s%% to %s%%"] = "От %s%% до %s%%" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"Добавляет непроверенные 4 процентных пункта за каждый обнаруженный ранг Working Overtime к оценке вероятности повышения навыка для жёлтых и зелёных рецептов. Отключите, чтобы использовать базовую оценку вероятности для затрат и маршрутов. Ни одна из оценок не является подтверждённым правилом сервера." -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Добавляет оценочные 4 процентных пункта за каждый ранг Working Overtime к вероятности повышения навыка для жёлтых и зелёных рецептов. Пока не подтверждено, прибавляет ли игра бонус таланта как пункты или умножает на него вероятность, поэтому по умолчанию это отключено и вероятности считаются по базовой формуле." -- mt
 L["Chance of finishing with later purchases: %s."] =
 	"Вероятность завершения с последующими покупками: %s." -- mt
 L["Chance of finishing with starting supplies: %s."] =
@@ -601,9 +600,6 @@ L["Target chance of finishing with starting supplies: %s%%."] =
 L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
 	"Эти вероятности предполагают указанные шансы повышения навыка, цены, доступность и доставку последующих покупок." -- mt
 L["unknown"] = "неизвестно" -- mt
-
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"Адаптивные подсказки открывают рекомендуемый рецепт. Выберите количество для изготовления в окне профессии." -- mt
 
 L["currency %d"] = "валюта %d" -- mt
 L["an unknown payment"] = "неизвестный платёж" -- mt
@@ -710,8 +706,7 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"Количество реагентов рассчитано на весь маршрут, а не на каждый шаг по отдельности." -- mt
+L["/skillup always answers."] = "/skillup всегда отвечает." -- mt
 
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 
@@ -742,3 +737,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"У этих реагентов нет цены у торговца. Для цен аукциона нужен Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
+L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt

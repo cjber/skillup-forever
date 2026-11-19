@@ -546,7 +546,7 @@ equal(book and book.cost, nil, "at no cost")
 equal(book and book.nav, false, "with nowhere to go")
 -- The book's name arriving rebuilds the list.
 c.items[BOOK] = { name = "Journeyman's Handbook" }
-c.Fire("ITEM_DATA_LOAD_RESULT")
+c.Fire("ITEM_DATA_LOAD_RESULT", BOOK, true)
 book = nil
 for _, step in ipairs(Tailoring().steps) do
 	if step.itemID == BOOK then

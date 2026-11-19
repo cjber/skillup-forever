@@ -116,7 +116,7 @@ function ns.SearchReagents(recipeID, count)
 	local item = short[nextIndex]
 	local name = C_Item.GetItemNameByID(item.itemID)
 	if not name then
-		C_Item.RequestLoadItemDataByID(item.itemID)
+		ns.RequestItemData(item.itemID)
 		return "loading", item
 	end
 	-- The auction house's own public setter, which Blizzard's item clicks use: it fills the search box and
@@ -150,7 +150,7 @@ local function PriceRoute()
 	local needs, unknown = ns.RouteDemand.Shortfalls(tracked)
 	local discovery = {}
 	for _, entry in ipairs(tracked) do
-		-- Excluded recipes have no planned quantities yet. Their one-craft shortfall can request a price
+		-- Recipes left out of the route have no planned quantities. Their one-craft shortfall can request a price
 		-- observation without treating them as free crafts or adding them to the shopping totals.
 		local unpriced = {}
 		for _, itemID in ipairs(ns.UnpricedReagents(entry.plan)) do
@@ -252,8 +252,13 @@ local function ShowSearchTooltip(button)
 	elseif #short > 0 then
 		local recipe = ns.RecipeData[recipeID]
 		local profession = recipe and ns.RouteProfessions()[recipe.skillLine]
-		local listName = profession and ns.AuctionListName(profession.name)
-		GameTooltip_AddNormalLine(GameTooltip, ns.AuctionListNote(listName and { listName } or nil))
+		-- The route's list when SkillUp keeps one, else the list this click writes.
+		local listName = profession and ns.KeptAuctionList(recipe.skillLine, profession.name)
+			or ns.AuctionListName("crafting")
+		local note = ns.AuctionListNote(listName and { listName } or nil)
+		if note then
+			GameTooltip_AddNormalLine(GameTooltip, note)
+		end
 	end
 	GameTooltip:Show()
 end

@@ -37,7 +37,8 @@
 ---@field RouteDemand SkillUpRouteDemandProducer
 ---@field WhenStale fun(name: SkillUpStale, handler: fun()?)
 ---@field WhenStaleObserver fun(name: SkillUpStale, observer: fun())
----@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
+---@field WhenEvent fun(event: WowEvent, watcher: fun(...): SkillUpChange?)
+---@field RequestItemData fun(itemID: integer)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field CharacterKey fun(): string?
 ---@field NormalizedRealm fun(): string?
@@ -173,7 +174,8 @@
 ---@field DetailsBarRoom fun(form: SkillUpSchematicForm, anchor: FontString, height: number): boolean? whether the pane leaves the bar its room, nil before it is laid out
 ---@field AuctionatorAutoscan fun(): boolean?
 ---@field AuctionListName fun(profession: string): string?
----@field AuctionListNote fun(names: string[]?): string what the Shopping list and the Search tooltip say about the list
+---@field AuctionListNote fun(names: string[]?): string? what the Shopping list and the Search tooltip say about the list
+---@field KeptAuctionList fun(skillLine: integer?, profession: string): string? the list SkillUp keeps for a route
 ---@field Have fun(itemID: integer): number
 ---@field Readable fun(value: any): any
 ---@field Usable fun(frame?: Frame): boolean
@@ -191,6 +193,7 @@
 ---@field MissingToolItems fun(plan: SkillUpPlan): integer[]
 ---@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
 ---@field MakersOf fun(itemID: integer): integer[] The recipes that make the item, lowest recipe ID first.
+---@field UsableMaker fun(recipeID: integer): boolean learned, not skipped, with an output and reagents: may make an intermediate
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[]
@@ -278,6 +281,7 @@
 
 ---@class SkillUpDefaults
 ---@field includeWorkingOvertime boolean
+---@field workingOvertimeOffSeen boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field showRowText boolean
 ---@field showUnlearned boolean
@@ -398,7 +402,7 @@ SkillUpForeverDB = nil
 ---@field held? number What using one held unit gives up.
 
 ---@class SkillUpCandidate
----@field gatherableUnknown? boolean
+---@field gatherableUnknown? false|"gather"|"auction" Why a recipe with no known cost still plans (Plan.lua GatherableUnknown).
 ---@field recipeID integer
 ---@field thresholds number[]
 ---@field netCost? number
@@ -516,6 +520,7 @@ SkillUpForeverDB = nil
 ---@field Add fun(recipe: SkillUpCandidate) A recipe joins the end of the list.
 ---@field Route fun(extra?: SkillUpCandidate): SkillUpRoute, number[] The route, and each skill it picked at.
 ---@field Changes fun(extra: SkillUpCandidate, picked: number[]): boolean Whether `extra` changes the route.
+---@field Waiting fun(route: SkillUpRoute, extra?: SkillUpCandidate): integer The route's steps waiting on an auction price.
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
 ---@class SkillUpPlanSupply
@@ -548,6 +553,8 @@ SkillUpForeverDB = nil
 ---@field unpriced integer Known recipes left out for an unpriced reagent.
 ---@field unpricedRecipes integer[]
 ---@field stopReason? 'no_recipe'
+---@field revision? integer Bumped when a kept route's expansion changes in place, for caches keyed on the plan.
+---@field expanded? string The kept route's sub-crafts, raw and held totals at its last refresh.
 
 ---@class SkillUpShoppingItem
 ---@field itemID integer

@@ -129,7 +129,7 @@ end
 function Parts.Action(item, professions)
 	if item.state == "known" then
 		return L["Open recipe"], true, function()
-			C_TradeSkillUI.OpenRecipe(item.recipeID)
+			ns.ShowRecipe(item.recipeID, true)
 		end
 	end
 	if item.state == "trainable" then
@@ -176,6 +176,6 @@ function Parts.ItemName(item)
 		return name
 	end
 	-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
-	C_Item.RequestLoadItemDataByID(item.itemID)
+	ns.RequestItemData(item.itemID)
 	return string.format(L["item %d"], item.itemID)
 end

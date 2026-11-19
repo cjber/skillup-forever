@@ -232,7 +232,11 @@ local function TradeSkillMasterSoldPerDay(itemID)
 	return value
 end
 
-local itemInfoPending = false
+-- Sell prices the client had not loaded when a price was made, each with the value used meanwhile (false for
+-- none). Only one of these arriving with another value is a price change (#846): item data arrives for any
+-- item, from any addon, on opening bags, at a merchant or as players come into view.
+---@type table<integer, number|false>
+local awaitingSell = {}
 
 -- Live vendor sell price wins, including zero. Bundled prices cover uncached
 -- outputs while the item-data request and eventual refresh are still pending.
@@ -240,11 +244,15 @@ local itemInfoPending = false
 ---@return number?
 local function SellPrice(itemID)
 	local sell = ns.Readable((select(11, C_Item.GetItemInfo(itemID))))
-	if sell == nil then
-		itemInfoPending = true
-		C_Item.RequestLoadItemDataByID(itemID)
+	local bundled = ns.ItemSellPrices and ns.ItemSellPrices[itemID]
+	if sell == nil and awaitingSell[itemID] == nil then
+		awaitingSell[itemID] = bundled or false
+		ns.RequestItemData(itemID)
 	end
-	return sell or (ns.ItemSellPrices and ns.ItemSellPrices[itemID])
+	if sell == nil then
+		return bundled
+	end
+	return sell
 end
 
 -- Auction value is net of the house's 5% cut and only counts when it beats the vendor.
@@ -590,6 +598,22 @@ local function WithSaleFloor(itemID, cost)
 	return cost
 end
 
+-- Whether `recipeID` may make an intermediate: learned, not set aside with "Not this recipe", and with an output
+-- and reagents the data names. Both the market choice here and the planner's held inputs (#858) ask this.
+---@param recipeID integer
+---@return boolean
+local function UsableMaker(recipeID)
+	local quantity, reagents = OutputQuantity(recipeID), ns.Reagents(recipeID)
+	local skipped = ns.IsSkipped ~= nil and ns.IsSkipped(recipeID)
+	return ns.IsLearned(recipeID)
+		and not skipped
+		and quantity ~= nil
+		and quantity > 0
+		and reagents ~= nil
+		and #reagents > 0
+end
+ns.UsableMaker = UsableMaker
+
 ---@param itemID integer
 ---@param depth integer
 ---@param stack table<integer, true>?
@@ -616,9 +640,8 @@ local function ObtainCost(itemID, depth, stack)
 	local bestRecipe = nil
 	stack[itemID] = true
 	for _, recipeID in ipairs(MakersOf(itemID)) do
-		local quantity, reagents = OutputQuantity(recipeID), ns.Reagents(recipeID)
-		local skipped = ns.IsSkipped ~= nil and ns.IsSkipped(recipeID)
-		if ns.IsLearned(recipeID) and not skipped and quantity and quantity > 0 and reagents and #reagents > 0 then
+		if UsableMaker(recipeID) then
+			local quantity, reagents = assert(OutputQuantity(recipeID)), ns.Reagents(recipeID) or {}
 			---@type number?
 			local total = 0
 			for _, reagent in ipairs(reagents) do
@@ -1003,12 +1026,25 @@ function ns.InitPrices()
 		end
 	end)
 	ns.WhenEvent("MERCHANT_UPDATE", RecordMerchant)
-	ns.WhenEvent("GET_ITEM_INFO_RECEIVED", function()
-		if itemInfoPending then
-			-- Items arrive in bursts; one redraw covers the burst.
-			itemInfoPending = false
-			C_Timer.After(0.5, PricesChanged)
+	-- A sell price a price was made without arrived. It changes prices only when it differs from the value used
+	-- meanwhile, and every arrival in a frame shares one change.
+	local repricing = false
+	local function Reprice()
+		repricing = false
+		PricesChanged()
+	end
+	ns.WhenEvent("GET_ITEM_INFO_RECEIVED", function(itemID, success)
+		local used = awaitingSell[itemID]
+		if used == nil then
+			return nil
 		end
+		awaitingSell[itemID] = nil
+		local sell = success and ns.Readable((select(11, C_Item.GetItemInfo(itemID))))
+		if sell == nil or sell == used or repricing then
+			return nil
+		end
+		repricing = true
+		C_Timer.After(0, Reprice)
 	end)
 	-- On this client Auctionator fires this after a search or a full scan has filed its prices.
 	local api = AuctionatorAPI()

@@ -103,7 +103,7 @@ function ns.RegisterSettings()
 			rows,
 			"includeWorkingOvertime",
 			L["Include Working Overtime estimate"],
-			L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."]
+			L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."]
 		)
 		Checkbox(
 			rows,

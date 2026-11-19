@@ -494,7 +494,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"켜짐(기본값): 채집, 낚시 또는 생물에게서 얻을 수 있는 재료를 상인이나 경매장에서 삽니다. 꺼짐: 직접 얻는 비용은 판매 가격만큼 듭니다."
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"Shift + 마우스 휠 또는 드래그로 시간선을 옆으로 스크롤합니다."
-L["SkillUp's list"] = "SkillUp 목록"
 L["Timeline"] = "시간선"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"재료 구매를 켜면 아직 부족한 모든 경매장 재료가 Auctionator 목록에 기록됩니다."
@@ -552,8 +551,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "보유 (가방만)" -- mt
 
 L["%s%% to %s%%"] = "%s%%에서 %s%%까지" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"감지된 Working Overtime 등급마다 노란색 및 녹색 제조법의 예상 숙련도 상승 확률에 검증되지 않은 4퍼센트포인트를 더합니다. 끄면 비용과 경로에 기본 확률 추정치를 사용합니다. 두 추정치 모두 검증된 서버 규칙이 아닙니다." -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Working Overtime 등급마다 노란색 및 녹색 제조법의 숙련도 상승 확률에 추정치 4퍼센트포인트를 더합니다. 게임이 특성 보너스를 포인트로 더하는지 확률에 곱하는지 아직 확인되지 않아 기본으로 꺼져 있으며, 확률은 기본 공식을 사용합니다." -- mt
 L["Chance of finishing with later purchases: %s."] = "추가 구매 시 완료 확률: %s." -- mt
 L["Chance of finishing with starting supplies: %s."] = "시작 재료로 완료할 확률: %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
@@ -574,9 +573,6 @@ L["Target chance of finishing with starting supplies: %s%%."] = "시작 재료�
 L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
 	"이 확률은 명시된 숙련도 상승률, 가격, 구매 가능 여부 및 추가 구매분의 인도를 가정합니다." -- mt
 L["unknown"] = "알 수 없음" -- mt
-
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"적응형 안내는 추천 제조법을 엽니다. 전문 기술 창에서 제작할 수량을 선택하세요." -- mt
 
 L["currency %d"] = "화폐 %d" -- mt
 L["an unknown payment"] = "알 수 없는 지불" -- mt
@@ -668,8 +664,7 @@ L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"재료 수량은 각 단계가 아닌 전체 경로를 기준으로 계산됩니다." -- mt
+L["/skillup always answers."] = "/skillup이 항상 응답합니다." -- mt
 
 L["Highest craft profit"] = "제작당 최고 이익" -- mt
 
@@ -699,3 +694,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator/TradeSkillMaster, AHDB, Naowh Forever가 필요합니다." -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"적응형 안내는 제조법을 알려 줍니다. 제조법을 선택하고 전문 기술 창에서 만들 개수를 정하세요." -- mt
+L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt

@@ -26,7 +26,8 @@ end
 
 ---@type SkillUpDefaults
 local DEFAULTS = {
-	includeWorkingOvertime = true,
+	includeWorkingOvertime = false, -- how the server applies the talent's bonus is not confirmed (#741)
+	workingOvertimeOffSeen = false, -- the estimate's off default has reached this player once (#741)
 	showRowText = true,
 	showUnlearned = false, -- also list recipes this character has not learned, greyed, with where they are learned
 	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
@@ -132,8 +133,8 @@ ns.TITLE = "SkillUp Forever"
 -- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
 -- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
 -- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
-ns.WHATS_NEW_VERSION = "1.14.0"
-ns.WHATS_NEW = L["Reagent counts cover the whole route, not each step alone."]
+ns.WHATS_NEW_VERSION = "1.14.5"
+ns.WHATS_NEW = L["/skillup always answers."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -234,6 +235,13 @@ local function LoadDB()
 	if loaded.reagentTooltipOffSeen ~= true then
 		loaded.reagentTooltip = "off"
 		loaded.reagentTooltipOffSeen = true
+	end
+	-- The Working Overtime estimate was saved on for everyone without a choice, and whether the server adds the
+	-- talent's bonus as points or multiplies by it is unconfirmed, so it goes off once for every player. A saved off
+	-- stays off, and turning it back on afterwards sticks (#741).
+	if loaded.workingOvertimeOffSeen ~= true then
+		loaded.includeWorkingOvertime = false
+		loaded.workingOvertimeOffSeen = true
 	end
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then
@@ -341,8 +349,9 @@ local function LoadDB()
 	ns.db = loaded
 end
 
--- Working Overtime, Legacy node 110290 (talent 1225451): the optional estimate assumes 4
--- percentage points per detected rank. This additive interpretation is unverified.
+-- Working Overtime, Legacy node 110290 (talent 1225451): the client data gives 4 per rank (curve 97508) but not
+-- how the server combines it with the base chance. The optional estimate, off by default, adds 4 percentage
+-- points per detected rank; that additive reading is unverified (#741).
 local WORKING_OVERTIME_NODE = 110290
 local WORKING_OVERTIME_TREE = 1187
 local WORKING_OVERTIME_MAX_RANKS = 5
@@ -1119,6 +1128,9 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- The saved journal and log are core's now, under the same table: what SafeCall recorded before this line (the
 	-- client's own early errors) arrives with it, and a /reload keeps it.
 	ns.core.Attach(SkillUpForeverDB)
+	-- /skillup opens these, so they register before any step below can fail on a player's own setup and leave the
+	-- command silent (#866).
+	ns.RegisterSettings()
 	ns.NoteBuild()
 	ReadChanceBonus()
 	ns.InitCatalogue()
@@ -1134,7 +1146,6 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	ns.WhenEvent("TRAIT_NODE_CHANGED", TalentChanged)
 	ns.InitLive()
 	ns.InitPrices()
-	ns.RegisterSettings()
 	ns.AttachItemTooltips()
 	ns.InitShopping()
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Professions", ns.AttachRecipeList)

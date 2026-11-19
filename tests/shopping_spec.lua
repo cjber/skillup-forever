@@ -300,6 +300,7 @@ equal(ns.AuctionatorAutoscan(), nil, "an unread option says nothing")
 c.auctionAutoscan = false
 equal(ns.AuctionatorAutoscan(), false, "the scan-on-open option reads as off")
 equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], nil, "gather mode writes no Auctionator list")
+equal(ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "and keeps none to name")
 local personalList = { "Personal supplies" }
 c.shoppingLists["SkillUp: First Aid"] = personalList
 c.shoppingLists["SkillUp: Other-Realm: First Aid"] = personalList
@@ -311,6 +312,14 @@ c.player.name = "Tester"
 ns.SetCollectMode("auction")
 local list = c.shoppingLists["SkillUp: Tester-Realm: First Aid"]
 equal(type(list), "table", "buying keeps an Auctionator list")
+equal(
+	ns.KeptAuctionList(FIRST_AID, "First Aid"),
+	"SkillUp: Tester-Realm: First Aid",
+	"the kept list is the one written"
+)
+ns.db.trackedProfessions[FIRST_AID] = false
+equal(ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "an untracked route keeps no list (#860)")
+ns.db.trackedProfessions[FIRST_AID] = true
 equal(c.shoppingLists["SkillUp: First Aid"], personalList, "the old generic list remains untouched")
 equal(c.shoppingLists["SkillUp: Other-Realm: First Aid"], personalList, "another character's list remains untouched")
 local realm = c.player.realm
@@ -325,6 +334,7 @@ c.ns.db.auctionSearch = false
 c.bags[SILK] = 1
 c.Fire("BAG_UPDATE_DELAYED")
 equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], list, "disabled automatic search does not rewrite the list")
+equal(ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "and the list it no longer keeps is not named")
 c.ns.db.auctionSearch = true
 c.bags[SILK] = Needed()
 c.Fire("BAG_UPDATE_DELAYED")
@@ -381,6 +391,7 @@ covered.EnterWorld()
 covered.Advance(0)
 equal(covered.listWrites, 0, "a route with nothing left to buy asks Auctionator for no list")
 equal(covered.shoppingLists[coveredName], nil, "and none is made")
+equal(covered.ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "so no page names one (#860)")
 
 local emptied = AuctionClient()
 local emptiedName = emptied.ns.AuctionListName("First Aid")
@@ -390,6 +401,7 @@ emptied.EnterWorld()
 emptied.Advance(0)
 equal(emptied.listWrites, 1, "a list that is there is emptied")
 equal(#emptied.shoppingLists[emptiedName], 0, "leaving no searches")
+equal(emptied.ns.KeptAuctionList(FIRST_AID, "First Aid"), emptiedName, "an emptied list is still there to name")
 emptied.Fire("BAG_UPDATE_DELAYED")
 emptied.Advance(0)
 equal(emptied.listWrites, 1, "and only once")
@@ -414,6 +426,7 @@ reloaded.EnterWorld()
 reloaded.Advance(0)
 equal(reloaded.listWrites, 0, "a deleted list is not recreated while the need is unchanged")
 equal(reloaded.shoppingLists[deletedName], nil, "so it stays deleted")
+equal(reloaded.ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "and no page names it")
 reloaded.bags[SILK] = reloaded.ns.TrackedNeeds()[1].items[1].need - 1
 reloaded.Fire("BAG_UPDATE_DELAYED")
 reloaded.Advance(0)

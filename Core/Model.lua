@@ -827,13 +827,18 @@ local function Planner(snapshot)
 	-- A recipe joins the end of the list.
 	---@param recipe SkillUpCandidate
 	local function Add(recipe)
-		if recipe.netCost == nil and not recipe.gatherableUnknown then
+		-- A recipe waiting on an auction price is counted as unpriced, so its reagents stay in the Auctionator search
+		-- and the total says it is incomplete, and it still plans as an unknown cost after every priced recipe (#855).
+		local waiting = recipe.netCost == nil and recipe.gatherableUnknown == "auction"
+		if (recipe.netCost == nil and not recipe.gatherableUnknown) or waiting then
 			-- A grey recipe could not help even with a price, so it keeps nothing out.
 			if recipe.thresholds[4] > from then
 				excluded.unpriced = excluded.unpriced + 1
 				excluded.recipes[excluded.unpriced] = recipe.recipeID
 			end
-			return
+			if not waiting then
+				return
+			end
 		end
 		byID[recipe.recipeID] = recipe
 		thresholds[recipe.recipeID] = recipe.thresholds
@@ -974,6 +979,22 @@ local function Planner(snapshot)
 		return false
 	end
 
+	-- How many of a route's steps wait on an auction price: their cost counts as nothing in expectedCost, so a
+	-- comparison of savings alone would take them for free (#855). `extra` is the service the route was planned with.
+	---@param route SkillUpRoute
+	---@param extra SkillUpCandidate?
+	---@return integer
+	local function Waiting(route, extra)
+		local count = 0
+		for _, segment in ipairs(route.segments) do
+			local candidate = extra and extra.recipeID == segment.recipeID and extra or byID[segment.recipeID]
+			if candidate and candidate.netCost == nil and candidate.gatherableUnknown == "auction" then
+				count = count + 1
+			end
+		end
+		return count
+	end
+
 	for _, recipe in ipairs(snapshot.recipes) do
 		Add(recipe)
 	end
@@ -981,6 +1002,7 @@ local function Planner(snapshot)
 		Add = Add,
 		Route = Route,
 		Changes = Changes,
+		Waiting = Waiting,
 		Budget = function()
 			local route = Model.BudgetRoute(Route(), Model.ROUTE_CONFIDENCE, snapshot.restockCost)
 			Price(route)
@@ -1016,14 +1038,16 @@ function Model.PlanRoute(snapshot)
 	return Planner(snapshot).Budget()
 end
 
--- Reach comes first, then a pin the resulting route uses, then savings for equal endpoints.
+-- Reach comes first, then a pin the resulting route uses, then fewer steps waiting on an auction price, then savings
+-- for equal endpoints.
 -- Each candidate is a separate purchase, charged exactly once.
 ---@param planner SkillUpPlanner
 ---@param services SkillUpService[]
 ---@return {recipeID: integer, savings: number, reachedSkill: number}?
 local function Recommend(planner, services)
 	local baseline, picked = planner.Route()
-	local best, bestPreference
+	local baseWaiting = planner.Waiting(baseline)
+	local best, bestPreference, bestWaiting
 	for _, service in ipairs(services) do
 		local route = planner.Changes(service, picked) and planner.Route(service) or baseline
 		local preference = 0
@@ -1034,8 +1058,16 @@ local function Recommend(planner, services)
 			end
 		end
 		local savings = baseline.expectedCost - (route.expectedCost + service.fee)
+		-- A step waiting on an auction price adds nothing to expectedCost, so at equal reach the route with fewer of
+		-- them is the better known one before savings are compared (#855). With none, this is the savings rule.
+		local waiting = planner.Waiting(route, service)
+		local fewerWaiting = waiting < baseWaiting
+		local sameWaiting = waiting == baseWaiting
 		local helps = route.reachedSkill > baseline.reachedSkill
-			or (route.reachedSkill == baseline.reachedSkill and (savings > 0 or preference > 0))
+			or (
+				route.reachedSkill == baseline.reachedSkill
+				and (preference > 0 or fewerWaiting or (sameWaiting and savings > 0))
+			)
 		if
 			helps
 			and (
@@ -1048,8 +1080,14 @@ local function Recommend(planner, services)
 						or (
 							preference == bestPreference
 							and (
-								savings > best.savings
-								or (savings == best.savings and service.recipeID < best.recipeID)
+								waiting < bestWaiting
+								or (
+									waiting == bestWaiting
+									and (
+										savings > best.savings
+										or (savings == best.savings and service.recipeID < best.recipeID)
+									)
+								)
 							)
 						)
 					)
@@ -1057,7 +1095,7 @@ local function Recommend(planner, services)
 			)
 		then
 			best = { recipeID = service.recipeID, savings = savings, reachedSkill = route.reachedSkill }
-			bestPreference = preference
+			bestPreference, bestWaiting = preference, waiting
 		end
 	end
 	return best

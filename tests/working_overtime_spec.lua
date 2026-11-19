@@ -1,5 +1,6 @@
 -- Run from the repository root: luajit tests/working_overtime_spec.lua
--- Tests the optional additive estimate, not the server probability law.
+-- Tests the optional additive estimate, not the server probability law. The estimate is off by default (#741); this
+-- character turned it on after that default reached them.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
@@ -15,6 +16,7 @@ local WORKING_OVERTIME_NODE = 110290
 local CONFIG = 621140
 local CLOAK = 1001
 local c = Client.load({
+	saved = { includeWorkingOvertime = true, workingOvertimeOffSeen = true },
 	data = {
 		Thresholds = { [CLOAK] = { 1, 40, 55, 70 } },
 	},
@@ -77,7 +79,7 @@ for _, key in ipairs({ "plans", "trackedNeeds", "api", "recipeList" }) do
 		stale[key] = (stale[key] or 0) + 1
 	end)
 end
-equal(ns.db.includeWorkingOvertime, true, "existing behavior remains the default")
+equal(ns.db.includeWorkingOvertime, true, "an on chosen after the off default stays on")
 for _, rank in ipairs({ 0, 1, 5 }) do
 	node.activeRank, node.currentRank = rank, rank
 	c.Fire("TRAIT_NODE_CHANGED", WORKING_OVERTIME_NODE)

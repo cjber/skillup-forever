@@ -1128,6 +1128,9 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- The saved journal and log are core's now, under the same table: what SafeCall recorded before this line (the
 	-- client's own early errors) arrives with it, and a /reload keeps it.
 	ns.core.Attach(SkillUpForeverDB)
+	-- /skillup opens these, so they register before any step below can fail on a player's own setup and leave the
+	-- command silent (#866).
+	ns.RegisterSettings()
 	ns.NoteBuild()
 	ReadChanceBonus()
 	ns.InitCatalogue()
@@ -1143,7 +1146,6 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	ns.WhenEvent("TRAIT_NODE_CHANGED", TalentChanged)
 	ns.InitLive()
 	ns.InitPrices()
-	ns.RegisterSettings()
 	ns.AttachItemTooltips()
 	ns.InitShopping()
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Professions", ns.AttachRecipeList)

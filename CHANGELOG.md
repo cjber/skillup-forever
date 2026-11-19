@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.5] - 2026-11-19
+
+### Fixed
+
+- **/skillup always answers.** If one part of SkillUp failed to start on your setup, /skillup did nothing at all. The settings now load first, so /skillup opens them even then. When SkillUp cannot start because ForeverCore is missing, turned off or out of date, /skillup now repeats the line that says how to fix it instead of "Unknown command". Thanks to the player who reported it on CurseForge (#866).
+
 ## [1.14.4] - 2026-11-19
 
 ### Fixed

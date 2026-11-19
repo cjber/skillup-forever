@@ -3,6 +3,8 @@
 -- own setup must not leave the command silent (#866).
 local Client = dofile("tests/client.lua")
 
+-- InitCatalogue, InitLive and InitPrices ran before the settings until #866; the steps after them keep any later move
+-- of the settings from slipping behind a step that can fail.
 for _, step in ipairs({ "InitCatalogue", "InitLive", "InitPrices", "AttachItemTooltips", "InitShopping" }) do
 	-- The files load as shipped; only that step's call raises, before the addon's ADDON_LOADED runs.
 	local c = Client.load({ boot = false })

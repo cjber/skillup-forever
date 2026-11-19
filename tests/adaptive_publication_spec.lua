@@ -461,10 +461,10 @@ for _, frame in ipairs(c.frames) do
 		solver = frame
 	end
 end
-local reads = 0
+local movedReads = 0
 assert(ns.RouteDemand.ConfigureSupply(197, function()
-	reads = reads + 1
-	if reads == 1 then
+	movedReads = movedReads + 1
+	if movedReads == 1 then
 		ns.Model.SetChanceBonus(0.03)
 	end
 	return nil
@@ -475,7 +475,7 @@ for _ = 1, 100 do
 	end
 	solver.scripts.OnUpdate(solver, 0)
 end
-equal(reads, 2, "a revision moved inside the solver frame is revoked before it sleeps")
+equal(movedReads, 2, "a revision moved inside the solver frame is revoked before it sleeps")
 equal(solver:IsShown(), false, "the solver frame sleeps once the moved revision is handled")
 ns.RouteDemand.ConfigureSupply(197, nil)
 ns.Model.SetChanceBonus(0)

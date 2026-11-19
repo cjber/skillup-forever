@@ -1,39 +1,27 @@
 {
-  "input_digest": "f551bab3777968a5367615d7fd7fc14557b1e237ef145b99cce2135bc5c122cb",
-  "runtime_sha256": "f551bab3777968a5367615d7fd7fc14557b1e237ef145b99cce2135bc5c122cb",
-  "candidate": "d2dc509e6427046291fadc8905a54bbb736fb90c525fddf7220fdfc7b3c0f8c5",
+  "input_digest": "229033ab9e2e56990091faa01be5198cf1773bc640e83219df44ded23a220e30",
+  "runtime_sha256": "229033ab9e2e56990091faa01be5198cf1773bc640e83219df44ded23a220e30",
+  "candidate": "86e566ee3baa1124646f7a953bcf3b17abc7d6161f69cd126695efce28155e7a",
   "client_build": "1.60.1.70959 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "93568c3849a14215a3cb611bebe7450e7b5a1c50",
+  "source_commit": "18f65af00bb0f94db09d116247b4b1b22807bb68",
   "flows": [
     {
-      "name": "recipes",
+      "name": "settings",
       "steps": [
-        "sha256:68d17dd92b9caaf95dea549faa0c00d07e9b24fc31fe52402dd673e7c1e8b56e recipes.lua"
+        "sha256:ebd4f271a78f6551862140b9a9775e28edb97fdaa90ac7a4b467ffc7b81b4277 settings.lua"
       ],
       "inputs": [
         {
-          "type": "/cast Leatherworking"
+          "type": "/skillup"
         }
       ],
       "result": "pass"
     },
     {
-      "name": "route",
+      "name": "profession",
       "steps": [
-        "sha256:b4a5178872a8566e433ca44b99df2ba20ba8d460976c5df173e630f5ba4f9ce5 route.lua"
-      ],
-      "inputs": [
-        {
-          "type": "/cast Leatherworking"
-        }
-      ],
-      "result": "pass"
-    },
-    {
-      "name": "shopping",
-      "steps": [
-        "sha256:86d2e9506c8ca6bc459c4627fac56667cdcc27325ad3a90d20eece242fc7706f shopping.lua"
+        "sha256:08f1513879d4e12cabc7774b904d6a72de537bc2670df788d13bdcd174eefdb5 profession.lua"
       ],
       "inputs": [
         {
@@ -45,16 +33,12 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/6596343f77e942699432d0775d850526/raw/81358481e73efd646574fc2a93985d2835ffdea6/1-recipes.png",
-      "sha256": "a8d18f3a904ad5b0746a7450acdc2ab263a064c194efe5b9b30ae2f5ce5c3155"
+      "url": "https://gist.githubusercontent.com/cjber/ffc5c367b262e1a50de020efba5a0fa1/raw/d484ba7d7bbc4ebec45574a108ed639ad784f62d/1-settings.png",
+      "sha256": "62f78179504b0a1c0762fd4eb0889cd5288771584d7190c0ea0dd8041a30d559"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/6596343f77e942699432d0775d850526/raw/81358481e73efd646574fc2a93985d2835ffdea6/2-route.png",
-      "sha256": "15176a9477e51c9602826dd60c15972d269eaa0e13f24cb9031c691014a049f8"
-    },
-    {
-      "url": "https://gist.githubusercontent.com/cjber/6596343f77e942699432d0775d850526/raw/81358481e73efd646574fc2a93985d2835ffdea6/3-shopping.png",
-      "sha256": "8ab2e826b77fdd8aec24187a662d5f88e5f08bba4821775affa4a5a872fa35d5"
+      "url": "https://gist.githubusercontent.com/cjber/ffc5c367b262e1a50de020efba5a0fa1/raw/d484ba7d7bbc4ebec45574a108ed639ad784f62d/2-profession.png",
+      "sha256": "d1b77baeb0b5ceead11cd642519a2ca5abe3869c3949f09df8d263769ca018b1"
     }
   ]
 }

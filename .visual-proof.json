@@ -1,44 +1,38 @@
 {
-  "input_digest": "82035c493f95787f27c7b252ae235c1335775a70f327c89f371c91b23bc077af",
-  "runtime_sha256": "82035c493f95787f27c7b252ae235c1335775a70f327c89f371c91b23bc077af",
-  "candidate": "3b4052632f32be2ea40ebc6628ce45dbe97934613c6fa73fd1be9bd0bb349246",
+  "input_digest": "1db77f89745444d6d9635d24d424c815bc18a54fda5c4342ec085b64fe5b0de7",
+  "runtime_sha256": "1db77f89745444d6d9635d24d424c815bc18a54fda5c4342ec085b64fe5b0de7",
+  "candidate": "b08b91c89da54fde99530bb790a66ba616d3200d546a0a03a173931abb65e67b",
   "client_build": "1.60.1.70959 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "6daf4667e2d25ec25327974a5a861d9c2f9c68ff",
+  "source_commit": "2ef668dd7801cd52f726fbd7194b7ec251961fa8",
   "flows": [
     {
       "name": "settings",
       "steps": [
-        "sha256:ebd4f271a78f6551862140b9a9775e28edb97fdaa90ac7a4b467ffc7b81b4277 settings.lua"
-      ],
-      "inputs": [
-        {
-          "type": "/skillup"
-        }
+        "/skillup"
       ],
       "result": "pass"
     },
     {
-      "name": "profession",
+      "name": "route",
       "steps": [
-        "sha256:08f1513879d4e12cabc7774b904d6a72de537bc2670df788d13bdcd174eefdb5 profession.lua"
+        "/cast Cooking"
       ],
-      "inputs": [
-        {
-          "type": "/cast Leatherworking"
-        }
+      "click": [
+        748,
+        505
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/385ad0df091d038904c291c89e574906/raw/dbf97249f10216ee7ce5799324b8e382f7f72764/1-settings.png",
-      "sha256": "e0f4bb8f6f0316c2bd681ade183724b26bcce4b931a713af18881719a2a9bc47"
+      "url": "https://gist.githubusercontent.com/cjber/0a19f59169d6ef15de959a3964fc1cd0/raw/0e6d6ce00bf8d0b5c1c6263346ae2bf91f1d7d99/1-settings.png",
+      "sha256": "c9f3799a98d51dbf6fee94a5dee5761176d391cd526e851e166306a3e5f2d273"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/385ad0df091d038904c291c89e574906/raw/dbf97249f10216ee7ce5799324b8e382f7f72764/2-profession.png",
-      "sha256": "d647c02224aea61450dde0526ce9b77429d1554fb4c8e5419bc3dbd4556e92b9"
+      "url": "https://gist.githubusercontent.com/cjber/0a19f59169d6ef15de959a3964fc1cd0/raw/0e6d6ce00bf8d0b5c1c6263346ae2bf91f1d7d99/2-route.png",
+      "sha256": "167607649e3c008dbaa1c006b5fb6bbc95fa5b87277dfe25aafc11d3ae5d9555"
     }
   ]
 }

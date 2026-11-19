@@ -10,6 +10,13 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.6] - 2026-11-19
+
+### Fixed
+
+- **Notes on the Route page show in full.** The notes about estimates, spares and the Auctionator list wrap onto a second line instead of being cut off with "...".
+- **Hiding the tracked professions section works.** "Hide this section" and the settings switch now hide the section at once, whether it is open or collapsed.
+
 ## [1.14.5] - 2026-11-19
 
 ### Fixed

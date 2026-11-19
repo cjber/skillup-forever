@@ -656,7 +656,8 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Ningún instructor de tu facción enseña esta receta." -- mt
 L["%s (level %d)"] = "%s (nivel %d)" -- mt
 
-L["Notes on the Route page show in full."] = "Las notas de la página de ruta se muestran completas." -- mt
+L["The supply solver no longer runs every frame while idle."] =
+	"El calculador de suministros ya no se ejecuta en cada fotograma cuando está inactivo." -- mt
 
 L["Highest craft profit"] = "Mayor beneficio por fabricación" -- mt
 

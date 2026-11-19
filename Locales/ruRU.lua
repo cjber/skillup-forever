@@ -706,8 +706,8 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["Notes on the Route page show in full."] =
-	"Заметки на странице маршрута показываются полностью." -- mt
+L["The supply solver no longer runs every frame while idle."] =
+	"Расчёт запасов больше не выполняется каждый кадр в простое." -- mt
 
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 

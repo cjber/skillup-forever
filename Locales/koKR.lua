@@ -664,7 +664,8 @@ L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt
 
-L["Notes on the Route page show in full."] = "경로 페이지의 메모가 전부 표시됩니다." -- mt
+L["The supply solver no longer runs every frame while idle."] =
+	"공급 계산기가 유휴 상태에서 더 이상 매 프레임 실행되지 않습니다." -- mt
 
 L["Highest craft profit"] = "제작당 최고 이익" -- mt
 

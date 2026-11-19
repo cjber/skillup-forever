@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.7] - 2026-11-19
+
+### Fixed
+
+- **The supply solver no longer runs every frame while idle.** It wakes when prices, bags, money, recipes, talents or a route's configuration change, and stops updating once that work is done, instead of checking for changes on every frame of the session.
+
 ## [1.14.6] - 2026-11-19
 
 ### Fixed

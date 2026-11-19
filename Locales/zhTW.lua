@@ -644,7 +644,7 @@ L["Apply policy"] = "套用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的陣營沒有訓練師教授這個配方。" -- mt
 L["%s (level %d)"] = "%s（等級 %d）" -- mt
 
-L["Notes on the Route page show in full."] = "路線頁面上的說明會完整顯示。" -- mt
+L["The supply solver no longer runs every frame while idle."] = "供應計算器閒置時不再每幀執行。" -- mt
 
 L["Highest craft profit"] = "單次製作利潤最高" -- mt
 

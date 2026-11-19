@@ -20,6 +20,7 @@ SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in th
 - Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) is not confirmed as added points or a multiplier, so the estimate is off by default; turn on Include Working Overtime estimate to see the additive reading.
 - With a controller, closing the Professions window while a SkillUp sort or the unlearned list is on can report a blocked action. It does no harm; reopen the window to carry on.
+- With two professions tracked that share reagents, the shopping list can count the same bag items for both.
 
 <p align="center"><img src="https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif" width="640" alt="Leatherworking levelling from 48 to 60 in the Professions window"></p>
 

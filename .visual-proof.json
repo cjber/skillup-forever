@@ -1,10 +1,10 @@
 {
-  "input_digest": "b8cb5970d4191e917520abca78b40258fbcde6b06d2f929f2108df3f7627a434",
-  "runtime_sha256": "b8cb5970d4191e917520abca78b40258fbcde6b06d2f929f2108df3f7627a434",
-  "candidate": "37220acbd46cc30fb35361a7de24559d83f8fe6b3d28afcf9f6ddc2eb8c56e34",
+  "input_digest": "81185be726c9d239dadfff20cbcd1333b179f41a2579ef9bee19602f63253174",
+  "runtime_sha256": "81185be726c9d239dadfff20cbcd1333b179f41a2579ef9bee19602f63253174",
+  "candidate": "bb379675b971e35f12c1fd3c56037ca474313d60b755ee6e34f7cdebff09ff3c",
   "client_build": "1.60.1.70959 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "67aa560a3669982cf0d02907aba6f3c70ce6adff",
+  "source_commit": "5199529ead52260efc1dbab96c16383ac3f097a5",
   "flows": [
     {
       "name": "settings",
@@ -27,12 +27,12 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/d06a731aa4cf2edee2aa9b94e36cd792/raw/e4276b739b56925de90f88ebbb95400ea25fec01/1-settings.png",
-      "sha256": "17a1d218c4be195c15cce1da7904147401f4bf99ed624e1b2e026e23ae06f987"
+      "url": "https://gist.githubusercontent.com/cjber/a2f742c48cd87d874025745aafa21b0c/raw/725122ecaaa44416e47b10d3fe38dbd949412c6c/1-settings.png",
+      "sha256": "e41936f7f4444e081aae86d5f2692f3c38bc037b6591fa361098ae7c98548c23"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/d06a731aa4cf2edee2aa9b94e36cd792/raw/e4276b739b56925de90f88ebbb95400ea25fec01/2-route.png",
-      "sha256": "fa69836f37dc9842167101a273d4529e587c89b2b35b3d13d58020c829200e2b"
+      "url": "https://gist.githubusercontent.com/cjber/a2f742c48cd87d874025745aafa21b0c/raw/725122ecaaa44416e47b10d3fe38dbd949412c6c/2-route.png",
+      "sha256": "e1d85c4cf1f292ca69c6831d69501c0c0348e697eb316918ef21041b6d06bf36"
     }
   ]
 }

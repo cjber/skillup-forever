@@ -1,38 +1,44 @@
 {
-  "input_digest": "9645d463dcd455bb14827b3f1517784a706131f82324806a8363a1eea22a24a9",
-  "runtime_sha256": "9645d463dcd455bb14827b3f1517784a706131f82324806a8363a1eea22a24a9",
-  "candidate": "2caf4868562cb90deaa34b57d730402c90c4f15a2fedf076ab71543f78e8c38f",
+  "input_digest": "82035c493f95787f27c7b252ae235c1335775a70f327c89f371c91b23bc077af",
+  "runtime_sha256": "82035c493f95787f27c7b252ae235c1335775a70f327c89f371c91b23bc077af",
+  "candidate": "3b4052632f32be2ea40ebc6628ce45dbe97934613c6fa73fd1be9bd0bb349246",
   "client_build": "1.60.1.70959 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "e5c0df33508ad8f8acb295680f5581841d4bc33c",
+  "source_commit": "6daf4667e2d25ec25327974a5a861d9c2f9c68ff",
   "flows": [
     {
-      "name": "professions",
+      "name": "settings",
       "steps": [
-        "sha256:07ce11da525e0711a7017479e96fded9d34fbe7e9be073692394c4d4d2ac38b7 professions.lua"
+        "sha256:ebd4f271a78f6551862140b9a9775e28edb97fdaa90ac7a4b467ffc7b81b4277 settings.lua"
       ],
-      "click": [
-        960,
-        402
+      "inputs": [
+        {
+          "type": "/skillup"
+        }
       ],
       "result": "pass"
     },
     {
-      "name": "settings",
+      "name": "profession",
       "steps": [
-        "sha256:652c68e115e699a4574d57f388c748af98df00cac703201fc8d05f3b1392a10e settings.lua"
+        "sha256:08f1513879d4e12cabc7774b904d6a72de537bc2670df788d13bdcd174eefdb5 profession.lua"
+      ],
+      "inputs": [
+        {
+          "type": "/cast Leatherworking"
+        }
       ],
       "result": "pass"
     }
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/8dc1ec2b15e368d7b412e299cf1ff86e/raw/5ce22d8117dd3ceba88504b429530623e27214d7/1-professions.png",
-      "sha256": "91e42cfdbcd0e77b82f6f8ae813dff3080700a87108fdd7a1aed1befc4ea2fca"
+      "url": "https://gist.githubusercontent.com/cjber/385ad0df091d038904c291c89e574906/raw/dbf97249f10216ee7ce5799324b8e382f7f72764/1-settings.png",
+      "sha256": "e0f4bb8f6f0316c2bd681ade183724b26bcce4b931a713af18881719a2a9bc47"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/8dc1ec2b15e368d7b412e299cf1ff86e/raw/5ce22d8117dd3ceba88504b429530623e27214d7/2-settings.png",
-      "sha256": "c9f84f787f1c81e3e44798b02366e1f9fd5a789369a65d4965b6eebfe74297c5"
+      "url": "https://gist.githubusercontent.com/cjber/385ad0df091d038904c291c89e574906/raw/dbf97249f10216ee7ce5799324b8e382f7f72764/2-profession.png",
+      "sha256": "d647c02224aea61450dde0526ce9b77429d1554fb4c8e5419bc3dbd4556e92b9"
     }
   ]
 }

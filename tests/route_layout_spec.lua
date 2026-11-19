@@ -557,6 +557,10 @@ local ns = {
 	AuctionListName = function(profession)
 		return "SkillUp: " .. profession
 	end,
+	-- The fixture gathers, so SkillUp keeps no Auctionator list for it.
+	KeptAuctionList = function()
+		return nil
+	end,
 	ShowRecipe = noop,
 	TrackerAttached = function()
 		return true

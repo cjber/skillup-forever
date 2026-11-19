@@ -38,7 +38,9 @@ local function Font()
 	function font:IsShown()
 		return self.shown
 	end
-	function font.SetWidth() end
+	function font:SetWidth(width)
+		self.width = width
+	end
 	function font.SetJustifyH() end
 	function font.SetTextColor() end
 	function font.ClearAllPoints() end
@@ -432,6 +434,7 @@ local function Row()
 	return row
 end
 local row = Row()
+row.Label.width = 250 -- what the client's Init left the name: more than the row has once our text is in
 decorate(ns, row, {
 	GetData = function()
 		return {
@@ -450,7 +453,11 @@ decorate(ns, row, {
 		}
 	end,
 })
-assert(row:GetText().text == "Not learned · Trainer 60", "the row says where and at what skill")
+-- The Unlearned divider already says the row is not learned, so the row gives its width to the name (#854).
+assert(row:GetText().text == "Trainer 60", "the row says only where and at what skill")
+-- The name keeps the row less the skill-up column, the source text and the gap: 276 - 26 - 60 - 14. With the old
+-- "Not learned · " prefix it was cut to 86.
+assert(row.Label:GetWidth() == 176, "the recipe name gets the width the prefix took")
 assert(row.Count.shown == false, "an unlearned row has no craftable count")
 assert(row.mouse == false, "the native recipe row takes no click")
 assert(previewRows[row] and previewRows[row].recipeInfo.recipeID == 20, "the preview gets the unlearned record")
@@ -468,7 +475,7 @@ assert(previewRows[row] == learnedData, "the preview gets the record after a row
 assert(row.motion == true, "and keeps mouse motion")
 assert(row:GetText().text == "50%", "and shows the skill-up text")
 
--- With the row text off, an unlearned row still says it is not learned.
+-- With the row text off, an unlearned row still says where it is learned.
 ns.db.showRowText = false
 decorate(ns, row, {
 	GetData = function()
@@ -488,7 +495,7 @@ decorate(ns, row, {
 		}
 	end,
 })
-assert(row:GetText().shown and row:GetText().text == "Not learned · Recipe item 80", "the marker stays")
+assert(row:GetText().shown and row:GetText().text == "Recipe item 80", "the source stays")
 assert(previewRows[row] and previewRows[row].recipeInfo.recipeID == 30, "the preview gets the new unlearned record")
 
 print("unlearned_list_spec: setting, categories, dedupe, width, marker, source and click: ok")

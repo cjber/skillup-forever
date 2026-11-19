@@ -598,6 +598,22 @@ local function WithSaleFloor(itemID, cost)
 	return cost
 end
 
+-- Whether `recipeID` may make an intermediate: learned, not set aside with "Not this recipe", and with an output
+-- and reagents the data names. Both the market choice here and the planner's held inputs (#858) ask this.
+---@param recipeID integer
+---@return boolean
+local function UsableMaker(recipeID)
+	local quantity, reagents = OutputQuantity(recipeID), ns.Reagents(recipeID)
+	local skipped = ns.IsSkipped ~= nil and ns.IsSkipped(recipeID)
+	return ns.IsLearned(recipeID)
+		and not skipped
+		and quantity ~= nil
+		and quantity > 0
+		and reagents ~= nil
+		and #reagents > 0
+end
+ns.UsableMaker = UsableMaker
+
 ---@param itemID integer
 ---@param depth integer
 ---@param stack table<integer, true>?
@@ -624,9 +640,8 @@ local function ObtainCost(itemID, depth, stack)
 	local bestRecipe = nil
 	stack[itemID] = true
 	for _, recipeID in ipairs(MakersOf(itemID)) do
-		local quantity, reagents = OutputQuantity(recipeID), ns.Reagents(recipeID)
-		local skipped = ns.IsSkipped ~= nil and ns.IsSkipped(recipeID)
-		if ns.IsLearned(recipeID) and not skipped and quantity and quantity > 0 and reagents and #reagents > 0 then
+		if UsableMaker(recipeID) then
+			local quantity, reagents = assert(OutputQuantity(recipeID)), ns.Reagents(recipeID) or {}
 			---@type number?
 			local total = 0
 			for _, reagent in ipairs(reagents) do

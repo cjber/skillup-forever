@@ -133,8 +133,8 @@ ns.TITLE = "SkillUp Forever"
 -- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
 -- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
 -- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
-ns.WHATS_NEW_VERSION = "1.14.3"
-ns.WHATS_NEW = L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."]
+ns.WHATS_NEW_VERSION = "1.14.5"
+ns.WHATS_NEW = L["/skillup always answers."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {
@@ -1128,6 +1128,9 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	-- The saved journal and log are core's now, under the same table: what SafeCall recorded before this line (the
 	-- client's own early errors) arrives with it, and a /reload keeps it.
 	ns.core.Attach(SkillUpForeverDB)
+	-- /skillup opens these, so they register before any step below can fail on a player's own setup and leave the
+	-- command silent (#866).
+	ns.RegisterSettings()
 	ns.NoteBuild()
 	ReadChanceBonus()
 	ns.InitCatalogue()
@@ -1143,7 +1146,6 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	ns.WhenEvent("TRAIT_NODE_CHANGED", TalentChanged)
 	ns.InitLive()
 	ns.InitPrices()
-	ns.RegisterSettings()
 	ns.AttachItemTooltips()
 	ns.InitShopping()
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Professions", ns.AttachRecipeList)

@@ -264,6 +264,15 @@ page = {
 	IsTracked = function()
 		return page.tracked == true
 	end,
+	-- UI/Shopping.lua's predicate, read from the same stubs; shopping_spec checks it against the lists it writes.
+	KeptAuctionList = function(_, profession)
+		return page.tracked == true
+				and page.HasAuctionator()
+				and page.collectMode == "auction"
+				and not page.identityMissing
+				and ("SkillUp: Tester-Realm: " .. profession)
+			or nil
+	end,
 	CreateList = function()
 		local list = { rows = {}, scrollBox = Stub() }
 		function list:Add(row)
@@ -988,11 +997,20 @@ equal(
 	"an unread scan option says nothing"
 )
 
--- The reagent list names the Auctionator shopping list it keeps up to date.
+-- The reagent list names the Auctionator shopping list only once tracking the route keeps one (#860).
 page.HasAuctionator = function()
 	return true
 end
 page.collectMode = "auction"
+lists[2].messages = {}
+eventFrame:Event("BAG_UPDATE_DELAYED")
+Drain()
+equal(
+	table.concat(lists[2].messages, " | "):find("Kept in the Auctionator list", 1, true),
+	nil,
+	"an untracked route names no Auctionator list: none is kept for it"
+)
+page.tracked = true
 lists[2].messages = {}
 eventFrame:Event("BAG_UPDATE_DELAYED")
 Drain()
@@ -1013,6 +1031,7 @@ equal(
 	"an unknown character has no saved-list message"
 )
 page.identityMissing = nil
+page.tracked = nil
 page.HasAuctionator = function()
 	return false
 end

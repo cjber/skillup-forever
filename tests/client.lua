@@ -826,6 +826,11 @@ function Client.load(options)
 	G.UIParent = NewFrame("UIParent")
 	G.UIParent:SetPoint("CENTER")
 	G.ObjectiveTrackerFrame = NewFrame("ObjectiveTrackerFrame")
+	-- The client's tracker container answers whether the player collapsed it to its header; ForeverCore reads it to
+	-- place its column under the tracker's last visible line.
+	G.ObjectiveTrackerFrame.IsCollapsed = function()
+		return false
+	end
 	G.MerchantFrame = NewFrame("MerchantFrame")
 	G.MerchantFrame.IsShown = function()
 		return c.merchant ~= nil

@@ -17,6 +17,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 - **Notes on the Route page show in full.** The notes about estimates, spares and the Auctionator list wrap onto a second line instead of being cut off with "...".
 - **Hiding the tracked professions section works.** "Hide this section" and the settings switch now hide the section at once, whether it is open or collapsed.
 
+### Changed
+
+- Ships with ForeverCore 1.15.3, the same shared code as your other Forever addons, so they keep working together.
+
 ## [1.14.5] - 2026-11-19
 
 ### Fixed

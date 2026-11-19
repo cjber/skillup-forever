@@ -97,9 +97,12 @@ scenario("the reagent tracker shares its show switch and opens the target profes
 		end
 	end
 	assert(tracker, "core adds its Tracker submenu")
-	sim:click(tracker)
+	-- Core's Tracker entry is a submenu: resting on it opens the next level beside it.
+	sim:hover(tracker)
+	sim:advance(0.5)
+	local submenu = assert(G.ForeverCoreContextMenu2, "the Tracker submenu opens on hover")
 	local hide
-	for _, row in ipairs(popup.rows) do
+	for _, row in ipairs(submenu.rows) do
 		if row:IsShown() and row:GetText() == "Hide this section" then
 			count = count + 1
 			hide = row

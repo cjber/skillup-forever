@@ -652,8 +652,7 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Nenhum instrutor da sua facção ensina esta receita." -- mt
 L["%s (level %d)"] = "%s (nível %d)" -- mt
 
-L["Bought reagents stay in your route after a price change."] =
-	"Os reagentes comprados continuam na sua rota após uma mudança de preço." -- mt
+L["/skillup always answers."] = "/skillup sempre responde." -- mt
 
 L["Highest craft profit"] = "Maior lucro por criação" -- mt
 

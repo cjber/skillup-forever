@@ -706,8 +706,7 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["Bought reagents stay in your route after a price change."] =
-	"Купленные реагенты остаются в маршруте после изменения цены." -- mt
+L["/skillup always answers."] = "/skillup всегда отвечает." -- mt
 
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 

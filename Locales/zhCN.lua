@@ -643,8 +643,7 @@ L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
-L["Bought reagents stay in your route after a price change."] =
-	"价格变化后，已购买的材料仍保留在你的路线中。" -- mt
+L["/skillup always answers."] = "/skillup 总会响应。" -- mt
 
 L["Highest craft profit"] = "单次制造利润最高" -- mt
 

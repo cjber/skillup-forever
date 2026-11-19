@@ -664,8 +664,7 @@ L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt
 
-L["Bought reagents stay in your route after a price change."] =
-	"가격이 바뀌어도 구매한 재료가 경로에 그대로 남습니다." -- mt
+L["/skillup always answers."] = "/skillup이 항상 응답합니다." -- mt
 
 L["Highest craft profit"] = "제작당 최고 이익" -- mt
 

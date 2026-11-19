@@ -421,8 +421,10 @@ function ns.CreateList(parent)
 	local measuredWidth
 
 	-- Messages are measured at the width the list has when it is drawn. The window can settle wider or narrower
-	-- after that (ForeverCore sizes it for the selected page), so a new width measures them again (#869).
-	scrollBox:HookScript("OnSizeChanged", function()
+	-- after that (ForeverCore sizes it for the selected page), so a new width measures them again (#869). The hook
+	-- sits on the parent the scroll box is pinned to: the scroll box's own full update resets its OnSizeChanged
+	-- script, which drops any hook on it.
+	parent:HookScript("OnSizeChanged", function()
 		if #list.rows > 0 and scrollBox:GetWidth() ~= measuredWidth then
 			list:Finish()
 		end

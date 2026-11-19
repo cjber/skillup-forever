@@ -1341,25 +1341,36 @@ local messages = 0
 for _, row in ipairs(page.RouteList.scrollBox.frames) do
 	if row.kind == "message" then
 		messages = messages + 1
+		local hung = {}
 		for _, anchor in ipairs(row.Text.points) do
-			equal(anchor.point:find("^TOP") ~= nil, true, "a note line hangs from the row's top, not its middle")
+			hung[#hung + 1] = anchor.point
 		end
+		table.sort(hung)
+		equal(
+			table.concat(hung, " "),
+			"TOPLEFT TOPRIGHT",
+			"a note line hangs from the row's top corners, not its middle"
+		)
 	end
 end
 equal(messages > 0, true, "the route draws its note lines")
 
--- And a new list width measures the note lines again, since their wrapped height depends on it.
+-- And a new list width measures the note lines again, since their wrapped height depends on it. The client's
+-- scroll box resets its own OnSizeChanged script on every full update, so the list listens on the parent it is
+-- pinned to.
 local box = page.RouteList.scrollBox
+local inset = box.points[1].relative
+box.scripts.OnSizeChanged = nil
 local redraws = 0
 local SetDataProvider = box.SetDataProvider
 box.SetDataProvider = function(...)
 	redraws = redraws + 1
 	return SetDataProvider(...)
 end
-box.scripts.OnSizeChanged(box)
+inset.scripts.OnSizeChanged(inset)
 equal(redraws, 0, "the same width keeps the list as it is")
 ProfessionsFrame:SetWidth(ProfessionsFrame.width - 100)
-box.scripts.OnSizeChanged(box)
+inset.scripts.OnSizeChanged(inset)
 equal(redraws, 1, "a narrower list measures its note lines again")
 box.SetDataProvider = SetDataProvider
 ProfessionsFrame:SetWidth(ProfessionsFrame.width + 100)

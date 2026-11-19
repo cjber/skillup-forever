@@ -1259,7 +1259,9 @@ supplyFrame:SetScript("OnUpdate", function()
 			ns.Changed("supply")
 		end
 	end
-	local pending = false
+	-- A reader can move the chance revision inside this handler, after the check above; its wake finds the frame
+	-- already shown, so the frame stays up to revoke that revision on the next frame.
+	local pending = ns.Model.ChanceRevision() ~= supplyRevision
 	for _, config in pairs(configured) do
 		pending = pending or config.dirty == true
 	end

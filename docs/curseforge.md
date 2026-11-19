@@ -12,6 +12,7 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 - Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) is not confirmed as added points or a multiplier, so the estimate is off by default; turn on Include Working Overtime estimate to see the additive reading.
 - With a controller, closing the window under a SkillUp sort can report a harmless blocked action.
+- With two professions tracked that share reagents, the shopping list can count the same bag items for both.
 
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)
 

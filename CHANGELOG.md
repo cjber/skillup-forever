@@ -10,6 +10,16 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.4] - 2026-11-19
+
+### Fixed
+
+- **Bought reagents stay in your route after a price change.** When the auction house price of an intermediate such as Light Leather moved, the route stopped crafting it from the Ruined Leather Scraps you had already bought and asked for new materials instead. Now the route makes that intermediate from what you hold first, and only asks you to buy the rest. Thanks to the player who reported it on CurseForge (#858).
+- **Unlearned recipes show their full names.** Rows under the Unlearned divider now say only where and at what skill you learn the recipe, such as "Trainer 60" or "Recipe item 65", so long names are no longer cut short. The recipe's tooltip still says "Not learned". Thanks to the player who suggested it on CurseForge (#854).
+- **SkillUp names an Auctionator list only when it keeps one.** The route page, the shopping list and the auction house search tooltip could name a "SkillUp:" Auctionator list for a route you weren't tracking, or with auction search off, when no such list existed. Track a route with Buy reagents on and its list appears (#860).
+- **The SkillUp tab stays under the game's profession tabs.** Another addon's frame at the bottom right of the Professions window no longer pulls the tab to the bottom of the window or off screen. Thanks to the players who reported it on CurseForge (cjber/forever-core#862, Refs #807).
+- **The Forever tracker column sits under the quest tracker** and follows it as quests come and go, moving left of it only when there is no room below. Right-click a Forever section and pick Tracker position to choose (cjber/forever-core#850).
+
 ## [1.14.3] - 2026-11-18
 
 ### Fixed

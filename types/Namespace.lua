@@ -174,7 +174,8 @@
 ---@field DetailsBarRoom fun(form: SkillUpSchematicForm, anchor: FontString, height: number): boolean? whether the pane leaves the bar its room, nil before it is laid out
 ---@field AuctionatorAutoscan fun(): boolean?
 ---@field AuctionListName fun(profession: string): string?
----@field AuctionListNote fun(names: string[]?): string what the Shopping list and the Search tooltip say about the list
+---@field AuctionListNote fun(names: string[]?): string? what the Shopping list and the Search tooltip say about the list
+---@field KeptAuctionList fun(skillLine: integer?, profession: string): string? the list SkillUp keeps for a route
 ---@field Have fun(itemID: integer): number
 ---@field Readable fun(value: any): any
 ---@field Usable fun(frame?: Frame): boolean

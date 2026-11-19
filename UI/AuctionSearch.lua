@@ -252,8 +252,13 @@ local function ShowSearchTooltip(button)
 	elseif #short > 0 then
 		local recipe = ns.RecipeData[recipeID]
 		local profession = recipe and ns.RouteProfessions()[recipe.skillLine]
-		local listName = profession and ns.AuctionListName(profession.name)
-		GameTooltip_AddNormalLine(GameTooltip, ns.AuctionListNote(listName and { listName } or nil))
+		-- The route's list when SkillUp keeps one, else the list this click writes.
+		local listName = profession and ns.KeptAuctionList(recipe.skillLine, profession.name)
+			or ns.AuctionListName("crafting")
+		local note = ns.AuctionListNote(listName and { listName } or nil)
+		if note then
+			GameTooltip_AddNormalLine(GameTooltip, note)
+		end
 	end
 	GameTooltip:Show()
 end

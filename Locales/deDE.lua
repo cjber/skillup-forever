@@ -485,7 +485,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"An (Standard): Ein Reagenz, das Ihr sammeln, fischen oder von Kreaturen erbeuten könntet, wird beim Händler oder im Auktionshaus gekauft. Aus: Es selbst zu besorgen kostet seinen Verkaufswert."
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"Umschalt + Mausrad oder Ziehen scrollt die Zeitleiste seitwärts."
-L["SkillUp's list"] = "SkillUps Liste"
 L["Timeline"] = "Zeitleiste"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"Wenn Ihr „Reagenzien kaufen“ einschaltet, wird eine Auctionator-Liste mit allen noch fehlenden Auktionsreagenzien geschrieben."
@@ -653,8 +652,8 @@ L["Apply policy"] = "Richtlinie anwenden" -- mt
 L["No trainer of your faction teaches this recipe."] = "Kein Lehrer Eurer Fraktion lehrt dieses Rezept." -- mt
 L["%s (level %d)"] = "%s (Stufe %d)" -- mt
 
-L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
-	"Routen bleiben nicht mehr leer, wenn das Auktionshaus deine Reagenzien noch nicht bepreist hat." -- mt
+L["Bought reagents stay in your route after a price change."] =
+	"Gekaufte Reagenzien bleiben nach einer Preisänderung in deiner Route." -- mt
 
 L["Highest craft profit"] = "Höchster Gewinn pro Herstellung" -- mt
 

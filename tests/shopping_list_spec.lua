@@ -387,6 +387,8 @@ local onNote = c.ns.AuctionListNote({ "SkillUp: Tester-Realm: Tailoring", "Skill
 equal(onNote:find("Auctionator list: SkillUp: Tester-Realm: Tailoring", 1, true) ~= nil, true, "it names the list")
 equal(onNote:find("Open the auction house, Shopping tab, pick it and Search", 1, true) ~= nil, true, "where it is")
 equal(onNote:find("buy each row with a click", 1, true) ~= nil, true, "and that buying stays one click a row")
+equal(c.ns.AuctionListNote({}), nil, "with no list kept there is no list to point at (#860)")
+equal(c.ns.AuctionListNote(nil), nil, "nor without names")
 local noAuctionator = Client.load({ auctionator = false, boot = false })
 equal(
 	noAuctionator.ns.AuctionListNote(nil):find("game's own auction box one reagent at a time", 1, true) ~= nil,

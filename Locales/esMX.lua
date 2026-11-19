@@ -489,7 +489,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"Activado (predeterminado): un reactivo que podrías recolectar, pescar o saquear de criaturas se compra en un vendedor o en la casa de subastas. Desactivado: conseguirlo tú mismo cuesta lo que se vendería por él."
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"Mayús + rueda, o arrastrar, desplaza la línea de tiempo lateralmente."
-L["SkillUp's list"] = "Lista de SkillUp"
 L["Timeline"] = "Línea de tiempo"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"Activar Comprar reactivos escribe una lista de Auctionator con todos los reactivos de subasta que aún faltan."
@@ -657,8 +656,8 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Ningún instructor de tu facción enseña esta receta." -- mt
 L["%s (level %d)"] = "%s (nivel %d)" -- mt
 
-L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
-	"Las rutas ya no aparecen vacías cuando la casa de subastas aún no ha puesto precio a tus componentes." -- mt
+L["Bought reagents stay in your route after a price change."] =
+	"Los componentes comprados siguen en tu ruta después de un cambio de precio." -- mt
 
 L["Highest craft profit"] = "Mayor beneficio por fabricación" -- mt
 

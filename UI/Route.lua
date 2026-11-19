@@ -1159,8 +1159,8 @@ local function Render()
 		-- The route is incomplete; the reagents it left out are named, not silently dropped.
 		RenderUnpriced(page.ReagentList, ns.UnpricedReagents(plan))
 	end
-	local listName = ns.AuctionListName(profession.name)
-	if listName and ns.HasAuctionator() and ns.CollectMode() == "auction" then
+	local listName = ns.KeptAuctionList(selected, profession.name)
+	if listName then
 		page.ReagentList:Message(string.format(L["Kept in the Auctionator list '%s'."], listName))
 	end
 	local vendorItems = VendorItems(reagents)

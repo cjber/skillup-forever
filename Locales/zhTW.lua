@@ -481,7 +481,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"開啟（預設）：你可以採集、釣魚或從生物身上剝取的試劑會從商人或拍賣場購買。關閉：自行取得花費其出售價值。"
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"按住 Shift 滾動滾輪，或拖曳，可橫向捲動時間軸。"
-L["SkillUp's list"] = "SkillUp 的清單"
 L["Timeline"] = "時間軸"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"開啟「購買試劑」會寫入一個 Auctionator 清單，包含所有仍缺少的拍賣場試劑。"
@@ -645,8 +644,8 @@ L["Apply policy"] = "套用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的陣營沒有訓練師教授這個配方。" -- mt
 L["%s (level %d)"] = "%s（等級 %d）" -- mt
 
-L["Routes no longer come up empty when the auction house hasn't priced your reagents yet."] =
-	"拍賣場尚未給出材料價格時，路線不再顯示為空。" -- mt
+L["Bought reagents stay in your route after a price change."] =
+	"價格變動後，已購買的材料仍保留在你的路線中。" -- mt
 
 L["Highest craft profit"] = "單次製作利潤最高" -- mt
 

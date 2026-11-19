@@ -192,6 +192,7 @@
 ---@field MissingToolItems fun(plan: SkillUpPlan): integer[]
 ---@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
 ---@field MakersOf fun(itemID: integer): integer[] The recipes that make the item, lowest recipe ID first.
+---@field UsableMaker fun(recipeID: integer): boolean learned, not skipped, with an output and reagents: may make an intermediate
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[]
@@ -551,6 +552,8 @@ SkillUpForeverDB = nil
 ---@field unpriced integer Known recipes left out for an unpriced reagent.
 ---@field unpricedRecipes integer[]
 ---@field stopReason? 'no_recipe'
+---@field revision? integer Bumped when a kept route's expansion changes in place, for caches keyed on the plan.
+---@field expanded? string The kept route's sub-crafts, raw and held totals at its last refresh.
 
 ---@class SkillUpShoppingItem
 ---@field itemID integer

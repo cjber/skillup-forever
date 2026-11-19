@@ -63,7 +63,6 @@ L["At the %d cap: no trainer teaches the next rank."] =
 L["At the cursor"] = "커서 위치"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"AtlasLoot가 설치되었지만 실행 중이 아닙니다: 애드온 목록에서 켜거나, 오래된 버전이면 업데이트하세요."
-L["Attach to quest tracker"] = "퀘스트 추적기에 붙이기"
 L["Auction house"] = "경매장"
 L["Auction price if higher"] = "더 높으면 경매 가격"
 L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."] =
@@ -271,8 +270,6 @@ L["Train %s at %d (level %d)"] = "%s 배우기 (%d, 레벨 %d)"
 L["Train %s first."] = "먼저 %s을(를) 배우세요."
 L["Train %s first: you're at your cap."] = "먼저 %s을(를) 배우세요: 숙련도가 최대입니다."
 L["Trinket"] = "장신구"
-L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
-	"끄면 공유 Forever 추적기를 화면 어디로든 끌 수 있습니다."
 L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"상인, 퀘스트, 전문가와 그 웨이포인트를 보려면 QuestieDB를 업데이트하세요."
 L["Used in"] = "사용처"

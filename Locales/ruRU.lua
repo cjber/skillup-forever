@@ -64,7 +64,6 @@ L["At the %d cap: no trainer teaches the next rank."] =
 L["At the cursor"] = "У курсора"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"AtlasLoot установлен, но не работает: включите его в списке модификаций или обновите, если он устарел."
-L["Attach to quest tracker"] = "Прикрепить к списку заданий"
 L["Auction house"] = "Аукционный дом"
 L["Auction price if higher"] = "Цена аукциона, если выше"
 L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."] =
@@ -282,8 +281,6 @@ L["Train %s at %d (level %d)"] = "Изучить %s на %d (уровень %d)"
 L["Train %s first."] = "Сначала изучите %s."
 L["Train %s first: you're at your cap."] = "Сначала изучите %s: вы достигли предела."
 L["Trinket"] = "Аксессуар"
-L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
-	"Выключите, чтобы перетаскивать общее окно отслеживания Forever в любое место экрана."
 L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"Обновите QuestieDB, чтобы видеть торговцев, задания и учителей с точками маршрута."
 L["Used in"] = "Используется в"

@@ -67,7 +67,6 @@ L["At the %d cap: no trainer teaches the next rank."] = "Am Maximum von %d: Kein
 L["At the cursor"] = "Am Mauszeiger"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"AtlasLoot ist installiert, läuft aber nicht: Aktiviert es in der Addon-Liste oder aktualisiert es, falls veraltet."
-L["Attach to quest tracker"] = "An Questzielverfolgung anheften"
 L["Auction house"] = "Auktionshaus"
 L["Auction price if higher"] = "Auktionspreis, falls höher"
 L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."] =
@@ -270,8 +269,6 @@ L["Train %s at %d (level %d)"] = "%s bei %d lernen (Stufe %d)"
 L["Train %s first."] = "Lernt zuerst %s."
 L["Train %s first: you're at your cap."] = "Lernt zuerst %s: Ihr seid am Maximum."
 L["Trinket"] = "Schmuck"
-L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
-	"Schaltet dies aus, um die gemeinsame Forever-Verfolgung frei zu verschieben."
 L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"Aktualisiert QuestieDB, um Händler, Quests und Lehrer mit Wegpunkten zu sehen."
 L["Used in"] = "Verwendet in"

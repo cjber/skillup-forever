@@ -142,6 +142,15 @@ local env = setmetatable({
 	end,
 }, { __index = _G })
 
+-- Core's own settings helpers, so the shared attach row is the one every Forever addon registers.
+local coreNs = {}
+for _, path in ipairs({ "Locales/enUS.lua", "UI/SettingsPage.lua", "UI/SettingsSections.lua" }) do
+	local chunk = assert(loadfile(dofile("tests/forever_core.lua").directory() .. "/" .. path), path)
+	setfenv(chunk, env)
+	chunk("ForeverCore", coreNs)
+end
+env.ForeverCore.SettingsSections = coreNs.SettingsSections
+
 local refreshed = 0
 local trackerState = { attached = true, locked = false, scale = 1 }
 local attachmentChanged
@@ -166,6 +175,7 @@ env.ForeverCore.TrackerHost = {
 		attachmentChanged = callback
 	end,
 }
+coreNs.TrackerHost = env.ForeverCore.TrackerHost
 local ns = {
 	core = {
 		SafeCall = function(_, fn, ...)

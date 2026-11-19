@@ -1,11 +1,23 @@
 {
-  "input_digest": "66373dd47de200d3efa3ee6cc7fa85e6eaf65b0a7e4f254eeb0cb2ed54f4f748",
-  "runtime_sha256": "66373dd47de200d3efa3ee6cc7fa85e6eaf65b0a7e4f254eeb0cb2ed54f4f748",
-  "candidate": "cdb1556bc372fc3656ac91d0dedc5d12bde6cfe516b613f872deb131d525d7c7",
+  "input_digest": "f551bab3777968a5367615d7fd7fc14557b1e237ef145b99cce2135bc5c122cb",
+  "runtime_sha256": "f551bab3777968a5367615d7fd7fc14557b1e237ef145b99cce2135bc5c122cb",
+  "candidate": "d2dc509e6427046291fadc8905a54bbb736fb90c525fddf7220fdfc7b3c0f8c5",
   "client_build": "1.60.1.70959 (Interface 16001)",
   "tested_artifact": "source-tree",
-  "source_commit": "76406315be84d4073c6c4ccd15e575c7e27de03c",
+  "source_commit": "93568c3849a14215a3cb611bebe7450e7b5a1c50",
   "flows": [
+    {
+      "name": "recipes",
+      "steps": [
+        "sha256:68d17dd92b9caaf95dea549faa0c00d07e9b24fc31fe52402dd673e7c1e8b56e recipes.lua"
+      ],
+      "inputs": [
+        {
+          "type": "/cast Leatherworking"
+        }
+      ],
+      "result": "pass"
+    },
     {
       "name": "route",
       "steps": [
@@ -19,9 +31,9 @@
       "result": "pass"
     },
     {
-      "name": "tracker",
+      "name": "shopping",
       "steps": [
-        "sha256:fb5d43c576a31653c69d83962954f18bf16621efa48c986dbbc0a0dbe4d4f410 tracker.lua"
+        "sha256:86d2e9506c8ca6bc459c4627fac56667cdcc27325ad3a90d20eece242fc7706f shopping.lua"
       ],
       "inputs": [
         {
@@ -33,12 +45,16 @@
   ],
   "images": [
     {
-      "url": "https://gist.githubusercontent.com/cjber/fb5fe709755896510f75f5b935c38bd2/raw/30562958b185ac2e5bab27dd8167e803e0e7a094/1-route.png",
-      "sha256": "12aa872319ed2c0c65481f8b5a5b383583dbaf99d9568e5c5d3fa056eb9bf51e"
+      "url": "https://gist.githubusercontent.com/cjber/6596343f77e942699432d0775d850526/raw/81358481e73efd646574fc2a93985d2835ffdea6/1-recipes.png",
+      "sha256": "a8d18f3a904ad5b0746a7450acdc2ab263a064c194efe5b9b30ae2f5ce5c3155"
     },
     {
-      "url": "https://gist.githubusercontent.com/cjber/fb5fe709755896510f75f5b935c38bd2/raw/30562958b185ac2e5bab27dd8167e803e0e7a094/2-tracker.png",
-      "sha256": "0ee446c970ff46503d2806fb3f2528122a1c2a21210d83a76ba4bc6f5e4a2e4b"
+      "url": "https://gist.githubusercontent.com/cjber/6596343f77e942699432d0775d850526/raw/81358481e73efd646574fc2a93985d2835ffdea6/2-route.png",
+      "sha256": "15176a9477e51c9602826dd60c15972d269eaa0e13f24cb9031c691014a049f8"
+    },
+    {
+      "url": "https://gist.githubusercontent.com/cjber/6596343f77e942699432d0775d850526/raw/81358481e73efd646574fc2a93985d2835ffdea6/3-shopping.png",
+      "sha256": "8ab2e826b77fdd8aec24187a662d5f88e5f08bba4821775affa4a5a872fa35d5"
     }
   ]
 }

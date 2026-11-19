@@ -1335,4 +1335,44 @@ equal(routeTab:IsObjectType("Button"), true, "the SkillUp side tab is a Button, 
 equal(routeBottom:IsObjectType("Button"), true, "and the route page tab is one too")
 equal(gearTab:IsObjectType("Button"), true, "and the gear page tab")
 
+-- #869: a note line wraps to its full height. The text hangs from the row's top corners only, so its own wrapped
+-- lines set its height; an anchor on the row's middle tied it to the measured row height and cut the last line.
+local messages = 0
+for _, row in ipairs(page.RouteList.scrollBox.frames) do
+	if row.kind == "message" then
+		messages = messages + 1
+		local hung = {}
+		for _, anchor in ipairs(row.Text.points) do
+			hung[#hung + 1] = anchor.point
+		end
+		table.sort(hung)
+		equal(
+			table.concat(hung, " "),
+			"TOPLEFT TOPRIGHT",
+			"a note line hangs from the row's top corners, not its middle"
+		)
+	end
+end
+equal(messages > 0, true, "the route draws its note lines")
+
+-- And a new list width measures the note lines again, since their wrapped height depends on it. The client's
+-- scroll box resets its own OnSizeChanged script on every full update, so the list listens on the parent it is
+-- pinned to.
+local box = page.RouteList.scrollBox
+local inset = box.points[1].relative
+box.scripts.OnSizeChanged = nil
+local redraws = 0
+local SetDataProvider = box.SetDataProvider
+box.SetDataProvider = function(...)
+	redraws = redraws + 1
+	return SetDataProvider(...)
+end
+inset.scripts.OnSizeChanged(inset)
+equal(redraws, 0, "the same width keeps the list as it is")
+ProfessionsFrame:SetWidth(ProfessionsFrame.width - 100)
+inset.scripts.OnSizeChanged(inset)
+equal(redraws, 1, "a narrower list measures its note lines again")
+box.SetDataProvider = SetDataProvider
+ProfessionsFrame:SetWidth(ProfessionsFrame.width + 100)
+
 Client.report("route_layout_spec")

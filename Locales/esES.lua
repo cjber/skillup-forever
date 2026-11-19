@@ -656,7 +656,7 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Ningún instructor de tu facción enseña esta receta." -- mt
 L["%s (level %d)"] = "%s (nivel %d)" -- mt
 
-L["/skillup always answers."] = "/skillup siempre responde." -- mt
+L["Notes on the Route page show in full."] = "Las notas de la página de ruta se muestran completas." -- mt
 
 L["Highest craft profit"] = "Mayor beneficio por fabricación" -- mt
 

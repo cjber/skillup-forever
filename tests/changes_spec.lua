@@ -201,12 +201,13 @@ equal(
 	"api | route tracker",
 	"a bag event that moves only the with-bank count SkillUp read"
 )
--- A count the client won't hand over is no move; the first count it hands over after one is.
+-- A count the client won't hand over is unknown, not unchanged: the bag event it fell on is a change, and so is
+-- the next one, where the count comes back readable, even unchanged from before.
 c.unreadable[CLOTH] = true
-equal(Stale(Event("BAG_UPDATE_DELAYED")), " | ", "an unreadable count moves nothing")
+equal(Stale(Event("BAG_UPDATE_DELAYED")), "api | route tracker", "an unreadable count is a change")
 c.unreadable[CLOTH] = nil
-c.bags[CLOTH] = c.bags[CLOTH] + 1
-equal(Stale(Event("BAG_UPDATE_DELAYED")), "api | route tracker", "the next readable count that differs does")
+equal(Stale(Event("BAG_UPDATE_DELAYED")), "api | route tracker", "and so is its first readable count after it")
+equal(Stale(Event("BAG_UPDATE_DELAYED")), " | ", "a readable count, unchanged since, is not")
 -- An item first read while its count is unreadable starts unknown, so its first readable count moves it.
 local SPARE = 990002
 c.unreadable[SPARE] = true

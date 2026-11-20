@@ -475,16 +475,17 @@ function ns.NoteItemCount(itemID)
 end
 
 -- Whether a count SkillUp read moved since the last bag event; it takes the new counts as seen. A count the
--- client won't hand over (nil) is no move: the readers keep their last count for it too.
+-- client won't hand over is unknown, not unchanged: it counts as a move, as every bag event did before #850, and
+-- stays unknown so the first count it hands over afterwards moves too.
 ---@return boolean
 local function ReadCountsMoved()
 	local moved = false
 	for itemID, seen in pairs(readCounts) do
 		local bags, all = CountNow(itemID, false), CountNow(itemID, true)
-		if (bags and bags ~= seen.bags) or (all and all ~= seen.all) then
+		if bags == nil or all == nil or bags ~= seen.bags or all ~= seen.all then
 			moved = true
-			seen.bags, seen.all = bags or seen.bags, all or seen.all
 		end
+		seen.bags, seen.all = bags, all
 	end
 	return moved
 end

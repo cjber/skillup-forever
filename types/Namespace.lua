@@ -67,6 +67,7 @@
 ---@field Price fun(itemID: integer): SkillUpPrice?
 ---@field PriceSource fun(itemID: integer): SkillUpPriceSource?
 ---@field CanGather fun(itemID: integer): string? The profession name, or "loot" for a reagent creatures drop.
+---@field LimitedReagentPrice fun(itemID: integer): number?, SkillUpPrice?
 ---@field IsLimitedStock fun(itemID: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
 ---@field ObtainCost fun(itemID: integer): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
 ---@field HeldCost fun(itemID: integer): number? what using one held unit gives up: the lesser of its sale value and ObtainCost
@@ -653,7 +654,8 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpNeededItem
 ---@field supplyScope 'bags-only'|'bags-and-bank'? Holdings belong to a certified native snapshot.
----@field have integer? Missing certified holdings remain unknown.
+---@field have number? Missing certified holdings remain unknown.
+---@field allocatedPrice? SkillUpPrice Price for this portion of a split reagent row.
 ---@field acquisitions SkillUpSelectedAcquisition[]? Conditional selected orders; an empty list forbids price/source fallback.
 ---@field itemID integer
 ---@field need number

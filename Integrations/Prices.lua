@@ -409,6 +409,30 @@ function ns.IsLimitedStock(itemID)
 	return bundled and bundled[vendor] or nil
 end
 
+-- A limited quote has one stock allowance. Beyond it, use the ordinary non-vendor source.
+---@param itemID integer
+---@return number? stock
+---@return SkillUpPrice? overflow
+function ns.LimitedReagentPrice(itemID)
+	local price = ns.Price(itemID)
+	local limit = price and price.source == "vendor" and ns.IsLimitedStock(itemID)
+	if not limit or not MarketGood(itemID) then
+		return nil
+	end
+	local vendor = ns.NearestVendor(itemID, true)
+	local evidence = ns.db.merchantEvidence[vendor]
+	local observed = evidence and evidence[itemID]
+	local available = observed and observed.numAvailable
+	if available and available >= 0 then
+		limit = math.min(limit, available)
+	end
+	local overflow = AuctionPrice(itemID)
+	if not overflow and ns.CollectMode() == "gather" then
+		overflow = Gathered(itemID)
+	end
+	return limit, overflow or { copper = 0, source = "auction", unknown = true }
+end
+
 -- The client's own schematic, basic reagents only: optional and finishing slots don't have to be filled.
 -- Nil when it has none with reagents, as for a recipe outside the open profession.
 ---@param recipeID integer
@@ -619,7 +643,8 @@ ns.UsableMaker = UsableMaker
 ---@return number?
 local function ObtainCost(itemID, depth, stack)
 	if depth <= 0 then
-		local price = ns.Price(itemID)
+		local _, overflow = ns.LimitedReagentPrice(itemID)
+		local price = overflow or ns.Price(itemID)
 		return price and not price.unknown and WithSaleFloor(itemID, price.copper) or nil
 	end
 	local cached = obtainCost[itemID]
@@ -633,7 +658,8 @@ local function ObtainCost(itemID, depth, stack)
 	elseif stack[itemID] then
 		return nil
 	end
-	local buy = ns.Price(itemID)
+	local _, overflow = ns.LimitedReagentPrice(itemID)
+	local buy = overflow or ns.Price(itemID)
 	local best = buy and not buy.unknown and buy.copper or nil
 	---@type integer?
 	local bestRecipe = nil
@@ -941,7 +967,7 @@ local function RecordMerchant()
 	if ns.MerchantOffers.Unchanged(npcID) then
 		return nil
 	end
-	local changed, stocked, evidence, sold = false, false, false, {}
+	local changed, stocked, evidence, availabilityChanged, sold = false, false, false, false, {}
 	local offers, lastByItem = {}, {}
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
@@ -961,8 +987,18 @@ local function RecordMerchant()
 		end
 	end
 	for itemID, info in pairs(lastByItem) do
-		if npcID and RecordEvidence(itemID, npcID, info) then
-			evidence = true
+		if npcID then
+			local observations = ns.db.merchantEvidence[npcID]
+			local previous = observations and observations[itemID]
+			if RecordEvidence(itemID, npcID, info) then
+				evidence = true
+				if
+					(previous and previous.numAvailable or nil) ~= info.numAvailable
+					and (MarketGood(itemID) and ns.db.stock[itemID] and type(ns.db.stock[itemID][npcID]) == "number")
+				then
+					availabilityChanged = true
+				end
+			end
 		end
 	end
 	evidence = ns.MerchantOffers.Replace(offers) or evidence
@@ -970,7 +1006,7 @@ local function RecordMerchant()
 	if evidence then
 		ns.Changed("sourceEvidence")
 	end
-	return changed and "prices" or (seen or stocked) and "sources" or nil
+	return (changed or stocked or availabilityChanged) and "prices" or seen and "sources" or nil
 end
 
 local function PricesChanged()

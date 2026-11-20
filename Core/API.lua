@@ -133,6 +133,8 @@ local function ReagentSource(item)
 		return "gather"
 	elseif item.source == "vendor" then
 		return "vendor"
+	elseif item.source == "auction" and item.allocatedPrice then
+		return "auction"
 	elseif CanCraft(item.itemID) then
 		return "craft"
 	elseif item.source == "auction" then
@@ -143,11 +145,12 @@ end
 -- Getting `count` more of a reagent, the way its price says it is got.
 ---@param itemID integer
 ---@param count number
+---@param price SkillUpPrice?
 ---@return SkillUpAPIStep
 ---@return (fun(): integer?)?
-local function Acquire(itemID, count)
+local function Acquire(itemID, count, price)
 	local name = ItemName(itemID)
-	local price = ns.Price(itemID)
+	price = price or ns.Price(itemID)
 	if price and price.source == "gather" then
 		return {
 			kind = "gather",
@@ -310,6 +313,7 @@ local function Steps(plan, rows)
 			picks[#steps] = pick
 		end
 	end
+	local remainingStock = {}
 	local supply = ns.RouteDemand.Supply(plan)
 	if supply then
 		for _, acquisition in ipairs(supply.acquisitions or {}) do
@@ -381,7 +385,20 @@ local function Steps(plan, rows)
 				local have = held[itemID] or ns.Have(itemID)
 				held[itemID] = math.max(have - need, 0)
 				if have < need then
-					Add(Acquire(itemID, need - have)) -- multi-value: the step and its picker
+					local missing = need - have
+					local stock, overflow = ns.LimitedReagentPrice(itemID)
+					if stock and overflow then
+						local left = remainingStock[itemID] or stock
+						local fromVendor = math.min(left, missing)
+						remainingStock[itemID] = left - fromVendor
+						if fromVendor > 0 then
+							Add(Acquire(itemID, fromVendor)) -- multi-value: the step and its picker
+						end
+						missing = missing - fromVendor
+					end
+					if missing > 0 then
+						Add(Acquire(itemID, missing, overflow)) -- multi-value: the step and its picker
+					end
 				end
 			end
 			local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
@@ -661,7 +678,7 @@ function API.ShoppingList(skillLineID)
 				bySource[source] = {}
 			end
 			for _, item in ipairs(entry.items) do
-				local price = not item.acquisitions and ns.Price(item.itemID) or nil
+				local price = not item.acquisitions and (item.allocatedPrice or ns.Price(item.itemID)) or nil
 				local have = ns.RouteDemand.Held(item)
 				local missing = have and math.max(item.need - have, 0)
 				local row = {

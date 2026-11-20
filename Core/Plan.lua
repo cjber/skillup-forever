@@ -330,7 +330,8 @@ local function GatherableUnknown(reagents)
 	local missing = false
 	for _, reagent in ipairs(reagents or {}) do
 		if ns.ObtainCost(reagent.itemID) == nil then
-			local price = ns.Price(reagent.itemID)
+			local _, overflow = ns.LimitedReagentPrice(reagent.itemID)
+			local price = overflow or ns.Price(reagent.itemID)
 			if price and price.source == "auction" and price.unknown then
 				missing = "auction"
 			elseif price and price.source == "gather" then
@@ -942,14 +943,23 @@ function ns.PlanMoney(plan)
 	local buy, unknown = 0, 0
 	for itemID, short in pairs(count) do
 		if short > 0 then
-			local each = ns.ObtainCost and ns.ObtainCost(itemID)
-			if not each then
+			local stock, overflow = ns.LimitedReagentPrice(itemID)
+			local each
+			if stock and overflow then
+				local vendorCount = math.min(short, stock)
+				buy = buy + vendorCount * ns.Price(itemID).copper
+				short = short - vendorCount
+				each = not overflow.unknown and overflow.copper or nil
+			else
+				each = ns.ObtainCost and ns.ObtainCost(itemID)
+			end
+			if not each and not overflow then
 				local price = ns.Price and ns.Price(itemID)
 				each = price and not price.unknown and price.copper or nil
 			end
 			if each then
 				buy = buy + each * short
-			else
+			elseif short > 0 then
 				unknown = unknown + 1
 			end
 		end
@@ -1179,13 +1189,25 @@ end)
 ---@param plan SkillUpPlan
 ---@return boolean
 local function Affordable(plan)
+	local remainingStock = {}
 	for _, expanded in ipairs(ExpandRoute(plan.crafts)) do
 		for _, item in ipairs(expanded.raw) do
 			-- The bags' copies are already off; anything left must be buyable.
 			if item.count > 0 then
-				local price = ns.Price(item.itemID)
+				local itemID = item.itemID
+				local price = ns.Price(itemID)
 				if not price or (price.unknown and price.source ~= "gather") then
 					return false
+				end
+				if price.source == "vendor" then
+					local stock, overflow = ns.LimitedReagentPrice(itemID)
+					if stock and overflow and overflow.unknown and overflow.source ~= "gather" then
+						local left = (remainingStock[itemID] or stock) - item.count
+						if left < 0 then
+							return false
+						end
+						remainingStock[itemID] = left
+					end
 				end
 			end
 		end
@@ -1524,7 +1546,7 @@ function ns.RouteReagents(plan)
 		end
 		return items
 	end
-	for _, expanded in ipairs(ExpandRoute(supply and {} or plan.crafts)) do
+	for _, expanded in ipairs(ExpandRoute(plan.crafts)) do
 		for _, item in ipairs(expanded.raw) do
 			raw[#raw + 1] = item
 		end
@@ -1537,12 +1559,39 @@ function ns.RouteReagents(plan)
 	local items = {}
 	for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
 		for _, item in ipairs(list[source]) do
-			items[#items + 1] = {
-				itemID = item.itemID,
-				need = item.count,
-				source = source,
-				limited = source == "vendor" and ns.IsLimitedStock ~= nil and ns.IsLimitedStock(item.itemID) or nil,
-			}
+			local itemID, need = item.itemID, item.count
+			local stock, overflow
+			if source == "vendor" and ns.LimitedReagentPrice then
+				stock, overflow = ns.LimitedReagentPrice(itemID)
+			end
+			local limited = source == "vendor" and ns.IsLimitedStock and ns.IsLimitedStock(itemID) or nil
+			if stock and overflow then
+				local have = math.min(ns.Have(itemID), need)
+				local vendorCount = math.min(need - have, stock)
+				if need - have > vendorCount then
+					if vendorCount > 0 then
+						items[#items + 1] = {
+							itemID = itemID,
+							need = vendorCount,
+							have = 0,
+							source = "vendor",
+							limited = limited,
+							allocatedPrice = ns.Price(itemID),
+						}
+					end
+					items[#items + 1] = {
+						itemID = itemID,
+						need = need - vendorCount,
+						have = have,
+						source = ns.Model.ShoppingSource(overflow.source),
+						allocatedPrice = overflow,
+					}
+					need = 0
+				end
+			end
+			if need > 0 then
+				items[#items + 1] = { itemID = itemID, need = need, source = source, limited = limited }
+			end
 		end
 	end
 	-- A carried tool the route needs goes in once, after the reagents, so its place is stable.
@@ -1567,6 +1616,10 @@ function ns.UnpricedReagents(plan)
 		for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
 			if not seen[reagent.itemID] then
 				local price = ns.Price(reagent.itemID)
+				if price and price.source == "vendor" then
+					local _, overflow = ns.LimitedReagentPrice(reagent.itemID)
+					price = overflow or price
+				end
 				if not price or price.unknown then
 					seen[reagent.itemID] = true
 					items[#items + 1] = reagent.itemID

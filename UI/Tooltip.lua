@@ -308,6 +308,10 @@ local function AddCost(tooltip, recipeID, d)
 		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
 		local left = reagent.quantity > 1 and string.format("%s x%d", name, reagent.quantity) or name
 		local price = ns.Price(reagent.itemID)
+		if price and price.source == "vendor" and ns.LimitedReagentPrice then
+			local _, overflow = ns.LimitedReagentPrice(reagent.itemID)
+			price = overflow or price
+		end
 		-- The line and the Reagents total below must price a reagent the same way: the total counts what it
 		-- costs to obtain, cheaper to craft where a known recipe beats buying it, so the line does too (#360).
 		-- An unknown auction price costs nothing in the plan but is still no number to show.
@@ -733,19 +737,27 @@ local function RouteTexts(itemID)
 	local lines = {}
 	local rows = index[itemID]
 	if rows then
-		for _, row in ipairs(rows) do
-			local item = row.item
-			local have = ns.RouteDemand.Held(item)
+		local indexInRows = 1
+		while indexInRows <= #rows do
+			local entry = rows[indexInRows].entry
+			local have, need = 0, 0
+			repeat
+				local item = rows[indexInRows].item
+				local held = ns.RouteDemand.Held(item)
+				have = have and held and have + held
+				need = need + item.need
+				indexInRows = indexInRows + 1
+			until not rows[indexInRows] or rows[indexInRows].entry ~= entry
 			if have then
 				lines[#lines + 1] = {
 					text = string.format(
 						L["Route: %d/%d · %s to %d"],
-						math.min(have, item.need),
-						item.need,
-						row.entry.plan.profession.name,
-						row.entry.plan.target
+						math.min(have, need),
+						need,
+						entry.plan.profession.name,
+						entry.plan.target
 					),
-					good = have >= item.need,
+					good = have >= need,
 				}
 			end
 		end

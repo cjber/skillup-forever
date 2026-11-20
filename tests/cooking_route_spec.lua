@@ -265,12 +265,79 @@ equal(
 equal(ons.IsLimitedStock(RAW_MACKEREL), 1, "and the route flags it limited")
 local soldPlan = ons.PlanRoute(Cooking())
 local soldFish = Reagent(ons.RouteReagents(soldPlan), RAW_MACKEREL)
-equal(soldFish and soldFish.limited, 1, "the route's reagent carries the limit")
+equal(soldFish and soldFish.source, "auction", "a sold-out fish with no market price stays unpriced")
+equal(ons.PlanMoney(soldPlan).unknown, 1, "the sold-out fish is counted as unpriced")
 soldOut.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = 4 } }
 soldOut.Fire("MERCHANT_UPDATE")
 equal(ons.IsLimitedStock(RAW_MACKEREL), 4, "a later count raises the limit")
+local partlyUnpriced = ons.PlanMoney(ons.PlanRoute(Cooking()))
+equal(partlyUnpriced.buy, 20, "only the four in stock have a known price")
+equal(partlyUnpriced.unknown, 1, "the remainder has no known price")
 soldOut.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = 0 } }
 soldOut.Fire("MERCHANT_UPDATE")
 equal(ons.IsLimitedStock(RAW_MACKEREL), 4, "a sold-out reading keeps the highest count seen")
+
+-- #881: one merchant's stock can cover only part of a route.
+local market = Client.load({ data = { LimitedStock = {} } })
+market.level = 60
+market.player.faction = "Alliance"
+market.maps[market.player.instance] = { mapID = 10, name = "Test zone" }
+market.professions = { { name = "Cooking", id = COOKING, rank = 1, max = 75 } }
+market.known[MACKEREL] = true
+market.npc = { id = VENDOR_NPC, name = "Fish Vendor" }
+market.auction[RAW_MACKEREL] = 105
+market.items[RAW_MACKEREL] = { name = "Raw Slitherskin Mackerel" }
+local mns = market.ns
+mns.SetCollectMode("auction")
+mns.db.routeTargets[COOKING] = 45
+mns.SetTracked(COOKING, true)
+local function CheckStock(available, expectedVendor, expectedAuction)
+	market.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = available } }
+	market.Fire(available == 4 and "MERCHANT_SHOW" or "MERCHANT_UPDATE")
+	market.Advance(0)
+	local route = mns.PlanRoute(Cooking())
+	local vendorNeed, auctionNeed = 0, 0
+	for _, item in ipairs(mns.RouteReagents(route)) do
+		if item.itemID == RAW_MACKEREL then
+			if item.source == "vendor" then
+				vendorNeed = vendorNeed + item.need - mns.RouteDemand.Held(item)
+			elseif item.source == "auction" then
+				auctionNeed = auctionNeed + item.need - mns.RouteDemand.Held(item)
+			end
+		end
+	end
+	local need = 0
+	for _, craft in ipairs(route.crafts) do
+		need = need + craft.crafts
+	end
+	equal(need > 4, true, "the route needs more fish than the vendor stocks")
+	local missing = need - (market.bags[RAW_MACKEREL] or 0)
+	local vendorCount = expectedVendor or missing
+	local auctionCount = expectedAuction and missing - vendorCount or 0
+	equal(vendorNeed, vendorCount, "fish supplied by the vendor")
+	equal(auctionNeed, auctionCount, "fish supplied by the auction house")
+	equal(mns.PlanMoney(route).buy, vendorCount * 5 + auctionCount * 105, "route purchase cost")
+	local short = mns.ReagentShortfall(MACKEREL, need)
+	equal(short[1] and short[1].count or 0, auctionCount, "recipe auction search excludes available vendor stock")
+	local shopping = mns.ShoppingList(COOKING)[1]
+	equal(shopping.total, mns.PlanMoney(route).buy, "the public shopping list prices each source")
+	if auctionCount > 0 then
+		local list = market.shoppingLists[mns.AuctionListName("Cooking")]
+		equal(list and list[1], "Raw Slitherskin Mackerelx" .. auctionCount, "Auctionator gets the auction shortfall")
+	end
+end
+CheckStock(4, 4, true)
+market.bags[RAW_MACKEREL] = 4
+market.Fire("BAG_UPDATE_DELAYED")
+CheckStock(0, 0, true)
+CheckStock(-1, nil, false)
+market.merchant = { { itemID = MILD_SPICES, price = 3, stackCount = 1, numAvailable = 4 } }
+market.Fire("MERCHANT_UPDATE")
+equal(mns.IsLimitedStock(MILD_SPICES), 4, "the vendor-only reagent is limited")
+equal(mns.LimitedReagentPrice(MILD_SPICES), nil, "a vendor-only reagent has no auction overflow")
+equal(mns.Price(MILD_SPICES).source, "vendor", "the vendor-only reagent keeps its source")
+for _, item in ipairs(mns.ReagentShortfall(VENDOR_RECIPE, 60)) do
+	equal(item.itemID ~= MILD_SPICES, true, "a vendor-only reagent stays out of an auction search")
+end
 
 Client.report("cooking_route_spec")

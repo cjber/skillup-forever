@@ -663,7 +663,7 @@ local function ReagentTooltip(tooltip, item)
 		end
 		return
 	end
-	local price = ns.Price(item.itemID)
+	local price = item.allocatedPrice or ns.Price(item.itemID)
 	if not price or price.unknown then
 		GameTooltip_AddDisabledLine(tooltip, ns.UnpricedHint())
 		return
@@ -762,7 +762,7 @@ end
 local function AuctionPriceStatus(reagents)
 	local found, stale, tsm
 	for _, item in ipairs(reagents) do
-		local price = not item.acquisitions and ns.Price(item.itemID) or nil
+		local price = not item.acquisitions and (item.allocatedPrice or ns.Price(item.itemID)) or nil
 		tsm = tsm or (price and price.source == "tsm")
 		if price and price.source == "auctionator" then
 			found = true
@@ -785,7 +785,7 @@ end
 ---@return boolean
 local function NeedsAuctionScan(reagents)
 	for _, item in ipairs(reagents) do
-		local price = not item.acquisitions and ns.Price(item.itemID) or nil
+		local price = not item.acquisitions and (item.allocatedPrice or ns.Price(item.itemID)) or nil
 		if not price and not item.acquisitions then
 			return true
 		end

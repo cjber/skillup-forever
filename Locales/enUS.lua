@@ -204,3 +204,6 @@ L["No trainer of your faction teaches this recipe."] = "No trainer of your facti
 L["%s (level %d)"] = "%s (level %d)"
 
 L["Clicking a recipe selects it again under every sort."] = "Clicking a recipe selects it again under every sort."
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"Herb and ore node tooltips show the skill they need in every client language."

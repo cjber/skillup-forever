@@ -660,9 +660,6 @@ L["Apply policy"] = "Appliquer la politique" -- mt
 L["No trainer of your faction teaches this recipe."] = "Aucun maître de votre faction n'enseigne cette recette." -- mt
 L["%s (level %d)"] = "%s (niveau %d)" -- mt
 
-L["The supply solver no longer runs every frame while idle."] =
-	"Le calcul des fournitures ne tourne plus à chaque image quand il est inactif." -- mt
-
 L["Highest craft profit"] = "Bénéfice par fabrication le plus élevé" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -694,3 +691,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
 	"Le guidage adaptatif indique la recette. Sélectionnez-la et choisissez combien en fabriquer dans la fenêtre de métier." -- mt
 L["Select %s in the recipe list first."] = "Sélectionnez d'abord %s dans la liste des recettes." -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"Les infobulles des plantes et des gisements de minerai indiquent la compétence requise dans toutes les langues du client." -- mt

@@ -1119,8 +1119,8 @@
     },
     {
       "source": "UI/Settings.lua",
-      "sha256": "7c7dce3434340d8be6ed6a6f370925eaa4ae7639e5668f31779abea2305acb5d",
-      "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded. Reviewed #880: the reagent search checkbox passes both revised phrases to the same settings initializer.",
+      "sha256": "fd9f82fbe735751c3aaf743d8dfe5b7763fc71e60765c4c39548d07f0b5c2762",
+      "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded. Reviewed #880: the reagent search checkbox passes both revised phrases to the same settings initializer. Reviewed #873: the Route and trainer page's Attach to quest tracker row is ForeverCore.SettingsSections.RegisterTrackerAttach, a core-owned initializer, registered only when the running core has it (an older adopted standalone does not); excluded with the other settings fonts.",
       "bindings": []
     },
     {

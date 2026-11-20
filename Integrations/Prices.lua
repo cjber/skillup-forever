@@ -610,8 +610,8 @@ function ns.UsedIn(itemID)
 end
 
 -- Sub-crafting: a reagent a recipe this character knows can make is obtained by crafting it when
--- that beats buying it. Cost recurses three levels, memoised per item, count and reachable stock, and a recipe that would need
--- the item it makes is skipped rather than followed, so no cycle can recurse or hang.
+-- that beats buying it. Cost recurses three levels, memoised per item, count and reachable stock, and a recipe
+-- that would need the item it makes is skipped rather than followed, so no cycle can recurse or hang.
 
 local MAX_SUB_DEPTH = 3
 ---@class SkillUpMakerChoice
@@ -895,13 +895,18 @@ local function Reach(itemID, depth)
 	return list, period
 end
 
--- The batch counts worth pricing for count units made quantity per batch. Each reagent's cost is linear in its
--- count, up to a whole-batch rounding that repeats every `period` batches, everywhere except where limited stock
--- runs out; the purchase of what is not crafted bends only where the vendor's units or the purchase run out. So
--- the total over batches is linear plus that repeating rounding between those bends, and its minimum lies within
--- one period of a bend or an end. Stock can bend a reagent's cost only while the batches made could still spend
--- it: one stocked unit feeds at most `period` batches. Testing every batch count instead repeats the subtree's
--- whole search per count, at every depth, which froze the client on a long route (#899).
+-- The batch counts worth pricing for count units made quantity per batch. Testing every count instead repeats the
+-- subtree's whole search per count at every depth, which froze the client on a long route (#899). The bound is exact:
+--
+-- cost(b) = Buy(count - b * quantity) + sum over reagents of Cost_i(need_i * b). Buy is linear in b except where the
+-- vendor's units or the purchase run out (the two bends below). By induction on depth, past its stock window each
+-- Cost_i is a minimum of functions that are linear in its count on every residue class modulo its period: a fixed
+-- small batch count plus purchases, or a batch count tied to its own bends or end. A minimum of linear functions is
+-- concave, so between bends cost(b) is concave on each residue class of b modulo `period`, and its minimum on a
+-- segment lies within one period of the segment's ends, where the earliest tie also lies. Inside the stock window
+-- stock can still bend some Cost_i, so every batch count there is priced; one stocked unit feeds at most `period`
+-- batches, and each level below can put its own window and purchase bend in front, hence the (depth + 1) factor.
+-- Checked against the full search on every bundled recipe (tests/price_recursion_spec.lua guards the work bound).
 ---@return integer[]
 local function BatchCandidates(itemID, depth, ledger, firstBatch, lastBatch, quantity, count, first)
 	local reach, period = Reach(itemID, depth)
@@ -921,7 +926,7 @@ local function BatchCandidates(itemID, depth, ledger, firstBatch, lastBatch, qua
 			end
 		end
 	end
-	Span(firstBatch, firstBatch + (stock + 1) * period)
+	Span(firstBatch, firstBatch + ((depth + 1) * stock + 1) * period)
 	for _, units in ipairs({ count - first, count }) do
 		local bend = math.floor(units / quantity)
 		Span(bend - period, bend + period + 1)

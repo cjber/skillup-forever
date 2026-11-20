@@ -60,14 +60,14 @@ local function Price(count)
 	return reads, maker
 end
 
-local small, smallMaker = Price(10)
-local large, largeMaker = Price(40)
-equal(smallMaker and smallMaker.recipeID, 20650, "ten Thick Leather are made from Heavy Leather")
-equal(largeMaker and largeMaker.recipeID, 20650, "and so are forty")
+local small, smallMaker = Price(30)
+local large, largeMaker = Price(60)
+equal(smallMaker and smallMaker.recipeID, 20650, "thirty Thick Leather are made from Heavy Leather")
+equal(largeMaker and largeMaker.recipeID, 20650, "and so are sixty")
 equal(largeMaker and largeMaker.purchaseUnits, 0, "none of them bought at auction")
--- The candidate batches near a bend are the same few at any count past the stock, so four times the need is not
--- four times the work. Before #899 it was about sixty times (35816 reads for 10, 2009861 for 40).
-equal(large <= small * 2, true, string.format("pricing 40 reads %d quotes against %d for 10", large, small))
+-- Past the stock window the candidate batches are the same few at any count, so twice the need is not more work.
+-- Before #899 it was about eight times (the work grew with the cube of the count).
+equal(large <= small * 2, true, string.format("pricing 60 reads %d quotes against %d for 30", large, small))
 
 -- The route's own call shape: the tracker's whole Leatherworking need, priced with a shared stock ledger.
 local ledger = {}

@@ -5,7 +5,8 @@
 
 ---@alias SkillUpAPIStepKind 'buy'|'craft'|'train'|'gather'
 ---@alias SkillUpAPIReagentSource 'vendor'|'craft'|'gather'|'auction'
----@alias SkillUpAPIReason 'loading'|'disabled'|'none'|'invalid'
+-- ForeverCore's shared answers: its not-ready reasons, which APIKit.NotReady returns, and 'invalid'.
+---@alias SkillUpAPIReason ForeverCoreAPIAnswer
 ---@alias SkillUpAPIChangeName 'professions'|'shopping'
 ---@alias SkillUpAPIChanges table<SkillUpAPIChangeName, true>
 

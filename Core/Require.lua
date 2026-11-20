@@ -29,4 +29,6 @@ local ready = ForeverCore ~= nil
 	and type(ForeverCore.ProfessionTabs.SetMinWidth) == "function"
 	and (tonumber(ForeverCore.ProfessionTabs.minor) or 0) >= 2
 
-ns.ForeverRequire(ready)
+-- Core/Core.lua's slash words (tests/core_dependency_spec.lua keeps the two lists equal). A stopped addon still
+-- answers them with the line that names the fix, so /skillup never just does nothing (#866).
+ns.ForeverRequire(ready, { key = "SKILLUPFOREVER", "/skillup" })

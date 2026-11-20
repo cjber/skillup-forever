@@ -178,7 +178,7 @@ local function ItemName(itemID)
 	local name = ns.Readable(C_Item.GetItemNameByID(itemID))
 	if not name and not requestedItems[itemID] then
 		requestedItems[itemID] = true
-		C_Item.RequestLoadItemDataByID(itemID)
+		ns.RequestItemData(itemID)
 	end
 	return name or string.format(L["item %d"], itemID)
 end
@@ -573,8 +573,7 @@ local function HandleNativeRecipeShortcut(recipe)
 end
 
 ---@param page SkillUpCraftingPage
----@param extraScrollBox? SkillUpRecipeScrollBox
-function ns.AttachRecipePreview(page, extraScrollBox)
+function ns.AttachRecipePreview(page)
 	---@param button SkillUpPreviewClick
 	local function OnRowClick(button)
 		local node = button.data
@@ -600,9 +599,6 @@ function ns.AttachRecipePreview(page, extraScrollBox)
 			UpdateRowSelection(visibleRow, visibleData and visibleData.recipeInfo)
 		end
 		page.RecipeList.ScrollBox:ForEachFrame(UpdateSelection)
-		if extraScrollBox then
-			extraScrollBox:ForEachFrame(UpdateSelection)
-		end
 		preview:Show()
 		Refresh()
 		preview.Scroll:SetVerticalScroll(0)

@@ -4,6 +4,8 @@ if GetLocale() ~= "koKR" then
 	return
 end
 local L = ns.L
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
+	"각 제조법 옆에 금액을 표시합니다. 끄면 가격은 제조법 툴팁에만 표시됩니다." -- mt
 L["Show prices on recipe rows"] = "제조법 줄에 가격 표시" -- mt
 L["Show recipe tooltip on hover"] = "마우스를 올리면 제조법 툴팁 표시" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
@@ -55,6 +57,7 @@ L["At the %d cap: no trainer teaches the next rank."] =
 L["At the cursor"] = "커서 위치"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"AtlasLoot가 설치되었지만 실행 중이 아닙니다: 애드온 목록에서 켜거나, 오래된 버전이면 업데이트하세요."
+L["Attach to quest tracker"] = "퀘스트 추적기에 붙이기"
 L["Auction house"] = "경매장"
 L["Auction price if higher"] = "더 높으면 경매 가격"
 L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."] =
@@ -108,8 +111,8 @@ L["Gathering skill on nodes"] = "채집물의 채집 숙련도"
 L["Hands"] = "손"
 L["Have (bags and bank)"] = "보유 (가방과 은행)"
 L["Head"] = "머리"
-L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
-	"약초와 광맥 툴팁에 필요한 숙련도와 내 숙련도 기준 색상을 표시합니다 (영어 클라이언트 전용). 무두질 가능한 시체는 Forever에서 무두질 규칙이 확인될 때까지 ?로 표시됩니다."
+L["Herb and ore node tooltips show the skill they need and its colour at yours. Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
+	"약초와 광맥 툴팁에 필요한 숙련도와 내 숙련도 기준 색상을 표시합니다. 무두질 가능한 시체는 Forever에서 무두질 규칙이 확인될 때까지 ?로 표시됩니다."
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"상인, 퀘스트, 전리품으로 얻을 제조법을 보려면 AtlasLoot를 설치하세요."
 L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
@@ -129,6 +132,7 @@ L["Level %d %s"] = "레벨 %d %s"
 L["Made at"] = "제작 장소"
 L["Main hand"] = "주장비"
 L["Missing reagents for this step."] = "이 단계에 필요한 재료가 부족합니다."
+L["Money on recipe rows"] = "제조법 줄의 금액"
 L["Nearest trainer"] = "가장 가까운 전문가"
 L["Nearest vendor"] = "가장 가까운 상인"
 L["Neck"] = "목"
@@ -204,7 +208,7 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"재료 가격을 알려면 Auctionator로 경매장을 검색하거나 상인을 방문하세요."
 L["Scroll"] = "제조법"
 L["Search"] = "검색"
-L["Search reagents at the auction house"] = "경매장에서 재료 검색"
+L["Show reagent search and keep shopping lists"] = "재료 검색 표시 및 쇼핑 목록 유지"
 L["Sells for"] = "판매 가격"
 L["Sells for x%g"] = "판매 가격 x%g"
 L["Set waypoint"] = "웨이포인트 설정"
@@ -258,6 +262,8 @@ L["Train %s at %d (level %d)"] = "%s 배우기 (%d, 레벨 %d)"
 L["Train %s first."] = "먼저 %s을(를) 배우세요."
 L["Train %s first: you're at your cap."] = "먼저 %s을(를) 배우세요: 숙련도가 최대입니다."
 L["Trinket"] = "장신구"
+L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
+	"끄면 공유 Forever 추적기를 화면 어디로든 끌 수 있습니다."
 L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"상인, 퀘스트, 전문가와 그 웨이포인트를 보려면 QuestieDB를 업데이트하세요."
 L["Used in"] = "사용처"
@@ -274,8 +280,8 @@ L["Waypoint to the quest giver: %s"] = "퀘스트 NPC로 웨이포인트: %s"
 L["What's new after an update"] = "업데이트 후 새로운 점"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
-L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
-	"경매장이 열려 있으면 전문 기술 창에서 선택한 제조법의 재료를 검색할 수 있습니다: 가방과 은행을 뺀 뒤 선택한 제작 횟수에 아직 필요한 만큼입니다. Auctionator 구매 목록이 수량을 담고, 없으면 클릭할 때마다 다음 재료가 검색창에 들어갑니다."
+L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"전문 기술 창에서 검색을 클릭하면 선택한 제작 수량에 필요한 재료 중 부족한 것을 찾습니다. Auctionator를 사용하면 SkillUp이 재료 구매를 켠 추적 경로의 쇼핑 목록도 갱신합니다. Auctionator가 없으면 클릭할 때마다 경매장 검색창에 다음 재료를 입력합니다."
 L["World drop"] = "무작위 전리품"
 L["Wrist"] = "손목"
 L["You have it"] = "보유 중"
@@ -479,7 +485,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"켜짐(기본값): 채집, 낚시 또는 생물에게서 얻을 수 있는 재료를 상인이나 경매장에서 삽니다. 꺼짐: 직접 얻는 비용은 판매 가격만큼 듭니다."
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"Shift + 마우스 휠 또는 드래그로 시간선을 옆으로 스크롤합니다."
-L["SkillUp's list"] = "SkillUp 목록"
 L["Timeline"] = "시간선"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"재료 구매를 켜면 아직 부족한 모든 경매장 재료가 Auctionator 목록에 기록됩니다."
@@ -537,8 +542,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "보유 (가방만)" -- mt
 
 L["%s%% to %s%%"] = "%s%%에서 %s%%까지" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"감지된 Working Overtime 등급마다 노란색 및 녹색 제조법의 예상 숙련도 상승 확률에 검증되지 않은 4퍼센트포인트를 더합니다. 끄면 비용과 경로에 기본 확률 추정치를 사용합니다. 두 추정치 모두 검증된 서버 규칙이 아닙니다." -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Working Overtime 등급마다 노란색 및 녹색 제조법의 숙련도 상승 확률에 추정치 4퍼센트포인트를 더합니다. 게임이 특성 보너스를 포인트로 더하는지 확률에 곱하는지 아직 확인되지 않아 기본으로 꺼져 있으며, 확률은 기본 공식을 사용합니다." -- mt
 L["Chance of finishing with later purchases: %s."] = "추가 구매 시 완료 확률: %s." -- mt
 L["Chance of finishing with starting supplies: %s."] = "시작 재료로 완료할 확률: %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
@@ -559,9 +564,6 @@ L["Target chance of finishing with starting supplies: %s%%."] = "시작 재료�
 L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
 	"이 확률은 명시된 숙련도 상승률, 가격, 구매 가능 여부 및 추가 구매분의 인도를 가정합니다." -- mt
 L["unknown"] = "알 수 없음" -- mt
-
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"적응형 안내는 추천 제조법을 엽니다. 전문 기술 창에서 제작할 수량을 선택하세요." -- mt
 
 L["currency %d"] = "화폐 %d" -- mt
 L["an unknown payment"] = "알 수 없는 지불" -- mt
@@ -653,9 +655,6 @@ L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"재료 수량은 각 단계가 아닌 전체 경로를 기준으로 계산됩니다." -- mt
-
 L["Highest craft profit"] = "제작당 최고 이익" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -684,6 +683,9 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator/TradeSkillMaster, AHDB, Naowh Forever가 필요합니다." -- mt
-L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."] =
-	"각 제작법 옆에 비용을 표시합니다. 끄면 비용은 제작법 툴팁에만 표시됩니다." -- mt
-L["Price shown on recipe rows"] = "제작법 줄에 표시할 가격" -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"적응형 안내는 제조법을 알려 줍니다. 제조법을 선택하고 전문 기술 창에서 만들 개수를 정하세요." -- mt
+L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"약초와 광맥의 툴팁에 필요한 숙련도가 모든 클라이언트 언어로 표시됩니다." -- mt

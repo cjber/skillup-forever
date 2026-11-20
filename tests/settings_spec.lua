@@ -44,9 +44,6 @@ local env = setmetatable({
 			assert(parent == category, "a subpage belongs to the addon's category")
 			return Category(name, parent), { AddInitializer = Tainted }
 		end,
-		RegisterCanvasLayoutSubcategory = function()
-			error("no canvas page: the Forever addons page is gone")
-		end,
 		RegisterAddOnSetting = function(_target, variable, key, db, varType, _name, default)
 			if db[key] == nil then
 				db[key] = default
@@ -169,8 +166,6 @@ env.ForeverCore.TrackerHost = {
 		attachmentChanged = callback
 	end,
 }
--- The Forever addons page is gone with ForeverCore.Family: nothing of ours may reach for it.
-env.ForeverCore.Family = nil
 local ns = {
 	core = {
 		SafeCall = function(_, fn, ...)
@@ -260,7 +255,7 @@ local groups = {
 	{ "Prices", "slider:priceSource slider:craftValue checkbox:valueGathered checkbox:auctionOnly slider:restockCost" },
 	{
 		"Route and trainer",
-		"checkbox:showTracker slider:trackerScale checkbox:trackerLocked"
+		"checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
 			.. " checkbox:showRouteTab"
 			.. " checkbox:showGearTab checkbox:showBuffsTab checkbox:showSupplyTab"
 			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:showTrainer",
@@ -354,10 +349,14 @@ ns.SetSortMode("skill")
 assert(Row("sortMode").initializer.setting:GetValue() == 2, "recipe list sorting updates settings slider")
 print("settings: menu-free choices, saved values, defaults, labels, callbacks and external sorting: ok")
 
-assert(
-	settings.SkillUpForever_trackerAttached == nil,
-	"no attach row: the column always pins beside the game's tracker"
-)
+local attachment = settings.SkillUpForever_trackerAttached
+assert(attachment:GetValue() == true, "tracker starts attached")
+attachment:SetValue(false)
+assert(attachment:GetValue() == false, "toggle detaches shared host")
+assert(notified[#notified] == "SkillUpForever_trackerAttached", "attachment change refreshes shared proxy")
+trackerState.attached = true
+attachmentChanged()
+assert(attachment:GetValue() == true, "another addon reattaches the same host")
 
 -- The shared host owns its scale: the slider mirrors it as a percentage and writes it back, so the rows can
 -- be made as large as the game's own tracker.
@@ -378,7 +377,7 @@ assert(settings.SkillUpForever_trackerScale:GetValue() == 126, "a host scale rea
 settings.SkillUpForever_trackerScale:SetValue(150)
 assert(trackerState.scale == 1.5, "the tracker slider drives the shared host scale")
 
--- Lock starts off, and drives the shared host rather than a copy of its own.
+-- Lock starts off, sits under the attach row, and drives the shared host rather than a copy of its own.
 local lock = settings.SkillUpForever_trackerLocked
 assert(lock:GetValue() == false, "the shared tracker starts unlocked")
 lock:SetValue(true)

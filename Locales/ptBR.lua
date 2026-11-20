@@ -4,6 +4,8 @@ if GetLocale() ~= "ptBR" then
 	return
 end
 local L = ns.L
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
+	"Mostra o dinheiro ao lado de cada receita. Desligado, os preços continuam na dica da receita." -- mt
 L["Show prices on recipe rows"] = "Mostrar preços nas linhas de receitas" -- mt
 L["Show recipe tooltip on hover"] = "Mostrar dica da receita ao passar o mouse" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
@@ -53,6 +55,7 @@ L["At the %d cap: no trainer teaches the next rank."] = "No limite de %d: nenhum
 L["At the cursor"] = "No cursor"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"O AtlasLoot está instalado, mas não está ativo: ative-o na lista de AddOns ou atualize-o se estiver desatualizado."
+L["Attach to quest tracker"] = "Fixar no rastreador de missões"
 L["Auction house"] = "Casa de leilões"
 L["Auction price if higher"] = "Preço de leilão, se maior"
 L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."] =
@@ -106,8 +109,8 @@ L["Gathering skill on nodes"] = "Perícia de coleta em nódulos e ervas"
 L["Hands"] = "Mãos"
 L["Have (bags and bank)"] = "Tem (bolsas e banco)"
 L["Head"] = "Cabeça"
-L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
-	"As dicas de ervas e nódulos de minério mostram a perícia necessária e sua cor no seu nível (só no cliente em inglês). Corpos esfoláveis mostram ? até a regra de esfolamento ser confirmada no Forever."
+L["Herb and ore node tooltips show the skill they need and its colour at yours. Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
+	"As dicas de ervas e nódulos de minério mostram a perícia necessária e sua cor no seu nível. Corpos esfoláveis mostram ? até a regra de esfolamento ser confirmada no Forever."
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Instale o AtlasLoot para ver as receitas que comerciantes, missões e saques adicionariam."
 L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
@@ -126,6 +129,7 @@ L["Level %d %s"] = "Nível %d %s"
 L["Made at"] = "Criado em"
 L["Main hand"] = "Mão principal"
 L["Missing reagents for this step."] = "Faltam reagentes para esta etapa."
+L["Money on recipe rows"] = "Dinheiro nas linhas de receitas"
 L["Nearest trainer"] = "Instrutor mais próximo"
 L["Nearest vendor"] = "Comerciante mais próximo"
 L["Neck"] = "Pescoço"
@@ -199,7 +203,7 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"Escaneie a casa de leilões com o Auctionator ou visite um comerciante para precificar reagentes."
 L["Scroll"] = "Receita"
 L["Search"] = "Procurar"
-L["Search reagents at the auction house"] = "Procurar reagentes na casa de leilões"
+L["Show reagent search and keep shopping lists"] = "Mostrar a busca de reagentes e manter as listas de compras"
 L["Sells for"] = "Vende por"
 L["Sells for x%g"] = "Vende por x%g"
 L["Set waypoint"] = "Definir ponto de referência"
@@ -252,6 +256,8 @@ L["Train %s at %d (level %d)"] = "Treinar %s em %d (nível %d)"
 L["Train %s first."] = "Treine %s primeiro."
 L["Train %s first: you're at your cap."] = "Treine %s primeiro: você está no limite."
 L["Trinket"] = "Berloque"
+L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
+	"Desligue isto para arrastar o rastreador Forever compartilhado para qualquer lugar da tela."
 L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"Atualize o QuestieDB para ver comerciantes, missões e instrutores, com pontos de referência."
 L["Used in"] = "Usado em"
@@ -268,8 +274,8 @@ L["Waypoint to the quest giver: %s"] = "Ponto de referência até o recrutador: 
 L["What's new after an update"] = "Novidades após uma atualização"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Onde a dica aparece ao passar o cursor sobre uma receita. Ao lado da janela, ela não cobre os reagentes."
-L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
-	"Com a casa de leilões aberta, a janela de profissões oferece uma busca pelos reagentes da receita selecionada: tantos quanto as criações escolhidas ainda precisam depois das bolsas e do banco. A lista de compras do Auctionator leva as quantidades; sem ela, cada clique coloca o próximo reagente na caixa de busca."
+L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"Clique em Procurar na janela de profissões para encontrar os reagentes que ainda faltam para a quantidade escolhida. Com Auctionator, o SkillUp também mantém listas de compras para as rotas rastreadas com Comprar reagentes ativado. Sem Auctionator, cada clique coloca o próximo reagente no campo de busca da casa de leilões."
 L["World drop"] = "Espólio do Mundo"
 L["Wrist"] = "Pulsos"
 L["You have it"] = "Você tem"
@@ -471,7 +477,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"Ativado (padrão): um reagente que você poderia coletar, pescar ou saquear de criaturas é comprado de um vendedor ou da casa de leilões. Desativado: obtê-lo você mesmo custa o que ele venderia."
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"Shift + roda, ou arrastar, rola a linha do tempo para os lados."
-L["SkillUp's list"] = "Lista do SkillUp"
 L["Timeline"] = "Linha do tempo"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"Ativar Comprar reagentes grava uma lista do Auctionator com todos os reagentes de leilão ainda faltando."
@@ -526,8 +531,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "Possui (somente bolsas)" -- mt
 
 L["%s%% to %s%%"] = "De %s%% a %s%%" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"Adiciona 4 pontos percentuais não verificados por grau detectado de Working Overtime às estimativas de chance de ganhar perícia com receitas amarelas e verdes. Desative para usar a estimativa básica nos custos e rotas. Nenhuma das estimativas é uma regra verificada do servidor." -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Adiciona uma estimativa de 4 pontos percentuais por grau de Working Overtime às chances de ganhar perícia com receitas amarelas e verdes. Ainda não está confirmado se o jogo soma o bônus do talento como pontos ou multiplica a chance por ele, então isto começa desativado e as chances usam a fórmula básica." -- mt
 L["Chance of finishing with later purchases: %s."] = "Chance de concluir com compras posteriores: %s." -- mt
 L["Chance of finishing with starting supplies: %s."] = "Chance de concluir com os suprimentos iniciais: %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
@@ -549,9 +554,6 @@ L["Target chance of finishing with starting supplies: %s%%."] =
 L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
 	"Estas chances pressupõem as taxas de ganho de perícia, os preços, a disponibilidade e a entrega das compras posteriores informados." -- mt
 L["unknown"] = "desconhecido" -- mt
-
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"A orientação adaptativa abre a receita recomendada. Escolha quantas unidades criar na janela de profissão." -- mt
 
 L["currency %d"] = "moeda %d" -- mt
 L["an unknown payment"] = "um pagamento desconhecido" -- mt
@@ -641,9 +643,6 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Nenhum instrutor da sua facção ensina esta receita." -- mt
 L["%s (level %d)"] = "%s (nível %d)" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"As quantidades de reagentes cobrem toda a rota, não apenas cada etapa separadamente." -- mt
-
 L["Highest craft profit"] = "Maior lucro por criação" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -672,6 +671,9 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"Estes reagentes não têm preço de comerciante. Preços de leilão precisam do Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
-L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."] =
-	"Custo ao lado de cada receita. Desativado, o custo fica na dica da receita." -- mt
-L["Price shown on recipe rows"] = "Preço exibido nas linhas de receitas" -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"A orientação adaptativa indica a receita. Selecione-a e escolha quantas fabricar na janela da profissão." -- mt
+L["Select %s in the recipe list first."] = "Selecione %s na lista de receitas primeiro." -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"As dicas de ervas e depósitos de minério mostram a perícia exigida em todos os idiomas do cliente." -- mt

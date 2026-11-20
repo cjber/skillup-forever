@@ -82,6 +82,29 @@ do
 	equal(fresh.ns.db.gatherTooltip, true, "and node tooltips")
 end
 
+--[[ The Working Overtime estimate starts off ]]
+
+-- Whether the server adds the talent's bonus as points or multiplies by it is unconfirmed, so the estimate saved
+-- on for everyone goes off once; a saved off stays off, an on chosen afterwards stays, and a new install starts
+-- off (#741).
+do
+	local old = Client.load({ saved = { includeWorkingOvertime = true } })
+	equal(old.ns.db.includeWorkingOvertime, false, "an estimate saved on before the reset goes off")
+	equal(old.ns.db.workingOvertimeOffSeen, true, "and the reset is recorded")
+	local off = Client.load({ saved = { includeWorkingOvertime = false } })
+	equal(off.ns.db.includeWorkingOvertime, false, "a saved off stays off")
+	local chosen = Client.load({ saved = { includeWorkingOvertime = true, workingOvertimeOffSeen = true } })
+	equal(chosen.ns.db.includeWorkingOvertime, true, "an on chosen after the reset stays")
+	local fresh = Client.load({ boot = false })
+	fresh.traitConfigs[1187] = 621140
+	fresh.traitNodes[621140] = { [110290] = { activeRank = 5, maxRanks = 5 } }
+	fresh.Boot()
+	equal(fresh.ns.db.includeWorkingOvertime, false, "a new install starts without the estimate")
+	equal(fresh.ns.workingOvertimeRank, 5, "and still reads the rank")
+	equal(fresh.ns.Model.Chance({ 1, 40, 55, 70 }, 60), 1 / 3, "so a 5/5 character sees the base chance")
+	fresh.ns.Model.SetChanceBonus(0)
+end
+
 equal(ns.db.valueGathered, false, "the saved free-material choice is preserved")
 equal(ns.Price(ORE).copper, 0, "so ore this character mines costs nothing")
 equal(Plan().crafts[1].recipeID, FROM_ORE, "and the route crafts from it")

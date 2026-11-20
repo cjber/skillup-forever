@@ -25,7 +25,7 @@ local emptyText
 local function Name(itemID)
 	local name = C_Item.GetItemNameByID(itemID)
 	if not name then
-		C_Item.RequestLoadItemDataByID(itemID)
+		ns.RequestItemData(itemID)
 		return string.format(L["item %d"], itemID)
 	end
 	return name
@@ -198,18 +198,21 @@ local function Refresh()
 			if source == "auction" then
 				local names, seen = {}, {}
 				for _, entry in ipairs(entries) do
-					local name = ns.AuctionListName(entry.list.profession)
+					local name = ns.KeptAuctionList(entry.list.skillLine, entry.list.profession)
 					if name and not seen[name] then
 						seen[name] = true
 						names[#names + 1] = name
 					end
 				end
 				local note = Note(source)
+				local text = ns.AuctionListNote(names)
 				note:ClearAllPoints()
 				note:SetPoint("TOPLEFT", 8, top)
-				note:SetText(ns.AuctionListNote(names))
-				note:Show()
-				top = top - 46
+				note:SetText(text or "")
+				note:SetShown(text ~= nil)
+				if text then
+					top = top - 46
+				end
 			end
 			for _, entry in ipairs(entries) do
 				drawn = drawn + 1

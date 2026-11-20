@@ -38,7 +38,9 @@ local function Font()
 	function font:IsShown()
 		return self.shown
 	end
-	function font.SetWidth() end
+	function font:SetWidth(width)
+		self.width = width
+	end
 	function font.SetJustifyH() end
 	function font.SetTextColor() end
 	function font.ClearAllPoints() end
@@ -176,6 +178,9 @@ local ns = {
 		return { GetRGB = noop }
 	end,
 	WhenStale = noop,
+	RequestItemData = function(itemID)
+		client.G.C_Item.RequestLoadItemDataByID(itemID)
+	end,
 	WhenEvent = function(event, handler)
 		if event == "ITEM_DATA_LOAD_RESULT" then
 			itemDataArrived = handler
@@ -205,19 +210,8 @@ local ns = {
 	end,
 }
 
-local custom, widget = dofile("tests/recipe_list_view.lua")(box)
-recipeList.ScrollBar = widget
-recipeList.GetFrameLevel = function()
-	return 1
-end
-local function ActiveProvider()
-	return custom:IsShown() and custom.ScrollBox:GetDataProvider() or box:GetDataProvider()
-end
 local env = setmetatable({
 	C_Item = client.G.C_Item,
-	CreateFrame = function()
-		return custom
-	end,
 	ProfessionsFrame = frame,
 	Professions = {
 		GetHighestLearnedRecipe = function(info)
@@ -296,8 +290,8 @@ assert(provider == input and replacements == 1, "the setting off leaves the clie
 ns.db.showUnlearned = true
 replacements = 0
 box:SetDataProvider(input)
-assert(ActiveProvider() ~= input and replacements == 1, "the setting on installs the addon's provider once")
-local root = ActiveProvider():GetRootNode()
+assert(box:GetDataProvider() ~= input and replacements == 2, "the setting on installs the addon's provider once")
+local root = box:GetDataProvider():GetRootNode()
 local nodes = root:GetNodes()
 assert(#nodes == 5, "two categories, a divider and two unlearned recipes")
 assert(nodes[1]:GetData().categoryInfo.name == "Favourites", "the favourites category is kept")
@@ -334,7 +328,7 @@ ns.UnlearnedRecipes = function()
 	}
 end
 box:SetDataProvider(withUnlearned)
-nodes = ActiveProvider():GetRootNode():GetNodes()
+nodes = box:GetDataProvider():GetRootNode():GetNodes()
 assert(nodes[1]:GetData().isDivider, "native and bundled unlearned rows share the sorted group")
 assert(nodes[2]:GetData().recipeInfo.recipeID == 20, "the native unlearned recipe appears once in skill order")
 assert(#nodes == 3 and nodes[3]:GetData().recipeInfo.recipeID == 30, "only the missing recipe is added")
@@ -345,7 +339,7 @@ assert(#nodes == 3 and nodes[3]:GetData().recipeInfo.recipeID == 30, "only the m
 searchText = "RECIPE"
 provider, replacements = nil, 0
 box:SetDataProvider(input)
-nodes = ActiveProvider():GetRootNode():GetNodes()
+nodes = box:GetDataProvider():GetRootNode():GetNodes()
 assert(#nodes == 4, "two categories, a divider and only the matching unlearned recipe")
 assert(nodes[4]:GetData().recipeInfo.recipeID == 30, "the added recipe whose name matches stays")
 searchText = "missing"
@@ -355,7 +349,7 @@ assert(provider == input, "no matching added recipe leaves the client's provider
 searchText = ""
 provider, replacements = nil, 0
 box:SetDataProvider(input)
-nodes = ActiveProvider():GetRootNode():GetNodes()
+nodes = box:GetDataProvider():GetRootNode():GetNodes()
 assert(#nodes == 5, "clearing the search brings both added recipes back")
 searchText = nil
 
@@ -367,7 +361,7 @@ local function CheckLevels(low, high, expected)
 	provider, replacements = nil, 0
 	box:SetDataProvider(input)
 	local ids = {}
-	for _, node in ipairs(ActiveProvider():GetRootNode():GetNodes()) do
+	for _, node in ipairs(box:GetDataProvider():GetRootNode():GetNodes()) do
 		local info = node:GetData().recipeInfo
 		if info then
 			ids[#ids + 1] = info.recipeID
@@ -440,6 +434,7 @@ local function Row()
 	return row
 end
 local row = Row()
+row.Label.width = 250 -- what the client's Init left the name: more than the row has once our text is in
 decorate(ns, row, {
 	GetData = function()
 		return {
@@ -458,7 +453,11 @@ decorate(ns, row, {
 		}
 	end,
 })
-assert(row:GetText().text == "Not learned · Trainer 60", "the row says where and at what skill")
+-- The Unlearned divider already says the row is not learned, so the row gives its width to the name (#854).
+assert(row:GetText().text == "Trainer 60", "the row says only where and at what skill")
+-- The name keeps the row less the skill-up column, the source text and the gap: 276 - 26 - 60 - 14. With the old
+-- "Not learned · " prefix it was cut to 86.
+assert(row.Label:GetWidth() == 176, "the recipe name gets the width the prefix took")
 assert(row.Count.shown == false, "an unlearned row has no craftable count")
 assert(row.mouse == false, "the native recipe row takes no click")
 assert(previewRows[row] and previewRows[row].recipeInfo.recipeID == 20, "the preview gets the unlearned record")
@@ -476,7 +475,7 @@ assert(previewRows[row] == learnedData, "the preview gets the record after a row
 assert(row.motion == true, "and keeps mouse motion")
 assert(row:GetText().text == "50%", "and shows the skill-up text")
 
--- With the row text off, an unlearned row still says it is not learned.
+-- With the row text off, an unlearned row still says where it is learned.
 ns.db.showRowText = false
 decorate(ns, row, {
 	GetData = function()
@@ -496,7 +495,7 @@ decorate(ns, row, {
 		}
 	end,
 })
-assert(row:GetText().shown and row:GetText().text == "Not learned · Recipe item 80", "the marker stays")
+assert(row:GetText().shown and row:GetText().text == "Recipe item 80", "the source stays")
 assert(previewRows[row] and previewRows[row].recipeInfo.recipeID == 30, "the preview gets the new unlearned record")
 
 print("unlearned_list_spec: setting, categories, dedupe, width, marker, source and click: ok")

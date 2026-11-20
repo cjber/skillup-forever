@@ -1,5 +1,5 @@
 ## Interface: 16001
-## X-Forever-Core: v1.14.5
+## X-Forever-Core: v1.15.4
 ## Title: SkillUp Forever
 ## Notes: Required skill, colour thresholds and skill-up chance for every recipe in the Professions window.
 ## Notes-deDE: Benötigte Fertigkeit, Farbschwellen und Chance auf Fertigkeitspunkt für jedes Rezept im Berufsfenster.
@@ -19,6 +19,7 @@
 ## X-Donate: https://github.com/sponsors/cjber
 ## X-Curse-Project-ID: 1705762
 ## SavedVariables: SkillUpForeverDB
+## X-Forever-Core-Embed: 1
 ## OptionalDeps: Auctionator, TradeSkillMaster, AuctionDB, NaowhForever, NaowhForever_QoL, TomTom, Syndicator, ShortestPathForever, QuestieDB, Questie, AtlasLootClassic, ForeverCore
 ## IconTexture: Interface\AddOns\SkillUpForever\media\Icon
 ## X-Forever-Icon: Interface\Icons\INV_Scroll_03

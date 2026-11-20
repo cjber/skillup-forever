@@ -25,6 +25,7 @@
 ---@field GamepadUI fun(): boolean Whether the client is in its gamepad interface.
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
 ---@field Changed fun(kind: SkillUpChange)
+---@field NoteItemCount fun(itemID: integer) Records an item whose bag count SkillUp read, so the next bag event checks whether it moved.
 ---@field FiniteAcquisition SkillUpFiniteAcquisitionProducer
 ---@field Dyadic SkillUpDyadicProducer
 ---@field Demand SkillUpJointDemandProducer
@@ -37,7 +38,8 @@
 ---@field RouteDemand SkillUpRouteDemandProducer
 ---@field WhenStale fun(name: SkillUpStale, handler: fun()?)
 ---@field WhenStaleObserver fun(name: SkillUpStale, observer: fun())
----@field WhenEvent fun(event: WowEvent, watcher: fun(): SkillUpChange?)
+---@field WhenEvent fun(event: WowEvent, watcher: fun(...): SkillUpChange?)
+---@field RequestItemData fun(itemID: integer)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field CharacterKey fun(): string?
 ---@field NormalizedRealm fun(): string?
@@ -156,7 +158,6 @@
 ---@field HasAHDB fun(): boolean
 ---@field HasNaowhForever fun(): boolean
 ---@field AuctionProvider fun(): "auctionator"|"tsm"|"ahdb"|"naowh"|nil
----@field AuctionPrice fun(itemID: integer): SkillUpPrice?
 ---@field HasTradeSkillMaster fun(): boolean
 ---@field AcquisitionPayments fun(acquisitions: SkillUpSelectedAcquisition[]): string
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())
@@ -173,7 +174,8 @@
 ---@field DetailsBarRoom fun(form: SkillUpSchematicForm, anchor: FontString, height: number): boolean? whether the pane leaves the bar its room, nil before it is laid out
 ---@field AuctionatorAutoscan fun(): boolean?
 ---@field AuctionListName fun(profession: string): string?
----@field AuctionListNote fun(names: string[]?): string what the Shopping list and the Search tooltip say about the list
+---@field AuctionListNote fun(names: string[]?): string? what the Shopping list and the Search tooltip say about the list
+---@field KeptAuctionList fun(skillLine: integer?, profession: string): string? the list SkillUp keeps for a route
 ---@field Have fun(itemID: integer): number
 ---@field Readable fun(value: any): any
 ---@field Usable fun(frame?: Frame): boolean
@@ -191,6 +193,7 @@
 ---@field MissingToolItems fun(plan: SkillUpPlan): integer[]
 ---@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
 ---@field MakersOf fun(itemID: integer): integer[] The recipes that make the item, lowest recipe ID first.
+---@field UsableMaker fun(recipeID: integer): boolean learned, not skipped, with an output and reagents: may make an intermediate
 ---@field IsTracked fun(skillLine?: integer): boolean
 ---@field TrackedNeeds fun(): SkillUpTracked[]
 ---@field ShoppingList fun(skillLineID?: integer): SkillUpAPIShoppingProfession[]
@@ -218,10 +221,8 @@
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field NearestScrollVendor fun(recipeID: integer, byTravel?: boolean): integer?
 ---@field NearestForRank fun(profession: SkillUpContext, rank: SkillUpRank, byTravel?: boolean): integer?, string
----@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer, single?: boolean)
+---@field AddNearest fun(tooltip: GameTooltip, label: string, npcID?: integer)
 ---@field AddRecipeTrainer fun(tooltip: GameTooltip, profession: SkillUpContext, recipeID: integer)
----@field AddCompanionHint fun(tooltip: GameTooltip, single?: boolean)
----@field AddQuestChainHint fun(tooltip: GameTooltip)
 ---@field AnnounceUpdate fun()
 ---@field WHATS_NEW string
 ---@field WHATS_NEW_VERSION string the release whose headline WHATS_NEW is
@@ -271,6 +272,7 @@
 ---@field LootedFrom table<integer, boolean> Reagents a creature drops, which any character can loot.
 ---@field LimitedStock table<integer, table<integer, number>> Per item, the vendors that limit its stock and by how much.
 ---@field NodeSkills table<string, number[]> { gathering skill line, required skill } per enUS herb or ore node name.
+---@field NodeEntrySkills table<integer, number[]> { gathering skill line, required skill } per herb or ore gameobject entry.
 ---@field ScrollDrops table<integer, number[][]>
 ---@field WorldDrops table<integer, boolean>
 ---@field Questie SkillUpQuestie
@@ -280,6 +282,7 @@
 
 ---@class SkillUpDefaults
 ---@field includeWorkingOvertime boolean
+---@field workingOvertimeOffSeen boolean
 ---@field observedRecipes table<string, {ids: table<integer, true>, eventUnix: number}>
 ---@field showRowText boolean
 ---@field showUnlearned boolean
@@ -342,9 +345,11 @@
 ---@field build? string The client build it was last seen on.
 ---@field items table<integer, true>
 
----@class SkillUpDB : SkillUpDefaults, ForeverFamilyDB
+---@class SkillUpDB : SkillUpDefaults
 ---@field trackerHost? ForeverTrackerLegacySettings the addon's old tracker table, offered to ForeverCore once
 ---@field auctionListSignatures? table<string, string> The need SkillUp last wrote for each Auctionator list name
+---@field showTooltips? boolean Legacy migration only.
+---@field showCost? boolean Legacy migration only.
 ---@field showReagentTooltip? boolean Legacy migration only.
 ---@field priceDays? table Legacy migration only.
 ---@field latestPrice? number Legacy migration only.
@@ -352,7 +357,10 @@
 ---@field tracked? table<integer, boolean> Legacy migration only.
 ---@field auctions? table Legacy migration only.
 ---@field gatherFree? boolean Legacy migration only.
----@field companionHints? boolean Legacy migration only: dropped on load
+---@field companionHints? boolean Legacy migration only.
+---@field suggestFamily? boolean Legacy migration only.
+---@field familyDismissed? table Legacy migration only.
+---@field familyLinks? table Legacy migration only.
 
 ---@type SkillUpDB
 SkillUpForeverDB = nil
@@ -395,7 +403,7 @@ SkillUpForeverDB = nil
 ---@field held? number What using one held unit gives up.
 
 ---@class SkillUpCandidate
----@field gatherableUnknown? boolean
+---@field gatherableUnknown? false|"gather"|"auction" Why a recipe with no known cost still plans (Plan.lua GatherableUnknown).
 ---@field recipeID integer
 ---@field thresholds number[]
 ---@field netCost? number
@@ -513,6 +521,7 @@ SkillUpForeverDB = nil
 ---@field Add fun(recipe: SkillUpCandidate) A recipe joins the end of the list.
 ---@field Route fun(extra?: SkillUpCandidate): SkillUpRoute, number[] The route, and each skill it picked at.
 ---@field Changes fun(extra: SkillUpCandidate, picked: number[]): boolean Whether `extra` changes the route.
+---@field Waiting fun(route: SkillUpRoute, extra?: SkillUpCandidate): integer The route's steps waiting on an auction price.
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
 ---@class SkillUpPlanSupply
@@ -545,6 +554,8 @@ SkillUpForeverDB = nil
 ---@field unpriced integer Known recipes left out for an unpriced reagent.
 ---@field unpricedRecipes integer[]
 ---@field stopReason? 'no_recipe'
+---@field revision? integer Bumped when a kept route's expansion changes in place, for caches keyed on the plan.
+---@field expanded? string The kept route's sub-crafts, raw and held totals at its last refresh.
 
 ---@class SkillUpShoppingItem
 ---@field itemID integer

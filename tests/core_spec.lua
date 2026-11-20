@@ -228,28 +228,30 @@ do
 	ns.AnnounceUpdate()
 	equal(#messages, 1, "a dev checkout is silent")
 	equal(ns.db.lastVersion, next, "a dev checkout's version isn't remembered")
-	-- The hint switch and the master switches for tooltips, cost and tabs are gone; a master that was off turns
-	-- what it hid off in its own rows, once.
-	env.SkillUpForeverDB = { companionHints = false, suggestFamily = true }
+	-- The family hints left ForeverCore 1.15: their saved keys are cleared once.
+	env.SkillUpForeverDB = { companionHints = false, suggestFamily = true, familyDismissed = { x = true } }
 	callbacks.SkillUpForever()
-	equal(ns.db.suggestFamily, nil, "the family hint setting is dropped")
-	equal(ns.db.companionHints, nil, "and the older one")
+	equal(ns.db.companionHints, nil, "the old companion setting goes")
+	equal(ns.db.suggestFamily, nil, "the family hint setting goes")
+	equal(ns.db.familyDismissed, nil, "and its dismissed hints")
 	env.SkillUpForeverDB = { showTooltips = false, showCost = false, showProfessionTabs = false }
 	callbacks.SkillUpForever()
-	equal(ns.db.showTooltips, nil, "the tooltip master is dropped")
-	equal(
-		ns.db.showTooltip == false and ns.db.reagentTooltip == "off" and ns.db.gatherTooltip == false,
-		true,
-		"tooltips off turns each tooltip row off"
-	)
-	equal(ns.db.showCost, nil, "the cost switch is dropped")
-	equal(ns.db.showRowPrices, false, "cost off turns the row prices off")
-	equal(ns.db.showProfessionTabs, true, "the tabs master stays on")
-	equal(
-		ns.db.showRouteTab == false and ns.db.showGearTab == false and ns.db.showBuffsTab == false,
-		true,
-		"tabs off turns each tab off"
-	)
+	equal(ns.db.showTooltips, nil, "the tooltip master is consumed")
+	equal(ns.db.showTooltip, false, "the recipe tooltip stays off")
+	equal(ns.db.reagentTooltip, "off", "reagent details stay off")
+	equal(ns.db.showTooltipRoute, false, "tooltip route details stay off")
+	equal(ns.db.gatherTooltip, false, "gathering details stay off")
+	equal(ns.db.showCost, nil, "the cost switch is consumed")
+	equal(ns.db.showRowPrices, false, "row prices stay off")
+	equal(ns.db.showRouteTab, false, "the route tab stays off")
+	equal(ns.db.showGearTab, false, "the gear tab stays off")
+	equal(ns.db.showBuffsTab, false, "the buffs tab stays off")
+	equal(ns.db.showSupplyTab, false, "the supply tab stays off")
+	ns.db.showTooltip, ns.db.showRowPrices, ns.db.showSupplyTab = true, true, true
+	callbacks.SkillUpForever()
+	equal(ns.db.showTooltip, true, "turning the recipe tooltip back on sticks")
+	equal(ns.db.showRowPrices, true, "turning row prices back on sticks")
+	equal(ns.db.showSupplyTab, true, "turning a tab back on sticks")
 	-- A saved choice the menu doesn't offer goes back to its default; a valid one stays.
 	env.SkillUpForeverDB = {
 		priceSource = "tsn",

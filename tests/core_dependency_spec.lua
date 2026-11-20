@@ -94,6 +94,7 @@ local function Require(foreverCore)
 		},
 		C_AddOns = Addons(),
 		ForeverCore = foreverCore,
+		SlashCmdList = {},
 		UnitName = function()
 			return "Tester"
 		end,
@@ -104,7 +105,7 @@ local function Require(foreverCore)
 	-- The TOC loads the shared warning before the addon's own Require, which calls it.
 	setfenv(assert(loadfile("Core/ForeverRequire.lua")), env)("SkillUpForever", addon)
 	setfenv(assert(loadfile("Core/Require.lua")), env)("SkillUpForever", addon)
-	return addon, lines
+	return addon, lines, env
 end
 
 -- The API kit arrived after API 1: Core/API.lua builds this addon's own API on its Hub and NotReady.
@@ -114,9 +115,23 @@ assert(#lines == 1, "and the shared warning says so in one error line")
 assert(lines[1].text == "SkillUp Forever could not start. Reinstall SkillUp Forever to fix this.", lines[1].text)
 
 -- A missing core stops it too; the game normally refuses to load the addon first.
-local missing, missingLines = Require(nil)
+local missing, missingLines, stopped = Require(nil)
 assert(missing.broken == true, "a missing ForeverCore stops the addon")
 assert(#missingLines == 1, "and the shared warning says so in one error line")
+-- A stopped addon still answers /skillup with that line, so a player who tries it learns why it does nothing (#866).
+-- Core/Core.lua's slash words are the ones it keeps.
+local words = {}
+for index, word in assert(io.open("Core/Core.lua")):read("*a"):gmatch('SLASH_SKILLUPFOREVER(%d+) = "([^"]+)"') do
+	words[tonumber(index)] = word
+end
+assert(#words > 0, "Core/Core.lua registers slash words")
+for index, word in ipairs(words) do
+	assert(stopped["SLASH_SKILLUPFOREVER" .. index] == word, "the stopped addon keeps " .. word)
+end
+assert(stopped["SLASH_SKILLUPFOREVER" .. (#words + 1)] == nil, "and adds no word of its own")
+assert(type(stopped.SlashCmdList.SKILLUPFOREVER) == "function", "/skillup still answers")
+stopped.SlashCmdList.SKILLUPFOREVER("")
+assert(#missingLines == 2 and missingLines[2].text == missingLines[1].text, "/skillup repeats the line")
 
 -- The tracker section and line arrived after API 1 as well, and UI/Shopping.lua builds on both.
 local noSection, noSectionLines = Require({ APIKit = { Hub = function() end, NotReady = function() end } })

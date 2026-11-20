@@ -110,9 +110,17 @@ equal(
 	"an awaited numeric-filter level redraws only the recipe list"
 )
 
-local function Event(event)
+local function Event(event, ...)
+	local args = { ... }
 	return function()
-		c.Fire(event)
+		c.Fire(event, unpack(args))
+	end
+end
+-- Item data arriving, and the next frame, where the rest of a burst lands.
+local function ItemData(itemID)
+	return function()
+		c.Fire("ITEM_DATA_LOAD_RESULT", itemID, true)
+		c.Advance(0)
 	end
 end
 local function Changed(kind)
@@ -137,11 +145,17 @@ end
 ns.PlanRoute = realPlanRoute
 equal(planReads, 0, "stable API copies do not resolve plans")
 
--- The public list was built without the reagent's name, so item data arriving rebuilds it once.
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), "api | route", "item data the public list waited on")
+-- The public list was built without the reagent's name: only that name arriving rebuilds it, once. Item data
+-- SkillUp never asked for is someone else's and changes nothing.
+equal(Stale(ItemData(9999)), " | ", "item data for an item SkillUp did not ask for")
+equal(Stale(ItemData(CLOTH)), " | route", "the awaited item, still without its name")
 c.items[CLOTH] = { name = "Linen Cloth" }
-c.Fire("BAG_UPDATE_DELAYED")
-equal(Stale(Event("ITEM_DATA_LOAD_RESULT")), " | route", "item data nothing waited on")
+ns.Changed("bags")
+c.items[CLOTH] = nil
+APIAnswer(true)
+c.items[CLOTH] = { name = "Linen Cloth" }
+equal(Stale(ItemData(CLOTH)), "api | route", "the name the public list waited on")
+equal(Stale(ItemData(CLOTH)), " | ", "item data nothing waits on any more")
 
 for _, case in ipairs({
 	-- The window's own events redraw what shows it and keep the plans: its scan reports what changed in them.
@@ -150,7 +164,6 @@ for _, case in ipairs({
 	{ "TRADE_SKILL_SHOW", "api | route recipeList tracker" },
 	-- A weapon or defense skill-up: nothing the plans read.
 	{ "SKILL_LINES_CHANGED", "api | route recipeList tracker" },
-	{ "BAG_UPDATE_DELAYED", "api | route tracker" },
 	{ "PLAYER_LEVEL_UP", "api | route recipeList tracker" },
 	{ "ZONE_CHANGED_NEW_AREA", "api | " },
 	{ "MERCHANT_SHOW", "api | tracker" },
@@ -161,6 +174,46 @@ for _, case in ipairs({
 	equal(c.Listeners(case[1]), 1, case[1] .. " arrives on one frame")
 	equal(Stale(Event(case[1])), case[2], case[1])
 end
+
+-- A bag event moves something SkillUp shows only when a count it read moved: the game raises it for every slot
+-- it touches, and a plan rebuilt for each one was a whole plan inside the profession window's frame (#850).
+equal(c.Listeners("BAG_UPDATE_DELAYED"), 1, "BAG_UPDATE_DELAYED arrives on one frame")
+ns.PlanRoute(Tailoring())
+equal(Stale(Event("BAG_UPDATE_DELAYED")), " | ", "a bag event that moves no count SkillUp read")
+local planned = ns.PlanRoute(Tailoring())
+c.Fire("BAG_UPDATE_DELAYED")
+equal(ns.PlanRoute(Tailoring()) == planned, true, "and keeps the plan, not rebuilding it")
+equal(
+	Stale(function()
+		c.bags[CLOTH] = (c.bags[CLOTH] or 0) + 1
+		c.Fire("BAG_UPDATE_DELAYED")
+	end),
+	"api | route tracker",
+	"a bag event that moves a count SkillUp read"
+)
+
+-- The with-bank count alone moving is a bag change too: a deposit's other half lands in the bank.
+equal(
+	Stale(function()
+		c.bank[CLOTH] = (c.bank[CLOTH] or 0) + 1
+		c.Fire("BAG_UPDATE_DELAYED")
+	end),
+	"api | route tracker",
+	"a bag event that moves only the with-bank count SkillUp read"
+)
+-- A count the client won't hand over is unknown, not unchanged: the bag event it fell on is a change, and so is
+-- the next one, where the count comes back readable, even unchanged from before.
+c.unreadable[CLOTH] = true
+equal(Stale(Event("BAG_UPDATE_DELAYED")), "api | route tracker", "an unreadable count is a change")
+c.unreadable[CLOTH] = nil
+equal(Stale(Event("BAG_UPDATE_DELAYED")), "api | route tracker", "and so is its first readable count after it")
+equal(Stale(Event("BAG_UPDATE_DELAYED")), " | ", "a readable count, unchanged since, is not")
+-- An item first read while its count is unreadable starts unknown, so its first readable count moves it.
+local SPARE = 990002
+c.unreadable[SPARE] = true
+ns.Have(SPARE)
+c.unreadable[SPARE] = nil
+equal(Stale(Event("BAG_UPDATE_DELAYED")), "api | route tracker", "a count read first as unreadable")
 
 -- The recipe list update is the window's event that can fire while nothing SkillUp reads has moved; its
 -- scan decides, so an unchanged window marks nothing at all.
@@ -217,17 +270,22 @@ equal(
 equal(ns.Price(CLOTH).copper, 8, "which is the price now")
 equal(Stale(Event("MERCHANT_UPDATE")), " | tracker", "the same merchant again")
 
--- A sell price the client had not loaded: one re-price after the burst of item data.
+-- A sell price the client had not loaded: one re-price on the next frame, for the item it waited on alone.
 c.items[SHIRT_ITEM].sell = nil
 ns.CraftCost(SHIRT)
 equal(c.requested[SHIRT_ITEM], true, "the sell price is asked for")
 c.items[SHIRT_ITEM].sell = 5
-equal(Stale(Event("GET_ITEM_INFO_RECEIVED")), " | ", "item info a craft's value waited on changes nothing yet")
-local function HalfASecond()
-	c.Advance(0.5)
+equal(Stale(Event("GET_ITEM_INFO_RECEIVED", CLOTH, true)), " | ", "item info for another item")
+equal(
+	Stale(Event("GET_ITEM_INFO_RECEIVED", SHIRT_ITEM, true)),
+	" | ",
+	"item info a craft's value waited on changes nothing yet"
+)
+local function NextFrame()
+	c.Advance(0)
 end
-equal(Stale(HalfASecond), "prices plans api | route recipeList tracker", "it waits out the burst, then prices changed")
-equal(Stale(HalfASecond), " | ", "once")
+equal(Stale(NextFrame), "prices plans api | route recipeList tracker", "on the next frame prices changed")
+equal(Stale(NextFrame), " | ", "once")
 
 -- #503: item data arrives for any item, from any addon, so it must not drop the tracked routes' material
 -- lists. The one item-data input those lists read, a vendor sell price, reports `prices` when it arrives.

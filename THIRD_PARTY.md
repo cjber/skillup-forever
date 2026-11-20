@@ -121,6 +121,7 @@ Credit for the reports and requests behind the addon.
 | Kozoaku | TradeSkillMaster auction prices (code) | GitHub; PR #500 |
 | st3nlee | Self-supplied reagents priced at market values | CurseForge; #399 |
 | st3nlee | Crafted items' sale value counted | CurseForge; #466 |
+| turkeyfire69 | Auctionator searches start on request | CurseForge; #880 |
 | prokn4h | Unlearned recipes can be listed | CurseForge; #361 |
 | prokn4h | Unlearned recipes show their tooltips | CurseForge; #420 |
 | Kirdan | Working Overtime at 4% per point | CurseForge; #349, #419 |

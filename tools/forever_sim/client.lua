@@ -2,6 +2,7 @@
 -- timers and OnUpdate, CVars, the error handler, and ADDON_ACTION_BLOCKED / ADDON_ACTION_FORBIDDEN.
 local Secret = require("veil")
 local Docs = require("docs")
+local Surface = require("client_surface")
 
 local M = {}
 
@@ -395,6 +396,10 @@ function M.build(sim)
 		-- refused to tainted code at any time, and C_UI.Reload refused to tainted code outside a hardware event.
 		["C_TradeSkillUI.OpenTradeSkill"] = { class = "always", issue = "cjber/forever-core#538" },
 		["C_UI.Reload"] = { class = "hwevent", issue = "cjber/forever-core#538" },
+		-- OpenRecipe from addon code outside a hardware event logged ADDON_ACTION_BLOCKED live (cjber/forever-core#831);
+		-- CraftRecipe reached from tainted code did at any time (cjber/skillup-forever#313).
+		["C_TradeSkillUI.OpenRecipe"] = { class = "hwevent", issue = "cjber/forever-core#831" },
+		["C_TradeSkillUI.CraftRecipe"] = { class = "always", issue = "cjber/skillup-forever#313" },
 	}
 	-- Every class of a restriction, the observed override first, then the pin, then the pre-class combat-only rule for
 	-- an untagged name. A function can carry several classes, and any one that applies refuses the call.
@@ -440,8 +445,64 @@ function M.build(sim)
 		end
 		return out
 	end
+	-- The work a path causes, for benches: per label, how often it ran, the event handlers it dispatched and the
+	-- documented client API calls tainted code made inside it. Every event is measured under its own name; a spec wraps
+	-- any other path (a tooltip, a click, a callback) in work.measure. A nested path counts in its own entry and in every
+	-- enclosing one. Counts, not a clock, so a bench can assert a deterministic upper bound on one path's work.
+	local work = { paths = {}, stack = {} }
+	sim.work = work
+	function work.reset()
+		work.paths = {}
+	end
+	function work.count(field)
+		for _, entry in ipairs(work.stack) do
+			entry[field] = entry[field] + 1
+		end
+	end
+	local function workBegin(label)
+		local entry = { label = label, handlers = 0, apiCalls = 0 }
+		work.stack[#work.stack + 1] = entry
+		return entry
+	end
+	local function workEnd(entry)
+		for i = #work.stack, 1, -1 do
+			if work.stack[i] == entry then
+				table.remove(work.stack, i)
+				break
+			end
+		end
+		local stat = work.paths[entry.label]
+		if not stat then
+			stat = { runs = 0, handlers = 0, apiCalls = 0, maxHandlers = 0, maxApiCalls = 0 }
+			work.paths[entry.label] = stat
+		end
+		stat.runs = stat.runs + 1
+		stat.handlers = stat.handlers + entry.handlers
+		stat.apiCalls = stat.apiCalls + entry.apiCalls
+		stat.maxHandlers = math.max(stat.maxHandlers, entry.handlers)
+		stat.maxApiCalls = math.max(stat.maxApiCalls, entry.apiCalls)
+		return stat
+	end
+	-- Runs f(...) as the path label and returns that run's counts, then f's results. An error in f still closes the
+	-- entry and is raised again.
+	function work.measure(label, f, ...)
+		local entry = workBegin(label)
+		local result = { pcall(f, ...) }
+		workEnd(entry)
+		if not result[1] then
+			error(result[2], 0)
+		end
+		return { handlers = entry.handlers, apiCalls = entry.apiCalls }, unpack(result, 2, table.maxn(result))
+	end
+
 	-- Fires an event the way the client does: each registered frame's OnEvent in its own secure dispatch.
 	function E.fire(event, ...)
+		-- A handler's error goes to the client's error handler inside dispatch, as live, so the entry always closes.
+		local entry = workBegin(event)
+		E.dispatchAll(event, ...)
+		workEnd(entry)
+	end
+	function E.dispatchAll(event, ...)
 		for _, frame in ipairs(E.listeners(event)) do
 			local st = sim.widgets.state[frame]
 			if st and st.events and (st.events[event] or st.allEvents) then
@@ -457,6 +518,7 @@ function M.build(sim)
 					end
 				end
 				if pass then
+					work.count("handlers")
 					sim.widgets.dispatch(frame, "OnEvent", event, ...)
 				end
 			end
@@ -604,6 +666,9 @@ function M.build(sim)
 					end
 				end
 			end
+			if sim.noise then
+				sim.noise.frame()
+			end
 			E.flush()
 		until remaining <= 0
 	end
@@ -670,6 +735,32 @@ function M.build(sim)
 	G.GetCursorPosition = function()
 		return sim.mouseX or 0, sim.mouseY or 0
 	end
+	-- Blizzard_SharedXML's cursor anchor and screen quadrant, as the client has them, for specs that load no Blizzard
+	-- UI; a scenario that loads SharedXML replaces them with Blizzard's own. sim.gamepad is the gamepad interface.
+	G.InputUtil = {
+		IsGamepadUIEnabled = function()
+			return sim.gamepad == true
+		end,
+		AnchorRegionToCursor = function(region, point)
+			local x, y = G.GetCursorPosition()
+			local scale = G.UIParent:GetEffectiveScale()
+			region:ClearAllPoints()
+			region:SetPoint(point, G.UIParent, "BOTTOMLEFT", x / scale, y / scale)
+		end,
+	}
+	G.FrameUtilQuadrantEnum = { BottomLeft = 1, BottomRight = 2, TopLeft = 3, TopRight = 4 }
+	G.FrameUtil = {
+		GetScreenQuadrant = function(frame)
+			local x, y = frame:GetCenter()
+			x, y = x * frame:GetScale(), y * frame:GetScale()
+			local left, bottom = x < G.UIParent:GetWidth() / 2, y < G.UIParent:GetHeight() / 2
+			local quadrant = G.FrameUtilQuadrantEnum
+			if bottom then
+				return left and quadrant.BottomLeft or quadrant.BottomRight
+			end
+			return left and quadrant.TopLeft or quadrant.TopRight
+		end,
+	}
 	G.GetMouseFoci = function()
 		return { sim.mouseFocus }
 	end
@@ -728,34 +819,30 @@ function M.build(sim)
 		return false
 	end
 
-	-- CVars.
-	-- Numeric CVars client code reads through GetCVarNumberOrDefault even when tainted (an unset one reads nil
-	-- then, and tonumber(nil) errors). The gamepad interface transition reads these; the values are stand-ins.
-	local cvarDefaults = {
-		GamepadMapScrollSpeed = "1",
-		GamepadMapScrollSpeedFullScreen = "1",
-		GamepadMapZoomSpeed = "1",
-		GamepadMapEdgePanDistance = "40",
-		GamepadTargetingModifierVisualDelay = "0.5",
-		GamepadPossessBarOverride = "1",
-		GamepadStanceBarOverride = "1",
-	}
+	-- CVars: every one the client defines starts at its default (client_surface.lua, generated from a ForeverProbe
+	-- dump). A name the client does not define reads nil, as in the client, and RegisterCVar adds one.
+	local cvarDefaults = {}
 	sim.cvars = {}
-	for name, value in pairs(cvarDefaults) do
-		sim.cvars[name] = value
+	-- The client matches cvar names in any case; values are kept under the client's own spelling.
+	local spelling = {}
+	for name, value in pairs(Surface.cvars) do
+		cvarDefaults[name], sim.cvars[name], spelling[name:lower()] = value, value, name
 	end
-	-- Client code reads CVars the client always defines; an unset one reads "0" for it (recorded as a gap).
+	local function known(name)
+		return type(name) == "string" and spelling[name:lower()] or nil
+	end
 	local function cvar(name)
-		local v = sim.cvars[name]
-		if v == nil and not Taint.current and type(name) == "string" then
-			sim.gaps["CVar " .. name] = true
-			return "0"
-		end
-		return v
+		local key = known(name)
+		return key and sim.cvars[key]
 	end
 	sim.impl["C_CVar.GetCVar"] = cvar
+	-- Setting a name the client does not define changes nothing and reports false.
 	sim.impl["C_CVar.SetCVar"] = function(name, value)
-		sim.cvars[name] = value ~= nil and tostring(value) or nil
+		local key = known(name)
+		if not key then
+			return false
+		end
+		sim.cvars[key] = value ~= nil and tostring(value) or nil
 		return true
 	end
 	sim.impl["C_CVar.GetCVarBool"] = function(name)
@@ -763,28 +850,22 @@ function M.build(sim)
 		return v == "1" or v == "true"
 	end
 	sim.impl["C_CVar.GetCVarDefault"] = function(name)
-		return cvarDefaults[name] or sim.cvars[name]
+		local key = known(name)
+		return key and cvarDefaults[key]
 	end
+	-- A registered cvar's value is also its default, as GetCVarDefault reports in the client.
 	sim.impl["C_CVar.RegisterCVar"] = function(name, value)
-		if sim.cvars[name] == nil then
+		if not known(name) then
+			spelling[name:lower()] = name
 			sim.cvars[name] = value ~= nil and tostring(value) or nil
+			cvarDefaults[name] = sim.cvars[name]
 		end
 	end
 	G.GetCVar = cvar
-	G.SetCVar = function(name, value)
-		sim.cvars[name] = value ~= nil and tostring(value) or nil
-		return true
-	end
-	G.GetCVarBool = function(name)
-		local v = sim.cvars[name]
-		return v == "1" or v == "true"
-	end
-	G.GetCVarDefault = G.GetCVar
-	G.RegisterCVar = function(name, value)
-		if sim.cvars[name] == nil then
-			sim.cvars[name] = value
-		end
-	end
+	G.SetCVar = sim.impl["C_CVar.SetCVar"]
+	G.GetCVarBool = sim.impl["C_CVar.GetCVarBool"]
+	G.GetCVarDefault = sim.impl["C_CVar.GetCVarDefault"]
+	G.RegisterCVar = sim.impl["C_CVar.RegisterCVar"]
 
 	-- Bindings, sound, misc. engine calls that only need to exist.
 	for _, name in ipairs({

@@ -457,6 +457,73 @@ function M.install(Sim)
 		return self
 	end
 
+	-- An item in a bag slot, as the client would hold it: BAG_UPDATE for that bag, then BAG_UPDATE_DELAYED. The item
+	-- must exist in the client's data (or sim.world.items); nil count empties the slot.
+	function Sim:putInBag(bag, slot, itemID, count)
+		local b = self.world.bags[bag] or { size = 0 }
+		self.world.bags[bag] = b
+		assert(slot >= 1 and slot <= (b.size or 0), "bag " .. bag .. " has no slot " .. slot)
+		if itemID then
+			assert(self.item(itemID), "no client data has item " .. tostring(itemID))
+			b[slot] = { itemID = itemID, count = count or 1 }
+		else
+			b[slot] = nil
+		end
+		self.events.fire("BAG_UPDATE", bag)
+		self.events.fire("BAG_UPDATE_DELAYED")
+		self:advance(0.02)
+		return self
+	end
+
+	-- A quest giver's reward panel: QuestFrame shows, QUEST_COMPLETE draws the reward panel through the client's
+	-- QuestInfo. reward = { title, text, choices = { itemID or {itemID, count} }, rewards = { ... }, money, xp }.
+	function Sim:openQuestReward(questID, reward)
+		reward = reward or {}
+		local function entries(list)
+			local out = {}
+			for i, entry in ipairs(list or {}) do
+				entry = type(entry) == "table" and entry or { entry, 1 }
+				assert(self.item(entry[1]), "quest reward item " .. tostring(entry[1]) .. " has no client data")
+				out[i] = { entry[1], entry[2] or 1 }
+			end
+			return out
+		end
+		self.world.questReward = {
+			questID = questID,
+			title = reward.title or ("Quest " .. questID),
+			text = reward.text or "",
+			choices = entries(reward.choices),
+			rewards = entries(reward.rewards),
+			money = reward.money or 0,
+			xp = reward.xp or 0,
+		}
+		local frame = self.G.QuestFrame
+		if frame then
+			self:showPanel(frame)
+			self.events.fire("QUEST_COMPLETE")
+			self:advance(0.1)
+		end
+		return frame
+	end
+
+	-- Turn the quest in from the reward panel: pick choice (1-based, nil when there is none) and press Complete.
+	function Sim:completeQuestReward(choice)
+		local G = self.G
+		self.run(function()
+			G.QuestInfoFrame.itemChoice = choice or 0
+		end)
+		self:click(G.QuestFrameCompleteQuestButton)
+		self:advance(0.1)
+		return self
+	end
+
+	function Sim:closeQuestReward()
+		self.run(function()
+			self.G.CloseQuest()
+		end)
+		self:advance(0.1)
+	end
+
 	function Sim:closeMerchant()
 		local frame = self.G.MerchantFrame
 		if frame then
@@ -466,6 +533,69 @@ function M.install(Sim)
 			end)
 			self:advance(0.1)
 		end
+	end
+
+	-- A noisy client: every frame, the item, bag and merchant traffic a live client raises that no addon asked for.
+	-- GET_ITEM_INFO_RECEIVED and ITEM_DATA_LOAD_RESULT for random item IDs (known ones and unknown ones, some loads
+	-- failed), BAG_UPDATE for random bags then one BAG_UPDATE_DELAYED, and MERCHANT_UPDATE while the merchant is
+	-- open. A requested load of a known item fails at the same rate. The stream is seeded, so a spec is
+	-- reproducible; sim.noise.fired counts what it raised by event. sim:noisy(false) turns it off.
+	function Sim:noisy(opts)
+		if opts == false then
+			self.noise = nil
+			return self
+		end
+		opts = opts or {}
+		local sim = self
+		local state = (opts.seed or 1) % 2147483646 + 1
+		local function random(n)
+			-- Park and Miller's generator, exact in doubles, so math.random's state stays the scenario's own.
+			state = state * 16807 % 2147483647
+			return state % n + 1
+		end
+		local itemsPerFrame = opts.itemsPerFrame or 4
+		local failPercent = opts.failPercent or 20
+		local bagPercent = opts.bagPercent or 50
+		local merchantPercent = opts.merchantPercent or 50
+		local noise = { fired = {} }
+		local function raise(event, ...)
+			noise.fired[event] = (noise.fired[event] or 0) + 1
+			sim.events.queue(event, ...)
+		end
+		function noise.fails()
+			return random(100) <= failPercent
+		end
+		function noise.frame()
+			local known = {}
+			for id in pairs(sim.world.items) do
+				known[#known + 1] = id
+			end
+			table.sort(known)
+			for _ = 1, itemsPerFrame do
+				local id, success
+				if #known > 0 and random(2) == 1 then
+					id = known[random(#known)]
+					success = not noise.fails()
+				else
+					id = random(250000)
+					success = sim.world.items[id] ~= nil and not noise.fails()
+				end
+				raise("GET_ITEM_INFO_RECEIVED", id, success)
+				raise("ITEM_DATA_LOAD_RESULT", id, success)
+			end
+			if random(100) <= bagPercent then
+				for _ = 1, random(3) do
+					raise("BAG_UPDATE", random(5) - 1)
+				end
+				raise("BAG_UPDATE_DELAYED")
+			end
+			local merchant = sim.G.MerchantFrame
+			if merchant and merchant:IsShown() and random(100) <= merchantPercent then
+				raise("MERCHANT_UPDATE")
+			end
+		end
+		self.noise = noise
+		return self
 	end
 
 	function Sim:openBags()

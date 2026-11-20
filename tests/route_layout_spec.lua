@@ -557,6 +557,10 @@ local ns = {
 	AuctionListName = function(profession)
 		return "SkillUp: " .. profession
 	end,
+	-- The fixture gathers, so SkillUp keeps no Auctionator list for it.
+	KeptAuctionList = function()
+		return nil
+	end,
 	ShowRecipe = noop,
 	TrackerAttached = function()
 		return true
@@ -1246,8 +1250,15 @@ equal(paneOtherLeft >= paneLeft and paneOtherRight <= paneRight, true, "the othe
 
 -- The action button: a known pick opens the recipe, a trainable one sets a waypoint to where it is
 -- taught, and one out of reach is disabled with the reason why.
+local shownRecipe
+local showRecipe = ns.ShowRecipe
+ns.ShowRecipe = function(recipeID)
+	shownRecipe = recipeID
+end
 pane.Action:Click()
-equal(opened[#opened], 2001, "a known pick's button opens its recipe")
+ns.ShowRecipe = showRecipe
+equal(shownRecipe, 2001, "a known pick's button finds its recipe through the one opener")
+equal(#opened, 0, "and never asks the client to open it (#840)")
 pane.OtherRows[1]:Click()
 equal(pane.Action.text, "Set waypoint", "a trainable pick's button names the waypoint")
 pane.Action:Click()
@@ -1323,5 +1334,45 @@ equal(#scriptReads, 0, "the gamepad scan reads no script from a frame SkillUp ma
 equal(routeTab:IsObjectType("Button"), true, "the SkillUp side tab is a Button, so the scan skips its scripts")
 equal(routeBottom:IsObjectType("Button"), true, "and the route page tab is one too")
 equal(gearTab:IsObjectType("Button"), true, "and the gear page tab")
+
+-- #869: a note line wraps to its full height. The text hangs from the row's top corners only, so its own wrapped
+-- lines set its height; an anchor on the row's middle tied it to the measured row height and cut the last line.
+local messages = 0
+for _, row in ipairs(page.RouteList.scrollBox.frames) do
+	if row.kind == "message" then
+		messages = messages + 1
+		local hung = {}
+		for _, anchor in ipairs(row.Text.points) do
+			hung[#hung + 1] = anchor.point
+		end
+		table.sort(hung)
+		equal(
+			table.concat(hung, " "),
+			"TOPLEFT TOPRIGHT",
+			"a note line hangs from the row's top corners, not its middle"
+		)
+	end
+end
+equal(messages > 0, true, "the route draws its note lines")
+
+-- And a new list width measures the note lines again, since their wrapped height depends on it. The client's
+-- scroll box resets its own OnSizeChanged script on every full update, so the list listens on the parent it is
+-- pinned to.
+local box = page.RouteList.scrollBox
+local inset = box.points[1].relative
+box.scripts.OnSizeChanged = nil
+local redraws = 0
+local SetDataProvider = box.SetDataProvider
+box.SetDataProvider = function(...)
+	redraws = redraws + 1
+	return SetDataProvider(...)
+end
+inset.scripts.OnSizeChanged(inset)
+equal(redraws, 0, "the same width keeps the list as it is")
+ProfessionsFrame:SetWidth(ProfessionsFrame.width - 100)
+inset.scripts.OnSizeChanged(inset)
+equal(redraws, 1, "a narrower list measures its note lines again")
+box.SetDataProvider = SetDataProvider
+ProfessionsFrame:SetWidth(ProfessionsFrame.width + 100)
 
 Client.report("route_layout_spec")

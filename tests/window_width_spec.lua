@@ -126,15 +126,7 @@ ns.Pages = {
 	end,
 }
 
-local custom, widget = dofile("tests/recipe_list_view.lua")(box)
-recipeList.ScrollBar = widget
-recipeList.GetFrameLevel = function()
-	return 1
-end
 local env = setmetatable({
-	CreateFrame = function()
-		return custom
-	end,
 	ProfessionsFrame = frame,
 	Professions = {
 		GetHighestLearnedRecipe = function(info)

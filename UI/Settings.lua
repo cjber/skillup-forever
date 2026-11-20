@@ -103,7 +103,7 @@ function ns.RegisterSettings()
 			rows,
 			"includeWorkingOvertime",
 			L["Include Working Overtime estimate"],
-			L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."]
+			L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."]
 		)
 		Checkbox(
 			rows,
@@ -130,13 +130,13 @@ function ns.RegisterSettings()
 			rows,
 			"showRowPrices",
 			L["Show prices on recipe rows"],
-			L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."]
+			L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."]
 		)
 
 		Choice(
 			rows,
 			"rowCost",
-			L["Price shown on recipe rows"],
+			L["Money on recipe rows"],
 			ns.ROW_COST_OPTIONS,
 			L["Per skill-up is the cost of one skill point. Per craft is what one craft costs or earns, shown on recipes that no longer give skill too."]
 		)
@@ -255,6 +255,34 @@ function ns.RegisterSettings()
 			L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."]
 		)
 		local host = ForeverCore.TrackerHost
+		if host and host.GetSettings and host.SetAttached and host.OnAttachmentChanged then
+			local variable = "SkillUpForever_trackerAttached"
+			local setting = Settings.RegisterProxySetting(
+				rows,
+				variable,
+				Settings.VarType.Boolean,
+				L["Attach to quest tracker"],
+				true,
+				function()
+					return host.GetSettings().attached
+				end,
+				function(value)
+					host.SetAttached(value == true)
+				end
+			)
+			---@cast setting SkillUpSetting
+			Settings.RegisterInitializer(
+				rows,
+				Settings.CreateCheckboxInitializer(
+					setting,
+					nil,
+					L["Turn this off to drag the shared Forever tracker anywhere on screen."]
+				)
+			)
+			host.OnAttachmentChanged(function()
+				Settings.NotifyUpdate(variable)
+			end)
+		end
 		-- The shared host owns the scale, so the slider only mirrors it and writes back a percentage of it.
 		if host and host.GetScale and host.SetScale then
 			local scale = Settings.RegisterProxySetting(
@@ -349,8 +377,8 @@ function ns.RegisterSettings()
 		Checkbox(
 			rows,
 			"auctionSearch",
-			L["Search reagents at the auction house"],
-			L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."]
+			L["Show reagent search and keep shopping lists"],
+			L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."]
 		)
 
 		Checkbox(
@@ -381,7 +409,7 @@ function ns.RegisterSettings()
 			rows,
 			"gatherTooltip",
 			L["Gathering skill on nodes"],
-			L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."]
+			L["Herb and ore node tooltips show the skill they need and its colour at yours. Skinnable corpses show ? until the skinning rule is confirmed on Forever."]
 		)
 
 		Choice(

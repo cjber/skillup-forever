@@ -4,6 +4,8 @@ if GetLocale() ~= "zhCN" then
 	return
 end
 local L = ns.L
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
+	"在每个配方旁显示金钱。关闭后价格仍显示在配方鼠标提示中。" -- mt
 L["Show prices on recipe rows"] = "在配方行显示价格" -- mt
 L["Show recipe tooltip on hover"] = "悬停时显示配方提示" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
@@ -54,6 +56,7 @@ L["At the %d cap: no trainer teaches the next rank."] = "已达上限%d：没有
 L["At the cursor"] = "鼠标位置"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"AtlasLoot已安装但未运行：请在插件列表中启用，或在过期时更新。"
+L["Attach to quest tracker"] = "附着到任务追踪栏"
 L["Auction house"] = "拍卖行"
 L["Auction price if higher"] = "拍卖价（若更高）"
 L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."] =
@@ -107,8 +110,8 @@ L["Gathering skill on nodes"] = "采集点的采集技能"
 L["Hands"] = "手部"
 L["Have (bags and bank)"] = "已有（背包和银行）"
 L["Head"] = "头部"
-L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
-	"草药和矿脉的鼠标提示会显示所需技能及其相对你技能的颜色（仅限英文客户端）。可剥皮的尸体在Forever上的剥皮规则确认前显示?。"
+L["Herb and ore node tooltips show the skill they need and its colour at yours. Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
+	"草药和矿脉的鼠标提示会显示所需技能及其相对你技能的颜色。可剥皮的尸体在Forever上的剥皮规则确认前显示?。"
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"安装AtlasLoot以查看商人、任务和掉落可提供的配方。"
 L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
@@ -127,6 +130,7 @@ L["Level %d %s"] = "等级%d %s"
 L["Made at"] = "制造地点"
 L["Main hand"] = "主手"
 L["Missing reagents for this step."] = "此步骤缺少材料。"
+L["Money on recipe rows"] = "配方行中的金额"
 L["Nearest trainer"] = "最近的训练师"
 L["Nearest vendor"] = "最近的商人"
 L["Neck"] = "颈部"
@@ -199,7 +203,7 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"用Auctionator扫描拍卖行或访问商人来获取材料价格。"
 L["Scroll"] = "配方"
 L["Search"] = "搜索"
-L["Search reagents at the auction house"] = "在拍卖行搜索材料"
+L["Show reagent search and keep shopping lists"] = "显示材料搜索并维护购物清单"
 L["Sells for"] = "售价"
 L["Sells for x%g"] = "售价 x%g"
 L["Set waypoint"] = "设置路径点"
@@ -252,6 +256,8 @@ L["Train %s at %d (level %d)"] = "学习%s（技能%d，等级%d）"
 L["Train %s first."] = "请先学习%s。"
 L["Train %s first: you're at your cap."] = "请先学习%s：你已达上限。"
 L["Trinket"] = "饰品"
+L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
+	"关闭此项后可将共享的Forever追踪栏拖到屏幕任意位置。"
 L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"更新QuestieDB以查看商人、任务和训练师，并可设置路径点。"
 L["Used in"] = "用于"
@@ -268,8 +274,8 @@ L["Waypoint to the quest giver: %s"] = "前往任务NPC的路径点：%s"
 L["What's new after an update"] = "更新后的新内容"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
-L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
-	"拍卖行打开时，专业窗口可以搜索所选配方的材料：数量为扣除背包和银行后，你选择的制造次数仍需要的数量。Auctionator的购物清单会带上数量；没有它时，每次点击会把下一个材料填入搜索框。"
+L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"点击专业技能窗口中的搜索，查找所选制作数量仍缺少的材料。安装 Auctionator 后，SkillUp 还会维护已追踪且启用了购买材料的路线的购物清单。未安装 Auctionator 时，每次点击都会将下一种材料填入拍卖行搜索框。"
 L["World drop"] = "世界掉落"
 L["Wrist"] = "手腕"
 L["You have it"] = "已拥有"
@@ -465,7 +471,6 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"开启（默认）：你可以采集、钓鱼或从生物身上剥取的试剂会从商人或拍卖行购买。关闭：自己获取花费其出售价值。"
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"按住 Shift 滚动滚轮，或拖动，可横向滚动时间线。"
-L["SkillUp's list"] = "SkillUp 的列表"
 L["Timeline"] = "时间线"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
 	"开启“购买试剂”会写入一个 Auctionator 列表，包含所有仍缺少的拍卖行试剂。"
@@ -520,8 +525,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "拥有（仅背包）" -- mt
 
 L["%s%% to %s%%"] = "%s%%至%s%%" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"每检测到一级Working Overtime，就将黄色和绿色配方的预计技能提升几率增加未经验证的4个百分点。关闭后，费用和路线将使用基础几率估算。两种估算都不是经过验证的服务器规则。" -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"每一级Working Overtime为黄色和绿色配方的技能提升几率增加估算的4个百分点。游戏是以百分点加上天赋加成还是以其倍乘几率尚未确认，因此默认关闭，几率使用基础公式。" -- mt
 L["Chance of finishing with later purchases: %s."] = "后续继续购买时的完成几率：%s。" -- mt
 L["Chance of finishing with starting supplies: %s."] = "仅用起始物资的完成几率：%s。" -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
@@ -542,9 +547,6 @@ L["Target chance of finishing with starting supplies: %s%%."] = "仅用起始物
 L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
 	"这些几率以所列技能提升几率、价格、供货情况以及后续采购物资送达为前提。" -- mt
 L["unknown"] = "未知" -- mt
-
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"自适应指引会打开推荐配方。请在专业技能窗口中选择制作数量。" -- mt
 
 L["currency %d"] = "货币 %d" -- mt
 L["an unknown payment"] = "一项未知支付" -- mt
@@ -632,9 +634,6 @@ L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"材料数量按整条路线计算，而非分别计算每个步骤。" -- mt
-
 L["Highest craft profit"] = "单次制造利润最高" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -663,6 +662,9 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"这些材料没有商人价格。拍卖价需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever。" -- mt
-L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."] =
-	"在每个配方旁显示成本。关闭后,成本仍显示在配方提示中。" -- mt
-L["Price shown on recipe rows"] = "配方行显示的价格" -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"自适应指引会给出配方。选中它，然后在专业窗口中选择制作数量。" -- mt
+L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"草药和矿脉的鼠标提示会以客户端的所有语言显示所需技能等级。" -- mt

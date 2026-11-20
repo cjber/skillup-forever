@@ -40,7 +40,7 @@ ns.SetCollectMode("auction")
 ns.db.craftValue = "none"
 
 equal(ns.Price(60).unknown, true, "a vendor fallback for loot has no auction observation yet")
-equal(ns.Price(60).source, "auction", "the unobserved market good stays in the auction search")
+equal(ns.Price(60).source, "auction", "the unobserved market good stays in the auction shopping bucket")
 equal(ns.Price(61).source, "vendor", "a vendor-only reagent keeps its known source")
 equal(ns.Price(61).unknown, nil, "a vendor-only reagent needs no auction observation")
 equal(ns.Price(62).unknown, true, "a gathering source counts even without that profession")
@@ -108,7 +108,7 @@ routeNS.db.craftValue = "none"
 routeNS.db.routeTargets[164] = 5
 local profession = routeNS.PlayerProfessions()[164]
 local first = routeNS.PlanRoute(profession)
-equal(first.crafts[1].recipeID, 201, "first visit uses the vendor-only recipe with a known cost")
+equal(first.crafts[1].recipeID, 201, "without a market price the route uses the known vendor recipe")
 equal(first.unpriced, 2, "both recipes needing market observations are excluded")
 equal(
 	table.concat(routeNS.UnpricedReagents(first), ","),

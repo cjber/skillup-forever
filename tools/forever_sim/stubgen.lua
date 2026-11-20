@@ -365,6 +365,9 @@ function M.build(sim)
 		local f = function(...)
 			local args = { ... }
 			local tainted = Taint.current
+			if tainted and sim.work then
+				sim.work.count("apiCalls")
+			end
 			if tainted then
 				for i, a in ipairs(fdoc.Arguments or {}) do
 					local v = args[i]
@@ -399,6 +402,11 @@ function M.build(sim)
 			local refused = protected or (restricted and restrictedNow(qualified))
 			if refused and tainted then
 				sim.forbidden(qualified)
+				-- What the client still does after refusing the call, where that was recorded live.
+				local onRefused = sim.refusedImpl and sim.refusedImpl[qualified]
+				if onRefused then
+					Taint.callSecure(onRefused, ...)
+				end
 				return
 			end
 			local impl = sim.impl[qualified]
@@ -465,7 +473,9 @@ function M.build(sim)
 	end
 
 	-- C_* functions Blizzard's Lua calls that the documentation leaves out (fetch.py lists them): the client has
-	-- them, so they exist here and answer nothing unless a scenario implements them.
+	-- them, so they exist here and answer nothing unless a scenario implements them. Where the pinned annotations
+	-- type one (undocumented_returns.lua), it answers with those returns, like a documented stub.
+	local undocumentedReturns = require("undocumented_returns")
 	local file = loadfile(sim.dataDir .. "/api-calls.lua")
 	local scanned = file and file() or {}
 	A.blizzardEvents = {}
@@ -475,9 +485,13 @@ function M.build(sim)
 	for _, qualified in ipairs(scanned.calls or {}) do
 		local ns, name = qualified:match("^([^.]+)%.(.+)$")
 		G[ns] = G[ns] or {}
-		if G[ns][name] == nil then
+		if G[ns][name] == nil and undocumentedReturns[qualified] then
+			G[ns][name] = stub(qualified, { Name = name, Arguments = {}, Returns = undocumentedReturns[qualified] })
+			A.undocumented = (A.undocumented or 0) + 1
+		elseif G[ns][name] == nil then
 			local q = qualified
-			-- With no documentation, the name says the likely shape: counts are numbers, predicates booleans.
+			-- Neither the documentation nor the annotations type it (about 700 of these, most never reached by a
+			-- scenario), so the name is the only source: counts are numbers, predicates booleans.
 			local default
 			if name:match("^GetNum") or name:match("Count$") then
 				default = 0

@@ -4,6 +4,8 @@ if GetLocale() ~= "ruRU" then
 	return
 end
 local L = ns.L
+L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
+	"Показывать деньги рядом с каждым рецептом. Если выключить, цены останутся в подсказке рецепта." -- mt
 L["Show prices on recipe rows"] = "Показывать цены в строках рецептов" -- mt
 L["Show recipe tooltip on hover"] = "Показывать подсказку рецепта при наведении" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
@@ -56,6 +58,7 @@ L["At the %d cap: no trainer teaches the next rank."] =
 L["At the cursor"] = "У курсора"
 L["AtlasLoot is installed but not running: enable it in the AddOns list, or update it if out of date."] =
 	"AtlasLoot установлен, но не работает: включите его в списке модификаций или обновите, если он устарел."
+L["Attach to quest tracker"] = "Прикрепить к списку заданий"
 L["Auction house"] = "Аукционный дом"
 L["Auction price if higher"] = "Цена аукциона, если выше"
 L["Auctionator hasn't seen these reagents yet: scan the auction house with it to price them."] =
@@ -110,8 +113,8 @@ L["Gathering skill on nodes"] = "Навык сбора на месторожде
 L["Hands"] = "Кисти рук"
 L["Have (bags and bank)"] = "Есть (сумки и банк)"
 L["Head"] = "Голова"
-L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
-	"Подсказки трав и рудных жил показывают нужный навык и его цвет для вашего (только английский клиент). Для свежуемых трупов показывается ?, пока правило снятия шкур не подтверждено на Forever."
+L["Herb and ore node tooltips show the skill they need and its colour at yours. Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
+	"Подсказки трав и рудных жил показывают нужный навык и его цвет для вашего. Для свежуемых трупов показывается ?, пока правило снятия шкур не подтверждено на Forever."
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Установите AtlasLoot, чтобы видеть рецепты от торговцев, заданий и добычи."
 L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
@@ -132,6 +135,7 @@ L["Level %d %s"] = "Уровень %d, %s"
 L["Made at"] = "Создается у"
 L["Main hand"] = "Правая рука"
 L["Missing reagents for this step."] = "Для этого шага не хватает реагентов."
+L["Money on recipe rows"] = "Деньги в строках рецептов"
 L["Nearest trainer"] = "Ближайший учитель"
 L["Nearest vendor"] = "Ближайший торговец"
 L["Neck"] = "Шея"
@@ -213,7 +217,8 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"Просканируйте аукцион с Auctionator или посетите торговца, чтобы узнать цены реагентов."
 L["Scroll"] = "Рецепт"
 L["Search"] = "Поиск"
-L["Search reagents at the auction house"] = "Искать реагенты на аукционе"
+L["Show reagent search and keep shopping lists"] =
+	"Показывать поиск реагентов и обновлять списки покупок"
 L["Sells for"] = "Продается за"
 L["Sells for x%g"] = "Продается за x%g"
 L["Set waypoint"] = "Поставить точку маршрута"
@@ -269,6 +274,8 @@ L["Train %s at %d (level %d)"] = "Изучить %s на %d (уровень %d)"
 L["Train %s first."] = "Сначала изучите %s."
 L["Train %s first: you're at your cap."] = "Сначала изучите %s: вы достигли предела."
 L["Trinket"] = "Аксессуар"
+L["Turn this off to drag the shared Forever tracker anywhere on screen."] =
+	"Выключите, чтобы перетаскивать общее окно отслеживания Forever в любое место экрана."
 L["Update QuestieDB to see vendors, quests and trainers, with waypoints to them."] =
 	"Обновите QuestieDB, чтобы видеть торговцев, задания и учителей с точками маршрута."
 L["Used in"] = "Используется в"
@@ -286,8 +293,8 @@ L["Waypoint to the quest giver: %s"] = "Точка маршрута к тому,
 L["What's new after an update"] = "Что нового после обновления"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
-L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
-	"Пока открыт аукцион, окно профессий предлагает поиск реагентов выбранного рецепта: столько, сколько еще нужно для выбранного числа созданий с учетом сумок и банка. Список покупок Auctionator передает количество; без него каждый щелчок вставляет следующий реагент в поле поиска."
+L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"Нажмите «Поиск» в окне профессий, чтобы найти недостающие реагенты для выбранного количества изделий. С Auctionator SkillUp также обновляет списки покупок для отслеживаемых маршрутов с включённой настройкой «Купить реагенты». Без Auctionator каждое нажатие вводит следующий реагент в поле поиска аукциона."
 L["World drop"] = "Случайная добыча"
 L["Wrist"] = "Запястья"
 L["You have it"] = "У вас есть"
@@ -500,10 +507,9 @@ L["On (the default), a reagent you could gather, fish or loot from creatures is 
 	"Вкл. (по умолчанию): реагент, который можно собрать, выловить или добыть с существ, покупается у торговца или на аукционе. Выкл.: добыть его самостоятельно стоит столько, за сколько его можно продать."
 L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"Shift + колесо мыши или перетаскивание прокручивает временную шкалу вбок."
-L["SkillUp's list"] = "Список SkillUp"
 L["Timeline"] = "Временная шкала"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
-	"Если включить «Покупать реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
+	"Если включить «Купить реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Без Auctionator кнопка «Поиск» рецепта заполняет собственную строку поиска аукциона игры по одному реагенту за раз."
 L["%s needs ForeverCore. Install it from CurseForge, or choose Reinstall on ForeverCore in the CurseForge app."] =
@@ -559,8 +565,8 @@ L["Show how much of an item your tracked routes still need. Turn this off to kee
 L["Have (bags only)"] = "В наличии (только сумки)" -- mt
 
 L["%s%% to %s%%"] = "От %s%% до %s%%" -- mt
-L["Adds an unverified 4 percentage points per detected Working Overtime rank to yellow and green skill-up chance estimates. Turn off to use the base chance estimate for costs and routes. Neither estimate is a verified server rule."] =
-	"Добавляет непроверенные 4 процентных пункта за каждый обнаруженный ранг Working Overtime к оценке вероятности повышения навыка для жёлтых и зелёных рецептов. Отключите, чтобы использовать базовую оценку вероятности для затрат и маршрутов. Ни одна из оценок не является подтверждённым правилом сервера." -- mt
+L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
+	"Добавляет оценочные 4 процентных пункта за каждый ранг Working Overtime к вероятности повышения навыка для жёлтых и зелёных рецептов. Пока не подтверждено, прибавляет ли игра бонус таланта как пункты или умножает на него вероятность, поэтому по умолчанию это отключено и вероятности считаются по базовой формуле." -- mt
 L["Chance of finishing with later purchases: %s."] =
 	"Вероятность завершения с последующими покупками: %s." -- mt
 L["Chance of finishing with starting supplies: %s."] =
@@ -586,9 +592,6 @@ L["Target chance of finishing with starting supplies: %s%%."] =
 L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
 	"Эти вероятности предполагают указанные шансы повышения навыка, цены, доступность и доставку последующих покупок." -- mt
 L["unknown"] = "неизвестно" -- mt
-
-L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."] =
-	"Адаптивные подсказки открывают рекомендуемый рецепт. Выберите количество для изготовления в окне профессии." -- mt
 
 L["currency %d"] = "валюта %d" -- mt
 L["an unknown payment"] = "неизвестный платёж" -- mt
@@ -695,9 +698,6 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["Reagent counts cover the whole route, not each step alone."] =
-	"Количество реагентов рассчитано на весь маршрут, а не на каждый шаг по отдельности." -- mt
-
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -727,6 +727,9 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
 	"У этих реагентов нет цены у торговца. Для цен аукциона нужен Auctionator/TradeSkillMaster, AHDB, Naowh Forever." -- mt
-L["Cost beside each recipe. Off keeps the cost in the recipe tooltip."] =
-	"Стоимость рядом с каждым рецептом. Если выключено, стоимость остаётся в подсказке рецепта." -- mt
-L["Price shown on recipe rows"] = "Цена в строках рецептов" -- mt
+L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
+	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
+L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"Подсказки для трав и рудных жил показывают требуемый навык на всех языках клиента." -- mt

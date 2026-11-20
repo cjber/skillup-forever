@@ -6,7 +6,10 @@ local equal = Client.equal
 
 local c = Client.load({
 	saved = { gatherTooltip = true },
-	data = { NodeSkills = { ["Copper Vein"] = { 186, 1 }, ["Iron Deposit"] = { 186, 125 } } },
+	data = {
+		NodeSkills = { ["Copper Vein"] = { 186, 1 }, ["Iron Deposit"] = { 186, 125 } },
+		NodeEntrySkills = { [1731] = { 186, 1 }, [1735] = { 186, 125 } },
+	},
 })
 local ns = c.ns
 c.professions = {
@@ -29,9 +32,9 @@ local function Tooltip(unit)
 	end
 	return tooltip
 end
-local function Show(kind, lines, unit)
+local function Show(kind, lines, unit, guid)
 	local tooltip = Tooltip(unit)
-	local data = { lines = {} }
+	local data = { lines = {}, guid = guid }
 	for i, text in ipairs(lines) do
 		data.lines[i] = { leftText = text }
 	end
@@ -56,15 +59,28 @@ c.Fire("SKILL_LINES_CHANGED")
 equal(Show(OBJECT, { "Iron Deposit" })[1].right, "yellow until 175", "yellow from 25 past it")
 equal(#Show(OBJECT, { "Mailbox" }), 0, "an object that is no node gets nothing")
 
--- Only for a profession you have, only in English, and only while the setting is on.
+-- Issue #826: the GUID names the node's entry in every language, so a German Iron Deposit gets its line; the
+-- English name is only the fallback for a tooltip without a GUID.
+local IRON = "GameObject-0-5250-0-1234-1735-0000A1B2C3"
+c.locale = "deDE"
+local german = Show(OBJECT, { "Eisenvorkommen", "Benötigt Bergbau" }, nil, IRON)
+equal(#german, 1, "a German node gets its line from the GUID")
+equal(german[1].left, "Mining 125", "the skill the entry asks")
+equal(#Show(OBJECT, { "Eisenvorkommen" }), 0, "no GUID, a German name matches nothing")
+c.locale = "enUS"
+equal(Show(OBJECT, { "Iron Deposit" }, nil, IRON)[1].left, "Mining 125", "an English node with a GUID")
+equal(
+	#Show(OBJECT, { "Iron Deposit" }, nil, "GameObject-0-5250-0-1234-143990-0000A1B2C3"),
+	0,
+	"a GUID naming no node wins over a matching name"
+)
+
+-- Only for a profession you have, and only while the setting is on.
 c.professions[1].name, c.professions[1].id = "Tailoring", 197
 c.Fire("SKILL_LINES_CHANGED")
 equal(#Show(OBJECT, { "Iron Deposit" }), 0, "no Mining, no line")
 c.professions[1].name, c.professions[1].id = "Mining", 186
 c.Fire("SKILL_LINES_CHANGED")
-c.locale = "deDE"
-equal(#Show(OBJECT, { "Iron Deposit" }), 0, "another language matches nothing")
-c.locale = "enUS"
 c.SetSetting("gatherTooltip", false)
 equal(#Show(OBJECT, { "Iron Deposit" }), 0, "the setting turns it off")
 c.SetSetting("gatherTooltip", true)

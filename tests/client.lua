@@ -262,6 +262,8 @@ function Client.load(options)
 		traitNodes = {}, -- [configID] = { [nodeID] = { activeRank, currentRank, maxRanks } }
 		items = {}, -- [itemID] = { name, sell }; a missing field is item data the client has not loaded
 		bags = {}, -- [itemID] = count
+		bank = {}, -- [itemID] = count in the bank, counted only when the read includes it
+		unreadable = {}, -- [itemID] = true: the client hands over no count for it
 		schematics = {}, -- [recipeID] = { reagents = { { itemID, quantity } }, output = itemID }: the open window's
 		-- [recipeID] = { info = { maxTrivialLevel, numSkillUps, learned, relativeDifficulty }, requirements = { ... } }:
 		-- what the client's own recipe read answers, empty for a recipe it says nothing about.
@@ -673,6 +675,8 @@ function Client.load(options)
 			return
 		end
 		self.availableHeight = availableHeight or 0
+		-- The stock mixin marks every block unused first, so a rebuild starts from none.
+		self.blocks = {}
 		self:LayoutContents()
 	end
 	function TrackerModule:GetContentsHeight()
@@ -685,6 +689,7 @@ function Client.load(options)
 			block.lines[#block.lines + 1] = { key = key, text = text, frame = frame }
 			return frame
 		end
+		self.blocks = self.blocks or {}
 		self.blocks[#self.blocks + 1] = block
 		return block
 	end
@@ -823,6 +828,11 @@ function Client.load(options)
 	G.UIParent = NewFrame("UIParent")
 	G.UIParent:SetPoint("CENTER")
 	G.ObjectiveTrackerFrame = NewFrame("ObjectiveTrackerFrame")
+	-- The client's tracker container answers whether the player collapsed it to its header; ForeverCore reads it to
+	-- place its column under the tracker's last visible line.
+	G.ObjectiveTrackerFrame.IsCollapsed = function()
+		return false
+	end
 	G.MerchantFrame = NewFrame("MerchantFrame")
 	G.MerchantFrame.IsShown = function()
 		return c.merchant ~= nil
@@ -1268,8 +1278,11 @@ function Client.load(options)
 		GetItemQualityColor = function()
 			return 1, 1, 1, "ffffff"
 		end,
-		GetItemCount = function(id)
-			return c.bags[id] or 0
+		GetItemCount = function(id, includeBank)
+			if c.unreadable[id] then
+				return nil
+			end
+			return (c.bags[id] or 0) + (includeBank and c.bank[id] or 0)
 		end,
 		RequestLoadItemDataByID = function(id)
 			c.requested[id] = true
@@ -1837,6 +1850,13 @@ function Client.load(options)
 	local data = options.data
 	for line in io.lines(ADDON .. ".toc") do
 		local file = line:match("^([%w_\\]+%.lua)%s*$")
+		-- A packaged TOC (tools/check_package.py) also lists the embedded ForeverCore copy and the files that defer
+		-- the addon's own until a core is ready. ForeverCore is loaded above, as the standalone addon, and beside it
+		-- each wrapped file runs at once in TOC order, so those files are skipped here; the embedded copy's own boot
+		-- is tests/embedded_scenario.lua.
+		if file and (file:find("^Libs\\ForeverCore\\") or file:find("^ForeverCore%u%l+%.lua$")) then
+			file = nil
+		end
 		if file then
 			-- The fixtures stand in for the bundled tables before any addon file reads them; the two broken checks
 			-- (Core/ForeverRequire.lua and Core/Require.lua) and the locale files read no data.

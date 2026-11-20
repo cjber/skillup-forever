@@ -349,7 +349,7 @@ local function HasRouteMessage(text)
 end
 assert(
 	HasRouteMessage(
-		"Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."
+		"Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."
 	),
 	"adaptive status explains recipe guidance"
 )
@@ -358,7 +358,7 @@ equal(
 	false,
 	"adaptive status does not claim estimated dispatch"
 )
-equal(opened[#opened], 1, "route guidance only opens native recipe")
+equal(#opened, 0, "route guidance never asks the client to open a recipe (#840)")
 equal(route.Craft:IsEnabled(), false, "adaptive route cannot execute a craft")
 for _, attribute in ipairs({ "type", "clickbutton", "shift-type1", "shift-clickbutton1" }) do
 	equal(route.Craft.attributes[attribute], nil, "no adaptive secure proxy: " .. attribute)

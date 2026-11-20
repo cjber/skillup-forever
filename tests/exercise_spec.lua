@@ -369,7 +369,7 @@ local function Surfaces(c)
 		assert(not ns.Pages.SideTab():IsChecked(), "the side tab is cleared")
 	end)
 
-	-- The settings page, and the shared Forever addons page it carries.
+	-- The settings page.
 	Run(c, "settings page", function()
 		local before = c.settingsOpens or 0
 		ns.OpenSettings()
@@ -380,7 +380,6 @@ local function Surfaces(c)
 			assert(c.secureSettingsCalls and c.secureSettingsCalls > 0, "the client's own opener ran securely")
 		end
 	end)
-
 	-- The report window and the issue composer.
 	Run(c, "report window", function()
 		ns.core.Report.Show("exercise report")

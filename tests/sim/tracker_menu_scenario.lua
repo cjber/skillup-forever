@@ -97,9 +97,12 @@ scenario("the reagent tracker shares its show switch and opens the target profes
 		end
 	end
 	assert(tracker, "core adds its Tracker submenu")
-	sim:click(tracker)
+	-- Core's Tracker entry is a submenu: resting on it opens the next level beside it.
+	sim:hover(tracker)
+	sim:advance(0.5)
+	local submenu = assert(G.ForeverCoreContextMenu2, "the Tracker submenu opens on hover")
 	local hide
-	for _, row in ipairs(popup.rows) do
+	for _, row in ipairs(submenu.rows) do
 		if row:IsShown() and row:GetText() == "Hide this section" then
 			count = count + 1
 			hide = row
@@ -109,10 +112,28 @@ scenario("the reagent tracker shares its show switch and opens the target profes
 	sim:click(assert(hide))
 	assert(module.show.get() == false, "the section menu hides through its show switch")
 	assert(G.Settings.GetValue("SkillUpForever_showTracker") == false, "the settings panel sees the same value")
+	sim:advance(0.5)
+	assert(not module:IsShown(), "the switch off hides the section")
 	sim.run(function()
 		G.Settings.SetValue("SkillUpForever_showTracker", true)
 	end)
 	assert(module.show.get() == true, "the settings panel restores the same switch")
+	sim:advance(0.5)
+	assert(module:IsShown(), "the switch on shows it again")
+	-- forever-core#884: a collapsed section hides the same way.
+	sim:click(module.Header.MinimizeButton)
+	sim:advance(0.5)
+	assert(module:IsCollapsed() and module:IsShown(), "the collapsed section shows its header")
+	sim.run(function()
+		module.show.set(false)
+	end)
+	sim:advance(0.5)
+	assert(not module:IsShown(), "the switch off hides the collapsed section")
+	sim.run(function()
+		module.show.set(true)
+	end)
+	sim:advance(0.5)
+	assert(module:IsShown() and module:IsCollapsed(), "the switch on brings it back collapsed")
 	sim:closeProfessions()
 	sim:expectNoErrors(ADDON)
 end)

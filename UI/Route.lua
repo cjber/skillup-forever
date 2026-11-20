@@ -39,7 +39,7 @@ end
 local function ItemName(itemID)
 	local name = C_Item.GetItemNameByID(itemID)
 	if not name then
-		C_Item.RequestLoadItemDataByID(itemID)
+		ns.RequestItemData(itemID)
 		name = string.format(L["item %d"], itemID)
 	end
 	return name
@@ -695,7 +695,7 @@ local function RenderUnpriced(list, items)
 		local name = C_Item.GetItemNameByID(itemID)
 		if not name then
 			-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
-			C_Item.RequestLoadItemDataByID(itemID)
+			ns.RequestItemData(itemID)
 			name = string.format(L["item %d"], itemID)
 		end
 		list:Add({
@@ -721,7 +721,7 @@ local function RenderReagents(list, reagents)
 		local name = C_Item.GetItemNameByID(item.itemID)
 		if not name then
 			-- ITEM_DATA_LOAD_RESULT redraws once the name arrives.
-			C_Item.RequestLoadItemDataByID(item.itemID)
+			ns.RequestItemData(item.itemID)
 			name = string.format(L["item %d"], item.itemID)
 		end
 		local have = ns.RouteDemand.Held(item)
@@ -914,12 +914,6 @@ end
 -- The step last drawn, so the client's own recipe-selection events can redraw the same step.
 ---@type SkillUpCraft?
 local currentCraft
--- The recipe the client was asked to open and has not shown yet, so a redraw does not ask again.
----@type integer?
-local requestedRecipe
--- The recipe of the step last drawn, so a new step asks for its recipe again.
----@type integer?
-local appliedRecipe
 
 -- The recipe the crafting page shows, or nil when it shows none. Reading it is taint free; selecting one
 -- in Blizzard's list from addon code wrote the selection and schematic the craft path reads (#350).
@@ -946,27 +940,14 @@ local function FirstRecipeID(recipeInfo)
 	return recipeInfo and recipeInfo.recipeID
 end
 
--- Ask the client to show the route's recipe, as its own recipe tracker does, and say whether the page shows
--- it now. Opening is C_TradeSkillUI.OpenRecipe's job: never select, Init or Show Blizzard's page from here
--- (#350, #376).
+-- Whether the crafting page shows the route's recipe, rank chains included. The player selects it: a click on
+-- the recipe's name finds it in the client's list (ns.ShowRecipe), and nothing here selects for them.
 ---@param recipeID integer
 ---@return boolean
-local function RequestRecipe(recipeID)
+local function ShowsRecipe(recipeID)
 	local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
-	if not (info and info.learned) then
-		return false
-	end
-	local first = FirstRecipeID(info)
 	local shown = ShownRecipe()
-	if shown and FirstRecipeID(shown) == first then
-		requestedRecipe = nil
-		return true
-	end
-	if requestedRecipe ~= first then
-		requestedRecipe = first
-		C_TradeSkillUI.OpenRecipe(recipeID)
-	end
-	return false
+	return info ~= nil and info.learned and shown ~= nil and FirstRecipeID(shown) == FirstRecipeID(info)
 end
 
 -- Deferred refreshes must resolve the current Plan owner, never replay an
@@ -982,9 +963,6 @@ local function ApplyCraft(craft)
 	local button = page.Craft
 	local recipeID, count = craft.recipeID, craft.count
 	button.recipeID, button.count = recipeID, count
-	if recipeID ~= appliedRecipe then
-		appliedRecipe, requestedRecipe = recipeID, nil
-	end
 
 	local craftingPage = ProfessionsFrame and ProfessionsFrame.CraftingPage
 	---@cast craftingPage SkillUpCraftingPage
@@ -995,9 +973,8 @@ local function ApplyCraft(craft)
 	-- Create All is the button the client disables when a recipe cannot be made in batches.
 	local canCreateAll = createAll and createAll:IsEnabled() and craftable > 0
 	local all = canCreateAll and count and count >= craftable
-	local onRecipe = recipeID and count and count > 0 and RequestRecipe(recipeID)
-	-- Adaptive actions are guidance only. RequestRecipe may open the native
-	-- recipe, but no Create, CreateAll or Shift proxy is armed for them.
+	local onRecipe = recipeID and count and count > 0 and ShowsRecipe(recipeID)
+	-- Adaptive actions are guidance only: no Create, CreateAll or Shift proxy is armed for them.
 	local ready = not craft.nextAction and onRecipe and create and create:IsEnabled()
 
 	-- A secure type="click" presses the Professions window's own Create button, as Blizzard's own gamepad code
@@ -1025,7 +1002,8 @@ local function ApplyCraft(craft)
 
 	local reason = CraftReason(craft)
 	if not craft.nextAction and not reason and recipeID and count and count > 0 and not ready then
-		reason = L["The game's Craft button is not ready for this recipe."]
+		reason = onRecipe and L["The game's Craft button is not ready for this recipe."]
+			or string.format(L["Select %s in the recipe list first."], RecipeName(recipeID))
 	end
 	-- The button keeps one plain label and one width; the recipe and its count are named beside it and in
 	-- the tooltip, never in the button text.
@@ -1160,10 +1138,10 @@ local function Render()
 	local supplyText = ns.SupplySummaryText(summary)
 	page.RouteList:Message(supplyText)
 	if summary.status ~= "unconfigured" then
+		local adaptive =
+			L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."]
 		page.RouteList:Message(
-			summary.service == "adaptive-finite"
-					and L["Adaptive guidance opens the recommended recipe. Choose how many to craft in the profession window."]
-				or L["Craft next follows the estimated route."]
+			summary.service == "adaptive-finite" and adaptive or L["Craft next follows the estimated route."]
 		)
 	end
 	page.ReagentList:Message(supplyText)
@@ -1181,8 +1159,8 @@ local function Render()
 		-- The route is incomplete; the reagents it left out are named, not silently dropped.
 		RenderUnpriced(page.ReagentList, ns.UnpricedReagents(plan))
 	end
-	local listName = ns.AuctionListName(profession.name)
-	if listName and ns.HasAuctionator() and ns.CollectMode() == "auction" then
+	local listName = ns.KeptAuctionList(selected, profession.name)
+	if listName then
 		page.ReagentList:Message(string.format(L["Kept in the Auctionator list '%s'."], listName))
 	end
 	local vendorItems = VendorItems(reagents)
@@ -1530,8 +1508,6 @@ local function CreatePage()
 	local portrait
 	page:SetScript("OnShow", function()
 		portrait = ProfessionsFrame:GetPortrait():GetTexture()
-		-- A request may finish while Route is hidden; each visit starts a new request episode.
-		requestedRecipe = nil
 		Render()
 	end)
 	page:SetScript("OnHide", function()
@@ -1561,7 +1537,15 @@ local function Prepare()
 	selected = professions[open] and open or professions[selected] and selected or next(professions)
 end
 
--- Back to the crafting page, as its tab would, with the recipe selected.
+-- Back to the crafting page, as its tab would, with the recipe found for the player to select. This is every
+-- SkillUp way to a recipe: Route, Gear, the shopping list and the tracker menu.
+--
+-- Selecting is left to the player's click on the client's own row, because nothing else selects cleanly here.
+-- C_TradeSkillUI.OpenRecipe closes an open Professions window on this client: it raises TRADE_SKILL_CLOSE and
+-- answers with the recipe's child skill line, which the window never reopens for (#840). Selecting from addon
+-- code (the list's SelectRecipe, the page's Init or SelectRecipe) writes the selection and schematic the craft
+-- path reads, so a potion or a conversion is refused until /reload (#350, #376). The client's own search box
+-- only sets the client's name filter, and the client rebuilds its list from its own event.
 ---@param recipeID integer
 ---@param anyProfession? boolean Open it even when the route page shows another profession.
 function ns.ShowRecipe(recipeID, anyProfession)
@@ -1569,16 +1553,29 @@ function ns.ShowRecipe(recipeID, anyProfession)
 	if not (info and info.learned and (anyProfession or selected == ns.OpenSkillLine())) then
 		return
 	end
+	-- A closed window, or one on another profession, has no row of this recipe to find. The player opens the
+	-- profession themselves (the client refuses OpenTradeSkill from addon code, forever-core#538), and
+	-- OpenRecipes says so, as SkillUp's other ways into a closed window do.
+	local recipe = ns.RecipeData[recipeID]
+	local skillLine = recipe and recipe.skillLine
+	if not (ProfessionsFrame and ProfessionsFrame:IsShown()) or (skillLine and skillLine ~= ns.OpenSkillLine()) then
+		if skillLine then
+			SkillUpForever.API.OpenRecipes(skillLine)
+		end
+		return
+	end
 	-- Hand the window back first: while SkillUp's side tab is selected the client's crafting page is only alpha
 	-- hidden, so showing it raises no OnShow and its own hand-back never runs. The recipe would then be selected
 	-- behind SkillUp's page, where the player cannot see it (#683).
 	ForeverCore.ProfessionTabs.ShowNative()
-	-- Let the client open its own recipe. Showing the page and selecting the recipe here wrote the recipe
-	-- list's selection and the schematic from addon code, and the craft path reads them: a potion or a
-	-- conversion could then be refused until /reload (#350). C_TradeSkillUI.OpenRecipe hands the same
-	-- selection to Blizzard's own code, as its recipe tracker and crafted gear page do.
-	ProfessionsFrame.CraftingPage:Show()
-	C_TradeSkillUI.OpenRecipe(recipeID)
+	-- ShowNative gives the client its own crafting page back; showing the page from here would run its OnShow
+	-- as addon code (#350).
+	local craftingPage = ProfessionsFrame.CraftingPage --[[@as SkillUpCraftingPage]]
+	local shown = ShownRecipe()
+	if shown and FirstRecipeID(shown) == FirstRecipeID(info) then
+		return
+	end
+	craftingPage.RecipeList.SearchBox:SetText(info.name)
 end
 
 -- The route can show any of the player's professions inside an open Professions window.

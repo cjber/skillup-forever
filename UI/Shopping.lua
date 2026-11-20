@@ -27,6 +27,7 @@ local lastCounts = {}
 ---@param itemID integer
 ---@return number
 function ns.Have(itemID)
+	ns.NoteItemCount(itemID)
 	local count = ns.Readable(C_Item.GetItemCount(itemID, true))
 	if count then
 		lastCounts[itemID] = count
@@ -80,9 +81,10 @@ function ns.AuctionListName(profession)
 end
 
 -- What the Shopping list says under Auction house, and the auction bar's Search tooltip says in one line (#554).
--- `names` are the Auctionator lists this character's tracked routes write, in the window's order.
+-- `names` are the Auctionator lists SkillUp keeps for them, in the window's order. With Auctionator buying and no
+-- list kept there is no list to point at, so the note is nil and the caller shows none (#860).
 ---@param names string[]?
----@return string
+---@return string?
 function ns.AuctionListNote(names)
 	if not ns.HasAuctionator() then
 		return L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."]
@@ -90,10 +92,12 @@ function ns.AuctionListNote(names)
 	if ns.CollectMode() ~= "auction" then
 		return L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."]
 	end
-	local listed = names and #names > 0 and table.concat(names, ", ") or L["SkillUp's list"]
+	if not names or #names == 0 then
+		return nil
+	end
 	return string.format(
 		L["Auctionator list: %s. Open the auction house, Shopping tab, pick it and Search; buy each row with a click."],
-		listed
+		table.concat(names, ", ")
 	)
 end
 
@@ -300,10 +304,39 @@ local function SyncList(name, missing, signature)
 	end)
 end
 
+-- Whether SkillUp keeps Auctionator lists at all: Auctionator loaded, Buy reagents on (gather mode buys nothing)
+-- and the auction search setting on.
+---@return boolean
+local function KeepsAuctionLists()
+	return ns.HasAuctionator() and ns.CollectMode() == "auction" and ns.db.auctionSearch ~= false
+end
+
+-- The Auctionator list SkillUp keeps for a profession's route, or nil when it keeps none: SyncAuctionator writes
+-- one only for a tracked route, and never for a route with nothing to buy or one the player deleted, so a page
+-- naming the list asks here rather than for the list's name. An Auctionator that cannot read lists back leaves
+-- the writer's own conditions as the only answer.
+---@param skillLine integer?
+---@param profession string
+---@return string?
+function ns.KeptAuctionList(skillLine, profession)
+	if not (KeepsAuctionLists() and ns.IsTracked(skillLine)) then
+		return nil
+	end
+	local name = ns.AuctionListName(profession)
+	if not name then
+		return nil
+	end
+	local held, readable = ReadAuctionList(name)
+	if readable and not held then
+		return nil
+	end
+	return name
+end
+
 -- Keep every tracked route's Auctionator list up to date with what it still buys, empties one it no longer needs,
--- and leaves a list Auctionator already holds alone. Gather mode buys nothing, so it is left as it is.
+-- and leaves a list Auctionator already holds alone.
 local function SyncAuctionator()
-	if not ns.HasAuctionator() or ns.CollectMode() ~= "auction" or ns.db.auctionSearch == false then
+	if not KeepsAuctionLists() then
 		return
 	end
 	for _, entry in ipairs(ns.TrackedNeeds()) do
@@ -373,6 +406,8 @@ function ns.TrackedNeeds()
 		local plan = ns.PlanRoute(profession)
 		tracked[index] = { plan = plan }
 		key[#key + 1] = tostring(plan)
+		-- A followed route kept across a bag change can take new sub-crafts in place (#858).
+		key[#key + 1] = tostring(plan.revision or 0)
 		key[#key + 1] = table.concat(ns.MissingToolItems(plan), ",")
 	end
 	local signature = table.concat(key, ";")
@@ -836,7 +871,8 @@ end
 local merchantPending = false
 local function RefreshTracker()
 	SyncAuctionator()
-	if module and ns.db.showTracker then
+	-- The switch turned off lays the section out too: its empty layout is what hides it.
+	if module then
 		module:MarkDirty()
 	end
 	if not (ns.db.merchantButton and MerchantFrame ~= nil and MerchantFrame:IsShown()) then
@@ -979,7 +1015,7 @@ local function TrackerName(itemID)
 	local name = C_Item.GetItemNameByID(itemID)
 	if not name then
 		waitingNames[itemID] = true
-		C_Item.RequestLoadItemDataByID(itemID)
+		ns.RequestItemData(itemID)
 	end
 	return name
 end

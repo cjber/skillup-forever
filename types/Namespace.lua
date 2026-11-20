@@ -69,10 +69,11 @@
 ---@field CanGather fun(itemID: integer): string? The profession name, or "loot" for a reagent creatures drop.
 ---@field LimitedReagentPrice fun(itemID: integer): number?, SkillUpPrice?, SkillUpPrice?
 ---@field AllocateReagent fun(itemID: integer, count: number, remaining?: table<integer, number>): number, SkillUpPrice?, SkillUpPrice?
----@field StockSensitive fun(reagents?: SkillUpReagent[], depth?: integer): boolean
 ---@field ReagentBuyCost fun(itemID: integer, count: number): number?, SkillUpPrice?, boolean
 ---@field IsLimitedStock fun(itemID: integer, vendor?: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
 ---@field ObtainCost fun(itemID: integer, count?: number): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
+---@field RecipeUsesStock fun(recipeID: integer): boolean
+---@field PriceRecipeReagent fun(reagent: SkillUpReagent, remaining?: table<integer, number>): number?, SkillUpMakerChoice?, SkillUpPrice?
 ---@field HeldCost fun(itemID: integer): number? what using one held unit gives up: the lesser of its sale value and ObtainCost
 ---@field LiveSchematicsArrived fun(recipeIDs: integer[]): boolean
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
@@ -429,7 +430,7 @@ SkillUpForeverDB = nil
 ---@field fee number
 
 ---@class SkillUpSnapshot
----@field stockCost? fun(recipeID: integer, crafts: number, pool: table<integer, number>, stock: table<integer, number>, take: boolean): number?
+---@field stockCost? fun(recipeID: integer, crafts: number, pool: table<integer, number>, stock: table<integer, number>?, take: boolean): number?
 ---@field skill number
 ---@field target number
 ---@field recipes SkillUpCandidate[]

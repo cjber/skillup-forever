@@ -1137,7 +1137,9 @@ local function LayoutEntry(self, entry)
 			local gather = item.source == "gather" and string.format(" |cff808080(%s)|r", L["gather"]) or ""
 			local vendor = ns.RouteDemand.Vendors(item)[1]
 			local text = string.format("%s/%d %s%s", have == nil and "?" or tostring(have), item.need, name, gather)
-			local objective = item.allocatedPrice and (item.source .. item.itemID) or item.itemID
+			local objective = item.allocatedPrice
+					and (item.source .. item.itemID .. ":" .. (item.allocatedPrice.vendor or 0))
+				or item.itemID
 			local line = block:AddObjective(objective, text, vendor and LINE_TEMPLATE or nil)
 			if vendor then
 				Waypointed(line, name, L["Nearest vendor"], function()
@@ -1147,7 +1149,8 @@ local function LayoutEntry(self, entry)
 					name = name,
 					itemID = item.itemID,
 					vendor = vendor,
-					selected = item.acquisitions ~= nil or (item.allocatedPrice and item.allocatedPrice.vendor ~= nil),
+					selected = item.acquisitions ~= nil
+						or (item.allocatedPrice ~= nil and item.allocatedPrice.vendor ~= nil),
 				}
 			end
 		end

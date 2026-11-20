@@ -799,7 +799,7 @@ local function Planner(snapshot)
 	---@param recipe SkillUpCandidate
 	---@param skill number
 	---@param pool table<integer, number>
-	---@param stock table<integer, number>
+	---@param stock table<integer, number>?
 	---@return number?
 	---@return number?
 	local function PoolRank(recipe, skill, pool, stock)
@@ -883,7 +883,8 @@ local function Planner(snapshot)
 	---@param route SkillUpRoute
 	---@param extra SkillUpCandidate?
 	local function Price(route, extra)
-		local money, stock = CopyHeld(), {}
+		local money = CopyHeld()
+		local stock
 		route.expectedCost = 0
 		for _, segment in ipairs(route.segments) do
 			local recipeID = segment.recipeID
@@ -901,6 +902,7 @@ local function Planner(snapshot)
 			if candidate and IsPooled(candidate) then
 				local pooledCost
 				if candidate.stockSensitive and stockCost then
+					stock = stock or {}
 					pooledCost = stockCost(recipeID, segment.crafts, money, stock, true)
 					cost, reagentCost = nil, nil
 				else
@@ -932,7 +934,8 @@ local function Planner(snapshot)
 		-- A copy of what the bags and bank hold when the route starts: every craft takes its reagents out, so
 		-- a later step sees only what is left. Each call starts from the same pool, so a training search's
 		-- re-plans are all weighed against today's bags.
-		local pool, stock = CopyHeld(), {}
+		local pool = CopyHeld()
+		local stock
 		while route.reachedSkill < target do
 			local skill = route.reachedSkill
 			picked[#picked + 1] = skill
@@ -976,6 +979,7 @@ local function Planner(snapshot)
 				local ups = math.max(best.skillUps or 1, 1)
 				local crafts = Covered(best.thresholds, skill, skill + gain, ups)
 				if best.stockSensitive and stockCost then
+					stock = stock or {}
 					stockCost(best.recipeID, crafts, pool, stock, true)
 				else
 					TakePool(best, crafts, pool)

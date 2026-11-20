@@ -304,12 +304,11 @@ local function AddCost(tooltip, recipeID, d)
 		return
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)
+	local stock = ns.RecipeUsesStock(recipeID) and {} or nil
 	for _, reagent in ipairs(reagents) do
 		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
 		local left = reagent.quantity > 1 and string.format("%s x%d", name, reagent.quantity) or name
-		local buy, price = ns.ReagentBuyCost(reagent.itemID, reagent.quantity)
-		local each = ns.ObtainCost(reagent.itemID, reagent.quantity)
-		local maker = each and (not buy or each < buy) and ns.SubCraft(reagent.itemID, reagent.quantity)
+		local each, maker, price = ns.PriceRecipeReagent(reagent, stock)
 		if each then
 			local source = maker and L["crafted"] or (price and ns.PriceSourceText(price) or L["crafted"])
 			tooltip:AddDoubleLine(

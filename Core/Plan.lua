@@ -372,9 +372,7 @@ local function Snapshot(profession, target, known)
 		-- level can use (#357).
 		buffs = ns.UsableBuffs(UnitLevel("player") or 0),
 		held = {},
-		stockCost = function(...)
-			return StockReagentCost(...)
-		end,
+		stockCost = StockReagentCost,
 	}
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
 		local thresholds = not Skipped(recipeID) and ns.Model.Get(recipeID)
@@ -389,7 +387,7 @@ local function Snapshot(profession, target, known)
 				netCost = netCost,
 				gatherableUnknown = unknown,
 				reagentCost = reagentCost,
-				stockSensitive = (netCost ~= nil or unknown) and ns.StockSensitive and ns.StockSensitive(reagents),
+				stockSensitive = (netCost ~= nil or unknown) and ns.RecipeUsesStock and ns.RecipeUsesStock(recipeID),
 				reagents = PricedReagents(recipeID, reagents, held),
 				value = value and value.copper or nil,
 				preference = ns.PinPreference(recipeID),
@@ -483,7 +481,9 @@ local function Trainable(profession, snapshot)
 					netCost = netCost,
 					gatherableUnknown = unknown,
 					reagentCost = reagentCost,
-					stockSensitive = (netCost ~= nil or unknown) and ns.StockSensitive and ns.StockSensitive(reagents),
+					stockSensitive = (netCost ~= nil or unknown) and ns.RecipeUsesStock and ns.RecipeUsesStock(
+						recipeID
+					),
 					reagents = PricedReagents(recipeID, reagents, held),
 					value = value and value.copper or nil,
 					preference = ns.PinPreference(recipeID),
@@ -766,6 +766,21 @@ local function Reserve(recipeID, crafts, bags)
 	return reserved
 end
 
+-- Appends one purchased input split by source, debiting the route's limited vendor balance.
+---@param raw SkillUpRawInput[]
+---@param itemID integer
+---@param count number
+---@param stock table<integer, number>
+local function AddAllocatedRaw(raw, itemID, count, stock)
+	local units, vendor, overflow = ns.AllocateReagent(itemID, count, stock)
+	if units > 0 then
+		raw[#raw + 1] = { itemID = itemID, count = units, price = vendor }
+	end
+	if count > units then
+		raw[#raw + 1] = { itemID = itemID, count = count - units, price = vendor and overflow }
+	end
+end
+
 -- The sub-crafts a recipe's reagents need, deepest first, and the raw reagents left once every
 -- reagent a learned recipe makes for less than it costs to buy is replaced by what it is made from.
 -- A reagent already being made higher up is left raw, so a cycle cannot recurse. `bags` is the held
@@ -785,23 +800,6 @@ end
 ---@return boolean held Whether a held copy, raw or intermediate, stood in for a reagent.
 local function Expand(recipeID, crafts, depth, making, bags, reserved, stock)
 	local subcrafts, raw = {}, {}
-	---@param itemID integer
-	---@param count number
-	local function AddRaw(itemID, count)
-		if count <= 0 then
-			return
-		end
-		local vendorCount, vendor, overflow = 0, nil, nil
-		if ns.LimitedReagentPrice and ns.LimitedReagentPrice(itemID) ~= nil then
-			vendorCount, vendor, overflow = ns.AllocateReagent(itemID, count, stock)
-		end
-		if vendorCount > 0 then
-			raw[#raw + 1] = { itemID = itemID, count = vendorCount, price = vendor }
-		end
-		if count > vendorCount then
-			raw[#raw + 1] = { itemID = itemID, count = count - vendorCount, price = vendor and overflow }
-		end
-	end
 	-- Only a caller that passes the bags writes or reads what they stood in for; the rest share one empty table.
 	local used = bags and {} or NONE_USED
 	local usedHeld = false
@@ -809,16 +807,20 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock)
 	reserved = reserved or (bags and Reserve(recipeID, crafts, bags)) or {}
 	for index, reagent in ipairs(reagents) do
 		local need = reagent.quantity * crafts
-		local maker = depth < MAX_SUB_DEPTH
-			and not making[reagent.itemID]
-			and ns.SubCraft
-			and ns.SubCraft(
-				reagent.itemID,
-				math.max(need - (reserved[index] or 0), 1),
-				stock,
-				MAX_SUB_DEPTH - depth,
-				depth > 0 and making or nil
-			)
+		local maker
+		if depth < MAX_SUB_DEPTH and not making[reagent.itemID] and ns.SubCraft then
+			if stock then
+				maker = ns.SubCraft(
+					reagent.itemID,
+					math.max(need - (reserved[index] or 0), 1),
+					stock,
+					MAX_SUB_DEPTH - depth,
+					depth > 0 and making or nil
+				)
+			else
+				maker = ns.SubCraft(reagent.itemID)
+			end
+		end
 		if maker and maker.quantity and maker.quantity > 0 then
 			-- Held copies of the intermediate are used before any are made, then held inputs make what they cover
 			-- (#858); the market's maker makes the rest. The steps after this see what is left.
@@ -832,9 +834,14 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock)
 				end
 				need = left
 			end
-			local purchases = math.min(maker.purchaseUnits, need)
-			local batches = math.ceil((need - purchases) / maker.quantity)
-			AddRaw(reagent.itemID, math.max(need - batches * maker.quantity, 0))
+			local batches = math.ceil(need / maker.quantity)
+			if stock and maker.purchaseUnits > 0 then
+				batches = math.ceil(math.max(need - maker.purchaseUnits, 0) / maker.quantity)
+				local purchases = need - batches * maker.quantity
+				if purchases > 0 then
+					AddAllocatedRaw(raw, reagent.itemID, purchases, stock)
+				end
+			end
 			local firstChild = #raw + 1
 			if batches > 0 then
 				making[reagent.itemID] = true
@@ -885,7 +892,11 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock)
 				end
 			end
 			if need > 0 then
-				AddRaw(reagent.itemID, need)
+				if stock then
+					AddAllocatedRaw(raw, reagent.itemID, need, stock)
+				else
+					raw[#raw + 1] = { itemID = reagent.itemID, count = need }
+				end
 			end
 		end
 	end
@@ -897,19 +908,25 @@ end
 ---@field raw SkillUpRawInput[]
 ---@field used {itemID: integer, count: number}[]
 ---@field held boolean
+---@field stockSensitive? boolean
 
 -- Expands each of a route's crafts against one shared view of the bags. Every craft's own reagents are reserved
 -- before any craft expands, so a held sub-craft of an earlier craft cannot spend what a later one uses directly.
 ---@param crafts {recipeID: integer, crafts: number}[]
 ---@return SkillUpExpanded[]
 local function ExpandRoute(crafts)
-	local bags, reserved, expanded, stock = {}, {}, {}, {}
+	local bags, reserved, expanded, stock = {}, {}, {}, nil
 	for index, craft in ipairs(crafts) do
 		reserved[index] = Reserve(craft.recipeID, craft.crafts, bags)
 	end
 	for index, craft in ipairs(crafts) do
-		local subcrafts, raw, used, held = Expand(craft.recipeID, craft.crafts, 0, {}, bags, reserved[index], stock)
-		expanded[index] = { subcrafts = subcrafts, raw = raw, used = used, held = held }
+		local sensitive = ns.RecipeUsesStock and ns.RecipeUsesStock(craft.recipeID)
+		if sensitive and not stock then
+			stock = {}
+		end
+		local subcrafts, raw, used, held =
+			Expand(craft.recipeID, craft.crafts, 0, {}, bags, reserved[index], sensitive and stock or nil)
+		expanded[index] = { subcrafts = subcrafts, raw = raw, used = used, held = held, stockSensitive = sensitive }
 	end
 	return expanded
 end
@@ -942,7 +959,7 @@ end
 ---@param recipeID integer
 ---@param crafts number
 ---@param pool table<integer, number>
----@param stock table<integer, number>
+---@param stock table<integer, number>?
 ---@param take boolean
 ---@return number?
 StockReagentCost = function(recipeID, crafts, pool, stock, take)
@@ -952,8 +969,10 @@ StockReagentCost = function(recipeID, crafts, pool, stock, take)
 		for itemID, count in pairs(pool) do
 			bags[itemID] = count
 		end
-		for itemID, count in pairs(stock) do
-			remaining[itemID] = count
+		if stock then
+			for itemID, count in pairs(stock) do
+				remaining[itemID] = count
+			end
 		end
 	end
 	local _, raw, used = Expand(recipeID, crafts, 0, {}, bags, nil, remaining)
@@ -971,11 +990,13 @@ local function ExpandedSignature(expanded)
 		for _, sub in ipairs(part.subcrafts) do
 			parts[#parts + 1] = "s" .. sub.recipeID .. ":" .. sub.itemID .. ":" .. sub.crafts
 		end
-		for _, input in ipairs(part.raw) do
-			local price = input.price
-			if price then
-				parts[#parts + 1] =
-					table.concat({ "p", input.itemID, input.count, price.source, price.vendor or 0 }, ":")
+		if part.stockSensitive then
+			for _, input in ipairs(part.raw) do
+				local price = input.price
+				if price then
+					parts[#parts + 1] =
+						table.concat({ "p", input.itemID, input.count, price.source, price.vendor or 0 }, ":")
+				end
 			end
 		end
 		for _, list in ipairs({ part.raw, part.used }) do
@@ -1010,7 +1031,8 @@ function ns.RecipeMaterials(recipeID, crafts)
 		return nil, nil
 	end
 	-- The bill is for the recipe alone: another addon asking what it takes is not told about these bags.
-	local subcrafts, raw = Expand(recipeID, crafts, 0, {})
+	local stock = ns.RecipeUsesStock and ns.RecipeUsesStock(recipeID) and {} or nil
+	local subcrafts, raw = Expand(recipeID, crafts, 0, {}, nil, nil, stock)
 	local merged, byItem = {}, {}
 	for _, item in ipairs(raw) do
 		local entry = byItem[item.itemID]
@@ -1153,10 +1175,7 @@ local function Finish(profession, target, route)
 	local expanded = ExpandRoute(route.segments)
 	for index, segment in ipairs(route.segments) do
 		local part = expanded[index]
-		local stockSensitive = ns.StockSensitive and ns.StockSensitive(ns.Reagents(segment.recipeID))
-		for _, item in ipairs(part.raw) do
-			stockSensitive = stockSensitive or item.price ~= nil
-		end
+		local stockSensitive = part.stockSensitive
 		crafts[index] = {
 			recipeID = segment.recipeID,
 			from = segment.fromSkill - m,
@@ -1274,10 +1293,10 @@ ns.WhenStale("bags", function()
 end)
 
 -- Every reagent a route's crafts use is in the bags or has a price: what a bag change can take away.
----@param plan SkillUpPlan
+---@param expandedRoute SkillUpExpanded[]
 ---@return boolean
-local function Affordable(plan)
-	for _, expanded in ipairs(ExpandRoute(plan.crafts)) do
+local function Affordable(expandedRoute)
+	for _, expanded in ipairs(expandedRoute) do
 		for _, item in ipairs(expanded.raw) do
 			local price = item.price or ns.Price(item.itemID)
 			if not price or (price.unknown and price.source ~= "gather") then
@@ -1291,14 +1310,16 @@ end
 -- A followed route kept across a bag change takes its sub-crafts from today's bags: held inputs may now make an
 -- intermediate, or held copies cover it, so the steps match what Reagents asks for (#858). The crafts stay.
 ---@param plan SkillUpPlan
-local function RefreshSubcrafts(plan)
-	local expanded = ExpandRoute(plan.crafts)
+---@param expanded SkillUpExpanded[]
+local function RefreshSubcrafts(plan, expanded)
 	planExpansions[plan] = expanded
 	for index, craft in ipairs(plan.crafts) do
 		local part = expanded[index]
 		craft.subcrafts, craft.raw, craft.held = part.subcrafts, part.raw, part.held or nil
 		if craft.stockSensitive then
+			local previous = ns.StepCost(craft.recipeID, craft.crafts, craft) or 0
 			craft.materialCost = ExpansionCost(part.raw, part.used)
+			plan.cost = plan.cost - previous + (ns.StepCost(craft.recipeID, craft.crafts, craft) or 0)
 		end
 	end
 	-- The plan stays the same table while its expansion follows the bags, so the revision follows the expansion.
@@ -1343,7 +1364,7 @@ function ns.RouteFollowable(plan)
 			return false
 		end
 	end
-	return Affordable(plan)
+	return Affordable(ExpandRoute(plan.crafts))
 end
 
 -- Whether two plans walk the same recipes in the same order: the crafts, the training on the way and the ranks
@@ -1476,12 +1497,13 @@ function ns.PlanRoute(profession)
 	local kept = committed[profession.skillLine]
 	if kept and kept.bags ~= bagEpoch then
 		kept.bags = bagEpoch
-		if not Affordable(kept.plan) then
+		local expanded = ExpandRoute(kept.plan.crafts)
+		if not Affordable(expanded) then
 			Forget(cache, kept.key)
 			committed[profession.skillLine] = nil
 			kept = nil
 		else
-			RefreshSubcrafts(kept.plan)
+			RefreshSubcrafts(kept.plan, expanded)
 		end
 	end
 	-- A plan made before the last bag change is not today's choice: the bags may now favour another recipe. A
@@ -1564,7 +1586,7 @@ function ns.BestTraining(profession, known, offers)
 				netCost = netCost,
 				gatherableUnknown = netCost == nil and GatherableUnknown(reagents),
 				reagentCost = reagentCost,
-				stockSensitive = ns.StockSensitive and ns.StockSensitive(reagents),
+				stockSensitive = ns.RecipeUsesStock and ns.RecipeUsesStock(offer.recipeID),
 				reagents = PricedReagents(offer.recipeID, reagents, held),
 				value = value and value.copper or nil,
 				preference = ns.PinPreference(offer.recipeID),
@@ -1588,6 +1610,11 @@ function ns.RouteSparesNote()
 		L["Counts include spares for an estimated %d%% chance to finish the whole route."],
 		math.floor(ns.Model.ROUTE_CONFIDENCE * 100 + 0.5)
 	)
+end
+
+local ShoppingOrder = {}
+for index, source in ipairs(ns.Model.SHOPPING_SOURCES) do
+	ShoppingOrder[source] = index
 end
 
 -- Everything the plan's crafts use, as totals: what you have is compared live, so the
@@ -1629,10 +1656,10 @@ function ns.RouteReagents(plan)
 	end
 	local byItem, held = {}, {}
 	local items = {}
-	for _, expanded in ipairs((ns.StockSensitive and planExpansions[plan]) or ExpandRoute(plan.crafts)) do
+	for _, expanded in ipairs((ns.RecipeUsesStock and planExpansions[plan]) or ExpandRoute(plan.crafts)) do
 		for _, item in ipairs(expanded.raw) do
 			local source = ns.Model.ShoppingSource(item.price and item.price.source or ns.PriceSource(item.itemID))
-			local key = source .. item.itemID
+			local key = item.price and (source .. item.itemID .. ":" .. (item.price.vendor or 0)) or item.itemID
 			local row = byItem[key]
 			if not row then
 				row = {
@@ -1660,7 +1687,13 @@ function ns.RouteReagents(plan)
 		if ns.LimitedReagentPrice then
 			_, overflow = ns.LimitedReagentPrice(itemID)
 		end
-		local row = overflow and byItem[ns.Model.ShoppingSource(overflow.source) .. itemID] or byItem[source .. itemID]
+		local row = overflow
+				and byItem[ns.Model.ShoppingSource(overflow.source) .. itemID .. ":" .. (overflow.vendor or 0)]
+			or byItem[itemID]
+		if overflow and not row and source == "vendor" then
+			local _, _, vendor = ns.LimitedReagentPrice(itemID)
+			row = vendor and byItem[source .. itemID .. ":" .. vendor.vendor] or nil
+		end
 		if not row then
 			row = { itemID = itemID, need = 0, source = source }
 			items[#items + 1] = row
@@ -1671,12 +1704,15 @@ function ns.RouteReagents(plan)
 		-- Every split row already excludes the held copies assigned to the other row.
 		row.have = row.have or 0
 	end
-	local order = {}
-	for index, source in ipairs(ns.Model.SHOPPING_SOURCES) do
-		order[source] = index
-	end
+	local order = ShoppingOrder
 	table.sort(items, function(a, b)
-		return order[a.source] < order[b.source] or (a.source == b.source and a.itemID < b.itemID)
+		if a.source ~= b.source then
+			return order[a.source] < order[b.source]
+		end
+		if a.itemID ~= b.itemID then
+			return a.itemID < b.itemID
+		end
+		return (a.allocatedPrice and a.allocatedPrice.copper or 0) < (b.allocatedPrice and b.allocatedPrice.copper or 0)
 	end)
 	-- A carried tool the route needs goes in once, after the reagents, so its place is stable.
 	for _, itemID in ipairs(ns.MissingToolItems and ns.MissingToolItems(plan) or {}) do

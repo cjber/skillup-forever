@@ -16,6 +16,11 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - **Herb and ore node tooltips show the skill they need in every client language.** They were English-only, as SkillUp matched nodes by their English name; it now reads which node it is from the game itself.
 - **Auctionator searches start on request.** SkillUp no longer starts an Auctionator search by itself when you open the auction house. Click Search in the Professions window to search for your recipe's missing reagents. Thanks to turkeyfire69 on CurseForge for the report (#880).
+- **Switching profession or tab in the Professions window is quicker.** SkillUp rebuilds its route after a bag change only when the count of an item the route uses moved, instead of on every bag update the game sends.
+
+### Changed
+
+- Ships with ForeverCore 1.15.4, the same shared code as your other Forever addons, so they keep working together.
 
 ## [1.14.7] - 2026-11-19
 

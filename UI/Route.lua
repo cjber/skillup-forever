@@ -198,7 +198,7 @@ local function CraftTooltip(tooltip, profession, craft)
 	AddToolLines(tooltip, recipeID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	AddReagentLines(tooltip, recipeID, craft.crafts)
-	AddLine(tooltip, L["Cost"], Money(ns.StepCost(recipeID, craft.crafts)))
+	AddLine(tooltip, L["Cost"], Money(ns.StepCost(recipeID, craft.crafts, craft)))
 	if ns.IsLearned(recipeID) and profession.skillLine == ns.OpenSkillLine() then
 		GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
 	end
@@ -569,7 +569,7 @@ local function RenderRoute(list, plan)
 				menu = RecipeMenu(training.recipeID),
 			})
 		elseif craft then
-			local money = Money(ns.StepCost(craft.recipeID, craft.crafts))
+			local money = Money(ns.StepCost(craft.recipeID, craft.crafts, craft))
 			local current = craft == currentCraft
 			local detail = craft.station
 					and string.format(L["Skill %d to %d, %s, at %s"], craft.from, craft.to, money, craft.station)

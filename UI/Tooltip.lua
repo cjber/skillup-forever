@@ -307,17 +307,9 @@ local function AddCost(tooltip, recipeID, d)
 	for _, reagent in ipairs(reagents) do
 		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
 		local left = reagent.quantity > 1 and string.format("%s x%d", name, reagent.quantity) or name
-		local price = ns.Price(reagent.itemID)
-		if price and price.source == "vendor" and ns.LimitedReagentPrice then
-			local _, overflow = ns.LimitedReagentPrice(reagent.itemID)
-			price = overflow or price
-		end
-		-- The line and the Reagents total below must price a reagent the same way: the total counts what it
-		-- costs to obtain, cheaper to craft where a known recipe beats buying it, so the line does too (#360).
-		-- An unknown auction price costs nothing in the plan but is still no number to show.
-		local each = price and not price.unknown and (ns.ObtainCost and ns.ObtainCost(reagent.itemID) or price.copper)
-			or nil
-		local maker = each and price and each < price.copper and ns.SubCraft and ns.SubCraft(reagent.itemID)
+		local buy, price = ns.ReagentBuyCost(reagent.itemID, reagent.quantity)
+		local each = ns.ObtainCost(reagent.itemID, reagent.quantity)
+		local maker = each and (not buy or each < buy) and ns.SubCraft(reagent.itemID, reagent.quantity)
 		if each then
 			local source = maker and L["crafted"] or (price and ns.PriceSourceText(price) or L["crafted"])
 			tooltip:AddDoubleLine(
@@ -740,7 +732,9 @@ local function RouteTexts(itemID)
 		local indexInRows = 1
 		while indexInRows <= #rows do
 			local entry = rows[indexInRows].entry
-			local have, need = 0, 0
+			---@type number?
+			local have = 0
+			local need = 0
 			repeat
 				local item = rows[indexInRows].item
 				local held = ns.RouteDemand.Held(item)

@@ -1291,7 +1291,7 @@ function RouteDemand.Vendors(item, byTravel)
 			end
 		end
 	elseif item.source == "vendor" then
-		local npcID = ns.NearestVendor(item.itemID, byTravel)
+		local npcID = item.allocatedPrice and item.allocatedPrice.vendor or ns.NearestVendor(item.itemID, byTravel)
 		if npcID then
 			vendors[1] = npcID
 		end

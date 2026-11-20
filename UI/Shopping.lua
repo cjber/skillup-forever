@@ -424,7 +424,7 @@ function ns.TrackedNeeds()
 	for _, entry in ipairs(tracked) do
 		entry.items = ns.RouteReagents(entry.plan)
 		for _, item in ipairs(entry.items) do
-			if item.allocatedPrice or (item.limited and ns.LimitedReagentPrice(item.itemID) ~= nil) then
+			if item.allocatedPrice then
 				hasLimitedReagents = true
 			end
 		end
@@ -1143,8 +1143,12 @@ local function LayoutEntry(self, entry)
 				Waypointed(line, name, L["Nearest vendor"], function()
 					return ns.RouteDemand.Vendors(item, true)[1]
 				end)
-				block.vendorMissing[#block.vendorMissing + 1] =
-					{ name = name, itemID = item.itemID, vendor = vendor, selected = item.acquisitions ~= nil }
+				block.vendorMissing[#block.vendorMissing + 1] = {
+					name = name,
+					itemID = item.itemID,
+					vendor = vendor,
+					selected = item.acquisitions ~= nil or (item.allocatedPrice and item.allocatedPrice.vendor ~= nil),
+				}
 			end
 		end
 	end

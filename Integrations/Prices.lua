@@ -387,14 +387,15 @@ end
 -- limit, and false there means unlimited. What the route says instead of implying a reagent list can be
 -- bought in one visit (#358).
 ---@param itemID integer
+---@param vendor integer?
 ---@return number?
-function ns.IsLimitedStock(itemID)
+function ns.IsLimitedStock(itemID, vendor)
 	local seen = ns.db.stock and ns.db.stock[itemID]
 	local bundled = ns.LimitedStock and ns.LimitedStock[itemID]
 	if not (seen or bundled) then
 		return nil
 	end
-	local vendor = ns.NearestVendor(itemID, true)
+	vendor = vendor or ns.NearestVendor(itemID, true)
 	if not vendor then
 		return nil
 	end
@@ -409,28 +410,77 @@ function ns.IsLimitedStock(itemID)
 	return bundled and bundled[vendor] or nil
 end
 
--- A limited quote has one stock allowance. Beyond it, use the ordinary non-vendor source.
+-- Which seller supplied each stock-aware quote since the last price or catalogue change.
+---@type table<integer, integer|false>
+local stockVendors = {}
+
+-- Cache the selected seller and both quotes together until merchant or catalogue evidence changes.
+---@type table<integer, {stock: number, overflow: SkillUpPrice, vendor: SkillUpPrice}|false>
+local limitedQuotes = {}
+
 ---@param itemID integer
 ---@return number? stock
 ---@return SkillUpPrice? overflow
+---@return SkillUpPrice? vendorPrice
 function ns.LimitedReagentPrice(itemID)
-	local price = ns.Price(itemID)
-	local limit = price and price.source == "vendor" and ns.IsLimitedStock(itemID)
-	if not limit or not MarketGood(itemID) then
-		return nil
+	local cached = limitedQuotes[itemID]
+	if cached == nil then
+		cached = false
+		if
+			(ns.db.stock[itemID] or (ns.LimitedStock and ns.LimitedStock[itemID]))
+			and MarketGood(itemID)
+			and not (ns.CollectMode() == "gather" and Gathered(itemID))
+		then
+			local npc = ns.NearestVendor(itemID, true)
+			stockVendors[itemID] = npc or false
+			local limit = npc and ns.IsLimitedStock(itemID, npc)
+			if limit then
+				local evidence = ns.db.merchantEvidence[npc]
+				local observed = evidence and evidence[itemID]
+				local available = observed and observed.numAvailable
+				if available and available >= 0 then
+					limit = math.min(limit, available)
+				end
+				local overflow = AuctionPrice(itemID)
+				local quote = observed and observed.unitCopper or ns.VendorPrices[itemID]
+				if not quote and not evidence then
+					quote = ns.db.vendor[itemID]
+				end
+				if quote then
+					overflow = overflow or { copper = 0, source = "auction", unknown = true }
+					cached = {
+						stock = (overflow.unknown or quote <= overflow.copper) and limit or 0,
+						overflow = overflow,
+						vendor = { copper = quote, source = "vendor", vendor = npc },
+					}
+				end
+			end
+		end
+		limitedQuotes[itemID] = cached
 	end
-	local vendor = ns.NearestVendor(itemID, true)
-	local evidence = ns.db.merchantEvidence[vendor]
-	local observed = evidence and evidence[itemID]
-	local available = observed and observed.numAvailable
-	if available and available >= 0 then
-		limit = math.min(limit, available)
+	if cached then
+		return cached.stock, cached.overflow, cached.vendor
 	end
-	local overflow = AuctionPrice(itemID)
-	if not overflow and ns.CollectMode() == "gather" then
-		overflow = Gathered(itemID)
+end
+
+-- Returns the exact purchase split and, when given a route ledger, consumes only the vendor portion.
+---@param itemID integer
+---@param count number
+---@param remaining table<integer, number>?
+---@return number vendorCount
+---@return SkillUpPrice?
+---@return SkillUpPrice?
+function ns.AllocateReagent(itemID, count, remaining)
+	local stock, overflow, vendor = ns.LimitedReagentPrice(itemID)
+	if stock and vendor then
+		local left = remaining and remaining[itemID] or stock
+		local units = math.min(left, count)
+		if remaining then
+			remaining[itemID] = left - units
+		end
+		return units, vendor, overflow
 	end
-	return limit, overflow or { copper = 0, source = "auction", unknown = true }
+	return 0, nil, ns.Price(itemID)
 end
 
 -- The client's own schematic, basic reagents only: optional and finishing slots don't have to be filled.
@@ -548,17 +598,25 @@ end
 -- the item it makes is skipped rather than followed, so no cycle can recurse or hang.
 
 local MAX_SUB_DEPTH = 3
----@type table<integer, number|false>
+---@class SkillUpMakerChoice
+---@field recipeID integer
+---@field quantity number
+---@field batches number
+---@field purchaseUnits number
+
+---@type table<integer, table<number, {cost: number?, maker: SkillUpMakerChoice?}>>
 local obtainCost = {}
----@type table<integer, {recipeID: integer, quantity: number}|false>
-local subCraft = {}
+---@type table<integer, number|false>
+local linearCosts = {}
 ---@type table<integer, number|false>
 local heldCost = {}
 ---@type table<integer, integer[]>?
 local craftMakers
+---@type table<integer, table<integer, boolean>>
+local stockSensitive = {}
 
 local function ResetCraftCosts()
-	obtainCost, subCraft, heldCost = {}, {}, {}
+	obtainCost, heldCost, stockSensitive = {}, {}, {}
 end
 
 -- An item no recipe makes shares this one empty list: MakersOf runs for every priced item, and callers only read it.
@@ -626,94 +684,211 @@ end
 ---@param recipeID integer
 ---@return boolean
 local function UsableMaker(recipeID)
+	if not ns.IsLearned(recipeID) or (ns.IsSkipped and ns.IsSkipped(recipeID)) then
+		return false
+	end
 	local quantity, reagents = OutputQuantity(recipeID), ns.Reagents(recipeID)
-	local skipped = ns.IsSkipped ~= nil and ns.IsSkipped(recipeID)
-	return ns.IsLearned(recipeID)
-		and not skipped
-		and quantity ~= nil
-		and quantity > 0
-		and reagents ~= nil
-		and #reagents > 0
+	return quantity ~= nil and quantity > 0 and reagents ~= nil and #reagents > 0
 end
 ns.UsableMaker = UsableMaker
 
+-- Only dependencies whose stock can be spent need an allocation ledger during pricing.
 ---@param itemID integer
 ---@param depth integer
----@param stack table<integer, true>?
----@return number?
-local function ObtainCost(itemID, depth, stack)
-	if depth <= 0 then
-		local _, overflow = ns.LimitedReagentPrice(itemID)
-		local price = overflow or ns.Price(itemID)
-		return price and not price.unknown and WithSaleFloor(itemID, price.copper) or nil
+---@return boolean
+local function UsesStock(itemID, depth)
+	local cached = stockSensitive[depth]
+	if not cached then
+		cached = {}
+		stockSensitive[depth] = cached
 	end
-	local cached = obtainCost[itemID]
-	if cached == false then
-		return nil
-	elseif cached ~= nil then
-		return cached
-	end
-	if stack == nil then
-		stack = {}
-	elseif stack[itemID] then
-		return nil
-	end
-	local _, overflow = ns.LimitedReagentPrice(itemID)
-	local buy = overflow or ns.Price(itemID)
-	local best = buy and not buy.unknown and buy.copper or nil
-	---@type integer?
-	local bestRecipe = nil
-	stack[itemID] = true
-	for _, recipeID in ipairs(MakersOf(itemID)) do
-		if UsableMaker(recipeID) then
-			local quantity, reagents = assert(OutputQuantity(recipeID)), ns.Reagents(recipeID) or {}
-			---@type number?
-			local total = 0
-			for _, reagent in ipairs(reagents) do
-				local each = ObtainCost(reagent.itemID, depth - 1, stack)
-				if not each then
-					total = nil
+	local limited = cached[itemID]
+	if limited == nil then
+		limited = (ns.LimitedReagentPrice(itemID) or 0) > 0
+		if not limited and depth > 0 then
+			for _, maker in ipairs(MakersOf(itemID)) do
+				if UsableMaker(maker) and ns.StockSensitive(ns.Reagents(maker), depth - 1) then
+					limited = true
 					break
 				end
-				total = total + each * reagent.quantity
-			end
-			local unit = total and total / quantity
-			-- A craft wins only when it is strictly cheaper than buying: on a tie the vendor wins.
-			if unit and (not best or unit < best) then
-				best, bestRecipe = unit, recipeID
 			end
 		end
+		cached[itemID] = limited
 	end
-	stack[itemID] = nil
-	best = WithSaleFloor(itemID, best)
-	if best == nil then
-		obtainCost[itemID] = false
+	return limited
+end
+
+---@param reagents SkillUpReagent[]?
+---@param depth integer?
+---@return boolean
+function ns.StockSensitive(reagents, depth)
+	for _, reagent in ipairs(reagents or {}) do
+		if UsesStock(reagent.itemID, depth or MAX_SUB_DEPTH) then
+			return true
+		end
+	end
+	return false
+end
+
+-- The per-unit cost of this quantity, averaging the vendor and overflow portions.
+---@param itemID integer
+---@param count number
+---@return number?
+---@return SkillUpPrice?
+---@return boolean limited
+function ns.ReagentBuyCost(itemID, count)
+	local first, vendor, overflow = ns.AllocateReagent(itemID, count)
+	if vendor and first == count then
+		return vendor.copper, vendor, true
+	end
+	local each = overflow
+		and not overflow.unknown
+		and ((vendor and first * vendor.copper or 0) + (count - first) * overflow.copper) / count
+	return each or nil, overflow, vendor ~= nil
+end
+
+---@param itemID integer
+---@param count number
+---@param depth integer
+---@param stack table<integer, true>?
+---@param remaining table<integer, number>?
+---@param take boolean?
+---@return number?
+---@return SkillUpMakerChoice?
+local function ObtainCost(itemID, count, depth, stack, remaining, take)
+	if stack and stack[itemID] then
 		return nil
 	end
-	local cost = assert(best)
-	obtainCost[itemID] = cost
-	if bestRecipe then
-		subCraft[itemID] = { recipeID = bestRecipe, quantity = assert(OutputQuantity(bestRecipe)) }
+	local linear = linearCosts[itemID]
+	if linear ~= nil then
+		return linear or nil
 	end
-	return cost
+	local memo = not stack
+		and depth == MAX_SUB_DEPTH
+		and (
+			not remaining
+			or next(remaining) == nil
+			or (stockSensitive[depth] and stockSensitive[depth][itemID] == false)
+		)
+	local byCount = memo and obtainCost[itemID]
+	local cached = byCount and byCount[count]
+	if cached then
+		return cached.cost, cached.maker
+	end
+	local makers = MakersOf(itemID)
+	if #makers == 0 and not (ns.db.stock[itemID] or (ns.LimitedStock and ns.LimitedStock[itemID])) then
+		local price = ns.Price(itemID)
+		linear = price and not price.unknown and price.copper or false
+		linearCosts[itemID] = linear
+		return linear or nil
+	end
+	local ledger
+	if #makers > 0 and depth > 0 then
+		-- A nested search inherits its caller's decision about whether it needs a ledger.
+		ledger = remaining or (not stack and UsesStock(itemID, depth) and {}) or nil
+	end
+	local stock, overflow, vendor = ns.LimitedReagentPrice(itemID)
+	local available = (remaining and remaining[itemID]) or stock or 0
+	local first = math.min(available, count)
+	if not vendor then
+		overflow = ns.Price(itemID)
+	end
+	local vendorCopper = vendor and vendor.copper or 0
+	local left = count - first
+	local buy = overflow and not overflow.unknown and overflow.copper
+	local best = left == 0 and first * vendorCopper or (buy and first * vendorCopper + left * buy or nil)
+	---@type SkillUpMakerChoice?
+	local maker
+	local chosenStock
+	if depth > 0 and #makers > 0 then
+		stack = stack or {}
+		stack[itemID] = true
+		for _, recipeID in ipairs(makers) do
+			if UsableMaker(recipeID) then
+				local quantity, reagents = assert(OutputQuantity(recipeID)), ns.Reagents(recipeID) or {}
+				-- Test each whole batch count. The remaining demand buys the cheapest available units first.
+				local lastBatch = math.ceil(count / quantity)
+				for batches = vendor and 1 or lastBatch, lastBatch do
+					local purchases = math.max(count - batches * quantity, 0)
+					local vendorUnits = math.min(purchases, first)
+					local rest = purchases - vendorUnits
+					if rest == 0 or buy then
+						local trial
+						if ledger then
+							trial = {}
+							for id, balance in pairs(ledger) do
+								trial[id] = balance
+							end
+							if vendor then
+								trial[itemID] = available - vendorUnits
+							end
+						end
+						---@type number?
+						local total = vendorUnits * vendorCopper + rest * (buy or 0)
+						for _, reagent in ipairs(reagents) do
+							local needed = reagent.quantity * batches
+							local each = ObtainCost(reagent.itemID, needed, depth - 1, stack, trial, true)
+							if not each then
+								total = nil
+								break
+							end
+							total = total + each * needed
+						end
+						if total and (not best or total < best) then
+							best, chosenStock = total, trial
+							maker = {
+								recipeID = recipeID,
+								quantity = quantity,
+								batches = batches,
+								purchaseUnits = purchases,
+							}
+						end
+					end
+				end
+			end
+		end
+		stack[itemID] = nil
+	end
+	if take and remaining then
+		if chosenStock then
+			for id, balance in pairs(chosenStock) do
+				remaining[id] = balance
+			end
+		elseif vendor then
+			remaining[itemID] = available - first
+		end
+	end
+	local each = best and best / count
+	if first == 0 or not vendor then
+		each = WithSaleFloor(itemID, each)
+	end
+	if memo then
+		if not byCount then
+			byCount = {}
+			obtainCost[itemID] = byCount
+		end
+		byCount[count] = { cost = each, maker = maker }
+	end
+	return each, maker
 end
 
--- What one unit of `itemID` costs to obtain: the cheaper of buying it and crafting it, the same number
--- `ReagentCost` totals. The tooltip prices each line with it so the lines and the Reagents total agree (#360).
 ---@param itemID integer
+---@param count number?
 ---@return number?
-function ns.ObtainCost(itemID)
-	return ObtainCost(itemID, MAX_SUB_DEPTH)
+function ns.ObtainCost(itemID, count)
+	local each = ObtainCost(itemID, count or 1, MAX_SUB_DEPTH)
+	return each
 end
 
--- The recipe that makes `itemID` for less than buying it, with one craft's output; nil when buying
--- is cheaper, nothing learned makes it, or one of its own reagents has no price.
 ---@param itemID integer
----@return {recipeID: integer, quantity: number}?
-function ns.SubCraft(itemID)
-	ObtainCost(itemID, MAX_SUB_DEPTH)
-	local maker = subCraft[itemID]
-	return maker or nil
+---@param count number?
+---@param remaining table<integer, number>?
+---@param depth integer?
+---@param stack table<integer, true>?
+---@return SkillUpMakerChoice?
+function ns.SubCraft(itemID, count, remaining, depth, stack)
+	local _, maker = ObtainCost(itemID, count or 1, depth or MAX_SUB_DEPTH, stack, remaining)
+	return maker
 end
 
 -- What using one held unit of `itemID` gives up: the lesser of selling it (SaleValue: auction after the cut,
@@ -726,7 +901,7 @@ end
 function ns.HeldCost(itemID)
 	local cached = heldCost[itemID]
 	if cached == nil then
-		local obtain = ObtainCost(itemID, MAX_SUB_DEPTH)
+		local obtain = ObtainCost(itemID, 1, MAX_SUB_DEPTH)
 		local sale = SaleValue(itemID)
 		if sale == nil then
 			cached = obtain or false
@@ -751,7 +926,7 @@ local function ReagentCost(reagents)
 	end
 	local total = 0
 	for _, reagent in ipairs(reagents) do
-		local each = ObtainCost(reagent.itemID, MAX_SUB_DEPTH)
+		local each = ObtainCost(reagent.itemID, reagent.quantity, MAX_SUB_DEPTH)
 		if not each then
 			return nil
 		end
@@ -993,7 +1168,10 @@ local function RecordMerchant()
 			if RecordEvidence(itemID, npcID, info) then
 				evidence = true
 				if
-					(previous and previous.numAvailable or nil) ~= info.numAvailable
+					(
+						(previous and previous.numAvailable or nil) ~= info.numAvailable
+						or (previous and previous.unitCopper or nil) ~= MoneyQuote(info)
+					)
 					and (MarketGood(itemID) and ns.db.stock[itemID] and type(ns.db.stock[itemID][npcID]) == "number")
 				then
 					availabilityChanged = true
@@ -1032,10 +1210,21 @@ function ns.InitPrices()
 		fromBundle = {}
 		ResetCraftCosts()
 	end)
+	ns.WhenStale("craftCosts", function()
+		stockVendors, limitedQuotes = {}, {}
+		ResetCraftCosts()
+	end)
 	ns.WhenStale("prices", function()
-		priceCache = {}
+		priceCache, linearCosts, stockVendors, limitedQuotes = {}, {}, {}, {}
 		professions = nil
 		ResetCraftCosts()
+	end)
+	ns.WhenEvent("ZONE_CHANGED_NEW_AREA", function()
+		for itemID, previous in pairs(stockVendors) do
+			if (ns.NearestVendor(itemID, true) or false) ~= previous then
+				return "prices"
+			end
+		end
 	end)
 	ns.WhenEvent("SKILL_LINES_CHANGED", function()
 		return ProfessionsChanged() and "professions" or nil

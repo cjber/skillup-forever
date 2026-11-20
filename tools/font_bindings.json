@@ -1055,7 +1055,7 @@
     },
     {
       "source": "UI/Shopping.lua",
-      "sha256": "f3bfc033f8e535bb831fc4bb7c7f2f230ee223c0c22a9702b492b2eb889cd44d",
+      "sha256": "b601ddb66fbe33b004f238b7f80450a49366d5b7383966ab1e5d60ac1d19a911",
       "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed. Reviewed #860: KeepsAuctionLists, ns.KeptAuctionList and the AuctionListNote nil return add no widgets or font setters. Reviewed the tracked-needs signature gaining the plan revision (#858): a cache key only; no bound widget FontObjects or phrase bindings changed. Reviewed forever-core#884: RefreshTracker marks the section dirty whatever the show switch says; no widgets or font setters. Reviewed #850: ns.Have notes the item it reads with ns.NoteItemCount; no widgets or font setters.",
       "bindings": [
         {

@@ -982,8 +982,12 @@ local function TrackerMenu(target, menu)
 end
 
 -- ForeverCore's shared line template: an objective line that takes the mouse, in a template of its own so the
--- tracker's pooling never mixes these lines with Blizzard's or another section's.
-local LINE_TEMPLATE = "ForeverTrackerInteractiveLineTemplate"
+-- tracker's pooling never mixes these lines with Blizzard's or another section's. Each embedded ForeverCore declares
+-- it under its own name, so it is read from the running copy, never written out (cjber/forever-core#964).
+---@return string
+local function LineTemplate()
+	return ForeverCore.TrackerLine.template
+end
 
 -- A left click on the line sets a waypoint to the NPC `nearest` picks, by travel
 -- time, and hovering names it. `steps` lists the training steps, so the tooltip can name the rest under
@@ -1114,7 +1118,7 @@ local function LayoutEntry(self, entry)
 			or ""
 		local first = steps[1]
 		local npc, label = first.nearest()
-		local line = block:AddObjective("Train", first.text .. more, npc and LINE_TEMPLATE or nil)
+		local line = block:AddObjective("Train", first.text .. more, npc and LineTemplate() or nil)
 		if npc then
 			Waypointed(line, first.text, label, function()
 				return (first.nearest(true))
@@ -1140,7 +1144,7 @@ local function LayoutEntry(self, entry)
 			local objective = item.allocatedPrice
 					and (item.source .. item.itemID .. ":" .. (item.allocatedPrice.vendor or 0))
 				or item.itemID
-			local line = block:AddObjective(objective, text, vendor and LINE_TEMPLATE or nil)
+			local line = block:AddObjective(objective, text, vendor and LineTemplate() or nil)
 			if vendor then
 				Waypointed(line, name, L["Nearest vendor"], function()
 					return ns.RouteDemand.Vendors(item, true)[1]

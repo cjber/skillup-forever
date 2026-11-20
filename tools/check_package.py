@@ -28,7 +28,11 @@ POLICY = package.Policy(
         for spec in sorted(p.relative_to(ROOT).as_posix() for p in ROOT.glob("tests/*_spec.lua"))
         if spec not in REPO_ONLY
     )
-    + ("tests/sim/exercise_scenario.lua", "tests/embedded_scenario.lua"),
+    + (
+        "tests/sim/exercise_scenario.lua",
+        "tests/embedded_scenario.lua",
+        "tests/sim/tracker_line_template_scenario.lua",
+    ),
 )
 
 if __name__ == "__main__":

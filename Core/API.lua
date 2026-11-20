@@ -133,6 +133,8 @@ local function ReagentSource(item)
 		return "gather"
 	elseif item.source == "vendor" then
 		return "vendor"
+	elseif item.source == "auction" and item.allocatedPrice then
+		return "auction"
 	elseif CanCraft(item.itemID) then
 		return "craft"
 	elseif item.source == "auction" then
@@ -143,11 +145,12 @@ end
 -- Getting `count` more of a reagent, the way its price says it is got.
 ---@param itemID integer
 ---@param count number
+---@param price SkillUpPrice?
 ---@return SkillUpAPIStep
 ---@return (fun(): integer?)?
-local function Acquire(itemID, count)
+local function Acquire(itemID, count, price)
 	local name = ItemName(itemID)
-	local price = ns.Price(itemID)
+	price = price or ns.Price(itemID)
 	if price and price.source == "gather" then
 		return {
 			kind = "gather",
@@ -169,10 +172,10 @@ local function Acquire(itemID, count)
 		nav = false,
 	}
 	if price and price.source == "vendor" then
-		local vendor = ns.NearestVendor(itemID)
+		local vendor = price.vendor or ns.NearestVendor(itemID)
 		step.detail, step.nav = Detail(vendor, L["Vendor"], cost), vendor ~= nil
 		return step, vendor and function()
-			return ns.NearestVendor(itemID, true)
+			return price.vendor or ns.NearestVendor(itemID, true)
 		end or nil
 	elseif price then
 		step.detail = Detail(nil, L["Auction house"], cost)
@@ -301,13 +304,24 @@ end
 ---@return table<integer, fun(): integer?>
 local function Steps(plan, rows)
 	local profession = plan.profession
-	local steps, picks, held = {}, {}, {}
+	local steps, picks = {}, {}
 	---@param step SkillUpAPIStep
 	---@param pick (fun(): integer?)?
 	local function Add(step, pick)
 		if #steps < MAX_LIMIT then
 			steps[#steps + 1] = step
 			picks[#steps] = pick
+		end
+	end
+	local acquired = {}
+	---@param inputs SkillUpRawInput[]
+	---@param owner SkillUpSubCraft?
+	local function AcquireInputs(inputs, owner)
+		for _, item in ipairs(inputs) do
+			if not acquired[item] and (not owner or item.owner == owner) then
+				acquired[item] = true
+				Add(Acquire(item.itemID, item.count, item.price)) -- multi-value: the step and its picker
+			end
 		end
 	end
 	local supply = ns.RouteDemand.Supply(plan)
@@ -342,12 +356,16 @@ local function Steps(plan, rows)
 			end
 		end
 	end
+	local craftIndex = 1
 	for _, walk in ipairs(plan.steps) do
 		if #steps >= MAX_LIMIT then
 			break
 		end
 		local rank, training, craft, subcraft = walk.rank, walk.training, walk.craft, walk.subcraft
 		if subcraft then
+			if not supply then
+				AcquireInputs(plan.crafts[craftIndex].raw, subcraft)
+			end
 			local name = C_Spell.GetSpellName(subcraft.recipeID) or string.format(L["recipe %d"], subcraft.recipeID)
 			Add({
 				kind = "craft",
@@ -376,14 +394,10 @@ local function Steps(plan, rows)
 			Add(step, pick)
 		elseif craft then
 			local recipeID = craft.recipeID
-			for _, reagent in ipairs(supply and {} or ns.Reagents(recipeID) or {}) do
-				local itemID, need = reagent.itemID, reagent.quantity * craft.crafts
-				local have = held[itemID] or ns.Have(itemID)
-				held[itemID] = math.max(have - need, 0)
-				if have < need then
-					Add(Acquire(itemID, need - have)) -- multi-value: the step and its picker
-				end
+			if not supply then
+				AcquireInputs(plan.crafts[craftIndex].raw)
 			end
+			craftIndex = craftIndex + 1
 			local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
 			Add({
 				kind = "craft",
@@ -661,7 +675,7 @@ function API.ShoppingList(skillLineID)
 				bySource[source] = {}
 			end
 			for _, item in ipairs(entry.items) do
-				local price = not item.acquisitions and ns.Price(item.itemID) or nil
+				local price = not item.acquisitions and (item.allocatedPrice or ns.Price(item.itemID)) or nil
 				local have = ns.RouteDemand.Held(item)
 				local missing = have and math.max(item.need - have, 0)
 				local row = {

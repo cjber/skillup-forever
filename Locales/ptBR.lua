@@ -4,18 +4,12 @@ if GetLocale() ~= "ptBR" then
 	return
 end
 local L = ns.L
-L["Show SkillUp tooltip details"] = "Mostrar detalhes das dicas do SkillUp"
-L["Show SkillUp profession tabs"] = "Mostrar abas de profissões do SkillUp"
-L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
-	"Adiciona detalhes do SkillUp às dicas e preserva cada escolha individual."
 L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
 	"Mostra o dinheiro ao lado de cada receita. Desligado, os preços continuam na dica da receita." -- mt
 L["Show prices on recipe rows"] = "Mostrar preços nas linhas de receitas" -- mt
 L["Show recipe tooltip on hover"] = "Mostrar dica da receita ao passar o mouse" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"Mostra a dica do SkillUp ao lado da janela de profissões ao passar o mouse sobre uma receita. Desligue para deixar os reagentes visíveis." -- mt
-L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
-	"Mostra as abas de rota, equipamento e benefícios e preserva cada escolha individual."
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "mais %d"
@@ -181,8 +175,6 @@ L["Ranged"] = "Longo alcance"
 L["Read %s at %d"] = "Ler %s em %d"
 L["Read %s at %d (level %d)"] = "Ler %s em %d (nível %d)"
 L["Read %s first: you're at your cap."] = "Leia %s primeiro: você está no limite."
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"Custo dos reagentes dividido pela chance de ponto de perícia, nas linhas de receita e na dica. Reagentes comuns de comerciante têm preço desde o início e são atualizados nos mercadores que você visita; reagentes que você coleta custam seu valor de venda, a menos que você desative essa opção em Preços; preços de leilão precisam do Auctionator/TradeSkillMaster / AHDB / Naowh Forever."
 L["Reagent tooltips"] = "Dicas de reagentes"
 L["Reagents"] = "Reagentes"
 L["Reagents  (have / need)"] = "Reagentes  (tem / precisa)"
@@ -218,7 +210,6 @@ L["Shift-click to link the scroll."] = "Shift-clique para vincular a receita."
 L["Shift: used in %d of your recipes"] = "Shift: usado em %d das suas receitas"
 L["Shoulder"] = "Ombros"
 L["Show again: %s"] = "Mostrando de novo: %s"
-L["Show cost per skill-up"] = "Mostrar custo por ponto de perícia"
 L["Show gear I cannot make yet"] = "Mostrar equipamento que ainda não posso criar"
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"Mostra rotas de profissão no rastreador de objetivos. Ocultá-las mantém suas profissões rastreadas e metas."

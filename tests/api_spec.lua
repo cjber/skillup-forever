@@ -706,4 +706,118 @@ equal(pcall(chunk, "SkillUpForever", c.ns), true, "the addon loads on a kit from
 equal(publishCalls, 0, "and a minor 1 kit is handed nothing")
 kit.minor = kitMinor
 
+-- A limited intermediate competes with its maker at the price of the quantity the route needs.
+local PARENT, MAKER, INTERMEDIATE, INPUT = 10001, 10002, 10003, 10004
+local intermediate = Client.load({
+	saved = { routeTargets = { [COOKING] = 2 } },
+	data = {
+		Thresholds = { [PARENT] = { 1, 20, 40, 60 } },
+		RecipeData = {
+			[PARENT] = { skillLine = COOKING, reagents = { { itemID = INTERMEDIATE, quantity = 1 } } },
+			[MAKER] = {
+				skillLine = 164,
+				reagents = { { itemID = INPUT, quantity = 1 } },
+				output = { itemID = INTERMEDIATE, quantity = 1 },
+			},
+		},
+		VendorPrices = { [INPUT] = 20 },
+	},
+})
+intermediate.professions = { { name = "Cooking", id = COOKING, rank = 1, max = 75 } }
+intermediate.maps[0] = { mapID = 10, name = "Test zone" }
+intermediate.player.faction = "Alliance"
+intermediate.known[PARENT], intermediate.known[MAKER] = true, true
+intermediate.ns.SetCollectMode("auction")
+intermediate.auction[INTERMEDIATE] = 105
+intermediate.items[INTERMEDIATE] = { sell = 0 }
+intermediate.npc = { id = SCROLL_VENDOR, name = "Intermediate Vendor" }
+intermediate.merchant = { { itemID = INTERMEDIATE, price = 5, stackCount = 1, numAvailable = 1 } }
+intermediate.Fire("MERCHANT_SHOW")
+intermediate.Advance(0)
+local function IntermediateSteps()
+	return intermediate.G.SkillUpForever.API.Professions()[1].steps
+end
+local steps = IntermediateSteps()
+equal(steps[1].kind, "buy", "buying the stocked intermediate is cheaper than making it")
+equal(steps[1].itemID, INTERMEDIATE, "buy the intermediate directly")
+equal(steps[1].cost, 5, "the buy uses the available stock price")
+equal(steps[2].spellID, PARENT, "craft the parent with the purchased intermediate")
+intermediate.ns.db.routeTargets[COOKING] = 3
+intermediate.ns.Changed("replan")
+steps = IntermediateSteps()
+equal(intermediate.ns.ObtainCost(INTERMEDIATE, 2), 12.5, "buy one stocked intermediate and make the other")
+equal(steps[2].spellID, MAKER, "the bought input supplies one maker craft")
+equal(steps[2].count, 1, "one intermediate is crafted")
+equal(steps[3].itemID, INTERMEDIATE, "the stocked intermediate is purchased before the parent")
+equal(steps[3].cost, 5, "the purchased unit costs five copper")
+equal(
+	intermediate.ns.PlanMoney(intermediate.ns.PlanRoute(intermediate.ns.PlayerProfessions()[COOKING])).buy,
+	25,
+	"the plan buys both units for twenty-five copper"
+)
+intermediate.ns.db.routeTargets[COOKING] = 2
+intermediate.ns.Changed("replan")
+intermediate.merchant[1].numAvailable = 0
+intermediate.Fire("MERCHANT_UPDATE")
+intermediate.Advance(0)
+steps = IntermediateSteps()
+equal(steps[1].kind, "buy", "acquire the maker's input before its craft")
+equal(steps[1].itemID, INPUT, "buy the input instead of the intermediate")
+equal(steps[1].cost, 20, "the input is cheaper than auction overflow")
+equal(steps[2].spellID, MAKER, "make the intermediate")
+equal(steps[3].spellID, PARENT, "craft the parent without buying the intermediate")
+equal(#steps, 3, "the craft covers the full intermediate requirement")
+
+equal(intermediate.ns.ObtainCost(INTERMEDIATE), 99.75, "sold-out intermediates retain their auction sale floor")
+
+local SPICE = 10005
+local function BatchClient(outputCount, heldInput, includeSpice)
+	local reagents = { { itemID = INTERMEDIATE, quantity = 1 } }
+	if includeSpice then
+		reagents[#reagents + 1] = { itemID = SPICE, quantity = 1 }
+	end
+	local fixture = Client.load({
+		saved = { routeTargets = { [COOKING] = 2 } },
+		data = {
+			Thresholds = { [PARENT] = { 1, 20, 40, 60 } },
+			LootedFrom = { [INPUT] = { 1 } },
+			RecipeData = {
+				[PARENT] = { skillLine = COOKING, reagents = reagents },
+				[MAKER] = {
+					skillLine = 164,
+					reagents = { { itemID = INPUT, quantity = 1 } },
+					output = { itemID = INTERMEDIATE, quantity = outputCount },
+				},
+			},
+			VendorPrices = { [SPICE] = 3 },
+		},
+	})
+	fixture.professions = { { name = "Cooking", id = COOKING, rank = 1, max = 75 } }
+	fixture.maps[0] = { mapID = 10, name = "Test zone" }
+	fixture.player.faction = "Alliance"
+	fixture.known[PARENT], fixture.known[MAKER] = true, true
+	fixture.bags[INPUT] = heldInput
+	fixture.auction[INTERMEDIATE] = 75
+	fixture.items[INTERMEDIATE] = { sell = 0 }
+	fixture.npc = { id = SCROLL_VENDOR, name = "Input Vendor" }
+	fixture.merchant = { { itemID = INPUT, price = 100, stackCount = 1, numAvailable = 1 } }
+	fixture.ns.SetCollectMode("auction")
+	fixture.Fire("MERCHANT_SHOW")
+	fixture.Advance(0)
+	return fixture
+end
+
+local whole = BatchClient(2, 0, false)
+equal(whole.ns.ObtainCost(INTERMEDIATE), 75, "buying one beats the full cost of making two")
+steps = whole.G.SkillUpForever.API.Professions()[1].steps
+equal(steps[1].itemID, INTERMEDIATE, "buy the intermediate instead of its limited input")
+equal(steps[1].cost, 75, "the purchase costs seventy-five copper")
+equal(steps[2].spellID, PARENT, "the parent needs no maker batch")
+
+local ready = BatchClient(1, 1, true)
+steps = ready.G.SkillUpForever.API.Professions()[1].steps
+equal(steps[1].spellID, MAKER, "a ready maker comes before the parent's purchases")
+equal(steps[2].itemID, SPICE, "acquire the spice immediately before its parent")
+equal(steps[3].spellID, PARENT, "craft the parent after the spice purchase")
+
 Client.report("api_spec")

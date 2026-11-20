@@ -173,7 +173,10 @@ A recipe is:
 | `cost` | its training fee in copper, while it is still to learn |
 
 A reagent is `{ itemID, need, have, source }`: how many the whole route needs, native holdings in the certified scope, or bags and bank without a certificate, and
-`"vendor"`, `"craft"`, `"gather"` or `"auction"` when SkillUp can tell how it is got.
+`"vendor"`, `"craft"`, `"gather"` or `"auction"` when SkillUp can tell how it is got. A market reagent supplied in part by a limited vendor
+can have two rows with the same `itemID`. Sum their `need` and `have` to get
+the item totals. Shopping list rows likewise carry the quantity and price for
+each source.
 
 `Navigate(skillLineID, stepIndex)` sets a waypoint to the vendor, trainer or quest giver of that step when the step
 has one, and returns whether it did. It is a request, not a read: ask it for a player's action, never to test the

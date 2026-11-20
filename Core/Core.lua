@@ -33,10 +33,8 @@ local DEFAULTS = {
 	buffsOnly = false, -- list only recipes whose product is a buff this character's level can use
 	showSkill = false,
 	showTooltip = true,
-	showTooltips = true,
 	recipeTooltip = "window", -- where the recipe tooltip goes: beside the Professions window, at the cursor, by the row
 	detailsBar = true, -- the recipe tooltip's skill bar under the selected recipe, on the crafting page itself
-	showCost = true,
 	showRowPrices = true,
 	rowCost = "skillup", -- "skillup" (cost per skill-up) or "craft" (net per craft)
 	priceSource = "auctionator", -- the auction addon whose price wins when both are installed; the other fills gaps
@@ -223,6 +221,19 @@ local function LoadDB()
 	loaded.scanAuctions, loaded.tracked, loaded.auctions, loaded.gatherFree = nil, nil, nil, nil
 	-- The family hints and their page left ForeverCore 1.15: drop what they saved.
 	loaded.companionHints, loaded.suggestFamily, loaded.familyDismissed, loaded.familyLinks = nil, nil, nil, nil
+	-- Carry forward off choices before filling defaults, then consume the old switches.
+	if loaded.showTooltips == false then
+		loaded.showTooltip, loaded.reagentTooltip = false, "off"
+		loaded.showTooltipRoute, loaded.gatherTooltip = false, false
+	end
+	if loaded.showCost == false then
+		loaded.showRowPrices = false
+	end
+	loaded.showTooltips, loaded.showCost = nil, nil
+	if loaded.showProfessionTabs == false then
+		loaded.showRouteTab, loaded.showGearTab, loaded.showBuffsTab, loaded.showSupplyTab = false, false, false, false
+		loaded.showProfessionTabs = true
+	end
 	-- Every player before 1.14 had valueGathered = false saved without choosing it, because the defaults below are
 	-- written into the saved table, so the sale-value default reaches each of them once. A choice made after this
 	-- one reset sticks (#807).
@@ -875,7 +886,7 @@ function ns.FormatRow(d)
 	-- A negative amount is a profit, a positive one a cost.
 	local mode = ns.db.rowCost
 	local amount = mode == "craft" and d.net or mode == "skillup" and d.perSkillUp or nil
-	if ns.db.showCost and ns.db.showRowPrices and amount then
+	if ns.db.showRowPrices and amount then
 		parts[#parts + 1] = ns.FormatSigned(ns.Model.RoundMoney(math.abs(amount)), amount < 0)
 	end
 	return table.concat(parts, L[" · "])

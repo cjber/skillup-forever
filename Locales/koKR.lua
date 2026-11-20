@@ -4,18 +4,12 @@ if GetLocale() ~= "koKR" then
 	return
 end
 local L = ns.L
-L["Show SkillUp tooltip details"] = "SkillUp 툴팁 세부 정보 표시"
-L["Show SkillUp profession tabs"] = "SkillUp 전문 기술 탭 표시"
-L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
-	"각 툴팁 설정을 유지하면서 SkillUp 세부 정보를 툴팁에 추가합니다."
 L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
 	"각 제조법 옆에 금액을 표시합니다. 끄면 가격은 제조법 툴팁에만 표시됩니다." -- mt
 L["Show prices on recipe rows"] = "제조법 줄에 가격 표시" -- mt
 L["Show recipe tooltip on hover"] = "마우스를 올리면 제조법 툴팁 표시" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"제조법에 마우스를 올리면 전문 기술 창 옆에 SkillUp 툴팁을 표시합니다. 끄면 재료가 가려지지 않습니다." -- mt
-L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
-	"각 탭 설정을 유지하면서 경로, 장비 및 강화 효과 탭을 표시합니다."
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "%d개 더"
@@ -186,8 +180,6 @@ L["Ranged"] = "원거리 장비"
 L["Read %s at %d"] = "%s 읽기 (%d)"
 L["Read %s at %d (level %d)"] = "%s 읽기 (%d, 레벨 %d)"
 L["Read %s first: you're at your cap."] = "먼저 %s을(를) 읽으세요: 숙련도가 최대입니다."
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"재료 비용을 숙련도 상승 확률로 나눈 값을 제조법 행과 툴팁에 표시합니다. 흔한 상점 재료는 처음부터 가격이 있고 방문한 상인에서 갱신됩니다. 채집하는 재료는 가격 설정에서 이 옵션을 끄지 않으면 판매 가치로 계산되며, 경매 가격은 Auctionator/TradeSkillMaster / AHDB / Naowh Forever가 필요합니다."
 L["Reagent tooltips"] = "재료 툴팁"
 L["Reagents"] = "재료"
 L["Reagents  (have / need)"] = "재료  (보유 / 필요)"
@@ -223,7 +215,6 @@ L["Shift-click to link the scroll."] = "Shift-클릭으로 제조법을 링크�
 L["Shift: used in %d of your recipes"] = "Shift: 내 제조법 %d개에 사용"
 L["Shoulder"] = "어깨"
 L["Show again: %s"] = "다시 표시: %s"
-L["Show cost per skill-up"] = "숙련도 1당 비용 표시"
 L["Show gear I cannot make yet"] = "아직 만들 수 없는 장비도 표시"
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"목표 추적기에 전문 기술 경로를 표시합니다. 숨겨도 추적 중인 전문 기술과 목표는 유지됩니다."

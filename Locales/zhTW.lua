@@ -4,18 +4,12 @@ if GetLocale() ~= "zhTW" then
 	return
 end
 local L = ns.L
-L["Show SkillUp tooltip details"] = "顯示 SkillUp 提示詳細資訊"
-L["Show SkillUp profession tabs"] = "顯示 SkillUp 專業分頁"
-L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
-	"在保留個別提示設定的同時，將 SkillUp 詳細資訊加入提示。"
 L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
 	"在每個配方旁顯示金錢。關閉後價格仍顯示在配方滑鼠提示中。" -- mt
 L["Show prices on recipe rows"] = "在配方行顯示價格" -- mt
 L["Show recipe tooltip on hover"] = "滑鼠指向時顯示配方提示" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"滑鼠指向配方時在專業視窗旁顯示 SkillUp 提示。關閉可避免遮擋材料。" -- mt
-L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
-	"在保留個別分頁設定的同時，顯示路線、裝備和增益分頁。"
 
 L["%d %s"] = "%d %s"
 L["%d more"] = "還有%d個"
@@ -181,8 +175,6 @@ L["Ranged"] = "遠程"
 L["Read %s at %d"] = "閱讀%s（技能%d）"
 L["Read %s at %d (level %d)"] = "閱讀%s（技能%d，等級%d）"
 L["Read %s first: you're at your cap."] = "請先閱讀%s：你已達上限。"
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"材料成本除以技能提升機率，顯示在配方列和滑鼠提示中。常見商人材料一開始就有價格，並在你造訪商人時更新；你採集的材料按出售價值計價，除非你在「價格」中關閉此選項；拍賣價需要Auctionator/TradeSkillMaster / AHDB / Naowh Forever。"
 L["Reagent tooltips"] = "材料滑鼠提示"
 L["Reagents"] = "材料"
 L["Reagents  (have / need)"] = "材料  （已有 / 需要）"
@@ -218,7 +210,6 @@ L["Shift-click to link the scroll."] = "Shift-點擊以連結配方。"
 L["Shift: used in %d of your recipes"] = "Shift：用於你的%d個配方"
 L["Shoulder"] = "肩部"
 L["Show again: %s"] = "恢復顯示：%s"
-L["Show cost per skill-up"] = "顯示每點技能成本"
 L["Show gear I cannot make yet"] = "顯示我還不能製造的裝備"
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"在目標追蹤器中顯示專業技能路線。隱藏時會保留你追蹤的專業技能和目標。"

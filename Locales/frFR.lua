@@ -5,18 +5,12 @@ if GetLocale() ~= "frFR" then
 	return
 end
 local L = ns.L
-L["Show SkillUp tooltip details"] = "Afficher les détails des infobulles de SkillUp"
-L["Show SkillUp profession tabs"] = "Afficher les onglets de métiers de SkillUp"
-L["Adds SkillUp's details to tooltips while preserving each individual tooltip choice."] =
-	"Afficher les détails de SkillUp dans les infobulles tout en conservant chaque choix individuel."
 L["Show money beside each recipe. Turning this off keeps prices in the recipe tooltip."] =
 	"Affiche l'argent à côté de chaque recette. Désactivé, les prix restent dans l'infobulle de la recette." -- mt
 L["Show prices on recipe rows"] = "Afficher les prix sur les lignes de recettes" -- mt
 L["Show recipe tooltip on hover"] = "Afficher l'infobulle de recette au survol" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"Affiche l'infobulle SkillUp à côté de la fenêtre des métiers au survol d'une recette. Désactivez-la pour garder les composants dégagés." -- mt
-L["Shows the route, gear and buffs tabs while preserving each individual tab choice."] =
-	"Afficher les onglets de route, d'équipement et de buffs tout en conservant chaque choix individuel."
 
 L["%d %s"] = "%d %s" -- mt
 L["%d more"] = "%d de plus" -- mt
@@ -187,8 +181,6 @@ L["Ranged"] = "À distance" -- mt
 L["Read %s at %d"] = "Lire %s à %d" -- mt
 L["Read %s at %d (level %d)"] = "Lire %s à %d (niveau %d)" -- mt
 L["Read %s first: you're at your cap."] = "Lisez d'abord %s : vous êtes au maximum." -- mt
-L["Reagent cost divided by skill-up chance, on recipe rows and in the tooltip. Common vendor reagents are priced from the start and updated at merchants you visit, reagents you gather cost what they would sell for unless you turn that off under Prices, and auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"Coût des composants divisé par la chance de gain de compétence, sur les lignes de recettes et dans l'infobulle. Les composants courants des marchands ont un prix dès le départ, mis à jour chez les marchands que vous visitez ; les composants que vous récoltez coûtent leur valeur de vente, sauf si vous désactivez cette option sous Prix ; les prix aux enchères nécessitent Auctionator/TradeSkillMaster / AHDB / Naowh Forever." -- mt
 L["Reagent tooltips"] = "Infobulles des composants" -- mt
 L["Reagents"] = "Composants" -- mt
 L["Reagents  (have / need)"] = "Composants  (possédés / requis)" -- mt
@@ -225,7 +217,6 @@ L["Shift-click to link the scroll."] = "Maj-clic pour lier la recette." -- mt
 L["Shift: used in %d of your recipes"] = "Maj : utilisé dans %d de vos recettes" -- mt
 L["Shoulder"] = "Épaule" -- mt
 L["Show again: %s"] = "Réaffichée : %s" -- mt
-L["Show cost per skill-up"] = "Afficher le coût par point de compétence" -- mt
 L["Show gear I cannot make yet"] = "Afficher l'équipement que je ne peux pas fabriquer" -- mt
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"Afficher les parcours de métier dans le suivi des objectifs. Les masquer conserve vos métiers suivis et vos cibles." -- mt

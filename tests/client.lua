@@ -1282,7 +1282,7 @@ function Client.load(options)
 			if c.unreadable[id] then
 				return nil
 			end
-			return (c.bags[id] or 0) + (includeBank and c.bank[id] or 0)
+			return (c.bags[id] or 0) + (includeBank and c.bank and c.bank[id] or 0)
 		end,
 		RequestLoadItemDataByID = function(id)
 			c.requested[id] = true

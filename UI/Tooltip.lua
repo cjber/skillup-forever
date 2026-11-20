@@ -304,16 +304,17 @@ local function AddCost(tooltip, recipeID, d)
 		return
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)
-	for _, reagent in ipairs(reagents) do
+	local stock = ns.RecipeUsesStock(recipeID) and {} or nil
+	local shares = stock and ns.StockShares(reagents, stock)
+	for index, reagent in ipairs(reagents) do
 		local name = C_Item.GetItemNameByID(reagent.itemID) or string.format(L["item %d"], reagent.itemID)
 		local left = reagent.quantity > 1 and string.format("%s x%d", name, reagent.quantity) or name
-		local price = ns.Price(reagent.itemID)
-		-- The line and the Reagents total below must price a reagent the same way: the total counts what it
-		-- costs to obtain, cheaper to craft where a known recipe beats buying it, so the line does too (#360).
-		-- An unknown auction price costs nothing in the plan but is still no number to show.
-		local each = price and not price.unknown and (ns.ObtainCost and ns.ObtainCost(reagent.itemID) or price.copper)
-			or nil
-		local maker = each and price and each < price.copper and ns.SubCraft and ns.SubCraft(reagent.itemID)
+		local caps = shares and shares[index]
+		local reagentStock = stock and ns.StockFor(stock, caps)
+		local each, maker, price = ns.PriceRecipeReagent(reagent, reagentStock)
+		if stock and reagentStock then
+			ns.SpendStock(stock, reagentStock, caps)
+		end
 		if each then
 			local source = maker and L["crafted"] or (price and ns.PriceSourceText(price) or L["crafted"])
 			tooltip:AddDoubleLine(
@@ -445,7 +446,7 @@ end
 ---@param data SkillUpRecipeNodeData
 function ns.ShowRecipeTooltip(_, row, data)
 	local info = data.recipeInfo
-	if not ns.db.showTooltips or not ns.db.showTooltip or not info then
+	if not ns.db.showTooltip or not info then
 		return
 	end
 	local recipeInfo = Professions.GetHighestLearnedRecipe(info) or info
@@ -495,9 +496,7 @@ function ns.ShowRecipeTooltip(_, row, data)
 	for _, buff in ipairs(BuffLines(recipeInfo.recipeID)) do
 		GameTooltip_AddColoredLine(tooltip, buff.text, buff.color)
 	end
-	if ns.db.showCost then
-		AddCost(tooltip, recipeInfo.recipeID, d)
-	end
+	AddCost(tooltip, recipeInfo.recipeID, d)
 	tooltip:Show()
 end
 
@@ -559,7 +558,7 @@ end
 ---@param itemID integer
 ---@return SkillUpTooltipLine[]
 local function PatternProfitLines(itemID)
-	if not ns.db.showTooltips or ns.db.craftValue == "none" or not ns.RecipeScrolls then
+	if ns.db.craftValue == "none" or not ns.RecipeScrolls then
 		return {}
 	end
 	local recipeIDs = {}
@@ -733,19 +732,29 @@ local function RouteTexts(itemID)
 	local lines = {}
 	local rows = index[itemID]
 	if rows then
-		for _, row in ipairs(rows) do
-			local item = row.item
-			local have = ns.RouteDemand.Held(item)
+		local indexInRows = 1
+		while indexInRows <= #rows do
+			local entry = rows[indexInRows].entry
+			---@type number?
+			local have = 0
+			local need = 0
+			repeat
+				local item = rows[indexInRows].item
+				local held = ns.RouteDemand.Held(item)
+				have = have and held and have + held
+				need = need + item.need
+				indexInRows = indexInRows + 1
+			until not rows[indexInRows] or rows[indexInRows].entry ~= entry
 			if have then
 				lines[#lines + 1] = {
 					text = string.format(
 						L["Route: %d/%d · %s to %d"],
-						math.min(have, item.need),
-						item.need,
-						row.entry.plan.profession.name,
-						row.entry.plan.target
+						math.min(have, need),
+						need,
+						entry.plan.profession.name,
+						entry.plan.target
 					),
-					good = have >= item.need,
+					good = have >= need,
 				}
 			end
 		end
@@ -915,7 +924,7 @@ local function AddUses(tooltip, data)
 		return
 	end
 	local mode = ns.db.reagentTooltip
-	if not ns.db.showTooltips or not itemID then
+	if not itemID then
 		return
 	end
 	if mode ~= "off" and mode ~= "route" and mode ~= "full" then
@@ -1001,7 +1010,7 @@ end
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddNodeSkill(tooltip, data)
-	if not ns.Usable(tooltip) or not ns.db.showTooltips or not ns.db.gatherTooltip then
+	if not ns.Usable(tooltip) or not ns.db.gatherTooltip then
 		return
 	end
 	-- The object's GUID carries its gameobject entry in every client language (#826); the bundled names are
@@ -1043,7 +1052,7 @@ end
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddCorpseSkill(tooltip, data)
-	if not ns.Usable(tooltip) or not ns.db.showTooltips or not ns.db.gatherTooltip then
+	if not ns.Usable(tooltip) or not ns.db.gatherTooltip then
 		return
 	end
 	local skillLine

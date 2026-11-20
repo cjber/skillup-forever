@@ -287,9 +287,6 @@ end
 
 ---@param description SkillUpDescription
 local function PriceText(description)
-	if not ns.db.showCost then
-		return nil
-	end
 	if not description.cost then
 		return L["Reagents not priced yet."]
 	end

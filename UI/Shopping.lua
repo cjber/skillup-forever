@@ -1217,7 +1217,7 @@ local function CreateModule()
 	---@cast created SkillUpTrackerModule
 	module = created
 	-- A fresh session writes each tracked route's Auctionator list once.
-	EventUtil.ContinueAfterAllEvents(function()
+	ns.AfterEvents(function()
 		C_Timer.After(0, SyncAuctionator)
 	end, "PLAYER_ENTERING_WORLD", "VARIABLES_LOADED")
 end

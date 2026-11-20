@@ -22,6 +22,7 @@
 ---@field broken? boolean set when an installed ForeverCore is too old, so the addon's files stop
 ---@field ForeverRequire fun(ready: boolean): boolean? the shared out-of-date warning (Core/ForeverRequire.lua)
 ---@field OnFilesLoaded fun(callback: fun()) calls back once every file of the addon has run (Core/ForeverRequire.lua)
+---@field AfterEvents fun(callback: fun(), ...: string) calls back once every named loading event has fired, those already past included (Core/ForeverRequire.lua)
 ---@field Print fun(msg: string)
 ---@field GamepadUI fun(): boolean Whether the client is in its gamepad interface.
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.

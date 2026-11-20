@@ -352,10 +352,11 @@ equal(
 c.player.name = "Tester"
 
 -- A client tracking First Aid with its one reagent still to buy, for Auctionator's list cases (#714).
-local function AuctionClient(saved)
+local function AuctionClient(saved, past)
 	local client = Client.load({
 		saved = saved or { routeTargets = { [FIRST_AID] = 80 }, trackedProfessions = { [FIRST_AID] = true } },
 		data = Fixture(),
+		past = past,
 	})
 	client.level = 20
 	client.spells[HEAVY] = "Heavy Linen Bandage"
@@ -405,6 +406,13 @@ equal(emptied.ns.KeptAuctionList(FIRST_AID, "First Aid"), emptiedName, "an empti
 emptied.Fire("BAG_UPDATE_DELAYED")
 emptied.Advance(0)
 equal(emptied.listWrites, 1, "and only once")
+
+-- cjber/forever-core#980: a bundled ForeverCore runs the files after the world entry and the saved variables have
+-- loaded. The login's list sync still runs, though the client will not call back for either event again.
+local late = AuctionClient(nil, { "VARIABLES_LOADED", "PLAYER_ENTERING_WORLD" })
+late.Advance(0)
+equal(late.listWrites, 1, "files run after the loading events still write the route's list")
+equal(#late.shoppingLists[late.ns.AuctionListName("First Aid")], 1, "holding the route's one reagent")
 
 -- #714: a list the player deleted stays deleted across a login while the route's need has not moved, and comes
 -- back once it does.

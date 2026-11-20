@@ -1065,7 +1065,12 @@ function Client.load(options)
 				table.insert(waiting[name], fn)
 			end
 		end,
-		ContinueAfterAllEvents = function(fn)
+		ContinueAfterAllEvents = function(fn, ...)
+			for _, event in ipairs({ ... }) do
+				if G.tContains(options.past or {}, event) then
+					return
+				end
+			end
 			afterEvents[#afterEvents + 1] = fn
 		end,
 	}
@@ -1846,6 +1851,18 @@ function Client.load(options)
 		end
 	end
 
+	-- options.past: loading events that fired before the addon's files ran, as when a bundled ForeverCore runs them at
+	-- login or later. The client's own wait never calls back for one of these (cjber/forever-core#980).
+	-- The embedded copy's loading frame (ForeverCoreLoader.Seen) saw them; the standalone loaded here starts none.
+	for _, event in ipairs(options.past or {}) do
+		c.Fire(event)
+	end
+	if options.past then
+		local loader, seen = G.ForeverCoreLoader, G.ForeverCoreLoader.Seen
+		function loader.Seen(event)
+			return G.tContains(options.past, event) or seen(event)
+		end
+	end
 	G.SkillUpForeverDB = options.saved
 	local data = options.data
 	for line in io.lines(ADDON .. ".toc") do

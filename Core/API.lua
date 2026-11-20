@@ -912,12 +912,12 @@ function API.Professions(limits)
 	local steps, recipes = DEFAULT_STEPS, DEFAULT_RECIPES
 	if limits ~= nil then
 		if type(limits) ~= "table" then
-			return nil, "invalid"
+			return APIKit.Invalid()
 		end
 		local stepLimit = limits.steps
 		if stepLimit ~= nil then
 			if not WholeBetween(stepLimit, 1, MAX_LIMIT) then
-				return nil, "invalid"
+				return APIKit.Invalid()
 			end
 			---@cast stepLimit integer
 			steps = stepLimit
@@ -925,7 +925,7 @@ function API.Professions(limits)
 		local recipeLimit = limits.recipes
 		if recipeLimit ~= nil then
 			if not WholeBetween(recipeLimit, 1, MAX_LIMIT) then
-				return nil, "invalid"
+				return APIKit.Invalid()
 			end
 			---@cast recipeLimit integer
 			recipes = recipeLimit
@@ -1135,7 +1135,7 @@ function API.Knows(characterKey, recipeID)
 		return nil, "loading"
 	end
 	if type(characterKey) ~= "string" or type(recipeID) ~= "number" or not ns.RecipeData[recipeID] then
-		return nil, "invalid"
+		return APIKit.Invalid()
 	end
 	return ns.db.learned[characterKey] and ns.db.learned[characterKey][recipeID] == true or false
 end

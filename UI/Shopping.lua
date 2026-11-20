@@ -381,11 +381,17 @@ end
 -- one input whose effect the key can tell apart: it reads each plan and the tools the bags still lack, so a
 -- tool picked up rebuilds the list while a bag of unrelated loot leaves it alone. The tracker, the merchant
 -- tab, the public API and the tooltip index share one build.
----@type { key: string, tracked: SkillUpTracked[] }?
+---@type { key: string, tracked: SkillUpTracked[], hasLimitedReagents: boolean }?
 local trackedNeeds
 
 ns.WhenStale("trackedNeeds", function()
 	trackedNeeds = nil
+end)
+
+ns.WhenStaleObserver("bags", function()
+	if trackedNeeds and trackedNeeds.hasLimitedReagents then
+		trackedNeeds = nil
+	end
 end)
 
 -- The plan of every tracked profession of this character with the reagents it
@@ -414,10 +420,16 @@ function ns.TrackedNeeds()
 	if trackedNeeds and trackedNeeds.key == signature then
 		return trackedNeeds.tracked
 	end
+	local hasLimitedReagents = false
 	for _, entry in ipairs(tracked) do
 		entry.items = ns.RouteReagents(entry.plan)
+		for _, item in ipairs(entry.items) do
+			if item.allocatedPrice then
+				hasLimitedReagents = true
+			end
+		end
 	end
-	trackedNeeds = { key = signature, tracked = tracked }
+	trackedNeeds = { key = signature, tracked = tracked, hasLimitedReagents = hasLimitedReagents }
 	return tracked
 end
 
@@ -1125,13 +1137,21 @@ local function LayoutEntry(self, entry)
 			local gather = item.source == "gather" and string.format(" |cff808080(%s)|r", L["gather"]) or ""
 			local vendor = ns.RouteDemand.Vendors(item)[1]
 			local text = string.format("%s/%d %s%s", have == nil and "?" or tostring(have), item.need, name, gather)
-			local line = block:AddObjective(item.itemID, text, vendor and LINE_TEMPLATE or nil)
+			local objective = item.allocatedPrice
+					and (item.source .. item.itemID .. ":" .. (item.allocatedPrice.vendor or 0))
+				or item.itemID
+			local line = block:AddObjective(objective, text, vendor and LINE_TEMPLATE or nil)
 			if vendor then
 				Waypointed(line, name, L["Nearest vendor"], function()
 					return ns.RouteDemand.Vendors(item, true)[1]
 				end)
-				block.vendorMissing[#block.vendorMissing + 1] =
-					{ name = name, itemID = item.itemID, vendor = vendor, selected = item.acquisitions ~= nil }
+				block.vendorMissing[#block.vendorMissing + 1] = {
+					name = name,
+					itemID = item.itemID,
+					vendor = vendor,
+					selected = item.acquisitions ~= nil
+						or (item.allocatedPrice ~= nil and item.allocatedPrice.vendor ~= nil),
+				}
 			end
 		end
 	end

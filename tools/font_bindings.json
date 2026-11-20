@@ -21,7 +21,7 @@
     },
     {
       "source": "UI/Route.lua",
-      "sha256": "bfa4ee01d42dd6297b203494c2e12808562973fe6636f3123a063b6bdea95c7d",
+      "sha256": "215a60ec9a4e36daa206596a07cbaf194af28f5f46e2a3ef7c2a34c8533834df",
       "review": "Reviewed CreateInset, CreateHeader, CreateButtons, Render, RenderMoney, RenderRoute, RenderPinned, RenderSkipped, RenderSuggestions, RenderReagents and their List.lua consumers. PageParts.CreateHeader fixes Skill to GameFontNormal. List:Add text/detail use GameFontHighlight/GameFontNormal, List:Line text/detail use GameFontHighlight/GameFontNormalSmall, List:Message uses GameFontNormal. No later font setters. Pinned client Blizzard_SharedXML/Shared/Button/ThreeSliceButtonTemplate.xml: SharedButtonSmallTemplate inherits BigRedThreeSliceButtonTemplate then ThreeSliceButtonTemplate; normal/highlight/disabled fonts are GameFontNormal/GameFontHighlight/GameFontDisable, all bound. SecureActionButtonTemplate adds no font override. Tooltips, menus, chat, numeric edit fields, dynamic names, external helper results and text inserted into format placeholders have no coverage claim. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed. Reviewed #860: the Kept in the Auctionator list message now asks ns.KeptAuctionList; same List:Message widget and phrase, no font change.",
       "bindings": [
         {
@@ -574,7 +574,7 @@
     },
     {
       "source": "UI/AuctionSearch.lua",
-      "sha256": "995e3c15aeab6a70bdc27257b6da6069517971d781d3235f97fc9a307398bdaf",
+      "sha256": "2326aae362e4e94790eb34fe44bfb80e7f3cb8c5f08d92f4e43ed44170861ccd",
       "review": "Read AttachAuctionSearch, Refresh, OnRecipeSelected and search callbacks. bar.Label and bar.Crafts explicitly use GameFontNormal with no override. bar.Search uses SharedButtonSmallTemplate: pinned ThreeSliceButtonTemplate.xml supplies normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable, all bound. Count is numeric game state. Tooltips, chat search messages and dynamic reagent names are excluded. Reviewed #860: the Search tooltip names the kept or crafting list and skips a nil note; tooltip text only, no widget font change. Reviewed #880: house events refresh bar visibility and the Search button uses the existing click handler.",
       "bindings": [
         {
@@ -1055,7 +1055,7 @@
     },
     {
       "source": "UI/Shopping.lua",
-      "sha256": "c6d7e51e675913c859aa7354cbb7889b88fbe11cba562914eb4e40cb5995a8f1",
+      "sha256": "f3bfc033f8e535bb831fc4bb7c7f2f230ee223c0c22a9702b492b2eb889cd44d",
       "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed. Reviewed #860: KeepsAuctionLists, ns.KeptAuctionList and the AuctionListNote nil return add no widgets or font setters. Reviewed the tracked-needs signature gaining the plan revision (#858): a cache key only; no bound widget FontObjects or phrase bindings changed. Reviewed forever-core#884: RefreshTracker marks the section dirty whatever the show switch says; no widgets or font setters. Reviewed #850: ns.Have notes the item it reads with ns.NoteItemCount; no widgets or font setters.",
       "bindings": [
         {
@@ -1131,7 +1131,7 @@
     },
     {
       "source": "UI/Tooltip.lua",
-      "sha256": "508c8c7c8f5d2bf6effcf1d68803e09f3de43078b7744a119732b432e049b24c",
+      "sha256": "93521a759b2558bdc722537f0d9311d4b5a502359e47b18d4bb2fefc87b81264",
       "review": "Reviewed CreateSkillBar and LayoutSkillBar, recipe and item tooltip producers. Tooltip phrases and tooltip-owned fonts are excluded by policy. The reusable skill bar explicitly uses GameFontHighlightSmall and is also reparented by DetailsBar.lua, but no tooltip producer is included in this coverage claim. Dynamic threshold values and helper text are excluded.",
       "bindings": []
     },

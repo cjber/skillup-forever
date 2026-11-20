@@ -15,6 +15,7 @@ end
 local ORDER = {
 	"schematics",
 	"prices",
+	"craftCosts",
 	"sourceEvidence",
 	"recipeEvidence",
 	"plans",
@@ -227,6 +228,9 @@ local STALE = {
 	-- Where scrolls, vendors and trainers are, read from Questie and AtlasLoot or seen at a merchant's window.
 	-- A vendor-sold recipe's scroll price is a plan input too (#358).
 	sources = {
+		craftCosts = true,
+		recipePreview = true,
+		recipeList = true,
 		tooltipCache = true,
 		tooltipRoute = true,
 		plans = true,
@@ -501,5 +505,9 @@ function ns.WhenEvent(event, watcher)
 end
 
 ns.WhenEvent("BAG_UPDATE_DELAYED", function()
+	return ReadCountsMoved() and "bags" or nil
+end)
+
+ns.WhenEvent("BANKFRAME_OPENED", function()
 	return ReadCountsMoved() and "bags" or nil
 end)

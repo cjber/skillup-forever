@@ -45,11 +45,20 @@ function ns.ReagentShortfall(recipeID, count)
 	for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
 		local missing = reagent.quantity * count - ns.Have(reagent.itemID)
 		local source = ns.PriceSource(reagent.itemID)
+		local stock, overflow = ns.LimitedReagentPrice(reagent.itemID)
+		local fromVendor = 0
+		if missing > 0 and stock and overflow then
+			fromVendor = math.min(missing, stock)
+			missing = missing - fromVendor
+			source = overflow.source
+		end
 		-- With Buy reagents on, a material you gather is priced as gathered only while nothing prices it: search it.
 		local buying = source == "gather" and ns.CollectMode() == "auction"
 		if missing > 0 and (source == nil or ns.Model.ShoppingSource(source) == "auction" or buying) then
 			short[#short + 1] = { itemID = reagent.itemID, count = missing }
-		elseif missing > 0 then
+			missing = 0
+		end
+		if missing > 0 or fromVendor > 0 then
 			elsewhere = elsewhere + 1
 		end
 	end

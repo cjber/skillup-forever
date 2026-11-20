@@ -67,8 +67,16 @@
 ---@field Price fun(itemID: integer): SkillUpPrice?
 ---@field PriceSource fun(itemID: integer): SkillUpPriceSource?
 ---@field CanGather fun(itemID: integer): string? The profession name, or "loot" for a reagent creatures drop.
----@field IsLimitedStock fun(itemID: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
----@field ObtainCost fun(itemID: integer): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
+---@field LimitedReagentPrice fun(itemID: integer): number?, SkillUpPrice?, SkillUpPrice?
+---@field AllocateReagent fun(itemID: integer, count: number, remaining?: table<integer, number>): number, SkillUpPrice?, SkillUpPrice?
+---@field ReagentBuyCost fun(itemID: integer, count: number): number?, SkillUpPrice?, boolean
+---@field IsLimitedStock fun(itemID: integer, vendor?: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
+---@field ObtainCost fun(itemID: integer, count?: number): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
+---@field RecipeUsesStock fun(recipeID: integer): boolean
+---@field StockShares fun(reagents: SkillUpReagent[], ledger: table<integer, number>, needs?: number[], depth?: integer, stack?: table<integer, true>, forPurchases?: boolean): table<integer, table<integer, number>>?
+---@field StockFor fun(ledger: table<integer, number>, caps?: table<integer, number>): table<integer, number>
+---@field SpendStock fun(ledger: table<integer, number>, stock: table<integer, number>, caps?: table<integer, number>)
+---@field PriceRecipeReagent fun(reagent: SkillUpReagent, remaining?: table<integer, number>): number?, SkillUpMakerChoice?, SkillUpPrice?
 ---@field HeldCost fun(itemID: integer): number? what using one held unit gives up: the lesser of its sale value and ObtainCost
 ---@field LiveSchematicsArrived fun(recipeIDs: integer[]): boolean
 ---@field Reagents fun(recipeID: integer): SkillUpReagent[]?
@@ -119,7 +127,7 @@
 ---@field PlayerSide fun(): 'A'|'H'|nil
 ---@field RankHeld fun(rank: SkillUpRank): boolean
 ---@field PlanMoney fun(plan: SkillUpPlan): { buy: number, fees: number, sells: number, unknown: integer }
----@field StepCost fun(recipeID: integer, crafts: number): number? What a step's crafts cost, every craft at its net
+---@field StepCost fun(recipeID: integer, crafts: number, craft?: SkillUpPlanCraft): number? What a step's crafts cost, every craft at its net
 ---@field CreateList fun(parent: Frame): SkillUpList
 ---@field NextCraft fun(plan: SkillUpPlan): SkillUpCraft
 ---@field OpenSkillLine fun(): integer?
@@ -191,7 +199,7 @@
 ---@field RecipeStation fun(recipeID: integer): string?
 ---@field ToolItemID fun(name: string): integer?
 ---@field MissingToolItems fun(plan: SkillUpPlan): integer[]
----@field SubCraft fun(itemID: integer): {recipeID: integer, quantity: number}?
+---@field SubCraft fun(itemID: integer, count?: number, remaining?: table<integer, number>, depth?: integer, stack?: table<integer, true>): SkillUpMakerChoice?
 ---@field MakersOf fun(itemID: integer): integer[] The recipes that make the item, lowest recipe ID first.
 ---@field UsableMaker fun(recipeID: integer): boolean learned, not skipped, with an output and reagents: may make an intermediate
 ---@field IsTracked fun(skillLine?: integer): boolean
@@ -403,6 +411,7 @@ SkillUpForeverDB = nil
 ---@field held? number What using one held unit gives up.
 
 ---@class SkillUpCandidate
+---@field stockSensitive? boolean
 ---@field gatherableUnknown? false|"gather"|"auction" Why a recipe with no known cost still plans (Plan.lua GatherableUnknown).
 ---@field recipeID integer
 ---@field thresholds number[]
@@ -424,6 +433,7 @@ SkillUpForeverDB = nil
 ---@field fee number
 
 ---@class SkillUpSnapshot
+---@field stockCost? fun(recipeID: integer, crafts: number, pool: table<integer, number>, stock: table<integer, number>?, take: boolean, surplus: table<integer, number>?): number?
 ---@field skill number
 ---@field target number
 ---@field recipes SkillUpCandidate[]
@@ -457,7 +467,15 @@ SkillUpForeverDB = nil
 ---@field atSkill number
 
 -- The plan's own shapes are in base skill, the number the Professions window shows.
+---@class SkillUpRawInput
+---@field itemID integer
+---@field count number
+---@field price? SkillUpPrice
+---@field owner? SkillUpSubCraft The subcraft that directly consumes the input.
+
 ---@class SkillUpPlanCraft
+---@field stockSensitive? boolean
+---@field materialCost? number
 ---@field recipeID integer
 ---@field from number
 ---@field to number
@@ -466,6 +484,7 @@ SkillUpForeverDB = nil
 ---@field skillUps integer Skill points one craft grants.
 ---@field color string The recipe's colour where the craft starts.
 ---@field station? string Where the client says the recipe is made.
+---@field raw SkillUpRawInput[] Missing inputs after expanding sub-crafts.
 ---@field subcrafts SkillUpSubCraft[] The recipes that make its reagents, deepest first.
 ---@field held? boolean Whether the step uses materials the bags or bank already hold.
 
@@ -563,12 +582,13 @@ SkillUpForeverDB = nil
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipeFilter'|'preview'|'supply'|'recipeEvidence'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
----@alias SkillUpStale 'recipeEvidence'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'supplyPage'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'
+---@alias SkillUpStale 'craftCosts'|'recipeEvidence'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'supplyPage'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'ahdb'|'naowh'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
 ---@class SkillUpPrice
 ---@field copper number
+---@field vendor? integer The NPC whose stock and quote this price uses.
 ---@field source SkillUpPriceSource
 ---@field sale? number What a free gathered reagent would sell for.
 ---@field days? number Whole days since the newest observation.
@@ -653,8 +673,9 @@ SkillUpForeverDB = nil
 
 ---@class SkillUpNeededItem
 ---@field supplyScope 'bags-only'|'bags-and-bank'? Holdings belong to a certified native snapshot.
----@field have integer? Missing certified holdings remain unknown.
----@field acquisitions SkillUpSelectedAcquisition[]? Conditional selected orders; an empty list forbids price/source fallback.
+---@field have number? Missing certified holdings remain unknown.
+---@field allocatedPrice? SkillUpPrice Price for this portion of a split reagent row.
+---@field acquisitions? SkillUpSelectedAcquisition[] Conditional selected orders; an empty list forbids price/source fallback.
 ---@field itemID integer
 ---@field need number
 ---@field source SkillUpShoppingSource

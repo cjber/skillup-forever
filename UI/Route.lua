@@ -198,7 +198,7 @@ local function CraftTooltip(tooltip, profession, craft)
 	AddToolLines(tooltip, recipeID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	AddReagentLines(tooltip, recipeID, craft.crafts)
-	AddLine(tooltip, L["Cost"], Money(ns.StepCost(recipeID, craft.crafts)))
+	AddLine(tooltip, L["Cost"], Money(ns.StepCost(recipeID, craft.crafts, craft)))
 	if ns.IsLearned(recipeID) and profession.skillLine == ns.OpenSkillLine() then
 		GameTooltip_AddInstructionLine(tooltip, L["Click to open the recipe."])
 	end
@@ -569,7 +569,7 @@ local function RenderRoute(list, plan)
 				menu = RecipeMenu(training.recipeID),
 			})
 		elseif craft then
-			local money = Money(ns.StepCost(craft.recipeID, craft.crafts))
+			local money = Money(ns.StepCost(craft.recipeID, craft.crafts, craft))
 			local current = craft == currentCraft
 			local detail = craft.station
 					and string.format(L["Skill %d to %d, %s, at %s"], craft.from, craft.to, money, craft.station)
@@ -663,7 +663,7 @@ local function ReagentTooltip(tooltip, item)
 		end
 		return
 	end
-	local price = ns.Price(item.itemID)
+	local price = item.allocatedPrice or ns.Price(item.itemID)
 	if not price or price.unknown then
 		GameTooltip_AddDisabledLine(tooltip, ns.UnpricedHint())
 		return
@@ -762,7 +762,7 @@ end
 local function AuctionPriceStatus(reagents)
 	local found, stale, tsm
 	for _, item in ipairs(reagents) do
-		local price = not item.acquisitions and ns.Price(item.itemID) or nil
+		local price = not item.acquisitions and (item.allocatedPrice or ns.Price(item.itemID)) or nil
 		tsm = tsm or (price and price.source == "tsm")
 		if price and price.source == "auctionator" then
 			found = true
@@ -785,7 +785,7 @@ end
 ---@return boolean
 local function NeedsAuctionScan(reagents)
 	for _, item in ipairs(reagents) do
-		local price = not item.acquisitions and ns.Price(item.itemID) or nil
+		local price = not item.acquisitions and (item.allocatedPrice or ns.Price(item.itemID)) or nil
 		if not price and not item.acquisitions then
 			return true
 		end

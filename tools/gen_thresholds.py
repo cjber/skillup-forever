@@ -50,8 +50,9 @@ REQUIRED_SKILLS = {
     202: "Engineering",
     333: "Enchanting",
 }
-# Fishing is category 9 with CanLink=0; unlike racials/riding, it is a profession.
-SECONDARY_SKILLS = {356}
+# Fishing and Poisons are category 9 with CanLink=0; unlike racials/riding, they are professions. Poisons is the
+# rogue's: its recipes have skill-up ranges like any other profession's.
+SECONDARY_SKILLS = {40, 356}
 
 
 def download(url, filename, refresh=False, offline=False):

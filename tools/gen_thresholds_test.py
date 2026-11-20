@@ -238,6 +238,31 @@ class GeneratedThresholdsTest(unittest.TestCase):
         for spell in (28461, 1250775):
             self.assertIn(f"\t[{spell}] =", content)
 
+    # Poisons (40) and Fishing (356) are category 9 lines the client does not link, like racials and riding,
+    # yet both are professions (#906); their child lines come with them.
+    def test_unlinked_professions_are_selected(self):
+        def line(sid, name, category, link, parent=0):
+            return {
+                "ID": str(sid),
+                "DisplayName_lang": name,
+                "CategoryID": str(category),
+                "CanLink": link,
+                "ParentSkillLineID": str(parent),
+            }
+
+        rows = [
+            line(40, "Poisons", 9, "0"),
+            line(2988, "Poisons", 9, "0", 40),
+            line(356, "Fishing", 9, "0"),
+            line(762, "Riding", 9, "0"),
+            line(185, "Cooking", 9, "1"),
+        ]
+        _, selected, _ = gen_thresholds.professions(rows)
+        self.assertTrue({40, 2988, 356, 185} <= selected)
+        self.assertNotIn(762, selected)
+        content = gen_thresholds.OUTPUT.read_text(encoding="utf-8")
+        self.assertIn("\t[8681] = {", content)  # Instant Poison
+
     # Model.Get answers nil for a row that is not ordered, and the recipe shows "?". Equal yellow, green and grey
     # are a real range with no yellow or green band (#688), so green may equal grey.
     def test_every_bundled_row_is_ordered(self):

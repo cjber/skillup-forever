@@ -280,7 +280,7 @@ do
 	local blacksmithing = h.ns.RouteProfessions()[164]
 	Client.equal(
 		h.ns.PlanMoney(h.ns.PlanRoute(blacksmithing)).buy,
-		194096390.75,
+		101324309.6,
 		"unlimited Blacksmithing matches main's purchase total"
 	)
 end

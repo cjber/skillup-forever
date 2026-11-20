@@ -29,7 +29,7 @@ CLASSICDB_URL = (
     f"https://raw.githubusercontent.com/cmangos/classic-db/{CLASSICDB_COMMIT}/Full_DB/ClassicDB_1_12_1_z2815.sql.gz"
 )
 CLASSICDB_CACHE = CACHE / f"classicdb-{CLASSICDB_COMMIT[:7]}.sql.gz"
-PROFESSION_SKILLS = {129, 164, 165, 171, 182, 185, 186, 197, 202, 333, 356, 393}
+PROFESSION_SKILLS = {40, 129, 164, 165, 171, 182, 185, 186, 197, 202, 333, 356, 393}
 # Requirements players saw lower in Forever than the rule below gives (#123, and #124's trainer visits):
 # [recipe] = the most the trainer can ask, as the skill a player made the recipe at. A higher requirement comes
 # down to it, and it lists with the moved ones in ns.TrainerInferred so /skillup trainers asks a trainer to confirm

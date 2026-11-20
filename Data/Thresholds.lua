@@ -8,7 +8,8 @@
 -- patterns left out; else, for a minimum left at Classic Era 1.15.9.70576's on a range Forever moved,
 -- that minimum moved as far; else the client's placeholder 1, and the learn requirement gates the
 -- recipe at runtime. Recipes the game retired (RETIRED in gen_thresholds.py) are left out.
--- 2491 unique recipe spell IDs; a shared recipe counts in each profession below.
+-- 2517 unique recipe spell IDs; a shared recipe counts in each profession below.
+-- Poisons (40): 26 emitted / 1 skipped (missing/invalid data=1); orange placeholder=26
 -- First Aid (129): 32 emitted / 8 skipped (missing/invalid data=8); orange placeholder=16, scroll=16
 -- Blacksmithing (164): 506 emitted / 21 skipped (duplicate recipe row=1, missing/invalid data=19, not a recipe=1); orange dropped=1, placeholder=129, scroll=365, shifted=9
 -- Leatherworking (165): 591 emitted / 25 skipped (missing/invalid data=24, not a recipe=1); orange placeholder=134, scroll=457
@@ -33,6 +34,7 @@
 -- Mining (2946): 0 emitted / 0 skipped; no SkillLineAbility rows
 -- Skinning (2947): 0 emitted / 0 skipped; no SkillLineAbility rows
 -- Tailoring (2948): 0 emitted / 0 skipped; no SkillLineAbility rows
+-- Poisons (2988): 0 emitted / 0 skipped; no SkillLineAbility rows
 ---@type string, SkillUpNamespace
 local _, ns = ...
 ns.Thresholds = {
@@ -113,6 +115,8 @@ ns.Thresholds = {
 	[2741] = { 60, 120, 135, 150 }, -- Bronze Axe; client orange 85: shifted
 	[2742] = { 70, 125, 140, 155 }, -- Bronze Shortsword; client orange 95: shifted
 	[2795] = { 25, 60, 80, 100 }, -- Beer Basted Boar Ribs
+	[2835] = { 1, 175, 200, 225 }, -- Deadly Poison
+	[2837] = { 1, 215, 240, 265 }, -- Deadly Poison II
 	[2881] = { 1, 20, 30, 40 }, -- Light Leather
 	[2963] = { 1, 25, 37, 50 }, -- Bolt of Linen Cloth
 	[2964] = { 1, 70, 77, 85 }, -- Bolt of Woolen Cloth
@@ -166,6 +170,8 @@ ns.Thresholds = {
 	[3398] = { 125, 175, 195, 215 }, -- Hot Lion Chops
 	[3399] = { 150, 190, 210, 230 }, -- Tasty Lion Steak
 	[3400] = { 175, 215, 235, 255 }, -- Soothing Turtle Bisque
+	[3420] = { 1, 125, 150, 175 }, -- Crippling Poison
+	[3421] = { 1, 275, 300, 325 }, -- Crippling Poison II
 	[3447] = { 1, 135, 155, 175 }, -- SpellName unavailable
 	[3448] = { 1, 185, 205, 225 }, -- Lesser Invisibility Potion
 	[3449] = { 165, 190, 210, 230 }, -- Shadow Oil
@@ -317,6 +323,7 @@ ns.Thresholds = {
 	[4508] = { 50, 55, 75, 95 }, -- Minor Discolored Healing Potion
 	[4942] = { 215, 230, 250, 270 }, -- Lesser Stoneshield Potion
 	[5244] = { 35, 65, 80, 95 }, -- Kodo Hide Bag
+	[5763] = { 1, 150, 175, 200 }, -- Mind-numbing Poison
 	[6412] = { 10, 50, 70, 90 }, -- Kaldorei Spider Kabob
 	[6413] = { 20, 60, 80, 100 }, -- Scorpid Surprise
 	[6414] = { 35, 75, 95, 115 }, -- Roasted Kodo Meat
@@ -329,6 +336,7 @@ ns.Thresholds = {
 	[6499] = { 1, 90, 110, 130 }, -- Boiled Clams
 	[6500] = { 1, 165, 185, 205 }, -- Goblin Deviled Clams
 	[6501] = { 90, 130, 150, 170 }, -- Clam Chowder
+	[6510] = { 1, 170, 195, 220 }, -- Blinding Powder
 	[6517] = { 1, 115, 130, 145 }, -- Pearl-handled Dagger
 	[6518] = { 115, 145, 160, 175 }, -- Iridescent Hammer
 	[6521] = { 1, 95, 112, 130 }, -- Pearl-clasped Cloak
@@ -439,6 +447,10 @@ ns.Thresholds = {
 	[8489] = { 1, 150, 155, 160 }, -- Red Swashbuckler's Shirt
 	[8604] = { 1, 45, 65, 85 }, -- Herb Baked Egg
 	[8607] = { 40, 80, 100, 120 }, -- Smoked Bear Meat
+	[8681] = { 1, 125, 150, 175 }, -- Instant Poison
+	[8687] = { 1, 165, 190, 215 }, -- Instant Poison II
+	[8691] = { 1, 205, 230, 255 }, -- Instant Poison III
+	[8694] = { 1, 215, 240, 265 }, -- Mind-numbing Poison II
 	[8758] = { 1, 135, 150, 165 }, -- Azure Silk Pants
 	[8760] = { 1, 130, 135, 140 }, -- Azure Silk Hood
 	[8762] = { 1, 135, 140, 145 }, -- Silk Headband
@@ -582,6 +594,12 @@ ns.Thresholds = {
 	[10650] = { 1, 250, 260, 270 }, -- Dragonscale Breastplate
 	[10840] = { 210, 210, 240, 270 }, -- Mageweave Bandage
 	[10841] = { 1, 240, 270, 300 }, -- Heavy Mageweave Bandage
+	[11341] = { 1, 245, 270, 295 }, -- Instant Poison IV
+	[11342] = { 1, 285, 310, 335 }, -- Instant Poison V
+	[11343] = { 1, 325, 350, 375 }, -- Instant Poison VI
+	[11357] = { 1, 255, 280, 305 }, -- Deadly Poison III
+	[11358] = { 1, 295, 320, 345 }, -- Deadly Poison IV
+	[11400] = { 1, 285, 310, 335 }, -- Mind-numbing Poison III
 	[11447] = { 1, 190, 210, 230 }, -- Draught of Water Walking
 	[11448] = { 1, 220, 240, 260 }, -- Greater Mana Potion
 	[11449] = { 1, 205, 225, 245 }, -- Elixir of Agility
@@ -706,6 +724,10 @@ ns.Thresholds = {
 	[12907] = { 1, 255, 265, 275 }, -- Gnomish Mind Control Cap
 	[12908] = { 1, 260, 270, 280 }, -- Goblin Dragon Gun
 	[13028] = { 1, 215, 235, 255 }, -- Goldthorn Tea
+	[13220] = { 1, 185, 210, 235 }, -- Wound Poison
+	[13228] = { 1, 225, 250, 275 }, -- Wound Poison II
+	[13229] = { 1, 265, 290, 315 }, -- Wound Poison III
+	[13230] = { 1, 305, 330, 355 }, -- Wound Poison IV
 	[13262] = { 1, 20, 40, 60 }, -- Disenchant
 	[13378] = { 1, 130, 150, 170 }, -- Enchant Shield - Minor Stamina
 	[13380] = { 110, 135, 155, 175 }, -- Enchant 2H Weapon - Lesser Spirit
@@ -1235,6 +1257,7 @@ ns.Thresholds = {
 	[25129] = { 300, 310, 320, 330 }, -- Brilliant Wizard Oil
 	[25130] = { 300, 310, 320, 330 }, -- Brilliant Mana Oil
 	[25146] = { 300, 301, 305, 310 }, -- Transmute: Elemental Fire
+	[25347] = { 1, 300, 325, 350 }, -- Deadly Poison V
 	[25659] = { 300, 325, 345, 365 }, -- Dirge's Kickin' Chimaerok Chops
 	[25704] = { 80, 120, 140, 160 }, -- Smoked Sagefish
 	[25954] = { 175, 215, 235, 255 }, -- Sagefish Delight
@@ -1360,6 +1383,9 @@ ns.Thresholds = {
 	[439132] = { 170, 195, 207, 220 }, -- Golden Scale Leggings
 	[439134] = { 1, 195, 215, 235 }, -- Greater Mystic Wand
 	[439156] = { 225, 225, 227, 230 }, -- Sigil of Innovation
+	[439500] = { 1, 300, 325, 350 }, -- Sebacious Poison
+	[439503] = { 1, 300, 325, 350 }, -- Atrophic Poison
+	[439505] = { 1, 300, 325, 350 }, -- Numbing Poison
 	[439960] = { 190, 210, 212, 215 }, -- Lesser Arcane Elixir
 	[446179] = { 1, 250, 255, 260 }, -- Shoulderplates of Dread
 	[446183] = { 1, 250, 255, 260 }, -- Paranoia Mantle
@@ -1382,6 +1408,7 @@ ns.Thresholds = {
 	[448085] = { 1, 250, 255, 260 }, -- Flask of Restless Dreams
 	[448624] = { 120, 120, 140, 160 }, -- Scroll of Spatial Mending
 	[451706] = { 1, 250, 255, 260 }, -- Screaming Chain Pauldrons
+	[458822] = { 1, 295, 320, 345 }, -- Occult Poison I
 	[460460] = { 300, 325, 337, 350 }, -- Sulfuron Hammer
 	[461645] = { 295, 315, 325, 335 }, -- Honed Blue Dragonscale Shoulders
 	[461647] = { 300, 320, 330, 340 }, -- Skyrider's Masterwork Stormhammer
@@ -1503,6 +1530,7 @@ ns.Thresholds = {
 	[1213751] = { 1, 320, 330, 340 }, -- Dreamscale Breastplate
 	[1214137] = { 1, 320, 330, 340 }, -- Obsidian Heartseeker
 	[1214145] = { 1, 320, 330, 340 }, -- Obsidian Shotgun
+	[1214168] = { 1, 300, 325, 350 }, -- Occult Poison II
 	[1214173] = { 1, 315, 322, 330 }, -- Bolt of Qiraji Silk
 	[1214257] = { 1, 320, 330, 340 }, -- Black Grasp of the Destroyer
 	[1214270] = { 1, 320, 330, 340 }, -- Jagged Obsidian Shield

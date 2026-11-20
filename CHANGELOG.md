@@ -10,6 +10,24 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.9] - 2026-11-20
+
+### Changed
+
+- **SkillUp Forever carries ForeverCore inside itself.** It now works with ForeverCore turned off or uninstalled, and your ForeverCore settings carry over. You no longer need to install ForeverCore separately. If you have it installed, you can keep it or remove it. (cjber/forever-core#801)
+- **Attach to quest tracker reads the same in every Forever addon.** The Route and trainer page now shows ForeverCore's shared row: on, the Forever tracker sits under the quest tracker; off, it moves to the left of it (cjber/forever-core#910).
+- **Recipe row prices are grouped together.** Choose the price shown directly below Show prices on recipe rows.
+
+### Fixed
+
+- Profession routes use only the stock last seen at a limited merchant. When that stock runs out, the route can switch recipes or get the remaining reagents from another source. Thanks to st3nlee on CurseForge for the report (#881).
+- **No error with an older ForeverCore installed.** With a separate ForeverCore 1.15.3 installed, the settings page still loads in full; the Attach to quest tracker row appears once ForeverCore is updated or removed.
+
+### Removed
+
+- **Tooltip and profession tab settings use individual switches.** If you turned off a whole group, its individual switches start off.
+- **Show cost per skill-up is gone.** If you turned it off, prices stay hidden on recipe rows. Recipe tooltips and previews show costs.
+
 ## [1.14.8] - 2026-11-20
 
 ### Fixed

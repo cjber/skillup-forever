@@ -684,5 +684,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"적응형 안내는 제조법을 알려 줍니다. 제조법을 선택하고 전문 기술 창에서 만들 개수를 정하세요." -- mt
 L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt
 
-L["Herb and ore node tooltips show the skill they need in every client language."] =
-	"약초와 광맥의 툴팁에 필요한 숙련도가 모든 클라이언트 언어로 표시됩니다." -- mt
+L["SkillUp Forever carries ForeverCore inside itself."] = "SkillUp Forever에 ForeverCore가 내장되어 있습니다." -- mt

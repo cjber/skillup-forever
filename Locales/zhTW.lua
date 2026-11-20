@@ -664,5 +664,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"自適應指引會提供配方。選取它，然後在專業視窗中選擇製作數量。" -- mt
 L["Select %s in the recipe list first."] = "請先在配方清單中選取%s。" -- mt
 
-L["Herb and ore node tooltips show the skill they need in every client language."] =
-	"草藥和礦脈的滑鼠提示會以用戶端的所有語言顯示所需技能等級。" -- mt
+L["SkillUp Forever carries ForeverCore inside itself."] = "SkillUp Forever 已內建 ForeverCore。" -- mt

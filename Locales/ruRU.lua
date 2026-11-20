@@ -728,5 +728,5 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
 
-L["Herb and ore node tooltips show the skill they need in every client language."] =
-	"Подсказки для трав и рудных жил показывают требуемый навык на всех языках клиента." -- mt
+L["SkillUp Forever carries ForeverCore inside itself."] =
+	"SkillUp Forever теперь содержит ForeverCore внутри себя." -- mt

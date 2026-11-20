@@ -452,4 +452,31 @@ local unconfigured = API.ShoppingList()[1].supplySummary
 equal(unconfigured.status, "unconfigured", "removed configuration leaves ordinary estimates")
 equal(unconfigured.alpha, nil, "ordinary estimates have no default alpha")
 assert(ns.ShoppingText():find("quantities are estimates", 1, true), "ordinary export labels estimates")
+-- A configured reader that moves the chance revision while the solver frame runs keeps the frame up to revoke
+-- that revision, so the reader runs again rather than the frame sleeping on a stale result.
+local solver
+for _, frame in ipairs(c.frames) do
+	local callback = frame.scripts.OnUpdate
+	if callback and debug.getinfo(callback, "S").source:find("Core/RouteDemand.lua", 1, true) then
+		solver = frame
+	end
+end
+local movedReads = 0
+assert(ns.RouteDemand.ConfigureSupply(197, function()
+	movedReads = movedReads + 1
+	if movedReads == 1 then
+		ns.Model.SetChanceBonus(0.03)
+	end
+	return nil
+end, 1))
+for _ = 1, 100 do
+	if not solver:IsShown() then
+		break
+	end
+	solver.scripts.OnUpdate(solver, 0)
+end
+equal(movedReads, 2, "a revision moved inside the solver frame is revoked before it sleeps")
+equal(solver:IsShown(), false, "the solver frame sleeps once the moved revision is handled")
+ns.RouteDemand.ConfigureSupply(197, nil)
+ns.Model.SetChanceBonus(0)
 print("adaptive publication: passed")

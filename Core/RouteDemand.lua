@@ -52,6 +52,16 @@ local supplyPlans = {}
 local configured = {}
 -- Intent survives cancellation, so a revoked adaptive owner cannot become an
 -- estimated craft. Explicit configuration removal/switching clears this intent.
+-- The solver frame runs only while work is pending: shown on the wakes below, hidden by its own
+-- handler once no configured snapshot is dirty and no job is still calculating (WFA-13, no idle OnUpdate).
+local supplyFrame = CreateFrame("Frame")
+supplyFrame:Hide()
+local function WakeSupply()
+	supplyFrame:Show()
+end
+-- A chance revision can change without any game event (Model.SetChanceBonus), so its producer wakes the
+-- frame; the handler then revokes the old revision's results as before.
+ns.Model.OnChanceRevision(WakeSupply)
 local adaptiveIntent = setmetatable({}, { __mode = "k" })
 local actionRecords = setmetatable({}, { __mode = "k" })
 local generation = 0
@@ -218,6 +228,7 @@ function RouteDemand.Invalidate(revision)
 	for _, config in pairs(configured) do
 		config.dirty = true
 	end
+	WakeSupply()
 	-- Freeze the revoked set before cancellation: callbacks can publish a new
 	-- current owner, which does not belong to this invalidation.
 	local revoked = {}
@@ -853,6 +864,7 @@ local function PublishSupply(plan, job, alpha, service)
 		service = service,
 	}
 	supplyPlans[job] = plan
+	WakeSupply()
 	local cancel = job.Cancel
 	job.Cancel = function(self)
 		local ok, reason = pcall(cancel, self)
@@ -936,6 +948,9 @@ local function Configure(skillLine, read, alpha, mode)
 		DetachJob(previous.job)
 	end
 	configuring = false
+	if nextConfiguration then
+		WakeSupply()
+	end
 	-- The API's answers read this configuration and its cache drops on a change, so a read straight after this
 	-- call sees the new mode rather than the one from before it.
 	if previous or nextConfiguration then
@@ -1165,9 +1180,10 @@ end
 
 -- At most 64 solver operations across all jobs per frame. This is a scheduling
 -- budget, not a probability cutoff; exhaustion of a model budget stays unknown.
-local supplyFrame = CreateFrame("Frame")
 local supplyRevision = ns.Model.ChanceRevision()
 supplyFrame:SetScript("OnUpdate", function()
+	-- The client build cannot change inside one Lua session (a patch needs a client restart, which reloads
+	-- every addon), so checking it on each wake rather than every frame loses no revocation in the game.
 	ns.RecipeEvidence.Refresh()
 	local revision = ns.Model.ChanceRevision()
 	if revision ~= supplyRevision then
@@ -1242,6 +1258,23 @@ supplyFrame:SetScript("OnUpdate", function()
 		if changed then
 			ns.Changed("supply")
 		end
+	end
+	-- A reader can move the chance revision inside this handler, after the check above; its wake finds the frame
+	-- already shown, so the frame stays up to revoke that revision on the next frame.
+	local pending = ns.Model.ChanceRevision() ~= supplyRevision
+	for _, config in pairs(configured) do
+		pending = pending or config.dirty == true
+	end
+	if not pending then
+		for job in pairs(supplyPlans) do
+			if job.result and job.result.status == "calculating" then
+				pending = true
+				break
+			end
+		end
+	end
+	if not pending then
+		supplyFrame:Hide()
 	end
 end)
 

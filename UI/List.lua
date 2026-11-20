@@ -266,8 +266,10 @@ local function InitializeMessage(message, elementData)
 		message.Text = message:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		message.Text:SetWordWrap(true)
 		message.Text:SetJustifyH("LEFT")
+		-- Top corners only: the text's height is its own wrapped lines'. A RIGHT anchor tied it to the row's middle,
+		-- so the row's measured height capped it and a rounding short cut the last line to "..." (#869).
 		message.Text:SetPoint("TOPLEFT", message, "TOPLEFT", 6, -4)
-		message.Text:SetPoint("RIGHT", message, "RIGHT", -6, 0)
+		message.Text:SetPoint("TOPRIGHT", message, "TOPRIGHT", -6, -4)
 	end
 	message.Text:SetText(elementData.text)
 	message.Text:SetTextColor((elementData.color or GRAY_FONT_COLOR):GetRGB())
@@ -416,6 +418,17 @@ function ns.CreateList(parent)
 
 	---@class SkillUpList
 	local list = { rows = {}, scrollBox = scrollBox }
+	local measuredWidth
+
+	-- Messages are measured at the width the list has when it is drawn. The window can settle wider or narrower
+	-- after that (ForeverCore sizes it for the selected page), so a new width measures them again (#869). The hook
+	-- sits on the parent the scroll box is pinned to: the scroll box's own full update resets its OnSizeChanged
+	-- script, which drops any hook on it.
+	parent:HookScript("OnSizeChanged", function()
+		if #list.rows > 0 and scrollBox:GetWidth() ~= measuredWidth then
+			list:Finish()
+		end
+	end)
 
 	function list:Begin()
 		self.rows = {}
@@ -451,6 +464,7 @@ function ns.CreateList(parent)
 	end
 
 	function list:Finish()
+		measuredWidth = self.scrollBox:GetWidth()
 		---@diagnostic disable-next-line: param-type-mismatch
 		self.scrollBox:SetDataProvider(CreateDataProvider(self.rows), ScrollBoxConstants.RetainScrollPosition)
 	end

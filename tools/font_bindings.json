@@ -3,8 +3,8 @@
   "producers": [
     {
       "source": "UI/List.lua",
-      "sha256": "afee04eb24cfb64ab7c8a4abd1984c896a14d670fd5efbb9de6ffa66ed14a156",
-      "review": "Reviewed BuildRow, InitializeRow, InitializeHeading, InitializeMessage, BuildBand, InitializeBand, BuildLine and InitializeLine and CreateList callers in Route.lua. Each element kind has its own pool and explicit FontObjects; callbacks change text and colour, never fonts. Range uses GameFontNormalSmall. Pins the row, line and message fonts used by Route.lua bindings. Dynamic entry text, skill numbers and rank names are not covered.",
+      "sha256": "e420992a54f660c2304cecd958b948156d60a66586743e6a00736ec6965ddd44",
+      "review": "Reviewed BuildRow, InitializeRow, InitializeHeading, InitializeMessage, BuildBand, InitializeBand, BuildLine and InitializeLine and CreateList callers in Route.lua. Each element kind has its own pool and explicit FontObjects; callbacks change text and colour, never fonts. Range uses GameFontNormalSmall. Pins the row, line and message fonts used by Route.lua bindings. Dynamic entry text, skill numbers and rank names are not covered. Reviewed #869: InitializeMessage anchors its text by the row's top corners and the list redraws on a parent width change; same GameFontNormal message FontString, no font change.",
       "bindings": [
         {
           "font": "GameFontNormalSmall",
@@ -1055,8 +1055,8 @@
     },
     {
       "source": "UI/Shopping.lua",
-      "sha256": "3204c523fc99ca5ceb967e5cdeac5a1c92c721295ad13e2eae33fd4d6e441e10",
-      "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed. Reviewed #860: KeepsAuctionLists, ns.KeptAuctionList and the AuctionListNote nil return add no widgets or font setters. Reviewed the tracked-needs signature gaining the plan revision (#858): a cache key only; no bound widget FontObjects or phrase bindings changed.",
+      "sha256": "2a3d00263484364879a85dd3099151f36ef4c66ea4abc4c46b75103b7be6d633",
+      "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed. Reviewed #860: KeepsAuctionLists, ns.KeptAuctionList and the AuctionListNote nil return add no widgets or font setters. Reviewed the tracked-needs signature gaining the plan revision (#858): a cache key only; no bound widget FontObjects or phrase bindings changed. Reviewed forever-core#884: RefreshTracker marks the section dirty whatever the show switch says; no widgets or font setters.",
       "bindings": [
         {
           "font": "GameFontHighlight",

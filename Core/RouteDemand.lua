@@ -988,9 +988,9 @@ end
 
 -- Certified coordinates never inherit the display helper's bank scope.
 ---@param item SkillUpNeededItem
----@return number?
+---@return integer?
 function RouteDemand.Held(item)
-	if item.supplyScope or item.allocatedPrice then
+	if item.supplyScope then
 		return item.have
 	end
 	return ns.Have(item.itemID)
@@ -1010,7 +1010,7 @@ function RouteDemand.Shortfalls(tracked)
 				totals[item.itemID] = total
 			end
 			local scope = item.supplyScope or "bags-and-bank"
-			local have = item.allocatedPrice and ns.Have(item.itemID) or RouteDemand.Held(item)
+			local have = RouteDemand.Held(item)
 			if have == nil or (total.held[scope] ~= nil and total.held[scope] ~= have) then
 				total.unknown = true
 			end

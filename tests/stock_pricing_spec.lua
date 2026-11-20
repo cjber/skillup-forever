@@ -85,6 +85,24 @@ end
 
 do
 	local parent = recipe(X)
+	parent.reagents[2] = { itemID = Z, quantity = 1 }
+	local c, ns = setup({
+		Thresholds = { [R] = { 1, 20, 40, 60 } },
+		RecipeData = { [R] = parent, [M] = recipe(Y, X, 1) },
+		VendorPrices = { [Y] = 20 },
+		LootedFrom = { [Z] = { 1 } },
+		LimitedStock = {},
+		ItemSellPrices = {},
+	}, 2)
+	c.known[R], c.known[M] = true, true
+	c.auction[X], c.auction[Z] = 105, 100
+	merchant(c, 5001, Z, 5, 1)
+	Client.equal(ns.PlanMoney(plan(c)).buy, 25, "purchases pay for the maker input and one vendor unit")
+	Client.equal(ns.CraftCost(R), 104.75, "a limited sibling preserves the intermediate sale floor")
+end
+
+do
+	local parent = recipe(X)
 	parent.reagents[1].quantity = 2
 	local c, ns = setup({
 		Thresholds = { [R] = { 1, 20, 40, 60 } },

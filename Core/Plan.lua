@@ -820,7 +820,7 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, su
 			end
 			needs[index] = short
 		end
-		shares = ns.StockShares(reagents, stock, needs, MAX_SUB_DEPTH - depth, making)
+		shares = ns.StockShares(reagents, stock, needs, MAX_SUB_DEPTH - depth, making, true)
 	end
 	for index, reagent in ipairs(reagents) do
 		local held = reserved[index] or 0

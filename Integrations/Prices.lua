@@ -892,8 +892,9 @@ end
 ---@param needs number[]?
 ---@param depth integer?
 ---@param stack table<integer, true>?
+---@param forPurchases boolean?
 ---@return table<integer, table<integer, number>>?
-local function StockShares(reagents, ledger, needs, depth, stack)
+local function StockShares(reagents, ledger, needs, depth, stack, forPurchases)
 	if #reagents < 2 then
 		return nil
 	end
@@ -935,7 +936,8 @@ local function StockShares(reagents, ledger, needs, depth, stack)
 		for _, index in ipairs(order) do
 			local need = needs and needs[index] or reagents[index].quantity
 			if need > 0 then
-				local each = ObtainCost(reagents[index].itemID, need, limit, ancestors, shares[index])
+				local each =
+					ObtainCost(reagents[index].itemID, need, limit, ancestors, shares[index], nil, forPurchases)
 				if not each then
 					return
 				end
@@ -1019,9 +1021,10 @@ ns.SpendStock = SpendStock
 ---@param stack table<integer, true>?
 ---@param remaining table<integer, number>?
 ---@param take boolean?
+---@param forPurchases boolean? Price whole batches for an acquisition decision.
 ---@return number?
 ---@return SkillUpMakerChoice?
-ObtainCost = function(itemID, count, depth, stack, remaining, take)
+ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases)
 	if stack and stack[itemID] then
 		return nil
 	end
@@ -1036,7 +1039,7 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take)
 		linearCosts[itemID] = linear
 		return linear or nil
 	end
-	if not remaining and not UsesStock(itemID, depth) then
+	if not forPurchases and not UsesStock(itemID, depth) then
 		local each = UnitCost(itemID, depth, stack)
 		return each, depth > 0 and unitMakers[itemID] or nil
 	end
@@ -1086,11 +1089,12 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take)
 					for index, reagent in ipairs(reagents) do
 						needs[index] = reagent.quantity * batches
 					end
-					local shares = StockShares(reagents, trial, needs, depth - 1, stack)
+					local shares = StockShares(reagents, trial, needs, depth - 1, stack, true)
 					for index, reagent in ipairs(reagents) do
 						local caps = shares and shares[index]
 						local stockForReagent = StockFor(trial, caps)
-						local each = ObtainCost(reagent.itemID, needs[index], depth - 1, stack, stockForReagent, true)
+						local each =
+							ObtainCost(reagent.itemID, needs[index], depth - 1, stack, stockForReagent, true, true)
 						if not each then
 							total = nil
 							break
@@ -1121,7 +1125,7 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take)
 		end
 	end
 	local each = best and best / count
-	if not remaining and (first == 0 or not vendor) then
+	if not forPurchases and (first == 0 or not vendor) then
 		each = WithSaleFloor(itemID, each)
 	end
 	if memo then
@@ -1158,7 +1162,7 @@ function ns.SubCraft(itemID, count, remaining, depth, stack)
 			return unitMakers[itemID]
 		end
 	end
-	local _, maker = ObtainCost(itemID, count or 1, depth or MAX_SUB_DEPTH, stack, remaining)
+	local _, maker = ObtainCost(itemID, count or 1, depth or MAX_SUB_DEPTH, stack, remaining, nil, remaining ~= nil)
 	return maker
 end
 

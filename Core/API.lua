@@ -172,10 +172,10 @@ local function Acquire(itemID, count, price)
 		nav = false,
 	}
 	if price and price.source == "vendor" then
-		local vendor = price.vendor or ns.NearestVendor(itemID)
+		local vendor = ns.NearestVendor(itemID)
 		step.detail, step.nav = Detail(vendor, L["Vendor"], cost), vendor ~= nil
 		return step, vendor and function()
-			return price.vendor or ns.NearestVendor(itemID, true)
+			return ns.NearestVendor(itemID, true)
 		end or nil
 	elseif price then
 		step.detail = Detail(nil, L["Auction house"], cost)
@@ -304,7 +304,7 @@ end
 ---@return table<integer, fun(): integer?>
 local function Steps(plan, rows)
 	local profession = plan.profession
-	local steps, picks = {}, {}
+	local steps, picks, held = {}, {}, {}
 	---@param step SkillUpAPIStep
 	---@param pick (fun(): integer?)?
 	local function Add(step, pick)
@@ -314,25 +314,6 @@ local function Steps(plan, rows)
 		end
 	end
 	local remainingStock = {}
-	-- Expansion already accounted for held copies and the inputs supplied by earlier sub-crafts.
-	local function AcquireInputs(inputs)
-		for _, item in ipairs(inputs) do
-			local itemID, missing = item.itemID, item.count
-			local stock, overflow, vendor = ns.LimitedReagentPrice(itemID)
-			if stock and overflow and vendor then
-				local left = remainingStock[itemID] or stock
-				local fromVendor = math.min(left, missing)
-				remainingStock[itemID] = left - fromVendor
-				if fromVendor > 0 then
-					Add(Acquire(itemID, fromVendor, vendor)) -- multi-value: the step and its picker
-				end
-				missing = missing - fromVendor
-			end
-			if missing > 0 then
-				Add(Acquire(itemID, missing, overflow)) -- multi-value: the step and its picker
-			end
-		end
-	end
 	local supply = ns.RouteDemand.Supply(plan)
 	if supply then
 		for _, acquisition in ipairs(supply.acquisitions or {}) do
@@ -365,16 +346,11 @@ local function Steps(plan, rows)
 			end
 		end
 	end
-	local craftIndex, acquired = 1, false
 	for _, walk in ipairs(plan.steps) do
 		if #steps >= MAX_LIMIT then
 			break
 		end
 		local rank, training, craft, subcraft = walk.rank, walk.training, walk.craft, walk.subcraft
-		if not supply and not acquired and (subcraft or craft) then
-			AcquireInputs(plan.crafts[craftIndex].raw)
-			acquired = true
-		end
 		if subcraft then
 			local name = C_Spell.GetSpellName(subcraft.recipeID) or string.format(L["recipe %d"], subcraft.recipeID)
 			Add({
@@ -404,7 +380,27 @@ local function Steps(plan, rows)
 			Add(step, pick)
 		elseif craft then
 			local recipeID = craft.recipeID
-			craftIndex, acquired = craftIndex + 1, false
+			for _, reagent in ipairs(supply and {} or ns.Reagents(recipeID) or {}) do
+				local itemID, need = reagent.itemID, reagent.quantity * craft.crafts
+				local have = held[itemID] or ns.Have(itemID)
+				held[itemID] = math.max(have - need, 0)
+				if have < need then
+					local missing = need - have
+					local stock, overflow = ns.LimitedReagentPrice(itemID)
+					if stock and overflow then
+						local left = remainingStock[itemID] or stock
+						local fromVendor = math.min(left, missing)
+						remainingStock[itemID] = left - fromVendor
+						if fromVendor > 0 then
+							Add(Acquire(itemID, fromVendor)) -- multi-value: the step and its picker
+						end
+						missing = missing - fromVendor
+					end
+					if missing > 0 then
+						Add(Acquire(itemID, missing, overflow)) -- multi-value: the step and its picker
+					end
+				end
+			end
 			local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
 			Add({
 				kind = "craft",

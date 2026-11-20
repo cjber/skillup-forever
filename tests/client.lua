@@ -1276,8 +1276,8 @@ function Client.load(options)
 		GetItemQualityColor = function()
 			return 1, 1, 1, "ffffff"
 		end,
-		GetItemCount = function(id, includeBank)
-			return (c.bags[id] or 0) + (includeBank and c.bank and c.bank[id] or 0)
+		GetItemCount = function(id)
+			return c.bags[id] or 0
 		end,
 		RequestLoadItemDataByID = function(id)
 			c.requested[id] = true

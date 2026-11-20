@@ -423,7 +423,7 @@ function ns.TrackedNeeds()
 	for _, entry in ipairs(tracked) do
 		entry.items = ns.RouteReagents(entry.plan)
 		for _, item in ipairs(entry.items) do
-			if item.allocatedPrice then
+			if item.allocatedPrice or (item.limited and ns.LimitedReagentPrice(item.itemID) ~= nil) then
 				hasLimitedReagents = true
 			end
 		end

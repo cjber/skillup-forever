@@ -730,3 +730,4 @@ L["Select %s in the recipe list first."] = "Сначала выберите %s �
 
 L["No more freeze at login with a long route."] =
 	"Больше никаких зависаний при входе с длинным маршрутом." -- mt
+L["Rogue Poisons is tracked."] = "Теперь отслеживается навык «Яды» разбойника." -- mt

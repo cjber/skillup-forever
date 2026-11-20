@@ -665,3 +665,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 L["Select %s in the recipe list first."] = "請先在配方清單中選取%s。" -- mt
 
 L["No more freeze at login with a long route."] = "路線較長時登入不再卡住。" -- mt
+L["Rogue Poisons is tracked."] = "現在會追蹤盜賊的毒藥技能。" -- mt

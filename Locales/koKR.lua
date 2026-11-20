@@ -686,3 +686,4 @@ L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1�
 
 L["No more freeze at login with a long route."] =
 	"긴 경로가 있어도 로그인 시 더 이상 멈추지 않습니다." -- mt
+L["Rogue Poisons is tracked."] = "도적의 독 조제를 이제 추적합니다." -- mt

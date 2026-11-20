@@ -206,3 +206,4 @@ L["%s (level %d)"] = "%s (level %d)"
 L["Clicking a recipe selects it again under every sort."] = "Clicking a recipe selects it again under every sort."
 
 L["No more freeze at login with a long route."] = "No more freeze at login with a long route."
+L["Rogue Poisons is tracked."] = "Rogue Poisons is tracked."

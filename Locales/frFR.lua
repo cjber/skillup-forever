@@ -681,3 +681,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 L["Select %s in the recipe list first."] = "Sélectionnez d'abord %s dans la liste des recettes." -- mt
 
 L["No more freeze at login with a long route."] = "Plus de gel à la connexion avec un long itinéraire." -- mt
+L["Rogue Poisons is tracked."] = "Les poisons du voleur sont désormais suivis." -- mt

@@ -1138,7 +1138,7 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 		return each, depth > 0 and unitMakers[itemID] or nil
 	end
 	local reach = Reach(itemID, depth)
-	local parts = { itemID, count, depth, forPurchases and 1 or 0 }
+	local parts = { itemID .. ":" .. count .. ":" .. depth .. ":" .. (forPurchases and 1 or 0) }
 	for _, id in ipairs(reach) do
 		parts[#parts + 1] = (remaining and remaining[id] or "-") .. (stack and stack[id] and "s" or "")
 	end

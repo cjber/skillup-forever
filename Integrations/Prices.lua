@@ -195,7 +195,6 @@ local function AuctionPrice(itemID)
 	end
 	return nil
 end
-ns.AuctionPrice = AuctionPrice
 
 -- TradeSkillMaster's regional sale average, from the sale and purchase accounting its desktop app collects in the
 -- player's region. It is not a listing and not this character's own sales. TSM records an auction sale net of the

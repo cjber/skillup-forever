@@ -133,83 +133,6 @@ function ns.SearchReagents(recipeID, count)
 	return "game", item
 end
 
--- Price the tracked routes once per visit. Vendor fallbacks remain candidates: an auction may be cheaper.
--- Auctionator reports whole days, so zero is its current observation and anything older needs a refresh.
-local visit = 0
-local visitSearched = false
-
-local function PriceRoute()
-	if visitSearched or ns.db.auctionSearch == false or ns.CollectMode() ~= "auction" or not ns.HasAuctionator() then
-		return
-	end
-	local api = Auctionator.API.v1
-	if not (api.GetAuctionPriceByItemID and (api.MultiSearchAdvanced or api.MultiSearchExact)) then
-		return
-	end
-	local tracked = ns.TrackedNeeds()
-	local needs, unknown = ns.RouteDemand.Shortfalls(tracked)
-	local discovery = {}
-	for _, entry in ipairs(tracked) do
-		-- Recipes left out of the route have no planned quantities. Their one-craft shortfall can request a price
-		-- observation without treating them as free crafts or adding them to the shopping totals.
-		local unpriced = {}
-		for _, itemID in ipairs(ns.UnpricedReagents(entry.plan)) do
-			unpriced[itemID] = true
-		end
-		for _, recipe in ipairs(entry.plan.unpricedRecipes) do
-			for _, reagent in ipairs(ns.Reagents(recipe) or {}) do
-				if unpriced[reagent.itemID] then
-					discovery[reagent.itemID] = math.max(discovery[reagent.itemID] or 0, reagent.quantity)
-				end
-			end
-		end
-	end
-	for itemID, quantity in pairs(discovery) do
-		if not unknown[itemID] then
-			needs[itemID] = math.max(needs[itemID] or 0, quantity - ns.Have(itemID))
-		end
-	end
-	local short = {}
-	for itemID, missing in pairs(needs) do
-		local price = ns.AuctionPrice(itemID)
-		local age = price and ns.PriceAge(price)
-		if missing > 0 and (price == nil or age == nil or age > 0) then
-			short[#short + 1] = { itemID = itemID, count = missing }
-		end
-	end
-	if #short == 0 then
-		return
-	end
-	table.sort(short, function(a, b)
-		return a.itemID < b.itemID
-	end)
-	visitSearched = true
-	local requestedVisit = visit
-	ns.WithItemNames(short, function()
-		if
-			requestedVisit ~= visit
-			or ns.db.auctionSearch == false
-			or ns.CollectMode() ~= "auction"
-			or not (AuctionHouseFrame and AuctionHouseFrame:IsShown())
-		then
-			return
-		end
-		ns.core.SafeCall("auction house route prices", function()
-			local advanced, names = {}, {}
-			for _, item in ipairs(short) do
-				local name = assert(C_Item.GetItemNameByID(item.itemID))
-				names[#names + 1] = name
-				advanced[#advanced + 1] = { searchString = name, isExact = true, quantity = item.count }
-			end
-			if api.MultiSearchAdvanced then
-				api.MultiSearchAdvanced(CALLER, advanced)
-			else
-				api.MultiSearchExact(CALLER, names)
-			end
-		end)
-	end)
-end
-
 -- A closed auction house starts the next visit's round from the first reagent.
 local function ForgetRound()
 	nextKey, nextIndex = nil, 1
@@ -367,9 +290,6 @@ for _, event in ipairs({ "AUCTION_HOUSE_SHOW", "AUCTION_HOUSE_CLOSED" }) do
 	ns.WhenEvent(event, function()
 		if event == "AUCTION_HOUSE_CLOSED" then
 			ForgetRound()
-			visit, visitSearched = visit + 1, false
-		else
-			C_Timer.After(0, PriceRoute)
 		end
 		-- Blizzard shows or hides its frame on the same event; read it a frame later.
 		C_Timer.After(0, Refresh)

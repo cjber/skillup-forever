@@ -396,8 +396,8 @@ function ns.RegisterSettings()
 		Checkbox(
 			rows,
 			"auctionSearch",
-			L["Search reagents at the auction house"],
-			L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."]
+			L["Show reagent search and keep shopping lists"],
+			L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."]
 		)
 
 		Checkbox(
@@ -428,7 +428,7 @@ function ns.RegisterSettings()
 			rows,
 			"gatherTooltip",
 			L["Gathering skill on nodes"],
-			L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."]
+			L["Herb and ore node tooltips show the skill they need and its colour at yours. Skinnable corpses show ? until the skinning rule is confirmed on Forever."]
 		)
 
 		Choice(

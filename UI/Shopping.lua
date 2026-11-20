@@ -27,6 +27,7 @@ local lastCounts = {}
 ---@param itemID integer
 ---@return number
 function ns.Have(itemID)
+	ns.NoteItemCount(itemID)
 	local count = ns.Readable(C_Item.GetItemCount(itemID, true))
 	if count then
 		lastCounts[itemID] = count
@@ -870,7 +871,8 @@ end
 local merchantPending = false
 local function RefreshTracker()
 	SyncAuctionator()
-	if module and ns.db.showTracker then
+	-- The switch turned off lays the section out too: its empty layout is what hides it.
+	if module then
 		module:MarkDirty()
 	end
 	if not (ns.db.merchantButton and MerchantFrame ~= nil and MerchantFrame:IsShown()) then

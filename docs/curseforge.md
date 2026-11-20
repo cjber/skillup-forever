@@ -8,7 +8,7 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 
 - Recipe colours come from the game, but a recipe you have not seen yet uses bundled thresholds that can be slightly off.
 - Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
-- Gathering nodes and corpses have no colour in the game, so theirs is an estimate, on English clients only.
+- Gathering nodes and corpses have no colour in the game, so theirs is an estimate.
 - Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) may be added points or a multiplier, so its estimate is off by default.
 - With a controller, closing the window under a SkillUp sort can report a harmless blocked action.
@@ -45,9 +45,9 @@ These images are generated previews of the SkillUp UI.
 - **Recipe rows and tooltips.** Each recipe shows its skill-up chance, cost and colour thresholds, in the row and in its tooltip.- **A sortable recipe list.** See how many your bags can make after each name. Sort by difficulty range start, chance, cheapest skill-ups, highest craft profit or newest learned first.
 - **Unlearned recipes.** A setting, off by default, lists them greyed under the learned ones, each marked with its trainer or recipe item and the skill it asks, sorted by required skill or newest first. Hover one for its reagents and cost; it cannot be crafted.
 - **Levelling routes.** Crafts, trainer visits, skill books and rank quests to your target skill, in the order you craft them, with fees, tools and stations. Cheaper crafted reagents become their own steps, Craft next makes missing intermediates first, and right-clicking a recipe and choosing *Not this recipe* plans without it.
-- **Shopping lists.** Reagents are counted against bags and bank. Buying is the default, so materials your professions gather are bought unless you choose to gather them; track the list beside quests, buy vendor stock and keep an Auctionator list up to date. At the auction house, search a recipe's reagents for any number of crafts.
+- **Shopping lists.** Reagents are counted against bags and bank. Buying is the default, so materials your professions gather are bought unless you choose to gather them; track the list beside quests, buy vendor stock and keep an Auctionator list up to date. At the auction house, click *Search* in Professions for missing reagents.
 - **A supply page beside the route.** With a profession and a merchant open, write down what you assume about each offer's price, stock, purchase limit and trips, then read the route's chance and next step before you apply it. Nothing is filled in for you.
-- **Trainers, reagents and gathering.** Trainers mark the best recipe to train next. Reagent tooltips, enabled in settings, show what tracked routes need; hold Shift for every recipe that uses the item, and each line names its profession. On English clients, herb and ore nodes show the skill they need, coloured at yours.
+- **Trainers, reagents and gathering.** Trainers mark the best recipe to train next. Reagent tooltips, enabled in settings, show what tracked routes need; hold Shift for every recipe that uses the item, and each line names its profession. Herb and ore nodes show the skill they need, coloured at yours.
 - **Crafted gear and buffs.** The gear tab, enabled in settings, shows the newest craft for each slot with its recipe, reagents and learning location. The buffs tab shows what each profession can make for your level on a skill timeline.
 
 ## Prices
@@ -100,7 +100,7 @@ With [Shortest Path Forever](https://www.curseforge.com/wow/addons/shortest-path
 
 <!-- forever-credits:start -->
 
-Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, davef1n, sundered1985, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, messajahswe, user_bvgv4fnauhmhf9i7, puschie286, Belth, yavinn, cursebandit, rissole, codipherus, jugg__, keerp, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc, Da_Tronic, shenhyrosame and everyone who reported a bug or asked for a feature.
+Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, davef1n, sundered1985, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, messajahswe, user_bvgv4fnauhmhf9i7, puschie286, Belth, yavinn, cursebandit, rissole, codipherus, jugg__, keerp, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, hardliquor, CodexFD, rockhumper84, Kozoaku, turkeyfire69, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc, Da_Tronic, shenhyrosame and everyone who reported a bug or asked for a feature.
 
 <!-- forever-credits:end -->
 

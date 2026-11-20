@@ -16,7 +16,7 @@ SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in th
 
 - Recipe colours come from the game, but a recipe you have not seen yet uses bundled thresholds that can be slightly off.
 - Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
-- Gathering nodes and corpses have no colour in the game, so theirs is an estimate, on English clients only.
+- Gathering nodes and corpses have no colour in the game, so theirs is an estimate.
 - Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) is not confirmed as added points or a multiplier, so the estimate is off by default; turn on Include Working Overtime estimate to see the additive reading.
 - With a controller, closing the Professions window while a SkillUp sort or the unlearned list is on can report a blocked action. It does no harm; reopen the window to carry on.
@@ -41,10 +41,10 @@ The tooltip draws the thresholds on the game's bar, then each reagent's price an
 - **Unlearned recipes** can sit under the learned ones, greyed and marked with their trainer or recipe item, and the search box narrows them. Click one to preview its read-only details in the crafting pane.
 - **Buffs only** filters the list to the buffs you can use at your level.
 - **Levelling routes** list the crafts, trainer visits, skill books and rank quests to your target skill, in order, each with its amount and cost. [Route details](docs/route.md#levelling-route).
-- **Shopping lists** count reagents against bags and bank and keep an Auctionator list current; at the auction house, search a recipe's reagents for the crafts you choose. [Shopping details](docs/route.md#shopping-list).
+- **Shopping lists** count reagents against bags and bank and keep an Auctionator list current. At the auction house, click *Search* in the Professions window to find the reagents still needed for the crafts you choose. [Shopping details](docs/route.md#shopping-list).
 - **Supply page** sits beside the route: with a profession and a merchant open, note what you assume about each offer's price, stock, limit and trips, then read the route's chance. [Supply details](docs/supply-policy.md).
 - **Trainer annotations** show chance and cost, with a green arrow on the best recipe for your route.
-- **Reagent tooltips**, on in settings, show what tracked routes need; Shift lists every recipe that uses the item, naming its profession. Herb and ore nodes show the skill they need, coloured at yours, on English clients.
+- **Reagent tooltips**, on in settings, show what tracked routes need; Shift lists every recipe that uses the item, naming its profession. Herb and ore nodes show the skill they need, coloured at yours.
 - **Crafted gear** shows the newest item you could craft for each slot, with its recipe and reagents. [Gear details](docs/gear.md).
 - **Buffs** show what each profession can make for your level on a skill timeline. [Buffs details](docs/buffs.md).
 
@@ -100,7 +100,7 @@ Settings cover rows and tooltips, prices, sort order, the tabs and trainer annot
 
 Each reagent uses the cheapest known vendor or auction price, and visiting a vendor records its prices and reputation discounts. *Buy reagents* is on by default, so materials your professions gather are bought; choose gathering to supply them yourself. *Value gathered materials at what they'd sell for* is on for new installs and costs them at their sale value; turn it off to count them as free. *Price self-supplied reagents at auction values* prices what you gather, loot or own at market value, and leaves it unpriced when there is none.
 
-Auction prices come from Auctionator's latest scan, TradeSkillMaster's AuctionDB with its desktop app, AHDB, or Naowh Forever's scans and nightly auction data. Naowh's snapshot can price materials before your first auction house visit. *Auction prices from* picks which source wins, and the others fill the gaps. SkillUp never scans the auction house, and a price nobody has seen stays unknown.
+Auction prices come from Auctionator's latest scan, TradeSkillMaster's AuctionDB with its desktop app, AHDB, or Naowh Forever's scans and nightly auction data. Naowh's snapshot can price materials before your first auction house visit. *Auction prices from* picks which source wins, and the others fill the gaps. SkillUp starts an Auctionator search when you click *Search* in the Professions window. Prices stay unknown until a price source records them.
 
 A craft's vendor sell value comes off its cost, or its auction value after the 5% cut if you choose. *Region sale average if higher* uses regional sales with the vendor price as a floor, and recipe tooltips add TSM's regional sales per day where it has them. Profit shows a green `+`, and cost per skill-up divides net cost by chance.
 
@@ -167,7 +167,7 @@ Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees
 
 <!-- forever-credits:start -->
 
-Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, davef1n, sundered1985, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, messajahswe, user_bvgv4fnauhmhf9i7, puschie286, Belth, yavinn, cursebandit, rissole, codipherus, jugg__, keerp, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, hardliquor, CodexFD, rockhumper84, Kozoaku, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc, Da_Tronic, shenhyrosame and everyone who reported a bug or asked for a feature.
+Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, davef1n, sundered1985, trias6657, iPulse, cotijelucie, st3nlee, prokn4h, CtrlDKhayos, messajahswe, user_bvgv4fnauhmhf9i7, puschie286, Belth, yavinn, cursebandit, rissole, codipherus, jugg__, keerp, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, hardliquor, CodexFD, rockhumper84, Kozoaku, turkeyfire69, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc, Da_Tronic, shenhyrosame and everyone who reported a bug or asked for a feature.
 
 <!-- forever-credits:end -->
 

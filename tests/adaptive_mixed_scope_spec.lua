@@ -149,8 +149,7 @@ end
 -- Missing certified coordinates suppress a shared count rather than using display inventory.
 local held = bySkill[164].items[1].have
 bySkill[164].items[1].have = nil
-local missing, unknown = ns.RouteDemand.Shortfalls(tracked)
+local missing = ns.RouteDemand.Shortfalls(tracked)
 equal(missing[10], nil, "unknown holdings provide no aggregate purchase count")
-equal(unknown[10], true, "aggregate unknown remains explicit")
 bySkill[164].items[1].have = held
 print("adaptive mixed scope: passed")

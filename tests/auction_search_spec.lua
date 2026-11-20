@@ -8,8 +8,6 @@ local BANDAGE, HEAVY, LINEN, THREAD, SALT = 1, 2, 3, 4, 5
 local function Load(options)
 	local c = Client.load({
 		auctionator = options.auctionator,
-		ahdb = options.ahdb,
-		naowh = options.naowh,
 		tsm = options.tsm,
 		saved = { routeTargets = { [129] = 60 }, trackedProfessions = { [129] = true } },
 		data = {
@@ -155,89 +153,53 @@ c.CloseAuctionHouse()
 equal((ns.SearchReagents(HEAVY, 3)), "unfilled", "nothing is written while the auction house is closed")
 equal(#searched, 7, "so the box is left alone")
 
--- The first auction-house visit prices the tracked route, including vendor fallbacks.
+-- Opening the auction house leaves Auctionator alone even when a tracked route needs prices.
 c = Load({})
 ns = c.ns
 ns.SetCollectMode("auction")
 c.auction[LINEN] = nil
-ns.VendorPrices[LINEN] = 5
-ns.Changed("prices")
-equal(ns.PriceSource(LINEN), "vendor", "the route has a vendor fallback before its first auction price")
-c.Fire("AUCTION_HOUSE_SHOW")
-c.Advance(0)
-equal(#c.auctionSearches, 1, "opening the auction house searches the unpriced tracked route")
-equal(c.auctionSearches[1][1]:match("^Linen Clothx") ~= nil, true, "the route search uses exact reagent names")
-c.Fire("AUCTION_HOUSE_SHOW")
-c.Advance(0)
-equal(#c.auctionSearches, 1, "duplicate show events do not repeat the visit search")
-c.Fire("AUCTION_HOUSE_CLOSED")
-c.auction[LINEN], c.auctionAge = 10, 0
-c.Fire("AUCTION_HOUSE_SHOW")
-c.Advance(0)
-equal(#c.auctionSearches, 1, "today's recorded prices need no search")
-c.Fire("AUCTION_HOUSE_CLOSED")
-c.auctionAge = 1
-c.Fire("AUCTION_HOUSE_SHOW")
-c.Advance(0)
-equal(#c.auctionSearches, 2, "a later visit refreshes older recorded prices")
-c.Fire("AUCTION_HOUSE_CLOSED")
-ns.db.auctionSearch = false
-c.Fire("AUCTION_HOUSE_SHOW")
-c.Advance(0)
-equal(#c.auctionSearches, 2, "disabled reagent searching never starts an automatic query")
-c.Fire("AUCTION_HOUSE_CLOSED")
-ns.db.auctionSearch = true
-c.Fire("AUCTION_HOUSE_SHOW")
-c.CloseAuctionHouse()
-c.Advance(0)
-equal(#c.auctionSearches, 2, "closing before the deferred visit leaves Auctionator alone")
-
-c = Load({})
-ns = c.ns
-ns.SetCollectMode("gather")
-c.auction[LINEN] = nil
-c.Fire("AUCTION_HOUSE_SHOW")
-c.Advance(0)
-equal(#c.auctionSearches, 0, "gather mode starts no auction search")
-
--- Item-name loading can finish after a visit ends. An old callback cannot consume the next visit's query.
-c = Load({})
-ns = c.ns
-ns.SetCollectMode("auction")
-c.auction[LINEN] = nil
-ns.Changed("prices")
-local pending = {}
-c.G.ContinuableContainer = {
-	Create = function()
-		return {
-			AddContinuable = function() end,
-			ContinueOnLoad = function(_, callback)
-				pending[#pending + 1] = callback
-			end,
-		}
+local api = c.G.Auctionator.API.v1
+api.MultiSearchExact = function(_, names)
+	c.auctionSearches[#c.auctionSearches + 1] = names
+end
+local house = c.G.AuctionHouseFrame
+house.shown = false
+function house:IsShown()
+	return self.shown
+end
+local page = c.G.CreateFrame("Frame")
+page.SchematicForm = {
+	GetRecipeInfo = function()
+		return { recipeID = BANDAGE }
 	end,
 }
-c.Fire("AUCTION_HOUSE_SHOW")
+c.G.ProfessionsFrame = { CraftingPage = page }
+ns.AttachAuctionSearch()
+local bar = assert(page:GetChildren())
+local search = assert(bar.Search)
 c.Advance(0)
-equal(#pending, 1, "an entirely unpriced route waits for item names")
+local createList = api.CreateShoppingList
+local listWrites = 0
+api.CreateShoppingList = function(...)
+	listWrites = listWrites + 1
+	createList(...)
+end
+equal(bar:IsShown(), false, "the Search button is hidden before opening the auction house")
 c.Fire("AUCTION_HOUSE_SHOW")
+house.shown = true
 c.Advance(0)
-equal(#pending, 1, "duplicate events cannot enqueue another name callback")
+equal(#c.auctionSearches, 0, "opening the auction house does not search the unpriced tracked route")
+equal(listWrites, 0, "opening the auction house does not write a shopping list")
+equal(bar:IsShown(), true, "the Search button is available at the auction house")
+bar.Count:SetText("2")
+search.scripts.OnClick(search)
+equal(#c.auctionSearches, 1, "clicking Search starts exactly one Auctionator search")
+equal(c.auctionSearches[1][1], "Linen Clothx2", "the button searches for the selected craft count")
+equal(c.shoppingLists["SkillUp: Tester-Realm: crafting"][1], "Linen Clothx2", "the button saves the crafting list")
 c.Fire("AUCTION_HOUSE_CLOSED")
-c.Fire("AUCTION_HOUSE_SHOW")
+house.shown = false
 c.Advance(0)
-equal(#pending, 2, "a new visit owns its own pending search")
-pending[1]()
-equal(#c.auctionSearches, 0, "the closed visit's callback cannot search during the new visit")
-pending[2]()
-equal(#c.auctionSearches, 1, "the current visit makes exactly one query")
-equal(c.auctionSearches[1][1], "Linen Clothx1", "unknown dependencies survive deferred name loading")
-c.Fire("AUCTION_HOUSE_CLOSED")
-c.Fire("AUCTION_HOUSE_SHOW")
-c.Advance(0)
-ns.db.auctionSearch = false
-pending[3]()
-equal(#c.auctionSearches, 1, "disabling search cancels a pending unknown-price query")
+equal(bar:IsShown(), false, "closing the auction house hides the Search button")
 
 -- Saved TSM realm prices are auction purchases, including before this character visits the auction house.
 for _, auctionator in ipairs({ false, true }) do
@@ -261,23 +223,4 @@ for _, auctionator in ipairs({ false, true }) do
 	end
 end
 
-for _, source in ipairs({ "ahdb", "naowh" }) do
-	c = Load({ ahdb = { [LINEN] = { 1700000000, 25 } }, naowh = { [LINEN] = { 30, 1700000000 } } })
-	ns = c.ns
-	c.auction[LINEN] = nil
-	c.SetSetting("priceSource", source)
-	equal(ns.Model.ShoppingSource(ns.PriceSource(LINEN)), "auction", "snapshot prices use the auction shopping bucket")
-	c.Fire("AUCTION_HOUSE_SHOW")
-	c.Advance(0)
-	equal(#c.auctionSearches, 0, "today's snapshot needs no refresh without an Auctionator observation")
-	c.Fire("AUCTION_HOUSE_CLOSED")
-	c.now = c.now + 86400
-	ns.Changed("prices")
-	c.Fire("AUCTION_HOUSE_SHOW")
-	c.Advance(0)
-	equal(#c.auctionSearches, 1, "an old snapshot refreshes on the first auction visit")
-	c.Fire("AUCTION_HOUSE_SHOW")
-	c.Advance(0)
-	equal(#c.auctionSearches, 1, "the snapshot query still runs only once per visit")
-end
 Client.report("auction_search_spec")

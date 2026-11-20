@@ -118,6 +118,15 @@ end
 -- stays certain and grey stays impossible, since a grey recipe can give no skill-up to improve.
 local chanceBonus = 0
 local chanceRevision = 0
+-- Called with the new revision whenever it changes, so a reader that sleeps between changes (the supply
+-- solver frame) wakes on the producer itself rather than polling the revision every frame.
+---@type (fun(revision: integer))[]
+local revisionListeners = {}
+
+---@param listener fun(revision: integer)
+function Model.OnChanceRevision(listener)
+	revisionListeners[#revisionListeners + 1] = listener
+end
 
 -- Sets that bonus; returns whether it changed, so a reader on a game event only refreshes on a real change.
 ---@param bonus number
@@ -128,6 +137,9 @@ function Model.SetChanceBonus(bonus)
 	chanceBonus = value
 	if changed then
 		chanceRevision = chanceRevision + 1
+		for _, listener in ipairs(revisionListeners) do
+			listener(chanceRevision)
+		end
 	end
 	return changed
 end

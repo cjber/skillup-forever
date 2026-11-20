@@ -333,7 +333,7 @@ equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], list, "an unchanged n
 c.ns.db.auctionSearch = false
 c.bags[SILK] = 1
 c.Fire("BAG_UPDATE_DELAYED")
-equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], list, "disabled automatic search does not rewrite the list")
+equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], list, "disabled list maintenance leaves the list alone")
 equal(ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "and the list it no longer keeps is not named")
 c.ns.db.auctionSearch = true
 c.bags[SILK] = Needed()
@@ -437,10 +437,10 @@ equal(
 	"with the new need"
 )
 
--- Disabling automatic list maintenance does not disable an explicit Search button query.
+-- A direct recipe search can run independently of list maintenance.
 c.ns.db.auctionSearch = false
 c.bags[SILK] = 0
-equal(ns.SearchReagents(HEAVY, 1), "auctionator", "manual search still works when automatic search is disabled")
+equal(ns.SearchReagents(HEAVY, 1), "auctionator", "a direct search works with list maintenance off")
 
 -- The section hangs on the shared host, never on Blizzard's tracker manager: a client without the manager
 -- still gets it once the world loads.

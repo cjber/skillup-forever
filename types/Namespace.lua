@@ -25,6 +25,7 @@
 ---@field GamepadUI fun(): boolean Whether the client is in its gamepad interface.
 ---@field StepDropdownUnderGamepad fun(dropdown: DropdownButton) Makes a press on the dropdown step to its next choice under the gamepad interface instead of opening a menu.
 ---@field Changed fun(kind: SkillUpChange)
+---@field NoteItemCount fun(itemID: integer) Records an item whose bag count SkillUp read, so the next bag event checks whether it moved.
 ---@field FiniteAcquisition SkillUpFiniteAcquisitionProducer
 ---@field Dyadic SkillUpDyadicProducer
 ---@field Demand SkillUpJointDemandProducer
@@ -157,7 +158,6 @@
 ---@field HasAHDB fun(): boolean
 ---@field HasNaowhForever fun(): boolean
 ---@field AuctionProvider fun(): "auctionator"|"tsm"|"ahdb"|"naowh"|nil
----@field AuctionPrice fun(itemID: integer): SkillUpPrice?
 ---@field HasTradeSkillMaster fun(): boolean
 ---@field AcquisitionPayments fun(acquisitions: SkillUpSelectedAcquisition[]): string
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())
@@ -272,6 +272,7 @@
 ---@field LootedFrom table<integer, boolean> Reagents a creature drops, which any character can loot.
 ---@field LimitedStock table<integer, table<integer, number>> Per item, the vendors that limit its stock and by how much.
 ---@field NodeSkills table<string, number[]> { gathering skill line, required skill } per enUS herb or ore node name.
+---@field NodeEntrySkills table<integer, number[]> { gathering skill line, required skill } per herb or ore gameobject entry.
 ---@field ScrollDrops table<integer, number[][]>
 ---@field WorldDrops table<integer, boolean>
 ---@field Questie SkillUpQuestie

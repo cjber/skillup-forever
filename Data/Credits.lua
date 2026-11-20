@@ -82,6 +82,7 @@ ns.Credits = {
 		{ name = "Kozoaku", what = "TradeSkillMaster auction prices (code)" },
 		{ name = "st3nlee", what = "Self-supplied reagents priced at market values" },
 		{ name = "st3nlee", what = "Crafted items' sale value counted" },
+		{ name = "turkeyfire69", what = "Auctionator searches start on request" },
 		{ name = "prokn4h", what = "Unlearned recipes can be listed" },
 		{ name = "prokn4h", what = "Unlearned recipes show their tooltips" },
 		{ name = "Kirdan", what = "Working Overtime at 4% per point" },

@@ -10,6 +10,35 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.8] - 2026-11-20
+
+### Fixed
+
+- **Herb and ore node tooltips show the skill they need in every client language.** They were English-only, as SkillUp matched nodes by their English name; it now reads which node it is from the game itself.
+- **Auctionator searches start on request.** SkillUp no longer starts an Auctionator search by itself when you open the auction house. Click Search in the Professions window to search for your recipe's missing reagents. Thanks to turkeyfire69 on CurseForge for the report (#880).
+- **Switching profession or tab in the Professions window is quicker.** SkillUp rebuilds its route after a bag change only when the count of an item the route uses moved, instead of on every bag update the game sends.
+
+### Changed
+
+- Ships with ForeverCore 1.15.4, the same shared code as your other Forever addons, so they keep working together.
+
+## [1.14.7] - 2026-11-19
+
+### Fixed
+
+- **The supply solver no longer runs every frame while idle.** It wakes when prices, bags, money, recipes, talents or a route's configuration change, and stops updating once that work is done, instead of checking for changes on every frame of the session.
+
+## [1.14.6] - 2026-11-19
+
+### Fixed
+
+- **Notes on the Route page show in full.** The notes about estimates, spares and the Auctionator list wrap onto a second line instead of being cut off with "...".
+- **Hiding the tracked professions section works.** "Hide this section" and the settings switch now hide the section at once, whether it is open or collapsed.
+
+### Changed
+
+- Ships with ForeverCore 1.15.3, the same shared code as your other Forever addons, so they keep working together.
+
 ## [1.14.5] - 2026-11-19
 
 ### Fixed

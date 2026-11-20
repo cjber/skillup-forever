@@ -47,7 +47,7 @@
 ---@field Vendors fun(item: SkillUpNeededItem|SkillUpAPIShoppingItem, byTravel?: boolean): integer[]
 ---@field ConfigureAdaptiveSupply fun(skillLine: integer, read: (fun(): SkillUpAdaptiveSupplyRequest?, string?)?, alpha?: number): boolean, string?
 ---@field SelectAdaptiveSupply fun(plan: SkillUpPlan, request: SkillUpAdaptiveSupplyRequest, alpha: number): SkillUpFiniteSelectionJob
----@field Shortfalls fun(tracked: SkillUpTracked[]): table<integer, number>, table<integer, boolean>
+---@field Shortfalls fun(tracked: SkillUpTracked[]): table<integer, number>
 ---@field Held fun(item: SkillUpNeededItem): integer?
 ---@field ConfigureSupply fun(skillLine: integer, read: (fun(): SkillUpResupplyInput?, string?)?, alpha?: number): boolean, string?
 ---@field SelectSupply fun(plan: SkillUpPlan, contract: SkillUpResupplyInput, alpha: number): SkillUpSupplyChoiceJob

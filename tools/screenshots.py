@@ -937,6 +937,7 @@ env = setmetatable({
 	TSM_API = false,
 	AuctionDB = false,
 	NaowhForever = false,
+	ForeverLedgerAPI = false,
 	-- ForeverCore's shared services; the scene below fills them in.
 	ForeverCore = false,
 	BugGrabber = false,

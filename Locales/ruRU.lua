@@ -705,6 +705,10 @@ L["AHDB, %s"] = "AHDB, %s" -- mt
 
 L["Naowh Forever, %s"] = "Naowh Forever, %s" -- mt
 
+L["Forever Ledger"] = "Forever Ledger"
+
+L["Forever Ledger, %s"] = "Forever Ledger, %s"
+
 L["you loot it from creatures, would sell for %s"] =
 	"добывается с существ, можно продать за %s" -- mt
 
@@ -715,6 +719,9 @@ L["Scan the auction house with AHDB, or visit a vendor, to price reagents."] =
 
 L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."] =
 	"Обновите данные аукциона Naowh Forever или посетите торговца, чтобы узнать цены реагентов." -- mt
+
+L["Run a full scan in Forever Ledger, or visit a vendor, to price reagents."] =
+	"Запустите полное сканирование в Forever Ledger или посетите торговца, чтобы узнать цены реагентов."
 
 L["Choose Auctionator, TradeSkillMaster, AHDB or Naowh Forever. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."] =
 	"Выберите Auctionator, TradeSkillMaster, AHDB или Naowh Forever. Выбранная цена имеет приоритет; остальные заполняют пробелы. Подсказки показывают давность наблюдения, если она известна." -- mt

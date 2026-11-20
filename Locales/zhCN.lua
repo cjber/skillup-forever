@@ -641,6 +641,10 @@ L["AHDB, %s"] = "AHDB, %s" -- mt
 
 L["Naowh Forever, %s"] = "Naowh Forever, %s" -- mt
 
+L["Forever Ledger"] = "Forever Ledger" -- mt
+
+L["Forever Ledger, %s"] = "Forever Ledger, %s" -- mt
+
 L["you loot it from creatures, would sell for %s"] = "从生物身上拾取，可售得%s" -- mt
 
 L["you gather it (%s), would sell for %s"] = "自行采集（%s），可售得%s" -- mt
@@ -650,6 +654,9 @@ L["Scan the auction house with AHDB, or visit a vendor, to price reagents."] =
 
 L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."] =
 	"更新Naowh Forever的拍卖数据，或拜访商人以获取材料价格。" -- mt
+
+L["Run a full scan in Forever Ledger, or visit a vendor, to price reagents."] =
+	"Run a full scan in Forever Ledger, or visit a vendor, to price reagents." -- mt
 
 L["Choose Auctionator, TradeSkillMaster, AHDB or Naowh Forever. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."] =
 	"选择Auctionator、TradeSkillMaster、AHDB或Naowh Forever。优先采用所选来源的价格，其他来源补充缺失价格。已知记录时间时，鼠标提示会显示其距今时间。" -- mt

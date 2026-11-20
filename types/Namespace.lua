@@ -167,7 +167,8 @@
 ---@field HasAuctionator fun(): boolean
 ---@field HasAHDB fun(): boolean
 ---@field HasNaowhForever fun(): boolean
----@field AuctionProvider fun(): "auctionator"|"tsm"|"ahdb"|"naowh"|nil
+---@field HasForeverLedger fun(): boolean
+---@field AuctionProvider fun(): "auctionator"|"tsm"|"ahdb"|"naowh"|"foreverledger"|nil
 ---@field HasTradeSkillMaster fun(): boolean
 ---@field AcquisitionPayments fun(acquisitions: SkillUpSelectedAcquisition[]): string
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())
@@ -302,7 +303,7 @@
 ---@field recipeTooltip 'window'|'cursor'|'row'
 ---@field showRowPrices boolean
 ---@field rowCost 'skillup'|'craft'
----@field priceSource 'auctionator'|'tsm'|'ahdb'|'naowh'
+---@field priceSource 'auctionator'|'tsm'|'ahdb'|'naowh'|'foreverledger'
 ---@field craftValue 'none'|'vendor'|'auction'|'sale'
 ---@field valueGathered boolean
 ---@field gatheredValueSeen boolean
@@ -585,7 +586,7 @@ SkillUpForeverDB = nil
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipeFilter'|'preview'|'supply'|'recipeEvidence'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
 ---@alias SkillUpStale 'craftCosts'|'recipeEvidence'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'supplyPage'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'
----@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'ahdb'|'naowh'|'gather'|'auction'
+---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'ahdb'|'naowh'|'foreverledger'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
 ---@class SkillUpPrice

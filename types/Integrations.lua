@@ -91,3 +91,21 @@ AuctionDB = nil
 
 ---@type {AuctionPrice: fun(itemID: integer): number?, number?}?
 NaowhForever = nil
+
+-- Forever Ledger's read-only API over its own auction scans, in copper with times from time(). An item it never
+-- scanned answers nothing; one it scanned with none listed has no price and a count of 0.
+---@class SkillUpForeverLedgerListing
+---@field price number
+---@field count integer
+
+---@alias SkillUpForeverLedgerWindow 'week'|'month'|'3months'|'6months'|'year'|'all'
+
+---@class SkillUpForeverLedgerAPI
+---@field version integer
+---@field GetPrice fun(itemID: integer): typical: number?, cheapest: number?, listed: integer?, scannedAt: number?
+---@field GetListings fun(itemID: integer): listings: SkillUpForeverLedgerListing[]?, listed: integer?, scannedAt: number?
+---@field GetCost fun(itemID: integer, quantity: integer): copper: number?, priced: integer?, scannedAt: number?
+---@field GetUsualPrice fun(itemID: integer, window?: SkillUpForeverLedgerWindow): copper: number?, days: integer?
+---@field GetLastFullScan fun(): number?
+---@type SkillUpForeverLedgerAPI?
+ForeverLedgerAPI = nil

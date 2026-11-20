@@ -658,6 +658,10 @@ L["AHDB, %s"] = "AHDB, %s" -- mt
 
 L["Naowh Forever, %s"] = "Naowh Forever, %s" -- mt
 
+L["Forever Ledger"] = "Forever Ledger" -- mt
+
+L["Forever Ledger, %s"] = "Forever Ledger, %s" -- mt
+
 L["you loot it from creatures, would sell for %s"] = "butin des créatures, se vendrait %s" -- mt
 
 L["you gather it (%s), would sell for %s"] = "vous le récoltez (%s), se vendrait %s" -- mt
@@ -667,6 +671,9 @@ L["Scan the auction house with AHDB, or visit a vendor, to price reagents."] =
 
 L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."] =
 	"Mettez à jour les données d’enchères de Naowh Forever ou rendez visite à un marchand pour obtenir les prix des composants." -- mt
+
+L["Run a full scan in Forever Ledger, or visit a vendor, to price reagents."] =
+	"Run a full scan in Forever Ledger, or visit a vendor, to price reagents." -- mt
 
 L["Choose Auctionator, TradeSkillMaster, AHDB or Naowh Forever. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."] =
 	"Choisissez Auctionator, TradeSkillMaster, AHDB ou Naowh Forever. Le prix choisi est prioritaire ; les autres complètent les données manquantes. Les infobulles affichent l’ancienneté de l’observation si elle est connue." -- mt

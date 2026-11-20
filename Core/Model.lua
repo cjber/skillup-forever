@@ -1208,6 +1208,7 @@ local BUCKET = {
 	tsm = "auction",
 	ahdb = "auction",
 	naowh = "auction",
+	foreverledger = "auction",
 	auction = "auction",
 }
 

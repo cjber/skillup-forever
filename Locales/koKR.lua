@@ -662,6 +662,10 @@ L["AHDB, %s"] = "AHDB, %s" -- mt
 
 L["Naowh Forever, %s"] = "Naowh Forever, %s" -- mt
 
+L["Forever Ledger"] = "Forever Ledger" -- mt
+
+L["Forever Ledger, %s"] = "Forever Ledger, %s" -- mt
+
 L["you loot it from creatures, would sell for %s"] = "생물에게서 획득, 판매 예상액 %s" -- mt
 
 L["you gather it (%s), would sell for %s"] = "직접 채집 (%s), 판매 예상액 %s" -- mt
@@ -671,6 +675,9 @@ L["Scan the auction house with AHDB, or visit a vendor, to price reagents."] =
 
 L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."] =
 	"Naowh Forever의 경매 데이터를 업데이트하거나 상인을 방문하여 재료 가격을 확인하세요." -- mt
+
+L["Run a full scan in Forever Ledger, or visit a vendor, to price reagents."] =
+	"Run a full scan in Forever Ledger, or visit a vendor, to price reagents." -- mt
 
 L["Choose Auctionator, TradeSkillMaster, AHDB or Naowh Forever. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."] =
 	"Auctionator, TradeSkillMaster, AHDB 또는 Naowh Forever를 선택하세요. 선택한 가격이 우선하며 나머지는 누락된 가격을 채웁니다. 확인된 시점을 알면 툴팁에 표시합니다." -- mt

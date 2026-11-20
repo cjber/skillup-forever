@@ -103,6 +103,7 @@ ns.PRICE_SOURCE_OPTIONS = {
 	{ "tsm", L["TradeSkillMaster"] },
 	{ "ahdb", L["AHDB"] },
 	{ "naowh", L["Naowh Forever"] },
+	{ "foreverledger", L["Forever Ledger"] },
 }
 ns.CRAFT_VALUE_OPTIONS = {
 	{ "none", L["Don't count it"] },

@@ -102,6 +102,13 @@ function ns.HasNaowhForever()
 	return type(NaowhForever) == "table" and type(NaowhForever.AuctionPrice) == "function"
 end
 
+---@return boolean
+function ns.HasForeverLedger()
+	return type(ForeverLedgerAPI) == "table"
+		and ForeverLedgerAPI.version == 1
+		and type(ForeverLedgerAPI.GetPrice) == "function"
+end
+
 ---@param value any
 ---@return boolean
 local function ValidPrice(value)
@@ -143,8 +150,27 @@ local function NaowhPrice(itemID)
 	return { copper = value, source = "naowh", days = ObservationDays(at) }
 end
 
-local PROVIDERS = { auctionator = AuctionatorPrice, tsm = TradeSkillMasterPrice, ahdb = AHDBPrice, naowh = NaowhPrice }
-local PROVIDER_ORDER = { "auctionator", "tsm", "ahdb", "naowh" }
+---@param itemID integer
+---@return SkillUpPrice?
+local function ForeverLedgerPrice(itemID)
+	if not ns.HasForeverLedger() then
+		return nil
+	end
+	local ok, value, _, _, at = pcall(ForeverLedgerAPI.GetPrice, itemID)
+	if not (ok and type(value) == "number" and ValidPrice(value)) then
+		return nil
+	end
+	return { copper = value, source = "foreverledger", days = ObservationDays(at) }
+end
+
+local PROVIDERS = {
+	auctionator = AuctionatorPrice,
+	tsm = TradeSkillMasterPrice,
+	ahdb = AHDBPrice,
+	naowh = NaowhPrice,
+	foreverledger = ForeverLedgerPrice,
+}
+local PROVIDER_ORDER = { "auctionator", "tsm", "ahdb", "naowh", "foreverledger" }
 -- Looked up on each call: the detectors are replaced after load when an addon is installed late, and in specs.
 local INSTALLED = {
 	auctionator = function()
@@ -159,10 +185,13 @@ local INSTALLED = {
 	naowh = function()
 		return ns.HasNaowhForever()
 	end,
+	foreverledger = function()
+		return ns.HasForeverLedger()
+	end,
 }
 
 -- The installed auction price addon a missing price is up to: the chosen one, else the first in fallback order.
----@return "auctionator"|"tsm"|"ahdb"|"naowh"|nil
+---@return "auctionator"|"tsm"|"ahdb"|"naowh"|"foreverledger"|nil
 function ns.AuctionProvider()
 	local selected = ns.db.priceSource
 	if INSTALLED[selected] and INSTALLED[selected]() then
@@ -339,7 +368,7 @@ local function MarketGood(itemID)
 end
 
 -- Cheapest known unit price and where it came from: "gather", "vendor", "auctionator"
--- "tsm", "ahdb" or "naowh". A price seen at a vendor beats the bundled list, since it includes
+-- "tsm", "ahdb", "naowh" or "foreverledger". A price seen at a vendor beats the bundled list, since it includes
 -- any reputation discount. With Buy reagents on, a market good without an auction observation stays
 -- unknown with only a bundled vendor fallback. A price actually seen at a merchant is a known purchase
 -- cost; it does not need an auction observation to establish what the player can pay (#559, #561).
@@ -1680,7 +1709,7 @@ function ns.InitPrices()
 		pcall(AuctionDB.Listen, AuctionDB, "SCAN_DATA", PricesChanged)
 		pcall(AuctionDB.Listen, AuctionDB, "HISTORY_MERGED", PricesChanged)
 	end
-	if api or ns.HasTradeSkillMaster() or ns.HasAHDB() or ns.HasNaowhForever() then
+	if api or ns.HasTradeSkillMaster() or ns.HasAHDB() or ns.HasNaowhForever() or ns.HasForeverLedger() then
 		local entered = false
 		ns.WhenEvent("PLAYER_ENTERING_WORLD", function()
 			if entered then

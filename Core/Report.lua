@@ -47,13 +47,17 @@ function ns.ReportLines()
 			db.reagentTooltip,
 			db.sortMode
 		),
-		("Providers: QuestieDB %s, AtlasLoot %s, Auctionator %s, TradeSkillMaster %s, AHDB %s, Naowh Forever %s"):format(
+		(
+			"Providers: QuestieDB %s, AtlasLoot %s, Auctionator %s, TradeSkillMaster %s, AHDB %s, Naowh Forever %s, "
+			.. "Forever Ledger %s"
+		):format(
 			ns.Questie.State(),
 			Provider(ns.AtlasLoot.Ready() or (ns.AtlasLoot.Idle() and "off") or false),
 			Provider(ns.HasAuctionator()),
 			Provider(ns.HasTradeSkillMaster()),
 			Provider(ns.HasAHDB()),
-			Provider(ns.HasNaowhForever())
+			Provider(ns.HasNaowhForever()),
+			Provider(ns.HasForeverLedger())
 		),
 	}
 	local professions = ns.PlayerProfessions()

@@ -15,6 +15,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 ### Fixed
 
 - The Auctionator shopping list for a tracked route is written again at login. Since SkillUp Forever started carrying ForeverCore inside itself, it started after the game's loading signals it was waiting for, so the list was never refreshed (cjber/forever-core#980).
+- Trainer and vendor lines in the tracker work for everyone. The first 1.14.10 download went out without this fix, so some players still saw "Couldn't find inherited node" in the tracker (#901).
 
 ## [1.14.10] - 2026-11-20
 

@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.11] - 2026-11-20
+
+### Fixed
+
+- The Auctionator shopping list for a tracked route is written again at login. Since SkillUp Forever started carrying ForeverCore inside itself, it started after the game's loading signals it was waiting for, so the list was never refreshed (cjber/forever-core#980).
+
 ## [1.14.10] - 2026-11-20
 
 ### Fixed

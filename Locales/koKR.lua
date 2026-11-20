@@ -685,3 +685,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt
 
 L["SkillUp Forever carries ForeverCore inside itself."] = "SkillUp Forever에 ForeverCore가 내장되어 있습니다." -- mt
+L["No more freeze at login with a long route."] = "긴 경로가 있어도 로그인 시 더 이상 멈추지 않습니다." -- mt

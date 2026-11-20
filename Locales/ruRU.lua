@@ -730,3 +730,4 @@ L["Select %s in the recipe list first."] = "Сначала выберите %s �
 
 L["SkillUp Forever carries ForeverCore inside itself."] =
 	"SkillUp Forever теперь содержит ForeverCore внутри себя." -- mt
+L["No more freeze at login with a long route."] = "Больше никаких зависаний при входе с длинным маршрутом." -- mt

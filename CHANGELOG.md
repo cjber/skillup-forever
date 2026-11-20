@@ -14,7 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ### Fixed
 
-- **No more freeze at login or "script ran too long" with a long route.** Pricing a route whose crafted reagents come from limited vendor stock (Leatherworking leathers, for example) no longer stalls the game while the tracker and route load.
+- **No more freeze at login with a long route.** Pricing a route no longer hits "script ran too long" either: pricing a route whose crafted reagents come from limited vendor stock (Leatherworking leathers, for example) no longer stalls the game while the tracker and route load.
 
 ## [1.14.9] - 2026-11-20
 

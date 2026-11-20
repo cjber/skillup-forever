@@ -71,6 +71,9 @@ for _, complete in ipairs({ false, true }) do
 		initialized = initialized + 1
 	end
 	local ns = {
+		OnFilesLoaded = function(callback)
+			callbacks.SkillUpForever = callback
+		end,
 		InitPrices = Init,
 		InitLive = Init,
 		RegisterSettings = Init,
@@ -159,6 +162,9 @@ end
 do
 	local callbacks, messages, version = {}, {}, "0.6.0"
 	local ns = {
+		OnFilesLoaded = function(callback)
+			callbacks.SkillUpForever = callback
+		end,
 		InitPrices = function() end,
 		InitLive = function() end,
 		RegisterSettings = function() end,

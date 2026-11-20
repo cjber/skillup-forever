@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.13] - 2026-11-20
+
+### Fixed
+
+- **The shopping list opens again.** With the ForeverCore that ships inside SkillUp Forever, the list waited for a loading event that had already passed, so it never built; the update note after a new version had the same wait.
+
 ## [1.14.12] - 2026-11-20
 
 ### Fixed

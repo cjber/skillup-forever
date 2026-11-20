@@ -728,4 +728,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
 
-L["Rogue Poisons is tracked."] = "Теперь отслеживается навык «Яды» разбойника." -- mt
+L["The shopping list opens again."] = "Список покупок снова открывается." -- mt

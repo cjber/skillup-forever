@@ -680,4 +680,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"Le guidage adaptatif indique la recette. Sélectionnez-la et choisissez combien en fabriquer dans la fenêtre de métier." -- mt
 L["Select %s in the recipe list first."] = "Sélectionnez d'abord %s dans la liste des recettes." -- mt
 
-L["Rogue Poisons is tracked."] = "Les poisons du voleur sont désormais suivis." -- mt
+L["The shopping list opens again."] = "La liste de courses s'ouvre à nouveau." -- mt

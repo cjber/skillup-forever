@@ -205,4 +205,4 @@ L["%s (level %d)"] = "%s (level %d)"
 
 L["Clicking a recipe selects it again under every sort."] = "Clicking a recipe selects it again under every sort."
 
-L["Rogue Poisons is tracked."] = "Rogue Poisons is tracked."
+L["The shopping list opens again."] = "The shopping list opens again."

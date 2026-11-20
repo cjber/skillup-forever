@@ -644,8 +644,6 @@ L["Apply policy"] = "套用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的陣營沒有訓練師教授這個配方。" -- mt
 L["%s (level %d)"] = "%s（等級 %d）" -- mt
 
-L["The supply solver no longer runs every frame while idle."] = "供應計算器閒置時不再每幀執行。" -- mt
-
 L["Highest craft profit"] = "單次製作利潤最高" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -677,3 +675,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
 	"自適應指引會提供配方。選取它，然後在專業視窗中選擇製作數量。" -- mt
 L["Select %s in the recipe list first."] = "請先在配方清單中選取%s。" -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"草藥和礦脈的滑鼠提示會以用戶端的所有語言顯示所需技能等級。" -- mt

@@ -707,9 +707,6 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["The supply solver no longer runs every frame while idle."] =
-	"Расчёт запасов больше не выполняется каждый кадр в простое." -- mt
-
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -742,3 +739,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
 	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"Подсказки для трав и рудных жил показывают требуемый навык на всех языках клиента." -- mt

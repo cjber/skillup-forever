@@ -1002,6 +1002,9 @@ ProfessionTabs.minor = 2
 env.ForeverCore = {
 	API = 1,
 	ProfessionTabs = ProfessionTabs,
+	CharacterKey = function()
+		return "Player-Realm"
+	end,
 	-- The shared API kit (ForeverCore's Core/APIKit.lua): a render subscribes to nothing and a read is answered from
 	-- the scene's own data, so the hub only has to exist.
 	APIKit = {

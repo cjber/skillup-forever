@@ -46,15 +46,15 @@ equal(#M.PlanWithTraining(snapshot, { service }).training, 0, "a pin beyond the 
 local reloaded = Client.load({
 	saved = {
 		pinnedRecipes = {
-			["Tester-Realm"] = { [3275] = 1, [3276] = 2, bad = 3, [1] = math.huge, [2] = -1 },
+			["Tester Surname-6941"] = { [3275] = 1, [3276] = 2, bad = 3, [1] = math.huge, [2] = -1 },
 			Other = 3,
 		},
-		skippedRecipes = { ["Tester-Realm"] = { [3276] = true } },
+		skippedRecipes = { ["Tester Surname-6941"] = { [3276] = true } },
 	},
 })
 equal(reloaded.ns.PinPreference(3275), 1, "a saved pin survives reload")
 equal(reloaded.ns.PinPreference(3276), 0, "a saved skip wins over a conflicting pin")
-equal(reloaded.ns.db.pinnedRecipes["Tester-Realm"].bad, nil, "invalid recipe keys are removed")
+equal(reloaded.ns.db.pinnedRecipes["Tester Surname-6941"].bad, nil, "invalid recipe keys are removed")
 equal(reloaded.ns.PinPreference(1), 0, "nonfinite priorities are removed")
 equal(reloaded.ns.PinPreference(2), 0, "negative priorities are removed")
 equal(reloaded.ns.db.pinnedRecipes.Other, nil, "malformed character maps are removed")

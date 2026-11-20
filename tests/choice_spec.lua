@@ -177,7 +177,7 @@ c.AuctionatorScan()
 --[[ Not this recipe ]]
 
 ns.SetSkipped(FROM_ORE, true)
-equal(ns.db.skippedRecipes["Tester-Realm"][FROM_ORE], true, "a skip is saved for this character")
+equal(ns.db.skippedRecipes["Tester Surname-6941"][FROM_ORE], true, "a skip is saved for this character")
 equal(ns.IsSkipped(FROM_ORE), true, "and read back")
 local plan = Plan()
 equal(#plan.crafts, 1, "the route still reaches the target")
@@ -276,7 +276,7 @@ SlashCommand("unskip 999")
 equal(c.chat[1]:find("/skillup skipped lists", 1, true) ~= nil, true, "an ID that isn't skipped says how to find one")
 SlashCommand("unskip all")
 equal(ns.IsSkipped(FROM_FLUX), false, "/skillup unskip all shows every one again")
-equal(ns.db.skippedRecipes["Tester-Realm"], nil, "leaving nothing saved")
+equal(ns.db.skippedRecipes["Tester Surname-6941"], nil, "leaving nothing saved")
 c.chat = {}
 SlashCommand("skipped")
 equal(c.chat[1]:find("no skipped recipes", 1, true) ~= nil, true, "with none skipped, it says how to skip one")
@@ -286,12 +286,12 @@ local reloaded = Client.load({
 	saved = {
 		valueGathered = false,
 		gatheredValueSeen = true,
-		skippedRecipes = { ["Tester-Realm"] = { [FROM_ORE] = true, bad = true, [7] = "yes" }, Other = 3 },
+		skippedRecipes = { ["Tester Surname-6941"] = { [FROM_ORE] = true, bad = true, [7] = "yes" }, Other = 3 },
 	},
 })
-equal(reloaded.ns.db.skippedRecipes["Tester-Realm"][FROM_ORE], true, "a saved skip survives a reload")
-equal(reloaded.ns.db.skippedRecipes["Tester-Realm"].bad, nil, "a key that isn't a recipe ID is dropped")
-equal(reloaded.ns.db.skippedRecipes["Tester-Realm"][7], nil, "and a value that isn't true")
+equal(reloaded.ns.db.skippedRecipes["Tester Surname-6941"][FROM_ORE], true, "a saved skip survives a reload")
+equal(reloaded.ns.db.skippedRecipes["Tester Surname-6941"].bad, nil, "a key that isn't a recipe ID is dropped")
+equal(reloaded.ns.db.skippedRecipes["Tester Surname-6941"][7], nil, "and a value that isn't true")
 equal(reloaded.ns.db.skippedRecipes.Other, nil, "and a character entry that isn't a table")
 
 Client.report("choice_spec")

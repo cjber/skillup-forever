@@ -84,7 +84,7 @@ equal(ns.NetCost(BOLT), nil, "the cost stays unknown until an observation arrive
 
 -- A character who picked gathering keeps it, and its reagent stays free.
 local gathered, gatheredNs =
-	Load({ valueGathered = false, gatheredValueSeen = true, collectModes = { ["Tester-Realm"] = "gather" } })
+	Load({ valueGathered = false, gatheredValueSeen = true, collectModes = { ["Tester Surname-6941"] = "gather" } })
 equal(gatheredNs.CollectMode(), "gather", "a saved gather choice is kept")
 equal(gatheredNs.Price(LINEN).source, "gather", "so its reagent is priced as gathered")
 equal(gatheredNs.Price(LINEN).copper, 0, "at no cost")

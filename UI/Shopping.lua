@@ -46,11 +46,12 @@ function ns.AltCounts(itemID)
 		return {}
 	end
 	local info = api.GetInventoryInfoByItemID(itemID, true, true)
-	local me, realm = UnitName("player"), ns.NormalizedRealm()
+	-- Syndicator records the client's normalized realm, which is "" on a Forever realm.
+	local me, realm = UnitName("player"), GetNormalizedRealmName() or ""
 	local alts = {}
 	for _, character in ipairs(info and info.characters or {}) do
 		local count = character.bags + character.bank + character.mail
-		if count > 0 and not (character.character == me and character.realmNormalized == realm) then
+		if count > 0 and not (character.character == me and (character.realmNormalized or "") == realm) then
 			alts[#alts + 1] = { name = character.character, count = count }
 		end
 	end

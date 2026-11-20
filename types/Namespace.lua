@@ -44,7 +44,6 @@
 ---@field RequestItemData fun(itemID: integer)
 ---@field ProfessionSkillLine fun(name?: string, reported?: integer): integer?
 ---@field CharacterKey fun(): string?
----@field NormalizedRealm fun(): string?
 ---@field ClientBuild fun(): string?
 ---@field NoteBuild fun()
 ---@field SellerFresh fun(seller: SkillUpSeller): boolean

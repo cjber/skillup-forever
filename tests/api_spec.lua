@@ -15,7 +15,7 @@ local c = Client.load({
 	saved = {
 		routeTargets = { [197] = 60, [164] = 20 },
 		trackedProfessions = { [197] = true },
-		learned = { ["Tester-Realm"] = { [GLOVES] = true } },
+		learned = { ["Tester Surname-6941"] = { [GLOVES] = true } },
 	},
 	data = {
 		Thresholds = {

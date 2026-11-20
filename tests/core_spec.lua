@@ -42,6 +42,9 @@ local function Env(messages, callbacks)
 		},
 		ForeverCore = {
 			API = 1,
+			CharacterKey = function()
+				return "Tester-Realm"
+			end,
 			Register = function(_, spec)
 				return {
 					SafeCall = pcall,

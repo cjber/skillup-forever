@@ -27,7 +27,7 @@ scenario("a tracked route splits limited vendor stock", { addons = ForeverCore.a
 		savedVariables = {
 			SkillUpForeverDB = {
 				routeTargets = { [cooking] = 45 },
-				learned = { ["Syrberus-Forever"] = { [7752] = true } },
+				learned = { ["Syrberus Ironhide-6941"] = { [7752] = true } },
 				trackedProfessions = { [cooking] = true },
 				vendor = { [fish] = 5 },
 				stock = { [fish] = { [vendor] = 4 } },

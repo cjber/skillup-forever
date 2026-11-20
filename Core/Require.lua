@@ -12,7 +12,8 @@ local _, ns = ...
 -- its lines clickable with Line.SetInteractive. UI/Pages.lua registers the Professions side tab with
 -- ProfessionTabs.Register (ForeverCore 1.4.0) and UI/RecipeList.lua sizes the window with ProfessionTabs.SetMinWidth
 -- (ForeverCore 1.5.0). ProfessionTabs minor 2 (ForeverCore 1.8.1) hides the client's page beneath SkillUp's, so an
--- older core leaves this addon's page over the native one and the addon stops.
+-- older core leaves this addon's page over the native one and the addon stops. Core/Core.lua keys per-character
+-- saves with CharacterKey (ForeverCore 1.15.8), the only key that tells characters apart on a Forever realm.
 --
 -- The warning itself is Core/ForeverRequire.lua, shared by every Forever addon: one line on screen, never a chat
 -- message, naming the addon to update and never ForeverCore.
@@ -28,6 +29,7 @@ local ready = ForeverCore ~= nil
 	and type(ForeverCore.ProfessionTabs.Register) == "function"
 	and type(ForeverCore.ProfessionTabs.SetMinWidth) == "function"
 	and (tonumber(ForeverCore.ProfessionTabs.minor) or 0) >= 2
+	and type(ForeverCore.CharacterKey) == "function"
 
 -- Core/Core.lua's slash words (tests/core_dependency_spec.lua keeps the two lists equal). A stopped addon still
 -- answers them with the line that names the fix, so /skillup never just does nothing (#866).

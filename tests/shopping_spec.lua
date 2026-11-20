@@ -295,11 +295,15 @@ equal(#c.chat, 0, "and none of it says anything in chat")
 
 -- The Auctionator list of what the tracked route still buys is kept up to date on its own: written
 -- once, left alone while the need is the same, and emptied when the bags cover it.
-equal(ns.AuctionListName("First Aid"), "SkillUp: Tester-Realm: First Aid", "the list is named for the profession")
+equal(
+	ns.AuctionListName("First Aid"),
+	"SkillUp: Tester Surname-6941: First Aid",
+	"the list is named for the profession"
+)
 equal(ns.AuctionatorAutoscan(), nil, "an unread option says nothing")
 c.auctionAutoscan = false
 equal(ns.AuctionatorAutoscan(), false, "the scan-on-open option reads as off")
-equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], nil, "gather mode writes no Auctionator list")
+equal(c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"], nil, "gather mode writes no Auctionator list")
 equal(ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "and keeps none to name")
 local personalList = { "Personal supplies" }
 c.shoppingLists["SkillUp: First Aid"] = personalList
@@ -307,14 +311,14 @@ c.shoppingLists["SkillUp: Other-Realm: First Aid"] = personalList
 c.player.name = nil
 equal(ns.AuctionListName("First Aid"), nil, "an unknown character has no shared fallback list")
 ns.SetCollectMode("auction")
-equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], nil, "no list is written before identity is ready")
+equal(c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"], nil, "no list is written before identity is ready")
 c.player.name = "Tester"
 ns.SetCollectMode("auction")
-local list = c.shoppingLists["SkillUp: Tester-Realm: First Aid"]
+local list = c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"]
 equal(type(list), "table", "buying keeps an Auctionator list")
 equal(
 	ns.KeptAuctionList(FIRST_AID, "First Aid"),
-	"SkillUp: Tester-Realm: First Aid",
+	"SkillUp: Tester Surname-6941: First Aid",
 	"the kept list is the one written"
 )
 ns.db.trackedProfessions[FIRST_AID] = false
@@ -329,23 +333,31 @@ c.player.realm = realm
 equal(#list, 1, "with the route's one auction reagent")
 equal(list[1], "Linen Clothx" .. (Needed() - ns.Have(SILK)), "and what the route still needs")
 c.Fire("BAG_UPDATE_DELAYED")
-equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], list, "an unchanged need does not rewrite the list")
+equal(c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"], list, "an unchanged need does not rewrite the list")
 c.ns.db.auctionSearch = false
 c.bags[SILK] = 1
 c.Fire("BAG_UPDATE_DELAYED")
-equal(c.shoppingLists["SkillUp: Tester-Realm: First Aid"], list, "disabled list maintenance leaves the list alone")
+equal(
+	c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"],
+	list,
+	"disabled list maintenance leaves the list alone"
+)
 equal(ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "and the list it no longer keeps is not named")
 c.ns.db.auctionSearch = true
 c.bags[SILK] = Needed()
 c.Fire("BAG_UPDATE_DELAYED")
-equal(#c.shoppingLists["SkillUp: Tester-Realm: First Aid"], 0, "a covered need empties the list")
-local originalList = c.shoppingLists["SkillUp: Tester-Realm: First Aid"]
+equal(#c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"], 0, "a covered need empties the list")
+local originalList = c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"]
 c.bags[SILK] = 0
 c.player.name = "Alt"
 ns.SetCollectMode("auction")
-equal(type(c.shoppingLists["SkillUp: Alt-Realm: First Aid"]), "table", "another character gets its own route list")
 equal(
-	c.shoppingLists["SkillUp: Tester-Realm: First Aid"],
+	type(c.shoppingLists["SkillUp: Alt Surname-6941: First Aid"]),
+	"table",
+	"another character gets its own route list"
+)
+equal(
+	c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"],
 	originalList,
 	"another character cannot rewrite the first list"
 )

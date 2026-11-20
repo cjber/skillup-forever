@@ -159,12 +159,23 @@ local oldTabs, oldTabsLines = Require({
 assert(oldTabs.broken == true, "a ForeverCore with ProfessionTabs minor 1 stops the addon")
 assert(#oldTabsLines == 1, "and the shared warning says so in one error line")
 
+-- CharacterKey arrived in ForeverCore 1.15.8: Core/Core.lua keys every per-character save with it.
+local noKey, noKeyLines = Require({
+	APIKit = { Hub = function() end, NotReady = function() end },
+	TrackerSection = { Create = function() end },
+	TrackerLine = { SetInteractive = function() end },
+	ProfessionTabs = { Register = function() end, SetMinWidth = function() end, minor = 2 },
+})
+assert(noKey.broken == true, "a ForeverCore without CharacterKey stops the addon")
+assert(#noKeyLines == 1, "and the shared warning says so in one error line")
+
 -- Every member this addon calls is there: the addon runs and says nothing.
 local ready, readyLines = Require({
 	APIKit = { Hub = function() end, NotReady = function() end },
 	TrackerSection = { Create = function() end },
 	TrackerLine = { SetInteractive = function() end },
 	ProfessionTabs = { Register = function() end, SetMinWidth = function() end, minor = 2 },
+	CharacterKey = function() end,
 })
 assert(ready.broken == nil, "a core with every member the addon calls runs it")
 assert(#readyLines == 0, "and says nothing")

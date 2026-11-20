@@ -105,8 +105,12 @@ c.player.name = "Tester"
 local how = ns.SearchReagents(HEAVY, 4)
 equal(how, "auctionator", "Auctionator does the search")
 equal(c.shoppingLists["SkillUp: crafting"], personalList, "the old crafting list remains untouched")
-equal(c.shoppingLists["SkillUp: Tester-Realm: crafting"][1], "Linen Clothx3", "the list asks for what is missing")
-equal(#c.shoppingLists["SkillUp: Tester-Realm: crafting"], 1, "and nothing you have")
+equal(
+	c.shoppingLists["SkillUp: Tester Surname-6941: crafting"][1],
+	"Linen Clothx3",
+	"the list asks for what is missing"
+)
+equal(#c.shoppingLists["SkillUp: Tester Surname-6941: crafting"], 1, "and nothing you have")
 equal(c.auctionSearches[1] and c.auctionSearches[1][1], "Linen Clothx3", "and is searched with its quantities")
 c.bags[LINEN] = 8
 equal((ns.SearchReagents(HEAVY, 4)), "elsewhere", "with only the vendor's salt short, nothing is searched")
@@ -195,7 +199,11 @@ bar.Count:SetText("2")
 search.scripts.OnClick(search)
 equal(#c.auctionSearches, 1, "clicking Search starts exactly one Auctionator search")
 equal(c.auctionSearches[1][1], "Linen Clothx2", "the button searches for the selected craft count")
-equal(c.shoppingLists["SkillUp: Tester-Realm: crafting"][1], "Linen Clothx2", "the button saves the crafting list")
+equal(
+	c.shoppingLists["SkillUp: Tester Surname-6941: crafting"][1],
+	"Linen Clothx2",
+	"the button saves the crafting list"
+)
 c.Fire("AUCTION_HOUSE_CLOSED")
 house.shown = false
 c.Advance(0)

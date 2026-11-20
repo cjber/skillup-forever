@@ -280,7 +280,7 @@ function Client.load(options)
 		npc = nil, -- { id, name }: who the player is dealing with, the client's "npc" unit
 		money = 1000000,
 		level = 60,
-		player = { name = "Tester", realm = "Realm", faction = "Alliance", x = 0, y = 0, instance = 0 },
+		player = { name = "Tester", surname = "Surname", realm = "", faction = "Alliance", x = 0, y = 0, instance = 0 },
 		maps = {}, -- [world instance] = { mapID, name }: the continent's one zone map
 		areas = {}, -- [areaID] = name
 		opened = {}, -- profession IDs passed to OpenTradeSkill
@@ -1103,7 +1103,8 @@ function Client.load(options)
 		if unit == "npc" then
 			return c.npc and c.npc.name
 		end
-		return c.player.name
+		-- A Forever realm has no name, and the player's second name is their surname.
+		return c.player.name, c.player.realm == "" and c.player.surname or nil
 	end
 	G.UnitRace = function()
 		return "Orc", "Orc"
@@ -1112,7 +1113,13 @@ function Client.load(options)
 		return c.player.className or "Shaman", c.player.classFile or "SHAMAN", c.player.classID or 64
 	end
 	G.UnitGUID = function(unit)
+		if unit == "player" then
+			return "Player-6941-00000001"
+		end
 		return unit == "npc" and c.npc and string.format("Creature-0-1-0-0-%d-0000000001", c.npc.id) or nil
+	end
+	G.GetRealmID = function()
+		return c.player.realm == "" and 0 or 1
 	end
 	G.GetNormalizedRealmName = function()
 		return c.player.realm

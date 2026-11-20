@@ -192,6 +192,28 @@ equal(
 	"a bag event that moves a count SkillUp read"
 )
 
+-- The with-bank count alone moving is a bag change too: a deposit's other half lands in the bank.
+equal(
+	Stale(function()
+		c.bank[CLOTH] = (c.bank[CLOTH] or 0) + 1
+		c.Fire("BAG_UPDATE_DELAYED")
+	end),
+	"api | route tracker",
+	"a bag event that moves only the with-bank count SkillUp read"
+)
+-- A count the client won't hand over is no move; the first count it hands over after one is.
+c.unreadable[CLOTH] = true
+equal(Stale(Event("BAG_UPDATE_DELAYED")), " | ", "an unreadable count moves nothing")
+c.unreadable[CLOTH] = nil
+c.bags[CLOTH] = c.bags[CLOTH] + 1
+equal(Stale(Event("BAG_UPDATE_DELAYED")), "api | route tracker", "the next readable count that differs does")
+-- An item first read while its count is unreadable starts unknown, so its first readable count moves it.
+local SPARE = 990002
+c.unreadable[SPARE] = true
+ns.Have(SPARE)
+c.unreadable[SPARE] = nil
+equal(Stale(Event("BAG_UPDATE_DELAYED")), "api | route tracker", "a count read first as unreadable")
+
 -- The recipe list update is the window's event that can fire while nothing SkillUp reads has moved; its
 -- scan decides, so an unchanged window marks nothing at all.
 equal(c.Listeners("TRADE_SKILL_LIST_UPDATE"), 1, "TRADE_SKILL_LIST_UPDATE arrives on one frame")

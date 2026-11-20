@@ -453,6 +453,8 @@ end)
 -- anything SkillUp shows depends on. BAG_UPDATE_DELAYED fires on every slot the game touches, many times a minute
 -- with nothing SkillUp reads moving (a bag sorted, a quest item, loot of other items); it is a bag change only
 -- when one of these counts moved, so a cached plan is not rebuilt for nothing (#850).
+-- Each bag event reads these items' counts again: the reagents and results of the plans SkillUp has made, far
+-- cheaper than the plan rebuild it saves.
 ---@type table<integer, { bags: integer?, all: integer? }>
 local readCounts = {}
 

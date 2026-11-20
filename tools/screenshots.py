@@ -641,6 +641,7 @@ env = setmetatable({
 			fn()
 		end,
 	},
+	UISpecialFrames = {},
 	EventUtil = {
 		ContinueAfterAllEvents = function(fn) fn() end,
 		ContinueOnAddOnLoaded = function(name, fn)
@@ -937,6 +938,8 @@ env = setmetatable({
 	TSM_API = false,
 	AuctionDB = false,
 	NaowhForever = false,
+	ShortestPathForever = false,
+	IsLoggedIn = function() return true end,
 	-- ForeverCore's shared services; the scene below fills them in.
 	ForeverCore = false,
 	BugGrabber = false,

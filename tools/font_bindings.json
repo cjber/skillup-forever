@@ -606,7 +606,7 @@
     },
     {
       "source": "UI/ShoppingList.lua",
-      "sha256": "2fe2ae5935c2abb0eaf8e811b6675ca3391f20928796254e127b10c084eacb32",
+      "sha256": "a837ce5f6b368a1c98984d33804d4b9ecfe8eda8fc5483ebfd684940ebc4d41e",
       "review": "Reviewed Copy, Heading, Note, NewRow, Refresh and Create. hint, pooled name, emptyText and footer have explicit fonts. summary, pooled detail and notes use GameFontHighlightSmall; headings use GameFontNormalLarge. No font changes after construction. copyEdit explicitly uses ChatFontNormal but contains external ShoppingText output, excluded. Copy/trip buttons use pinned SharedButtonSmallTemplate normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Portrait window title inheritance was not established, so window titles are excluded. Helper-generated notes, spares, copy text, inserted item/profession/player names and tooltip text are excluded. Reviewed #860: the auction note hides when AuctionListNote returns nil; same Note FontString, helper text still excluded.",
       "bindings": [
         {

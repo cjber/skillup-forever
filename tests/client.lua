@@ -991,7 +991,11 @@ function Client.load(options)
 	--[[ Events and time ]]
 
 	-- An event reaches only the frames that registered for it.
+	local loggedIn = false
 	function c.Fire(event, ...)
+		if event == "PLAYER_LOGIN" then
+			loggedIn = true
+		end
 		for _, frame in ipairs(c.frames) do
 			if frame.events[event] and frame.scripts.OnEvent then
 				frame.scripts.OnEvent(frame, event, ...)
@@ -1074,6 +1078,10 @@ function Client.load(options)
 			afterEvents[#afterEvents + 1] = fn
 		end,
 	}
+	-- The stub fires PLAYER_LOGIN only as options.past or when a spec fires it.
+	function G.IsLoggedIn()
+		return loggedIn or G.tContains(options.past or {}, "PLAYER_LOGIN")
+	end
 	-- A load-on-demand addon (Blizzard_Professions, Blizzard_TrainerUI) arriving.
 	function c.LoadAddOn(name)
 		addons[name] = true

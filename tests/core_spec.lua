@@ -74,6 +74,7 @@ for _, complete in ipairs({ false, true }) do
 		OnFilesLoaded = function(callback)
 			callbacks.SkillUpForever = callback
 		end,
+		AfterEvents = function() end,
 		InitPrices = Init,
 		InitLive = Init,
 		RegisterSettings = Init,
@@ -167,6 +168,9 @@ do
 		OnFilesLoaded = function(callback)
 			callbacks.SkillUpForever = callback
 		end,
+		AfterEvents = function(callback, ...)
+			callbacks[table.concat({ ... }, " ")] = callback
+		end,
 		InitPrices = function() end,
 		InitLive = function() end,
 		RegisterSettings = function() end,
@@ -196,6 +200,8 @@ do
 	}
 	assert(loadfile("Locales/enUS.lua"))("SkillUpForever", ns)
 	setfenv(assert(loadfile("Core/Core.lua")), env)("SkillUpForever", ns)
+	-- #911: the files can run after the login, so the note waits only for a login still to come.
+	equal(type(callbacks.PLAYER_LOGIN), "function", "the update note waits on the login through AfterEvents")
 	ns.AnnounceUpdate()
 	equal(#messages, 0, "nothing before the saved variables load")
 	-- Forever often loads no saved variables at all (forever-bugs#34).

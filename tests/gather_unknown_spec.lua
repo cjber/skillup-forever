@@ -26,8 +26,7 @@ c.professions = {
 c.spells[11], c.known[11] = "Cured Leather", true
 c.Boot()
 c.ns.SetCollectMode("gather")
-c.Fire("PLAYER_ENTERING_WORLD")
-c.Fire("VARIABLES_LOADED")
+c.EnterWorld()
 c.Advance(0)
 local ns = c.ns
 local function Check(known)

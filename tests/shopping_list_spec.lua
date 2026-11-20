@@ -155,8 +155,7 @@ equal(c.ns.ShoppingTrip(111), false, "a route with nothing missing is refused")
 
 -- #553: a refresh redraws the same headings, row frames and empty state. Nothing from an earlier draw stays
 -- on the body, so text cannot pile up and each refresh leaks no frame.
-c.Fire("PLAYER_ENTERING_WORLD")
-c.Fire("VARIABLES_LOADED")
+c.EnterWorld()
 c.Advance(0)
 c.ns.OpenShoppingList()
 local window = c.G.SkillUpForeverShoppingList
@@ -330,8 +329,7 @@ scoped.known[LW_RECIPE], scoped.known[COOK_RECIPE] = true, true
 scoped.items[LW_ITEM], scoped.items[COOK_ITEM] = { name = "Light Leather" }, { name = "Raw Meat" }
 scoped.auction[LW_ITEM], scoped.auction[COOK_ITEM] = 10, 20
 scoped.Boot()
-scoped.Fire("PLAYER_ENTERING_WORLD")
-scoped.Fire("VARIABLES_LOADED")
+scoped.EnterWorld()
 scoped.Advance(0)
 local function VisibleTexts(root)
 	local texts = {}
@@ -396,3 +394,12 @@ equal(
 	"without Auctionator it says the bar searches the game's own box one at a time"
 )
 Client.report("shopping list")
+
+-- #911: in a package that carries ForeverCore the files run at login or later, after VARIABLES_LOADED. The list still
+-- builds at the world entry, and an open asked for before it shows then.
+local late = Client.load({ past = { "VARIABLES_LOADED" }, saved = {} })
+late.ns.OpenShoppingList()
+late.EnterWorld()
+late.Advance(0)
+local lateWindow = rawget(late.G, "SkillUpForeverShoppingList")
+equal(lateWindow ~= nil and lateWindow:IsShown(), true, "a list opened before the world entry shows once it is entered")

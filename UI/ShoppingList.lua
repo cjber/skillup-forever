@@ -354,19 +354,9 @@ local function Create()
 	return frame
 end
 
-local ready, enteredWorld, variablesLoaded, pendingOpen, pendingScope = false, false, false, false, nil
-local events = CreateFrame("Frame")
-events:RegisterEvent("PLAYER_ENTERING_WORLD")
-events:RegisterEvent("VARIABLES_LOADED")
-events:SetScript("OnEvent", function(_, event)
-	if event == "PLAYER_ENTERING_WORLD" then
-		enteredWorld = true
-	else
-		variablesLoaded = true
-	end
-	if not (enteredWorld and variablesLoaded) or ready then
-		return
-	end
+local ready, pendingOpen, pendingScope = false, false, nil
+-- Waits only for the events still to come: a packaged ForeverCore runs these files at login or later (#911).
+ns.AfterEvents(function()
 	ready = true
 	C_Timer.After(0, function()
 		Create()
@@ -377,7 +367,7 @@ events:SetScript("OnEvent", function(_, event)
 			pendingOpen, pendingScope = false, nil
 		end
 	end)
-end)
+end, "PLAYER_ENTERING_WORLD", "VARIABLES_LOADED")
 
 ---@param skillLine integer? show only this profession's plan; nil shows every tracked plan
 function ns.OpenShoppingList(skillLine)

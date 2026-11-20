@@ -428,11 +428,10 @@ function ns.AnnounceUpdate()
 	end
 end
 
-local loginEvents = CreateFrame("Frame")
-loginEvents:RegisterEvent("PLAYER_LOGIN")
-loginEvents:SetScript("OnEvent", function()
+-- Waits only for a login still to come: a packaged ForeverCore runs these files at login or later (#911).
+ns.AfterEvents(function()
 	ns.AnnounceUpdate()
-end)
+end, "PLAYER_LOGIN")
 
 local KNOWN_SKILL_LINES = {}
 for _, skillLine in pairs(ns.ProfessionSkillLines or {}) do

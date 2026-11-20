@@ -100,7 +100,7 @@ Settings cover rows and tooltips, prices, sort order, the tabs and trainer annot
 
 Each reagent uses the cheapest known vendor or auction price, and visiting a vendor records its prices and reputation discounts. *Buy reagents* is on by default, so materials your professions gather are bought; choose gathering to supply them yourself. *Value gathered materials at what they'd sell for* is on for new installs and costs them at their sale value; turn it off to count them as free. *Price self-supplied reagents at auction values* prices what you gather, loot or own at market value, and leaves it unpriced when there is none.
 
-Auction prices come from Auctionator's latest scan, TradeSkillMaster's AuctionDB with its desktop app, AHDB, or Naowh Forever's scans and nightly auction data. Naowh's snapshot can price materials before your first auction house visit. *Auction prices from* picks which source wins, and the others fill the gaps. SkillUp starts an Auctionator search when you click *Search* in the Professions window. Prices stay unknown until a price source records them.
+Auction prices come from Auctionator's latest scan, TradeSkillMaster's AuctionDB with its desktop app, AHDB, Naowh Forever's scans and nightly auction data, or Forever Ledger's own scans. Naowh's snapshot can price materials before your first auction house visit. *Auction prices from* picks which source wins, and the others fill the gaps. SkillUp starts an Auctionator search when you click *Search* in the Professions window. Prices stay unknown until a price source records them.
 
 A craft's vendor sell value comes off its cost, or its auction value after the 5% cut if you choose. *Region sale average if higher* uses regional sales with the vendor price as a floor, and recipe tooltips add TSM's regional sales per day where it has them. Profit shows a green `+`, and cost per skill-up divides net cost by chance.
 
@@ -120,7 +120,7 @@ The colour comes from the game, the grey band uses its live value where the clie
 
 ## Works alongside
 
-All optional: Auctionator, TradeSkillMaster, AHDB and Naowh Forever supply auction prices; Auctionator also takes the shopping list, TomTom draws waypoint arrows, and Syndicator shows your alts' reagents. [Questie](https://www.curseforge.com/wow/addons/questie) names the vendors, quests and trainers the route points to, and [AtlasLoot Classic Forever](https://www.curseforge.com/wow/addons/atlasloot-forever) names the scroll that teaches each recipe.
+All optional: Auctionator, TradeSkillMaster, AHDB, Naowh Forever and Forever Ledger supply auction prices; Auctionator also takes the shopping list, TomTom draws waypoint arrows, and Syndicator shows your alts' reagents. [Questie](https://www.curseforge.com/wow/addons/questie) names the vendors, quests and trainers the route points to, and [AtlasLoot Classic Forever](https://www.curseforge.com/wow/addons/atlasloot-forever) names the scroll that teaches each recipe.
 
 <!-- forever-family:start -->
 

@@ -54,7 +54,7 @@ These images are generated previews of the SkillUp UI.
 
 Each reagent uses the cheapest known vendor or auction price; visiting a vendor records its prices and reputation discounts. *Value gathered materials at what they'd sell for* is on for new installs and costs them at their sale value; turn it off to count them as free. *Price self-supplied reagents at auction values* prices whatever you gather, loot or already own at its market value, and leaves it unpriced rather than free when there is none.
 
-Auction prices come from Auctionator, TradeSkillMaster's AuctionDB, AHDB or Naowh Forever's scans and nightly snapshot. Naowh can price materials before your first auction house visit. *Auction prices from* picks the source; the others fill gaps.
+Auction prices come from Auctionator, TradeSkillMaster's AuctionDB, AHDB, Naowh Forever's scans and nightly snapshot, or Forever Ledger's own scans. Naowh can price materials before your first auction house visit. *Auction prices from* picks the source; the others fill gaps.
 
 A craft's vendor sell value comes off its cost, or its auction value after the 5% cut if you choose. With TradeSkillMaster and its desktop app, *Region sale average if higher* values the craft from regional sales instead, with the vendor price as a floor. Profit shows a green `+`.
 

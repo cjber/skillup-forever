@@ -164,6 +164,13 @@ jobs:
           # The packager reads the version from the tag on the checked-out commit. The full-history checkout
           # already holds a tag that existed before this run, so only a new one is created here.
           git rev-parse -q --verify "refs/tags/$RELEASE_TAG" > /dev/null || git tag "$RELEASE_TAG" "$RELEASE_COMMIT"
+          # The packager picks the GitHub release tag from the tags on the commit, not from this run, so a commit that
+          # already carries another release tag could have the checked ZIP attached to that one instead.
+          other=$(git tag --points-at "$RELEASE_COMMIT" | grep -vxF "$RELEASE_TAG" | grep '^v' || true)
+          if [ -n "$other" ]; then
+            echo "::error::$RELEASE_COMMIT already carries $other; release a commit with no other tag."
+            exit 1
+          fi
       # A ForeverCore release can land between this commit's CI and this upload, and the zip carries the
       # core its pin names. The package job already gates the pin; run the same gate once more here, with
       # nothing between it and the packager.
@@ -185,7 +192,28 @@ jobs:
           persist-credentials: false
       - name: Embed ForeverCore
         run: python3 -m tools.forever_tools.embed --core forever-core
-      - uses: BigWigsMods/packager@01e8631a69c69d7654c788d152630d5fed9e3812 # v2.7.0
+      - name: Build the release ZIP
+        uses: BigWigsMods/packager@01e8631a69c69d7654c788d152630d5fed9e3812 # v2.7.0
+        with:
+          args: -d
+      - name: Check packaged ForeverCore
+        id: validated
         env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -m tools.forever_tools.core_archive --release-dir .release --latest
+      - name: Verify the release ZIP checksum
+        env:
+          ARCHIVE: ${{ steps.validated.outputs.archive }}
+          ARCHIVE_SHA256: ${{ steps.validated.outputs.sha256 }}
+        run: printf '%s  %s\n' "$ARCHIVE_SHA256" "$ARCHIVE" | sha256sum --check --status
+      - name: Upload the validated ZIP
+        uses: BigWigsMods/packager@01e8631a69c69d7654c788d152630d5fed9e3812 # v2.7.0
+        with:
+          args: -c -z
+        env:
+          archive: ${{ steps.validated.outputs.archive }}
+          archive_name: ${{ steps.validated.outputs.archive_name }}
+          archive_label: ${{ steps.target.outputs.tag }}-forever
+          archive_version: ${{ steps.target.outputs.tag }}
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}

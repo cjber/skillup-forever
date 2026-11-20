@@ -293,12 +293,19 @@ scenario("clicking an unlearned recipe previews it without changing the crafting
 	sim:tick(0.1)
 	assert(requirements:GetText() == metRequirements, "returning to station range clears the missing requirement color")
 	toolMet = false
+	-- The settings page's checkbox writes the saved value and reports a settings change (UI/Settings.lua).
+	local ns
+	for _, entry in ipairs(sim.loader.addons) do
+		if entry.name == ADDON then
+			ns = entry.ns
+		end
+	end
 	sim.G.SkillUpForeverDB.detailsBar = false
-	sim:event("BAG_UPDATE_DELAYED")
+	ns.Changed("settings")
 	assert(not bar:IsShown(), "the preview obeys the thresholds bar setting")
 	assert(requirements:GetText():find(missingTool, 1, true), "the preview highlights the missing tool")
 	sim.G.SkillUpForeverDB.detailsBar = true
-	sim:event("BAG_UPDATE_DELAYED")
+	ns.Changed("settings")
 	assert(bar:IsShown(), "turning the setting back on restores the thresholds")
 	local reagent = assert(FindText(pane, nil, "2/1 Coarse Stone")):GetParent()
 	assert(

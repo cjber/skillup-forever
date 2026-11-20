@@ -34,6 +34,7 @@ function RouteDemand.Count(itemID, includeBank)
 	if type(api) ~= "function" then
 		return nil, "current inventory capability unavailable"
 	end
+	ns.NoteItemCount(itemID)
 	local ok, raw = pcall(api, itemID, includeBank, false, false, false)
 	local count = ok and ns.Readable(raw)
 	if type(count) ~= "number" or count < 0 or count > 2 ^ 52 - 1 or count % 1 ~= 0 then

@@ -262,6 +262,8 @@ function Client.load(options)
 		traitNodes = {}, -- [configID] = { [nodeID] = { activeRank, currentRank, maxRanks } }
 		items = {}, -- [itemID] = { name, sell }; a missing field is item data the client has not loaded
 		bags = {}, -- [itemID] = count
+		bank = {}, -- [itemID] = count in the bank, counted only when the read includes it
+		unreadable = {}, -- [itemID] = true: the client hands over no count for it
 		schematics = {}, -- [recipeID] = { reagents = { { itemID, quantity } }, output = itemID }: the open window's
 		-- [recipeID] = { info = { maxTrivialLevel, numSkillUps, learned, relativeDifficulty }, requirements = { ... } }:
 		-- what the client's own recipe read answers, empty for a recipe it says nothing about.
@@ -1276,8 +1278,11 @@ function Client.load(options)
 		GetItemQualityColor = function()
 			return 1, 1, 1, "ffffff"
 		end,
-		GetItemCount = function(id)
-			return c.bags[id] or 0
+		GetItemCount = function(id, includeBank)
+			if c.unreadable[id] then
+				return nil
+			end
+			return (c.bags[id] or 0) + (includeBank and c.bank[id] or 0)
 		end,
 		RequestLoadItemDataByID = function(id)
 			c.requested[id] = true

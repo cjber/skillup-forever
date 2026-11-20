@@ -115,8 +115,8 @@ L["Gathering skill on nodes"] = "采集点的采集技能"
 L["Hands"] = "手部"
 L["Have (bags and bank)"] = "已有（背包和银行）"
 L["Head"] = "头部"
-L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
-	"草药和矿脉的鼠标提示会显示所需技能及其相对你技能的颜色（仅限英文客户端）。可剥皮的尸体在Forever上的剥皮规则确认前显示?。"
+L["Herb and ore node tooltips show the skill they need and its colour at yours. Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
+	"草药和矿脉的鼠标提示会显示所需技能及其相对你技能的颜色。可剥皮的尸体在Forever上的剥皮规则确认前显示?。"
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"安装AtlasLoot以查看商人、任务和掉落可提供的配方。"
 L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
@@ -210,7 +210,7 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"用Auctionator扫描拍卖行或访问商人来获取材料价格。"
 L["Scroll"] = "配方"
 L["Search"] = "搜索"
-L["Search reagents at the auction house"] = "在拍卖行搜索材料"
+L["Show reagent search and keep shopping lists"] = "显示材料搜索并维护购物清单"
 L["Sells for"] = "售价"
 L["Sells for x%g"] = "售价 x%g"
 L["Set waypoint"] = "设置路径点"
@@ -280,8 +280,8 @@ L["Waypoint to the quest giver: %s"] = "前往任务NPC的路径点：%s"
 L["What's new after an update"] = "更新后的新内容"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
-L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
-	"拍卖行打开时，专业窗口可以搜索所选配方的材料：数量为扣除背包和银行后，你选择的制造次数仍需要的数量。Auctionator的购物清单会带上数量；没有它时，每次点击会把下一个材料填入搜索框。"
+L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"点击专业技能窗口中的搜索，查找所选制作数量仍缺少的材料。安装 Auctionator 后，SkillUp 还会维护已追踪且启用了购买材料的路线的购物清单。未安装 Auctionator 时，每次点击都会将下一种材料填入拍卖行搜索框。"
 L["World drop"] = "世界掉落"
 L["Wrist"] = "手腕"
 L["You have it"] = "已拥有"
@@ -640,8 +640,6 @@ L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
-L["The supply solver no longer runs every frame while idle."] = "供应计算器空闲时不再每帧运行。" -- mt
-
 L["Highest craft profit"] = "单次制造利润最高" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -673,3 +671,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
 	"自适应指引会给出配方。选中它，然后在专业窗口中选择制作数量。" -- mt
 L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"草药和矿脉的鼠标提示会以客户端的所有语言显示所需技能等级。" -- mt

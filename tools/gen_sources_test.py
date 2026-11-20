@@ -33,21 +33,26 @@ def item(entry, item_class):
 
 
 class NodeSkillTests(unittest.TestCase):
-    # Issue #122: a node's required skill is its classic-db lock's in the client's Lock DB2, by its name.
+    # Issue #122: a node's required skill is its classic-db lock's in the client's Lock DB2, by its entry (#826)
+    # and by its name.
     def nodes(self, *nodes):
-        rows = [{"type": CHEST, "data0": lock_id, "name": name} for name, lock_id in nodes]
+        rows = [
+            {"type": CHEST, "data0": lock_id, "name": name, "entry": str(100 + i)}
+            for i, (name, lock_id) in enumerate(nodes)
+        ]
         locks = [lock(), lock("8", 175), lock("9", 0)]
         return node_skills({"gameobject_template": rows}, locks)
 
     def test_a_node_asks_its_locks_skill(self):
-        self.assertEqual(self.nodes(("Iron Deposit", MINE)), ({"Iron Deposit": (186, 125)}, []))
+        self.assertEqual(self.nodes(("Iron Deposit", MINE)), ({100: (186, 125)}, {"Iron Deposit": (186, 125)}, []))
 
     def test_a_lock_asking_no_skill_is_left_out(self):
-        self.assertEqual(self.nodes(("Doom Weed", "9")), ({}, []))
+        self.assertEqual(self.nodes(("Doom Weed", "9")), ({}, {}, []))
 
     def test_a_name_asking_two_skills_is_left_out_and_reported(self):
         both = self.nodes(("Iron Deposit", MINE), ("Iron Deposit", "8"), ("Mithril Deposit", "8"))
-        self.assertEqual(both, ({"Mithril Deposit": (186, 175)}, ["Iron Deposit"]))
+        entries = {100: (186, 125), 101: (186, 175), 102: (186, 175)}
+        self.assertEqual(both, (entries, {"Mithril Deposit": (186, 175)}, ["Iron Deposit"]))
 
 
 class LimitedStockTests(unittest.TestCase):

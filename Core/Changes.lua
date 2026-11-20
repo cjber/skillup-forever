@@ -310,7 +310,6 @@ local EVENTS = {
 	NEW_RECIPE_LEARNED = "recipes",
 	TRADE_SKILL_SHOW = "window",
 	SKILL_LINES_CHANGED = "skill",
-	BAG_UPDATE_DELAYED = "bags",
 	ITEM_DATA_LOAD_RESULT = "items",
 	PLAYER_LEVEL_UP = "level",
 	ZONE_CHANGED_NEW_AREA = "zone",
@@ -394,7 +393,8 @@ end
 -- Item data SkillUp asked for arrives in bursts, a route page's names at once. The first of a frame applies at
 -- once; the rest of that frame's burst joins one pass on the next frame, so a burst costs at most one pass a
 -- frame however long it runs (#846). Bag and merchant bursts are already one pass: the game batches bag slots
--- into BAG_UPDATE_DELAYED, and what they drop rebuilds lazily (tests/idle_cpu_spec.lua).
+-- into BAG_UPDATE_DELAYED, which changes something only when a count SkillUp read moved (ReadCountsMoved below),
+-- and what they drop rebuilds lazily (tests/idle_cpu_spec.lua).
 local BURSTS = { ITEM_DATA_LOAD_RESULT = true }
 ---@type number?
 local burstFrame
@@ -448,6 +448,48 @@ frame:SetScript("OnEvent", function(_, event, ...)
 	Apply(kinds)
 end)
 
+-- The item counts SkillUp has read, by item: in the bags alone and with the bank. Every plan, list and solver
+-- reads the bags through ns.Have or RouteDemand.Count, which note each item here, so these are the only counts
+-- anything SkillUp shows depends on. BAG_UPDATE_DELAYED fires on every slot the game touches, many times a minute
+-- with nothing SkillUp reads moving (a bag sorted, a quest item, loot of other items); it is a bag change only
+-- when one of these counts moved, so a cached plan is not rebuilt for nothing (#850).
+-- Each bag event reads these items' counts again: the reagents and results of the plans SkillUp has made, far
+-- cheaper than the plan rebuild it saves.
+---@type table<integer, { bags: integer?, all: integer? }>
+local readCounts = {}
+
+---@param itemID integer
+---@param includeBank boolean
+---@return integer?
+local function CountNow(itemID, includeBank)
+	local ok, count = pcall(C_Item.GetItemCount, itemID, includeBank)
+	return ok and ns.Readable(count) or nil
+end
+
+-- Called by every reader of a bag count, so the next bag event checks this item.
+---@param itemID integer
+function ns.NoteItemCount(itemID)
+	if not readCounts[itemID] then
+		readCounts[itemID] = { bags = CountNow(itemID, false), all = CountNow(itemID, true) }
+	end
+end
+
+-- Whether a count SkillUp read moved since the last bag event; it takes the new counts as seen. A count the
+-- client won't hand over is unknown, not unchanged: it counts as a move, as every bag event did before #850, and
+-- stays unknown so the first count it hands over afterwards moves too.
+---@return boolean
+local function ReadCountsMoved()
+	local moved = false
+	for itemID, seen in pairs(readCounts) do
+		local bags, all = CountNow(itemID, false), CountNow(itemID, true)
+		if bags == nil or all == nil or bags ~= seen.bags or all ~= seen.all then
+			moved = true
+		end
+		seen.bags, seen.all = bags, all
+	end
+	return moved
+end
+
 -- A file's own work on a game event, run before anything is dropped or redrawn for it. It returns
 -- what else it found changed, which joins the event's own change in one pass. It is given the event's arguments.
 ---@param event WowEvent
@@ -457,3 +499,7 @@ function ns.WhenEvent(event, watcher)
 	table.insert(watchers[event], watcher)
 	frame:RegisterEvent(event)
 end
+
+ns.WhenEvent("BAG_UPDATE_DELAYED", function()
+	return ReadCountsMoved() and "bags" or nil
+end)

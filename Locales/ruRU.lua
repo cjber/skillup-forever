@@ -118,8 +118,8 @@ L["Gathering skill on nodes"] = "Навык сбора на месторожде
 L["Hands"] = "Кисти рук"
 L["Have (bags and bank)"] = "Есть (сумки и банк)"
 L["Head"] = "Голова"
-L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
-	"Подсказки трав и рудных жил показывают нужный навык и его цвет для вашего (только английский клиент). Для свежуемых трупов показывается ?, пока правило снятия шкур не подтверждено на Forever."
+L["Herb and ore node tooltips show the skill they need and its colour at yours. Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
+	"Подсказки трав и рудных жил показывают нужный навык и его цвет для вашего. Для свежуемых трупов показывается ?, пока правило снятия шкур не подтверждено на Forever."
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Установите AtlasLoot, чтобы видеть рецепты от торговцев, заданий и добычи."
 L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
@@ -224,7 +224,8 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"Просканируйте аукцион с Auctionator или посетите торговца, чтобы узнать цены реагентов."
 L["Scroll"] = "Рецепт"
 L["Search"] = "Поиск"
-L["Search reagents at the auction house"] = "Искать реагенты на аукционе"
+L["Show reagent search and keep shopping lists"] =
+	"Показывать поиск реагентов и обновлять списки покупок"
 L["Sells for"] = "Продается за"
 L["Sells for x%g"] = "Продается за x%g"
 L["Set waypoint"] = "Поставить точку маршрута"
@@ -298,8 +299,8 @@ L["Waypoint to the quest giver: %s"] = "Точка маршрута к тому,
 L["What's new after an update"] = "Что нового после обновления"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
-L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
-	"Пока открыт аукцион, окно профессий предлагает поиск реагентов выбранного рецепта: столько, сколько еще нужно для выбранного числа созданий с учетом сумок и банка. Список покупок Auctionator передает количество; без него каждый щелчок вставляет следующий реагент в поле поиска."
+L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"Нажмите «Поиск» в окне профессий, чтобы найти недостающие реагенты для выбранного количества изделий. С Auctionator SkillUp также обновляет списки покупок для отслеживаемых маршрутов с включённой настройкой «Купить реагенты». Без Auctionator каждое нажатие вводит следующий реагент в поле поиска аукциона."
 L["World drop"] = "Случайная добыча"
 L["Wrist"] = "Запястья"
 L["You have it"] = "У вас есть"
@@ -514,7 +515,7 @@ L["Shift + wheel, or drag, scrolls the timeline sideways."] =
 	"Shift + колесо мыши или перетаскивание прокручивает временную шкалу вбок."
 L["Timeline"] = "Временная шкала"
 L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."] =
-	"Если включить «Покупать реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
+	"Если включить «Купить реагенты», будет записан список Auctionator со всеми недостающими аукционными реагентами."
 L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."] =
 	"Без Auctionator кнопка «Поиск» рецепта заполняет собственную строку поиска аукциона игры по одному реагенту за раз."
 L["%s needs ForeverCore. Install it from CurseForge, or choose Reinstall on ForeverCore in the CurseForge app."] =
@@ -703,9 +704,6 @@ L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
 
-L["The supply solver no longer runs every frame while idle."] =
-	"Расчёт запасов больше не выполняется каждый кадр в простое." -- mt
-
 L["Highest craft profit"] = "Наибольшая прибыль за изготовление" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -738,3 +736,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
 	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"Подсказки для трав и рудных жил показывают требуемый навык на всех языках клиента." -- mt

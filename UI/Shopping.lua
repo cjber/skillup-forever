@@ -27,6 +27,7 @@ local lastCounts = {}
 ---@param itemID integer
 ---@return number
 function ns.Have(itemID)
+	ns.NoteItemCount(itemID)
 	local count = ns.Readable(C_Item.GetItemCount(itemID, true))
 	if count then
 		lastCounts[itemID] = count

@@ -151,19 +151,24 @@ def limited_stock(rows):
 
 
 def node_skills(tables, locks):
-    """[enUS node name] = (gathering skill line, required skill): what a herb or ore node asks, by the name its
-    tooltip shows. classic-db ties a node to its lock (`data0`), the client's Lock DB2 gives that lock's skill
-    and rank (#122). A name two nodes share with different requirements is left out: the tooltip can't tell
-    them apart; the second value lists those names, for the run's output."""
+    """What a herb or ore node asks, (gathering skill line, required skill), by its gameobject entry and by its enUS
+    name. classic-db ties a node to its lock (`data0`), the client's Lock DB2 gives that lock's skill and rank
+    (#122). The tooltip's GUID carries the entry in every client language (#826); the name is the fallback for a
+    tooltip without one. A name two nodes share with different requirements is left out of the names: the tooltip
+    can't tell them apart; the third value lists those names, for the run's output."""
     lock_rank = lock_requirements(locks)
+    by_entry = {}
     found = defaultdict(set)
     for node in tables["gameobject_template"]:
         need = node["type"] == CHEST and lock_rank.get(int(node["data0"]))
         # A lock asking no skill (quest plants, bushes) gives no skill-up to colour.
-        if need and need[1] > 0 and node["name"]:
-            found[node["name"]].add(need)
+        if need and need[1] > 0:
+            by_entry[int(node["entry"])] = need
+            if node["name"]:
+                found[node["name"]].add(need)
     shared = sorted(name for name, needs in found.items() if len(needs) > 1)
-    return {name: needs.pop() for name, needs in found.items() if len(needs) == 1}, shared
+    by_name = {name: needs.pop() for name, needs in found.items() if len(needs) == 1}
+    return dict(sorted(by_entry.items())), by_name, shared
 
 
 def trainer_caps(trainer, teaches, rank_of):
@@ -278,7 +283,7 @@ def generate(ids, tables, effect_rows, locks):
         "gathered": gathered_items,
         "looted": sorted(looted_from(tables, items, node_gathered)),
         "limited": limited_stock(tables["npc_vendor"]),
-        **dict(zip(("nodes", "shared_nodes"), node_skills(tables, locks), strict=True)),
+        **dict(zip(("node_entries", "nodes", "shared_nodes"), node_skills(tables, locks), strict=True)),
     }
 
 
@@ -343,6 +348,15 @@ def render(data):
     lines += [
         "}",
         "",
+        "-- [gameobject entry] = { gathering skill line, required skill }: classic-db's lock for the herb or ore node,",
+        "-- the client's Lock DB2 for what that lock asks. The tooltip's GUID names the entry in every language.",
+        "-- stylua: ignore",
+        "ns.NodeEntrySkills = {",
+    ]
+    lines += [f"\t[{entry}] = {{ {skill}, {rank} }}," for entry, (skill, rank) in data["node_entries"].items()]
+    lines += [
+        "}",
+        "",
         "-- [node name, enUS] = { gathering skill line, required skill }: classic-db's lock for the node, the",
         "-- client's Lock DB2 for what that lock asks. A name shared by nodes asking different skills is left out.",
         "-- stylua: ignore",
@@ -374,7 +388,7 @@ def main():
         f"{len(data['world'])} world drops, {sum(map(len, data['trainers'].values()))} trainers, "
         f"{len(data['gathered'])} gathered reagents, {len(data['looted'])} lootable reagents, "
         f"{sum(len(vendors) for vendors in data['limited'].values())} limited vendor rows, "
-        f"{len(data['nodes'])} gathering nodes "
+        f"{len(data['node_entries'])} gathering node entries, {len(data['nodes'])} node names "
         f"(left out, shared by nodes asking different skills: {data['shared_nodes']})"
     )
 

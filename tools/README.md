@@ -159,9 +159,11 @@ needed.
 the route can say the nearest seller's stock is limited rather than imply the whole reagent list can be
 bought at once.
 
-`ns.NodeSkills` maps a herb or ore node's enUS name to the gathering skill and rank it asks for: the node's
-`gameobject_template` lock (`data0`) joined to the client's `Lock` DB2 (a WFA-28 waiver in `AGENTS.md`). A lock
-asking no skill (quest plants) is left out, and so is a name that nodes asking different skills share.
+`ns.NodeEntrySkills` maps a herb or ore node's gameobject entry to the gathering skill and rank it asks for: the
+node's `gameobject_template` lock (`data0`) joined to the client's `Lock` DB2 (a WFA-28 waiver in `AGENTS.md`). The
+tooltip reads the entry from the object's GUID, which every client language carries. `ns.NodeSkills` keys the same
+by enUS name, the fallback for a tooltip without a GUID on an English client. A lock asking no skill (quest plants)
+is left out, and so is a name that nodes asking different skills share.
 
 The recipe generator joins `SkillLineAbility` to `SpellReagents` and base-difficulty
 `SpellEffect` rows. Reagents are sorted by item ID and repeated slots combined.

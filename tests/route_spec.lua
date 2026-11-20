@@ -451,6 +451,17 @@ for _, file in ipairs({
 }) do
 	setfenv(assert(loadfile(file)), pageEnv)("SkillUpForever", page)
 end
+-- A bag event is a bag change only when a count SkillUp read moved (#850). This spec's plan reads are stubs, so
+-- one item stands for them: BagsChanged moves its count, which every redraw below needs.
+local specBags, SPEC_ITEM = {}, 990001
+pageEnv.C_Item.GetItemCount = function(itemID)
+	return specBags[itemID] or 0
+end
+page.NoteItemCount(SPEC_ITEM)
+local function BagsChanged()
+	specBags[SPEC_ITEM] = (specBags[SPEC_ITEM] or 0) + 1
+	eventFrame:Event("BAG_UPDATE_DELAYED")
+end
 -- The page's money line is Plan.lua's own subject in plan_spec; this spec draws it from a fixed split and
 -- checks that the header carries it and that the list no longer ends with a Total line.
 page.FormatNet = function(copper)
@@ -960,7 +971,7 @@ end
 equal(LastListItem().detail, "AH", "the reagent row names its source, with no have/need text under the bar")
 equal(LastListItem().bar.have, 0, "and its bar starts at what the bags hold")
 have = 8
-eventFrame:Event("BAG_UPDATE_DELAYED")
+BagsChanged()
 Drain()
 equal(LastListItem().detail, "AH", "the source line stays as it is when the bags change")
 local barRow = LastListItem()
@@ -979,7 +990,7 @@ equal(LastListItem().sourceIcon, "reagents", "and the vendor row names its sourc
 -- the option unread, it says nothing.
 page.auctionAutoscan = false
 lists[2].messages = {}
-eventFrame:Event("BAG_UPDATE_DELAYED")
+BagsChanged()
 Drain()
 equal(
 	table.concat(lists[2].messages, " | "):find("Auctionator's scan when the auction house opens is off", 1, true)
@@ -989,7 +1000,7 @@ equal(
 )
 page.auctionAutoscan = nil
 lists[2].messages = {}
-eventFrame:Event("BAG_UPDATE_DELAYED")
+BagsChanged()
 Drain()
 equal(
 	table.concat(lists[2].messages, " | "):find("Auctionator's scan", 1, true),
@@ -1003,7 +1014,7 @@ page.HasAuctionator = function()
 end
 page.collectMode = "auction"
 lists[2].messages = {}
-eventFrame:Event("BAG_UPDATE_DELAYED")
+BagsChanged()
 Drain()
 equal(
 	table.concat(lists[2].messages, " | "):find("Kept in the Auctionator list", 1, true),
@@ -1012,7 +1023,7 @@ equal(
 )
 page.tracked = true
 lists[2].messages = {}
-eventFrame:Event("BAG_UPDATE_DELAYED")
+BagsChanged()
 Drain()
 equal(
 	table
@@ -1023,7 +1034,7 @@ equal(
 )
 page.identityMissing = true
 lists[2].messages = {}
-eventFrame:Event("BAG_UPDATE_DELAYED")
+BagsChanged()
 Drain()
 equal(
 	table.concat(lists[2].messages, " | "):find("Kept in the Auctionator list", 1, true),
@@ -1132,7 +1143,7 @@ inCombat = true
 page.NextCraft = function()
 	return { recipeID = 3276, count = 7, planned = 7, to = 30, text = "Craft 7× Spell 3276" }
 end
-eventFrame:Event("BAG_UPDATE_DELAYED")
+BagsChanged()
 Drain()
 equal(#secureCalls, 0, "a redraw in combat makes no protected call on the craft button")
 equal(craftButton.attributes.type, settled.type, "the click type waits for combat to end")
@@ -1176,7 +1187,7 @@ page.RouteProfessions = function()
 	return {}
 end
 page.SetCollectMode("auction")
-eventFrame:Event("BAG_UPDATE_DELAYED")
+BagsChanged()
 Drain()
 equal(#secureCalls, 0, "a redraw in combat makes no protected call on the header row")
 equal(trackButton.enabled, settledHeader.track, "the Track button waits")

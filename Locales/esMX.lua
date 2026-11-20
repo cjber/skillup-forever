@@ -116,8 +116,8 @@ L["Gathering skill on nodes"] = "Habilidad de recolección en vetas y hierbas"
 L["Hands"] = "Manos"
 L["Have (bags and bank)"] = "Tienes (bolsas y banco)"
 L["Head"] = "Cabeza"
-L["Herb and ore node tooltips show the skill they need and its colour at yours (English client only). Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
-	"Las descripciones de hierbas y vetas muestran la habilidad que requieren y su color según la tuya (solo cliente en inglés). Los cadáveres desollables muestran ? hasta que se confirme la regla de desuello en Forever."
+L["Herb and ore node tooltips show the skill they need and its colour at yours. Skinnable corpses show ? until the skinning rule is confirmed on Forever."] =
+	"Las descripciones de hierbas y vetas muestran la habilidad que requieren y su color según la tuya. Los cadáveres desollables muestran ? hasta que se confirme la regla de desuello en Forever."
 L["Install AtlasLoot to see the recipes vendors, quests and drops would add."] =
 	"Instala AtlasLoot para ver las recetas que añadirían vendedores, misiones y botines."
 L["Install QuestieDB and AtlasLoot to see where recipes, vendors and trainers are."] =
@@ -213,7 +213,8 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"Escanea la casa de subastas con Auctionator o visita a un vendedor para poner precio a los componentes."
 L["Scroll"] = "Receta"
 L["Search"] = "Buscar"
-L["Search reagents at the auction house"] = "Buscar componentes en la casa de subastas"
+L["Show reagent search and keep shopping lists"] =
+	"Mostrar la búsqueda de componentes y mantener las listas de compras"
 L["Sells for"] = "Se vende por"
 L["Sells for x%g"] = "Se vende por x%g"
 L["Set waypoint"] = "Fijar punto de ruta"
@@ -283,8 +284,8 @@ L["Waypoint to the quest giver: %s"] = "Punto de ruta al asignador de misiones: 
 L["What's new after an update"] = "Novedades tras una actualización"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Dónde aparece la descripción al pasar el cursor sobre una receta. Junto a la ventana, no tapa los componentes."
-L["While the auction house is open, the Professions window offers a search for the selected recipe's reagents: as many as the crafts you choose still need after your bags and bank. Auctionator's shopping list carries the quantities; without it, each click puts the next reagent in the search box."] =
-	"Con la casa de subastas abierta, la ventana de profesiones ofrece buscar los componentes de la receta seleccionada: tantos como aún necesiten las creaciones que elijas tras contar tus bolsas y banco. La lista de compras de Auctionator lleva las cantidades; sin ella, cada clic pone el siguiente componente en el cuadro de búsqueda."
+L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"Haz clic en Buscar en la ventana de profesiones para encontrar los componentes que todavía necesitas para la cantidad elegida. Con Auctionator, SkillUp también mantiene listas de compras para las rutas seguidas con Comprar componentes activado. Sin Auctionator, cada clic pone el siguiente componente en el cuadro de búsqueda de la casa de subastas."
 L["World drop"] = "Cae en el mundo"
 L["Wrist"] = "Muñeca"
 L["You have it"] = "Lo tienes"
@@ -653,9 +654,6 @@ L["Apply policy"] = "Aplicar política" -- mt
 L["No trainer of your faction teaches this recipe."] = "Ningún instructor de tu facción enseña esta receta." -- mt
 L["%s (level %d)"] = "%s (nivel %d)" -- mt
 
-L["The supply solver no longer runs every frame while idle."] =
-	"El calculador de suministros ya no se ejecuta en cada fotograma cuando está inactivo." -- mt
-
 L["Highest craft profit"] = "Mayor beneficio por fabricación" -- mt
 
 L["AHDB"] = "AHDB" -- mt
@@ -687,3 +685,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
 	"La guía adaptativa indica la receta. Selecciónala y elige cuántas fabricar en la ventana de profesión." -- mt
 L["Select %s in the recipe list first."] = "Selecciona primero %s en la lista de recetas." -- mt
+
+L["Herb and ore node tooltips show the skill they need in every client language."] =
+	"La información de las hierbas y depósitos de mineral muestra la habilidad necesaria en todos los idiomas del cliente." -- mt

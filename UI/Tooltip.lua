@@ -997,16 +997,22 @@ local function FirstLine(data)
 	return first and ns.Readable(first.leftText)
 end
 
--- A herb or ore node, by its tooltip's name. The bundled names are classic-db's English ones, so another
--- client language shows nothing rather than a wrong match.
+-- A herb or ore node, by the gameobject entry in its tooltip's GUID.
 ---@param tooltip GameTooltip
 ---@param data TooltipData
 local function AddNodeSkill(tooltip, data)
-	if not ns.Usable(tooltip) or not ns.db.showTooltips or not ns.db.gatherTooltip or GetLocale() ~= "enUS" then
+	if not ns.Usable(tooltip) or not ns.db.showTooltips or not ns.db.gatherTooltip then
 		return
 	end
-	local name = FirstLine(data)
-	local node = name and ns.NodeSkills[name]
+	-- The object's GUID carries its gameobject entry in every client language (#826); the bundled names are
+	-- English, so the name is only the fallback for a tooltip without a GUID on an English client.
+	local guid = data and ns.Readable(data.guid)
+	local entry = type(guid) == "string" and tonumber(guid:match("^GameObject%-%d+%-%d+%-%d+%-%d+%-(%d+)"))
+	local node = entry and ns.NodeEntrySkills[entry]
+	if not node and not entry and GetLocale() == "enUS" then
+		local name = FirstLine(data)
+		node = name and ns.NodeSkills[name]
+	end
 	if node then
 		AddGatherLine(tooltip, node[1], node[2])
 	end

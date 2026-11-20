@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Every spec but those that read the checkout rather than the addon: locale_spec runs tools/phrases.py.
 REPO_ONLY = {"tests/locale_spec.lua"}
 POLICY = package.Policy(
-    addons=("SkillUpForever", "ForeverCore"),
+    addons=("SkillUpForever",),
     # The specs load ForeverCore through the shared TOC reader, which is tooling and never ships.
     support=("tests", "tools/forever_sim"),
     specs=tuple(
@@ -28,7 +28,7 @@ POLICY = package.Policy(
         for spec in sorted(p.relative_to(ROOT).as_posix() for p in ROOT.glob("tests/*_spec.lua"))
         if spec not in REPO_ONLY
     )
-    + ("tests/sim/exercise_scenario.lua",),
+    + ("tests/sim/exercise_scenario.lua", "tests/embedded_scenario.lua"),
 )
 
 if __name__ == "__main__":

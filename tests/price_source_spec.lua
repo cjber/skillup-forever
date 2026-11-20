@@ -57,7 +57,8 @@ equal(
 local neither = Client.load({ data = DATA, auctionator = false })
 equal(
 	neither.ns.UnpricedHint(),
-	"Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever.",
+	"Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever "
+		.. "or Forever Ledger.",
 	"with neither installed the hint names both"
 )
 

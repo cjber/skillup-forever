@@ -15,8 +15,8 @@ ns.L = L
 L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
 	"This route is mostly %s: %d recipes are left out until their costs or sale values are known."
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values"
-L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."
+L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
+	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."
 L["Tooltips stay cheap while the pointer rests on an item."] = "Tooltips stay cheap while the pointer rests on an item."
 L["%s: %s"] = "%s: %s"
 L["%s drops in %s"] = "%s drops in %s"

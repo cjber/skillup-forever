@@ -429,7 +429,8 @@ equal(#unpriced.steps, 0, "nothing priced, nothing to walk")
 equal(unpriced.unpriced, 2, "both known recipes are left out")
 equal(
 	ns.RouteBlocked(unpriced),
-	"These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever.",
+	"These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever "
+		.. "or Forever Ledger.",
 	"unpriced without Auctionator"
 )
 G.Auctionator = auctionator

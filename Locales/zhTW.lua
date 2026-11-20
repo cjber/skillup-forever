@@ -664,4 +664,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"自適應指引會提供配方。選取它，然後在專業視窗中選擇製作數量。" -- mt
 L["Select %s in the recipe list first."] = "請先在配方清單中選取%s。" -- mt
 
-L["SkillUp Forever carries ForeverCore inside itself."] = "SkillUp Forever 已內建 ForeverCore。" -- mt
+L["No more freeze at login with a long route."] = "路線較長時登入不再卡住。" -- mt

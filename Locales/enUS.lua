@@ -205,4 +205,4 @@ L["%s (level %d)"] = "%s (level %d)"
 
 L["Clicking a recipe selects it again under every sort."] = "Clicking a recipe selects it again under every sort."
 
-L["SkillUp Forever carries ForeverCore inside itself."] = "SkillUp Forever carries ForeverCore inside itself."
+L["No more freeze at login with a long route."] = "No more freeze at login with a long route."

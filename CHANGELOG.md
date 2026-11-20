@@ -10,6 +10,13 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.10] - 2026-11-20
+
+### Fixed
+
+- **No more freeze at login with a long route.** Pricing a route no longer hits "script ran too long" either: pricing a route whose crafted reagents come from limited vendor stock (Leatherworking leathers, for example) no longer stalls the game while the tracker and route load.
+- **Trainer and vendor lines in the tracker work again without a separate ForeverCore.** Since 1.14.9 the tracker could show "Couldn't find inherited node" and skip the clickable line naming your next trainer or a reagent's vendor. (#901)
+
 ## [1.14.9] - 2026-11-20
 
 ### Changed

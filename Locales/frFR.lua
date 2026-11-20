@@ -680,4 +680,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"Le guidage adaptatif indique la recette. Sélectionnez-la et choisissez combien en fabriquer dans la fenêtre de métier." -- mt
 L["Select %s in the recipe list first."] = "Sélectionnez d'abord %s dans la liste des recettes." -- mt
 
-L["SkillUp Forever carries ForeverCore inside itself."] = "SkillUp Forever intègre désormais ForeverCore." -- mt
+L["No more freeze at login with a long route."] = "Plus de gel à la connexion avec un long itinéraire." -- mt

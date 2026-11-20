@@ -610,8 +610,8 @@ function ns.UsedIn(itemID)
 end
 
 -- Sub-crafting: a reagent a recipe this character knows can make is obtained by crafting it when
--- that beats buying it. Cost recurses three levels, memoised per item, and a recipe that would need
--- the item it makes is skipped rather than followed, so no cycle can recurse or hang.
+-- that beats buying it. Cost recurses three levels, memoised per item, count and reachable stock, and a recipe
+-- that would need the item it makes is skipped rather than followed, so no cycle can recurse or hang.
 
 local MAX_SUB_DEPTH = 3
 ---@class SkillUpMakerChoice
@@ -619,8 +619,18 @@ local MAX_SUB_DEPTH = 3
 ---@field quantity number
 ---@field purchaseUnits number
 
----@type table<integer, table<number, {cost: number?, maker: SkillUpMakerChoice?}>>
+-- ObtainCost by every input its answer reads: item, count, depth, purchase mode, and the ledger balance and
+-- cycle-stack membership of each item its subtree can reach. A route prices the same subtree under the same
+-- ledger many times over (every batch count, every stock split), so without this the recursion is exponential.
+---@type table<string, {cost: number?, maker: SkillUpMakerChoice?, after: table<integer, number>?}>
 local obtainCost = {}
+-- The items ObtainCost can read below an item at a depth: the item, and each usable maker's reagents one level down.
+---@type table<integer, table<integer, integer[]>>
+local reaches = {}
+-- The product of every usable maker's output quantity over the same reach: the period whole-batch rounding
+-- repeats with.
+---@type table<integer, table<integer, integer>>
+local periods = {}
 ---@type table<integer, number|false>
 local linearCosts = {}
 ---@type table<integer, number|false>
@@ -637,7 +647,8 @@ local stockSensitive = {}
 local recipeStock = {}
 
 local function ResetCraftCosts()
-	obtainCost, heldCost, stockSensitive, unitCosts, unitMakers, recipeStock = {}, {}, {}, {}, {}, {}
+	obtainCost, reaches, periods, heldCost, stockSensitive, unitCosts, unitMakers, recipeStock =
+		{}, {}, {}, {}, {}, {}, {}, {}
 end
 
 -- An item no recipe makes shares this one empty list: MakersOf runs for every priced item, and callers only read it.
@@ -842,6 +853,89 @@ local function UnitCost(itemID, depth, stack)
 	return cost
 end
 
+-- Every item ObtainCost(itemID, _, depth) can read, in a fixed order: the item, then what each usable maker's
+-- reagents reach one level down. The memo key reads the ledger and stack at exactly these items.
+---@param itemID integer
+---@param depth integer
+---@return integer[]
+---@return integer period
+local function Reach(itemID, depth)
+	local byDepth = reaches[itemID]
+	if not byDepth then
+		byDepth = {}
+		reaches[itemID] = byDepth
+		periods[itemID] = {}
+	end
+	local list = byDepth[depth]
+	if list then
+		return list, periods[itemID][depth]
+	end
+	local seen = { [itemID] = true }
+	local period = 1
+	list = { itemID }
+	if depth > 0 then
+		for _, maker in ipairs(MakersOf(itemID)) do
+			if UsableMaker(maker) then
+				period = period * assert(OutputQuantity(maker))
+				for _, reagent in ipairs(ns.Reagents(maker) or {}) do
+					local below, belowPeriod = Reach(reagent.itemID, depth - 1)
+					period = period * belowPeriod
+					for _, id in ipairs(below) do
+						if not seen[id] then
+							seen[id] = true
+							list[#list + 1] = id
+						end
+					end
+				end
+			end
+		end
+	end
+	byDepth[depth] = list
+	periods[itemID][depth] = period
+	return list, period
+end
+
+-- The batch counts worth pricing for count units made quantity per batch. Testing every count instead repeats the
+-- subtree's whole search per count at every depth, which froze the client on a long route (#899). The bound is exact:
+--
+-- cost(b) = Buy(count - b * quantity) + sum over reagents of Cost_i(need_i * b). Buy is linear in b except where the
+-- vendor's units or the purchase run out (the two bends below). By induction on depth, past its stock window each
+-- Cost_i is a minimum of functions that are linear in its count on every residue class modulo its period: a fixed
+-- small batch count plus purchases, or a batch count tied to its own bends or end. A minimum of linear functions is
+-- concave, so between bends cost(b) is concave on each residue class of b modulo `period`, and its minimum on a
+-- segment lies within one period of the segment's ends, where the earliest tie also lies. Inside the stock window
+-- stock can still bend some Cost_i, so every batch count there is priced; one stocked unit feeds at most `period`
+-- batches, and each level below can put its own window and purchase bend in front, hence the (depth + 1) factor.
+-- Checked against the full search on every bundled recipe (tests/price_recursion_spec.lua guards the work bound).
+---@return integer[]
+local function BatchCandidates(itemID, depth, ledger, firstBatch, lastBatch, quantity, count, first)
+	local reach, period = Reach(itemID, depth)
+	local stock = 0
+	for _, id in ipairs(reach) do
+		local units = ledger[id] or ns.LimitedReagentPrice(id)
+		if units and units > 0 then
+			stock = stock + units
+		end
+	end
+	local wanted, list = {}, {}
+	local function Span(from, to)
+		for batches = math.max(firstBatch, from), math.min(lastBatch, to) do
+			if not wanted[batches] then
+				wanted[batches] = true
+				list[#list + 1] = batches
+			end
+		end
+	end
+	Span(firstBatch, firstBatch + ((depth + 1) * stock + 1) * period)
+	for _, units in ipairs({ count - first, count }) do
+		local bend = math.floor(units / quantity)
+		Span(bend - period, bend + period + 1)
+	end
+	Span(lastBatch - period, lastBatch)
+	table.sort(list)
+	return list
+end
+
 local ObtainCost
 
 -- The most stock a subtree could use, across its buy and whole-batch craft options.
@@ -1043,10 +1137,19 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 		local each = UnitCost(itemID, depth, stack)
 		return each, depth > 0 and unitMakers[itemID] or nil
 	end
-	local memo = not remaining and not stack and depth == MAX_SUB_DEPTH
-	local byCount = memo and obtainCost[itemID]
-	local cached = byCount and byCount[count]
+	local reach = Reach(itemID, depth)
+	local parts = { itemID .. ":" .. count .. ":" .. depth .. ":" .. (forPurchases and 1 or 0) }
+	for _, id in ipairs(reach) do
+		parts[#parts + 1] = (remaining and remaining[id] or "-") .. (stack and stack[id] and "s" or "")
+	end
+	local key = table.concat(parts, ":")
+	local cached = obtainCost[key]
 	if cached then
+		if take and remaining and cached.after then
+			for id, balance in pairs(cached.after) do
+				remaining[id] = balance
+			end
+		end
 		return cached.cost, cached.maker
 	end
 	local ledger = remaining or {}
@@ -1072,7 +1175,9 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 				-- Test each whole batch count. The remaining demand buys the cheapest available units first.
 				local lastBatch = math.ceil(count / quantity)
 				local firstBatch = buy and 1 or math.max(1, math.ceil((count - first) / quantity))
-				for batches = firstBatch, lastBatch do
+				for _, batches in
+					ipairs(BatchCandidates(itemID, depth, ledger, firstBatch, lastBatch, quantity, count, first))
+				do
 					local purchases = math.max(count - batches * quantity, 0)
 					local vendorUnits = math.min(purchases, first)
 					local rest = purchases - vendorUnits
@@ -1115,26 +1220,26 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 		end
 		stack[itemID] = nil
 	end
-	if take and remaining then
-		if chosenStock then
-			for id, balance in pairs(chosenStock) do
-				remaining[id] = balance
-			end
-		elseif vendor then
-			remaining[itemID] = available - first
+	-- What this choice leaves of the stock its subtree can reach; the ledger outside it is untouched.
+	local after
+	if chosenStock then
+		after = {}
+		for _, id in ipairs(reach) do
+			after[id] = chosenStock[id]
+		end
+	elseif vendor then
+		after = { [itemID] = available - first }
+	end
+	if take and remaining and after then
+		for id, balance in pairs(after) do
+			remaining[id] = balance
 		end
 	end
 	local each = best and best / count
 	if not forPurchases and (first == 0 or not vendor) then
 		each = WithSaleFloor(itemID, each)
 	end
-	if memo then
-		if not byCount then
-			byCount = {}
-			obtainCost[itemID] = byCount
-		end
-		byCount[count] = { cost = each, maker = maker }
-	end
+	obtainCost[key] = { cost = each, maker = maker, after = after }
 	return each, maker
 end
 

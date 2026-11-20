@@ -40,6 +40,9 @@ local function Env(messages, callbacks)
 				callbacks[name] = callback
 			end,
 		},
+		UnitGUID = function()
+			return "Player-1-00000001"
+		end,
 		ForeverCore = {
 			API = 1,
 			CharacterKey = function()

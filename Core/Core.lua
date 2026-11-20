@@ -518,10 +518,16 @@ end
 
 -- This character's key in the account-wide saved variables: ForeverCore's, "Name-Realm" on a named realm and
 -- "Name Surname-<server>" on a Forever realm, which has no realm name. Nil while the client has no name or GUID for
--- it yet: callers then read the defaults and save nothing.
+-- it yet: callers then read the defaults and save nothing. Kept per player GUID: hot lookups (IsLearned, the cached
+-- route) ask on every call, and the core builds the key afresh each time.
+local keyGUID, characterKey
 ---@return string?
 function ns.CharacterKey()
-	return ForeverCore.CharacterKey()
+	local guid = UnitGUID("player")
+	if guid ~= keyGUID or not characterKey then
+		keyGUID, characterKey = guid, ForeverCore.CharacterKey()
+	end
+	return characterKey
 end
 
 -- The client's own build number, nil when it doesn't report one.

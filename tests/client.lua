@@ -1112,9 +1112,21 @@ function Client.load(options)
 	G.UnitClass = function()
 		return c.player.className or "Shaman", c.player.classFile or "SHAMAN", c.player.classID or 64
 	end
+	-- Each character the spec plays (name, surname and realm) has its own GUID, as in the client, the first one
+	-- Player-6941-00000001.
+	local guids, guidCount, lastName, lastSurname, lastRealm, lastGUID = {}, 0, nil, nil, nil, nil
 	G.UnitGUID = function(unit)
 		if unit == "player" then
-			return "Player-6941-00000001"
+			local p = c.player
+			if p.name ~= lastName or p.surname ~= lastSurname or p.realm ~= lastRealm or not lastGUID then
+				local who = table.concat({ p.name or "", p.surname or "", p.realm or "" }, "\0")
+				if not guids[who] then
+					guidCount = guidCount + 1
+					guids[who] = string.format("Player-6941-%08d", guidCount)
+				end
+				lastName, lastSurname, lastRealm, lastGUID = p.name, p.surname, p.realm, guids[who]
+			end
+			return lastGUID
 		end
 		return unit == "npc" and c.npc and string.format("Creature-0-1-0-0-%d-0000000001", c.npc.id) or nil
 	end

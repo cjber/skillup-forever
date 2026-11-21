@@ -75,6 +75,7 @@
 ---@field ObtainCost fun(itemID: integer, count?: number): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
 ---@field RecipeUsesStock fun(recipeID: integer): boolean
 ---@field StockShares fun(reagents: SkillUpReagent[], ledger: table<integer, number>, needs?: number[], depth?: integer, stack?: table<integer, true>, forPurchases?: boolean): table<integer, table<integer, number>>?
+---@field ItemCostDependencies fun(itemID: integer, depth: integer): integer[]
 ---@field StockFor fun(ledger: table<integer, number>, caps?: table<integer, number>): table<integer, number>
 ---@field SpendStock fun(ledger: table<integer, number>, stock: table<integer, number>, caps?: table<integer, number>)
 ---@field PriceRecipeReagent fun(reagent: SkillUpReagent, remaining?: table<integer, number>): number?, SkillUpMakerChoice?, SkillUpPrice?

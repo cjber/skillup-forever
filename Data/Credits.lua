@@ -4,6 +4,12 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{
+			name = "Benjy_Boi",
+			what = "Reported that resetting SkillUp's settings page could reset game settings and keybindings",
+		},
+		{ name = "DemDragons", what = "Reported lag planning routes with limited vendor stock" },
+		{ name = "user_nd8yffdjkebopqym", what = "Reported lag planning routes with limited vendor stock" },
 		{ name = "vulpeep", what = "Forever Ledger prices reagents (code)" },
 		{ name = "messajahswe", what = "Gathered materials have a sale value by default" },
 		{ name = "davef1n", what = "Sort recipes by profit regardless of skill" },

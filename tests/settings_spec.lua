@@ -10,6 +10,14 @@ local function Tainted()
 	error("addon code inserted a row into a settings layout; use Settings.RegisterInitializer")
 end
 
+local secure = false
+local function RequireSecure(fn)
+	return function(...)
+		assert(secure, "the dropdown must be built through the client's secure delegate")
+		return fn(...) -- multi-value: pass through the client function's results
+	end
+end
+
 local categories = 0
 local function Category(name, parent)
 	categories = categories + 1
@@ -29,11 +37,52 @@ local function Initializer(kind, setting, tooltip)
 	return { kind = kind, setting = setting, tooltip = tooltip }
 end
 
+local function ResetSetting(setting)
+	setting.SetValueToDefault = function(self)
+		self:SetValue(self.default)
+	end
+	return setting
+end
+
 local opened, addOnCategory
 -- Calls to ForeverCore's shared settings opener.
 local opens = 0
 
+local callbacks = {}
+local function TheseSettings(selected)
+	for _, setting in pairs(settings) do
+		if setting.category == selected then
+			setting:SetValue(setting.default)
+		end
+	end
+	local callback = callbacks["Settings.CategoryDefaulted"]
+	if callback then
+		callback.fn(callback.owner, selected)
+	end
+end
+
 local env = setmetatable({
+	securecallfunction = function(fn, ...)
+		return fn(...) -- multi-value: pass through the client function's results
+	end,
+	CreateSecureDelegate = function(fn)
+		return function(...)
+			secure = true
+			local result = fn(...)
+			secure = false
+			return result
+		end
+	end,
+	GenerateClosure = RequireSecure(function(fn, owner)
+		return function(...)
+			return fn(owner, ...)
+		end
+	end),
+	EventRegistry = {
+		RegisterCallback = function(_, event, fn, owner)
+			callbacks[event] = { fn = fn, owner = owner }
+		end,
+	},
 	Settings = {
 		VarType = { Boolean = "boolean", String = "string", Number = "number" },
 		RegisterVerticalLayoutCategory = function(name)
@@ -44,13 +93,17 @@ local env = setmetatable({
 			assert(parent == category, "a subpage belongs to the addon's category")
 			return Category(name, parent), { AddInitializer = Tainted }
 		end,
-		RegisterAddOnSetting = function(_target, variable, key, db, varType, _name, default)
+		RegisterAddOnSetting = function(target, variable, key, db, varType, _name, default)
 			if db[key] == nil then
 				db[key] = default
 			end
 			local setting = {
 				variable = variable,
+				category = target,
 				key = key,
+				GetValue = function()
+					return db[key]
+				end,
 				varType = varType,
 				default = default,
 				SetValueChangedCallback = function(self, callback)
@@ -63,13 +116,14 @@ local env = setmetatable({
 					setting.changed()
 				end
 			end
-			settings[variable] = setting
+			settings[variable] = ResetSetting(setting)
 			return setting
 		end,
-		RegisterProxySetting = function(_target, variable, varType, _name, default, get, set)
+		RegisterProxySetting = function(target, variable, varType, _name, default, get, set)
 			local setting = {
 				variable = variable,
-				key = variable:match("SkillUpForever_(.*)_choice") or variable:match("SkillUpForever_(.*)"),
+				category = target,
+				key = variable:match("SkillUpForever_(.*)"),
 				varType = varType,
 				default = default,
 				GetValue = get,
@@ -77,7 +131,7 @@ local env = setmetatable({
 					set(value)
 				end,
 			}
-			settings[variable] = setting
+			settings[variable] = ResetSetting(setting)
 			return setting
 		end,
 		SetValue = function(variable, value)
@@ -92,9 +146,23 @@ local env = setmetatable({
 			assert(setting.varType == "boolean" and options == nil)
 			return Initializer("checkbox", setting, tooltip)
 		end,
-		CreateDropdownInitializer = function()
-			error("native settings menus crash in AcquireMenu")
-		end,
+		CreateControlTextContainer = RequireSecure(function()
+			local options = {}
+			return {
+				Add = RequireSecure(function(_, value, label)
+					options[#options + 1] = { value = value, text = label }
+				end),
+				GetData = function()
+					return options
+				end,
+			}
+		end),
+		CreateDropdownInitializer = RequireSecure(function(setting, options, tooltip)
+			assert(setting.varType == "string")
+			local initializer = Initializer("dropdown", setting, tooltip)
+			initializer.options = options
+			return initializer
+		end),
 		CreateSliderOptions = function(minimum, maximum, step)
 			return {
 				minimum = minimum,
@@ -142,6 +210,8 @@ local env = setmetatable({
 	end,
 }, { __index = _G })
 
+env._G = env
+
 -- Core's own settings helpers, so the shared attach row is the one every Forever addon registers.
 local coreNs = {}
 for _, path in ipairs({ "Locales/enUS.lua", "UI/SettingsPage.lua", "UI/SettingsSections.lua" }) do
@@ -186,6 +256,7 @@ local ns = {
 	db = {},
 	DEFAULTS = {
 		priceSource = "auctionator",
+		restockCost = 0,
 		craftValue = "vendor",
 		reagentTooltip = "route",
 		recipeTooltip = "window",
@@ -199,6 +270,7 @@ local ns = {
 		gatheredValueSeen = true,
 		auctionOnly = false,
 		showBuffsTab = true,
+		auctionShoppingLists = true,
 	},
 	RECIPE_TOOLTIP_OPTIONS = { { "window", "Beside" }, { "cursor", "Cursor" }, { "row", "Row" } },
 	ROW_COST_OPTIONS = { { "skillup", "Per skill-up" }, { "craft", "Per craft" } },
@@ -212,6 +284,8 @@ local ns = {
 		{ "auction", "Auction" },
 		{ "sale", "Region sale" },
 	},
+	SetIncludeWorkingOvertime = function() end,
+	SyncAuctionShoppingLists = function() end,
 	Changed = function(kind)
 		assert(kind == "settings")
 		refreshed = refreshed + 1
@@ -254,25 +328,50 @@ local function Subpage(name)
 	error("no subpage registered for " .. name)
 end
 
+-- Blizzard resets the selected category's settings before emitting Settings.CategoryDefaulted.
+local game = { keybinding = "SHIFT-Z" }
+env.Settings.RegisterAddOnSetting(Category("Keybindings"), "GameBinding", "keybinding", game, "string", "Z")
+env.Settings.SetValue("SkillUpForever_showRowText", false)
+env.Settings.SetValue("SkillUpForever_priceSource", "tsm")
+env.Settings.SetValue("SkillUpForever_restockCost", 2000)
+trackerState.scale = 1.25
+TheseSettings(Subpage("Prices"))
+assert(ns.db.priceSource == "auctionator" and ns.db.restockCost == 0, "These Settings restores the Prices rows")
+assert(ns.db.showRowText == false, "Prices leaves Recipe rows alone")
+assert(game.keybinding == "SHIFT-Z" and trackerState.scale == 1.25, "Prices preserves game and shared tracker settings")
+env.Settings.SetValue("SkillUpForever_priceSource", "tsm")
+env.Settings.SetValue("SkillUpForever_restockCost", 2000)
+TheseSettings(addOnCategory)
+assert(
+	ns.db.showRowText == true and ns.db.priceSource == "auctionator" and ns.db.restockCost == 0,
+	"These Settings on the index restores SkillUp defaults across subpages"
+)
+assert(game.keybinding == "SHIFT-Z" and trackerState.scale == 1.25, "Index preserves game and shared tracker settings")
+trackerState.scale = 1
+refreshed = 0
+
 -- Every subpage's rows, then the index's button to it, in the order the groups appear.
 local groups = {
 	{
 		"Recipe rows",
 		"checkbox:includeWorkingOvertime checkbox:showUnlearned checkbox:buffsOnly checkbox:showRowText"
-			.. " checkbox:showRowPrices slider:rowCost checkbox:showSkill checkbox:showTooltip"
-			.. " checkbox:detailsBar slider:recipeTooltip slider:unlearnedSortMode",
+			.. " checkbox:showRowPrices dropdown:rowCost checkbox:showSkill checkbox:showTooltip"
+			.. " checkbox:detailsBar dropdown:recipeTooltip dropdown:unlearnedSortMode",
 	},
-	{ "Prices", "slider:priceSource slider:craftValue checkbox:valueGathered checkbox:auctionOnly slider:restockCost" },
+	{
+		"Prices",
+		"dropdown:priceSource dropdown:craftValue checkbox:valueGathered checkbox:auctionOnly slider:restockCost",
+	},
 	{
 		"Route and trainer",
 		"checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
 			.. " checkbox:showRouteTab"
 			.. " checkbox:showGearTab checkbox:showBuffsTab checkbox:showSupplyTab"
-			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:showTrainer",
+			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:auctionShoppingLists checkbox:showTrainer",
 	},
 	{
 		"Tooltips and sorting",
-		"slider:reagentTooltip checkbox:showTooltipRoute checkbox:gatherTooltip slider:sortMode",
+		"dropdown:reagentTooltip checkbox:showTooltipRoute checkbox:gatherTooltip dropdown:sortMode",
 	},
 	{ "Addon", "checkbox:whatsNew" },
 }
@@ -301,22 +400,23 @@ assert(table.concat(kinds, " ") == table.concat(expected, " "), table.concat(kin
 
 local priceSource = Row("priceSource")
 assert(
-	priceSource.initializer.setting.variable == "SkillUpForever_priceSource_choice"
-		and priceSource.initializer.setting.default == 1,
-	"the auction source slider defaults to the first option"
+	priceSource.initializer.setting.variable == "SkillUpForever_priceSource"
+		and priceSource.initializer.setting.default == "auctionator",
+	"the auction source dropdown defaults to Auctionator"
 )
-assert(priceSource.initializer.options.formatter(1) == "Auctionator", "the first source is Auctionator")
-assert(priceSource.initializer.options.formatter(2) == "TradeSkillMaster", "the second is TradeSkillMaster")
+assert(priceSource.initializer.options()[1].text == "Auctionator", "the first source is Auctionator")
+assert(priceSource.initializer.options()[2].text == "TradeSkillMaster", "the second is TradeSkillMaster")
 assert(priceSource.initializer.tooltip:find("the others fill gaps", 1, true), "the setting explains its fallback")
 local craftValue = Row("craftValue")
 assert(
-	craftValue.initializer.setting.variable == "SkillUpForever_craftValue_choice"
-		and craftValue.initializer.setting.default == 2
+	craftValue.initializer.setting.variable == "SkillUpForever_craftValue"
+		and craftValue.initializer.setting.default == "vendor"
 )
-assert(craftValue.initializer.options.formatter(3) == "Auction" and craftValue.initializer.tooltip:find("5%% cut"))
-assert(craftValue.initializer.options.formatter(4) == "Region sale")
+assert(craftValue.initializer.options()[3].text == "Auction" and craftValue.initializer.tooltip:find("5%% cut"))
+assert(craftValue.initializer.options()[4].text == "Region sale")
 assert(craftValue.initializer.tooltip:find("regional sales", 1, true), "the sales source is explained")
-assert(Row("sortMode").initializer.options.formatter(1) == "Default")
+assert(Row("sortMode").initializer.options()[1].text == "Default")
+assert(Row("auctionShoppingLists").initializer.setting.default == true, "persistent lists start on")
 assert(Row("showUnlearned").initializer.setting.default == false, "unlearned recipes start off")
 assert(Row("showUnlearned").initializer.tooltip:find("greyed"), "the unlearned list explains how it draws")
 assert(Row("buffsOnly").initializer.setting.default == false, "the buff filter starts off")
@@ -346,18 +446,16 @@ for _, key in ipairs({ "priceSource", "craftValue", "sortMode", "reagentTooltip"
 	assert(row.initializer.setting:GetValue() == row.initializer.setting.default, "saved default restored")
 	for index, option in ipairs(options) do
 		local before = refreshed
-		row.initializer.setting:SetValue(index)
-		assert(ns.db[key] == option[1], "slider writes the original saved string")
-		assert(row.initializer.options.formatter(index) == option[2], "slider labels every choice")
+		local item = row.initializer.options()[index]
+		row.initializer.setting:SetValue(item.value)
+		assert(ns.db[key] == option[1], "dropdown writes the original saved string")
+		assert(item.text == option[2], "dropdown labels every choice")
 		assert(refreshed == before + 1, "one choice is reported once")
-		assert(notified[#notified] == "SkillUpForever_" .. key .. "_choice", "canonical change notifies visible proxy")
 	end
-	row.initializer.setting:SetValue(0)
-	assert(ns.db[key] == options[#options][1], "invalid slider position leaves value unchanged")
 end
 ns.SetSortMode("skill")
-assert(Row("sortMode").initializer.setting:GetValue() == 2, "recipe list sorting updates settings slider")
-print("settings: menu-free choices, saved values, defaults, labels, callbacks and external sorting: ok")
+assert(Row("sortMode").initializer.setting:GetValue() == "skill", "recipe list sorting updates settings dropdown")
+print("settings: native dropdowns, saved values, defaults, labels, callbacks and external sorting: ok")
 
 local attachment = settings.SkillUpForever_trackerAttached
 assert(attachment:GetValue() == true, "tracker starts attached")

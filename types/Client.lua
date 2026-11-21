@@ -434,9 +434,19 @@ OBJECTIVE_TRACKER_COLOR = {}
 ---@type number
 OBJECTIVE_DASH_STYLE_HIDE = nil
 
+---@generic F : function
+---@param fn F
+---@return F
+function CreateSecureDelegate(fn) end
+---@param fn function
+---@param ... any
+---@return function
+function GenerateClosure(fn, ...) end
+
 ---@alias SkillUpSettingValue boolean|string|number
 ---@class SkillUpSetting
 ---@field SetValueChangedCallback fun(self: SkillUpSetting, callback: fun())
+---@field SetValueToDefault fun(self: SkillUpSetting): boolean
 ---@class SkillUpCategory
 ---@field GetID fun(self: SkillUpCategory): number
 ---@class SkillUpSettingOptions

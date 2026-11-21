@@ -1607,6 +1607,18 @@ function Client.load(options)
 		RegisterInitializer = noop,
 		CreateCheckbox = noop,
 		CreateCheckboxInitializer = noop,
+		CreateDropdownInitializer = noop,
+		CreateControlTextContainer = function()
+			local choices = {}
+			return {
+				Add = function(_, value, label)
+					choices[#choices + 1] = { value = value, text = label }
+				end,
+				GetData = function()
+					return choices
+				end,
+			}
+		end,
 		CreateSliderInitializer = noop,
 		CreateSliderOptions = function()
 			return { SetLabelFormatter = noop }
@@ -1641,6 +1653,11 @@ function Client.load(options)
 	G.securecallfunction = function(fn, ...)
 		c.secureSettingsCalls = (c.secureSettingsCalls or 0) + 1
 		return fn(...) -- multi-value: the client function's results pass through
+	end
+	G.GenerateClosure = function(fn, owner)
+		return function(...)
+			return fn(owner, ...) -- multi-value: pass through the client function's results
+		end
 	end
 	G.CreateSettingsButtonInitializer = noop
 	G.MinimalSliderWithSteppersMixin = { Label = { Right = 1 } }

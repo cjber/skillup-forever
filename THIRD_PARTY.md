@@ -43,6 +43,9 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| Benjy_Boi | Reported that resetting SkillUp's settings page could reset game settings and keybindings | CurseForge; comment 8722308; #925 |
+| DemDragons | Reported lag planning routes with limited vendor stock | CurseForge; comment 8764076; #904 |
+| user_nd8yffdjkebopqym | Reported lag planning routes with limited vendor stock | CurseForge; comment 8763397; #904 |
 | [vulpeep](https://github.com/vulpeep) | Forever Ledger prices reagents (code) | GitHub; PR #908 |
 | messajahswe | Gathered materials have a sale value by default | CurseForge; comment 8733694; #780 |
 | davef1n | Sort recipes by profit regardless of skill | CurseForge; comment 8735009; #781 |

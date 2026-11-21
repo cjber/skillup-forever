@@ -13,13 +13,31 @@ local L = ns.L
 -- and blamed on us.
 local category
 
+---@type SkillUpSetting[]
+local ownedSettings
+
+-- Build native row data and option tables in secure execution so the menu and gamepad code can read them.
+local delegates = {}
+local function Secure(fn)
+	local delegate = delegates[fn]
+	if not delegate then
+		local create = _G.CreateSecureDelegate
+		delegate = create and create(fn) or fn
+		delegates[fn] = delegate
+	end
+	return delegate
+end
+
 ---@param target SkillUpCategory
 local function Register(target, key, varType, name)
 	local setting =
 		Settings.RegisterAddOnSetting(target, "SkillUpForever_" .. key, key, ns.db, varType, name, ns.DEFAULTS[key])
+	ownedSettings[#ownedSettings + 1] = setting
 	setting:SetValueChangedCallback(function()
 		if key == "includeWorkingOvertime" then
 			ns.SetIncludeWorkingOvertime(ns.db.includeWorkingOvertime)
+		elseif key == "auctionShoppingLists" then
+			ns.SyncAuctionShoppingLists()
 		else
 			ns.Changed("settings")
 		end
@@ -31,58 +49,33 @@ end
 local function Checkbox(target, key, name, tooltip)
 	Settings.RegisterInitializer(
 		target,
-		Settings.CreateCheckboxInitializer(Register(target, key, Settings.VarType.Boolean, name), nil, tooltip)
+		Secure(Settings.CreateCheckboxInitializer)(Register(target, key, Settings.VarType.Boolean, name), nil, tooltip)
 	)
 end
 
 -- options: { value, label } pairs, in menu order.
-		elseif key == "auctionShoppingLists" then
-			ns.SyncAuctionShoppingLists()
 ---@param target SkillUpCategory
 local function Choice(target, key, name, options, tooltip)
 	local setting = Register(target, key, Settings.VarType.String, name)
-	local function Index(value)
-		for index, option in ipairs(options) do
-			if option[1] == value then
-				return index
-			end
-		end
+	local container = Secure(Settings.CreateControlTextContainer)()
+	for _, option in ipairs(options) do
+		Secure(container.Add)(container, option[1], option[2])
 	end
-	-- Forever's native settings dropdown enters a menu VM assertion.
-	-- A discrete stock slider avoids menus; the string setting remains the saved-value owner.
-	local variable = "SkillUpForever_" .. key .. "_choice"
-	local proxy = Settings.RegisterProxySetting(
+	Settings.RegisterInitializer(
 		target,
-		variable,
-		Settings.VarType.Number,
-		name,
-		Index(ns.DEFAULTS[key]),
-		function()
-			return Index(ns.db[key])
-		end,
-		function(value)
-			local option = options[value]
-			if option then
-				Settings.SetValue("SkillUpForever_" .. key, option[1])
-			end
-		end
+		Secure(Settings.CreateDropdownInitializer)(
+			setting,
+			Secure(_G.GenerateClosure)(container.GetData, container),
+			tooltip
+		)
 	)
-	---@cast proxy SkillUpSetting
-	setting:SetValueChangedCallback(function()
-		Settings.NotifyUpdate(variable)
-		ns.Changed("settings")
-	end)
-	local slider = Settings.CreateSliderOptions(1, #options, 1)
-	slider:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-		return options[value][2]
-	end)
-	Settings.RegisterInitializer(target, Settings.CreateSliderInitializer(proxy, slider, tooltip))
 end
 
 -- A phrase is one key however long, so its line may run past the limit.
 -- luacheck: push no max line length
 function ns.RegisterSettings()
 	category = Settings.RegisterVerticalLayoutCategory(ns.TITLE)
+	ownedSettings = {}
 	-- Rows are grouped onto a stock subpage each; the category itself is the index, one button per group. A
 	-- button goes in through Settings.RegisterInitializer too, and stays out of search (addSearchTags false),
 	-- which finds the settings themselves. The page opens through the shared secure opener: Settings.OpenToCategory
@@ -94,7 +87,7 @@ function ns.RegisterSettings()
 		rows(subcategory)
 		Settings.RegisterInitializer(
 			category,
-			CreateSettingsButtonInitializer(name, L["Open"], function()
+			Secure(CreateSettingsButtonInitializer)(name, L["Open"], function()
 				ForeverCore.OpenSettingsPanel(subcategory:GetID())
 			end, nil, false)
 		)
@@ -235,13 +228,18 @@ function ns.RegisterSettings()
 			end
 		)
 		---@cast restock SkillUpSetting
-		local restockOptions = Settings.CreateSliderOptions(0, 1000000, 1000)
-		restockOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-			return value > 0 and ns.FormatNet(ns.Model.RoundMoney(value), false) or L["Not counted"]
-		end)
+		ownedSettings[#ownedSettings + 1] = restock
+		local restockOptions = Secure(Settings.CreateSliderOptions)(0, 1000000, 1000)
+		Secure(restockOptions.SetLabelFormatter)(
+			restockOptions,
+			MinimalSliderWithSteppersMixin.Label.Right,
+			Secure(_G.GenerateClosure)(_G.securecallfunction, function(value)
+				return value > 0 and ns.FormatNet(ns.Model.RoundMoney(value), false) or L["Not counted"]
+			end)
+		)
 		Settings.RegisterInitializer(
 			rows,
-			Settings.CreateSliderInitializer(
+			Secure(Settings.CreateSliderInitializer)(
 				restock,
 				restockOptions,
 				L["What one trip to buy more reagents is worth, in copper, when a run takes more crafts than planned. It is added to that reagent's purchase price only when it happens. Leave it at zero to count no trip."]
@@ -278,13 +276,17 @@ function ns.RegisterSettings()
 				end
 			)
 			---@cast scale SkillUpSetting
-			local scaleOptions = Settings.CreateSliderOptions(50, 200, 10)
-			scaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return value .. "%"
-			end)
+			local scaleOptions = Secure(Settings.CreateSliderOptions)(50, 200, 10)
+			Secure(scaleOptions.SetLabelFormatter)(
+				scaleOptions,
+				MinimalSliderWithSteppersMixin.Label.Right,
+				Secure(_G.GenerateClosure)(_G.securecallfunction, function(value)
+					return value .. "%"
+				end)
+			)
 			Settings.RegisterInitializer(
 				rows,
-				Settings.CreateSliderInitializer(
+				Secure(Settings.CreateSliderInitializer)(
 					scale,
 					scaleOptions,
 					L["Scales the shared Forever tracker. 100% matches the game's own tracker."]
@@ -310,7 +312,7 @@ function ns.RegisterSettings()
 			---@cast lock SkillUpSetting
 			Settings.RegisterInitializer(
 				rows,
-				Settings.CreateCheckboxInitializer(
+				Secure(Settings.CreateCheckboxInitializer)(
 					lock,
 					nil,
 					L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."]
@@ -415,6 +417,16 @@ function ns.RegisterSettings()
 			L["One line in chat the first time a new version loads."]
 		)
 	end)
+
+	-- Blizzard already resets settings owned by a subpage. The index resets only settings owned by SkillUp,
+	-- leaving the shared tracker controls to the subpage that owns them.
+	EventRegistry:RegisterCallback("Settings.CategoryDefaulted", function(_, defaulted)
+		if defaulted == category then
+			for _, setting in ipairs(ownedSettings) do
+				setting:SetValueToDefault()
+			end
+		end
+	end, ns)
 
 	Settings.RegisterAddOnCategory(category)
 end

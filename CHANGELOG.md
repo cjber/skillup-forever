@@ -10,6 +10,20 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.17] - 2026-11-21
+
+### Changed
+
+- **A lighter Route page.** The repeated estimate warning above both lists is gone, leaving the one line about spares. A sub-craft row no longer repeats how many it makes when its name already says so, a pin the route uses no longer repeats "Pinned for skill-ups", and the Skipped row loses its explanation.
+
+### Fixed
+
+- **The skill bar sits further below the recipe title.** The difficulty bar under the recipe name in the Professions window now keeps a clear gap from the title, in the details pane and the recipe preview.
+
+### Removed
+
+- **The Supply tab.** It asked you to type a merchant's price, stock, limit and trips by hand before it could show a chance, which made it a poor fit for the Professions window. The tab and its setting are gone; the route, shopping list and trainer chances are unchanged.
+
 ## [1.14.16] - 2026-11-21
 
 <!-- forever-core-sync -->

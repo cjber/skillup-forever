@@ -544,7 +544,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"Estas chances pressupõem as taxas de ganho de perícia, os preços, a disponibilidade e a entrega das compras posteriores informados." -- mt
 L["unknown"] = "desconhecido" -- mt
 
-
 L["No trainer of your faction teaches this recipe."] = "Nenhum instrutor da sua facção ensina esta receita." -- mt
 L["%s (level %d)"] = "%s (nível %d)" -- mt
 

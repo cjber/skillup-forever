@@ -579,7 +579,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"Эти вероятности предполагают указанные шансы повышения навыка, цены, доступность и доставку последующих покупок." -- mt
 L["unknown"] = "неизвестно" -- mt
 
-
 L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt

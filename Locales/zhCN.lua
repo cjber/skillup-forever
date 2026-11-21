@@ -537,7 +537,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"这些几率以所列技能提升几率、价格、供货情况以及后续采购物资送达为前提。" -- mt
 L["unknown"] = "未知" -- mt
 
-
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 

@@ -553,7 +553,6 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"이 확률은 명시된 숙련도 상승률, 가격, 구매 가능 여부 및 추가 구매분의 인도를 가정합니다." -- mt
 L["unknown"] = "알 수 없음" -- mt
 
-
 L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt
 L["%s (level %d)"] = "%s (레벨 %d)" -- mt

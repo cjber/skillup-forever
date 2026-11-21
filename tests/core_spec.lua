@@ -254,7 +254,7 @@ do
 	equal(ns.db.companionHints, nil, "the old companion setting goes")
 	equal(ns.db.suggestFamily, nil, "the family hint setting goes")
 	equal(ns.db.familyDismissed, nil, "and its dismissed hints")
-	env.SkillUpForeverDB = { showTooltips = false, showCost = false, showProfessionTabs = false }
+	env.SkillUpForeverDB = { showTooltips = false, showCost = false, showProfessionTabs = false, showSupplyTab = true }
 	callbacks.SkillUpForever()
 	equal(ns.db.showTooltips, nil, "the tooltip master is consumed")
 	equal(ns.db.showTooltip, false, "the recipe tooltip stays off")
@@ -266,12 +266,12 @@ do
 	equal(ns.db.showRouteTab, false, "the route tab stays off")
 	equal(ns.db.showGearTab, false, "the gear tab stays off")
 	equal(ns.db.showBuffsTab, false, "the buffs tab stays off")
-	equal(ns.db.showSupplyTab, false, "the supply tab stays off")
-	ns.db.showTooltip, ns.db.showRowPrices, ns.db.showSupplyTab = true, true, true
+	equal(ns.db.showSupplyTab, nil, "the removed supply tab setting is cleared")
+	ns.db.showTooltip, ns.db.showRowPrices, ns.db.showBuffsTab = true, true, true
 	callbacks.SkillUpForever()
 	equal(ns.db.showTooltip, true, "turning the recipe tooltip back on sticks")
 	equal(ns.db.showRowPrices, true, "turning row prices back on sticks")
-	equal(ns.db.showSupplyTab, true, "turning a tab back on sticks")
+	equal(ns.db.showBuffsTab, true, "turning a tab back on sticks")
 	-- A saved choice the menu doesn't offer goes back to its default; a valid one stays.
 	env.SkillUpForeverDB = {
 		priceSource = "tsn",

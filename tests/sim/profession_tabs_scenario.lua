@@ -82,7 +82,7 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	)
 
 	local function bottomTabsShown(expected, label)
-		for _, id in ipairs({ "route", "supply", "buffs" }) do
+		for _, id in ipairs({ "route", "buffs" }) do
 			local button = assert(ns.Pages.BottomTab(id), id .. " bottom tab exists")
 			assert(button:IsShown() == expected, label .. ": " .. id .. " visibility")
 		end

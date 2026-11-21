@@ -42,7 +42,6 @@ The tooltip draws the thresholds on the game's bar, then each reagent's price an
 - **Buffs only** filters the list to the buffs you can use at your level.
 - **Levelling routes** list the crafts, trainer visits, skill books and rank quests to your target skill, in order, each with its amount and cost. [Route details](docs/route.md#levelling-route).
 - **Shopping lists** count reagents against bags and bank and keep an Auctionator list current. At the auction house, click *Search* in the Professions window to find the reagents still needed for the crafts you choose. [Shopping details](docs/route.md#shopping-list).
-- **Supply page** sits beside the route: with a profession and a merchant open, note what you assume about each offer's price, stock, limit and trips, then read the route's chance. [Supply details](docs/supply-policy.md).
 - **Trainer annotations** show chance and cost, with a green arrow on the best recipe for your route.
 - **Reagent tooltips**, on in settings, show what tracked routes need; Shift lists every recipe that uses the item, naming its profession. Herb and ore nodes show the skill they need, coloured at yours.
 - **Crafted gear** shows the newest item you could craft for each slot, with its recipe and reagents. [Gear details](docs/gear.md).
@@ -94,7 +93,7 @@ Open a profession and the numbers are already there.
 | `/skillup shopping`, `/skillup shop` | Open the shopping list, copy it, or plan a buy trip with Shortest Path Forever |
 | `/skillup trainers` | List the trainer skill requirements SkillUp guessed, and which ones a trainer confirmed |
 
-Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Include Working Overtime estimate** starts off, so chances use the base formula. Crafted gear and reagent tooltips start off, each one setting away; Supply has its own checkbox.
+Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Include Working Overtime estimate** starts off, so chances use the base formula. Crafted gear and reagent tooltips start off, each one setting away.
 
 ## Prices
 

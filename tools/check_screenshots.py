@@ -35,9 +35,6 @@ TOC_ICON = re.compile(r"^##\s*X-Forever-Icon:\s*(.*?)\s*$", re.MULTILINE)
 # (settings, the report window, caught errors, trainer audits), so editing it needs no render.
 SOURCES = (
     "tools/screenshots.py",
-    "tools/supply_preview.py",
-    "tests/supply_ui_spec.lua",
-    "UI/Supply.lua",
     "Locales/enUS.lua",
     "Core/Core.lua",
     "Core/Stats.lua",

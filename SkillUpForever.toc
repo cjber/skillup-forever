@@ -72,7 +72,6 @@ UI\List.lua
 UI\PageParts.lua
 UI\Pages.lua
 UI\Route.lua
-UI\Supply.lua
 UI\Gear.lua
 UI\Buffs.lua
 UI\Shopping.xml
@@ -81,7 +80,6 @@ UI\ShoppingList.lua
 Core\RecipeEvidence.lua
 Core\RouteDemand.lua
 Core\SupplySources.lua
-Core\SupplyDraft.lua
 UI\AuctionSearch.lua
 Integrations\Trainer.lua
 Core\API.lua

@@ -51,7 +51,6 @@ local DEFAULTS = {
 	showTracker = true,
 	showGearTab = false,
 	showBuffsTab = true,
-	showSupplyTab = true,
 	lastSkillUpPage = {}, -- ["Name-Realm"] = "route" | "gear" | "buffs": the SkillUp page the side tab reopens
 	buffProfession = {}, -- ["Name-Realm"] = skill line: the profession the Buffs page shows
 	onlyBuffsForLevel = {}, -- ["Name-Realm"] = true: the buffs page hides buffs this character's level cannot use
@@ -232,8 +231,9 @@ local function LoadDB()
 		loaded.showRowPrices = false
 	end
 	loaded.showTooltips, loaded.showCost = nil, nil
+	loaded.showSupplyTab = nil -- the supply tab was removed
 	if loaded.showProfessionTabs == false then
-		loaded.showRouteTab, loaded.showGearTab, loaded.showBuffsTab, loaded.showSupplyTab = false, false, false, false
+		loaded.showRouteTab, loaded.showGearTab, loaded.showBuffsTab = false, false, false
 		loaded.showProfessionTabs = true
 	end
 	-- Every player before 1.14 had valueGathered = false saved without choosing it, because the defaults below are

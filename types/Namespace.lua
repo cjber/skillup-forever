@@ -11,8 +11,6 @@
 
 -- The client passes this same table to each TOC file; no runtime import is available.
 ---@class SkillUpNamespace
----@field SupplyDraft SkillUpSupplyDraftAPI
----@field SupplyUIRevision integer? The last applied explicit supply policy's session revision.
 ---@field Credits ForeverCreditsData the player credits Data/Credits.lua generates for the shared Thanks page
 ---@field Stats SkillUpStats
 ---@field RecipeMaterials fun(recipeID: integer, crafts: number): SkillUpSubCraft[]?, {itemID: integer, count: number}[]?
@@ -136,7 +134,6 @@
 ---@field OpenRoute fun(skillLine?: integer): boolean
 ---@field ShowRecipe fun(recipeID: integer, anyProfession?: boolean)
 ---@field AttachRoute fun()
----@field AttachSupply fun()
 ---@field AttachGear fun()
 ---@field AttachBuffs fun()
 ---@field LastSkillUpPage fun(): SkillUpPageID?
@@ -318,7 +315,6 @@
 ---@field showTracker boolean
 ---@field showGearTab boolean
 ---@field showBuffsTab boolean
----@field showSupplyTab boolean
 ---@field lastSkillUpPage table<string, SkillUpPageID>
 ---@field buffProfession table<string, integer>
 ---@field onlyBuffsForLevel table<string, boolean>
@@ -586,7 +582,7 @@ SkillUpForeverDB = nil
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
 ---@alias SkillUpChange 'recipeFilter'|'preview'|'supply'|'recipeEvidence'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
----@alias SkillUpStale 'craftCosts'|'recipeEvidence'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'supplyPage'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'
+---@alias SkillUpStale 'craftCosts'|'recipeEvidence'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'ahdb'|'naowh'|'foreverledger'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
@@ -873,43 +869,9 @@ SkillUpForeverDB = nil
 ---@field click (fun())?
 
 -- The page IDs the SkillUp side tab reopens.
----@alias SkillUpPageID 'route'|'supply'|'gear'|'buffs'
+---@alias SkillUpPageID 'route'|'gear'|'buffs'
 
 -- One of SkillUp's pages in the Professions window, as UI/Pages.lua keeps it.
--- The supply policy page (UI/Supply.lua): its scroll content and the two labels a refresh resizes.
----@class SkillUpSupplyPage : Frame
----@field content Frame Scroll content; one reused row per merchant slot.
----@field scroll ScrollFrame
----@field title FontString
----@field note FontString
-
--- A typed-value box on the supply page, found by name on the next refresh.
----@class SkillUpSupplyInput : EditBox
----@field name? string
-
--- A checkbox on the supply page, found by name like an input.
----@class SkillUpSupplyCheck : CheckButton
----@field name? string
-
--- The supply page's apply button and the draft its last refresh validated.
----@class SkillUpSupplyApply : Button
----@field draft? SkillUpSupplyDraft
----@field name? string
-
--- A label on the supply page the callbacks and a spec find by name.
----@class SkillUpSupplyLabel : FontString
----@field name? string
-
--- One merchant offer's row: the controls built for it, and those the last refresh reused.
----@class SkillUpSupplyRow : Frame
----@field controls SkillUpSupplyControl[]
----@field used SkillUpSupplyControl[]
-
--- A widget a row owns, named so its callbacks and the spec read the form the same way.
----@class SkillUpSupplyControl : Region
----@field field? string
----@field row? SkillUpSupplyRow
-
 ---@class SkillUpPageSpec
 ---@field id SkillUpPageID
 ---@field title string

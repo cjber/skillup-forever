@@ -33,7 +33,7 @@ for _, profession in ipairs(professions) do
 			assert(not ns.Pages.BottomTab("route"):IsShown(), "bottom tabs wait for the SkillUp side tab")
 			client.widgets.dispatch(side, "OnMouseUp", "LeftButton", true)
 			client:advance(0.1)
-			for _, id in ipairs({ "route", "supply", "buffs" }) do
+			for _, id in ipairs({ "route", "buffs" }) do
 				assert(ns.Pages.BottomTab(id):IsShown(), profession.name .. ": " .. id .. " becomes discoverable")
 			end
 			assert(host:IsShown(), "the profession host stays open")

@@ -4,7 +4,7 @@ if ns.broken then
 	return
 end
 
--- Session-only source ownership. Quotes establish transaction contents only.
+-- Session-only source ownership. Quotes establish offer contents only.
 -- Every future law is an explicit, dated assumption scoped to an exact offer.
 local Owner = {}
 ---@type table<string, SkillUpDeclaredSource>
@@ -12,13 +12,8 @@ local declared = {}
 ---@type table<string, SkillUpAdaptiveDeclaredSource>
 local adaptive = {}
 local revision = 0
-local transaction
 local function Notify()
-	if transaction then
-		transaction.changed = true
-	else
-		ns.Changed("sourceEvidence")
-	end
+	ns.Changed("sourceEvidence")
 end
 local FIELDS = { "access", "price", "stock", "vendor", "ceiling", "initialVisit", "refillVisit" }
 local function Integer(value, minimum)
@@ -1003,88 +998,6 @@ ns.WhenStaleObserver("sourceEvidence", function()
 		cell.request, cell.missing = Owner.ReadAdaptive(cell.options, cell.products, cell.crafted)
 	end
 end)
-
--- Run a group of declarations and configuration as one producer transaction.
--- Public declaration validators remain canonical; failed later records cannot
--- leave an earlier law or revision visible.
----@param owned SkillUpSupplyDraft
----@return boolean, table[]?
-function Owner._ApplyDraft(owned)
-	if transaction then
-		return false, { Missing("nested-source-transaction") }
-	end
-	local oldDeclared, oldAdaptive = {}, {}
-	for key, value in pairs(declared) do
-		oldDeclared[key] = value
-	end
-	for key, value in pairs(adaptive) do
-		oldAdaptive[key] = value
-	end
-	local oldEconomics, oldRevision = economics, revision
-	local pending = { changed = false }
-	transaction = pending
-	local ok, result, detail = pcall(function()
-		if owned.economics then
-			local accepted, missing = Owner.DeclareEconomics(owned.economics.version, owned.economics.laws)
-			if not accepted then
-				return false, missing
-			end
-		end
-		for _, declaration in ipairs(owned.offers or {}) do
-			local accepted, missing = Owner.Declare(declaration.offer, declaration.version, declaration.laws)
-			if not accepted then
-				return false, missing
-			end
-		end
-		for _, declaration in ipairs(owned.adaptiveOffers or {}) do
-			local accepted, missing = Owner.DeclareAdaptive(declaration.offer, declaration.version, declaration.laws)
-			if not accepted then
-				return false, missing
-			end
-		end
-		if owned.fixed then
-			local input, missing = Owner.Read(owned.fixed.options, owned.fixed.refillOrders, owned.products)
-			if not input then
-				return false, missing
-			end
-			return Owner.Configure(
-				owned.skillLine,
-				owned.alpha,
-				owned.fixed.options,
-				owned.fixed.refillOrders,
-				owned.products
-			)
-		elseif owned.adaptive then
-			local input, missing = Owner.ReadAdaptive(owned.adaptive.options, owned.products, owned.adaptive.crafted)
-			if not input then
-				return false, missing
-			end
-			return Owner.ConfigureAdaptive(
-				owned.skillLine,
-				owned.alpha,
-				owned.adaptive.options,
-				owned.products,
-				owned.adaptive.crafted
-			)
-		end
-		return false, { Missing("policy-section-required") }
-	end)
-	transaction = nil
-	if not ok or result == false then
-		declared, adaptive, economics, revision = oldDeclared, oldAdaptive, oldEconomics, oldRevision
-		if not ok then
-			return false, { Missing("source-transaction-failed") }
-		end
-		if type(detail) == "string" then
-			return false, { Missing(detail) }
-		end
-		return false, detail or result
-	end
-	if pending.changed then
-		ns.Changed("sourceEvidence")
-	end
-	return true
-end
 
 ---@cast Owner SkillUpSupplySourceOwner
 ns.SupplySources = Owner

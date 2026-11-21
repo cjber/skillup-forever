@@ -78,7 +78,6 @@ do
 	local fresh = Client.load({})
 	equal(fresh.ns.db.reagentTooltip, "off", "a new install starts without reagent tooltips")
 	equal(fresh.ns.db.showBuffsTab, true, "and keeps the Buffs page")
-	equal(fresh.ns.db.showSupplyTab, true, "the Supply page")
 	equal(fresh.ns.db.gatherTooltip, true, "and node tooltips")
 end
 

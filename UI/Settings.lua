@@ -344,13 +344,6 @@ function ns.RegisterSettings()
 
 		Checkbox(
 			rows,
-			"showSupplyTab",
-			L["Show the supply tab"],
-			L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."]
-		)
-
-		Checkbox(
-			rows,
 			"merchantButton",
 			L["Show the merchant Reagents tab"],
 			L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."]

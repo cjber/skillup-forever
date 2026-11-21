@@ -64,7 +64,6 @@
 ---@field refillVisit number
 
 ---@class SkillUpSupplySourceOwner
----@field _ApplyDraft fun(draft: SkillUpSupplyDraft): boolean, table[]?
 ---@field DeclareAdaptive fun(offer: SkillUpObservedMerchantOffer, version: integer, laws: SkillUpAdaptiveSourceLaws): boolean, SkillUpSourceUnavailable[]?
 ---@field DeclareEconomics fun(version: integer, laws: SkillUpAdaptiveEconomicLaws): boolean, SkillUpSourceUnavailable[]?
 ---@field ReadAdaptive fun(options: SkillUpAdaptiveSourceOptions, products: table<integer, true>, crafted: SkillUpCraftedSourceToken?): SkillUpAdaptiveSupplyRequest?, SkillUpSourceUnavailable[]

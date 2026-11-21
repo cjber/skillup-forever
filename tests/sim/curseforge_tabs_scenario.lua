@@ -28,7 +28,7 @@ scenario("SkillUp side tab survives reopening and Cooking", {
 		sim:openProfessions(profession)
 		sim:advance(0.2)
 		local side = check("profession " .. profession)
-		for _, page in ipairs({ "route", "supply", "buffs" }) do
+		for _, page in ipairs({ "route", "buffs" }) do
 			sim:runAs(ADDON, "local ns, page = ...; ns.Pages.Select(page)", ns, page)
 			sim:advance(0.2)
 			check(page)

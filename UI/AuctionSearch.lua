@@ -93,14 +93,16 @@ function ns.SearchReagents(recipeID, count)
 			end
 			ns.core.SafeCall("auction house reagent search", function()
 				local searches, names, advanced = {}, {}, {}
+				local listName = ns.db.auctionShoppingLists ~= false and ns.AuctionListName("crafting") or nil
 				for _, item in ipairs(short) do
 					local name = assert(C_Item.GetItemNameByID(item.itemID))
 					names[#names + 1] = name
 					local request = { searchString = name, isExact = true, quantity = item.count }
 					advanced[#advanced + 1] = request
-					searches[#searches + 1] = api.ConvertToSearchString(CALLER, request)
+					if listName then
+						searches[#searches + 1] = api.ConvertToSearchString(CALLER, request)
+					end
 				end
-				local listName = ns.AuctionListName("crafting")
 				if listName then
 					api.CreateShoppingList(CALLER, listName, searches)
 				end

@@ -1,6 +1,10 @@
 -- Run from the repository root: luajit tests/shopping_list_spec.lua
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
+local migrated = Client.load({ saved = { auctionSearch = false } })
+equal(migrated.ns.db.auctionShoppingLists, false, "an old Search opt-out keeps persistent lists off")
+local explicit = Client.load({ saved = { auctionSearch = false, auctionShoppingLists = true } })
+equal(explicit.ns.db.auctionShoppingLists, true, "an explicit choice survives login")
 local c = Client.load({
 	boot = false,
 	saved = {
@@ -157,6 +161,40 @@ equal(c.ns.ShoppingTrip(111), false, "a route with nothing missing is refused")
 -- on the body, so text cannot pile up and each refresh leaks no frame.
 c.EnterWorld()
 c.Advance(0)
+-- Opting out clears generated lists without replanning the route or touching unrelated lists.
+c.ns.SetCollectMode("auction")
+local auction = c.G.Auctionator
+local tailoring = c.ns.AuctionListName("Tailoring")
+local blacksmithing = c.ns.AuctionListName("Blacksmithing")
+assert(c.shoppingLists[tailoring] and c.shoppingLists[blacksmithing], "default-on writes each tracked route")
+c.SetSetting("auctionShoppingLists", false)
+assert(c.shoppingLists[tailoring], "without public deletion an existing list stays")
+c.SetSetting("auctionShoppingLists", true)
+auction.API.v1.DeleteShoppingList = function(_, name)
+	c.shoppingLists[name] = nil
+end
+c.shoppingLists["SkillUp: SomeoneElse: Tailoring"] = { "Silk Cloth" }
+c.ns.SetTracked(164, false)
+local plan = c.ns.PlanRoute(c.ns.RouteProfessions()[197])
+local create = auction.API.v1.CreateShoppingList
+local writes = 0
+auction.API.v1.CreateShoppingList = function(...)
+	writes = writes + 1
+	create(...)
+end
+c.SetSetting("auctionShoppingLists", false)
+equal(c.shoppingLists[tailoring], nil, "disabling removes the tracked route list")
+equal(c.shoppingLists[blacksmithing], nil, "disabling removes a previously tracked route list")
+equal(c.shoppingLists["SkillUp: SomeoneElse: Tailoring"][1], "Silk Cloth", "another character's list stays")
+equal(c.ns.CollectMode(), "auction", "Buy reagents stays on")
+equal(c.ns.PlanRoute(c.ns.RouteProfessions()[197]), plan, "the active route is reused")
+c.ns.Changed("tracking")
+equal(writes, 0, "disabling prevents route list writes")
+c.SetSetting("auctionShoppingLists", true)
+equal(c.shoppingLists[tailoring] ~= nil, true, "enabling resumes the tracked route list")
+c.ns.SetTracked(164, true)
+c.ns.SetCollectMode("gather")
+
 c.ns.OpenShoppingList()
 local window = c.G.SkillUpForeverShoppingList
 local function Find(root, match)

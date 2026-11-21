@@ -334,16 +334,26 @@ equal(#list, 1, "with the route's one auction reagent")
 equal(list[1], "Linen Clothx" .. (Needed() - ns.Have(SILK)), "and what the route still needs")
 c.Fire("BAG_UPDATE_DELAYED")
 equal(c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"], list, "an unchanged need does not rewrite the list")
-c.ns.db.auctionSearch = false
+local listName = ns.AuctionListName("First Aid")
+c.SetSetting("auctionSearch", false)
 c.bags[SILK] = 1
 c.Fire("BAG_UPDATE_DELAYED")
 equal(
-	c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"],
-	list,
-	"disabled list maintenance leaves the list alone"
+	c.shoppingLists[listName][1],
+	"Linen Clothx" .. (Needed() - ns.Have(SILK)),
+	"hidden Search still updates the list"
 )
-equal(ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "and the list it no longer keeps is not named")
-c.ns.db.auctionSearch = true
+equal(ns.KeptAuctionList(FIRST_AID, "First Aid"), listName, "hidden Search still names the kept list")
+c.G.Auctionator.API.v1.DeleteShoppingList = function(_, name)
+	c.shoppingLists[name] = nil
+end
+c.SetSetting("auctionShoppingLists", false)
+equal(c.shoppingLists[listName], nil, "opting out removes this character's list")
+equal(c.shoppingLists["SkillUp: First Aid"], personalList, "opting out preserves the generic list")
+equal(c.shoppingLists["SkillUp: Other-Realm: First Aid"], personalList, "opting out preserves another character's list")
+equal(ns.KeptAuctionList(FIRST_AID, "First Aid"), nil, "the removed list is no longer named")
+c.SetSetting("auctionShoppingLists", true)
+c.SetSetting("auctionSearch", true)
 c.bags[SILK] = Needed()
 c.Fire("BAG_UPDATE_DELAYED")
 equal(#c.shoppingLists["SkillUp: Tester Surname-6941: First Aid"], 0, "a covered need empties the list")

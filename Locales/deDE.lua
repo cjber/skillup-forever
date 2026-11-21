@@ -207,7 +207,6 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"Durchsucht das Auktionshaus mit Auctionator oder besucht einen Händler, um Reagenzien zu bepreisen."
 L["Scroll"] = "Rezept"
 L["Search"] = "Suchen"
-L["Show reagent search and keep shopping lists"] = "Reagenziensuche anzeigen und Einkaufslisten pflegen"
 L["Sells for"] = "Verkaufswert"
 L["Sells for x%g"] = "Verkaufswert x%g"
 L["Set waypoint"] = "Wegpunkt setzen"
@@ -276,8 +275,6 @@ L["Waypoint to the quest giver: %s"] = "Wegpunkt zum Questgeber: %s"
 L["What's new after an update"] = "Neuerungen nach einem Update"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Wo der Tooltip erscheint, wenn Ihr mit der Maus über ein Rezept fahrt. Neben dem Fenster verdeckt er die Reagenzien nicht."
-L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
-	"Klicke im Berufsfenster auf Suchen, um die noch fehlenden Reagenzien für die gewählte Anzahl zu finden. Mit Auctionator pflegt SkillUp auch Einkaufslisten für verfolgte Routen mit aktivierter Option Reagenzien kaufen. Ohne Auctionator trägt jeder Klick die nächste Reagenz in das Suchfeld des Auktionshauses ein."
 L["World drop"] = "Weltbeute"
 L["Wrist"] = "Handgelenke"
 L["You have it"] = "Ihr habt es"
@@ -680,3 +677,9 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 L["Select %s in the recipe list first."] = "Wähle zuerst %s in der Rezeptliste aus." -- mt
 
 L["Forever Ledger prices reagents."] = "Forever Ledger bepreist Reagenzien." -- mt
+L["Show reagent search"] = "Reagenziensuche anzeigen"
+L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"Klicke im Berufsfenster auf Suchen, um fehlende Reagenzien zu finden. Ohne Auctionator trägt jeder Klick das nächste Reagenz in das Suchfeld des Auktionshauses ein."
+L["Keep Auctionator shopping lists"] = "Auctionator-Einkaufslisten behalten"
+L["Save lists for tracked routes set to Buy reagents and for recipe searches. Turn this off to stop saving lists and keep using Search."] =
+	"Speichert Listen für verfolgte Routen mit Reagenzienkauf und für Rezept-Suchen. Deaktiviere dies, um keine Listen mehr zu speichern und die Suche weiter zu nutzen."

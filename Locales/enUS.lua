@@ -206,3 +206,9 @@ L["%s (level %d)"] = "%s (level %d)"
 L["Clicking a recipe selects it again under every sort."] = "Clicking a recipe selects it again under every sort."
 
 L["Forever Ledger prices reagents."] = "Forever Ledger prices reagents."
+L["Show reagent search"] = "Show reagent search"
+L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."
+L["Keep Auctionator shopping lists"] = "Keep Auctionator shopping lists"
+L["Save lists for tracked routes set to Buy reagents and for recipe searches. Turn this off to stop saving lists and keep using Search."] =
+	"Save lists for tracked routes set to Buy reagents and for recipe searches. Turn this off to stop saving lists and keep using Search."

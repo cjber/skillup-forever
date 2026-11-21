@@ -90,6 +90,9 @@ function ns.AuctionListNote(names)
 	if not ns.HasAuctionator() then
 		return L["Without Auctionator, a recipe's Search button fills the game's own auction box one reagent at a time."]
 	end
+	if ns.db.auctionShoppingLists == false then
+		return nil
+	end
 	if ns.CollectMode() ~= "auction" then
 		return L["Turning Buy reagents on writes an Auctionator list with every auction reagent still missing."]
 	end
@@ -239,6 +242,7 @@ end
 -- Auctionator's lists again.
 ---@type table<string, string>
 local auctionLists = {}
+local cleanedListsFor
 
 ---@param missing SkillUpShoppingItem[]
 ---@return string
@@ -263,6 +267,43 @@ local function SavedSignatures()
 	return saved
 end
 
+-- Use the public API when available, scoped to this character's generated list names.
+local function RemoveAuctionLists()
+	local prefix = ns.AuctionListName("")
+	local api = Auctionator and Auctionator.API and Auctionator.API.v1
+	local delete = api and api.DeleteShoppingList
+	if not delete or not prefix or prefix == cleanedListsFor then
+		return
+	end
+
+	local saved = SavedSignatures()
+	local names = { [prefix .. "crafting"] = true }
+	for _, profession in pairs(ns.RouteProfessions()) do
+		names[prefix .. profession.name] = true
+	end
+	for name in pairs(saved) do
+		if name:sub(1, #prefix) == prefix then
+			names[name] = true
+		end
+	end
+	local complete = true
+	for name in pairs(names) do
+		local ok = true
+		local held, readable = ReadAuctionList(name)
+		if held or not readable then
+			ok = pcall(delete, CALLER, name)
+		end
+		if ok then
+			saved[name] = nil
+		else
+			complete = false
+		end
+	end
+	if complete then
+		cleanedListsFor = prefix
+	end
+end
+
 -- Brings one route's list to what it needs, writing only when Auctionator's copy differs: a login or reload
 -- leaves the Shopping tab alone (#714).
 ---@param name string
@@ -270,6 +311,7 @@ end
 ---@param signature string
 local function SyncList(name, missing, signature)
 	local saved = SavedSignatures()
+	local pending = auctionLists
 	local held, readable = ReadAuctionList(name)
 	if #missing == 0 then
 		saved[name] = signature
@@ -279,40 +321,31 @@ local function SyncList(name, missing, signature)
 		end
 		return
 	end
-	if not readable then
-		-- An Auctionator with no reader: only the saved signature says whether the route's need moved.
-		if saved[name] ~= signature then
-			saved[name] = signature
-			WithNames(missing, function()
-				WriteAuctionList(name, AuctionSearches(missing))
-			end)
-		end
+	-- An Auctionator with no reader can only use the saved signature.
+	if not held and saved[name] == signature then
 		return
 	end
-	-- Item names may still be loading, so the compare waits for them.
+	-- Item names may still be loading. Check that this is still the latest sync before writing.
 	WithNames(missing, function()
-		local searches = AuctionSearches(missing)
-		if held and SameSearches(held, searches) then
-			saved[name] = signature
+		if pending ~= auctionLists or pending[name] ~= signature or ns.db.auctionShoppingLists == false then
 			return
 		end
-		if not held and saved[name] == signature then
-			-- The player deleted the list and the route's need has not moved since SkillUp wrote it.
-			return
+		local searches = AuctionSearches(missing)
+		if not held or not SameSearches(held, searches) then
+			WriteAuctionList(name, searches)
 		end
 		saved[name] = signature
-		WriteAuctionList(name, searches)
 	end)
 end
 
 -- Whether SkillUp keeps Auctionator lists at all: Auctionator loaded, Buy reagents on (gather mode buys nothing)
--- and the auction search setting on.
+-- and persistent shopping lists enabled.
 ---@return boolean
 local function KeepsAuctionLists()
-	return ns.HasAuctionator() and ns.CollectMode() == "auction" and ns.db.auctionSearch ~= false
+	return ns.HasAuctionator() and ns.CollectMode() == "auction" and ns.db.auctionShoppingLists ~= false
 end
 
--- The Auctionator list SkillUp keeps for a profession's route, or nil when it keeps none: SyncAuctionator writes
+-- The Auctionator list SkillUp keeps for a profession's route, or nil when it keeps none. SkillUp writes
 -- one only for a tracked route, and never for a route with nothing to buy or one the player deleted, so a page
 -- naming the list asks here rather than for the list's name. An Auctionator that cannot read lists back leaves
 -- the writer's own conditions as the only answer.
@@ -336,7 +369,15 @@ end
 
 -- Keep every tracked route's Auctionator list up to date with what it still buys, empties one it no longer needs,
 -- and leaves a list Auctionator already holds alone.
-local function SyncAuctionator()
+function ns.SyncAuctionShoppingLists()
+	if ns.db.auctionShoppingLists == false then
+		if next(auctionLists) then
+			auctionLists = {}
+		end
+		RemoveAuctionLists()
+		return
+	end
+	cleanedListsFor = nil
 	if not KeepsAuctionLists() then
 		return
 	end
@@ -883,7 +924,7 @@ end
 -- replan of every tracked route. A closed merchant takes the immediate path, since there is nothing to draw.
 local merchantPending = false
 local function RefreshTracker()
-	SyncAuctionator()
+	ns.SyncAuctionShoppingLists()
 	-- The switch turned off lays the section out too: its empty layout is what hides it.
 	if module then
 		module:MarkDirty()
@@ -1219,7 +1260,7 @@ local function CreateModule()
 	module = created
 	-- A fresh session writes each tracked route's Auctionator list once.
 	ns.AfterEvents(function()
-		C_Timer.After(0, SyncAuctionator)
+		C_Timer.After(0, ns.SyncAuctionShoppingLists)
 	end, "PLAYER_ENTERING_WORLD", "VARIABLES_LOADED")
 end
 

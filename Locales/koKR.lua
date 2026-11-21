@@ -207,7 +207,6 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"재료 가격을 알려면 Auctionator로 경매장을 검색하거나 상인을 방문하세요."
 L["Scroll"] = "제조법"
 L["Search"] = "검색"
-L["Show reagent search and keep shopping lists"] = "재료 검색 표시 및 쇼핑 목록 유지"
 L["Sells for"] = "판매 가격"
 L["Sells for x%g"] = "판매 가격 x%g"
 L["Set waypoint"] = "웨이포인트 설정"
@@ -277,8 +276,6 @@ L["Waypoint to the quest giver: %s"] = "퀘스트 NPC로 웨이포인트: %s"
 L["What's new after an update"] = "업데이트 후 새로운 점"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
-L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
-	"전문 기술 창에서 검색을 클릭하면 선택한 제작 수량에 필요한 재료 중 부족한 것을 찾습니다. Auctionator를 사용하면 SkillUp이 재료 구매를 켠 추적 경로의 쇼핑 목록도 갱신합니다. Auctionator가 없으면 클릭할 때마다 경매장 검색창에 다음 재료를 입력합니다."
 L["World drop"] = "무작위 전리품"
 L["Wrist"] = "손목"
 L["You have it"] = "보유 중"
@@ -692,3 +689,9 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt
 
 L["Forever Ledger prices reagents."] = "Forever Ledger가 재료 가격을 알려줍니다." -- mt
+L["Show reagent search"] = "재료 검색 표시"
+L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"전문 기술 창에서 검색을 눌러 부족한 재료를 찾습니다. Auctionator가 없으면 누를 때마다 경매장 검색창에 다음 재료가 입력됩니다."
+L["Keep Auctionator shopping lists"] = "Auctionator 쇼핑 목록 유지"
+L["Save lists for tracked routes set to Buy reagents and for recipe searches. Turn this off to stop saving lists and keep using Search."] =
+	"재료 구매로 설정된 추적 경로와 재료 검색의 목록을 저장합니다. 끄면 목록 저장이 중단되며 검색은 계속 사용할 수 있습니다."

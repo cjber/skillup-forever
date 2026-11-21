@@ -202,7 +202,6 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"用Auctionator扫描拍卖行或访问商人来获取材料价格。"
 L["Scroll"] = "配方"
 L["Search"] = "搜索"
-L["Show reagent search and keep shopping lists"] = "显示材料搜索并维护购物清单"
 L["Sells for"] = "售价"
 L["Sells for x%g"] = "售价 x%g"
 L["Set waypoint"] = "设置路径点"
@@ -271,8 +270,6 @@ L["Waypoint to the quest giver: %s"] = "前往任务NPC的路径点：%s"
 L["What's new after an update"] = "更新后的新内容"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
-L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
-	"点击专业技能窗口中的搜索，查找所选制作数量仍缺少的材料。安装 Auctionator 后，SkillUp 还会维护已追踪且启用了购买材料的路线的购物清单。未安装 Auctionator 时，每次点击都会将下一种材料填入拍卖行搜索框。"
 L["World drop"] = "世界掉落"
 L["Wrist"] = "手腕"
 L["You have it"] = "已拥有"
@@ -671,3 +668,9 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt
 
 L["Forever Ledger prices reagents."] = "Forever Ledger 为材料定价。" -- mt
+L["Show reagent search"] = "显示材料搜索"
+L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"点击专业窗口中的搜索来查找缺少的材料。如果未安装 Auctionator，每次点击会在拍卖行搜索框中填入下一种材料。"
+L["Keep Auctionator shopping lists"] = "保留 Auctionator 购物清单"
+L["Save lists for tracked routes set to Buy reagents and for recipe searches. Turn this off to stop saving lists and keep using Search."] =
+	"为设为购买材料的追踪路线和配方搜索保存购物清单。关闭后不再保存购物清单，仍可使用搜索。"

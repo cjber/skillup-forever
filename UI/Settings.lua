@@ -36,6 +36,8 @@ local function Checkbox(target, key, name, tooltip)
 end
 
 -- options: { value, label } pairs, in menu order.
+		elseif key == "auctionShoppingLists" then
+			ns.SyncAuctionShoppingLists()
 ---@param target SkillUpCategory
 local function Choice(target, key, name, options, tooltip)
 	local setting = Register(target, key, Settings.VarType.String, name)
@@ -354,8 +356,15 @@ function ns.RegisterSettings()
 		Checkbox(
 			rows,
 			"auctionSearch",
-			L["Show reagent search and keep shopping lists"],
-			L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."]
+			L["Show reagent search"],
+			L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."]
+		)
+
+		Checkbox(
+			rows,
+			"auctionShoppingLists",
+			L["Keep Auctionator shopping lists"],
+			L["Save lists for tracked routes set to Buy reagents and for recipe searches. Turn this off to stop saving lists and keep using Search."]
 		)
 
 		Checkbox(

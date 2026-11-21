@@ -204,6 +204,23 @@ equal(
 	"Linen Clothx2",
 	"the button saves the crafting list"
 )
+-- Turning off persistent lists still lets the button run a search.
+local craftingList = ns.AuctionListName("crafting")
+api.DeleteShoppingList = function(_, name)
+	c.shoppingLists[name] = nil
+end
+c.shoppingLists["My own list"] = { "Linen Cloth" }
+-- Assign the saved setting so this regression reaches the old writer as well.
+ns.db.auctionShoppingLists = false
+ns.Changed("settings")
+c.Advance(0)
+local writesBefore = listWrites
+search.scripts.OnClick(search)
+equal(listWrites, writesBefore, "search with lists disabled makes no persistent write")
+equal(#c.auctionSearches, 2, "search with lists disabled still runs Auctionator")
+equal(c.shoppingLists[craftingList], nil, "disabling lists removes the old crafting list")
+equal(c.shoppingLists["My own list"][1], "Linen Cloth", "disabling lists preserves player lists")
+
 c.Fire("AUCTION_HOUSE_CLOSED")
 house.shown = false
 c.Advance(0)

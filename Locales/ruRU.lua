@@ -216,8 +216,6 @@ L["Scan the auction house with Auctionator, or visit a vendor, to price reagents
 	"Просканируйте аукцион с Auctionator или посетите торговца, чтобы узнать цены реагентов."
 L["Scroll"] = "Рецепт"
 L["Search"] = "Поиск"
-L["Show reagent search and keep shopping lists"] =
-	"Показывать поиск реагентов и обновлять списки покупок"
 L["Sells for"] = "Продается за"
 L["Sells for x%g"] = "Продается за x%g"
 L["Set waypoint"] = "Поставить точку маршрута"
@@ -290,8 +288,6 @@ L["Waypoint to the quest giver: %s"] = "Точка маршрута к тому,
 L["What's new after an update"] = "Что нового после обновления"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
-L["Click Search in the Professions window to look for the reagents your chosen crafts still need. With Auctionator, SkillUp also keeps shopping lists for tracked routes set to Buy reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
-	"Нажмите «Поиск» в окне профессий, чтобы найти недостающие реагенты для выбранного количества изделий. С Auctionator SkillUp также обновляет списки покупок для отслеживаемых маршрутов с включённой настройкой «Купить реагенты». Без Auctionator каждое нажатие вводит следующий реагент в поле поиска аукциона."
 L["World drop"] = "Случайная добыча"
 L["Wrist"] = "Запястья"
 L["You have it"] = "У вас есть"
@@ -736,3 +732,9 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
 
 L["Forever Ledger prices reagents."] = "Forever Ledger оценивает реагенты." -- mt
+L["Show reagent search"] = "Показывать поиск реагентов"
+L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
+	"Нажмите «Поиск» в окне профессий, чтобы найти недостающие реагенты. Без Auctionator каждое нажатие подставляет следующий реагент в строку поиска аукциона."
+L["Keep Auctionator shopping lists"] = "Сохранять списки покупок Auctionator"
+L["Save lists for tracked routes set to Buy reagents and for recipe searches. Turn this off to stop saving lists and keep using Search."] =
+	"Сохраняет списки для отслеживаемых маршрутов с покупкой реагентов и для поиска по рецептам. Отключите, чтобы перестать сохранять списки и продолжать пользоваться поиском."

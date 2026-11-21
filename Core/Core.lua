@@ -56,6 +56,7 @@ local DEFAULTS = {
 	buffProfession = {}, -- ["Name-Realm"] = skill line: the profession the Buffs page shows
 	onlyBuffsForLevel = {}, -- ["Name-Realm"] = true: the buffs page hides buffs this character's level cannot use
 	merchantButton = true, -- the merchant window's "Reagents still needed" button
+	auctionShoppingLists = true,
 	auctionSearch = true, -- the Professions window's reagent search while the auction house is open
 	reagentTooltip = "off", -- reagent lines on item tooltips cost frame rate on every hover (#811)
 	showTooltipRoute = true,
@@ -254,6 +255,10 @@ local function LoadDB()
 	if loaded.workingOvertimeOffSeen ~= true then
 		loaded.includeWorkingOvertime = false
 		loaded.workingOvertimeOffSeen = true
+	end
+	-- Before shopping lists had their own setting, turning Search off also stopped route lists.
+	if loaded.auctionShoppingLists == nil and loaded.auctionSearch == false then
+		loaded.auctionShoppingLists = false
 	end
 	for key, value in pairs(DEFAULTS) do
 		if type(loaded[key]) ~= type(value) then

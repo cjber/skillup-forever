@@ -6,6 +6,7 @@
 ---@field GetAuctionAgeByItemID fun(caller: string, itemID: integer): number?
 ---@field RegisterForDBUpdate? fun(caller: string, callback: fun())
 ---@field CreateShoppingList fun(caller: string, name: string, searches: string[])
+---@field DeleteShoppingList? fun(caller: string, name: string)
 -- A list's search strings in its own order; it raises for a name no list has, so a caller reads a gone list from
 -- the error.
 ---@field GetShoppingListItems? fun(caller: string, name: string): string[]

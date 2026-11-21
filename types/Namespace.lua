@@ -183,6 +183,7 @@
 ---@field DetailsBarAnchor fun(form: SkillUpSchematicForm): FontString? the pane's frame the bar sits under
 ---@field DetailsBarRoom fun(form: SkillUpSchematicForm, anchor: FontString, height: number): boolean? whether the pane leaves the bar its room, nil before it is laid out
 ---@field AuctionatorAutoscan fun(): boolean?
+---@field SyncAuctionShoppingLists fun()
 ---@field AuctionListName fun(profession: string): string?
 ---@field AuctionListNote fun(names: string[]?): string? what the Shopping list and the Search tooltip say about the list
 ---@field KeptAuctionList fun(skillLine: integer?, profession: string): string? the list SkillUp keeps for a route
@@ -321,6 +322,7 @@
 ---@field buffProfession table<string, integer>
 ---@field onlyBuffsForLevel table<string, boolean>
 ---@field merchantButton boolean
+---@field auctionShoppingLists boolean
 ---@field auctionSearch boolean
 ---@field detailsBar boolean
 ---@field reagentTooltip 'off'|'route'|'full'

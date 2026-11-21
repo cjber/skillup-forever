@@ -190,7 +190,7 @@ equal(anchorPoint[1], "TOPLEFT", "the bar is anchored by its top left")
 equal(anchorPoint[2], outputText, "under the recipe's own name")
 equal(anchorPoint[3], "BOTTOMLEFT", "at the name's bottom left")
 equal(anchorPoint[4], 0, "in the name's column")
-equal(anchorPoint[5], -2, "one small gap under it")
+equal(anchorPoint[5], -6, "a clear gap under it")
 equal(ns.DetailsBarAnchor(form), outputText, "the name is the anchor when the recipe needs no tool")
 equal(
 	ns.DetailsBarRoom(form, outputText, details.bar:GetHeight()),

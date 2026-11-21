@@ -11,6 +11,7 @@ local REAGENT_ICON_SIZE = 33
 local SCROLL_TOP = 14
 local CONTENT_LEFT, CONTENT_TOP = 28, 28 - SCROLL_TOP
 local TITLE_GAP, TITLE_RIGHT, TITLE_RISE = 14, 6, 17
+local BAR_GAP = 6
 
 ---@class SkillUpPreviewIcon : Button
 ---@field Icon Texture
@@ -378,8 +379,8 @@ local function Refresh()
 		local scale = math.min(1, titleWidth / bar:GetWidth())
 		bar:SetScale(scale)
 		ns.LayoutSkillBar(bar, thresholds, skill)
-		bar:SetPoint("TOPLEFT", barAnchor, "BOTTOMLEFT", 0, -2)
-		headerHeight = headerHeight + 2 + bar:GetHeight() * scale
+		bar:SetPoint("TOPLEFT", barAnchor, "BOTTOMLEFT", 0, -BAR_GAP)
+		headerHeight = headerHeight + BAR_GAP + bar:GetHeight() * scale
 	else
 		bar:Hide()
 	end

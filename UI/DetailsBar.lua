@@ -14,7 +14,7 @@ end
 -- below it, so it clears the icon; and it only draws where the client has left it that room above the reagents
 -- header, so a wrapped name or a tool line that filled the space keeps it hidden instead of covering anything.
 -- A native description takes that space too, and keeps the bar hidden as before (#660, #674).
-local BAR_GAP = 2
+local BAR_GAP = 6
 
 ---@class SkillUpDetailsBar : Frame
 ---@field bar SkillUpBar

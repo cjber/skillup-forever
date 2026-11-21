@@ -218,7 +218,7 @@ local function RecipesOf(skillLine)
 	return bySkillLine[skillLine] or {}
 end
 
--- One craft's reagent cost, what it makes and its net: the price module's answer. A headless client
+-- One craft's reagent cost, what it makes and its net: the price module's answer. A client
 -- without that module knows only the net, which stands in for both.
 ---@param recipeID integer
 ---@return number?, SkillUpValue?, number?

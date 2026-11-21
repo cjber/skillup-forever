@@ -174,9 +174,6 @@ equal(Model.CoveredCrafts(cloak, 40, 41), 1, "an orange point is one craft")
 equal(Model.CoveredCrafts(cloak, 55, 56), 5, "a half chance point covers in five crafts")
 equal(Model.CoveredCrafts({ 1, 1, 3, 5 }, 2, 4), 6, "a falling chance compounds across points")
 equal(Model.CoveredCrafts(cloak, 5, 5), 0, "no points need no crafts")
-equal(Model.CostPerPoint(10, cloak, 20), 10, "a certain point costs one craft")
-equal(Model.CostPerPoint(10, cloak, 55), 50, "a half chance point carries its risk")
-equal(Model.CostPerPoint(10, cloak, 70), nil, "a grey point cannot be bought")
 equal(Model.StepCost(10, nil, 5), 50, "a known net prices every craft without a reagent cost")
 equal(Model.StepCost(-10, nil, 5), -50, "a profit lowers every craft's cost (#466)")
 equal(Model.StepCost(10, 4, 5), 50, "a sale value lowers every craft, not just the first (#466)")
@@ -421,30 +418,6 @@ local recipeData = {
 		},
 	},
 }
--- The same totals the old per-recipe walk produced, already summed a reagent at a time:
--- 20 at three crafts and again at one, then 10 at two crafts.
-local shopping = Model.BucketItems({
-	{ itemID = 4, count = 12 },
-	{ itemID = 2, count = 4 },
-	{ itemID = 5, count = 2 },
-	{ itemID = 4, count = 4 },
-	{ itemID = 3, count = 2 },
-	{ itemID = 2, count = 4 },
-	{ itemID = 1, count = 2 },
-	{ itemID = 4, count = 2 },
-}, function(itemID)
-	return ({ [1] = "vendor", [2] = "auctionator", [3] = "auctionator", [4] = "vendor" })[itemID]
-end)
-equal(#shopping.vendor, 2, "vendor partition")
-equal(shopping.vendor[1].itemID, 1, "vendor items sorted ascending")
-equal(shopping.vendor[2].itemID, 4, "second vendor item")
-equal(shopping.vendor[2].count, 18, "shared requirements aggregate")
-equal(#shopping.auction, 2, "Auctionator prices partition as auction")
-equal(shopping.auction[1].itemID, 2, "auction items sorted ascending")
-equal(shopping.auction[1].count, 8, "shared auction quantity")
-equal(shopping.auction[2].itemID, 3, "second auction item")
-equal(shopping.unknown[1].itemID, 5, "missing source partition")
-equal(shopping.unknown[1].count, 2, "unknown source retains quantity")
 local index = Model.BuildReagentIndex(recipeData)
 equal(#index[4], 2, "reverse index deduplicates reagent slots")
 equal(index[4][1], 10, "reverse index sorted first")

@@ -800,9 +800,12 @@ local function Planner(snapshot)
 	---@param skill number
 	---@param pool table<integer, number>
 	---@param stock table<integer, number>?
+	---@param best SkillUpCandidate|false|nil
+	---@param bestKey number?
+	---@param bestChance number?
 	---@return number?
 	---@return number?
-	local function PoolRank(recipe, skill, pool, stock)
+	local function PoolRank(recipe, skill, pool, stock, best, bestKey, bestChance)
 		local ups = math.max(recipe.skillUps or 1, 1)
 		local chance = Model.Chance(recipe.thresholds, skill)
 		if not chance or chance <= 0 then
@@ -811,6 +814,12 @@ local function Planner(snapshot)
 		local crafts = Covered(recipe.thresholds, skill, skill + ups, ups)
 		local batch
 		if recipe.stockSensitive and stockCost then
+			-- Even free reagents pay craft time in both branches of RouteStepCost.
+			local time = Model.CRAFT_TIME_COST
+			local floor = math.min(time * crafts, time + time * (crafts - 1)) / ups
+			if not Beats(recipe, floor, chance, best, bestKey, bestChance, buffs) then
+				return nil, chance
+			end
 			batch = stockCost(recipe.recipeID, crafts, pool, stock, false)
 		else
 			batch = PoolReagentCost(recipe, crafts, pool)
@@ -943,7 +952,7 @@ local function Planner(snapshot)
 			-- at this skill, which can only change which of them wins here.
 			local best, bestKey, bestChance = BestAt(skill)
 			for _, recipe in ipairs(pooled) do
-				local key, chance = PoolRank(recipe, skill, pool, stock)
+				local key, chance = PoolRank(recipe, skill, pool, stock, best, bestKey, bestChance)
 				if Beats(recipe, key, chance, best, bestKey, bestChance, buffs) then
 					best, bestKey, bestChance = recipe, key, chance
 				end
@@ -951,7 +960,7 @@ local function Planner(snapshot)
 			if extra then
 				local key, chance
 				if IsPooled(extra) then
-					key, chance = PoolRank(extra, skill, pool, stock)
+					key, chance = PoolRank(extra, skill, pool, stock, best, bestKey, bestChance)
 				else
 					key, chance = RankAt(extra, skill)
 				end

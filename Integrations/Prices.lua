@@ -651,7 +651,11 @@ local MAX_SUB_DEPTH = 3
 -- ObtainCost by every input its answer reads: item, count, depth, purchase mode, and the ledger balance and
 -- cycle-stack membership of each item its subtree can reach. A route prices the same subtree under the same
 -- ledger many times over (every batch count, every stock split), so without this the recursion is exponential.
----@type table<string, {cost: number?, maker: SkillUpMakerChoice?, after: table<integer, number>?}>
+---@class SkillUpCostQuote
+---@field cost number?
+---@field maker SkillUpMakerChoice?
+---@field after table<integer, number>?
+---@type table<string, table<number, SkillUpCostQuote>>
 local obtainCost = {}
 -- The items ObtainCost can read below an item at a depth: the item, and each usable maker's reagents one level down.
 ---@type table<integer, table<integer, integer[]>>
@@ -949,22 +953,20 @@ local function BatchCandidates(itemID, depth, ledger, firstBatch, lastBatch, qua
 		-- Spare batch output bends a cost the same way stock does.
 		stock = stock + math.max(ledger[-id] or 0, 0)
 	end
-	local wanted, list = {}, {}
+	-- Both buy bends are ordered by batch count. The final bend already covers the last batch.
+	local list = {}
 	local function Span(from, to)
-		for batches = math.max(firstBatch, from), math.min(lastBatch, to) do
-			if not wanted[batches] then
-				wanted[batches] = true
-				list[#list + 1] = batches
-			end
+		for batches = math.max(firstBatch, from, (list[#list] or 0) + 1), math.min(lastBatch, to) do
+			list[#list + 1] = batches
 		end
 	end
 	Span(firstBatch, firstBatch + ((depth + 1) * stock + 1) * period)
-	for _, units in ipairs({ count - first, count }) do
-		local bend = math.floor(units / quantity)
-		Span(bend - period, bend + period + 1)
+	if list[#list] ~= lastBatch then
+		local vendorBend = math.floor((count - first) / quantity)
+		local buyBend = math.floor(count / quantity)
+		Span(vendorBend - period, vendorBend + period + 1)
+		Span(buyBend - period, lastBatch)
 	end
-	Span(lastBatch - period, lastBatch)
-	table.sort(list)
 	return list
 end
 
@@ -1145,6 +1147,37 @@ local function StockShares(reagents, ledger, needs, depth, stack)
 end
 ns.StockShares = StockShares
 
+-- A key is consumed before pricing can recurse, so the parts can reuse one buffer.
+---@type (number|string)[]
+local quoteKeyParts = {}
+
+-- Counts under the same ledger and cycle stack share one table.
+---@param itemID integer
+---@param depth integer
+---@param stack table<integer, true>?
+---@param remaining table<integer, number>?
+---@param forPurchases boolean?
+---@return table<number, SkillUpCostQuote>
+local function CostQuotes(itemID, depth, stack, remaining, forPurchases)
+	local reach = Reach(itemID, depth)
+	local parts = quoteKeyParts
+	parts[1], parts[2], parts[3] = itemID, depth, forPurchases and 1 or 0
+	local last = 3
+	for _, id in ipairs(reach) do
+		parts[last + 1] = remaining and remaining[id] or "-"
+		parts[last + 2] = remaining and remaining[-id] or 0
+		parts[last + 3] = stack and stack[id] and "s" or ""
+		last = last + 3
+	end
+	local key = table.concat(parts, ":", 1, last)
+	local quotes = obtainCost[key]
+	if not quotes then
+		quotes = {}
+		obtainCost[key] = quotes
+	end
+	return quotes
+end
+
 ---@param itemID integer
 ---@param count number
 ---@param depth integer
@@ -1152,9 +1185,11 @@ ns.StockShares = StockShares
 ---@param remaining table<integer, number>?
 ---@param take boolean?
 ---@param forPurchases boolean? Price whole batches for an acquisition decision.
+---@param stableQuotes table<number, SkillUpCostQuote>?
 ---@return number?
 ---@return SkillUpMakerChoice?
-ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases)
+---@return table<integer, number>? after
+ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases, stableQuotes)
 	if stack and stack[itemID] then
 		return nil
 	end
@@ -1173,23 +1208,15 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 		local each = UnitCost(itemID, depth, stack)
 		return each, depth > 0 and unitMakers[itemID] or nil
 	end
-	local reach = Reach(itemID, depth)
-	local parts = { itemID .. ":" .. count .. ":" .. depth .. ":" .. (forPurchases and 1 or 0) }
-	for _, id in ipairs(reach) do
-		parts[#parts + 1] = (remaining and remaining[id] or "-")
-			.. "+"
-			.. (remaining and remaining[-id] or 0)
-			.. (stack and stack[id] and "s" or "")
-	end
-	local key = table.concat(parts, ":")
-	local cached = obtainCost[key]
+	local quotes = stableQuotes or CostQuotes(itemID, depth, stack, remaining, forPurchases)
+	local cached = quotes[count]
 	if cached then
 		if take and remaining and cached.after then
 			for id, balance in pairs(cached.after) do
 				remaining[id] = balance
 			end
 		end
-		return cached.cost, cached.maker
+		return cached.cost, cached.maker, cached.after
 	end
 	local ledger = remaining or {}
 	-- Spare output an earlier whole batch made is paid for: it covers what it can before anything is bought or made.
@@ -1208,13 +1235,25 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 	---@type SkillUpMakerChoice?
 	local maker
 	local chosenStock
+	local chosenChild, chosenVendor, chosenSpare
 	if depth > 0 and #makers > 0 and wanted > 0 then
 		stack = stack or {}
 		stack[itemID] = true
 		for _, recipeID in ipairs(makers) do
 			if UsableMaker(recipeID) then
 				local quantity, reagents = assert(OutputQuantity(recipeID)), ns.Reagents(recipeID) or {}
-				-- Test each whole batch count. The remaining demand buys the cheapest available units first.
+				-- With one reagent and no path back to this item, every batch count gives the child
+				-- the same ledger and needs no sibling split. Only the winner's balances are replayed.
+				local child = #reagents == 1 and reagents[1] or nil
+				if child then
+					for _, id in ipairs((Reach(child.itemID, depth - 1))) do
+						if id == itemID then
+							child = nil
+							break
+						end
+					end
+				end
+				local childQuotes = child and CostQuotes(child.itemID, depth - 1, stack, ledger, true)
 				local lastBatch = math.ceil(wanted / quantity)
 				local firstBatch = buy and 1 or math.max(1, math.ceil((wanted - first) / quantity))
 				for _, batches in
@@ -1223,36 +1262,56 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 					local purchases = math.max(wanted - batches * quantity, 0)
 					local vendorUnits = math.min(purchases, first)
 					local rest = purchases - vendorUnits
-					local trial = {}
-					for id, balance in pairs(ledger) do
-						trial[id] = balance
-					end
-					if vendor then
-						trial[itemID] = available - vendorUnits
-					end
-					-- What is left of the old spare, plus what this whole batch makes beyond the need.
-					trial[-itemID] = (ledger[-itemID] or 0) - spare + batches * quantity - (wanted - purchases)
 					---@type number?
 					local total = vendorUnits * vendorCopper + rest * (buy or 0)
-					local needs = {}
-					for index, reagent in ipairs(reagents) do
-						needs[index] = reagent.quantity * batches
-					end
-					local shares = StockShares(reagents, trial, needs, depth - 1, stack)
-					for index, reagent in ipairs(reagents) do
-						local caps = shares and shares[index]
-						local stockForReagent = StockFor(trial, caps)
-						local each =
-							ObtainCost(reagent.itemID, needs[index], depth - 1, stack, stockForReagent, true, true)
-						if not each then
-							total = nil
-							break
+					local trial, childAfter
+					if child and childQuotes then
+						local need = child.quantity * batches
+						local quote = childQuotes[need]
+						local each
+						if quote then
+							each, childAfter = quote.cost, quote.after
+						else
+							local cost, _, after =
+								ObtainCost(child.itemID, need, depth - 1, stack, ledger, false, true, childQuotes)
+							each, childAfter = cost, after
 						end
-						SpendStock(trial, stockForReagent, caps)
-						total = total + each * needs[index]
+						total = each and total + each * need
+					else
+						trial = {}
+						for id, balance in pairs(ledger) do
+							trial[id] = balance
+						end
+						if vendor then
+							trial[itemID] = available - vendorUnits
+						end
+						-- What is left of the old spare, plus what this whole batch makes beyond the need.
+						trial[-itemID] = (ledger[-itemID] or 0) - spare + batches * quantity - (wanted - purchases)
+						local needs = {}
+						for index, reagent in ipairs(reagents) do
+							needs[index] = reagent.quantity * batches
+						end
+						local shares = StockShares(reagents, trial, needs, depth - 1, stack)
+						for index, reagent in ipairs(reagents) do
+							local caps = shares and shares[index]
+							local stockForReagent = StockFor(trial, caps)
+							local each =
+								ObtainCost(reagent.itemID, needs[index], depth - 1, stack, stockForReagent, true, true)
+							if not each then
+								total = nil
+								break
+							end
+							SpendStock(trial, stockForReagent, caps)
+							total = total + each * needs[index]
+						end
 					end
 					if total and (not best or total < best) then
 						best, chosenStock = total, trial
+						chosenChild = childAfter
+						chosenVendor = child and vendor and available - vendorUnits or nil
+						chosenSpare = child
+								and (ledger[-itemID] or 0) - spare + batches * quantity - (wanted - purchases)
+							or nil
 						maker = {
 							recipeID = recipeID,
 							quantity = quantity,
@@ -1266,10 +1325,20 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 	end
 	-- What this choice leaves of the stock its subtree can reach; the ledger outside it is untouched.
 	local after
-	if chosenStock then
+	if maker then
+		chosenStock = chosenStock or ledger
 		after = {}
-		for _, id in ipairs(reach) do
+		for _, id in ipairs((Reach(itemID, depth))) do
 			after[id], after[-id] = chosenStock[id], chosenStock[-id]
+		end
+		if chosenSpare then
+			after[itemID] = chosenVendor or after[itemID]
+			after[-itemID] = chosenSpare
+		end
+		if chosenChild then
+			for id, balance in pairs(chosenChild) do
+				after[id] = balance
+			end
 		end
 	elseif vendor or spare > 0 then
 		after = { [itemID] = vendor and available - first or nil, [-itemID] = (ledger[-itemID] or 0) - spare }
@@ -1283,8 +1352,8 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 	if not forPurchases and (first == 0 or not vendor) then
 		each = WithSaleFloor(itemID, each)
 	end
-	obtainCost[key] = { cost = each, maker = maker, after = after }
-	return each, maker
+	quotes[count] = { cost = each, maker = maker, after = after }
+	return each, maker, after
 end
 
 ---@param itemID integer

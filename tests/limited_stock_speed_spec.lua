@@ -38,6 +38,17 @@ local c = Fixture()
 local ns = c.ns
 local shares = ns.StockShares
 local calls = 0
+local joins = 0
+if not probe then
+	-- Price memo keys account for most of these joins during a plan. Count all joins in the stub client
+	-- so the test can catch rebuilding a key for every batch count without hooking a private function.
+	c.G.table = setmetatable({
+		concat = function(...)
+			joins = joins + 1
+			return table.concat(...)
+		end,
+	}, { __index = table })
+end
 -- Expand asks for shares once for each recipe or subcraft it prices.
 if shares then
 	ns.StockShares = function(...)
@@ -85,9 +96,10 @@ for _, id in ipairs({ 165, 164, 202, 197 }) do
 				"Leatherworking keeps the uncached route and each step's material cost"
 			)
 			Client.equal(plan.cost, -872754, "Leatherworking keeps the uncached total cost")
-			-- Main made 44,980 calls on this input. This bound leaves room for the chosen crafts and final pricing.
-			assert(calls <= 3500, "expected at most 3500 stock expansions, got " .. calls)
-			print("limited_stock_speed_spec: ok (" .. calls .. " stock expansions)")
+			-- Quote reuse alone still made 2,860 calls, including candidates that could never win.
+			assert(calls <= 400, "expected at most 400 stock expansions, got " .. calls)
+			assert(joins <= 22000, "expected at most 22000 table joins, got " .. joins)
+			print(string.format("limited_stock_speed_spec: ok (%d stock expansions, %d table joins)", calls, joins))
 		end
 	end
 end

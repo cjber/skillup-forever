@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.14] - 2026-11-21
+
+### Fixed
+
+- **Per-character settings save on Forever realms.** The client reports no realm name there, so the skipped recipes, collect mode, gear filter, learned recipes and Auctionator list name were never saved. Characters are now told apart by name, surname and server, and characters on named realms keep their settings.
+
 ## [1.14.13] - 2026-11-20
 
 ### Fixed

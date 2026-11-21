@@ -350,7 +350,7 @@ local function GatherableUnknown(reagents)
 	return missing
 end
 
-local StockReagentCost
+local NewStockReagentCost
 
 -- What the planner works from: the recipes this character knows, for any of its professions, from
 -- the bundled recipe data plus the learned record, so the profession needn't be open. `known` adds
@@ -372,7 +372,7 @@ local function Snapshot(profession, target, known)
 		-- level can use (#357).
 		buffs = ns.UsableBuffs(UnitLevel("player") or 0),
 		held = {},
-		stockCost = StockReagentCost,
+		stockCost = NewStockReagentCost(),
 	}
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
 		local thresholds = not Skipped(recipeID) and ns.Model.Get(recipeID)
@@ -994,25 +994,66 @@ local function ExpandedMaterialCost(part)
 	end
 end
 
----@param recipeID integer
----@param crafts number
----@param pool table<integer, number>
----@param stock table<integer, number>?
----@param take boolean
----@return number?
-StockReagentCost = function(recipeID, crafts, pool, stock, take)
-	local bags, remaining = pool, stock
-	if not take then
-		bags, remaining = {}, {}
-		for itemID, count in pairs(pool) do
-			bags[itemID] = count
+-- Quotes are local to a planning snapshot. Different walks can share them when they reach the same
+-- craft count with the same relevant balances. The chosen craft still spends against the route's live balances.
+NewStockReagentCost = function()
+	---@type table<integer, integer[]>
+	local dependencies = {}
+	---@type table<integer, table<number, {bags: table<integer, number>, stock: table<integer, number>, cost: number?}>>
+	local quotes = {}
+	local emptyStock = {}
+	return function(recipeID, crafts, pool, stock, take)
+		if take then
+			local _, raw, used = Expand(recipeID, crafts, 0, {}, pool, nil, stock)
+			return ExpansionCost(raw, used)
 		end
-		for itemID, count in pairs(stock or {}) do
-			remaining[itemID] = count
+		local items = dependencies[recipeID]
+		if not items then
+			items = {}
+			local seen = {}
+			for _, reagent in ipairs(ns.Reagents(recipeID) or {}) do
+				local reachable = ns.ItemCostDependencies(reagent.itemID, MAX_SUB_DEPTH)
+				for _, itemID in ipairs(reachable) do
+					if not seen[itemID] then
+						seen[itemID] = true
+						items[#items + 1] = itemID
+					end
+				end
+			end
+			dependencies[recipeID] = items
+			quotes[recipeID] = {}
 		end
+		local ledger = stock or emptyStock
+		local byCount = quotes[recipeID]
+		local quote = byCount[crafts]
+		if quote then
+			local same = true
+			for _, itemID in ipairs(items) do
+				if
+					quote.bags[itemID] ~= pool[itemID]
+					or quote.stock[itemID] ~= ledger[itemID]
+					or quote.stock[-itemID] ~= ledger[-itemID]
+				then
+					same = false
+					break
+				end
+			end
+			if same then
+				return quote.cost
+			end
+		end
+		local bags, balances, bagsBefore, stockBefore = {}, {}, {}, {}
+		for _, itemID in ipairs(items) do
+			local held, available, spare = pool[itemID], ledger[itemID], ledger[-itemID]
+			bags[itemID], bagsBefore[itemID] = held, held
+			balances[itemID], stockBefore[itemID] = available, available
+			balances[-itemID], stockBefore[-itemID] = spare, spare
+		end
+		local _, raw, used = Expand(recipeID, crafts, 0, {}, bags, nil, balances)
+		local cost = ExpansionCost(raw, used)
+		byCount[crafts] = { bags = bagsBefore, stock = stockBefore, cost = cost }
+		return cost
 	end
-	local _, raw, used = Expand(recipeID, crafts, 0, {}, bags, nil, remaining)
-	return ExpansionCost(raw, used)
 end
 
 -- What a cache keyed on the plan reads from one expansion of its crafts: the sub-craft steps, and each item's total

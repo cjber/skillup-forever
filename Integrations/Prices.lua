@@ -923,6 +923,7 @@ local function Reach(itemID, depth)
 	periods[itemID][depth] = period
 	return list, period
 end
+ns.ItemCostDependencies = Reach
 
 -- The batch counts worth pricing for count units made quantity per batch. Testing every count instead repeats the
 -- subtree's whole search per count at every depth, which froze the client on a long route (#899). The bound is exact:

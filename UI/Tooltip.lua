@@ -253,8 +253,12 @@ function ns.UnpricedHint()
 		return L["Scan the auction house with AHDB, or visit a vendor, to price reagents."]
 	elseif provider == "naowh" then
 		return L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."]
+	elseif provider == "foreverledger" then
+		return L["Run a full scan in Forever Ledger, or visit a vendor, to price reagents."]
 	end
-	return L["Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
+	-- luacheck: push no max line length
+	return L["Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."]
+	-- luacheck: pop
 end
 
 ---@param price SkillUpPrice
@@ -286,6 +290,8 @@ function ns.PriceSourceText(price)
 		return string.format(L["AHDB, %s"], ns.PriceAgeText(price))
 	elseif price.source == "naowh" then
 		return string.format(L["Naowh Forever, %s"], ns.PriceAgeText(price))
+	elseif price.source == "foreverledger" then
+		return string.format(L["Forever Ledger, %s"], ns.PriceAgeText(price))
 	elseif price.source == "tsm" then
 		return L["TradeSkillMaster"]
 	elseif price.source == "auction" then

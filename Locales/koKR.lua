@@ -37,8 +37,8 @@ L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."]
 	"/skillup unskip <recipe ID>는 하나를, /skillup unskip all은 모두 다시 보여줍니다."
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"상인 창에 재료 탭을 추가해 추적 중인 경로가 이 상인에게서 아직 필요한 재료와 총 비용을 보여 줍니다. 구매는 상인 창에서 직접 하세요."
-L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator/TradeSkillMaster / AHDB / Naowh Forever가 필요합니다."
+L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
+	"전문 기술로 채집하는 재료의 비용을 0 대신 판매 시 얻을 금액으로 계산합니다: 5% 수수료를 뺀 경매 가격, 또는 그보다 높으면 상점 판매 가격. 경로와 제조법 행의 비용에 쓰입니다. 경매 가격은 Auctionator/TradeSkillMaster / AHDB / Naowh Forever / Forever Ledger가 필요합니다."
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"공유 Forever 추적기를 놓은 자리에 유지합니다. 위쪽 손잡이로 더 이상 끌 수 없습니다."
 L["Lock the tracker"] = "추적기 잠금"
@@ -241,8 +241,8 @@ L["Sort recipes"] = "제조법 정렬"
 L["Source"] = "출처"
 L["Source unknown"] = "출처 알 수 없음"
 L["Stop tracking"] = "추적 해제"
-L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever, are after the 5% cut, and may not sell."] =
-	"제작 아이템의 판매 가격을 비용에서 뺍니다. 경매 가격은 Auctionator/TradeSkillMaster / AHDB / Naowh Forever가 필요하고, 5% 수수료를 뺀 값이며, 팔리지 않을 수도 있습니다."
+L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger, are after the 5% cut, and may not sell."] =
+	"제작 아이템의 판매 가격을 비용에서 뺍니다. 경매 가격은 Auctionator/TradeSkillMaster / AHDB / Naowh Forever / Forever Ledger가 필요하고, 5% 수수료를 뺀 값이며, 팔리지 않을 수도 있습니다."
 L["Taught by %s trainers."] = "%s 기술 전문가가 가르칩니다."
 L["The place this recipe is taught isn't known yet."] =
 	"이 제조법을 배우는 곳은 아직 알려지지 않았습니다."
@@ -268,8 +268,8 @@ L["Value gathered materials at what they'd sell for"] = "채집한 재료를 판
 L["Vendor"] = "상인"
 L["Vendor reagents"] = "상점 재료"
 L["Vendor sell price"] = "상점 판매 가격"
-L["Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"재료 가격을 알려면 상인을 방문하세요. 경매 가격은 Auctionator/TradeSkillMaster / AHDB / Naowh Forever가 필요합니다."
+L["Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
+	"재료 가격을 알려면 상인을 방문하세요. 경매 가격은 Auctionator/TradeSkillMaster / AHDB / Naowh Forever / Forever Ledger가 필요합니다."
 L["Waist"] = "허리"
 L["Waypoint to a trainer"] = "전문가로 웨이포인트"
 L["Waypoint to a vendor: %s"] = "상인으로 웨이포인트: %s"
@@ -427,8 +427,8 @@ L["Sells %d at a time"] = "한 번에 %d개 판매" -- mt
 L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
 	"이 경로는 주로 %s을(를) 사용합니다. 비용이나 판매 가치를 알 때까지 제조법 %d개가 제외됩니다."
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
-L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster / AHDB / Naowh Forever." -- mt
+L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
+	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster / AHDB / Naowh Forever / Forever Ledger." -- mt
 
 -- Shared debug log (ForeverCore's Core/Log.lua).
 L["Only buffs for your level"] = "내 레벨에 맞는 버프만"
@@ -662,6 +662,10 @@ L["AHDB, %s"] = "AHDB, %s" -- mt
 
 L["Naowh Forever, %s"] = "Naowh Forever, %s" -- mt
 
+L["Forever Ledger"] = "Forever Ledger" -- mt
+
+L["Forever Ledger, %s"] = "Forever Ledger, %s" -- mt
+
 L["you loot it from creatures, would sell for %s"] = "생물에게서 획득, 판매 예상액 %s" -- mt
 
 L["you gather it (%s), would sell for %s"] = "직접 채집 (%s), 판매 예상액 %s" -- mt
@@ -672,14 +676,17 @@ L["Scan the auction house with AHDB, or visit a vendor, to price reagents."] =
 L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."] =
 	"Naowh Forever의 경매 데이터를 업데이트하거나 상인을 방문하여 재료 가격을 확인하세요." -- mt
 
-L["Choose Auctionator, TradeSkillMaster, AHDB or Naowh Forever. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."] =
-	"Auctionator, TradeSkillMaster, AHDB 또는 Naowh Forever를 선택하세요. 선택한 가격이 우선하며 나머지는 누락된 가격을 채웁니다. 확인된 시점을 알면 툴팁에 표시합니다." -- mt
+L["Run a full scan in Forever Ledger, or visit a vendor, to price reagents."] =
+	"Run a full scan in Forever Ledger, or visit a vendor, to price reagents." -- mt
+
+L["Choose Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."] =
+	"Auctionator, TradeSkillMaster, AHDB, Naowh Forever 또는 Forever Ledger를 선택하세요. 선택한 가격이 우선하며 나머지는 누락된 가격을 채웁니다. 확인된 시점을 알면 툴팁에 표시합니다." -- mt
 
 L["Sort recipes in one list, learned first, then unlearned. Highest craft profit includes grey recipes. Default restores categories."] =
 	"배운 도안, 배우지 않은 도안 순으로 한 목록에 정렬합니다. 제작당 최고 이익에는 회색 도안도 포함됩니다. 기본값은 분류를 복원합니다." -- mt
 
-L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator/TradeSkillMaster, AHDB, Naowh Forever가 필요합니다." -- mt
+L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
+	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger가 필요합니다." -- mt
 L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
 	"적응형 안내는 제조법을 알려 줍니다. 제조법을 선택하고 전문 기술 창에서 만들 개수를 정하세요." -- mt
 L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt

@@ -38,8 +38,8 @@ L["/skillup unskip <recipe ID> shows one again, /skillup unskip all every one."]
 	"/skillup unskip <recipe ID> 恢复显示一个，/skillup unskip all 恢复全部。"
 L["A Reagents tab on a merchant's window that lists the reagents your tracked routes still need from that merchant and their total cost. Buy them from the merchant's own window."] =
 	"在商人窗口显示材料标签页，列出你追踪的路线仍需要从该商人处购买的材料及其总费用。请在商人窗口中购买。"
-L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"你的专业采集的材料按出售所得计价，而不是免费：扣除5%手续费后的拍卖价，或更高时按商人收购价。用于路线和配方行的成本。拍卖价需要Auctionator/TradeSkillMaster / AHDB / Naowh Forever。"
+L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
+	"你的专业采集的材料按出售所得计价，而不是免费：扣除5%手续费后的拍卖价，或更高时按商人收购价。用于路线和配方行的成本。拍卖价需要Auctionator/TradeSkillMaster / AHDB / Naowh Forever / Forever Ledger。"
 L["Keeps the shared Forever tracker where you put it. The grip at its top no longer drags it."] =
 	"将共享的 Forever 追踪器保持在您放置的位置。顶部的拖拽手柄不再移动它。"
 L["Lock the tracker"] = "锁定追踪器"
@@ -236,8 +236,8 @@ L["Sort recipes"] = "配方排序"
 L["Source"] = "来源"
 L["Source unknown"] = "来源未知"
 L["Stop tracking"] = "取消追踪"
-L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever, are after the 5% cut, and may not sell."] =
-	"从成本中减去制造物品的售价。拍卖价需要Auctionator/TradeSkillMaster / AHDB / Naowh Forever，已扣除5%手续费，且不一定能卖出。"
+L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger, are after the 5% cut, and may not sell."] =
+	"从成本中减去制造物品的售价。拍卖价需要Auctionator/TradeSkillMaster / AHDB / Naowh Forever / Forever Ledger，已扣除5%手续费，且不一定能卖出。"
 L["Taught by %s trainers."] = "由%s训练师教授。"
 L["The place this recipe is taught isn't known yet."] = "尚不清楚在哪里学习此配方。"
 L["The rest comes from a vendor or your gathering."] = "其余来自商人或你的采集。"
@@ -262,8 +262,8 @@ L["Value gathered materials at what they'd sell for"] = "按售价计算采集�
 L["Vendor"] = "商人"
 L["Vendor reagents"] = "商人材料"
 L["Vendor sell price"] = "商人收购价"
-L["Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"访问商人以获取材料价格。拍卖价需要Auctionator/TradeSkillMaster / AHDB / Naowh Forever。"
+L["Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
+	"访问商人以获取材料价格。拍卖价需要Auctionator/TradeSkillMaster / AHDB / Naowh Forever / Forever Ledger。"
 L["Waist"] = "腰部"
 L["Waypoint to a trainer"] = "前往训练师的路径点"
 L["Waypoint to a vendor: %s"] = "前往商人的路径点：%s"
@@ -414,8 +414,8 @@ L["Sells %d at a time"] = "每次出售 %d 个" -- mt
 L["This route is mostly %s: %d recipes are left out until their costs or sale values are known."] =
 	"此路线主要使用 %s：%d 个配方会在成本或出售价值确定后加入。"
 L["Price self-supplied reagents at auction values"] = "Price self-supplied reagents at auction values" -- mt
-L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster / AHDB / Naowh Forever." -- mt
+L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
+	"A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator/TradeSkillMaster / AHDB / Naowh Forever / Forever Ledger." -- mt
 
 -- Shared debug log (ForeverCore's Core/Log.lua).
 L["Only buffs for your level"] = "仅显示适合你等级的增益"
@@ -641,6 +641,10 @@ L["AHDB, %s"] = "AHDB, %s" -- mt
 
 L["Naowh Forever, %s"] = "Naowh Forever, %s" -- mt
 
+L["Forever Ledger"] = "Forever Ledger" -- mt
+
+L["Forever Ledger, %s"] = "Forever Ledger, %s" -- mt
+
 L["you loot it from creatures, would sell for %s"] = "从生物身上拾取，可售得%s" -- mt
 
 L["you gather it (%s), would sell for %s"] = "自行采集（%s），可售得%s" -- mt
@@ -651,14 +655,17 @@ L["Scan the auction house with AHDB, or visit a vendor, to price reagents."] =
 L["Update Naowh Forever's auction data, or visit a vendor, to price reagents."] =
 	"更新Naowh Forever的拍卖数据，或拜访商人以获取材料价格。" -- mt
 
-L["Choose Auctionator, TradeSkillMaster, AHDB or Naowh Forever. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."] =
-	"选择Auctionator、TradeSkillMaster、AHDB或Naowh Forever。优先采用所选来源的价格，其他来源补充缺失价格。已知记录时间时，鼠标提示会显示其距今时间。" -- mt
+L["Run a full scan in Forever Ledger, or visit a vendor, to price reagents."] =
+	"Run a full scan in Forever Ledger, or visit a vendor, to price reagents." -- mt
+
+L["Choose Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."] =
+	"选择Auctionator、TradeSkillMaster、AHDB、Naowh Forever或Forever Ledger。优先采用所选来源的价格，其他来源补充缺失价格。已知记录时间时，鼠标提示会显示其距今时间。" -- mt
 
 L["Sort recipes in one list, learned first, then unlearned. Highest craft profit includes grey recipes. Default restores categories."] =
 	"将配方排在同一列表中，已学会的在前，未学会的在后。单次制造利润排序包含灰色配方。默认恢复分类。" -- mt
 
-L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."] =
-	"这些材料没有商人价格。拍卖价需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever。" -- mt
+L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
+	"这些材料没有商人价格。拍卖价需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger。" -- mt
 L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
 	"自适应指引会给出配方。选中它，然后在专业窗口中选择制作数量。" -- mt
 L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt

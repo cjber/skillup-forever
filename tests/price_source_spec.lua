@@ -57,7 +57,8 @@ equal(
 local neither = Client.load({ data = DATA, auctionator = false })
 equal(
 	neither.ns.UnpricedHint(),
-	"Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever.",
+	"Visit a vendor to price reagents. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever "
+		.. "or Forever Ledger.",
 	"with neither installed the hint names both"
 )
 
@@ -104,19 +105,58 @@ for _, source in ipairs({ "ahdb", "naowh" }) do
 	ns.Changed("prices")
 	equal(ns.Price(4), nil, "broken and malformed providers leave prices unknown")
 end
+-- Forever Ledger's own scans: the typical price with its scan's age, nothing for an item the scan found none of.
+local ledger = Client.load({
+	data = DATA,
+	auctionator = false,
+	naowh = {},
+	foreverLedger = { [1] = { 250, 200, 4, 1700000000 - 86400 }, [3] = { nil, nil, 0, 1700000000 } },
+	saved = { priceSource = "foreverledger" },
+})
+equal(ledger.ns.db.priceSource, "foreverledger", "the saved Forever Ledger source is accepted")
+equal(ledger.ns.Price(1).copper, 250, "the chosen Forever Ledger price is its typical price")
+equal(ledger.ns.Price(1).source, "foreverledger", "and names Forever Ledger")
+equal(ledger.ns.Price(1).days, 1, "scan time becomes whole days")
+equal(ledger.ns.PriceSourceText(ledger.ns.Price(1)), "Forever Ledger, 1d ago", "source and age are visible")
+equal(ledger.ns.Price(3), nil, "an item scanned with none listed has no price")
+local ledgerHint = "Run a full scan in Forever Ledger, or visit a vendor, to price reagents."
+equal(ledger.ns.UnpricedHint(), ledgerHint, "the hint follows a chosen Forever Ledger")
+equal(
+	ledger.ns.RouteBlocked({ crafts = {}, ranks = {}, profession = {}, unpriced = 1 }),
+	ledgerHint,
+	"a route blocked on prices names Forever Ledger"
+)
+ledger.naowh[4] = { 90, 1700000000 }
+ledger.ns.Changed("prices")
+equal(ledger.ns.Price(4).source, "naowh", "another installed source fills a gap in Forever Ledger")
+ledger.SetSetting("priceSource", "naowh")
+equal(ledger.ns.Price(1).source, "foreverledger", "Forever Ledger fills a gap in the chosen source")
+ledger.G.ForeverLedgerAPI.GetPrice = function()
+	error("broken provider")
+end
+ledger.ns.Changed("prices")
+equal(ledger.ns.Price(1), nil, "a Forever Ledger that errors leaves the price unknown")
+local noLedger = Client.load({ data = DATA, saved = { priceSource = "foreverledger" } })
+noLedger.auction = { [1] = 400 }
+noLedger.ns.Changed("prices")
+equal(noLedger.ns.HasForeverLedger(), false, "Forever Ledger is absent when not installed")
+equal(noLedger.ns.AuctionProvider(), "auctionator", "an absent chosen Forever Ledger gives way")
+equal(noLedger.ns.Price(1).source, "auctionator", "to the installed source's price")
+
 -- Every chosen source wins; absent observations fall back in the same fixed order.
 local chain = Client.load({
 	data = DATA,
 	tsm = { [1] = 200 },
 	ahdb = { [1] = { 1700000000, 300 } },
 	naowh = { [1] = { 400, 1700000000 } },
+	foreverLedger = { [1] = { 500, 450, 3, 1700000000 } },
 })
 chain.auction[1] = 100
-for index, source in ipairs({ "auctionator", "tsm", "ahdb", "naowh" }) do
+for index, source in ipairs({ "auctionator", "tsm", "ahdb", "naowh", "foreverledger" }) do
 	chain.SetSetting("priceSource", source)
 	equal(chain.ns.Price(1).copper, index * 100, "each chosen source takes precedence")
 end
-chain.naowh[1] = nil
+chain.foreverLedger[1] = nil
 chain.ns.Changed("prices")
 equal(chain.ns.Price(1).source, "auctionator", "the first fallback is Auctionator")
 chain.auction[1] = nil
@@ -125,9 +165,17 @@ equal(chain.ns.Price(1).source, "tsm", "the next fallback is TSM")
 chain.tsm[1] = nil
 chain.ns.Changed("prices")
 equal(chain.ns.Price(1).source, "ahdb", "the next fallback is AHDB")
+chain.ahdb[1] = nil
+chain.ns.Changed("prices")
+equal(chain.ns.Price(1).source, "naowh", "the next fallback is Naowh Forever")
+chain.SetSetting("priceSource", "auctionator")
+chain.naowh[1], chain.foreverLedger[1] = nil, { 500, 450, 3, 1700000000 }
+chain.ns.Changed("prices")
+equal(chain.ns.Price(1).source, "foreverledger", "the last fallback is Forever Ledger")
 for _, bad in ipairs({ -1, math.huge, 0 / 0, "bad", false }) do
 	chain.ahdb[1] = { 1700000000, bad }
 	chain.naowh[1] = { bad, 1700000000 }
+	chain.foreverLedger[1] = { bad, bad, 1, 1700000000 }
 	chain.ns.Changed("prices")
 	equal(chain.ns.Price(1), nil, "invalid new-source amounts stay unknown")
 end

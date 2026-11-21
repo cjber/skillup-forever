@@ -1119,8 +1119,8 @@
     },
     {
       "source": "UI/Settings.lua",
-      "sha256": "abb25fd552336cc40561c5fbaccb57622e2aff32f263886e0d8a04d5c024c03f",
-      "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded. Reviewed #880: the reagent search checkbox passes both revised phrases to the same settings initializer. Reviewed #873: the Route and trainer page's Attach to quest tracker row is ForeverCore.SettingsSections.RegisterTrackerAttach, a core-owned initializer, registered only when the running core has it (an older adopted standalone does not); excluded with the other settings fonts.",
+      "sha256": "38a2644c735b6c721490814ec3db46f24cbdd1cf3916b0e8a0cc679023be1334",
+      "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded. Reviewed #880: the reagent search checkbox passes both revised phrases to the same settings initializer. Reviewed #873: the Route and trainer page's Attach to quest tracker row is ForeverCore.SettingsSections.RegisterTrackerAttach, a core-owned initializer, registered only when the running core has it (an older adopted standalone does not); excluded with the other settings fonts. Reviewed the Forever Ledger price source: four descriptions name it and the price source choice gains an option, passed to the same initializers; no font change.",
       "bindings": []
     },
     {
@@ -1131,8 +1131,8 @@
     },
     {
       "source": "UI/Tooltip.lua",
-      "sha256": "93521a759b2558bdc722537f0d9311d4b5a502359e47b18d4bb2fefc87b81264",
-      "review": "Reviewed CreateSkillBar and LayoutSkillBar, recipe and item tooltip producers. Tooltip phrases and tooltip-owned fonts are excluded by policy. The reusable skill bar explicitly uses GameFontHighlightSmall and is also reparented by DetailsBar.lua, but no tooltip producer is included in this coverage claim. Dynamic threshold values and helper text are excluded.",
+      "sha256": "aa42181376c879bbcf41ab9856f6b1cd6935191396cc306ddbddd1d83f6dd0fd",
+      "review": "Reviewed CreateSkillBar and LayoutSkillBar, recipe and item tooltip producers. Tooltip phrases and tooltip-owned fonts are excluded by policy. The reusable skill bar explicitly uses GameFontHighlightSmall and is also reparented by DetailsBar.lua, but no tooltip producer is included in this coverage claim. Dynamic threshold values and helper text are excluded. Reviewed the Forever Ledger price source: UnpricedHint and PriceSourceText return two more tooltip and route-message strings; no widget or font setter changed.",
       "bindings": []
     },
     {

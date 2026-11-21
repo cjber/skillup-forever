@@ -207,6 +207,7 @@ local OPTIONAL_GLOBALS = {
 	TSM_API = true,
 	AuctionDB = true,
 	NaowhForever = true,
+	ForeverLedgerAPI = true,
 	-- TomTom: its addon table, present only when TomTom is installed and enabled.
 	TomTom = true,
 	-- Shortest Path Forever: its addon table, present only when that Forever addon is installed.
@@ -1453,7 +1454,7 @@ function Client.load(options)
 			},
 		}
 	end
-	c.ahdb, c.naowh = options.ahdb, options.naowh
+	c.ahdb, c.naowh, c.foreverLedger = options.ahdb, options.naowh, options.foreverLedger
 	c.ahdbListeners = {}
 	if options.ahdb then
 		G.AuctionDB = {
@@ -1475,6 +1476,18 @@ function Client.load(options)
 				local point = c.naowh[itemID]
 				if point then
 					return point[1], point[2]
+				end
+			end,
+		}
+	end
+	-- options.foreverLedger = { [itemID] = { typical, cheapest, listed, scannedAt } }, what Forever Ledger's scans hold.
+	if options.foreverLedger then
+		G.ForeverLedgerAPI = {
+			version = 1,
+			GetPrice = function(itemID)
+				local scan = c.foreverLedger[itemID]
+				if scan then
+					return scan[1], scan[2], scan[3], scan[4]
 				end
 			end,
 		}

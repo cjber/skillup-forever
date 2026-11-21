@@ -1847,8 +1847,10 @@ function ns.RouteBlocked(plan)
 		elseif provider then
 			return ns.UnpricedHint()
 		end
+		-- luacheck: push no max line length
 		local none =
-			L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
+			L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."]
+		-- luacheck: pop
 		return none
 	elseif plan.stopReason == "no_recipe" then
 		return string.format(L["Nothing you know skills up past %d."], plan.reached)

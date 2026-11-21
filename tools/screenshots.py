@@ -944,6 +944,7 @@ env = setmetatable({
 	NaowhForever = false,
 	ShortestPathForever = false,
 	IsLoggedIn = function() return true end,
+	ForeverLedgerAPI = false,
 	-- ForeverCore's shared services; the scene below fills them in.
 	ForeverCore = false,
 	BugGrabber = false,

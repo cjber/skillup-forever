@@ -185,7 +185,7 @@ function ns.RegisterSettings()
 			"priceSource",
 			L["Auction prices from"],
 			ns.PRICE_SOURCE_OPTIONS,
-			L["Choose Auctionator, TradeSkillMaster, AHDB or Naowh Forever. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."]
+			L["Choose Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger. The chosen price wins; the others fill gaps. Tooltips show the observation's age when known."]
 		)
 
 		Choice(
@@ -193,7 +193,7 @@ function ns.RegisterSettings()
 			"craftValue",
 			L["Count what crafts sell for"],
 			ns.CRAFT_VALUE_OPTIONS,
-			L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever, are after the 5% cut, and may not sell."]
+			L["Subtract what the crafted item sells for from its cost. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger, are after the 5% cut, and may not sell."]
 				.. " "
 				.. L["Region sale averages need TradeSkillMaster and its desktop app. They estimate value from reported regional sales and purchases, with the vendor price as a floor. They do not guarantee a sale."]
 		)
@@ -202,14 +202,14 @@ function ns.RegisterSettings()
 			rows,
 			"valueGathered",
 			L["Value gathered materials at what they'd sell for"],
-			L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
+			L["A material your professions gather costs what selling it would bring instead of nothing: its auction price after the 5% cut, or its vendor sell price if that is more. Used for the route and the costs on recipe rows. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."]
 		)
 
 		Checkbox(
 			rows,
 			"auctionOnly",
 			L["Price self-supplied reagents at auction values"],
-			L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB or Naowh Forever."]
+			L["A reagent you gather, loot or already own costs what selling it would bring - its auction price after the 5% cut, or its vendor sell price if that is more - instead of counting as free. With no market price it stays unpriced rather than free. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."]
 		)
 
 		-- The optional cost of one trip to buy more when a leg falls short. Zero is the default: no trip cost is

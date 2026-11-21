@@ -4,6 +4,7 @@
 Prints nothing when every pin is current. CLASSICDB_COMMIT is a named waiver in AGENTS.md and stays.
 """
 
+import argparse
 import datetime
 import json
 import os
@@ -68,7 +69,16 @@ def repin(source, name, value):
     return line.sub(f'{name} = "{value}"', source), found[0]
 
 
-def main():
+def parse_args(argv=None):
+    """`--help` prints the usage; anything unrecognised exits 2 before a single pin is touched."""
+    return argparse.ArgumentParser(
+        prog="bump_pins.py",
+        description="Move each generator pin to its newest upstream and print what moved, one line.",
+    ).parse_args(argv)
+
+
+def main(argv=None):
+    parse_args(argv)
     moved = []
     for name, (filename, label, shape, latest) in PINS.items():
         path = TOOLS / filename

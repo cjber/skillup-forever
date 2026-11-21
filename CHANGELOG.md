@@ -10,6 +10,24 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.14] - 2026-11-21
+
+### Added
+
+- **Forever Ledger prices reagents.** With Forever Ledger installed, SkillUp reads the typical price from its auction scans, shows how old the scan is, and lists it under *Auction prices from*. An item its last scan found none of stays unpriced. Thanks to vulpeep for the code (#908).
+
+### Changed
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+### Fixed
+
+- **A batch two reagents share is bought once.** When a recipe needs an item directly and again inside another crafted reagent, and one craft of that item makes two, the route, shopping list and recipe cost now use the spare from the first batch instead of buying a second one, whichever reagent comes first.
+- **The recipe cost splits a limited vendor's stock the way the route does.** Between two crafted reagents that both want the same scarce unit, the recipe tooltip now gives it to the one where it saves the most money, as the route already did.
+- **Route totals count whole batches.** When consecutive steps share a batch of a crafted reagent, the route charges for the batch once and uses its spare output in later steps.
+- **Per-character settings save on Forever realms.** The client reports no realm name there, so the skipped recipes, collect mode, gear filter, learned recipes and Auctionator list name were never saved. Characters are now told apart by name, surname and server, and characters on named realms keep their settings.
+- **Auction prices refresh after a visit.** Closing the auction house refreshes cached reagent prices from Forever Ledger, TradeSkillMaster and Naowh Forever.
+
 ## [1.14.13] - 2026-11-20
 
 ### Fixed

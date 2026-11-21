@@ -691,4 +691,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"적응형 안내는 제조법을 알려 줍니다. 제조법을 선택하고 전문 기술 창에서 만들 개수를 정하세요." -- mt
 L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt
 
-L["The shopping list opens again."] = "구매 목록이 다시 열립니다." -- mt
+L["Forever Ledger prices reagents."] = "Forever Ledger가 재료 가격을 알려줍니다." -- mt

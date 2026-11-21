@@ -679,4 +679,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"Die adaptive Anleitung nennt das Rezept. Wähle es aus und lege im Berufsfenster fest, wie viele du herstellst." -- mt
 L["Select %s in the recipe list first."] = "Wähle zuerst %s in der Rezeptliste aus." -- mt
 
-L["The shopping list opens again."] = "Die Einkaufsliste öffnet sich wieder." -- mt
+L["Forever Ledger prices reagents."] = "Forever Ledger bepreist Reagenzien." -- mt

@@ -670,4 +670,4 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"自适应指引会给出配方。选中它，然后在专业窗口中选择制作数量。" -- mt
 L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt
 
-L["The shopping list opens again."] = "购物清单又能打开了。" -- mt
+L["Forever Ledger prices reagents."] = "Forever Ledger 为材料定价。" -- mt

@@ -205,4 +205,4 @@ L["%s (level %d)"] = "%s (level %d)"
 
 L["Clicking a recipe selects it again under every sort."] = "Clicking a recipe selects it again under every sort."
 
-L["The shopping list opens again."] = "The shopping list opens again."
+L["Forever Ledger prices reagents."] = "Forever Ledger prices reagents."

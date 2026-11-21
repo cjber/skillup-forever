@@ -667,7 +667,7 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"自适应指引会给出配方。选中它，然后在专业窗口中选择制作数量。" -- mt
 L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt
 
-L["Forever Ledger prices reagents."] = "Forever Ledger 为材料定价。" -- mt
+L["Choose whether to keep Auctionator shopping lists."] = "选择是否保留 Auctionator 购物清单。" -- mt
 L["Show reagent search"] = "显示材料搜索"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"点击专业窗口中的搜索来查找缺少的材料。如果未安装 Auctionator，每次点击会在拍卖行搜索框中填入下一种材料。"

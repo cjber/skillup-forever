@@ -10,6 +10,23 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.15] - 2026-11-21
+
+### Added
+
+- **Choose whether to keep Auctionator shopping lists.** Turn off *Keep Auctionator shopping lists* under *Route and trainer* to stop saving SkillUp lists. Auctionator versions with list deletion also remove existing SkillUp lists. Buy reagents and recipe searches stay available. Thanks to a player on CurseForge for the suggestion (#851).
+
+### Changed
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+### Fixed
+
+- **The "updated to" line shows again after an update.** Store builds carried the release tag's `v` in their version, so the one chat line about what is new never matched and never printed.
+- **Long profession routes load faster when vendors have limited stock.** Thanks to user_nd8yffdjkebopqym and DemDragons for reporting the lag on CurseForge.
+- **Choice settings use dropdowns.** Pick the recipe tooltip position, pricing source and other named choices from a list. Thanks to a player on CurseForge for the suggestion (#919).
+- **Restore SkillUp defaults from its AddOns pages.** Choose *These Settings* on the SkillUp Forever index to restore all SkillUp options, or on a subpage to restore its settings. Thanks to Benjy_Boi for reporting this on CurseForge (#925).
+
 ## [1.14.14] - 2026-11-21
 
 ### Added

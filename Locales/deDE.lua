@@ -676,7 +676,7 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"Die adaptive Anleitung nennt das Rezept. Wähle es aus und lege im Berufsfenster fest, wie viele du herstellst." -- mt
 L["Select %s in the recipe list first."] = "Wähle zuerst %s in der Rezeptliste aus." -- mt
 
-L["Forever Ledger prices reagents."] = "Forever Ledger bepreist Reagenzien." -- mt
+L["Choose whether to keep Auctionator shopping lists."] = "Wähle, ob Auctionator-Einkaufslisten behalten werden." -- mt
 L["Show reagent search"] = "Reagenziensuche anzeigen"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Klicke im Berufsfenster auf Suchen, um fehlende Reagenzien zu finden. Ohne Auctionator trägt jeder Klick das nächste Reagenz in das Suchfeld des Auktionshauses ein."

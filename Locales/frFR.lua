@@ -683,7 +683,7 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"Le guidage adaptatif indique la recette. Sélectionnez-la et choisissez combien en fabriquer dans la fenêtre de métier." -- mt
 L["Select %s in the recipe list first."] = "Sélectionnez d'abord %s dans la liste des recettes." -- mt
 
-L["Forever Ledger prices reagents."] = "Forever Ledger estime le prix des composants." -- mt
+L["Choose whether to keep Auctionator shopping lists."] = "Choisissez de conserver ou non les listes d'achats d'Auctionator." -- mt
 L["Show reagent search"] = "Afficher la recherche de composants"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Cliquez sur Rechercher dans la fenêtre des métiers pour trouver les composants manquants. Sans Auctionator, chaque clic saisit le composant suivant dans le champ de recherche de l’hôtel des ventes."

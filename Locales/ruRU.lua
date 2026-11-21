@@ -731,7 +731,7 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
 
-L["Forever Ledger prices reagents."] = "Forever Ledger оценивает реагенты." -- mt
+L["Choose whether to keep Auctionator shopping lists."] = "Выберите, сохранять ли списки покупок Auctionator." -- mt
 L["Show reagent search"] = "Показывать поиск реагентов"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Нажмите «Поиск» в окне профессий, чтобы найти недостающие реагенты. Без Auctionator каждое нажатие подставляет следующий реагент в строку поиска аукциона."

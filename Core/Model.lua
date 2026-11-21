@@ -814,9 +814,8 @@ local function Planner(snapshot)
 		local crafts = Covered(recipe.thresholds, skill, skill + ups, ups)
 		local batch
 		if recipe.stockSensitive and stockCost then
-			-- Even free reagents pay craft time in both branches of RouteStepCost.
-			local time = Model.CRAFT_TIME_COST
-			local floor = math.min(time * crafts, time + time * (crafts - 1)) / ups
+			-- Lower bound: even with free reagents, every craft takes time.
+			local floor = Model.CRAFT_TIME_COST * crafts / ups
 			if not Beats(recipe, floor, chance, best, bestKey, bestChance, buffs) then
 				return nil, chance
 			end

@@ -1055,7 +1055,7 @@
     },
     {
       "source": "UI/Shopping.lua",
-      "sha256": "03699b0e219488ca64c3b7b5ac9ebf1973c67750f898c32aad20e5184ecd4b3a",
+      "sha256": "832d608be59354820a82ece518cd7c04d5662fb21d93c62aad4a97345148f09c",
       "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed. Reviewed #860: KeepsAuctionLists, ns.KeptAuctionList and the AuctionListNote nil return add no widgets or font setters. Reviewed the tracked-needs signature gaining the plan revision (#858): a cache key only; no bound widget FontObjects or phrase bindings changed. Reviewed forever-core#884: RefreshTracker marks the section dirty whatever the show switch says; no widgets or font setters. Reviewed #850: ns.Have notes the item it reads with ns.NoteItemCount; no widgets or font setters.",
       "bindings": [
         {
@@ -1119,7 +1119,7 @@
     },
     {
       "source": "UI/Settings.lua",
-      "sha256": "78c6fca671884744b87c1100879aacf194f7f1308ee53e8f78829b050cd9b607",
+      "sha256": "6fdf878b8dce0bc4e08958e626321205f9be91a33c3e5227f1effe52eda01d60",
       "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded. Reviewed #880: the reagent search checkbox passes both revised phrases to the same settings initializer. Reviewed #873: the Route and trainer page's Attach to quest tracker row is ForeverCore.SettingsSections.RegisterTrackerAttach, a core-owned initializer, registered only when the running core has it (an older adopted standalone does not); excluded with the other settings fonts. Reviewed the Forever Ledger price source: four descriptions name it and the price source choice gains an option, passed to the same initializers; no font change.",
       "bindings": []
     },

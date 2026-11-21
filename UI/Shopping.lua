@@ -371,9 +371,7 @@ end
 -- and leaves a list Auctionator already holds alone.
 function ns.SyncAuctionShoppingLists()
 	if ns.db.auctionShoppingLists == false then
-		if next(auctionLists) then
-			auctionLists = {}
-		end
+		auctionLists = {}
 		RemoveAuctionLists()
 		return
 	end

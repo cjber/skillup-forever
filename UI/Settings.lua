@@ -38,6 +38,7 @@ local function Register(target, key, varType, name)
 			ns.SetIncludeWorkingOvertime(ns.db.includeWorkingOvertime)
 		elseif key == "auctionShoppingLists" then
 			ns.SyncAuctionShoppingLists()
+			ns.Changed("settings")
 		else
 			ns.Changed("settings")
 		end

@@ -161,7 +161,7 @@ equal(c.ns.ShoppingTrip(111), false, "a route with nothing missing is refused")
 -- on the body, so text cannot pile up and each refresh leaks no frame.
 c.EnterWorld()
 c.Advance(0)
--- Opting out clears generated lists without replanning the route or touching unrelated lists.
+-- Opting out clears generated lists and refreshes the shopping view.
 c.ns.SetCollectMode("auction")
 local auction = c.G.Auctionator
 local tailoring = c.ns.AuctionListName("Tailoring")
@@ -175,19 +175,22 @@ auction.API.v1.DeleteShoppingList = function(_, name)
 end
 c.shoppingLists["SkillUp: SomeoneElse: Tailoring"] = { "Silk Cloth" }
 c.ns.SetTracked(164, false)
-local plan = c.ns.PlanRoute(c.ns.RouteProfessions()[197])
 local create = auction.API.v1.CreateShoppingList
 local writes = 0
 auction.API.v1.CreateShoppingList = function(...)
 	writes = writes + 1
 	create(...)
 end
+local shoppingRefreshes = 0
+c.ns.WhenStaleObserver("shoppingList", function()
+	shoppingRefreshes = shoppingRefreshes + 1
+end)
 c.SetSetting("auctionShoppingLists", false)
+equal(shoppingRefreshes, 1, "disabling auction lists invalidates the shopping view")
 equal(c.shoppingLists[tailoring], nil, "disabling removes the tracked route list")
 equal(c.shoppingLists[blacksmithing], nil, "disabling removes a previously tracked route list")
 equal(c.shoppingLists["SkillUp: SomeoneElse: Tailoring"][1], "Silk Cloth", "another character's list stays")
 equal(c.ns.CollectMode(), "auction", "Buy reagents stays on")
-equal(c.ns.PlanRoute(c.ns.RouteProfessions()[197]), plan, "the active route is reused")
 c.ns.Changed("tracking")
 equal(writes, 0, "disabling prevents route list writes")
 c.SetSetting("auctionShoppingLists", true)

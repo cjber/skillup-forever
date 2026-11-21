@@ -176,6 +176,22 @@ do
 	Client.equal(shopping.total, 56, "shopping uses both vendor quotes")
 end
 
+do
+	local c, ns = setup({
+		Thresholds = { [R] = { 1, 2, 2, 2 }, [ALT] = { 2, 20, 40, 60 } },
+		RecipeData = { [R] = recipe(Y), [ALT] = recipe(Y), [M] = recipe(Z, Y, 3) },
+		VendorPrices = { [Z] = 6 },
+		ItemSellPrices = {},
+	}, 3)
+	c.known[R], c.known[ALT], c.known[M] = true, true, true
+	local p = plan(c)
+	Client.equal(#p.crafts, 2, "the route takes two consecutive steps")
+	Client.equal(p.crafts[1].subcrafts[1].crafts, 1, "the first step makes one batch")
+	Client.equal(#p.crafts[2].subcrafts, 0, "the second step uses the spare")
+	Client.equal(ns.PlanMoney(p).buy, 6, "the shopping list buys inputs for one batch")
+	Client.equal(p.cost, 6, "the route total charges the same whole batch")
+end
+
 for _, reverse in ipairs({ false, true }) do
 	local parent = recipe(reverse and Z or X)
 	parent.reagents[2] = { itemID = reverse and X or Z, quantity = 1 }

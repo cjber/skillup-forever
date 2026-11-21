@@ -1723,6 +1723,12 @@ function ns.InitPrices()
 		pcall(AuctionDB.Listen, AuctionDB, "SCAN_DATA", PricesChanged)
 		pcall(AuctionDB.Listen, AuctionDB, "HISTORY_MERGED", PricesChanged)
 	end
+	-- These providers expose quotes without a database update callback.
+	if ns.HasTradeSkillMaster() or ns.HasNaowhForever() or ns.HasForeverLedger() then
+		ns.WhenEvent("AUCTION_HOUSE_CLOSED", function()
+			return "prices"
+		end)
+	end
 	if api or ns.HasTradeSkillMaster() or ns.HasAHDB() or ns.HasNaowhForever() or ns.HasForeverLedger() then
 		local entered = false
 		ns.WhenEvent("PLAYER_ENTERING_WORLD", function()

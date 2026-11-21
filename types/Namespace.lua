@@ -476,8 +476,7 @@ SkillUpForeverDB = nil
 ---@field owner? SkillUpSubCraft The subcraft that directly consumes the input.
 
 ---@class SkillUpPlanCraft
----@field stockSensitive? boolean
----@field materialCost? number
+---@field materialCost? number|false False when the expanded inputs have no complete price.
 ---@field recipeID integer
 ---@field from number
 ---@field to number

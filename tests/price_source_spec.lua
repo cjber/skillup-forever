@@ -143,6 +143,26 @@ equal(noLedger.ns.HasForeverLedger(), false, "Forever Ledger is absent when not 
 equal(noLedger.ns.AuctionProvider(), "auctionator", "an absent chosen Forever Ledger gives way")
 equal(noLedger.ns.Price(1).source, "auctionator", "to the installed source's price")
 
+-- A provider with no update callback can change its quote during an auction house visit.
+for _, source in ipairs({ "foreverLedger", "tsm", "naowh" }) do
+	local quotes = {}
+	local function quote(copper)
+		if source == "foreverLedger" then
+			return { copper, copper, 4, 1700000000 }
+		elseif source == "naowh" then
+			return { copper, 1700000000 }
+		end
+		return copper
+	end
+	quotes[1] = quote(250)
+	local c = Client.load({ data = DATA, auctionator = false, [source] = quotes })
+	c.Fire("PLAYER_ENTERING_WORLD")
+	equal(c.ns.Price(1).copper, 250, source .. " caches the initial quote")
+	c[source][1] = quote(500)
+	c.Fire("AUCTION_HOUSE_CLOSED")
+	equal(c.ns.Price(1).copper, 500, source .. " refreshes its quote when the auction house closes")
+end
+
 -- Every chosen source wins; absent observations fall back in the same fixed order.
 local chain = Client.load({
 	data = DATA,

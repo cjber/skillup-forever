@@ -238,11 +238,11 @@ end
 ---@param craft SkillUpPlanCraft?
 ---@return number?
 function ns.StepCost(recipeID, crafts, craft)
-	if craft and craft.stockSensitive then
+	if craft and craft.materialCost ~= nil then
 		local materials = craft.materialCost
 		local _, value, net = RecipeCosts(recipeID)
 		-- When the price model considers the output unpriced, a known input cost is only a partial total.
-		return materials and net and materials - (value and value.copper or 0) * crafts or nil
+		return type(materials) == "number" and net and materials - (value and value.copper or 0) * crafts or nil
 	end
 	local _, _, netCost = RecipeCosts(recipeID)
 	return ns.Model.StepCost(netCost, nil, crafts)
@@ -799,11 +799,12 @@ end
 ---@return SkillUpRawInput[]
 ---@return {itemID: integer, count: number}[]
 ---@return boolean held Whether a held copy, raw or intermediate, stood in for a reagent.
+---@return boolean wholeBatches Whether this expansion made or used spare batch output.
 local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, spare)
 	local subcrafts, raw = {}, {}
 	-- Only a caller that passes the bags writes or reads what they stood in for; the rest share one empty table.
 	local used = bags and {} or NONE_USED
-	local usedHeld = false
+	local usedHeld, wholeBatches = false, false
 	local reagents = (ns.Reagents and ns.Reagents(recipeID)) or {}
 	reserved = reserved or (bags and Reserve(recipeID, crafts, bags)) or {}
 	local needs, shares
@@ -824,6 +825,7 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, sp
 		local spares = reagentStock or spare
 		local copies = spares and math.min(need - held, spares[-reagent.itemID] or 0) or 0
 		if spares and copies > 0 then
+			wholeBatches = true
 			spares[-reagent.itemID] = spares[-reagent.itemID] - copies
 			need = need - copies
 		end
@@ -860,9 +862,10 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, sp
 			local firstChild = #raw + 1
 			if batches > 0 then
 				making[reagent.itemID] = true
-				local childSubcrafts, childRaw, childUsed, childHeld =
+				local childSubcrafts, childRaw, childUsed, childHeld, childBatches =
 					Expand(maker.recipeID, batches, depth + 1, making, bags, nil, reagentStock, spare)
 				making[reagent.itemID] = nil
+				wholeBatches = wholeBatches or childBatches
 				for _, sub in ipairs(childSubcrafts) do
 					subcrafts[#subcrafts + 1] = sub
 				end
@@ -877,6 +880,7 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, sp
 				end
 			end
 			if spares and batches * maker.quantity > need then
+				wholeBatches = true
 				spares[-reagent.itemID] = (spares[-reagent.itemID] or 0) + batches * maker.quantity - need
 			end
 			if batches + heldCrafts > 0 then
@@ -920,7 +924,7 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, sp
 			ns.SpendStock(stock, reagentStock, caps)
 		end
 	end
-	return subcrafts, raw, used, usedHeld
+	return subcrafts, raw, used, usedHeld, wholeBatches
 end
 
 ---@class SkillUpExpanded
@@ -929,6 +933,7 @@ end
 ---@field used {itemID: integer, count: number}[]
 ---@field held boolean
 ---@field stockSensitive? boolean
+---@field wholeBatches boolean
 
 -- Expands each of a route's crafts against one shared view of the bags. Every craft's own reagents are reserved
 -- before any craft expands, so a held sub-craft of an earlier craft cannot spend what a later one uses directly.
@@ -941,9 +946,16 @@ local function ExpandRoute(crafts)
 	end
 	for index, craft in ipairs(crafts) do
 		local sensitive = ns.RecipeUsesStock and ns.RecipeUsesStock(craft.recipeID)
-		local subcrafts, raw, used, held =
+		local subcrafts, raw, used, held, wholeBatches =
 			Expand(craft.recipeID, craft.crafts, 0, {}, bags, reserved[index], sensitive and ledger or nil, ledger)
-		expanded[index] = { subcrafts = subcrafts, raw = raw, used = used, held = held, stockSensitive = sensitive }
+		expanded[index] = {
+			subcrafts = subcrafts,
+			raw = raw,
+			used = used,
+			held = held,
+			stockSensitive = sensitive,
+			wholeBatches = wholeBatches,
+		}
 	end
 	return expanded
 end
@@ -951,7 +963,7 @@ end
 ---@type table<SkillUpPlan, SkillUpExpanded[]>
 local planExpansions = setmetatable({}, { __mode = "k" })
 
--- The same acquisition rows price trial routes and the displayed cost of a stock-sensitive step.
+-- The same acquisition rows price trial routes and displayed route steps.
 ---@param raw SkillUpRawInput[]
 ---@param used {itemID: integer, count: number}[]
 ---@return number?
@@ -973,6 +985,15 @@ local function ExpansionCost(raw, used)
 	end
 	return total
 end
+-- A partial batch costs a whole craft up front, and its leftover units are already paid for.
+---@param part SkillUpExpanded
+---@return number|false|nil
+local function ExpandedMaterialCost(part)
+	if part.stockSensitive or part.wholeBatches then
+		return ExpansionCost(part.raw, part.used) or false
+	end
+end
+
 ---@param recipeID integer
 ---@param crafts number
 ---@param pool table<integer, number>
@@ -1219,7 +1240,6 @@ local function Finish(profession, target, route)
 	local expanded = ExpandRoute(route.segments)
 	for index, segment in ipairs(route.segments) do
 		local part = expanded[index]
-		local stockSensitive = part.stockSensitive
 		crafts[index] = {
 			recipeID = segment.recipeID,
 			from = segment.fromSkill - m,
@@ -1232,8 +1252,7 @@ local function Finish(profession, target, route)
 			subcrafts = part.subcrafts,
 			raw = part.raw,
 			held = part.held or nil,
-			stockSensitive = stockSensitive,
-			materialCost = stockSensitive and ExpansionCost(part.raw, part.used) or nil,
+			materialCost = ExpandedMaterialCost(part),
 		}
 	end
 	local training = {}
@@ -1360,9 +1379,10 @@ local function RefreshSubcrafts(plan, expanded)
 	for index, craft in ipairs(plan.crafts) do
 		local part = expanded[index]
 		craft.subcrafts, craft.raw, craft.held = part.subcrafts, part.raw, part.held or nil
-		if craft.stockSensitive then
+		local materials = ExpandedMaterialCost(part)
+		if craft.materialCost ~= nil or materials ~= nil then
 			local previous = ns.StepCost(craft.recipeID, craft.crafts, craft) or 0
-			craft.materialCost = ExpansionCost(part.raw, part.used)
+			craft.materialCost = materials
 			plan.cost = plan.cost - previous + (ns.StepCost(craft.recipeID, craft.crafts, craft) or 0)
 		end
 	end

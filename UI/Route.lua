@@ -346,11 +346,11 @@ end
 
 ---@param plan SkillUpPlan
 ---@param recipeID integer
----@return string
+---@return string? status nil when the route uses the pin: its "Pinned:" title already says so
 local function PinStatus(plan, recipeID)
 	for _, craft in ipairs(plan.crafts) do
 		if craft.recipeID == recipeID then
-			return L["Pinned for skill-ups."]
+			return nil
 		end
 	end
 	local profession = plan.profession
@@ -384,7 +384,7 @@ local function RenderPinned(list, plan)
 			color = NORMAL_FONT_COLOR,
 			tooltip = function(tooltip)
 				RecipeTitle(tooltip, recipe.recipeID, recipe.name)
-				GameTooltip_AddHighlightLine(tooltip, PinStatus(plan, recipe.recipeID))
+				GameTooltip_AddHighlightLine(tooltip, PinStatus(plan, recipe.recipeID) or L["Pinned for skill-ups."])
 				GameTooltip_AddInstructionLine(tooltip, L["The newest pin takes priority where skill ranges overlap."])
 				AddSkipHint(tooltip)
 			end,
@@ -411,7 +411,6 @@ local function RenderSkipped(list, profession)
 	list:Add({
 		icon = SKIPPED_ICON,
 		text = title,
-		detail = L["Not in this route: you chose Not this recipe."],
 		color = GRAY_FONT_COLOR,
 		tooltip = function(tooltip)
 			GameTooltip_SetTitle(tooltip, title)
@@ -533,7 +532,10 @@ local function RenderRoute(list, plan)
 			list:Add({
 				icon = RecipeIcon(subcraft.recipeID),
 				text = string.format(L["Craft %d× %s"], subcraft.crafts, RecipeName(subcraft.recipeID)),
-				detail = string.format(L["makes %d %s"], subcraft.made, itemName),
+				-- "Craft 24× Light Leather" already says it makes 24: the detail is only for a recipe that
+				-- yields another count.
+				detail = subcraft.made ~= subcraft.crafts and string.format(L["makes %d %s"], subcraft.made, itemName)
+					or nil,
 				color = NORMAL_FONT_COLOR,
 				tooltip = function(tooltip)
 					SubCraftTooltip(tooltip, subcraft)
@@ -1134,17 +1136,6 @@ local function Render()
 	end
 	local reagents = ns.RouteReagents(plan)
 	SetCollectEnabled(CollectChanges(reagents))
-	local summary = ns.RouteDemand.Summary(plan)
-	local supplyText = ns.SupplySummaryText(summary)
-	page.RouteList:Message(supplyText)
-	if summary.status ~= "unconfigured" then
-		local adaptive =
-			L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."]
-		page.RouteList:Message(
-			summary.service == "adaptive-finite" and adaptive or L["Craft next follows the estimated route."]
-		)
-	end
-	page.ReagentList:Message(supplyText)
 	RenderRoute(page.RouteList, plan)
 	local priceStatus, priceColor = AuctionPriceStatus(reagents)
 	if priceStatus ~= "" then

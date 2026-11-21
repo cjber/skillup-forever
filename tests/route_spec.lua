@@ -1377,7 +1377,7 @@ routeTab:Click()
 Drain()
 local pinRow = lists[1].rows[#lists[1].rows]
 equal(pinRow.text, "Pinned: Linen Bandage", "the route lists its saved pin")
-equal(pinRow.detail, "Pinned for skill-ups.", "the pin says when this route uses it")
+equal(pinRow.detail, nil, "a pin the route uses needs no detail beyond its title")
 page.pinned = { { recipeID = 3276, name = "Heavy Linen Bandage" } }
 routeTab:Click()
 Drain()
@@ -1532,8 +1532,7 @@ equal(bookRow.click ~= nil, true, "and a click goes to its vendor")
 equal(bookRow.detail, "10000", "with its price on the right")
 equal(
 	messages,
-	"Craft counts and shopping quantities are estimates. You may need more reagents.\n"
-		.. "Counts include spares for an estimated 95% chance to finish the whole route.",
+	"Counts include spares for an estimated 95% chance to finish the whole route.",
 	"the route says its counts include spares"
 )
 bookRow.tooltip(Stub())
@@ -1544,8 +1543,7 @@ equal(bookRow.text, "Read Expert First Aid - Under Wraps at 125", "a book in the
 equal(bookRow.detail, "You have it", "with no price on the line")
 equal(
 	messages,
-	"Craft counts and shopping quantities are estimates. You may need more reagents.\n"
-		.. "Counts include spares for an estimated 95% chance to finish the whole route.",
+	"Counts include spares for an estimated 95% chance to finish the whole route.",
 	"and still says its counts include spares"
 )
 bookRow.tooltip(Stub())

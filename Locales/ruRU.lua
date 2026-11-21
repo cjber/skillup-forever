@@ -156,8 +156,6 @@ L["No trainer teaches this rank: a book does."] =
 	"Этому рангу обучает не учитель, а книга."
 L["No trainer teaches this rank: a quest does."] =
 	"Этому рангу обучает не учитель, а задание."
-L["Not in this route: you chose Not this recipe."] =
-	"Не в маршруте: вы выбрали «Не этот рецепт»."
 L["Not this recipe"] = "Не этот рецепт"
 L["Nothing priced you know skills up past %d."] =
 	"Ничто известное вам с ценой не повышает навык выше %d."
@@ -470,9 +468,6 @@ L["No buff items for your level yet."] =
 	"Пока нет предметов усиления для вашего уровня." -- mt
 L["Only for level %d"] = "Только для уровня %d" -- mt
 L["Show the buffs tab"] = "Показывать вкладку усилений" -- mt
-L["Show the supply tab"] = "Показывать вкладку снабжения" -- mt
-L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
-	"Вкладка внизу окна профессий, где вы указываете, что торговец продаст и доставит, чтобы маршрут это учитывал. Открывается с боковой вкладки SkillUp, рядом с вкладкой маршрута." -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] =
 	"Эта профессия не создаёт предметы усиления." -- mt
@@ -566,8 +561,6 @@ L["Chance of finishing with starting supplies: %s."] =
 	"Вероятность завершения с начальными запасами: %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
 	"Количество изготовлений и объёмы покупок приблизительны. Может потребоваться больше реагентов." -- mt
-L["Craft next follows the estimated route."] =
-	"Кнопка «Создать следующее» следует расчётному маршруту." -- mt
 L["Include Working Overtime estimate"] = "Учитывать оценку Working Overtime" -- mt
 L["Starting inventory: bags and bank."] = "Начальные запасы: сумки и банк." -- mt
 L["Starting inventory: bags only."] = "Начальные запасы: только сумки." -- mt
@@ -586,107 +579,7 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"Эти вероятности предполагают указанные шансы повышения навыка, цены, доступность и доставку последующих покупок." -- mt
 L["unknown"] = "неизвестно" -- mt
 
-L["currency %d"] = "валюта %d" -- mt
-L["an unknown payment"] = "неизвестный платёж" -- mt
-L["Name the stock each offer draws on, or give this offer its own stock."] =
-	"Назовите запас, из которого берётся каждое предложение, или дайте ему собственный запас." -- mt
-L["The merchant shows no limit: limit the search to the number you will buy."] =
-	"Торговец не показывает предел: ограничьте поиск количеством, которое вы купите." -- mt
-L["The stock you assume does not match what the merchant shows."] =
-	"Запас, который вы предполагаете, не совпадает с тем, что показывает торговец." -- mt
-L["Enter a starting chance between 1 and 100."] = "Введите начальный шанс от 1 до 100." -- mt
-L["The merchant sells none of this route's reagents."] =
-	"Торговец не продаёт ни одного реагента этого маршрута." -- mt
-L["The merchant's offer for %s is incomplete."] = "Предложение торговца для %s неполное." -- mt
-L["Every offer needs its price to stay as shown."] =
-	"Для каждого предложения цена должна оставаться такой, как показано." -- mt
-L["Fill in every value this offer needs."] =
-	"Заполните каждое значение, которое нужно этому предложению." -- mt
-L["The merchant sells fewer purchases at a time than that."] =
-	"Торговец продаёт меньше покупок за раз." -- mt
-L["Offers that draw on one stock pool need the same stock."] =
-	"Предложения из одного запаса требуют одного и того же запаса." -- mt
-L["Offers at one vendor need the same trip costs and values."] =
-	"Предложения у одного торговца требуют одинаковых затрат и ценностей поездки." -- mt
-L["Enter the chance each later purchase arrives, from 0 to 100."] =
-	"Введите шанс, что каждая следующая покупка придёт, от 0 до 100." -- mt
-L["Check that the first purchase arrives for certain at every offer."] =
-	"Отметьте, что первая покупка приходит точно, для каждого предложения." -- mt
-L["One item or payment needs one leftover value."] =
-	"Предмету или платежу нужна одна остаточная ценность." -- mt
-L["Offers that use one payment need the same value for it."] =
-	"Предложения с одним платежом требуют одинаковой ценности для него." -- mt
-L["The merchant changed. Check the form again."] =
-	"Торговец сменился. Проверьте форму снова." -- mt
-L["The merchant did not change, but the assumptions did. Check the form again."] =
-	"Торговец не сменился, но допущения изменились. Проверьте форму снова." -- mt
-L["The merchant shows this offer sold out."] =
-	"Торговец показывает это предложение распроданным." -- mt
-L["The merchant does not say how much is left."] =
-	"Торговец не говорит, сколько осталось." -- mt
-L["The merchant will not sell this offer to you now."] =
-	"Торговец сейчас не продаст вам это предложение." -- mt
-L["Choose the unit the stock count is in."] = "Выберите единицу учёта запаса." -- mt
-L["The assumptions were rejected. Fill in every value and check each offer."] =
-	"Допущения отклонены. Заполните каждое значение и проверьте каждое предложение." -- mt
-L["Open a profession to see its plan and coverage."] =
-	"Откройте профессию, чтобы увидеть её план и покрытие." -- mt
-L["Plan: %s, %s to %s, %d crafts."] = "План: %s, от %s до %s, изготовлений: %d." -- mt
-L["Unpriced crafts: %d."] = "Изготовлений без цены: %d." -- mt
-L["Your target chance: %s%%."] = "Ваш целевой шанс: %s%%." -- mt
-L["Margin over your target: %s points."] = "Запас над целью: %s балла." -- mt
-L["Below your target by %s points."] = "Ниже цели на %s балла." -- mt
-L["craft"] = "изготовить" -- mt
-L["buy"] = "купить" -- mt
-L["stop"] = "остановиться" -- mt
-L["Next step: %s."] = "Следующий шаг: %s." -- mt
-L["Open a profession to set its supply policy."] =
-	"Откройте профессию, чтобы задать её политику снабжения." -- mt
-L["This profession has no plan to supply yet."] =
-	"У этой профессии пока нет плана для снабжения." -- mt
-L["Open a merchant to set this profession's supply policy."] =
-	"Откройте торговца, чтобы задать политику снабжения этой профессии." -- mt
-L["Ready to apply these assumptions."] = "Готово применить эти допущения." -- mt
-L["no limit"] = "без предела" -- mt
-L["Offer %d: %s"] = "Предложение %d: %s" -- mt
-L["The merchant shows %s in stock, %s per purchase, at most %s purchases."] =
-	"Торговец показывает %s в запасе, %s за покупку, не более %s покупок." -- mt
-L["Price: %s."] = "Цена: %s." -- mt
-L["Also costs %s %s."] = "Также стоит %s %s." -- mt
-L["I can buy this offer"] = "Я могу купить это предложение" -- mt
-L["The price stays as shown"] = "Цена остаётся такой, как показано" -- mt
-L["Stock I assume is left"] = "Запас, который, как я предполагаю, остался" -- mt
-L["The stock does not run out"] = "Запас не заканчивается" -- mt
-L["The stock count is in items, not purchases"] =
-	"Запас считается в предметах, а не в покупках" -- mt
-L["This offer keeps its own stock"] = "У этого предложения собственный запас" -- mt
-L["Limit the search to the stock I typed"] = "Ограничить поиск введённым запасом" -- mt
-L["Stock pool name"] = "Название запаса" -- mt
-L["Purchases allowed per visit"] = "Покупок за визит разрешено" -- mt
-L["First trip cost (copper)"] = "Стоимость первой поездки (медь)" -- mt
-L["Later trip cost (copper)"] = "Стоимость следующих поездок (медь)" -- mt
-L["First trip value to you (copper)"] = "Ценность первой поездки для вас (медь)" -- mt
-L["Later trip value to you (copper)"] = "Ценность следующих поездок для вас (медь)" -- mt
-L["Chance each later purchase arrives (%)"] =
-	"Шанс, что каждая следующая покупка придёт (%)" -- mt
-L["The first purchase arrives for certain"] = "Первая покупка приходит точно" -- mt
-L["I pay even when a purchase does not arrive"] = "Я плачу, даже если покупка не пришла" -- mt
-L["Leftover value of one %s (copper)"] = "Остаточная ценность одного %s (медь)" -- mt
-L["Value of one %s (copper)"] = "Ценность одного %s (медь)" -- mt
-L["These are your own assumptions. The merchant's window only shows what it shows now."] =
-	"Это ваши собственные допущения. Окно торговца показывает только то, что показывает сейчас." -- mt
-L["Chance of finishing with starting supplies (%)"] =
-	"Шанс завершить с начальным запасом (%)" -- mt
-L["Plan later purchases too"] = "Планировать и последующие покупки" -- mt
-L["Cost of an unfinished route (copper)"] =
-	"Стоимость незавершённого маршрута (медь)" -- mt
-L["Applied. The plan and its coverage follow these assumptions."] =
-	"Применено. План и его покрытие следуют этим допущениям." -- mt
-L["Supply"] = "Снабжение" -- mt
 
-L["Supply policy"] = "Политика снабжения" -- mt
-L["Open the profession and a merchant window."] = "Откройте профессию и окно торговца." -- mt
-L["Apply policy"] = "Применить политику" -- mt
 L["No trainer of your faction teaches this recipe."] =
 	"Ни один учитель вашей фракции не обучает этому рецепту." -- mt
 L["%s (level %d)"] = "%s (уровень %d)" -- mt
@@ -727,8 +620,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
 	"У этих реагентов нет цены у торговца. Для цен аукциона нужен Auctionator, TradeSkillMaster, AHDB, Naowh Forever или Forever Ledger."
-L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
-	"Адаптивная подсказка называет рецепт. Выберите его и укажите количество в окне профессии." -- mt
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
 
 L["Choose whether to keep Auctionator shopping lists."] =

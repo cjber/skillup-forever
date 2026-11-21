@@ -339,25 +339,6 @@ local tab = ns.Pages.SideTab()
 tab.mouseUp(tab, "LeftButton", true)
 Published()
 c.Advance(0.3)
-local function HasRouteMessage(text)
-	for _, row in ipairs(route.RouteList.rows) do
-		if row.kind == "message" and row.text == text then
-			return true
-		end
-	end
-	return false
-end
-assert(
-	HasRouteMessage(
-		"Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."
-	),
-	"adaptive status explains recipe guidance"
-)
-equal(
-	HasRouteMessage("Craft next follows the estimated route."),
-	false,
-	"adaptive status does not claim estimated dispatch"
-)
 equal(#opened, 0, "route guidance never asks the client to open a recipe (#840)")
 equal(route.Craft:IsEnabled(), false, "adaptive route cannot execute a craft")
 for _, attribute in ipairs({ "type", "clickbutton", "shift-type1", "shift-clickbutton1" }) do
@@ -590,7 +571,6 @@ equal(Current().supply.job, fixedJob, "fixed switch owns its selected job")
 equal(Action(), nil, "direct fixed switch clears configured adaptive guard")
 equal(ns.NextCraft(Current()).recipeID, 1, "fixed switch restores ordinary estimate")
 c.Advance(0.3)
-assert(HasRouteMessage("Craft next follows the estimated route."), "fixed status retains estimated guidance")
 local switchReads = reads
 ns.Changed("bags")
 for _ = 1, 5 do

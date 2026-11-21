@@ -493,7 +493,7 @@ local plan = {
 	crafts = { craftStep },
 	steps = {
 		-- The sub-craft that makes the craft's reagent, as its own row before the craft.
-		{ band = apprentice, subcraft = { recipeID = 3276, itemID = 2, crafts = 5, made = 5 } },
+		{ band = apprentice, subcraft = { recipeID = 3276, itemID = 2, crafts = 5, made = 10 } },
 		{ band = apprentice, craft = craftStep },
 	},
 	ranks = {},
@@ -1111,7 +1111,11 @@ equal(
 equal(Find("Apprentice") ~= nil, true, "the route opens with its skill band header")
 equal(Find("0 to 75") ~= nil, true, "with the band's range beside it")
 equal(Find("Craft 5× Spell 3276") ~= nil, true, "the sub-craft names itself as a craft")
-equal(Find("makes 5 Coarse Thread") ~= nil, true, "and says how much of the reagent it makes")
+equal(
+	Find("makes 10 Coarse Thread") ~= nil,
+	true,
+	"and says how much of the reagent it makes when that differs from its crafts"
+)
 
 -- A reagent row is the same item row: the icon, the name and where it comes from with how many of
 -- the route's need the bags hold.

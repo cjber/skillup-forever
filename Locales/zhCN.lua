@@ -147,7 +147,6 @@ L["No crafted gear you can make yet. Tick the box above to see gear you cannot m
 L["No skill data for this recipe yet."] = "此配方暂无技能数据。"
 L["No trainer teaches this rank: a book does."] = "没有训练师教授此等级：需要书籍。"
 L["No trainer teaches this rank: a quest does."] = "没有训练师教授此等级：需要任务。"
-L["Not in this route: you chose Not this recipe."] = "不在此路线中：你选择了“不要此配方”。"
 L["Not this recipe"] = "不要此配方"
 L["Nothing priced you know skills up past %d."] = "你已知且有价格的配方都无法将技能提升到%d以上。"
 L["Nothing to buy for this route."] = "此路线无需购买任何物品。"
@@ -437,9 +436,6 @@ L["Learn now"] = "现在可学" -- mt
 L["No buff items for your level yet."] = "还没有适合你等级的增益物品。" -- mt
 L["Only for level %d"] = "仅限等级 %d" -- mt
 L["Show the buffs tab"] = "显示增益标签页" -- mt
-L["Show the supply tab"] = "显示补给标签页" -- mt
-L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
-	"专业窗口底部的一个标签页，用于设置商人将出售和交付的物品，以便路线据此规划。从 SkillUp 侧边标签页打开，位于路线标签页旁。" -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] = "该专业不制造增益物品。" -- mt
 L["spell %d"] = "法术 %d" -- mt
@@ -525,7 +521,6 @@ L["Chance of finishing with later purchases: %s."] = "后续继续购买时的�
 L["Chance of finishing with starting supplies: %s."] = "仅用起始物资的完成几率：%s。" -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
 	"制作次数和采购数量均为估算。你可能需要更多材料。" -- mt
-L["Craft next follows the estimated route."] = "「制造下一个」会遵循预计路线。" -- mt
 L["Include Working Overtime estimate"] = "计入Working Overtime估算" -- mt
 L["Starting inventory: bags and bank."] = "起始库存：背包和银行。" -- mt
 L["Starting inventory: bags only."] = "起始库存：仅背包。" -- mt
@@ -542,89 +537,7 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"这些几率以所列技能提升几率、价格、供货情况以及后续采购物资送达为前提。" -- mt
 L["unknown"] = "未知" -- mt
 
-L["currency %d"] = "货币 %d" -- mt
-L["an unknown payment"] = "一项未知支付" -- mt
-L["Name the stock each offer draws on, or give this offer its own stock."] =
-	"请命名每项报价所用的库存，或让它使用自己的库存。" -- mt
-L["The merchant shows no limit: limit the search to the number you will buy."] =
-	"商人没有显示上限：请将搜索限制在你要购买的数量。" -- mt
-L["The stock you assume does not match what the merchant shows."] = "你假设的库存与商人显示的不符。" -- mt
-L["Enter a starting chance between 1 and 100."] = "请输入 1 到 100 之间的起始几率。" -- mt
-L["The merchant sells none of this route's reagents."] = "商人不出售此路线的任何材料。" -- mt
-L["The merchant's offer for %s is incomplete."] = "%s 的商人报价不完整。" -- mt
-L["Every offer needs its price to stay as shown."] = "每项报价都需要价格保持显示的样子。" -- mt
-L["Fill in every value this offer needs."] = "请填写这项报价所需的每个数值。" -- mt
-L["The merchant sells fewer purchases at a time than that."] = "商人一次出售的购买次数少于此数。" -- mt
-L["Offers that draw on one stock pool need the same stock."] = "共用同一库存的报价需要相同的库存。" -- mt
-L["Offers at one vendor need the same trip costs and values."] =
-	"同一商人的报价需要相同的行程费用和价值。" -- mt
-L["Enter the chance each later purchase arrives, from 0 to 100."] =
-	"请输入之后每次购买到达的几率，0 到 100。" -- mt
-L["Check that the first purchase arrives for certain at every offer."] =
-	"请为每项报价确认第一次购买一定到达。" -- mt
-L["One item or payment needs one leftover value."] = "一件物品或一项支付需要一个剩余价值。" -- mt
-L["Offers that use one payment need the same value for it."] =
-	"使用同一支付的报价需要该支付具有相同价值。" -- mt
-L["The merchant changed. Check the form again."] = "商人已更换。请重新检查表单。" -- mt
-L["The merchant did not change, but the assumptions did. Check the form again."] =
-	"商人没有更换，但假设变了。请重新检查表单。" -- mt
-L["The merchant shows this offer sold out."] = "商人显示这项报价已售罄。" -- mt
-L["The merchant does not say how much is left."] = "商人没有说明还剩多少。" -- mt
-L["The merchant will not sell this offer to you now."] = "商人现在不会向你出售这项报价。" -- mt
-L["Choose the unit the stock count is in."] = "请选择库存计数的单位。" -- mt
-L["The assumptions were rejected. Fill in every value and check each offer."] =
-	"假设被拒绝。请填写每个数值并检查每项报价。" -- mt
-L["Open a profession to see its plan and coverage."] = "打开一个专业以查看其计划和覆盖率。" -- mt
-L["Plan: %s, %s to %s, %d crafts."] = "计划：%s，%s 到 %s，%d 次制作。" -- mt
-L["Unpriced crafts: %d."] = "无价格的制作：%d。" -- mt
-L["Your target chance: %s%%."] = "你的目标几率：%s%%。" -- mt
-L["Margin over your target: %s points."] = "高于目标的余量：%s 个百分点。" -- mt
-L["Below your target by %s points."] = "低于目标 %s 个百分点。" -- mt
-L["craft"] = "制作" -- mt
-L["buy"] = "购买" -- mt
-L["stop"] = "停止" -- mt
-L["Next step: %s."] = "下一步：%s。" -- mt
-L["Open a profession to set its supply policy."] = "打开一个专业以设置其补给策略。" -- mt
-L["This profession has no plan to supply yet."] = "这个专业还没有可补给的计划。" -- mt
-L["Open a merchant to set this profession's supply policy."] =
-	"打开一个商人以设置这个专业的补给策略。" -- mt
-L["Ready to apply these assumptions."] = "可以应用这些假设了。" -- mt
-L["no limit"] = "无上限" -- mt
-L["Offer %d: %s"] = "报价 %d：%s" -- mt
-L["The merchant shows %s in stock, %s per purchase, at most %s purchases."] =
-	"商人显示库存 %s，每次购买 %s，最多 %s 次购买。" -- mt
-L["Price: %s."] = "价格：%s。" -- mt
-L["Also costs %s %s."] = "还需 %s %s。" -- mt
-L["I can buy this offer"] = "我可以购买这项报价" -- mt
-L["The price stays as shown"] = "价格保持显示的样子" -- mt
-L["Stock I assume is left"] = "我假设剩余的库存" -- mt
-L["The stock does not run out"] = "库存不会用完" -- mt
-L["The stock count is in items, not purchases"] = "库存按物品计算，而不是按购买次数" -- mt
-L["This offer keeps its own stock"] = "这项报价保留自己的库存" -- mt
-L["Limit the search to the stock I typed"] = "将搜索限制在我输入的库存" -- mt
-L["Stock pool name"] = "库存名称" -- mt
-L["Purchases allowed per visit"] = "每次拜访允许的购买次数" -- mt
-L["First trip cost (copper)"] = "首次行程费用（铜币）" -- mt
-L["Later trip cost (copper)"] = "之后行程费用（铜币）" -- mt
-L["First trip value to you (copper)"] = "首次行程对你的价值（铜币）" -- mt
-L["Later trip value to you (copper)"] = "之后行程对你的价值（铜币）" -- mt
-L["Chance each later purchase arrives (%)"] = "之后每次购买到达的几率（%）" -- mt
-L["The first purchase arrives for certain"] = "第一次购买一定到达" -- mt
-L["I pay even when a purchase does not arrive"] = "购买没有到达时我也付款" -- mt
-L["Leftover value of one %s (copper)"] = "一个 %s 的剩余价值（铜币）" -- mt
-L["Value of one %s (copper)"] = "一个 %s 的价值（铜币）" -- mt
-L["These are your own assumptions. The merchant's window only shows what it shows now."] =
-	"这些是你自己的假设。商人窗口只显示它现在显示的内容。" -- mt
-L["Chance of finishing with starting supplies (%)"] = "用初始库存完成的几率（%）" -- mt
-L["Plan later purchases too"] = "也计划之后的购买" -- mt
-L["Cost of an unfinished route (copper)"] = "未完成路线的成本（铜币）" -- mt
-L["Applied. The plan and its coverage follow these assumptions."] =
-	"已应用。计划和覆盖率遵循这些假设。" -- mt
-L["Supply"] = "补给" -- mt
 
-L["Supply policy"] = "补给策略" -- mt
-L["Open the profession and a merchant window."] = "请打开专业和商人窗口。" -- mt
-L["Apply policy"] = "应用策略" -- mt
 L["No trainer of your faction teaches this recipe."] = "你的阵营没有训练师教授这个配方。" -- mt
 L["%s (level %d)"] = "%s（等级 %d）" -- mt
 
@@ -663,8 +576,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
 	"这些材料没有商人价格。拍卖价需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger。" -- mt
-L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
-	"自适应指引会给出配方。选中它，然后在专业窗口中选择制作数量。" -- mt
 L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt
 
 L["Choose whether to keep Auctionator shopping lists."] = "选择是否保留 Auctionator 购物清单。" -- mt

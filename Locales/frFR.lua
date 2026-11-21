@@ -150,8 +150,6 @@ L["No crafted gear you can make yet. Tick the box above to see gear you cannot m
 L["No skill data for this recipe yet."] = "Pas encore de données de compétence pour cette recette." -- mt
 L["No trainer teaches this rank: a book does."] = "Aucun maître n'enseigne ce rang : un livre le fait." -- mt
 L["No trainer teaches this rank: a quest does."] = "Aucun maître n'enseigne ce rang : une quête le fait." -- mt
-L["Not in this route: you chose Not this recipe."] =
-	"Absente de ce parcours : vous avez choisi « Pas cette recette »." -- mt
 L["Not this recipe"] = "Pas cette recette" -- mt
 L["Nothing priced you know skills up past %d."] =
 	"Rien de ce que vous connaissez et qui a un prix ne fait progresser au-delà de %d." -- mt
@@ -449,9 +447,6 @@ L["Learn now"] = "Apprendre maintenant" -- mt
 L["No buff items for your level yet."] = "Aucun objet d'amélioration pour votre niveau pour l'instant." -- mt
 L["Only for level %d"] = "Seulement pour le niveau %d" -- mt
 L["Show the buffs tab"] = "Afficher l'onglet des améliorations" -- mt
-L["Show the supply tab"] = "Afficher l'onglet d'approvisionnement" -- mt
-L["A tab at the bottom of the Professions window where you set what a merchant will sell and deliver, so the route can plan around it. It opens from the SkillUp side tab, beside the route tab."] =
-	"Un onglet en bas de la fenêtre des métiers où vous indiquez ce qu'un marchand vendra et livrera, pour que le parcours en tienne compte. Il s'ouvre depuis l'onglet latéral de SkillUp, à côté de l'onglet du parcours." -- mt
 L["SkillUp"] = "SkillUp" -- mt
 L["This profession makes no buff items."] = "Ce métier ne fabrique aucun objet d'amélioration." -- mt
 L["spell %d"] = "sort %d" -- mt
@@ -538,7 +533,6 @@ L["Chance of finishing with later purchases: %s."] = "Chance de terminer avec de
 L["Chance of finishing with starting supplies: %s."] = "Chance de terminer avec les réserves initiales : %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
 	"Le nombre de fabrications et les quantités à acheter sont des estimations. Vous pourriez avoir besoin de plus de composants." -- mt
-L["Craft next follows the estimated route."] = "Fabriquer la suivante suit l’itinéraire estimé." -- mt
 L["Include Working Overtime estimate"] = "Inclure l’estimation de Working Overtime" -- mt
 L["Starting inventory: bags and bank."] = "Inventaire initial : sacs et banque." -- mt
 L["Starting inventory: bags only."] = "Inventaire initial : sacs uniquement." -- mt
@@ -556,91 +550,7 @@ L["These chances assume the stated skill-up rates, prices, availability and deli
 	"Ces chances supposent les taux de gain de compétence, les prix, la disponibilité et la livraison des achats ultérieurs indiqués." -- mt
 L["unknown"] = "inconnu" -- mt
 
-L["currency %d"] = "monnaie %d" -- mt
-L["an unknown payment"] = "un paiement inconnu" -- mt
-L["Name the stock each offer draws on, or give this offer its own stock."] =
-	"Nommez le stock d'où vient chaque offre, ou donnez-lui son propre stock." -- mt
-L["The merchant shows no limit: limit the search to the number you will buy."] =
-	"Le marchand n'affiche aucune limite : limitez la recherche à la quantité que vous achèterez." -- mt
-L["The stock you assume does not match what the merchant shows."] =
-	"Le stock que vous supposez ne correspond pas à ce que montre le marchand." -- mt
-L["Enter a starting chance between 1 and 100."] = "Indiquez une chance de départ entre 1 et 100." -- mt
-L["The merchant sells none of this route's reagents."] = "Le marchand ne vend aucun réactif de cette route." -- mt
-L["The merchant's offer for %s is incomplete."] = "L'offre du marchand pour %s est incomplète." -- mt
-L["Every offer needs its price to stay as shown."] = "Chaque offre exige que son prix reste tel qu'affiché." -- mt
-L["Fill in every value this offer needs."] = "Remplissez chaque valeur nécessaire à cette offre." -- mt
-L["The merchant sells fewer purchases at a time than that."] = "Le marchand vend moins d'achats à la fois que cela." -- mt
-L["Offers that draw on one stock pool need the same stock."] =
-	"Les offres qui puisent dans un même stock exigent le même stock." -- mt
-L["Offers at one vendor need the same trip costs and values."] =
-	"Les offres chez un même marchand exigent les mêmes coûts et valeurs de trajet." -- mt
-L["Enter the chance each later purchase arrives, from 0 to 100."] =
-	"Indiquez la chance que chaque achat ultérieur arrive, de 0 à 100." -- mt
-L["Check that the first purchase arrives for certain at every offer."] =
-	"Cochez que le premier achat arrive à coup sûr pour chaque offre." -- mt
-L["One item or payment needs one leftover value."] = "Un objet ou un paiement exige une valeur résiduelle." -- mt
-L["Offers that use one payment need the same value for it."] =
-	"Les offres qui utilisent un même paiement exigent la même valeur pour celui-ci." -- mt
-L["The merchant changed. Check the form again."] = "Le marchand a changé. Vérifiez à nouveau le formulaire." -- mt
-L["The merchant did not change, but the assumptions did. Check the form again."] =
-	"Le marchand n'a pas changé, mais les hypothèses oui. Vérifiez à nouveau le formulaire." -- mt
-L["The merchant shows this offer sold out."] = "Le marchand affiche cette offre épuisée." -- mt
-L["The merchant does not say how much is left."] = "Le marchand ne dit pas combien il en reste." -- mt
-L["The merchant will not sell this offer to you now."] = "Le marchand ne vous vendra pas cette offre maintenant." -- mt
-L["Choose the unit the stock count is in."] = "Choisissez l'unité du stock." -- mt
-L["The assumptions were rejected. Fill in every value and check each offer."] =
-	"Les hypothèses ont été refusées. Remplissez chaque valeur et vérifiez chaque offre." -- mt
-L["Open a profession to see its plan and coverage."] = "Ouvrez un métier pour voir son plan et sa couverture." -- mt
-L["Plan: %s, %s to %s, %d crafts."] = "Plan : %s, %s à %s, %d fabrications." -- mt
-L["Unpriced crafts: %d."] = "Fabrications sans prix : %d." -- mt
-L["Your target chance: %s%%."] = "Votre chance visée : %s%%." -- mt
-L["Margin over your target: %s points."] = "Marge au-dessus de votre objectif : %s points." -- mt
-L["Below your target by %s points."] = "Sous votre objectif de %s points." -- mt
-L["craft"] = "fabriquer" -- mt
-L["buy"] = "acheter" -- mt
-L["stop"] = "arrêter" -- mt
-L["Next step: %s."] = "Prochaine étape : %s." -- mt
-L["Open a profession to set its supply policy."] = "Ouvrez un métier pour définir sa politique d'approvisionnement." -- mt
-L["This profession has no plan to supply yet."] = "Ce métier n'a pas encore de plan à approvisionner." -- mt
-L["Open a merchant to set this profession's supply policy."] =
-	"Ouvrez un marchand pour définir la politique d'approvisionnement de ce métier." -- mt
-L["Ready to apply these assumptions."] = "Prêt à appliquer ces hypothèses." -- mt
-L["no limit"] = "sans limite" -- mt
-L["Offer %d: %s"] = "Offre %d : %s" -- mt
-L["The merchant shows %s in stock, %s per purchase, at most %s purchases."] =
-	"Le marchand affiche %s en stock, %s par achat, au plus %s achats." -- mt
-L["Price: %s."] = "Prix : %s." -- mt
-L["Also costs %s %s."] = "Coûte aussi %s %s." -- mt
-L["I can buy this offer"] = "Je peux acheter cette offre" -- mt
-L["The price stays as shown"] = "Le prix reste tel qu'affiché" -- mt
-L["Stock I assume is left"] = "Stock que je suppose restant" -- mt
-L["The stock does not run out"] = "Le stock ne s'épuise pas" -- mt
-L["The stock count is in items, not purchases"] = "Le stock compte des objets, pas des achats" -- mt
-L["This offer keeps its own stock"] = "Cette offre garde son propre stock" -- mt
-L["Limit the search to the stock I typed"] = "Limiter la recherche au stock saisi" -- mt
-L["Stock pool name"] = "Nom du stock" -- mt
-L["Purchases allowed per visit"] = "Achats autorisés par visite" -- mt
-L["First trip cost (copper)"] = "Coût du premier trajet (cuivre)" -- mt
-L["Later trip cost (copper)"] = "Coût des trajets suivants (cuivre)" -- mt
-L["First trip value to you (copper)"] = "Valeur du premier trajet pour vous (cuivre)" -- mt
-L["Later trip value to you (copper)"] = "Valeur des trajets suivants pour vous (cuivre)" -- mt
-L["Chance each later purchase arrives (%)"] = "Chance que chaque achat ultérieur arrive (%)" -- mt
-L["The first purchase arrives for certain"] = "Le premier achat arrive à coup sûr" -- mt
-L["I pay even when a purchase does not arrive"] = "Je paie même si un achat n'arrive pas" -- mt
-L["Leftover value of one %s (copper)"] = "Valeur résiduelle d'un %s (cuivre)" -- mt
-L["Value of one %s (copper)"] = "Valeur d'un %s (cuivre)" -- mt
-L["These are your own assumptions. The merchant's window only shows what it shows now."] =
-	"Ce sont vos propres hypothèses. La fenêtre du marchand ne montre que ce qu'elle montre maintenant." -- mt
-L["Chance of finishing with starting supplies (%)"] = "Chance de finir avec les stocks de départ (%)" -- mt
-L["Plan later purchases too"] = "Planifier aussi les achats ultérieurs" -- mt
-L["Cost of an unfinished route (copper)"] = "Coût d'une route inachevée (cuivre)" -- mt
-L["Applied. The plan and its coverage follow these assumptions."] =
-	"Appliqué. Le plan et sa couverture suivent ces hypothèses." -- mt
-L["Supply"] = "Approvisionnement" -- mt
 
-L["Supply policy"] = "Politique d'approvisionnement" -- mt
-L["Open the profession and a merchant window."] = "Ouvrez le métier et une fenêtre de marchand." -- mt
-L["Apply policy"] = "Appliquer la politique" -- mt
 L["No trainer of your faction teaches this recipe."] = "Aucun maître de votre faction n'enseigne cette recette." -- mt
 L["%s (level %d)"] = "%s (niveau %d)" -- mt
 
@@ -679,8 +589,6 @@ L["Sort recipes in one list, learned first, then unlearned. Highest craft profit
 
 L["These reagents have no vendor price. Auction prices need Auctionator, TradeSkillMaster, AHDB, Naowh Forever or Forever Ledger."] =
 	"Ces composants n'ont pas de prix chez les marchands. Les prix aux enchères nécessitent Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger." -- mt
-L["Adaptive guidance names the recipe. Select it and choose how many to craft in the profession window."] =
-	"Le guidage adaptatif indique la recette. Sélectionnez-la et choisissez combien en fabriquer dans la fenêtre de métier." -- mt
 L["Select %s in the recipe list first."] = "Sélectionnez d'abord %s dans la liste des recettes." -- mt
 
 L["Choose whether to keep Auctionator shopping lists."] =

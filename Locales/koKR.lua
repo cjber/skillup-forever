@@ -688,7 +688,8 @@ L["Adaptive guidance names the recipe. Select it and choose how many to craft in
 	"적응형 안내는 제조법을 알려 줍니다. 제조법을 선택하고 전문 기술 창에서 만들 개수를 정하세요." -- mt
 L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt
 
-L["Choose whether to keep Auctionator shopping lists."] = "Auctionator 쇼핑 목록을 유지할지 선택할 수 있습니다." -- mt
+L["Choose whether to keep Auctionator shopping lists."] =
+	"Auctionator 쇼핑 목록을 유지할지 선택할 수 있습니다." -- mt
 L["Show reagent search"] = "재료 검색 표시"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"전문 기술 창에서 검색을 눌러 부족한 재료를 찾습니다. Auctionator가 없으면 누를 때마다 경매장 검색창에 다음 재료가 입력됩니다."

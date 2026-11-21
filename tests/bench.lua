@@ -1,5 +1,5 @@
 -- Run from the repository root: luajit tests/bench.lua
--- Measures the addon inside the headless harness the specs use: what each file SkillUpForever.toc lists
+-- Measures the addon inside the offline spec harness the specs use: what each file SkillUpForever.toc lists
 -- costs to load, what login and init do, and what each event, timer and hot lookup costs to run. Every
 -- number is CPU time from os.clock, printed per call. Nothing here asserts; it is a measuring stick.
 local Client = dofile("tests/client.lua")

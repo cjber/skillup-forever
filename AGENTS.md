@@ -32,7 +32,7 @@ A change's player-facing notes go in `changes/<issue>.md`; only the release comm
   scroll is saved in `ns.db.sellers`.
 - `Core/Core.lua` registers the shared services once (`ns.core`); the tracker section lives in `UI/Shopping.lua`.
   Everything shared is ForeverCore's: never copy one of its files here.
-- `Core/Model.lua` and `Integrations/Prices.lua` are the headless-testable maths (sub-craft cost: the cheaper of
+- `Core/Model.lua` and `Integrations/Prices.lua` are the offline-testable maths (sub-craft cost: the cheaper of
   buying and crafting a reagent, three levels deep, memoised, cycle-safe). `Core/Live.lua` is the client's own recipe
   read and live grey threshold; bundled thresholds stay the fallback for the fourth number only.
 - `Core/Plan.lua` is the levelling plan in base skill with trainer requirements resolved; the route page, tracker,
@@ -48,7 +48,7 @@ A change's player-facing notes go in `changes/<issue>.md`; only the release comm
 - Lua 5.1 in the game's sandbox: no `require`; a new file goes in `SkillUpForever.toc` or never runs.
 - `tests/client.lua` is the shared stub client: it loads ForeverCore first (`tests/forever_core.lua` finds the
   checkout), then the TOC in order; a spec sets what the client holds, not an `ns` function. Frames, menus, tooltips
-  and the tracker are checked in the headless client (`wow-forever-addon` `in-game.md`); the PR lists what was checked.
+  and the tracker are checked in game; the PR lists what was checked.
 - A recipe colour always comes from the game; bundled thresholds only fill in what it does not show. Missing data
   renders `?`, never a guess. A gathering node has no colour in the game: its tooltip colours your live skill against
   the node's waivered requirement with Classic's gathering bands (orange to 25 past it, yellow 50, green 100), matched

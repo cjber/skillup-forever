@@ -29,7 +29,7 @@ for _, profession in ipairs(professions) do
 			local host = client:openProfessions(profession.skillLineID)
 			local side = assert(ns.Pages.SideTab(), profession.name .. ": side tab registered")
 			assert(side:IsShown(), profession.name .. ": side tab shown")
-			assert(ns.Pages.Count() == 4, "all four SkillUp pages registered")
+			assert(ns.Pages.Count() == 3, "all three SkillUp pages registered")
 			assert(not ns.Pages.BottomTab("route"):IsShown(), "bottom tabs wait for the SkillUp side tab")
 			client.widgets.dispatch(side, "OnMouseUp", "LeftButton", true)
 			client:advance(0.1)

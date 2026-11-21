@@ -180,22 +180,22 @@ scenario("SkillUp's professions tab shares the window with another addon", {
 	press(skillupTab)
 	onePage("back on SkillUp", routePage)
 
-	ns.Pages.Select("supply")
+	ns.Pages.Select("buffs")
 	sim:advance(0.2)
-	bottomTabsShown(true, "on Supply")
+	bottomTabsShown(true, "on Buffs")
 	local currentProfession = sim.world.openProfession
 	for _, transient in ipairs({ false, true }) do
 		sim.world.openProfession = not transient and currentProfession or nil
 		sim:event("TRADE_SKILL_DATA_SOURCE_CHANGED")
 		sim:advance(0.2)
 		assert(core.Selected() == "skillup", "data-source refresh keeps SkillUp selected")
-		assert(ns.Pages.BottomTab("supply").LeftActive:IsShown(), "data-source refresh keeps Supply selected")
+		assert(ns.Pages.BottomTab("buffs").LeftActive:IsShown(), "data-source refresh keeps Buffs selected")
 		bottomTabsShown(true, transient and "with transient nil skill line" or "with same skill line")
 	end
 	sim.world.openProfession = currentProfession
 	sim:openProfessions(164)
 	sim:advance(0.2)
-	bottomTabsShown(false, "switch profession while Supply is selected")
+	bottomTabsShown(false, "switch profession while Buffs is selected")
 	press(skillupTab)
 	bottomTabsShown(true, "return from profession switch")
 	-- Click the client's own profession side tab while an addon page is active.

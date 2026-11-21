@@ -4,6 +4,7 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "vulpeep", what = "Forever Ledger prices reagents (code)" },
 		{ name = "messajahswe", what = "Gathered materials have a sale value by default" },
 		{ name = "davef1n", what = "Sort recipes by profit regardless of skill" },
 		{ name = "user_bvgv4fnauhmhf9i7", what = "AHDB supplies auction prices" },

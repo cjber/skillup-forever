@@ -43,6 +43,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| [vulpeep](https://github.com/vulpeep) | Forever Ledger prices reagents (code) | GitHub; PR #908 |
 | messajahswe | Gathered materials have a sale value by default | CurseForge; comment 8733694; #780 |
 | davef1n | Sort recipes by profit regardless of skill | CurseForge; comment 8735009; #781 |
 | user_bvgv4fnauhmhf9i7 | AHDB supplies auction prices | CurseForge; comment 8730894; #761 |

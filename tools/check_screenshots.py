@@ -7,7 +7,7 @@ is the hashes of the files in SOURCES, the TOC's file lines in load order, and t
 a change to any of them needs a fresh render. The TOC's other metadata shapes no pixel: the core sync's
 `## X-Forever-Core` line no longer marks every image stale. Generated `Data/` is left out: the daily data refresh
 moves it and cannot render, and the release re-renders every image (the release skill).
-docs/screenshots/scenes.sha256 holds each image's hash beside its dump's; after a render, `--record` rewrites it
+docs/screenshots/scenes/<image>.sha256 holds each image's hash beside its dump's; after a render, `--record` rewrites it
 (with `--force` for an image that came out the same).
 
     python3 tools/check_screenshots.py           # CI: fail on a stale image

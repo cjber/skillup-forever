@@ -802,8 +802,7 @@ local function Planner(snapshot)
 	---@param stock table<integer, number>?
 	---@return number?
 	---@return number?
-	---@param surplus table<integer, number>?
-	local function PoolRank(recipe, skill, pool, stock, surplus)
+	local function PoolRank(recipe, skill, pool, stock)
 		local ups = math.max(recipe.skillUps or 1, 1)
 		local chance = Model.Chance(recipe.thresholds, skill)
 		if not chance or chance <= 0 then
@@ -812,7 +811,7 @@ local function Planner(snapshot)
 		local crafts = Covered(recipe.thresholds, skill, skill + ups, ups)
 		local batch
 		if recipe.stockSensitive and stockCost then
-			batch = stockCost(recipe.recipeID, crafts, pool, stock, false, surplus)
+			batch = stockCost(recipe.recipeID, crafts, pool, stock, false)
 		else
 			batch = PoolReagentCost(recipe, crafts, pool)
 		end
@@ -885,7 +884,7 @@ local function Planner(snapshot)
 	---@param extra SkillUpCandidate?
 	local function Price(route, extra)
 		local money = CopyHeld()
-		local stock, surplus
+		local stock
 		route.expectedCost = 0
 		for _, segment in ipairs(route.segments) do
 			local recipeID = segment.recipeID
@@ -903,8 +902,8 @@ local function Planner(snapshot)
 			if candidate and IsPooled(candidate) then
 				local pooledCost
 				if candidate.stockSensitive and stockCost then
-					stock, surplus = stock or {}, surplus or {}
-					pooledCost = stockCost(recipeID, segment.crafts, money, stock, true, surplus)
+					stock = stock or {}
+					pooledCost = stockCost(recipeID, segment.crafts, money, stock, true)
 					cost, reagentCost = nil, nil
 				else
 					pooledCost = PoolReagentCost(candidate, segment.crafts, money)
@@ -936,7 +935,7 @@ local function Planner(snapshot)
 		-- a later step sees only what is left. Each call starts from the same pool, so a training search's
 		-- re-plans are all weighed against today's bags.
 		local pool = CopyHeld()
-		local stock, surplus
+		local stock
 		while route.reachedSkill < target do
 			local skill = route.reachedSkill
 			picked[#picked + 1] = skill
@@ -944,7 +943,7 @@ local function Planner(snapshot)
 			-- at this skill, which can only change which of them wins here.
 			local best, bestKey, bestChance = BestAt(skill)
 			for _, recipe in ipairs(pooled) do
-				local key, chance = PoolRank(recipe, skill, pool, stock, surplus)
+				local key, chance = PoolRank(recipe, skill, pool, stock)
 				if Beats(recipe, key, chance, best, bestKey, bestChance, buffs) then
 					best, bestKey, bestChance = recipe, key, chance
 				end
@@ -952,7 +951,7 @@ local function Planner(snapshot)
 			if extra then
 				local key, chance
 				if IsPooled(extra) then
-					key, chance = PoolRank(extra, skill, pool, stock, surplus)
+					key, chance = PoolRank(extra, skill, pool, stock)
 				else
 					key, chance = RankAt(extra, skill)
 				end
@@ -980,8 +979,8 @@ local function Planner(snapshot)
 				local ups = math.max(best.skillUps or 1, 1)
 				local crafts = Covered(best.thresholds, skill, skill + gain, ups)
 				if best.stockSensitive and stockCost then
-					stock, surplus = stock or {}, surplus or {}
-					stockCost(best.recipeID, crafts, pool, stock, true, surplus)
+					stock = stock or {}
+					stockCost(best.recipeID, crafts, pool, stock, true)
 				else
 					TakePool(best, crafts, pool)
 				end

@@ -691,6 +691,10 @@ env = setmetatable({
 	UnitName = function()
 		return "Player"
 	end,
+	-- Core/Core.lua keys the character's saves by the player's GUID.
+	UnitGUID = function()
+		return "Player-1-0000000A"
+	end,
 	UnitFactionGroup = function()
 		return "Alliance"
 	end,

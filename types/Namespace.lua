@@ -434,7 +434,7 @@ SkillUpForeverDB = nil
 ---@field fee number
 
 ---@class SkillUpSnapshot
----@field stockCost? fun(recipeID: integer, crafts: number, pool: table<integer, number>, stock: table<integer, number>?, take: boolean, surplus: table<integer, number>?): number?
+---@field stockCost? fun(recipeID: integer, crafts: number, pool: table<integer, number>, stock: table<integer, number>?, take: boolean): number?
 ---@field skill number
 ---@field target number
 ---@field recipes SkillUpCandidate[]

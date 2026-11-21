@@ -793,40 +793,40 @@ end
 ---@param making table<integer, true>
 ---@param bags table<integer, number>?
 ---@param reserved number[]? What Reserve set aside of each reagent; Expand reserves its own when not given.
----@param stock table<integer, number>?
----@param surplus table<integer, number>?
+---@param stock table<integer, number>? The route's stock ledger, spare batch output included (ns.StockFor).
+---@param spare table<integer, number>? Where spare batch output goes when there is no stock, keyed as in a ledger.
 ---@return SkillUpSubCraft[]
 ---@return SkillUpRawInput[]
 ---@return {itemID: integer, count: number}[]
 ---@return boolean held Whether a held copy, raw or intermediate, stood in for a reagent.
-local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, surplus)
+local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, spare)
 	local subcrafts, raw = {}, {}
 	-- Only a caller that passes the bags writes or reads what they stood in for; the rest share one empty table.
 	local used = bags and {} or NONE_USED
 	local usedHeld = false
 	local reagents = (ns.Reagents and ns.Reagents(recipeID)) or {}
 	reserved = reserved or (bags and Reserve(recipeID, crafts, bags)) or {}
-	-- Spare output from market batches has already been paid for. Consume it after the copies
-	-- reserved from the bags and before buying or making more.
 	local needs, shares
 	if stock then
 		needs = {}
 		for index, reagent in ipairs(reagents) do
-			local short = reagent.quantity * crafts - (reserved[index] or 0)
-			if surplus and surplus[reagent.itemID] then
-				local copies = math.min(short, surplus[reagent.itemID])
-				surplus[reagent.itemID] = surplus[reagent.itemID] - copies
-				short = short - copies
-			end
-			needs[index] = short
+			needs[index] = reagent.quantity * crafts - (reserved[index] or 0)
 		end
-		shares = ns.StockShares(reagents, stock, needs, MAX_SUB_DEPTH - depth, making, true)
+		shares = ns.StockShares(reagents, stock, needs, MAX_SUB_DEPTH - depth, making)
 	end
 	for index, reagent in ipairs(reagents) do
 		local held = reserved[index] or 0
 		local need = needs and needs[index] + held or reagent.quantity * crafts
 		local caps = shares and shares[index]
 		local reagentStock = stock and ns.StockFor(stock, caps)
+		-- Spare output from whole batches, an earlier sibling's included, has already been paid for. Use it after
+		-- the copies reserved from the bags and before buying or making more.
+		local spares = reagentStock or spare
+		local copies = spares and math.min(need - held, spares[-reagent.itemID] or 0) or 0
+		if spares and copies > 0 then
+			spares[-reagent.itemID] = spares[-reagent.itemID] - copies
+			need = need - copies
+		end
 		local maker
 		if depth < MAX_SUB_DEPTH and not making[reagent.itemID] and ns.SubCraft then
 			if reagentStock then
@@ -861,7 +861,7 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, su
 			if batches > 0 then
 				making[reagent.itemID] = true
 				local childSubcrafts, childRaw, childUsed, childHeld =
-					Expand(maker.recipeID, batches, depth + 1, making, bags, nil, reagentStock, surplus)
+					Expand(maker.recipeID, batches, depth + 1, making, bags, nil, reagentStock, spare)
 				making[reagent.itemID] = nil
 				for _, sub in ipairs(childSubcrafts) do
 					subcrafts[#subcrafts + 1] = sub
@@ -876,8 +876,8 @@ local function Expand(recipeID, crafts, depth, making, bags, reserved, stock, su
 					usedHeld = true
 				end
 			end
-			if surplus and batches * maker.quantity > need then
-				surplus[reagent.itemID] = (surplus[reagent.itemID] or 0) + batches * maker.quantity - need
+			if spares and batches * maker.quantity > need then
+				spares[-reagent.itemID] = (spares[-reagent.itemID] or 0) + batches * maker.quantity - need
 			end
 			if batches + heldCrafts > 0 then
 				local subcraft = {
@@ -935,25 +935,14 @@ end
 ---@param crafts {recipeID: integer, crafts: number}[]
 ---@return SkillUpExpanded[]
 local function ExpandRoute(crafts)
-	local bags, reserved, expanded, stock, surplus = {}, {}, {}, nil, nil
+	local bags, reserved, expanded, ledger = {}, {}, {}, {}
 	for index, craft in ipairs(crafts) do
 		reserved[index] = Reserve(craft.recipeID, craft.crafts, bags)
 	end
 	for index, craft in ipairs(crafts) do
 		local sensitive = ns.RecipeUsesStock and ns.RecipeUsesStock(craft.recipeID)
-		if sensitive and not stock then
-			stock, surplus = {}, {}
-		end
-		local subcrafts, raw, used, held = Expand(
-			craft.recipeID,
-			craft.crafts,
-			0,
-			{},
-			bags,
-			reserved[index],
-			sensitive and stock or nil,
-			sensitive and surplus or nil
-		)
+		local subcrafts, raw, used, held =
+			Expand(craft.recipeID, craft.crafts, 0, {}, bags, reserved[index], sensitive and ledger or nil, ledger)
 		expanded[index] = { subcrafts = subcrafts, raw = raw, used = used, held = held, stockSensitive = sensitive }
 	end
 	return expanded
@@ -989,25 +978,19 @@ end
 ---@param pool table<integer, number>
 ---@param stock table<integer, number>?
 ---@param take boolean
----@param surplus table<integer, number>?
 ---@return number?
-StockReagentCost = function(recipeID, crafts, pool, stock, take, surplus)
-	local bags, remaining, spare = pool, stock, surplus
+StockReagentCost = function(recipeID, crafts, pool, stock, take)
+	local bags, remaining = pool, stock
 	if not take then
-		bags, remaining, spare = {}, {}, {}
+		bags, remaining = {}, {}
 		for itemID, count in pairs(pool) do
 			bags[itemID] = count
 		end
-		if stock then
-			for itemID, count in pairs(stock) do
-				remaining[itemID] = count
-			end
-		end
-		for itemID, count in pairs(surplus or {}) do
-			spare[itemID] = count
+		for itemID, count in pairs(stock or {}) do
+			remaining[itemID] = count
 		end
 	end
-	local _, raw, used = Expand(recipeID, crafts, 0, {}, bags, nil, remaining, spare)
+	local _, raw, used = Expand(recipeID, crafts, 0, {}, bags, nil, remaining)
 	return ExpansionCost(raw, used)
 end
 
@@ -1064,7 +1047,7 @@ function ns.RecipeMaterials(recipeID, crafts)
 	end
 	-- The bill is for the recipe alone: another addon asking what it takes is not told about these bags.
 	local stock = ns.RecipeUsesStock and ns.RecipeUsesStock(recipeID) and {} or nil
-	local subcrafts, raw = Expand(recipeID, crafts, 0, {}, nil, nil, stock)
+	local subcrafts, raw = Expand(recipeID, crafts, 0, {}, nil, nil, stock, {})
 	local merged, byItem = {}, {}
 	for _, item in ipairs(raw) do
 		local entry = byItem[item.itemID]

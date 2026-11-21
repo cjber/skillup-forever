@@ -916,6 +916,8 @@ local function BatchCandidates(itemID, depth, ledger, firstBatch, lastBatch, qua
 		if units and units > 0 then
 			stock = stock + units
 		end
+		-- Spare batch output bends a cost the same way stock does.
+		stock = stock + math.max(ledger[-id] or 0, 0)
 	end
 	local wanted, list = {}, {}
 	local function Span(from, to)
@@ -979,99 +981,8 @@ local function StockDemand(itemID, count, depth, stack, ledger)
 	return demand
 end
 
--- Only stock that multiple siblings can exhaust together needs a split. Test the possible shares
--- at this recipe, bounded by what its siblings could use. The rest stays in the common ledger.
----@param reagents SkillUpReagent[]
----@param ledger table<integer, number>
----@param needs number[]?
----@param depth integer?
----@param stack table<integer, true>?
----@param forPurchases boolean?
----@return table<integer, table<integer, number>>?
-local function StockShares(reagents, ledger, needs, depth, stack, forPurchases)
-	if #reagents < 2 then
-		return nil
-	end
-	local limit, ancestors = depth or MAX_SUB_DEPTH, stack or {}
-	local demand, total, owners, order, contested = {}, {}, {}, {}, {}
-	for index, reagent in ipairs(reagents) do
-		demand[index] =
-			StockDemand(reagent.itemID, needs and needs[index] or reagent.quantity, limit, ancestors, ledger)
-		order[index] = index
-		for id, units in pairs(demand[index]) do
-			total[id] = (total[id] or 0) + units
-			owners[id] = (owners[id] or 0) + 1
-		end
-	end
-	for id, units in pairs(total) do
-		local balance = ledger[id] or ns.LimitedReagentPrice(id) or 0
-		if owners[id] > 1 and units > balance then
-			contested[#contested + 1] = id
-		end
-	end
-	if #contested == 0 then
-		return nil
-	end
-	table.sort(contested)
-	table.sort(order, function(a, b)
-		local left, right = reagents[a].itemID, reagents[b].itemID
-		return left == right and a < b or left < right
-	end)
-	local shares = {}
-	local best, selected
-	for index in ipairs(reagents) do
-		shares[index] = {}
-		for id, balance in pairs(ledger) do
-			shares[index][id] = balance
-		end
-	end
-	local function Score()
-		local cost = 0
-		for _, index in ipairs(order) do
-			local need = needs and needs[index] or reagents[index].quantity
-			if need > 0 then
-				local each =
-					ObtainCost(reagents[index].itemID, need, limit, ancestors, shares[index], nil, forPurchases)
-				if not each then
-					return
-				end
-				cost = cost + each * need
-			end
-		end
-		if not best or cost < best then
-			best, selected = cost, {}
-			for index, share in ipairs(shares) do
-				local caps = {}
-				for _, id in ipairs(contested) do
-					caps[id] = share[id]
-				end
-				selected[index] = caps
-			end
-		end
-	end
-	local function Split(group, index, balance, wanted)
-		local id = contested[group]
-		local sibling = order[index]
-		local maximum = demand[sibling][id] or 0
-		local later = wanted - maximum
-		for units = math.min(balance, maximum), math.max(0, balance - later), -1 do
-			shares[sibling][id] = units
-			if index < #order then
-				Split(group, index + 1, balance - units, later)
-			elseif contested[group + 1] then
-				local nextID = contested[group + 1]
-				Split(group + 1, 1, ledger[nextID] or ns.LimitedReagentPrice(nextID) or 0, total[nextID])
-			else
-				Score()
-			end
-		end
-	end
-	local first = contested[1]
-	Split(1, 1, ledger[first] or ns.LimitedReagentPrice(first) or 0, total[first])
-	return selected
-end
-ns.StockShares = StockShares
-
+-- A stock ledger maps an item to the units its limited vendor has left (absent: the whole stock), and the negative
+-- of an item to the spare units of it that whole batches already made (absent: none).
 -- A sibling can use its share of contested items and the common balance of everything else.
 ---@param ledger table<integer, number>
 ---@param caps table<integer, number>?
@@ -1109,6 +1020,101 @@ local function SpendStock(ledger, stock, caps)
 end
 ns.SpendStock = SpendStock
 
+-- Only stock that multiple siblings can exhaust together needs a split. Test the possible shares
+-- at this recipe, bounded by what its siblings could use. The rest stays in the common ledger. A split is scored as
+-- the siblings are then obtained: in reagent order on one running ledger, so spare output an earlier sibling's
+-- batch makes covers a later one, and by acquisition cost, since a sale floor is not money paid.
+---@param reagents SkillUpReagent[]
+---@param ledger table<integer, number>
+---@param needs number[]?
+---@param depth integer?
+---@param stack table<integer, true>?
+---@return table<integer, table<integer, number>>?
+local function StockShares(reagents, ledger, needs, depth, stack)
+	if #reagents < 2 then
+		return nil
+	end
+	local limit, ancestors = depth or MAX_SUB_DEPTH, stack or {}
+	local demand, total, owners, order, contested = {}, {}, {}, {}, {}
+	for index, reagent in ipairs(reagents) do
+		demand[index] =
+			StockDemand(reagent.itemID, needs and needs[index] or reagent.quantity, limit, ancestors, ledger)
+		order[index] = index
+		for id, units in pairs(demand[index]) do
+			total[id] = (total[id] or 0) + units
+			owners[id] = (owners[id] or 0) + 1
+		end
+	end
+	for id, units in pairs(total) do
+		local balance = ledger[id] or ns.LimitedReagentPrice(id) or 0
+		if owners[id] > 1 and units > balance then
+			contested[#contested + 1] = id
+		end
+	end
+	if #contested == 0 then
+		return nil
+	end
+	table.sort(contested)
+	table.sort(order, function(a, b)
+		local left, right = reagents[a].itemID, reagents[b].itemID
+		return left == right and a < b or left < right
+	end)
+	local shares = {}
+	local best, selected
+	for index in ipairs(reagents) do
+		shares[index] = {}
+	end
+	local function Score()
+		local running, cost = {}, 0
+		for id, balance in pairs(ledger) do
+			running[id] = balance
+		end
+		for index, reagent in ipairs(reagents) do
+			local need = needs and needs[index] or reagent.quantity
+			if need > 0 then
+				local stock = StockFor(running, shares[index])
+				local each = ObtainCost(reagent.itemID, need, limit, ancestors, stock, true, true)
+				if not each then
+					return
+				end
+				SpendStock(running, stock, shares[index])
+				cost = cost + each * need
+			end
+		end
+		if not best or cost < best then
+			best, selected = cost, {}
+			for index, share in ipairs(shares) do
+				local caps = {}
+				for id, units in pairs(share) do
+					caps[id] = units
+				end
+				selected[index] = caps
+			end
+		end
+	end
+	local function Split(group, index, balance, wanted)
+		local id = contested[group]
+		local sibling = order[index]
+		local maximum = demand[sibling][id] or 0
+		local later = wanted - maximum
+		for units = math.min(balance, maximum), math.max(0, balance - later), -1 do
+			shares[sibling][id] = units
+			if index < #order then
+				Split(group, index + 1, balance - units, later)
+			elseif contested[group + 1] then
+				local nextID = contested[group + 1]
+				Split(group + 1, 1, ledger[nextID] or ns.LimitedReagentPrice(nextID) or 0, total[nextID])
+			else
+				Score()
+			end
+		end
+	end
+	local first = contested[1]
+	Split(1, 1, ledger[first] or ns.LimitedReagentPrice(first) or 0, total[first])
+	return selected
+end
+ns.StockShares = StockShares
+
 ---@param itemID integer
 ---@param count number
 ---@param depth integer
@@ -1140,7 +1146,10 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 	local reach = Reach(itemID, depth)
 	local parts = { itemID .. ":" .. count .. ":" .. depth .. ":" .. (forPurchases and 1 or 0) }
 	for _, id in ipairs(reach) do
-		parts[#parts + 1] = (remaining and remaining[id] or "-") .. (stack and stack[id] and "s" or "")
+		parts[#parts + 1] = (remaining and remaining[id] or "-")
+			.. "+"
+			.. (remaining and remaining[-id] or 0)
+			.. (stack and stack[id] and "s" or "")
 	end
 	local key = table.concat(parts, ":")
 	local cached = obtainCost[key]
@@ -1153,32 +1162,35 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 		return cached.cost, cached.maker
 	end
 	local ledger = remaining or {}
+	-- Spare output an earlier whole batch made is paid for: it covers what it can before anything is bought or made.
+	local spare = math.min(ledger[-itemID] or 0, count)
+	local wanted = count - spare
 	local stock, overflow, vendor = ns.LimitedReagentPrice(itemID)
 	local available = (remaining and remaining[itemID]) or stock or 0
-	local first = math.min(available, count)
+	local first = math.min(available, wanted)
 	if not vendor then
 		overflow = ns.Price(itemID)
 	end
 	local vendorCopper = vendor and vendor.copper or 0
-	local left = count - first
+	local left = wanted - first
 	local buy = overflow and not overflow.unknown and overflow.copper
 	local best = left == 0 and first * vendorCopper or (buy and first * vendorCopper + left * buy or nil)
 	---@type SkillUpMakerChoice?
 	local maker
 	local chosenStock
-	if depth > 0 and #makers > 0 then
+	if depth > 0 and #makers > 0 and wanted > 0 then
 		stack = stack or {}
 		stack[itemID] = true
 		for _, recipeID in ipairs(makers) do
 			if UsableMaker(recipeID) then
 				local quantity, reagents = assert(OutputQuantity(recipeID)), ns.Reagents(recipeID) or {}
 				-- Test each whole batch count. The remaining demand buys the cheapest available units first.
-				local lastBatch = math.ceil(count / quantity)
-				local firstBatch = buy and 1 or math.max(1, math.ceil((count - first) / quantity))
+				local lastBatch = math.ceil(wanted / quantity)
+				local firstBatch = buy and 1 or math.max(1, math.ceil((wanted - first) / quantity))
 				for _, batches in
-					ipairs(BatchCandidates(itemID, depth, ledger, firstBatch, lastBatch, quantity, count, first))
+					ipairs(BatchCandidates(itemID, depth, ledger, firstBatch, lastBatch, quantity, wanted, first))
 				do
-					local purchases = math.max(count - batches * quantity, 0)
+					local purchases = math.max(wanted - batches * quantity, 0)
 					local vendorUnits = math.min(purchases, first)
 					local rest = purchases - vendorUnits
 					local trial = {}
@@ -1188,13 +1200,15 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 					if vendor then
 						trial[itemID] = available - vendorUnits
 					end
+					-- What is left of the old spare, plus what this whole batch makes beyond the need.
+					trial[-itemID] = (ledger[-itemID] or 0) - spare + batches * quantity - (wanted - purchases)
 					---@type number?
 					local total = vendorUnits * vendorCopper + rest * (buy or 0)
 					local needs = {}
 					for index, reagent in ipairs(reagents) do
 						needs[index] = reagent.quantity * batches
 					end
-					local shares = StockShares(reagents, trial, needs, depth - 1, stack, true)
+					local shares = StockShares(reagents, trial, needs, depth - 1, stack)
 					for index, reagent in ipairs(reagents) do
 						local caps = shares and shares[index]
 						local stockForReagent = StockFor(trial, caps)
@@ -1225,10 +1239,10 @@ ObtainCost = function(itemID, count, depth, stack, remaining, take, forPurchases
 	if chosenStock then
 		after = {}
 		for _, id in ipairs(reach) do
-			after[id] = chosenStock[id]
+			after[id], after[-id] = chosenStock[id], chosenStock[-id]
 		end
-	elseif vendor then
-		after = { [itemID] = available - first }
+	elseif vendor or spare > 0 then
+		after = { [itemID] = vendor and available - first or nil, [-itemID] = (ledger[-itemID] or 0) - spare }
 	end
 	if take and remaining and after then
 		for id, balance in pairs(after) do

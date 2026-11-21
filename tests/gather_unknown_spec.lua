@@ -42,8 +42,6 @@ local function Check(known)
 	equal(list.items[1].source, "gather", "API keeps gather bucket")
 	equal(list.items[1].price, known and 25 or nil, "API never calls unknown free")
 	equal(list.unpriced, known and 0 or 1, "API counts unknown prices")
-	local buckets = ns.Model.BucketNeeded({ [1101] = 1 }, ns.PriceSource)
-	equal(#buckets.gather, 1, "model buckets retain gather-source unknown")
 	ns.OpenShoppingList(165)
 	local texts = {}
 	local function Walk(frame)

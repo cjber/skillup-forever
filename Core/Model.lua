@@ -584,21 +584,6 @@ function Model.Gain(thresholds, skill, skillUps, room)
 	return math.max(1, math.min(skillUps or 1, left, room))
 end
 
--- Net cost of one skill point at Model.ROUTE_CONFIDENCE: a low chance carries the crafts it needs, and a
--- craft that grants several points is worth that many.
----@param cost number?
----@param thresholds number[]
----@param skill number
----@param skillUps integer?
----@return number?
-function Model.CostPerPoint(cost, thresholds, skill, skillUps)
-	local ups = math.max(skillUps or 1, 1)
-	if not cost or (Model.Chance(thresholds, skill) or 0) <= 0 then
-		return nil
-	end
-	return cost * Model.CoveredCrafts(thresholds, skill, skill + ups, ups, Model.ROUTE_CONFIDENCE) / ups
-end
-
 -- A recipe's place in a route's order at a skill: what a point there costs, nil when a craft there gains none,
 -- and the chance that breaks a tie. A non-profitable craft costs its net and time, so a sale value lowers
 -- every craft; a free or profitable recipe's extra crafts a falling chance needs cost their reagents and time,
@@ -1224,42 +1209,6 @@ local BUCKET = {
 ---@return SkillUpShoppingSource
 function Model.ShoppingSource(source)
 	return source and BUCKET[source] or "unknown"
-end
-
----@param needed table<integer, number>
----@param sourceOf fun(itemID: integer): SkillUpPriceSource?
----@return table<string, SkillUpShoppingItem[]>
-function Model.BucketNeeded(needed, sourceOf)
-	local list = {}
-	for _, source in ipairs(Model.SHOPPING_SOURCES) do
-		list[source] = {}
-	end
-	for itemID, count in pairs(needed) do
-		if count > 0 then
-			local bucket = list[Model.ShoppingSource(sourceOf(itemID))]
-			bucket[#bucket + 1] = { itemID = itemID, count = count }
-		end
-	end
-	for _, bucket in pairs(list) do
-		table.sort(bucket, function(a, b)
-			return a.itemID < b.itemID
-		end)
-	end
-	return list
-end
-
--- Raw items, already totalled, into the shopping list's buckets.
----@param items {itemID: integer, count: number}[]
----@param sourceOf fun(itemID: integer): SkillUpPriceSource?
----@return table<string, SkillUpShoppingItem[]>
-function Model.BucketItems(items, sourceOf)
-	local needed = {}
-	for _, item in ipairs(items) do
-		if item.itemID then
-			needed[item.itemID] = (needed[item.itemID] or 0) + item.count
-		end
-	end
-	return Model.BucketNeeded(needed, sourceOf)
 end
 
 ---@param recipeData table<integer, SkillUpRecipe>

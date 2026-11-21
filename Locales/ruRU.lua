@@ -621,8 +621,7 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 	"У этих реагентов нет цены у торговца. Для цен аукциона нужен Auctionator, TradeSkillMaster, AHDB, Naowh Forever или Forever Ledger."
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
 
-L["Choose whether to keep Auctionator shopping lists."] =
-	"Выберите, сохранять ли списки покупок Auctionator." -- mt
+L["A lighter Route page."] = "Более лёгкая страница маршрута." -- mt
 L["Show reagent search"] = "Показывать поиск реагентов"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Нажмите «Поиск» в окне профессий, чтобы найти недостающие реагенты. Без Auctionator каждое нажатие подставляет следующий реагент в строку поиска аукциона."

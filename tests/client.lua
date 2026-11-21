@@ -356,6 +356,9 @@ function Client.load(options)
 	function Methods:RegisterEvent(event)
 		self.events[event] = true
 	end
+	function Methods:RegisterUnitEvent(event)
+		self.events[event] = true
+	end
 	function Methods:UnregisterEvent(event)
 		self.events[event] = nil
 	end

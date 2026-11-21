@@ -923,6 +923,18 @@ env = setmetatable({
 	CreateSettingsButtonInitializer = function()
 		return function() end
 	end,
+	-- UI/Settings.lua builds its native dropdowns through these.
+	CreateSecureDelegate = function(fn)
+		return fn
+	end,
+	securecallfunction = function(fn, ...)
+		return fn(...)
+	end,
+	GenerateClosure = function(fn, owner)
+		return function(...)
+			return fn(owner, ...)
+		end
+	end,
 	MinimalSliderWithSteppersMixin = { Label = { Right = "right" } },
 	MenuUtil = Stub(),
 	-- The screenshots show the mouse and keyboard interface (Core/Core.lua ns.GamepadUI).

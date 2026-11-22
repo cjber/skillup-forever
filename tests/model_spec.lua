@@ -275,6 +275,34 @@ local profitable = Model.PlanRoute({
 })
 equal(profitable.segments[1].recipeID, 20, "a profit never rewards a lower chance")
 near(profitable.expectedCost, 100, "a profit never lowers the route's cost")
+-- One vendor unit makes the first point cheap. The depleted quote stays valid
+-- while the fallback is crafted, since it spends no bags or limited stock.
+local stockQuotes = 0
+local limitedRoute = Model.PlanWithTraining({
+	skill = 1,
+	target = 21,
+	recipes = {
+		{ recipeID = 900, thresholds = { 1, 30, 30, 30 }, netCost = 10, reagentCost = 10, stockSensitive = true },
+		{ recipeID = 901, thresholds = { 1, 30, 30, 30 }, netCost = 20, reagentCost = 20 },
+	},
+	stockCost = function(_, crafts, _, stock, take)
+		local left = stock and stock[1] or 1
+		local cheap = math.min(crafts, left)
+		if take then
+			stock[1] = left - cheap
+		else
+			stockQuotes = stockQuotes + 1
+		end
+		return cheap * 10 + (crafts - cheap) * 30
+	end,
+}, {})
+equal(limitedRoute.segments[1].recipeID, 900, "use the one cheap vendor unit")
+equal(limitedRoute.segments[1].toSkill, 2, "the expensive overflow loses after that unit is spent")
+equal(limitedRoute.segments[2].recipeID, 901, "finish with the fallback recipe")
+equal(limitedRoute.reachedSkill, 21, "the limited-stock route reaches its target")
+equal(limitedRoute.expectedCost, 10 + 19 * 20 + 20 * Model.CRAFT_TIME_COST, "route cost includes the vendor unit")
+equal(stockQuotes, 2, "quote once before and once after vendor stock is spent")
+
 -- #400: a profitable recipe's route total cannot fall as it adds crafts, so training that replaces the long
 -- green run still shows a saving and is recommended.
 local leggings = { recipeID = 1, thresholds = { 105, 120, 135, 150 }, netCost = -277, reagentCost = 300 }

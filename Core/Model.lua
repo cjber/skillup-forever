@@ -666,6 +666,9 @@ local function Planner(snapshot)
 	local bests, bestKeys, bestChances = {}, {}, {}
 	-- [thresholds][from][to][skillUps]: Model.CoveredCrafts at the route's confidence.
 	local covered = {}
+	-- A walk can reuse a batch quote at any skill until it spends from the pool or stock ledger.
+	---@type table<integer, table<number, number|false>>
+	local stockQuotes = {}
 
 	---@param recipe SkillUpCandidate
 	---@param skill number
@@ -804,7 +807,17 @@ local function Planner(snapshot)
 			if not Beats(recipe, floor, chance, best, bestKey, bestChance, buffs) then
 				return nil, chance
 			end
-			batch = stockCost(recipe.recipeID, crafts, pool, stock, false)
+			local quotes = stockQuotes[recipe.recipeID]
+			if not quotes then
+				quotes = {}
+				stockQuotes[recipe.recipeID] = quotes
+			end
+			local quote = quotes[crafts]
+			if quote == nil then
+				quote = stockCost(recipe.recipeID, crafts, pool, stock, false) or false
+				quotes[crafts] = quote
+			end
+			batch = quote or nil
 		else
 			batch = PoolReagentCost(recipe, crafts, pool)
 		end
@@ -928,6 +941,7 @@ local function Planner(snapshot)
 		-- a later step sees only what is left. Each call starts from the same pool, so a training search's
 		-- re-plans are all weighed against today's bags.
 		local pool = CopyHeld()
+		stockQuotes = {}
 		local stock
 		while route.reachedSkill < target do
 			local skill = route.reachedSkill
@@ -969,6 +983,7 @@ local function Planner(snapshot)
 			segment.toSkill = skill + gain
 			route.reachedSkill = skill + gain
 			if IsPooled(best) then
+				stockQuotes = {}
 				local ups = math.max(best.skillUps or 1, 1)
 				local crafts = Covered(best.thresholds, skill, skill + gain, ups)
 				if best.stockSensitive and stockCost then
@@ -1153,7 +1168,7 @@ function Model.PlanWithTraining(snapshot, services)
 	end
 	local planner = Planner(snapshot)
 	local chosen = {}
-	while true do
+	while #remaining > 0 do
 		local best = Recommend(planner, remaining)
 		if not best then
 			break

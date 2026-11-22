@@ -31,10 +31,8 @@ its integral form. It is a dated per-purchase ceiling, never stock or future
 supply. `rawCanAfford` retains the affordability answer independently.
 
 `MerchantOffers.Quote(offer, bundles)` returns only integer-bundle arithmetic:
-item units, money and all token/currency requirements. `BundleBound` takes an
-explicit wallet and typed balances and intersects their whole-bundle bounds with
-the native ceiling. This is conditional arithmetic, not a successful-order or
-supply certificate. It never uses stock. `RouteDemand.QuoteOrders` quotes explicit
+item units, money and all token/currency requirements. This is conditional
+arithmetic, not a successful-order or supply certificate. It never uses stock. `RouteDemand.QuoteOrders` quotes explicit
 current offer selections, rejecting replaced observations so a reordered index
 cannot silently select a different offer. It does not choose orders, alter live
 shopping counts, or set the coverage job's `costKnown`.
@@ -95,13 +93,3 @@ Issue #563 remains open: stock semantics, feasible repeated acquisitions, shared
 inventory, economic count selection, source access and measured/explicit travel
 or farm inputs still need integration. No fixed 95% policy or optimality claim
 follows from these observations.
-
-The conditional adaptive provider in `Core/SupplySources.lua` checks explicit
-laws against these current observations before registering its prepared reader.
-Positive raw stock requires an explicit item/bundle relation. Raw `-1` supports
-only an explicitly restricted finite opportunity domain, without a native stock
-claim. False purchase eligibility, sold-out positive pools and excessive
-transaction ceilings cannot be overridden by declarations. Native affordability
-is kept separate from fixed access: the existing RouteDemand snapshot reads the
-wallet and typed balances and the finite evaluator checks complete atomic
-payments, including fares. See [supply-policy.md](supply-policy.md).

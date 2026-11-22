@@ -47,8 +47,7 @@
 ---@class SkillUpAPIProfession
 ---@field recipeEvidence SkillUpRecipeEvidence Alpha-free conditional declaration status, never native production proof.
 ---@field sourceEvidence SkillUpSourceEvidence Current merchant evidence, even without a coverage target.
----@field nextAction SkillUpNextAction? Current copied adaptive guidance; absent in ordinary estimate mode.
----@field supply SkillUpSupplyChoiceResult|SkillUpFiniteSelectionResult? Conditional fixed or adaptive selection status and complete certificate.
+---@field supply SkillUpSupplyChoiceResult? Conditional fixed or adaptive selection status and complete certificate.
 ---@field name string Localized.
 ---@field skillLineID integer
 ---@field icon fileID
@@ -122,7 +121,7 @@
 ---@field status string unconfigured, calculating, complete, unknown, infeasible, unattained or cancelled.
 ---@field conditional boolean? Supplied model assumptions, never execution proof.
 ---@field alpha number? Explicit starting coverage constraint, including zero.
----@field service string? Declared fixed-batch or adaptive-finite model.
+---@field service string? Declared fixed-batch model.
 ---@field inventoryScope string? Native holdings scope.
 ---@field coverageLower number? C0, starting supplies only; complete current owner only.
 ---@field coverageUpper number?

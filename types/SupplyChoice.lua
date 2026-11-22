@@ -45,8 +45,7 @@
 ---@field Start fun(input: SkillUpResupplyInput, alpha: number): SkillUpSupplyChoiceJob Immutable inputs, one fixed refill policy.
 
 ---@class SkillUpSupplyConfiguration
----@field mode 'fixed'|'adaptive'
----@field read fun(): SkillUpResupplyInput|SkillUpAdaptiveSupplyRequest|nil, string?
+---@field read fun(): SkillUpResupplyInput|nil, string?
 ---@field alpha number
 ---@field dirty boolean
----@field job SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob?
+---@field job SkillUpSupplyChoiceJob?

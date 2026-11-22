@@ -665,33 +665,27 @@ equal(scrollAPI.Navigate(COOKING, 1), true, "the scroll step routes")
 equal(scrollClient.routed, "Fish Vendor", "to its vendor, not a trainer")
 equal(trainerAsked, false, "even when it routes")
 
--- One rebuild expands each route's reagents once and resolves each profession's action once. A cached read does
--- neither: the copy it hands out is still fresh (below), but no route or action work runs for it.
+-- One rebuild expands each route's reagents once. A cached read does not: the copy it hands out is still fresh
+-- (below), but no route work runs for it.
 local professionCount = 0
 for _ in pairs(ns.RouteProfessions()) do
 	professionCount = professionCount + 1
 end
-local routeCalls, actionCalls = 0, 0
-local realRouteReagents, realNextAction = ns.RouteReagents, ns.RouteDemand.NextAction
+local routeCalls = 0
+local realRouteReagents = ns.RouteReagents
 ns.RouteReagents = function(...)
 	routeCalls = routeCalls + 1
 	return realRouteReagents(...)
 end
-ns.RouteDemand.NextAction = function(...)
-	actionCalls = actionCalls + 1
-	return realNextAction(...)
-end
 ns.Changed("bags")
 API.Professions()
 equal(routeCalls, professionCount, "one rebuild expands each route's reagents once (" .. routeCalls .. ")")
-equal(actionCalls, professionCount, "one rebuild resolves each profession's action once (" .. actionCalls .. ")")
-routeCalls, actionCalls = 0, 0
+routeCalls = 0
 for _ = 1, 5 do
 	API.Professions()
 end
 equal(routeCalls, 0, "a cached read expands no route")
-equal(actionCalls, 0, "a cached read resolves no action")
-ns.RouteReagents, ns.RouteDemand.NextAction = realRouteReagents, realNextAction
+ns.RouteReagents = realRouteReagents
 
 -- A core older than the kit's Publish still loads the addon: with the kit at minor 1 the guard hands it nothing.
 local kit = c.G.ForeverCore.APIKit

@@ -371,31 +371,5 @@ function Offers.Quote(offer, bundles)
 	return quote
 end
 
----@param offer SkillUpObservedMerchantOffer
----@param wallet number?
----@param balances table<string, number> Typed item:<ID>/currency:<ID> balances from the same observation.
----@return integer?
----@return string?
-function Offers.BundleBound(offer, wallet, balances)
-	local quote = Offers.Quote(offer, 1)
-	if not quote or not offer.maxPurchaseItems then
-		return nil, "complete requirements and native ceiling required"
-	end
-	local bound = math.floor(offer.maxPurchaseItems / quote.units)
-	if quote.moneyCopper > 0 then
-		if not Integer(wallet, 0) then
-			return nil, "wallet unavailable"
-		end
-		bound = math.min(bound, math.floor(wallet / quote.moneyCopper))
-	end
-	for key, quantity in pairs(quote.costs) do
-		if not Integer(balances[key], 0) then
-			return nil, "requirement balance unavailable: " .. key
-		end
-		bound = math.min(bound, math.floor(balances[key] / quantity))
-	end
-	return bound
-end
-
 ---@cast Offers SkillUpMerchantOffers
 ns.MerchantOffers = Offers

@@ -7,12 +7,12 @@ local BANDAGE, LATER = 1, 2
 local TAILORING = 197
 local c = Client.load({
 	data = {
-		Thresholds = { [BANDAGE] = { 1, 30, 45, 60 }, [LATER] = { 70, 80, 90, 100 } },
+		Thresholds = { [BANDAGE] = { 1, 30, 45, 60 }, [LATER] = { 65, 80, 90, 100 } },
 		RecipeData = {
 			[BANDAGE] = { skillLine = 129, reagents = {} },
-			[LATER] = { skillLine = 129, reagents = {} },
+			[LATER] = { skillLine = 129, reagents = { { itemID = 999, quantity = 1 } } },
 		},
-		TrainerFees = { [LATER] = { 10, 70 } },
+		TrainerFees = { [LATER] = { 10, 65 } },
 		TrainerRanks = {},
 		ItemSellPrices = {},
 		GatheredBy = {},
@@ -59,5 +59,12 @@ equal(ns.IsTracked(129), false, "and it stays untracked")
 ns.SetTracked(129, true)
 equal(ns.db.trackedProfessions[129], true, "tracking by hand clears the stop")
 equal(ns.AutoTrack(129), false, "and nothing overrides a decision already made")
+
+c.known[LATER] = true
+c.Fire("NEW_RECIPE_LEARNED")
+c.Advance(0)
+local plan = ns.PlanRoute(ns.RouteProfessions()[129])
+equal(plan.target, 65, "the recipe first becomes usable at the route target")
+equal(#plan.unpricedRecipes, 0, "the route does not ask for prices for recipes it cannot craft")
 
 Client.report("tracking_spec")

@@ -438,7 +438,7 @@ end
 -- recipe with no such scroll. A price seen at a merchant proves the vendor sells it; else the catalogue
 -- must name a vendor, so a drop nobody sells is never planned as a purchase (#358).
 ---@param recipeID integer
----@param targetBase? number
+---@param targetBase? number Only candidate searches supply a target; existing steps resolve their source directly.
 ---@return number[]?
 local function VendorTraining(recipeID, targetBase)
 	local scroll = ns.RecipeScrolls and ns.RecipeScrolls[recipeID]

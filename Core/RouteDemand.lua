@@ -7,9 +7,6 @@ end
 local RouteDemand = {}
 
 local COST_REASON = "observed expenditure unavailable: feasible source orders not established"
-local ATOMIC_PURCHASE_REASON = "atomic-purchase-not-executable"
-local STALE_ACTION_REASON = "unpublished-or-stale"
-local MISSING_ACTION_REASON = "action-unavailable"
 
 -- A probability or acquisition certificate cannot inherit display fallbacks.
 -- Explicit bank scope follows Forever's GetItemCount declaration, with reagent
@@ -45,14 +42,12 @@ end
 
 -- This adapter accepts final Plan output, never CoveredCrafts counts or expanded
 -- shopping rows. Its snapshot owns every table read by the asynchronous solver.
----@type table<SkillUpJointDemandJob|SkillUpResupplyJob|SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob, integer>
+---@type table<SkillUpJointDemandJob|SkillUpResupplyJob|SkillUpSupplyChoiceJob, integer>
 local jobs = setmetatable({}, { __mode = "k" })
----@type table<SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob, SkillUpPlan>
+---@type table<SkillUpSupplyChoiceJob, SkillUpPlan>
 local supplyPlans = {}
 ---@type table<integer, SkillUpSupplyConfiguration>
 local configured = {}
--- Intent survives cancellation, so a revoked adaptive owner cannot become an
--- estimated craft. Explicit configuration removal/switching clears this intent.
 -- The solver frame runs only while work is pending: shown on the wakes below, hidden by its own
 -- handler once no configured snapshot is dirty and no job is still calculating (WFA-13, no idle OnUpdate).
 local supplyFrame = CreateFrame("Frame")
@@ -63,15 +58,12 @@ end
 -- A chance revision can change without any game event (Model.SetChanceBonus), so its producer wakes the
 -- frame; the handler then revokes the old revision's results as before.
 ns.Model.OnChanceRevision(WakeSupply)
-local adaptiveIntent = setmetatable({}, { __mode = "k" })
-local actionRecords = setmetatable({}, { __mode = "k" })
 local generation = 0
 local configuring = false
 
 local function DetachJob(job)
 	local plan = supplyPlans[job]
 	supplyPlans[job] = nil
-	actionRecords[job] = nil
 	jobs[job] = nil
 	if plan and plan.supply and plan.supply.job == job then
 		plan.supply = nil
@@ -79,24 +71,10 @@ local function DetachJob(job)
 	end
 end
 
----@generic T
----@param value T
----@return T
-local function CopyAction(value)
-	if type(value) ~= "table" then
-		return value
-	end
-	local result = {}
-	for key, field in pairs(value) do
-		result[key] = CopyAction(field)
-	end
-	return result
-end
-
 ---@param plan SkillUpPlan
 ---@param buy table<integer, integer>
 ---@param includeBank boolean? Existing callers include bank inventory.
----@param tick (fun())? Adaptive callers share snapshot work with the solver budget.
+---@param tick (fun())? Shares snapshot work with a solver budget.
 ---@param deferInventory boolean? Collect route coordinates before reading balances.
 ---@return SkillUpJointDemandInput?
 ---@return string?
@@ -481,369 +459,12 @@ function RouteDemand.StartPolicy(plan, contract, alpha)
 	return job
 end
 
--- Opt-in native adapter. The request and plan remain immutable until snapshot
--- completion; invalidation revokes both partial and completed certificates.
--- Every traversal and native read yields under the caller's Advance budget.
----@param plan SkillUpPlan
----@param request SkillUpAdaptiveSupplyRequest
----@param alpha number
----@return SkillUpFiniteSelectionJob
-function RouteDemand.StartAdaptive(plan, request, alpha)
-	local revision = ns.Model.ChanceRevision()
-	local recipeRevision = ns.RecipeEvidence.Revision()
-	---@type SkillUpFiniteSelectionJob?
-	local inner
-	---@type SkillUpFiniteSelectionJob
-	local job
-	local function Unknown(reason)
-		return { status = "unknown", costKnown = false, reasons = { reason } }
-	end
-	---@type thread?
-	local thread = coroutine.create(function()
-		local function Reject(reason)
-			error({ adaptiveSnapshot = reason }, 0)
-		end
-		if type(request) ~= "table" or getmetatable(request) ~= nil or request.inventoryScope ~= "bags-only" then
-			return Unknown("explicit bags-only inventory scope required")
-		end
-		if type(alpha) ~= "number" or not (alpha >= 0 and alpha <= 1) then
-			return Unknown("explicit starting coverage in [0,1] required")
-		end
-		local input = request.policy
-		if
-			type(input) ~= "table"
-			or getmetatable(input) ~= nil
-			or type(input.options) ~= "table"
-			or getmetatable(input.options) ~= nil
-		then
-			return Unknown("plain adaptive policy and resource budgets required")
-		end
-		local limit, coordinateLimit = input.options.workLimit, input.options.coordinateLimit
-		local function Integer(value)
-			return type(value) == "number" and value >= 0 and value <= 2 ^ 52 - 1 and value % 1 == 0
-		end
-		if not Integer(limit) or limit == 0 or not Integer(coordinateLimit) or coordinateLimit == 0 then
-			return Unknown("positive finite snapshot work and coordinate budgets required")
-		end
-		local work = 0
-		local function Tick()
-			work = work + 1
-			if work > limit then
-				Reject("adaptive snapshot work budget exhausted; no certificate")
-			end
-			coroutine.yield()
-		end
-		for key in pairs(request) do
-			Tick()
-			if key ~= "inventoryScope" and key ~= "policy" and key ~= "crafted" then
-				Reject("unsupported adaptive snapshot request field")
-			end
-		end
-		-- Explicit stack: work bounds copying and nesting, without a recursive
-		-- Lua stack limit or a fitted schema-depth cutoff. Active ancestors reject
-		-- cycles; repeated acyclic tables receive separate owned copies.
-		local function Copy(value)
-			local function Plain(field)
-				if type(field) == "table" then
-					if getmetatable(field) ~= nil then
-						Reject("adaptive snapshot requires plain records")
-					end
-				elseif
-					type(field) ~= "string"
-					and type(field) ~= "number"
-					and type(field) ~= "boolean"
-					and field ~= nil
-				then
-					Reject("adaptive snapshot requires plain records")
-				end
-			end
-			Tick()
-			Plain(value)
-			if type(value) ~= "table" then
-				return value
-			end
-			local result, visiting = {}, { [value] = true }
-			local stack = { { input = value, output = result } }
-			while #stack > 0 do
-				Tick()
-				local frame = stack[#stack]
-				local key, field = next(frame.input, frame.key)
-				frame.key = key
-				if key == nil then
-					visiting[frame.input], stack[#stack] = nil, nil
-				else
-					if type(key) ~= "number" and type(key) ~= "string" then
-						Reject("adaptive snapshot requires scalar keys")
-					end
-					Plain(field)
-					if type(field) == "table" then
-						if visiting[field] then
-							Reject("adaptive snapshot requires acyclic plain records")
-						end
-						local child = {}
-						frame.output[key], visiting[field] = child, true
-						stack[#stack + 1] = { input = field, output = child }
-					else
-						frame.output[key] = field
-					end
-				end
-			end
-			return result
-		end
-		local frozen = {}
-		for key, value in pairs(input) do
-			Tick()
-			if type(key) ~= "string" then
-				Reject("adaptive policy requires string fields")
-			end
-			if key ~= "route" then
-				frozen[key] = Copy(value)
-			end
-		end
-		local route, reason, recipeEvidence
-		if request.crafted ~= nil then
-			route, reason, recipeEvidence = ns.RecipeEvidence.Snapshot(plan, Copy(request.crafted), Tick)
-		else
-			route, reason = RouteDemand.Snapshot(plan, {}, false, Tick, true)
-		end
-		if not route then
-			return Unknown(assert(reason))
-		end
-		local coordinates, count = {}, 0
-		local function Coordinate(kind, id)
-			Tick()
-			if (kind ~= "item" and kind ~= "currency") or not Integer(id) or id == 0 then
-				Reject("canonical typed inventory coordinate required")
-			end
-			local key = kind .. ":" .. string.format("%.0f", id)
-			if not coordinates[key] then
-				count = count + 1
-				if count > coordinateLimit then
-					Reject("adaptive snapshot coordinate budget exhausted")
-				end
-				coordinates[key] = { kind = kind, id = id }
-			end
-		end
-		local function Typed(key)
-			local kind, text
-			if type(key) == "string" then
-				kind, text = key:match("^(%a+):(%d+)$")
-			end
-			local id = text and tonumber(text)
-			if not Integer(id) or id == 0 or key ~= kind .. ":" .. string.format("%.0f", id) then
-				Reject("canonical typed inventory coordinate required")
-			end
-			Coordinate(kind, id)
-		end
-		for id in pairs(route.held) do
-			Coordinate("item", id)
-		end
-		if
-			type(frozen.sources) ~= "table"
-			or type(frozen.currencies) ~= "table"
-			or type(frozen.tokenValues) ~= "table"
-			or type(frozen.terminalCarry) ~= "table"
-		then
-			return Unknown("complete modeled inventory coordinate maps required")
-		end
-		for _, source in pairs(frozen.sources) do
-			Tick()
-			if type(source) ~= "table" or type(source.costs) ~= "table" then
-				Reject("complete typed source records required")
-			end
-			Coordinate("item", source.itemID)
-			for key in pairs(source.costs) do
-				Typed(key)
-			end
-		end
-		for id in pairs(frozen.currencies) do
-			Coordinate("currency", id)
-		end
-		for key in pairs(frozen.tokenValues) do
-			Typed(key)
-		end
-		for key in pairs(frozen.terminalCarry) do
-			Typed(key)
-		end
-		-- Native quantities replace every caller balance, including unused source
-		-- products and valuation-only coordinates. No bank withdrawal is implied.
-		route.held, frozen.currencies = {}, {}
-		for _, coordinate in pairs(coordinates) do
-			Tick()
-			if coordinate.kind == "item" then
-				local quantity, why = RouteDemand.Count(coordinate.id, false)
-				if quantity == nil then
-					return Unknown(assert(why))
-				end
-				route.held[coordinate.id] = quantity
-			else
-				local api = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo
-				if type(api) ~= "function" then
-					return Unknown("current currency capability unavailable")
-				end
-				local ok, info = pcall(api, coordinate.id)
-				info = ok and ns.Readable(info)
-				local quantity = type(info) == "table" and ns.Readable(info.quantity)
-				if not Integer(quantity) then
-					return Unknown("current currency quantity unavailable")
-				end
-				frozen.currencies[coordinate.id] = quantity
-			end
-		end
-		Tick()
-		if type(GetMoney) ~= "function" then
-			return Unknown("current wallet capability unavailable")
-		end
-		local ok, raw = pcall(GetMoney)
-		local wallet = ok and ns.Readable(raw)
-		if not Integer(wallet) then
-			return Unknown("current wallet quantity unavailable")
-		end
-		frozen.route, frozen.walletCopper = route, wallet
-		---@cast frozen SkillUpFiniteAcquisitionInput
-		inner = ns.FiniteAcquisition.Select(frozen, alpha)
-		while inner.result.status == "calculating" do
-			Tick()
-			inner:Advance(1)
-		end
-		inner.result.service = "adaptive-finite"
-		inner.result.inventoryScope = "bags-only"
-		if request.crafted ~= nil then
-			inner.result.recipeRevision = recipeRevision
-			inner.result.recipeScope = "declared-finite-recipes"
-			inner.result.recipeEvidence = recipeEvidence
-		end
-		if inner.result.status == "complete" then
-			local result, certificate = inner.result, inner.result.certificate
-			local function Unsupported(code)
-				return { kind = "unsupported", reason = code }
-			end
-			local action = Unsupported("economic-root-missing")
-			if certificate and certificate.kind == "finite-dag-exhaustive" then
-				local rows = {}
-				for _, row in ipairs(certificate.policy) do
-					Tick()
-					if rows[row.state] then
-						Reject("duplicate policy state")
-					end
-					rows[row.state] = row
-				end
-				for _, row in pairs(rows) do
-					Tick()
-					for _, edge in ipairs(row.successors) do
-						Tick()
-						if not rows[edge.state] then
-							Reject("policy successor missing")
-						end
-					end
-				end
-				local row = rows[certificate.initialState]
-				local orders = result.orders
-				local initial = orders and #orders > 0
-				if initial or (row and row.kind == "acquire") then
-					orders = initial and orders or row.orders
-					action = {
-						kind = "purchase",
-						phase = initial and "initial" or "continuation",
-						atomic = true,
-						executable = false,
-						orders = {},
-						reason = ATOMIC_PURCHASE_REASON,
-						visits = Copy(
-							initial and certificate.laws.initialVisitMoney or certificate.laws.refillVisitMoney
-						),
-						visitValues = Copy(
-							initial and certificate.laws.initialVisitValue or certificate.laws.refillVisitValue
-						),
-						assumptions = Copy(result.assumptions),
-					}
-					for _, order in ipairs(orders) do
-						Tick()
-						local source = certificate.sources[order.source]
-						if not source then
-							Reject("purchase source binding missing")
-						end
-						action.orders[#action.orders + 1] = {
-							source = order.source,
-							bundles = order.bundles,
-							binding = Copy(source),
-						}
-					end
-				elseif row and row.kind == "craft" then
-					local recipe = certificate.recipes and certificate.recipes[row.recipeID]
-					if recipe and recipe.role == row.role then
-						action =
-							{ kind = "craft", recipeID = row.recipeID, role = row.role, count = 1, executable = false }
-					else
-						action = Unsupported("recipe-binding-missing")
-					end
-				elseif row and (row.kind == "stop" or row.kind == "complete") then
-					action = { kind = "stop", reason = row.kind == "complete" and "complete" or "economic-stop" }
-				end
-				action.state = initial and certificate.preInitialState or certificate.initialState
-				action.resources = Copy(initial and certificate.preInitialResources or certificate.initialResources)
-				action.coordinates, action.pools = Copy(certificate.coordinates), Copy(certificate.pools)
-				action.postInitialState = initial and certificate.initialState or nil
-			end
-			action.conditional, action.inventoryScope = true, "bags-only"
-			action.sourceRevision, action.recipeRevision = result.sourceRevision, result.recipeRevision
-			actionRecords[job] = action
-		end
-		return inner.result
-	end)
-	local function Cancel(self)
-		thread = nil
-		if inner then
-			inner:Cancel()
-		end
-		self.result = {
-			status = "cancelled",
-			costKnown = false,
-			reasons = { "adaptive inventory or source snapshot invalidated" },
-		}
-	end
-	local function Advance(self, budget)
-		if revision ~= ns.Model.ChanceRevision() or not ns.RecipeEvidence.Current(recipeRevision) then
-			Cancel(self)
-		end
-		if type(budget) ~= "number" or budget < 1 or budget > 2 ^ 52 - 1 or budget % 1 ~= 0 then
-			return self.result
-		end
-		for _ = 1, budget do
-			local active = thread
-			if not active then
-				break
-			end
-			local ok, result = coroutine.resume(active)
-			if revision ~= ns.Model.ChanceRevision() or not ns.RecipeEvidence.Current(recipeRevision) then
-				Cancel(self)
-			end
-			if thread ~= active then
-				return self.result
-			end
-			if not ok then
-				thread = nil
-				if inner then
-					inner:Cancel()
-				end
-				self.result = Unknown(type(result) == "table" and result.adaptiveSnapshot or "adaptive snapshot failed")
-			elseif coroutine.status(active) == "dead" then
-				thread, self.result = nil, result
-			end
-		end
-		return self.result
-	end
-	job = { result = { status = "calculating", costKnown = false, reasons = {} }, Advance = Advance, Cancel = Cancel }
-	jobs[job] = revision
-	return job
-end
-
 -- One owner publishes the selected starting inventory budget. No getter starts
 -- or advances a solve. A missing explicit policy leaves the legacy estimates
 -- intact, without giving them a coverage or economic certificate.
 ---@param plan SkillUpPlan
----@param job SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob
----@return SkillUpSupplyChoiceJob|SkillUpFiniteSelectionJob
+---@param job SkillUpSupplyChoiceJob
+---@return SkillUpSupplyChoiceJob
 local function PublishSupply(plan, job, alpha, service)
 	local previous = plan.supply
 	if previous then
@@ -887,25 +508,9 @@ end
 ---@param alpha number
 ---@return SkillUpSupplyChoiceJob
 function RouteDemand.SelectSupply(plan, contract, alpha)
-	local skillLine = plan.profession.skillLine
-	local previous = configured[skillLine]
-	local owner = plan.supply
 	local job = alpha ~= nil and RouteDemand.StartPolicy(plan, contract, alpha)
 		or RejectedPolicy("explicit starting coverage required")
 	---@cast job SkillUpSupplyChoiceJob
-	if previous and previous.mode == "adaptive" then
-		if previous.job then
-			previous.job:Cancel()
-		end
-		-- Cancellation callbacks may install a new configuration or direct owner.
-		-- That replacement wins; the outer fixed switch must not clear its intent.
-		if configured[skillLine] ~= previous or (plan.supply and plan.supply ~= owner) then
-			job:Cancel()
-			return job
-		end
-		configured[skillLine] = nil
-	end
-	adaptiveIntent[skillLine or plan] = nil
 	PublishSupply(plan, job, alpha, "fixed-batch")
 	return job
 end
@@ -914,33 +519,24 @@ end
 -- Copying a finite stock record across purchases would silently replenish it.
 -- The reader may return nil when current/future laws are no longer established.
 ---@param skillLine integer
----@param read (fun(): SkillUpResupplyInput|SkillUpAdaptiveSupplyRequest|nil, string?)? nil removes either mode.
+---@param read (fun(): SkillUpResupplyInput|nil, string?)? nil removes the configuration.
 ---@param alpha number?
----@param mode 'fixed'|'adaptive'
 ---@return boolean
 ---@return string?
-local function Configure(skillLine, read, alpha, mode)
+local function Configure(skillLine, read, alpha)
 	if configuring then
 		return false, "configuration reentrant"
 	end
 	if type(skillLine) ~= "number" or skillLine <= 0 or skillLine > 2 ^ 52 - 1 or skillLine % 1 ~= 0 then
 		return false, "explicit profession identity required"
 	end
-	if
-		read ~= nil
-		and (
-			type(read) ~= "function"
-			or type(alpha) ~= "number"
-			or not (alpha >= 0 and alpha <= 1 and (mode == "adaptive" or alpha > 0))
-		)
-	then
+	if read ~= nil and (type(read) ~= "function" or type(alpha) ~= "number" or not (alpha > 0 and alpha <= 1)) then
 		return false, "explicit source contract reader and starting coverage required"
 	end
 	local previous = configured[skillLine]
-	local nextConfiguration = read and { read = read, alpha = assert(alpha), mode = mode, dirty = true } or nil
+	local nextConfiguration = read and { read = read, alpha = assert(alpha), dirty = true } or nil
 	configuring = true
 	configured[skillLine] = nextConfiguration
-	adaptiveIntent[skillLine] = nil
 	if previous and previous.job then
 		-- Cancellation is the final commit step.  A broken old job must not
 		-- turn a committed replacement into a rejected ApplyDraft: its inner
@@ -965,26 +561,7 @@ end
 ---@param alpha number?
 ---@return boolean, string?
 function RouteDemand.ConfigureSupply(skillLine, read, alpha)
-	return Configure(skillLine, read, alpha, "fixed")
-end
-
----@param skillLine integer
----@param read (fun(): SkillUpAdaptiveSupplyRequest?, string?)?
----@param alpha number?
----@return boolean, string?
-function RouteDemand.ConfigureAdaptiveSupply(skillLine, read, alpha)
-	return Configure(skillLine, read, alpha, "adaptive")
-end
-
----@param plan SkillUpPlan
----@param request SkillUpAdaptiveSupplyRequest
----@param alpha number
----@return SkillUpFiniteSelectionJob
-function RouteDemand.SelectAdaptiveSupply(plan, request, alpha)
-	adaptiveIntent[plan.profession.skillLine or plan] = true
-	local job = RouteDemand.StartAdaptive(plan, request, alpha)
-	PublishSupply(plan, job, alpha, "adaptive-finite")
-	return job
+	return Configure(skillLine, read, alpha)
 end
 
 -- Certified coordinates never inherit the display helper's bank scope.
@@ -1040,44 +617,11 @@ function RouteDemand.Supply(plan)
 		supply
 		and supply.revision == ns.Model.ChanceRevision()
 		and supply.job.result.status == "complete"
-		and (not supply.job.result.recipeRevision or ns.RecipeEvidence.Current(supply.job.result.recipeRevision))
 		and supply.items
 		and supply.have
 	then
 		return supply
 	end
-end
-
--- A query over the frame-published owner only. No reader, native resource
--- read, graph traversal or reconciliation happens here. Only a freshly solved
--- empty initial basket can use its economic root; purchases stay outstanding.
----@param plan SkillUpPlan
----@return SkillUpNextAction? nil means ordinary estimated mode.
-function RouteDemand.NextAction(plan)
-	local config = configured[plan.profession.skillLine]
-	if not (config and config.mode == "adaptive") and not adaptiveIntent[plan.profession.skillLine or plan] then
-		return nil
-	end
-	local supply = RouteDemand.Supply(plan)
-	if
-		not supply
-		or supply.service ~= "adaptive-finite"
-		or (config and (config.dirty or supply.configuration ~= config))
-	then
-		return {
-			kind = "unsupported",
-			reason = STALE_ACTION_REASON,
-			conditional = true,
-			inventoryScope = "bags-only",
-		}
-	end
-	local action = actionRecords[supply.job]
-	if not action then
-		return { kind = "unsupported", reason = MISSING_ACTION_REASON, conditional = true, inventoryScope = "bags-only" }
-	end
-	local copy = CopyAction(action)
-	copy.generation = supply.generation
-	return copy
 end
 
 -- Read only: status belongs to the current plan revision, never to a getter's clock.
@@ -1095,19 +639,17 @@ function RouteDemand.Summary(plan)
 				or "calculating",
 			alpha = config.alpha,
 			conditional = true,
-			service = config.mode == "adaptive" and "adaptive-finite" or "fixed-batch",
-			inventoryScope = config.mode == "adaptive" and "bags-only" or "bags-and-bank",
+			service = "fixed-batch",
+			inventoryScope = "bags-and-bank",
 		}
 	end
 	local result = owner.job.result
 	local current = owner.revision == ns.Model.ChanceRevision()
-		and (not result.recipeRevision or ns.RecipeEvidence.Current(result.recipeRevision))
 	local summary = {
 		status = current and result.status or "cancelled",
 		alpha = owner.alpha,
 		service = owner.service,
-		inventoryScope = result.inventoryScope
-			or (owner.service == "adaptive-finite" and "bags-only" or "bags-and-bank"),
+		inventoryScope = result.inventoryScope or "bags-and-bank",
 		conditional = true,
 	}
 	if current and result.status == "complete" and not RouteDemand.Supply(plan) then
@@ -1180,9 +722,6 @@ end
 -- budget, not a probability cutoff; exhaustion of a model budget stays unknown.
 local supplyRevision = ns.Model.ChanceRevision()
 supplyFrame:SetScript("OnUpdate", function()
-	-- The client build cannot change inside one Lua session (a patch needs a client restart, which reloads
-	-- every addon), so checking it on each wake rather than every frame loses no revocation in the game.
-	ns.RecipeEvidence.Refresh()
 	local revision = ns.Model.ChanceRevision()
 	if revision ~= supplyRevision then
 		supplyRevision = revision
@@ -1194,30 +733,20 @@ supplyFrame:SetScript("OnUpdate", function()
 				config.dirty = false
 				local profession = ns.RouteProfessions()[skillLine]
 				if profession then
-					local ok, contract, missing = ns.RecipeEvidence.ReadRequest(config.read)
+					local ok, contract, missing = pcall(config.read)
 					local plan = ns.PlanRoute(profession)
 					if configured[skillLine] ~= config or config.dirty then
 						break
 					end
 					local job
 					if ok and contract then
-						if config.mode == "adaptive" then
-							---@cast contract SkillUpAdaptiveSupplyRequest
-							job = RouteDemand.SelectAdaptiveSupply(plan, contract, config.alpha)
-						else
-							---@cast contract SkillUpResupplyInput
-							job = RouteDemand.SelectSupply(plan, contract, config.alpha)
-						end
+						---@cast contract SkillUpResupplyInput
+						job = RouteDemand.SelectSupply(plan, contract, config.alpha)
 					else
 						job = RejectedChoice(
 							ok and type(missing) == "string" and missing or "fresh complete source contract unavailable"
 						)
-						PublishSupply(
-							plan,
-							job,
-							config.alpha,
-							config.mode == "adaptive" and "adaptive-finite" or "fixed-batch"
-						)
+						PublishSupply(plan, job, config.alpha, "fixed-batch")
 					end
 					if configured[skillLine] == config and not config.dirty then
 						config.job = job
@@ -1339,10 +868,7 @@ function RouteDemand.QuoteOrders(orders)
 end
 
 ns.RouteDemand = {
-	NextAction = RouteDemand.NextAction,
 	ConfigureSupply = RouteDemand.ConfigureSupply,
-	ConfigureAdaptiveSupply = RouteDemand.ConfigureAdaptiveSupply,
-	SelectAdaptiveSupply = RouteDemand.SelectAdaptiveSupply,
 	Held = RouteDemand.Held,
 	Shortfalls = RouteDemand.Shortfalls,
 	Vendors = RouteDemand.Vendors,
@@ -1351,7 +877,6 @@ ns.RouteDemand = {
 	Summary = RouteDemand.Summary,
 	Count = RouteDemand.Count,
 	StartPolicy = RouteDemand.StartPolicy,
-	StartAdaptive = RouteDemand.StartAdaptive,
 	Snapshot = RouteDemand.Snapshot,
 	Start = RouteDemand.Start,
 	Invalidate = RouteDemand.Invalidate,
@@ -1366,7 +891,6 @@ ns.WhenStaleObserver("replan", RouteDemand.Invalidate)
 ns.WhenStaleObserver("bags", RouteDemand.Invalidate)
 ns.WhenStaleObserver("prices", RouteDemand.Invalidate)
 ns.WhenStaleObserver("sourceEvidence", RouteDemand.Invalidate)
-ns.WhenStaleObserver("recipeEvidence", RouteDemand.Invalidate)
 
 -- Skill changes need not invalidate Plan's recipe cache. These events revoke
 -- the snapshot without changing its route choice or shopping counts.

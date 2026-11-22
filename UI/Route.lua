@@ -976,8 +976,7 @@ local function ApplyCraft(craft)
 	local canCreateAll = createAll and createAll:IsEnabled() and craftable > 0
 	local all = canCreateAll and count and count >= craftable
 	local onRecipe = recipeID and count and count > 0 and ShowsRecipe(recipeID)
-	-- Adaptive actions are guidance only: no Create, CreateAll or Shift proxy is armed for them.
-	local ready = not craft.nextAction and onRecipe and create and create:IsEnabled()
+	local ready = onRecipe and create and create:IsEnabled()
 
 	-- A secure type="click" presses the Professions window's own Create button, as Blizzard's own gamepad code
 	-- does (Blizzard_ProfessionsFrame.lua, Create/CreateAll, lines 979-985), and the client runs the protected
@@ -1003,7 +1002,7 @@ local function ApplyCraft(craft)
 	end
 
 	local reason = CraftReason(craft)
-	if not craft.nextAction and not reason and recipeID and count and count > 0 and not ready then
+	if not reason and recipeID and count and count > 0 and not ready then
 		reason = onRecipe and L["The game's Craft button is not ready for this recipe."]
 			or string.format(L["Select %s in the recipe list first."], RecipeName(recipeID))
 	end
@@ -1015,7 +1014,7 @@ local function ApplyCraft(craft)
 	button.reason = reason
 	button:SetText(L["Craft"])
 	local planned = craft.planned
-	local countText = craft.nextAction and count and tostring(count) or planned and tostring(planned) or ""
+	local countText = planned and tostring(planned) or ""
 	if ready and count and planned and count < planned then
 		countText = string.format(L["%d of %d"], count, planned)
 	end

@@ -144,16 +144,6 @@ for _ = 1, 4 do
 	Frame()
 end
 equal(API.Professions()[1].supply, nil, "unconfigured status is cached as absent")
--- A direct configuration is visible to the next read: the API's cache drops in the call that made it, not on a
--- later frame after a publication.
-equal(API.Professions()[1].nextAction, nil, "an unconfigured profession publishes no next action")
-assert(ns.RouteDemand.ConfigureAdaptiveSupply(197, function()
-	return nil
-end, 0.5))
-local directAction = API.Professions()[1].nextAction
-equal(directAction and directAction.kind, "unsupported", "a direct adaptive configure reaches the next API read")
-assert(ns.RouteDemand.ConfigureSupply(197, nil))
-equal(API.Professions()[1].nextAction, nil, "removing a direct configure reaches the next API read")
 ns.RouteDemand.ConfigureSupply(197, function()
 	return nil
 end, 0.9)

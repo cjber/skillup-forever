@@ -17,7 +17,6 @@ local ORDER = {
 	"prices",
 	"craftCosts",
 	"sourceEvidence",
-	"recipeEvidence",
 	"plans",
 	"replan",
 	"bags",
@@ -58,7 +57,6 @@ local STALE = {
 		shoppingList = true,
 	},
 	sourceEvidence = { sourceEvidence = true, api = true },
-	recipeEvidence = { recipeEvidence = true, api = true },
 	-- What a profession's recipes are or need: a recipe learned, or the open window's scan finding a learned
 	-- flag, a live grey, skill points or a schematic the plans were built without. The plan is built from all
 	-- of it.

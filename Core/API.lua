@@ -489,9 +489,6 @@ local function Build()
 			sourceEvidence = ns.SupplySources.Inspect(products),
 			recipeEvidence = ns.RecipeEvidence.Inspect(skillLine),
 			supply = plan.supply and plan.supply.job.result,
-			-- Resolved once per build, copied per read. Every revocation that can replace this action drops the
-			-- API cache (Core/Changes.lua), so a cached nil cannot outlive a published or revoked action.
-			nextAction = ns.RouteDemand.NextAction(plan),
 		}
 		entries[#entries + 1] = entry
 		urgency[entry] = { #steps > 0 and 0 or 1, ns.IsTracked(skillLine) and 0 or 1, Urgency(entry) }
@@ -557,7 +554,6 @@ local function CopyProfessions(list, steps, recipes)
 			name = entry.name,
 			skillLineID = entry.skillLineID,
 			icon = entry.icon,
-			nextAction = entry.nextAction and CopyRow(entry.nextAction) or nil,
 			rank = entry.rank,
 			maxRank = entry.maxRank,
 			title = entry.title,
@@ -565,12 +561,8 @@ local function CopyProfessions(list, steps, recipes)
 			recipes = copiedRecipes,
 			reagents = reagents,
 			sourceEvidence = CopyRow(entry.sourceEvidence),
-			recipeEvidence = ns.RecipeEvidence.Current(entry.recipeEvidence.recipeRevision) and CopyRow(
-				entry.recipeEvidence
-			) or ns.RecipeEvidence.Inspect(entry.skillLineID),
-			supply = entry.supply and (not entry.supply.recipeRevision or ns.RecipeEvidence.Current(
-				entry.supply.recipeRevision
-			)) and CopyRow(entry.supply) or nil,
+			recipeEvidence = ns.RecipeEvidence.Inspect(entry.skillLineID),
+			supply = entry.supply and CopyRow(entry.supply) or nil,
 		}
 	end
 	return copy

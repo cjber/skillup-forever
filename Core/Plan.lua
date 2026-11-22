@@ -1953,41 +1953,6 @@ end
 ---@param plan SkillUpPlan
 ---@return SkillUpCraft
 function ns.NextCraft(plan)
-	local action = ns.RouteDemand.NextAction(plan)
-	if action then
-		local guidance = { text = L["Craft next"], nextAction = action }
-		if action.kind ~= "craft" then
-			guidance.reason = action.kind == "stop" and L["Nothing to craft on this route."]
-				or L["Supply estimate: not enough information."]
-			return guidance
-		end
-		local recipeID = action.recipeID
-		-- Craft actions bind a recipe before publication.
-		---@cast recipeID integer
-		local recipe = ns.RecipeData[recipeID]
-		local skillLine = recipe and recipe.skillLine or plan.profession.skillLine
-		if ns.OpenSkillLine() ~= skillLine or not ns.IsLearned(recipeID) then
-			guidance.reason = L["The game's Craft button is not ready for this recipe."]
-			return guidance
-		end
-		local tool = ns.MissingTool and ns.MissingTool(recipeID)
-		if tool then
-			guidance.reason = string.format(L["Need a %s in your bags."], tool.name)
-			return guidance
-		end
-		local craftable = ns.Readable(C_TradeSkillUI.GetCraftableCount(recipeID))
-		if type(craftable) ~= "number" or craftable < 1 then
-			guidance.reason = L["Missing reagents for this step."]
-			return guidance
-		end
-		guidance.recipeID, guidance.count = recipeID, 1
-		guidance.text = string.format(
-			L["Craft %d× %s"],
-			1,
-			C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
-		)
-		return guidance
-	end
 	local profession, craft = plan.profession, plan.crafts[1]
 	if not craft then
 		return { text = L["Craft next"], reason = L["Nothing to craft on this route."] }

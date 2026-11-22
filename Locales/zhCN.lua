@@ -577,7 +577,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 	"这些材料没有商人价格。拍卖价需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger。" -- mt
 L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt
 
-L["A lighter Route page."] = "更简洁的路线页面。" -- mt
 L["The Professions window opens without a hitch."] = "专业窗口打开时不再卡顿。" -- mt
 L["Show reagent search"] = "显示材料搜索"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =

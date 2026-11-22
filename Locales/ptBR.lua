@@ -584,7 +584,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 	"Estes reagentes não têm preço de comerciante. Preços de leilão precisam do Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger." -- mt
 L["Select %s in the recipe list first."] = "Selecione %s na lista de receitas primeiro." -- mt
 
-L["A lighter Route page."] = "Uma página de rota mais leve." -- mt
 L["The Professions window opens without a hitch."] = "A janela de Profissões abre sem travadas." -- mt
 L["Show reagent search"] = "Mostrar a busca de reagentes"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =

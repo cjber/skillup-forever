@@ -641,29 +641,10 @@ local function ReagentTooltip(tooltip, item)
 	tooltip:SetItemByID(item.itemID)
 	GameTooltip_AddBlankLineToTooltip(tooltip)
 	local have = ns.RouteDemand.Held(item)
-	AddLine(
-		tooltip,
-		item.supplyScope == "bags-only" and L["Have (bags only)"] or L["Have (bags and bank)"],
-		have and tostring(have) or "?"
-	)
+	AddLine(tooltip, L["Have (bags and bank)"], have and tostring(have) or "?")
 	AddLine(tooltip, L["Route needs"], tostring(item.need))
 	for _, alt in ipairs(ns.AltCounts(item.itemID)) do
 		AddLine(tooltip, string.format(L["On %s"], alt.name), tostring(alt.count), GRAY_FONT_COLOR)
-	end
-	if item.acquisitions then
-		local money = 0
-		for _, acquisition in ipairs(item.acquisitions) do
-			money = money + acquisition.moneyCopper
-		end
-		AddLine(tooltip, L["To buy"], Money(money))
-		local payments = ns.AcquisitionPayments(item.acquisitions)
-		if payments ~= "" then
-			AddLine(tooltip, L["Requires"], payments)
-		end
-		for _, npcID in ipairs(ns.RouteDemand.Vendors(item, true)) do
-			ns.AddNearest(tooltip, L["Vendor"], npcID)
-		end
-		return
 	end
 	local price = item.allocatedPrice or ns.Price(item.itemID)
 	if not price or price.unknown then
@@ -764,7 +745,7 @@ end
 local function AuctionPriceStatus(reagents)
 	local found, stale, tsm
 	for _, item in ipairs(reagents) do
-		local price = not item.acquisitions and (item.allocatedPrice or ns.Price(item.itemID)) or nil
+		local price = item.allocatedPrice or ns.Price(item.itemID)
 		tsm = tsm or (price and price.source == "tsm")
 		if price and price.source == "auctionator" then
 			found = true
@@ -787,8 +768,8 @@ end
 ---@return boolean
 local function NeedsAuctionScan(reagents)
 	for _, item in ipairs(reagents) do
-		local price = not item.acquisitions and (item.allocatedPrice or ns.Price(item.itemID)) or nil
-		if not price and not item.acquisitions then
+		local price = item.allocatedPrice or ns.Price(item.itemID)
+		if not price then
 			return true
 		end
 		if price and price.source == "auctionator" then
@@ -820,9 +801,7 @@ local function VendorItems(reagents)
 	for _, item in ipairs(reagents) do
 		local have = ns.RouteDemand.Held(item)
 		if item.source == "vendor" and have and have < item.need then
-			if not item.acquisitions or #ns.RouteDemand.Vendors(item, true) > 0 then
-				items[#items + 1] = item
-			end
+			items[#items + 1] = item
 		end
 	end
 	return items

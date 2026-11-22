@@ -40,8 +40,6 @@ SOURCES = (
     "Core/Stats.lua",
     "Core/Model.lua",
     "Core/Demand.lua",
-    "Core/Resupply.lua",
-    "Core/SupplyChoice.lua",
     "Core/RouteDemand.lua",
     "Core/Plan.lua",
     "Core/API.lua",

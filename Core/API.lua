@@ -296,13 +296,11 @@ local function Quest(profession, rank)
 	end or nil
 end
 
--- The route's first few steps, each craft preceded by getting what the bags lack for it. The build expands the
--- route's reagents once and hands the same rows to every reader here.
+-- The route's first few steps, each craft preceded by getting what the bags lack for it.
 ---@param plan SkillUpPlan
----@param rows SkillUpNeededItem[]
 ---@return SkillUpAPIStep[]
 ---@return table<integer, fun(): integer?>
-local function Steps(plan, rows)
+local function Steps(plan)
 	local profession = plan.profession
 	local steps, picks = {}, {}
 	---@param step SkillUpAPIStep
@@ -324,38 +322,6 @@ local function Steps(plan, rows)
 			end
 		end
 	end
-	local supply = ns.RouteDemand.Supply(plan)
-	if supply then
-		for _, acquisition in ipairs(supply.acquisitions or {}) do
-			local npcID = acquisition.npcID
-			local detail = Detail(npcID, L["Vendor"], acquisition.moneyCopper)
-			local payments = ns.AcquisitionPayments({ acquisition })
-			if payments ~= "" then
-				detail = detail .. " · " .. L["Requires"] .. " " .. payments
-			end
-			Add({
-				kind = "buy",
-				text = string.format(L["Buy %d %s"], acquisition.units, ItemName(acquisition.itemID)),
-				itemID = acquisition.itemID,
-				count = acquisition.units,
-				cost = acquisition.moneyCopper,
-				detail = detail,
-				nav = npcID ~= nil,
-				acquisition = acquisition,
-			}, npcID and function()
-				return npcID
-			end or nil)
-		end
-		for _, item in ipairs(rows) do
-			if not item.acquisitions then
-				local have = ns.RouteDemand.Held(item)
-				local missing = have and item.need - have
-				if missing and missing > 0 then
-					Add(Acquire(item.itemID, missing)) -- multi-value: the tool step and its picker
-				end
-			end
-		end
-	end
 	local craftIndex = 1
 	for _, walk in ipairs(plan.steps) do
 		if #steps >= MAX_LIMIT then
@@ -363,9 +329,7 @@ local function Steps(plan, rows)
 		end
 		local rank, training, craft, subcraft = walk.rank, walk.training, walk.craft, walk.subcraft
 		if subcraft then
-			if not supply then
-				AcquireInputs(plan.crafts[craftIndex].raw, subcraft)
-			end
+			AcquireInputs(plan.crafts[craftIndex].raw, subcraft)
 			local name = C_Spell.GetSpellName(subcraft.recipeID) or string.format(L["recipe %d"], subcraft.recipeID)
 			Add({
 				kind = "craft",
@@ -394,9 +358,7 @@ local function Steps(plan, rows)
 			Add(step, pick)
 		elseif craft then
 			local recipeID = craft.recipeID
-			if not supply then
-				AcquireInputs(plan.crafts[craftIndex].raw)
-			end
+			AcquireInputs(plan.crafts[craftIndex].raw)
 			craftIndex = craftIndex + 1
 			local name = C_Spell.GetSpellName(recipeID) or string.format(L["recipe %d"], recipeID)
 			Add({
@@ -470,7 +432,7 @@ local function Build()
 		local plan = ns.PlanRoute(profession)
 		-- One expansion of the route serves the steps, the reagents and the source product universe.
 		local rows = ns.RouteReagents(plan)
-		local steps, picks = Steps(plan, rows)
+		local steps, picks = Steps(plan)
 		pickers[skillLine] = picks
 		local products = {}
 		for _, item in ipairs(rows) do
@@ -488,7 +450,6 @@ local function Build()
 			reagents = Reagents(rows),
 			sourceEvidence = ns.SupplySources.Inspect(products),
 			recipeEvidence = ns.RecipeEvidence.Inspect(skillLine),
-			supply = plan.supply and plan.supply.job.result,
 		}
 		entries[#entries + 1] = entry
 		urgency[entry] = { #steps > 0 and 0 or 1, ns.IsTracked(skillLine) and 0 or 1, Urgency(entry) }
@@ -562,7 +523,6 @@ local function CopyProfessions(list, steps, recipes)
 			reagents = reagents,
 			sourceEvidence = CopyRow(entry.sourceEvidence),
 			recipeEvidence = ns.RecipeEvidence.Inspect(entry.skillLineID),
-			supply = entry.supply and CopyRow(entry.supply) or nil,
 		}
 	end
 	return copy
@@ -667,7 +627,7 @@ function API.ShoppingList(skillLineID)
 				bySource[source] = {}
 			end
 			for _, item in ipairs(entry.items) do
-				local price = not item.acquisitions and (item.allocatedPrice or ns.Price(item.itemID)) or nil
+				local price = item.allocatedPrice or ns.Price(item.itemID)
 				local have = ns.RouteDemand.Held(item)
 				local missing = have and math.max(item.need - have, 0)
 				local row = {
@@ -675,20 +635,13 @@ function API.ShoppingList(skillLineID)
 					need = item.need,
 					have = have,
 					missing = missing,
-					inventoryScope = item.supplyScope or "bags-and-bank",
+					inventoryScope = "bags-and-bank",
 					source = item.source,
 					price = price and not price.unknown and price.copper or nil,
 					priceAge = price and price.days or nil,
 					cost = price and not price.unknown and missing and missing * price.copper or nil,
 					alt = ns.AltCounts(item.itemID),
 				}
-				if item.acquisitions then
-					row.acquisitions = CopyRow(item.acquisitions)
-					row.cost = 0
-					for _, acquisition in ipairs(item.acquisitions) do
-						row.cost = row.cost + acquisition.moneyCopper
-					end
-				end
 				bySource[row.source][#bySource[row.source] + 1] = row
 			end
 			for _, source in ipairs(ns.Model.SHOPPING_SOURCES) do
@@ -762,12 +715,6 @@ function ns.ShoppingText(skillLineID)
 						total = total + row.cost
 					else
 						text = string.format(L["%d x %s - price unknown"], row.missing, name)
-					end
-					if row.acquisitions then
-						local payments = ns.AcquisitionPayments(row.acquisitions)
-						if payments ~= "" then
-							text = text .. " · " .. L["Requires"] .. " " .. payments
-						end
 					end
 					bucket[#bucket + 1] = text
 				end

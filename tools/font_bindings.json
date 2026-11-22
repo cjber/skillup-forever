@@ -21,7 +21,7 @@
     },
     {
       "source": "UI/Route.lua",
-      "sha256": "169a8f2665492903f7891c85b6a62a79ee4dd8124ee2ee6f4aad8ace6d227dc7",
+      "sha256": "021acc60366fd63ba0a7e45fe359d5043257a57458493ebb585e534b8eab9527",
       "review": "Reviewed CreateInset, CreateHeader, CreateButtons, Render, RenderMoney, RenderRoute, RenderPinned, RenderSkipped, RenderSuggestions, RenderReagents and their List.lua consumers. PageParts.CreateHeader fixes Skill to GameFontNormal. List:Add text/detail use GameFontHighlight/GameFontNormal, List:Line text/detail use GameFontHighlight/GameFontNormalSmall, List:Message uses GameFontNormal. No later font setters. Pinned client Blizzard_SharedXML/Shared/Button/ThreeSliceButtonTemplate.xml: SharedButtonSmallTemplate inherits BigRedThreeSliceButtonTemplate then ThreeSliceButtonTemplate; normal/highlight/disabled fonts are GameFontNormal/GameFontHighlight/GameFontDisable, all bound. SecureActionButtonTemplate adds no font override. Tooltips, menus, chat, numeric edit fields, dynamic names, external helper results and text inserted into format placeholders have no coverage claim. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed. Reviewed #860: the Kept in the Auctionator list message now asks ns.KeptAuctionList; same List:Message widget and phrase, no font change.",
       "bindings": [
         {
@@ -591,7 +591,7 @@
     },
     {
       "source": "UI/ShoppingList.lua",
-      "sha256": "a837ce5f6b368a1c98984d33804d4b9ecfe8eda8fc5483ebfd684940ebc4d41e",
+      "sha256": "295f7a2c3c528e1ed75c908507c90dab14df6dbe01535a5afc6ab255e07831e6",
       "review": "Reviewed Copy, Heading, Note, NewRow, Refresh and Create. hint, pooled name, emptyText and footer have explicit fonts. summary, pooled detail and notes use GameFontHighlightSmall; headings use GameFontNormalLarge. No font changes after construction. copyEdit explicitly uses ChatFontNormal but contains external ShoppingText output, excluded. Copy/trip buttons use pinned SharedButtonSmallTemplate normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Portrait window title inheritance was not established, so window titles are excluded. Helper-generated notes, spares, copy text, inserted item/profession/player names and tooltip text are excluded. Reviewed #860: the auction note hides when AuctionListNote returns nil; same Note FontString, helper text still excluded.",
       "bindings": [
         {
@@ -665,11 +665,6 @@
           "phrase": "Need %d, have %d, missing %d  %s  %s each  %s"
         },
         {
-          "font": "GameFontHighlightSmall",
-          "widget": "NewRow pooled.detail",
-          "phrase": "Requires"
-        },
-        {
           "font": "GameFontNormal",
           "widget": "Refresh emptyText",
           "phrase": "No tracked profession"
@@ -723,7 +718,7 @@
     },
     {
       "source": "UI/Shopping.lua",
-      "sha256": "832d608be59354820a82ece518cd7c04d5662fb21d93c62aad4a97345148f09c",
+      "sha256": "9110f6b14aac7ca4b96914da8d91b7fbab83d22f1cb0c8c83863f2633e76bcf7",
       "review": "Reviewed Confirm, AskToBuy, PurchaseList, EnsureMerchantFrames, RenderMerchantPage and tracker LayoutEntry/TrainingSteps. Confirm.Text explicitly uses GameFontHighlight. Confirm.Close and merchantBuyAll use SharedButtonSmallTemplate, verified in pinned ThreeSliceButtonTemplate.xml with normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Tracker fonts depend on ForeverCore TrackerSection and its interactive line template; the consumer alone does not establish the final fonts, so all tracker phrases are excluded. Merchant tab font changes via PanelTemplates selection and merchant template-owned names are excluded. Tooltips, menus, chat, external helper output and inserted item names are excluded. No font overrides on bound confirmation or button widgets. Reviewed the separate recipe view, preview selection refresh and tracker menu contract changes; no bound widget FontObjects or phrase bindings changed. Reviewed #860: KeepsAuctionLists, ns.KeptAuctionList and the AuctionListNote nil return add no widgets or font setters. Reviewed the tracked-needs signature gaining the plan revision (#858): a cache key only; no bound widget FontObjects or phrase bindings changed. Reviewed forever-core#884: RefreshTracker marks the section dirty whatever the show switch says; no widgets or font setters. Reviewed #850: ns.Have notes the item it reads with ns.NoteItemCount; no widgets or font setters.",
       "bindings": [
         {

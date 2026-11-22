@@ -42,34 +42,8 @@ end
 
 -- This adapter accepts final Plan output, never CoveredCrafts counts or expanded
 -- shopping rows. Its snapshot owns every table read by the asynchronous solver.
----@type table<SkillUpJointDemandJob|SkillUpResupplyJob|SkillUpSupplyChoiceJob, integer>
+---@type table<SkillUpJointDemandJob, integer>
 local jobs = setmetatable({}, { __mode = "k" })
----@type table<SkillUpSupplyChoiceJob, SkillUpPlan>
-local supplyPlans = {}
----@type table<integer, SkillUpSupplyConfiguration>
-local configured = {}
--- The solver frame runs only while work is pending: shown on the wakes below, hidden by its own
--- handler once no configured snapshot is dirty and no job is still calculating (WFA-13, no idle OnUpdate).
-local supplyFrame = CreateFrame("Frame")
-supplyFrame:Hide()
-local function WakeSupply()
-	supplyFrame:Show()
-end
--- A chance revision can change without any game event (Model.SetChanceBonus), so its producer wakes the
--- frame; the handler then revokes the old revision's results as before.
-ns.Model.OnChanceRevision(WakeSupply)
-local generation = 0
-local configuring = false
-
-local function DetachJob(job)
-	local plan = supplyPlans[job]
-	supplyPlans[job] = nil
-	jobs[job] = nil
-	if plan and plan.supply and plan.supply.job == job then
-		plan.supply = nil
-		ns.Changed("supply")
-	end
-end
 
 ---@param plan SkillUpPlan
 ---@param buy table<integer, integer>
@@ -204,10 +178,6 @@ end
 -- results too: a formerly valid bag snapshot is not a current certificate.
 ---@param revision integer? Only revoke older chance snapshots when supplied by the frame.
 function RouteDemand.Invalidate(revision)
-	for _, config in pairs(configured) do
-		config.dirty = true
-	end
-	WakeSupply()
 	-- Freeze the revoked set before cancellation: callbacks can publish a new
 	-- current owner, which does not belong to this invalidation.
 	local revoked = {}
@@ -216,14 +186,9 @@ function RouteDemand.Invalidate(revision)
 			revoked[job] = true
 		end
 	end
-	for job, plan in pairs(supplyPlans) do
-		if revision == nil or (plan.supply and plan.supply.job == job and plan.supply.revision ~= revision) then
-			revoked[job] = true
-		end
-	end
 	for job in pairs(revoked) do
 		job:Cancel()
-		jobs[job], supplyPlans[job] = nil, nil
+		jobs[job] = nil
 	end
 end
 
@@ -280,302 +245,17 @@ function RouteDemand.Start(plan, buy)
 	return job
 end
 
--- Copy the bounded record/array/map schema before any asynchronous solver read.
--- Lua strings are immutable and shared. Five levels cover route/legs/leg/use;
--- deeper tables and metatables are outside the declared policy schema.
----@param contract SkillUpResupplyInput
----@return SkillUpResupplyInput?
----@return string?
-local function FreezePolicy(contract)
-	if
-		type(contract) ~= "table"
-		or getmetatable(contract) ~= nil
-		or type(contract.options) ~= "table"
-		or getmetatable(contract.options) ~= nil
-	then
-		return nil, "plain policy records and options required"
-	end
-	local limit = type(contract) == "table" and type(contract.options) == "table" and contract.options.workLimit
-	if type(limit) ~= "number" or limit < 1 or limit > 2 ^ 52 - 1 or limit % 1 ~= 0 then
-		return nil, "explicit snapshot operation budget required"
-	end
-	local count, memo, visiting = 0, {}, {}
-	local function Copy(value, depth)
-		count = count + 1
-		if count > limit then
-			error("policy snapshot operation budget exhausted", 0)
-		end
-		if type(value) ~= "table" then
-			if type(value) ~= "number" and type(value) ~= "string" and type(value) ~= "boolean" and value ~= nil then
-				error("policy snapshot requires plain records", 0)
-			end
-			return value
-		end
-		if getmetatable(value) ~= nil or depth > 5 or visiting[value] then
-			error("policy snapshot requires acyclic plain schema records", 0)
-		end
-		if memo[value] then
-			return memo[value]
-		end
-		local result = {}
-		memo[value], visiting[value] = result, true
-		for key, field in pairs(value) do
-			if type(key) ~= "number" and type(key) ~= "string" then
-				error("policy snapshot requires scalar keys", 0)
-			end
-			result[key] = Copy(field, depth + 1)
-		end
-		visiting[value] = nil
-		return result
-	end
-	-- The final live plan owns route data; a caller cannot replace it.
-	local record = {}
-	for key, value in pairs(contract) do
-		count = count + 1
-		if count > limit then
-			return nil, "policy snapshot operation budget exhausted"
-		end
-		if key ~= "route" then
-			record[key] = value
-		end
-	end
-	local ok, frozen = pcall(Copy, record, 1)
-	if not ok then
-		return nil, tostring(frozen)
-	end
-	return frozen
-end
-
----@param reason string
----@return SkillUpResupplyJob
-local function RejectedPolicy(reason)
-	local result = { status = "unknown", costKnown = false, reasons = { reason } }
-	local function Cancel(self)
-		self.result = { status = "cancelled", costKnown = false, reasons = { "policy snapshot invalidated" } }
-	end
-	return {
-		result = result,
-		Cancel = Cancel,
-		Advance = function(self)
-			return self.result
-		end,
-	}
-end
-
----@param reason string
----@return SkillUpSupplyChoiceJob
-local function RejectedChoice(reason)
-	---@type SkillUpSupplyChoiceResult
-	local result = { status = "unknown", costKnown = false, reasons = { reason } }
-	return {
-		result = result,
-		Advance = function(self)
-			return self.result
-		end,
-		Cancel = function(self)
-			self.result = { status = "cancelled", costKnown = false, reasons = { "supply choice invalidated" } }
-		end,
-	}
-end
-
--- This remains CONDITIONAL on the caller's explicit future source/price/stock
--- laws. Only balances and route inputs are read live here. Merchant observation
--- maxima, historical quotes and absent costs never populate a policy law.
----@param plan SkillUpPlan
----@param contract SkillUpResupplyInput
----@param alpha number? Explicit when selecting initial orders.
----@return SkillUpResupplyJob|SkillUpSupplyChoiceJob
-function RouteDemand.StartPolicy(plan, contract, alpha)
-	local revision = ns.Model.ChanceRevision()
-	local frozen, reason = FreezePolicy(contract)
-	if not frozen then
-		return RejectedPolicy(assert(reason))
-	end
-	local route, routeReason = RouteDemand.Snapshot(plan, {})
-	if not route then
-		return RejectedPolicy(assert(routeReason))
-	end
-	frozen.route, frozen.currencies = route, {}
-	if type(GetMoney) ~= "function" then
-		return RejectedPolicy("current wallet capability unavailable")
-	end
-	local ok, raw = pcall(GetMoney)
-	local wallet = ok and ns.Readable(raw)
-	if type(wallet) ~= "number" or wallet < 0 or wallet > 2 ^ 52 - 1 or wallet % 1 ~= 0 then
-		return RejectedPolicy("current wallet quantity unavailable")
-	end
-	frozen.walletCopper = wallet
-	if type(frozen.sources) ~= "table" then
-		return RejectedPolicy("explicit source laws required")
-	end
-	for _, source in ipairs(frozen.sources) do
-		if type(source) ~= "table" or type(source.costs) ~= "table" then
-			return RejectedPolicy("complete typed source requirements required")
-		end
-		for key in pairs(source.costs) do
-			local kind, id
-			if type(key) == "string" then
-				kind, id = key:match("^(%a+):(%d+)$")
-			end
-			local number = id and tonumber(id)
-			if
-				not number
-				or number <= 0
-				or number > 2 ^ 52 - 1
-				or number % 1 ~= 0
-				or key ~= kind .. ":" .. string.format("%.0f", number)
-			then
-				return RejectedPolicy("canonical typed source requirement required")
-			end
-			if kind == "item" then
-				local total, totalReason = RouteDemand.Count(number, true)
-				local bags, bagsReason = RouteDemand.Count(number, false)
-				if total == nil or bags == nil then
-					return RejectedPolicy(totalReason or assert(bagsReason))
-				end
-				if total ~= bags then
-					return RejectedPolicy("bank token inventory requires a location transition")
-				end
-				route.held[number] = total
-			elseif kind == "currency" then
-				local api = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo
-				if type(api) ~= "function" then
-					return RejectedPolicy("current currency capability unavailable")
-				end
-				local readable, info = pcall(api, number)
-				info = readable and ns.Readable(info)
-				local amount = type(info) == "table" and ns.Readable(info.quantity)
-				if type(amount) ~= "number" or amount < 0 or amount > 2 ^ 52 - 1 or amount % 1 ~= 0 then
-					return RejectedPolicy("current currency quantity unavailable")
-				end
-				frozen.currencies[number] = amount
-			else
-				return RejectedPolicy("typed source requirement unavailable")
-			end
-		end
-	end
-	local job = alpha ~= nil and ns.SupplyChoice.Start(frozen, alpha) or ns.Resupply.Start(frozen)
-	jobs[job] = revision
-	return job
-end
-
--- One owner publishes the selected starting inventory budget. No getter starts
--- or advances a solve. A missing explicit policy leaves the legacy estimates
--- intact, without giving them a coverage or economic certificate.
----@param plan SkillUpPlan
----@param job SkillUpSupplyChoiceJob
----@return SkillUpSupplyChoiceJob
-local function PublishSupply(plan, job, alpha, service)
-	local previous = plan.supply
-	if previous then
-		local old = previous.job
-		old:Cancel()
-		supplyPlans[old] = nil
-		if plan.supply and plan.supply ~= previous then
-			job:Cancel()
-			return job
-		end
-	end
-	generation = generation + 1
-	plan.supply = {
-		generation = generation,
-		configuration = configured[plan.profession.skillLine],
-		job = job,
-		revision = ns.Model.ChanceRevision(),
-		alpha = alpha,
-		service = service,
-	}
-	supplyPlans[job] = plan
-	WakeSupply()
-	local cancel = job.Cancel
-	job.Cancel = function(self)
-		local ok, reason = pcall(cancel, self)
-		supplyPlans[self] = nil
-		if plan.supply and plan.supply.job == self then
-			plan.supply = nil
-			ns.Changed("supply")
-		end
-		if not ok then
-			error(reason, 0)
-		end
-	end
-	ns.Changed("supply")
-	return job
-end
-
----@param plan SkillUpPlan
----@param contract SkillUpResupplyInput
----@param alpha number
----@return SkillUpSupplyChoiceJob
-function RouteDemand.SelectSupply(plan, contract, alpha)
-	local job = alpha ~= nil and RouteDemand.StartPolicy(plan, contract, alpha)
-		or RejectedPolicy("explicit starting coverage required")
-	---@cast job SkillUpSupplyChoiceJob
-	PublishSupply(plan, job, alpha, "fixed-batch")
-	return job
-end
-
--- The source owner must return a fresh complete contract on each revision.
--- Copying a finite stock record across purchases would silently replenish it.
--- The reader may return nil when current/future laws are no longer established.
----@param skillLine integer
----@param read (fun(): SkillUpResupplyInput|nil, string?)? nil removes the configuration.
----@param alpha number?
----@return boolean
----@return string?
-local function Configure(skillLine, read, alpha)
-	if configuring then
-		return false, "configuration reentrant"
-	end
-	if type(skillLine) ~= "number" or skillLine <= 0 or skillLine > 2 ^ 52 - 1 or skillLine % 1 ~= 0 then
-		return false, "explicit profession identity required"
-	end
-	if read ~= nil and (type(read) ~= "function" or type(alpha) ~= "number" or not (alpha > 0 and alpha <= 1)) then
-		return false, "explicit source contract reader and starting coverage required"
-	end
-	local previous = configured[skillLine]
-	local nextConfiguration = read and { read = read, alpha = assert(alpha), dirty = true } or nil
-	configuring = true
-	configured[skillLine] = nextConfiguration
-	if previous and previous.job then
-		-- Cancellation is the final commit step.  A broken old job must not
-		-- turn a committed replacement into a rejected ApplyDraft: its inner
-		-- solver cannot be revived safely after Cancel has started.
-		pcall(previous.job.Cancel, previous.job)
-		DetachJob(previous.job)
-	end
-	configuring = false
-	if nextConfiguration then
-		WakeSupply()
-	end
-	-- The API's answers read this configuration and its cache drops on a change, so a read straight after this
-	-- call sees the new mode rather than the one from before it.
-	if previous or nextConfiguration then
-		ns.Changed("supply")
-	end
-	return true
-end
-
----@param skillLine integer
----@param read (fun(): SkillUpResupplyInput?, string?)?
----@param alpha number?
----@return boolean, string?
-function RouteDemand.ConfigureSupply(skillLine, read, alpha)
-	return Configure(skillLine, read, alpha)
-end
-
 -- Certified coordinates never inherit the display helper's bank scope.
 ---@param item SkillUpNeededItem
 ---@return number?
 function RouteDemand.Held(item)
-	if item.supplyScope or item.allocatedPrice then
+	if item.allocatedPrice then
 		return item.have
 	end
 	return ns.Have(item.itemID)
 end
 
--- Purchases arrive in bags. They must cover total demand across bags and bank,
--- and bags-only demand independently. Count each shared holding only once.
+-- Purchases arrive in bags, and every row counts bags and bank together. Count each shared holding only once.
 ---@param tracked SkillUpTracked[]
 ---@return table<integer, number> missing
 function RouteDemand.Shortfalls(tracked)
@@ -584,242 +264,46 @@ function RouteDemand.Shortfalls(tracked)
 		for _, item in ipairs(entry.items) do
 			local total = totals[item.itemID]
 			if not total then
-				total = { need = 0, bagsNeed = 0, held = {} }
+				total = { need = 0 }
 				totals[item.itemID] = total
 			end
-			local scope = item.supplyScope or "bags-and-bank"
 			local have = item.allocatedPrice and ns.Have(item.itemID) or RouteDemand.Held(item)
-			if have == nil or (total.held[scope] ~= nil and total.held[scope] ~= have) then
+			if have == nil or (total.held ~= nil and total.held ~= have) then
 				total.unknown = true
 			end
-			total.held[scope] = have
+			total.held = have
 			total.need = total.need + item.need
-			if scope == "bags-only" then
-				total.bagsNeed = total.bagsNeed + item.need
-			end
 		end
 	end
 	local missing = {}
 	for itemID, total in pairs(totals) do
-		local bags, all = total.held["bags-only"], total.held["bags-and-bank"]
-		if not total.unknown and not (all and bags and all < bags) then
-			missing[itemID] = math.max(0, total.need - (all or bags), total.bagsNeed - (bags or 0))
+		if not total.unknown then
+			missing[itemID] = math.max(0, total.need - total.held)
 		end
 	end
 	return missing
 end
 
----@param plan SkillUpPlan
----@return SkillUpPlanSupply?
-function RouteDemand.Supply(plan)
-	local supply = plan.supply
-	if
-		supply
-		and supply.revision == ns.Model.ChanceRevision()
-		and supply.job.result.status == "complete"
-		and supply.items
-		and supply.have
-	then
-		return supply
-	end
-end
-
--- Read only: status belongs to the current plan revision, never to a getter's clock.
+-- No supply selection exists, so every plan's status is "unconfigured".
 ---@param plan SkillUpPlan
 ---@return SkillUpSupplySummary
-function RouteDemand.Summary(plan)
-	local owner = plan.supply
-	local config = configured[plan.profession.skillLine]
-	if not owner then
-		if not config then
-			return { status = "unconfigured" }
-		end
-		return {
-			status = not config.dirty and config.job and config.job.result.status == "cancelled" and "cancelled"
-				or "calculating",
-			alpha = config.alpha,
-			conditional = true,
-			service = "fixed-batch",
-			inventoryScope = "bags-and-bank",
-		}
-	end
-	local result = owner.job.result
-	local current = owner.revision == ns.Model.ChanceRevision()
-	local summary = {
-		status = current and result.status or "cancelled",
-		alpha = owner.alpha,
-		service = owner.service,
-		inventoryScope = result.inventoryScope or "bags-and-bank",
-		conditional = true,
-	}
-	if current and result.status == "complete" and not RouteDemand.Supply(plan) then
-		summary.status = "calculating"
-	end
-	if summary.status == "complete" then
-		summary.coverageLower, summary.coverageUpper = result.coverageLower, result.coverageUpper
-		summary.successLower, summary.successUpper = result.successLower, result.successUpper
-	end
-	return summary
+function RouteDemand.Summary(plan) -- luacheck: ignore 212
+	return { status = "unconfigured" }
 end
 
 -- Whole localized sentences are shared by the route, shopping window and export.
 ---@param summary SkillUpSupplySummary
 ---@return string
-function ns.SupplySummaryText(summary)
-	local L = ns.L
-	if summary.status == "unconfigured" then
-		return L["Craft counts and shopping quantities are estimates. You may need more reagents."]
-	end
-	local statuses = {
-		calculating = L["Supply estimate: calculating."],
-		unknown = L["Supply estimate: not enough information."],
-		infeasible = L["Supply estimate: no starting purchase meets the target."],
-		cancelled = L["Supply estimate: cancelled."],
-		complete = L["Supply estimate: ready."],
-		unattained = L["Supply estimate: no cheapest purchase exists under these assumptions."],
-	}
-	local lines = { statuses[summary.status] or L["Supply estimate: not enough information."] }
-	if summary.alpha ~= nil then
-		lines[#lines + 1] =
-			string.format(L["Target chance of finishing with starting supplies: %s%%."], tostring(summary.alpha * 100))
-	end
-	local function Probability(lower, upper)
-		if lower == nil or upper == nil then
-			return L["unknown"]
-		end
-		-- Outward rounding preserves the interval, including bounds very near 0 or 1.
-		local low = math.floor(lower * 10000)
-		local high = math.ceil(upper * 10000)
-		if lower < 1 then
-			low = math.min(low, 9999)
-		end
-		if upper > 0 then
-			high = math.max(high, 1)
-		end
-		return string.format(L["%s%% to %s%%"], string.format("%.2f", low / 100), string.format("%.2f", high / 100))
-	end
-	if summary.status == "complete" then
-		lines[#lines + 1] = string.format(
-			L["Chance of finishing with starting supplies: %s."],
-			Probability(summary.coverageLower, summary.coverageUpper)
-		)
-		lines[#lines + 1] = string.format(
-			L["Chance of finishing with later purchases: %s."],
-			Probability(summary.successLower, summary.successUpper)
-		)
-	end
-	if summary.inventoryScope then
-		lines[#lines + 1] = summary.inventoryScope == "bags-only" and L["Starting inventory: bags only."]
-			or L["Starting inventory: bags and bank."]
-	end
-	lines[#lines + 1] =
-		L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."]
-	lines[#lines + 1] = L["Craft counts and shopping quantities are estimates. You may need more reagents."]
-	return table.concat(lines, "\n")
+function ns.SupplySummaryText(summary) -- luacheck: ignore 212
+	return ns.L["Craft counts and shopping quantities are estimates. You may need more reagents."]
 end
 
--- At most 64 solver operations across all jobs per frame. This is a scheduling
--- budget, not a probability cutoff; exhaustion of a model budget stays unknown.
-local supplyRevision = ns.Model.ChanceRevision()
-supplyFrame:SetScript("OnUpdate", function()
-	local revision = ns.Model.ChanceRevision()
-	if revision ~= supplyRevision then
-		supplyRevision = revision
-		RouteDemand.Invalidate(revision)
-	end
-	if ns.db then
-		for skillLine, config in pairs(configured) do
-			if config.dirty then
-				config.dirty = false
-				local profession = ns.RouteProfessions()[skillLine]
-				if profession then
-					local ok, contract, missing = pcall(config.read)
-					local plan = ns.PlanRoute(profession)
-					if configured[skillLine] ~= config or config.dirty then
-						break
-					end
-					local job
-					if ok and contract then
-						---@cast contract SkillUpResupplyInput
-						job = RouteDemand.SelectSupply(plan, contract, config.alpha)
-					else
-						job = RejectedChoice(
-							ok and type(missing) == "string" and missing or "fresh complete source contract unavailable"
-						)
-						PublishSupply(plan, job, config.alpha, "fixed-batch")
-					end
-					if configured[skillLine] == config and not config.dirty then
-						config.job = job
-					else
-						job:Cancel()
-					end
-				end
-				-- Snapshot one configured profession per frame, outside getters.
-				break
-			end
-		end
-	end
-	local budget = 64
-	for job, plan in pairs(supplyPlans) do
-		if budget <= 0 then
-			break
-		end
-		local previousStatus = job.result.status
-		if previousStatus == "calculating" then
-			job:Advance(budget)
-			budget = 0
-		end
-		local supply = plan.supply
-		local changed = previousStatus ~= job.result.status
-		if supply and supply.job == job and not supply.items and job.result.status == "complete" then
-			if job.result.items and job.result.have then
-				supply.items, supply.have = job.result.items, job.result.have
-				supply.acquisitions = job.result.acquisitions
-				supply.initialVisits = job.result.initialVisits
-				supply.sourceRevision = job.result.sourceRevision
-				supply.assumptions = job.result.assumptions
-				supply.result = job.result
-				changed = true
-			end
-		end
-		if changed then
-			ns.Changed("supply")
-		end
-	end
-	-- A reader can move the chance revision inside this handler, after the check above; its wake finds the frame
-	-- already shown, so the frame stays up to revoke that revision on the next frame.
-	local pending = ns.Model.ChanceRevision() ~= supplyRevision
-	for _, config in pairs(configured) do
-		pending = pending or config.dirty == true
-	end
-	if not pending then
-		for job in pairs(supplyPlans) do
-			if job.result and job.result.status == "calculating" then
-				pending = true
-				break
-			end
-		end
-	end
-	if not pending then
-		supplyFrame:Hide()
-	end
-end)
-
--- Conditional rows resolve only their selected NPCs. An unknown NPC or an empty
--- selected order list must never acquire a different vendor through a fallback.
 ---@param item SkillUpNeededItem|SkillUpAPIShoppingItem
 ---@param byTravel boolean?
 ---@return integer[]
 function RouteDemand.Vendors(item, byTravel)
-	local vendors, seen = {}, {}
-	if item.acquisitions then
-		for _, acquisition in ipairs(item.acquisitions) do
-			local npcID = acquisition.npcID
-			if npcID and not seen[npcID] then
-				vendors[#vendors + 1], seen[npcID] = npcID, true
-			end
-		end
-	elseif item.source == "vendor" then
+	local vendors = {}
+	if item.source == "vendor" then
 		local npcID = item.allocatedPrice and item.allocatedPrice.vendor or ns.NearestVendor(item.itemID, byTravel)
 		if npcID then
 			vendors[1] = npcID
@@ -868,15 +352,11 @@ function RouteDemand.QuoteOrders(orders)
 end
 
 ns.RouteDemand = {
-	ConfigureSupply = RouteDemand.ConfigureSupply,
 	Held = RouteDemand.Held,
 	Shortfalls = RouteDemand.Shortfalls,
 	Vendors = RouteDemand.Vendors,
-	SelectSupply = RouteDemand.SelectSupply,
-	Supply = RouteDemand.Supply,
 	Summary = RouteDemand.Summary,
 	Count = RouteDemand.Count,
-	StartPolicy = RouteDemand.StartPolicy,
 	Snapshot = RouteDemand.Snapshot,
 	Start = RouteDemand.Start,
 	Invalidate = RouteDemand.Invalidate,

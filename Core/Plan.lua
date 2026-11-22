@@ -1745,33 +1745,6 @@ end
 function ns.RouteReagents(plan)
 	-- The raw reagents are worked out from the recipes as they stand now, so a bought or gathered
 	-- source in the settings shows without rebuilding the plan.
-	local supply = ns.RouteDemand and ns.RouteDemand.Supply(plan)
-	if supply then
-		local items = {}
-		for itemID, count in pairs(supply.items) do
-			local acquisitions = {}
-			for _, acquisition in ipairs(supply.acquisitions or {}) do
-				if acquisition.itemID == itemID then
-					acquisitions[#acquisitions + 1] = acquisition
-				end
-			end
-			items[#items + 1] = {
-				itemID = itemID,
-				need = count,
-				have = supply.have[itemID],
-				supplyScope = supply.result and supply.result.inventoryScope or "bags-and-bank",
-				source = #acquisitions > 0 and "vendor" or "unknown",
-				acquisitions = acquisitions,
-			}
-		end
-		table.sort(items, function(a, b)
-			return a.itemID < b.itemID
-		end)
-		for _, itemID in ipairs(ns.MissingToolItems and ns.MissingToolItems(plan) or {}) do
-			items[#items + 1] = { itemID = itemID, need = 1, source = ns.Model.ShoppingSource(ns.PriceSource(itemID)) }
-		end
-		return items
-	end
 	if #plan.crafts == 0 then
 		return {}
 	end

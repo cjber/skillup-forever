@@ -233,7 +233,6 @@ local function Refresh()
 				local alt = row.alt[1] and string.format(L["on %s"], row.alt[1].name) or ""
 				local unit = row.price and ns.FormatNet(ns.Model.RoundMoney(row.price), false) or L["price unknown"]
 				local cost = row.cost and ns.FormatNet(ns.Model.RoundMoney(row.cost), false) or "-"
-				local payments = row.acquisitions and ns.AcquisitionPayments(row.acquisitions) or ""
 				pooled.detail:SetText(
 					string.format(
 						L["Need %d, have %d, missing %d  %s  %s each  %s"],
@@ -243,7 +242,7 @@ local function Refresh()
 						alt,
 						unit,
 						cost
-					) .. (payments ~= "" and (" · " .. L["Requires"] .. " " .. payments) or "")
+					)
 				)
 				if row.cost then
 					total = total + row.cost

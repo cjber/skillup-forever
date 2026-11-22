@@ -30,8 +30,6 @@
 ---@field Demand SkillUpJointDemandProducer
 ---@field RecipeEvidence SkillUpRecipeEvidenceOwner
 ---@field SupplySources SkillUpSupplySourceOwner
----@field SupplyChoice SkillUpSupplyChoiceProducer
----@field Resupply SkillUpResupplyProducer
 ---@field MerchantOffers SkillUpMerchantOffers
 ---@field SupplySummaryText fun(summary: SkillUpSupplySummary): string
 ---@field RouteDemand SkillUpRouteDemandProducer
@@ -166,7 +164,6 @@
 ---@field HasForeverLedger fun(): boolean
 ---@field AuctionProvider fun(): "auctionator"|"tsm"|"ahdb"|"naowh"|"foreverledger"|nil
 ---@field HasTradeSkillMaster fun(): boolean
----@field AcquisitionPayments fun(acquisitions: SkillUpSelectedAcquisition[]): string
 ---@field WithItemNames fun(items: SkillUpShoppingItem[], callback: fun())
 ---@field PlannedCrafts fun(recipeID: integer): integer
 ---@field ReagentShortfall fun(recipeID: integer, count: integer): SkillUpShoppingItem[], integer
@@ -542,23 +539,7 @@ SkillUpForeverDB = nil
 ---@field Waiting fun(route: SkillUpRoute, extra?: SkillUpCandidate): integer The route's steps waiting on an auction price.
 
 -- What Core/Plan.lua returns: the levelling plan as a player reads it.
----@class SkillUpPlanSupply
----@field generation integer
----@field configuration SkillUpSupplyConfiguration?
----@field alpha number?
----@field service string?
----@field sourceRevision integer?
----@field assumptions SkillUpSourceAssumption[]?
----@field acquisitions SkillUpSelectedAcquisition[]?
----@field initialVisits table<string, number>?
----@field result SkillUpSupplyChoiceResult? Complete owned result including adaptive certificate and scope.
----@field job SkillUpSupplyChoiceJob
----@field revision integer
----@field items table<integer, integer>? Starting budget in the current inventory revision, before initial purchases.
----@field have table<integer, integer>? Fresh balances used by the selection, never display fallbacks.
-
 ---@class SkillUpPlan
----@field supply SkillUpPlanSupply?
 ---@field profession SkillUpProfession
 ---@field target number
 ---@field reached number Where the crafts get to: short of the target when the known recipes run out.
@@ -580,7 +561,7 @@ SkillUpForeverDB = nil
 ---@field count number
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
----@alias SkillUpChange 'recipeFilter'|'preview'|'supply'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
+---@alias SkillUpChange 'recipeFilter'|'preview'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
 ---@alias SkillUpStale 'craftCosts'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'ahdb'|'naowh'|'foreverledger'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
@@ -671,10 +652,8 @@ SkillUpForeverDB = nil
 ---@alias SkillUpSuggestionNPC { kind: integer?, source: SkillUpScrollSource?, npcID: integer? }
 
 ---@class SkillUpNeededItem
----@field supplyScope 'bags-only'|'bags-and-bank'? Holdings belong to a certified native snapshot.
 ---@field have number? Missing certified holdings remain unknown.
 ---@field allocatedPrice? SkillUpPrice Price for this portion of a split reagent row.
----@field acquisitions? SkillUpSelectedAcquisition[] Conditional selected orders; an empty list forbids price/source fallback.
 ---@field itemID integer
 ---@field need number
 ---@field source SkillUpShoppingSource

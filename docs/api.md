@@ -17,12 +17,12 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 5 | `Subscribe`, the not-ready answers below, and a fresh `Professions` table on every call |
 | 6 | `IsTracked`, `SetTracked`, `ShoppingTrip`, `Professions` limits, `Stats`, `Leaderboard` |
 | 7 | `Recipes`, `Recipe`, `RecipeRequirement`, `Characters` and `Knows` |
-| 8 | conditional selected initial acquisition records on steps and shopping items |
-| 9 | profession source-evidence status and conditional supply certificates with dated provenance |
-| 10 | proved `unattained` supply status and free-unlimited geometric nonattainment parameters |
-| 11 | supply selection scope and proof |
+| 8 | reserved: selected acquisition records on steps and shopping items, never filled |
+| 9 | profession source-evidence status; the supply certificate it also named is reserved and never filled |
+| 10 | reserved |
+| 11 | reserved |
 | 12 | alpha-free recipe evidence status |
-| 13 | copied revision-owned shopping supply summary |
+| 13 | shopping supply summary, always `unconfigured` |
 | 14 | reserved |
 | 15 | `RecipeSources`, the catalogue sources of a recipe's teaching item |
 
@@ -60,7 +60,7 @@ replace the defaults of three and five for that call only. A missing field keeps
 | `reagents` | the route's reagents for the whole route |
 | `recipeEvidence` | alpha-free recipe declaration status, with stable missing-law reason codes |
 | `sourceEvidence` | structured source-law evidence for the current merchant window, available without a coverage target |
-| `supply` | optional conditional fixed-batch selection status and complete result, described below |
+| `supply` | reserved: always absent |
 
 `sourceEvidence` has `status` (`"unavailable"` or `"conditional"`), `sourceRevision`,
 `scope = "current-merchant-window"`, `missing` and `assumptions`. Each missing record has a
@@ -74,24 +74,6 @@ chosen by reading this field.
 stable `code` and optional `recipeID`. Without an explicit completed-attempt
 law declaration it reports `recipe-production-law-missing`, even if native
 schematic bounds are equal. See [Recipe evidence](recipe-evidence.md).
-
-`supply`, when a caller has configured a policy and target, is the selection result:
-`status`, `reasons`, `costKnown`, explicit `alpha`, C0 `coverageLower/Upper`, Ppi
-`successLower/Upper`, `costLower/Upper`, `visitsLower/Upper`, and selected initial
-`orders`, `quantities`, `acquisitions` and `initialVisits` when complete. Source-owned
-results also carry paired `sourceRevision` and `assumptions`. Each assumption retains
-`offerID`, `field`, law `revision`, `provenance`, validity `scope`, `observedAt`,
-`observationRevision`, `session` and `index`. These are conditional mathematical
-results for one declared refill policy, not empirical gameplay guarantees. All nested
-tables are fresh copies. Missing, calculating or unknown results provide no optimum certificate.
-
-A selector may instead report `status = "unattained"`, `costKnown = false`,
-`infimumKnown = true` and exact `objectiveInfimumLower/Upper`, with no finite
-`orders`, `items` or coverage certificate. Its `nonattainment` record has
-`kind = "free-unlimited-geometric"`, `chance`, `heldUnits`, `bundleUnits`,
-`refillUnits` and `refillVisitCost`. This proves the restricted mathematical
-infimum described in [Conditional supply calculations](supply-policy.md), not
-a recommended finite basket or an observed future supply guarantee.
 
 A step is:
 
@@ -107,13 +89,7 @@ A step is:
 | `cost` | copper to buy or train |
 | `nav` | whether `Navigate` can route to the vendor, trainer or quest giver this step names |
 
-When an explicit source contract and coverage target have produced a completed conditional selection, each
-initial purchase step also has `acquisition`: `{ source, offerID?, npcID?, vendor, itemID, bundles, bundleUnits,
-units, moneyCopper, costs }`. `source` is the index in the frozen policy, and `offerID` identifies a distinct offer
-when the source owner establishes one. `costs` maps complete typed `item:ID` or `currency:ID` requirements to their
-transaction totals. `cost` is the transaction's money component, excluding token opportunity values and travel.
-The NPC is the selected offer's NPC; an unknown identity disables navigation. These records describe initial
-orders, not future refill orders or a promise that a purchase will succeed.
+A step has no `acquisition`: it is reserved for selected purchases, which nothing produces.
 
 A recipe is:
 
@@ -176,7 +152,7 @@ Each entry is:
 
 | field | |
 |---|---|
-| `supplySummary` | current conditional supply status, described below |
+| `supplySummary` | the supply status, always `{ status = "unconfigured" }` |
 | `profession` | the route's localized name |
 | `skillLine` | the skill line |
 | `target` | the base skill the route's plan buys to, the number the route tab's Target box shows |
@@ -184,32 +160,14 @@ Each entry is:
 | `total` | copper for the priced missing items |
 | `unpriced` | how many missing items have no price |
 
-`supplySummary` is a fresh record with `status`: `unconfigured`, `calculating`, `complete`,
-`unknown`, `infeasible`, `unattained` or `cancelled`. When supplied, `alpha` is the explicit starting
-coverage constraint, including zero. `service` names the declared `fixed-batch`
-model, `inventoryScope` names its holdings scope, and `conditional = true` identifies supplied assumptions.
-Only a current complete result whose owner also publishes the certified `items` and `have` exposes `coverageLower/Upper` (C0, completion from starting supplies
-alone) and `successLower/Upper` (Ppi, completion with modeled later acquisitions). Reads never dispatch
-source readers or advance jobs. A completed job awaiting inventory publication remains `calculating`.
-A cancelled configured job remains `cancelled` until replacement work is queued. Displayed probability
-bounds round outward to two decimal places; these API bounds remain unchanged. Without configuration, quantities remain ordinary estimates, with no
-coverage target or probability assigned. Craft next continues to use the ordinary route estimate; it does
-not execute the conditional certificate.
+Quantities are ordinary estimates, with no coverage target or probability assigned.
 
-An item is `{ itemID, need, have, missing, source, price, priceAge, cost, alt }`: `need` for the route, `have` in the
-certified scope, or bags and bank without a certificate, and `missing` the difference; `price` is copper each when one is known, and `cost` the price of the
+An item is `{ itemID, need, have, missing, source, price, priceAge, cost, alt }`: `need` for the route, `have` in bags and bank, and `missing` the difference; `price` is copper each when one is known, and `cost` the price of the
 missing units; `priceAge` is the whole days since the auction source observed the price, when known; `alt` is a
 fresh list of `{ name, count }`, this character's other characters that hold it, most first.
-Each row exposes `inventoryScope = "bags-and-bank"` for fixed and ordinary route holdings. `have` and `missing` are
-absent when the certified coordinate is unknown.
+Each row exposes `inventoryScope = "bags-and-bank"`. `have` and `missing` are absent when the count is unknown.
 
-With a completed conditional selection, a shopping item has `acquisitions`, the selected initial transactions
-for that product. `cost` sums their money components; `price` and `priceAge` are absent because a bundle with typed
-payments has no interchangeable display-price quote. Tokens and visit costs are separate from this money total.
-Steps and shopping items preserve the same selected offers, including several offers for one product. An empty
-`acquisitions` list means no purchase was selected; consumers must not substitute another vendor or price.
-The result remains conditional on explicit source laws and an explicit coverage target. Ordinary estimates have
-no acquisition certificate. Inventory or source revisions revoke a completed selection.
+A shopping item has no `acquisitions`: the field is reserved for selected purchases, which nothing produces.
 
 ## Shopping trip
 

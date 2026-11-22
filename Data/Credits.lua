@@ -4,6 +4,7 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "AlteredIgor", what = "Open chat after closing Professions in Gamepad UI" },
 		{
 			name = "Benjy_Boi",
 			what = "Reported that resetting SkillUp's settings page could reset game settings and keybindings",

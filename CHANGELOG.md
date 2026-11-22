@@ -10,6 +10,13 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.21] - 2026-11-22
+
+### Fixed
+
+- **The Professions window opens without a hitch.** The recipe list is read over a few frames instead of all at once, and automatic tracking does less work.
+- Routes skip price lookups and warnings for recipes that cannot grant skill before the target.
+
 ## [1.14.20] - 2026-11-22
 
 <!-- forever-core-sync -->

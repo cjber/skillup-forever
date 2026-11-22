@@ -14,7 +14,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ### Fixed
 
-- Opening chat after closing Professions no longer errors with the Gamepad UI on. With the Gamepad UI on, the window keeps the game's own recipe list and filters; SkillUp's sorting and filters work with mouse and keyboard. Thanks to AlteredIgor for the report.
+- **Opening chat after Professions no longer errors in Gamepad UI.** With the Gamepad UI on, the window keeps the game's own recipe list and filters; SkillUp's sorting and filters work with mouse and keyboard. Thanks to AlteredIgor for the report.
 
 ## [1.14.21] - 2026-11-22
 

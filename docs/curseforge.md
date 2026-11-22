@@ -11,7 +11,6 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 - Gathering nodes and corpses have no colour in the game, so theirs is an estimate.
 - Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) may be added points or a multiplier, so its estimate is off by default.
-- With a controller, closing the window under a SkillUp sort can report a harmless blocked action.
 - Two tracked professions that share reagents can count the same bag items twice in the shopping list.
 
 ![Leatherworking levelling from 48 to 60](https://raw.githubusercontent.com/cjber/skillup-forever/main/docs/screenshots/demo.gif)

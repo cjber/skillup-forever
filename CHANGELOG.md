@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.22] - 2026-11-22
+
+### Fixed
+
+- Opening chat after closing Professions no longer errors with the Gamepad UI on. With the Gamepad UI on, the window keeps the game's own recipe list and filters; SkillUp's sorting and filters work with mouse and keyboard. Thanks to AlteredIgor for the report.
+
 ## [1.14.21] - 2026-11-22
 
 ### Fixed

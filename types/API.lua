@@ -82,6 +82,7 @@
 ---@field Recipes fun(skillLineID?: integer): integer[]?, SkillUpAPIReason? Bundled recipe IDs, or nil, "none" when no profession matches.
 ---@field Recipe fun(recipeID: integer): SkillUpAPIRecipeDetails?, SkillUpAPIReason? Bundled recipe details, or nil, "none".
 ---@field RecipeRequirement fun(recipeID: integer): SkillUpAPIRequirement?, SkillUpAPIReason? Learn requirement and source, or nil, "none".
+---@field RecipeSkill fun(recipeID: integer): SkillUpAPIRecipeSkill?, SkillUpAPIReason? A recipe's base skill bands and the Working Overtime bonus in percentage points, or nil, "none".
 ---@field RecipeSources fun(recipeID: integer): SkillUpAPIRecipeSources?, SkillUpAPIReason? Named sources of the teaching item.
 ---@field Characters fun(): string[]?, SkillUpAPIReason? Character keys with saved learned-recipe records, or nil, "loading".
 ---@field Knows fun(characterKey: string, recipeID: integer): boolean?, SkillUpAPIReason? Saved learned state, or nil, "invalid".
@@ -103,6 +104,13 @@
 ---@field source 'trainer'|'item'
 ---@field recipeItem? integer
 ---@field trainerFee? number
+
+---@class SkillUpAPIRecipeSkill
+---@field orange number Base skill where the recipe turns orange.
+---@field yellow number Base skill where the recipe turns yellow.
+---@field green number Base skill where the recipe turns green.
+---@field grey number Base skill where the recipe turns grey.
+---@field chanceBonus number Working Overtime bonus in percentage points, for example 10 for ten points.
 
 ---@class SkillUpAPIShoppingItem
 ---@field inventoryScope 'bags-only'|'bags-and-bank' Scope of have and missing, including certified native holdings.

@@ -12,7 +12,11 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 ## [1.14.23] - 2026-11-22
 
-<!-- forever-core-sync -->
+### Added
+
+- `SkillUpForever.API.RecipeSkill(recipeID)` returns a recipe's orange, yellow, green and grey skill values and the current Working Overtime bonus in percentage points.
+
+### Changed
 
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 

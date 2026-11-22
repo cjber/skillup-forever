@@ -595,6 +595,7 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt
 
 L["A lighter Route page."] = "더 가벼워진 경로 페이지." -- mt
+L["The Professions window opens without a hitch."] = "전문 기술 창이 끊김 없이 열립니다." -- mt
 L["Show reagent search"] = "재료 검색 표시"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"전문 기술 창에서 검색을 눌러 부족한 재료를 찾습니다. Auctionator가 없으면 누를 때마다 경매장 검색창에 다음 재료가 입력됩니다."

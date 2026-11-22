@@ -123,6 +123,7 @@ L["%s (level %d)"] = "%s (level %d)"
 L["Clicking a recipe selects it again under every sort."] = "Clicking a recipe selects it again under every sort."
 
 L["A lighter Route page."] = "A lighter Route page."
+L["The Professions window opens without a hitch."] = "The Professions window opens without a hitch."
 L["Show reagent search"] = "Show reagent search"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."

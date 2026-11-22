@@ -589,6 +589,7 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 L["Select %s in the recipe list first."] = "Selecciona primero %s en la lista de recetas." -- mt
 
 L["A lighter Route page."] = "Una página de ruta más ligera." -- mt
+L["The Professions window opens without a hitch."] = "La ventana de Profesiones se abre sin tirones." -- mt
 L["Show reagent search"] = "Mostrar la búsqueda de reactivos"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Haz clic en Buscar en la ventana de profesiones para encontrar los reactivos que faltan. Sin Auctionator, cada clic pone el siguiente reactivo en el cuadro de búsqueda de la casa de subastas."

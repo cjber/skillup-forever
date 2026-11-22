@@ -66,7 +66,7 @@ local c = Client.load({
 })
 local ns, API = c.ns, c.G.SkillUpForever.API
 equal(API.version, 1, "version 1")
-equal(API.minor, 15, "minor 15 publishes recipe sources")
+equal(API.minor, 16, "minor 16 publishes a recipe's skill bands")
 -- Publishing is discovery, not an API change (#594): the suite lists the addon with the API's own version and minor.
 local published
 for _, entry in ipairs(c.G.ForeverCore.APIKit.Addons()) do
@@ -75,12 +75,20 @@ for _, entry in ipairs(c.G.ForeverCore.APIKit.Addons()) do
 	end
 end
 equal(published and published.version, 1, "the suite list carries the API's version")
-equal(published and published.minor, 15, "and its minor")
+equal(published and published.minor, 16, "and its minor")
 
 equal(published and published.api, API, "and the addon's own API table")
 -- Nothing to answer says why, so a caller can tell "ask again later" from "there is nothing to ask about".
 local beforeLoad, beforeLoadReason = API.Professions()
-for _, member in ipairs({ "Recipes", "Recipe", "RecipeRequirement", "RecipeSources", "Characters", "Knows" }) do
+for _, member in ipairs({
+	"Recipes",
+	"Recipe",
+	"RecipeRequirement",
+	"RecipeSkill",
+	"RecipeSources",
+	"Characters",
+	"Knows",
+}) do
 	local result, reason = API[member]()
 	equal(result, nil, member .. " waits for saved variables")
 	equal(reason, "loading", member .. " names its loading state")
@@ -144,6 +152,20 @@ ns.TrainerFees[BRACERS] = { 225, 20 }
 local otherProfession = API.RecipeRequirement(BRACERS)
 equal(otherProfession.source, "trainer", "RecipeRequirement covers a bundled profession not currently known")
 equal(otherProfession.skill, 20, "RecipeRequirement reports the bundled base skill")
+local skill = API.RecipeSkill(GLOVES)
+equal(skill.orange, 125, "RecipeSkill reports the orange band")
+equal(skill.yellow, 140, "RecipeSkill reports the yellow band")
+equal(skill.green, 155, "RecipeSkill reports the green band")
+equal(skill.grey, 165, "RecipeSkill reports the grey band")
+equal(skill.chanceBonus, 0, "RecipeSkill reports no Working Overtime bonus by default")
+skill.orange = 1
+equal(API.RecipeSkill(GLOVES).orange, 125, "RecipeSkill returns a fresh table")
+local noSkill, noSkillReason = API.RecipeSkill(999999)
+equal(noSkill, nil, "an unknown recipe has no skill bands")
+equal(noSkillReason, "none", "and says there is nothing to answer")
+ns.Model.SetChanceBonus(0.1)
+equal(API.RecipeSkill(GLOVES).chanceBonus, 10, "RecipeSkill expresses the Working Overtime bonus in percentage points")
+ns.Model.SetChanceBonus(0)
 local characterKey = ns.CharacterKey()
 local characters = API.Characters()
 equal(characters[1], characterKey, "Characters lists saved learned records")

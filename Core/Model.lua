@@ -144,6 +144,12 @@ function Model.SetChanceBonus(bonus)
 	return changed
 end
 
+-- The current bonus in the same unit SetChanceBonus takes: a probability, where 0.04 is four points.
+---@return number
+function Model.ChanceBonus()
+	return chanceBonus
+end
+
 ---@return integer
 function Model.ChanceRevision()
 	return chanceRevision

@@ -6,7 +6,7 @@ later, `ForeverCore.APIKit.Addons()` also lists the API.
 
 `version` changes only when a published member breaks: its arguments, the shape of its result or its meaning. An
 addition keeps `version` at 1 and raises `minor`, so check that a function exists before calling it. The current
-`minor` is 15; the history:
+`minor` is 16; the history:
 
 | minor | added |
 |---|---|
@@ -25,6 +25,7 @@ addition keeps `version` at 1 and raises `minor`, so check that a function exist
 | 13 | copied revision-owned shopping supply summary |
 | 14 | reserved |
 | 15 | `RecipeSources`, the catalogue sources of a recipe's teaching item |
+| 16 | `RecipeSkill`, a recipe's four skill bands and the Working Overtime bonus |
 
 ## Not ready
 
@@ -148,6 +149,11 @@ reagents }` record, where `output` is `{ itemID, quantity }` or `false`. `Recipe
 known `{ skill, source, recipeItem?, trainerFee? }` learn requirement in base profession skill, or `nil, "none"` when SkillUp cannot establish
 one. `Characters()` lists saved character keys, and `Knows(characterKey, recipeID)` reads a saved learned flag,
 returning `nil, "invalid"` for an unknown recipe or malformed key.
+
+`RecipeSkill(recipeID)` returns a fresh `{ orange, yellow, green, grey, chanceBonus }` record for a recipe SkillUp
+knows: the four base profession skill values the tooltip colours against, and the current Working Overtime bonus in
+percentage points, for example `10` for ten points. It returns `nil, "none"` for a recipe SkillUp does not know or
+one without usable thresholds.
 
 `RecipeSources(recipeID)` returns a fresh `{ itemID, vendors, quests, drops, world }` record for the item that
 teaches the recipe, from the same catalogue as SkillUp's tooltips. Vendors are `{ npcID, name, zone, usable }`,

@@ -584,7 +584,7 @@ local STATS_METRIC = "recipes_observed_learned"
 -- 3: each shopping row's target; 4: RequiredMaterials and SubComponents; 5: Subscribe and the not-ready reason;
 -- 6: IsTracked, SetTracked, ShoppingTrip, Professions limits and Stats);
 -- a caller checks a member before using it (docs/api.md).
-local API = { version = 1, minor = 15 }
+local API = { version = 1, minor = 16 }
 
 -- The same hub the addon queues its own changes through; api.Subscribe is ForeverCore's (docs/api.md).
 API.Subscribe = hub.Subscribe
@@ -1047,6 +1047,29 @@ function API.RecipeRequirement(recipeID)
 		return { skill = scroll[2], source = "item", recipeItem = scroll[1] }
 	end
 	return nil, "none"
+end
+
+-- The four base skill bands the tooltip colours against, and the Working Overtime bonus in percentage points.
+---@param recipeID integer
+---@return SkillUpAPIRecipeSkill?, SkillUpAPIReason?
+function API.RecipeSkill(recipeID)
+	if not ns.db then
+		return nil, "loading"
+	end
+	if not ns.RecipeData or not ns.RecipeData[recipeID] then
+		return nil, "none"
+	end
+	local thresholds = ns.Model.Get(recipeID)
+	if not thresholds then
+		return nil, "none"
+	end
+	return {
+		orange = thresholds[1],
+		yellow = thresholds[2],
+		green = thresholds[3],
+		grey = thresholds[4],
+		chanceBonus = ns.Model.ChanceBonus() * 100,
+	}
 end
 
 -- An NPC a recipe's item comes from, as the tooltip names and colours it; nil for one the catalogue cannot name.

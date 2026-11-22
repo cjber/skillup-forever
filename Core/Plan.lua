@@ -352,6 +352,18 @@ end
 
 local NewStockReagentCost
 
+-- A route only crafts at skills from its start up to, but excluding, its target. Resolve this from the
+-- thresholds before reading the character's recipe book, bags or prices.
+---@param recipeID integer
+---@param snapshot SkillUpSnapshot
+---@return number[]?
+local function RouteThresholds(recipeID, snapshot)
+	local thresholds = ns.Model.Get(recipeID)
+	if thresholds and thresholds[1] < snapshot.target and thresholds[4] > snapshot.skill then
+		return thresholds
+	end
+end
+
 -- What the planner works from: the recipes this character knows, for any of its professions, from
 -- the bundled recipe data plus the learned record, so the profession needn't be open. `known` adds
 -- recipes the caller knows are learned. Skills here are effective (base + bonus), as the
@@ -375,8 +387,8 @@ local function Snapshot(profession, target, known)
 		stockCost = NewStockReagentCost(),
 	}
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
-		local thresholds = not Skipped(recipeID) and ns.Model.Get(recipeID)
-		if thresholds and thresholds[4] > snapshot.skill and (known and known[recipeID] or ns.IsLearned(recipeID)) then
+		local thresholds = RouteThresholds(recipeID, snapshot)
+		if thresholds and not Skipped(recipeID) and (known and known[recipeID] or ns.IsLearned(recipeID)) then
 			local reagents = ns.Reagents and ns.Reagents(recipeID)
 			local held = CountHeld(snapshot, reagents)
 			local reagentCost, value, netCost = RecipeCosts(recipeID)
@@ -426,11 +438,12 @@ end
 -- recipe with no such scroll. A price seen at a merchant proves the vendor sells it; else the catalogue
 -- must name a vendor, so a drop nobody sells is never planned as a purchase (#358).
 ---@param recipeID integer
+---@param targetBase? number Only candidate searches supply a target; existing steps resolve their source directly.
 ---@return number[]?
-local function VendorTraining(recipeID)
+local function VendorTraining(recipeID, targetBase)
 	local scroll = ns.RecipeScrolls and ns.RecipeScrolls[recipeID]
 	local item = scroll and scroll[1]
-	if not item then
+	if not item or (targetBase and scroll[2] >= targetBase) then
 		return nil
 	end
 	---@type number?
@@ -458,17 +471,20 @@ end
 ---@return SkillUpService[]
 local function Trainable(profession, snapshot)
 	local services = {}
+	local targetBase = snapshot.target - profession.modifier
+	local level = UnitLevel("player") or 0
 	for _, recipeID in ipairs(RecipesOf(profession.skillLine)) do
-		local training = ns.TrainingFor(profession, recipeID) or VendorTraining(recipeID)
-		local levelReady = not training or not training[4] or (UnitLevel("player") or 0) >= training[4]
-		local t = training
-			and levelReady
-			and not ns.IsLearned(recipeID)
-			and not Skipped(recipeID)
-			and ns.Model.Get(recipeID)
-		if training and t then
-			local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
-			if taught[1] <= snapshot.target and t[4] > snapshot.skill then
+		local t = RouteThresholds(recipeID, snapshot)
+		if t then
+			local training = ns.TrainingFor(profession, recipeID) or VendorTraining(recipeID, targetBase)
+			if
+				training
+				and training[2] < targetBase
+				and (not training[4] or level >= training[4])
+				and not ns.IsLearned(recipeID)
+				and not Skipped(recipeID)
+			then
+				local taught = { math.max(t[1], training[2] + profession.modifier), t[2], t[3], t[4] }
 				-- Its reagents join the snapshot's pool before they are priced, so a candidate the bags can make
 				-- is weighed against what using those copies gives up.
 				local reagents = ns.Reagents and ns.Reagents(recipeID)

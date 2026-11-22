@@ -33,10 +33,6 @@ ns.RouteDemand = {
 		ns.reader = read
 		return true
 	end,
-	ConfigureAdaptiveSupply = function(_, read)
-		ns.adaptiveReader = read
-		return true
-	end,
 }
 Load("Integrations/MerchantOffers.lua")("SkillUpForever", ns)
 Load("Core/SupplySources.lua")("SkillUpForever", ns)
@@ -47,8 +43,6 @@ local function Check(value, message)
 end
 local callOK, configured = pcall(ns.SupplySources.Configure, 197, 0.5, nil, {}, {})
 Check(callOK and configured == false, "missing fixed provider inputs are refused")
-callOK, configured = pcall(ns.SupplySources.ConfigureAdaptive, 197, 0.5, nil, {})
-Check(callOK and configured == false, "missing adaptive provider inputs are refused")
 local offer = {
 	session = 1,
 	index = 1,

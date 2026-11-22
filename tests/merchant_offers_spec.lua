@@ -46,12 +46,6 @@ local quote = assert(ns.RouteDemand.QuoteOrders({ { offer = offers[1], bundles =
 equal(quote.moneyCopper, 200, "quote scales original money per bundle")
 equal(quote.products[3], 10, "quote counts item units")
 equal(quote.costs["item:900001"], 4, "quote scales token requirement")
-equal(
-	ns.MerchantOffers.BundleBound(offers[1], 1000, { ["item:900001"] = 5 }),
-	2,
-	"conditional bound counts full bundles without stock conversion"
-)
-equal(ns.MerchantOffers.BundleBound(offers[1], 1000, {}), nil, "unknown token balance prevents bound")
 local before = changes
 c.merchant[1].costs[1][3] = "item:900003"
 c.Fire("MERCHANT_UPDATE")
@@ -152,11 +146,6 @@ c.G.GetMerchantItemMaxStack = function()
 end
 c.Fire("MERCHANT_UPDATE")
 local duplicate = current()[1]
-equal(
-	ns.MerchantOffers.BundleBound(duplicate, 1000, { ["item:900001"] = 9 }),
-	1,
-	"duplicate costs share a balance and partial native ceiling floors to bundles"
-)
 equal(assert(ns.MerchantOffers.Quote(duplicate, 2)).costs["item:900001"], 10, "duplicate requirements sum per bundle")
 c.merchant[1].price = 1e308
 c.Fire("MERCHANT_UPDATE")

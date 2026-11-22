@@ -46,7 +46,6 @@ Data\Credits.lua
 Core\Model.lua
 Core\Demand.lua
 Core\Dyadic.lua
-Core\FiniteAcquisition.lua
 Core\Resupply.lua
 Core\SupplyChoice.lua
 Core\Changes.lua

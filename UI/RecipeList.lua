@@ -512,7 +512,9 @@ local function ApplyList(scrollBox)
 	local linked = C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild()
 	local key = SORT_KEYS[ns.db.sortMode]
 	local ok, built = true, nil
-	if not linked then
+	-- Replacing the native provider can refresh the gamepad footer from addon execution.
+	-- Its tainted bindings then reach the global binding stack when Professions closes (#967).
+	if not linked and not ns.GamepadUI() then
 		ok, built = pcall(BuildProvider, base, key, ns.SkillContext())
 	end
 	if not ok then
@@ -631,7 +633,12 @@ function ns.AttachRecipeList()
 			end
 		end
 	end)
-	ns.WhenEvent("INPUT_DEVICE_INTERFACE_TRANSITION" --[[@as WowEvent]], SyncFilterMenu)
+	ns.WhenEvent("INPUT_DEVICE_INTERFACE_TRANSITION" --[[@as WowEvent]], function()
+		SyncFilterMenu()
+		if recipeList:IsVisible() then
+			ApplyList(recipeList.ScrollBox)
+		end
+	end)
 	SyncFilterMenu()
 	-- A row setting, a price or a profession changed: redraw the rows and re-sort in place. Never rebuild
 	-- the page through Blizzard's Init, which would write its recipe selection and schematic as ours (#350).

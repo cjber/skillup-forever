@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.19] - 2026-11-22
+
+### Fixed
+
+- Long profession routes calculate faster when recipes use limited vendor stock.
+
 ## [1.14.18] - 2026-11-21
 
 <!-- forever-core-sync -->

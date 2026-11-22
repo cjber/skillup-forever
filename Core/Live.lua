@@ -122,6 +122,17 @@ end
 -- Recipe list changes arrive in bursts when a profession opens or a recipe is learned; one scan
 -- covers the burst.
 local scanning = false
+-- Whether the scan has read its list yet: events before that are covered by the upcoming pass.
+local started = false
+-- An event after the list was read owes one more pass, so a list change that lands while chunks are in
+-- flight is not lost. Only one pass is owed however many events arrive, and only one scan is ever in flight.
+local pending = false
+local ScheduleScan
+
+-- A scan walks the whole recipe list a frame at a time: an open window asks for every recipe at once,
+-- and reading them in one tick held the window (#958). One scan is in flight per burst and stays so
+-- across its chunks, so the burst's later events join it.
+local SCAN_CHUNK = 64
 
 -- What the window shows that SkillUp reads outside its recipes: the open profession and its skill. The
 -- client fires TRADE_SKILL_LIST_UPDATE for changes that move neither, so this is compared before the list
@@ -145,33 +156,25 @@ local function WindowKey()
 	}, ":")
 end
 
--- The open profession's recipes, read once: what the client says about each recipe that the bundle
--- cannot, and which recipes the character knows. Returns whether the recipes changed and whether what the
--- window shows that SkillUp reads -- the profession, its skill, the known recipes -- did.
----@return boolean changed
----@return boolean windowChanged
-local function Scan()
-	scanning = false
-	-- A linked or guild window shows someone else's recipes; its learned flags are not this
-	-- character's and never overwrite what is known.
-	if C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
-		return false, false
-	end
-	if not C_TradeSkillUI.GetAllRecipeIDs then
-		return false, false
-	end
-	local key = WindowKey()
-	local windowChanged = lastWindow ~= nil and key ~= nil and lastWindow ~= key
-	lastWindow = key
-	local recipeIDs = C_TradeSkillUI.GetAllRecipeIDs()
-	-- A schematic the window's events came too early for: the client had it only a frame later.
-	local changed = ns.LiveSchematicsArrived(recipeIDs)
-	for _, recipeID in ipairs(recipeIDs) do
+---@class SkillUpScan
+---@field recipeIDs integer[]
+---@field index integer
+---@field changed boolean
+---@field windowChanged boolean
+
+-- The open profession's recipes, read a chunk a frame: what the client says about each recipe that the
+-- bundle cannot, and which recipes the character knows. The result is applied once, after the last chunk.
+---@param scan SkillUpScan
+local function ScanStep(scan)
+	local recipeIDs = scan.recipeIDs
+	local last = math.min(scan.index + SCAN_CHUNK, #recipeIDs)
+	for index = scan.index + 1, last do
+		local recipeID = recipeIDs[index]
 		local info = C_TradeSkillUI.GetRecipeInfo(recipeID)
 		if info then
 			local learnedChanged = ns.NoteLearnedRecipe(recipeID, info.learned)
-			changed = learnedChanged or changed
-			windowChanged = learnedChanged or windowChanged
+			scan.changed = learnedChanged or scan.changed
+			scan.windowChanged = learnedChanged or scan.windowChanged
 			local bundled = ns.Thresholds and ns.Thresholds[recipeID]
 			local grey = info.maxTrivialLevel
 			local skillUps = math.max(info.numSkillUps or 1, 1)
@@ -188,29 +191,70 @@ local function Scan()
 			-- Compared with the grey kept, not the client's: one the bundle can't use (a recipe it lacks, or a
 			-- grey of 0) is kept as none on every scan, and so is no change.
 			local newGrey = live.thresholds and live.thresholds[4]
-			changed = changed or oldGrey ~= newGrey or live.skillUps ~= skillUps
+			scan.changed = scan.changed or oldGrey ~= newGrey or live.skillUps ~= skillUps
 			live.skillUps = skillUps
 			ns.LiveRecipes[recipeID] = live
 		end
 	end
-	return changed, windowChanged
+	scan.index = last
+	if last < #recipeIDs then
+		C_Timer.After(0, function()
+			ScanStep(scan)
+		end)
+		return
+	end
+	scanning, started = false, false
+	if scan.changed then
+		-- The live grey can change a plan; drop the caches that were built without it. A recipe change
+		-- also redraws everything the window does, so it covers a window change in the same scan.
+		ns.Changed("recipes")
+	elseif scan.windowChanged then
+		ns.Changed("window")
+	end
+	-- An event that arrived while this scan ran could not see its own change; one more pass reads the
+	-- list after it. A window that cannot answer now ends both the scan and the pass it owed.
+	if pending then
+		pending = false
+		ScheduleScan()
+	end
 end
 
-local function ScheduleScan()
+-- The first chunk's read: whether this window may be scanned at all, what it shows, and which recipes
+-- it lists. A window that cannot answer ends the scan rather than leaving it in flight.
+local function BeginScan()
+	-- A linked or guild window shows someone else's recipes; its learned flags are not this
+	-- character's and never overwrite what is known.
+	if C_TradeSkillUI.IsTradeSkillLinked() or C_TradeSkillUI.IsTradeSkillGuild() then
+		scanning, started, pending = false, false, false
+		return
+	end
+	if not C_TradeSkillUI.GetAllRecipeIDs then
+		scanning, started, pending = false, false, false
+		return
+	end
+	local key = WindowKey()
+	started = true
+	local recipeIDs = C_TradeSkillUI.GetAllRecipeIDs() or EMPTY
+	local scan = {
+		recipeIDs = recipeIDs,
+		index = 0,
+		windowChanged = lastWindow ~= nil and key ~= nil and lastWindow ~= key,
+		-- A schematic the window's events came too early for: the client had it only a frame later.
+		changed = ns.LiveSchematicsArrived(recipeIDs),
+	}
+	lastWindow = key
+	ScanStep(scan)
+end
+
+function ScheduleScan()
 	if scanning then
+		-- A burst before the list is read is covered by the pass already scheduled; only one that
+		-- arrives after the read is owed another.
+		pending = pending or started
 		return
 	end
 	scanning = true
-	C_Timer.After(0, function()
-		local changed, windowChanged = Scan()
-		if changed then
-			-- The live grey can change a plan; drop the caches that were built without it. A recipe change
-			-- also redraws everything the window does, so it covers a window change in the same scan.
-			ns.Changed("recipes")
-		elseif windowChanged then
-			ns.Changed("window")
-		end
-	end)
+	C_Timer.After(0, BeginScan)
 end
 
 function ns.InitLive()

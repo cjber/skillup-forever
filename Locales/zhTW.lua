@@ -513,30 +513,11 @@ L["Show route needs on item tooltips"] = "在物品提示中顯示路線需求" 
 L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
 	"顯示追蹤路線還需要多少此物品。關閉後可保留配方詳情，但隱藏路線列。" -- mt
 
-L["Have (bags only)"] = "擁有（僅背包）" -- mt
-
-L["%s%% to %s%%"] = "%s%%至%s%%" -- mt
 L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
 	"每一級Working Overtime為黃色和綠色配方的技能提升機率增加估算的4個百分點。遊戲是以百分點加上天賦加成還是以其倍乘機率尚未確認，因此預設關閉，機率使用基礎公式。" -- mt
-L["Chance of finishing with later purchases: %s."] = "後續繼續購買時的完成機率：%s。" -- mt
-L["Chance of finishing with starting supplies: %s."] = "僅用起始物資的完成機率：%s。" -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
 	"製作次數和採購數量均為估算。你可能需要更多材料。" -- mt
 L["Include Working Overtime estimate"] = "計入Working Overtime估算" -- mt
-L["Starting inventory: bags and bank."] = "起始庫存：背包和銀行。" -- mt
-L["Starting inventory: bags only."] = "起始庫存：僅背包。" -- mt
-L["Supply estimate: calculating."] = "物資估算：正在計算。" -- mt
-L["Supply estimate: cancelled."] = "物資估算：已取消。" -- mt
-L["Supply estimate: no cheapest purchase exists under these assumptions."] =
-	"物資估算：在這些假設下，不存在費用最低的採購方案。" -- mt
-L["Supply estimate: no starting purchase meets the target."] =
-	"物資估算：沒有起始採購方案能達到目標。" -- mt
-L["Supply estimate: not enough information."] = "物資估算：資訊不足。" -- mt
-L["Supply estimate: ready."] = "物資估算：已就緒。" -- mt
-L["Target chance of finishing with starting supplies: %s%%."] = "僅用起始物資完成的目標機率：%s%%。" -- mt
-L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
-	"這些機率以所列技能提升機率、價格、供貨情況以及後續採購物資送達為前提。" -- mt
-L["unknown"] = "未知" -- mt
 
 L["No trainer of your faction teaches this recipe."] = "你的陣營沒有訓練師教授這個配方。" -- mt
 L["%s (level %d)"] = "%s（等級 %d）" -- mt

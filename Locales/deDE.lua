@@ -517,31 +517,11 @@ L["Show route needs on item tooltips"] = "Routenbedarf in Gegenstandstooltips an
 L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
 	"Zeigt, wie viel eines Gegenstands Eure verfolgten Routen noch benötigen. Ausschalten, um Rezeptdetails ohne die Routenzeile zu behalten." -- mt
 
-L["Have (bags only)"] = "Vorhanden (nur Taschen)" -- mt
-
-L["%s%% to %s%%"] = "%s%% bis %s%%" -- mt
 L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
 	"Erhöht die Fertigkeitssteigerungschance bei gelben und grünen Rezepten um geschätzte 4 Prozentpunkte pro Rang von Working Overtime. Ob das Spiel den Bonus des Talents als Punkte addiert oder die Chance damit multipliziert, ist noch nicht bestätigt. Daher ist dies anfangs aus und die Chancen nutzen die Basisformel." -- mt
-L["Chance of finishing with later purchases: %s."] = "Abschlusschance mit späteren Einkäufen: %s." -- mt
-L["Chance of finishing with starting supplies: %s."] = "Abschlusschance mit den Anfangsvorräten: %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
 	"Herstellungsanzahl und Einkaufsmengen sind Schätzungen. Möglicherweise benötigt Ihr mehr Reagenzien." -- mt
 L["Include Working Overtime estimate"] = "Schätzung für Working Overtime einbeziehen" -- mt
-L["Starting inventory: bags and bank."] = "Anfangsbestand: Taschen und Bank." -- mt
-L["Starting inventory: bags only."] = "Anfangsbestand: nur Taschen." -- mt
-L["Supply estimate: calculating."] = "Vorratsschätzung: wird berechnet." -- mt
-L["Supply estimate: cancelled."] = "Vorratsschätzung: abgebrochen." -- mt
-L["Supply estimate: no cheapest purchase exists under these assumptions."] =
-	"Vorratsschätzung: Unter diesen Annahmen gibt es keinen günstigsten Einkauf." -- mt
-L["Supply estimate: no starting purchase meets the target."] =
-	"Vorratsschätzung: Kein anfänglicher Einkauf erreicht das Ziel." -- mt
-L["Supply estimate: not enough information."] = "Vorratsschätzung: nicht genügend Informationen." -- mt
-L["Supply estimate: ready."] = "Vorratsschätzung: bereit." -- mt
-L["Target chance of finishing with starting supplies: %s%%."] =
-	"Angestrebte Abschlusschance mit den Anfangsvorräten: %s%%." -- mt
-L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
-	"Diese Chancen setzen die angegebenen Fertigkeitssteigerungsraten, Preise, Verfügbarkeit und Lieferung späterer Einkäufe voraus." -- mt
-L["unknown"] = "unbekannt" -- mt
 
 L["No trainer of your faction teaches this recipe."] = "Kein Lehrer Eurer Fraktion lehrt dieses Rezept." -- mt
 L["%s (level %d)"] = "%s (Stufe %d)" -- mt

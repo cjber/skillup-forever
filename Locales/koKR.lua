@@ -528,30 +528,11 @@ L["Show route needs on item tooltips"] = "아이템 툴팁에 경로 필요 수�
 L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."] =
 	"추적 중인 경로에 아직 필요한 아이템 수량을 표시합니다. 이 설정을 끄면 경로 줄 없이 조제법 세부 정보를 볼 수 있습니다." -- mt
 
-L["Have (bags only)"] = "보유 (가방만)" -- mt
-
-L["%s%% to %s%%"] = "%s%%에서 %s%%까지" -- mt
 L["Adds an estimated 4 percentage points per Working Overtime rank to yellow and green skill-up chances. Whether the game adds the talent's bonus as points or multiplies the chance by it is not confirmed yet, so this starts off and chances use the base formula."] =
 	"Working Overtime 등급마다 노란색 및 녹색 제조법의 숙련도 상승 확률에 추정치 4퍼센트포인트를 더합니다. 게임이 특성 보너스를 포인트로 더하는지 확률에 곱하는지 아직 확인되지 않아 기본으로 꺼져 있으며, 확률은 기본 공식을 사용합니다." -- mt
-L["Chance of finishing with later purchases: %s."] = "추가 구매 시 완료 확률: %s." -- mt
-L["Chance of finishing with starting supplies: %s."] = "시작 재료로 완료할 확률: %s." -- mt
 L["Craft counts and shopping quantities are estimates. You may need more reagents."] =
 	"제작 횟수와 구매 수량은 추정치입니다. 재료가 더 필요할 수 있습니다." -- mt
 L["Include Working Overtime estimate"] = "Working Overtime 추정치 포함" -- mt
-L["Starting inventory: bags and bank."] = "시작 보유량: 가방과 은행." -- mt
-L["Starting inventory: bags only."] = "시작 보유량: 가방만." -- mt
-L["Supply estimate: calculating."] = "재료 추정: 계산 중." -- mt
-L["Supply estimate: cancelled."] = "재료 추정: 취소됨." -- mt
-L["Supply estimate: no cheapest purchase exists under these assumptions."] =
-	"재료 추정: 이 가정에서는 최저 비용 구매가 존재하지 않습니다." -- mt
-L["Supply estimate: no starting purchase meets the target."] =
-	"재료 추정: 목표를 충족하는 시작 구매가 없습니다." -- mt
-L["Supply estimate: not enough information."] = "재료 추정: 정보가 부족합니다." -- mt
-L["Supply estimate: ready."] = "재료 추정: 준비됨." -- mt
-L["Target chance of finishing with starting supplies: %s%%."] = "시작 재료로 완료할 목표 확률: %s%%." -- mt
-L["These chances assume the stated skill-up rates, prices, availability and delivery of later purchases."] =
-	"이 확률은 명시된 숙련도 상승률, 가격, 구매 가능 여부 및 추가 구매분의 인도를 가정합니다." -- mt
-L["unknown"] = "알 수 없음" -- mt
 
 L["No trainer of your faction teaches this recipe."] =
 	"당신의 진영에는 이 제조법을 가르치는 전문 기술 교관이 없습니다." -- mt

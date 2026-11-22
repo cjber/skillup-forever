@@ -285,16 +285,16 @@ function RouteDemand.Shortfalls(tracked)
 end
 
 -- No supply selection exists, so every plan's status is "unconfigured".
----@param plan SkillUpPlan
+---@param _plan SkillUpPlan
 ---@return SkillUpSupplySummary
-function RouteDemand.Summary(plan) -- luacheck: ignore 212
+function RouteDemand.Summary(_plan)
 	return { status = "unconfigured" }
 end
 
 -- Whole localized sentences are shared by the route, shopping window and export.
----@param summary SkillUpSupplySummary
+---@param _summary SkillUpSupplySummary
 ---@return string
-function ns.SupplySummaryText(summary) -- luacheck: ignore 212
+function ns.SupplySummaryText(_summary)
 	return ns.L["Craft counts and shopping quantities are estimates. You may need more reagents."]
 end
 

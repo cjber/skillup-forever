@@ -1593,8 +1593,9 @@ end
 -- Advance the purchased recipe bands before checking what can still be made from today's bags.
 ---@param profession SkillUpProfession
 ---@param plan SkillUpPlan
+---@param fresh SkillUpPlan
 ---@return SkillUpPlan?
-local function Advance(profession, plan)
+local function Advance(profession, plan, fresh)
 	local base, modifier = profession.base, profession.modifier
 	local trainable, trained, training, segments = {}, {}, {}, {}
 	for _, step in ipairs(plan.training) do
@@ -1651,8 +1652,7 @@ local function Advance(profession, plan)
 		training = training,
 		trainingCost = trainingCost,
 		reachedSkill = at + modifier,
-		excluded = { unpriced = plan.unpriced, recipes = plan.unpricedRecipes },
-		stopReason = plan.stopReason,
+		excluded = { unpriced = fresh.unpriced, recipes = fresh.unpricedRecipes },
 	})
 	if Affordable(planExpansions[advanced]) then
 		return advanced
@@ -1672,6 +1672,14 @@ local function Forget(cache, key)
 			return
 		end
 	end
+end
+
+---@param profession SkillUpProfession
+---@param target number
+---@return SkillUpPlan
+local function FreshPlan(profession, target)
+	local snapshot = Snapshot(profession, target)
+	return Finish(profession, target, ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot)))
 end
 
 -- The cheapest way to the target from the recipes this character knows, with whatever training
@@ -1699,7 +1707,7 @@ function ns.PlanRoute(profession)
 	-- longer afford to craft is planned afresh, any other bag change keeps it (#621).
 	---@type { key: string, intent: string, base: number, cap: number, plan: SkillUpPlan, bags: integer }?
 	local kept = committed[profession.skillLine]
-	local advanced
+	local advanced, fresh
 	if
 		kept
 		and kept.intent == intent
@@ -1719,7 +1727,8 @@ function ns.PlanRoute(profession)
 		end
 		local sameProgress = sameCap and profession.base == kept.base
 		if trainedRank or (sameCap and not sameProgress) then
-			advanced = Advance(profession, kept.plan)
+			fresh = FreshPlan(profession, kept.plan.target)
+			advanced = Advance(profession, kept.plan, fresh)
 		end
 		-- Keep the target of the shopping batch until it is reached. The normal rolling target resumes afterwards.
 		if advanced or sameProgress then
@@ -1760,12 +1769,7 @@ function ns.PlanRoute(profession)
 		end
 		return cached
 	end
-	local plan = advanced
-	if not plan then
-		local snapshot = Snapshot(profession, target)
-		local route = ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot))
-		plan = Finish(profession, target, route)
-	end
+	local plan = advanced or (fresh and fresh.target == target and fresh) or FreshPlan(profession, target)
 	if
 		not advanced
 		and kept

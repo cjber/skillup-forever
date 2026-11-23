@@ -568,10 +568,11 @@ equal(lowPlan.crafts[1].recipeID, 101, "below its required level the buff recipe
 local shop = Client.load({
 	saved = { routeTargets = { [171] = 25 }, craftValue = "none", vendor = { [1000] = 10, [1001] = 11 } },
 	data = {
-		Thresholds = { [101] = { 1, 5, 8, 12 }, [102] = { 1, 5, 8, 30 } },
+		Thresholds = { [101] = { 1, 5, 8, 12 }, [102] = { 1, 5, 8, 30 }, [103] = { 1, 5, 8, 30 } },
 		RecipeData = {
 			[101] = { skillLine = 171, reagents = { { itemID = 1000, quantity = 1 } } },
 			[102] = { skillLine = 171, reagents = { { itemID = 1001, quantity = 1 } } },
+			[103] = { skillLine = 171, reagents = { { itemID = 1002, quantity = 1 } } },
 		},
 		VendorPrices = {},
 		TrainerFees = {},
@@ -635,7 +636,7 @@ shop.known[101] = nil
 shop.Fire("NEW_RECIPE_LEARNED")
 equal(Crafts(ShopPlan()), "102", "a recipe the route uses that is no longer known replans it")
 
-shop.known[101] = true
+shop.known[101], shop.known[103] = true, true
 shopNs.db.routeTargets[171] = nil
 shop.Fire("NEW_RECIPE_LEARNED")
 shopNs.Changed("replan")
@@ -643,10 +644,14 @@ equal(Crafts(ShopPlan()), "101 102", "the default target starts with the purchas
 shopNs.db.vendor[1000], shopNs.db.vendor[1001] = 100, 1
 shopNs.Changed("prices")
 local purchased = ShopPlan()
+equal(purchased.unpriced, 1, "one known recipe is waiting for a price")
+shopNs.db.vendor[1002] = 1000
+shopNs.Changed("prices")
 shop.professions[1].rank = shop.professions[1].rank + 1
 shop.bags[1000] = shop.bags[1000] - 1
 shop.Fire("BAG_UPDATE_DELAYED")
 local progressed = ShopPlan()
+equal(progressed.unpriced, 0, "the continued batch clears warnings for recipes that now have prices")
 equal(Crafts(progressed), "101 102", "a craft keeps the remaining purchased recipes in order")
 equal(progressed.target, purchased.target, "the shopping batch keeps its displayed target")
 equal(progressed.crafts[1].from, purchased.crafts[1].from + 1, "the first recipe starts at current skill")
@@ -664,7 +669,7 @@ shop.professions[1].rank = nextBand.target
 assert(ShopPlan().target > nextBand.target, "finishing the shopping batch resumes the rolling target")
 
 shop.professions[1].rank = 1
-shop.known[102] = nil
+shop.known[102], shop.known[103] = nil, nil
 shop.Fire("NEW_RECIPE_LEARNED")
 shopNs.Changed("replan")
 local shortRoute = ShopPlan()

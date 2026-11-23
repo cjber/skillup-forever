@@ -464,6 +464,19 @@ ns.VendorPrices[SCROLL_ITEM] = nil
 c.ns.Changed("prices")
 ns.ShowRecipeTooltip(ns, row, { recipeInfo = { recipeID = SCROLLED, name = "Unpriced Recipe Item", learned = false } })
 equal(RecipeItemPrice(), nil, "an unpriced recipe item adds no price line")
+
+-- With Buy reagents on, a market good nothing has priced comes back as a placeholder record with copper 0 and
+-- unknown set (#990 review). It keeps the row on the route for ranking; it is not a price, so nothing is printed.
+ns.GatheredBy[SCROLL_ITEM] = "Mining"
+c.ns.Changed("prices")
+ns.ShowRecipeTooltip(
+	ns,
+	row,
+	{ recipeInfo = { recipeID = SCROLLED, name = "Unknown Auction Record", learned = false } }
+)
+equal(RecipeItemPrice(), nil, "an unknown auction record adds no price line")
+ns.GatheredBy[SCROLL_ITEM] = nil
+c.ns.Changed("prices")
 ns.ShowRecipeTooltip(ns, row, {
 	recipeInfo = {
 		recipeID = TRAINED,

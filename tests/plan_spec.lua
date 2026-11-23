@@ -215,6 +215,11 @@ equal(ns.RankText(book), "Buy and read Expert First Aid - Under Wraps at 125", "
 ns.db.vendor[UNDER_WRAPS] = 9000
 equal(Plan(FirstAid(120, 0, 150), 170).steps[2].rank.fee, 9000, "a merchant's price wins")
 ns.db.vendor[UNDER_WRAPS] = nil
+local beforeRank = Plan(FirstAid(130, 0, 150), nil)
+local trainedRank = ns.PlanRoute(FirstAid(131, 0, 225))
+equal(trainedRank.target, beforeRank.target, "training a planned rank keeps the shopping target")
+equal(#trainedRank.ranks, 0, "training a planned rank takes its fee out of the shopping route")
+equal(trainedRank.crafts[1].recipeID, beforeRank.crafts[1].recipeID, "training a planned rank keeps the first recipe")
 local capped = Plan(FirstAid(150, 0, 150), 170)
 equal(Kinds(capped), "rank craft", "at the cap, the book comes first")
 equal(
@@ -657,6 +662,18 @@ equal(Crafts(nextBand), "102", "reaching the next recipe removes the completed b
 equal(nextBand.crafts[1].from, shop.professions[1].rank, "the next recipe starts at live skill")
 shop.professions[1].rank = nextBand.target
 assert(ShopPlan().target > nextBand.target, "finishing the shopping batch resumes the rolling target")
+
+shop.professions[1].rank = 1
+shop.known[102] = nil
+shop.Fire("NEW_RECIPE_LEARNED")
+shopNs.Changed("replan")
+local shortRoute = ShopPlan()
+assert(shortRoute.reached < shortRoute.target, "one recipe cannot reach the target")
+shop.known[102] = true
+shop.Fire("NEW_RECIPE_LEARNED")
+shop.professions[1].rank = 2
+local openedRoute = ShopPlan()
+equal(openedRoute.reached, openedRoute.target, "learning a recipe lets an incomplete route continue")
 
 -- A route that trains a recipe for its next step: buying that recipe's scroll and learning it is the step done,
 -- so the route is planned again with the training gone and the crafts in the same order.

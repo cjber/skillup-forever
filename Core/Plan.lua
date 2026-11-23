@@ -1390,7 +1390,7 @@ local plans = {}
 -- player is shopping for this one, so while every step of it can still be walked its recipes and their order are
 -- kept (#621). A key the player asked for (a new target, the collect switch, a level) is another route and is
 -- committed in its place.
----@type table<integer, { key: string, intent: string, base: number, plan: SkillUpPlan, bags: integer }>
+---@type table<integer, { key: string, intent: string, base: number, cap: number, plan: SkillUpPlan, bags: integer }>
 local committed = {}
 
 ns.WhenStale("plans", function()
@@ -1523,9 +1523,17 @@ end
 local function Commit(skillLine, key, intent, plan)
 	local entry = committed[skillLine]
 	if entry then
-		entry.key, entry.intent, entry.base, entry.plan, entry.bags = key, intent, plan.profession.base, plan, bagEpoch
+		entry.key, entry.intent, entry.base, entry.cap = key, intent, plan.profession.base, plan.profession.max
+		entry.plan, entry.bags = plan, bagEpoch
 	else
-		committed[skillLine] = { key = key, intent = intent, base = plan.profession.base, plan = plan, bags = bagEpoch }
+		committed[skillLine] = {
+			key = key,
+			intent = intent,
+			base = plan.profession.base,
+			cap = plan.profession.max,
+			plan = plan,
+			bags = bagEpoch,
+		}
 	end
 end
 
@@ -1678,7 +1686,6 @@ function ns.PlanRoute(profession)
 	local level = UnitLevel("player") or 0
 	local intent = table.concat({
 		profession.modifier,
-		profession.max,
 		ns.db.routeTargets[profession.skillLine] or "",
 		ns.CollectMode(),
 		level,
@@ -1690,19 +1697,36 @@ function ns.PlanRoute(profession)
 	end
 	-- The route being followed is checked against the bags here, once per bag change: a route a step can no
 	-- longer afford to craft is planned afresh, any other bag change keeps it (#621).
-	---@type { key: string, intent: string, base: number, plan: SkillUpPlan, bags: integer }?
+	---@type { key: string, intent: string, base: number, cap: number, plan: SkillUpPlan, bags: integer }?
 	local kept = committed[profession.skillLine]
 	local advanced
-	if kept and kept.intent == intent and profession.base >= kept.base and profession.base < kept.plan.target then
-		if profession.base > kept.base then
+	if
+		kept
+		and kept.intent == intent
+		and profession.base >= kept.base
+		and profession.base < kept.plan.target
+		and kept.plan.reached == kept.plan.target
+	then
+		local sameCap = profession.max == kept.cap
+		local trainedRank = false
+		if profession.max > kept.cap then
+			for _, rank in ipairs(kept.plan.ranks) do
+				if rank.cap == profession.max then
+					trainedRank = true
+					break
+				end
+			end
+		end
+		local sameProgress = sameCap and profession.base == kept.base
+		if trainedRank or (sameCap and not sameProgress) then
 			advanced = Advance(profession, kept.plan)
 		end
 		-- Keep the target of the shopping batch until it is reached. The normal rolling target resumes afterwards.
-		if advanced or profession.base == kept.base then
+		if advanced or sameProgress then
 			target = kept.plan.target
 		end
 	end
-	local key = table.concat({ profession.skill, target, intent }, ":")
+	local key = table.concat({ profession.skill, profession.max, target, intent }, ":")
 	if not advanced and kept and kept.bags ~= bagEpoch then
 		kept.bags = bagEpoch
 		local expanded = ExpandRoute(kept.plan.crafts)

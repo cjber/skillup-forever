@@ -498,6 +498,21 @@ function ns.ShowRecipeTooltip(_, row, data)
 	end
 	if learn then
 		GameTooltip_AddDisabledLine(tooltip, string.format(L["Not learned · %s"], ns.LearnSourceText(learn)))
+		if learn.kind == "scroll" and learn.itemID then
+			local price = ns.Price(learn.itemID)
+			if price then
+				tooltip:AddDoubleLine(
+					L["Recipe item"],
+					string.format("%s |cff808080(%s)|r", Money(price.copper), ns.PriceSourceText(price)),
+					1,
+					1,
+					1,
+					1,
+					1,
+					1
+				)
+			end
+		end
 	end
 	for _, buff in ipairs(BuffLines(recipeInfo.recipeID)) do
 		GameTooltip_AddColoredLine(tooltip, buff.text, buff.color)

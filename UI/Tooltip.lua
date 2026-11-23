@@ -498,7 +498,13 @@ function ns.ShowRecipeTooltip(_, row, data)
 	end
 	if learn then
 		GameTooltip_AddDisabledLine(tooltip, string.format(L["Not learned · %s"], ns.LearnSourceText(learn)))
-		if learn.kind == "scroll" and learn.itemID then
+		if learn.kind == "trainer" and ctx then
+			local training = ns.TrainingFor(ctx, recipeInfo.recipeID)
+			local fee = training and training[1]
+			if fee ~= nil then
+				tooltip:AddDoubleLine(L["Trainer"], Money(fee), 1, 1, 1, 1, 1, 1)
+			end
+		elseif learn.kind == "scroll" and learn.itemID then
 			local price = ns.Price(learn.itemID)
 			-- An unknown record is a placeholder the planner keeps for ranking, not a price: with Buy reagents on
 			-- it carries copper 0. Printing it would tell a player the pattern is free.

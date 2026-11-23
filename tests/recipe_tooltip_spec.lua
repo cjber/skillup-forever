@@ -493,4 +493,28 @@ ns.ShowRecipeTooltip(ns, row, {
 })
 equal(RecipeItemPrice(), nil, "a trainer-only recipe adds no recipe item price")
 
+local function TrainerFee()
+	for _, pair in ipairs(doubleLines) do
+		if pair[1] == "Trainer" then
+			return pair[2]
+		end
+	end
+end
+
+equal(TrainerFee(), "10", "the bundled trainer fee appears on the added recipe row")
+local trainerRow = { recipeInfo = { recipeID = TRAINED, name = "Trainer recipe", learned = false } }
+G.C_TradeSkillUI.GetBaseProfessionInfo = function()
+	return { professionName = "First Aid", professionID = 129 }
+end
+local recorded = { [TRAINED] = { 65, 40 } }
+ns.db.trainer[129] = recorded
+ns.ShowRecipeTooltip(ns, row, trainerRow)
+equal(TrainerFee(), "65", "a client-listed unlearned recipe shows its recorded trainer fee")
+recorded[TRAINED] = { [2] = 40 }
+ns.ShowRecipeTooltip(ns, row, trainerRow)
+equal(TrainerFee(), nil, "a trainer with no known fee adds no price line")
+recorded[TRAINED] = { 0, 40 }
+ns.ShowRecipeTooltip(ns, row, trainerRow)
+equal(TrainerFee(), "0", "a verified free service shows zero")
+
 Client.report("recipe_tooltip_spec")

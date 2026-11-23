@@ -109,6 +109,7 @@ ns.Credits = {
 		{ name = "qwertzyxc", what = "Professions overview back to its own width" },
 		{ name = "Da_Tronic", what = "Movable minimap button when ATT shares its position" },
 		{ name = "shenhyrosame", what = "Minimap button discoverability and profession-window access" },
+		{ name = "davefin", what = "Hide unlearned recipes with no estimated skill-up chance when filtered" },
 	},
 	inspired = {
 		{ name = "Polestar by Fitz", what = "Ideas for many features" },

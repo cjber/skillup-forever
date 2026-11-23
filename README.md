@@ -37,7 +37,7 @@ The tooltip draws the thresholds on the game's bar, then each reagent's price an
 
 - **Recipe rows and tooltips** show skill-up chance, cost, colour thresholds and how many your bags can make.
 - **Sorting** orders recipes by difficulty range start, chance, cheapest skill-ups, highest craft profit or newest learned first; unlearned ones sort separately.
-- **Unlearned recipes** can sit under the learned ones, greyed and marked with their trainer or recipe item, and the search box narrows them. Click one to preview its read-only details in the crafting pane.
+- **Unlearned recipes** can sit under the learned ones, greyed and marked with their trainer or recipe item, and the search box and *Has skill up* filter narrow them. Click one to preview its read-only details in the crafting pane.
 - **Buffs only** filters the list to the buffs you can use at your level.
 - **Levelling routes** list the crafts, trainer visits, skill books and rank quests to your target skill, in order, each with its amount and cost. [Route details](docs/route.md#levelling-route).
 - **Shopping lists** count reagents against bags and bank and keep an Auctionator list current. At the auction house, click *Search* in the Professions window to find the reagents still needed for the crafts you choose. [Shopping details](docs/route.md#shopping-list).
@@ -165,7 +165,7 @@ Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees
 
 <!-- forever-credits:start -->
 
-Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, st3nlee, davef1n, sundered1985, trias6657, iPulse, cotijelucie, prokn4h, CtrlDKhayos, AlteredIgor, Benjy_Boi, DemDragons, user_nd8yffdjkebopqym, vulpeep, messajahswe, user_bvgv4fnauhmhf9i7, puschie286, Belth, yavinn, cursebandit, rissole, codipherus, jugg__, keerp, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, hardliquor, CodexFD, rockhumper84, Kozoaku, turkeyfire69, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc, Da_Tronic, shenhyrosame and everyone who reported a bug or asked for a feature.
+Thanks to kopuliak, bromidious, Mouchoir, Chuujitsuna, st3nlee, davef1n, sundered1985, trias6657, iPulse, cotijelucie, prokn4h, CtrlDKhayos, AlteredIgor, Benjy_Boi, DemDragons, user_nd8yffdjkebopqym, vulpeep, messajahswe, user_bvgv4fnauhmhf9i7, puschie286, Belth, yavinn, cursebandit, rissole, codipherus, jugg__, keerp, yusufdanis, Diamondclaw, mimmordino, soviman1, Yivry, luna, FreakinNerd, nookie909, vladdoubrov, _spada, SanyaBane, Rambomst, fusionley, ItachiGrave, .phear, Brainc3ll, berserkerlxl, SilentGentlemanSG, BallaRa, kurila11478, Bolthorr, TechnoHunter, Viper2042, Syrberus, zazomazzo, Setuaro, 0xTrk, 3kinex, icouldonlygetthisname, jakeyjake07, Rekalicious, leenagil-coder, Weythx, lokitako, Rawveggie, hardliquor, CodexFD, rockhumper84, Kozoaku, turkeyfire69, Kirdan, rick1tz, time2w8, ThePNAG, derzwiebelritter, Ekallo, CorvidofShadows13, Sogu, achubbert, jackthereaper_, qwertzyxc, Da_Tronic, shenhyrosame, davefin and everyone who reported a bug or asked for a feature.
 
 <!-- forever-credits:end -->
 

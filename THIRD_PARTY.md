@@ -145,6 +145,7 @@ Credit for the reports and requests behind the addon.
 | qwertzyxc | Professions overview back to its own width | Discord; #636 |
 | Da_Tronic | Movable minimap button when ATT shares its position | CurseForge; threads 8710025, 8712306 |
 | shenhyrosame | Minimap button discoverability and profession-window access | CurseForge; threads 8715494, 8715499 |
+| davefin | Hide unlearned recipes with no estimated skill-up chance when filtered | Discord; #975 |
 
 ## Inspired by
 

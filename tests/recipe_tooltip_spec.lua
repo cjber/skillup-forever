@@ -448,4 +448,49 @@ ns.ShowRecipeTooltip(ns, row, { recipeInfo = { recipeID = LATE, name = "Late Tra
 equal(lines[2], "Skill range starts at 20", "the tooltip starts where its trainer teaches it")
 equal(HasLine("Skill-up chance: 100%"), true, "and the chance follows the bar")
 
+-- An unlearned recipe taught by a recipe item also says what that item costs, when its price is known (#989).
+local function RecipeItemPrice()
+	for _, pair in ipairs(doubleLines) do
+		if pair[1] == "Recipe item" then
+			return pair[2]
+		end
+	end
+end
+ns.VendorPrices[SCROLL_ITEM] = 250
+c.ns.Changed("prices")
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = { recipeID = SCROLLED, name = "Priced Recipe Item", learned = false } })
+equal(RecipeItemPrice(), "250 |cff808080(vendor)|r", "a scrolled recipe says what its recipe item costs and where")
+ns.VendorPrices[SCROLL_ITEM] = nil
+c.ns.Changed("prices")
+ns.ShowRecipeTooltip(ns, row, { recipeInfo = { recipeID = SCROLLED, name = "Unpriced Recipe Item", learned = false } })
+equal(RecipeItemPrice(), nil, "an unpriced recipe item adds no price line")
+
+-- With Buy reagents on, a market good nothing has priced comes back as a placeholder record with copper 0 and
+-- unknown set (#990 review). It keeps the row on the route for ranking; it is not a price, so nothing is printed.
+ns.GatheredBy[SCROLL_ITEM] = "Mining"
+c.ns.Changed("prices")
+ns.ShowRecipeTooltip(
+	ns,
+	row,
+	{ recipeInfo = { recipeID = SCROLLED, name = "Unknown Auction Record", learned = false } }
+)
+equal(RecipeItemPrice(), nil, "an unknown auction record adds no price line")
+ns.GatheredBy[SCROLL_ITEM] = nil
+c.ns.Changed("prices")
+ns.ShowRecipeTooltip(ns, row, {
+	recipeInfo = {
+		recipeID = TRAINED,
+		name = "Unlearned Trainer",
+		learned = false,
+		skillUpUnlearned = {
+			recipeID = TRAINED,
+			name = "Unlearned Trainer",
+			kind = "trainer",
+			skill = 40,
+			thresholds = { 1, 45, 60, 80 },
+		},
+	},
+})
+equal(RecipeItemPrice(), nil, "a trainer-only recipe adds no recipe item price")
+
 Client.report("recipe_tooltip_spec")

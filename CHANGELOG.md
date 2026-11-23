@@ -16,6 +16,10 @@ optional `### For addon authors` subsection after a version's player bullets.
 
 - Ships with the same shared code as your other Forever addons, so they keep working together.
 
+### Added
+
+- The unlearned tooltip now shows what the recipe item that teaches it costs, and where that price came from.
+
 ### Fixed
 
 - The Has skill up filter hides unlearned recipes with no estimated chance of a skill-up, thanks to davefin for the report.

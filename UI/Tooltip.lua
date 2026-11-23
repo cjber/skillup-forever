@@ -498,6 +498,23 @@ function ns.ShowRecipeTooltip(_, row, data)
 	end
 	if learn then
 		GameTooltip_AddDisabledLine(tooltip, string.format(L["Not learned · %s"], ns.LearnSourceText(learn)))
+		if learn.kind == "scroll" and learn.itemID then
+			local price = ns.Price(learn.itemID)
+			-- An unknown record is a placeholder the planner keeps for ranking, not a price: with Buy reagents on
+			-- it carries copper 0. Printing it would tell a player the pattern is free.
+			if price and not price.unknown then
+				tooltip:AddDoubleLine(
+					L["Recipe item"],
+					string.format("%s |cff808080(%s)|r", Money(price.copper), ns.PriceSourceText(price)),
+					1,
+					1,
+					1,
+					1,
+					1,
+					1
+				)
+			end
+		end
 	end
 	for _, buff in ipairs(BuffLines(recipeInfo.recipeID)) do
 		GameTooltip_AddColoredLine(tooltip, buff.text, buff.color)

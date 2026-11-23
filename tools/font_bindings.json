@@ -794,8 +794,8 @@
     },
     {
       "source": "UI/Tooltip.lua",
-      "sha256": "aa42181376c879bbcf41ab9856f6b1cd6935191396cc306ddbddd1d83f6dd0fd",
-      "review": "Reviewed CreateSkillBar and LayoutSkillBar, recipe and item tooltip producers. Tooltip phrases and tooltip-owned fonts are excluded by policy. The reusable skill bar explicitly uses GameFontHighlightSmall and is also reparented by DetailsBar.lua, but no tooltip producer is included in this coverage claim. Dynamic threshold values and helper text are excluded. Reviewed the Forever Ledger price source: UnpricedHint and PriceSourceText return two more tooltip and route-message strings; no widget or font setter changed.",
+      "sha256": "a26b97b6004e137831b0c55ea9518d935747667141648c5c36156c314608918b",
+      "review": "Reviewed CreateSkillBar and LayoutSkillBar, recipe and item tooltip producers. Tooltip phrases and tooltip-owned fonts are excluded by policy. The reusable skill bar explicitly uses GameFontHighlightSmall and is also reparented by DetailsBar.lua, but no tooltip producer is included in this coverage claim. Dynamic threshold values and helper text are excluded. Reviewed the Forever Ledger price source: UnpricedHint and PriceSourceText return two more tooltip and route-message strings; no widget or font setter changed. Reviewed #989: the unlearned recipe tooltip adds a Recipe item price double line from the existing enUS phrase; no widget or font setter changed. Reviewed #990 review finding: the recipe item price line is skipped when the price record is an unknown placeholder; same AddDoubleLine widget and enUS phrase, no widget or font setter changed.",
       "bindings": []
     },
     {

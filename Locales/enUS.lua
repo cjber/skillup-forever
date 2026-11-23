@@ -122,8 +122,6 @@ L["%s (level %d)"] = "%s (level %d)"
 
 L["Clicking a recipe selects it again under every sort."] = "Clicking a recipe selects it again under every sort."
 
-L["Opening chat after Professions no longer errors in Gamepad UI."] =
-	"Opening chat after Professions no longer errors in Gamepad UI."
 L["Show reagent search"] = "Show reagent search"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."

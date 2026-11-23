@@ -598,8 +598,8 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 	"У этих реагентов нет цены у торговца. Для цен аукциона нужен Auctionator, TradeSkillMaster, AHDB, Naowh Forever или Forever Ledger."
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
 
-L["Opening chat after Professions no longer errors in Gamepad UI."] =
-	"Открытие чата после окна профессий больше не вызывает ошибку в интерфейсе геймпада." -- mt
+L["Shopping lists update as you craft."] =
+	"Списки покупок обновляются по мере изготовления предметов."
 L["Show reagent search"] = "Показывать поиск реагентов"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Нажмите «Поиск» в окне профессий, чтобы найти недостающие реагенты. Без Auctionator каждое нажатие подставляет следующий реагент в строку поиска аукциона."

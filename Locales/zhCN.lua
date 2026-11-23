@@ -558,8 +558,7 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 	"这些材料没有商人价格。拍卖价需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger。" -- mt
 L["Select %s in the recipe list first."] = "请先在配方列表中选择%s。" -- mt
 
-L["Opening chat after Professions no longer errors in Gamepad UI."] =
-	"在手柄界面中，关闭专业窗口后打开聊天不再出错。" -- mt
+L["Shopping lists update as you craft."] = "制作物品时会更新购物清单。"
 L["Show reagent search"] = "显示材料搜索"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"点击专业窗口中的搜索来查找缺少的材料。如果未安装 Auctionator，每次点击会在拍卖行搜索框中填入下一种材料。"

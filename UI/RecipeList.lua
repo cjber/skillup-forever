@@ -232,6 +232,18 @@ local function MatchesItemLevel(recipeID, minimum, maximum)
 	return level ~= nil and level >= minimum and level <= maximum
 end
 
+---@param entry SkillUpUnlearnedRecipe
+---@param ctx SkillUpContext
+---@return boolean
+local function CanGainSkill(entry, ctx)
+	if ctx.capped then
+		return false
+	end
+	local thresholds = ns.RangeThresholds(ctx, entry.recipeID, entry.thresholds)
+	local chance = ns.Model.Chance(thresholds, ctx.skill)
+	return chance ~= nil and chance > 0
+end
+
 -- The bundled recipes missing from the client's list, in the order ns.UnlearnedRecipes sorted them. A
 -- recipe the client does not list has no node data of its own, so its row gets our wrapper around it.
 ---@param seen table<integer, boolean>
@@ -240,6 +252,8 @@ end
 local function UnlearnedMissing(seen, ctx)
 	local missing = {}
 	local search = C_TradeSkillUI.GetRecipeItemNameFilter()
+	local getOnlySkillUps = C_TradeSkillUI.GetOnlyShowSkillUpRecipes
+	local onlySkillUps = getOnlySkillUps and ns.Readable(getOnlySkillUps())
 	local minimum, maximum = 0, 0
 	if C_TradeSkillUI.GetRecipeItemLevelFilter then
 		local low, high = C_TradeSkillUI.GetRecipeItemLevelFilter()
@@ -249,6 +263,7 @@ local function UnlearnedMissing(seen, ctx)
 		if
 			not seen[entry.recipeID]
 			and MatchesSearch(entry.name, search)
+			and (not onlySkillUps or CanGainSkill(entry, ctx))
 			and MatchesItemLevel(entry.recipeID, minimum, maximum)
 		then
 			seen[entry.recipeID] = true

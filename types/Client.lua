@@ -559,6 +559,10 @@ function CreateSettingsButtonInitializer(name, buttonText, onClick, tooltip, add
 ---@return number? modifier
 function GetTrainerTradeskillRankValues() end
 
+-- The Forever Professions menu reads the active Has skill up filter from this getter.
+---@return boolean
+function C_TradeSkillUI.GetOnlyShowSkillUpRecipes() end
+
 -- Forever exposes the numeric recipe search bounds; 0, 0 disables this filter.
 ---@return number? minimum
 ---@return number? maximum

@@ -118,6 +118,7 @@ function frame:SetWidth(width)
 	self.width = width
 end
 
+local onlySkillUps = false
 local decorate
 local itemDataArrived
 local previewRows = {}
@@ -153,6 +154,7 @@ local ns = {
 		}
 	end,
 	Model = {
+		Chance = client.ns.Model.Chance,
 		Get = function()
 			return { 1, 25, 50, 75 }
 		end,
@@ -227,6 +229,9 @@ local env = setmetatable({
 		end,
 		GetCraftableCount = function()
 			return 0
+		end,
+		GetOnlyShowSkillUpRecipes = function()
+			return onlySkillUps
 		end,
 		GetRecipeItemLevelFilter = client.G.C_TradeSkillUI.GetRecipeItemLevelFilter,
 		GetRecipeItemNameFilter = function()
@@ -352,6 +357,29 @@ box:SetDataProvider(input)
 nodes = box:GetDataProvider():GetRootNode():GetNodes()
 assert(#nodes == 5, "clearing the search brings both added recipes back")
 searchText = nil
+
+-- Only the second bundled recipe can still grant a point at this skill.
+ns.RangeThresholds = function(_, id)
+	return id == 20 and { 60, 65, 65, 70 } or { 80, 85, 90, 100 }
+end
+ctx.skill = 85
+onlySkillUps = true
+provider, replacements = nil, 0
+box:SetDataProvider(input)
+nodes = box:GetDataProvider():GetRootNode():GetNodes()
+assert(#nodes == 4 and nodes[4]:GetData().recipeInfo.recipeID == 30, "Has skill up excludes grey bundled recipes")
+ctx.capped = true
+provider, replacements = nil, 0
+box:SetDataProvider(input)
+assert(provider == input, "a capped profession has no bundled recipes that can grant skill")
+onlySkillUps, ctx.capped, ctx.skill = false, nil, 50
+provider, replacements = nil, 0
+box:SetDataProvider(input)
+assert(#box:GetDataProvider():GetRootNode():GetNodes() == 5, "clearing Has skill up brings both bundled recipes back")
+ns.RangeThresholds = function(_, id)
+	local starts = { [10] = 1, [20] = 60, [30] = 80 }
+	return { starts[id], 100, 100, 100 }
+end
 
 -- Bounds are the client's parsed search state: N, ~N (+/-2), and N-M.
 client.items[100] = { name = "Output A", level = 60 }

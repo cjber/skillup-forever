@@ -630,6 +630,34 @@ shop.known[101] = nil
 shop.Fire("NEW_RECIPE_LEARNED")
 equal(Crafts(ShopPlan()), "102", "a recipe the route uses that is no longer known replans it")
 
+shop.known[101] = true
+shopNs.db.routeTargets[171] = nil
+shop.Fire("NEW_RECIPE_LEARNED")
+shopNs.Changed("replan")
+equal(Crafts(ShopPlan()), "101 102", "the default target starts with the purchased recipes")
+shopNs.db.vendor[1000], shopNs.db.vendor[1001] = 100, 1
+shopNs.Changed("prices")
+local purchased = ShopPlan()
+shop.professions[1].rank = shop.professions[1].rank + 1
+shop.bags[1000] = shop.bags[1000] - 1
+shop.Fire("BAG_UPDATE_DELAYED")
+local progressed = ShopPlan()
+equal(Crafts(progressed), "101 102", "a craft keeps the remaining purchased recipes in order")
+equal(progressed.target, purchased.target, "the shopping batch keeps its displayed target")
+equal(progressed.crafts[1].from, purchased.crafts[1].from + 1, "the first recipe starts at current skill")
+assert(
+	progressed.crafts[1].crafts < purchased.crafts[1].crafts,
+	"the shopping batch no longer counts the completed skill"
+)
+equal(ShopPlan(), progressed, "a later query keeps the same progressed batch")
+
+shop.professions[1].rank = progressed.crafts[1].to
+local nextBand = ShopPlan()
+equal(Crafts(nextBand), "102", "reaching the next recipe removes the completed band")
+equal(nextBand.crafts[1].from, shop.professions[1].rank, "the next recipe starts at live skill")
+shop.professions[1].rank = nextBand.target
+assert(ShopPlan().target > nextBand.target, "finishing the shopping batch resumes the rolling target")
+
 -- A route that trains a recipe for its next step: buying that recipe's scroll and learning it is the step done,
 -- so the route is planned again with the training gone and the crafts in the same order.
 local learn = Client.load({

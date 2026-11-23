@@ -1390,7 +1390,7 @@ local plans = {}
 -- player is shopping for this one, so while every step of it can still be walked its recipes and their order are
 -- kept (#621). A key the player asked for (a new target, the collect switch, a level) is another route and is
 -- committed in its place.
----@type table<integer, { key: string, plan: SkillUpPlan, bags: integer }>
+---@type table<integer, { key: string, intent: string, base: number, plan: SkillUpPlan, bags: integer }>
 local committed = {}
 
 ns.WhenStale("plans", function()
@@ -1518,13 +1518,14 @@ end
 -- Keeps a profession's route, in place so a cached ask writes no table.
 ---@param skillLine integer
 ---@param key string
+---@param intent string
 ---@param plan SkillUpPlan
-local function Commit(skillLine, key, plan)
+local function Commit(skillLine, key, intent, plan)
 	local entry = committed[skillLine]
 	if entry then
-		entry.key, entry.plan, entry.bags = key, plan, bagEpoch
+		entry.key, entry.intent, entry.base, entry.plan, entry.bags = key, intent, plan.profession.base, plan, bagEpoch
 	else
-		committed[skillLine] = { key = key, plan = plan, bags = bagEpoch }
+		committed[skillLine] = { key = key, intent = intent, base = plan.profession.base, plan = plan, bags = bagEpoch }
 	end
 end
 
@@ -1581,6 +1582,76 @@ local function Rebuild(profession, target, plan, fresh)
 	return Finish(profession, target, route)
 end
 
+-- Advance the purchased recipe bands before checking what can still be made from today's bags.
+---@param profession SkillUpProfession
+---@param plan SkillUpPlan
+---@return SkillUpPlan?
+local function Advance(profession, plan)
+	local base, modifier = profession.base, profession.modifier
+	local trainable, trained, training, segments = {}, {}, {}, {}
+	for _, step in ipairs(plan.training) do
+		trainable[step.recipeID] = true
+	end
+	local level = UnitLevel("player") or 0
+	local trainingCost = 0
+	local at = base
+	for _, craft in ipairs(plan.crafts) do
+		if craft.to > base then
+			local from = math.max(base, craft.from)
+			local recipeID = craft.recipeID
+			local thresholds = ns.Model.Get(recipeID)
+			local ups = ns.RecipeSkillUps and ns.RecipeSkillUps(recipeID) or 1
+			if
+				from ~= at
+				or Skipped(recipeID)
+				or not thresholds
+				or craft.to + modifier > thresholds[4]
+				or ns.Model.Gain(thresholds, from + modifier, ups, craft.to - from) <= 0
+			then
+				return nil
+			end
+			if not (ns.IsLearned(recipeID) or trained[recipeID]) then
+				local offer = ns.TrainingFor(profession, recipeID) or VendorTraining(recipeID)
+				if
+					not trainable[recipeID]
+					or not offer
+					or (offer[4] and offer[4] > level)
+					or ns.LearnSkill(profession, recipeID) > from + modifier
+				then
+					return nil
+				end
+				trained[recipeID] = true
+				training[#training + 1] = { recipeID = recipeID, fee = offer[1], atSkill = from + modifier }
+				trainingCost = trainingCost + offer[1]
+			end
+			segments[#segments + 1] = {
+				recipeID = recipeID,
+				fromSkill = from + modifier,
+				toSkill = craft.to + modifier,
+				skillUps = ups,
+				crafts = 0,
+			}
+			at = craft.to
+		end
+	end
+	if at == base then
+		return nil
+	end
+	local advanced = Finish(profession, plan.target, {
+		segments = segments,
+		expectedCost = 0,
+		training = training,
+		trainingCost = trainingCost,
+		reachedSkill = at + modifier,
+		excluded = { unpriced = plan.unpriced, recipes = plan.unpricedRecipes },
+		stopReason = plan.stopReason,
+	})
+	if Affordable(planExpansions[advanced]) then
+		return advanced
+	end
+	return nil
+end
+
 -- Drops one cached plan and its place in the per-profession order.
 ---@param cache { plans: table<string, SkillUpPlan>, order: string[], bags: table<string, integer> }
 ---@param key string
@@ -1605,8 +1676,13 @@ function ns.PlanRoute(profession)
 	-- so a plan made under the other mode is a different route (#190). The level is too: a plan made at another
 	-- level may prefer a buff that level could not use (#357).
 	local level = UnitLevel("player") or 0
-	local key =
-		table.concat({ profession.skill, profession.modifier, profession.max, target, ns.CollectMode(), level }, ":")
+	local intent = table.concat({
+		profession.modifier,
+		profession.max,
+		ns.db.routeTargets[profession.skillLine] or "",
+		ns.CollectMode(),
+		level,
+	}, ":")
 	local cache = plans[profession.skillLine]
 	if not cache then
 		cache = { plans = {}, order = {}, bags = {} }
@@ -1614,9 +1690,20 @@ function ns.PlanRoute(profession)
 	end
 	-- The route being followed is checked against the bags here, once per bag change: a route a step can no
 	-- longer afford to craft is planned afresh, any other bag change keeps it (#621).
-	---@type { key: string, plan: SkillUpPlan, bags: integer }?
+	---@type { key: string, intent: string, base: number, plan: SkillUpPlan, bags: integer }?
 	local kept = committed[profession.skillLine]
-	if kept and kept.bags ~= bagEpoch then
+	local advanced
+	if kept and kept.intent == intent and profession.base >= kept.base and profession.base < kept.plan.target then
+		if profession.base > kept.base then
+			advanced = Advance(profession, kept.plan)
+		end
+		-- Keep the target of the shopping batch until it is reached. The normal rolling target resumes afterwards.
+		if advanced or profession.base == kept.base then
+			target = kept.plan.target
+		end
+	end
+	local key = table.concat({ profession.skill, target, intent }, ":")
+	if not advanced and kept and kept.bags ~= bagEpoch then
 		kept.bags = bagEpoch
 		local expanded = ExpandRoute(kept.plan.crafts)
 		if not Affordable(expanded) then
@@ -1631,7 +1718,7 @@ function ns.PlanRoute(profession)
 	-- route the player is following is the exception (#621): while every step can still be walked it is kept, so
 	-- the bags cannot swap the recipes they are shopping for. A fresh plan is made when nothing is being followed.
 	---@type SkillUpPlan?
-	local cached = cache.plans[key]
+	local cached = not advanced and cache.plans[key] or nil
 	if cached and cache.bags[key] ~= bagEpoch then
 		local followed = committed[profession.skillLine]
 		if followed and followed.key == key and followed.plan == cached then
@@ -1645,15 +1732,19 @@ function ns.PlanRoute(profession)
 		cached.profession = profession
 		local entry = committed[profession.skillLine]
 		if not entry or entry.plan ~= cached then
-			Commit(profession.skillLine, key, cached)
+			Commit(profession.skillLine, key, intent, cached)
 		end
 		return cached
 	end
-	local snapshot = Snapshot(profession, target)
-	local route = ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot))
-	local plan = Finish(profession, target, route)
+	local plan = advanced
+	if not plan then
+		local snapshot = Snapshot(profession, target)
+		local route = ns.Model.PlanWithTraining(snapshot, Trainable(profession, snapshot))
+		plan = Finish(profession, target, route)
+	end
 	if
-		kept
+		not advanced
+		and kept
 		and kept.key == key
 		and #kept.plan.crafts > 0
 		and not SameSteps(kept.plan, plan)
@@ -1663,7 +1754,7 @@ function ns.PlanRoute(profession)
 		-- the recipes they came for, only a route that can no longer be walked is (#621).
 		plan = Rebuild(profession, target, kept.plan, plan)
 	end
-	Commit(profession.skillLine, key, plan)
+	Commit(profession.skillLine, key, intent, plan)
 	Forget(cache, key)
 	cache.plans[key] = plan
 	cache.bags[key] = bagEpoch

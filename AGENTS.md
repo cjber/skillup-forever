@@ -24,8 +24,8 @@ A change's player-facing notes go in `changes/<issue>.md`; only the release comm
   `tools/bump_pins.py` daily (generator pins to their newest upstream, and `tools/fdb_pin.py`'s `FDB_*` to the
   newest forever-db release), snapshots the generated `Data`, regenerates and opens a `data/refresh` PR.
   `tools/check_refresh.py` diffs the snapshot against the regenerated data, failing the run on a regression: a
-  recipe, trainer row, source or vendor entry the player could lose, or a fee, threshold or price zeroed;
-  gains and moves are only reported. forever-db is the second source only where it has facts (it records the
+  recipe, trainer row, source or vendor entry the player could lose, or a fee, threshold or price zeroed; a
+  record the new data drops whole reports instead (the client dropped the content), as do gains and moves. forever-db is the second source only where it has facts (it records the
   rank quests); where it has none, the evidence line says so instead of inventing one. `retry-refresh.yml`
   re-runs a failure once, then files "Data refresh failed". The classic-db pin is a waiver below and moves by
   hand.

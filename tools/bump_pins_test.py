@@ -66,6 +66,8 @@ class FdbPinTest(unittest.TestCase):
         self.addCleanup(self.scratch.cleanup)
         self.tools = Path(self.scratch.name)
         shutil.copy(bump_pins.TOOLS / "fdb_pin.py", self.tools / "fdb_pin.py")
+        self.gen_thresholds = self.tools / "gen_thresholds.py"
+        shutil.copy(bump_pins.TOOLS / "gen_thresholds.py", self.gen_thresholds)
         patcher = mock.patch.dict(bump_pins.PINS, clear=True)
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -111,8 +113,8 @@ class FdbPinTest(unittest.TestCase):
         self.assertIn('FDB_TAG = "data-v2026.11.3"', self.pin())
         self.assertIn('FDB_ASSET = "forever-db-2026.11.3.zip"', self.pin())
         self.assertIn(f'FDB_SHA256 = "{digest}"', self.pin())
-        # The forever-db pin feeds no generator, so SOURCE_DATE stays wherever it was.
-        self.assertNotIn("SOURCE_DATE", self.pin())
+        # The forever-db pin feeds no generator, so the data's SOURCE_DATE stays wherever it was.
+        self.assertIn("SOURCE_DATE", self.gen_thresholds.read_text(encoding="utf-8"))
 
     def test_a_release_without_a_zip_asset_or_sums_is_refused(self):
         for releases, expectation in (

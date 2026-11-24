@@ -70,6 +70,12 @@ jobs:
           python3 tools/gen_trainer.py
           python3 tools/gen_sources.py
           python3 tools/check_generated.py --offline
+      # Every tool version below lives in this checkout's tools/toolchain.json, which the action reads (its manifest
+      # input defaults to that file, resolved against the workspace) and installs and verifies each pin from.
+      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
+        if: steps.pins.outputs.moved != ''
+        with:
+          tools: lua stylua
       # Fails the run on a recipe, trainer row, source or vendor entry the refresh lost, or a fee, threshold or
       # price it zeroed, printing forever-db's evidence for each (rank quests only: forever-db is a quest
       # database and carries nothing for the other fields); gains and moves are only reported. The zip is the
@@ -84,12 +90,6 @@ jobs:
         run: |
           python3 tools/bump_pins_test.py
           python3 tools/check_refresh_test.py
-      # Every tool version below lives in this checkout's tools/toolchain.json, which the action reads (its manifest
-      # input defaults to that file, resolved against the workspace) and installs and verifies each pin from.
-      - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
-        if: steps.pins.outputs.moved != ''
-        with:
-          tools: lua stylua
       - if: steps.pins.outputs.moved != ''
         run: |
           luacheck .

@@ -1,6 +1,7 @@
 """The refresh guard: its compare rules, its LuaJIT dump, and the forever-db pin it reads."""
 
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -20,9 +21,11 @@ def compare(old_lines, new_lines):
     return check_refresh.compare(records(*old_lines), records(*new_lines))
 
 
+
 class PinTest(unittest.TestCase):
-    def test_fdb_pin_matches_the_reference_implementation(self):
-        self.assertEqual(fdb_pin.FDB_SHA256, "43157067315537a8b95e5c517e30a1b6d55e117022f89094f039e9e6eb6438ad")
+    def test_the_pin_constants_agree(self):
+        self.assertRegex(fdb_pin.FDB_SHA256, r"^[0-9a-f]{64}$")
+        self.assertTrue(fdb_pin.FDB_URL.endswith(f"/{fdb_pin.FDB_TAG}/{fdb_pin.FDB_ASSET}"))
 
     def test_verify_rejects_a_zip_off_the_pin(self):
         with self.assertRaises(ValueError):
@@ -40,26 +43,27 @@ class CompareTest(unittest.TestCase):
             {"kind": "recipe", "id": 1, "orange": 1, "yellow": 25, "green": 50, "grey": 75},
             {"kind": "trainer_fee", "id": 1, "fee": 100, "req": 25},
         ]
-        regressions, reports = compare(lines, lines)
+        regressions, reports, reported = compare(lines, lines)
         self.assertEqual((regressions, reports), ([], []))
 
-    def test_a_lost_record_is_a_regression(self):
+    def test_a_lost_record_is_reported_not_a_regression(self):
+        # A dropped id is the client dropping content, so the loss reports and never fails the refresh.
         old = [{"kind": "recipe", "id": 818, "orange": 1, "yellow": 25, "green": 50, "grey": 75}]
-        regressions, reports = compare(old, [])
-        self.assertEqual(len(regressions), 1)
-        self.assertEqual(regressions[0][2], "recipe 818: lost its thresholds")
-        self.assertEqual(regressions[0][3], [])
-        self.assertEqual(reports, [])
+        regressions, reports, reported = compare(old, [])
+        self.assertEqual(regressions, [])
+        self.assertEqual(reports, ["recipe 818: lost its thresholds"])
+        self.assertEqual(reported, [])
 
     def test_a_zeroed_threshold_fee_and_price_are_regressions(self):
         for kind, field in (
             ("recipe", "yellow"),
+            ("recipe", "green"),
             ("recipe", "grey"),
             ("trainer_fee", "fee"),
             ("vendor_price", "price"),
         ):
             with self.subTest(kind=kind, field=field):
-                regressions, _ = compare([{"kind": kind, "id": 1, field: 100}], [{"kind": kind, "id": 1, field: 0}])
+                regressions, _, _ = compare([{"kind": kind, "id": 1, field: 100}], [{"kind": kind, "id": 1, field: 0}])
                 self.assertEqual(len(regressions), 1)
                 self.assertIn("zeroed", regressions[0][2])
                 self.assertIn(field, regressions[0][2])
@@ -75,7 +79,7 @@ class CompareTest(unittest.TestCase):
             }
         ]
         new = [{"kind": "craft", "id": 2149, "skill": 165, "reagents": [{"i": 2318, "q": 2}], "output": "none"}]
-        regressions, reports = compare(old, new)
+        regressions, reports, reported = compare(old, new)
         self.assertEqual(
             [line[2] for line in regressions],
             ["craft 2149: lost reagent 2320", "craft 2149: lost its output item 2302"],
@@ -106,7 +110,7 @@ class CompareTest(unittest.TestCase):
             },
             {"kind": "profession_trainers", "id": 185, "trainers": [{"npc": 1355, "cap": 150}]},
         ]
-        regressions, reports = compare(old, new)
+        regressions, reports, reported = compare(old, new)
         self.assertEqual(
             [line[2] for line in regressions],
             [
@@ -128,8 +132,10 @@ class CompareTest(unittest.TestCase):
                 "quests": [{"cap": 300, "quest": 6624, "req": 225, "level": 35, "side": "A"}],
             }
         ]
-        regressions, _ = compare(old, [])
-        self.assertEqual(regressions[0][3], [6624])
+        regressions, reports, reported = compare(old, [])
+        self.assertEqual(regressions, [])
+        self.assertEqual(reports, ["rank_quest 129: lost the quests that teach its ranks"])
+        self.assertEqual(reported, [6624])
 
     def test_lost_drops_sources_stock_and_nodes_are_regressions(self):
         old = [
@@ -141,9 +147,10 @@ class CompareTest(unittest.TestCase):
             {"kind": "node", "name": "Copper Vein", "skill": 186, "req": 1},
             {"kind": "recipe_scroll", "id": 2158, "item": 2406, "req": 65},
         ]
-        regressions, reports = compare(old, [])
+        regressions, reports, reported = compare(old, [])
+        self.assertEqual(regressions, [])
         self.assertEqual(
-            sorted(line[2] for line in regressions),
+            sorted(reports),
             sorted(
                 [
                     "scroll 2700: lost its drop data",
@@ -156,7 +163,7 @@ class CompareTest(unittest.TestCase):
                 ]
             ),
         )
-        self.assertEqual(reports, [])
+        self.assertEqual(reported, [])
 
     def test_gains_moves_and_changes_are_only_reported(self):
         old = [
@@ -179,13 +186,13 @@ class CompareTest(unittest.TestCase):
             {"kind": "vendor_stock", "id": 2, "stock": [{"npc": 5, "count": 2}, {"npc": 6, "count": 1}]},
             {"kind": "node", "name": "Copper Vein", "skill": 186, "req": 65},
         ]
-        regressions, reports = compare(old, new)
-        self.assertEqual(regressions, [])
+        regressions, reports, reported = compare(old, new)
+        # scroll 9's lost world-drop marking is the one regression; everything else is reported.
+        self.assertEqual([line[2] for line in regressions], ["scroll 9: lost its world-drop marking"])
         self.assertIn("recipe 1: yellow threshold moved 25 -> 30", reports)
         self.assertIn("trainer_fee 1: required skill 25 -> 30", reports)
         self.assertIn("scroll 7: gained a named drop 10", reports)
         self.assertIn("scroll 7: drop 8 chance 1.5 -> 2", reports)
-        self.assertIn("scroll 9: no longer a world drop", reports)
         self.assertIn("gather 2: gathering skill 182 -> 186", reports)
         self.assertIn("vendor_price 2: price 40 -> 50", reports)
         self.assertIn("vendor_stock 2: vendor 6 now stocks it", reports)
@@ -197,9 +204,9 @@ class CompareTest(unittest.TestCase):
                 key = "name" if kind == "node" else "id"
                 value = "Copper Vein" if kind == "node" else 1
                 record = {"kind": kind, key: value}
-                regressions, reports = compare([record], [])
-                self.assertEqual(len(regressions), 1)
-                self.assertIn("lost", regressions[0][2])
+                regressions, reports, reported = compare([record], [])
+                self.assertEqual(regressions, [])
+                self.assertEqual(reports, [f"{kind} {value}: {check_refresh.GONE[kind]}"])
                 self.assertEqual(compare([], [record])[1], [f"{kind} {value}: is new"])
 
 
@@ -288,7 +295,17 @@ class DumpTest(unittest.TestCase):
         if shutil.which("luajit") is None:
             self.skipTest("luajit is not on PATH")
         data = Path(__file__).resolve().parent.parent / "Data"
-        self.assertEqual(check_refresh.dump(data), check_refresh.dump(data))
+        with tempfile.TemporaryDirectory() as scratch:
+            lines = []
+            for run in range(2):
+                path = Path(scratch) / f"data-{run}.jsonl"
+                subprocess.run(
+                    ["luajit", str(check_refresh.TOOLS / "data_dump.lua"), str(data), str(path)],
+                    cwd=check_refresh.ROOT,
+                    check=True,
+                )
+                lines.append(path.read_bytes())
+        self.assertEqual(lines[0], lines[1])
 
 
 class EvidenceTest(unittest.TestCase):

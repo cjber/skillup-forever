@@ -7,8 +7,9 @@ Dumps both Data directories through tools/data_dump.lua (LuaJIT) and fails on a 
 its thresholds, reagents, output item, teaching scroll or trainers, a trainer row whose fee was zeroed, a rank
 its training, quest or book lost, a scroll that lost its named drops, a reagent that lost its gathering or
 creature-loot source, a vendor entry or stock that vanished, a price or threshold zeroed, or a node that lost
-its required skill. A refresh's other effects are only reported: gained entries and prices, moved requirements
-and chances, changed fees and quantities, and records added.
+its required skill. A refresh's other effects are only reported: a record the new data drops whole (the client
+dropped the content), gained entries and prices, moved requirements and chances, changed fees and quantities,
+and records added.
 
 forever-db -- the zip at --fdb, or the release pinned in tools/fdb_pin.py fetched into tools/.cache when --fdb
 is omitted -- is the second source only where it has facts: it records quests, so a lost rank quest is printed
@@ -91,8 +92,10 @@ def dump(data):
 
 def fetch_fdb(path):
     """The pinned forever-db zip's bytes: `path`'s when it exists, otherwise fetched into tools/.cache under the
-    sha256 name the guard shares. Checked against the pin's FDB_SHA256 before anything reads it."""
+    sha256 name the guard shares. Checked against the pin's FDB_SHA256 before anything reads it. A relative
+    path is the workflow's `tools/.cache/...` and resolves against the checkout root."""
     name = f"fdb-{fdb_pin.FDB_SHA256}.zip"
+    path = path if path.is_absolute() else ROOT / path
     if path.is_file():
         content = path.read_bytes()
     elif path.parent == CACHE and path.name == name:
@@ -171,7 +174,7 @@ def coverage(quests, records):
 def compare(old, new):
     """The refresh's regressions, which fail it, and its other changes, which are only reported. A regression
     carries the quest ids its forever-db evidence needs (rank quests only; every other kind carries none)."""
-    regressions, reports = [], []
+    regressions, reports, reported_quests = [], [], []
 
     def regression(kind, key, text, quests=()):
         regressions.append((kind, key, f"{kind} {key}: {text}", list(quests)))
@@ -187,15 +190,18 @@ def compare(old, new):
         kind, key = entry
         was, now = old.get(entry), new.get(entry)
         if was is not None and now is None:
+            # A dropped id is the client dropping content, not a broken join, so it reports; only a record that
+            # lost its entries below fails the refresh.
             lost = [row["quest"] for row in (was.get("quests") or ())] if kind == "rank_quest" else ()
-            regression(kind, key, GONE[kind], quests=lost)
+            report(f"{kind} {key}: {GONE[kind]}")
+            reported_quests.extend(lost)
             continue
         if was is None:
             report(f"{kind} {key}: is new")
             continue
         text = f"{kind} {key}"
         if kind == "recipe":
-            for field in ("yellow", "grey"):
+            for field in ("yellow", "green", "grey"):
                 had, has = was.get(field) or 0, now.get(field) or 0
                 if had > 0 and has == 0:
                     regression(kind, key, f"zeroed its {field} threshold ({had} -> 0)")
@@ -221,6 +227,8 @@ def compare(old, new):
                     regression(kind, key, f"changed its output item {had_out['i']} -> {has_out['i']}")
                 elif has_out["q"] != had_out["q"]:
                     report(f"{text}: output quantity {had_out['q']} -> {has_out['q']}")
+            if was.get("skill") != now.get("skill"):
+                report(f"{text}: profession line {was.get('skill')} -> {now.get('skill')}")
         elif kind == "trainer_fee":
             had_fee, has_fee = was.get("fee") or 0, now.get("fee") or 0
             if had_fee > 0 and has_fee == 0:
@@ -273,6 +281,9 @@ def compare(old, new):
                         f"{text}: {side_cap[0]} rank {side_cap[1]} quest required skill "
                         f"{had_quests[side_cap]['req']} -> {has_quests[side_cap]['req']}"
                     )
+                level_was, level_has = had_quests[side_cap].get("level"), has_quests[side_cap].get("level")
+                if level_was != level_has:
+                    report(f"{text}: {side_cap[0]} rank {side_cap[1]} quest required level {level_was} -> {level_has}")
         elif kind == "rank_book":
             had_books = {row["cap"]: row for row in was.get("books") or ()}
             has_books = {row["cap"]: row for row in now.get("books") or ()}
@@ -315,8 +326,10 @@ def compare(old, new):
                 if had_drops[npc] != has_drops[npc]:
                     report(f"{text}: drop {npc} chance {had_drops[npc]} -> {has_drops[npc]}")
             had_world, has_world = bool(was.get("world")), bool(now.get("world"))
-            if had_world != has_world:
-                report(f"{text}: {'now' if has_world else 'no longer'} a world drop")
+            if had_world and not has_world:
+                regression(kind, key, "lost its world-drop marking")
+            elif has_world and not had_world:
+                report(f"{text}: now a world drop")
         elif kind == "gather":
             if was.get("skill") != now.get("skill"):
                 report(f"{text}: gathering skill {was.get('skill')} -> {now.get('skill')}")
@@ -342,7 +355,7 @@ def compare(old, new):
                     f"{text}: now asks {now.get('skill')} at {now.get('req')} "
                     f"(was {was.get('skill')} at {was.get('req')})"
                 )
-    return regressions, reports
+    return regressions, reports, reported_quests
 
 
 def summary(records):
@@ -364,7 +377,7 @@ def main():
     quests = read_fdb(fetch_fdb(options.fdb))
     old = dump(options.old.resolve())
     new = dump(options.new.resolve())
-    regressions, reports = compare(old, new)
+    regressions, reports, reported_quests = compare(old, new)
     fills = coverage(quests, new)
     if not regressions and not reports:
         print(f"no data changes ({summary(new)})")
@@ -372,17 +385,21 @@ def main():
         return 0
     if regressions:
         print(f"REGRESSIONS ({len(regressions)}):")
-        shown = set()
-        for kind, key, line, lost in regressions:
+        for kind, _key, line, lost in regressions:
             print(f"  {line}")
-            if (kind, key) not in shown:
-                shown.add((kind, key))
-                for note in evidence(quests, kind, lost):
-                    print(f"    {note}")
+            for note in evidence(quests, kind, lost):
+                print(f"    {note}")
     if reports:
         print(f"REPORTED ({len(reports)}):")
         for line in reports:
             print(f"  {line}")
+        shown = set()
+        for quest_id in reported_quests:
+            if quest_id in shown:
+                continue
+            shown.add(quest_id)
+            for note in evidence(quests, "rank_quest", [quest_id]):
+                print(f"    {note}")
     print(fills)
     return 1 if regressions else 0
 

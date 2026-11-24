@@ -21,7 +21,6 @@ def compare(old_lines, new_lines):
     return check_refresh.compare(records(*old_lines), records(*new_lines))
 
 
-
 class PinTest(unittest.TestCase):
     def test_the_pin_constants_agree(self):
         self.assertRegex(fdb_pin.FDB_SHA256, r"^[0-9a-f]{64}$")

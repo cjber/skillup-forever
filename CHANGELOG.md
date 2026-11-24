@@ -10,6 +10,14 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.14.26] - 2026-11-24
+
+### Fixed
+
+- **Crafting a route no longer hitches on every skill point.** A skill gain walks the route's own steps again instead of searching every recipe.
+- A route that stops short of its target keeps its recipes while you craft it, as a route that reaches its target does.
+- **A wide recipe row value no longer draws over the recipe name.** When the chance, cost and per-skill-up text together were wider than the row, the value ran under the name; it now truncates at the space left beside a readable name instead.
+
 ## [1.14.25] - 2026-11-24
 
 <!-- forever-core-sync -->

@@ -37,6 +37,7 @@ local ns = {
 			dropPlans = handler
 		end
 	end,
+	WhenStaleObserver = function() end,
 	Changed = function(kind)
 		changes[#changes + 1] = kind
 		dropPlans()

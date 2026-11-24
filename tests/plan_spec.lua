@@ -680,6 +680,32 @@ shop.professions[1].rank = 2
 local openedRoute = ShopPlan()
 equal(openedRoute.reached, openedRoute.target, "learning a recipe lets an incomplete route continue")
 
+-- A route that stops short of its target is followed like any other: a skill point gained while crafting it keeps
+-- its recipes, even when a scan has since made another recipe cheaper, and it still says where and why it stops.
+shop.professions[1].rank = 1
+shop.known[102], shop.known[103] = nil, true
+shop.bags[1000], shop.bags[1002] = nil, nil
+shopNs.db.routeTargets[171] = 40
+shopNs.db.vendor[1000], shopNs.db.vendor[1002] = 10, 20
+shop.Fire("NEW_RECIPE_LEARNED")
+shopNs.Changed("prices")
+shopNs.Changed("replan")
+local stopsShort = ShopPlan()
+equal(Crafts(stopsShort), "101 103", "the cheaper recipe, then the one that goes further")
+assert(stopsShort.reached < stopsShort.target, "the two recipes stop short of the target")
+shop.professions[1].rank = 2
+shop.bags[1000] = 3
+shop.Fire("BAG_UPDATE_DELAYED")
+shopNs.db.vendor[1000], shopNs.db.vendor[1002] = 100, 1
+shopNs.Changed("prices")
+local keptShort = ShopPlan()
+equal(Crafts(keptShort), "101 103", "a skill point keeps the recipes of a route that stops short")
+equal(keptShort.crafts[1].from, 2, "the kept route starts at the live skill")
+equal(keptShort.reached, stopsShort.reached, "it stops where it did")
+equal(keptShort.stopReason, stopsShort.stopReason, "and for the same reason")
+shop.bags[1000] = nil
+shopNs.db.routeTargets[171] = nil
+
 -- A route that trains a recipe for its next step: buying that recipe's scroll and learning it is the step done,
 -- so the route is planned again with the training gone and the crafts in the same order.
 local learn = Client.load({

@@ -1390,11 +1390,34 @@ local plans = {}
 -- player is shopping for this one, so while every step of it can still be walked its recipes and their order are
 -- kept (#621). A key the player asked for (a new target, the collect switch, a level) is another route and is
 -- committed in its place.
----@type table<integer, { key: string, intent: string, base: number, cap: number, plan: SkillUpPlan, bags: integer }>
+---@class SkillUpFollowedRoute
+---@field key string
+---@field intent string
+---@field base number
+---@field cap number
+---@field plan SkillUpPlan
+---@field bags integer The bag change it was last checked against.
+---@field epoch integer The plan drop it was planned under.
+---@field recipes integer The recipe change it was planned under.
+
+---@type table<integer, SkillUpFollowedRoute>
 local committed = {}
+
+-- Counts the times the plans were dropped: a route committed under another count was planned from inputs that
+-- have since moved.
+local planEpoch = 0
 
 ns.WhenStale("plans", function()
 	plans = {}
+	planEpoch = planEpoch + 1
+end)
+
+-- Counts the times the recipes themselves moved (one learned, a live grey or a schematic read): what can carry a
+-- route that stopped short further, where a price cannot.
+local recipeEpoch = 0
+
+ns.WhenStaleObserver("schematics", function()
+	recipeEpoch = recipeEpoch + 1
 end)
 
 ns.WhenStale("replan", function()
@@ -1524,7 +1547,7 @@ local function Commit(skillLine, key, intent, plan)
 	local entry = committed[skillLine]
 	if entry then
 		entry.key, entry.intent, entry.base, entry.cap = key, intent, plan.profession.base, plan.profession.max
-		entry.plan, entry.bags = plan, bagEpoch
+		entry.plan, entry.bags, entry.epoch, entry.recipes = plan, bagEpoch, planEpoch, recipeEpoch
 	else
 		committed[skillLine] = {
 			key = key,
@@ -1533,6 +1556,8 @@ local function Commit(skillLine, key, intent, plan)
 			cap = plan.profession.max,
 			plan = plan,
 			bags = bagEpoch,
+			epoch = planEpoch,
+			recipes = recipeEpoch,
 		}
 	end
 end
@@ -1590,12 +1615,29 @@ local function Rebuild(profession, target, plan, fresh)
 	return Finish(profession, target, route)
 end
 
+-- The recipes a followed route left out for want of a price, less the ones a skill gain has since turned
+-- grey: what a fresh plan would count, without planning one. Only for a route whose inputs have not moved since
+-- it was planned; a price or a recipe that changes drops the plans, and the next ask counts anew.
+---@param profession SkillUpProfession
+---@param plan SkillUpPlan
+---@return { unpriced: integer, recipes: integer[] }
+local function StillUnpriced(profession, plan)
+	local recipes = {}
+	for _, recipeID in ipairs(plan.unpricedRecipes) do
+		local thresholds = ns.Model.Get(recipeID)
+		if thresholds and thresholds[4] > profession.skill then
+			recipes[#recipes + 1] = recipeID
+		end
+	end
+	return { unpriced = #recipes, recipes = recipes }
+end
+
 -- Advance the purchased recipe bands before checking what can still be made from today's bags.
 ---@param profession SkillUpProfession
 ---@param plan SkillUpPlan
----@param fresh SkillUpPlan
+---@param excluded { unpriced: integer, recipes: integer[] }
 ---@return SkillUpPlan?
-local function Advance(profession, plan, fresh)
+local function Advance(profession, plan, excluded)
 	local base, modifier = profession.base, profession.modifier
 	local trainable, trained, training, segments = {}, {}, {}, {}
 	for _, step in ipairs(plan.training) do
@@ -1652,7 +1694,9 @@ local function Advance(profession, plan, fresh)
 		training = training,
 		trainingCost = trainingCost,
 		reachedSkill = at + modifier,
-		excluded = { unpriced = fresh.unpriced, recipes = fresh.unpricedRecipes },
+		excluded = excluded,
+		-- A route that stopped short still stops there, for the same reason.
+		stopReason = plan.stopReason,
 	})
 	if Affordable(planExpansions[advanced]) then
 		return advanced
@@ -1705,15 +1749,17 @@ function ns.PlanRoute(profession)
 	end
 	-- The route being followed is checked against the bags here, once per bag change: a route a step can no
 	-- longer afford to craft is planned afresh, any other bag change keeps it (#621).
-	---@type { key: string, intent: string, base: number, cap: number, plan: SkillUpPlan, bags: integer }?
+	---@type SkillUpFollowedRoute?
 	local kept = committed[profession.skillLine]
 	local advanced, fresh
 	if
 		kept
 		and kept.intent == intent
 		and profession.base >= kept.base
-		and profession.base < kept.plan.target
-		and kept.plan.reached == kept.plan.target
+		and profession.base < kept.plan.reached
+		-- A route that stopped short is followed like any other, until the recipes move: one learned since may
+		-- carry it on, which a fresh plan finds.
+		and (kept.recipes == recipeEpoch or kept.plan.reached == kept.plan.target)
 	then
 		local sameCap = profession.max == kept.cap
 		local trainedRank = false
@@ -1727,8 +1773,15 @@ function ns.PlanRoute(profession)
 		end
 		local sameProgress = sameCap and profession.base == kept.base
 		if trainedRank or (sameCap and not sameProgress) then
-			fresh = FreshPlan(profession, kept.plan.target)
-			advanced = Advance(profession, kept.plan, fresh)
+			if kept.epoch == planEpoch then
+				-- Crafting moved only skill and bags: the route's own steps are walked again, with no search of
+				-- every recipe on each skill point gained.
+				advanced = Advance(profession, kept.plan, StillUnpriced(profession, kept.plan))
+			else
+				fresh = FreshPlan(profession, kept.plan.target)
+				advanced =
+					Advance(profession, kept.plan, { unpriced = fresh.unpriced, recipes = fresh.unpricedRecipes })
+			end
 		end
 		-- Keep the target of the shopping batch until it is reached. The normal rolling target resumes afterwards.
 		if advanced or sameProgress then

@@ -540,3 +540,20 @@ end
 
 print("== repeated window event with the Professions window shown ==")
 WindowTicks("40x TRADE_SKILL_LIST_UPDATE, unchanged", 40)
+
+print("== a skill point gained while crafting a followed route ==")
+-- What each skill-up costs while the player crafts: the followed routes are asked for again at the new skill, as
+-- the tracker and the route page do. Nothing but skill moved, so the route's own steps are walked again and no
+-- recipe is searched; the cold replan above is what a search of every recipe would cost instead.
+local gainTime = 0
+local GAINS = 20
+for _ = 1, GAINS do
+	h.professions[1].rank = h.professions[1].rank + 1
+	h.Fire("SKILL_LINES_CHANGED")
+	local started = os.clock()
+	for _, profession in pairs(h.ns.RouteProfessions()) do
+		h.ns.RouteReagents(h.ns.PlanRoute(profession))
+	end
+	gainTime = gainTime + os.clock() - started
+end
+print(string.format("skill point on a followed route (5 tracked): %.3f ms", gainTime * 1000 / GAINS))

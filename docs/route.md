@@ -18,7 +18,7 @@ The SkillUp side tab on the Professions window opens the SkillUp page you used l
 
 ### It stays put
 
-A route is planned once and then followed. Buying its reagents, looting, or the auction scan that comes with a purchase does not swap its recipes: the page keeps the route you set out to craft, with today's prices, fees and counts against it. Left alone, the route changes on its own only when it can no longer be followed: a recipe in it is not known and not learnable, a reagent it needs is not in your bags and has no price, or a live colour says a step would no longer gain skill. A recipe you learn, or a price that moves, waits for you to ask.
+A route is planned once and then followed. Buying its reagents, looting, or the auction scan that comes with a purchase does not swap its recipes: the page keeps the route you set out to craft, with today's prices, fees and counts against it. Left alone, the route changes on its own only when it can no longer be followed: a recipe in it is not known and not learnable, a reagent it needs is not in your bags and has no price, or a live colour says a step would no longer gain skill. A recipe you learn, or a price that moves, waits for you to ask. A route that stops short of its target is followed the same way while you craft it; a recipe you learn then plans it again, since that recipe may carry it further.
 
 Ask with *Replan*, beside Track, to plan the same target again from today's prices and recipes. A new target, the *Buy reagents* switch, *Not this recipe*, a pin or a change in the options panel plan it again too, since each is your own instruction about what the route should be.
 

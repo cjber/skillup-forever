@@ -1,7 +1,8 @@
 name: Refresh profession data
 
 # Opens a PR with regenerated data when a generator pin has a newer upstream: the Forever or Classic
-# Era build on wago.tools, or the LibPeriodicTable file a generator reads.
+# Era build on wago.tools, the LibPeriodicTable file a generator reads, or the forever-db release the
+# refresh guard diffs against.
 # The Lua checks run here first; GitHub holds the CI of a PR that GITHUB_TOKEN opened, so the ci job approves it.
 # Daily: beta builds have shipped several times a week. A scheduled run that fails opens an issue.
 on:
@@ -39,13 +40,19 @@ jobs:
           ref: ${{ steps.forever-core-ref.outputs.ref }}
           path: forever-core
           persist-credentials: false
-      # Pinned inputs CI already downloaded, such as frozen dumps; each file is keyed by its pin.
+      # Pinned inputs CI already downloaded, such as frozen dumps; each file is keyed by its pin. The refresh
+      # guard's forever-db zip is keyed by the pin file, so a moved pin drops the cached zip of that release.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: tools/.cache
-          key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py') }}
+          key: regeneration-${{ runner.os }}-${{ hashFiles('tools/gen_*.py', 'tools/fdb_pin.py') }}
           restore-keys: regeneration-${{ runner.os }}-
-      - name: Pin the newest upstreams
+      # The regression guard below diffs the generated Data the current pins build against the regenerated one,
+      # so set the committed Data aside before the pins move; a plain copy is the snapshot, since check_generated
+      # keeps the checkout's files at the pins'.
+      - name: Snapshot the generated data
+        run: cp -r Data "$RUNNER_TEMP/data-prev"
+      - name: Pin the newest upstreams, forever-db included
         id: pins
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -63,6 +70,20 @@ jobs:
           python3 tools/gen_trainer.py
           python3 tools/gen_sources.py
           python3 tools/check_generated.py --offline
+      # Fails the run on a recipe, trainer row, source or vendor entry the refresh lost, or a fee, threshold or
+      # price it zeroed, printing forever-db's evidence for each (rank quests only: forever-db is a quest
+      # database and carries nothing for the other fields); gains and moves are only reported. The zip is the
+      # one pinned in tools/fdb_pin.py, fetched into tools/.cache here on a cold cache.
+      - name: Check the refresh for regressions
+        if: steps.pins.outputs.moved != ''
+        run: |
+          fdb="tools/.cache/fdb-$(PYTHONPATH=tools python3 -c 'import fdb_pin; print(fdb_pin.FDB_SHA256)').zip"
+          python3 tools/check_refresh.py --old "$RUNNER_TEMP/data-prev" --new Data --fdb "$fdb"
+      - name: Guard tests
+        if: steps.pins.outputs.moved != ''
+        run: |
+          python3 tools/bump_pins_test.py
+          python3 tools/check_refresh_test.py
       # Every tool version below lives in this checkout's tools/toolchain.json, which the action reads (its manifest
       # input defaults to that file, resolved against the workspace) and installs and verifies each pin from.
       - uses: cjber/forever-core/.github/actions/toolchain@2596f68e68f9a727496a19f3f801c8a7039357d2 # main
@@ -99,6 +120,10 @@ jobs:
             - `Data/Trainer.lua` and `Data/Sources.lua` hold what QuestieDB and AtlasLoot do not: trainer fees and ranks, which trainer teaches a profession, a scroll's drop chances and which reagents a gathering skill yields. These come from the pinned CMaNGOS classic-db dump, which this workflow never moves, joined to Classic Era's teaching spells and limited to the recipes the Forever build has. Vendors, quests and where NPCs stand are read in game from the player's QuestieDB and AtlasLoot and are not regenerated.
 
             ${{ steps.report.outputs.markdown }}
+
+            The refresh guard (`tools/check_refresh.py`) diffed the data these pins build against the previous
+            ones and passed it; a lost recipe, trainer row, source or vendor entry, or a zeroed fee, threshold
+            or price, would have failed the run. Its report is in the run log.
 
             Before merging, read the diff for recipes that dropped out, and run `/skillup audit` in-game on a couple of professions to confirm the new values match the colours the client shows.
 

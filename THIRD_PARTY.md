@@ -13,7 +13,7 @@ refresh that moves the pin never leaves this file behind. The addon itself is GP
 | [CMaNGOS classic-db](https://github.com/cmangos/classic-db) | Trainer fees, who trains what, the quests that teach a rank, drop chances and gathered reagents in `Data/Trainer.lua` and `Data/Sources.lua` | `CLASSICDB_COMMIT` in `tools/gen_trainer.py` (`tools/gen_sources.py` imports it) | GPL-3.0 |
 | [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) | Which reagents vendors sell, in `Data/Vendor.lua` | `PT_COMMIT` in `tools/gen_vendor.py` | LGPL-2.1 |
 
-`tools/bump_pins.py` moves `BUILD`, `TEACH_BUILD` and `PT_COMMIT`. No embedded libraries ship. `media/` is this addon's own: the icon is drawn in `media/icon.svg`.
+`tools/bump_pins.py` moves `BUILD`, `TEACH_BUILD` and `PT_COMMIT`, and the forever-db pin in `tools/fdb_pin.py`. No embedded libraries ship. `media/` is this addon's own: the icon is drawn in `media/icon.svg`.
 
 ## Read in game, never bundled
 
@@ -30,6 +30,7 @@ refresh that moves the pin never leaves this file behind. The addon itself is GP
 | [Blizzard UI source](https://github.com/Gethe/wow-ui-source) | The shared client simulator's UI source, fetched into `tools/.cache/` | the pin in `tools/forever_sim/fetch.py` | Blizzard Entertainment's; fetched, never committed |
 | [Ketho's WoW API annotations](https://github.com/Ketho/vscode-wow-api) | lua-language-server types in `tools/typecheck.sh` | `revision` in `tools/typecheck.sh` | MIT |
 | [forever_tools](https://github.com/cjber/forever-core/tree/main/.agents/skills/wow-forever-addon/tooling/forever_tools) | Shared lints, release checks and the generated-data gate, vendored in `tools/forever_tools/` | `revision` in `tools/forever_tools/MANIFEST.json` | MIT |
+| [forever-db](https://github.com/fitzforge/polestar) | Evidence for the rank quests in the refresh guard's report, fetched into `tools/.cache/` | `FDB_SHA256` in `tools/fdb_pin.py` | GPL-3.0 (its layer CC BY 4.0); fetched, never committed |
 | [forever-core/tools/wowmock](https://github.com/cjber/forever-core/tree/main/tools/wowmock) and the client art it fetches | `tools/screenshots.py` | `FOREVER_CORE` (a local forever-core checkout); the art at `UI_ART_BUILD` in `tools/screenshots.py` | MIT; the art is Blizzard Entertainment's, fetched at build time and committed only as it appears in `docs/screenshots/` |
 | Ko-fi's Support me on Ko-fi button | The support button in the README (`ko-fi.com/img/githubbutton_sm.svg`) and its PNG render, `docs/kofi-button.png`, in the store description | None: the README links Ko-fi's live file; the PNG is rendered from it | Ko-fi's brand asset, used as Ko-fi provides it for linking to a Ko-fi page |
 | `docs/github-sponsors-button.png` | The GitHub Sponsors button in the README and store description; drawn here to match the Ko-fi button, with the heart from GitHub's [Octicons](https://github.com/primer/octicons) and the Adwaita Sans font | None | Octicons: MIT; Adwaita Sans: SIL OFL 1.1 |

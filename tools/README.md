@@ -23,11 +23,34 @@ later by `retry-refresh.yml`, and one that fails again opens the issue "Data ref
 | `BUILD` | `gen_thresholds.py` | highest 1.6x build of `wow_classic_beta` on wago.tools (`tools/latest_build.py` prints it) |
 | `TEACH_BUILD` | `gen_thresholds.py` | highest 1.1x build of `wow_classic_era` on wago.tools |
 | `PT_COMMIT` | `gen_vendor.py` | last LibPeriodicTable commit that changed the Tradeskill file's bytes |
+| `FDB_TAG`, `FDB_ASSET`, `FDB_SHA256` | `fdb_pin.py` | newest `data-v*` release of fitzforge/polestar, with the zip asset and the checksum its `SHA256SUMS` states |
 | `CLASSICDB_COMMIT` | `gen_trainer.py` | moved by hand only: a waiver in `AGENTS.md` |
 
-`SOURCE_DATE` is set to the day a pin moved. The Blizzard UI source pin in `forever_sim/fetch.py`,
+`SOURCE_DATE` is set to the day a generator pin moved. The Blizzard UI source pin in `forever_sim/fetch.py`,
 moved with forever-core, and the annotation revision in `typecheck.sh` are test inputs, moved by hand
 with the addons that share them.
+
+## Refresh guard
+
+The refresh regenerates every `Data` file from moving upstreams, so `.github/workflows/refresh-data.yml`
+diffs what it built against what was committed before it snapshots and moves the pins:
+
+```sh
+luajit tools/data_dump.lua Data data.jsonl
+python3 tools/check_refresh.py --old <data-dir> --new <data-dir> --fdb <forever-db.zip>
+```
+
+`data_dump.lua` loads the five generated files with a stub namespace and writes one JSON line per record the
+player could lose: each recipe's thresholds, a craft's reagents and output, a trainer row (fee and required
+skill), the trainers who teach a recipe, a profession's rank trainings and the quests and books that teach a
+rank, which trainer trains which profession, a recipe's teaching scroll, a scroll's named drops and
+world-drop marking, the gathering skill that yields a reagent, the reagents creatures carry, a vendor price,
+the limited-stock vendors, and a node's required skill. `check_refresh.py` exits 1 on a regression: a record
+lost, a fee, threshold or price zeroed, a reagent, trainer, drop or stock entry dropped. Gains, moves and
+changed fees, chances, prices and requirements are only reported. forever-db, pinned in `tools/fdb_pin.py`,
+is the second source only where it has facts: it records quests, so a lost rank quest prints its forever-db
+record, and every other kind says it carries nothing. `python3 tools/check_refresh_test.py` runs its rules
+and its dump.
 
 ## Generators
 

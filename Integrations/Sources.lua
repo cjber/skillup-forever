@@ -303,7 +303,7 @@ function ns.RecipeNPC(profession, recipeID)
 	end
 	local source = C.Recipe(recipeID)
 	local kind, npcID
-	if source then
+	if source and ns.CanUseRecipeItem(source.item) then
 		kind, npcID = Kind(source)
 	end
 	return kind and ns.SuggestionNPC({ kind = kind, source = source, npcID = npcID }) or nil
@@ -324,7 +324,7 @@ function ns.RecipeSuggestions(profession, base)
 	for recipeID, recipe in pairs(ns.RecipeData) do
 		local source = recipe.skillLine == profession.skillLine and C.Recipe(recipeID)
 		local t = source and ns.Model.Get(recipeID)
-		local learnAt = source and ns.ScrollSkill(recipeID, source)
+		local learnAt = source and ns.CanUseRecipeItem(source.item) and ns.ScrollSkill(recipeID, source)
 		if
 			source
 			and t
@@ -482,7 +482,13 @@ function ns.NearestRecipeTrainer(profession, recipeID, byTravel)
 	if not C.EnsureProfession(profession.skillLine) then
 		return nil, false
 	end
-	return ns.NearestNPC(C.RecipeTrainers(recipeID) or {}, byTravel), C.Hint(true) == nil
+	local eligible = {}
+	for _, npcID in ipairs(C.RecipeTrainers(recipeID) or {}) do
+		if C.RecipeTrainerEligible(npcID) then
+			eligible[#eligible + 1] = npcID
+		end
+	end
+	return ns.NearestNPC(eligible, byTravel), C.Hint(true) == nil
 end
 
 -- Where a rank is got: the nearest vendor of its book, the nearest giver of its quest, else the nearest trainer
@@ -517,13 +523,17 @@ function ns.NearestVendor(itemID, byTravel)
 end
 
 -- The nearest vendor of a recipe's scroll, from the catalogue's record of who sells that recipe's scroll;
--- nil until the profession's sources are read, or for a recipe no vendor sells.
+-- nil until the profession's sources are read, or for a recipe no vendor sells or this character cannot learn.
 ---@param recipeID integer
 ---@param byTravel boolean?
 ---@return integer?
 function ns.NearestScrollVendor(recipeID, byTravel)
 	local source = C.Recipe(recipeID)
-	return source and #source.vendors > 0 and ns.NearestNPC(source.vendors, byTravel) or nil
+	return source
+			and ns.CanUseRecipeItem(source.item)
+			and #source.vendors > 0
+			and ns.NearestNPC(source.vendors, byTravel)
+		or nil
 end
 
 -- "Nearest trainer  Name" over its zone and coordinates, and what a click does; without Questie, the one

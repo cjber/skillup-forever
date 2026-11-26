@@ -288,6 +288,7 @@ function ns.TrainerReport()
 			and check.classic
 			and check.bundled
 			and not check.visited
+			and ns.TrainingFor(profession, check.recipeID)
 			and not ns.IsLearned(check.recipeID)
 			and math.min(check.bundled, check.classic) <= profession.base
 			and profession.base < math.max(check.bundled, check.classic)

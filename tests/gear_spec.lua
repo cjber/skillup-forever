@@ -105,6 +105,9 @@ local function Slots(level, classID, learned, professions, weaponSkills, showAll
 		learned = function(recipeID)
 			return (learned or {})[recipeID] == true
 		end,
+		locked = function()
+			return false
+		end,
 		professions = professions or {},
 		weaponSkills = weaponSkills,
 		name = function(itemID)
@@ -294,6 +297,9 @@ local UNKNOWN_SKILL = {
 	learned = function()
 		return false
 	end,
+	locked = function()
+		return false
+	end,
 	professions = { [165] = { skillLine = 165, name = "Leatherworking", skill = 400 } },
 	weaponSkills = nil,
 	name = function(itemID)
@@ -307,5 +313,14 @@ local UNKNOWN_SKILL = {
 local unknown = Find(Gear.List(recipes, facts, UNKNOWN_SKILL), "Head", 1001)
 equal(unknown.skill, nil, "an unknown requirement carries no skill")
 equal(unknown.state, "other", "and is never called learnable")
+
+UNKNOWN_SKILL.skill = function()
+	return 1
+end
+UNKNOWN_SKILL.locked = function()
+	return true
+end
+local locked = Find(Gear.List(recipes, facts, UNKNOWN_SKILL), "Head", 1001)
+equal(locked.state, "other", "a recipe a specialisation keeps from the character is another crafter's")
 
 print("gear_spec: " .. checks .. " checks passed")

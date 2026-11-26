@@ -309,6 +309,13 @@ function C.RecipeTrainers(recipeID)
 	return set and ns.TrainerSets and ns.TrainerSets[set] or nil
 end
 
+---@param npcID integer
+---@return boolean
+function C.RecipeTrainerEligible(npcID)
+	local spell = ns.TrainerAbilities[npcID]
+	return not spell or C_SpellBook.IsSpellKnown(spell)
+end
+
 ---@param npcIDs integer[]
 local function ReadNPCs(npcIDs)
 	for _, npcID in ipairs(npcIDs) do

@@ -51,6 +51,7 @@ local STALE = {
 	-- flag, a live grey, skill points or a schematic the plans were built without. The plan is built from all
 	-- of it.
 	recipes = {
+		recipeList = true,
 		recipePreview = true,
 		tooltipCache = true,
 		tooltipRoute = true,
@@ -476,6 +477,27 @@ function ns.WhenEvent(event, watcher)
 	table.insert(watchers[event], watcher)
 	frame:RegisterEvent(event)
 end
+
+-- Changing specialisation changes which lessons and patterns a route can use. SPELLS_CHANGED also
+-- fires for unrelated spells, so only invalidate recipes when one of these spell flags moves.
+local specialisations = {}
+for _, requirements in ipairs({ ns.ScrollAbilities, ns.TrainerAbilities }) do
+	for _, spell in pairs(requirements) do
+		specialisations[spell] = false
+	end
+end
+
+ns.WhenEvent("SPELLS_CHANGED", function()
+	local changed = false
+	for spell, previous in pairs(specialisations) do
+		local known = C_SpellBook.IsSpellKnown(spell)
+		if known ~= previous then
+			specialisations[spell] = known
+			changed = true
+		end
+	end
+	return changed and "recipes" or nil
+end)
 
 ns.WhenEvent("BAG_UPDATE_DELAYED", function()
 	return ReadCountsMoved() and "bags" or nil

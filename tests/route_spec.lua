@@ -221,6 +221,7 @@ page = {
 		RecipeTrainersUnusable = function()
 			return false
 		end,
+		RecipeTrainers = function() end,
 		Hint = function()
 			return "Install both."
 		end,

@@ -15,7 +15,36 @@ from gen_trainer import (
     recipe_levels,
     recipe_trainers,
     render,
+    trainer_abilities,
 )
+
+
+class TrainerAbilityTests(unittest.TestCase):
+    def test_trainer_spell_quest_and_membership_renewal_supply_prerequisites(self):
+        def quest(entry, spell, card):
+            return {
+                "entry": str(entry),
+                "RewSpell": str(spell),
+                "RewItemId1": str(card),
+                "RewItemId2": "0",
+                "RewItemId3": "0",
+                "RewItemId4": "0",
+            }
+
+        tables = {
+            "creature_template": [{"Entry": "100", "TrainerType": "2", "TrainerSpell": "9787"}],
+            "quest_template": [quest(1, 20222, 10791), quest(2, 0, 10791), quest(3, 10846, 0)],
+            "creature_involvedrelation": [
+                {"id": "200", "quest": "1"},
+                {"id": "201", "quest": "2"},
+                {"id": "300", "quest": "3"},
+            ],
+        }
+        effects = [
+            {"SpellID": str(spell), "DifficultyID": "0", "Effect": str(effect)}
+            for spell, effect in [(9787, 47), (20222, 47), (10846, 47), (10846, 118)]
+        ]
+        self.assertEqual(trainer_abilities(tables, {100, 200, 201, 300}, effects), {100: 9787, 200: 20222, 201: 20222})
 
 
 class DumpEncodingTests(unittest.TestCase):

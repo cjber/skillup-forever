@@ -201,7 +201,8 @@ function ns.BuffRows(profession, level, hideLocked)
 					profession = profession.name,
 					locked = locked,
 					learned = learned,
-					state = other and "other" or State(learned, profession, skill),
+					state = (other or not learned and ns.SpecialisationLocked(recipeID)) and "other"
+						or State(learned, profession, skill),
 				}
 			end
 		end

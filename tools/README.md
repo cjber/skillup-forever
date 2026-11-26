@@ -110,7 +110,17 @@ at its placeholder 1, this is the recipe's real learn requirement. `ns.RankBooks
 its base points), the spell that learns it (LEARN_SPELL), the item that casts that (`ItemEffect`) and what the
 book asks and costs (`ItemSparse`). The route reads a rank from a book only where no trainer teaches it. It imports the threshold generator's build,
 snapshot date, cache and profession discovery; run thresholds first when changing
-builds. All five generators accept `--offline` and `--refresh`. To verify the data
+builds.
+
+`ns.ScrollAbilities` records `ItemSparse.RequiredAbility` on teaching items, joined through `ItemXItemEffect`
+and `ItemEffect` to the recipe directly or through `SpellEffect`'s LEARN_SPELL. The requirement is on the
+pattern, so the crafted item's use restrictions do not affect learning. Trainer recipes such as The Shatterer
+have no equivalent client DB2 prerequisite. `gen_trainer.py` keeps `npc_trainer`'s recipe-to-NPC sets and
+writes `ns.TrainerAbilities` from the pinned CMaNGOS dump. The spell comes from `creature_template.TrainerSpell`
+or a specialisation quest's `RewSpell` and its finisher in `creature_involvedrelation`. Engineering membership
+renewals also identify a trainer by the membership card they award.
+
+All five generators accept `--offline` and `--refresh`. To verify the data
 is fresh and reproducible:
 
 ```sh

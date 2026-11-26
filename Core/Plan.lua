@@ -416,16 +416,22 @@ end
 -- where a visit records it, so both kinds of training read the same.
 ---@param profession {skillLine: integer}
 ---@param recipeID integer
----@return number[]?
+---@return SkillUpTrainerRow|number[]|nil
 function ns.TrainingFor(profession, recipeID)
 	local seen = ns.db.trainer[profession.skillLine]
 	local training = seen and seen[recipeID]
-	if training then
+	if training and training.side == ns.PlayerSide() then
 		return training
 	end
 	local bundled = ns.TrainerFees[recipeID]
-	local level = bundled and ns.TrainerLevels and ns.TrainerLevels[recipeID]
-	if not (bundled and level) then
+	if not (training or bundled) or ns.Catalogue.RecipeTrainersUnusable(recipeID) then
+		return nil
+	end
+	if training then
+		return training
+	end
+	local level = ns.TrainerLevels and ns.TrainerLevels[recipeID]
+	if not level then
 		return bundled
 	end
 	---@type number[]

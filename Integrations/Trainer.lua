@@ -122,6 +122,7 @@ local function BuildState(services)
 	ns.db.trainer[skillLine] = seen
 	-- A row that shows no skill requirement keeps the bundled one: recording 0 would plan to learn it at once.
 	-- The third value is the requirement the trainer showed, kept apart so /skillup trainers can tell the two apart.
+	local side = ns.PlayerSide()
 	for index, service in pairs(services) do
 		if service.recipeID then
 			local _, req = GetTrainerServiceSkillReq(index)
@@ -130,7 +131,7 @@ local function BuildState(services)
 			local bundled = ns.TrainerFees[service.recipeID]
 			local required = shown or (bundled and bundled[2])
 			if required then
-				seen[service.recipeID] = { GetTrainerServiceCost(index), required, shown, service.level }
+				seen[service.recipeID] = { GetTrainerServiceCost(index), required, shown, service.level, side = side }
 			end
 		end
 	end
@@ -208,7 +209,7 @@ local function RecipeName(recipeID)
 end
 
 -- /skillup export trainers (#124): the requirements a trainer has actually shown this character, as a table literal for
--- tools/gen_trainer.py's SEEN_REQUIREMENTS, so a player can paste them into a report and the guess improves for
+-- tools/gen_trainer.py's TRAINER_REQUIREMENTS, so a player can paste them into a report and the guess improves for
 -- everyone. A row that saved only a fee and the bundled requirement has seen nothing; where two skill lines hold
 -- one recipe, the longest requirement wins. Reads ns.db.trainer and formats it: nothing here writes, prints or
 -- waits on the world. The keys are bracketed because Lua has no `key: value` field: that is the form loadstring
@@ -235,7 +236,7 @@ function ns.TrainerExport()
 		return {}
 	end
 	table.sort(recipeIDs)
-	local lines = { "SEEN_REQUIREMENTS = {" }
+	local lines = { "TRAINER_REQUIREMENTS = {" }
 	for _, recipeID in ipairs(recipeIDs) do
 		local entry = longest[recipeID]
 		local profession = entry.skillLine and ns.Gear.ProfessionName(entry.skillLine)

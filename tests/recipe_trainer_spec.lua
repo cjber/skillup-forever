@@ -9,11 +9,13 @@ local LEATHERWORKING = 165
 local BARBARIC_SHOULDERS, GUARDIAN_GLOVES, JOURNEYMAN_ONLY, UNA_ONLY = 7151, 7156, 7147, 7400
 -- Una (Thunder Bluff), Telonis (Darnassus), Drakk Stonehand (Aerie Peak), Randal Worth (a journeyman).
 local DRAKK, UNA, TELONIS, RANDAL = 11097, 3007, 4212, 11096
-local THREAD = 2996
+local THREAD, UNA_SCROLL = 2996, 900001
 
-local function Load(faction, level, withQuestie)
+local function Load(faction, level, withQuestie, onlyRecipe)
 	local recipes, thresholds, fees = {}, {}, {}
-	for _, recipe in ipairs({ BARBARIC_SHOULDERS, GUARDIAN_GLOVES, JOURNEYMAN_ONLY, UNA_ONLY }) do
+	for _, recipe in
+		ipairs(onlyRecipe and { onlyRecipe } or { BARBARIC_SHOULDERS, GUARDIAN_GLOVES, JOURNEYMAN_ONLY, UNA_ONLY })
+	do
 		recipes[recipe] = { skillLine = LEATHERWORKING, reagents = { { itemID = THREAD, quantity = 1 } } }
 		thresholds[recipe] = { 160, 180, 200, 220 }
 		fees[recipe] = { 500, 150 }
@@ -25,7 +27,10 @@ local function Load(faction, level, withQuestie)
 			[RANDAL] = { name = "Randal Worth", spawns = { [10] = { { 60, 60 } } }, side = "A" },
 			[UNA] = { name = "Una", spawns = { [10] = { { 50, 50 } } }, side = "H" },
 		},
-		items = { [THREAD] = { class = 7, vendors = {} } },
+		items = {
+			[THREAD] = { class = 7, vendors = {} },
+			[UNA_SCROLL] = { class = 9, teaches = UNA_ONLY, vendors = {} },
+		},
 		areas = { [10] = 10 },
 	}
 	local c = Client.load({
@@ -33,6 +38,9 @@ local function Load(faction, level, withQuestie)
 		data = {
 			Thresholds = thresholds,
 			RecipeData = recipes,
+			RecipeScrolls = {
+				[UNA_ONLY] = { UNA_SCROLL, 150 },
+			},
 			TrainerFees = fees,
 			-- Una and Telonis teach the two artisan recipes; Randal alone teaches one of his own. Randal is
 			-- no rank trainer, so he is in no ProfessionTrainers list, as the real journeymen are not.
@@ -63,8 +71,10 @@ local function Load(faction, level, withQuestie)
 		c.spells[recipe] = "Recipe " .. recipe
 	end
 	c.Boot()
-	c.ns.Catalogue.EnsureProfession(LEATHERWORKING)
-	c.Advance(0)
+	if not onlyRecipe then
+		c.ns.Catalogue.EnsureProfession(LEATHERWORKING)
+		c.Advance(0)
+	end
 	return c, c.ns.PlayerProfessions()[LEATHERWORKING]
 end
 
@@ -147,5 +157,42 @@ equal(ns.LearnSource(leatherworking, BARBARIC_SHOULDERS).level, nil, "a service 
 ns.db.trainer[LEATHERWORKING][BARBARIC_SHOULDERS] = { 500, 150, 150, 35 }
 equal(ns.LearnSource(leatherworking, BARBARIC_SHOULDERS).level, 35, "a level a trainer showed is kept")
 ns.db.trainer[LEATHERWORKING] = nil
+
+do
+	local alliance, profession = Load("Alliance", 35, true, UNA_ONLY)
+	alliance.ns.Catalogue.EnsureProfession(LEATHERWORKING)
+	alliance.Advance(0)
+	equal(alliance.ns.TrainingFor(profession, UNA_ONLY), nil, "the Alliance cannot learn from Una")
+	local learnSource = alliance.ns.LearnSource(profession, UNA_ONLY)
+	equal(alliance.ns.LearnSourceText(learnSource), "Recipe item 150", "the source names the recipe item")
+	equal(#alliance.ns.PlanRoute(profession).training, 0, "the Alliance must find a drop")
+	local visit = { 400, 150, 150, side = "A" }
+	alliance.ns.db.trainer[LEATHERWORKING] = { [UNA_ONLY] = visit }
+	equal(alliance.ns.TrainingFor(profession, UNA_ONLY), visit, "a visit on this side wins")
+	visit.side = "H"
+	equal(alliance.ns.TrainingFor(profession, UNA_ONLY), nil, "a visit on the other side does not teach it")
+	visit.side = nil
+	equal(alliance.ns.TrainingFor(profession, UNA_ONLY), nil, "a legacy visit does not bypass the faction check")
+end
+
+do
+	local alliance, profession = Load("Alliance", 35, true, UNA_ONLY)
+	equal(#alliance.ns.PlanRoute(profession).training, 1, "unread trainers leave the training in place")
+	alliance.Advance(0)
+	equal(#alliance.ns.PlanRoute(profession).training, 0, "the trainer read invalidates the first plan")
+	equal(alliance.ns.Catalogue.Recipe(UNA_ONLY), nil, "planning did not read the profession's scroll sources")
+end
+
+for _, fixture in ipairs({ { "Horde", true }, { "Alliance", false } }) do
+	local fallback, profession = Load(fixture[1], 35, fixture[2], UNA_ONLY)
+	fallback.ns.Catalogue.EnsureProfession(LEATHERWORKING)
+	fallback.Advance(0)
+	equal(
+		fallback.ns.LearnSourceText(fallback.ns.LearnSource(profession, UNA_ONLY)),
+		"Trainer 150",
+		"usable or unknown trainers still teach the recipe"
+	)
+	equal(#fallback.ns.PlanRoute(profession).training, 1, "the route still plans the training")
+end
 
 Client.report("recipe_trainer_spec")

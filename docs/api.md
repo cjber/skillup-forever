@@ -122,9 +122,11 @@ returns `false`. It is a request for a player's click.
 `Recipes(skillLineID?)` returns sorted bundled recipe IDs, optionally filtered to one skill line. It returns
 `nil, "none"` when no matching profession exists. `Recipe(recipeID)` returns a fresh `{ skillLineID, output,
 reagents }` record, where `output` is `{ itemID, quantity }` or `false`. `RecipeRequirement(recipeID)` returns the
-known `{ skill, source, recipeItem?, trainerFee? }` learn requirement in base profession skill, or `nil, "none"` when SkillUp cannot establish
-one. `Characters()` lists saved character keys, and `Knows(characterKey, recipeID)` reads a saved learned flag,
-returning `nil, "invalid"` for an unknown recipe or malformed key.
+known `{ skill, source, recipeItem?, trainerFee? }` learn requirement in base profession skill, or `nil, "none"`
+when SkillUp cannot establish one. When only the other faction's trainers teach a recipe, `RecipeRequirement`
+can return `trainer` until QuestieDB's trainer records are read, then return the recipe item. `Characters()`
+lists saved character keys, and `Knows(characterKey, recipeID)` reads a saved learned flag, returning
+`nil, "invalid"` for an unknown recipe or malformed key.
 
 `RecipeSkill(recipeID)` returns a fresh `{ orange, yellow, green, grey, chanceBonus }` record for a recipe SkillUp
 knows: the four base profession skill values the tooltip colours against, and the current Working Overtime bonus in

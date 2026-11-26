@@ -4,6 +4,10 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{
+			name = "user_46x8szwptrswqttc",
+			what = "Reported a route sending them to a trainer for Troll's Blood Elixir",
+		},
 		{ name = "AlteredIgor", what = "Open chat after closing Professions in Gamepad UI" },
 		{
 			name = "Benjy_Boi",

@@ -74,6 +74,9 @@ local professions = {}
 -- [itemID] = false while its vendors are being read, then true.
 ---@type table<integer, boolean>
 local vendorsRead = {}
+-- [trainer set ID] = false while its trainers are being read, then true.
+---@type table<integer, boolean>
+local trainerSetsRead = {}
 -- [itemID] = false while its droppers are being read, then true.
 ---@type table<integer, boolean>
 local dropsRead = {}
@@ -86,6 +89,7 @@ local scanning = false
 -- Everything read so far is dropped and read again: a provider became ready, so a miss may now be a hit.
 local function Reset()
 	items, npcs, quests, professions, vendorsRead, dropsRead, taught, scanning = {}, {}, {}, {}, {}, {}, nil, false
+	trainerSetsRead = {}
 	queue, head, tail = {}, 1, 0
 	if running then
 		dirty = true
@@ -462,44 +466,98 @@ function C.EnsureProfession(skillLine)
 	return false
 end
 
--- True once the NPCs of one of an item's source lists are read, so the nearest can be picked without a read on
--- the way. `read` is that list's own record of what has been asked for, and `field` the list it names.
----@param itemID integer
+-- True when no NPC reads are pending for this list, including when Questie is unavailable.
+-- The list's read table records false while queued and true when the reads finish.
+---@param id integer
 ---@param read table<integer, boolean>
----@param field 'vendors'|'drops'
+---@param list fun(id: integer): integer[]?
+---@param notify? fun(id: integer): boolean?
 ---@return boolean
-local function EnsureNPCs(itemID, read, field)
+local function EnsureNPCs(id, read, list, notify)
 	-- Without Questie nobody is known, and there is nothing to read.
 	if Q.State() ~= "ready" then
 		return true
 	end
-	if read[itemID] ~= nil then
-		return read[itemID]
+	if read[id] ~= nil then
+		return read[id]
 	end
-	read[itemID] = false
+	read[id] = false
 	Enqueue(function()
-		local found = C.ItemSources(itemID)
-		ReadNPCs(found and found[field] or {})
+		ReadNPCs(list(id) or {})
 		Enqueue(function()
-			read[itemID] = true
-			dirty = true
+			read[id] = true
+			dirty = dirty or not notify or notify(id) == true
 		end)
 	end)
 	return false
+end
+
+---@param set integer
+---@return integer[]?
+local function TrainerSet(set)
+	return ns.TrainerSets and ns.TrainerSets[set] or nil
+end
+
+-- Nil means a record still needs reading. A missing record or unknown player side leaves training available.
+---@param set integer
+---@return boolean?
+local function TrainerSetUnusable(set)
+	local trainers = TrainerSet(set)
+	if not trainers or #trainers == 0 or not ns.PlayerSide() then
+		return false
+	end
+	for _, npcID in ipairs(trainers) do
+		local npc = npcs[npcID]
+		if npc == nil then
+			return nil
+		end
+		if not npc or ns.SourceFactionUsable(npc.side) then
+			return false
+		end
+	end
+	return true
+end
+
+---@param recipeID integer
+---@return boolean
+function C.RecipeTrainersUnusable(recipeID)
+	local set = ns.RecipeTrainerSets and ns.RecipeTrainerSets[recipeID]
+	if not set then
+		return false
+	end
+	local unusable = TrainerSetUnusable(set)
+	if unusable == nil then
+		EnsureNPCs(set, trainerSetsRead, TrainerSet, TrainerSetUnusable)
+	end
+	return unusable == true
+end
+
+---@param itemID integer
+---@return integer[]?
+local function Vendors(itemID)
+	local found = C.ItemSources(itemID)
+	return found and found.vendors or nil
+end
+
+---@param itemID integer
+---@return integer[]?
+local function Droppers(itemID)
+	local found = C.ItemSources(itemID)
+	return found and found.drops or nil
 end
 
 -- True once an item's vendors are read, so the nearest can be picked without a read on the way.
 ---@param itemID integer
 ---@return boolean
 function C.EnsureVendors(itemID)
-	return EnsureNPCs(itemID, vendorsRead, "vendors")
+	return EnsureNPCs(itemID, vendorsRead, Vendors)
 end
 
 -- True once an item's droppers are read, so the nearest can be picked without a read on the way.
 ---@param itemID integer
 ---@return boolean
 function C.EnsureDrops(itemID)
-	return EnsureNPCs(itemID, dropsRead, "drops")
+	return EnsureNPCs(itemID, dropsRead, Droppers)
 end
 
 -- Starts looking for the providers. An addon that loads later is picked up, and so is Questie finishing

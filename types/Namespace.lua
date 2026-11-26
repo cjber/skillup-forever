@@ -94,10 +94,10 @@
 ---@field UsableBuffs fun(level: number): table<integer, true> The recipes whose product is a buff this level can use.
 ---@field BuffText fun(itemID: integer): string? The buff a crafted item leaves, in the game's own words; nil for an item that leaves none.
 ---@field Gear SkillUpGear
----@field TrainingFor fun(profession: {skillLine: integer}, recipeID: integer): number[]?
+---@field TrainingFor fun(profession: {skillLine: integer}, recipeID: integer): SkillUpTrainerRow|number[]|nil
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
 ---@field TrainerReport fun(): string[]
----@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/skillup export)
+---@field TrainerExport fun(): string[] the requirements trainers showed, as a TRAINER_REQUIREMENTS table literal (/skillup export)
 ---@field AuditLines fun(): string[]? /skillup audit's lines with a profession open, nil with none
 ---@field ReportLines fun(): string[] SkillUp's own lines in /skillup report (Core/Report.lua)
 ---@field SlashCommands SkillUpSlashCommand[] the /skillup commands, in dispatch and help order
@@ -271,7 +271,7 @@
 ---@field TrainerSets table<integer, integer[]> The trainers who teach one group of recipes, by NPC.
 ---@field RecipeTrainerSets table<integer, integer> Per recipe, the set in TrainerSets that teaches it.
 ---@field TrainerRanks table<integer, number[][]>
----@field TrainerInferred table<integer, number> classic-db's required skill, where the bundled one was moved from it.
+---@field TrainerInferred table<integer, number> classic-db's required skill for an inferred requirement that differs from it.
 ---@field ProfessionTrainers table<integer, number[][]>
 ---@field GatheredBy table<integer, integer>
 ---@field LootedFrom table<integer, boolean> Reagents a creature drops, which any character can loot.
@@ -332,7 +332,7 @@
 ---@field learned table<string, table<integer, boolean>>
 ---@field professionIDs table<string, integer>
 ---@field trackedProfessions table<integer, boolean>
----@field trainer table<integer, table<integer, number[]>> { fee, required skill, required skill the trainer showed? }
+---@field trainer table<integer, table<integer, SkillUpTrainerRow>>
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
 ---@field merchantEvidence table<integer, table<integer, SkillUpMerchantEvidence>> Dated observations owned by each NPC, not current availability guarantees.
@@ -1019,6 +1019,14 @@ SkillUpForeverDB = nil
 ---@field t number[]
 ---@field skill number
 ---@field learned boolean
+
+--- A saved trainer row: fee, required skill, shown skill and character level.
+---@class SkillUpTrainerRow
+---@field [1] number Fee in copper.
+---@field [2] number Required base skill.
+---@field [3] number? Skill shown by the trainer.
+---@field [4] number? Required character level.
+---@field side? 'A'|'H' The observing character's faction.
 
 ---@class SkillUpTrainerService
 ---@field name string

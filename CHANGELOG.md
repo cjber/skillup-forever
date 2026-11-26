@@ -10,6 +10,12 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.15.2] - 2026-11-26
+
+### Fixed
+
+- Profession routes and recipe suggestions only recommend lessons and patterns your specialisation can learn. Thanks to user_p89ptupzfjx58rsj for the report.
+
 ## [1.15.1] - 2026-11-26
 
 <!-- forever-core-sync -->

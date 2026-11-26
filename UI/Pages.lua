@@ -46,6 +46,7 @@ local reagentFonts = setmetatable({}, { __mode = "k" })
 ---@param text FontString
 function ns.Pages.ScaleReagentText(text)
 	local file, size, flags = text:GetFont()
+	---@cast file string
 	reagentFonts[text] = { file = file, size = size, flags = flags }
 	if ns.db.windowScale ~= 100 then
 		text:SetFont(file, size * ns.db.windowScale / 100, flags)

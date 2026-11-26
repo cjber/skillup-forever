@@ -748,7 +748,7 @@
     },
     {
       "source": "UI/Pages.lua",
-      "sha256": "31389a0d1a012831037800b251510073e8ecd6257ad7bb6f6860a2bc9cb5e5a6",
+      "sha256": "fc5c81027513a986280465048bd90bb1db6c01806badd8df0fef1218cff55719",
       "review": "Reviewed CreateBottomTab, Sync, Show, CreateFrames and Register. Bottom tab titles come from page specs and PanelTabButtonTemplate. Pinned SharedUIPanelTemplates.xml supplies GameFontNormalSmall and GameFontHighlightSmall, but PanelTemplates selection changes disabled fonts in SharedUIPanelTemplates.lua. Caller-provided titles and selection-dependent fonts are excluded from this review; side tab wording is a tooltip. Reviewed ProfessionChanged, Show and Hide: only selection state and visibility change; tab titles and native font states remain unchanged.",
       "bindings": []
     },

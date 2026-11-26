@@ -97,7 +97,7 @@
 ---@field TrainingFor fun(profession: {skillLine: integer}, recipeID: integer): SkillUpTrainerRow|number[]|nil
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
 ---@field TrainerReport fun(): string[]
----@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/skillup export)
+---@field TrainerExport fun(): string[] the requirements trainers showed, as a TRAINER_REQUIREMENTS table literal (/skillup export)
 ---@field AuditLines fun(): string[]? /skillup audit's lines with a profession open, nil with none
 ---@field ReportLines fun(): string[] SkillUp's own lines in /skillup report (Core/Report.lua)
 ---@field SlashCommands SkillUpSlashCommand[] the /skillup commands, in dispatch and help order

@@ -307,9 +307,8 @@ local function LoadDB()
 			loaded[key] = DEFAULTS[key]
 		end
 	end
-	-- Earlier versions saved a trainer row that showed no skill requirement as needing 0, which planned
-	-- learning it at once; the bundled requirement stands in for those. A shown requirement that is no
-	-- skill is forgotten, so /skillup trainers never reports it.
+	-- Discard invalid trainer rows and shown skills, including old zero requirements that planned
+	-- learning at once. When the window showed no skill, use the current bundled requirement and keep the fee and level.
 	for skillLine, recipes in pairs(loaded.trainer) do
 		if type(skillLine) ~= "number" or type(recipes) ~= "table" then
 			loaded.trainer[skillLine] = nil
@@ -317,8 +316,12 @@ local function LoadDB()
 			for recipeID, seen in pairs(recipes) do
 				if type(recipeID) ~= "number" or type(seen) ~= "table" or type(seen[2]) ~= "number" or seen[2] <= 0 then
 					recipes[recipeID] = nil
-				elseif seen[3] ~= nil and (type(seen[3]) ~= "number" or seen[3] <= 0) then
+				elseif type(seen[3]) ~= "number" or seen[3] <= 0 then
 					seen[3] = nil
+					local bundled = ns.TrainerFees[recipeID]
+					if bundled then
+						seen[2] = bundled[2]
+					end
 				end
 			end
 		end
@@ -995,7 +998,7 @@ local function Unskip(argument)
 end
 
 -- /skillup export trainers (#124): the requirements this character's trainers actually showed, as a table for
--- tools/gen_trainer.py's SEEN_REQUIREMENTS, so a value no bundled rule guessed right can be fixed for everyone.
+-- tools/gen_trainer.py's TRAINER_REQUIREMENTS, so a value no bundled rule guessed right can be fixed for everyone.
 -- Trainers are the only export, so /skillup export does the same as /skillup export trainers. The copy window
 -- when it can open, the same lines in chat when it cannot: nothing is written, nothing prints on login, nothing
 -- waits on an event, and there is no protected call in it.

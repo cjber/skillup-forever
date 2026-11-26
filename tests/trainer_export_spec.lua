@@ -1,6 +1,6 @@
 -- Run from the repository root: luajit tests/trainer_export_spec.lua
 -- /skillup export trainers (#124): the requirements a trainer actually showed this character, as the table literal
--- tools/gen_trainer.py's SEEN_REQUIREMENTS takes. The text a player copies is read back with loadstring: if it is
+-- tools/gen_trainer.py's TRAINER_REQUIREMENTS takes. The text a player copies is read back with loadstring: if it is
 -- not valid Lua, the export is worthless, so every case here proves the round trip.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
@@ -17,7 +17,7 @@ local function Parse(text)
 	local env = {}
 	setfenv(chunk, env)
 	chunk()
-	return env.SEEN_REQUIREMENTS
+	return env.TRAINER_REQUIREMENTS
 end
 
 local function Load(trainer)
@@ -63,7 +63,7 @@ do
 		[SMITHING] = { [HAMMER] = { 900, 110, 110 } },
 	})
 	local text, lines = Export(c)
-	equal(lines[1], "SEEN_REQUIREMENTS = {", "the table opens")
+	equal(lines[1], "TRAINER_REQUIREMENTS = {", "the table opens")
 	equal(lines[#lines], "}", "and closes")
 	local seen = Parse(text)
 	equal(seen ~= nil, true, "the export is valid Lua:\n" .. text)
@@ -104,7 +104,7 @@ do
 	local edit = c.focus
 	equal(edit ~= nil, true, "the export opens in the copy window")
 	local text = edit and edit:GetText() or ""
-	equal(text:find("SEEN_REQUIREMENTS = {", 1, true) ~= nil, true, "holding the table: " .. text)
+	equal(text:find("TRAINER_REQUIREMENTS = {", 1, true) ~= nil, true, "holding the table: " .. text)
 	equal(edit and edit.highlighted, text, "all of it selected for copying")
 	equal(Parse(text)[BREAD], 25, "and it still loads as Lua")
 	c.G.SlashCmdList.SKILLUPFOREVER("export")

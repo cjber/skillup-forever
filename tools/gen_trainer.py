@@ -210,7 +210,10 @@ def generate(ids, trainer, effect_rows, moved=None, seen_at=None, trainer_requir
     for _, spell, cost, skill, required, level in trainable_rows(trainer):
         for taught in teaches.get(spell, ()):
             if taught in ids:
-                entry = (cost, max(min(required + moved.get(taught, 0), seen_at.get(taught, float("inf"))), 1))
+                needed = trainer_requirements.get(taught)
+                if needed is None:
+                    needed = max(min(required + moved.get(taught, 0), seen_at.get(taught, float("inf"))), 1)
+                entry = (cost, needed)
                 fees[taught][entry] += 1
                 # Requirements the clamp to 1 merges keep the strictest, whatever the row order.
                 classic[(taught, entry)] = max(required, classic.get((taught, entry), required))
@@ -221,9 +224,6 @@ def generate(ids, trainer, effect_rows, moved=None, seen_at=None, trainer_requir
     # Duplicate trainers almost always agree; take the most common (fee, skill), cheaper on a tie.
     chosen = {recipe: min(c.items(), key=lambda kv: (-kv[1], kv[0]))[0] for recipe, c in fees.items()}
     conflicts = sorted(recipe for recipe, c in fees.items() if len(c) > 1)
-    for recipe, required in trainer_requirements.items():
-        if recipe in chosen:
-            chosen[recipe] = (chosen[recipe][0], required)
     # The requirements this rule moved, with classic-db's own: what a trainer visit confirms or corrects (#124).
     inferred = {
         recipe: classic[(recipe, entry)]

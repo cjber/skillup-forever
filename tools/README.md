@@ -139,9 +139,11 @@ required skill and level. Ranks that come from books are absent (`gen_recipes.py
 quest teaches is in `ns.RankQuests`, from classic-db's `quest_template`, where a quest's `RewSpell` or `RewSpellCast`
 is a rank spell or learns one (Triage, Clamlette Surprise), with the quest's required skill, level and side. `ns.TrainerInferred` keeps classic-db's
 requirement for each one the range rule moved, so `/skillup trainers` can show which a trainer confirmed (#124).
-`SEEN_REQUIREMENTS` in `gen_trainer.py` holds requirements players saw lower in game (Bronze Warhammer at 110,
-#123): a bundled requirement above one comes down to it, and it lists in `ns.TrainerInferred` like a moved one.
-A trainer miss confirmed with `/skillup trainers` goes there, with its source and a test.
+`SEEN_REQUIREMENTS` caps a requirement at the skill a player crafted the recipe at, such as 110 for Bronze Warhammer
+(#123). A lowered requirement remains in `ns.TrainerInferred` for trainer verification.
+`TRAINER_REQUIREMENTS` holds exact skills a trainer window showed (`/skillup trainers` lists the misses, `/skillup
+export trainers` prints them), each added with its source and a test. An exact value can raise or lower the bundled
+requirement and is not listed in `ns.TrainerInferred`.
 
 `gen_sources.py` writes `Data/Sources.lua`: what neither QuestieDB nor AtlasLoot holds about
 where recipes come from, from the same classic-db dump. Who sells a scroll or a reagent, the

@@ -330,6 +330,16 @@ do
 	equal(ns.db.trainer[186], nil, "a profession saved as no table is dropped")
 	equal(ns.db.trainer["164"], nil, "and one saved under no number")
 	equal(ns.db.trainer[185]["4"], nil, "as is a recipe")
+
+	ns.TrainerFees[2662] = { 50, 15 }
+	ns.TrainerFees[3326] = { 225, 50 }
+	env.SkillUpForeverDB = { trainer = { [164] = { [2662] = { 45, 1, nil, 10 }, [3326] = { 200, 75 } } } }
+	callbacks.SkillUpForever()
+	local saved = ns.db.trainer[164]
+	equal(saved[2662][2], 15, "refresh a fallback requirement that was too low")
+	equal(saved[3326][2], 50, "refresh a fallback requirement that was too high")
+	equal(saved[2662][1], 45, "keep the observed fee")
+	equal(saved[2662][4], 10, "keep the observed level")
 end
 
 -- The update line belongs to the release it ships in: the newest CHANGELOG.md entry with a bold lead. Pending

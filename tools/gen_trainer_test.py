@@ -102,6 +102,7 @@ class RequirementTests(unittest.TestCase):
 
     def test_exact_trainer_requirements_override_classic_in_both_directions(self):
         trainer, effects = self.two_recipe_trainer()
+        trainer.extend([self.trainer(11, 140), dict(self.trainer(11, 155), spellcost="800")])
         fees, _, _, inferred = generate(
             {9985, 2674},
             trainer,

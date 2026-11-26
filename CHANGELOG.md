@@ -15,6 +15,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 <!-- forever-core-sync -->
 
 - Ships with the same shared code as your other Forever addons, so they keep working together.
+- Recipe data matches game build 1.60.1.71139: one more Centaur Hoofwarmers recipe, Boiled Clams, Clam Chowder, Undermine Clam Chowder and Clam Linguine on the Buffs page, and the current vendor sell prices.
 
 ## [1.15.0] - 2026-11-26
 

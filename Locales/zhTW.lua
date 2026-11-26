@@ -70,6 +70,7 @@ L["Buy and read %s at %d"] = "購買並閱讀%s（技能%d）"
 L["Buy and read %s at %d (level %d)"] = "購買並閱讀%s（技能%d，等級%d）"
 L["Buy reagents"] = "購買材料"
 L["Buy reagents at the auction house"] = "在拍賣場購買材料"
+L["Buy these items on the Merchant tab."] = "在「商人」分頁購買這些物品。" -- mt
 L["Can learn it"] = "可以學習"
 L["Cheapest skill-up"] = "最便宜的技能提升"
 L["Chest"] = "胸部"
@@ -79,6 +80,8 @@ L["Click to craft %d."] = "點擊製造%d個。"
 L["Click to open the recipe."] = "點擊開啟配方。"
 L["Click to show a recipe again."] = "點擊恢復顯示一個配方。"
 L["Close"] = "關閉"
+L["Compare the lowest known crafting cost per item with its Auctionator price after the 5% cut."] =
+	"比較每件物品已知的最低製作成本與扣除5%手續費後的Auctionator價格。" -- mt
 L["Complete %s at %d"] = "完成%s（技能%d）"
 L["Complete %s at %d (level %d)"] = "完成%s（技能%d，等級%d）"
 L["Complete %s first: you're at your cap."] = "請先完成%s：你已達上限。"
@@ -91,6 +94,7 @@ L["Craft %s"] = "製造%s"
 L["Craft"] = "製造"
 L["Craft next"] = "製造下一個"
 L["Crafted gear"] = "製造裝備"
+L["Crafting cost: %s / Auctionator sale: %s"] = "製作成本：%s / Auctionator售價：%s" -- mt
 L["Crafts"] = "製造次數"
 L["Don't count it"] = "不計入"
 L["Dropped by"] = "掉落自"
@@ -185,6 +189,8 @@ L["Required skill, skill-up chance and cost on profession trainer recipes, and w
 	"在專業技能訓練師的配方上顯示所需技能、技能提升機率和成本，並指出你的路線下一步最適合學習哪個。"
 L["Requires"] = "需要"
 L["Replan"] = "重新規劃"
+L["Resizes the Shopping list and its copy window, and changes the size of reagent text on SkillUp profession pages."] =
+	"調整購物清單及其複製視窗的大小，並變更SkillUp專業頁面上的材料文字大小。" -- mt
 L["Route"] = "路線"
 L["Route and trainer"] = "路線和訓練師"
 L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
@@ -206,6 +212,7 @@ L["Shift: used in %d of your recipes"] = "Shift：用於你的%d個配方"
 L["Shoulder"] = "肩部"
 L["Show again: %s"] = "恢復顯示：%s"
 L["Show gear I cannot make yet"] = "顯示我還不能製造的裝備"
+L["Show prices on crafted item tooltips"] = "在製作物品的提示中顯示價格" -- mt
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"在目標追蹤器中顯示專業技能路線。隱藏時會保留你追蹤的專業技能和目標。"
 L["Show skill on recipe rows"] = "在配方列顯示技能"
@@ -266,6 +273,7 @@ L["Waypoint to the quest giver: %s"] = "前往任務給予者的導航點：%s"
 L["What's new after an update"] = "更新後的新內容"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"滑鼠指向配方時提示顯示的位置。放在視窗旁邊就不會擋住材料。"
+L["Window scale"] = "視窗縮放" -- mt
 L["World drop"] = "世界掉落"
 L["Wrist"] = "手腕"
 L["You have it"] = "已擁有"

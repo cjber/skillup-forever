@@ -72,6 +72,8 @@ L["Buy and read %s at %d"] = "Купить и прочитать %s на %d"
 L["Buy and read %s at %d (level %d)"] = "Купить и прочитать %s на %d (уровень %d)"
 L["Buy reagents"] = "Купить реагенты"
 L["Buy reagents at the auction house"] = "Купить реагенты на аукционе"
+L["Buy these items on the Merchant tab."] =
+	"Купите эти предметы на вкладке «Торговец»." -- mt
 L["Can learn it"] = "Можно изучить"
 L["Cheapest skill-up"] = "Самый дешевый рост навыка"
 L["Chest"] = "Грудь"
@@ -81,6 +83,8 @@ L["Click to craft %d."] = "Щелкните, чтобы создать %d."
 L["Click to open the recipe."] = "Щелкните, чтобы открыть рецепт."
 L["Click to show a recipe again."] = "Щелкните, чтобы вернуть рецепт."
 L["Close"] = "Закрыть"
+L["Compare the lowest known crafting cost per item with its Auctionator price after the 5% cut."] =
+	"Сравнивает наименьшую известную стоимость изготовления одного предмета с его ценой по данным Auctionator за вычетом комиссии 5%." -- mt
 L["Complete %s at %d"] = "Выполнить %s на %d"
 L["Complete %s at %d (level %d)"] = "Выполнить %s на %d (уровень %d)"
 L["Complete %s first: you're at your cap."] =
@@ -94,6 +98,8 @@ L["Craft %s"] = "Создать %s"
 L["Craft"] = "Создать"
 L["Craft next"] = "Создать следующее"
 L["Crafted gear"] = "Созданное снаряжение"
+L["Crafting cost: %s / Auctionator sale: %s"] =
+	"Стоимость изготовления: %s / Цена продажи по Auctionator: %s" -- mt
 L["Crafts"] = "Созданий"
 L["Don't count it"] = "Не учитывать"
 L["Dropped by"] = "Добыча с"
@@ -198,6 +204,8 @@ L["Required skill, skill-up chance and cost on profession trainer recipes, and w
 	"Требуемый навык, шанс повышения и стоимость в рецептах учителей профессий, а также какой изучить следующим для вашего маршрута."
 L["Requires"] = "Требуется"
 L["Replan"] = "Перепланировать"
+L["Resizes the Shopping list and its copy window, and changes the size of reagent text on SkillUp profession pages."] =
+	"Меняет размер списка покупок и окна его копирования, а также размер текста реагентов на страницах профессий SkillUp." -- mt
 L["Route"] = "Маршрут"
 L["Route and trainer"] = "Маршрут и учитель"
 L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
@@ -220,6 +228,8 @@ L["Shoulder"] = "Плечо"
 L["Show again: %s"] = "Снова показан: %s"
 L["Show gear I cannot make yet"] =
 	"Показывать снаряжение, которое я пока не могу создать"
+L["Show prices on crafted item tooltips"] =
+	"Показывать цены в подсказках изготовленных предметов" -- mt
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"Показывать маршруты профессий в списке задач. Скрытие сохраняет отслеживаемые профессии и цели."
 L["Show skill on recipe rows"] = "Навык в строках рецептов"
@@ -283,6 +293,7 @@ L["Waypoint to the quest giver: %s"] = "Точка маршрута к тому,
 L["What's new after an update"] = "Что нового после обновления"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
+L["Window scale"] = "Масштаб окна" -- mt
 L["World drop"] = "Случайная добыча"
 L["Wrist"] = "Запястья"
 L["You have it"] = "У вас есть"

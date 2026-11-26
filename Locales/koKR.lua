@@ -71,6 +71,7 @@ L["Buy and read %s at %d"] = "%s 구매 후 읽기 (%d)"
 L["Buy and read %s at %d (level %d)"] = "%s 구매 후 읽기 (%d, 레벨 %d)"
 L["Buy reagents"] = "재료 구매"
 L["Buy reagents at the auction house"] = "경매장에서 재료 구매"
+L["Buy these items on the Merchant tab."] = "상인 탭에서 이 아이템을 구매하세요." -- mt
 L["Can learn it"] = "배울 수 있음"
 L["Cheapest skill-up"] = "가장 저렴한 숙련도 상승"
 L["Chest"] = "가슴"
@@ -80,6 +81,8 @@ L["Click to craft %d."] = "클릭하면 %d개 제작합니다."
 L["Click to open the recipe."] = "클릭하면 제조법을 엽니다."
 L["Click to show a recipe again."] = "클릭하면 제조법을 다시 표시합니다."
 L["Close"] = "닫기"
+L["Compare the lowest known crafting cost per item with its Auctionator price after the 5% cut."] =
+	"아이템당 확인된 최저 제작 비용을 수수료 5%를 뺀 Auctionator 가격과 비교합니다." -- mt
 L["Complete %s at %d"] = "%s 완료 (%d)"
 L["Complete %s at %d (level %d)"] = "%s 완료 (%d, 레벨 %d)"
 L["Complete %s first: you're at your cap."] = "먼저 %s을(를) 완료하세요: 숙련도가 최대입니다."
@@ -92,6 +95,7 @@ L["Craft %s"] = "%s 제작"
 L["Craft"] = "제작"
 L["Craft next"] = "다음 제작"
 L["Crafted gear"] = "제작 장비"
+L["Crafting cost: %s / Auctionator sale: %s"] = "제작 비용: %s / Auctionator 판매가: %s" -- mt
 L["Crafts"] = "제작 횟수"
 L["Don't count it"] = "반영 안 함"
 L["Dropped by"] = "획득처"
@@ -189,6 +193,8 @@ L["Required skill, skill-up chance and cost on profession trainer recipes, and w
 	"기술 전문가 제조법에 요구 숙련도, 숙련도 상승 확률, 비용을 표시하고, 경로상 다음에 배우기 좋은 것을 알려줍니다."
 L["Requires"] = "요구 사항"
 L["Replan"] = "다시 계획"
+L["Resizes the Shopping list and its copy window, and changes the size of reagent text on SkillUp profession pages."] =
+	"구매 목록과 복사 창의 크기, 그리고 SkillUp 전문 기술 페이지의 재료 글자 크기를 조절합니다." -- mt
 L["Route"] = "경로"
 L["Route and trainer"] = "경로와 전문가"
 L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
@@ -210,6 +216,7 @@ L["Shift: used in %d of your recipes"] = "Shift: 내 제조법 %d개에 사용"
 L["Shoulder"] = "어깨"
 L["Show again: %s"] = "다시 표시: %s"
 L["Show gear I cannot make yet"] = "아직 만들 수 없는 장비도 표시"
+L["Show prices on crafted item tooltips"] = "제작 아이템 툴팁에 가격 표시" -- mt
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"목표 추적기에 전문 기술 경로를 표시합니다. 숨겨도 추적 중인 전문 기술과 목표는 유지됩니다."
 L["Show skill on recipe rows"] = "제조법 행에 숙련도 표시"
@@ -271,6 +278,7 @@ L["Waypoint to the quest giver: %s"] = "퀘스트 NPC로 웨이포인트: %s"
 L["What's new after an update"] = "업데이트 후 새로운 점"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
+L["Window scale"] = "창 배율" -- mt
 L["World drop"] = "무작위 전리품"
 L["Wrist"] = "손목"
 L["You have it"] = "보유 중"

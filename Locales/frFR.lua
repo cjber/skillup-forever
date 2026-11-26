@@ -71,6 +71,7 @@ L["Buy and read %s at %d"] = "Acheter et lire %s à %d" -- mt
 L["Buy and read %s at %d (level %d)"] = "Acheter et lire %s à %d (niveau %d)" -- mt
 L["Buy reagents"] = "Acheter les composants" -- mt
 L["Buy reagents at the auction house"] = "Acheter les composants à l'hôtel des ventes" -- mt
+L["Buy these items on the Merchant tab."] = "Achetez ces objets dans l'onglet « Marchand »." -- mt
 L["Can learn it"] = "Peut l'apprendre" -- mt
 L["Cheapest skill-up"] = "Point de compétence le moins cher" -- mt
 L["Chest"] = "Torse" -- mt
@@ -80,6 +81,8 @@ L["Click to craft %d."] = "Cliquez pour en fabriquer %d." -- mt
 L["Click to open the recipe."] = "Cliquez pour ouvrir la recette." -- mt
 L["Click to show a recipe again."] = "Cliquez pour réafficher une recette." -- mt
 L["Close"] = "Fermer" -- mt
+L["Compare the lowest known crafting cost per item with its Auctionator price after the 5% cut."] =
+	"Compare le coût de fabrication unitaire le plus bas connu au prix d'Auctionator après déduction de la commission de 5 %." -- mt
 L["Complete %s at %d"] = "Terminer %s à %d" -- mt
 L["Complete %s at %d (level %d)"] = "Terminer %s à %d (niveau %d)" -- mt
 L["Complete %s first: you're at your cap."] = "Terminez d'abord %s : vous êtes au maximum." -- mt
@@ -92,6 +95,7 @@ L["Craft %s"] = "Fabriquer %s" -- mt
 L["Craft"] = "Fabriquer"
 L["Craft next"] = "Fabriquer la suivante" -- mt
 L["Crafted gear"] = "Équipement fabriqué" -- mt
+L["Crafting cost: %s / Auctionator sale: %s"] = "Coût de fabrication : %s / Vente selon Auctionator : %s" -- mt
 L["Crafts"] = "Fabrications" -- mt
 L["Don't count it"] = "Ne pas compter" -- mt
 L["Dropped by"] = "Butin de" -- mt
@@ -190,6 +194,8 @@ L["Required skill, skill-up chance and cost on profession trainer recipes, and w
 	"Compétence requise, chance de gain et coût sur les recettes des maîtres de métier, et laquelle apprendre ensuite pour votre parcours." -- mt
 L["Requires"] = "Requiert" -- mt
 L["Replan"] = "Replanifier" -- mt
+L["Resizes the Shopping list and its copy window, and changes the size of reagent text on SkillUp profession pages."] =
+	"Redimensionne la liste d'achats et sa fenêtre de copie, et modifie la taille du texte des composants sur les pages de métiers de SkillUp." -- mt
 L["Route"] = "Parcours" -- mt
 L["Route and trainer"] = "Parcours et maître" -- mt
 L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
@@ -211,6 +217,7 @@ L["Shift: used in %d of your recipes"] = "Maj : utilisé dans %d de vos recettes
 L["Shoulder"] = "Épaule" -- mt
 L["Show again: %s"] = "Réaffichée : %s" -- mt
 L["Show gear I cannot make yet"] = "Afficher l'équipement que je ne peux pas fabriquer" -- mt
+L["Show prices on crafted item tooltips"] = "Afficher les prix dans les infobulles des objets fabriqués" -- mt
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"Afficher les parcours de métier dans le suivi des objectifs. Les masquer conserve vos métiers suivis et vos cibles." -- mt
 L["Show skill on recipe rows"] = "Afficher la compétence sur les lignes" -- mt
@@ -271,6 +278,7 @@ L["Waypoint to the quest giver: %s"] = "Point de passage vers le donneur de quê
 L["What's new after an update"] = "Nouveautés après une mise à jour"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Où l'infobulle s'affiche quand vous survolez une recette. À côté de la fenêtre, elle ne cache pas les composants." -- mt
+L["Window scale"] = "Échelle de la fenêtre" -- mt
 L["World drop"] = "Butin mondial" -- mt
 L["Wrist"] = "Poignets" -- mt
 L["You have it"] = "Vous l'avez"

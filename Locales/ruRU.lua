@@ -294,6 +294,8 @@ L["What's new after an update"] = "Что нового после обновле
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
 L["Window scale"] = "Масштаб окна" -- mt
+L["Window scale makes SkillUp's side windows readable."] =
+	"Масштаб окна позволяет сделать боковые окна SkillUp более читаемыми." -- mt
 L["World drop"] = "Случайная добыча"
 L["Wrist"] = "Запястья"
 L["You have it"] = "У вас есть"
@@ -606,8 +608,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 	"У этих реагентов нет цены у торговца. Для цен аукциона нужен Auctionator, TradeSkillMaster, AHDB, Naowh Forever или Forever Ledger."
 L["Select %s in the recipe list first."] = "Сначала выберите %s в списке рецептов." -- mt
 
-L["Crafting a route no longer hitches on every skill point."] =
-	"Изготовление по маршруту больше не подтормаживает на каждом очке навыка." -- mt
 L["Show reagent search"] = "Показывать поиск реагентов"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Нажмите «Поиск» в окне профессий, чтобы найти недостающие реагенты. Без Auctionator каждое нажатие подставляет следующий реагент в строку поиска аукциона."

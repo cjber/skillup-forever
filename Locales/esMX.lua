@@ -277,6 +277,8 @@ L["What's new after an update"] = "Novedades tras una actualización"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Dónde aparece la descripción al pasar el cursor sobre una receta. Junto a la ventana, no tapa los componentes."
 L["Window scale"] = "Escala de la ventana" -- mt
+L["Window scale makes SkillUp's side windows readable."] =
+	"La escala de la ventana facilita la lectura de las ventanas laterales de SkillUp." -- mt
 L["World drop"] = "Cae en el mundo"
 L["Wrist"] = "Muñeca"
 L["You have it"] = "Lo tienes"
@@ -573,8 +575,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 	"Estos componentes no tienen precio de vendedor. Los precios de subasta necesitan Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger." -- mt
 L["Select %s in the recipe list first."] = "Selecciona primero %s en la lista de recetas." -- mt
 
-L["Crafting a route no longer hitches on every skill point."] =
-	"Fabricar una ruta ya no se traba con cada punto de habilidad." -- mt
 L["Show reagent search"] = "Mostrar la búsqueda de reactivos"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"Haz clic en Buscar en la ventana de profesiones para encontrar los reactivos que faltan. Sin Auctionator, cada clic pone el siguiente reactivo en el cuadro de búsqueda de la casa de subastas."

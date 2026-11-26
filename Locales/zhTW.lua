@@ -274,6 +274,7 @@ L["What's new after an update"] = "更新後的新內容"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"滑鼠指向配方時提示顯示的位置。放在視窗旁邊就不會擋住材料。"
 L["Window scale"] = "視窗縮放" -- mt
+L["Window scale makes SkillUp's side windows readable."] = "視窗縮放讓 SkillUp 的側邊視窗更容易閱讀。" -- mt
 L["World drop"] = "世界掉落"
 L["Wrist"] = "手腕"
 L["You have it"] = "已擁有"
@@ -564,7 +565,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 	"這些材料沒有商人價格。拍賣價需要Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger。" -- mt
 L["Select %s in the recipe list first."] = "請先在配方清單中選取%s。" -- mt
 
-L["Crafting a route no longer hitches on every skill point."] = "按路線製作時，每次技能提升不再卡頓。" -- mt
 L["Show reagent search"] = "顯示材料搜尋"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"點擊專業視窗中的搜尋來尋找缺少的材料。若未安裝 Auctionator，每次點擊會在拍賣場搜尋欄中填入下一種材料。"

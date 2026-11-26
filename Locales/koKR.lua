@@ -279,6 +279,8 @@ L["What's new after an update"] = "업데이트 후 새로운 점"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
 L["Window scale"] = "창 배율" -- mt
+L["Window scale makes SkillUp's side windows readable."] =
+	"창 배율을 조절하면 SkillUp의 보조 창을 더 쉽게 읽을 수 있습니다." -- mt
 L["World drop"] = "무작위 전리품"
 L["Wrist"] = "손목"
 L["You have it"] = "보유 중"
@@ -580,8 +582,6 @@ L["These reagents have no vendor price. Auction prices need Auctionator, TradeSk
 	"이 재료들은 상점 가격이 없습니다. 경매 가격은 Auctionator/TradeSkillMaster, AHDB, Naowh Forever, Forever Ledger가 필요합니다." -- mt
 L["Select %s in the recipe list first."] = "먼저 제조법 목록에서 %s|1을;를; 선택하세요." -- mt
 
-L["Crafting a route no longer hitches on every skill point."] =
-	"경로대로 제작할 때 숙련도가 오를 때마다 끊기지 않습니다." -- mt
 L["Show reagent search"] = "재료 검색 표시"
 L["Click Search in the Professions window to find missing reagents. Without Auctionator, each click fills the auction house search box with the next reagent."] =
 	"전문 기술 창에서 검색을 눌러 부족한 재료를 찾습니다. Auctionator가 없으면 누를 때마다 경매장 검색창에 다음 재료가 입력됩니다."

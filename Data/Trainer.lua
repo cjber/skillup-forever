@@ -5,7 +5,8 @@
 -- Specialisation-gated rows are left out. Fees seen at a trainer win; each recipe names the trainers it has.
 -- A required skill moves as far as Forever 1.60.1.71091 moved the recipe's yellow and grey from
 -- Classic Era 1.15.9.70576's (SkillLineAbility).
--- No higher than the skill players made it at for [2167, 9985] (SEEN_REQUIREMENTS).
+-- Exact requirements from trainer windows: [2167, 2662, 3326].
+-- No higher than the skill players made it at for [9985] (SEEN_REQUIREMENTS).
 -- recipes=440; conflicts resolved to the most common: [10621, 10647, 13622].
 ---@type string, SkillUpNamespace
 local _, ns = ...
@@ -44,7 +45,7 @@ ns.TrainerFees = {
 	[2658] = { 180, 75 },
 	[2659] = { 200, 65 },
 	[2661] = { 90, 30 },
-	[2662] = { 50, 1 },
+	[2662] = { 50, 15 },
 	[2664] = { 450, 65 },
 	[2665] = { 90, 40 },
 	[2666] = { 180, 45 },
@@ -83,7 +84,7 @@ ns.TrainerFees = {
 	[3320] = { 90, 25 },
 	[3323] = { 90, 35 },
 	[3324] = { 180, 35 },
-	[3326] = { 225, 75 },
+	[3326] = { 225, 50 },
 	[3328] = { 1000, 85 },
 	[3331] = { 450, 105 },
 	[3333] = { 900, 110 },
@@ -1000,7 +1001,7 @@ ns.TrainerRanks = {
 	[393] = { { 150, 500, 50, 0 }, { 225, 5000, 125, 0 }, { 300, 50000, 200, 35 } },
 }
 
--- [recipeID] = classic-db's required skill, for each requirement above that was moved from it
+-- [recipeID] = classic-db's required skill, for each inferred requirement that differs from it
 -- stylua: ignore
 ns.TrainerInferred = {
 	[2159] = 85,
@@ -1009,7 +1010,6 @@ ns.TrainerInferred = {
 	[2162] = 60,
 	[2165] = 100,
 	[2166] = 120,
-	[2167] = 100,
 	[2168] = 110,
 	[2386] = 65,
 	[2392] = 40,

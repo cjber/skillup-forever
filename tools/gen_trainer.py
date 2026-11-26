@@ -30,13 +30,15 @@ CLASSICDB_URL = (
 )
 CLASSICDB_CACHE = CACHE / f"classicdb-{CLASSICDB_COMMIT[:7]}.sql.gz"
 PROFESSION_SKILLS = {40, 129, 164, 165, 171, 182, 185, 186, 197, 202, 333, 356, 393}
-# Requirements players saw lower in Forever than the rule below gives (#123, and #124's trainer visits):
-# [recipe] = the most the trainer can ask, as the skill a player made the recipe at. A higher requirement comes
-# down to it, and it lists with the moved ones in ns.TrainerInferred so /skillup trainers asks a trainer to confirm
-# it; a trainer's own number still wins.
+# Crafting proves an upper bound. These requirements still need confirmation at a trainer.
 SEEN_REQUIREMENTS = {
     9985: 110,  # Bronze Warhammer: made at 110 (kopuliak, CurseForge 2026-10-08; #123)
-    2167: 35,  # Gray Leather Boots: a Leatherworking trainer showed 35 (saved by the trainer window; #124)
+}
+# The trainer window gives the exact skill, even when it is above the classic-db requirement.
+TRAINER_REQUIREMENTS = {
+    2167: 35,  # Gray Leather Boots (#124)
+    2662: 15,  # Copper Chain Pants, saved by the trainer window while checking #1022
+    3326: 50,  # Coarse Grinding Stone, saved by the trainer window while checking #1022
 }
 # Forever's client leaves out the trainers' teaching spells; Classic Era (TEACH_BUILD, pinned in
 # gen_thresholds.py) keeps them, with the same recipe spell IDs.
@@ -190,15 +192,17 @@ def rank_quests(quests, effect_rows):
     }
 
 
-def generate(ids, trainer, effect_rows, moved=None, seen_at=None):
+def generate(ids, trainer, effect_rows, moved=None, seen_at=None, trainer_requirements=None):
     """moved: [recipe] = how far Forever moved its yellow and grey from Classic Era's (gen_thresholds.shifts).
-    seen_at: [recipe] = the most a Forever trainer asks for it, from players (SEEN_REQUIREMENTS).
+    seen_at: [recipe] = the skill a player crafted it at (SEEN_REQUIREMENTS).
+    trainer_requirements: [recipe] = exact skill shown at a Forever trainer (TRAINER_REQUIREMENTS).
 
     classic-db's required skill is Classic's. Where Forever moved a recipe's range, it moved the skill its
     pattern asks for by as much (all but a few of the patterns both clients have), so the trainer's moves too.
     """
     moved = moved or {}
     seen_at = seen_at or {}
+    trainer_requirements = trainer_requirements or {}
     teaches, rank_of = spell_maps(effect_rows)
     fees = defaultdict(Counter)
     classic = {}
@@ -217,11 +221,16 @@ def generate(ids, trainer, effect_rows, moved=None, seen_at=None):
     # Duplicate trainers almost always agree; take the most common (fee, skill), cheaper on a tie.
     chosen = {recipe: min(c.items(), key=lambda kv: (-kv[1], kv[0]))[0] for recipe, c in fees.items()}
     conflicts = sorted(recipe for recipe, c in fees.items() if len(c) > 1)
+    for recipe, required in trainer_requirements.items():
+        if recipe in chosen:
+            chosen[recipe] = (chosen[recipe][0], required)
     # The requirements this rule moved, with classic-db's own: what a trainer visit confirms or corrects (#124).
     inferred = {
         recipe: classic[(recipe, entry)]
         for recipe, entry in chosen.items()
-        if (moved.get(recipe) or recipe in seen_at) and classic[(recipe, entry)] != entry[1]
+        if recipe not in trainer_requirements
+        and (moved.get(recipe) or recipe in seen_at)
+        and classic[(recipe, entry)] != entry[1]
     }
     by_cap = defaultdict(dict)
     for skill, seen in ranks.items():
@@ -291,6 +300,7 @@ def render(fees, conflicts, ranks, inferred, quests=None, trainers=None, levels=
         "-- Specialisation-gated rows are left out. Fees seen at a trainer win; each recipe names the trainers it has.",
         f"-- A required skill moves as far as Forever {BUILD} moved the recipe's yellow and grey from",
         f"-- Classic Era {TEACH_BUILD}'s (SkillLineAbility).",
+        f"-- Exact requirements from trainer windows: {sorted(TRAINER_REQUIREMENTS.keys() & fees.keys())}.",
         *(
             [f"-- No higher than the skill players made it at for {capped} (SEEN_REQUIREMENTS)."]
             if (capped := capped_by_players(fees, inferred))
@@ -353,7 +363,7 @@ def render(fees, conflicts, ranks, inferred, quests=None, trainers=None, levels=
     lines.extend(
         [
             "",
-            "-- [recipeID] = classic-db's required skill, for each requirement above that was moved from it",
+            "-- [recipeID] = classic-db's required skill, for each inferred requirement that differs from it",
             "-- stylua: ignore",
             "ns.TrainerInferred = {",
         ]
@@ -409,6 +419,7 @@ def main():
         effects,
         moved,
         SEEN_REQUIREMENTS,
+        TRAINER_REQUIREMENTS,
     )
     levels = recipe_levels(ids, tables["npc_trainer"], effects)
     content = render(

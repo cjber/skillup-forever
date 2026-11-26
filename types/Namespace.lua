@@ -271,7 +271,7 @@
 ---@field TrainerSets table<integer, integer[]> The trainers who teach one group of recipes, by NPC.
 ---@field RecipeTrainerSets table<integer, integer> Per recipe, the set in TrainerSets that teaches it.
 ---@field TrainerRanks table<integer, number[][]>
----@field TrainerInferred table<integer, number> classic-db's required skill, where the bundled one was moved from it.
+---@field TrainerInferred table<integer, number> classic-db's required skill for an inferred requirement that differs from it.
 ---@field ProfessionTrainers table<integer, number[][]>
 ---@field GatheredBy table<integer, integer>
 ---@field LootedFrom table<integer, boolean> Reagents a creature drops, which any character can loot.

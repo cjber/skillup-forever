@@ -10,6 +10,26 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.15.0] - 2026-11-26
+
+<!-- discord-image: docs/screenshots/shopping-list.png -->
+
+### Added
+
+- Turn on **Show prices on crafted item tooltips** to compare crafting cost with the latest Auctionator sale estimate on the item itself, including chat links. Thanks to Bogdanov89 for the request.
+- **Window scale makes SkillUp's side windows readable.** Use it in SkillUp Forever’s **Route and trainer** settings to resize the Shopping list and its copy window, and make reagent text easier to read on SkillUp profession pages. Thanks to user_oin05iu5ioauw23u for the report.
+
+### Changed
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+
+### Fixed
+
+- With QuestieDB installed, Alliance routes no longer plan trainer lessons for Troll's Blood Elixir or Barbecued Buzzard Wing, whose only listed trainers are Horde. The learn source names the recipe item, and the route includes it only when it can be bought. Thanks to user_46x8szwptrswqttc for the report about Troll's Blood Elixir.
+- Copper Chain Pants now requires skill 15 and Coarse Grinding Stone requires skill 50 to learn from a trainer, matching the trainer window.
+- The vendor's Reagents tab tells you to buy the listed items on the Merchant tab. The list fits widened vendor windows and keeps their extra items out of view while Reagents is open. Thanks to xh43k on CurseForge for the report.
+- Levelling routes keep a recipe's level requirement when a saved trainer visit lacks a level, and drop a planned lesson if a trainer reveals that you are too low to learn it. Thanks to cursebandit on CurseForge for reporting a Leatherworking trainer stop.
+
 ## [1.14.27] - 2026-11-25
 
 ### Changed

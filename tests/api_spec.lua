@@ -172,8 +172,6 @@ equal(characters[1], characterKey, "Characters lists saved learned records")
 equal(API.Knows(characterKey, GLOVES), true, "Knows reads saved learned state")
 equal(API.Knows("missing-character", GLOVES), false, "Knows treats an unknown character as not knowing")
 
--- Finish the NPC reads requested by RecipeRequirement before testing subscription itself.
-c.Advance(0)
 -- Subscribe is ForeverCore's hub (docs/api.md): the frame after a change, once per burst, naming what moved.
 local heard = {}
 local unsubscribe = API.Subscribe(function(changes)

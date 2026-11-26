@@ -81,7 +81,7 @@ local DEFAULTS = {
 	observedRecipes = {}, -- ["Name-Realm"] = { ids = { [recipeID] = true }, eventUnix = latest observation }
 	professionIDs = {}, -- [localized profession name] = skill line, seen with the profession open
 	trackedProfessions = {}, -- [profession skill line] = true tracked, false stopped by hand, nil undecided
-	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill } }, recorded at trainers
+	trainer = {}, -- [skill line] = { [recipeID] = { fee, required base skill, shown skill, level, side = side } }
 	trainerRanks = {}, -- [skill line] = { [cap] = fee }: what a trainer charges for the rank ending at that cap
 }
 

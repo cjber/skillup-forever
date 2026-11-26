@@ -74,6 +74,7 @@ local professions = {}
 -- [itemID] = false while its vendors are being read, then true.
 ---@type table<integer, boolean>
 local vendorsRead = {}
+-- [trainer set ID] = false while its trainers are being read, then true.
 ---@type table<integer, boolean>
 local trainerSetsRead = {}
 -- [itemID] = false while its droppers are being read, then true.
@@ -469,9 +470,10 @@ end
 -- The list's read table records false while queued and true when the reads finish.
 ---@param id integer
 ---@param read table<integer, boolean>
----@param list fun(): integer[]?
+---@param list fun(id: integer): integer[]?
+---@param notify? fun(id: integer): boolean?
 ---@return boolean
-local function EnsureNPCs(id, read, list)
+local function EnsureNPCs(id, read, list, notify)
 	-- Without Questie nobody is known, and there is nothing to read.
 	if Q.State() ~= "ready" then
 		return true
@@ -481,30 +483,33 @@ local function EnsureNPCs(id, read, list)
 	end
 	read[id] = false
 	Enqueue(function()
-		ReadNPCs(list() or {})
+		ReadNPCs(list(id) or {})
 		Enqueue(function()
 			read[id] = true
-			dirty = true
+			dirty = dirty or not notify or notify(id) == true
 		end)
 	end)
 	return false
 end
 
--- Missing NPC records and an unknown player side leave bundled training available.
----@param recipeID integer
----@return boolean
-function C.RecipeTrainersUnusable(recipeID)
-	local set = ns.RecipeTrainerSets and ns.RecipeTrainerSets[recipeID]
-	local trainers = set and ns.TrainerSets and ns.TrainerSets[set]
+---@param set integer
+---@return integer[]?
+local function TrainerSet(set)
+	return ns.TrainerSets and ns.TrainerSets[set] or nil
+end
+
+-- Nil means a record still needs reading. A missing record or unknown player side leaves training available.
+---@param set integer
+---@return boolean?
+local function TrainerSetUnusable(set)
+	local trainers = TrainerSet(set)
 	if not trainers or #trainers == 0 or not ns.PlayerSide() then
 		return false
 	end
 	for _, npcID in ipairs(trainers) do
 		local npc = npcs[npcID]
 		if npc == nil then
-			EnsureNPCs(set, trainerSetsRead, function()
-				return trainers
-			end)
+			return nil
 		end
 		if not npc or ns.SourceFactionUsable(npc.side) then
 			return false
@@ -513,24 +518,46 @@ function C.RecipeTrainersUnusable(recipeID)
 	return true
 end
 
+---@param recipeID integer
+---@return boolean
+function C.RecipeTrainersUnusable(recipeID)
+	local set = ns.RecipeTrainerSets and ns.RecipeTrainerSets[recipeID]
+	if not set then
+		return false
+	end
+	local unusable = TrainerSetUnusable(set)
+	if unusable == nil then
+		EnsureNPCs(set, trainerSetsRead, TrainerSet, TrainerSetUnusable)
+	end
+	return unusable == true
+end
+
+---@param itemID integer
+---@return integer[]?
+local function Vendors(itemID)
+	local found = C.ItemSources(itemID)
+	return found and found.vendors or nil
+end
+
+---@param itemID integer
+---@return integer[]?
+local function Droppers(itemID)
+	local found = C.ItemSources(itemID)
+	return found and found.drops or nil
+end
+
 -- True once an item's vendors are read, so the nearest can be picked without a read on the way.
 ---@param itemID integer
 ---@return boolean
 function C.EnsureVendors(itemID)
-	return EnsureNPCs(itemID, vendorsRead, function()
-		local found = C.ItemSources(itemID)
-		return found and found.vendors or nil
-	end)
+	return EnsureNPCs(itemID, vendorsRead, Vendors)
 end
 
 -- True once an item's droppers are read, so the nearest can be picked without a read on the way.
 ---@param itemID integer
 ---@return boolean
 function C.EnsureDrops(itemID)
-	return EnsureNPCs(itemID, dropsRead, function()
-		local found = C.ItemSources(itemID)
-		return found and found.drops or nil
-	end)
+	return EnsureNPCs(itemID, dropsRead, Droppers)
 end
 
 -- Starts looking for the providers. An addon that loads later is picked up, and so is Questie finishing

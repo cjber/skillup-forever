@@ -122,6 +122,7 @@ local function BuildState(services)
 	ns.db.trainer[skillLine] = seen
 	-- A row that shows no skill requirement keeps the bundled one: recording 0 would plan to learn it at once.
 	-- The third value is the requirement the trainer showed, kept apart so /skillup trainers can tell the two apart.
+	local side = ns.PlayerSide()
 	for index, service in pairs(services) do
 		if service.recipeID then
 			local _, req = GetTrainerServiceSkillReq(index)
@@ -130,7 +131,7 @@ local function BuildState(services)
 			local bundled = ns.TrainerFees[service.recipeID]
 			local required = shown or (bundled and bundled[2])
 			if required then
-				seen[service.recipeID] = { GetTrainerServiceCost(index), required, shown, service.level }
+				seen[service.recipeID] = { GetTrainerServiceCost(index), required, shown, service.level, side = side }
 			end
 		end
 	end

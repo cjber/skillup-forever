@@ -94,7 +94,7 @@
 ---@field UsableBuffs fun(level: number): table<integer, true> The recipes whose product is a buff this level can use.
 ---@field BuffText fun(itemID: integer): string? The buff a crafted item leaves, in the game's own words; nil for an item that leaves none.
 ---@field Gear SkillUpGear
----@field TrainingFor fun(profession: {skillLine: integer}, recipeID: integer): number[]?
+---@field TrainingFor fun(profession: {skillLine: integer}, recipeID: integer): SkillUpTrainerRow|number[]|nil
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
 ---@field TrainerReport fun(): string[]
 ---@field TrainerExport fun(): string[] the requirements trainers showed, as a SEEN_REQUIREMENTS table literal (/skillup export)
@@ -332,7 +332,7 @@
 ---@field learned table<string, table<integer, boolean>>
 ---@field professionIDs table<string, integer>
 ---@field trackedProfessions table<integer, boolean>
----@field trainer table<integer, table<integer, number[]>> { fee, required skill, required skill the trainer showed? }
+---@field trainer table<integer, table<integer, SkillUpTrainerRow>>
 ---@field trainerRanks table<integer, table<integer, number>>
 ---@field vendor table<integer, number>
 ---@field merchantEvidence table<integer, table<integer, SkillUpMerchantEvidence>> Dated observations owned by each NPC, not current availability guarantees.
@@ -1019,6 +1019,14 @@ SkillUpForeverDB = nil
 ---@field t number[]
 ---@field skill number
 ---@field learned boolean
+
+--- A saved trainer row: fee, required skill, shown skill and character level.
+---@class SkillUpTrainerRow
+---@field [1] number Fee in copper.
+---@field [2] number Required base skill.
+---@field [3] number? Skill shown by the trainer.
+---@field [4] number? Required character level.
+---@field side? 'A'|'H' The observing character's faction.
 
 ---@class SkillUpTrainerService
 ---@field name string

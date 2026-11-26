@@ -166,8 +166,13 @@ do
 	local learnSource = alliance.ns.LearnSource(profession, UNA_ONLY)
 	equal(alliance.ns.LearnSourceText(learnSource), "Recipe item 150", "the source names the recipe item")
 	equal(#alliance.ns.PlanRoute(profession).training, 0, "the Alliance must find a drop")
-	alliance.ns.db.trainer[LEATHERWORKING] = { [UNA_ONLY] = { 400, 150, 150 } }
-	equal(alliance.ns.TrainingFor(profession, UNA_ONLY)[1], 400, "a trainer visit wins")
+	local visit = { 400, 150, 150, side = "A" }
+	alliance.ns.db.trainer[LEATHERWORKING] = { [UNA_ONLY] = visit }
+	equal(alliance.ns.TrainingFor(profession, UNA_ONLY), visit, "a visit on this side wins")
+	visit.side = "H"
+	equal(alliance.ns.TrainingFor(profession, UNA_ONLY), nil, "a visit on the other side does not teach it")
+	visit.side = nil
+	equal(alliance.ns.TrainingFor(profession, UNA_ONLY), nil, "a legacy visit does not bypass the faction check")
 end
 
 do

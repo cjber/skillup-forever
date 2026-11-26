@@ -11,6 +11,9 @@ local playerLevel = 20
 -- { name, kind, fee, required skill, taught spell }: the window's rows, in its order.
 local services = {}
 local ns = {
+	PlayerSide = function()
+		return "H"
+	end,
 	db = { trainer = {}, trainerRanks = {}, routeTargets = { [COOKING] = 100 }, showTrainer = true },
 	Thresholds = { [CAMPFIRE] = { 1, 100, 150, 200 }, [BREAD] = { 1, 30, 35, 38 } },
 	RecipeData = {
@@ -175,6 +178,7 @@ equal(ns.db.trainer[COOKING][BREAD], nil, "an unknown requirement is not saved a
 ns.TrainerFees[BREAD] = { 30, 25 }
 Open({ { "Spice Bread", "available", 40, nil, BREAD } })
 equal(table.concat(ns.db.trainer[COOKING][BREAD], "/"), "40/25", "the fee is kept with the bundled requirement")
+equal(ns.db.trainer[COOKING][BREAD].side, "H", "the row records the observing side")
 ns.TrainerFees[BREAD] = nil
 
 -- A level-gated service is recorded, omitted below its gate, and available at the gate.

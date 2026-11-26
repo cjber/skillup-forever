@@ -67,6 +67,8 @@ Open a profession and the numbers are already there.
 
 Settings cover tooltips, recipe rows, prices, tabs, trainers and sorting. Crafted gear and reagent tooltips start off, each one setting away.
 
+Enable **Show prices on crafted item tooltips** under **Tooltips and sorting** to compare the lowest known crafting cost per item with its Auctionator sale estimate, including on item links in chat.
+
 For a bug report, paste `/skillup report`.
 
 Translated into German, French, Spanish, Brazilian Portuguese, Russian, Korean and Chinese (machine translated; corrections welcome through the [translation form](https://github.com/cjber/skillup-forever/issues/new?template=translation.yml)).

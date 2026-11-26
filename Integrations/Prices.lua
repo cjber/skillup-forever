@@ -286,6 +286,14 @@ end
 -- Auction value is net of the house's 5% cut and only counts when it beats the vendor.
 local AUCTION_CUT = 0.05
 
+-- The latest Auctionator listing estimate per item, after the auction house's cut.
+---@param itemID integer
+---@return number?
+function ns.AuctionatorSalePrice(itemID)
+	local price = AuctionatorPrice(itemID)
+	return price and price.copper * (1 - AUCTION_CUT) or nil
+end
+
 -- What selling a gathered material would bring instead of crafting with it: its auction price after the
 -- cut, with its vendor sell price as the floor. Nil when neither is known.
 ---@param itemID integer

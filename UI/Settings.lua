@@ -382,6 +382,13 @@ function ns.RegisterSettings()
 
 		Checkbox(
 			rows,
+			"craftedItemTooltip",
+			L["Show prices on crafted item tooltips"],
+			L["Compare the lowest known crafting cost per item with its Auctionator price after the 5% cut."]
+		)
+
+		Checkbox(
+			rows,
 			"showTooltipRoute",
 			L["Show route needs on item tooltips"],
 			L["Show how much of an item your tracked routes still need. Turn this off to keep recipe details without the route line."]

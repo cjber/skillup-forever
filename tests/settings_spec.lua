@@ -371,7 +371,8 @@ local groups = {
 	},
 	{
 		"Tooltips and sorting",
-		"dropdown:reagentTooltip checkbox:showTooltipRoute checkbox:gatherTooltip dropdown:sortMode",
+		"dropdown:reagentTooltip checkbox:craftedItemTooltip checkbox:showTooltipRoute"
+			.. " checkbox:gatherTooltip dropdown:sortMode",
 	},
 	{ "Addon", "checkbox:whatsNew" },
 }

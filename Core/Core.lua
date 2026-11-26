@@ -54,10 +54,11 @@ local DEFAULTS = {
 	lastSkillUpPage = {}, -- ["Name-Realm"] = "route" | "gear" | "buffs": the SkillUp page the side tab reopens
 	buffProfession = {}, -- ["Name-Realm"] = skill line: the profession the Buffs page shows
 	onlyBuffsForLevel = {}, -- ["Name-Realm"] = true: the buffs page hides buffs this character's level cannot use
-	merchantButton = true, -- the merchant window's "Reagents still needed" button
+	merchantButton = true, -- the merchant window's Reagents tab
 	auctionShoppingLists = true,
 	auctionSearch = true, -- the Professions window's reagent search while the auction house is open
 	reagentTooltip = "off", -- reagent lines on item tooltips cost frame rate on every hover (#811)
+	craftedItemTooltip = false,
 	showTooltipRoute = true,
 	gatherTooltip = true, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
 	reagentTooltipOffSeen = false, -- the off-by-default reagent tooltip has reached this player once (#811)

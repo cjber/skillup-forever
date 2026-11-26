@@ -81,6 +81,7 @@
 ---@field UsedIn fun(itemID: integer): integer[]
 ---@field CraftCost fun(recipeID: integer): number?, SkillUpValue?, number?
 ---@field CraftSaleValues fun(recipeID: integer): SkillUpSaleValues
+---@field AuctionatorSalePrice fun(itemID: integer): number?
 ---@field NetCost fun(recipeID: integer): number?
 ---@field InitPrices fun()
 ---@field AttachRecipeList fun()
@@ -320,6 +321,7 @@
 ---@field detailsBar boolean
 ---@field reagentTooltip 'off'|'route'|'full'
 ---@field showTooltipRoute boolean
+---@field craftedItemTooltip boolean
 ---@field gatherTooltip boolean
 ---@field reagentTooltipOffSeen boolean
 ---@field collectModes table<string, SkillUpCollectMode>

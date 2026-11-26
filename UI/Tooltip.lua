@@ -130,6 +130,7 @@ local hooked = {}
 ---@field mode string
 ---@field shifted boolean
 ---@field lines SkillUpTooltipLine[]
+---@field craftPrice string?
 ---@field index table<integer, { entry: SkillUpTracked, item: SkillUpNeededItem }[]>
 ---@field bags integer
 
@@ -870,12 +871,14 @@ end
 -- same tooltip again only draws it. Anything that can move a line drops the lot (Core/Changes.lua).
 ---@type table<integer, table<string, SkillUpTooltipLine[]>>
 local itemLines = {}
+---@type table<integer, string|false>
+local craftPrices = {}
 -- A gathering line, by the skill line it is for and the skill it asks; nil is an unknown requirement.
 ---@type table<string, SkillUpTooltipLine[]>
 local gatherLines = {}
 
 local function ClearTooltipLines()
-	itemLines, gatherLines = {}, {}
+	itemLines, craftPrices, gatherLines = {}, {}, {}
 	drawn = {}
 end
 ns.WhenStale("tooltipCache", ClearTooltipLines)
@@ -896,6 +899,39 @@ local function ValidateRouteNeeds()
 	end
 end
 ns.WhenStale("tooltipRouteTools", ValidateRouteNeeds)
+
+---@param itemID integer
+---@return string?
+local function CraftedItemPrice(itemID)
+	local cached = craftPrices[itemID]
+	if cached ~= nil then
+		return cached or nil
+	end
+	local makers = ns.MakersOf(itemID)
+	if #makers == 0 then
+		craftPrices[itemID] = false
+		return nil
+	end
+	local cheapest
+	for _, recipeID in ipairs(makers) do
+		local output = ns.RecipeOutput(recipeID)
+		if output and output.itemID == itemID then
+			local cost = ns.CraftCost(recipeID)
+			if cost then
+				local each = cost / output.quantity
+				cheapest = cheapest and math.min(cheapest, each) or each
+			end
+		end
+	end
+	local sale = ns.AuctionatorSalePrice(itemID)
+	local line = string.format(
+		L["Crafting cost: %s / Auctionator sale: %s"],
+		cheapest and Money(cheapest) or "?",
+		sale and Money(sale) or "?"
+	)
+	craftPrices[itemID] = line
+	return line
+end
 
 ---@param itemID integer
 ---@param mode string
@@ -961,6 +997,7 @@ local function AddUses(tooltip, data)
 	end
 	local shifted = mode ~= "off" and mode == "route" and IsShiftKeyDown()
 	local lines = mode == "off" and PatternProfitLines(itemID) or ItemLines(itemID, mode, shifted)
+	local craftPrice = ns.db.craftedItemTooltip and CraftedItemPrice(itemID) or nil
 	local index = RouteNeedsIndex()
 	local last = drawn[tooltip]
 	if
@@ -969,6 +1006,7 @@ local function AddUses(tooltip, data)
 		and last.mode == mode
 		and last.shifted == shifted
 		and last.lines == lines
+		and last.craftPrice == craftPrice
 		and last.index == index
 		and last.bags == bags
 	then
@@ -976,11 +1014,15 @@ local function AddUses(tooltip, data)
 	end
 	HookCleared(tooltip)
 	Draw(tooltip, lines)
+	if craftPrice and not (last and last.itemID == itemID and last.craftPrice == craftPrice) then
+		GameTooltip_AddNormalLine(tooltip, craftPrice)
+	end
 	drawn[tooltip] = {
 		itemID = itemID,
 		mode = mode,
 		shifted = shifted,
 		lines = lines,
+		craftPrice = craftPrice,
 		index = index,
 		bags = bags,
 	}

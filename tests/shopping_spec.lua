@@ -1,5 +1,5 @@
 -- Run from the repository root: luajit tests/shopping_spec.lua
--- The objective tracker's lines and the merchant's buy button, with the whole addon loaded: what they show
+-- The objective tracker's lines and the merchant's Reagents tab, with the whole addon loaded: what they show
 -- follows the client's prices, bags and merchant through the plan.
 local Client = dofile("tests/client.lua")
 local equal = Client.equal
@@ -167,9 +167,7 @@ equal(
 c.auction[SILK] = 10
 c.AuctionatorScan()
 
--- The merchant's own Reagents tab lists what the route still needs, including whole merchant stacks, in the
--- merchant's item cells, with Buy all where the page row was. The addon never buys: BuyMerchantItem is
--- protected, so the player buys from the merchant's own window (#327).
+-- The Reagents tab lists whole stacks and directs purchases to the Merchant tab.
 local function Needed()
 	return ns.TrackedNeeds()[1].items[1].need
 end
@@ -194,13 +192,30 @@ equal(tabAnchor[4], -16, "at the stock tabs' own gap")
 equal(tabAnchor[5], 0, "on the same line")
 equal(tab.shown, true, "a known merchant stack shows the tab")
 equal(page.shown, false, "its page waits for the tab")
--- The tab lists it in the merchant's own cells, and Buy all sits where the page row was.
+-- A wider merchant layout can create extra stock slots after the Reagents tab has been built.
+c.G.MerchantFrame:SetSize(660, 444)
+for index = 13, 20 do
+	c.G.CreateFrame("Frame", "MerchantItem" .. index, c.G.MerchantFrame)
+end
 tab.scripts.OnClick(tab)
 equal(page.shown, true, "selecting the tab shows the page")
 equal(tab.selected, true, "with the template's selected tab art")
 equal(tab.Left.shown, false, "the unselected left piece goes")
 equal(tab.LeftActive.shown, true, "and the active one shows")
-equal(c.G.MerchantItem1.alpha, 0, "the stock item cells make way")
+for index = 1, 20 do
+	equal(c.G["MerchantItem" .. index].alpha, 0, "stock slot " .. index .. " makes way")
+end
+local pageLeft, pageRight = page.points[2], page.points[1]
+equal(pageLeft[2], c.G.MerchantFrame, "the page starts at the merchant frame")
+equal(pageLeft[3], "TOPLEFT", "the page starts at its left edge")
+equal(pageRight[2], c.G.MerchantFrame, "the page ends at the merchant frame")
+equal(pageRight[3], "BOTTOMRIGHT", "the page ends at its right edge")
+for index, edge in ipairs({ "TOPLEFT", "TOPRIGHT" }) do
+	local point = page.Items[index].frame.points[1]
+	equal(point[1], edge, "the column anchors by its outer edge")
+	equal(point[2], page, "the column follows the page")
+	equal(point[3], edge, "the column follows the corresponding page edge")
+end
 equal(c.G.MerchantPageText.alpha, 0, "the page row makes way")
 equal(c.G.MerchantBuyBackItem.alpha ~= 0, true, "the buyback cell stays in sight, as it stays clickable")
 equal(c.G.MerchantFrameTab1.alpha, 0, "the stock tab it came from reads unselected")
@@ -215,41 +230,38 @@ equal(cell.name:GetText(), "Linen Cloth", "with its name")
 equal(cell.price:GetText(), "200c", "and the cost of whole stacks")
 equal(cell.icon, cell.button.icon, "and its icon, from the template's own icon region")
 equal(cell.icon.texture, 1234, "with the item's texture")
-local buy = rawget(c.G, "SkillUpForeverMerchantBuyAll")
-equal(buy.text, "Buy all  200c", "Buy all has the total")
--- Buy all lists the need on a dialog of the addon's own on the merchant's window.
-local function Dialog()
-	for _, frame in ipairs(c.frames) do
-		if frame.parent == c.G.MerchantFrame and frame.Close then
-			return frame
-		end
+local hint
+for _, child in ipairs(page.children) do
+	if child:GetText() == "Buy these items on the Merchant tab." then
+		hint = child
+		break
 	end
 end
-equal(Dialog(), nil, "nothing shows before a click")
-buy.scripts.OnClick()
-local dialog = Dialog()
-equal(dialog.shown, true, "a click lists what is missing")
-equal(dialog.Text.text, "Reagents still needed  10 Linen Cloth  200c", "with the items and the total cost")
-equal(#c.purchased, 0, "and buys nothing itself")
-dialog.Close.scripts.OnClick()
-equal(dialog.shown, false, "Close hides the list")
--- The need changes while it is open: what it showed is out of date, so it goes.
-buy.scripts.OnClick()
+equal(hint ~= nil, true, "the page says where to buy")
+equal(hint.points[2][3], "BOTTOMLEFT", "the hint spans the page from the left")
+equal(hint.points[1][3], "BOTTOMRIGHT", "the hint spans the page to the right")
+equal(hint.scripts.OnClick, nil, "the hint offers no purchase action")
+equal(cell.button.scripts.OnClick, nil, "the reagent cells offer no purchase action")
+equal(rawget(c.G, "SkillUpForeverMerchantBuyAll"), nil, "the redundant Buy all control is gone")
 c.bags[SILK] = c.bags[SILK] + 5
 c.Fire("BAG_UPDATE_DELAYED")
 c.Advance(0)
-equal(dialog.shown, false, "a changed cost closes the list")
+equal(cell.button.Count:GetText(), "5", "the shown quantity follows purchases")
+equal(cell.price:GetText(), "100c", "the shown price follows the remaining quantity")
 c.bags[SILK] = c.bags[SILK] - 5
 c.Fire("BAG_UPDATE_DELAYED")
 c.Advance(0)
-equal(buy.text, "Buy all  200c", "the full need is back")
+equal(cell.button.Count:GetText(), "10", "the full quantity is back")
+equal(cell.price:GetText(), "200c", "the full stack price is back")
 -- Merchant and Buyback work as before: selecting either one hides the page and puts the window back.
 c.ClickTab(2)
 equal(page.shown, false, "Buyback hides the addon page")
 equal(cover.shown, false, "the cover goes with it")
 equal(tab.Left.shown, true, "the Reagents tab returns to its unselected art")
 equal(tab.LeftActive.shown, false, "with the active piece hidden")
-equal(c.G.MerchantItem1.alpha, 1, "the stock item cells return")
+for index = 1, 20 do
+	equal(c.G["MerchantItem" .. index].alpha, 1, "stock slot " .. index .. " returns")
+end
 equal(c.G.MerchantPageText.alpha, 1, "with their page row")
 equal(c.G.MerchantFrameTab1.alpha, 1, "and the stock tab comes back")
 tab.scripts.OnClick(tab)
@@ -258,12 +270,11 @@ cover.scripts.OnClick()
 equal(page.shown, false, "the cover returns to Buyback")
 equal(c.G.MerchantFrameTab2.alpha, 1, "and uncovers it")
 -- Switching tabs keeps the window as it was and reuses the page, so its place in the list is kept.
-c.G.MerchantFrame.width, c.G.MerchantFrame.height = 336, 444
 tab.scripts.OnClick(tab)
 c.ClickTab(1)
 tab.scripts.OnClick(tab)
 equal(rawget(c.G, "SkillUpForeverMerchantPage"), page, "the page is kept across tabs")
-equal(c.G.MerchantFrame.width, 336, "switching tabs keeps the window width")
+equal(c.G.MerchantFrame.width, 660, "switching tabs keeps the window width")
 equal(c.G.MerchantFrame.height, 444, "and its height")
 -- The player can do without the tab, and its page goes with it.
 c.SetSetting("merchantButton", false)
@@ -275,9 +286,17 @@ c.Advance(0)
 equal(tab.shown, true, "and brings it back")
 equal(page.shown, false, "with the page still closed")
 tab.scripts.OnClick(tab)
-buy.scripts.OnClick()
 equal(#c.purchased, 0, "the addon never calls the protected merchant buy function")
-dialog.Close.scripts.OnClick()
+c.bags[SILK] = Needed()
+c.Fire("BAG_UPDATE_DELAYED")
+c.Advance(0)
+equal(tab.shown, false, "the tab hides when the bags cover the tracked need")
+equal(page.shown, false, "the vendor page returns when there is nothing to buy")
+equal(c.G.MerchantItem20.alpha, 1, "the extra stock slots return too")
+c.bags[SILK] = Needed() - 7
+c.Fire("BAG_UPDATE_DELAYED")
+c.Advance(0)
+equal(tab.shown, true, "the tab returns when there is something to buy")
 for _, invalid in ipairs({ false, 0, -1 }) do
 	c.merchant[1].stackCount = invalid or nil
 	c.purchased = {}

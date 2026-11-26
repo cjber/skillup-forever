@@ -441,11 +441,11 @@ function ns.TrackedNeeds()
 	return tracked
 end
 
--- What the open merchant sells for gold of the tracked reagents still missing,
--- and its cost. Two professions sharing a reagent need both amounts.
+-- What the open merchant sells for gold of the tracked reagents still missing.
+-- Two professions sharing a reagent need both amounts.
 local function MerchantPurchases()
 	local missing = ns.RouteDemand.Shortfalls(ns.TrackedNeeds())
-	local purchases, cost = {}, 0
+	local purchases = {}
 	for index = 1, GetMerchantNumItems() do
 		local itemID = GetMerchantItemID(index)
 		local info = C_MerchantFrame.GetItemInfo(index)
@@ -466,103 +466,16 @@ local function MerchantPurchases()
 				count = math.min(count, info.numAvailable * stack)
 			end
 			if count > 0 then
-				local itemCost = info.price * count / stack
-				purchases[#purchases + 1] = { index = index, count = count, stack = stack, cost = itemCost }
-				cost = cost + itemCost
+				purchases[#purchases + 1] = { index = index, count = count, cost = info.price * count / stack }
 			end
 		end
 	end
-	return purchases, cost
+	return purchases
 end
 
--- BuyMerchantItem is protected: called from addon code it taints the client's merchant path, and the
--- player's own purchases can then be refused until /reload (#327). This client has no secure attribute
--- that buys a chosen quantity, so the addon does not buy at all: the button lists what the route still
--- needs and the player buys it from the merchant's own window.
-
--- What is missing here, for the prompt: the first few items by name and how many more.
-local LISTED_PURCHASES = 4
-
----@param purchases {index: integer, count: integer}[]
----@return string
-local function PurchaseList(purchases)
-	local parts = {}
-	for index, purchase in ipairs(purchases) do
-		if index > LISTED_PURCHASES then
-			parts[#parts + 1] = string.format(L["%d more"], #purchases - LISTED_PURCHASES)
-			break
-		end
-		local info = C_MerchantFrame.GetItemInfo(purchase.index)
-		local name = info and info.name or C_Item.GetItemNameByID(GetMerchantItemID(purchase.index)) or UNKNOWN
-		parts[#parts + 1] = string.format(L["%d %s"], purchase.count, name)
-	end
-	return table.concat(parts, ", ")
-end
-
--- What the tracked routes still need here, on the merchant's window so it goes when the merchant does.
--- The player buys it from the merchant's own window; the addon only shows what and how much.
----@class SkillUpBuyConfirm : Frame
----@field Text FontString
----@field Close Button
----@field cost number?
----@type SkillUpBuyConfirm?
-local confirm
-
-local function HideConfirm()
-	if confirm then
-		confirm.cost = nil
-		confirm:Hide()
-	end
-end
-
----@return SkillUpBuyConfirm
-local function Confirm()
-	if confirm then
-		return confirm
-	end
-	local frame = CreateFrame("Frame", nil, MerchantFrame) --[[@as SkillUpBuyConfirm]]
-	frame:SetSize(320, 112)
-	frame:SetPoint("TOP", MerchantFrame, "TOP", 0, -72)
-	frame:SetFrameStrata("DIALOG")
-	frame:EnableMouse(true)
-	CreateFrame("Frame", nil, frame, "DialogBorderOpaqueTemplate"):SetAllPoints()
-	frame.Text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-	frame.Text:SetPoint("TOPLEFT", 20, -18)
-	frame.Text:SetPoint("TOPRIGHT", -20, -18)
-	frame.Text:SetJustifyH("CENTER")
-	frame.Close = CreateFrame("Button", nil, frame, "SharedButtonSmallTemplate") --[[@as Button]]
-	frame.Close:SetSize(110, 22)
-	frame.Close:SetPoint("BOTTOM", frame, "BOTTOM", 0, 16)
-	frame.Close:SetText(L["Close"])
-	frame.Close:SetScript("OnClick", HideConfirm)
-	frame:Hide()
-	confirm = frame
-	return frame
-end
-
--- What is missing here and what it costs; the player buys it from the merchant's own window.
-local function AskToBuy()
-	local purchases, cost = MerchantPurchases()
-	if #purchases == 0 then
-		return
-	end
-	local frame = Confirm()
-	frame.cost = cost
-	frame.Text:SetText(
-		string.format(
-			"%s  %s  %s",
-			L["Reagents still needed"],
-			PurchaseList(purchases),
-			C_CurrencyInfo.GetCoinTextureString(cost)
-		)
-	)
-	frame:Show()
-end
-
--- The merchant's own Reagents tab: a third tab in the same bottom art as Merchant and Buyback, shown only while
--- this merchant sells something a tracked route still needs. Its page draws item cells over the merchant's item
--- grid and puts Buy all where the page row was. The stock tabs and their content are only ever hidden by alpha:
--- Blizzard still decides what is shown, so leaving the tab puts the window back exactly as it was.
+-- The Reagents page lists what to buy. Purchases go through the native Merchant tab because
+-- BuyMerchantItem is protected and addon calls can block the player's own purchases (#327).
+-- Stock content is hidden by alpha so Blizzard keeps control of what is shown.
 
 ---@class SkillUpMerchantItemButton : Button
 ---@field icon Texture # The intrinsic ItemButton's icon; the older ItemButtonTemplate calls it Icon.
@@ -590,8 +503,8 @@ end
 local TAB_TEMPLATE = "PanelTabButtonTemplate"
 local CELLS_PER_PAGE = 10
 local CELL_WIDTH, CELL_HEIGHT = 153, 44
-local COLUMN_GAP, ROW_GAP = 12, 8
-local CELL_LEFT, CELL_TOP = 4, -9
+local ROW_GAP = 8
+local CELL_INSET, CELL_TOP = 4, -9
 -- The stock window's page row, which the page covers. The buyback cell stays: it sits in the bottom bar with the
 -- repair buttons, outside the page, where a cell hidden by alpha alone would still buy back on a click.
 local STOCK_CONTENT = { "MerchantPageText", "MerchantPrevPageButton", "MerchantNextPageButton" }
@@ -601,15 +514,12 @@ local merchantPage
 ---@type Button?
 local merchantTab
 ---@type Button?
-local merchantBuyAll
----@type Button?
 local merchantCover
 ---@type Frame?
 local coveredTab
-local merchantSelected, merchantShown = false, false
+local merchantSelected = false
 ---@type {index: integer, count: integer, cost: number}[]
 local merchantPurchases = {}
-local merchantTotal = 0
 local merchantPageIndex, merchantPageCount = 1, 1
 
 ---@type fun(selected: boolean)
@@ -663,11 +573,13 @@ end
 ---@param hidden boolean
 local function HideStockContent(hidden)
 	local alpha = hidden and 0 or 1
-	for index = 1, 12 do
-		local item = _G["MerchantItem" .. index]
-		if item then
-			item:SetAlpha(alpha)
-		end
+	-- The merchant names its slots in order, including extra slots created by wider layouts.
+	local index = 1
+	local item = rawget(_G, "MerchantItem" .. index)
+	while item do
+		item:SetAlpha(alpha)
+		index = index + 1
+		item = rawget(_G, "MerchantItem" .. index)
 	end
 	for _, name in ipairs(STOCK_CONTENT) do
 		local frame = _G[name]
@@ -788,25 +700,28 @@ local function EnsureMerchantFrames()
 	merchantPage.Items = {}
 	for index = 1, CELLS_PER_PAGE do
 		local cell = CreateMerchantCell(index)
-		local column, row = (index - 1) % 2, math.floor((index - 1) / 2)
+		local left = index % 2 == 1
+		local edge = left and "TOPLEFT" or "TOPRIGHT"
+		local row = math.floor((index - 1) / 2)
 		cell.frame:SetPoint(
-			"TOPLEFT",
+			edge,
 			merchantPage,
-			"TOPLEFT",
-			CELL_LEFT + column * (CELL_WIDTH + COLUMN_GAP),
+			edge,
+			left and CELL_INSET or -CELL_INSET,
 			CELL_TOP - row * (CELL_HEIGHT + ROW_GAP)
 		)
 		merchantPage.Items[index] = cell
 	end
 
-	local buy = CreateFrame("Button", "SkillUpForeverMerchantBuyAll", merchantPage, "SharedButtonSmallTemplate")
-	merchantBuyAll = buy --[[@as Button]]
-	merchantBuyAll:SetPoint("BOTTOM", merchantPage, "BOTTOM", 0, 33)
-	merchantBuyAll:SetScript("OnClick", AskToBuy)
+	local hint = merchantPage:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	hint:SetPoint("BOTTOMLEFT", merchantPage, "BOTTOMLEFT", CELL_INSET, 33)
+	hint:SetPoint("BOTTOMRIGHT", merchantPage, "BOTTOMRIGHT", -CELL_INSET, 33)
+	hint:SetJustifyH("CENTER")
+	hint:SetText(L["Buy these items on the Merchant tab."])
 end
 
--- The page shows what the merchant sells that the routes still need, whole stacks and all, at the cost of those
--- stacks. More than ten kinds page with the wheel so every one is reachable; the page row itself is Buy all.
+-- The page shows what the merchant sells that the routes still need, with the price for each quantity.
+-- More than ten kinds page with the wheel so every one is reachable.
 RenderMerchantPage = function()
 	merchantPageCount = math.max(1, math.ceil(#merchantPurchases / CELLS_PER_PAGE))
 	if merchantPageIndex > merchantPageCount then
@@ -836,28 +751,12 @@ RenderMerchantPage = function()
 			cell.frame:Hide()
 		end
 	end
-	---@cast merchantBuyAll Button
-	merchantBuyAll:SetText(L["Buy all"] .. "  " .. C_CurrencyInfo.GetCoinTextureString(merchantTotal))
-	merchantBuyAll:SetSize(merchantBuyAll:GetTextWidth() + 32, 22)
 end
 
 local function RefreshMerchant()
 	local shown = MerchantFrame ~= nil and MerchantFrame:IsShown()
-	if shown ~= merchantShown then
-		if not shown then
-			SelectMerchantTab(false)
-		end
-		merchantShown = shown
-	end
-	local purchases, cost = {}, 0
-	if ns.db.merchantButton and shown then
-		purchases, cost = MerchantPurchases()
-	end
-	merchantPurchases, merchantTotal = purchases, cost
-	-- Whatever the player agreed to is out of date once the merchant, the bags or the route change.
-	if confirm and confirm.cost ~= cost then
-		HideConfirm()
-	end
+	local purchases = ns.db.merchantButton and shown and MerchantPurchases() or {}
+	merchantPurchases = purchases
 	if #purchases == 0 then
 		SelectMerchantTab(false)
 		if merchantTab then

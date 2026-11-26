@@ -11,8 +11,6 @@ L["Show recipe tooltip on hover"] = "Mostrar dica da receita ao passar o mouse" 
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"Mostra a dica do SkillUp ao lado da janela de profissões ao passar o mouse sobre uma receita. Desligue para deixar os reagentes visíveis." -- mt
 
-L["%d %s"] = "%d %s"
-L["%d more"] = "mais %d"
 L["%d of %d"] = "%d de %d"
 L["%d reagents have no price"] = "%d reagentes não têm preço"
 L["%d to %d"] = "%d a %d"
@@ -67,7 +65,6 @@ L["Beside the Professions window"] = "Ao lado da janela de profissões"
 L["Buy %d %s"] = "Comprar %d %s"
 L["Buy %s"] = "Comprar %s" -- mt
 L["Buy %s at %d"] = "Comprar %s em %d" -- mt
-L["Buy all"] = "Comprar tudo"
 L["Buy and read %s at %d"] = "Comprar e ler %s em %d"
 L["Buy and read %s at %d (level %d)"] = "Comprar e ler %s em %d (nível %d)"
 L["Buy reagents"] = "Comprar reagentes"

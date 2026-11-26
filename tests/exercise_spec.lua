@@ -394,7 +394,7 @@ local function Surfaces(c)
 		window:Hide()
 	end)
 
-	-- The shopping list, its copy window, and the merchant's buy confirm.
+	-- The shopping list, its copy window, and the merchant's Reagents page.
 	Run(c, "shopping list", function()
 		ns.OpenShoppingList()
 		local window = rawget(G, ADDON .. "ShoppingList")
@@ -407,7 +407,7 @@ local function Surfaces(c)
 		copied:Hide()
 		window:Hide()
 	end)
-	Run(c, "merchant buy confirm", function()
+	Run(c, "merchant Reagents page", function()
 		ns.db.trackedProfessions[129] = true
 		c.bags[3] = 0
 		ns.Changed("merchant")
@@ -415,18 +415,11 @@ local function Surfaces(c)
 		local tab = rawget(G, "SkillUpForeverMerchantTab")
 		assert(tab and tab:IsShown(), "the merchant's Reagents tab exists")
 		tab.scripts.OnClick(tab)
-		local buy = rawget(G, "SkillUpForeverMerchantBuyAll")
-		assert(buy and buy:IsShown(), "the tab's Buy all button is shown")
-		buy.scripts.OnClick(buy)
-		local confirm
-		for _, child in ipairs({ G.MerchantFrame:GetChildren() }) do
-			if child.Close then
-				confirm = child
-			end
-		end
-		assert(confirm and confirm:IsShown(), "the buy confirm is shown")
-		confirm.Close.scripts.OnClick(confirm.Close)
-		assert(not confirm:IsShown(), "the buy confirm is closed")
+		local page = rawget(G, "SkillUpForeverMerchantPage")
+		assert(page and page:IsShown(), "the Reagents page is shown")
+		assert(page.Items[1].frame:IsShown(), "the page lists a reagent")
+		c.ClickTab(1)
+		assert(not page:IsShown(), "returning to Merchant closes the Reagents page")
 	end)
 
 	-- The auction house's bar, drawn only while its own frame is shown.

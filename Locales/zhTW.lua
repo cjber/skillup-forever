@@ -11,8 +11,6 @@ L["Show recipe tooltip on hover"] = "滑鼠指向時顯示配方提示" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"滑鼠指向配方時在專業視窗旁顯示 SkillUp 提示。關閉可避免遮擋材料。" -- mt
 
-L["%d %s"] = "%d %s"
-L["%d more"] = "還有%d個"
 L["%d of %d"] = "%d/%d"
 L["%d reagents have no price"] = "%d 種材料沒有價格"
 L["%d to %d"] = "%d至%d"
@@ -68,7 +66,6 @@ L["Beside the Professions window"] = "專業技能視窗旁邊"
 L["Buy %d %s"] = "購買%d個%s"
 L["Buy %s"] = "購買%s" -- mt
 L["Buy %s at %d"] = "在%2$d購買%1$s" -- mt
-L["Buy all"] = "全部購買"
 L["Buy and read %s at %d"] = "購買並閱讀%s（技能%d）"
 L["Buy and read %s at %d (level %d)"] = "購買並閱讀%s（技能%d，等級%d）"
 L["Buy reagents"] = "購買材料"

@@ -420,24 +420,17 @@ end
 function ns.TrainingFor(profession, recipeID)
 	local seen = ns.db.trainer[profession.skillLine]
 	local training = seen and seen[recipeID]
-	if training and training.side == ns.PlayerSide() then
-		return training
-	end
-	local bundled = ns.TrainerFees[recipeID]
-	if not (training or bundled) or ns.Catalogue.RecipeTrainersUnusable(recipeID) then
+	local offer = training or ns.TrainerFees[recipeID]
+	local localVisit = training and training.side and training.side == ns.PlayerSide()
+	if not offer or (not localVisit and ns.Catalogue.RecipeTrainersUnusable(recipeID)) then
 		return nil
 	end
-	if training then
-		return training
-	end
 	local level = ns.TrainerLevels and ns.TrainerLevels[recipeID]
-	if not level then
-		return bundled
+	-- Only an explicit level (including zero) from a trainer on this side overrides the bundle.
+	if not level or (localVisit and offer[4] ~= nil) then
+		return offer
 	end
-	---@type number[]
-	local gated = { bundled[1], bundled[2] }
-	gated[4] = level
-	return gated
+	return { offer[1], offer[2], offer[3], level }
 end
 
 -- { fee, required base skill }: a recipe's scroll sold by a vendor, whose price is the fee, nil for a
@@ -1489,19 +1482,20 @@ function ns.RouteFollowable(plan)
 	local profession = plan.profession
 	local modifier = profession.modifier
 	local trained = {}
+	local level = UnitLevel("player") or 0
 	for _, training in ipairs(plan.training) do
-		-- A training step the player already took is done, a recipe nobody still teaches can't be learned, and
-		-- one taught later than the route crafts it cannot be trained where the route puts it.
-		if
-			not ns.IsLearned(training.recipeID)
-			and (
-				not (ns.TrainingFor(profession, training.recipeID) or VendorTraining(training.recipeID))
-				or ns.LearnSkill(profession, training.recipeID) > training.usedAt + modifier
-			)
-		then
-			return false
+		local recipeID = training.recipeID
+		if not ns.IsLearned(recipeID) then
+			local offer = ns.TrainingFor(profession, recipeID) or VendorTraining(recipeID)
+			if
+				not offer
+				or (offer[4] and offer[4] > level)
+				or ns.LearnSkill(profession, recipeID) > training.usedAt + modifier
+			then
+				return false
+			end
 		end
-		trained[training.recipeID] = true
+		trained[recipeID] = true
 	end
 	for _, craft in ipairs(plan.crafts) do
 		local recipeID = craft.recipeID

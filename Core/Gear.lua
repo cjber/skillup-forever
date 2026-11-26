@@ -328,8 +328,9 @@ function Gear.List(recipes, facts, query)
 			local state
 			if learned then
 				state = "known"
-			elseif not profession or not skill then
-				-- Without a requirement the recipe cannot be called craftable, so it counts as another's.
+			elseif not profession or not skill or query.locked(recipeID) then
+				-- Without a requirement, or under a specialisation the character lacks, the recipe cannot be
+				-- called craftable, so it counts as another's.
 				state = "other"
 			elseif profession.skill >= skill then
 				state = "trainable"
@@ -406,6 +407,7 @@ function ns.CraftedGear(level, classID)
 		classID = classID,
 		showAll = ns.ShowAllGear(),
 		learned = ns.IsLearned,
+		locked = ns.SpecialisationLocked,
 		professions = professions,
 		weaponSkills = Gear.WeaponSkills(),
 		name = function(itemID)

@@ -2,7 +2,7 @@
 
 import unittest
 
-from gen_recipes import XP_BONUS, buff_effects, buff_items, rank_books
+from gen_recipes import XP_BONUS, buff_effects, buff_items, rank_books, scroll_abilities
 
 
 def effect(spell, kind, trigger=0, points=0, misc=0):
@@ -24,6 +24,26 @@ def item(item_id, price=10000, required=125, level=0, flags=0):
         "RequiredLevel": str(level),
         "Flags_0": str(flags),
     }
+
+
+class ScrollAbilityTests(unittest.TestCase):
+    def test_scrolls_keep_their_own_requirement_for_direct_and_teaching_spells(self):
+        items = [
+            {"ID": "1", "RequiredAbility": "20219", "Flags_0": "0"},
+            {"ID": "2", "RequiredAbility": "20222", "Flags_0": "0"},
+            {"ID": "3", "RequiredAbility": "9787", "Flags_0": "0"},
+        ]
+        classes = [{"ID": "1", "ClassID": "9"}, {"ID": "2", "ClassID": "9"}, {"ID": "3", "ClassID": "4"}]
+        casts = [{"ID": "10", "SpellID": "100"}, {"ID": "11", "SpellID": "101"}]
+        links = [
+            {"ItemID": "1", "ItemEffectID": "10"},
+            {"ItemID": "2", "ItemEffectID": "11"},
+            {"ItemID": "3", "ItemEffectID": "10"},
+        ]
+        self.assertEqual(
+            scroll_abilities({100}, items, classes, casts, links, [effect(101, 36, trigger=100)]),
+            {1: 20219, 2: 20222},
+        )
 
 
 class RankBookTests(unittest.TestCase):

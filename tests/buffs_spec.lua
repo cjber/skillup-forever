@@ -158,6 +158,13 @@ equal(ns.BuffNodeState(strength.items[1]), "known", "a known node is green")
 equal(ns.BuffNodeState(Row("Attack Power").items[1]), "trainable", "a learnable node is yellow")
 equal(ns.BuffNodeState(Row("Agility").items[2]), "later", "a node still ahead is grey")
 
+-- The patterns for recipes 1 and 4 ask for a specialisation the character lacks.
+ns.ScrollAbilities[9001], ns.ScrollAbilities[9004] = 901, 901
+local lockedItems = Row("Strength").items
+equal(lockedItems[1].state, "known", "a learned recipe stays known under a specialisation lock")
+equal(lockedItems[2].state, "other", "an unlearned one is another crafter's")
+ns.ScrollAbilities[9001], ns.ScrollAbilities[9004] = nil, nil
+
 -- A buff item above the character's level is locked; the level switch leaves it out.
 equal(strength.items[3].locked, true, "a level 20 item is locked at 12")
 equal(ns.BuffNodeState(strength.items[3]), "locked", "and its node is the locked one")

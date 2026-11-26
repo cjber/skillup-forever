@@ -985,7 +985,7 @@ function API.RecipeRequirement(recipeID)
 	if not recipe then
 		return nil, "none"
 	end
-	local training = ns.TrainingFor({ skillLine = recipe.skillLine }, recipeID)
+	local training = ns.ListedTraining({ skillLine = recipe.skillLine }, recipeID)
 	if training then
 		return { skill = training[2], source = "trainer", trainerFee = training[1] }
 	end

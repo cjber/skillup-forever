@@ -160,7 +160,7 @@ equal(Stale(ItemData(CLOTH)), " | ", "item data nothing waits on any more")
 for _, case in ipairs({
 	-- The window's own events redraw what shows it and keep the plans: its scan reports what changed in them.
 	{ "TRADE_SKILL_DATA_SOURCE_CHANGED", "api | route recipeList tracker" },
-	{ "NEW_RECIPE_LEARNED", "schematics plans api | route tracker" },
+	{ "NEW_RECIPE_LEARNED", "schematics plans api | route recipeList tracker" },
 	{ "TRADE_SKILL_SHOW", "api | route recipeList tracker" },
 	-- A weapon or defense skill-up: nothing the plans read.
 	{ "SKILL_LINES_CHANGED", "api | route recipeList tracker" },

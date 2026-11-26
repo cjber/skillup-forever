@@ -411,13 +411,38 @@ local function Snapshot(profession, target, known)
 	return snapshot
 end
 
+---@param itemID integer
+---@return boolean
+function ns.CanUseRecipeItem(itemID)
+	local spell = ns.ScrollAbilities[itemID]
+	return not spell or C_SpellBook.IsSpellKnown(spell)
+end
+
+-- Whether a specialisation keeps this character from a recipe: it has a trainer or a scroll, and each asks
+-- for a specialisation the character does not have.
+---@param recipeID integer
+---@return boolean
+function ns.SpecialisationLocked(recipeID)
+	local trainers = ns.Catalogue.RecipeTrainers(recipeID)
+	for _, npcID in ipairs(trainers or {}) do
+		if ns.Catalogue.RecipeTrainerEligible(npcID) then
+			return false
+		end
+	end
+	local scroll = ns.RecipeScrolls[recipeID]
+	if scroll then
+		return not ns.CanUseRecipeItem(scroll[1])
+	end
+	return trainers ~= nil
+end
+
 -- { fee, required base skill, minimum character level }: what a trainer was seen to charge, else the base
 -- fee and the bundle's level gate; nil for a recipe no trainer teaches. The level sits at the fourth place,
 -- where a visit records it, so both kinds of training read the same.
 ---@param profession {skillLine: integer}
 ---@param recipeID integer
 ---@return SkillUpTrainerRow|number[]|nil
-function ns.TrainingFor(profession, recipeID)
+function ns.ListedTraining(profession, recipeID)
 	local seen = ns.db.trainer[profession.skillLine]
 	local training = seen and seen[recipeID]
 	local offer = training or ns.TrainerFees[recipeID]
@@ -433,6 +458,16 @@ function ns.TrainingFor(profession, recipeID)
 	return { offer[1], offer[2], offer[3], level }
 end
 
+-- The listed training this character's specialisation lets them take.
+---@param profession {skillLine: integer}
+---@param recipeID integer
+---@return SkillUpTrainerRow|number[]|nil
+function ns.TrainingFor(profession, recipeID)
+	if not ns.SpecialisationLocked(recipeID) then
+		return ns.ListedTraining(profession, recipeID)
+	end
+end
+
 -- { fee, required base skill }: a recipe's scroll sold by a vendor, whose price is the fee, nil for a
 -- recipe with no such scroll. A price seen at a merchant proves the vendor sells it; else the catalogue
 -- must name a vendor, so a drop nobody sells is never planned as a purchase (#358).
@@ -442,7 +477,7 @@ end
 local function VendorTraining(recipeID, targetBase)
 	local scroll = ns.RecipeScrolls and ns.RecipeScrolls[recipeID]
 	local item = scroll and scroll[1]
-	if not item or (targetBase and scroll[2] >= targetBase) then
+	if not item or not ns.CanUseRecipeItem(item) or (targetBase and scroll[2] >= targetBase) then
 		return nil
 	end
 	---@type number?
@@ -523,7 +558,7 @@ local BAND_NAMES = { "orange", "yellow", "green", "grey" }
 ---@param recipeID integer
 ---@return SkillUpLearnSource?
 function ns.LearnSource(profession, recipeID)
-	local training = ns.TrainingFor(profession, recipeID)
+	local training = ns.ListedTraining(profession, recipeID)
 	if training then
 		-- A visit records 0 for a service that asks no level.
 		local level = training[4]
@@ -598,7 +633,11 @@ end
 function ns.UnlearnedRecipes(profession)
 	local found = {}
 	for recipeID, recipe in pairs(ns.RecipeData) do
-		if recipe.skillLine == profession.skillLine and not ns.IsLearned(recipeID) then
+		if
+			recipe.skillLine == profession.skillLine
+			and not ns.IsLearned(recipeID)
+			and not ns.SpecialisationLocked(recipeID)
+		then
 			local source = ns.LearnSource(profession, recipeID)
 			if source then
 				local name = C_Spell.GetSpellName(recipeID)

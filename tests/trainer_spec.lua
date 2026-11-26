@@ -29,7 +29,13 @@ local ns = {
 		end,
 	},
 	RecipeScrolls = {},
-	Catalogue = { Recipe = function() end },
+	Catalogue = {
+		Recipe = function() end,
+		RecipeTrainersUnusable = function()
+			return false
+		end,
+		RecipeTrainers = function() end,
+	},
 	UsableBuffs = function()
 		return {}
 	end,

@@ -95,6 +95,9 @@
 ---@field UsableBuffs fun(level: number): table<integer, true> The recipes whose product is a buff this level can use.
 ---@field BuffText fun(itemID: integer): string? The buff a crafted item leaves, in the game's own words; nil for an item that leaves none.
 ---@field Gear SkillUpGear
+---@field CanUseRecipeItem fun(itemID: integer): boolean
+---@field SpecialisationLocked fun(recipeID: integer): boolean
+---@field ListedTraining fun(profession: {skillLine: integer}, recipeID: integer): SkillUpTrainerRow|number[]|nil
 ---@field TrainingFor fun(profession: {skillLine: integer}, recipeID: integer): SkillUpTrainerRow|number[]|nil
 ---@field TrainerChecks fun(): SkillUpTrainerCheck[]
 ---@field TrainerReport fun(): string[]
@@ -258,6 +261,8 @@
 ---@field Thresholds table<integer, number[]>
 ---@field VendorPrices table<integer, number>
 ---@field RecipeData table<integer, SkillUpRecipe>
+---@field ScrollAbilities table<integer, integer> Required spell by recipe item.
+---@field TrainerAbilities table<integer, integer> Required spell by recipe trainer NPC.
 ---@field RecipeScrolls table<integer, number[]> { scroll item, required skill } per recipe spell.
 ---@field RankBooks table<integer, number[][]> per skill line: { cap, book item, list price, required skill, level }.
 ---@field RankQuests table<integer, (number|string)[][]> per skill line: { cap, quest, required skill, level, side "A"/"H" }.
@@ -797,6 +802,7 @@ SkillUpForeverDB = nil
 ---@field classID integer
 ---@field showAll boolean List rows the character cannot make yet too.
 ---@field learned fun(recipeID: integer): boolean
+---@field locked fun(recipeID: integer): boolean Whether a specialisation keeps the character from it.
 ---@field professions table<integer, SkillUpProfession> The character's, by skill line.
 ---@field weaponSkills table<integer, number>? The weapon skill lines the character knows, or nil.
 ---@field name fun(itemID: integer): string?

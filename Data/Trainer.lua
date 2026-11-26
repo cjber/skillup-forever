@@ -2,7 +2,7 @@
 -- Source: CMaNGOS classic-db 22b51464f1625f6ef6275771de1f5466c6f5d19e npc_trainer and quest_template (GPL-3.0),
 -- base fees before reputation discounts; teaching spell -> recipe via wago.tools SpellEffect (LEARN_SPELL),
 -- wow_classic_era 1.15.9.70576; recipes limited to wow_classic_beta 1.60.1.71139 thresholds.
--- Specialisation-gated rows are left out. Fees seen at a trainer win; each recipe names the trainers it has.
+-- Fees seen at a trainer win; each recipe names the trainers it has.
 -- A required skill moves as far as Forever 1.60.1.71139 moved the recipe's yellow and grey from
 -- Classic Era 1.15.9.70576's (SkillLineAbility).
 -- Exact requirements from trainer windows: [2167, 2662, 3326].
@@ -1221,4 +1221,26 @@ ns.RankQuests = {
 	[129] = { { 300, 6624, 225, 35, "A" }, { 300, 6622, 225, 35, "H" } },
 	[185] = { { 300, 6610, 225, 35, "A" }, { 300, 6610, 225, 35, "H" } },
 	[356] = { { 300, 6607, 225, 35, "A" }, { 300, 6607, 225, 35, "H" } },
+}
+
+-- [trainer NPC] = required spell (classic-db TrainerSpell or specialisation quest and membership card).
+-- stylua: ignore
+ns.TrainerAbilities = {
+	[5164] = 9788,
+	[7230] = 9788,
+	[7231] = 9787,
+	[7232] = 9787,
+	[7406] = 20219,
+	[7866] = 10656,
+	[7867] = 10656,
+	[7868] = 10658,
+	[7869] = 10658,
+	[7870] = 10660,
+	[7871] = 10660,
+	[7944] = 20219,
+	[8126] = 20222,
+	[8738] = 20222,
+	[11146] = 9787,
+	[11177] = 9788,
+	[11178] = 9787,
 }

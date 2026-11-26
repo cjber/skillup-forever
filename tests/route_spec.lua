@@ -218,6 +218,9 @@ page = {
 	ScrollPrice = function() end,
 	-- No Questie or AtlasLoot: the one line saying what to install.
 	Catalogue = {
+		RecipeTrainersUnusable = function()
+			return false
+		end,
 		Hint = function()
 			return "Install both."
 		end,

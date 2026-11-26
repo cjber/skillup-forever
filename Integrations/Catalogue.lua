@@ -74,6 +74,8 @@ local professions = {}
 -- [itemID] = false while its vendors are being read, then true.
 ---@type table<integer, boolean>
 local vendorsRead = {}
+---@type table<integer, boolean>
+local trainerSetsRead = {}
 -- [itemID] = false while its droppers are being read, then true.
 ---@type table<integer, boolean>
 local dropsRead = {}
@@ -86,6 +88,7 @@ local scanning = false
 -- Everything read so far is dropped and read again: a provider became ready, so a miss may now be a hit.
 local function Reset()
 	items, npcs, quests, professions, vendorsRead, dropsRead, taught, scanning = {}, {}, {}, {}, {}, {}, nil, false
+	trainerSetsRead = {}
 	queue, head, tail = {}, 1, 0
 	if running then
 		dirty = true
@@ -462,44 +465,72 @@ function C.EnsureProfession(skillLine)
 	return false
 end
 
--- True once the NPCs of one of an item's source lists are read, so the nearest can be picked without a read on
--- the way. `read` is that list's own record of what has been asked for, and `field` the list it names.
----@param itemID integer
+-- True when no NPC reads are pending for this list, including when Questie is unavailable.
+-- The list's read table records false while queued and true when the reads finish.
+---@param id integer
 ---@param read table<integer, boolean>
----@param field 'vendors'|'drops'
+---@param list fun(): integer[]?
 ---@return boolean
-local function EnsureNPCs(itemID, read, field)
+local function EnsureNPCs(id, read, list)
 	-- Without Questie nobody is known, and there is nothing to read.
 	if Q.State() ~= "ready" then
 		return true
 	end
-	if read[itemID] ~= nil then
-		return read[itemID]
+	if read[id] ~= nil then
+		return read[id]
 	end
-	read[itemID] = false
+	read[id] = false
 	Enqueue(function()
-		local found = C.ItemSources(itemID)
-		ReadNPCs(found and found[field] or {})
+		ReadNPCs(list() or {})
 		Enqueue(function()
-			read[itemID] = true
+			read[id] = true
 			dirty = true
 		end)
 	end)
 	return false
 end
 
+-- Missing NPC records and an unknown player side leave bundled training available.
+---@param recipeID integer
+---@return boolean
+function C.RecipeTrainersUnusable(recipeID)
+	local set = ns.RecipeTrainerSets and ns.RecipeTrainerSets[recipeID]
+	local trainers = set and ns.TrainerSets and ns.TrainerSets[set]
+	if not trainers or #trainers == 0 or not ns.PlayerSide() then
+		return false
+	end
+	for _, npcID in ipairs(trainers) do
+		local npc = npcs[npcID]
+		if npc == nil then
+			EnsureNPCs(set, trainerSetsRead, function()
+				return trainers
+			end)
+		end
+		if not npc or ns.SourceFactionUsable(npc.side) then
+			return false
+		end
+	end
+	return true
+end
+
 -- True once an item's vendors are read, so the nearest can be picked without a read on the way.
 ---@param itemID integer
 ---@return boolean
 function C.EnsureVendors(itemID)
-	return EnsureNPCs(itemID, vendorsRead, "vendors")
+	return EnsureNPCs(itemID, vendorsRead, function()
+		local found = C.ItemSources(itemID)
+		return found and found.vendors or nil
+	end)
 end
 
 -- True once an item's droppers are read, so the nearest can be picked without a read on the way.
 ---@param itemID integer
 ---@return boolean
 function C.EnsureDrops(itemID)
-	return EnsureNPCs(itemID, dropsRead, "drops")
+	return EnsureNPCs(itemID, dropsRead, function()
+		local found = C.ItemSources(itemID)
+		return found and found.drops or nil
+	end)
 end
 
 -- Starts looking for the providers. An addon that loads later is picked up, and so is Questie finishing

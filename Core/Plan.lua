@@ -424,8 +424,14 @@ function ns.TrainingFor(profession, recipeID)
 		return training
 	end
 	local bundled = ns.TrainerFees[recipeID]
-	local level = bundled and ns.TrainerLevels and ns.TrainerLevels[recipeID]
-	if not (bundled and level) then
+	if not bundled then
+		return nil
+	end
+	if ns.Catalogue.RecipeTrainersUnusable(recipeID) then
+		return nil
+	end
+	local level = ns.TrainerLevels and ns.TrainerLevels[recipeID]
+	if not level then
 		return bundled
 	end
 	---@type number[]

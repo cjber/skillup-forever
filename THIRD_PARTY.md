@@ -44,6 +44,7 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| user_46x8szwptrswqttc | Reported a route sending them to a trainer for Troll's Blood Elixir | CurseForge; thread 100011189; #1021 |
 | AlteredIgor | Open chat after closing Professions in Gamepad UI | CurseForge, thread 8771450, #967 |
 | Benjy_Boi | Reported that resetting SkillUp's settings page could reset game settings and keybindings | CurseForge; comment 8722308; #925 |
 | DemDragons | Reported lag planning routes with limited vendor stock | CurseForge; comment 8764076; #904 |

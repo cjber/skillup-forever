@@ -348,6 +348,13 @@ equal(page ~= nil, true, "the buffs page is built")
 page.Inset:SetWidth(260)
 page.Inset:SetHeight(482)
 page:Show()
+local _, originalSize = page.Detail.Learn:GetFont()
+c.G.Settings.SetValue("SkillUpForever_windowScale", 150)
+local _, largerSize = page.Detail.Learn:GetFont()
+equal(largerSize, originalSize * 1.5, "window scale enlarges the buff's reagent line")
+c.G.Settings.SetValue("SkillUpForever_windowScale", 100)
+local _, resetSize = page.Detail.Learn:GetFont()
+equal(resetSize, originalSize, "the buff's reagent line returns to its stock size")
 page.Rows:RenderRows()
 -- #599: the level switch sits beside the inset's title, its bottom clear of the inset's top edge, so the
 -- skill axis and its tick labels below can never run under it at any window width.

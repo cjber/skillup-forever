@@ -3,7 +3,7 @@
   "producers": [
     {
       "source": "UI/List.lua",
-      "sha256": "e420992a54f660c2304cecd958b948156d60a66586743e6a00736ec6965ddd44",
+      "sha256": "6abc8551b8887c111ab671d9365e9d0af26efe56502d5bc3dd695773453d7ec9",
       "review": "Reviewed BuildRow, InitializeRow, InitializeHeading, InitializeMessage, BuildBand, InitializeBand, BuildLine and InitializeLine and CreateList callers in Route.lua. Each element kind has its own pool and explicit FontObjects; callbacks change text and colour, never fonts. Range uses GameFontNormalSmall. Pins the row, line and message fonts used by Route.lua bindings. Dynamic entry text, skill numbers and rank names are not covered. Reviewed #869: InitializeMessage anchors its text by the row's top corners and the list redraws on a parent width change; same GameFontNormal message FontString, no font change.",
       "bindings": [
         {
@@ -318,7 +318,7 @@
     },
     {
       "source": "UI/Gear.lua",
-      "sha256": "df2dd3162bbe000bda40851701ff9f64cd2e1db10470c1ca704cec63d862071c",
+      "sha256": "86cc86af81a8f5a02a4b0dfcfc5b19dc3e39999ba39e769b57b7e6122f0020ce",
       "review": "Reviewed CreateRow, FillRow, RenderReagents, RenderOthers, RenderDetail, Requirement, CreateShowAll, CreateDetail and CreatePage. Explicit FontStrings retain their creation fonts; colour changes do not change FontObjects. Bound local phrases reaching these widgets. SharedButtonSmallTemplate action text is produced by PageParts and excluded here; page registration titles, tooltips, game item names and helper output are excluded. No font overrides occur.",
       "bindings": [
         {
@@ -370,7 +370,7 @@
     },
     {
       "source": "UI/Buffs.lua",
-      "sha256": "2f1b648cd8c026413c2deec3c0a648501414e795dc874e9d093123b76956a04e",
+      "sha256": "68dfde94c04b1154c64b55eb68038075948864a3ba91050df4c25602f795c5c1",
       "review": "Reviewed CreateFurniture, CreateLevelCheck, CreatePage, Render, RenderDetail, LearnLine, RenderDivider and row initialization. Title and Learn use GameFontNormal; legend, LevelLabel and DividerLabel use GameFontNormalSmall; Empty uses GameFontHighlight. No later font overrides occur. PageParts.CreateHeader fixes Skill to GameFontNormal. Bound local phrases only. Dynamic buff descriptions, row names, rank names, helper results, menu text, tooltips and inserted game text are excluded. Action button helper phrases are reviewed with PageParts.lua.",
       "bindings": [
         {
@@ -591,7 +591,7 @@
     },
     {
       "source": "UI/ShoppingList.lua",
-      "sha256": "295f7a2c3c528e1ed75c908507c90dab14df6dbe01535a5afc6ab255e07831e6",
+      "sha256": "26f76f6a3472d5be27dceb0c6fe8baaaafad9f8778dc46419a812ee7bc523076",
       "review": "Reviewed Copy, Heading, Note, NewRow, Refresh and Create. hint, pooled name, emptyText and footer have explicit fonts. summary, pooled detail and notes use GameFontHighlightSmall; headings use GameFontNormalLarge. No font changes after construction. copyEdit explicitly uses ChatFontNormal but contains external ShoppingText output, excluded. Copy/trip buttons use pinned SharedButtonSmallTemplate normal/highlight/disabled GameFontNormal/GameFontHighlight/GameFontDisable. Portrait window title inheritance was not established, so window titles are excluded. Helper-generated notes, spares, copy text, inserted item/profession/player names and tooltip text are excluded. Reviewed #860: the auction note hides when AuctionListNote returns nil; same Note FontString, helper text still excluded.",
       "bindings": [
         {
@@ -742,13 +742,13 @@
     },
     {
       "source": "UI/Settings.lua",
-      "sha256": "1e1a9fe0b0ffad69f98b54e395bc6b10999ab2e9bb29425d3ae3e56009f80765",
+      "sha256": "c931af1737cbdcaa498b5288fabfacaff6ab0c773c67778271e9ad98e3008ac7",
       "review": "Reviewed Register, Checkbox, Choice, Section and RegisterSettings. Localized labels and descriptions are delegated to Blizzard settings initializers and shared settings/family helpers. No explicit FontString font is established by this file; initializer-owned fonts, menus and tooltip descriptions are excluded. Reviewed #880: the reagent search checkbox passes both revised phrases to the same settings initializer. Reviewed #873: the Route and trainer page's Attach to quest tracker row is ForeverCore.SettingsSections.RegisterTrackerAttach, a core-owned initializer, registered only when the running core has it (an older adopted standalone does not); excluded with the other settings fonts. Reviewed the Forever Ledger price source: four descriptions name it and the price source choice gains an option, passed to the same initializers; no font change. Reviewed #1025: the crafted item price checkbox uses the existing settings initializer and its fonts.",
       "bindings": []
     },
     {
       "source": "UI/Pages.lua",
-      "sha256": "e430aaa1c3268aac5a162e74925d2ff7f134014f074abe0383a97c68efa9bd1e",
+      "sha256": "31389a0d1a012831037800b251510073e8ecd6257ad7bb6f6860a2bc9cb5e5a6",
       "review": "Reviewed CreateBottomTab, Sync, Show, CreateFrames and Register. Bottom tab titles come from page specs and PanelTabButtonTemplate. Pinned SharedUIPanelTemplates.xml supplies GameFontNormalSmall and GameFontHighlightSmall, but PanelTemplates selection changes disabled fonts in SharedUIPanelTemplates.lua. Caller-provided titles and selection-dependent fonts are excluded from this review; side tab wording is a tooltip. Reviewed ProfessionChanged, Show and Hide: only selection state and visibility change; tab titles and native font states remain unchanged.",
       "bindings": []
     },

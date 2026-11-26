@@ -39,6 +39,8 @@ local function Register(target, key, varType, name)
 		elseif key == "auctionShoppingLists" then
 			ns.SyncAuctionShoppingLists()
 			ns.Changed("settings")
+		elseif key == "windowScale" then
+			ns.Changed("windowScale")
 		else
 			ns.Changed("settings")
 		end
@@ -70,6 +72,20 @@ local function Choice(target, key, name, options, tooltip)
 			tooltip
 		)
 	)
+end
+
+local function Percent(value)
+	return value .. "%"
+end
+
+local function PercentSlider(target, setting, minimum, maximum, tooltip)
+	local options = Secure(Settings.CreateSliderOptions)(minimum, maximum, 10)
+	Secure(options.SetLabelFormatter)(
+		options,
+		MinimalSliderWithSteppersMixin.Label.Right,
+		Secure(_G.GenerateClosure)(_G.securecallfunction, Percent)
+	)
+	Settings.RegisterInitializer(target, Secure(Settings.CreateSliderInitializer)(setting, options, tooltip))
 end
 
 -- A phrase is one key however long, so its line may run past the limit.
@@ -255,6 +271,13 @@ function ns.RegisterSettings()
 			L["Show tracked professions"],
 			L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."]
 		)
+		PercentSlider(
+			rows,
+			Register(rows, "windowScale", Settings.VarType.Number, L["Window scale"]),
+			80,
+			150,
+			L["Resizes the Shopping list and its copy window, and changes the size of reagent text on SkillUp profession pages."]
+		)
 		local host = ForeverCore.TrackerHost
 		-- The shared column's attach choice, the same row and words in every Forever addon (forever-core#910).
 		local sections = ForeverCore.SettingsSections
@@ -277,21 +300,12 @@ function ns.RegisterSettings()
 				end
 			)
 			---@cast scale SkillUpSetting
-			local scaleOptions = Secure(Settings.CreateSliderOptions)(50, 200, 10)
-			Secure(scaleOptions.SetLabelFormatter)(
-				scaleOptions,
-				MinimalSliderWithSteppersMixin.Label.Right,
-				Secure(_G.GenerateClosure)(_G.securecallfunction, function(value)
-					return value .. "%"
-				end)
-			)
-			Settings.RegisterInitializer(
+			PercentSlider(
 				rows,
-				Secure(Settings.CreateSliderInitializer)(
-					scale,
-					scaleOptions,
-					L["Scales the shared Forever tracker. 100% matches the game's own tracker."]
-				)
+				scale,
+				50,
+				200,
+				L["Scales the shared Forever tracker. 100% matches the game's own tracker."]
 			)
 		end
 		-- Lock keeps the detached column where it is: the grip ignores drag while it is on. It only writes the saved

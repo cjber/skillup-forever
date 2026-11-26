@@ -49,6 +49,7 @@ local DEFAULTS = {
 	showRouteTab = true,
 	showProfessionTabs = true,
 	showTracker = true,
+	windowScale = 100,
 	showGearTab = false,
 	showBuffsTab = true,
 	lastSkillUpPage = {}, -- ["Name-Realm"] = "route" | "gear" | "buffs": the SkillUp page the side tab reopens
@@ -265,6 +266,9 @@ local function LoadDB()
 		if type(loaded[key]) ~= type(value) then
 			loaded[key] = type(value) == "table" and {} or value
 		end
+	end
+	if not (loaded.windowScale >= 80 and loaded.windowScale <= 150) then
+		loaded.windowScale = DEFAULTS.windowScale
 	end
 	-- A vendor saved before builds were recorded is stamped with the build that upgrades it, so it is
 	-- used for two more builds and then stops being named.

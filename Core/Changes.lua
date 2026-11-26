@@ -38,6 +38,7 @@ local ORDER = {
 	"detailsBar",
 	"recipePreview",
 	"shoppingList",
+	"windowScale",
 }
 
 ---@type table<SkillUpChange, table<SkillUpStale, true>>
@@ -237,6 +238,7 @@ local STALE = {
 		tracker = true,
 		shoppingList = true,
 	},
+	windowScale = { windowScale = true },
 	settings = {
 		recipePreview = true,
 		tooltipCache = true,

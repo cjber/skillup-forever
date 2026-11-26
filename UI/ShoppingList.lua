@@ -36,6 +36,7 @@ local function Copy(text)
 		copyWindow = CreateFrame("Frame", addonName .. "ShoppingCopy", UIParent, "PortraitFrameTemplate")
 		table.insert(UISpecialFrames, addonName .. "ShoppingCopy")
 		copyWindow:SetSize(460, 380)
+		copyWindow:SetScale(ns.db.windowScale / 100)
 		copyWindow:SetFrameStrata("DIALOG")
 		copyWindow:SetToplevel(true)
 		copyWindow:SetClampedToScreen(true)
@@ -284,6 +285,7 @@ local function Create()
 	frame = CreateFrame("Frame", addonName .. "ShoppingList", UIParent, "PortraitFrameTemplate")
 	table.insert(UISpecialFrames, addonName .. "ShoppingList")
 	frame:SetSize(620, 500)
+	frame:SetScale(ns.db.windowScale / 100)
 	frame:SetPoint("CENTER")
 	frame:SetFrameStrata("DIALOG")
 	frame:SetToplevel(true)
@@ -380,3 +382,12 @@ function ns.OpenShoppingList(skillLine)
 	Refresh()
 end
 ns.WhenStale("shoppingList", Refresh)
+ns.WhenStaleObserver("windowScale", function()
+	local scale = ns.db.windowScale / 100
+	if frame and frame:GetScale() ~= scale then
+		frame:SetScale(scale)
+	end
+	if copyWindow and copyWindow:GetScale() ~= scale then
+		copyWindow:SetScale(scale)
+	end
+end)

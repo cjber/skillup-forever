@@ -316,6 +316,7 @@
 ---@field buffProfession table<string, integer>
 ---@field onlyBuffsForLevel table<string, boolean>
 ---@field merchantButton boolean
+---@field windowScale number
 ---@field auctionShoppingLists boolean
 ---@field auctionSearch boolean
 ---@field detailsBar boolean
@@ -563,8 +564,8 @@ SkillUpForeverDB = nil
 ---@field count number
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
----@alias SkillUpChange 'recipeFilter'|'preview'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'replan'
----@alias SkillUpStale 'craftCosts'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'
+---@alias SkillUpChange 'recipeFilter'|'preview'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'windowScale'|'replan'
+---@alias SkillUpStale 'craftCosts'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'|'windowScale'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'ahdb'|'naowh'|'foreverledger'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'
 ---@alias SkillUpShoppingSource 'gather'|'vendor'|'auction'|'unknown'
@@ -860,6 +861,7 @@ SkillUpForeverDB = nil
 
 -- The one side tab and the bottom tabs of the pages that are on (UI/Pages.lua).
 ---@class SkillUpPages
+---@field ScaleReagentText fun(text: FontString)
 ---@field Register fun(spec: SkillUpPageSpec)
 ---@field Unlocked fun(fn: fun()): boolean
 ---@field Close fun(id: SkillUpPageID)

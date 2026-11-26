@@ -159,6 +159,7 @@ local function BuildRow(row)
 	-- The StatusBar is a child frame, so its fill draws over the row's own layers. Its count is drawn
 	-- on the bar itself, above the fill, as the native progress bar draws its text.
 	row.BarText = row.Bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	ns.Pages.ScaleReagentText(row.BarText)
 	row.BarText:SetPoint("CENTER", row.Bar, "CENTER", 0, 0)
 	row.BarBg:Hide()
 	row.Bar:Hide()

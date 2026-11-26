@@ -543,6 +543,7 @@ local function Stub()
 end
 
 local created, named, hooks, postCalls, loaded = {}, {}, {}, {}, {}
+local afterEvents = {}
 local learned, spellNames = {}, {}
 for _, id in ipairs(STATE.learned) do
 	learned[id] = true
@@ -643,7 +644,7 @@ env = setmetatable({
 	},
 	UISpecialFrames = {},
 	EventUtil = {
-		ContinueAfterAllEvents = function(fn) fn() end,
+		ContinueAfterAllEvents = function(fn) afterEvents[#afterEvents + 1] = fn end,
 		ContinueOnAddOnLoaded = function(name, fn)
 			loaded[name] = fn
 		end,
@@ -1120,6 +1121,7 @@ end
 
 -- The addon's own start-up (LoadDB and the attaches), minus the recipe list.
 loaded[ADDON]()
+for _, fn in ipairs(afterEvents) do fn() end -- the events have fired: the saved variables exist
 ns.SetPinned(9059, true) -- Handstitched Leather Bracers: chosen for skill-ups in this scene.
 -- The client's crafting page shows the route's next step, so the route's Craft button is armed as it would
 -- be in game. The scene reads that recipe; it selects nothing in Blizzard's page itself (#350, #385).

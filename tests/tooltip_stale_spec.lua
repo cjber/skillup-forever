@@ -86,7 +86,9 @@ local function CreateView()
 	return view
 end
 
-local ns = {}
+local ns = {
+	Pages = { ScaleReagentText = function() end },
+}
 local env = setmetatable({
 	-- SafeCall hands a caught error to the game's handler: here it fails the spec.
 	geterrorhandler = function()

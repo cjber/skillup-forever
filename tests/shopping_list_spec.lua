@@ -288,9 +288,24 @@ for _, child in ipairs({ window:GetChildren() }) do
 	end
 end
 assert(copyButton, "the Copy list button was built")
+equal(window:GetScale(), 1, "the Shopping list opens at its default scale")
+local trackedBeforeResize = c.ns.TrackedNeeds()
+c.G.Settings.SetValue("SkillUpForever_windowScale", 150)
+equal(window:GetScale(), 1.5, "changing the setting resizes the open Shopping list")
+equal(c.ns.TrackedNeeds(), trackedBeforeResize, "resizing preserves the tracked plan")
 copyButton.scripts.OnClick(copyButton)
 local copyWindow = c.G.SkillUpForeverShoppingCopy
 assert(copyWindow, "the copy window was built")
+equal(copyWindow:GetScale(), 1.5, "the copy window opens at the saved setting")
+c.G.Settings.SetValue("SkillUpForever_windowScale", 80)
+equal(window:GetScale(), 0.8, "the open Shopping list shrinks")
+equal(copyWindow:GetScale(), 0.8, "the open copy window shrinks with it")
+local reloaded = Client.load({ saved = { windowScale = c.ns.db.windowScale } })
+reloaded.EnterWorld()
+reloaded.Advance(0)
+equal(reloaded.G.SkillUpForeverShoppingList:GetScale(), 0.8, "the Shopping list starts at the saved scale after reload")
+local invalid = Client.load({ saved = { windowScale = 900 } })
+equal(invalid.ns.db.windowScale, 100, "out of range saved scales fall back to 100%")
 equal(copyWindow.title, c.ns.L["Copy shopping list"], "the copy window has its own title")
 local anchor = copyWindow.points[1]
 equal(anchor[1], "TOPLEFT", "the copy window anchors from its top left")

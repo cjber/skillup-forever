@@ -39,6 +39,14 @@ equal(ns.db.trackerHost, nil, "the old tracker table is offered once, then dropp
 local settings = c.G.ForeverCoreDB.trackerHost
 equal(settings.migrated, true, "core marks the copy done")
 equal(settings.scale, 1.5, "and keeps the scale the player chose")
+equal(settings.attached, true, "the host starts attached to the quest tracker")
+local column = module:GetParent()
+equal(column:GetScale(), 1.5, "the attached section's parent uses the saved tracker scale")
+c.G.Settings.SetValue("SkillUpForever_trackerScale", 120)
+c.Advance(0)
+equal(column:GetScale(), 1.2, "the existing slider rescales the attached host")
+equal(module:GetParent(), column, "SkillUp stays parented to the scaled host")
+equal(c.G.ObjectiveTrackerFrame:GetScale(), 1, "Blizzard's tracker keeps its own scale")
 equal(settings.locked, true, "and its Lock")
 
 -- One tracked profession with no training step and no missing reagent, so every layout says it is ready. The

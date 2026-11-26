@@ -195,4 +195,28 @@ for _, fixture in ipairs({ { "Horde", true }, { "Alliance", false } }) do
 	equal(#fallback.ns.PlanRoute(profession).training, 1, "the route still plans the training")
 end
 
+-- A stored fee or a visit from another faction does not remove a bundled character-level gate.
+for _, visit in ipairs({
+	{ 400, 150, 150 },
+	{ 400, 150, 150, side = "A" },
+	{ 400, 150, 150, 0, side = "H" },
+}) do
+	local alliance, profession = Load("Alliance", 35, true, GUARDIAN_GLOVES)
+	local rules = alliance.ns
+	rules.db.trainer[LEATHERWORKING] = { [GUARDIAN_GLOVES] = visit }
+	equal(rules.TrainingFor(profession, GUARDIAN_GLOVES)[4], 45, "a saved row falls back to the bundled level")
+	equal(#rules.PlanRoute(profession).training, 0, "the route waits for the bundled level")
+end
+
+do
+	local alliance, profession = Load("Alliance", 35, true, GUARDIAN_GLOVES)
+	local rules = alliance.ns
+	local visit = { 400, 150, 150, 0, side = "A" }
+	rules.db.trainer[LEATHERWORKING] = { [GUARDIAN_GLOVES] = visit }
+	equal(#rules.PlanRoute(profession).training, 1, "a same-faction visit can confirm there is no gate")
+	visit[4] = 45
+	rules.Changed("fees")
+	equal(#rules.PlanRoute(profession).training, 0, "a newly recorded gate also removes a followed lesson")
+end
+
 Client.report("recipe_trainer_spec")

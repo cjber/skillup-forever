@@ -94,6 +94,8 @@ Open a profession and the numbers are already there.
 
 Settings cover rows and tooltips, prices, sort order, the tabs and trainer annotations. **Include Working Overtime estimate** starts off, so chances use the base formula. Crafted gear and reagent tooltips start off, each one setting away.
 
+Enable **Show prices on crafted item tooltips** under **Tooltips and sorting** to compare the lowest known crafting cost per item with its latest Auctionator price after the auction house cut, including on item links in chat.
+
 ## Prices
 
 Each reagent uses the cheapest known vendor or auction price, and visiting a vendor records its prices and reputation discounts. *Buy reagents* is on by default, so materials your professions gather are bought; choose gathering to supply them yourself. *Value gathered materials at what they'd sell for* is on for new installs and costs them at their sale value; turn it off to count them as free. *Price self-supplied reagents at auction values* prices what you gather, loot or own at market value, and leaves it unpriced when there is none.

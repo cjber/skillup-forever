@@ -11,8 +11,6 @@ L["Show recipe tooltip on hover"] = "悬停时显示配方提示" -- mt
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"悬停配方时在专业窗口旁显示 SkillUp 提示。关闭可避免遮挡材料。" -- mt
 
-L["%d %s"] = "%d %s"
-L["%d more"] = "还有%d个"
 L["%d of %d"] = "%d/%d"
 L["%d reagents have no price"] = "%d 种材料没有价格"
 L["%d to %d"] = "%d至%d"
@@ -68,11 +66,11 @@ L["Beside the Professions window"] = "专业窗口旁边"
 L["Buy %d %s"] = "购买%d个%s"
 L["Buy %s"] = "购买%s" -- mt
 L["Buy %s at %d"] = "在%2$d购买%1$s" -- mt
-L["Buy all"] = "全部购买"
 L["Buy and read %s at %d"] = "购买并阅读%s（技能%d）"
 L["Buy and read %s at %d (level %d)"] = "购买并阅读%s（技能%d，等级%d）"
 L["Buy reagents"] = "购买材料"
 L["Buy reagents at the auction house"] = "在拍卖行购买材料"
+L["Buy these items on the Merchant tab."] = "在“商人”标签页购买这些物品。" -- mt
 L["Can learn it"] = "可以学习"
 L["Cheapest skill-up"] = "最便宜的技能提升"
 L["Chest"] = "胸部"
@@ -82,6 +80,8 @@ L["Click to craft %d."] = "点击制造%d个。"
 L["Click to open the recipe."] = "点击打开配方。"
 L["Click to show a recipe again."] = "点击恢复显示一个配方。"
 L["Close"] = "关闭"
+L["Compare the lowest known crafting cost per item with its Auctionator price after the 5% cut."] =
+	"比较每件物品已知的最低制造成本与扣除5%手续费后的Auctionator价格。" -- mt
 L["Complete %s at %d"] = "完成%s（技能%d）"
 L["Complete %s at %d (level %d)"] = "完成%s（技能%d，等级%d）"
 L["Complete %s first: you're at your cap."] = "请先完成%s：你已达上限。"
@@ -94,6 +94,7 @@ L["Craft %s"] = "制造%s"
 L["Craft"] = "制造"
 L["Craft next"] = "制造下一个"
 L["Crafted gear"] = "制造装备"
+L["Crafting cost: %s / Auctionator sale: %s"] = "制造成本：%s / Auctionator售价：%s" -- mt
 L["Crafts"] = "制造次数"
 L["Don't count it"] = "不计入"
 L["Dropped by"] = "掉落自"
@@ -188,6 +189,8 @@ L["Required skill, skill-up chance and cost on profession trainer recipes, and w
 	"在专业训练师的配方上显示所需技能、技能提升几率和成本，并指出你的路线下一步最适合学习哪个。"
 L["Requires"] = "需要"
 L["Replan"] = "重新规划"
+L["Resizes the Shopping list and its copy window, and changes the size of reagent text on SkillUp profession pages."] =
+	"调整购物清单及其复制窗口的大小，并更改SkillUp专业页面上材料文字的大小。" -- mt
 L["Route"] = "路线"
 L["Route and trainer"] = "路线和训练师"
 L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
@@ -209,6 +212,7 @@ L["Shift: used in %d of your recipes"] = "Shift：用于你的%d个配方"
 L["Shoulder"] = "肩部"
 L["Show again: %s"] = "恢复显示：%s"
 L["Show gear I cannot make yet"] = "显示我还不能制造的装备"
+L["Show prices on crafted item tooltips"] = "在制造物品的提示中显示价格" -- mt
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"在目标追踪栏中显示专业路线。隐藏时会保留你追踪的专业和目标。"
 L["Show skill on recipe rows"] = "在配方行显示技能"
@@ -269,6 +273,7 @@ L["Waypoint to the quest giver: %s"] = "前往任务NPC的路径点：%s"
 L["What's new after an update"] = "更新后的新内容"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
+L["Window scale"] = "窗口缩放" -- mt
 L["World drop"] = "世界掉落"
 L["Wrist"] = "手腕"
 L["You have it"] = "已拥有"

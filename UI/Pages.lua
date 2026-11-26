@@ -39,6 +39,20 @@ local token = 0
 ---@type integer?
 local shownProfession
 
+-- The pages fill the Professions window. Resize reagent text in place so the rows and controls keep their anchors.
+---@type table<FontString, { file: string, size: number, flags: string }>
+local reagentFonts = setmetatable({}, { __mode = "k" })
+
+---@param text FontString
+function ns.Pages.ScaleReagentText(text)
+	local file, size, flags = text:GetFont()
+	---@cast file string
+	reagentFonts[text] = { file = file, size = size, flags = flags }
+	if ns.db.windowScale ~= 100 then
+		text:SetFont(file, size * ns.db.windowScale / 100, flags)
+	end
+end
+
 ---@return boolean
 local function Locked()
 	return type(InCombatLockdown) == "function" and InCombatLockdown()
@@ -339,6 +353,12 @@ local function RefreshSettings()
 end
 
 ns.WhenStale("pages", RefreshSettings)
+ns.WhenStale("windowScale", function()
+	local scale = ns.db.windowScale / 100
+	for text, font in pairs(reagentFonts) do
+		text:SetFont(font.file, font.size * scale, font.flags)
+	end
+end)
 
 ---@return ForeverProfessionTab?
 function ns.Pages.SideTab()

@@ -185,7 +185,11 @@ local function RenderReagents(detail, item)
 	local anchor = { page.Detail.Reagents, page.Detail.Reagents }
 	for index, reagent in ipairs(reagents) do
 		local column = (index - 1) % 2
-		local row = Pooled(page.Detail.ReagentRows, detail, index)
+		local row = page.Detail.ReagentRows[index]
+		if not row then
+			row = Pooled(page.Detail.ReagentRows, detail, index)
+			ns.Pages.ScaleReagentText(row.Detail)
+		end
 		local have = ns.Have(reagent.itemID)
 		local need = reagent.quantity
 		local name = C_Item.GetItemNameByID(reagent.itemID)

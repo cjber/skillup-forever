@@ -270,6 +270,7 @@ local ns = {
 		gatheredValueSeen = true,
 		auctionOnly = false,
 		showBuffsTab = true,
+		windowScale = 100,
 		auctionShoppingLists = true,
 	},
 	RECIPE_TOOLTIP_OPTIONS = { { "window", "Beside" }, { "cursor", "Cursor" }, { "row", "Row" } },
@@ -287,7 +288,7 @@ local ns = {
 	SetIncludeWorkingOvertime = function() end,
 	SyncAuctionShoppingLists = function() end,
 	Changed = function(kind)
-		assert(kind == "settings")
+		assert(kind == "settings" or kind == "windowScale")
 		refreshed = refreshed + 1
 	end,
 }
@@ -364,14 +365,15 @@ local groups = {
 	},
 	{
 		"Route and trainer",
-		"checkbox:showTracker checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
+		"checkbox:showTracker slider:windowScale checkbox:trackerAttached slider:trackerScale checkbox:trackerLocked"
 			.. " checkbox:showRouteTab"
 			.. " checkbox:showGearTab checkbox:showBuffsTab"
 			.. " checkbox:merchantButton checkbox:auctionSearch checkbox:auctionShoppingLists checkbox:showTrainer",
 	},
 	{
 		"Tooltips and sorting",
-		"dropdown:reagentTooltip checkbox:showTooltipRoute checkbox:gatherTooltip dropdown:sortMode",
+		"dropdown:reagentTooltip checkbox:craftedItemTooltip checkbox:showTooltipRoute"
+			.. " checkbox:gatherTooltip dropdown:sortMode",
 	},
 	{ "Addon", "checkbox:whatsNew" },
 }
@@ -465,6 +467,15 @@ assert(notified[#notified] == "SkillUpForever_trackerAttached", "attachment chan
 trackerState.attached = true
 attachmentChanged()
 assert(attachment:GetValue() == true, "another addon reattaches the same host")
+
+local windowScale = Row("windowScale").initializer
+assert(windowScale.kind == "slider" and windowScale.setting.default == 100, "window scale is a 100% slider")
+assert(windowScale.options.minimum == 80 and windowScale.options.maximum == 150, "window scale runs from 80% to 150%")
+assert(windowScale.options.formatter(150) == "150%", "window scale displays a percentage")
+windowScale.setting:SetValue(80)
+assert(ns.db.windowScale == 80, "window scale is saved by the setting")
+windowScale.setting:SetValueToDefault()
+assert(ns.db.windowScale == 100, "window scale resets to 100%")
 
 -- The shared host owns its scale: the slider mirrors it as a percentage and writes it back, so the rows can
 -- be made as large as the game's own tracker.

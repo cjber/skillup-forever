@@ -126,6 +126,7 @@ end
 
 local color = { GetRGB = function() end }
 local ns = {
+	Pages = { ScaleReagentText = function() end },
 	WhenEvent = function() end,
 	WhenStale = function() end,
 	COLORS = { green = color },

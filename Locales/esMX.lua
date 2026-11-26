@@ -11,8 +11,6 @@ L["Show recipe tooltip on hover"] = "Mostrar tooltip de receta al pasar el curso
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"Muestra el tooltip de SkillUp junto a la ventana de profesiones al pasar el cursor por una receta. Desactívalo para ver los componentes sin estorbos." -- mt
 
-L["%d %s"] = "%d %s"
-L["%d more"] = "%d más"
 L["%d of %d"] = "%d de %d"
 L["%d reagents have no price"] = "%d reactivos no tienen precio"
 L["%d to %d"] = "%d a %d"
@@ -69,11 +67,11 @@ L["Beside the Professions window"] = "Junto a la ventana de profesiones"
 L["Buy %d %s"] = "Comprar %d %s"
 L["Buy %s"] = "Comprar %s" -- mt
 L["Buy %s at %d"] = "Comprar %s a %d" -- mt
-L["Buy all"] = "Comprar todo"
 L["Buy and read %s at %d"] = "Comprar y leer %s a %d"
 L["Buy and read %s at %d (level %d)"] = "Comprar y leer %s a %d (nivel %d)"
 L["Buy reagents"] = "Comprar componentes"
 L["Buy reagents at the auction house"] = "Comprar componentes en la casa de subastas"
+L["Buy these items on the Merchant tab."] = "Compra estos objetos en la pestaña «Mercader»." -- mt
 L["Can learn it"] = "Puedes aprenderla"
 L["Cheapest skill-up"] = "Subida de habilidad más barata"
 L["Chest"] = "Pecho"
@@ -83,6 +81,8 @@ L["Click to craft %d."] = "Haz clic para crear %d."
 L["Click to open the recipe."] = "Haz clic para abrir la receta."
 L["Click to show a recipe again."] = "Haz clic para volver a mostrar una receta."
 L["Close"] = "Cerrar"
+L["Compare the lowest known crafting cost per item with its Auctionator price after the 5% cut."] =
+	"Compara el costo de fabricación más bajo conocido por unidad con el precio de Auctionator después de descontar la comisión del 5 %." -- mt
 L["Complete %s at %d"] = "Completar %s a %d"
 L["Complete %s at %d (level %d)"] = "Completar %s a %d (nivel %d)"
 L["Complete %s first: you're at your cap."] = "Completa primero %s: estás en tu máximo."
@@ -95,6 +95,7 @@ L["Craft %s"] = "Crear %s"
 L["Craft"] = "Crear"
 L["Craft next"] = "Crear la siguiente"
 L["Crafted gear"] = "Equipo creado"
+L["Crafting cost: %s / Auctionator sale: %s"] = "Costo de fabricación: %s / Venta según Auctionator: %s" -- mt
 L["Crafts"] = "Creaciones"
 L["Don't count it"] = "No contarlo"
 L["Dropped by"] = "Lo suelta"
@@ -191,6 +192,8 @@ L["Required skill, skill-up chance and cost on profession trainer recipes, and w
 	"Habilidad requerida, probabilidad de subida y costo en las recetas de los instructores de profesión, y cuál conviene aprender después para tu ruta."
 L["Requires"] = "Requiere"
 L["Replan"] = "Replanificar"
+L["Resizes the Shopping list and its copy window, and changes the size of reagent text on SkillUp profession pages."] =
+	"Cambia el tamaño de la lista de compras y de su ventana de copia, así como el tamaño del texto de los componentes en las páginas de profesiones de SkillUp." -- mt
 L["Route"] = "Ruta"
 L["Route and trainer"] = "Ruta e instructor"
 L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
@@ -212,6 +215,7 @@ L["Shift: used in %d of your recipes"] = "Mayús: se usa en %d de tus recetas"
 L["Shoulder"] = "Hombro"
 L["Show again: %s"] = "Se vuelve a mostrar: %s"
 L["Show gear I cannot make yet"] = "Mostrar equipo que aún no puedo crear"
+L["Show prices on crafted item tooltips"] = "Mostrar precios en las descripciones de objetos fabricados" -- mt
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"Muestra las rutas de profesión en el rastreador de objetivos. Ocultarlas conserva tus profesiones seguidas y objetivos."
 L["Show skill on recipe rows"] = "Mostrar habilidad en las filas"
@@ -272,6 +276,7 @@ L["Waypoint to the quest giver: %s"] = "Punto de ruta al asignador de misiones: 
 L["What's new after an update"] = "Novedades tras una actualización"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Dónde aparece la descripción al pasar el cursor sobre una receta. Junto a la ventana, no tapa los componentes."
+L["Window scale"] = "Escala de la ventana" -- mt
 L["World drop"] = "Cae en el mundo"
 L["Wrist"] = "Muñeca"
 L["You have it"] = "Lo tienes"

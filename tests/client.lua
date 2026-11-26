@@ -473,6 +473,12 @@ function Client.load(options)
 		return self.checked == true
 	end
 	-- A font string keeps its text like a frame does.
+	function Methods:GetFont()
+		return self.fontFile or "Fonts\\FRIZQT__.TTF", self.fontSize or 12, self.fontFlags or ""
+	end
+	function Methods:SetFont(file, size, flags)
+		self.fontFile, self.fontSize, self.fontFlags = file, size, flags
+	end
 	function Methods:CreateFontString()
 		return NewFrame(nil, self)
 	end
@@ -601,6 +607,9 @@ function Client.load(options)
 	end
 	function Methods:SetFrameStrata(strata)
 		self.strata = strata
+	end
+	function Methods:SetScale(scale)
+		self.scale = scale
 	end
 	function Methods:GetScale()
 		return self.scale or 1

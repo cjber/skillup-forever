@@ -49,15 +49,17 @@ local DEFAULTS = {
 	showRouteTab = true,
 	showProfessionTabs = true,
 	showTracker = true,
+	windowScale = 100,
 	showGearTab = false,
 	showBuffsTab = true,
 	lastSkillUpPage = {}, -- ["Name-Realm"] = "route" | "gear" | "buffs": the SkillUp page the side tab reopens
 	buffProfession = {}, -- ["Name-Realm"] = skill line: the profession the Buffs page shows
 	onlyBuffsForLevel = {}, -- ["Name-Realm"] = true: the buffs page hides buffs this character's level cannot use
-	merchantButton = true, -- the merchant window's "Reagents still needed" button
+	merchantButton = true, -- the merchant window's Reagents tab
 	auctionShoppingLists = true,
 	auctionSearch = true, -- the Professions window's reagent search while the auction house is open
 	reagentTooltip = "off", -- reagent lines on item tooltips cost frame rate on every hover (#811)
+	craftedItemTooltip = false,
 	showTooltipRoute = true,
 	gatherTooltip = true, -- a herb or ore node's and a skinnable corpse's required skill, coloured at yours
 	reagentTooltipOffSeen = false, -- the off-by-default reagent tooltip has reached this player once (#811)
@@ -264,6 +266,9 @@ local function LoadDB()
 		if type(loaded[key]) ~= type(value) then
 			loaded[key] = type(value) == "table" and {} or value
 		end
+	end
+	if not (loaded.windowScale >= 80 and loaded.windowScale <= 150) then
+		loaded.windowScale = DEFAULTS.windowScale
 	end
 	-- A vendor saved before builds were recorded is stamped with the build that upgrades it, so it is
 	-- used for two more builds and then stops being named.

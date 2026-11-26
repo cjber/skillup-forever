@@ -11,8 +11,6 @@ L["Show recipe tooltip on hover"] = "Mostrar dica da receita ao passar o mouse" 
 L["Show the SkillUp tooltip beside the Professions window when hovering a recipe. Turn it off to keep the reagents clear."] =
 	"Mostra a dica do SkillUp ao lado da janela de profissões ao passar o mouse sobre uma receita. Desligue para deixar os reagentes visíveis." -- mt
 
-L["%d %s"] = "%d %s"
-L["%d more"] = "mais %d"
 L["%d of %d"] = "%d de %d"
 L["%d reagents have no price"] = "%d reagentes não têm preço"
 L["%d to %d"] = "%d a %d"
@@ -67,11 +65,11 @@ L["Beside the Professions window"] = "Ao lado da janela de profissões"
 L["Buy %d %s"] = "Comprar %d %s"
 L["Buy %s"] = "Comprar %s" -- mt
 L["Buy %s at %d"] = "Comprar %s em %d" -- mt
-L["Buy all"] = "Comprar tudo"
 L["Buy and read %s at %d"] = "Comprar e ler %s em %d"
 L["Buy and read %s at %d (level %d)"] = "Comprar e ler %s em %d (nível %d)"
 L["Buy reagents"] = "Comprar reagentes"
 L["Buy reagents at the auction house"] = "Comprar reagentes na casa de leilões"
+L["Buy these items on the Merchant tab."] = "Compre estes itens na aba Mercador." -- mt
 L["Can learn it"] = "Pode aprender"
 L["Cheapest skill-up"] = "Ponto de perícia mais barato"
 L["Chest"] = "Torso"
@@ -81,6 +79,8 @@ L["Click to craft %d."] = "Clique para criar %d."
 L["Click to open the recipe."] = "Clique para abrir a receita."
 L["Click to show a recipe again."] = "Clique para mostrar uma receita de novo."
 L["Close"] = "Fechar"
+L["Compare the lowest known crafting cost per item with its Auctionator price after the 5% cut."] =
+	"Compara o menor custo de criação conhecido por unidade com o preço do Auctionator após descontar a taxa de 5%." -- mt
 L["Complete %s at %d"] = "Concluir %s em %d"
 L["Complete %s at %d (level %d)"] = "Concluir %s em %d (nível %d)"
 L["Complete %s first: you're at your cap."] = "Conclua %s primeiro: você está no limite."
@@ -93,6 +93,7 @@ L["Craft %s"] = "Criar %s"
 L["Craft"] = "Criar"
 L["Craft next"] = "Criar a próxima"
 L["Crafted gear"] = "Equipamento criado"
+L["Crafting cost: %s / Auctionator sale: %s"] = "Custo de criação: %s / Venda segundo o Auctionator: %s" -- mt
 L["Crafts"] = "Criações"
 L["Don't count it"] = "Não contar"
 L["Dropped by"] = "Saque de"
@@ -188,6 +189,8 @@ L["Required skill, skill-up chance and cost on profession trainer recipes, and w
 	"Perícia necessária, chance de ponto e custo nas receitas dos instrutores de profissão, e qual é melhor treinar em seguida para sua rota."
 L["Requires"] = "Requer"
 L["Replan"] = "Replanejar"
+L["Resizes the Shopping list and its copy window, and changes the size of reagent text on SkillUp profession pages."] =
+	"Redimensiona a lista de compras e sua janela de cópia e altera o tamanho do texto dos reagentes nas páginas de profissões do SkillUp." -- mt
 L["Route"] = "Rota"
 L["Route and trainer"] = "Rota e instrutor"
 L["Route incomplete: %d recipes left out because their costs or sale values are unknown."] =
@@ -209,6 +212,7 @@ L["Shift: used in %d of your recipes"] = "Shift: usado em %d das suas receitas"
 L["Shoulder"] = "Ombros"
 L["Show again: %s"] = "Mostrando de novo: %s"
 L["Show gear I cannot make yet"] = "Mostrar equipamento que ainda não posso criar"
+L["Show prices on crafted item tooltips"] = "Mostrar preços nas dicas de itens criados" -- mt
 L["Show profession routes in the objective tracker. Hiding them keeps your tracked professions and targets."] =
 	"Mostra rotas de profissão no rastreador de objetivos. Ocultá-las mantém suas profissões rastreadas e metas."
 L["Show skill on recipe rows"] = "Mostrar perícia nas linhas"
@@ -269,6 +273,7 @@ L["Waypoint to the quest giver: %s"] = "Ponto de referência até o recrutador: 
 L["What's new after an update"] = "Novidades após uma atualização"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Onde a dica aparece ao passar o cursor sobre uma receita. Ao lado da janela, ela não cobre os reagentes."
+L["Window scale"] = "Escala da janela" -- mt
 L["World drop"] = "Espólio do Mundo"
 L["Wrist"] = "Pulsos"
 L["You have it"] = "Você tem"

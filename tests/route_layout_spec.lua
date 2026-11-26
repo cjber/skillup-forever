@@ -278,6 +278,12 @@ local function NewRegion(parent, frameType)
 		self.events = self.events or {}
 		self.events[event] = true
 	end
+	function region:GetFont()
+		return "Fonts\\FRIZQT__.TTF", self.height, ""
+	end
+	function region:SetFont(_, height)
+		self.height = height
+	end
 	function region:CreateFontString()
 		local font = NewRegion(self, "FontString")
 		font.height = 12
@@ -518,7 +524,7 @@ local ns = {
 			return key
 		end,
 	}),
-	db = { routeTargets = { [129] = 100 }, showProfessionTabs = true, showRouteTab = true },
+	db = { routeTargets = { [129] = 100 }, showProfessionTabs = true, showRouteTab = true, windowScale = 100 },
 	COLORS = setmetatable({}, {
 		__index = Color,
 	}),
@@ -1160,6 +1166,14 @@ for _, row in ipairs(page.ReagentList.scrollBox.frames) do
 			true,
 			("source label stays inside its row (%s >= %s)"):format(detailBottom, bottom)
 		)
+		ns.db.windowScale = 150
+		ns.Changed("windowScale")
+		equal(row.BarText.height, 18, "window scale enlarges the reagent bar count")
+		equal(row.Text.height, 12, "the item name keeps its stock size")
+		equal(Height(row.BarBg), 29, "the progress bar keeps its geometry")
+		ns.db.windowScale = 100
+		ns.Changed("windowScale")
+		equal(row.BarText.height, 12, "the reagent bar count returns to its stock size")
 		equal(row.barNeed, row.entry.bar.need, "a reagent row carries its have/need bar")
 		equal(row.Source.shown, row.entry.sourceIcon ~= nil, "and a source icon where the source has one")
 	end
@@ -1240,6 +1254,13 @@ local nameLeft, _, _, nameTop = Rect(pane.Name)
 equal(nameLeft > iconRight, true, "the name sits beside the icon")
 equal(nameTop <= iconTop, true, "at the icon's top")
 equal(pane.ReagentRows[1] ~= nil and pane.ReagentRows[1]:IsShown(), true, "the pane draws its reagents")
+ns.db.windowScale = 150
+ns.Changed("windowScale")
+equal(pane.ReagentRows[1].Detail.height, 18, "window scale enlarges the gear reagent count")
+equal(pane.ReagentRows[1].Text.height, 12, "the gear reagent name keeps its stock size")
+ns.db.windowScale = 100
+ns.Changed("windowScale")
+equal(pane.ReagentRows[1].Detail.height, 12, "the gear reagent count returns to its stock size")
 equal(Width(pane.ReagentRows[1].Icon) >= 36, true, "a reagent row's icon is a full item icon")
 local paneReagentLeft, _, paneReagentRight = Rect(pane.ReagentRows[1])
 equal(paneReagentLeft >= paneLeft and paneReagentRight <= paneRight, true, "the reagent row is inside the pane")

@@ -10,6 +10,7 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 - Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
 - Gathering nodes and corpses have no colour in the game, so theirs is an estimate.
 - Some Demonsage may show no required skill, as one of the two game objects with that name lists none.
+- On non-English clients, herb and ore node tooltips may show no required skill, as the bundled node names are English.
 - Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) may be added points or a multiplier, so its estimate is off by default.
 - Two tracked professions that share reagents can count the same bag items twice in the shopping list.

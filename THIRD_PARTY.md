@@ -93,7 +93,7 @@ Credit for the reports and requests behind the addon.
 | Mirades96 | The minimap button is gone | CurseForge; comment 8731392; #806 |
 | p1tu | The minimap button is gone | CurseForge; comment 8730902; #759, #806 |
 | Laddylucks | The minimap button is gone | CurseForge; comment 8729503; #759 |
-| THIREX | The minimap button is gone | CurseForge; comment 8729648; #759 |
+| thirex | The minimap button is gone | CurseForge; comment 8729648; #759 |
 | axejess | The minimap button is gone | CurseForge; comment 8729935; #759 |
 | user_g496wu46adiwjuc5 | The minimap button is gone | CurseForge; comment 8732950; #759 |
 | noenken | A quieter first install | CurseForge; comment 8736279; #806 |

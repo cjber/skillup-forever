@@ -51,7 +51,7 @@ ns.Credits = {
 		{ name = "Mirades96", what = "The minimap button is gone" },
 		{ name = "p1tu", what = "The minimap button is gone" },
 		{ name = "Laddylucks", what = "The minimap button is gone" },
-		{ name = "THIREX", what = "The minimap button is gone" },
+		{ name = "thirex", what = "The minimap button is gone" },
 		{ name = "axejess", what = "The minimap button is gone" },
 		{ name = "user_g496wu46adiwjuc5", what = "The minimap button is gone" },
 		{ name = "noenken", what = "A quieter first install" },

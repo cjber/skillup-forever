@@ -4,6 +4,9 @@ local _, ns = ...
 
 ns.Credits = {
 	players = {
+		{ name = "ZMasterKing", what = "No freeze naming vendor places or planning routes to them" },
+		{ name = "sirbobbydanger", what = "No freeze naming vendor places" },
+		{ name = "alexaroth", what = "No freeze from route planning on bag, price and zone changes" },
 		{ name = "knetoen", what = "Routes skip lessons your specialisation cannot learn" },
 		{ name = "user_oin05iu5ioauw23u", what = "Window scale for the side pages" },
 		{ name = "Bogdanov89", what = "Crafting cost on crafted item tooltips" },

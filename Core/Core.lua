@@ -134,8 +134,8 @@ ns.TITLE = "SkillUp Forever"
 -- core sync's maintenance entry has no headline, so these stay on the release before it, and an update to a
 -- maintenance version says nothing new but still remembers the version. Rewrite both lines for each release that has
 -- a headline (tests/core_spec.lua checks them against CHANGELOG.md).
-ns.WHATS_NEW_VERSION = "1.15.0"
-ns.WHATS_NEW = L["Window scale makes SkillUp's side windows readable."]
+ns.WHATS_NEW_VERSION = "1.15.4"
+ns.WHATS_NEW = L["Price, bag and zone changes no longer plan routes through Shortest Path."]
 
 -- Classic difficulty colours, matching the retail recipe list's own palette.
 ns.COLORS = {

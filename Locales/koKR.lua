@@ -279,8 +279,8 @@ L["What's new after an update"] = "업데이트 후 새로운 점"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"제조법에 마우스를 올렸을 때 툴팁이 나타나는 위치입니다. 창 옆에 두면 재료를 가리지 않습니다."
 L["Window scale"] = "창 배율" -- mt
-L["Window scale makes SkillUp's side windows readable."] =
-	"창 배율을 조절하면 SkillUp의 보조 창을 더 쉽게 읽을 수 있습니다." -- mt
+L["Price, bag and zone changes no longer plan routes through Shortest Path."] =
+	"가격, 가방, 지역이 바뀌어도 더 이상 Shortest Path로 경로를 계산하지 않습니다." -- mt
 L["World drop"] = "무작위 전리품"
 L["Wrist"] = "손목"
 L["You have it"] = "보유 중"

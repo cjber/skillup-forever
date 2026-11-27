@@ -10,6 +10,13 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.15.4] - 2026-11-27
+
+### Fixed
+
+- **Price, bag and zone changes no longer plan routes through Shortest Path.** With reagents that vendors sell only a few at a time, logging in and each of those changes asked Shortest Path for travel times to their vendors, and the game could freeze or stop with "script ran too long". The shopping list now takes the limit from the nearest of those vendors in a straight line, and the Gear and Buffs pages work out travel times when you click. Thanks to ZMasterKing and alexaroth for the freeze reports.
+- **Showing where a reagent comes from no longer replans every profession.** The first time a tooltip, a tracker line or a click named where an item is sold or drops, the game could freeze for seconds. Only the lines that name those places redraw now. Thanks to ZMasterKing and sirbobbydanger for the freeze reports.
+
 ## [1.15.3] - 2026-11-27
 
 ### Changed

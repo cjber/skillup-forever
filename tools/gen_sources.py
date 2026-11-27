@@ -32,6 +32,15 @@ LOCK_SKILLS = {"2": 182, "3": 186}
 SKINNING = 393
 FISHING = 356
 CHEST = "3"  # gameobject type; data0 is its lock, data1 its loot
+# Herb and ore nodes new in WoW: Forever, which classic-db lacks and no client table ties to a lock.
+# [gameobject entry] = (enUS name, gathering skill line, required skill, item it yields). The skill is Wowhead's
+# Forever tooltip, https://nether.wowhead.com/forever/tooltip/object/<entry>; the yield is the item's Warcraft Wiki
+# page, https://warcraft.wiki.gg/wiki/Demonsage and https://warcraft.wiki.gg/wiki/Heavy_Thorium_Ore; the item ID
+# is wago.tools ItemSparse 1.60.1.71139.
+FOREVER_NODES = {
+    566779: ("Heavy Thorium Vein", 186, 300, 248815),
+    566786: ("Demonsage", 182, 300, 248821),
+}
 # Below this, a gathered item is a lucky find (gems in veins), not something to plan on.
 GATHER_CHANCE = 10
 # A creature's own part is a reagent, trade good or miscellaneous item; a potion, drink or recipe scroll is not.
@@ -86,7 +95,7 @@ def gathered(tables, locks, items):
 
     Herb and ore nodes, skinning and fishing all yield reagents. A reagent several skills yield keeps the
     lowest skill line, in the order Herbalism, Mining, Fishing, Skinning: the table has one source per
-    reagent, and the offline data has no overlap to choose between.
+    reagent, and the offline data has no overlap to choose between. FOREVER_NODES yield their own item.
     """
     lock_skill = {lock: need[0] for lock, need in lock_requirements(locks).items()}
     references = defaultdict(list)
@@ -106,6 +115,9 @@ def gathered(tables, locks, items):
             loot_by_entry[int(row["entry"])].append(row)
         sources.extend((skill, rows) for rows in loot_by_entry.values())
     found = defaultdict(set)
+    for _, skill, _, item in FOREVER_NODES.values():
+        if item in items:
+            found[item].add(skill)
     for skill, rows in sources:
         for item, share in loot_items(rows, references):
             if item in items and share * 100 >= GATHER_CHANCE:
@@ -153,19 +165,24 @@ def limited_stock(rows):
 def node_skills(tables, locks):
     """What a herb or ore node asks, (gathering skill line, required skill), by its gameobject entry and by its enUS
     name. classic-db ties a node to its lock (`data0`), the client's Lock DB2 gives that lock's skill and rank
-    (#122). The tooltip's GUID carries the entry in every client language (#826); the name is the fallback for a
-    tooltip without one. A name two nodes share with different requirements is left out of the names: the tooltip
-    can't tell them apart; the third value lists those names, for the run's output."""
+    (#122); FOREVER_NODES state their own. The tooltip's GUID carries the entry in every client language (#826); the
+    name is the fallback for a tooltip without one. A name two nodes share with different requirements is left out of
+    the names: the tooltip can't tell them apart; the third value lists those names, for the run's output."""
     lock_rank = lock_requirements(locks)
     by_entry = {}
     found = defaultdict(set)
-    for node in tables["gameobject_template"]:
-        need = node["type"] == CHEST and lock_rank.get(int(node["data0"]))
+    nodes = [
+        (int(node["entry"]), node["name"], lock_rank.get(int(node["data0"])))
+        for node in tables["gameobject_template"]
+        if node["type"] == CHEST
+    ]
+    nodes += [(entry, name, (skill, rank)) for entry, (name, skill, rank, _) in FOREVER_NODES.items()]
+    for entry, name, need in nodes:
         # A lock asking no skill (quest plants, bushes) gives no skill-up to colour.
         if need and need[1] > 0:
-            by_entry[int(node["entry"])] = need
-            if node["name"]:
-                found[node["name"]].add(need)
+            by_entry[entry] = need
+            if name:
+                found[name].add(need)
     shared = sorted(name for name, needs in found.items() if len(needs) > 1)
     by_name = {name: needs.pop() for name, needs in found.items() if len(needs) == 1}
     return dict(sorted(by_entry.items())), by_name, shared
@@ -294,6 +311,7 @@ def render(data):
         "-- reference_loot_template, npc_trainer, npc_vendor, gameobject(_loot)_template, skinning_loot_template,",
         "-- fishing_loot_template. Which item is a recipe scroll and which spell is a rank: wago.tools SpellEffect,",
         f"-- wow_classic_era {TEACH_BUILD}; gathering locks: wago.tools Lock, wow_classic_beta {BUILD}.",
+        "-- Nodes new in WoW: Forever: FOREVER_NODES in tools/gen_sources.py (Wowhead tooltips, Warcraft Wiki).",
         "-- Neither QuestieDB nor AtlasLoot holds these; all else about a recipe's sources is read from them.",
         f"-- scrolls with named drops={len(data['drops'])}, world drops={len(data['world'])}.",
         f"-- limited vendor rows={sum(len(vendors) for vendors in data['limited'].values())}.",
@@ -349,7 +367,8 @@ def render(data):
         "}",
         "",
         "-- [gameobject entry] = { gathering skill line, required skill }: classic-db's lock for the herb or ore node,",
-        "-- the client's Lock DB2 for what that lock asks. The tooltip's GUID names the entry in every language.",
+        "-- the client's Lock DB2 for what that lock asks, or the node's FOREVER_NODES row. The tooltip's GUID names",
+        "-- the entry in every language.",
         "-- stylua: ignore",
         "ns.NodeEntrySkills = {",
     ]
@@ -357,8 +376,8 @@ def render(data):
     lines += [
         "}",
         "",
-        "-- [node name, enUS] = { gathering skill line, required skill }: classic-db's lock for the node, the",
-        "-- client's Lock DB2 for what that lock asks. A name shared by nodes asking different skills is left out.",
+        "-- [node name, enUS] = { gathering skill line, required skill }, from the same sources by name. A name shared",
+        "-- by nodes asking different skills is left out.",
         "-- stylua: ignore",
         "ns.NodeSkills = {",
     ]

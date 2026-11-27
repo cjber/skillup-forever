@@ -163,7 +163,7 @@ The addon is free and stays GPL-3.0. If it saves you time, you can [sponsor me o
 
 ## Credits
 
-Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees, drop chances and gathered reagents from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0), and vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1). Some ideas, such as the node colour, came from [Polestar](https://github.com/fitzforge/polestar) by Fitz; no code was copied, and Fitz is welcome to use ours.
+Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees, drop chances and gathered reagents from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0), the gathering nodes new in Forever from Wowhead and the Warcraft Wiki, and vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1). Some ideas, such as the node colour, came from [Polestar](https://github.com/fitzforge/polestar) by Fitz; no code was copied, and Fitz is welcome to use ours.
 
 <!-- forever-credits:start -->
 

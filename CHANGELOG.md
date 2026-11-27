@@ -15,7 +15,7 @@ optional `### For addon authors` subsection after a version's player bullets.
 ### Changed
 
 - Ships with the same shared code as your other Forever addons, so they keep working together.
-- **The Thanks page lists more players.** More of the people whose reports and ideas shipped are now thanked by name in game.
+- The Thanks page lists more players. More of the people whose reports and ideas shipped are now thanked by name in game.
 
 ### Fixed
 

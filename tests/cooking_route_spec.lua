@@ -398,10 +398,11 @@ market.Advance(0)
 equal(FishFrom("vendor"), nil, "moving zones drops the tracked vendor allocation")
 equal(FishFrom("auction").missing, initialAuction + 4, "the new zone's vendor is sold out")
 
--- The tracker names the merchant whose stock was allocated, even when travel and distance disagree.
+-- The stock is allocated from the nearest merchant in a straight line, since rebuilding a list plans no routes, and
+-- the tracker names that merchant even when travel prefers another.
 market.player.instance = 0
 market.npc = { id = VENDOR_NPC, name = "Fish Vendor" }
-market.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = 0 } }
+market.merchant = { { itemID = RAW_MACKEREL, price = 5, stackCount = 1, numAvailable = 4 } }
 market.Fire("MERCHANT_SHOW")
 market.Advance(0)
 market.player.instance = 1
@@ -424,7 +425,7 @@ equal(mns.NearestVendor(RAW_MACKEREL), VENDOR_NPC, "straight-line distance picks
 equal(mns.NearestVendor(RAW_MACKEREL, true), otherVendor, "travel time picks the other merchant")
 market.EnterWorld()
 market.Advance(0)
-equal(market.Tracker()[1].vendorMissing[1].vendor, otherVendor, "the tracker names the merchant supplying the fish")
+equal(market.Tracker()[1].vendorMissing[1].vendor, VENDOR_NPC, "the tracker names the merchant supplying the fish")
 market.G.ShortestPathForever = nil
 market.Fire("ZONE_CHANGED_NEW_AREA")
 market.Advance(0)

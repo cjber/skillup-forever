@@ -280,13 +280,14 @@ local function Kind(source)
 	end
 end
 
--- Where a suggestion's click goes: the nearest vendor by travel when one sells the
--- scroll (the one it names when none can be ranked), else the likeliest drop.
+-- Where a suggestion leads: the nearest vendor when one sells the scroll (the one it
+-- names when none can be ranked), else the likeliest drop.
 ---@param suggestion SkillUpSuggestionNPC A suggestion or just where a recipe's scroll comes from.
+---@param byTravel boolean?
 ---@return integer?
-function ns.SuggestionNPC(suggestion)
+function ns.SuggestionNPC(suggestion, byTravel)
 	if suggestion.kind == VENDOR and suggestion.source then
-		return ns.NearestNPC(suggestion.source.vendors, true) or suggestion.npcID
+		return ns.NearestNPC(suggestion.source.vendors, byTravel) or suggestion.npcID
 	end
 	return suggestion.npcID
 end
@@ -296,17 +297,18 @@ end
 -- teaches: that is not a scroll's recipe, so no other NPC is named for it.
 ---@param profession SkillUpContext
 ---@param recipeID integer
+---@param byTravel boolean?
 ---@return integer?
-function ns.RecipeNPC(profession, recipeID)
+function ns.RecipeNPC(profession, recipeID, byTravel)
 	if ns.TrainingFor(profession, recipeID) then
-		return (ns.NearestRecipeTrainer(profession, recipeID, true))
+		return (ns.NearestRecipeTrainer(profession, recipeID, byTravel))
 	end
 	local source = C.Recipe(recipeID)
 	local kind, npcID
 	if source and ns.CanUseRecipeItem(source.item) then
 		kind, npcID = Kind(source)
 	end
-	return kind and ns.SuggestionNPC({ kind = kind, source = source, npcID = npcID }) or nil
+	return kind and ns.SuggestionNPC({ kind = kind, source = source, npcID = npcID }, byTravel) or nil
 end
 
 -- Scroll recipes of this profession, not trainer-taught nor learned, that base
@@ -469,6 +471,19 @@ function ns.NearestTrainer(profession, cap, byTravel)
 	return ns.NearestNPC(C.Trainers(profession.skillLine, cap), byTravel)
 end
 
+-- The trainers of your faction who teach one recipe and will talk to this character.
+---@param recipeID integer
+---@return integer[]
+local function RecipeTrainers(recipeID)
+	local eligible = {}
+	for _, npcID in ipairs(C.RecipeTrainers(recipeID) or {}) do
+		if C.RecipeTrainerEligible(npcID) then
+			eligible[#eligible + 1] = npcID
+		end
+	end
+	return eligible
+end
+
 -- The nearest trainer, of your faction, who teaches one recipe. A trainer whose rank cap covers the recipe
 -- is not enough: only one who lists it will talk (#722). Nil until the trainers are read, and nil when no
 -- trainer of your faction teaches it; `known` is false while nobody could say where one stands, so a caller
@@ -482,13 +497,20 @@ function ns.NearestRecipeTrainer(profession, recipeID, byTravel)
 	if not C.EnsureProfession(profession.skillLine) then
 		return nil, false
 	end
-	local eligible = {}
-	for _, npcID in ipairs(C.RecipeTrainers(recipeID) or {}) do
-		if C.RecipeTrainerEligible(npcID) then
-			eligible[#eligible + 1] = npcID
-		end
-	end
-	return ns.NearestNPC(eligible, byTravel), C.Hint(true) == nil
+	return ns.NearestNPC(RecipeTrainers(recipeID), byTravel), C.Hint(true) == nil
+end
+
+-- Whether a click could name a trainer of a recipe by travel time: what a draw asks when the straight line picks
+-- none, as from another continent.
+---@param profession SkillUpContext
+---@param recipeID integer
+---@return boolean
+function ns.TravelCanPickTrainer(profession, recipeID)
+	local api = ShortestPath()
+	return api ~= nil
+		and type(api.Estimate) == "function"
+		and ns.TrainingFor(profession, recipeID) ~= nil
+		and Ranked(RecipeTrainers(recipeID))[1] ~= nil
 end
 
 -- Where a rank is got: the nearest vendor of its book, the nearest giver of its quest, else the nearest trainer

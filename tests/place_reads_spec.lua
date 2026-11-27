@@ -7,7 +7,7 @@ local Client = dofile("tests/client.lua")
 local equal = Client.equal
 
 local TAILORING = 197
-local BOLT, SHIRT, CLOAK = 1, 2, 3
+local BOLT, SHIRT, CLOAK, SASH = 1, 2, 3, 4
 local CLOTH, THREAD, DYE, WOOL = 10, 11, 12, 13
 local DROPPER, CLOTH_SELLERS = 401, { 301, 302, 303, 304, 305, 306, 307, 308 }
 
@@ -15,6 +15,8 @@ local npcs = {
 	[311] = { name = "Thread seller", side = "AH", spawns = { [10] = { { 60, 60 } } } },
 	[312] = { name = "Dye seller", side = "AH", spawns = { [10] = { { 70, 70 } } } },
 	[313] = { name = "Wool seller", side = "AH", spawns = { [10] = { { 80, 80 } } } },
+	[321] = { name = "Sash trainer", side = "AH", spawns = { [10] = { { 20, 20 } } } },
+	[322] = { name = "Far sash trainer", side = "AH", spawns = { [10] = { { 90, 90 } } } },
 	[DROPPER] = { name = "Cloth dropper", spawns = { [10] = { { 50, 50 } } } },
 }
 for index, npcID in ipairs(CLOTH_SELLERS) do
@@ -27,19 +29,30 @@ local c = Client.load({
 		trackedProfessions = { [TAILORING] = true },
 	},
 	data = {
-		Thresholds = { [BOLT] = { 1, 30, 45, 60 }, [SHIRT] = { 1, 40, 55, 70 }, [CLOAK] = { 1, 40, 55, 75 } },
+		Thresholds = {
+			[BOLT] = { 1, 30, 45, 60 },
+			[SHIRT] = { 1, 40, 55, 70 },
+			[CLOAK] = { 1, 40, 55, 75 },
+			[SASH] = { 500, 510, 520, 530 },
+		},
 		RecipeData = {
 			[BOLT] = { skillLine = TAILORING, reagents = { { itemID = CLOTH, quantity = 2 } } },
 			[SHIRT] = { skillLine = TAILORING, reagents = { { itemID = THREAD, quantity = 1 } } },
 			[CLOAK] = { skillLine = TAILORING, reagents = { { itemID = DYE, quantity = 1 } } },
+			[SASH] = { skillLine = TAILORING, reagents = { { itemID = WOOL, quantity = 1 } } },
 		},
-		TrainerFees = {},
+		-- Sash is a trainer's recipe past the route's target, taught by two of them.
+		TrainerFees = { [SASH] = { 100, 500 } },
+		RecipeTrainerSets = { [SASH] = 1 },
+		TrainerSets = { { 321, 322 } },
+		TrainerAbilities = {},
 		TrainerRanks = { [TAILORING] = { { 150, 500, 50, 0 } } },
 		ItemSellPrices = {},
 		GatheredBy = {},
 		-- Thread is a market good its vendor sells only a few of, so its price is made from its nearest seller.
 		LootedFrom = { [THREAD] = true },
-		LimitedStock = { [THREAD] = { [311] = 5 } },
+		-- Dye is sold only by a vendor, also a few at a time, so the shopping list reads that vendor's limit.
+		LimitedStock = { [THREAD] = { [311] = 5 }, [DYE] = { [312] = 3 } },
 		VendorPrices = { [CLOTH] = 10, [THREAD] = 10, [DYE] = 10, [WOOL] = 10 },
 		ProfessionTrainers = {},
 	},
@@ -56,6 +69,7 @@ local c = Client.load({
 })
 local ns = c.ns
 c.maps[0] = { mapID = 10, name = "Cloth zone" }
+c.maps[1] = { mapID = 11, name = "Far zone" }
 c.professions = { { name = "Tailoring", rank = 1, max = 75, id = TAILORING } }
 c.known[BOLT], c.known[SHIRT], c.known[CLOAK] = true, true, true
 for _, id in ipairs({ CLOTH, THREAD, DYE, WOOL }) do
@@ -208,5 +222,72 @@ for _, action in ipairs(actions) do
 	end
 end
 equal(waypoints > 0, true, "the menu offers a waypoint")
+
+-- A travel estimate is a whole route search: rebuilding prices and the shopping list asks for none, or the client
+-- stops the script before a list is ever kept (#1051).
+local redraws = {
+	{
+		"a price change",
+		function()
+			ns.Changed("prices")
+		end,
+	},
+	{
+		"a catalogue change",
+		function()
+			ns.Changed("sources")
+		end,
+	},
+	{
+		"a bag change",
+		function()
+			c.bags[DYE] = (c.bags[DYE] or 0) + 1
+			c.Fire("BAG_UPDATE_DELAYED")
+		end,
+	},
+	{
+		"a zone change",
+		function()
+			c.Fire("ZONE_CHANGED_NEW_AREA")
+		end,
+	},
+}
+for _, redraw in ipairs(redraws) do
+	Step(function()
+		redraw[2]()
+		c.G.SkillUpForever.API.ShoppingList()
+	end)
+	equal(estimates, 0, redraw[1] .. " asks no travel estimate")
+end
+local limits = {}
+for _, entry in ipairs(ns.TrackedNeeds()) do
+	for _, item in ipairs(entry.items) do
+		limits[item.itemID] = item.limited
+	end
+end
+equal(limits[DYE], 3, "the list still says how many its vendor sells")
+
+-- The Gear and Buffs pages draw their button on every render: it asks no travel estimate, and the click is what
+-- ranks the trainers, also from another continent where only travel can choose between them.
+local sash = { state = "trainable", recipeID = SASH, skillLine = TAILORING, skill = 1 }
+local waypoint
+ns.SetWaypoint = function(npcID)
+	waypoint = npcID
+end
+ns.PageParts.Action(sash, ns.PlayerProfessions())
+Frames()
+for _, place in ipairs({ { 0, "beside the trainers" }, { 1, "away from every trainer" } }) do
+	c.player.instance, waypoint = place[1], nil
+	local enabled, click
+	Step(function()
+		local _
+		_, enabled, click = ns.PageParts.Action(sash, ns.PlayerProfessions())
+	end)
+	equal(estimates, 0, place[2] .. ", drawing the button asks no travel estimate")
+	equal(enabled, true, place[2] .. ", the button offers a waypoint")
+	Step(click)
+	equal(estimates, 2, place[2] .. ", the click asks each trainer's travel time")
+	equal(waypoint, 321, place[2] .. ", and goes to the quickest to reach")
+end
 
 Client.report("place_reads_spec")

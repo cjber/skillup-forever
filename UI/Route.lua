@@ -442,7 +442,7 @@ local function SuggestionTooltip(tooltip, profession, suggestion)
 		AddLine(tooltip, L["Scroll"], Money(price))
 	end
 	GameTooltip_AddBlankLineToTooltip(tooltip)
-	local npcID = ns.SuggestionNPC(suggestion)
+	local npcID = ns.SuggestionNPC(suggestion, true)
 	ns.AddSourceLines(tooltip, suggestion.source, npcID)
 	if npcID then
 		GameTooltip_AddInstructionLine(
@@ -464,7 +464,7 @@ local function SuggestionClick(suggestion)
 				ChatFrameUtil.InsertLink(link)
 			end
 		else
-			local npcID = ns.SuggestionNPC(suggestion)
+			local npcID = ns.SuggestionNPC(suggestion, true)
 			if npcID then
 				ns.SetWaypoint(npcID)
 			end
@@ -664,10 +664,13 @@ local function ReagentTooltip(tooltip, item)
 		AddLine(tooltip, L["To buy"], Money(price.copper * (item.need - have)))
 	end
 	if item.source == "vendor" then
-		if item.limited then
-			GameTooltip_AddNormalLine(tooltip, string.format(L["Sells %d at a time"], item.limited))
+		-- The vendor a click leads to, and that vendor's own limit.
+		local vendor = ns.RouteDemand.Vendors(item, true)[1]
+		local limit = vendor and ns.IsLimitedStock(item.itemID, vendor)
+		if limit then
+			GameTooltip_AddNormalLine(tooltip, string.format(L["Sells %d at a time"], limit))
 		end
-		ns.AddNearest(tooltip, L["Nearest vendor"], ns.NearestVendor(item.itemID, true))
+		ns.AddNearest(tooltip, L["Nearest vendor"], vendor)
 	end
 end
 

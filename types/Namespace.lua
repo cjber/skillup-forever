@@ -113,7 +113,7 @@
 ---@field LearnSkill fun(profession: SkillUpContext, recipeID: integer): number
 ---@field RangeThresholds fun(profession: SkillUpContext?, recipeID: integer, thresholds?: number[]): number[]? The thresholds with the range start at the skill the recipe can be learned at
 ---@field UnlearnedRecipes fun(profession: SkillUpContext): SkillUpUnlearnedRecipe[]
----@field RecipeNPC fun(profession: SkillUpContext, recipeID: integer): integer?
+---@field RecipeNPC fun(profession: SkillUpContext, recipeID: integer, byTravel?: boolean): integer?
 ---@field BestTraining fun(profession: SkillUpContext, known: table<integer, boolean>, offers: {recipeID: integer, fee: number}[]): integer?
 ---@field RouteBlocked fun(plan: SkillUpPlan): string?
 ---@field UnpricedReagents fun(plan: SkillUpPlan): integer[]
@@ -221,13 +221,14 @@
 ---@field SeeVendor fun(itemIDs: integer[]): boolean
 ---@field NearestNPC fun(npcIDs: integer[], byTravel?: boolean): integer?
 ---@field SetWaypoint fun(npcID: integer): boolean
----@field SuggestionNPC fun(suggestion: SkillUpSuggestionNPC): integer?
+---@field SuggestionNPC fun(suggestion: SkillUpSuggestionNPC, byTravel?: boolean): integer?
 ---@field RecipeSuggestions fun(profession: SkillUpContext, base: number): SkillUpSuggestion[]
 ---@field ScrollPrice fun(source: SkillUpScrollSource): number?
 ---@field ScrollSkill fun(recipeID: integer, source: SkillUpScrollSource): number?
 ---@field AddSourceLines fun(tooltip: GameTooltip, source: SkillUpScrollSource, first?: integer)
 ---@field NearestTrainer fun(profession: SkillUpContext, cap: number, byTravel?: boolean): integer?
 ---@field NearestRecipeTrainer fun(profession: SkillUpContext, recipeID: integer, byTravel?: boolean): integer?, boolean
+---@field TravelCanPickTrainer fun(profession: SkillUpContext, recipeID: integer): boolean
 ---@field NearestVendor fun(itemID: integer, byTravel?: boolean): integer?
 ---@field NearestScrollVendor fun(recipeID: integer, byTravel?: boolean): integer?
 ---@field NearestForRank fun(profession: SkillUpContext, rank: SkillUpRank, byTravel?: boolean): integer?, string
@@ -883,7 +884,7 @@ SkillUpForeverDB = nil
 ---@field QualityColor fun(itemID: integer): ColorMixin?
 ---@field Status fun(item: SkillUpGearItem|SkillUpBuffItem): string
 ---@field LearnedAt fun(item: SkillUpGearItem|SkillUpBuffItem): string
----@field RecipeNPC fun(item: SkillUpGearItem|SkillUpBuffItem, professions: table<integer, SkillUpProfession>): integer?
+---@field RecipeNPC fun(item: SkillUpGearItem|SkillUpBuffItem, professions: table<integer, SkillUpProfession>, byTravel?: boolean): integer?
 ---@field ItemTooltip fun(item: SkillUpGearItem|SkillUpBuffItem, professions: table<integer, SkillUpProfession>): fun(tooltip: GameTooltip)
 ---@field Action fun(item: SkillUpGearItem|SkillUpBuffItem, professions: table<integer, SkillUpProfession>): string, boolean, (fun())?, string?
 ---@field BuffAction fun(item: SkillUpBuffItem, professions: table<integer, SkillUpProfession>): string, boolean, (fun())?, string?

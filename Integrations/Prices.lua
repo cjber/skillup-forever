@@ -446,7 +446,7 @@ function ns.IsLimitedStock(itemID, vendor)
 		return nil
 	end
 	if not vendor then
-		vendor = ns.NearestVendor(itemID, true)
+		vendor = ns.NearestVendor(itemID)
 		stockVendors[itemID] = vendor or false
 	end
 	if not vendor then
@@ -480,7 +480,7 @@ function ns.LimitedReagentPrice(itemID)
 			and MarketGood(itemID)
 			and not (ns.CollectMode() == "gather" and Gathered(itemID))
 		then
-			local npc = ns.NearestVendor(itemID, true)
+			local npc = ns.NearestVendor(itemID)
 			stockVendors[itemID] = npc or false
 			local limit = npc and ns.IsLimitedStock(itemID, npc)
 			if limit then
@@ -1754,7 +1754,7 @@ function ns.InitPrices()
 	end)
 	ns.WhenEvent("ZONE_CHANGED_NEW_AREA", function()
 		for itemID, previous in pairs(stockVendors) do
-			if (ns.NearestVendor(itemID, true) or false) ~= previous then
+			if (ns.NearestVendor(itemID) or false) ~= previous then
 				return "prices"
 			end
 		end

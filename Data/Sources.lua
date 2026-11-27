@@ -3,6 +3,7 @@
 -- reference_loot_template, npc_trainer, npc_vendor, gameobject(_loot)_template, skinning_loot_template,
 -- fishing_loot_template. Which item is a recipe scroll and which spell is a rank: wago.tools SpellEffect,
 -- wow_classic_era 1.15.9.70576; gathering locks: wago.tools Lock, wow_classic_beta 1.60.1.71139.
+-- Nodes new in WoW: Forever: FOREVER_NODES in tools/gen_sources.py (Wowhead tooltips, Warcraft Wiki).
 -- Neither QuestieDB nor AtlasLoot holds these; all else about a recipe's sources is read from them.
 -- scrolls with named drops=193, world drops=198.
 -- limited vendor rows=798.
@@ -541,6 +542,8 @@ ns.GatheredBy = {
 	[20501] = 393,
 	[22202] = 186,
 	[22203] = 186,
+	[248815] = 186,
+	[248821] = 182,
 }
 
 -- [reagent item] = true: 3+ creatures drop it directly (10%+ of the time),
@@ -978,7 +981,8 @@ ns.LimitedStock = {
 }
 
 -- [gameobject entry] = { gathering skill line, required skill }: classic-db's lock for the herb or ore node,
--- the client's Lock DB2 for what that lock asks. The tooltip's GUID names the entry in every language.
+-- the client's Lock DB2 for what that lock asks, or the node's FOREVER_NODES row. The tooltip's GUID names
+-- the entry in every language.
 -- stylua: ignore
 ns.NodeEntrySkills = {
 	[324] = { 186, 245 },
@@ -1069,10 +1073,12 @@ ns.NodeEntrySkills = {
 	[181248] = { 186, 1 },
 	[181249] = { 186, 65 },
 	[183046] = { 182, 235 },
+	[566779] = { 186, 300 },
+	[566786] = { 182, 300 },
 }
 
--- [node name, enUS] = { gathering skill line, required skill }: classic-db's lock for the node, the
--- client's Lock DB2 for what that lock asks. A name shared by nodes asking different skills is left out.
+-- [node name, enUS] = { gathering skill line, required skill }, from the same sources by name. A name shared
+-- by nodes asking different skills is left out.
 -- stylua: ignore
 ns.NodeSkills = {
 	["Arthas' Tears"] = { 182, 220 },
@@ -1082,6 +1088,7 @@ ns.NodeSkills = {
 	["Bruiseweed"] = { 182, 100 },
 	["Copper Vein"] = { 186, 1 },
 	["Dark Iron Deposit"] = { 186, 230 },
+	["Demonsage"] = { 182, 300 },
 	["Dreamfoil"] = { 182, 270 },
 	["Earthroot"] = { 182, 15 },
 	["Fadeleaf"] = { 182, 160 },
@@ -1093,6 +1100,7 @@ ns.NodeSkills = {
 	["Grave Moss"] = { 182, 120 },
 	["Gromsblood"] = { 182, 250 },
 	["Hakkari Thorium Vein"] = { 186, 275 },
+	["Heavy Thorium Vein"] = { 186, 300 },
 	["Icecap"] = { 182, 290 },
 	["Incendicite Mineral Vein"] = { 186, 65 },
 	["Indurium Mineral Vein"] = { 186, 150 },

@@ -9,6 +9,7 @@ Free, with nothing locked behind it. If it saves you time, you can [sponsor me o
 - Recipe colours come from the game, but a recipe you have not seen yet uses bundled thresholds that can be slightly off.
 - Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
 - Gathering nodes and corpses have no colour in the game, so theirs is an estimate.
+- Some Demonsage may show no required skill, as one of the two game objects with that name lists none.
 - Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) may be added points or a multiplier, so its estimate is off by default.
 - Two tracked professions that share reagents can count the same bag items twice in the shopping list.

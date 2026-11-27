@@ -80,7 +80,8 @@ the client shows at a window wins over the bundled value:
 - Recipe scroll drop chances and world-drop marking (`ns.ScrollDrops`, `ns.WorldDrops`, loot tables); AtlasLoot's
   rate replaces the bundled one where it has one.
 - Which gathering skill yields a reagent (`ns.GatheredBy`) and a node's required skill (`ns.NodeSkills`, the
-  `gameobject_template` lock with the client's `Lock` DB2).
+  `gameobject_template` lock with the client's `Lock` DB2). Nodes new in Forever come from Wowhead's tooltips and the
+  Warcraft Wiki (`FOREVER_NODES` in `tools/gen_sources.py`).
 - Reagents a creature drops often enough to loot (`ns.LootedFrom`, `creature_loot_template`).
 - The quest that teaches a profession rank (`ns.RankQuests`, `quest_template` RewSpell); title and giver are QuestieDB's.
 - Limited vendor stock (`ns.LimitedStock` in `Data/Sources.lua`, `npc_vendor.maxcount`). A scroll's vendor price is

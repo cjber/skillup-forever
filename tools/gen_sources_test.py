@@ -41,7 +41,19 @@ class NodeSkillTests(unittest.TestCase):
             for i, (name, lock_id) in enumerate(nodes)
         ]
         locks = [lock(), lock("8", 175), lock("9", 0)]
-        return node_skills({"gameobject_template": rows}, locks)
+        with patch.object(gen_sources, "FOREVER_NODES", {}):
+            return node_skills({"gameobject_template": rows}, locks)
+
+    def test_a_forever_node_adds_its_own_skill_and_yield(self):
+        tables = {name: [] for name in gen_sources.TABLES}
+        with patch.object(gen_sources, "FOREVER_NODES", {200: ("Demonsage", 182, 300, 5)}):
+            self.assertEqual(node_skills(tables, []), ({200: (182, 300)}, {"Demonsage": (182, 300)}, []))
+            self.assertEqual(gathered(tables, [], {5}), {5: 182})
+            self.assertEqual(gathered(tables, [], set()), {})
+            for entry, name in ((200, "Weed"), (201, "Demonsage")):
+                tables["gameobject_template"] = [{"type": CHEST, "data0": MINE, "name": name, "entry": str(entry)}]
+                with self.assertRaisesRegex(ValueError, "FOREVER_NODES"):
+                    node_skills(tables, [])
 
     def test_a_node_asks_its_locks_skill(self):
         self.assertEqual(self.nodes(("Iron Deposit", MINE)), ({100: (186, 125)}, {"Iron Deposit": (186, 125)}, []))

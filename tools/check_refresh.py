@@ -53,6 +53,7 @@ KINDS = (
     "vendor_price",
     "vendor_stock",
     "node",
+    "node_entry",
 )
 
 # What a record's complete disappearance is called, per kind.
@@ -61,6 +62,7 @@ GONE = {
     "gather": "lost its gathering source",
     "loot": "lost its creature-loot source",
     "node": "lost its required skill",
+    "node_entry": "lost its required skill",
     "profession_trainers": "lost its trainers",
     "rank_book": "lost its rank books",
     "rank_quest": "lost the quests that teach its ranks",
@@ -349,7 +351,7 @@ def compare(old, new):
             for npc in sorted(set(had_stock) & set(has_stock)):
                 if had_stock[npc] != has_stock[npc]:
                     report(f"{text}: vendor {npc} stock {had_stock[npc]} -> {has_stock[npc]}")
-        elif kind == "node":
+        elif kind in ("node", "node_entry"):
             if (was.get("skill"), was.get("req")) != (now.get("skill"), now.get("req")):
                 report(
                     f"{text}: now asks {now.get('skill')} at {now.get('req')} "

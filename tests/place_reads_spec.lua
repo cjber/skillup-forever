@@ -113,6 +113,10 @@ local function Frames()
 	end
 end
 Frames()
+c.Tracker()
+c.G.SkillUpForever.API.ShoppingList()
+Frames()
+equal(estimates, 0, "logging in and reading the shopping list ask no travel estimate")
 
 -- A fresh plan is one the route search had to make; the counts are per step below.
 local plans, changes = 0, {}

@@ -82,14 +82,14 @@ Credit for the reports and requests behind the addon.
 | irspeshal | Recipes can be selected after opening other windows | CurseForge; thread 8743699; #840 |
 | snoochiedk | Routes show steps before reagents are priced | Discord; #855 |
 | linhkawa | The SkillUp tab stays under the profession tabs | CurseForge; comment 8745629; #807 |
-| [ratman-codes](https://github.com/ratman-codes) | Working Overtime left out of chances by default | GitHub; #741 |
-| jugg__ | Working Overtime left out of chances by default | Discord; #741 |
+| [ratman-codes](https://github.com/ratman-codes) | Working Overtime left out of chances by default | GitHub; #741, PR #842 |
+| jugg__ | Working Overtime left out of chances by default | Discord; #741, PR #842 |
 | Joly0 | The SkillUp tab stays where it belongs | CurseForge; comment 8738355; #807 |
 | Tinter | The SkillUp tab stays where it belongs | CurseForge; comment 8735245; #807 |
 | user_2z94vp7dvu2wcvai | The SkillUp tab stays where it belongs | CurseForge; comment 8735914; #807 |
 | user_2md58226ziq3j0em | Training no longer reroutes your levelling | CurseForge; comment 8736921; #807 |
 | cheeq | Clearer setting for the recipe hover tooltip | CurseForge; comment 8735887 |
-| 0xTrk | Reagent lines on item tooltips start off | CurseForge; comment 8667390; #811 |
+| 0xTrk | Reagent lines on item tooltips start off | CurseForge; comment 8667390; PR #829 |
 | Mirades96 | The minimap button is gone | CurseForge; comment 8731392; #806 |
 | p1tu | The minimap button is gone | CurseForge; comment 8730902; #759, #806 |
 | Laddylucks | The minimap button is gone | CurseForge; comment 8729503; #759 |

@@ -50,6 +50,10 @@ class NodeSkillTests(unittest.TestCase):
             self.assertEqual(node_skills(tables, []), ({200: (182, 300)}, {"Demonsage": (182, 300)}, []))
             self.assertEqual(gathered(tables, [], {5}), {5: 182})
             self.assertEqual(gathered(tables, [], set()), {})
+            for entry, name in ((200, "Weed"), (201, "Demonsage")):
+                tables["gameobject_template"] = [{"type": CHEST, "data0": MINE, "name": name, "entry": str(entry)}]
+                with self.assertRaisesRegex(ValueError, "FOREVER_NODES"):
+                    node_skills(tables, [])
 
     def test_a_node_asks_its_locks_skill(self):
         self.assertEqual(self.nodes(("Iron Deposit", MINE)), ({100: (186, 125)}, {"Iron Deposit": (186, 125)}, []))

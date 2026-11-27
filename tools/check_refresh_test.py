@@ -241,6 +241,7 @@ class DumpTest(unittest.TestCase):
                 b"ns.LootedFrom = { [723] = true }\n"
                 b"ns.LimitedStock = { [765] = { [1313] = 3 } }\n"
                 b"ns.NodeSkills = { ['Copper Vein'] = { 186, 1 } }\n"
+                b"ns.NodeEntrySkills = { [1731] = { 186, 1 } }\n"
             )
             (data / "Vendor.lua").write_bytes(b"local _, ns = ...\nns.VendorPrices = { [765] = 50 }\n")
             dumped = check_refresh.dump(data)
@@ -281,6 +282,7 @@ class DumpTest(unittest.TestCase):
         self.assertEqual(
             dumped[("node", "Copper Vein")], {"kind": "node", "name": "Copper Vein", "skill": 186, "req": 1}
         )
+        self.assertEqual(dumped[("node_entry", 1731)], {"kind": "node_entry", "id": 1731, "skill": 186, "req": 1})
         self.assertEqual(
             dumped[("rank_book", 185)],
             {

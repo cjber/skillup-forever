@@ -167,7 +167,8 @@ def node_skills(tables, locks):
     name. classic-db ties a node to its lock (`data0`), the client's Lock DB2 gives that lock's skill and rank
     (#122); FOREVER_NODES state their own. The tooltip's GUID carries the entry in every client language (#826); the
     name is the fallback for a tooltip without one. A name two nodes share with different requirements is left out of
-    the names: the tooltip can't tell them apart; the third value lists those names, for the run's output."""
+    the names: the tooltip can't tell them apart; the third value lists those names, for the run's output. A
+    FOREVER_NODES entry or name that classic-db also has stops the run, so neither source silently wins."""
     lock_rank = lock_requirements(locks)
     by_entry = {}
     found = defaultdict(set)
@@ -176,6 +177,10 @@ def node_skills(tables, locks):
         for node in tables["gameobject_template"]
         if node["type"] == CHEST
     ]
+    supplied = {name for name, *_ in FOREVER_NODES.values()}
+    taken = [(entry, name) for entry, name, _ in nodes if entry in FOREVER_NODES or name in supplied]
+    if taken:
+        raise ValueError(f"classic-db also has FOREVER_NODES nodes {taken}; leaving existing output untouched")
     nodes += [(entry, name, (skill, rank)) for entry, (name, skill, rank, _) in FOREVER_NODES.items()]
     for entry, name, need in nodes:
         # A lock asking no skill (quest plants, bushes) gives no skill-up to colour.

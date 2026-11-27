@@ -79,10 +79,11 @@ end
 -- the route page reads them.
 ---@param item SkillUpGearItem|SkillUpBuffItem
 ---@param professions table<integer, SkillUpProfession>
+---@param byTravel boolean?
 ---@return integer?
-function Parts.RecipeNPC(item, professions)
+function Parts.RecipeNPC(item, professions, byTravel)
 	local profession = professions[item.skillLine]
-	return profession and ns.RecipeNPC(profession, item.recipeID) or nil
+	return profession and ns.RecipeNPC(profession, item.recipeID, byTravel) or nil
 end
 
 -- The game's item tooltip for the pick, under it what the addon knows of its recipe and what a click
@@ -109,7 +110,7 @@ function Parts.ItemTooltip(item, professions)
 				if source then
 					ns.AddSourceLines(tooltip, source)
 				end
-				local npcID = Parts.RecipeNPC(item, professions)
+				local npcID = Parts.RecipeNPC(item, professions, true)
 				if npcID then
 					ns.AddNearest(tooltip, L["Source"], npcID)
 				end
@@ -133,11 +134,18 @@ function Parts.Action(item, professions)
 		end
 	end
 	if item.state == "trainable" then
+		-- Drawn on every render, so picked by straight line; the click ranks by travel time.
 		local npcID = Parts.RecipeNPC(item, professions)
-		if npcID then
-			return L["Set waypoint"], true, function()
-				ns.SetWaypoint(npcID)
-			end
+		local profession = professions[item.skillLine]
+		if npcID or profession and ns.TravelCanPickTrainer(profession, item.recipeID) then
+			return L["Set waypoint"],
+				true,
+				function()
+					local picked = Parts.RecipeNPC(item, professions, true) or npcID
+					if picked then
+						ns.SetWaypoint(picked)
+					end
+				end
 		end
 		return L["Set waypoint"], false, nil, L["The place this recipe is taught isn't known yet."]
 	end

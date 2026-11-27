@@ -105,4 +105,25 @@ equal(Rule(30), 150, "five times the level above")
 equal(Rule(-1), nil, "a skull level has none")
 equal(table.concat(ns.Model.GatherThresholds(125), " "), "125 150 175 225", "Classic's gathering bands")
 
+-- Issue #1041: the nodes new in Forever, which classic-db lacks, from the bundled data.
+c = Client.load({ saved = { gatherTooltip = true } })
+ns = c.ns
+c.professions = {
+	{ name = "Herbalism", icon = 1, rank = 300, max = 300, id = 182 },
+	{ name = "Mining", icon = 1, rank = 300, max = 300, id = 186 },
+}
+c.Boot()
+for _, node in ipairs({
+	{ entry = 566786, name = "Demonsage", item = 248821, profession = "Herbalism" },
+	{ entry = 566779, name = "Heavy Thorium Vein", item = 248815, profession = "Mining" },
+}) do
+	local guid = "GameObject-0-5250-0-1234-" .. node.entry .. "-0000A1B2C3"
+	for _, source in ipairs({ guid, false }) do
+		local line = Show(OBJECT, { node.name }, nil, source or nil)[1]
+		equal(line and line.left, node.profession .. " 300", node.name .. " asks 300")
+		equal(line and line.right, "orange until 325", node.name .. " is coloured at 300")
+	end
+	equal(ns.CanGather(node.item), node.profession, node.name .. "'s yield is yours to gather")
+end
+
 Client.report("gather_spec")

@@ -237,6 +237,12 @@ for _, name in ipairs(nodes) do
 	add({ kind = "node", name = name, skill = row[1], req = row[2] })
 end
 
+-- node_entry: the same, keyed by the node's gameobject entry
+for _, id in ipairs(ids(ns.NodeEntrySkills or {})) do
+	local row = ns.NodeEntrySkills[id]
+	add({ kind = "node_entry", id = id, skill = row[1], req = row[2] })
+end
+
 local file = assert(io.open(output, "w"))
 for _, line in ipairs(lines) do
 	assert(file:write(json(line), "\n"))
@@ -264,6 +270,7 @@ for _, kind in ipairs({
 	"vendor_price",
 	"vendor_stock",
 	"node",
+	"node_entry",
 }) do
 	if counts[kind] then
 		summary[#summary + 1] = ("%s %d"):format(kind, counts[kind])

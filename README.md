@@ -17,6 +17,7 @@ SkillUp Forever shows skill-up chances, recipe costs and colour thresholds in th
 - Recipe colours come from the game, but a recipe you have not seen yet uses bundled thresholds that can be slightly off.
 - Trainer fees, requirements and drop chances come from Classic databases, as the game lists none until you visit.
 - Gathering nodes and corpses have no colour in the game, so theirs is an estimate.
+- Some Demonsage may show no required skill, as one of the two game objects with that name lists none.
 - Prices need an auction scan or a price addon; until then, steps show a price unknown.
 - Working Overtime's bonus (4% per rank, 20% at 5/5) is not confirmed as added points or a multiplier, so the estimate is off by default; turn on Include Working Overtime estimate to see the additive reading.
 - With two professions tracked that share reagents, the shopping list can count the same bag items for both.
@@ -163,7 +164,7 @@ The addon is free and stays GPL-3.0. If it saves you time, you can [sponsor me o
 
 ## Credits
 
-Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees, drop chances and gathered reagents from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0), and vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1). Some ideas, such as the node colour, came from [Polestar](https://github.com/fitzforge/polestar) by Fitz; no code was copied, and Fitz is welcome to use ours.
+Thresholds come from the game via [wago.tools](https://wago.tools), trainer fees, drop chances and gathered reagents from [CMaNGOS classic-db](https://github.com/cmangos/classic-db) (GPL-3.0), the gathering nodes new in Forever from Wowhead and the Warcraft Wiki, and vendor reagents from [LibPeriodicTable-3.1](https://github.com/doadin/libperiodictable-3-1) (LGPL-2.1). Some ideas, such as the node colour, came from [Polestar](https://github.com/fitzforge/polestar) by Fitz; no code was copied, and Fitz is welcome to use ours.
 
 <!-- forever-credits:start -->
 

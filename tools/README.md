@@ -182,6 +182,10 @@ needs the skill), `skinning_loot_template` and `fishing_loot_template`, with ref
 expanded. Rarer finds (gems in veins) are left out. A reagent several skills yield keeps
 the lowest skill line (Herbalism, Mining, Fishing, Skinning); the pinned data has no overlap.
 
+`FOREVER_NODES` lists the herb and ore nodes new in Forever, which classic-db lacks: each node's skill from Wowhead's
+Forever tooltip and the item it yields from the Warcraft Wiki, with the links beside it. Its rows join
+`ns.GatheredBy`, `ns.NodeEntrySkills` and `ns.NodeSkills`. A node no source gives a skill for gets no row.
+
 `ns.LootedFrom` marks reagents at least three creatures drop directly at 10% or more, and whose
 `item_template` class is Reagent, Trade Goods or Miscellaneous. A shared reference pool is skipped:
 it holds potions and world drops, not a beast's own parts. A reagent Herbalism or Mining gathers from
@@ -195,10 +199,10 @@ the route can say the nearest seller's stock is limited rather than imply the wh
 bought at once.
 
 `ns.NodeEntrySkills` maps a herb or ore node's gameobject entry to the gathering skill and rank it asks for: the
-node's `gameobject_template` lock (`data0`) joined to the client's `Lock` DB2 (a WFA-28 waiver in `AGENTS.md`). The
-tooltip reads the entry from the object's GUID, which every client language carries. `ns.NodeSkills` keys the same
-by enUS name, the fallback for a tooltip without a GUID on an English client. A lock asking no skill (quest plants)
-is left out, and so is a name that nodes asking different skills share.
+node's `gameobject_template` lock (`data0`) joined to the client's `Lock` DB2, or its `FOREVER_NODES` row (WFA-28
+waivers in `AGENTS.md`). The tooltip reads the entry from the object's GUID, which every client language carries.
+`ns.NodeSkills` keys the same by enUS name, the fallback for a tooltip without a GUID on an English client. A lock
+asking no skill (quest plants) is left out, and so is a name that nodes asking different skills share.
 
 The recipe generator joins `SkillLineAbility` to `SpellReagents` and base-difficulty
 `SpellEffect` rows. Reagents are sorted by item ID and repeated slots combined.

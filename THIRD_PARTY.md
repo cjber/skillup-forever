@@ -44,6 +44,60 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| knetoen | Routes skip lessons your specialisation cannot learn | CurseForge; comment 100015366; #1037 |
+| user_oin05iu5ioauw23u | Window scale for the side pages | CurseForge; comment 100008248; #1019, #1027 |
+| Bogdanov89 | Crafting cost on crafted item tooltips | CurseForge; comment 100006435; #1025 |
+| xh43k | Vendor Reagents tab lists what to buy | CurseForge; comment 100003864; #1024 |
+| [Amryu](https://github.com/Amryu) | Lighter route updates on each skill point (code) | GitHub; PR #1008 |
+| Trejonv | Long row values stay off recipe names | CurseForge; comment 8760724; #979 |
+| Declan_Does | Routes keep their recipes while you craft | CurseForge; comment 8779587; #978 |
+| thetruekritze | Shopping lists count down as you craft | CurseForge; comment 8778238; #978 |
+| Aperolll | Recipe item price on unlearned tooltips | CurseForge; comment 8779323; #989 |
+| [b-morgan](https://github.com/b-morgan) | API for a recipe's skill bands | GitHub; #970 |
+| kopuliak | Clear message when ForeverCore is out of date | CurseForge; comment 8766890; #953 |
+| [sn0rlacks](https://github.com/sn0rlacks) | Auctionator shopping lists sync again | GitHub; #922 |
+| woke3k | Auctionator shopping lists sync again | Discord; #918 |
+| bromidious | The Buy reagents setting saves | Discord; #918 |
+| CorvidofShadows13 | Poisons tracked with colours, costs and routes | CurseForge; comment 8758718; #906 |
+| oriax06 | Tracker trainer and vendor lines no longer error | CurseForge; comment 8757802; #901 |
+| treadpool | Tracker trainer and vendor lines no longer error | CurseForge; comment 8757883; #901 |
+| BeneG\_ | No more freeze while pricing routes | CurseForge; comment 8757920; #899 |
+| user_eq5vm5qd1sa8e2e7 | No more freeze while pricing routes | CurseForge; comment 8758262; #899 |
+| fantqt | No more freeze while pricing routes | CurseForge; comment 8758429; #899 |
+| blaauwe | No more freeze while pricing routes | Discord; #899 |
+| user_euigz728rowxf4f7 | /skillup keeps answering after an update | CurseForge; comment 8749283; #866 |
+| high_knuth52 | SkillUp keeps working after an update | CurseForge; comment 8753106; #866 |
+| hella_v | Choice settings are dropdowns | CurseForge; comment 8744237; #919 |
+| hella_v | Unlearned recipe rows show full names | CurseForge; comment 8744200; #854 |
+| prokn4h | Auctionator shopping lists can be turned off | CurseForge; comment 8743391; #851 |
+| analavenger | Bought reagents stay in your route | CurseForge; comment 8742724; #858 |
+| analavenger | No more freeze on bags and merchants | CurseForge; comment 8742724; #846 |
+| jovial_torvalds97 | No more freeze on bags and merchants | CurseForge; comment 8742638; #846 |
+| ratman_codes | Recipes can be selected under every sort | CurseForge; comment 8742020; #840 |
+| sundered1985 | Recipes can be selected under every sort | CurseForge; thread 8742020; #840 |
+| prokn4h | Recipes can be selected after training | CurseForge; comment 8743308; #840 |
+| user_eq5vm5qd1sa8e2e7 | Recipes can be selected after opening other windows | CurseForge; comment 8743699; #840 |
+| irspeshal | Recipes can be selected after opening other windows | CurseForge; thread 8743699; #840 |
+| snoochiedk | Routes show steps before reagents are priced | Discord; #855 |
+| linhkawa | The SkillUp tab stays under the profession tabs | CurseForge; comment 8745629; #807 |
+| [ratman-codes](https://github.com/ratman-codes) | Working Overtime left out of chances by default | GitHub; #741 |
+| jugg__ | Working Overtime left out of chances by default | Discord; #741 |
+| Joly0 | The SkillUp tab stays where it belongs | CurseForge; comment 8738355; #807 |
+| Tinter | The SkillUp tab stays where it belongs | CurseForge; comment 8735245; #807 |
+| user_2z94vp7dvu2wcvai | The SkillUp tab stays where it belongs | CurseForge; comment 8735914; #807 |
+| user_2md58226ziq3j0em | Training no longer reroutes your levelling | CurseForge; comment 8736921; #807 |
+| cheeq | Clearer setting for the recipe hover tooltip | CurseForge; comment 8735887 |
+| 0xTrk | Reagent lines on item tooltips start off | CurseForge; comment 8667390; #811 |
+| Mirades96 | The minimap button is gone | CurseForge; comment 8731392; #806 |
+| p1tu | The minimap button is gone | CurseForge; comment 8730902; #759, #806 |
+| Laddylucks | The minimap button is gone | CurseForge; comment 8729503; #759 |
+| THIREX | The minimap button is gone | CurseForge; comment 8729648; #759 |
+| axejess | The minimap button is gone | CurseForge; comment 8729935; #759 |
+| user_g496wu46adiwjuc5 | The minimap button is gone | CurseForge; comment 8732950; #759 |
+| noenken | A quieter first install | CurseForge; comment 8736279; #806 |
+| fusionley | A quieter first install | CurseForge; comment 8733873; #806 |
+| ayacostv | AHDB supplies auction prices | Discord; #761 |
+| xh43k | ForeverCore ships inside SkillUp | CurseForge; thread 8715086 |
 | user_46x8szwptrswqttc | Reported a route sending them to a trainer for Troll's Blood Elixir | CurseForge; thread 100011189; #1021 |
 | AlteredIgor | Open chat after closing Professions in Gamepad UI | CurseForge, thread 8771450, #967 |
 | Benjy_Boi | Reported that resetting SkillUp's settings page could reset game settings and keybindings | CurseForge; comment 8722308; #925 |

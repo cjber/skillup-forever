@@ -10,6 +10,17 @@ Each version's entry is also its release notes on GitHub, CurseForge and Wago. O
 verbatim rather than rewritten as the addon moves. API changes other addons' authors need go under an
 optional `### For addon authors` subsection after a version's player bullets.
 
+## [1.15.3] - 2026-11-27
+
+### Changed
+
+- Ships with the same shared code as your other Forever addons, so they keep working together.
+- The Thanks page lists more players. More of the people whose reports and ideas shipped are now thanked by name in game.
+
+### Fixed
+
+- Demonsage and Heavy Thorium Vein tooltips show the skill they need, and Demonsage and Heavy Thorium Ore count as materials a Herbalist or Miner can gather.
+
 ## [1.15.2] - 2026-11-26
 
 ### Fixed

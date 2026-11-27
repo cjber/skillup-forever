@@ -274,8 +274,8 @@ L["What's new after an update"] = "Novidades após uma atualização"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Onde a dica aparece ao passar o cursor sobre uma receita. Ao lado da janela, ela não cobre os reagentes."
 L["Window scale"] = "Escala da janela" -- mt
-L["Window scale makes SkillUp's side windows readable."] =
-	"A escala da janela facilita a leitura das janelas laterais do SkillUp." -- mt
+L["Price, bag and zone changes no longer plan routes through Shortest Path."] =
+	"Mudanças de preço, bolsas e zona não calculam mais rotas pelo Shortest Path." -- mt
 L["World drop"] = "Espólio do Mundo"
 L["Wrist"] = "Pulsos"
 L["You have it"] = "Você tem"

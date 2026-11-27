@@ -294,8 +294,8 @@ L["What's new after an update"] = "Что нового после обновле
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"Где появляется подсказка при наведении на рецепт. Рядом с окном она не закрывает реагенты."
 L["Window scale"] = "Масштаб окна" -- mt
-L["Window scale makes SkillUp's side windows readable."] =
-	"Масштаб окна позволяет сделать боковые окна SkillUp более читаемыми." -- mt
+L["Price, bag and zone changes no longer plan routes through Shortest Path."] =
+	"Изменения цен, сумок и зоны больше не запускают расчет маршрутов через Shortest Path." -- mt
 L["World drop"] = "Случайная добыча"
 L["Wrist"] = "Запястья"
 L["You have it"] = "У вас есть"

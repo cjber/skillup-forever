@@ -274,7 +274,8 @@ L["What's new after an update"] = "更新后的新内容"
 L["Where the tooltip goes when you hover a recipe. Beside the window, it stays clear of the reagents."] =
 	"鼠标指向配方时提示显示的位置。放在窗口旁边就不会挡住材料。"
 L["Window scale"] = "窗口缩放" -- mt
-L["Window scale makes SkillUp's side windows readable."] = "窗口缩放让 SkillUp 的侧边窗口更易阅读。" -- mt
+L["Price, bag and zone changes no longer plan routes through Shortest Path."] =
+	"价格、背包和区域变化时不再通过 Shortest Path 规划路线。" -- mt
 L["World drop"] = "世界掉落"
 L["Wrist"] = "手腕"
 L["You have it"] = "已拥有"

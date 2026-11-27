@@ -46,6 +46,9 @@ Credit for the reports and requests behind the addon.
 
 | Who | What | Notes |
 |---|---|---|
+| ZMasterKing | No freeze naming vendor places or planning routes to them | CurseForge; comment 100022031; #1049, #1051 |
+| sirbobbydanger | No freeze naming vendor places | CurseForge; comment 100020535; #1049 |
+| alexaroth | No freeze from route planning on bag, price and zone changes | Discord; #1051 |
 | knetoen | Routes skip lessons your specialisation cannot learn | CurseForge; comment 100015366; #1037 |
 | user_oin05iu5ioauw23u | Window scale for the side pages | CurseForge; comment 100008248; #1019, #1027 |
 | Bogdanov89 | Crafting cost on crafted item tooltips | CurseForge; comment 100006435; #1025 |

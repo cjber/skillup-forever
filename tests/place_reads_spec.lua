@@ -78,17 +78,21 @@ end
 c.auction[THREAD] = 50
 c.G.OBJECTIVE_DASH_STYLE_HIDE = 2
 
--- Shortest Path Forever's travel estimates and routes, counted.
+-- Shortest Path Forever's travel estimates and routes, counted. The farther east is the quicker to reach, so a pick
+-- by travel differs from a pick by straight line. `quickest` is the best place estimated, `destination` the one a
+-- route went to.
 local estimates, navigates = 0, 0
+local quickest, destination
 c.G.ShortestPathForever = {
 	API = {
 		version = 2,
 		Estimate = function(_, _, _, _, toX)
 			estimates = estimates + 1
-			return 60 + toX * 100
+			quickest = math.max(toX, quickest or 0)
+			return 1000 - toX * 100
 		end,
-		Navigate = function()
-			navigates = navigates + 1
+		Navigate = function(_, _, x)
+			navigates, destination = navigates + 1, x
 			return true
 		end,
 	},
@@ -124,6 +128,7 @@ ns.Changed = function(kind)
 end
 local function Step(fn)
 	plans, estimates, navigates, changes = 0, 0, 0, {}
+	quickest, destination = nil, nil
 	fn()
 	Frames()
 	c.Tracker()
@@ -173,6 +178,16 @@ c.G.GameTooltip_AddInstructionLine = function() end
 c.G.GameTooltip_AddColoredLine = function() end
 c.G.Professions = false
 
+-- A click that ranks places by travel goes to the quickest of at most six; one naming a single vendor asks nothing.
+local ranked = 0
+local function CheckPick()
+	equal(estimates <= 6, true, "after at most six travel estimates")
+	if estimates > 0 then
+		ranked = ranked + 1
+		equal(destination, quickest, "to the quickest to reach")
+	end
+end
+
 -- Every line of the section: hover it, then click it with each button and take every action its menu offers.
 local block = c.Tracker()[1]
 local lines = 0
@@ -190,7 +205,7 @@ for _, line in ipairs(block.lines) do
 		end)
 		equal(plans, 0, "a left click on " .. tostring(line.key) .. " replans nothing")
 		equal(navigates, 1, "it starts one route")
-		equal(estimates <= 6, true, "after at most six travel estimates")
+		CheckPick()
 	end
 end
 equal(lines > 0, true, "the section has lines to click")
@@ -218,10 +233,11 @@ for _, action in ipairs(actions) do
 		Step(action.run)
 		equal(plans, 0, action.label .. " replans nothing")
 		equal(navigates, 1, "it starts one route")
-		equal(estimates <= 6, true, "after at most six travel estimates")
+		CheckPick()
 	end
 end
 equal(waypoints > 0, true, "the menu offers a waypoint")
+equal(ranked >= 2, true, "a left click and a menu waypoint both rank by travel")
 
 -- A travel estimate is a whole route search: rebuilding prices and the shopping list asks for none, or the client
 -- stops the script before a list is ever kept (#1051).
@@ -287,7 +303,13 @@ for _, place in ipairs({ { 0, "beside the trainers" }, { 1, "away from every tra
 	equal(enabled, true, place[2] .. ", the button offers a waypoint")
 	Step(click)
 	equal(estimates, 2, place[2] .. ", the click asks each trainer's travel time")
-	equal(waypoint, 321, place[2] .. ", and goes to the quickest to reach")
+	equal(waypoint, 322, place[2] .. ", and goes to the quickest to reach")
 end
+
+-- In combat nothing gives a travel time, so the button offers no click that would name nobody.
+c.combat = true
+local _, enabled = ns.PageParts.Action(sash, ns.PlayerProfessions())
+equal(enabled, false, "away from every trainer in combat, the button offers none")
+c.combat = false
 
 Client.report("place_reads_spec")

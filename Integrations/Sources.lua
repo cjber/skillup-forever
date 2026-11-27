@@ -113,6 +113,21 @@ local function PlayerMapPosition()
 	return { map = map, x = x, y = y }
 end
 
+-- What a travel estimate needs: Shortest Path Forever's API and where it starts. Nil in combat, without the addon
+-- or without a player position, as in an instance.
+---@return SkillUpShortestPathAPI?
+---@return {map: integer, x: number, y: number}?
+local function TravelOrigin()
+	local api = ShortestPath()
+	if not api or type(api.Estimate) ~= "function" or InCombatLockdown() then
+		return nil
+	end
+	local from = PlayerMapPosition()
+	if from then
+		return api, from
+	end
+end
+
 -- The vendor whose window is open sells these items: the catalogue is told who it is and where the player
 -- stands, which is where the vendor is. True when that was news to it.
 ---@param itemIDs integer[]
@@ -169,8 +184,10 @@ function ns.NearestNPC(npcIDs, byTravel)
 	local candidates = Ranked(npcIDs)
 	local first = candidates[1]
 	local best = first and (first.distance < math.huge or #candidates == 1) and first or nil
-	local api = byTravel and first and not InCombatLockdown() and ShortestPath()
-	local from = api and type(api.Estimate) == "function" and PlayerMapPosition()
+	local api, from
+	if byTravel and first then
+		api, from = TravelOrigin()
+	end
 	if api and from then
 		local bestSeconds
 		for i = 1, math.min(#candidates, MAX_ESTIMATES) do
@@ -506,9 +523,7 @@ end
 ---@param recipeID integer
 ---@return boolean
 function ns.TravelCanPickTrainer(profession, recipeID)
-	local api = ShortestPath()
-	return api ~= nil
-		and type(api.Estimate) == "function"
+	return TravelOrigin() ~= nil
 		and ns.TrainingFor(profession, recipeID) ~= nil
 		and Ranked(RecipeTrainers(recipeID))[1] ~= nil
 end

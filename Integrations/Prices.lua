@@ -419,6 +419,19 @@ function ns.PriceSource(itemID)
 	return price and price.source
 end
 
+-- Which seller each stock-aware quote or limit was taken from since the last price or catalogue change, false
+-- for none yet: the only items whose vendors a price or a route's shopping list reads.
+---@type table<integer, integer|false>
+local stockVendors = {}
+
+-- Whether a price or a route's shopping list was made from where this item's vendors stand, so reading them
+-- changes it (Integrations/Catalogue.lua).
+---@param itemID integer
+---@return boolean
+function ns.PricesReadVendors(itemID)
+	return stockVendors[itemID] ~= nil
+end
+
 -- The stock the vendor the route sends the player to has of this item, when it limits it; nil when it does
 -- not, or when nobody is known to sell it. What the window showed that vendor sell replaces the bundled
 -- limit, and false there means unlimited. What the route says instead of implying a reagent list can be
@@ -432,7 +445,10 @@ function ns.IsLimitedStock(itemID, vendor)
 	if not (seen or bundled) then
 		return nil
 	end
-	vendor = vendor or ns.NearestVendor(itemID, true)
+	if not vendor then
+		vendor = ns.NearestVendor(itemID, true)
+		stockVendors[itemID] = vendor or false
+	end
 	if not vendor then
 		return nil
 	end
@@ -446,10 +462,6 @@ function ns.IsLimitedStock(itemID, vendor)
 	end
 	return bundled and bundled[vendor] or nil
 end
-
--- Which seller supplied each stock-aware quote since the last price or catalogue change.
----@type table<integer, integer|false>
-local stockVendors = {}
 
 -- Cache the selected seller and both quotes together until merchant or catalogue evidence changes.
 ---@type table<integer, {stock: number, overflow: SkillUpPrice, vendor: SkillUpPrice}|false>

@@ -220,6 +220,21 @@ local STALE = {
 		buffs = true,
 		shoppingList = true,
 	},
+	-- Where an item's vendors or droppers stand, read for a line that names them. No plan reads it: a vendor
+	-- read a price depends on reports `sources` (Integrations/Catalogue.lua).
+	places = {
+		recipePreview = true,
+		recipeList = true,
+		tooltipCache = true,
+		tooltipRoute = true,
+		api = true,
+		route = true,
+		tracker = true,
+		tooltip = true,
+		gear = true,
+		buffs = true,
+		shoppingList = true,
+	},
 	target = {
 		tooltipCache = true,
 		tooltipRoute = true,

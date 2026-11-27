@@ -22,7 +22,8 @@ ns.Catalogue = C
 
 ---@type (fun(): boolean?)[]
 local queue = {}
-local head, tail, running, dirty = 1, 0, false, false
+-- What the reads since the queue last emptied change: `dirty` what a plan reads, `placed` only where an NPC stands.
+local head, tail, running, dirty, placed = 1, 0, false, false, false
 ---@type string?
 local failure
 
@@ -46,9 +47,11 @@ local function Step()
 	end
 	queue, head, tail, running = {}, 1, 0, false
 	if dirty then
-		dirty = false
 		ns.Changed("sources")
+	elseif placed then
+		ns.Changed("places")
 	end
+	dirty, placed = false, false
 end
 
 ---@param job fun(): boolean?
@@ -474,13 +477,14 @@ function C.EnsureProfession(skillLine)
 end
 
 -- True when no NPC reads are pending for this list, including when Questie is unavailable.
--- The list's read table records false while queued and true when the reads finish.
+-- The list's read table records false while queued and true when the reads finish. `change` says what the
+-- finished read changed: "sources" when a plan reads it, "places" when only lines naming an NPC do, nil for nothing.
 ---@param id integer
 ---@param read table<integer, boolean>
 ---@param list fun(id: integer): integer[]?
----@param notify? fun(id: integer): boolean?
+---@param change fun(id: integer): 'sources'|'places'|nil
 ---@return boolean
-local function EnsureNPCs(id, read, list, notify)
+local function EnsureNPCs(id, read, list, change)
 	-- Without Questie nobody is known, and there is nothing to read.
 	if Q.State() ~= "ready" then
 		return true
@@ -493,7 +497,9 @@ local function EnsureNPCs(id, read, list, notify)
 		ReadNPCs(list(id) or {})
 		Enqueue(function()
 			read[id] = true
-			dirty = dirty or not notify or notify(id) == true
+			local changed = change(id)
+			dirty = dirty or changed == "sources"
+			placed = placed or changed == "places"
 		end)
 	end)
 	return false
@@ -534,7 +540,9 @@ function C.RecipeTrainersUnusable(recipeID)
 	end
 	local unusable = TrainerSetUnusable(set)
 	if unusable == nil then
-		EnsureNPCs(set, trainerSetsRead, TrainerSet, TrainerSetUnusable)
+		EnsureNPCs(set, trainerSetsRead, TrainerSet, function()
+			return TrainerSetUnusable(set) and "sources" or nil
+		end)
 	end
 	return unusable == true
 end
@@ -553,18 +561,29 @@ local function Droppers(itemID)
 	return found and found.drops or nil
 end
 
+-- A plan reads an item's vendors only for a limited-stock reagent, at its nearest seller, and only once it has asked;
+-- every other read of vendors, and every read of droppers, is for a line that names them. Replanning every
+-- profession for those froze the client for seconds on the tooltip, tracker line or API call that read them first.
+---@param itemID integer
+---@return 'sources'|'places'
+local function VendorsChange(itemID)
+	return ns.PricesReadVendors(itemID) and "sources" or "places"
+end
+
 -- True once an item's vendors are read, so the nearest can be picked without a read on the way.
 ---@param itemID integer
 ---@return boolean
 function C.EnsureVendors(itemID)
-	return EnsureNPCs(itemID, vendorsRead, Vendors)
+	return EnsureNPCs(itemID, vendorsRead, Vendors, VendorsChange)
 end
 
 -- True once an item's droppers are read, so the nearest can be picked without a read on the way.
 ---@param itemID integer
 ---@return boolean
 function C.EnsureDrops(itemID)
-	return EnsureNPCs(itemID, dropsRead, Droppers)
+	return EnsureNPCs(itemID, dropsRead, Droppers, function()
+		return "places"
+	end)
 end
 
 -- Starts looking for the providers. An addon that loads later is picked up, and so is Questie finishing

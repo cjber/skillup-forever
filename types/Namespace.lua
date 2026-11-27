@@ -66,6 +66,7 @@
 ---@field LimitedReagentPrice fun(itemID: integer): number?, SkillUpPrice?, SkillUpPrice?
 ---@field AllocateReagent fun(itemID: integer, count: number, remaining?: table<integer, number>): number, SkillUpPrice?, SkillUpPrice?
 ---@field ReagentBuyCost fun(itemID: integer, count: number): number?, SkillUpPrice?, boolean
+---@field PricesReadVendors fun(itemID: integer): boolean Whether a current price or shopping list was made from where its vendors stand.
 ---@field IsLimitedStock fun(itemID: integer, vendor?: integer): number? The nearest vendor's limit from what it showed, else the bundled data; nil when it has none.
 ---@field ObtainCost fun(itemID: integer, count?: number): number? the cheaper of buying a unit and crafting it, as ReagentCost totals
 ---@field RecipeUsesStock fun(recipeID: integer): boolean
@@ -569,7 +570,7 @@ SkillUpForeverDB = nil
 ---@field count number
 
 -- What a writer or a game event says changed, and the caches and views Core/Changes.lua keeps fresh.
----@alias SkillUpChange 'recipeFilter'|'preview'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'target'|'tracking'|'settings'|'windowScale'|'replan'
+---@alias SkillUpChange 'recipeFilter'|'preview'|'sourceEvidence'|'recipes'|'window'|'skill'|'talents'|'professions'|'prices'|'bags'|'items'|'trackerNames'|'names'|'level'|'zone'|'merchant'|'fees'|'sources'|'places'|'target'|'tracking'|'settings'|'windowScale'|'replan'
 ---@alias SkillUpStale 'craftCosts'|'sourceEvidence'|'schematics'|'prices'|'plans'|'replan'|'bags'|'trackedNeeds'|'tooltipRoute'|'tooltipRouteTools'|'api'|'route'|'recipeList'|'tracker'|'trainer'|'routeTab'|'pages'|'gear'|'buffs'|'tooltipCache'|'tooltip'|'auctionSearch'|'detailsBar'|'recipePreview'|'shoppingList'|'windowScale'
 ---@alias SkillUpPriceSource 'vendor'|'auctionator'|'tsm'|'ahdb'|'naowh'|'foreverledger'|'gather'|'auction'
 ---@alias SkillUpCollectMode 'gather'|'auction'

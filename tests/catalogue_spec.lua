@@ -70,6 +70,10 @@ local function Load(questieDB, atlasLootDB, options)
 		ScrollDrops = { [PATTERN_ROBE] = { { BOSS, 4 } } },
 		WorldDrops = { [PATTERN_BOOTS] = true },
 		ProfessionTrainers = { [TAILORING] = { { TRAINER, 150 } } },
+		-- No price here is made from where a vendor stands (Integrations/Prices.lua).
+		PricesReadVendors = function()
+			return false
+		end,
 		Changed = function(kind)
 			changes[#changes + 1] = kind
 		end,
@@ -384,5 +388,6 @@ equal(c.db.reads, 0, "not at once")
 c.Settle()
 equal(C.EnsureVendors(PATTERN_SHIRT), true, "then they are ready")
 equal(#c.changes, 1, "with one redraw")
+equal(c.changes[1], "places", "of the lines that name where they stand, not a replan")
 
 Client.report("catalogue_spec")
